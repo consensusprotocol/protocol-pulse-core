@@ -1,0 +1,458 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "20981e20630b060ede5f0ad60936899f210c85d941e2a79d03f1a1ed07499aba",
+ "result": {
+  "text": "called dailycheckout.com, and we're selling e-commerce goods. But once I found out, found out about Bitcoin, just fell in love with it, realized immediately it was something that was going to be the future. Um, and it was a community of people that we all knew. And when you're early to something and you have time to go through it, there's, there's a, a really passion, there's an excitement to that. So",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.1,
+    "end": 22.48,
+    "text": "called dailycheckout.com, and we're selling e-commerce goods. But once I found out, found out about Bitcoin, just fell in love with it, realized immediately it was something that was going to be the future. Um, and it was a community of people that we all knew. And when you're early to something and you have time to go through it, there's, there's a, a really passion, there's an excitement to that. So"
+   }
+  ],
+  "words": [
+   {
+    "text": "called",
+    "start": 0.1,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dailycheckout.com,",
+    "start": 0.28,
+    "end": 1.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.62,
+    "end": 1.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 1.74,
+    "end": 1.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "selling",
+    "start": 1.88,
+    "end": 2.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "e-commerce",
+    "start": 2.14,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "goods.",
+    "start": 2.7,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 3.82,
+    "end": 4.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "once",
+    "start": 4.1,
+    "end": 4.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.36,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "found",
+    "start": 4.46,
+    "end": 4.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out,",
+    "start": 4.66,
+    "end": 4.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "found",
+    "start": 5.0,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 5.16,
+    "end": 5.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 5.3,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 5.52,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 5.96,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fell",
+    "start": 6.9,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 7.08,
+    "end": 7.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "love",
+    "start": 7.2,
+    "end": 7.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 7.36,
+    "end": 7.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it,",
+    "start": 7.56,
+    "end": 7.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "realized",
+    "start": 8.1,
+    "end": 8.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "immediately",
+    "start": 8.44,
+    "end": 8.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 8.88,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 8.98,
+    "end": 9.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "something",
+    "start": 9.12,
+    "end": 9.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 9.44,
+    "end": 9.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 9.56,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 9.7,
+    "end": 9.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 9.86,
+    "end": 9.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 9.96,
+    "end": 10.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.08,
+    "end": 10.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "future.",
+    "start": 10.24,
+    "end": 10.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 12.12,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 12.8,
+    "end": 12.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 12.88,
+    "end": 12.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 12.96,
+    "end": 13.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 13.08,
+    "end": 13.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "community",
+    "start": 13.2,
+    "end": 13.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 13.6,
+    "end": 13.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 13.74,
+    "end": 14.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 14.06,
+    "end": 14.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 14.24,
+    "end": 14.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 14.38,
+    "end": 14.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "knew.",
+    "start": 14.54,
+    "end": 14.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 15.0,
+    "end": 15.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 15.24,
+    "end": 15.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 15.36,
+    "end": 15.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "early",
+    "start": 15.56,
+    "end": 15.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 15.82,
+    "end": 15.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "something",
+    "start": 15.96,
+    "end": 16.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 17.4,
+    "end": 17.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 17.5,
+    "end": 17.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 17.64,
+    "end": 17.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time",
+    "start": 17.9,
+    "end": 18.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 18.28,
+    "end": 18.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 18.4,
+    "end": 18.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "through",
+    "start": 18.62,
+    "end": 18.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it,",
+    "start": 18.88,
+    "end": 18.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's,",
+    "start": 19.48,
+    "end": 19.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 19.98,
+    "end": 20.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a,",
+    "start": 20.2,
+    "end": 20.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 20.42,
+    "end": 20.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 20.52,
+    "end": 20.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "passion,",
+    "start": 20.78,
+    "end": 21.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 21.12,
+    "end": 21.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 21.3,
+    "end": 21.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "excitement",
+    "start": 21.4,
+    "end": 21.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 21.9,
+    "end": 21.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that.",
+    "start": 22.04,
+    "end": 22.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 22.32,
+    "end": 22.48,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 22.57
+ },
+ "usd": 0.004514,
+ "seconds": 1.07,
+ "recorded_at": "2026-11-15T14:17:24Z"
+}

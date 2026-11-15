@@ -1,0 +1,476 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "a2981b27610aa366f1d61625dd422940bb0a6fccd0fd3915457c877339b04303",
+ "result": {
+  "text": "We used to have halving parties and like every- and people still do them. We used to do... I remember Brock Pierce put together a halving and a Bitcoin pizza party, and he had people dressed up as slices of pizza. So I mean, like you have like you're walking around and it's like, \"Mom, we created an industry where we have people dresses up as slices of pizza.\" Yeah, now the Bitcoin pizza-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.14,
+    "end": 21.48,
+    "text": "We used to have halving parties and like every- and people still do them. We used to do... I remember Brock Pierce put together a halving and a Bitcoin pizza party, and he had people dressed up as slices of pizza. So I mean, like you have like you're walking around and it's like, \"Mom, we created an industry where we have people dresses up as slices of pizza.\""
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 22.06,
+    "end": 22.96,
+    "text": "Yeah, now the Bitcoin pizza-"
+   }
+  ],
+  "words": [
+   {
+    "text": "We",
+    "start": 0.14,
+    "end": 0.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "used",
+    "start": 0.22,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 0.34,
+    "end": 0.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 0.38,
+    "end": 0.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "halving",
+    "start": 0.52,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "parties",
+    "start": 0.86,
+    "end": 1.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.8,
+    "end": 1.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 1.9,
+    "end": 2.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "every-",
+    "start": 2.1,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 2.4,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 2.52,
+    "end": 2.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "still",
+    "start": 2.8,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 3.06,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "them.",
+    "start": 3.2,
+    "end": 3.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 3.98,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "used",
+    "start": 4.04,
+    "end": 4.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 4.16,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do...",
+    "start": 4.32,
+    "end": 4.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 5.12,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "remember",
+    "start": 5.2,
+    "end": 5.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Brock",
+    "start": 5.5,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Pierce",
+    "start": 5.82,
+    "end": 6.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "put",
+    "start": 6.14,
+    "end": 6.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "together",
+    "start": 6.3,
+    "end": 6.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 7.28,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "halving",
+    "start": 7.4,
+    "end": 8.039,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 8.1,
+    "end": 8.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 8.24,
+    "end": 8.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.42,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pizza",
+    "start": 8.9,
+    "end": 9.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "party,",
+    "start": 9.24,
+    "end": 9.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 9.96,
+    "end": 10.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "he",
+    "start": 10.04,
+    "end": 10.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 10.12,
+    "end": 10.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 10.3,
+    "end": 10.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dressed",
+    "start": 10.86,
+    "end": 11.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 11.16,
+    "end": 11.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 11.36,
+    "end": 11.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "slices",
+    "start": 12.1,
+    "end": 12.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 12.42,
+    "end": 12.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pizza.",
+    "start": 12.52,
+    "end": 12.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 13.68,
+    "end": 13.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 13.8,
+    "end": 13.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 13.86,
+    "end": 14.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 14.06,
+    "end": 14.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 14.22,
+    "end": 14.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 14.36,
+    "end": 14.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 14.56,
+    "end": 14.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 14.82,
+    "end": 14.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "walking",
+    "start": 15.02,
+    "end": 15.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "around",
+    "start": 15.36,
+    "end": 15.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 15.74,
+    "end": 15.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 15.8,
+    "end": 15.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 15.92,
+    "end": 16.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Mom,",
+    "start": 16.1,
+    "end": 16.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 16.8,
+    "end": 16.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "created",
+    "start": 16.96,
+    "end": 17.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 17.4,
+    "end": 17.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "industry",
+    "start": 17.56,
+    "end": 18.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 19.06,
+    "end": 19.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 19.22,
+    "end": 19.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 19.34,
+    "end": 19.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 19.56,
+    "end": 19.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dresses",
+    "start": 19.9,
+    "end": 20.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 20.32,
+    "end": 20.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 20.52,
+    "end": 20.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "slices",
+    "start": 20.68,
+    "end": 21.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 21.04,
+    "end": 21.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pizza.\"",
+    "start": 21.16,
+    "end": 21.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yeah,",
+    "start": 22.06,
+    "end": 22.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "now",
+    "start": 22.24,
+    "end": 22.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 22.38,
+    "end": 22.44,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 22.48,
+    "end": 22.76,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "pizza-",
+    "start": 22.84,
+    "end": 22.96,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 22.98
+ },
+ "usd": 0.004596,
+ "seconds": 1.08,
+ "recorded_at": "2026-11-15T14:17:24Z"
+}

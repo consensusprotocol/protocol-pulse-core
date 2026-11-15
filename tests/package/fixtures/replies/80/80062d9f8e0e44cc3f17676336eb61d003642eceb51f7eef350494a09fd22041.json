@@ -1,0 +1,530 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "04eb3e2b4de66dfa2f93a5a9525bca29ee0cb2e9302e36ce957138fcda809dc0",
+ "result": {
+  "text": "continue to happen is that there'll always need to be innovation, and in the world today, there isn't anything that's not owned by anyone. Bitcoin is owned by the world. We all own a piece of it. The network is out there. You have millions of... Uh, not million. We have-- I checked this morning, there's twenty thousand plus nodes that we know about, but there's tens of thousands of more, tens of thousands of decentralized miners. I mean, this is a really g-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 26.0,
+    "text": "continue to happen is that there'll always need to be innovation, and in the world today, there isn't anything that's not owned by anyone. Bitcoin is owned by the world. We all own a piece of it. The network is out there. You have millions of... Uh, not million. We have-- I checked this morning, there's twenty thousand plus nodes that we know about, but there's tens of thousands of more, tens of thousands of decentralized miners. I mean, this is a really g-"
+   }
+  ],
+  "words": [
+   {
+    "text": "continue",
+    "start": 0.0,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 0.28,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "happen",
+    "start": 0.36,
+    "end": 0.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 0.66,
+    "end": 0.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 0.84,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there'll",
+    "start": 1.74,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "always",
+    "start": 2.0,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "need",
+    "start": 2.28,
+    "end": 2.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 2.44,
+    "end": 2.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 2.56,
+    "end": 2.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "innovation,",
+    "start": 2.68,
+    "end": 3.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 3.86,
+    "end": 4.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 4.14,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.24,
+    "end": 4.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world",
+    "start": 4.34,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "today,",
+    "start": 4.58,
+    "end": 4.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 4.84,
+    "end": 5.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "isn't",
+    "start": 5.08,
+    "end": 5.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "anything",
+    "start": 5.42,
+    "end": 5.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 5.82,
+    "end": 5.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 6.0,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "owned",
+    "start": 6.28,
+    "end": 6.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 6.48,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "anyone.",
+    "start": 6.7,
+    "end": 7.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 7.7,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 8.06,
+    "end": 8.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "owned",
+    "start": 8.24,
+    "end": 8.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 8.5,
+    "end": 8.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.84,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world.",
+    "start": 9.0,
+    "end": 9.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 9.82,
+    "end": 9.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 10.02,
+    "end": 10.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "own",
+    "start": 10.28,
+    "end": 10.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 10.46,
+    "end": 10.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "piece",
+    "start": 10.56,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 10.8,
+    "end": 10.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 10.88,
+    "end": 11.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 11.28,
+    "end": 11.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "network",
+    "start": 11.42,
+    "end": 11.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 11.8,
+    "end": 11.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 11.96,
+    "end": 12.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there.",
+    "start": 12.18,
+    "end": 12.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 13.16,
+    "end": 13.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 13.28,
+    "end": 13.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "millions",
+    "start": 13.8,
+    "end": 14.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of...",
+    "start": 14.22,
+    "end": 14.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Uh,",
+    "start": 14.52,
+    "end": 14.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 14.78,
+    "end": 14.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "million.",
+    "start": 14.92,
+    "end": 15.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 15.16,
+    "end": 15.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have--",
+    "start": 15.24,
+    "end": 15.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 15.94,
+    "end": 16.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "checked",
+    "start": 16.059,
+    "end": 16.219,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 16.239,
+    "end": 16.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "morning,",
+    "start": 16.48,
+    "end": 16.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 16.78,
+    "end": 17.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "twenty",
+    "start": 17.58,
+    "end": 17.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thousand",
+    "start": 17.9,
+    "end": 18.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "plus",
+    "start": 18.5,
+    "end": 18.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nodes",
+    "start": 19.44,
+    "end": 19.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 19.72,
+    "end": 19.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 19.88,
+    "end": 19.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 20.02,
+    "end": 20.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about,",
+    "start": 20.24,
+    "end": 20.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 20.5,
+    "end": 20.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 20.6,
+    "end": 20.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tens",
+    "start": 20.82,
+    "end": 21.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 21.06,
+    "end": 21.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thousands",
+    "start": 21.16,
+    "end": 21.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 21.54,
+    "end": 21.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more,",
+    "start": 21.76,
+    "end": 21.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tens",
+    "start": 22.72,
+    "end": 22.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 23.02,
+    "end": 23.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thousands",
+    "start": 23.14,
+    "end": 23.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 23.5,
+    "end": 23.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "decentralized",
+    "start": 23.62,
+    "end": 24.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "miners.",
+    "start": 24.28,
+    "end": 24.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 24.66,
+    "end": 24.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 24.74,
+    "end": 24.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 24.9,
+    "end": 25.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 25.08,
+    "end": 25.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 25.22,
+    "end": 25.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 25.58,
+    "end": 25.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "g-",
+    "start": 25.94,
+    "end": 26.0,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 26.06
+ },
+ "usd": 0.005212,
+ "seconds": 1.15,
+ "recorded_at": "2026-11-15T14:17:10Z"
+}

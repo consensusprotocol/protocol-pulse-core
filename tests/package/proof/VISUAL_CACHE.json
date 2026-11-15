@@ -259,6 +259,136 @@
   },
   "version": "visual-3"
  },
+ "26466d15581a9fdb49bc:0.000-15.340:visual-3:791146a402f8a85c": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     0.0,
+     1.0,
+     6.0,
+     7.0,
+     12.0,
+     13.0,
+     14.0,
+     15.0,
+     15.29
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "bug",
+    "text": "THE WOLF OF ALL STREETS",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     2.0
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "caption",
+    "text": "The Best Thing About Going To Prison",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     3.0,
+     4.0,
+     5.0
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "caption",
+    "text": "The Best Thing About Going To Prison Was That I Couldn't Touch My Bitcoin",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "kind": "third_person",
+    "name_on_screen": null,
+    "text": "While the narration makes the negative claim about going to prison, the clip shows a still of a man who is not the speaker, and no name is printed on screen with him."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "EARLY BITCOIN PIONEER & ENTREPRENEUR",
+    "why": "It calls him an entrepreneur, a role the clip's words never mention."
+   },
+   {
+    "at": [
+     2.0
+    ],
+    "in_9x16": "whole",
+    "kind": "burned_caption",
+    "text": "The Best Thing About Going To Prison"
+   },
+   {
+    "at": [
+     3.0,
+     4.0,
+     5.0
+    ],
+    "in_9x16": "whole",
+    "kind": "burned_caption",
+    "text": "The Best Thing About Going To Prison Was That I Couldn't Touch My Bitcoin"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "EARLY BITCOIN PIONEER & ENTREPRENEUR",
+    "why": "It calls him an entrepreneur, a role the clip's words never mention."
+   },
+   {
+    "asserts_beyond_words": false,
+    "text": "Charlie Shrem",
+    "why": "The spoken words already name Charlie Shrem."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_2b7df673988f120d.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_2b7df673988f120d.jpg",
+   "sha256": "2b7df673988f120db3ca33b3b716363ff5fb106d895f0896c975c9882a72b00d",
+   "times": [
+    0.0,
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    5.0,
+    6.0,
+    7.0,
+    8.0,
+    9.0,
+    10.0,
+    11.0,
+    12.0,
+    13.0,
+    14.0,
+    15.0,
+    15.29
+   ]
+  },
+  "third_person": {
+   "finding": "While the narration makes the negative claim about going to prison, the clip shows a still of a man who is not the speaker, and no name is printed on screen with him.",
+   "how": "still",
+   "name_on_screen": null,
+   "shown": true,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 3283,
+   "out": 24211,
+   "usd_reported": 0.150104
+  },
+  "version": "visual-3"
+ },
  "30075b155874ab2de3c7:1795.530-1811.450:visual-2:83035f5e841920fb": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [

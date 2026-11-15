@@ -482,5 +482,49 @@
    "backend": "heimdall:qwen/qwen3.8-27b",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "26466d15581a9fdb49bc:02a7eaee32cbaf7568484d613103b5f041dcb65fc901b502a91f14742f4d1976:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 4,
+   "alone": 4,
+   "setup": 4,
+   "rating": 4,
+   "why": "setup is a generic 'today I'm catching up with' podcast intro that lacks tension",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "adf6d9c528a27963f790:8d6346f309b3d4434df733e02a43827eef9103bb9dd57603d78d1f1eb892a8eb:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 2,
+   "alone": 3,
+   "setup": 2,
+   "rating": 2,
+   "why": "flat 'you know, it's still an asset' opener reads like mid-conversation, not a hook",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "2bca1130b3eceac83ff8:c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 2,
+   "alone": 3,
+   "setup": 2,
+   "rating": 2,
+   "why": "convoluted meta-comment about conference culture doesn't punch or create curiosity",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "f06659b786723fa50e8d:c1fb905d6579f36f4967d5fd154a633872d6ecc8b13c78d8f9457fbc337f67f3:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 3,
+   "alone": 4,
+   "setup": 4,
+   "rating": 3,
+   "why": "meandering 'I've noticed, has become this' construction softens the honeypot hook",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

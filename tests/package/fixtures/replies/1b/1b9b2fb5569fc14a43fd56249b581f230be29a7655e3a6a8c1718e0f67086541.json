@@ -1,0 +1,470 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "4e7f19dd5750975182a157ec966cac6ffb825f752a8baeee5475941b1f94dd26",
+ "result": {
+  "text": "projected all of our f- past problems on the new industry. Bitcoin, I, I've noticed, has become this, because it's, it's this, uh, honeypot where people are trying to hack it every single day. If you figure it out, I don't need to tell you. But because of that, it's become this test bed for all socioeconomic exper- uh, experiments, how people act and react with money. Let's go back to when it-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.04,
+    "end": 3.04,
+    "text": "projected all of our f- past problems on the new industry."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 4.14,
+    "end": 24.7,
+    "text": "Bitcoin, I, I've noticed, has become this, because it's, it's this, uh, honeypot where people are trying to hack it every single day. If you figure it out, I don't need to tell you. But because of that, it's become this test bed for all socioeconomic exper- uh, experiments, how people act and react with money. Let's go back to when it-"
+   }
+  ],
+  "words": [
+   {
+    "text": "projected",
+    "start": 0.04,
+    "end": 0.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 0.58,
+    "end": 0.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 0.72,
+    "end": 0.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "our",
+    "start": 0.84,
+    "end": 0.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "f-",
+    "start": 1.42,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "past",
+    "start": 1.48,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "problems",
+    "start": 1.78,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 2.32,
+    "end": 2.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.42,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "new",
+    "start": 2.5,
+    "end": 2.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "industry.",
+    "start": 2.64,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 4.14,
+    "end": 4.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I,",
+    "start": 4.58,
+    "end": 4.76,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I've",
+    "start": 4.82,
+    "end": 4.9,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "noticed,",
+    "start": 4.96,
+    "end": 5.24,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "has",
+    "start": 5.3,
+    "end": 5.42,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "become",
+    "start": 5.46,
+    "end": 5.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "this,",
+    "start": 5.94,
+    "end": 6.2,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "because",
+    "start": 6.62,
+    "end": 6.96,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it's,",
+    "start": 7.04,
+    "end": 7.2,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it's",
+    "start": 7.46,
+    "end": 7.62,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "this,",
+    "start": 7.66,
+    "end": 7.88,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "uh,",
+    "start": 7.98,
+    "end": 8.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "honeypot",
+    "start": 9.78,
+    "end": 10.36,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "where",
+    "start": 10.96,
+    "end": 11.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "people",
+    "start": 11.54,
+    "end": 11.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "are",
+    "start": 11.72,
+    "end": 11.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "trying",
+    "start": 11.84,
+    "end": 11.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "to",
+    "start": 11.96,
+    "end": 12.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "hack",
+    "start": 12.04,
+    "end": 12.2,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it",
+    "start": 12.22,
+    "end": 12.28,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "every",
+    "start": 12.34,
+    "end": 12.5,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "single",
+    "start": 12.56,
+    "end": 12.8,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "day.",
+    "start": 12.84,
+    "end": 13.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "If",
+    "start": 13.1,
+    "end": 13.2,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 13.24,
+    "end": 13.3,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "figure",
+    "start": 13.64,
+    "end": 13.82,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it",
+    "start": 13.84,
+    "end": 13.9,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "out,",
+    "start": 13.96,
+    "end": 14.02,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 14.16,
+    "end": 14.2,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "don't",
+    "start": 14.22,
+    "end": 14.28,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "need",
+    "start": 14.3,
+    "end": 14.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "to",
+    "start": 14.42,
+    "end": 14.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "tell",
+    "start": 14.52,
+    "end": 14.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you.",
+    "start": 14.72,
+    "end": 14.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "But",
+    "start": 14.88,
+    "end": 14.96,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "because",
+    "start": 15.0,
+    "end": 15.22,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "of",
+    "start": 15.26,
+    "end": 15.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "that,",
+    "start": 15.34,
+    "end": 15.44,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it's",
+    "start": 15.48,
+    "end": 15.58,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "become",
+    "start": 15.62,
+    "end": 15.88,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "this",
+    "start": 15.92,
+    "end": 16.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "test",
+    "start": 16.18,
+    "end": 16.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "bed",
+    "start": 16.54,
+    "end": 16.74,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "for",
+    "start": 17.38,
+    "end": 17.72,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "all",
+    "start": 17.82,
+    "end": 18.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "socioeconomic",
+    "start": 18.22,
+    "end": 19.24,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "exper-",
+    "start": 19.86,
+    "end": 20.26,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "uh,",
+    "start": 20.36,
+    "end": 20.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "experiments,",
+    "start": 20.6,
+    "end": 21.24,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "how",
+    "start": 21.6,
+    "end": 21.74,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "people",
+    "start": 21.8,
+    "end": 22.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "act",
+    "start": 22.18,
+    "end": 22.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "and",
+    "start": 22.38,
+    "end": 22.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "react",
+    "start": 22.52,
+    "end": 22.82,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "with",
+    "start": 22.86,
+    "end": 23.02,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "money.",
+    "start": 23.06,
+    "end": 23.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Let's",
+    "start": 23.74,
+    "end": 23.9,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "go",
+    "start": 23.94,
+    "end": 24.12,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "back",
+    "start": 24.16,
+    "end": 24.4,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "to",
+    "start": 24.46,
+    "end": 24.52,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "when",
+    "start": 24.56,
+    "end": 24.62,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it-",
+    "start": 24.64,
+    "end": 24.7,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 24.75
+ },
+ "usd": 0.00495,
+ "seconds": 1.34,
+ "recorded_at": "2026-11-15T14:17:24Z"
+}

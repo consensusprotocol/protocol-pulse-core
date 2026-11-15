@@ -1,0 +1,482 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "8c7a20884b4b0c9007b99f79dfca1becdf0e500d9261540f06a2ad13059b4eb7",
+ "result": {
+  "text": "2014, 2013. It just, like, would happen all the time, so you see these, like... But then, the, the bull market, I forget which one it was, it was 2017, before China really did ban Bitcoin. Yeah. China became the biggest Bitcoin market. S- CZ himself worked at OKCoin before starting Binance, and then we got Binance. We got the craziest stuff from Asia. So all the u- all the threats become the opportunity",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 1.24,
+    "end": 13.38,
+    "text": "2014, 2013. It just, like, would happen all the time, so you see these, like... But then, the, the bull market, I forget which one it was, it was 2017, before China really did ban Bitcoin."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 13.7,
+    "end": 13.7,
+    "text": "Yeah."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 13.74,
+    "end": 28.3,
+    "text": "China became the biggest Bitcoin market. S- CZ himself worked at OKCoin before starting Binance, and then we got Binance. We got the craziest stuff from Asia. So all the u- all the threats become the opportunity"
+   }
+  ],
+  "words": [
+   {
+    "text": "2014,",
+    "start": 1.24,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2013.",
+    "start": 1.96,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It",
+    "start": 2.52,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just,",
+    "start": 2.64,
+    "end": 2.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 2.92,
+    "end": 3.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 3.08,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "happen",
+    "start": 3.2,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 3.48,
+    "end": 3.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.58,
+    "end": 3.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time,",
+    "start": 3.68,
+    "end": 3.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 3.94,
+    "end": 4.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.04,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "see",
+    "start": 4.16,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "these,",
+    "start": 4.32,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like...",
+    "start": 4.52,
+    "end": 4.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 4.92,
+    "end": 5.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then,",
+    "start": 5.06,
+    "end": 5.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the,",
+    "start": 7.0,
+    "end": 7.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.2,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bull",
+    "start": 7.36,
+    "end": 7.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market,",
+    "start": 7.56,
+    "end": 7.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 8.34,
+    "end": 8.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "forget",
+    "start": 8.4,
+    "end": 8.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "which",
+    "start": 8.66,
+    "end": 8.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 8.84,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 8.96,
+    "end": 9.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was,",
+    "start": 9.06,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 9.3,
+    "end": 9.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 9.4,
+    "end": 9.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2017,",
+    "start": 10.08,
+    "end": 10.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "before",
+    "start": 11.44,
+    "end": 11.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "China",
+    "start": 11.92,
+    "end": 12.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 12.26,
+    "end": 12.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "did",
+    "start": 12.5,
+    "end": 12.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ban",
+    "start": 12.7,
+    "end": 12.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 12.94,
+    "end": 13.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yeah.",
+    "start": 13.7,
+    "end": 13.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "China",
+    "start": 13.74,
+    "end": 14.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "became",
+    "start": 14.1,
+    "end": 14.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.5,
+    "end": 14.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "biggest",
+    "start": 14.88,
+    "end": 15.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 15.48,
+    "end": 15.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market.",
+    "start": 15.98,
+    "end": 16.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "S-",
+    "start": 17.6,
+    "end": 17.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "CZ",
+    "start": 17.86,
+    "end": 17.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "himself",
+    "start": 17.98,
+    "end": 18.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worked",
+    "start": 18.44,
+    "end": 18.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 18.66,
+    "end": 18.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "OKCoin",
+    "start": 18.82,
+    "end": 19.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "before",
+    "start": 19.42,
+    "end": 19.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "starting",
+    "start": 19.76,
+    "end": 20.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Binance,",
+    "start": 20.08,
+    "end": 20.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 20.48,
+    "end": 20.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 20.54,
+    "end": 20.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 20.62,
+    "end": 20.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "got",
+    "start": 20.68,
+    "end": 20.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Binance.",
+    "start": 20.86,
+    "end": 21.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 21.8,
+    "end": 21.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "got",
+    "start": 21.92,
+    "end": 22.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 22.1,
+    "end": 22.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "craziest",
+    "start": 22.28,
+    "end": 22.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stuff",
+    "start": 23.02,
+    "end": 23.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 23.98,
+    "end": 24.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Asia.",
+    "start": 24.44,
+    "end": 24.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 25.32,
+    "end": 25.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 25.62,
+    "end": 25.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 25.84,
+    "end": 25.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "u-",
+    "start": 25.96,
+    "end": 26.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 26.18,
+    "end": 26.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 26.34,
+    "end": 26.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "threats",
+    "start": 26.48,
+    "end": 27.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "become",
+    "start": 27.16,
+    "end": 27.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 27.56,
+    "end": 27.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "opportunity",
+    "start": 27.74,
+    "end": 28.3,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 28.32
+ },
+ "usd": 0.005664,
+ "seconds": 1.37,
+ "recorded_at": "2026-11-15T14:17:11Z"
+}

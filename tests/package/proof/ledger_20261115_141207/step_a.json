@@ -1,0 +1,1502 @@
+{
+ "6498b1e0773f0c853ac1:9d43580c729b": {
+  "label": "6498b1e0773f0c853ac1",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "none; the statistic is stated as a present fact",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "More than 80% of all money invested in US spot Bitcoin ETFs is held in funds that name Coinbase as one of their custodians.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "So if you want that team putting in much of the hard work for you, the link is down in the description below, or you can scan the QR code on screen right now.",
+  "backend": "heimdall:z-ai/glm-5.3-flash",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "3233deb3f11f3e39d30e:9d43580c729b": {
+  "label": "3233deb3f11f3e39d30e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "them",
+    "refers_to": "kids in high school who have never lived without Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin (in 'it has always existed')",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "none; a general present-day observation",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "A generation of kids in high school has grown up with Bitcoin always existing, so to them Bitcoin feels like it has always been there, like God.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "and you can ask me a question because I I ramble. Um, how long has Bitcoin been in existence? In my book, let's just say 2010 for easy math. We're at almost 17 years now.",
+  "backend": "heimdall:z-ai/glm-5.3-flash",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "645f1a2ce265d1832a4e:9d43580c729b": {
+  "label": "645f1a2ce265d1832a4e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "in 2018",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "A license that New York granted in 2018 ended up holding the Bitcoin behind most of America's ETFs.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is DC signing off.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a788d83b23625755ae1d:9d43580c729b": {
+  "label": "a788d83b23625755ae1d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the idea of instantly sending money from one person to another (as with Satoshi Dice)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin provided the innovation of instantly sending money person-to-person, along with early examples like Satoshi Dice.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I had a fintech business with Bit Instant",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "e9adac176a461f12aa6a:9d43580c729b": {
+  "label": "e9adac176a461f12aa6a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "This",
+    "refers_to": "one of the brilliant people in the Bitcoin community",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "These",
+    "refers_to": "the brilliant people",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "He",
+    "refers_to": "Hal Finney",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "me",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "these",
+    "refers_to": "Hal Finney and the cryptographers",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "Bitcoin has all of the ingredients for fully decentralized money",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "during the speaker's early involvement in Bitcoin around 2008-2009",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Hal Finney and other cryptographers were hanging around the early Bitcoin community, messaging the speaker as brilliant people who said Bitcoin has all the ingredients for fully decentralized money.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a As you're saying that, I have this like feeling washing over me because that same feeling that I had then is the same feeling I have now with my new startup. But it's like when you're early to something and you have really really brilliant people involved like the people in the Bitcoin community, they seemed like random misfits, but these were brilliant people.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "474d0b11b51b80c69e22:9d43580c729b": {
+  "label": "474d0b11b51b80c69e22",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "me",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "he",
+    "refers_to": "Charlie Shrem",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "his",
+    "refers_to": "Charlie Shrem's",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "once in the past",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Charlie Shrem once told the speaker that the best thing about going to prison was that he couldn't touch his Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Today, I'm catching up with one of Bitcoin's original pioneers and someone who helped me get started in this industry.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "04de65d15274c758827f:9d43580c729b": {
+  "label": "04de65d15274c758827f",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "himself",
+    "refers_to": "CZ",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "China became the biggest Bitcoin market and CZ worked at OKCoin before starting Binance.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Explain how you mean that. The AI one I get the quantum one I don't quite understand.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a209df5c86cf2360b0b2:9d43580c729b": {
+  "label": "a209df5c86cf2360b0b2",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "in the wild early days of Bitcoin",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The only way to buy Bitcoin was on Mt. Gox in Japan by wiring money to Mark Carpalis' personal bank account as there was no industry.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Today, I'm catching up with one of Bitcoin's original pioneers and someone who helped me get started in this industry.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "e5adf2eca5e7977bb945:9d43580c729b": {
+  "label": "e5adf2eca5e7977bb945",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is still an asset that can be bought and none of its properties have changed.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a right? But now it's ETFs and JP Morgan and Black Rockck and Goldman Sachs and all the people I would imagine when you looked out the window and saw Occupy Wall Street you were sympathizing with to some degree at the time. which means we were right. You know,",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "287a4a551d5e8eff6dae:9d43580c729b": {
+  "label": "287a4a551d5e8eff6dae",
+  "speaker_changes_inside": "no",
+  "view": "joke",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Saylor selling some Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Saylor selling Bitcoin around the same price indicates the bottom of every bear market.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "\u203a\u203a I mean, Saylor sold some Bitcoin, right? Isn't that the bottom of every bear market? Add around the same price.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": true
+ },
+ "91b3fbbd8c99ee23d859:9d43580c729b": {
+  "label": "91b3fbbd8c99ee23d859",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "chart showing total Bitcoin on exchanges over the years",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the years",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The total amount of Bitcoin on exchanges has been decreasing over the years per the chart, causing prices to tighten.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "The next question you could ask me is like will we see crazy bull markets?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2bca1130b3eceac83ff8:9d43580c729b": {
+  "label": "2bca1130b3eceac83ff8",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "speaker and other early Bitcoiners who met at first conferences",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "we",
+    "refers_to": "speaker and other early Bitcoiners who met at first conferences",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "those",
+    "refers_to": "the conferences that we first met",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "them",
+    "refers_to": "having parties",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when there wouldn't be just fun culture of Bitcoin conferences anymore",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "We joked that we knew Bitcoin would make it once the fun culture of its conferences was over, as the early conferences where we met were fun and we used to have halving parties that people still do.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "I was one of those like four-ear cycle is done people obviously and then it Bitcoin topped almost to the day that the four-ear cycle would have predicted last October",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b519bd72bb2ff43d14e4:9d43580c729b": {
+  "label": "b519bd72bb2ff43d14e4",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "honeypot for daily hacking attempts",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "how to hack Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has become a honeypot that people try to hack every single day.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I always remember we were at the Hard Rock Embassy Suites one time because we couldn't afford to stay at the Hard Rock.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7593d283622fd0919827:9d43580c729b": {
+  "label": "7593d283622fd0919827",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this morning",
+    "refers_to": "morning of the day the speaker recorded the excerpt",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "trading Bitcoin as a professional career",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "you",
+    "refers_to": "the guest being addressed",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker talked that morning to someone with three hedge funds started with his brother and two others who traded Bitcoin from college a few years prior, showing it became an industry of which the addressee was an early participant.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I was like very nervous to meet the legend Charlie Shrem cuz I was nobody. I didn't know anyone. I wasn't interviewing people back then. I was just a trader. I didn't even have a podcast, nothing.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "01799835c4fa32b54df0:9d43580c729b": {
+  "label": "01799835c4fa32b54df0",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "you",
+    "refers_to": "Scott Melker (the host), who just described being nervous at his first conference",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "back then",
+    "refers_to": "the early days of Bitcoin trading, around 2017-2018",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "back then, when Bitcoin was very speculative",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The guest recalls that Scott was among the first wave of people who treated Bitcoin trading as a professional career, back when that was unusual because Bitcoin was still speculative.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "I was very nervous to meet the legend Charlie Shrem cuz I was nobody. I didn't know anyone. I wasn't interviewing people back then. I was just a trader.",
+  "backend": "heimdall:z-ai/glm-5.3-flash",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "644a392e098fcfc7cfcc:9d43580c729b": {
+  "label": "644a392e098fcfc7cfcc",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "the early Bitcoin community / the speaker and his peers",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "you",
+    "refers_to": "people attending the party (generic)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "the scene of people dressed as pizza slices at the party",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "we used to (in the early days) - past-tense framing",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In the early days the community threw fun halving/pizza parties, exemplified by Brock Pierce's event where people dressed up as slices of pizza, showing they had created an industry with a playful culture.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "That's what I you going back to your question about like what's changed and what didn't I first see happen. We joked that we knew Bitcoin was going to make it when there wouldn't be just fun culture Bitcoin conferences anymore.",
+  "backend": "heimdall:z-ai/glm-5.3-flash",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "9828eed5df8effcc4bdd:9d43580c729b": {
+  "label": "9828eed5df8effcc4bdd",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It's",
+    "refers_to": "holding your Bitcoin (the ultimate hold just discussed)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "you",
+    "refers_to": "Scott (the host) / people generally, who saw the bull and bear markets",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "now",
+    "refers_to": "the time of the conversation, before the coming epic bull market",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the last couple of years (the period since the bull and bear markets) \u2014 inside",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Holding Bitcoin has been difficult over the last couple of years of bull and bear markets, but an epic bull market is now coming.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a It's true. That's the ultimate hold. I mean, people do that, too. \u203a\u203a It's, unfortunately, as you saw the bull and bear market since then...",
+  "backend": "heimdall:z-ai/glm-5.3-flash",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "08fa8168c86b553ac4b5~trim:9d43580c729b": {
+  "label": "08fa8168c86b553ac4b5~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "mining all 21 million bitcoins",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "This",
+    "refers_to": "talking about/selling Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "the passion for Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "the passion",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "one",
+    "refers_to": "one Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "going to take another 150 years to mine all Bitcoin",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "no",
+  "proposition": "It will take another 150 years to mine all 21 million Bitcoins that will ever exist and there are not enough millionaires in America for each to own one whole Bitcoin.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "Talked about whales selling Bitcoin, someone like you, some of the ones who are clearly still believers, even though cost basis may be a dollar, are you still buying",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "5fc8ff476f13e13d694b:9d43580c729b": {
+  "label": "5fc8ff476f13e13d694b",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the New York license to hold other people's crypto from 2018",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "their",
+    "refers_to": "funds that invest in U.S. spot Bitcoin ETFs",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "More than 80% of all money invested in U.S. spot Bitcoin ETFs is held in funds that name Coinbase as one of their custodians, so the New York license to hold crypto grew into the business of holding the Bitcoin behind most of America's ETF market.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "as I make this video, the case is still open with no ruling, and it could take years to resolve. So, in the space of a few years, Coinbase went from being sued by one federal regulator to being chartered by another. And as you can see, a story like this gets complicated as it spreads across court filings and rule changes that come weeks apart. And that's a lot for any one person to keep on top of. But that's exactly what our research team tracks inside the Coin Bureau Club every single day.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "57651588aff5b7db7b48~trim:9d43580c729b": {
+  "label": "57651588aff5b7db7b48~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "prolonged bear market and growing disillusionment",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "their",
+    "refers_to": "new buyers at $100,000",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "these people",
+    "refers_to": "early whales holding from early days",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "having early whales hold millions of Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "them",
+    "refers_to": "early whales from the early days",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "Bitcoin's price",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If you have all these whales holding millions and millions of Bitcoin from the early days",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Selling Bitcoin at the $100k psychological level to new buyers sets their cost basis and floor there while early low-basis whales selling reduces a major risk, so rinse recycle repeat to keep the cycle moving and let the price rise through ongoing buying and selling.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "I had the opportunity to speak to uh a early Bitcoiner. Hadn't spoken to him in 10 years. We reconnected. He had written me some letters when I was in prison and that was actually the last time we'd spoken.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "d706ad66082c4e92090c:9d43580c729b": {
+  "label": "d706ad66082c4e92090c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "now",
+    "refers_to": "the present time almost 17 years after 2010",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "them",
+    "refers_to": "kids in high school",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "Bitcoin's ongoing success and growth with younger generations",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "after almost 17 years since Bitcoin began in 2010",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Kids in high school now have never lived in a world without Bitcoin so they see it as something that has always existed like God and this means Bitcoin has been successful and will continue growing with that generation valuing digital assets.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "and this is what I'll kind of end off, and you can ask me a question because I I ramble.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "979dc349cb8ed43d29ae~trim:9d43580c729b": {
+  "label": "979dc349cb8ed43d29ae~trim",
+  "speaker_changes_inside": "yes",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "AI and Quantum",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "AI and quantum being seen as mega opportunities for Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that'll",
+    "refers_to": "the shift of AI/quantum to opportunities coupled with the halving",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "the having",
+    "refers_to": "the Bitcoin halving (general topic, explained earlier in excerpt)",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the preceding assertion about the next epic bull market",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when that happens (AI and quantum being seen as opportunities), coupled with the having",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "AI and quantum will soon be seen as mega opportunities for Bitcoin rather than threats, which together with the halving will usher in the next epic bull market.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "Explain how you mean that. mean that. The AI one I get the quantum one I don't quite understand.",
+  "backend": "heimdall:z-ai/glm-5.3-flash",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "cf18ef7d885beb491a4c:9d43580c729b": {
+  "label": "cf18ef7d885beb491a4c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "buying Bitcoin (the topic under discussion)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "them",
+    "refers_to": "people like myself who have been around forever",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "you",
+    "refers_to": "the speaker / longtime industry people (generic you)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Rather than measuring buying Bitcoin in physical dollars, longtime industry veterans prefer to earn Bitcoin by working in the industry, building businesses, creating jobs, and reinvesting, which they see as a better way than just buying Bitcoin.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "Are you still buying Bitcoin or do you think that people from that generation who are staunch believers feel like they have enough",
+  "backend": "heimdall:z-ai/glm-5.3-flash",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ac29105236679caae204:9d43580c729b": {
+  "label": "ac29105236679caae204",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "instantly sending money from one person to another",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "MPEX",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in 2011 (MPEX existed then)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin pioneered instant person-to-person money transfers and early decentralized financial infrastructure like MPEX and Satoshi Dice.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Let's go back to when Bitcoin was invented... I had a fintech business with Bit Instant",
+  "backend": "heimdall:z-ai/glm-5.3-flash",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "fc6bab26df373930b2ae:9d43580c729b": {
+  "label": "fc6bab26df373930b2ae",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that business",
+    "refers_to": "Coinbase's institutional custody business",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that's",
+    "refers_to": "the custody business moving under the federal regulator",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "a company",
+    "refers_to": "Coinbase",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "Over the next three years (the custody business moves under the federal regulator)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Coinbase's institutional custody business, which holds the Bitcoin behind most of America's ETFs under a 2018 New York license, will move under the same federal regulator that charters national banks over the next three years, a remarkable turnaround for a company that was fighting US regulators.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is DC signing off.",
+  "backend": "heimdall:z-ai/glm-5.3-flash",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "43ee168a53c6c5e8c4cb~trim:9d43580c729b": {
+  "label": "43ee168a53c6c5e8c4cb~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "today",
+    "refers_to": "the present time around the video's show date",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this morning",
+    "refers_to": "the morning of the speaking day when the node count was checked",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in the world today",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In the world today nothing exists that is not owned by anyone because Bitcoin is owned by the world, we all own a piece of it, and its network is highly decentralized with 20,000 plus known nodes plus tens of thousands more and decentralized miners.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a I love when I used to say that all the time.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "9ca89be49185085e080c~trim:9d43580c729b": {
+  "label": "9ca89be49185085e080c~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "the Bitcoin community or core developers",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "our",
+    "refers_to": "the Bitcoin community's or holders'",
+    "inside": false,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "securing ... from the quantum's threat",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is modular by design so the community can upgrade it very quickly with dozens of good proposals from companies that secure all of our Bitcoin from the quantum computing threat.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a Explain how you mean that. The AI one I get the quantum one I don't quite understand.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "26466d15581a9fdb49bc:9d43580c729b": {
+  "label": "26466d15581a9fdb49bc",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "he",
+    "refers_to": "Charlie Shrem",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "his",
+    "refers_to": "Charlie Shrem",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "That",
+    "refers_to": "the best thing about going to prison (not touching his Bitcoin)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "Today",
+    "refers_to": "the video's show date",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "We",
+    "refers_to": "the host and the Bitcoin pioneer",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Charlie Shrem said the best thing about prison was that he couldn't touch his Bitcoin (one way to huddle), and the speaker is now interviewing a Bitcoin pioneer who helped him enter the industry about the early days.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Today, I'm catching up with one of Bitcoin's original pioneers and someone who helped me get started in this industry.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": true
+ },
+ "c7af5c88f73401f45a2b~trim:9d43580c729b": {
+  "label": "c7af5c88f73401f45a2b~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "we",
+    "refers_to": "the speaker's company (BitInstant)",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "the 30% of Bitcoin transaction volume",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "late 2011",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In late 2011 the speaker's company represented 30% of all Bitcoin blockchain transaction volume (not just purchases and sales) and the space was heating up and getting crazy.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "I my mom I had money from my bar mitzvah that my mom let me have",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "adf6d9c528a27963f790:9d43580c729b": {
+  "label": "adf6d9c528a27963f790",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "now (the present, as of the show date)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's fundamental properties are unchanged \u2014 it remains a buyable, sendable, irreversible, uncounterfeitable asset capped at 21 million.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a I just said where how it's gotten to where it is now and you know if you saw that coming",
+  "backend": "heimdall:z-ai/glm-5.3-flash",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "d6fa1390934d5c1aa62a~trim:9d43580c729b": {
+  "label": "d6fa1390934d5c1aa62a~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the bull market (which one, he forgets)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "these",
+    "refers_to": "the threats like China banning Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "before China really did ban Bitcoin (2017 bull market timeframe)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Despite repeated threats like China's bans, the 2017 bull market saw China become the biggest Bitcoin market, showing threats become opportunities.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a Explain how you mean that. The AI one I get the quantum one I don't quite understand.",
+  "backend": "heimdall:z-ai/glm-5.3-flash",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "eb5810dcbbb6fcecc5fa~trim:9d43580c729b": {
+  "label": "eb5810dcbbb6fcecc5fa~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "we",
+    "refers_to": "speaker and early Bitcoin community",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "being early to something with time to explore it",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when you're early to something and you have time to go through it",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Upon finding Bitcoin the speaker instantly fell in love, saw it as the future within a familiar community, and experienced the passion and excitement of being early that gradually led to full commitment without one specific moment.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Yeah, that makes sense. So \u203a\u203a seeing where it is now, could you a have imagined it at that time? I know you guys had big dreams, but could you, you know, in reality, could you have imagined it at this time?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f18aa860791b845c37ce:9d43580c729b": {
+  "label": "f18aa860791b845c37ce",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "we",
+    "refers_to": "speaker's BitInstant team",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin community and surge of attention",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "early 2011 after Satoshi disappeared and WikiLeaks accepted Bitcoin",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "After WikiLeaks began accepting Bitcoin and Slashdot plus other articles drew attention, the speaker's group unified the community but Bitcoin could only be bought by wiring funds to Mark Karpeles' personal account on Mt. Gox in Japan with no industry support, APIs or easy tools so all transfers required manual command-line work.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "And you said it's apppropo for what we're talking about. You said, you know, the best part of going to prison, you know, that's a good statement, is that I couldn't touch my Bitcoin.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b87dd33b31c996f4be18:9d43580c729b": {
+  "label": "b87dd33b31c996f4be18",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the modern user interface every bank now copies from Coinbase",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "Bitcoin pioneering interfaces and decentralized money plumbing now adopted by banks",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "today",
+    "refers_to": "the time of the video/show",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in the future (values we'll see)",
+    "inside": true
+   },
+   {
+    "text": "today (world today)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Coinbase popularized the modern interface that every bank now uses but did so first after Bitcoin, representing an enduring value of innovation that will sustain future bull markets because today nothing exists that is not owned by someone.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a I love when I used to say that all the time. That was like, yeah, but it's the truth.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "d0d20a7ddb03d30b2a40:9d43580c729b": {
+  "label": "d0d20a7ddb03d30b2a40",
+  "speaker_changes_inside": "yes",
+  "view": "uncertain",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Saylor selling Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "now",
+    "refers_to": "the moment of the conversation near bear market bottom",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the four-year cycle or what has been the catalyst",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this time",
+    "refers_to": "the current Bitcoin cycle",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "last October",
+    "refers_to": "October of the year before the video when the top occurred",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "this time (catalyst this time)",
+    "inside": true
+   },
+   {
+    "text": "last October (top predicted last October)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Saylor selling Bitcoin may signal the bear market bottom as it has before, and the speaker believed in the four-year cycle that correctly predicted the top last October leading into the current bear market and upcoming ramp-up.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "Do you think now... that the four -year cycle remains intact, or do you think that's something else that's been a catalyst this time? I was one of those",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f06659b786723fa50e8d:9d43580c729b": {
+  "label": "f06659b786723fa50e8d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "honeypot where people try to hack Bitcoin every day and testbed for socioeconomic experiments on money",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "Bitcoin being a honeypot attracting daily hacking attempts",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in the period leading up to the conversation",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has become a honeypot attracting hacking attempts every day and has therefore become a testbed for socioeconomic experiments in how people act and react with money.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "I always remember we were at the Hard Rock Embassy Suites one time because we couldn't afford to stay at the Hard Rock. The price didn't go up yet. At the Embassy Suites, free happy hour. Remember Long Island iced teas trying to go outside. Sorry babe, China banned Bitcoin 2014, 2013.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b3c0a2c3e892f7b9af5b:9d43580c729b": {
+  "label": "b3c0a2c3e892f7b9af5b",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this morning",
+    "refers_to": "morning of the interview day",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "trading Bitcoin as a professional career",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "you",
+    "refers_to": "the guest (Charlie Shrem)",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "the year of the first wave",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "That",
+    "refers_to": "the time when the first wave or conference occurred",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "five or six years before the time of speaking",
+    "inside": true
+   },
+   {
+    "text": "this morning relative to time of speaking",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker spoke that morning with someone running three hedge funds founded with his brother and two others who started trading Bitcoin in college five or six years earlier, showing it became an industry, and noted the guest was part of that first wave probably around 2018 or 2019.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "Mike's the guy who brought me out and I was like very nervous to meet the legend Charlie Shrem cuz I was nobody. I didn't know anyone. I wasn't interviewing people back then. I was just a trader. I didn't even have a podcast, nothing. I was I was scared. John and Jerry was there. \u203a\u203a I remember. But you were part of that first wave of people that were looking at Bitcoin and trading as a professional career and because back then like Bitcoin was very speculative.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "e5d530258d940a6cd085:9d43580c729b": {
+  "label": "e5d530258d940a6cd085",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that chart",
+    "refers_to": "chart of total Bitcoin on exchanges",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if you look at that chart",
+    "inside": true
+   },
+   {
+    "text": "over the years",
+    "inside": true
+   },
+   {
+    "text": "going now from 80K to a million",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The total Bitcoin on exchanges has declined over years per charts, tightening prices, with a move from 80k to 1M seeming feasible though further 10x jumps to 10M or 100M become unsustainable.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "you could see evidence on chain that a lot of the guys from your era who were never selling We're selling very heavily above $100,000",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b048bfd463b74fd15178:9d43580c729b": {
+  "label": "b048bfd463b74fd15178",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "then",
+    "refers_to": "time guest left prison (per prior chart)",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "your",
+    "refers_to": "the guest (Charlie Shrem)",
+    "inside": false,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the last couple of years",
+    "inside": true
+   },
+   {
+    "text": "coming up",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Holding Bitcoin has been hard through recent bull and bear markets but an epic bull market is coming soon, the speaker agrees, and proposes shifting to discuss early Bitcoin trading days.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "Mike's the guy who brought me out and I was like very nervous to meet the legend Charlie Shrem cuz I was nobody. I didn't know anyone. I wasn't interviewing people back then. I was just a trader. I didn't even have a podcast, nothing.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "heimdall:qwen/qwen3.8-27b",
+ "model": "qwen/qwen3.8-27b",
+ "vendor": "heimdall/qwen",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You judge OPENING clips for 60-second videos made of other channels' own words (each clip is a person's\nown words from a show). Each candidate below would play FIRST, before anything else is said. Judge each one ALONE, as\nthe opener of a video; the candidates are not compared with each other and never play together.\n\nCANDIDATE id=\"26466d15581a9fdb49bc\" (on screen: Scott Melker): \"Charlie Shrem once told me that the best thing about going to prison was that he couldn't touch his Bitcoin. That's certainly one way to huddle. Today, I'm catching up with one of Bitcoin's original pioneers and someone who helped me get started in this industry. We get into the wild early days of Bitcoin.\"\nCANDIDATE id=\"adf6d9c528a27963f790\" (on screen: Scott Melker): \"You know, it's still an asset that you can buy. It's still an asset. Nothing's changed about the properties of Bitcoin. You can buy it now. Send it to anyone anywhere in the world. It's irreversible. It's not counterfeitable. 21 million Bitcoin will always be.\"\nCANDIDATE id=\"2bca1130b3eceac83ff8\" (on screen: Scott Melker): \"We joked that we knew Bitcoin was going to make it when there wouldn't be just fun culture of Bitcoin conferences anymore. And the conferences that we first met, like those were so fun. But we used to have having parties. And people still do them.\"\nCANDIDATE id=\"f06659b786723fa50e8d\" (on screen: Scott Melker): \"Bitcoin, I've noticed, has become this, because it's this honeypot where people are trying to hack it every single day. figure it out, I don't need to tell you. But because of that, it's become this testbed for all socioeconomic experiments, how people act and react with money.\"\n\nFor EACH candidate: THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:\n   \"scroll\": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)\n   \"alone\": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)\n   \"setup\": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not\n   at all)\nGive \"why\": a few words on the candidate's weakest part.\nReturn ONLY this JSON object: {\"hooks\": {\"26466d15581a9fdb49bc\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"adf6d9c528a27963f790\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"2bca1130b3eceac83ff8\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"f06659b786723fa50e8d\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}}}",
+ "text": "\n\n{\"hooks\": {\"26466d15581a9fdb49bc\": {\"scroll\": 4, \"alone\": 4, \"setup\": 4, \"why\": \"setup is a generic 'today I'm catching up with' podcast intro that lacks tension\"}, \"adf6d9c528a27963f790\": {\"scroll\": 2, \"alone\": 3, \"setup\": 2, \"why\": \"flat 'you know, it's still an asset' opener reads like mid-conversation, not a hook\"}, \"2bca1130b3eceac83ff8\": {\"scroll\": 2, \"alone\": 3, \"setup\": 2, \"why\": \"convoluted meta-comment about conference culture doesn't punch or create curiosity\"}, \"f06659b786723fa50e8d\": {\"scroll\": 3, \"alone\": 4, \"setup\": 4, \"why\": \"meandering 'I've noticed, has become this' construction softens the honeypot hook\"}}}",
+ "usage": {
+  "in": 806,
+  "out": 1796,
+  "usd_reported": 0.00131803
+ },
+ "usd": 0.029358,
+ "seconds": 18.05,
+ "recorded_at": "2026-11-15T14:18:00Z"
+}

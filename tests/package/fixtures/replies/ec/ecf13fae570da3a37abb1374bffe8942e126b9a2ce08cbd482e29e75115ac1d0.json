@@ -1,0 +1,374 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "d0683084ace6da30f8ab0c1024980502df14b34652574d2815094cdee1584e8b",
+ "result": {
+  "text": "Why you wanna be able to send money from your account to someone else's account? Bitcoin gave us that. The idea of, like, instantly sending money from someone else to another person. And then data, Satoshi Dice. The first, no one remembers that in, in, uh, 2011 we had MPEX. Go look it up. It was the first-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 20.02,
+    "text": "Why you wanna be able to send money from your account to someone else's account? Bitcoin gave us that. The idea of, like, instantly sending money from someone else to another person. And then data, Satoshi Dice. The first, no one remembers that in, in, uh, 2011 we had MPEX. Go look it up. It was the first-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Why",
+    "start": 0.0,
+    "end": 0.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 0.2,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wanna",
+    "start": 0.34,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 0.58,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "able",
+    "start": 0.7,
+    "end": 0.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 0.86,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "send",
+    "start": 0.98,
+    "end": 1.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 1.18,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 1.4,
+    "end": 1.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 1.64,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "account",
+    "start": 1.82,
+    "end": 2.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 2.48,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "someone",
+    "start": 2.62,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "else's",
+    "start": 2.9,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "account?",
+    "start": 3.2,
+    "end": 3.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.16,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gave",
+    "start": 4.58,
+    "end": 4.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "us",
+    "start": 4.86,
+    "end": 5.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that.",
+    "start": 5.06,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 5.9,
+    "end": 5.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "idea",
+    "start": 6.04,
+    "end": 6.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of,",
+    "start": 6.4,
+    "end": 6.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 6.56,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "instantly",
+    "start": 7.36,
+    "end": 7.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sending",
+    "start": 7.82,
+    "end": 8.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 8.119,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 8.38,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "someone",
+    "start": 8.6,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "else",
+    "start": 8.88,
+    "end": 9.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 9.12,
+    "end": 9.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "another",
+    "start": 9.22,
+    "end": 9.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "person.",
+    "start": 9.52,
+    "end": 9.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 10.16,
+    "end": 10.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 10.22,
+    "end": 10.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "data,",
+    "start": 10.44,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Satoshi",
+    "start": 10.92,
+    "end": 11.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Dice.",
+    "start": 11.5,
+    "end": 11.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 12.88,
+    "end": 12.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "first,",
+    "start": 13.06,
+    "end": 13.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 14.26,
+    "end": 14.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 14.36,
+    "end": 14.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "remembers",
+    "start": 14.5,
+    "end": 14.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 14.98,
+    "end": 15.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in,",
+    "start": 15.12,
+    "end": 15.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in,",
+    "start": 15.42,
+    "end": 15.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 15.58,
+    "end": 15.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2011",
+    "start": 15.78,
+    "end": 16.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 16.42,
+    "end": 16.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 16.52,
+    "end": 16.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "MPEX.",
+    "start": 16.98,
+    "end": 17.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Go",
+    "start": 18.0,
+    "end": 18.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 18.16,
+    "end": 18.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 18.32,
+    "end": 18.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up.",
+    "start": 18.46,
+    "end": 18.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It",
+    "start": 19.26,
+    "end": 19.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 19.38,
+    "end": 19.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 19.56,
+    "end": 19.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "first-",
+    "start": 19.78,
+    "end": 20.02,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 20.08
+ },
+ "usd": 0.004016,
+ "seconds": 0.93,
+ "recorded_at": "2026-11-15T14:17:10Z"
+}
