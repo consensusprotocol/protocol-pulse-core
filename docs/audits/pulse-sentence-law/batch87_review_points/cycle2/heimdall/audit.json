@@ -1,0 +1,78 @@
+{
+ "question": "Batch 87 CYCLE 2 (verification of the final diff) = RULING 106 (b) on the REVIEW path (orchestrator 2026-11-14 '20:21'): \"a finished video that passes every gate is always launched and delivered as a candidate; one open integrity point means the REVIEW path with that point in the caption, never left unrendered.\" With RULING 93 AS AMENDED ('21:10'): a clip whose source-burned captions the 9:16 crop cuts mid-word is 16:9-only.\nThe case (tonight): run pinned_20261115_013448 (Blockware spotlight 3f481f5a): the 16:9 final cleared every one of its 24 gate rows; its 9:16 crop cuts the source's burned captions ('SOLD MY' reads 'D MY'); the run's EDL predates the sealed 'formats' field (absent = both). On re-judgment the builder's L-s step A refused the moment (CONDITION_OUTSIDE, REFERENT_OUTSIDE). telegram.review_drop, an engineering REVIEW to the approval chat (head \"REVIEW ONLY - NOT A PASS - not for publishing\"; never a release authorisation; texts generated in code, the caller could not edit them), would send BOTH finals and could not state the open point.\nThe change: review_drop(run_dir, send=None, withhold=None, points=()). withhold {format: reason}: formats of this run NOT read or sent, each with a non-empty reason; a format outside the run's formats or a blank reason -> STOP; withholding every format -> STOP. points: caller-stated open integrity points, non-empty strings <= REVIEW_POINT_MAX (300). Only the formats sent are judged (review_nonpass of those formats, unchanged otherwise; the REVIEW_NOT_DROPPABLE rule unchanged for them). review_texts puts \"OPEN INTEGRITY POINT: <p>\" and \"WITHHELD, NOT SENT: <fmt>: <reason>\" lines right under the head of every caption and of the note (the caption is cut from the END by _fit, unchanged); every text then passes the unchanged checks (starts with the head; _review_forbidden: no PASS / PASSED, CANDIDATE FOR APPROVAL, approved, outside the head) AND each stated line must appear WHOLE as a line in every text, else STOP. SIXTEEN_NINE_ONLY (\"the package sealed formats ['16x9']\") is now printed only when the EDL SEALS 16:9 alone (release_auth.release_formats), never for a caller's withhold. REVIEW_DROP.json records 'withheld' and 'points'. Nothing else changes: no release path, no attestation, no ledger.\nTests (test_review_drop, 3 new): the 9:16 withheld (its file deleted first: never read) and a point stated: only the 16:9 is sent, the point and the withheld reason ride whole under the head of the caption and the note, before the 'Not passing' line, recorded in REVIEW_DROP.json, and the 9:16's content-integrity failure (G16 FAIL) does not block the 16:9 drop; MUST-FAIL mirror: without withhold both finals go and no point line exists; refusals, nothing sent and no REVIEW_DROP.json: an unknown format, a blank reason, every format withheld, an empty / too long / non-string point, a point with 'passed', four 300-character points that cannot fit whole in a 1024-character caption. 25 + 24 (delivery) pass; on the old code (c396c3c8) the 3 new tests fail.\nCycle 1 (qwen27b PASS 0.85, glm PASS 0.85, no consensus): glm's low note (a withheld reason had no length cap; it failed closed via the whole-line check) is closed: a withheld reason is now capped at REVIEW_POINT_MAX like a point, with a refusal test.\nFIND: a way for a caller to make the drop look like a pass, a release or an approval; a withheld format still read or sent; a stated point cut, dropped or hidden from any caption; a content-integrity failure of a SENT format that no longer blocks; any change for a caller that passes neither withhold nor points. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 4.6,
+   "cost": 0.0006133381,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 12.4,
+   "cost": 0.000157883,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 8.0,
+   "cost": 0.0007562791,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 17.0,
+   "cost": 0.000184326,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/telegram.py",
+   "line": 691,
+   "issue": "The withheld-reason line is built with fmt.replace('x',':') so a caller-supplied reason containing the literal '9:16' vs '9x16' mismatch is cosmetic only, but more importantly the withheld dict is passed to review_texts as (withhold or {}).items() while review_drop already normalised it; if a caller passes a non-dict truthy withhold (e.g. a list of pairs) review_drop's dict() would raise before the friendly STOP, yet the friendly message claims formats outside the run \u2014 minor, fails closed.",
+   "evidence": "withhold, points = dict(withhold or {}), list(points or ())",
+   "fix": "None required; fails closed.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/telegram.py",
+   "line": 691,
+   "issue": "A withheld reason containing a newline (or a point with '\\n') passes the <=300/strip checks but breaks the whole-line guarantee: the stated line is split across lines, so set(need) <= set(t.split('\\n')) fails and the drop refuses \u2014 or, if the caller's reason's last segment matches, the recorded 'withheld'/'points' in REVIEW_DROP.json no longer match what a reader sees as one line.",
+   "evidence": "need = [REVIEW_POINT_HEAD + p for p in points] + [f\"{WITHHELD_HEAD}{f.replace('x',':')}: {r}\" ...]; check is set(need) <= set(t.split(\"\\n\")) \u2014 a reason like 'a\\nb' makes the joined line 'WITHHELD, NOT SENT: 9:16: a\\nb' which never appears as a single line, so review_drop raises 'does not fit whole' even though it fits by length; the friendly error misleads and no test covers embedded newlines.",
+   "fix": "Either reject/strip newlines in reasons and points (r.strip() -> r.replace('\\n',' ').strip() or a regex check) or, in the whole-line check, compare against the reconstructed multi-line expectation; add a test with a reason containing '\\n'."
+  }
+ ],
+ "total_cost": 0.0017118262,
+ "out_dir": "heimdall"
+}

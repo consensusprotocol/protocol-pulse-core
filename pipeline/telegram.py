@@ -476,6 +476,11 @@ def _send_bot_api(kind, path, fields, data=None):
 # ==============================================================
 
 REVIEW_HEAD = "REVIEW ONLY - NOT A PASS - not for publishing"
+# ruling 106 (b) (orchestrator 2026-11-14 '20:21'): one open integrity point = the REVIEW path with that point in the
+# caption. The caller states each point and may withhold a format (with its reason); it can only ADD these lines.
+REVIEW_POINT_HEAD = "OPEN INTEGRITY POINT: "
+WITHHELD_HEAD = "WITHHELD, NOT SENT: "
+REVIEW_POINT_MAX = 300
 # content-integrity rows: a run that fails any of them is never dropped, not even for review. V1 (two vision models)
 # is droppable ONLY when every failing V1 item is a SPLIT (one model yes, one no; ruling 23 '13:18'); both-no, a
 # missing answer, or a failing credits item whose measured ring geometry (G15_credits, DEC-11) is not PASS refuse.
@@ -660,10 +665,12 @@ def review_nonpass(run_dir, formats=None):
     return out
 
 
-def review_texts(run_dir, nonpass, digests):
+def review_texts(run_dir, nonpass, digests, withheld=None, points=()):
     """The video captions and the review note, generated here and nowhere else (the caller cannot edit them):
     the head first, then every non-pass REQUIRED row, the files' sha256, run id, HEAD, title, caption, the
-    per-clip source links and the deviations."""
+    per-clip source links and the deviations. The caller may only ADD (ruling 106 (b)): the open integrity points
+    it states and the formats it withholds with their reasons, both right under the head, in every caption."""
+    import release_auth
     with open(os.path.join(run_dir, "edl.json")) as f:
         edl = json.load(f)
     head = ""
@@ -675,15 +682,18 @@ def review_texts(run_dir, nonpass, digests):
         pass
     run_id = os.path.basename(os.path.abspath(run_dir).rstrip("/"))
     rows = ", ".join(sorted({f"{k} {v}" for _, k, v, _ in nonpass})) or "none"
-    only = list(digests) == ["16x9"]           # ruling 93 as amended: the drop carries exactly the sealed formats
-    caps = {fmt: _fit(f"{REVIEW_HEAD}\nNot passing (required): {rows}\nrun {run_id} | {fmt} sha256 {digests[fmt]}"
-                      + (f"\n{SIXTEEN_NINE_ONLY}" if only else "")
+    only = release_auth.release_formats(edl) == ("16x9",)     # ruling 93 as amended: the package SEALED 16:9 only
+    added = [f"{REVIEW_POINT_HEAD}{p}" for p in points] + \
+        [f"{WITHHELD_HEAD}{fmt.replace('x', ':')}: {why}" for fmt, why in (withheld or {}).items()]
+    caps = {fmt: _fit("\n".join([REVIEW_HEAD] + added) + f"\nNot passing (required): {rows}\nrun {run_id} | "
+                      f"{fmt} sha256 {digests[fmt]}" + (f"\n{SIXTEEN_NINE_ONLY}" if only else "")
                       + "\nReasons, links and deviations: the review note in this chat.", CAPTION_MAX)
             for fmt in digests}
     segs = [("hook", edl.get("hook") or {})] + [(f"clip {c.get('index', i + 1)}", c)
                                                  for i, c in enumerate(edl.get("clips") or [])]
     links = edl.get("moments_sources_30s_before") or []
-    lines = [REVIEW_HEAD, "", "Required rows NOT passing (verbatim, with the measured reason):"]
+    lines = [REVIEW_HEAD, ""] + ([*added, ""] if added else []) + \
+        ["Required rows NOT passing (verbatim, with the measured reason):"]
     lines += [f"- {fmt} {k} {v}: {why}" for fmt, k, v, why in nonpass] or ["- none"]
     lines += ["", f"Run {run_id} | HEAD {head or 'not recorded'}"]
     lines += [f"{fmt.replace('x', ':')} sha256 {digests[fmt]}" for fmt in digests] + ([SIXTEEN_NINE_ONLY] if only else [])
@@ -724,18 +734,32 @@ def review_texts(run_dir, nonpass, digests):
     return caps, "\n".join(lines)
 
 
-def review_drop(run_dir, send=None):
+def review_drop(run_dir, send=None, withhold=None, points=()):
     """Send a run that is NOT authorised for release to the approval chat as an engineering REVIEW (order
     '13:06'): the finals of the formats its EDL seals (both when none; ruling 93 as amended) + the review note.
-    Refuses (nothing sent) without GATE_REPORT.json or readable formats, when a
+    withhold {format: reason}: formats of this run NOT sent, each with its stated reason (at least one format stays).
+    points: the open integrity points the caller states (ruling 106 (b): each in every caption and the note; at most
+    REVIEW_POINT_MAX characters each). Both can only ADD lines and pass the same wording check. Only the formats sent
+    are judged. Refuses (nothing sent) without GATE_REPORT.json or readable formats, when a
     content-integrity row (REVIEW_NOT_DROPPABLE) is not PASS, when any text would carry PASS-as-verdict wording,
-    'CANDIDATE FOR APPROVAL' or 'approved', or when this run was already review-dropped. Writes REVIEW_DROP.json
+    'CANDIDATE FOR APPROVAL' or 'approved', when a stated point or withheld reason does not fit whole in every caption,
+    or when this run was already review-dropped. Writes REVIEW_DROP.json
     (what was sent, to which chat, the message ids). Never writes or reads the release ledger."""
     import hashlib
     send = send or _send_bot_api
     if not os.path.exists(os.path.join(run_dir, "GATE_REPORT.json")):
         raise RuntimeError("STOP: review drop: no GATE_REPORT.json for this run")
     formats = review_formats(run_dir)                           # ruling 93 as amended: the sealed formats ALONE
+    withhold, points = dict(withhold or {}), list(points or ())
+    if any(f not in formats or not (isinstance(r, str) and r.strip() and len(r) <= REVIEW_POINT_MAX)
+           for f, r in withhold.items()):
+        raise RuntimeError(f"STOP: review drop: withhold names a format outside {list(formats)} or gives no reason "
+                           f"(<= {REVIEW_POINT_MAX} characters)")
+    if not all(isinstance(p, str) and p.strip() and len(p) <= REVIEW_POINT_MAX for p in points):
+        raise RuntimeError(f"STOP: review drop: each open point must be a non-empty string <= {REVIEW_POINT_MAX}")
+    formats = tuple(f for f in formats if f not in withhold)
+    if not formats:
+        raise RuntimeError("STOP: review drop: every format withheld; nothing to send")
     nonpass = review_nonpass(run_dir, formats)
     with open(os.path.join(run_dir, "GATE_REPORT.json")) as f:
         rep_rows = json.load(f).get("rows") or {}
@@ -764,17 +788,22 @@ def review_drop(run_dir, send=None):
         with open(p, "rb") as f:
             payload[fmt] = f.read()                    # read once; exactly these bytes are hashed and sent
         digests[fmt] = hashlib.sha256(payload[fmt]).hexdigest()
-    caps, note = review_texts(run_dir, nonpass, digests)
+    caps, note = review_texts(run_dir, nonpass, digests, withheld=withhold, points=points)
+    need = [REVIEW_POINT_HEAD + p for p in points] + \
+        [f"{WITHHELD_HEAD}{f.replace('x', ':')}: {r}" for f, r in withhold.items()]
     for t in list(caps.values()) + [note]:
         if not t.startswith(REVIEW_HEAD):
             raise RuntimeError("STOP: review drop text does not begin with the review head")
         bad = _review_forbidden(t)
         if bad:
             raise RuntimeError(f"STOP: review drop refused: forbidden wording {sorted(set(bad))}")
+        if not set(need) <= set(t.split("\n")):        # each stated line WHOLE, as a line (never cut by _fit)
+            raise RuntimeError("STOP: review drop: a stated point or withheld reason does not fit whole in every text")
     if len(note) > TEXT_MAX:
         raise RuntimeError(f"STOP: review note is {len(note)} characters > {TEXT_MAX}")
     rec = {"kind": "review_drop", "label": REVIEW_HEAD, "rule": "orchestrator order 2026-11-12 '13:06'",
            "chat": "the approval chat (TELEGRAM_CHAT_ID)", "nonpass": [list(x) for x in nonpass],
+           "withheld": withhold, "points": points,
            "sha256": digests, "texts": {"captions": caps, "note": note}, "messages": []}
     try:
         for fmt in formats:

@@ -6,6 +6,30 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 22:37 REVIEW-DROP POINTS LANDED (ruling 106 (b)): telegram.review_drop can now withhold a format with its stated reason and state the open integrity points. Both only ADD lines under the head of every text, are checked for forbidden wording, must fit whole as lines (else STOP) and are recorded in REVIEW_DROP.json. Merge of reviewpoints (3cc900ce + its cap); audits batch 87, two cycles, no defect. BATCH 3 integrator spend: $0.0222.
+- **The change:**
+  - withhold {format: reason}: only formats of this run, each reason non-empty and at most 300 characters; withholding every format is a STOP.
+  - points: open integrity points, each at most 300 characters.
+  - Only the formats sent are judged; REVIEW_NOT_DROPPABLE is unchanged for them.
+  - SIXTEEN_NINE_ONLY is printed only when the EDL seals 16:9 alone.
+  - A caller passing neither withhold nor points sees no change: the must-fail mirror sends both finals with no point line.
+- **Tests:**
+  - test_review_drop 25 passed, 20 subtests. The 3 new tests fail on the old code (c396c3c8).
+  - Refusals, with nothing sent: an unknown format; a blank or over-long reason; every format withheld; an empty, over-long or non-string point; 'passed' in a point; four 300-character points that cannot fit whole in a 1024-character caption.
+- **Regressions on the staged merge:**
+  - regression_test.sh: 26 PASS / 0 FAIL / 4 WARN.
+  - pipeline/regression.sh: exit 0, references REPRODUCED.
+  - Suites: review_drop 25, telegram_delivery 24, release_auth 31, alarm 5, fresh 27 (1 skipped), spotlight 8.
+- **Audits:**
+  - Cycle 1: qwen27b PASS 0.85, glm PASS 0.85; glm's low note (a reason had no length cap) was closed by the cap.
+  - Cycle 2: qwen27b PASS 0.95, glm PASS 0.85, no defect; both notes fail closed.
+  - Cost $0.0009401 + $0.0017118 = $0.0026519.
+- **Dry run** of tonight's drop on a scratch copy, with a stub sender:
+  - It sent the 16:9 alone: an 852-character caption with both points and the withheld 9:16 line under the head, then "Not passing (required): none".
+  - It also sent the note, 1,398 characters.
+- **NOT carried by the review texts:** the SPOTLIGHT kind. The note does not say this is the spotlight format's demonstration. That is a follow-up: review_texts adds the kind when spotlight(edl), audited.
+- **BATCH 3 integrator spend $0.0222:** V1 $0.0058, batch 85 $0.0060, batch 86 $0.0078, batch 87 $0.0027.
+
 ## 22:27 ITEM 1b LANDED: a run whose EDL seals formats ['16x9'] RENDERS, gates and verifies the 16:9 ALONE (ruling 93 as amended: "renders and delivers that format alone"). Merge of render16only (d1214c16); audits batch 86, two cycles, no defect. BATCH 3 integrator spend: $0.0196.
 - **What changed:**
   - run_fresh.run_formats: unreadable formats are a Hold.

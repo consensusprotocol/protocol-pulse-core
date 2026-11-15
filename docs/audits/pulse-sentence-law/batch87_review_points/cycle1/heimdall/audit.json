@@ -1,0 +1,69 @@
+{
+ "question": "Batch 87 = RULING 106 (b) on the REVIEW path (orchestrator 2026-11-14 '20:21'): \"a finished video that passes every gate is always launched and delivered as a candidate; one open integrity point means the REVIEW path with that point in the caption, never left unrendered.\" With RULING 93 AS AMENDED ('21:10'): a clip whose source-burned captions the 9:16 crop cuts mid-word is 16:9-only.\nThe case (tonight): run pinned_20261115_013448 (Blockware spotlight 3f481f5a): the 16:9 final cleared every one of its 24 gate rows; its 9:16 crop cuts the source's burned captions ('SOLD MY' reads 'D MY'); the run's EDL predates the sealed 'formats' field (absent = both). On re-judgment the builder's L-s step A refused the moment (CONDITION_OUTSIDE, REFERENT_OUTSIDE). telegram.review_drop, an engineering REVIEW to the approval chat (head \"REVIEW ONLY - NOT A PASS - not for publishing\"; never a release authorisation; texts generated in code, the caller could not edit them), would send BOTH finals and could not state the open point.\nThe change: review_drop(run_dir, send=None, withhold=None, points=()). withhold {format: reason}: formats of this run NOT read or sent, each with a non-empty reason; a format outside the run's formats or a blank reason -> STOP; withholding every format -> STOP. points: caller-stated open integrity points, non-empty strings <= REVIEW_POINT_MAX (300). Only the formats sent are judged (review_nonpass of those formats, unchanged otherwise; the REVIEW_NOT_DROPPABLE rule unchanged for them). review_texts puts \"OPEN INTEGRITY POINT: <p>\" and \"WITHHELD, NOT SENT: <fmt>: <reason>\" lines right under the head of every caption and of the note (the caption is cut from the END by _fit, unchanged); every text then passes the unchanged checks (starts with the head; _review_forbidden: no PASS / PASSED, CANDIDATE FOR APPROVAL, approved, outside the head) AND each stated line must appear WHOLE as a line in every text, else STOP. SIXTEEN_NINE_ONLY (\"the package sealed formats ['16x9']\") is now printed only when the EDL SEALS 16:9 alone (release_auth.release_formats), never for a caller's withhold. REVIEW_DROP.json records 'withheld' and 'points'. Nothing else changes: no release path, no attestation, no ledger.\nTests (test_review_drop, 3 new): the 9:16 withheld (its file deleted first: never read) and a point stated: only the 16:9 is sent, the point and the withheld reason ride whole under the head of the caption and the note, before the 'Not passing' line, recorded in REVIEW_DROP.json, and the 9:16's content-integrity failure (G16 FAIL) does not block the 16:9 drop; MUST-FAIL mirror: without withhold both finals go and no point line exists; refusals, nothing sent and no REVIEW_DROP.json: an unknown format, a blank reason, every format withheld, an empty / too long / non-string point, a point with 'passed', four 300-character points that cannot fit whole in a 1024-character caption. 25 + 24 (delivery) pass; on the old code (c396c3c8) the 3 new tests fail.\nFIND: a way for a caller to make the drop look like a pass, a release or an approval; a withheld format still read or sent; a stated point cut, dropped or hidden from any caption; a content-integrity failure of a SENT format that no longer blocks; any change for a caller that passes neither withhold nor points. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 3.8,
+   "cost": 0.000232717,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 25.6,
+   "cost": 0.000207173,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 5.1,
+   "cost": 0.0003410465,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 9.9,
+   "cost": 0.000159185,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/telegram.py",
+   "line": 691,
+   "issue": "A withheld format's reason is validated for non-emptiness but not for length, so a very long reason can make the withheld line fail the whole-line check and STOP the drop even though the caller supplied a valid withhold; also the reason, unlike points, has no cap, so the caller can inject arbitrarily long text into the note (only TEXT_MAX guards the note, and the caption check catches it).",
+   "evidence": "if any(f not in formats or not (isinstance(r, str) and r.strip()) for f, r in withhold.items()):",
+   "fix": "Cap the withheld reason at REVIEW_POINT_MAX (or a WITHHELD_MAX) like points, so the failure mode is a clean STOP with a clear reason rather than an over-long note; not a correctness defect since the whole-line check still guards it.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0009401215000000001,
+ "out_dir": "heimdall"
+}

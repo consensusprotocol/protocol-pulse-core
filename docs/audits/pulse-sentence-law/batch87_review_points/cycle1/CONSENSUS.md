@@ -1,0 +1,2 @@
+# Batch 87 cycle 1: no consensus finding. qwen27b PASS 0.85, glm PASS 0.85; panel $0.0009401. Grok not asked (ruling 107 (2)).
+- glm F1 [low], CLOSED: a withheld reason had no length cap. It failed closed already: an over-long reason cannot fit whole as a line, so the whole-line check STOPs. It is now capped at REVIEW_POINT_MAX like a point, with a refusal subtest (3cc900ce..; test_review_drop 25 passed).
