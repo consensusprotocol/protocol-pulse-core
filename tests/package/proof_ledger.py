@@ -20,6 +20,12 @@
 Writes tests/package/proof/ledger_<UTC stamp, to the second>/ (a run never writes into an existing one): inputs.json,
 package.json, package.log, step_a.json and, on a package, MOMENTS_PIN_LEDGER.json.
 
+RULING 107 (1) (orchestrator 20:20 ET Nov 14), "a build that judges nothing new must cost $0.00": a full build ends by
+writing FINGERPRINT.json (fingerprint(): its pool, deliveries, ET day, code by content, candidates and the integrator's
+outputs it read, as they stand at its end, with open_work(): what it left undone). The next build fingerprints its own
+inputs before any model is asked. When they equal the newest finished build's and that build left nothing undone, it
+writes NOTHING_NEW.json and stops: no router, no call, $0.00.
+
 RULING 66 (13:18; its standing part ruled 14:02), A PASSED LINE-UP IS KEPT: every build first tries the due
 candidates of the registry (tests/package/proof/CANDIDATES.json, seeded from the build records; pipeline/candidates.py),
 newest first, inside the 8 judged line-ups (a recorded verdict is free), each as package.build(candidate=...); only when
@@ -42,6 +48,7 @@ Usage: python3 tests/package/proof_ledger.py --delivered PIN [PIN ...] [--since 
 """
 import argparse
 import glob
+import hashlib
 import json
 import os
 import sys
@@ -76,6 +83,94 @@ REGISTRY = os.path.join(HERE, "proof", "CANDIDATES.json")     # ruling 66: the c
 SPOTLIGHTS = os.path.join(HERE, "proof", "SPOTLIGHTS.json")   # ruling 90: one spotlight per channel per ET day
 DIRECTIVES = os.path.join(HERE, "proof", "RULING_104_DIRECTIVES.json")   # ruling 104: the orchestrator's directives
 STATE_MD = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_STATE.md")   # ruling 87: a switch on line 1
+FINGERPRINT = "FINGERPRINT.json"     # RULING 107 (1): a finished build's inputs, written at its end for the next build
+NOTHING_NEW = "NOTHING_NEW.json"     # RULING 107 (1): a build that found nothing new and asked no model
+
+
+def _sha(x):
+    return hashlib.sha256(json.dumps(x, sort_keys=True, default=str).encode()).hexdigest()
+
+
+def _file_sha(path):
+    try:
+        with open(path, "rb") as f:
+            return hashlib.sha256(f.read()).hexdigest()
+    except OSError:
+        return None
+
+
+def code_content(repo=REPO, here=HERE):
+    """The build's code BY CONTENT: every pipeline/*.py and pipeline/*.json, and every driver module of tests/package
+    (not its tests). A STATE or data commit moves HEAD but changes no judgment, so HEAD is not in it."""
+    files = sorted(glob.glob(os.path.join(repo, "pipeline", "*.py")) + glob.glob(os.path.join(repo, "pipeline", "*.json"))
+                   + [f for f in glob.glob(os.path.join(here, "*.py")) if not os.path.basename(f).startswith("test_")])
+    h = hashlib.sha256()
+    for f in files:
+        with open(f, "rb") as fh:
+            h.update(os.path.relpath(f, repo).encode() + b"\0" + fh.read() + b"\0")
+    return h.hexdigest()
+
+
+def fingerprint(moments, delivered, pins, since, now, reg, routing=None):
+    """RULING 107 (1) (orchestrator 20:20 ET Nov 14): "a build that judges nothing new must cost $0.00". Everything a
+    build's judgments and outcome depend on: the pool's moment records (each with its words, span and sources), what
+    was delivered and since when, the ET day (the show date every step-A prompt carries), the code and its config BY
+    CONTENT, the candidate registry and which of its candidates are due now (ruling 66: a resting one comes due after
+    6 h), the ruling-90 spotlights record, the ruling-104 directives, and the outputs of the integrator's services this
+    build reads: the pre-check results for the pool's videos and the clip scorer's verdicts. -> (sha256, its parts)."""
+    vids = {m.get("video_id") for m in moments}
+    try:
+        res = sorted((n, os.path.getsize(os.path.join(LP.RESULTS, n)), os.path.getmtime(os.path.join(LP.RESULTS, n)))
+                     for n in os.listdir(LP.RESULTS) if n.split(".", 1)[0] in vids)
+    except OSError:
+        res = None
+    parts = {"moments": _sha(moments), "delivered": _sha([delivered, [p.get("story_id") for p in pins], since.isoformat()]),
+             "day_et": SPOT.et_day(now), "code": code_content(), "candidates": _sha(reg.get("candidates")),
+             "due": sorted([k, fresh] for k, _, fresh in CA.due(reg, now)),
+             "spotlights": _file_sha(SPOTLIGHTS), "directives": _file_sha(DIRECTIVES),
+             "precheck_results": _sha(res), "scorer_verdicts": _file_sha(PK.SCORER_VERDICTS),
+             "routing": routing}                 # --routing decides which models judge (audit 2155g C1, glm F4)
+    return _sha(parts), parts
+
+
+def _errors(x):
+    """The number of objects anywhere inside x whose "verdict" is "error" (a segment the render's lock gave no verdict on
+    in time, wherever the record nests it)."""
+    if isinstance(x, dict):
+        return int(x.get("verdict") == "error") + sum(_errors(v) for v in x.values())
+    if isinstance(x, (list, tuple)):
+        return sum(_errors(v) for v in x)
+    return 0
+
+
+def open_work(res, sp):
+    """RULING 107 (1): what a finished build left undone, which the next build must try again whatever its inputs:
+    the moments ruling 102 held (no leg answered), any segment the render's lock gave no verdict on in time, and any
+    visual check left unmeasured. -> int (0: nothing left)."""
+    pre, sp = (res or {}).get("prescreen") or {}, sp or {}
+    h = pre.get("held_102") or {}
+    held = len(h.get("first") or []) + len(h.get("second") or []) + len(sp.get("held_102") or [])
+    no_verdict = _errors(res) + _errors(sp)        # by structure, never a string search (audit 2155g C1, qwen)
+    vis = (res or {}).get("visual") or {}
+    return held + no_verdict + int(vis.get("unmeasured") or 0)
+
+
+def nothing_new(proof_dir, out_dir, fp):
+    """RULING 107 (1): the newest earlier FINISHED build (its FINGERPRINT.json) when its fingerprint is this build's and
+    it left nothing undone; else None. A build that stopped early writes none, and neither does a --from-candidate
+    one (it tries one line-up, not the pool), so neither can stand for a full build."""
+    for d in sorted(glob.glob(os.path.join(proof_dir, "ledger_*")), reverse=True):
+        if os.path.abspath(d) == os.path.abspath(out_dir):
+            continue
+        try:
+            with open(os.path.join(d, FINGERPRINT)) as f:
+                prev = json.load(f)
+        except (OSError, ValueError):
+            continue
+        if isinstance(prev, dict) and prev.get("fingerprint") == fp and prev.get("open_work") == 0:
+            return os.path.basename(d)
+        return None
+    return None
 
 
 def delivered_pins(paths):
@@ -316,6 +411,16 @@ def main(argv=None):
         json.dump({"since": since.isoformat(), "publish_window_h": a.hours, "delivered_pins": pins,
                    "adapter_report": rep, "inputs": inputs, "delivered": delivered, "moments": moments},
                   f, indent=1, default=str)
+    pool = json.loads(json.dumps(moments, default=str))   # RULING 107 (1): the pool as it came in, before any stage
+    fp, fp_parts = fingerprint(pool, delivered, pins, since, now, reg, a.routing)
+    same = None if cand is not None else nothing_new(os.path.join(HERE, "proof"), out_dir, fp)
+    if same:                                     # nothing new: no router, no model, $0.00 (ruling 107 (1))
+        with open(os.path.join(out_dir, NOTHING_NEW), "w") as f:
+            json.dump({"fingerprint": fp, "parts": fp_parts, "same_as": same, "at": now.isoformat()}, f, indent=1)
+        say(f"NOTHING NEW (ruling 107 (1)): this build's inputs are {same}'s (fingerprint {fp[:12]}), and that build "
+            f"left nothing undone: no model is asked, $0.00")
+        logf.close()
+        return 0
     rt = json.load(open(P.CONFIG)).get("routing") or {}
     routing = a.routing or rt.get("mode") or "today"
     shadow = None                                # RULING 86: Grok in shadow on the first heimdall_first pins
@@ -526,6 +631,12 @@ def main(argv=None):
             f"is written with registry false")           # applies this record's outcome (CA.seed)
     with open(os.path.join(out_dir, "package.json"), "w") as f:
         json.dump(res, f, indent=1, default=str)
+    if cand is None:                             # RULING 107 (1): the next build compares its inputs with these, as
+        fp_end, parts_end = fingerprint(pool, delivered, pins, since, now, reg, a.routing)   # at this build's END
+        left = open_work(res, sp)
+        with open(os.path.join(out_dir, FINGERPRINT), "w") as f:
+            json.dump({"fingerprint": fp_end, "parts": parts_end, "open_work": left, "build": name}, f, indent=1)
+        say(f"  RULING 107 (1): fingerprint {fp_end[:12]}, {left} item(s) left undone")
     logf.close()
     return 0
 

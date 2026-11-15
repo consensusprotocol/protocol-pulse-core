@@ -1,0 +1,25 @@
+pp-selectid, RULING 107 (1) (orchestrator 20:20 ET Nov 14): "a build that judges nothing new must cost $0.00 ... the
+test proves it before the second build of the batch" (ruling 108, 21:20).
+
+THE CHANGE (tests/package/proof_ledger.py, the build driver; tests/package/test_ruling_107_guard.py is new):
+- fingerprint(moments, delivered, pins, since, now, reg) hashes what a build's judgments and outcome depend on:
+  the pool's moment records; the delivered spans, pins and 'since'; the ET day (the show date every step-A prompt
+  carries); the code BY CONTENT (every pipeline/*.py and *.json and the tests/package driver modules, not tests:
+  code_content()); the candidate registry and which of its candidates are due now; the ruling-90 spotlights record;
+  the ruling-104 directives; the integrator's pre-check result files for the pool's videos; the clip scorer's verdict
+  file.
+- open_work(res, sp) counts what a finished build left undone: ruling 102's held moments, any "verdict": "error"
+  (no lock verdict in time), and unmeasured visual checks.
+- nothing_new(proof_dir, out_dir, fp): the NEWEST earlier build with a FINGERPRINT.json decides. It matches only
+  when its fingerprint equals this one's and it left nothing undone. A skipped build, a stopped build and a
+  --from-candidate build write none.
+- main(): after inputs.json, the pool is fingerprinted BEFORE any router exists. Nothing new: NOTHING_NEW.json is
+  written and the build returns 0 with no router and no call ($0.00). A full build ends by writing FINGERPRINT.json
+  with the inputs as they stand at its END (the registry, spotlights and the integrator's outputs it changed) and
+  its open work.
+UNCHANGED GUARDS: main() writes inputs.json before the guard; build_router is the only way a model is reached; the
+registry is saved before package.json.
+PLEASE CHECK: (1) Can the guard skip a build that has something new to judge (a new moment, a moment come due, an
+answer that arrived, a code change, a new day, held work)? (2) Can it ever let a model call happen before it
+decides? (3) Is anything time-varying in the fingerprint that would keep it from ever matching? (4) Do the tests pin
+it, including the driver-level test that building a router is an error when nothing is new?
