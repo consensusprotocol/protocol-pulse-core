@@ -1,0 +1,230 @@
+# RULING 113 (5): THE HOOK-ONLY LATER START, MEASURED FREE (report only; no live use)
+
+Ruling 112's 48 h (builds ledger_20261113_161500 to the order). A candidate: a moment whose opening failed the opener rule, G17a or ruling 94 (a)'s trim, or that rated 3 on scroll. A later start: a sentence boundary inside the moment after its first word; the candidate is the moment from there to its own end. Checked free: its length and the render's hook opener rule on its first words (no scorer verdict, so a third-person opener fails closed). NOT checked (each needs a build): G17a at the new onset, step A, L-v 2 / CUTTABLE, the hook job, the visual check.
+
+| why the opening failed | moments | with a later start | with one passing the opener rule | later starts | passing the opener rule | unreadable |
+|---|---|---|---|---|---|---|
+| G17a | 48 | 40 | 28 | 79 | 47 | 0 |
+| opener rule | 11 | 8 | 4 | 13 | 4 | 0 |
+| rated 3 on scroll | 13 | 10 | 8 | 15 | 10 | 0 |
+| ruling 94 (a) trim | 44 | 40 | 25 | 73 | 32 | 0 |
+
+Lengths of the later starts that pass the opener rule: 93, median 5.2 s, under 4 s: 27, 4-8 s: 42, 8 s or more: 24.
+
+## Reading
+
+- 65 of the 116 moments whose opening failed have at least one later start whose first words pass the render's hook rule (93 such starts). Most are short (the moment's own last sentence or two); a hook seat may take a short clip.
+- The 'ruling 94 (a) trim' class: 35 never passed the free screens (they open on 'and', 'so', 'but' or 'now' and have no trim variant) and 9 failed the trimmed cut; a later start is the same idea one sentence further in.
+- Unknown until a build asks: G17a at each new onset (the media), step A on the new context (does the dropped sentence leave a referent behind?), L-v 2 / CUTTABLE, the hook job on the calibrated bar, the visual check. Every one would be a NEW candidate under every gate. No live use (the order).
+
+Every candidate (the later starts that pass the opener rule, with their words):
+
+- 040795ca Stephan Livera (G17a; 9.8 s): 1 later start(s), 0 passing
+- 06f73bef Bitcoin Mechanic (rated 3 on scroll; 7.26 s): 2 later start(s), 1 passing
+  - +13: 1.68 s "Don't buy any if you don't want to buy any."
+- 0f0a461b TFTC (ruling 94 (a) trim; 5.54 s): 1 later start(s), 0 passing
+- 11df638c Bitcoin Magazine (rated 3 on scroll; 11.78 s): 3 later start(s), 2 passing
+  - +15: 6.48 s "Your product accepts Bitcoin on chain over lightning. As eCash, you also offer no email account."
+  - +16: 3.38 s "As eCash, you also offer no email account."
+- 12839fed BTC Sessions (ruling 94 (a) trim; 10.42 s): 1 later start(s), 1 passing
+  - +13: 2.6 s "Like you look through here, it's just a massive air pocket."
+- 1d7fc706 Coin Bureau (ruling 94 (a) trim; 15.72 s): 1 later start(s), 1 passing
+  - +10: 4.1 s "Wrapped ETH being Ethereum and token form, but we'll just call it ETH for simplicity."
+- 1da3eedd Coin Bureau (ruling 94 (a) trim; 10.16 s): 1 later start(s), 1 passing
+  - +10: 4.16 s "Coinbase isn't becoming a traditional bank, but it's gaining something even more valuable."
+- 1ddf18ce Simply Bitcoin (G17a; 10.84 s): 2 later start(s), 2 passing
+  - +26: 7.44 s "100%. From my finances to what I do for a living, to where I live, to how I view the world."
+  - +27: 6.96 s "From my finances to what I do for a living, to where I live, to how I view the world."
+- 2128c2a1 Digital Asset News (ruling 94 (a) trim; 9.46 s): 3 later start(s), 1 passing
+  - +13: 5.64 s "Bitcoin is essentially gold 2.0. And that's pretty much it. No one's using it for peer -to -peer transactions."
+- 2a28293e Coin Bureau (ruling 94 (a) trim; 16.47 s): 2 later start(s), 2 passing
+  - +7: 13.79 s "The scripts behind it run on hourly schedules across 11 blockchains, and one of the leading tools that banks a"
+  - +8: 4.38 s "The longer that money keeps moving, the harder it becomes to untangle wherever it's going."
+- 30b3768c Stephan Livera (G17a; 11.46 s): 2 later start(s), 0 passing
+- 3233deb3 Scott Melker (G17a; 9.1 s): 2 later start(s), 2 passing
+  - +17: 3.66 s "Bitcoin has always existed. To them, Bitcoin is like, God, it has always existed."
+  - +18: 2.32 s "To them, Bitcoin is like, God, it has always existed."
+- 33c015a4 Scott Melker (rated 3 on scroll; 14.78 s): 1 later start(s), 1 passing
+  - +15: 1.88 s "The question is, has it been five years yet?"
+- 369f4d16 Scott Melker (G17a; 3.66 s): 0 later start(s), 0 passing
+- 37a37445 Altcoin Daily (ruling 94 (a) trim; 15.75 s): 2 later start(s), 2 passing
+  - +11: 7.23 s "The 200 -month moving average was around $18,000 back then. Now it's around $63,000."
+  - +12: 2.6 s "Now it's around $63,000."
+- 38dc9d04 Simply Bitcoin (G17a; 9.62 s): 1 later start(s), 1 passing
+  - +16: 3.5 s "One, separate ourselves from all the scammers and shit coin land."
+- 3a6cb29a Strategy (MicroStrategy) (G17a; 13.82 s): 1 later start(s), 1 passing
+  - +11: 9.76 s "Bitcoin and crypto are about how do we modernize the financial markets and how we create financial freedom for"
+- 408ef969 Digital Asset News (rated 3 on scroll; 10.68 s): 1 later start(s), 1 passing
+  - +17: 3.04 s "I don't even believe Ethereum is going to flip Bitcoin quite honestly."
+- 40e4beec TFTC (ruling 94 (a) trim; 10.46 s): 1 later start(s), 0 passing
+- 41693a0e TFTC (ruling 94 (a) trim; 6.8 s): 1 later start(s), 0 passing
+- 42b01f20 Simply Bitcoin (G17a; 17.53 s): 2 later start(s), 1 passing
+  - +5: 11.06 s "are becoming more aggressive the lower Bitcoin goes. And we don't really need that much price action to liquid"
+- 43577053 CNBC Television (G17a; 7.0 s): 0 later start(s), 0 passing
+- 45c3bb5f Bankless (rated 3 on scroll; 11.96 s): 2 later start(s), 1 passing
+  - +1: 5.08 s "Bitcoin lost the 50 week moving average. It's now right in between the 50 week and the 200 week moving average"
+- 4bb48df1 TFTC (ruling 94 (a) trim; 13.9 s): 0 later start(s), 0 passing
+- 4c3b3538 CoinTelegraph (G17a; 6.68 s): 1 later start(s), 0 passing
+- 4c7a5e3a Altcoin Daily (ruling 94 (a) trim; 15.72 s): 1 later start(s), 0 passing
+- 4e267314 Digital Asset News (ruling 94 (a) trim; 8.96 s): 0 later start(s), 0 passing
+- 4effcd61 Anthony Pompliano (G17a; 6.76 s): 0 later start(s), 0 passing
+- 4f2a2de6 Digital Asset News (G17a; 7.06 s): 4 later start(s), 1 passing
+  - +18: 2.12 s "I don't care who tells you that you should never sell your Bitcoin."
+- 4f8d42ac TFTC (G17a; 20.4 s): 5 later start(s), 4 passing
+  - +12: 14.96 s "Like I don't know if I can buy anymore. You know what I get that Bitcoin feels expensive again. Once we approa"
+  - +13: 13.46 s "You know what I get that Bitcoin feels expensive again. Once we approach 100K, there will be a collective feel"
+  - +14: 9.95 s "Once we approach 100K, there will be a collective feeling that that is true. And that is where we start the ac"
+  - +16: 3.02 s "I think once you start approaching 100K, it's just going to be off to the races."
+- 5725aeda Altcoin Daily (G17a; 18.24 s): 2 later start(s), 2 passing
+  - +17: 12.06 s "I'm just happy to have seen it before I've turned 40 basically. I'm in my 30s, so it's the idea that I could s"
+  - +18: 9.08 s "I'm in my 30s, so it's the idea that I could see Bitcoin actually come into its identity and its adult adultho"
+- 57ed6c79 Simply Bitcoin (G17a; 8.08 s): 1 later start(s), 0 passing
+- 5fdcc528 Yahoo Finance (ruling 94 (a) trim; 16.85 s): 1 later start(s), 1 passing
+  - +14: 7.58 s "I'm moving over to the ETF, which is like mind -blowing for someone with the sort of original libertarian lien"
+- 6058ee58 Robert Breedlove (opener rule; 12.64 s): 1 later start(s), 0 passing
+- 610d8432 Coin Bureau (ruling 94 (a) trim; 10.94 s): 2 later start(s), 0 passing
+- 6251a82f Altcoin Daily (ruling 94 (a) trim; 5.3 s): 1 later start(s), 1 passing
+  - +13: 1.76 s "Of course, Bitcoin's going to go way lower."
+- 6456822a BTC Sessions (ruling 94 (a) trim; 6.58 s): 1 later start(s), 1 passing
+  - +12: 2.42 s "Bitcoin at this point went all the way down to like 15.5."
+- 67aa3cd0 TFTC (ruling 94 (a) trim; 18.68 s): 3 later start(s), 2 passing
+  - +16: 4.82 s "capitulating. Now, they're selling at a Q25 on my mean reversion framework."
+  - +17: 4.12 s "Now, they're selling at a Q25 on my mean reversion framework."
+- 68372751 Digital Asset News (opener rule; 15.86 s): 4 later start(s), 1 passing
+  - +17: 1.36 s "The Bitcoin spigot."
+- 6cc406c4 BTC Sessions (ruling 94 (a) trim; 13.6 s): 2 later start(s), 1 passing
+  - +14: 4.62 s "We dealt with whiplash for a long, long time in this space."
+- 6d67b893 Strategy (MicroStrategy) (ruling 94 (a) trim; 16.3 s): 3 later start(s), 0 passing
+- 7004b98d BTC Sessions (G17a; 13.82 s): 1 later start(s), 0 passing
+- 712b361f Simply Bitcoin (G17a; 8.6 s): 3 later start(s), 0 passing
+- 7376e34f Simply Bitcoin (rated 3 on scroll; 6.7 s): 1 later start(s), 0 passing
+- 744ba5c9 Altcoin Daily (ruling 94 (a) trim; 9.34 s): 2 later start(s), 1 passing
+  - +13: 6.0 s "You're going to be able to do things, unimaginable things with different type of assets. And that's just going"
+- 77d1ff81 Simply Bitcoin (ruling 94 (a) trim; 6.1 s): 1 later start(s), 0 passing
+- 7898eebe Coin Bureau (ruling 94 (a) trim; 10.48 s): 1 later start(s), 0 passing
+- 78bee9e1 Coin Bureau (ruling 94 (a) trim; 8.84 s): 1 later start(s), 1 passing
+  - +7: 5.98 s "On the 31st of October, a one -block reorganization on Ethereum caused a refund error of 10 -Eth."
+- 79054d4b Simply Bitcoin (ruling 94 (a) trim; 10.96 s): 2 later start(s), 0 passing
+- 7a033059 Simply Bitcoin (G17a; 12.5 s): 3 later start(s), 3 passing
+  - +27: 10.84 s "Bitcoin did change my life. 100%. From my finances to what I do for a living, to where I live, to how I view t"
+  - +28: 7.42 s "100%. From my finances to what I do for a living, to where I live, to how I view the world."
+  - +29: 6.94 s "From my finances to what I do for a living, to where I live, to how I view the world."
+- 7d8a34d1 Robert Breedlove (G17a; 11.86 s): 0 later start(s), 0 passing
+- 7e3e474c Simply Bitcoin (opener rule; 5.68 s): 0 later start(s), 0 passing
+- 7ecb835b Coin Bureau (ruling 94 (a) trim; 18.03 s): 2 later start(s), 1 passing
+  - +9: 13.97 s "Under US tax law, the trustee of an IRA or individual retirement account, must either be a bank or a firm with"
+- 7f2bf26b Simply Bitcoin (ruling 94 (a) trim; 15.67 s): 2 later start(s), 0 passing
+- 7fc90b0d CNBC Television (ruling 94 (a) trim; 17.36 s): 2 later start(s), 2 passing
+  - +8: 9.32 s "like crypto. All of that triggering a wave of forced selling, wiping out $1.3 billion in leveraged positions o"
+  - +9: 7.88 s "All of that triggering a wave of forced selling, wiping out $1.3 billion in leveraged positions over the past "
+- 8072c7bc Stephan Livera (G17a; 17.55 s): 2 later start(s), 1 passing
+  - +484: 4.88 s "Other people are willing to effectively pay that yield in order to get access to amplified Bitcoin."
+- 8a763838 Stephan Livera (ruling 94 (a) trim; 12.97 s): 0 later start(s), 0 passing
+- 9392dd86 Simply Bitcoin (G17a; 7.81 s): 5 later start(s), 4 passing
+  - +11: 6.83 s "Who's your CEO? Who's your sector? Who are you overly leaned on? Bitcoin can be owned by everyone. And control"
+  - +12: 5.87 s "Who's your sector? Who are you overly leaned on? Bitcoin can be owned by everyone. And controlled by no one."
+  - +13: 4.95 s "Who are you overly leaned on? Bitcoin can be owned by everyone. And controlled by no one."
+  - +14: 3.39 s "Bitcoin can be owned by everyone. And controlled by no one."
+- 94ca04cd Scott Melker (G17a; 11.47 s): 2 later start(s), 2 passing
+  - +11: 6.81 s "Recent rapid redemptions explain the market swoon. Bitcoin spot price fell below 70,000 on Friday, the lowest "
+  - +12: 4.08 s "Bitcoin spot price fell below 70,000 on Friday, the lowest since August."
+- 95d20143 What Bitcoin Did (opener rule; 9.46 s): 1 later start(s), 0 passing
+- 9828eed5 Scott Melker (G17a; 9.12 s): 1 later start(s), 0 passing
+- 983fb30d Altcoin Daily (ruling 94 (a) trim; 12.5 s): 2 later start(s), 0 passing
+- 9ac17c2d Simply Bitcoin (rated 3 on scroll; 10.66 s): 1 later start(s), 0 passing
+- 9c146121 Stephan Livera (G17a; 16.39 s): 2 later start(s), 1 passing
+  - +250: 8.1 s "In a way, I think of Bitcoin being like this global productivity index, similar to the S &P 500 is to individu"
+- 9db5d759 TFTC (ruling 94 (a) trim; 16.64 s): 2 later start(s), 1 passing
+  - +13: 5.11 s "GameStop was probably the first one that was like, front and center where Wall Street was just plain wrong."
+- 9e059304 Altcoin Daily (G17a; 5.52 s): 1 later start(s), 0 passing
+- 9e2fb1d9 Scott Melker (G17a; 7.0 s): 1 later start(s), 1 passing
+  - +11: 2.34 s "Recent rapid redemptions explain the market swoon."
+- 9f9457fd CoinTelegraph (G17a; 6.22 s): 1 later start(s), 0 passing
+- a36d53c6 Altcoin Daily (ruling 94 (a) trim; 34.53 s): 5 later start(s), 1 passing
+  - +11: 23.96 s "Again, I miss quoting exactly the incremental improvement here, but it's not just, this isn't like, we just ha"
+- a45d26b8 CNBC Television (opener rule; 13.94 s): 1 later start(s), 1 passing
+  - +10: 9.92 s "Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freed"
+- a49592a9 Blockware Solutions (rated 3 on scroll; 7.6 s): 1 later start(s), 1 passing
+  - +14: 5.36 s "I've been consistently accumulating Bitcoin, and my favorite way to do that is by running Bitcoin mining machi"
+- a5f5a1d5 Yahoo Finance (opener rule; 19.32 s): 2 later start(s), 0 passing
+- a788d83b Scott Melker (G17a; 7.86 s): 1 later start(s), 1 passing
+  - +18: 6.12 s "The idea of like, instantly sending money from someone else to another person, and then data, Satoshi Dice."
+- a8cad3e1 Simply Bitcoin (opener rule; 8.6 s): 2 later start(s), 1 passing
+  - +9: 4.58 s "I believe it's worth $30 to $40 trillion at a minimum. There's a lot of price performance there."
+- aecbae39 Scott Melker (ruling 94 (a) trim; 12.83 s): 1 later start(s), 0 passing
+- afe8101a BTC Sessions (rated 3 on scroll; 16.36 s): 2 later start(s), 2 passing
+  - +20: 11.92 s "The seller gets dollars by default or... can choose to keep the Bitcoin and there's no chargebacks. Sellers ca"
+  - +21: 5.32 s "Sellers can also auto convert up to 50 % of their daily card sales into Bitcoin."
+- aff60c68 Strategy (MicroStrategy) (ruling 94 (a) trim; 23.72 s): 2 later start(s), 0 passing
+- b04337f6 Strategy (MicroStrategy) (G17a; 29.56 s): 3 later start(s), 2 passing
+  - +7: 27.46 s "Bitcoin is an appreciating asset. All of the robots and all of the AIs in the world can't figure out how to cr"
+  - +8: 24.74 s "All of the robots and all of the AIs in the world can't figure out how to create more than 450 Bitcoin per day"
+- b2e13912 Altcoin Daily (ruling 94 (a) trim; 14.35 s): 2 later start(s), 1 passing
+  - +10: 2.18 s "Just people are like, this is over. It's it."
+- b6be0c41 Scott Melker (rated 3 on scroll; 9.04 s): 0 later start(s), 0 passing
+- b805e69a Simply Bitcoin (G17a; 18.56 s): 3 later start(s), 2 passing
+  - +10: 14.9 s "You just die. And like I don't think Bitcoin's going to die. I think it's embedded deeply in why I'm here and "
+  - +12: 12.46 s "I think it's embedded deeply in why I'm here and why this business was started because after FTX Celsius and B"
+- b8271826 Stephan Livera (rated 3 on scroll; 9.68 s): 1 later start(s), 1 passing
+  - +7: 4.84 s "The only way to get better at it is to become faster or to become larger."
+- bacb2f01 Scott Melker (rated 3 on scroll; 3.78 s): 0 later start(s), 0 passing
+- bf90138a TFTC (ruling 94 (a) trim; 18.18 s): 2 later start(s), 1 passing
+  - +10: 4.94 s "You just need this one thing. And it's not because Black Rock filed the ETF that we went up."
+- c083afe2 Stephan Livera (G17a; 17.54 s): 0 later start(s), 0 passing
+- c3be6f1c Scott Melker (opener rule; 8.76 s): 1 later start(s), 0 passing
+- c6d0463e Anthony Pompliano (G17a; 5.8 s): 0 later start(s), 0 passing
+- c6e96bc6 CoinTelegraph (G17a; 4.53 s): 2 later start(s), 2 passing
+  - +11: 2.42 s "Bitcoin's in a downtrend. Look at its 50 -week movement average."
+  - +12: 1.3 s "Look at its 50 -week movement average."
+- c7646b4e Altcoin Daily (G17a; 6.93 s): 1 later start(s), 1 passing
+  - +12: 4.27 s "I mean, basically, everything in the industry eventually bleeds to Bitcoin."
+- c8827879 Stephan Livera (G17a; 8.1 s): 0 later start(s), 0 passing
+- ca3ba862 Bankless (G17a; 10.34 s): 3 later start(s), 2 passing
+  - +13: 5.02 s "Hopefully Bitcoin is at a higher price from where it is now. But until then, crypto is risky. You can lose wha"
+  - +15: 1.48 s "You can lose what you put in."
+- caeaf570 Stephan Livera (G17a; 9.54 s): 1 later start(s), 1 passing
+  - +422: 3.09 s "like it ends up buying bitcoin, right?"
+- cbd78db0 Simply Bitcoin (G17a; 9.64 s): 1 later start(s), 1 passing
+  - +9: 6.08 s "I'm not the biggest fan of the trend we've seen of people sending their Bitcoin to ETFs."
+- cf18ef7d Scott Melker (G17a; 24.09 s): 2 later start(s), 1 passing
+  - +16: 15.63 s "People like myself who have been around forever will always just want to work in the industry and build things"
+- d21c32a4 Simply Bitcoin (opener rule; 3.57 s): 0 later start(s), 0 passing
+- d6a09337 Stephan Livera (G17a; 6.0 s): 0 later start(s), 0 passing
+- da116d5d The Bitcoin Layer (opener rule; 19.65 s): 1 later start(s), 1 passing
+  - +10: 8.69 s "I think you know, what we're seeing is a degrossing episode, which is by historical standards, one of the larg"
+- dbeb5212 Coin Bureau (ruling 94 (a) trim; 12.68 s): 2 later start(s), 0 passing
+- e0819ba0 Digital Asset News (ruling 94 (a) trim; 14.51 s): 2 later start(s), 2 passing
+  - +10: 4.82 s "Last year was November, or four years prior was November. Four years before that, it was December."
+  - +11: 1.4 s "Four years before that, it was December."
+- e3563aaa Anthony Pompliano (ruling 94 (a) trim; 23.05 s): 2 later start(s), 1 passing
+  - +13: 18.64 s "of, you know, kind of penetrating and doing all the stuff and compress it into a couple of days. And he thinks"
+- e45a6a45 Bitcoin Magazine (ruling 94 (a) trim; 5.96 s): 0 later start(s), 0 passing
+- e70dcc2b DataDash (G17a; 9.9 s): 1 later start(s), 0 passing
+- e9f0cf97 Altcoin Daily (G17a; 12.96 s): 4 later start(s), 3 passing
+  - +12: 6.06 s "We know exactly how much exists. We also can send it anywhere in the world. You can use it's divisible as a mo"
+  - +13: 4.14 s "We also can send it anywhere in the world. You can use it's divisible as a money."
+  - +14: 2.22 s "You can use it's divisible as a money."
+- ea490da7 Bitcoin Magazine (ruling 94 (a) trim; 5.32 s): 1 later start(s), 0 passing
+- eaa78b6e TFTC (ruling 94 (a) trim; 18.52 s): 4 later start(s), 2 passing
+  - +13: 5.22 s "Perfect example. sheds its skin, crawls out, and then bang, it's got a new narrative, and away it goes."
+  - +14: 4.12 s "sheds its skin, crawls out, and then bang, it's got a new narrative, and away it goes."
+- eb0fd778 Anthony Pompliano (G17a; 7.74 s): 1 later start(s), 0 passing
+- eb402a21 Anthony Pompliano (G17a; 10.06 s): 1 later start(s), 0 passing
+- ec4c0ff4 Anthony Pompliano (ruling 94 (a) trim; 12.91 s): 2 later start(s), 1 passing
+  - +13: 6.83 s "One is the innovation side, and the other one is the liquidity side. So it has a gold type thing."
+- efb6ad79 Bankless (G17a; 8.7 s): 1 later start(s), 1 passing
+  - +18: 3.36 s "We still kept above Bitcoin's 50 -week moving average."
+- f003b72d Simply Bitcoin (rated 3 on scroll; 2.54 s): 0 later start(s), 0 passing
+- f03d79cf Stephan Livera (G17a; 17.92 s): 2 later start(s), 2 passing
+  - +418: 6.77 s "You know, our objective is to outperform the hurdle rate of Bitcoin. We want to outperform Bitcoin."
+  - +419: 1.52 s "We want to outperform Bitcoin."
+- f2af9efd CoinTelegraph (G17a; 7.49 s): 1 later start(s), 1 passing
+  - +13: 3.02 s "Bitcoin peaked October 6th last year."
+- f5c977c5 Scott Melker (opener rule; 5.86 s): 0 later start(s), 0 passing
+- fa73f6c3 Simply Bitcoin (G17a; 16.88 s): 5 later start(s), 1 passing
+  - +14: 11.38 s "Bitcoin is an asset that can be owned by everyone. but totally controlled by no one. No key man, no key compan"
+- fb613168 Bitcoin Magazine (ruling 94 (a) trim; 17.06 s): 2 later start(s), 2 passing
+  - +11: 11.54 s "You know, it's just people doing the work, understanding and technology and wanting more of it. Adoption is st"
+  - +12: 6.3 s "Adoption is still remarkably low for something that's done as well as it has and I think has as much potential"
+- fdd84c05 Strategy (MicroStrategy) (ruling 94 (a) trim; 12.36 s): 2 later start(s), 1 passing
+  - +14: 0.62 s "We don't."
