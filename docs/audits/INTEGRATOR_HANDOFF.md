@@ -22,7 +22,7 @@ line says PASS path (with the Telegram ids) or HOLD (stage, row, measured facts)
      scratchpad, putting the old file back, and running them.
   3. Run TWO audit cycles and implement the consensus (commands below). Record each cycle in
      `docs/audits/pulse-sentence-law/batchNN_<name>/cycle{1,2}/`: QUESTION.txt, STEP.diff, CONSENSUS.md, heimdall/.
-     The last batch is **80** (ruling 103's re-listen, 2026-11-14).
+     The last batch is **85** (ruling 93 as amended, the format-aware release, 2026-11-14; 81-83 the spotlight gate, alarm and readiness; 84 ruling 105).
   4. On main, stage it: `git merge --no-commit --no-ff <branch>`.
   5. Run `bash regression_test.sh` (0 FAIL) and `bash pipeline/regression.sh` (exit 0: every protected reference
      reproduced) ON THE STAGED MERGE. Worktrees lack untracked assets, so run them on main.
@@ -97,6 +97,8 @@ No session waits on the orchestrator. Standing, for all three sessions:
 - **91, its MEDLEY half** (2026-11-14, the row agreed with the builder): a medley's takeaway renders only with the sealed `takeaway_value` row {status PASS, replayed false, text = the line}. Carrier: `edl_rules.takeaway_value`, called by `run_fresh.stage_validate` and `scripts/integrator/check_pin_only.py`; NOT a `validate_edl` rule (the references predate it).
 - **93**: no channel is ineligible by name; G10 runs on every clip (MONITORING); the 9:16 single crop keeps a lower third whole where a face-safe crop allows. Carrier: `vertical_layout.single_crop` / `lower_third_spans`, `render_vertical._shot_vf`, `qa_gates.g10_clip_ids`, `editorial_select.layout_eligible`.
 - **103** (2026-11-14 '14:13'): the targeted re-listen: one number / name token held by ruling 72's comparison is re-read by BOTH recognisers on a short window (its word times +- 1.5 s); it passes only if both give the lock's token, else the hold is final. Carrier: `pinned.relisten_candidate` / `relisten_verdict`, `lock_precheck.relisten` (the entry's `relisten` record). With it: canon's 401k / 401(k) name token (L-k).
+- **105** (2026-11-14 '20:13'): the unstable second reading: across passes on the SAME audio (same source sha256), a number token is the lock's only when the decoder is stable, the second recogniser's readings differ among themselves with one giving the token, and every differing reading is a truncation ('401' of '401k'); anything else is a final hold. Carrier: `pinned.truncation_of` / `reading_near` / `unstable_second_reading`, `lock_precheck._history` / `unstable` (the entry's `unstable_second_reading`), landed cb060adc.
+- **93 as amended** (2026-11-14 '21:10', relayed by the builder): a clip whose source-burned captions the 9:16 crop cuts mid-word is 16:9-ONLY. The pin seals `moments_package["formats"] = ["16x9"]` (inside the seal; absent = both); only the sealed formats decide, are attested and are sent. Carrier: `release_auth.release_formats` / `package_formats` / `bound`, `run_fresh.stage_pinned` / `release_verdict`, `telegram._plan` / `review_drop`, `check_pin_only` (prints `formats=`). The 9:16 is still rendered and gated (never deciding, never sent): open item 1b.
 - **94**: hooks.
   - A first- or second-person pronoun opener is no fault.
   - A third-person or demonstrative opener opens only with the scorer's affirmation.
@@ -192,7 +194,7 @@ No session waits on the orchestrator. Standing, for all three sessions:
 - **Pre-check** (ruling 68 + 72 + 73 + 84), tmux `pipeline_pp_lockcheck`.
   - It runs as a ONCE-LOOP, so no CUDA context stays resident (E-FAIL-084):
     `cd /home/ultron/protocol_pulse && while true; do CUDA_VISIBLE_DEVICES=0 python3 pipeline/lock_precheck.py once 2>&1 | grep --line-buffered -v 'lock pre-check: decoder_sha' | tee -a data/lock_precheck/serve.log; sleep 5; done`
-  - decoder_sha **d1e155c642a6** (since the canon-401k + ruling 103 landing, 2026-11-14; was c705b20ed800); RULES "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103".
+  - decoder_sha **a4c307f78c94** (since the ruling 105 landing, cb060adc, 2026-11-14 21:33; was d1e155c642a6, and c705b20ed800 before the canon-401k + ruling 103 landing); RULES "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105". pinned.py is an input of this sha: ANY edit to it moves the sha and must land in lockstep with the builder.
   - The sha changes whenever select_passages, punctuation, pinned, sentence_law, canon or gpu0 changes: tell the builder the new one.
   - Requests are read only from the builder's `tests/package/proof/lock_requests/`. Results go to `data/lock_precheck/results/<vid>.<start>-<end>.<sha12>.json`.
 - **Scorer** (item 56, rulings 60 / 94), tmux `pipeline_pp_scorer`:
@@ -248,6 +250,7 @@ No session waits on the orchestrator. Standing, for all three sessions:
 1. **Render the builder's pin the moment it arrives.**
    - Its 01:01 build (2f081cba) runs a medley, then a spotlight. The scorer rated its 83 candidates at 01:06.
    - The FIRST spotlight is a DEMONSTRATION for PBX.
+1b. **Render a 16:9-only run's 16:9 ALONE** (ruling 93 as amended: "renders and delivers that format alone"). Since batch 85 the release, the verdict and both send paths follow the sealed formats, but run_fresh still renders and gates the 9:16 (stage_render, loudness.correct_finals, stage_gates' cross-format rows G11 / G14c, verify_pack, write_report). Make those stages follow `release_auth.release_formats(edl)`, then audit two cycles.
 2. **The no-voice proof.** The first zero-line spotlight (moment -> sign-off -> credits -> outro, no VO card before the sign-off) proves the mix and timeline with no body VO.
    - Report G1 (0 body VO regions; its negative control still runs), G13 (the sign-off) and G5 (28-50 s).
    - Report G12 / G15 on the ONE-channel card, which has never been rendered. Its layout arithmetic (960,510 for 16:9; 540,913 for 9:16) is only unit-tested.

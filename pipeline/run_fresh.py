@@ -357,6 +357,19 @@ def stage_pinned(run, pin_path):
     except PinError as e:
         raise Hold(f"pinned decision rejected: {e}")
     pin = rec["pin"]
+    import release_auth                    # ruling 93 as amended: the SEALED formats ride in the EDL (bound by the
+    try:                                   # attestation); a malformed value is a rejected pin, never a guess
+        formats = release_auth.package_formats(pin.get("moments_package"))
+    except ValueError as e:
+        raise Hold(f"pinned decision rejected: {e}")
+    if formats is not None:
+        p = os.path.join(run.dir, "edl.json")
+        with open(p) as f:
+            edl = json.load(f)
+        edl["formats"] = formats
+        jdump(p, edl)
+    run.prov["release_formats"] = formats or list(release_auth.FORMATS)
+    print(f"  formats released: {run.prov['release_formats']}" + (" (sealed)" if formats else " (both: none sealed)"))
     run.allow_v2f_material = bool(pin.get("reuses_v2f_material"))
     run.prov["mode"] = "pinned"
     run.prov["editorial"] = {"mode": "pinned", "story_id": pin["story_id"], "label": pin["label"],
@@ -1474,7 +1487,9 @@ def write_report(run):
     if s["holds"]:
         L += ["## HOLD reasons"] + [f"- {h}" for h in s["holds"]] + [""]
     if p.get("verdicts"):
-        L += ["## Per-format verdict"] + [f"- {k}: {v}" for k, v in p["verdicts"].items()] + [""]
+        L += ["## Per-format verdict"] + [f"- {k}: {v}" for k, v in p["verdicts"].items()] \
+            + [f"- released formats: {p.get('release_formats')} (ruling 93 as amended: only these decide and are sent)",
+               ""]
     g = p.get("gates")
     if g:
         for fmt in ("16x9", "9x16"):
@@ -1575,13 +1590,32 @@ def run_tail(run, cuts, start="prepare", vision=True):
                                           "answers": {m: (d or {}).get("rows") for m, d in (v.get("per_model") or {}).items()}}
                                     for fmt, v in (pack.get("visual") or {}).items()}
     run.prov["contact_sheets"] = pack.get("contact_sheets")
-    v16, bad16 = verdict_for(rows.get("16x9"), "16x9", evidence)
-    v9, bad9 = verdict_for(rows.get("9x16"), "9x16", evidence)
-    run.prov["verdicts"] = {"16x9": v16, "9x16": v9}
-    run.prov["verdict_blockers"] = {"16x9": bad16, "9x16": bad9}
-    run.status["verdict"] = VERDICT_CANDIDATE if v16 == v9 == VERDICT_CANDIDATE else VERDICT_HOLD
+    release_verdict(run, rows, evidence)
+
+
+def release_verdict(run, rows, evidence):
+    """The run's verdict from the report's rows: CANDIDATE only when every RELEASED format (ruling 93 as amended:
+    the EDL's sealed formats, release_auth.release_formats; unreadable = a hold) passes its inventory. Every format's
+    verdict is reported in PROVENANCE; a format outside the sealed set does not decide and is never sent."""
+    import release_auth
+    unreadable = None
+    try:
+        with open(os.path.join(run.dir, "edl.json")) as f:
+            formats = release_auth.release_formats(json.load(f))
+    except (OSError, ValueError) as e:
+        formats, unreadable = release_auth.FORMATS, f"release formats unreadable: {type(e).__name__}: {e}"
+        run.status["holds"].append(unreadable)
+    verdicts = {fmt: verdict_for(rows.get(fmt), fmt, evidence) for fmt in release_auth.FORMATS}
+    run.prov["verdicts"] = {fmt: v for fmt, (v, _) in verdicts.items()}           # every format's, reported
+    run.prov["verdict_blockers"] = {fmt: bad for fmt, (_, bad) in verdicts.items()}
+    run.prov["release_formats"] = None if unreadable else list(formats)      # None: nothing may be released
+    run.status["verdict"] = VERDICT_CANDIDATE if not unreadable and all(
+        verdicts[f][0] == VERDICT_CANDIDATE for f in formats) else VERDICT_HOLD
     if run.status["verdict"] == VERDICT_HOLD:
-        run.status["holds"] += [f"gates {k}: {v}" for k, v in {**bad16, **bad9}.items()]
+        bad = {}
+        for f in formats:
+            bad.update(verdicts[f][1])
+        run.status["holds"] += [f"gates {k}: {v}" for k, v in bad.items()]
 
 
 def main():

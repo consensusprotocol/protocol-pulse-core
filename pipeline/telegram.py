@@ -31,6 +31,9 @@ TEXT_MAX = 4096                          # Telegram sendMessage limit
 VIDEO_MAX_BYTES = 49_000_000             # Bot API upload limit is 50 MB; checked BEFORE the first send (X1)
 DIMS = {"16x9": (1920, 1080), "9x16": (1080, 1920)}
 FINALS = {"16x9": "out/segment.mp4", "9x16": "out/segment_vertical.mp4"}
+# ruling 93 as amended (orchestrator 2026-11-14 '21:10'): a run sends the formats its package sealed, nothing else
+SIXTEEN_NINE_ONLY = ("16:9 ONLY: the package sealed formats ['16x9'] (ruling 93 as amended: a 9:16 crop cuts a "
+                     "source's burned captions); no 9:16 is sent")
 
 
 def _fit(text, limit):
@@ -80,6 +83,8 @@ def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
              "Clips: " + ", ".join([edl["hook"].get("channel", "?")] + [c.get("channel", "?") for c in edl.get("clips", [])])]
     if mon:                                  # claude-fable audit batch 16 #1: never 'all passed' with a failure unsaid
         lines.insert(1, "Monitoring (reported, not release-deciding): " + "; ".join(f"{k} {v}" for k, v in mon.items()))
+    if release_auth.release_formats(edl) == ("16x9",):
+        lines.append(SIXTEEN_NINE_ONLY)
     note = vertical_layout.layout_note(edl) if fmt == "9x16" else ""
     if note:
         lines.append(note)
@@ -146,9 +151,11 @@ def headline_numbers_said(run_dir, snap=None):
             report = json.load(f)
     else:
         edl, report = snap["edl"], snap["report"]
+    import release_auth
+    formats = release_auth.release_formats(edl)     # ruling 93 as amended: every format that is SENT
     g18 = report.get("G18") or {}
     reads = {fmt: [canon.canon_tokens(c) for r in (g18.get(fmt) or []) if isinstance(r, dict)
-                   for c in _clauses(r.get("heard") or "")] for fmt in ("16x9", "9x16")}
+                   for c in _clauses(r.get("heard") or "")] for fmt in formats}
     missing = []
     for head in (edl.get("headline"), edl.get("topic")):
         for clause in _clauses(head or ""):
@@ -167,7 +174,7 @@ def headline_numbers_said(run_dir, snap=None):
                                    for s, v, u in _numeric_claims(rc))
                     ok_dir = pol is None or (rs & (UP if pol == "up" else DOWN)) and not rs & (DOWN if pol == "up" else UP)
                     return ok_claim and names <= rs and bool(ok_dir)
-                if not all(any(said_in(rc) for rc in reads[fmt]) for fmt in ("16x9", "9x16")):
+                if not all(any(said_in(rc) for rc in reads[fmt]) for fmt in formats):
                     missing.append(" ".join(x for x in (sign, value, unit) if x))
     return sorted(set(missing))
 
@@ -175,12 +182,20 @@ def headline_numbers_said(run_dir, snap=None):
 def _plan(run_dir, option, sheets, att, snap=None):
     """Every message of the drop, built and checked BEFORE anything is sent (X1 / X4 / T13): the two finals at
     their real dimensions and size, the contact sheets, and (release drop) the publishing kit."""
+    import release_auth
     plan = []
     snap = snap or snapshot(run_dir, att)
+    try:                                                   # ruling 93 as amended: the sealed formats ALONE are sent
+        formats = release_auth.release_formats(snap["edl"])
+    except ValueError as e:
+        raise RuntimeError(f"STOP: the EDL's formats are unreadable: {e}") from None
+    if list(formats) != att.get("formats"):
+        raise RuntimeError(f"STOP: the EDL's formats {list(formats)} are not the attested {att.get('formats')!r}")
     bad = headline_numbers_said(run_dir, snap)
     if bad:
         raise RuntimeError(f"STOP: the headline states numbers the video does not say: {bad}")
-    for fmt, rel in FINALS.items():
+    for fmt in formats:
+        rel = FINALS[fmt]
         path = os.path.join(run_dir, rel)
         w, h, dur = _dims(path)
         if (w, h) != DIMS[fmt]:
@@ -190,7 +205,7 @@ def _plan(run_dir, option, sheets, att, snap=None):
         plan.append({"key": f"video:{fmt}", "kind": "video", "path": path, "rel": rel, "format": fmt,
                      "fields": {"caption": build_caption(run_dir, fmt, att, option, duration=dur, snap=snap), "width": w,
                                 "height": h, "duration": int(round(dur)), "supports_streaming": "true"}})
-    for fmt in (("16x9", "9x16") if sheets else ()):        # one contact sheet of the finished video per format
+    for fmt in (formats if sheets else ()):                 # one contact sheet of the finished video per format
         rel = f"qa/contact_sheet_{fmt}.jpg"
         p = os.path.join(run_dir, rel)
         kind = "photo" if _photo_ok(p) else "document"
@@ -613,9 +628,20 @@ def _edge_levels(run_dir, fmt, seg, side, span=0.4):
         return ""
 
 
-def review_nonpass(run_dir):
+def review_formats(run_dir):
+    """The formats a review drop of this run sends (ruling 93 as amended): the EDL's sealed formats, release_auth's
+    reading; unreadable = nothing is sent."""
+    import release_auth
+    try:
+        with open(os.path.join(run_dir, "edl.json")) as f:
+            return release_auth.release_formats(json.load(f))
+    except (OSError, ValueError) as e:
+        raise RuntimeError(f"STOP: review drop: the run's formats are unreadable ({type(e).__name__}: {e})") from None
+
+
+def review_nonpass(run_dir, formats=None):
     """[(format, row, verdict, reason)] for every REQUIRED row (release_auth's inventory) that is not exactly
-    PASS, from the run's GATE_REPORT.json; refuses without one."""
+    PASS, from the run's GATE_REPORT.json, for the formats the drop sends; refuses without one."""
     import release_auth
     p = os.path.join(run_dir, "GATE_REPORT.json")
     if not os.path.exists(p):
@@ -624,7 +650,7 @@ def review_nonpass(run_dir):
         rep = json.load(f)
     rep["_run_dir"] = run_dir
     out = []
-    for fmt in ("16x9", "9x16"):
+    for fmt in (formats or review_formats(run_dir)):
         rows = (rep.get("rows") or {}).get(fmt) or {}
         notes = (rep.get("notes") or {}).get(fmt) or {}
         for k in sorted(release_auth.INVENTORY[fmt]):
@@ -649,17 +675,19 @@ def review_texts(run_dir, nonpass, digests):
         pass
     run_id = os.path.basename(os.path.abspath(run_dir).rstrip("/"))
     rows = ", ".join(sorted({f"{k} {v}" for _, k, v, _ in nonpass})) or "none"
+    only = list(digests) == ["16x9"]           # ruling 93 as amended: the drop carries exactly the sealed formats
     caps = {fmt: _fit(f"{REVIEW_HEAD}\nNot passing (required): {rows}\nrun {run_id} | {fmt} sha256 {digests[fmt]}"
-                      f"\nReasons, links and deviations: the review note in this chat.", CAPTION_MAX)
-            for fmt in FINALS}
+                      + (f"\n{SIXTEEN_NINE_ONLY}" if only else "")
+                      + "\nReasons, links and deviations: the review note in this chat.", CAPTION_MAX)
+            for fmt in digests}
     segs = [("hook", edl.get("hook") or {})] + [(f"clip {c.get('index', i + 1)}", c)
                                                  for i, c in enumerate(edl.get("clips") or [])]
     links = edl.get("moments_sources_30s_before") or []
     lines = [REVIEW_HEAD, "", "Required rows NOT passing (verbatim, with the measured reason):"]
     lines += [f"- {fmt} {k} {v}: {why}" for fmt, k, v, why in nonpass] or ["- none"]
-    lines += ["", f"Run {run_id} | HEAD {head or 'not recorded'}",
-              f"16:9 sha256 {digests['16x9']}", f"9:16 sha256 {digests['9x16']}", "",
-              f"Title: {edl.get('title')}", f"Caption: {edl.get('caption')}", "", "Sources (~30 s before each clip):"]
+    lines += ["", f"Run {run_id} | HEAD {head or 'not recorded'}"]
+    lines += [f"{fmt.replace('x', ':')} sha256 {digests[fmt]}" for fmt in digests] + ([SIXTEEN_NINE_ONLY] if only else [])
+    lines += ["", f"Title: {edl.get('title')}", f"Caption: {edl.get('caption')}", "", "Sources (~30 s before each clip):"]
     for i, (role, s) in enumerate(segs):
         link = links[i] if isinstance(links, list) and i < len(links) else \
             f"https://www.youtube.com/watch?v={s.get('video_id')}"
@@ -668,9 +696,9 @@ def review_texts(run_dir, nonpass, digests):
     if sp:
         lines += ["", SPEAKERS_HEAD] + sp
     dev = []
-    for fmt, rel in FINALS.items():
+    for fmt in digests:
         try:
-            d = _dims(os.path.join(run_dir, rel))[2]
+            d = _dims(os.path.join(run_dir, FINALS[fmt]))[2]
             if spotlight(edl) and not 28.0 <= d <= 50.0:                  # law L-ab: a spotlight's format
                 dev.append(f"{fmt} runtime {d:.3f} s, outside the spotlight's 28-50 s format (law L-ab)")
             elif not spotlight(edl) and not 60.0 <= d <= 70.0:
@@ -698,13 +726,17 @@ def review_texts(run_dir, nonpass, digests):
 
 def review_drop(run_dir, send=None):
     """Send a run that is NOT authorised for release to the approval chat as an engineering REVIEW (order
-    '13:06'): both finals + the review note. Refuses (nothing sent) without GATE_REPORT.json, when a
+    '13:06'): the finals of the formats its EDL seals (both when none; ruling 93 as amended) + the review note.
+    Refuses (nothing sent) without GATE_REPORT.json or readable formats, when a
     content-integrity row (REVIEW_NOT_DROPPABLE) is not PASS, when any text would carry PASS-as-verdict wording,
     'CANDIDATE FOR APPROVAL' or 'approved', or when this run was already review-dropped. Writes REVIEW_DROP.json
     (what was sent, to which chat, the message ids). Never writes or reads the release ledger."""
     import hashlib
     send = send or _send_bot_api
-    nonpass = review_nonpass(run_dir)
+    if not os.path.exists(os.path.join(run_dir, "GATE_REPORT.json")):
+        raise RuntimeError("STOP: review drop: no GATE_REPORT.json for this run")
+    formats = review_formats(run_dir)                           # ruling 93 as amended: the sealed formats ALONE
+    nonpass = review_nonpass(run_dir, formats)
     with open(os.path.join(run_dir, "GATE_REPORT.json")) as f:
         rep_rows = json.load(f).get("rows") or {}
     v1, g20 = {}, {}
@@ -725,8 +757,8 @@ def review_drop(run_dir, send=None):
     if os.path.exists(rpath):
         raise RuntimeError("STOP: this run was already review-dropped (REVIEW_DROP.json exists)")
     payload, digests = {}, {}
-    for fmt, rel in FINALS.items():
-        p = os.path.join(run_dir, rel)
+    for fmt in formats:
+        p = os.path.join(run_dir, FINALS[fmt])
         if os.path.getsize(p) > VIDEO_MAX_BYTES:
             raise RuntimeError(f"STOP: {fmt} final is {os.path.getsize(p)} bytes > {VIDEO_MAX_BYTES} (Bot API limit)")
         with open(p, "rb") as f:
@@ -745,7 +777,8 @@ def review_drop(run_dir, send=None):
            "chat": "the approval chat (TELEGRAM_CHAT_ID)", "nonpass": [list(x) for x in nonpass],
            "sha256": digests, "texts": {"captions": caps, "note": note}, "messages": []}
     try:
-        for fmt, rel in FINALS.items():
+        for fmt in formats:
+            rel = FINALS[fmt]
             w, h, dur = _dims(os.path.join(run_dir, rel))
             mid = send("video", os.path.join(run_dir, rel), {"caption": caps[fmt], "width": w, "height": h,
                                                             "duration": int(round(dur)), "supports_streaming": "true"},

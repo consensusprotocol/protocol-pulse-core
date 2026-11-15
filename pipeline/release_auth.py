@@ -47,6 +47,54 @@ REGISTRY = os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.js
 BOUND = ("out/segment.mp4", "out/segment_vertical.mp4", "edl.json", "qa/concat_manifest_16x9.json",
          "qa/concat_manifest_9x16.json", "GATE_REPORT.json", "VERIFY/VERIFICATION.json",
          "qa/contact_sheet_16x9.jpg", "qa/contact_sheet_9x16.jpg")
+# ruling 93 as amended (orchestrator 2026-11-14 '21:10'): a run releases the formats its pin SEALED (the EDL's
+# 'formats', written by run_fresh.stage_pinned from moments_package["formats"]; absent = both). A format outside that
+# set is neither attested nor bound nor sent, whatever its rows say; the set never follows the gates' outcome.
+FORMAT_FILES = {"16x9": ("out/segment.mp4", "qa/concat_manifest_16x9.json", "qa/contact_sheet_16x9.jpg"),
+                "9x16": ("out/segment_vertical.mp4", "qa/concat_manifest_9x16.json", "qa/contact_sheet_9x16.jpg")}
+FORMAT_SETS = (("16x9",), FORMATS)
+
+
+def release_formats(edl):
+    """The formats this run may release: FORMATS when the EDL has no 'formats', else exactly ('16x9',) or FORMATS
+    from a list in that order. Anything else (or an EDL that is not an object) raises ValueError."""
+    if not isinstance(edl, dict):
+        raise ValueError("the EDL is not an object")
+    if "formats" not in edl:
+        return FORMATS
+    f = edl["formats"]
+    if not (isinstance(f, list) and all(isinstance(x, str) for x in f) and tuple(f) in FORMAT_SETS):
+        raise ValueError(f"EDL formats {f!r} is not one of {[list(s) for s in FORMAT_SETS]}")
+    return tuple(f)
+
+
+def package_formats(mp):
+    """The formats a moments package SEALS (moments_package["formats"], inside package_sha256, the spelling agreed
+    with the builder 2026-11-14): None when absent (both), else exactly ['16x9'] or ['16x9', '9x16']; anything else
+    raises ValueError. run_fresh's pinned stage copies it into the EDL (pinned.py is an input of the pre-check's
+    decoder sha, so the copy is not made there)."""
+    if not isinstance(mp, dict) or "formats" not in mp:
+        return None
+    try:
+        return list(release_formats({"formats": mp["formats"]}))
+    except ValueError:
+        raise ValueError(f"moments_package formats {mp['formats']!r} is not one of "
+                         f"{[list(s) for s in FORMAT_SETS]} (absent = both)") from None
+
+
+def bound(formats):
+    """The files an attestation of `formats` binds: those formats' finals, manifests and sheets, plus the EDL, the
+    gate report and the verification pack."""
+    drop = {rel for fmt in FORMATS if fmt not in formats for rel in FORMAT_FILES[fmt]}
+    return tuple(rel for rel in BOUND if rel not in drop)
+
+
+def _edl_formats(run_dir):
+    try:
+        with open(os.path.join(run_dir, "edl.json")) as f:
+            return release_formats(json.load(f)), None
+    except (OSError, ValueError) as e:
+        return None, f"release formats unreadable: {type(e).__name__}: {e}"
 
 
 def sha256(path):
@@ -122,7 +170,8 @@ def _gate_report(run_dir):
 def attest(run_dir, run_state, deliverable=True, why_not=None):
     """Write ATTESTATION.json (atomically) from what is ON DISK: GATE_REPORT.json (rows, evidence, the digests
     the gates measured), VERIFY/VERIFICATION.json and the digests of every bound file now. verdict ALL_PASS
-    only when both formats satisfy the inventory, the pack passed, the files the gates measured are unchanged,
+    only when every released format (release_formats of the EDL; unreadable = HOLD) satisfies the inventory, the
+    pack passed, the files the gates measured are unchanged,
     every bound file exists and the run itself ended clean (run_state["ok"] is True: no hold anywhere, code at
     the launch revision). A run that is not deliverable (a replay is diagnostic) is recorded with why_not and is
     never authorised, whatever its verdict."""
@@ -133,18 +182,21 @@ def attest(run_dir, run_state, deliverable=True, why_not=None):
         rep = {}
         why.append(f"GATE_REPORT.json unreadable: {type(e).__name__}")
     rows, evidence = rep.get("rows") or {}, rep.get("evidence")
-    bad = {fmt: blockers(fmt, rows.get(fmt), evidence) for fmt in FORMATS}
+    formats, f_why = _edl_formats(run_dir)
+    if formats is None:                              # unreadable: HOLD, and every format is checked and bound
+        formats = FORMATS
+        why.append(f_why)
+    bad = {fmt: blockers(fmt, rows.get(fmt), evidence) for fmt in formats}
     try:
         pack = json.load(open(os.path.join(run_dir, "VERIFY", "VERIFICATION.json")))
     except (OSError, ValueError):
         pack = None
     v_ok, v_why = verification_ok(pack)
     files = {rel: (sha256(os.path.join(run_dir, rel)) if os.path.isfile(os.path.join(run_dir, rel)) else None)
-             for rel in BOUND}
+             for rel in bound(formats)}
     missing = [rel for rel, d in files.items() if d is None]
     measured = rep.get("measured_files") or {}
-    for rel in ("out/segment.mp4", "out/segment_vertical.mp4", "qa/concat_manifest_16x9.json",
-                "qa/concat_manifest_9x16.json"):
+    for rel in (r for fmt in formats for r in FORMAT_FILES[fmt][:2]):   # each released final and its manifest
         if measured.get(rel) is None or measured.get(rel) != files.get(rel):
             why.append(f"{rel}: not the bytes the gates measured")
     if rep.get("inventory_version") != INVENTORY_VERSION:
@@ -153,6 +205,7 @@ def attest(run_dir, run_state, deliverable=True, why_not=None):
         why.append("run did not end clean: " + "; ".join(map(str, (run_state or {}).get("why") or ["no state"])))
     ok = not any(bad.values()) and v_ok and not missing and not why
     att = {"schema": SCHEMA, "inventory_version": INVENTORY_VERSION, "verdict": "ALL_PASS" if ok else "HOLD",
+           "formats": list(formats),
            "deliverable": bool(deliverable), "why_not_deliverable": why_not, "run_state": run_state,
            "registry_sha256": sha256(REGISTRY) if os.path.isfile(REGISTRY) else None,   # the drop's handles / urls
            "rows": rows, "evidence": evidence, "notes": rep.get("notes") or {}, "blockers": bad,
@@ -183,8 +236,13 @@ def authorise(run_dir):
         why.append(f"not deliverable: {att.get('why_not_deliverable')}")
     if not (isinstance(att.get("run_state"), dict) and att["run_state"].get("ok") is True):
         why.append("the run did not end clean")
+    formats, f_why = _edl_formats(run_dir)          # the EDL NOW (its digest is checked below with every bound file)
+    if formats is None:
+        return False, why + [f_why], att
+    if att.get("formats") != list(formats):
+        why.append(f"attested formats {att.get('formats')!r} differ from the EDL's {list(formats)}")
     rows, evidence = att.get("rows") or {}, att.get("evidence")
-    for fmt in FORMATS:
+    for fmt in formats:
         for k, v in blockers(fmt, rows.get(fmt), evidence).items():
             why.append(f"{fmt} {k}: {v}")
     try:
@@ -201,9 +259,9 @@ def authorise(run_dir):
     if not att.get("registry_sha256") or not os.path.isfile(REGISTRY) or sha256(REGISTRY) != att["registry_sha256"]:
         why.append("the channel registry changed since it was attested")
     files = att.get("files") or {}
-    if set(files) != set(BOUND):
+    if set(files) != set(bound(formats)):
         why.append("attested file set differs from the bound set")
-    for rel in BOUND:
+    for rel in bound(formats):
         path = os.path.join(run_dir, rel)
         if not files.get(rel):
             why.append(f"{rel}: no attested digest")
