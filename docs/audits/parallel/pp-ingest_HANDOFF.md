@@ -34,8 +34,32 @@
   never called, EXCEPT ruling 98's paid route (role `mine_paid`) under its $2.00 per ET day cap. Heimdall first;
   never more than ~20 calls in flight; the abliterated DeepSeek is incoherent on long prompts (do not use);
   ling-3.0-flash always 429.
-- Work continuously; do not stop to ask: take the most defensible reading, write it in STATE as an assumption.
+- Work continuously; do not stop to ask: take the most defensible reading, write it in STATE as an assumption; a
+  question that must be asked follows section 2a (its recommended answer and its 20-minute default).
 - Every change: build, test, 2-cycle cross-LLM audit (Heimdall-served reviewers under the freeze), then live.
+
+## 2a. How questions work (RULING 106, orchestrator 20:22 ET Nov 14: no session waits on the orchestrator)
+Standing, for all three sessions (PBX, 20:08: "pls fix that weakest part of how we are running this"; the
+orchestrator's checks arrive late, and a session that stops at a question cost about five hours on Nov 14):
+- (a) EVERY QUESTION CARRIES ITS DEFAULT. A question to the orchestrator goes on STATE line 1 (in capitals) as: the
+  question, your RECOMMENDED answer, and 'DEFAULT IN 20 MIN: <what you will do>'. If it is not answered in 20 minutes,
+  ACT ON THE DEFAULT and say so on line 1. Never stop work on an unrelated item while a question is open.
+- (b) WHAT A DEFAULT MAY BE: anything that publishes nothing, installs no schedule, touches no cron, spends inside
+  the caps, and can be undone (a build, a render, a review-only or candidate delivery to PBX's Telegram, an audited
+  merge on our branches). When two readings of a law are possible: the STRICTER reading for integrity (L-s, L-v, L-u,
+  a number or name hold), the reading that DELIVERS for taste and process. A finished video that passes every gate is
+  always launched and delivered as a candidate; with one integrity point open it is rendered and delivered on the
+  REVIEW path with that point stated in the caption, never left unrendered. (pp-ingest renders and delivers nothing
+  itself: its defaults are builds, audited changes going live, readings recorded as assumptions.)
+- (c) WHAT STILL WAITS FOR A HUMAN: publishing, a schedule, cron, a spend cap, loosening an integrity gate, deleting
+  what is not ours. For those: do the preparatory work, and say exactly what is needed.
+- (d) THE ALARM: when something that needs the orchestrator or PBX has waited 45 minutes (a ready video not
+  launched, a cap reached, a real outage, every build refused), the INTEGRATOR sends ONE plain text message to PBX's
+  Telegram review chat through the pipeline's own sender: 'PULSE CHECK NEEDS A DECISION: <one sentence>. Waiting since
+  <time>.' At most one per issue and one an hour in total; nothing for routine progress (PBX: alerts are accurate and
+  meaningful or off). pp-ingest NEVER sends it: it raises it with a line the integrator reads, 'ALARM FOR PBX: <one
+  sentence>. Waiting since <time ET>.' on its STATE line 1 (e.g. the paid route's daily cap reached while Heimdall is
+  really down, or a real outage of every mine back-end past 45 minutes).
 
 ## 3. The watcher (keep it running; it survives your restart)
 - tmux `pipeline_pp_ingest_watch`, command `python3 tools/ingest_watch.py run` in ~/worktrees/pp-ingest. Log:
