@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+"""The ledger build's router, as batch 3's builds 1 and 2 (22:05 and 22:20 ET Nov 14) found it wanting:
+- proof_ly.meter observes the router's accounting and never stands between a call and its booking. Its wrapper refused
+  ruling 107 Q1's `unreported` keyword, so a call abandoned at its deadline raised TypeError in place of failing over
+  to the next leg; its booking never reached the ledger, its late answer was never accounted, its moments were held.
+- proof_ledger.build_router waits for calls in flight (Router reserve_wait_s): step A's six workers had been refused
+  whenever four reservations filled the $4.50 limit with $0.27 spent.
+Offline: the real Router over fake legs, every state file of the build in a temporary folder."""
+import contextlib
+import json
+import os
+import sys
+import tempfile
+import threading
+import time
+import unittest
+from unittest import mock
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+REPO = os.path.dirname(os.path.dirname(HERE))
+for _p in ("pipeline", "tests/package", "tests/providers"):
+    sys.path.insert(0, os.path.join(REPO, _p))
+import circuit_breaker as CB  # noqa: E402
+import deadline_table as DT  # noqa: E402
+import heimdall_health as HH  # noqa: E402
+import proof_ledger as PLG  # noqa: E402
+import proof_ly as PL  # noqa: E402
+from test_providers import Fake, SlowFail, router, wait_for  # noqa: E402
+from test_reserve_wait import U, gate, run, seed, until  # noqa: E402
+from test_ruling_107 import LIST, TOKENS, seed as seed107  # noqa: E402
+
+QWEN_LIST = 1000 * 10 / 1e6 + 100 * 100 / 1e6          # Fake's list price for qwen's 1,000 in / 100 out
+
+
+def metered_miss(d, **seeded):
+    """One call through a METERED router: deepseek passes its 0.2 s deadline (and fails later), qwen answers with the
+    vendor's own figure. -> (reply, the meter, the ledger, the deadline log once the abandoned thread has ended)."""
+    spend, log = os.path.join(d, "SPEND.json"), os.path.join(d, "DEADLINES.jsonl")
+    seed107(spend, **seeded)
+    slow = SlowFail("heimdall:deepseek", "heimdall", None, delay=0.4, family="deepseek")
+    qwen = Fake("heimdall:qwen", "heimdall", answer='{"ok": 2}', family="qwen",
+                usage={"in": 1000, "out": 100, "usd_reported": 0.002})
+    r = router(d, [slow, qwen], {"check": ["heimdall:deepseek", "heimdall:qwen"]}, spend_path=spend,
+               limit_usd=50.0, limit_basis="reported", deadline_log=log)
+    own = PL.meter(r)
+    rep = r.call("check", "p", 100, 7, deadline_s=0.2)
+    lines = wait_for(log, "late_error")                # ruling 83 (a)'s late path ran: the abandonment was booked
+    return rep, own, json.load(open(spend)), lines
+
+
+class TestTheMeterNeverStandsBetweenACallAndItsBooking(unittest.TestCase):
+
+    def test_a_missed_deadline_through_the_meter_fails_over_and_is_booked(self):
+        with tempfile.TemporaryDirectory() as d:
+            rep, own, led, log = metered_miss(d)
+            self.assertEqual((rep.text, rep.backend), ('{"ok": 2}', "heimdall:qwen"))     # failed over: no TypeError
+            self.assertIn("abandoned at the deadline", rep.tried[0][1])
+            self.assertAlmostEqual(led["usd_unreported_estimate"], LIST, places=9)          # the booking is in the ledger
+            self.assertEqual(led["by_backend"]["heimdall:deepseek"]["calls"], 1)
+            self.assertEqual([x["kind"] for x in log if x["kind"] in ("missed_deadline", "late_error")],
+                             ["missed_deadline", "late_error"])
+            self.assertAlmostEqual(own["est"], LIST + QWEN_LIST, places=9)                  # this process's two calls
+
+    def test_the_meter_counts_an_abandoned_call_at_the_booking_the_cap_counts(self):
+        with tempfile.TemporaryDirectory() as d:        # three reported calls: deepseek's booking is at its own rate
+            rep, own, led, log = metered_miss(d, calls=3, **{"in": 3000}, reported_calls=3, usd_reported=0.003,
+                                              in_reported=3000)
+            booked = 0.003 / 3000 * TOKENS
+            self.assertAlmostEqual(led["usd_unreported_estimate"], booked, places=9)
+            self.assertAlmostEqual(own["best"], booked + 0.002, places=9)                    # as the cap reads it
+            self.assertAlmostEqual(own["est"], LIST + QWEN_LIST, places=9)                   # est stays list price
+
+
+class TestTheLedgerBuildsRouterWaitsForCallsInFlight(unittest.TestCase):
+
+    def test_a_call_kept_out_only_by_a_call_in_flight_waits_and_answers(self):
+        with tempfile.TemporaryDirectory() as d:          # every file the build's router reads or writes is d's
+            led = os.path.join(d, "SPEND.json")
+            seed(led)
+            with contextlib.ExitStack() as st:
+                for mod, name, val in ((PL, "SPEND", led), (PL, "REPLIES", os.path.join(d, "rec")),
+                                       (PL, "DEADLINE_LOG", os.path.join(d, "DL.jsonl")), (PL, "LY_LIMIT_USD", 1.5 * U),
+                                       (HH, "STATE", os.path.join(d, "HEALTH.json")),
+                                       (CB, "STATE", os.path.join(d, "BREAKERS.json")),
+                                       (DT, "STATE", os.path.join(d, "DEADLINE_TABLE.json")),
+                                       (PLG, "STATE_MD", os.path.join(d, "STATE.md"))):
+                    st.enter_context(mock.patch.object(mod, name, val))
+                r = PLG.build_router("heimdall_first", None, os.path.join(d, "SHADOW86.jsonl"))
+            g, release, track = gate()
+            r.backends, r.chains["check"], r.reserve_poll_s = {"openai:g": g}, ["openai:g"], 0.02
+            results = {}
+            first = threading.Thread(target=run, args=(r, results, 0))
+            first.start()
+            until(lambda: track["now"] == 1)
+            second = threading.Thread(target=run, args=(r, results, 1))
+            second.start()
+            time.sleep(0.3)
+            self.assertEqual((track["now"], results), (1, {}))   # one in flight, one WAITING: not refused (a default
+                                                                # router refuses it at once)
+            release.set()
+            first.join(10)
+            second.join(10)
+            self.assertEqual([results[i][0] for i in (0, 1)], ["answer", "answer"])
+            self.assertGreaterEqual(results[1][2], 0.25)        # it WAITED for the first call (held 0.3 s)
+            self.assertEqual((g.calls, track["max"]), (2, 1))   # never two in flight past the limit
+            self.assertEqual(json.load(open(led))["reserved"], {})
+
+
+if __name__ == "__main__":
+    unittest.main()

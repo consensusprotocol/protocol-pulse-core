@@ -1,0 +1,431 @@
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+index 44468d7..78ff10f 100644
+--- a/pipeline/providers.py
++++ b/pipeline/providers.py
+@@ -69,6 +69,8 @@ class ReplayMiss(Exception):
+ IMAGE_TOKENS_UPPER = 6000            # ruling 70: one image's input tokens, as the spend guard's upper bound
+ RATE_MIN_REPORTED = 3                # RULING 107 Q1 (orchestrator 20:40 ET Nov 14): an abandoned call is booked at
+                                      # the model's own reported rate once it has this many reported calls
++RESERVE_POLL_S = 1.0                 # BATCH 3 (Nov 14): how often a call waiting for room under the limit re-reads
++                                     # the ledger (Router reserve_wait_s, Router._reserve)
+ 
+ 
+ def is_vision(prompt):
+@@ -722,7 +724,7 @@ class Router:
+     def __init__(self, config=CONFIG, env_path=None, record_dir=None, replay=False, spend_path=None, limit_usd=40.0,
+                  local_llm=None, chains=None, limit_basis="estimate", deadline_log=None, slow_log_s=240.0,
+                  routing=None, shadow=None, shadow_log=None, health=None, plan_b_chains=None, state_md=None,
+-                 breakers=None, deadlines=None):
++                 breakers=None, deadlines=None, reserve_wait_s=0.0):
+         with open(config) as f:
+             self.config = json.load(f)
+         rt = self.config.get("routing") or {}
+@@ -734,6 +736,8 @@ class Router:
+         if limit_basis not in ("estimate", "reported"):
+             raise ValueError(f"limit_basis must be 'estimate' or 'reported', not {limit_basis!r}")
+         self.limit_basis = limit_basis            # what limit_usd counts: _basis_total
++        self.reserve_wait_s = float(reserve_wait_s)   # _reserve: 0 (the default) refuses at once, as every caller had
++        self.reserve_poll_s = RESERVE_POLL_S          # it; a batch build that may wait for calls in flight opts in
+         import threading
+         self.deadline_log, self.slow_log_s = deadline_log, slow_log_s     # order 08:06 item 55: the evidence file
+         self._log_lock = threading.Lock()
+@@ -888,20 +892,37 @@ class Router:
+     def _reserve(self, b, upper):
+         """Reserve a paid call's upper bound -> a reservation key (None for a free back-end or no ledger); raises
+         SpendLimit when spent (on the limit basis) + reserved + this call's upper bound would pass the limit. The
+-        reservations stay price-table upper bounds whatever the basis: the guard can only stop early, never late."""
++        reservations stay price-table upper bounds whatever the basis: the guard can only stop early, never late.
++        With reserve_wait_s > 0 (a batch build's opt-in; the default 0 keeps the refusal at once that every other
++        caller, the render's among them, relies on): when spent + this call's upper bound fits and only the reservations
++        of calls IN FLIGHT stand in the way, the call waits for them to settle (each ends in an answer, an error or an
++        abandonment, and releases its reservation), sleeping outside the ledger lock and re-reading the ledger every
++        reserve_poll_s, and reserves once it fits; still kept out after reserve_wait_s, it is refused (fail closed).
++        Spend alone over the limit is refused at once. The wait runs before the call's own deadline starts: only a
++        caller with no time budget of its own should opt in. Batch 3's builds 1 and 2 (Nov 14) held
++        65 moments at step A, medley and spotlight (90 holds in all), without this wait: six step-A workers, each
++        reserving about $0.85, under a $4.50 limit with $0.27 spent; four fit, and the other workers were refused batch
++        after batch while those four ran."""
+         if not self.spend_path or b.free():
+             return None
+-        with self._lock():
+-            d = self._ledger()
+-            held = sum(float(x) for x in d["reserved"].values())
+-            spent = self._basis_total(d)
+-            if spent + held + upper > self.limit_usd:
+-                raise SpendLimit(f"spend ({self.limit_basis}) {spent:.2f} USD + reserved {held:.2f} + this call's upper "
+-                                 f"bound {upper:.2f} > the limit {self.limit_usd} USD")
+-            key = f"{os.getpid()}:{uuid.uuid4().hex[:10]}"
+-            d["reserved"][key] = round(upper, 6)
+-            self._save(d)
+-        return key
++        t_end, waited = time.time() + max(0.0, float(self.reserve_wait_s)), False
++        while True:
++            with self._lock():
++                d = self._ledger()
++                held = sum(float(x) for x in d["reserved"].values())
++                spent = self._basis_total(d)
++                if spent + held + upper <= self.limit_usd:
++                    key = f"{os.getpid()}:{uuid.uuid4().hex[:10]}"
++                    d["reserved"][key] = round(upper, 6)
++                    self._save(d)
++                    return key
++                if spent + upper > self.limit_usd or time.time() >= t_end:
++                    raise SpendLimit(f"spend ({self.limit_basis}) {spent:.2f} USD + reserved {held:.2f} + this call's "
++                                     f"upper bound {upper:.2f} > the limit {self.limit_usd} USD" +
++                                     (f" (still, after waiting {self.reserve_wait_s:g} s for the calls in flight)"
++                                      if waited else ""))
++            waited = True
++            time.sleep(max(0.01, float(self.reserve_poll_s)))
+ 
+     def reported_rate(self, name):
+         """RULING 107 Q1 (orchestrator 20:40 ET Nov 14): the model's own recorded vendor cost per PROMPT token: its
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index befaff1..0e36ebd 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -209,7 +209,8 @@ def build_router(routing, shadow, shadow_log):
+                     routing=routing, shadow=shadow, shadow_log=shadow_log,
+                     health=HH.STATE, plan_b_chains=PL.plan_b_chains(), state_md=STATE_MD,      # ruling 87
+                     breakers=CB.STATE,                                                         # ruling 99
+-                    deadlines=DT.load(DT.STATE, PL.REPLIES))                                   # ruling 100
++                    deadlines=DT.load(DT.STATE, PL.REPLIES),                                   # ruling 100
++                    reserve_wait_s=PL.RESERVE_WAIT_S)          # batch 3: a call that fits waits for calls in flight
+ 
+ 
+ def applied(router):
+diff --git a/tests/package/proof_ly.py b/tests/package/proof_ly.py
+index 5dcf21f..080be63 100644
+--- a/tests/package/proof_ly.py
++++ b/tests/package/proof_ly.py
+@@ -54,6 +54,12 @@ LY_LIMIT_BASIS = "reported"        # mining and checks $1.00), VENDOR-REPORTED;
+ LY_STOP_USD = 4.00                 # rate (ruling 107 Q1). No build starts at or over $4.00 (a build runs $0.15-0.50, so
+                                    # none ends over $4.50: each paid call still RESERVES its upper bound while in
+                                    # flight, and none passes the limit); STATE line 1 says so in capitals.
++RESERVE_WAIT_S = 600.0             # BATCH 3 (Nov 14): the ledger build's router waits up to this long for calls in
++                                   # flight to settle before refusing a call that fits under the limit by itself
++                                   # (Router reserve_wait_s): step A's six workers reserve about $0.85 each, so under
++                                   # $4.50 four run and two wait, where builds 1 and 2 held them (SpendLimit).
++                                   # Only a caller with no time budget of its own may wait (Router._reserve): give
++                                   # the build a deadline and this must be derived again
+ TABLE = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_LY_RERUN.md")
+ DEADLINE_LOG = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_HEIMDALL_DEADLINES.jsonl")   # item 55
+ RUNS = ("fresh_20261112_050611", "fresh_20261112_013452", "fresh_20261112_001448", "fresh_20261111_213954",
+@@ -108,17 +114,22 @@ def ledger():
+ def meter(router):
+     """THIS process's own spend, from every call the router accounts (Router._settle). The shared ledger's total moves
+     with the other workers too, so a per-package budget read from it would charge one universe for another's calls.
+-    -> {"est": price-table estimate, "best": the vendor's own figure where reported, else the estimate}."""
++    -> {"est": price-table estimate, "best": the vendor's own figure where reported, else the estimate}.
++    Every keyword the router's own _settle takes is passed on unchanged: the meter observes, it never stands between
++    a call and its booking. Batch 3's builds 1 and 2 (22:05 and 22:20 ET Nov 14) lost three abandoned calls' bookings
++    and held five moments (six holds) because this wrapper refused ruling 107 Q1's `unreported` (a TypeError in
++    place of the failover). An abandoned call counts in "best" at that booking, as the cap counts it; a late answer that replaces
++    the booking (Router._replace_booking) is not followed here."""
+     import threading
+     tot, lock, settle = {"est": 0.0, "best": 0.0}, threading.Lock(), router._settle
+ 
+-    def _settle(key, backend=None, usage=None, usd=0.0, role=""):
+-        settle(key, backend, usage, usd, role)
++    def _settle(key, backend=None, usage=None, usd=0.0, role="", **kw):
++        settle(key, backend, usage, usd, role, **kw)
+         if backend is not None:
+-            rep = (usage or {}).get("usd_reported")
++            rep, booked = (usage or {}).get("usd_reported"), kw.get("unreported")
+             with lock:
+                 tot["est"] += float(usd or 0.0)
+-                tot["best"] += float(rep) if P._num(rep) else float(usd or 0.0)
++                tot["best"] += float(rep) if P._num(rep) else float((usd if booked is None else booked) or 0.0)
+     router._settle = _settle
+     return tot
+ 
+diff --git a/tests/package/test_ledger_router.py b/tests/package/test_ledger_router.py
+new file mode 100644
+index 0000000..c7edae2
+--- /dev/null
++++ b/tests/package/test_ledger_router.py
+@@ -0,0 +1,110 @@
++#!/usr/bin/env python3
++"""The ledger build's router, as batch 3's builds 1 and 2 (22:05 and 22:20 ET Nov 14) found it wanting:
++- proof_ly.meter observes the router's accounting and never stands between a call and its booking. Its wrapper refused
++  ruling 107 Q1's `unreported` keyword, so a call abandoned at its deadline raised TypeError in place of failing over
++  to the next leg; its booking never reached the ledger, its late answer was never accounted, its moments were held.
++- proof_ledger.build_router waits for calls in flight (Router reserve_wait_s): step A's six workers had been refused
++  whenever four reservations filled the $4.50 limit with $0.27 spent.
++Offline: the real Router over fake legs, every state file of the build in a temporary folder."""
++import contextlib
++import json
++import os
++import sys
++import tempfile
++import threading
++import time
++import unittest
++from unittest import mock
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++for _p in ("pipeline", "tests/package", "tests/providers"):
++    sys.path.insert(0, os.path.join(REPO, _p))
++import circuit_breaker as CB  # noqa: E402
++import deadline_table as DT  # noqa: E402
++import heimdall_health as HH  # noqa: E402
++import proof_ledger as PLG  # noqa: E402
++import proof_ly as PL  # noqa: E402
++from test_providers import Fake, SlowFail, router, wait_for  # noqa: E402
++from test_reserve_wait import U, gate, run, seed, until  # noqa: E402
++from test_ruling_107 import LIST, TOKENS, seed as seed107  # noqa: E402
++
++QWEN_LIST = 1000 * 10 / 1e6 + 100 * 100 / 1e6          # Fake's list price for qwen's 1,000 in / 100 out
++
++
++def metered_miss(d, **seeded):
++    """One call through a METERED router: deepseek passes its 0.2 s deadline (and fails later), qwen answers with the
++    vendor's own figure. -> (reply, the meter, the ledger, the deadline log once the abandoned thread has ended)."""
++    spend, log = os.path.join(d, "SPEND.json"), os.path.join(d, "DEADLINES.jsonl")
++    seed107(spend, **seeded)
++    slow = SlowFail("heimdall:deepseek", "heimdall", None, delay=0.4, family="deepseek")
++    qwen = Fake("heimdall:qwen", "heimdall", answer='{"ok": 2}', family="qwen",
++                usage={"in": 1000, "out": 100, "usd_reported": 0.002})
++    r = router(d, [slow, qwen], {"check": ["heimdall:deepseek", "heimdall:qwen"]}, spend_path=spend,
++               limit_usd=50.0, limit_basis="reported", deadline_log=log)
++    own = PL.meter(r)
++    rep = r.call("check", "p", 100, 7, deadline_s=0.2)
++    lines = wait_for(log, "late_error")                # ruling 83 (a)'s late path ran: the abandonment was booked
++    return rep, own, json.load(open(spend)), lines
++
++
++class TestTheMeterNeverStandsBetweenACallAndItsBooking(unittest.TestCase):
++
++    def test_a_missed_deadline_through_the_meter_fails_over_and_is_booked(self):
++        with tempfile.TemporaryDirectory() as d:
++            rep, own, led, log = metered_miss(d)
++            self.assertEqual((rep.text, rep.backend), ('{"ok": 2}', "heimdall:qwen"))     # failed over: no TypeError
++            self.assertIn("abandoned at the deadline", rep.tried[0][1])
++            self.assertAlmostEqual(led["usd_unreported_estimate"], LIST, places=9)          # the booking is in the ledger
++            self.assertEqual(led["by_backend"]["heimdall:deepseek"]["calls"], 1)
++            self.assertEqual([x["kind"] for x in log if x["kind"] in ("missed_deadline", "late_error")],
++                             ["missed_deadline", "late_error"])
++            self.assertAlmostEqual(own["est"], LIST + QWEN_LIST, places=9)                  # this process's two calls
++
++    def test_the_meter_counts_an_abandoned_call_at_the_booking_the_cap_counts(self):
++        with tempfile.TemporaryDirectory() as d:        # three reported calls: deepseek's booking is at its own rate
++            rep, own, led, log = metered_miss(d, calls=3, **{"in": 3000}, reported_calls=3, usd_reported=0.003,
++                                              in_reported=3000)
++            booked = 0.003 / 3000 * TOKENS
++            self.assertAlmostEqual(led["usd_unreported_estimate"], booked, places=9)
++            self.assertAlmostEqual(own["best"], booked + 0.002, places=9)                    # as the cap reads it
++            self.assertAlmostEqual(own["est"], LIST + QWEN_LIST, places=9)                   # est stays list price
++
++
++class TestTheLedgerBuildsRouterWaitsForCallsInFlight(unittest.TestCase):
++
++    def test_a_call_kept_out_only_by_a_call_in_flight_waits_and_answers(self):
++        with tempfile.TemporaryDirectory() as d:          # every file the build's router reads or writes is d's
++            led = os.path.join(d, "SPEND.json")
++            seed(led)
++            with contextlib.ExitStack() as st:
++                for mod, name, val in ((PL, "SPEND", led), (PL, "REPLIES", os.path.join(d, "rec")),
++                                       (PL, "DEADLINE_LOG", os.path.join(d, "DL.jsonl")), (PL, "LY_LIMIT_USD", 1.5 * U),
++                                       (HH, "STATE", os.path.join(d, "HEALTH.json")),
++                                       (CB, "STATE", os.path.join(d, "BREAKERS.json")),
++                                       (DT, "STATE", os.path.join(d, "DEADLINE_TABLE.json")),
++                                       (PLG, "STATE_MD", os.path.join(d, "STATE.md"))):
++                    st.enter_context(mock.patch.object(mod, name, val))
++                r = PLG.build_router("heimdall_first", None, os.path.join(d, "SHADOW86.jsonl"))
++            g, release, track = gate()
++            r.backends, r.chains["check"], r.reserve_poll_s = {"openai:g": g}, ["openai:g"], 0.02
++            results = {}
++            first = threading.Thread(target=run, args=(r, results, 0))
++            first.start()
++            until(lambda: track["now"] == 1)
++            second = threading.Thread(target=run, args=(r, results, 1))
++            second.start()
++            time.sleep(0.3)
++            self.assertEqual((track["now"], results), (1, {}))   # one in flight, one WAITING: not refused (a default
++                                                                # router refuses it at once)
++            release.set()
++            first.join(10)
++            second.join(10)
++            self.assertEqual([results[i][0] for i in (0, 1)], ["answer", "answer"])
++            self.assertGreaterEqual(results[1][2], 0.25)        # it WAITED for the first call (held 0.3 s)
++            self.assertEqual((g.calls, track["max"]), (2, 1))   # never two in flight past the limit
++            self.assertEqual(json.load(open(led))["reserved"], {})
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/providers/test_reserve_wait.py b/tests/providers/test_reserve_wait.py
+new file mode 100644
+index 0000000..50a18d2
+--- /dev/null
++++ b/tests/providers/test_reserve_wait.py
+@@ -0,0 +1,169 @@
++#!/usr/bin/env python3
++"""The spend guard and calls IN FLIGHT. Batch 3's builds 1 and 2 (22:05 and 22:20 ET Nov 14) held 65 moments at step A
++(90 holds, medley and spotlight): six workers in parallel, each reserving its price-table upper bound (about $0.85)
++under a $4.50 limit with $0.27 spent, so four fit and the other two were refused batch after batch while those four
++ran. A router that opts in (reserve_wait_s > 0, the ledger build's) waits for calls in flight to settle; it never passes
++the limit and refuses when the wait ends. A default router still refuses at once (every other caller, the render's
++among them, relies on that). Offline: the real Router over fake back-ends, real threads, a temporary ledger."""
++import json
++import os
++import sys
++import tempfile
++import threading
++import time
++import unittest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++sys.path.insert(0, HERE)
++import providers as P  # noqa: E402
++from test_providers import Fake, router  # noqa: E402
++
++U = (1 + 200) * 10 / 1e6 + 1000 * 100 / 1e6     # Fake's upper bound for prompt "p" and max_tokens 1000: $0.10201
++
++
++class Gate(Fake):
++    """A back-end whose call stays in flight (its reservation held) until `release` is set; `track` counts how many of
++    its calls are in flight at once."""
++
++    def __init__(self, name, release, track):
++        super().__init__(name, "openai", answer='{"ok": 1}', usage={"in": 10, "out": 10, "usd_reported": 0.0001})
++        self.release, self.track = release, track
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        with self.track["lock"]:
++            self.track["now"] += 1
++            self.track["max"] = max(self.track["max"], self.track["now"])
++        try:
++            if not self.release.wait(10):
++                raise P.Unavailable("the test never released this call")
++            return super().complete(prompt, max_tokens, seed, system)
++        finally:
++            with self.track["lock"]:
++                self.track["now"] -= 1
++
++
++def gate():
++    release, track = threading.Event(), {"lock": threading.Lock(), "now": 0, "max": 0}
++    return Gate("openai:g", release, track), release, track
++
++
++def seed(led, spent=0.0):
++    json.dump({"usd_estimate": spent, "calls": 1 if spent else 0, "by_backend": {}, "by_role": {}, "reserved": {},
++               "usd_reported": spent, "usd_unreported_estimate": 0.0}, open(led, "w"))
++
++
++def guarded(d, limit, spent=0.0, wait_s=None):
++    """A router on a ledger with `spent` reported dollars, the guard at `limit`, one Gate back-end; wait_s None: the
++    Router's default (no wait)."""
++    led = os.path.join(d, "SPEND.json")
++    seed(led, spent)
++    g, release, track = gate()
++    kw = {} if wait_s is None else {"reserve_wait_s": wait_s}
++    r = router(d, [g], {"check": ["openai:g"]}, spend_path=led, limit_usd=limit, limit_basis="reported", **kw)
++    r.reserve_poll_s = 0.02
++    return r, g, release, track, led
++
++
++def run(r, results, i, max_tokens=1000):
++    t0 = time.time()
++    try:
++        results[i] = ("answer", r.call("check", "p", max_tokens, i).text, time.time() - t0)
++    except P.SpendLimit as e:
++        results[i] = ("refused", str(e), time.time() - t0)
++
++
++def until(cond, timeout=5.0):
++    t0 = time.time()
++    while not cond():
++        if time.time() - t0 > timeout:
++            raise AssertionError(f"not reached in {timeout} s")
++        time.sleep(0.01)
++
++
++class TestARouterThatOptsInWaitsForCallsInFlight(unittest.TestCase):
++
++    def test_six_workers_with_room_for_four_all_answer_and_never_more_than_four_run(self):
++        with tempfile.TemporaryDirectory() as d:          # the batch-3 case: room for four upper bounds, six workers
++            r, g, release, track, led = guarded(d, limit=4.5 * U, wait_s=10.0)
++            results = {}
++            ts = [threading.Thread(target=run, args=(r, results, i)) for i in range(6)]
++            for t in ts:
++                t.start()
++            until(lambda: track["now"] == 4)
++            time.sleep(0.2)
++            self.assertEqual((track["now"], results), (4, {}))    # four in flight, two waiting: none refused
++            held = json.load(open(led))["reserved"]
++            self.assertEqual(len(held), 4)
++            self.assertLessEqual(sum(held.values()), 4.5 * U)
++            release.set()
++            for t in ts:
++                t.join(10)
++            self.assertEqual(sorted(v[0] for v in results.values()), ["answer"] * 6)
++            self.assertEqual((g.calls, track["max"]), (6, 4))
++            final = json.load(open(led))
++            self.assertEqual(final["reserved"], {})
++            self.assertAlmostEqual(final["usd_reported"], 6 * 0.0001, places=9)
++
++    def test_a_call_kept_out_by_spend_alone_is_refused_at_once_even_with_a_call_in_flight(self):
++        with tempfile.TemporaryDirectory() as d:          # 0.01 spent: the small call fits, the large one never will
++            r, g, release, track, led = guarded(d, limit=0.1, spent=0.01, wait_s=5.0)
++            results = {}
++            small = threading.Thread(target=run, args=(r, results, 0, 10))
++            small.start()
++            until(lambda: track["now"] == 1)
++            run(r, results, 1)                              # 0.01 + its upper bound $0.102 > $0.10
++            kind, why, secs = results[1]
++            self.assertEqual(kind, "refused")
++            self.assertLess(secs, 1.0)                      # no wait: no call settling could let it in
++            self.assertNotIn("after waiting", why)
++            release.set()
++            small.join(10)
++            self.assertEqual(results[0][0], "answer")
++
++    def test_a_call_still_kept_out_when_its_wait_ends_is_refused_and_the_limit_is_never_passed(self):
++        with tempfile.TemporaryDirectory() as d:          # room for one upper bound and a half
++            r, g, release, track, led = guarded(d, limit=1.5 * U, wait_s=0.4)
++            results = {}
++            first = threading.Thread(target=run, args=(r, results, 0))
++            first.start()
++            until(lambda: track["now"] == 1)
++            second = threading.Thread(target=run, args=(r, results, 1))
++            second.start()
++            time.sleep(0.15)
++            self.assertEqual(len(json.load(open(led))["reserved"]), 1)    # while it waits: never two reservations
++            second.join(3)
++            self.assertFalse(second.is_alive())
++            kind, why, secs = results[1]
++            self.assertEqual(kind, "refused")
++            self.assertIn("after waiting", why)
++            self.assertGreaterEqual(secs, 0.4)
++            self.assertEqual(g.calls, 0)                    # nothing answered yet: the first call is still in flight
++            release.set()
++            first.join(10)
++            self.assertEqual((results[0][0], g.calls, track["max"]), ("answer", 1, 1))
++            self.assertEqual(json.load(open(led))["reserved"], {})
++
++
++class TestADefaultRouterRefusesAtOnce(unittest.TestCase):
++
++    def test_with_no_opt_in_a_call_kept_out_by_a_call_in_flight_is_refused_at_once(self):
++        with tempfile.TemporaryDirectory() as d:          # the contract every caller had before batch 3
++            r, g, release, track, led = guarded(d, limit=1.5 * U)
++            results = {}
++            first = threading.Thread(target=run, args=(r, results, 0))
++            first.start()
++            until(lambda: track["now"] == 1)
++            run(r, results, 1)
++            kind, why, secs = results[1]
++            self.assertEqual(kind, "refused")
++            self.assertLess(secs, 0.5)
++            self.assertNotIn("after waiting", why)
++            release.set()
++            first.join(10)
++            self.assertEqual(results[0][0], "answer")
++
++
++if __name__ == "__main__":
++    unittest.main()

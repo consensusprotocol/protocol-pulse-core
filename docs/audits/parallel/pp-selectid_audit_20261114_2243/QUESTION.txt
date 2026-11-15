@@ -1,0 +1,46 @@
+pp-selectid, two defects found in batch 3's builds 1 and 2 (22:05 and 22:20 ET Nov 14), each fixed at its root. Both
+builds held moments at step A's first screen ("no step-A verdict ... held for this build, retried next build", ruling
+102), in the medley's step A and the spotlight's: 65 distinct moments (90 holds) by SpendLimit and 5 moments (6
+holds) by a TypeError. No refusal, no wrong pass.
+
+DEFECT 1 (tests/package/proof_ly.py meter()): the wrapper it puts over Router._settle had the old signature
+(key, backend, usage, usd, role). Ruling 107 Q1 (commit e7f68e11) made the router's abandon() call
+self._settle(key, b, {"in": 0, "out": 0}, listed, role, unreported=booked) (base pipeline/providers.py:1327). In a
+metered build each call abandoned at its deadline raised TypeError inside on_abandon. _within (base providers.py:
+347-378, UNCHANGED) lets that exception propagate in place of DeadlineExceeded and never sets box["abandoned"], so:
+no failover to the next leg; the booking never reached the ledger; on_late never ran. Router.call's
+`except BaseException: self._settle(key); raise` (base providers.py:1356-1358, UNCHANGED) released the reservation.
+Three glm calls lost their bookings ($0.086 at list, from the deadline log).
+FIX: the wrapper passes every keyword on (**kw) and counts an abandoned call in "best" at the booking
+(kw["unreported"]), as the router's _settle counts it on the cap's basis (base providers.py:975-976).
+
+DEFECT 2 (pipeline/providers.py Router._reserve): batch 3's build cap is LY_LIMIT_USD = 4.50 on the reported basis
+(tests/package/proof_ly.py, UNCHANGED). Each paid call reserves its price-table upper bound (a Grok step-A call about
+$0.85: prompt + 8 x max_tokens of reasoning output, XAIBackend.max_out base providers.py:445-446). Step A runs six
+batches in parallel (package.PRESCREEN_WORKERS = 6, base pipeline/package.py:77, ThreadPoolExecutor at :588). With
+$0.27 spent four calls fit; _reserve refused the fifth and sixth AT ONCE ("spend 0.27 + reserved 3.64 + this call's
+upper bound 0.85 > the limit 4.5"), and those workers were refused batch after batch while the four ran.
+FIX: when spent + this call's upper bound fits and only reservations of calls IN FLIGHT stand in the way, _reserve
+waits (sleeping OUTSIDE the ledger lock, re-reading the ledger every reserve_poll_s) and reserves once it fits. Still
+kept out after reserve_wait_s (600 s): SpendLimit, as before (fail closed). Spend alone over the limit: SpendLimit at
+once, as before. Each save still keeps spent + reserved <= the limit. UNCHANGED: _ledger() (base providers.py:
+814-839) drops reservations of processes that are gone; _lock() (base :806-812) is an fcntl flock on SPEND.json.lock
+taken through a NEW open file each time, so threads of one process exclude each other too.
+
+TESTS: tests/package/test_meter.py (a deadline miss through a metered router fails over, books, and the meter
+counts the booking); tests/providers/test_reserve_wait.py (six workers with room for four: all six answer, never more
+than four in flight; spend alone over the limit: refused at once with a call in flight; a wait that ends still kept
+out: refused, and never two reservations past the limit). Mutation checks: 3 of 3 and 4 of 4 killed.
+
+PLEASE CHECK: (1) Can the wait deadlock or starve: can a call in flight need anything a waiting call holds? (2) Is
+the limit ever passed: any path where a reservation is saved with spent + reserved > limit? (3) Callers that assumed
+SpendLimit comes back at once: the wait runs before the call's deadline (_within) starts; can a caller with its own
+time budget (prescreen, ruling 101's wait estimate, the shadow's background asks) now hang for long? (4) Is "best" right
+for an abandoned call, and is any other wrapper of a Router method left with an old signature? (5) Test timing.
+
+AFTER CYCLE 1 (both reviewers' P1: the wait runs before the call's deadline starts): THE WAIT IS NOW OPT-IN.
+Router(reserve_wait_s=0.0) by default refuses at once, as before, for every caller; only the ledger build's router
+(tests/package/proof_ledger.py build_router) opts in with proof_ly.RESERVE_WAIT_S = 600 s. test_meter.py became
+tests/package/test_ledger_router.py (the meter tests + the ledger build's router waits); test_reserve_wait.py adds a
+default router's refusal at once and polls in place of fixed sleeps. 9 of 9 mutations killed.
+PLEASE CHECK AGAIN: (1) any caller still exposed to a wait it did not ask for; (2) the opt-in itself; (3) the tests.

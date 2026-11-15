@@ -54,6 +54,12 @@ LY_LIMIT_BASIS = "reported"        # mining and checks $1.00), VENDOR-REPORTED; 
 LY_STOP_USD = 4.00                 # rate (ruling 107 Q1). No build starts at or over $4.00 (a build runs $0.15-0.50, so
                                    # none ends over $4.50: each paid call still RESERVES its upper bound while in
                                    # flight, and none passes the limit); STATE line 1 says so in capitals.
+RESERVE_WAIT_S = 600.0             # BATCH 3 (Nov 14): the ledger build's router waits up to this long for calls in
+                                   # flight to settle before refusing a call that fits under the limit by itself
+                                   # (Router reserve_wait_s): step A's six workers reserve about $0.85 each, so under
+                                   # $4.50 four run and two wait, where builds 1 and 2 held them (SpendLimit).
+                                   # Only a caller with no time budget of its own may wait (Router._reserve): give
+                                   # the build a deadline and this must be derived again
 TABLE = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_LY_RERUN.md")
 DEADLINE_LOG = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_HEIMDALL_DEADLINES.jsonl")   # item 55
 RUNS = ("fresh_20261112_050611", "fresh_20261112_013452", "fresh_20261112_001448", "fresh_20261111_213954",
@@ -108,17 +114,22 @@ def ledger():
 def meter(router):
     """THIS process's own spend, from every call the router accounts (Router._settle). The shared ledger's total moves
     with the other workers too, so a per-package budget read from it would charge one universe for another's calls.
-    -> {"est": price-table estimate, "best": the vendor's own figure where reported, else the estimate}."""
+    -> {"est": price-table estimate, "best": the vendor's own figure where reported, else the estimate}.
+    Every keyword the router's own _settle takes is passed on unchanged: the meter observes, it never stands between
+    a call and its booking. Batch 3's builds 1 and 2 (22:05 and 22:20 ET Nov 14) lost three abandoned calls' bookings
+    and held five moments (six holds) because this wrapper refused ruling 107 Q1's `unreported` (a TypeError in
+    place of the failover). An abandoned call counts in "best" at that booking, as the cap counts it; a late answer that replaces
+    the booking (Router._replace_booking) is not followed here."""
     import threading
     tot, lock, settle = {"est": 0.0, "best": 0.0}, threading.Lock(), router._settle
 
-    def _settle(key, backend=None, usage=None, usd=0.0, role=""):
-        settle(key, backend, usage, usd, role)
+    def _settle(key, backend=None, usage=None, usd=0.0, role="", **kw):
+        settle(key, backend, usage, usd, role, **kw)
         if backend is not None:
-            rep = (usage or {}).get("usd_reported")
+            rep, booked = (usage or {}).get("usd_reported"), kw.get("unreported")
             with lock:
                 tot["est"] += float(usd or 0.0)
-                tot["best"] += float(rep) if P._num(rep) else float(usd or 0.0)
+                tot["best"] += float(rep) if P._num(rep) else float((usd if booked is None else booked) or 0.0)
     router._settle = _settle
     return tot
 

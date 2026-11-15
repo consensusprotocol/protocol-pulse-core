@@ -209,7 +209,8 @@ def build_router(routing, shadow, shadow_log):
                     routing=routing, shadow=shadow, shadow_log=shadow_log,
                     health=HH.STATE, plan_b_chains=PL.plan_b_chains(), state_md=STATE_MD,      # ruling 87
                     breakers=CB.STATE,                                                         # ruling 99
-                    deadlines=DT.load(DT.STATE, PL.REPLIES))                                   # ruling 100
+                    deadlines=DT.load(DT.STATE, PL.REPLIES),                                   # ruling 100
+                    reserve_wait_s=PL.RESERVE_WAIT_S)          # batch 3: a call that fits waits for calls in flight
 
 
 def applied(router):

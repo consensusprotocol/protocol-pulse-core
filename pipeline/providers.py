@@ -69,6 +69,8 @@ class ReplayMiss(Exception):
 IMAGE_TOKENS_UPPER = 6000            # ruling 70: one image's input tokens, as the spend guard's upper bound
 RATE_MIN_REPORTED = 3                # RULING 107 Q1 (orchestrator 20:40 ET Nov 14): an abandoned call is booked at
                                      # the model's own reported rate once it has this many reported calls
+RESERVE_POLL_S = 1.0                 # BATCH 3 (Nov 14): how often a call waiting for room under the limit re-reads
+                                     # the ledger (Router reserve_wait_s, Router._reserve)
 
 
 def is_vision(prompt):
@@ -722,7 +724,7 @@ class Router:
     def __init__(self, config=CONFIG, env_path=None, record_dir=None, replay=False, spend_path=None, limit_usd=40.0,
                  local_llm=None, chains=None, limit_basis="estimate", deadline_log=None, slow_log_s=240.0,
                  routing=None, shadow=None, shadow_log=None, health=None, plan_b_chains=None, state_md=None,
-                 breakers=None, deadlines=None):
+                 breakers=None, deadlines=None, reserve_wait_s=0.0):
         with open(config) as f:
             self.config = json.load(f)
         rt = self.config.get("routing") or {}
@@ -734,6 +736,8 @@ class Router:
         if limit_basis not in ("estimate", "reported"):
             raise ValueError(f"limit_basis must be 'estimate' or 'reported', not {limit_basis!r}")
         self.limit_basis = limit_basis            # what limit_usd counts: _basis_total
+        self.reserve_wait_s = float(reserve_wait_s)   # _reserve: 0 (the default) refuses at once, as every caller had
+        self.reserve_poll_s = RESERVE_POLL_S          # it; a batch build that may wait for calls in flight opts in
         import threading
         self.deadline_log, self.slow_log_s = deadline_log, slow_log_s     # order 08:06 item 55: the evidence file
         self._log_lock = threading.Lock()
@@ -888,20 +892,37 @@ class Router:
     def _reserve(self, b, upper):
         """Reserve a paid call's upper bound -> a reservation key (None for a free back-end or no ledger); raises
         SpendLimit when spent (on the limit basis) + reserved + this call's upper bound would pass the limit. The
-        reservations stay price-table upper bounds whatever the basis: the guard can only stop early, never late."""
+        reservations stay price-table upper bounds whatever the basis: the guard can only stop early, never late.
+        With reserve_wait_s > 0 (a batch build's opt-in; the default 0 keeps the refusal at once that every other
+        caller, the render's among them, relies on): when spent + this call's upper bound fits and only the reservations
+        of calls IN FLIGHT stand in the way, the call waits for them to settle (each ends in an answer, an error or an
+        abandonment, and releases its reservation), sleeping outside the ledger lock and re-reading the ledger every
+        reserve_poll_s, and reserves once it fits; still kept out after reserve_wait_s, it is refused (fail closed).
+        Spend alone over the limit is refused at once. The wait runs before the call's own deadline starts: only a
+        caller with no time budget of its own should opt in. Batch 3's builds 1 and 2 (Nov 14) held
+        65 moments at step A, medley and spotlight (90 holds in all), without this wait: six step-A workers, each
+        reserving about $0.85, under a $4.50 limit with $0.27 spent; four fit, and the other workers were refused batch
+        after batch while those four ran."""
         if not self.spend_path or b.free():
             return None
-        with self._lock():
-            d = self._ledger()
-            held = sum(float(x) for x in d["reserved"].values())
-            spent = self._basis_total(d)
-            if spent + held + upper > self.limit_usd:
-                raise SpendLimit(f"spend ({self.limit_basis}) {spent:.2f} USD + reserved {held:.2f} + this call's upper "
-                                 f"bound {upper:.2f} > the limit {self.limit_usd} USD")
-            key = f"{os.getpid()}:{uuid.uuid4().hex[:10]}"
-            d["reserved"][key] = round(upper, 6)
-            self._save(d)
-        return key
+        t_end, waited = time.time() + max(0.0, float(self.reserve_wait_s)), False
+        while True:
+            with self._lock():
+                d = self._ledger()
+                held = sum(float(x) for x in d["reserved"].values())
+                spent = self._basis_total(d)
+                if spent + held + upper <= self.limit_usd:
+                    key = f"{os.getpid()}:{uuid.uuid4().hex[:10]}"
+                    d["reserved"][key] = round(upper, 6)
+                    self._save(d)
+                    return key
+                if spent + upper > self.limit_usd or time.time() >= t_end:
+                    raise SpendLimit(f"spend ({self.limit_basis}) {spent:.2f} USD + reserved {held:.2f} + this call's "
+                                     f"upper bound {upper:.2f} > the limit {self.limit_usd} USD" +
+                                     (f" (still, after waiting {self.reserve_wait_s:g} s for the calls in flight)"
+                                      if waited else ""))
+            waited = True
+            time.sleep(max(0.01, float(self.reserve_poll_s)))
 
     def reported_rate(self, name):
         """RULING 107 Q1 (orchestrator 20:40 ET Nov 14): the model's own recorded vendor cost per PROMPT token: its
