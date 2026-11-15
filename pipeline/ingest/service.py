@@ -50,7 +50,8 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 
-from . import config, coverage, cycles, downsignal, fetch, flagcheck, ledger, mine, providers, purge, spend, stats, watch
+from . import batch, config, coverage, cycles, downsignal, fetch, flagcheck, ledger, mine, providers, purge, spend, stats, \
+    watch
 from . import queue as Q
 from .contract import ContractUnavailable
 
@@ -126,6 +127,7 @@ class Service:
         self.meter = spend.CreditMeter(mc, self.router.backends[mc["backend"]], clock=clock,
                                        on_change=self._meter_change)
         self.router.meter = self.meter
+        self.router.caps.share = self._batch_share       # ruling 108: the paid route stays inside the batch's share
         self.executor = ThreadPoolExecutor(max_workers=int(self.cfg["global"]["max_inflight"]),
                                            thread_name_prefix="win")
         self.videos = ThreadPoolExecutor(max_workers=3, thread_name_prefix="vid")
@@ -140,6 +142,7 @@ class Service:
         self.check_allowed, self.check_calibrated = None, 0.0
         self.check_recal_s = CHECK_RECALIBRATE_S        # the wait before the next calibration (set by each one)
         self.cycles_error = None                         # the cycles line's last failure (logged once per cause)
+        self.batch_error = None                          # ruling 108: the batch line's last failure (logged once)
         self._reuse_tried = False                       # the start's one look at the stored live calibration
         self.stop = threading.Event()
         self.rss_mode, self.rss_checked = False, 0.0
@@ -748,6 +751,7 @@ class Service:
                              signal=self.hsig.snapshot() if self.hsig is not None else None)
         self._outage_notice(now)
         self._cycles_notice(now)
+        self._batch_notice(now)
         day = config.iso()[:10]
         hour = datetime.now(timezone.utc).hour
         if force_coverage or (hour >= COVERAGE_HOUR_UTC and self.q.kv_get("coverage_day") != day and
@@ -777,6 +781,26 @@ class Service:
             if why != self.cycles_error:
                 self.log(f"the cycles line could not be written: {why}")
             self.cycles_error = why
+
+    def _batch_share(self):
+        """Ruling 108, for the router's RoleCaps: (dollars left of the batch's share for mining and checks, what it is);
+        nothing left outside a batch or when the batch file cannot be read (batch.share_left)."""
+        return batch.share_left(self.q, self.clock(), self.cfg)
+
+    def _batch_notice(self, now):
+        """Ruling 108 (orchestrator 21:22 ET Nov 14): pp-ingest's spend in the batch FIRST on STATE line 1, to the
+        batch's latest whole hour (the builder books it every hour), with the cycles' 3-hour note when it holds (the
+        same order: Sunday's light uploads, said on line 1). Rewritten only when the text changes; a failure is logged
+        once per cause, keeps the last figure on line 1 and never stops the health loop."""
+        try:
+            line = batch.notice(self.q, now, self.cfg, self.p["audit_spend"], quiet=cycles.quiet_head(self.q, now))
+            spend.write_batch_notice(line, notify_path=self.p["notify"])
+            self.batch_error = None
+        except Exception as e:                       # noqa: BLE001 (a report line never stops the watcher)
+            why = f"{type(e).__name__}: {str(e)[:200]}"
+            if why != self.batch_error:
+                self.log(f"ruling 108: the batch line could not be written: {why}")
+            self.batch_error = why
 
     def _purge_blocked(self, why):
         """A purge that cannot run safely: once it has lasted PURGE_NOTICE_S, a line at the top of STATE (audit r77

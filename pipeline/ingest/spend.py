@@ -25,20 +25,47 @@ SWITCH_PATTERN = (r"\d\d:\d\d ET: (?:SWITCHED TO PLAN B|BACK TO [A-Z0-9_-]+-FIRS
                   r"MINER (?:ON|OFF) THE PAID ROUTE|MINER PAID ROUTE CAP REACHED)")       # ruling 98: the miner's route
 SWITCH_RE = re.compile("^" + SWITCH_PATTERN)
 SIGNAL_RE = re.compile(r"^[A-Z0-9_-]+ " + SIGNAL_SUFFIX)    # any label's: only the signal writes this notice
+BATCH_PATTERN = r"BATCH \d+ ingest spend: "   # ruling 108: pp-ingest's spend in the batch, FIRST on STATE line 1
+BATCH_RE = re.compile("^" + BATCH_PATTERN)
+ALARM_PREFIX = "ALARM FOR PBX: "              # ruling 106 (d): on line 1, after the batch spend; the integrator sends it
+SEP = " | "                                   # line 1's notices, joined: the batch spend, an alarm, the switch line
 NOTICE_RE = re.compile(r"^(?:[A-Z0-9_-]+ SPEND (?:AT 90%|UNMEASURED)|" + OUTAGE_PREFIX + "|" + PURGE_PREFIX + "|" +
                        CYCLES_PREFIX + " TO |" + r"[A-Z0-9_-]+ " + SIGNAL_SUFFIX + "|" + SWITCH_PATTERN + ")")
+LINE1_RE = re.compile("^(?:" + BATCH_PATTERN + "|" + re.escape(ALARM_PREFIX) + ")")   # only ever the first line: a
+                                                                                       # session line that happens to
+                                                                                       # start so is never a notice
 
 
 def notice_prefixes(label):
     return (f"{label} SPEND AT 90%", f"{label} SPEND UNMEASURED")
 
 
+def _segments(h):
+    """STATE line 1 as its notices: the batch spend and an alarm at its front (in any order: a hand edit too, audit
+    b108 c1), then ruling 87's switch line, joined by SEP. The batch and alarm notices never hold a '|' (their
+    writers refuse one), so each ends at the first SEP; the rest is the switch line; any other first line is one
+    notice."""
+    out, rest = [], h
+    while rest and (BATCH_RE.match(rest) or rest.startswith(ALARM_PREFIX)):
+        seg, _, rest = rest.partition(SEP)
+        out.append(seg)
+    return out + ([rest] if rest else [])
+
+
+def _place(h):
+    """The order of the leading block: line 1 (the batch spend, an alarm, the switches: ruling 108, ruling 106 (d),
+    ruling 87), then the cycles line (the 08:15 order: right under line 1, audit cyc c2), then every other notice."""
+    return (0 if BATCH_RE.match(h) else 1 if h.startswith(ALARM_PREFIX) else 2 if SWITCH_RE.match(h) else
+            3 if h.startswith(CYCLES_PREFIX + " TO ") else 4)
+
+
 def _rewrite_top(doc, lock_path, mine, line, keep=lambda h: False):
     """The STATE file's leading block of notice lines (NOTICE_RE): this writer's lines (mine) are replaced by `line`
     (None: removed; one of them kept where keep(h); a callable: line(this writer's lines) -> the line), every other
-    notice stays; ruling 87's switch line is always the first. Rewritten only when the text changes, under an flock.
-    Only a MISSING file starts empty: a STATE file that exists and cannot be read raises (OSError) and is never
-    rewritten from nothing (audit r87 C1-5: it would have lost the whole file)."""
+    notice stays. Line 1 is ONE physical line holding the batch spend, an alarm and ruling 87's switch line, in that
+    order (_segments / _place: ruling 108 puts the batch spend FIRST on it, ruling 87 every switch on it). Rewritten
+    only when the text changes, under an flock. Only a MISSING file starts empty: a STATE file that exists and cannot
+    be read raises (OSError) and is never rewritten from nothing (audit r87 C1-5: it would have lost the whole file)."""
     with open(lock_path, "a") as lk:
         fcntl.flock(lk, fcntl.LOCK_EX)
         try:
@@ -47,17 +74,17 @@ def _rewrite_top(doc, lock_path, mine, line, keep=lambda h: False):
         except FileNotFoundError:
             text = ""
         lines = text.split("\n") if text else []
-        head = []
+        head = [lines.pop(0)] if lines and (NOTICE_RE.match(lines[0]) or LINE1_RE.match(lines[0])) else []
         while lines and NOTICE_RE.match(lines[0]):
             head.append(lines.pop(0))
+        head = _segments(head[0]) + head[1:] if head else []
         if callable(line):
             line = line([h for h in head if mine(h)])
         kept = [h for h in head if mine(h) and keep(h)][:1]
         others = [h for h in head if not mine(h)]
-        block = ([line] if line else []) + kept + others
-        cyc = lambda h: h.startswith(CYCLES_PREFIX + " TO ")                 # noqa: E731 (the standing order's line
-        block = ([h for h in block if SWITCH_RE.match(h)] + [h for h in block if cyc(h)] +   # right under the switch
-                 [h for h in block if not SWITCH_RE.match(h) and not cyc(h)])                 # line: audit cyc c2)
+        block = sorted(([line] if line else []) + kept + others, key=_place)     # stable: each kind keeps its order
+        first = [h for h in block if _place(h) <= 2]
+        block = ([SEP.join(first)] if first else []) + [h for h in block if _place(h) > 2]
         new = "\n".join(block + lines)
         if new != text:
             tmp = f"{doc}.{os.getpid()}.{threading.get_ident()}.tmp"
@@ -66,9 +93,38 @@ def _rewrite_top(doc, lock_path, mine, line, keep=lambda h: False):
             os.replace(tmp, doc)
 
 
+def write_batch_notice(line, doc=None, notify_path=None):
+    """Ruling 108 (orchestrator 21:22 ET Nov 14): 'BATCH <n> ingest spend: $x ...', FIRST on STATE line 1 (the builder
+    books it in the batch's one ledger every hour); None removes it. One notice of line 1: never a '|' or a newline
+    (the split of line 1 relies on it)."""
+    if line is not None and (not BATCH_RE.match(line) or "\n" in line or "|" in line):
+        raise ValueError("not a batch line")
+    doc = doc or config.STATE_DOC
+    lock_path = os.path.join(os.path.dirname(notify_path), "state_doc.lock") if notify_path else doc + ".lock"
+    os.makedirs(os.path.dirname(lock_path) or ".", exist_ok=True)
+    _rewrite_top(doc, lock_path, lambda h: bool(BATCH_RE.match(h)), line)
+    return line
+
+
+def write_alarm_notice(sentence, since, doc=None, notify_path=None):
+    """Ruling 106 (d): 'ALARM FOR PBX: <one sentence>. Waiting since <time ET>.' on STATE line 1, after the batch spend
+    (the integrator reads it and sends it; pp-ingest never sends one); sentence None removes it. One notice of line 1:
+    never a '|' or a newline."""
+    line = None
+    if sentence is not None:
+        line = f"{ALARM_PREFIX}{str(sentence).strip().rstrip('.')}. Waiting since {since}."
+        if not str(sentence).strip() or not since or "\n" in line or "|" in line:
+            raise ValueError("an alarm is one sentence and its time, on one line, without '|'")
+    doc = doc or config.STATE_DOC
+    lock_path = os.path.join(os.path.dirname(notify_path), "state_doc.lock") if notify_path else doc + ".lock"
+    os.makedirs(os.path.dirname(lock_path) or ".", exist_ok=True)
+    _rewrite_top(doc, lock_path, lambda h: h.startswith(ALARM_PREFIX), line)
+    return line
+
+
 def write_cycles_notice(line, doc=None, notify_path=None):
     """The watcher's per-cycle line (cycles.compose: the orchestrator's 08:15 order of Nov 14) at the top of STATE,
-    after ruling 87's switch line; None removes it. Rewritten only when its text changes (_rewrite_top)."""
+    right under line 1; None removes it. Rewritten only when its text changes (_rewrite_top)."""
     if line is not None and ("\n" in line or not line.startswith(CYCLES_PREFIX + " TO ")):
         raise ValueError("not a cycles line")
     doc = doc or config.STATE_DOC
@@ -213,9 +269,9 @@ def write_purge_notice(why, since, doc=None, notify_path=None):
 
 def write_switch_head(head, doc=None, notify_path=None):
     """Ruling 87: one switch of the shared Heimdall signal, whoever made it ("HH:MM ET: SWITCHED TO PLAN B (...) |"),
-    prepended to the one physical line at the start of STATE line 1 that holds every earlier switch, newest first; that
-    line stays the first whatever other notice comes or goes. Under the notices' own lock (never a lock file beside the
-    STATE file)."""
+    prepended to the switch line that holds every earlier switch, newest first; that line stays on STATE line 1
+    (after the batch spend and an alarm: _rewrite_top) whatever other notice comes or goes. Under the notices' own
+    lock (never a lock file beside the STATE file)."""
     if not SWITCH_RE.match(head or ""):
         raise ValueError(f"not a switch head: {head!r}")
     doc = doc or config.STATE_DOC

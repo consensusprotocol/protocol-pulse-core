@@ -104,6 +104,7 @@ def paths(root=None):
         "work": os.path.join(ing, "work"),
         "purge": os.path.join(ing, "purge"),
         "signal": os.path.join(ing, "down_signal.jsonl"),         # ruling 87: this watcher's evidence file
+        "audit_spend": os.path.join(ing, "audit_spend.jsonl"),    # ruling 108: one record per audit review's cost
     }
 
 

@@ -63,7 +63,7 @@
     "xai_frontier": {
       "kind": "openai_compat", "vendor": "xai", "enabled": true, "base_url": "https://api.x.ai/v1",
       "model": "grok-4.20-0309-reasoning", "key_env": "XAI_API_KEY_MEDLEY",
-      "json_schema": true, "max_inflight": 4, "timeout_s": 300,
+      "json_schema": true, "max_inflight": 4, "timeout_s": 300, "cost_reported": true,
       "note": "the vendor reports each call's cost (usage.cost_in_usd_ticks, 1 USD = 1e10 ticks): that is the recorded cost; the price table is only the budget guard's fallback (2026-11-12: it over-estimated the A/B judge 7x)",
       "price": {"in_per_mtok": 5.0, "out_per_mtok": 25.0, "basis": "estimate"},
       "daily_budget_usd": 10.0

@@ -1,0 +1,9 @@
+{
+  "_note": "Ruling 108 (orchestrator 21:22 ET Nov 14, after PBX 21:09): BATCH 3's money, all-in, one ledger for everything every session spends on the pipeline (the builder keeps it): cap $8.00 for the 24 hours; inside it builds + sealing $4.50, audits $2.50, mining and checks $1.00 (pp-ingest's share). pp-ingest's spend goes to that ledger every hour as 'BATCH 3 ingest spend: $x' first on STATE line 1 (batch.py). A new batch is a data change: the watcher reads this file again when it changes. Outside start_et..end_et the paid route spends nothing (no batch money is set).",
+  "name": "BATCH 3",
+  "start_et": "2026-11-14 21:10",
+  "end_et": "2026-11-15 21:10",
+  "share_usd": 1.00,
+  "share_of": "mining and checks",
+  "cap_usd": 8.00
+}

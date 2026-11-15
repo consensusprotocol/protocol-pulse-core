@@ -390,8 +390,9 @@ def test_the_health_loop_writes_the_cycles_line_and_a_failure_never_stops_it(svc
     run_once(s)
     s.health_once()
     text = open(config.STATE_DOC).read()
-    assert text.startswith("PP-INGEST CYCLES TO ") and f"{vids[0]} Test Channel \"" in text.split("\n")[0] and \
-        ": mined yes " in text.split("\n")[0]
+    line1, line2 = text.split("\n")[:2]                    # ruling 108: line 1 is the batch spend, the cycles line next
+    assert line1.startswith("BATCH 9 ingest spend: $") and line2.startswith("PP-INGEST CYCLES TO ") and \
+        f"{vids[0]} Test Channel \"" in line2 and ": mined yes " in line2
     msgs = []
     s.log = msgs.append
     monkeypatch.setattr(service.cycles, "compose", lambda *a, **k: 1 / 0)
@@ -904,3 +905,31 @@ def test_the_hook_rerun_is_idempotent_per_question_version(svc, monkeypatch):
     while s.hook_once(wait=True):
         pass
     assert s.q.video(vids[0])["hook_version"] == mine.HOOK_PROMPT_VERSION
+
+
+def test_the_health_loop_writes_the_batch_spend_first_on_line_1_and_a_failure_never_stops_it(svc, monkeypatch):
+    """Ruling 108: the watcher's own spend in the batch, to the batch's latest whole hour, first on STATE line 1 (the
+    test's own file: conftest), every call it made counted; a failure is logged once and line 1 keeps its figure."""
+    from datetime import datetime
+    from pipeline.ingest import batch
+    start = (int(__import__("time").time()) // 60 - 1) * 60                     # a minute boundary before the calls
+    with open(batch.SPEC, "w") as f:
+        json.dump({"name": "BATCH 7", "start_et": datetime.fromtimestamp(start, batch.ET).strftime("%Y-%m-%d %H:%M"),
+                   "end_et": "2027-12-31 00:00", "share_usd": 1.0}, f)
+    s, vids, b = svc(H.first_two, H.first_two, n_videos=1)
+    run_once(s)
+    spent = s.q.rows("SELECT SUM(COALESCE(cost_usd, 0)) AS u, COUNT(*) AS n FROM calls WHERE kind != 'cache'")[0]
+    assert spent["n"] > 0
+    s.clock = lambda: start + 3600 + 30                                          # the batch's first hour is out
+    s.health_once()
+    line1 = open(config.STATE_DOC).read().split("\n")[0]
+    assert line1.startswith(f"BATCH 7 ingest spend: ${spent['u']:.4f} (") and \
+        f"mining and checks ${spent['u']:.4f} of the $1.00 share" in line1 and f"{spent['n']} model call(s)" in line1
+    msgs = []
+    s.log = msgs.append
+    monkeypatch.setattr(service.batch, "notice", lambda *a, **k: 1 / 0)
+    s.health_once()
+    s.health_once()
+    assert [m for m in msgs if "batch line" in m] == [
+        "ruling 108: the batch line could not be written: ZeroDivisionError: division by zero"]
+    assert open(config.STATE_DOC).read().split("\n")[0] == line1

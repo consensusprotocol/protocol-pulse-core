@@ -155,3 +155,13 @@ def _quiet(q, t0, names, ncycles):
              f"NOTHING BITCOIN AMONG THE {len(known)} MINED IN THE LAST 3 H ({queued} NOT MINED YET)")   # head says so
     return (f"{title}: {len(seen)} upload(s) seen{f' ({kinds})' if kinds else ''}, none of the {len(known)} mined with a "
             f"Bitcoin term in any window{tail}")
+
+
+def quiet_head(q, now_ts, window_h=WINDOW_H):
+    """The 3-hour note's head alone ("NOTHING BITCOIN IN THE LAST 3 H", or "... AMONG THE K MINED ..."), for STATE line 1
+    (ruling 108's batch line; the orchestrator's 21:22 order: Sunday's light uploads, said on line 1); '' when the
+    window had Bitcoin, or when no cycle ran in it (the watcher stopped: nothing measured is never read as quiet)."""
+    t0 = now_ts - window_h * 3600
+    if not q.rows("SELECT 1 AS x FROM events WHERE kind='watch_cycle' AND ts >= ? LIMIT 1", (t0,)):
+        return ""
+    return _quiet(q, t0, {}, 0).split(":", 1)[0]

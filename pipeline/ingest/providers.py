@@ -687,10 +687,12 @@ ET = ZoneInfo("America/New_York")
 class RoleCaps:
     """Ruling 98: a role's daily spend cap, per ET day, counted from every call's recorded cost (the vendor's own where
     it reports one, else the price-table estimate), with a reservation held for every call in flight so no call starts
-    past the cap. loader(role, since_ts) -> dollars already spent (the queue's calls) at the first use of a day."""
+    past the cap. loader(role, since_ts) -> dollars already spent (the queue's calls) at the first use of a day.
+    share (ruling 108): None, or a callable -> (dollars left of the batch's share, what it is): a capped call must also
+    fit under it, with every capped call in flight held against it (the paid route stays inside pp-ingest's share)."""
 
-    def __init__(self, loader=None, clock=time.time):
-        self.loader, self.clock = loader, clock
+    def __init__(self, loader=None, clock=time.time, share=None):
+        self.loader, self.clock, self.share = loader, clock, share
         self.lock = threading.Lock()
         self.day, self.spent, self.reserved = {}, {}, {}
 
@@ -703,13 +705,29 @@ class RoleCaps:
             self.day[role], self.spent[role] = d, float(self.loader(role, start) or 0.0) if self.loader else 0.0
 
     def reserve(self, role, amount, cap):
+        return self.reserve_why(role, amount, cap) is None
+
+    def reserve_why(self, role, amount, cap):
+        """None when the call's priced worst case is held (released by the caller); else why it may not start: the
+        role's daily cap, or the batch's share (ruling 108; a share that cannot be read lets no call start)."""
         with self.lock:
             self._roll(role)
             r = self.reserved.get(role, 0.0)
             if self.spent[role] + r + amount > cap + 1e-9:
-                return False
+                return (f"the role's daily cap ${float(cap):.2f} is reached (${self.spent[role]:.2f} today, ET; this "
+                        f"call may cost ${amount:.2f})")
+            if self.share is not None:              # lock order as the loader's: RoleCaps, then the queue's
+                try:
+                    left, what = self.share()
+                    left = float(left)
+                except Exception as e:              # noqa: BLE001 (fail closed: an unread share spends nothing)
+                    return f"the batch's share could not be read ({type(e).__name__}): no paid call starts"
+                held = sum(self.reserved.values())
+                if not held + amount <= left + 1e-9:                # NaN never passes
+                    return (f"{what} is spent (${max(left, 0.0):.4f} left, ${held:.4f} held by calls in flight; "
+                            f"this call may cost ${amount:.4f})")
             self.reserved[role] = r + amount
-            return True
+            return None
 
     def release(self, role, amount):
         with self.lock:
@@ -860,10 +878,9 @@ class Router:
                 continue
             need = max(reserve, self._worst_cost(bid, prompt, mt, int(rc.get("attempts", 3)))) if cap is not None \
                 else 0.0                                      # audit r98 c1: the call's priced worst case is held
-            if cap is not None and not self.caps.reserve(role, need, float(cap)):
-                tried.append((bid, "skipped", f"the role's daily cap ${float(cap):.2f} is reached "
-                                              f"(${self.caps.today(role):.2f} today, ET; this call may cost "
-                                              f"${need:.2f})"))
+            refused = self.caps.reserve_why(role, need, float(cap)) if cap is not None else None
+            if refused is not None:                           # the day's cap or the batch's share (ruling 108)
+                tried.append((bid, "skipped", refused))
                 continue
             try:
                 out = self._try(bid, role, prompt, schema, validate, tag, int(rc.get("attempts", 3)), mt)

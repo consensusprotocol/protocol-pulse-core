@@ -501,6 +501,52 @@ from the health loop every 60 s; `spend.write_cycles_notice`):
   compose or write it is logged once per cause and never stops the health loop.
 - Tests write every STATE notice to their own file (tests/ingest/conftest.py redirects config.STATE_DOC for each test).
 
+## 18. The batch's money: STATE line 1 and the paid route inside the share (ruling 108, orchestrator 21:22 ET Nov 14)
+
+"BATCH 3 ... runs to 21:10 ET Nov 15. RULING 108, BATCH 3's MONEY, ALL-IN, one ledger for everything every session
+spends on this pipeline (... vendor-reported, abandoned calls at the model's own rate): CAP $8.00 for the 24 hours ...
+mining and checks $1.00 ... Your spend (mining, hook pass, flag checks, calibration, audits) goes to the builder's
+batch ledger hourly: 'BATCH 3 ingest spend: $x' first on STATE line 1." "Say on line 1 when 3 hours pass with nothing
+Bitcoin." And ruling 107 (2) for the audits: Heimdall-first (qwen + glm), diff-scoped, capped $0.30 / $1.00.
+- STATE line 1 is ONE physical line: the batch spend, then an alarm ("ALARM FOR PBX: <one sentence>. Waiting since
+  <time>.", ruling 106 (d): the integrator sends it; pp-ingest never does), then ruling 87's switch line (every switch,
+  newest first), joined by " | " (spend._segments / _place). The batch and alarm writers refuse a "|" or a newline, so
+  line 1 splits back exactly; the cycles line stays right under line 1, the other notices after it.
+- The batch is pipeline/ingest/batch.json (name, start and end in ET, pp-ingest's share "mining and checks"), read
+  again when it changes: a new batch is a data change, no restart. Outside the batch's 24 h, or with the file
+  unreadable, no money is set: the paid route spends nothing (the stricter reading of a money hold, ruling 106 (b)),
+  and the line says the batch closed.
+- The figure (batch.notice, from the health loop every 60 s; written only when it changes): the batch's start to its
+  latest whole hour (21:10, 22:10, ...), so line 1 moves once an hour and an hour's figure is final once it is out:
+  every watcher call from its call records (cache hits free), by use (mining, the hook pass, the flag checks with their
+  calibration, ruling 87's probes; the paid route is mining), at the recorded cost (the vendor's own where
+  providers.json says its replies carry one: cost_from_usage, cost_reported; else the price table, said apart); an
+  abandoned call (a timeout, or a call cut off after 30 s or more in flight with no answer, no HTTP status: the
+  stricter reading, audit b108 c1; nothing booked) at the model's own rate (ruling 107: its reported dollars per prompt
+  token x the role's average prompt on that model, both from the calls recorded before the hour's end, read in two
+  grouped queries per count; the list price of the prompt until the model has 3 reported calls; with no prompt size
+  known at all it is said NOT PRICED, never read as $0); an error the vendor answered books what it reported;
+  pp-ingest's audits from their ledger (data/editorial/ingest/audit_spend.jsonl: one record per review or correction,
+  written by the audit driver, "reported" or booked at the model's own rate, said apart on the line; an unreadable
+  record is said, not counted); and the cycles' 3-hour quiet head (cycles.quiet_head: nothing when no cycle ran). A
+  failure is logged once per cause; line 1 keeps its last figure. Only line 1 can hold the batch spend or an alarm (a
+  session line that starts like it is never taken for a notice).
+- Ruling 98's paid route inside the share: RoleCaps.reserve_why also checks the share (batch.share_left: the share
+  minus the watcher's spend in the batch to now, abandoned calls at the model's own rate) with every paid call in
+  flight held against it; a share that cannot be read lets no call start. The opening head names the share and what
+  is left; when no paid call fits, line 1 says "MINER PAID ROUTE CAP REACHED (<the share>: $x LEFT): QUEUE AND WAIT"
+  once per share, with ruling 108's question and its default (ruling 106 (a)): "MAY THE PAID ROUTE TAKE PART OF
+  ANOTHER SESSION'S SHARE? RECOMMENDED: NO ... DEFAULT IN 20 MIN: NO, NOTHING MORE IS SPENT". The day's $2.00 cap stays as it was. Heimdall mining is not stopped at the share: if the watcher's
+  own pace (about $0.28 a day on Nov 14) ever neared it, the session asks on line 1 with its default (ruling 108).
+- The audit driver (tests/ingest/xllm_audit.py, ruling 107 (2)): the package is the laws, the change's own context and
+  its diff (pipeline/ingest, tools/ingest_watch.py, tests/ingest; a new file needs `git add -N`), never the whole
+  files; qwen + glm review it (a third family by --only, when the two disagree on a P0 / P1 or one is down; the paid
+  frontier reviewers stay out under pp-ingest's freeze); the cap ($0.30 under 60 changed lines, else $1.00, both
+  cycles) is checked against the next cycle's worst case (each prompt and the whole reply budget at list price, with
+  half again) BEFORE any call; every review is booked to COST.json in the audit folder (written whole; a re-run of a
+  leg is kept beside the first) and to the ledger above, a review abandoned or cut off after 30 s in flight at the
+  model's own rate over this audit history, on its own prompt at the measured tokens per character.
+
 ## 11. Assumptions (most defensible reading; the integrator may overrule)
 
 - A1 Registry: the selector's universe = `pipeline/channels.json` enabled with a channel id (64 channels at c1451047,

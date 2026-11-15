@@ -218,3 +218,19 @@ def test_no_test_writes_the_real_state_file():
     """conftest redirects config.STATE_DOC for every test (the health loop now writes the cycles line)."""
     real = os.path.join(config.REPO, "docs", "audits", "parallel", "pp-ingest_STATE.md")
     assert os.path.realpath(config.STATE_DOC) != os.path.realpath(real)
+
+
+def test_the_quiet_head_goes_to_line_1_only_when_a_cycle_ran_and_found_nothing_bitcoin(tmp_path):
+    """Ruling 108's batch line carries the 3-hour note's head (the orchestrator's 21:22 order: Sunday, said on line
+    1); nothing is said when no cycle ran (nothing measured is never quiet) or when a window had Bitcoin."""
+    q, t = queue(tmp_path)
+    assert cycles.quiet_head(q, T) == ""
+    a, b = H.vid("a"), H.vid("b")
+    cycle(q, t, [(a, Q.DISCOVERED), (b, Q.SHORT)])
+    mined(q, a, T - 60, T + 1, T + 20, 0, 2, 2)
+    assert cycles.quiet_head(q, T + 30) == "NOTHING BITCOIN IN THE LAST 3 H"
+    c = H.vid("c")
+    cycle(q, t, [(c, Q.DISCOVERED)])
+    assert cycles.quiet_head(q, T + 40) == "NOTHING BITCOIN AMONG THE 1 MINED IN THE LAST 3 H (1 NOT MINED YET)"
+    mined(q, c, T - 60, T + 5, T + 50, 3, 2, 0)
+    assert cycles.quiet_head(q, T + 60) == ""

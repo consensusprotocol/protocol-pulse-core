@@ -1,0 +1,43 @@
+{
+ "cap_usd": 1.0,
+ "changed_lines": 1096,
+ "cycles": {
+  "c1": {
+   "reviews": {
+    "heimdall_qwen": {
+     "usd": 0.008655169,
+     "basis": "reported"
+    },
+    "heimdall_glm": {
+     "usd": 0.0012081761525565993,
+     "basis": "cut off after 420.3 s in flight (network): the model's own rate (31 reported reviews) x 30390 prompt tokens",
+     "corrected": "was 'failed before any cost (network)' ($0.0); re-booked by the fixed rule"
+    },
+    "heimdall_glm (run 2)": {
+     "usd": 0.0013936630628048688,
+     "basis": "cut off after 510.5 s in flight (network): the model's own rate (31 reported reviews) x 35055 prompt tokens"
+    },
+    "heimdall_muse": {
+     "usd": 0.010286916,
+     "basis": "reported"
+    }
+   },
+   "usd": 0.021544
+  },
+  "c2": {
+   "reviews": {
+    "heimdall_qwen": {
+     "usd": 0.0031709714,
+     "basis": "reported"
+    },
+    "heimdall_muse": {
+     "usd": 0.00471975,
+     "basis": "reported"
+    }
+   },
+   "usd": 0.007891
+  }
+ },
+ "total_usd": 0.029435,
+ "updated_utc": "2026-11-15T03:12:46Z"
+}

@@ -138,7 +138,8 @@ def test_the_paid_route_opens_after_20_minutes_down_says_its_cap_once_and_closes
     assert hs.paid_open is True and s.q.kv_get("paid_route")["open"] is True
     assert doc.read_text().startswith(
         "02:20 ET: MINER ON THE PAID ROUTE (PX, THEN PG: NO HV ANSWER FOR 20 MINUTES, SINCE 2026-11-14T07:00:00Z; NEW "
-        "UPLOADS OF THE LAST 6 H ONLY, CONVERSATIONS FIRST; CAP $0.01 A DAY, ET) | 02:15 ET: SWITCHED TO PLAN B")
+        "UPLOADS OF THE LAST 6 H ONLY, CONVERSATIONS FIRST; CAP $0.01 A DAY, ET, INSIDE BATCH 9'S $1000.00 SHARE FOR "
+        "MINING AND CHECKS ($1000.00 LEFT)) | 02:15 ET: SWITCHED TO PLAN B")       # ruling 108: the share it is in
     good = (tmp / "HH.json").read_text()
     (tmp / "HH.json").write_text("{not json")                         # a signal not read: no spend, the route kept
     t[0] += 5
@@ -301,3 +302,37 @@ def test_the_cap_is_said_when_no_back_end_of_the_route_can_start_a_call_and_befo
     assert heads.startswith("02:00 ET: MINER OFF THE PAID ROUTE") and \
         "| 02:00 ET: MINER PAID ROUTE CAP REACHED ($0.01 OF $0.01 TODAY, ET): QUEUE AND WAIT |" in heads
     assert s.hsig.paid_open is False
+
+
+def test_the_route_says_once_when_the_batchs_share_stops_it_and_no_paid_call_starts(paid):
+    """Ruling 108: the paid route stays inside the batch's share for mining and checks (pp-ingest's $1.00 of $8.00):
+    when no call fits, line 1 says so once per share and the videos queue and wait; the opening says the share."""
+    from pipeline.ingest import batch
+    with open(batch.SPEC, "w") as f:
+        json.dump({"name": "BATCH 4", "start_et": "2026-11-14 00:00", "end_et": "2026-11-15 00:00",
+                   "share_usd": 0.0}, f)
+    make, t, doc, tmp, msgs = paid
+    s, b = make(probe_fn=lambda p: BackendError("network", "down"))
+    hs = s.hsig
+    hs.noted({"role": "mine", "backend": "hv1", "kind": "timeout"})
+    hs.tick(wait=True)
+    t[0] = T0 + 15 * 60
+    hs.noted({"role": "mine", "backend": "hv1", "kind": "timeout"})
+    hs.tick(wait=True)
+    t[0] = T0 + 20 * 60
+    hs.tick(wait=True)
+    assert hs.paid_open is True
+    head = doc.read_text().split("\n")[0]
+    assert head.startswith("02:20 ET: MINER PAID ROUTE CAP REACHED (BATCH 4'S $0.00 SHARE FOR MINING AND CHECKS: "
+                           "$0.00 LEFT): QUEUE AND WAIT. QUESTION (RULING 108): MAY THE PAID ROUTE TAKE PART OF "
+                           "ANOTHER SESSION'S SHARE? RECOMMENDED: NO (THE VIDEOS ARE MINED WHEN THE SIGNAL IS BACK, "
+                           "INSIDE THEIR 12 H). DEFAULT IN 20 MIN: NO, NOTHING MORE IS SPENT | 02:20 ET: MINER ON THE "
+                           "PAID ROUTE (")                     # ruling 106 (a): the question carries its default
+    assert "CAP $0.01 A DAY, ET, INSIDE BATCH 4'S $0.00 SHARE FOR MINING AND CHECKS ($0.00 LEFT))" in head
+    with pytest.raises(providers.AllBackendsFailed) as e:
+        s.router.run("mine_paid", "p", None, lambda c: c, use_cache=False)
+    assert all("share for mining and checks is spent" in w for _, _, w in e.value.tried)
+    assert b["px"].calls == [] and b["pg"].calls == []
+    t[0] += 120
+    hs.tick(wait=True)
+    assert doc.read_text().count("SHARE FOR MINING AND CHECKS: $0.00 LEFT") == 1          # said once per share

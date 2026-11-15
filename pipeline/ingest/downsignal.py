@@ -259,10 +259,12 @@ class DownSignal:
             if v.get("mode") == DOWN and fs_t is not None and now - fs_t >= float(pr["after_down_s"]):
                 st = {"open": True, "since": _iso(now)}
                 cap = float(self.roles[pr["role"]]["daily_cap_usd"])
+                left, what = self._share()
+                inside = "" if what is None else f", INSIDE {what} (${max(left, 0.0):.2f} LEFT)"   # ruling 108
                 self._route_switch(st, f"MINER ON THE PAID ROUTE ({pr['label']}: NO {self.label} ANSWER FOR "
                                        f"{int((now - fs_t) // 60)} MINUTES, SINCE {fs}; NEW UPLOADS OF THE LAST "
                                        f"{int(pr['new_within_s'] // 3600)} H ONLY, CONVERSATIONS FIRST; CAP "
-                                       f"${cap:.2f} A DAY, ET)", "paid_route_open")
+                                       f"${cap:.2f} A DAY, ET{inside})", "paid_route_open")
         elif v.get("mode") == self.up:
             self._cap_check(now)                     # the day's cap is said before the route closes (audit r98 c2)
             st = {"open": False, "since": _iso(now)}
@@ -274,9 +276,22 @@ class DownSignal:
             self.route_why = None
             self._cap_check(now)
 
+    def _share(self):
+        """Ruling 108: (dollars left of the batch's share, what it is) from the router's RoleCaps, (None, None) when no
+        share is set; a share that cannot be read is nothing left (as RoleCaps reads it: no paid call starts)."""
+        sh = self.router.caps.share
+        if sh is None:
+            return None, None
+        try:
+            left, what = sh()
+            return float(left), str(what)
+        except Exception as e:                       # noqa: BLE001
+            return 0.0, f"the batch's share (not read: {type(e).__name__})"
+
     def _cap_check(self, now):
         """The cap reached, said once per ET day: when no call of the route can start any more (the day's spend plus
-        its cheapest back-end's priced worst case passes the cap: audit r98 c2)."""
+        its cheapest back-end's priced worst case passes the cap: audit r98 c2). Ruling 108: the same when the batch's
+        share has no room for that call, said once per share (a new batch may say it again)."""
         role = self.paid["role"]
         cap, spent = float(self.roles[role]["daily_cap_usd"]), self.router.caps.today(role)
         day = datetime.fromtimestamp(now, ET).date().isoformat()
@@ -284,6 +299,14 @@ class DownSignal:
             self.q.kv_set("paid_cap_day", day)
             self._route_switch(None, f"MINER PAID ROUTE CAP REACHED (${spent:.2f} OF ${cap:.2f} TODAY, ET): "
                                      "QUEUE AND WAIT", "paid_route_cap")
+        left, what = self._share()
+        if what is not None and not self.router.min_call_cost(role) <= left and \
+                self.q.kv_get("paid_share_said") != what:
+            self.q.kv_set("paid_share_said", what)
+            self._route_switch(None, f"MINER PAID ROUTE CAP REACHED ({what}: ${max(left, 0.0):.2f} LEFT): QUEUE AND "
+                                     "WAIT. QUESTION (RULING 108): MAY THE PAID ROUTE TAKE PART OF ANOTHER SESSION'S "
+                                     "SHARE? RECOMMENDED: NO (THE VIDEOS ARE MINED WHEN THE SIGNAL IS BACK, INSIDE "
+                                     "THEIR 12 H). DEFAULT IN 20 MIN: NO, NOTHING MORE IS SPENT", "paid_route_cap")
 
     def _route_switch(self, st, words, kind):
         now = self.clock()
