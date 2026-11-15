@@ -1,0 +1,736 @@
+diff --git a/tests/package/hook112.py b/tests/package/hook112.py
+new file mode 100644
+index 0000000..7f06d51
+--- /dev/null
++++ b/tests/package/hook112.py
+@@ -0,0 +1,491 @@
++#!/usr/bin/env python3
++"""RULING 112 (orchestrator 11:15 ET Nov 15): THE HOOK SCARCITY DIAGNOSIS. No bar, gate or routing changes.
++
++Read-only on every build record (tests/package/proof/ledger_*), the hook cache, pp-ingest's ledger and its queue
++database (opened mode=ro). The ONE paid part is the calibration (part 2): the hook job as it stands today
++(package.hook_ratings and package.HOOKS_PROMPT, unchanged) on the approved hooks. It runs on Heimdall only: the hook
++chain of ruling 88 (coherence_verdict:hook) with every non-Heimdall back-end removed, and no shadow. It uses its own
++spend ledger, a stop below the order's cap, and no cache (fresh ratings; the production cache is neither read nor
++written).
++
++-> tests/package/proof/hook112/:
++- FUNNEL.json (1): per build, and per DISTINCT moment, how far each one got toward the hook job and what stopped it.
++- CALIBRATION.json (2).
++- NEAR_MISSES.json (3).
++- HOOK_PASS.json (4).
++- REPORT.md.
++Usage: python3 -B tests/package/hook112.py [--no-calibration] [--hours 48]"""
++import argparse
++import collections
++import glob
++import json
++import os
++import re
++import sqlite3
++import sys
++from datetime import datetime, timedelta, timezone
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++sys.path.insert(0, HERE)
++
++PROOF = os.path.join(HERE, "proof")
++OUT = os.path.join(PROOF, "hook112")
++SPEND = os.path.join(PROOF, "SPEND_H112.json")
++LIMIT_USD, STOP_USD = 0.30, 0.25          # the order's cap; no call starts at or over the stop
++SEEDS = (7, 8, 9)                        # 7 is production's; 8 and 9 show how stable a rating is
++INGEST = os.environ.get("PP_INGEST_ROOT", "/home/ultron/worktrees/pp-ingest")
++QUEUE_DB = os.path.join(INGEST, "data", "editorial", "ingest", "queue.sqlite")
++LEDGER = os.path.join(INGEST, "data", "editorial", "moments", "moment_ledger.jsonl")
++REFS = [("preview", "the protected preview (L-d, PBX 2026-11-11)",
++         os.path.join(REPO, "references", "pulse_preview_2026-11-11", "PIN.json")),
++        ("37c5b5f5", "the protected moments reference 37c5b5f5",
++         os.path.join(PROOF, "fresh_20261112_050611", "MOMENTS_PIN.json")),
++        ("41f29b1f", "the protected medley reference 41f29b1f",
++         os.path.join(PROOF, "fresh_20261112_050611", "MOMENTS_PIN_LY.json")),
++        ("0c68b589", "the published medley 0c68b589",
++         os.path.join(PROOF, "ledger_20261113_183302", "MOMENTS_PIN_ATTESTED.json")),
++        ("13949b7c", "the last sealed medley 13949b7c (delivered as a pass 17:14 ET Nov 13)",
++         os.path.join(PROOF, "ledger_20261113_215708", "MOMENTS_PIN_LEDGER.json"))]
++
++# THE COMMON STAGES toward the hook job, on which both paths (the medley's and the spotlight's) are placed
++STAGES = ("in a pool", "passed the free screens", "cleared step A", "passed the second pass and CUTTABLE",
++          "may open", "rated by the hook job", "rated >= 4")
++
++
++def base(mid):
++    """A variant (~trim, ~tail) is its moment's speech: one distinct moment."""
++    return str(mid).split("~")[0]
++
++
++def reason_class(why):
++    """A short, stable class for a free-text reason (the full texts stay in FUNNEL.json)."""
++    w = str(why or "")
++    for pat, cls in ((r"over the 20\.0 s", "over the medley's 20 s"), (r"over the 35\.0 s", "over the spotlight's 35 s"),
++                     (r"topic rule", "STAND_ALONE topic rule (ruling 34)"),
++                     (r"STAND_ALONE with the clip scorer|STAND_ALONE", "STAND_ALONE opener rule"),
++                     (r"ALONE scorer", "the ALONE scorer below 4 (ruling 109, free)"),
++                     (r"not eligible on screen", "not eligible on screen (opener)"),
++                     (r"genuine quiet|G17a", "G17a: no genuine quiet before the onset"),
++                     (r"second pass disagrees|L-v 2 FAIL", "L-v 2: the second pass disagrees"),
++                     (r"not cuttable", "not cuttable at an edge"), (r"NOT MEASURED", "not measured"),
++                     (r"cannot open", "cannot open (hook eligibility or the render's opener rule)"),
++                     (r"ad-read|ad_read", "ad-read marker"), (r"time.sensitive|ruling 76", "stale or time words"),
++                     (r"speaker", "speaker rule"), (r"fewer than 3 channels|channel\(s\) after the free stages",
++                                                     "the medley's 3-channel rule"),
++                     (r"re-posted|ruling 53", "re-posted by a second channel (ruling 53)"),
++                     (r"not rated", "not rated (the hook call failed)")):
++        if re.search(pat, w):
++            return cls
++    m = re.match(r"step A: ([A-Z_]+)", w)
++    if m:
++        return "step A: " + m.group(1)
++    return w[:60] or "unknown"
++
++
++def build_records(proof=PROOF, since=None):
++    """[(name, package.json, inputs.json)] of every finished build whose dir name (UTC) is >= since."""
++    out = []
++    for d in sorted(glob.glob(os.path.join(proof, "ledger_*"))):
++        name = os.path.basename(d)
++        if since and name < since:
++            continue
++        try:
++            pk = json.load(open(os.path.join(d, "package.json")))
++            inp = json.load(open(os.path.join(d, "inputs.json")))
++        except (OSError, ValueError):
++            continue
++        out.append((name, pk, inp))
++    return out
++
++
++def medley_trace(pk, inp):
++    """{moment id: (common stage reached, why it stopped there or None, rating record or None)} for the medley path."""
++    pre = pk.get("prescreen") or {}
++    hp = pk.get("hook_pool") or {}
++    ratings = hp.get("ratings") or {}
++    unusable, no_role, ad = pk.get("unusable") or {}, pk.get("no_role") or {}, pk.get("ad_read") or {}
++    reposted = pk.get("reposted") or {}
++    failed, second, onset = pre.get("failed") or {}, pre.get("second_pass") or {}, pre.get("hook_onset") or {}
++    trim_cut = pre.get("trim_cut") or {}
++    pool = [m.get("moment_id") for m in inp.get("moments") or [] if isinstance(m, dict)]
++    ids = list(dict.fromkeys(pool + list(failed) + list(second) + list(onset) + list(ratings) +
++                             list((pk.get("trimmed") or {}).values())))
++    went_on = "second_pass" in pre                     # the medley passed the 3-channel rule on the cleared moments
++    out = {}
++    for mid in ids:
++        if mid in unusable:
++            out[mid] = (0, unusable[mid], None)
++        elif mid in no_role:
++            out[mid] = (0, no_role[mid], None)
++        elif mid in ad:
++            out[mid] = (0, ad[mid], None)
++        elif mid in reposted:
++            out[mid] = (0, f"re-posted by a second channel (ruling 53): {reposted[mid]}", None)
++        elif mid in failed:
++            out[mid] = (1, "step A: " + "; ".join(failed[mid]), None)
++        elif mid in ratings:
++            r = ratings[mid]
++            own = own_rating(r)                        # as it stands today (ruling 61), as the near misses read it
++            ge4 = isinstance(own, int) and own >= 4
++            out[mid] = (6 if ge4 else 5, None if ge4 else f"rated {own}", r)
++        elif mid in second and second[mid] != "PASS":
++            out[mid] = (2, second[mid], None)
++        elif mid in trim_cut:
++            out[mid] = (3, trim_cut[mid], None)
++        elif mid in onset and onset[mid] != "PASS":
++            out[mid] = (3, onset[mid], None)
++        elif mid in onset and hp.get("error"):
++            out[mid] = (4, f"not rated (the hook call failed): {hp['error']}", None)
++        elif mid in onset:
++            out[mid] = (3, "cannot open (hook eligibility or the render's opener rule)", None)
++        elif not went_on and mid in pool and pre.get("cleared") is not None and mid not in failed and \
++                (pre.get("screened") or 0) > 0:
++            out[mid] = (2, "the medley ended at its 3-channel rule (fewer than 3 channels cleared step A)", None)
++        elif mid in pool:
++            out[mid] = (1, pk.get("why_none") or "the medley ended before step A", None)
++    return out
++
++
++def spotlight_trace(pk):
++    """{moment id: (common stage, why or None, hook_own or None)} for the spotlight path, its widened spans under the
++    moment they came from."""
++    sp = pk.get("spotlight") or {}
++    pool = sp.get("pool") or {}
++    snapped = {k: (v or {}).get("from") for k, v in (pool.get("snapped") or {}).items() if isinstance(v, dict)}
++    out = {}
++    for mid, why in (dict(pool.get("out") or {})).items():
++        out[snapped.get(mid, mid)] = (0, why, None)
++    for mid, m in (sp.get("moments") or {}).items():
++        if not isinstance(m, dict):
++            continue
++        st, why, own = int(m.get("stage") or 0), m.get("out"), m.get("hook_own")
++        if own is not None:
++            c = (6, None, own) if own >= 4 else (5, why, own)
++        else:
++            stepa = st == 0 and (str(why).startswith("step A") or "no verdict (law L-m)" in str(why))
++            c = {0: (1 if stepa else 0, why, None), 1: (2, why, None), 2: (3, why, None)}.get(st, (4, why, None))
++        k = snapped.get(mid, mid)
++        if k not in out or c[0] > out[k][0]:
++            out[k] = c
++    return out
++
++
++def funnel(records):
++    """Per build counts on the common stages, and the distinct roll-up: every moment (by base id) at its furthest
++    stage over every build and both paths, with the reason it stopped there."""
++    per_build, best = [], {}
++    for name, pk, inp in records:
++        md, st = medley_trace(pk, inp), spotlight_trace(pk)
++        row = {"build": name, "pool": len(inp.get("moments") or []), "why_none": str(pk.get("why_none") or "")[:200]}
++        for path, tr in (("medley", md), ("spotlight", st)):
++            row[path] = {s: sum(1 for c in tr.values() if c[0] >= i) for i, s in enumerate(STAGES)}
++        per_build.append(row)
++        for tr in (md, st):
++            for mid, c in tr.items():
++                k = base(mid)
++                if k not in best or c[0] >= best[k][0]:      # a tie keeps the LATEST build's reason
++                    best[k] = (c[0], c[1], name)
++    stops = collections.defaultdict(collections.Counter)
++    for k, (stage, why, _) in best.items():
++        if stage < 5:
++            stops[STAGES[stage + 1]][reason_class(why)] += 1
++    return {"builds": per_build, "distinct": len(best),
++            "distinct_by_stage": {s: sum(1 for c in best.values() if c[0] >= i) for i, s in enumerate(STAGES)},
++            "never_rated_stopped_before": {s: dict(c.most_common()) for s, c in stops.items()},
++            "furthest": {k: {"stage": STAGES[c[0]], "why": c[1], "build": c[2]} for k, c in sorted(best.items())}}
++
++
++def ledger_of(records):
++    """{build moment id: pp-ingest's ledger moment id}: a build re-anchors each ledger row and gives the moment an id
++    of its own (mined.ledger_moment_id keeps the row's); a variant (~trim, ~tail) and a spotlight's widened span
++    (pool.snapped[...]["from"]) map to the moment they came from."""
++    out = {}
++    for _, pk, inp in records:
++        for m in inp.get("moments") or []:
++            if isinstance(m, dict) and m.get("moment_id"):
++                lid = (m.get("mined") or {}).get("ledger_moment_id")
++                if lid:
++                    out[m["moment_id"]] = lid
++        for new, v in ((((pk.get("spotlight") or {}).get("pool") or {}).get("snapped")) or {}).items():
++            if isinstance(v, dict) and v.get("from"):
++                out.setdefault(new, v["from"])
++    def resolve(v, depth=0):                         # widened span -> its moment (maybe a variant) -> the ledger row
++        if depth < 4 and v in out and out[v] != v:
++            return resolve(out[v], depth + 1)
++        if depth < 4 and base(v) != v:
++            return resolve(base(v), depth + 1)
++        return v
++    return {k: resolve(v) for k, v in out.items()}
++
++
++def ledger_id(mid, lmap):
++    return lmap.get(mid) or lmap.get(base(mid)) or base(mid)
++
++
++def own_rating(r):
++    """The own-job rating as it stands today (ruling 61): the lower of scroll and alone; the recorded one when the
++    parts are missing."""
++    if isinstance(r.get("scroll"), int) and isinstance(r.get("alone"), int):
++        return min(r["scroll"], r["alone"])
++    return r.get("rating")
++
++
++def all_ratings(records, cache):
++    """{(moment id, rater): rating record with its text and the builds that used it}: the medley's records, and the
++    spotlight's own-job ratings completed from the hook cache (same moment id; the parts are the cache's)."""
++    texts = {}
++    for _, pk, inp in records:
++        for m in inp.get("moments") or []:
++            if isinstance(m, dict) and m.get("moment_id"):
++                texts.setdefault(m["moment_id"], m.get("text") or "")
++        for mid, m in ((pk.get("spotlight") or {}).get("moments") or {}).items():
++            if isinstance(m, dict):
++                texts.setdefault(mid, m.get("text") or "")
++    by_id = collections.defaultdict(list)
++    for key, recs in (cache or {}).items():
++        for rater, rec in (recs or {}).items():
++            by_id[key.split(":")[0]].append((rater, rec))
++    out = {}
++    for name, pk, _ in records:
++        for mid, r in (((pk.get("hook_pool") or {}).get("ratings")) or {}).items():
++            k = (mid, r.get("backend"))
++            out.setdefault(k, dict({p: r.get(p) for p in ("scroll", "alone", "setup", "why")}, rating=own_rating(r),
++                                   rating_recorded=r.get("rating"), moment_id=mid, rater=r.get("backend"),
++                                   text=texts.get(mid, ""), builds=[]))
++            out[k]["builds"].append(name)
++        for mid, m in (((pk.get("spotlight") or {}).get("moments")) or {}).items():
++            if not isinstance(m, dict) or m.get("hook_own") is None:
++                continue
++            for rater, rec in by_id.get(mid, []) or [(None, {})]:
++                k = (mid, rater)
++                out.setdefault(k, dict({p: rec.get(p) for p in ("scroll", "alone", "setup", "why")},
++                                       rating=own_rating(dict(rec, rating=m.get("hook_own"))),
++                                       rating_recorded=m.get("hook_own"), moment_id=mid, rater=rater,
++                                       text=texts.get(mid, ""), builds=[]))
++                out[k]["builds"].append(name)
++    return out
++
++
++def snapped_map(records):
++    """{a spotlight's widened span id: the moment id it came from}, over every build."""
++    out = {}
++    for _, pk, _ in records:
++        for new, v in ((((pk.get("spotlight") or {}).get("pool") or {}).get("snapped")) or {}).items():
++            if isinstance(v, dict) and v.get("from"):
++                out[new] = v["from"]
++    return out
++
++
++def near_misses(ratings, n=10, fold=None):
++    """The n highest-rated hooks (rating, then the sum of the three parts), one per moment, and which part holds a
++    3 back from a 4. The rating is the own-job rating (ruling 61: the lower of scroll and alone)."""
++    best, fold = {}, fold or {}
++    for r in ratings.values():
++        if not isinstance(r.get("rating"), int):
++            continue
++        k = base(fold.get(r["moment_id"], r["moment_id"]))
++        key = (r["rating"], sum(int(r.get(p) or 0) for p in ("scroll", "alone", "setup")))
++        if k not in best or key > best[k][0]:
++            best[k] = (key, r)
++    top = [r for _, r in sorted(best.values(), key=lambda x: (-x[0][0], -x[0][1], x[1]["moment_id"]))[:n]]
++    threes = [r for _, r in best.values() if r["rating"] == 3]
++    held = collections.Counter()
++    for r in threes:
++        for p in ("scroll", "alone"):
++            if r.get(p) == 3:
++                held[p] += 1
++        if isinstance(r.get("setup"), int) and r["setup"] <= 3:
++            held["setup (not in the own-job rating since ruling 61)"] += 1
++    hist = collections.Counter(r["rating"] for _, r in best.values())
++    return {"top": top, "rated_distinct": len(best), "ratings": dict(sorted(hist.items())), "threes": len(threes),
++            "threes_held_back_by": dict(held.most_common())}
++
++
++def never_in_pool(lid, inputs_report):
++    """Why a ledger row gave no moment, from a build's own inputs report (ledger_build.build_inputs)."""
++    rep = inputs_report or {}
++    if lid in set(((rep.get("word_pass") or {}).get("refused")) or ()):
++        return "refused by the word pass (not sentence-ready; never re-worked)"
++    if lid in (rep.get("not_anchored") or {}):
++        return "did not re-anchor: " + str(rep["not_anchored"][lid])[:120]
++    if lid in (rep.get("duplicates_of") or {}):
++        return "a duplicate of " + str(rep["duplicates_of"][lid])
++    return "no moment in the latest build (not in its 12-h ledger, or no word record)"
++
++
++def hook_pass(db_path=QUEUE_DB, since_ts=None, videos=(), ledger=LEDGER, rated_ids=(), furthest=None,
++              inputs_report=None):
++    """Ruling 80's hook pass, from pp-ingest's own queue (read-only): its events since since_ts, classed; the given
++    videos' events and hook rows; whether any of their hook rows reached the hook job (rated_ids: LEDGER ids), and
++    how far each got (furthest: {ledger id: {"stage", "why"}})."""
++    db = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
++    db.row_factory = sqlite3.Row
++    ev = db.execute("SELECT e.at, e.ts, e.video_id, e.detail, c.display_name AS channel, v.title, v.moments "
++                    "FROM events e LEFT JOIN videos v ON v.video_id = e.video_id "
++                    "LEFT JOIN channels c ON c.channel_id = e.channel_id WHERE e.kind = 'hooks' AND e.ts >= ? "
++                    "ORDER BY e.ts", (since_ts or 0,)).fetchall()
++    classes, per_channel, mine = collections.Counter(), collections.defaultdict(collections.Counter), []
++    for r in ev:
++        d = json.loads(r["detail"] or "{}")
++        called = bool((d.get("cost") or 0) > 0 or (d.get("seconds_hook") or 0) >= 1)
++        cls = ("wrote rows" if d.get("rows") else "0 rows") + (", a model called" if called else ", no model call")
++        classes[cls] += 1
++        per_channel[r["channel"] or "?"][cls] += 1
++        if r["video_id"] in videos:
++            mine.append({"at": r["at"], "video_id": r["video_id"], "channel": r["channel"], "title": r["title"],
++                         "moments": r["moments"], **d})
++    hook_rows = collections.defaultdict(list)
++    try:
++        with open(ledger) as f:
++            for line in f:
++                try:
++                    row = json.loads(line)
++                except ValueError:
++                    continue
++                if isinstance(row, dict) and row.get("video_id") in videos and \
++                        (row.get("mined") or {}).get("pass") == "hook":
++                    hook_rows[row["video_id"]].append(row.get("moment_id"))
++    except OSError:
++        pass
++    reached = {v: sorted(set(ids) & set(rated_ids)) for v, ids in hook_rows.items()}
++    how_far = {v: {i: (furthest or {}).get(i) or {"stage": "never in a build's pool",
++                                                    "why": never_in_pool(i, inputs_report)} for i in ids}
++               for v, ids in hook_rows.items()}
++    return {"events": len(ev), "classes": dict(classes.most_common()),
++            "per_channel": {c: dict(x) for c, x in sorted(per_channel.items())}, "today": mine,
++            "hook_rows": {v: len(ids) for v, ids in hook_rows.items()}, "hook_rows_rated": reached,
++            "hook_rows_furthest": how_far}
++
++
++def ref_moments(refs=REFS):
++    """The approved hooks as the hook job reads a moment: an id of their own (so no production cache entry can
++    answer for them), the approved text verbatim, and the channel's name on screen."""
++    out = []
++    for key, label, path in refs:
++        seg = json.load(open(path))["segments"][0]
++        out.append({"moment_id": f"ref-{key}", "text": seg.get("approved_text") or seg.get("text") or "",
++                    "channel_id": f"ref:{seg.get('video_id')}", "channel_name": seg.get("channel") or "?",
++                    "label": label, "video_id": seg.get("video_id"),
++                    "seconds": round(float(seg.get("end") or 0) - float(seg.get("start") or 0), 2)})
++    return out
++
++
++def heimdall_hook_chain(router):
++    """Ruling 88's hook list as production reads it, with every non-Heimdall back-end removed (the order: Heimdall
++    only). Refused when none is left."""
++    chain = [n for n in router.chain("coherence_verdict", "hook")   # a Heimdall back-end's vendor is "heimdall/<family>"
++             if str(getattr(router.backends.get(n), "vendor", "")).split("/")[0] == "heimdall"]
++    if not chain:
++        raise RuntimeError("refused: ruling 88's hook list has no Heimdall back-end")
++    return chain
++
++
++def build_router(spend_path=SPEND, record_dir=None):
++    import deadline_table as DT
++    import providers as P
++    import replay85 as R
++    r = P.Router(env_path=R.ENV, record_dir=record_dir, spend_path=spend_path, limit_usd=LIMIT_USD,
++                 limit_basis="reported", routing="heimdall_first", deadlines=DT.load(DT.STATE, None))
++    r.chains["coherence_verdict:hook"] = heimdall_hook_chain(r)
++    return r
++
++
++def calibrate(router, refs, ctx, seeds=SEEDS, stop_usd=STOP_USD, rate=None):
++    """The hook job as it stands today (package.hook_ratings, cache None) on the approved hooks, once per seed, as
++    production asks it: avoiding the writers' vendor and family (package._writers). A call is made only under the
++    stop. -> [{"seed", "ratings": {id: record} or {}, "error"}]."""
++    import package as PK
++    rate = rate or PK.hook_ratings
++    wv, wf = PK._writers(router)
++    runs = []
++    for s in seeds:
++        if router.spent() >= stop_usd:
++            runs.append({"seed": s, "ratings": {}, "error": f"stopped: ${router.spent():.4f} spent (stop "
++                                                            f"${stop_usd:.2f})"})
++            continue
++        got, err = rate(router, refs, ctx, wv, wf, cache=None, seed=s)
++        runs.append({"seed": s, "ratings": got, "error": err, "writers": [sorted(wv), sorted(wf)]})
++    return runs
++
++
++def report(fun, cal, nm, hp):
++    L = ["# RULING 112: THE HOOK SCARCITY DIAGNOSIS", ""]
++    L += ["## (1) THE FUNNEL (the last 48 h of builds)", "",
++          f"{len(fun['builds'])} builds; {fun['distinct']} distinct moments (a variant is its moment).", "",
++          "| stage | distinct moments that reached it |", "|---|---|"]
++    L += [f"| {s} | {n} |" for s, n in fun["distinct_by_stage"].items()]
++    L += ["", "Never rated by the hook job, by the stage that stopped them (reason classes):", ""]
++    for s, c in fun["never_rated_stopped_before"].items():
++        L.append(f"- before \"{s}\": " + "; ".join(f"{k} {n}" for k, n in c.items()))
++    L += ["", "Per build (medley / spotlight: in a pool, may open, rated, rated >= 4):", ""]
++    for b in fun["builds"]:
++        m, s = b["medley"], b["spotlight"]
++        L.append(f"- {b['build']}: medley {m['in a pool']} / {m['may open']} / {m['rated by the hook job']} / "
++                 f"{m['rated >= 4']}; spotlight {s['in a pool']} / {s['may open']} / {s['rated by the hook job']} / "
++                 f"{s['rated >= 4']}")
++    L += ["", "## (2) CALIBRATION (the hook job as it stands today, Heimdall only, no cache)", ""]
++    for run in cal.get("runs") or []:
++        L.append(f"- seed {run['seed']}: " + ("; ".join(
++            f"{k}: {r.get('rating')} (scroll {r.get('scroll')}, alone {r.get('alone')}, setup {r.get('setup')}; "
++            f"{r.get('backend')})" for k, r in (run.get("ratings") or {}).items()) or f"NO RATING: {run.get('error')}"))
++    L += ["", "## (3) THE NEAR MISSES", "",
++          f"{nm['rated_distinct']} distinct moments rated; ratings {nm['ratings']}; rated 3: {nm['threes']}, held back "
++          f"by {nm['threes_held_back_by']}", ""]
++    for r in nm["top"]:
++        L.append(f"- {r['rating']} (scroll {r.get('scroll')}, alone {r.get('alone')}, setup {r.get('setup')}; "
++                 f"{r.get('rater')}) {r['moment_id']}: \"{(r.get('text') or '')[:160]}\" -- {r.get('why')}")
++    L += ["", "## (4) THE HOOK-MINING PASS (ruling 80)", "", f"{hp['events']} events: {hp['classes']}", ""]
++    for e in hp["today"]:
++        L.append(f"- {e['at'][:16]} {e['channel']} {e['video_id']}: windows {e.get('windows')}, screened "
++                 f"{e.get('screened')}, rows {e.get('rows')}, spotlight rows {e.get('spotlight_rows')}, dropped "
++                 f"{e.get('dropped')}")
++    L += [f"- hook rows in the ledger: {hp['hook_rows']}; of them rated by the hook job: {hp['hook_rows_rated']}"]
++    return "\n".join(L) + "\n"
++
++
++def main(argv=None):
++    ap = argparse.ArgumentParser()
++    ap.add_argument("--hours", type=float, default=48.0)
++    ap.add_argument("--no-calibration", action="store_true")
++    a = ap.parse_args(argv)
++    now = datetime.now(timezone.utc)
++    since = (now - timedelta(hours=a.hours)).strftime("ledger_%Y%m%d_%H%M%S")
++    os.makedirs(OUT, exist_ok=True)
++    recs = build_records(PROOF, since)
++    fun = funnel(recs)
++    cache = json.load(open(os.path.join(PROOF, "HOOK_CACHE.json")))
++    rts = all_ratings(recs, cache)
++    nm = near_misses(rts, fold=snapped_map(recs))
++    today = sorted({m.get("video_id") for m in (recs[-1][2].get("moments") or [])} if recs else set())
++    lmap = ledger_of(recs)
++    rated_ids = {ledger_id(k[0], lmap) for k in rts}
++    by_ledger = {}
++    for k, v in fun["furthest"].items():                 # the furthest stage of each moment, by its ledger id
++        lid = ledger_id(k, lmap)
++        if lid not in by_ledger or STAGES.index(v["stage"]) > STAGES.index(by_ledger[lid]["stage"]):
++            by_ledger[lid] = v
++    hp = hook_pass(QUEUE_DB, (now - timedelta(hours=a.hours)).timestamp(), today, LEDGER, rated_ids, by_ledger,
++                   (recs[-1][2].get("inputs") if recs else None))
++    cal = {"refs": [], "runs": [], "skipped": a.no_calibration}
++    if not a.no_calibration:
++        import eligibility as E
++        import proof_saved_runs as PS
++        refs = ref_moments()
++        router = build_router(SPEND, os.path.join(OUT, "replies"))
++        cal = {"refs": refs, "chain": router.chain("coherence_verdict", "hook"),
++               "runs": calibrate(router, refs, E.Context(now, PS.REG)), "spent_usd": round(router.spent(), 6)}
++    for fname, obj in (("FUNNEL.json", fun), ("CALIBRATION.json", cal), ("NEAR_MISSES.json", nm),
++                       ("HOOK_PASS.json", hp)):
++        with open(os.path.join(OUT, fname), "w") as f:
++            json.dump(obj, f, indent=1, default=str)
++    with open(os.path.join(OUT, "REPORT.md"), "w") as f:
++        f.write(report(fun, cal, nm, hp))
++    print(f"ruling 112: {len(recs)} builds since {since}; {fun['distinct']} distinct moments; "
++          f"{nm['rated_distinct']} rated; calibration {'skipped' if a.no_calibration else cal.get('spent_usd')}")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tests/package/test_hook112.py b/tests/package/test_hook112.py
+new file mode 100644
+index 0000000..c956269
+--- /dev/null
++++ b/tests/package/test_hook112.py
+@@ -0,0 +1,233 @@
++#!/usr/bin/env python3
++"""RULING 112's diagnosis driver (tests/package/hook112.py), offline: where each moment stopped on the way to the hook
++job (both paths), the distinct roll-up, the near misses and the part that holds a 3 back, pp-ingest's hook pass read
++from a database of the same shape, and the calibration's guards (Heimdall only, no cache, the stop)."""
++import json
++import os
++import sqlite3
++import sys
++import tempfile
++import unittest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++sys.path.insert(0, HERE)
++import hook112 as H  # noqa: E402
++
++
++def medley_pk(why_none=None, went_on=True, hook_error=None):
++    pre = {"screened": 9, "cleared": 6, "failed": {"f": ["REFERENT_OUTSIDE"]}}
++    if went_on:
++        pre.update(second_pass={"c": "L-v 2 FAIL", "t": "PASS", "o": "PASS", "x": "PASS", "r3": "PASS", "r4": "PASS"},
++                   hook_onset={"t": "PASS", "o": "FAIL: 0 ms of genuine quiet", "x": "PASS", "r3": "PASS",
++                               "r4": "PASS"},
++                   trim_cut={"t": "FAIL: no trimmed cut was reached"})
++    return {"unusable": {"u": "22.9 s: over the 20.0 s per source video (L-u) or unmeasured"},
++            "no_role": {"n": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34)"},
++            "ad_read": {"a": "an ad-read marker"}, "reposted": {"p": "q"}, "prescreen": pre, "why_none": why_none,
++            "hook_pool": {"error": hook_error, "ratings": {} if not went_on else {
++                "r3": {"scroll": 3, "alone": 5, "setup": 4, "rating": 3, "why": "slow start"},
++                "r4": {"scroll": 4, "alone": 5, "setup": 2, "rating": 2, "why": "old rule: setup counted"}}}}
++
++
++def inputs(ids):
++    return {"moments": [{"moment_id": i, "text": f"text {i}", "mined": {"ledger_moment_id": f"L{i}"}} for i in ids]}
++
++
++POOL = ["u", "n", "a", "p", "f", "c", "t", "o", "x", "r3", "r4", "s"]
++
++
++class TestTheMedleyTrace(unittest.TestCase):
++
++    def test_each_moment_stops_where_its_record_says(self):
++        tr = H.medley_trace(medley_pk(), inputs(POOL))
++        got = {k: v[0] for k, v in tr.items()}
++        self.assertEqual(got, {"u": 0, "n": 0, "a": 0, "p": 0, "f": 1, "c": 2, "t": 3, "o": 3, "x": 3, "r3": 5,
++                               "r4": 6, "s": 1})
++        self.assertIn("cannot open", tr["x"][1])                       # passed G17a, never rated: it cannot open
++        self.assertEqual(tr["r3"][1], "rated 3")
++        self.assertIsNone(tr["r4"][1])          # today's rule: the lower of scroll / alone (4), not the recorded 2
++
++    def test_the_3_channel_rule_and_a_failed_hook_call(self):
++        tr = H.medley_trace(medley_pk("6 moments cleared step A from fewer than 3 channels", went_on=False),
++                            inputs(POOL))
++        self.assertEqual((tr["t"][0], tr["f"][0]), (2, 1))           # cleared, then the medley ended
++        self.assertIn("3-channel rule", tr["t"][1])
++        tr = H.medley_trace(medley_pk(hook_error="ProviderError: no back-end"), inputs(POOL))
++        self.assertEqual(tr["x"][0], 4)                                # it may open; the call failed: not rated
++        self.assertIn("not rated", tr["x"][1])
++
++
++class TestTheSpotlightTrace(unittest.TestCase):
++
++    def test_free_screens_step_a_and_the_hook(self):
++        pk = {"spotlight": {"pool": {"out": {"long": "35.6 s: over the 35.0 s per source video"},
++                                     "snapped": {"w1": {"from": "m1"}}},
++                            "moments": {"al": {"stage": 0, "out": "the ALONE scorer: 2.0 (needs 4) (ruling 109)"},
++                                        "sa": {"stage": 0, "out": "step A: REFERENT_OUTSIDE"},
++                                        "lv": {"stage": 1, "out": "L-v 2 / CUTTABLE: the second pass disagrees"},
++                                        "co": {"stage": 2, "out": "it cannot open cold: G17a"},
++                                        "w1": {"stage": 3, "out": "the hook's own job rates 3", "hook_own": 3},
++                                        "h4": {"stage": 5, "out": "the visual check", "hook_own": 4}}}}
++        tr = H.spotlight_trace(pk)
++        self.assertEqual({k: v[0] for k, v in tr.items()},
++                         {"long": 0, "al": 0, "sa": 1, "lv": 2, "co": 3, "m1": 5, "h4": 6})   # w1 is m1's span
++
++
++class TestTheRollUp(unittest.TestCase):
++
++    def test_the_furthest_stage_over_builds_a_tie_keeps_the_latest_reason_and_variants_fold(self):
++        b1 = (medley_pk(), inputs(POOL))
++        pk2 = medley_pk()
++        pk2["prescreen"]["failed"] = {"f": ["CONDITION_OUTSIDE"]}       # the same stage, a newer reason
++        pk2["prescreen"]["second_pass"]["c~trim"] = "PASS"
++        pk2["prescreen"]["hook_onset"]["c~trim"] = "PASS"
++        pk2["hook_pool"]["ratings"]["c~trim"] = {"scroll": 2, "alone": 4, "setup": 2, "rating": 2, "why": "w"}
++        fu = H.funnel([("ledger_1", *b1), ("ledger_2", pk2, inputs(POOL))])
++        self.assertEqual(fu["furthest"]["f"]["why"], "step A: CONDITION_OUTSIDE")
++        self.assertEqual(fu["furthest"]["c"]["stage"], "rated by the hook job")   # its ~trim variant was rated
++        self.assertEqual((fu["distinct"], fu["distinct_by_stage"]["rated >= 4"]), (12, 1))
++        self.assertEqual(fu["never_rated_stopped_before"]["cleared step A"],      # s: in the pool, no stage record
++                         {"step A: CONDITION_OUTSIDE": 1, "the medley ended before step A": 1})
++
++
++class TestTheNearMisses(unittest.TestCase):
++
++    def test_ranked_one_per_moment_on_todays_rule_and_the_part_that_holds_a_3(self):
++        rs = {("a", "q"): {"moment_id": "a", "scroll": 4, "alone": 5, "setup": 5, "rating": 4},
++              ("a~trim", "q"): {"moment_id": "a~trim", "scroll": 4, "alone": 4, "setup": 4, "rating": 4},
++              ("w", "q"): {"moment_id": "w", "scroll": 5, "alone": 5, "setup": 5, "rating": 5},   # a span of b
++              ("b", "q"): {"moment_id": "b", "scroll": 3, "alone": 5, "setup": 3, "rating": 3},
++              ("c", "q"): {"moment_id": "c", "scroll": 3, "alone": 3, "setup": 5, "rating": 3},
++              ("d", "q"): {"moment_id": "d", "scroll": 2, "alone": 4, "setup": 4, "rating": 2},
++              ("e", "q"): {"moment_id": "e", "scroll": 3, "alone": 4, "setup": 3, "rating": 3}}
++        nm = H.near_misses(rs, n=3, fold={"w": "b"})
++        self.assertEqual([r["moment_id"] for r in nm["top"]], ["w", "a", "c"])   # b's best is its span w
++        self.assertEqual((nm["rated_distinct"], nm["threes"]), (5, 2))
++        self.assertEqual(nm["threes_held_back_by"], {"scroll": 2, "alone": 1,      # setup is shown apart: not a part
++                                                     "setup (not in the own-job rating since ruling 61)": 1})
++        self.assertEqual(H.own_rating({"scroll": 4, "alone": 5, "setup": 2, "rating": 2}), 4)   # ruling 61
++
++
++class TestTheHookPass(unittest.TestCase):
++
++    def db(self, d):
++        p = os.path.join(d, "queue.sqlite")
++        db = sqlite3.connect(p)
++        db.executescript("CREATE TABLE events (id INTEGER, at TEXT, ts REAL, video_id TEXT, channel_id TEXT, kind TEXT, "
++                         "detail TEXT); CREATE TABLE videos (video_id TEXT, title TEXT, moments INTEGER); "
++                         "CREATE TABLE channels (channel_id TEXT, display_name TEXT);")
++        db.executemany("INSERT INTO events VALUES (?, ?, ?, ?, ?, ?, ?)", [
++            (1, "2026-11-15T13:24:51", 100.0, "bl", "cb", "hooks", json.dumps({"rows": 0, "windows": 4, "cost": 0.0,
++                                                                               "seconds_hook": 0.1})),
++            (2, "2026-11-15T15:05:56", 200.0, "v1", "cm", "hooks", json.dumps({"rows": 2, "windows": 18, "cost": 0.004,
++                                                                               "seconds_hook": 9.0})),
++            (3, "2026-11-15T15:06:00", 210.0, "v2", "cm", "hooks", json.dumps({"rows": 0, "windows": 3, "cost": 0.001,
++                                                                               "seconds_hook": 4.0})),
++            (4, "2026-11-13T00:00:00", 1.0, "old", "cb", "hooks", json.dumps({"rows": 0}))])
++        db.executemany("INSERT INTO channels VALUES (?, ?)", [("cb", "Bloomberg Television"), ("cm", "Magazine")])
++        db.executemany("INSERT INTO videos VALUES (?, ?, ?)", [("bl", "IPO", 0), ("v1", "BTC", 29), ("v2", "BTC2", 3)])
++        db.commit()
++        db.close()
++        return p
++
++    def test_classes_the_given_videos_and_whether_their_hook_rows_reached_the_job(self):
++        with tempfile.TemporaryDirectory() as d:
++            led = os.path.join(d, "ledger.jsonl")
++            with open(led, "w") as f:
++                for mid, ps in (("h1", "hook"), ("h2", "hook"), ("m1", "moment"), ("h3", "hook")):
++                    f.write(json.dumps({"moment_id": mid, "video_id": "v1", "mined": {"pass": ps}}) + "\n")
++            hp = H.hook_pass(self.db(d), 50.0, ["v1"], led, rated_ids={"h1", "m1"},
++                             furthest={"h2": {"stage": "cleared step A", "why": "not cuttable"}},
++                             inputs_report={"word_pass": {"refused": ["h3"]}})
++        self.assertEqual(hp["classes"], {"0 rows, no model call": 1, "wrote rows, a model called": 1,
++                                         "0 rows, a model called": 1})        # the old event is outside the window
++        self.assertEqual(hp["per_channel"]["Bloomberg Television"], {"0 rows, no model call": 1})
++        self.assertEqual([e["video_id"] for e in hp["today"]], ["v1"])
++        self.assertEqual((hp["hook_rows"], hp["hook_rows_rated"]), ({"v1": 3}, {"v1": ["h1"]}))
++        self.assertEqual(hp["hook_rows_furthest"]["v1"]["h2"]["why"], "not cuttable")
++        self.assertIn("refused by the word pass", hp["hook_rows_furthest"]["v1"]["h3"]["why"])
++
++    def test_a_read_only_database_file_serves(self):
++        with tempfile.TemporaryDirectory() as d:
++            p = self.db(d)
++            os.chmod(p, 0o444)                        # a writer would fail to open a read-only file for writing
++            try:
++                self.assertEqual(H.hook_pass(p, 0.0, [], os.path.join(d, "none.jsonl"))["events"], 4)
++            finally:
++                os.chmod(p, 0o644)
++
++
++class TestTheLedgerIds(unittest.TestCase):
++
++    def test_a_span_a_variant_and_a_moment_resolve_to_the_ledger_row(self):
++        pk = {"spotlight": {"pool": {"snapped": {"w1": {"from": "m1~trim"}, "w2": {"from": "m2"}}}}}
++        inp = {"moments": [{"moment_id": "m1", "mined": {"ledger_moment_id": "L1"}},
++                           {"moment_id": "m2", "mined": {"ledger_moment_id": "L2"}}]}
++        lmap = H.ledger_of([("ledger_1", pk, inp)])
++        self.assertEqual([H.ledger_id(i, lmap) for i in ("w1", "w2", "m1", "m1~trim", "zz")],
++                         ["L1", "L2", "L1", "L1", "zz"])
++
++
++class B:
++    def __init__(self, vendor):
++        self.vendor, self.family = vendor, vendor
++
++
++class FakeRouter:
++    def __init__(self, chain, spent=0.0):
++        self._chain, self._spent, self.down, self.chains = chain, spent, set(), {}
++        self.backends = {"heimdall:qwen": B("heimdall/qwen"), "heimdall:glm": B("heimdall/glm"), "xai:grok": B("xai"),
++                         "openai:gpt": B("openai")}          # the vendors as providers.HeimdallBackend gives them
++
++    def chain(self, role, kind=None):
++        return list(self.chains.get(f"{role}:{kind}") or (["openai:gpt"] if role == "angle_write" else self._chain))
++
++    def spent(self):
++        return self._spent
++
++
++class TestTheCalibration(unittest.TestCase):
++
++    def test_the_drivers_router_asks_the_hook_job_on_heimdall_only(self):
++        with tempfile.TemporaryDirectory() as d:
++            r = H.build_router(spend_path=os.path.join(d, "SPEND.json"))
++        chain = r.chain("coherence_verdict", "hook")
++        self.assertTrue(chain and all(r.backends[n].vendor.split("/")[0] == "heimdall" for n in chain), chain)
++        self.assertNotIn("xai:grok-4.20-0309-reasoning", chain)
++        self.assertEqual(chain[0], "heimdall:qwen/qwen3.8-27b")       # ruling 88's order, Grok removed
++        self.assertEqual((r.limit_usd, r.limit_basis), (H.LIMIT_USD, "reported"))
++
++    def test_heimdall_only_and_refused_without_one(self):
++        self.assertEqual(H.heimdall_hook_chain(FakeRouter(["heimdall:qwen", "xai:grok", "heimdall:glm"])),
++                         ["heimdall:qwen", "heimdall:glm"])
++        with self.assertRaises(RuntimeError):
++            H.heimdall_hook_chain(FakeRouter(["xai:grok"]))
++
++    def test_production_writers_no_cache_every_seed_and_the_stop(self):
++        asked = []
++
++        def rate(router, ms, ctx, wv, wf, cache="unset", seed=None):
++            asked.append((cache, seed, sorted(wv)))
++            return {m["moment_id"]: {"rating": 4} for m in ms}, None
++        refs = [{"moment_id": "ref-a", "text": "t"}]
++        runs = H.calibrate(FakeRouter(["heimdall:qwen"]), refs, None, seeds=(7, 8), stop_usd=0.25, rate=rate)
++        self.assertEqual(asked, [(None, 7, ["openai"]), (None, 8, ["openai"])])   # no cache; the writers' vendor
++        self.assertEqual([r["seed"] for r in runs], [7, 8])
++        asked.clear()
++        runs = H.calibrate(FakeRouter(["heimdall:qwen"], spent=0.25), refs, None, seeds=(7,), stop_usd=0.25,
++                           rate=rate)
++        self.assertEqual((asked, runs[0]["ratings"]), ([], {}))                  # at the stop: no call
++        self.assertIn("stopped", runs[0]["error"])
++
++    def test_the_approved_hooks_get_ids_no_production_cache_entry_can_answer(self):
++        refs = H.ref_moments()
++        self.assertEqual([r["moment_id"] for r in refs], [f"ref-{k}" for k, _, _ in H.REFS])
++        cache = json.load(open(os.path.join(H.PROOF, "HOOK_CACHE.json")))
++        self.assertFalse(any(k.split(":")[0].startswith("ref-") for k in cache))
++        self.assertTrue(all(r["text"] for r in refs))
++
++
++if __name__ == "__main__":
++    unittest.main()

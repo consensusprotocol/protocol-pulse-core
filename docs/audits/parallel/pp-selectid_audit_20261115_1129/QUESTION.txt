@@ -1,0 +1,65 @@
+pp-selectid: RULING 112 (orchestrator 11:15 ET Nov 15), THE HOOK SCARCITY DIAGNOSIS. A new driver,
+tests/package/hook112.py, and its tests. No bar, gate or routing changes; nothing in pipeline/ is touched.
+
+THE ORDER, in short: before anyone touches the hook bar, find whether the supply is truly weak or the path to a hook
+is too narrow. Heimdall only, cap $0.30. The parts:
+(1) the funnel for the last 48 h of builds: pool -> allowed to open (with the exclusions by reason) -> rated by the
+    hook job -> rated >= 4; how many DISTINCT moments were ever rated, and how many never were, and what removed them;
+(2) calibration: the hook job as it stands today on the approved hooks (the protected preview, 37c5b5f5, 41f29b1f,
+    the published 0c68b589); an approved hook rated below 4 means rater drift;
+(3) the 10 best hooks of the 48 h with their parts and reason, and which part most often holds a 3 back from a 4;
+(4) pp-ingest's hook-mining pass (ruling 80) for today's videos;
+(5) a recommendation (written by hand from the outputs; not code).
+
+THE DRIVER, READ-ONLY EXCEPT PART (2):
+- build_records: every tests/package/proof/ledger_*/package.json and inputs.json since a cutoff.
+- medley_trace / spotlight_trace place each moment on ONE scale of 7 stages ("in a pool" ... "rated >= 4") from each
+  build's own record:
+  - the medley: unusable, no_role, ad_read, reposted, prescreen.failed / second_pass / hook_onset / trim_cut, and
+    hook_pool.ratings. These are written by package.build: the second pass at :2617, G17a, then
+    `openers = {... if can_open(m)}` at :2643, hook_pool at :2666 (pipeline/package.py, UNCHANGED).
+  - the spotlight: pool.out, and moments[*].stage / out / hook_own (spotlight.build :813, UNCHANGED). A stage-0 stop
+    is a free screen unless it is step A's (ruling 109's ALONE gate stops at stage 0 BEFORE step A, :858). A
+    widened span (pool.snapped) counts as the moment it came from.
+- funnel: per build, and DISTINCT moments (a ~trim / ~tail variant is its moment) at their furthest stage over every
+  build and both paths. A tie keeps the LATEST build's reason. Classes of the reasons for the never-rated.
+- all_ratings + near_misses: every hook rating in the window (the medley's hook_pool.ratings; the spotlight's
+  hook_own, completed from HOOK_CACHE.json by moment id), on TODAY's rule. That rule is own_rating, the lower of
+  scroll and alone (ruling 61; package.hook_own :1383): an early record that stored a three-part rating is read on
+  today's rule. One entry per moment, ranked by rating and then the sum of the parts. "Held back": among those
+  rated 3, which part is at 3 (setup is shown apart; it is not in the rating since ruling 61).
+- ledger_of / ledger_id: a build gives each re-anchored moment its OWN id (0 of 57 equal their ledger id in
+  ledger_20261115_151621); mined.ledger_moment_id maps back, and snapped spans and variants resolve through it.
+- hook_pass: pp-ingest's queue database opened with mode=ro (sqlite URI), its 'hooks' events (classed: rows or not,
+  a model called or not), the given videos' events, their hook rows in pp-ingest's ledger (read), and how far each
+  got in our builds (never_in_pool: the latest build's own inputs report: word-pass refusal, no re-anchor, or a
+  duplicate).
+
+THE PAID PART, (2) calibrate:
+- package.hook_ratings (:863, UNCHANGED) with cache=None. _load_cache(None) is {} (:497; open(None) raises TypeError,
+  caught) and _cache_put(None, ...) returns at once (:508), so the production HOOK_CACHE.json is neither read nor
+  written.
+- The approved hooks get ids "ref-<key>", so no cached rating can answer for them.
+- Asked as production asks: avoiding package._writers(router)'s vendor and family, once per seed (7 is production's;
+  8 and 9 show stability).
+- The router (build_router) is providers.Router under heimdall_first, built DIRECTLY: not proof_ledger.build_router,
+  so no ruling-86 shadow (Grok). Its own spend ledger is tests/package/proof/SPEND_H112.json, limit $0.30 (the
+  order's cap); no call starts at or over STOP_USD $0.25.
+- Its hook list (ruling 88, "coherence_verdict:hook", providers.Router.chain :794) is production's with every
+  non-Heimdall back-end removed: heimdall_hook_chain keeps a back-end whose vendor is "heimdall/<family>" (that is
+  how providers.HeimdallBackend names it), and refuses when none is left. Today's list is qwen, glm, deepseek;
+  Grok is dropped.
+
+TESTS: tests/package/test_hook112.py (12), offline. Both traces stage by stage. The roll-up's furthest stage, the
+latest reason on a tie, and folded variants. The near misses on today's rule, folded, with the held-back counts. The
+hook pass over a database and ledger of the same shape. The ledger-id resolution. A REAL Router built by
+build_router: its hook chain is Heimdall only, qwen first, no Grok. The calibration's guards: no cache, production's
+writers, every seed, no call at the stop, refusal without a Heimdall back-end, and the reference ids absent from
+the production cache. 15 of 15 mutations killed after a control run (the unmutated copy passes all 12). Suites: 697
+pass.
+
+PLEASE CHECK: (1) that both traces place every moment where package.build and spotlight.build actually stopped it (the
+cited lines); (2) the roll-up, the tie rule, and the ledger-id mapping; (3) the near misses' rule and the held-back
+count; (4) that the calibration can reach no non-Heimdall back-end, no shadow, and no production cache or spend
+ledger, and stops under the cap; (5) that the hook pass and every other read cannot write to pp-ingest's or the
+main tree's files; (6) the tests.
