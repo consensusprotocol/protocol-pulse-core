@@ -27,6 +27,11 @@ how the pipeline runs, the contracts, what is open, and the traps.
   (`providers.env_value`). Never print, log, echo or cat `.env` or any key. Never edit `.env`.
 - **AUDIT-FIRST:** before each code commit, run the cross-LLM audit (section 3.9) on the ACTUAL diff:
   - two cycles; cycle 2 cross-validates cycle 1;
+  - RULING 107 (2), from 20:20 Nov 14: reviewers go Heimdall-FIRST, two Heimdall families (qwen + glm). Grok joins
+    only as the THIRD reviewer, when the first two disagree (one finds a critical or high point the other does not)
+    or when one of them is down. An audit of a change UNDER 60 CHANGED LINES is ONE reviewer set, two cycles, capped
+    at $0.30. Record each review's vendor-reported cost (Heimdall usage.cost, xAI cost_in_usd_ticks), not only the
+    list-price upper bound;
   - implement consensus only, and record every refutation with evidence (C1_CONSENSUS.md / C2_CONSENSUS.md in the
     audit folder);
   - `bash regression_test.sh` must show 0 FAIL in the worktree, and every suite must pass (section 3.10).
@@ -35,10 +40,17 @@ how the pipeline runs, the contracts, what is open, and the traps.
   to make something pass.
 - **No cron changes.** Nothing is sent to Telegram or published by you. No manual tasks for PBX. Triple-verify before
   calling anything done.
-- **Questions to the ORCHESTRATOR** go on **STATE line 1, in CAPITALS**. STATE line 1 is ONE physical line,
-  prepended (newest first). After every build it carries:
+- **Questions to the ORCHESTRATOR** go on **STATE line 1, in CAPITALS**, and always with a default: see "How
+  questions work" at the end of this section (ruling 106). STATE line 1 is ONE physical line, prepended (newest
+  first); a block the orchestrator asks for (texts, tables) may follow it under the same timestamp
+  (`state_block.py`). After every build it carries:
   - the ruling-76 (d) counts;
-  - the spend: "SPEND (ruling 48): $X of $20.00; stop at $16.";
+  - the spend: "SPEND (ruling 48): $X of $20.00" (the orchestrator, 13:02 Nov 14: stop at $19 and say so on line 1
+    in capitals; never start a build that would end over $20);
+  - RULING 107 (3), from 20:20 Nov 14: "ALL-IN TODAY: $x (builds $a, audits $b, other $c)" beside it. Builds are
+    SPEND_LY.json's ruling-48 total since 00:00 ET. Audits are the day's audit folders: the vendor-reported cost
+    where the driver kept it, else the list-price upper bound, labelled as such. Other is the exam or any other
+    ledger of yours;
   - "COST OF THE LAST SEALED PIN (<sha8>): $T TOTAL / $O OUTSIDE";
   - when nothing seals, the three nearest and ruling 95's next attempt.
   Generate times with `date` INSIDE the command that writes them (`TZ=America/New_York date +%H:%M`).
@@ -51,6 +63,31 @@ how the pipeline runs, the contracts, what is open, and the traps.
   - never `pkill -f` a pattern your own shell's command line contains (use `ps -eo pid,args` + awk on argv).
 - **Standing order:** the FIRST pin that passes your gates AND the pre-check goes to the integrator immediately (send
   the pin path, story_id and package_sha256).
+
+### How questions work (RULING 106, orchestrator 20:20 ET Nov 14: standing, for all three sessions)
+
+PBX, 20:08 Nov 14: "pls fix that weakest part of how we are running this". The orchestrator's checks arrive late,
+and a session that stops at a question loses hours: about five on Nov 14, two of them with a finished spotlight
+waiting. So NO SESSION WAITS ON THE ORCHESTRATOR:
+
+- **(a) Every question carries its default.** Write it as: the question; your RECOMMENDED answer;
+  `DEFAULT IN 20 MIN: <what you will do>`. If there is no answer in 20 minutes, ACT ON THE DEFAULT and say so on
+  STATE line 1. Never stop work on an unrelated item while a question is open.
+- **(b) What a default may be:** anything that publishes nothing, installs no schedule, touches no cron, spends
+  inside the caps, and can be undone. That covers a build, a render, a review-only or candidate delivery to PBX's
+  Telegram, and an audited merge on our branches. When two readings of a law are possible, the default is the
+  STRICTER reading for integrity (L-s, L-v, L-u, a number or name hold) and the reading that DELIVERS for taste and
+  process. A finished video that passes every gate is always launched and delivered as a candidate. If one
+  integrity point is open, it is rendered and delivered on the REVIEW path with that point stated in the caption,
+  never left unrendered.
+- **(c) What still waits for a human:** publishing, a schedule, cron, a spend cap, loosening an integrity gate,
+  deleting what is not ours. For those, do the preparatory work and say exactly what is needed.
+- **(d) The alarm.** If something that needs the orchestrator or PBX has waited 45 minutes (a ready video not
+  launched, a cap reached, a real outage, every build refused), the INTEGRATOR sends ONE plain text message to PBX's
+  Telegram review chat through the pipeline's own sender: 'PULSE CHECK NEEDS A DECISION: <one sentence>. Waiting
+  since <time>.' At most one per issue and at most one an hour in total, and nothing for routine progress (PBX's
+  rule: alerts are accurate and meaningful, or off). The builder (you) and pp-ingest raise it with a line the
+  integrator reads: `ALARM FOR PBX: ...` on STATE line 1. You never send to Telegram yourself.
 
 ## 2. Rulings in force, 28 to 97 (one line each; the file / function that carries it)
 
@@ -123,6 +160,42 @@ branch carries it and it never reached this session (addressed to another sessio
 - 95 With no medley and no spotlight, STATE line 1 carries the three nearest and the next attempt (the newest conversation upload's publish time + its mining state): `spotlight.next_attempt`, the driver's `res["next_attempt"]`.
 - 96 ROUTING, FINAL until re-measured: the table in section 3.6. Re-run the replay monthly or when a Heimdall model changes; a type goes back to Grok first if its agreement falls under Grok's own self-agreement: `model_providers.json` routing.heimdall_first (+ its `ruling_96` note).
 - 97 The honest cost is about $0.20 a sealed pin, $0.18 outside; never chase the $0.05 target by moving a verdict the table says should stay. (a) The non-reasoning Grok fails the bar (`tests/package/proof/replay97/`); (b) confirmed; (c) Grok already confirms 8 to a call: STATE 01:41 ET.
+
+Added 20:2x ET Nov 14 (rulings after this file was written; each has its own module docstring and tests):
+- 98 pp-ingest's (the paid route); nothing in this worktree.
+- 99 THE CIRCUIT BREAKER: two deadline misses in a row, or an answer over 2x the max_tokens the call sent, skip a
+  model in every list for 30 minutes. Then ONE trial call: an answer closes the breaker, a miss or a runaway re-opens
+  it for 60 minutes. STATE line 1 counts the open breakers: `pipeline/circuit_breaker.py`, `BREAKERS.json` (runtime
+  state, never committed).
+- 100 A verdict pair's DEADLINE comes from its row in the deadline table (p90 x 1.5, clamped 60-300 s, at least 3
+  samples, recomputed daily), and only where a deadline applies at all: `providers.Router.effective_deadline`,
+  `pipeline/deadline_table.py`, `package.first_bounds`.
+- 101 Parallel CONFIRM-AHEAD, only with more than 20 new moments, a Heimdall lead, a wait over 600 s and a usable Grok
+  confirm leg (Grok only): `package.step_a_plan`, `_confirm_leg`.
+- 102 A clip that gets NO step-A answer from the second chain (Grok, deepseek, glm, gemini-2.5-pro, then the
+  integrator's local gemma3:27b as a last resort) is STEP_A_HELD: never refused, never cached, retried next build. A
+  local-judge verdict is noted on the pin and on STATE. The build stops at $19 (LY_STOP_USD): `package.HELD`,
+  `held_why`, `last_resort_note`, `tests/package/proof_ly.py`.
+- 103 THE TARGETED RE-LISTEN (the integrator's pre-check): both recognisers re-read a short window around ONE number
+  or name token. A hold after it is final. The re-listen record is sealed onto the pin when one ran:
+  `lock_precheck.relisten_of` / `apply`, `package_pin.SEALED_LATER` "relisten"; DECODER d1e155c642a6, RULES
+  "+ ruling 103" (they land in LOCKSTEP with the integrator).
+- 104 THE TAIL-SIDE VARIANT: a moment may be sealed ending at an earlier sentence boundary of itself, when that keeps
+  it lawful (a held word after the boundary, a tail the cut cannot make, the 35 s ceiling). It faces every gate again
+  and records `derived_from`. A held parent is replaced by its variant. On the orchestrator's WRITTEN directive only
+  (`tests/package/proof/RULING_104_DIRECTIVES.json`), a variant may be the ALTERNATIVE to a named story:
+  `pipeline/tail_variant.py`, `spotlight.day_taken`, `proof_ledger.directives` / `spot_place`.
+- 105 THE UNSTABLE SECOND READING (20:13 Nov 14). A number or name hold is lifted, and the token adjudicated as the
+  lock's, only when ALL THREE hold: (1) the decoder reads the token the same on every pass; (2) the second
+  recogniser's repeated readings of the SAME audio differ among themselves and one of them equals the lock's token;
+  (3) every differing reading is a TRUNCATION (a prefix) of it ('401' of '401k'). Every reading goes on the pin
+  under 'unstable_second_reading' (the decoder passes, and each scribe reading named by its time, window and request:
+  scribe keeps no call id). Anything else stays a final hold: a stable disagreement, a different number, a different
+  name, each with a must-fail test. First case: Blockware 3f481f5a, recorded beside its pin in
+  `tests/package/proof/ledger_20261114_230148/UNSTABLE_SECOND_READING.json`. The audited code follows that render.
+- 106 HOW QUESTIONS WORK: see the end of section 1.
+- 107 COST (20:20 Nov 14). (1) A build that judges nothing new must cost $0.00. (2) Audits go Heimdall-first (see
+  AUDIT-FIRST in section 1). (3) STATE line 1 carries ALL-IN TODAY (see section 1).
 
 ## 3. The pipeline as it runs
 
