@@ -59,7 +59,34 @@ orchestrator's checks arrive late, and a session that stops at a question cost a
   <time>.' At most one per issue and one an hour in total; nothing for routine progress (PBX: alerts are accurate and
   meaningful or off). pp-ingest NEVER sends it: it raises it with a line the integrator reads, 'ALARM FOR PBX: <one
   sentence>. Waiting since <time ET>.' on its STATE line 1 (e.g. the paid route's daily cap reached while Heimdall is
-  really down, or a real outage of every mine back-end past 45 minutes).
+  really down, or a real outage of every mine back-end past 45 minutes). Write it with
+  `spend.write_alarm_notice("<one sentence>", "<HH:MM ET from date>")` (it lands on line 1 after the batch spend; never
+  edit line 1 by hand: the watcher rewrites it); remove it with `spend.write_alarm_notice(None, None)`.
+
+## 2b. Batch money (RULING 108, orchestrator 21:22 ET Nov 14; design section 18; audit b108)
+- One ledger for everything every session spends on the pipeline, kept by the BUILDER; BATCH 3 runs 21:10 ET Nov 14
+  to 21:10 ET Nov 15: cap $8.00 all-in (tell the orchestrator at $6.00; ALARM FOR PBX at $7.50: the builder's ledger);
+  inside it builds + sealing $4.50, audits $2.50, mining and checks $1.00 (pp-ingest's share). A session that needs
+  another's share asks on line 1 with its default (2a).
+- STATE LINE 1 is one physical line, written by the WATCHER: 'BATCH 3 ingest spend: $x (...)' FIRST (the builder takes
+  it every hour), then any 'ALARM FOR PBX: ...', then every switch (ruling 87). The figure runs to the batch's latest
+  whole hour: the watcher's calls (mining, hook pass, flag checks and calibration, probes, the paid route), vendor-
+  reported, an abandoned or cut-off call at the model's own rate (ruling 107's basis), plus your audits from the
+  ledger `data/editorial/ingest/audit_spend.jsonl` (the driver writes it), and "NOTHING BITCOIN IN THE LAST 3 H" when
+  it holds (the orchestrator: Sunday's light uploads, said on line 1). Your session line (line 3) must never start
+  with 'BATCH' or 'ALARM' text: only line 1 holds those.
+- A NEW BATCH: edit `pipeline/ingest/batch.json` (name "BATCH <n>", start_et / end_et "YYYY-MM-DD HH:MM" ET, share_usd,
+  share_of) and commit it as data; the watcher reads it again on its next minute, no restart. Outside a batch the paid
+  route spends nothing (the stricter money reading), and line 1 says the batch closed: ask for the next batch's money
+  then, on line 1 with its default.
+- Ruling 98's paid route is held inside the share (a question with its default goes on line 1 if the share stops it).
+  The watcher's own pace is about $0.28 a day (Nov 14), well inside $1.00.
+- AUDITS (ruling 107 (2)) with tests/ingest/xllm_audit.py: `git add -N` (and `--force` for test_*) the new files, then
+  `--cycle 1 --base <rev> --context <folder>/CONTEXT.md --out <folder>/c1` (qwen + glm by default; the package is the
+  diff, laws and context, never the whole files; capped $0.30 under 60 changed lines, else $1.00, checked before any
+  call). If one of the two is down, run the third family: `--only heimdall_muse` (the paid frontier reviewers stay out
+  under the freeze). Nov 14 22:00: the gateway dropped glm at 420 s and 511 s on a 30k-token package (booked at its
+  own rate); muse took 315 s. COST.json in the folder; report the audit's cost on the commit line.
 
 ## 3. The watcher (keep it running; it survives your restart)
 - tmux `pipeline_pp_ingest_watch`, command `python3 tools/ingest_watch.py run` in ~/worktrees/pp-ingest. Log:
