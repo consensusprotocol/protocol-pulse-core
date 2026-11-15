@@ -116,6 +116,15 @@ def test_an_environment_variable_never_opens_the_gpu0_gate_only_the_lease_does(m
         assert PV.available("local-gemma3-27b") == (True, "ok")
 
 
+def test_no_oracle_test_can_reach_a_live_gpu_lease(monkeypatch):
+    """conftest's guard, proven: the lease path every oracle test can take, on either GPU, is its own, never a render's
+    (/tmp/pulse_gpu<n>.lease). Without the guard the lease tests above would still pass, holding the LIVE lease."""
+    for g in (0, 1):
+        monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "1" if g else "")
+        assert gpu0.current_gpu() == g
+        assert gpu0.lease_path() != os.path.realpath(gpu0.DEFAULT_LEASES[g])
+
+
 def test_the_real_local_call_is_never_sent_without_the_lease(monkeypatch):
     """The real _ollama (not a fake): without the lease, gpu0.LeaseMissing before any request; with it, one request to
     the configured host. The network is a stub that records what would have been sent."""
