@@ -6,6 +6,43 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 20:16 HOLD at stage VALIDATE, row: the editorial law gate, LAW_2_VO_HAS_A_JOB ("intro: non-empty VO requires a job judgment") and LAW_3_CONCRETE_TAKEAWAY ("takeaway judgment is required"). Spotlight 3f481f5a (Blockware, the full clip, ruling 105), run runs/pinned_20261115_011015, launched 20:09:36 ET, ended before cut or render: nothing rendered, nothing delivered.
+- THE FACTS:
+  - The stages env, pinned and review ran.
+  - The 401k token raised nothing at the pinned stage: the render's own lock and the decode agreed with the approved text.
+  - validate held on the editorial gate alone (the EDL rules passed).
+  - The spotlight's closing line "Most people focus on the buy. The leaving is the story." plays in the EDL's intro slot (the spotlight contract), and the gate asks the editorial review for a job judgment on it (LAW 2) and a takeaway judgment (LAW 3). The review gave neither.
+- FIRST READING (being verified in the code): the render's editorial review / gate do not yet read a spotlight's closing line as the line ruling 91 already judged. The builder's sealed closing_value (four clear yeses, off the writer's family), closing_fidelity and closing_context are all PASS on the pin. So this is a render-side gap on the FIRST spotlight with a closing line, not a defect of the clip.
+- NEXT (ruling 106 (b): taste / process laws take the reading that delivers; never leave a finished video unrendered): a small audited render-side fix so LAW 2 / LAW 3 read a spotlight's sealed closing rows. Then relaunch 3f481f5a.
+  - The source expires 00:00 ET.
+- Also merged after this run, the render having released its lock: the DoD entries written during it (launch, cost table) and the handoff's section 1b (how questions work, ruling 106).
+
+## 20:12 COST, orchestrator 20:21 (within 30 min of the render's launch): the integrator's audit spend since Nov 12 00:00 ET, the pre-check's scribe spend, the renders' ElevenLabs VO.
+| Item | Count | Vendor-reported total | Source |
+|---|---|---|---|
+| Audits, Heimdall gateway (qwen27b / glm / deepseek panels) | 59 batches (batch21 .. batch80), 122 audit runs | $0.7014 | each cycle's heimdall/audit.json total_cost |
+| Audits, xAI Grok (grok-4-0709) | 18 calls (batches 71, 73-80) | $0.2129 | raw_c*_grok.json cost_usd_vendor (cost_in_usd_ticks / 1e10) |
+| Audits, OpenAI GPT-4o / Gemini / Anthropic + OpenAI frontier (Nov 12 batches 21-25) | 4 / 4 / 12 + 8 result files | NOT RECORDED in the batch files | the previous integrator's spend table (this file, window Nov 11 18:00 - Nov 12 05:37) is the record for that window |
+| Pre-check, scribe_v1 (rulings 72 / 103) | 10 paid calls in 20 entries + 1 re-listen proof (19:16:06Z) | $0.0852 + $0.0007 = $0.0859 | data/lock_precheck/results/*.json scribe_usd ($0.012 a minute: about $0.0008 a 4 s re-listen) |
+| Renders, ElevenLabs VO (eleven_v4) | 19 unique lines, 2,057 characters | characters, no dollar figure (subscription quota) | runs/*_202611{12,13,14}_*/vo_audio/VO_MANIFEST.json, each unique key once (stems are cached by text, voice and model) |
+| ElevenLabs account, every consumer | 6,862 characters | quota 359,996 -> 353,134 characters left | preflight readings, Nov 12 00:05 ET -> Nov 14 20:09 ET (an upper bound: other consumers share the account) |
+- batch17 (hardening's own audit of L-l, merged at 6d7d4287) is excluded: it was not the integrator's spend.
+- Total recorded integrator audit spend since Nov 12: $0.9143 (Heimdall $0.7014 + xAI $0.2129), plus the unrecorded Nov 12 frontier calls.
+- From now on (ruling 107 (2)): Heimdall first (two families), Grok third only on disagreement or outage; a change under 60 lines gets one reviewer set, two cycles, cap $0.30.
+
+## 20:12 SPOTLIGHT RENDER LAUNCHED 20:09:36 ET: the FULL Blockware clip 3f481f5a under ORCHESTRATOR RULING 105 ("(A), THE FULL CLIP 3f481f5a. LAUNCH IT NOW"), confirmed to the integrator at 20:21 ("the spotlight render of 3f481f5a comes first"). tmux pipeline_pulse_check_20261115_010936; log logs/pulse_check/run_20261115_010936.log. It holds GPU0's lease and the run lock; the yield flag is removed.
+- RULING 105 (verbatim, relayed by the builder) supersedes the dialog answer (B) of about 20:04 ET.
+  - The orchestrator's labels run 6-7 min ahead of this machine's clock all day, so "20:13" is about 20:06 here.
+  - Its rule: a second recogniser that disagrees WITH ITSELF on the same audio, when the decoder is stable and every differing reading is a TRUNCATION of the lock's token ('401' of '401k'), is no evidence of another word. The token is the lock's.
+  - The readings go on record as 'unstable_second_reading'. The audited code for the rule follows the render.
+  - The ruling-104 variant directive stays unused.
+- THE READINGS (for the record): decoder "401k" on every pass (13:51 long, 14:16 short, 18:17 long); scribe "401 ," (13:51 long), "401 ." (14:16 short, the scratch re-listen at 19:16:06Z), "401k" (18:17 long, production, outcome no_difference).
+- The pin, frozen as data/moments_pins/SPOTLIGHT_PIN_230148.json, is byte-identical to the builder's.
+  - 12 h check: 8.15 h.
+  - Readiness by hand: required_gates("spotlight") all PASS and live, pin_seal 3f481f5a6514157f, validate_schema / moments_vo OK. The tool's spotlight bug is noted at 18:26.
+  - Closing line "Most people focus on the buy. The leaving is the story.", so this is NOT the zero-line no-voice proof (handoff item 2).
+- The DoD's first line on its end says PASS path (SPOTLIGHT DEMO, with the Telegram ids) or HOLD (stage, row, facts). Nothing is committed while it holds the lock (E-FAIL-078).
+
 ## 20:05 ORCHESTRATOR DECISION: RENDER THE VARIANT, not the full clip. 3f481f5a will NOT be rendered. The builder builds the ruling-104 variant 14950b608178428abefb (7BqLu-wzbU0 0.000-15.280, ending "...I still don't use my Roth IRA.", no 401k token) as the ALTERNATIVE to 3f481f5a, on a directive quoting this answer.
 - The decision, verbatim from the integrator's decision dialog:
   - question: "...Which do I render?" (the full clip 3f481f5a, given scribe's 401 / 401 / 401k readings of the token);
