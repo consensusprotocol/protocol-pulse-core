@@ -852,6 +852,14 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         ({}, {"read": False, "why": "no verdicts file given"})
     out["scorer"] = srec
     ms = [P.with_verdict(m, idx) for m in ms]
+    low = {m["moment_id"]: alone_score(m) for m in ms if alone_score(m) is not None and alone_score(m) < ALONE_MIN}
+    for mid, sc in low.items():                  # RULING 109 (orchestrator 21:30 ET Nov 14): free gates first; a paid
+        stop(mid, f"the ALONE scorer: {sc} (needs {ALONE_MIN:g}), a free gate before any paid verdict (ruling 109)")
+    ms = [m for m in ms if m["moment_id"] not in low]   # verdict only for what every free gate passed: an ALONE score
+    out["ruling_109"] = {"alone_known_below_min": len(low)}   # known below 4 never reaches step A (stage 7 would stop it)
+    if not ms:
+        out["why_none"] = "every moment's ALONE score is known below the minimum: no paid verdict (ruling 109)"
+        return out
     wv, wf = P._writers(router)
     a_by, fails, _, _ = P.prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log, cache=step_a_cache,
                                     kind="step_a_first", **P.first_bounds(router))   # as the medley's (rulings 85, 88)

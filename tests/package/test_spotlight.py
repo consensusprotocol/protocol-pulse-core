@@ -520,9 +520,9 @@ class TestRuling94And95(unittest.TestCase):
         t = ("This is ultimately a bipartisan issue for Bitcoin and for every holder of it, whatever their politics, "
              "as far as I can tell.")
         b = TestBuild()
-        for alone, sealed, why in ((3.0, False, "cannot open cold"),        # a verdict that does not affirm: the
-                                   (None, False, "ALONE scorer: no rating"),  # opener rule itself refuses; none yet:
-                                   (4.0, True, None)):                          # deferred, then refused at ALONE
+        for alone, sealed, why in ((3.0, False, "ruling 109"),              # a verdict below 4: refused by the free
+                                   (None, False, "ALONE scorer: no rating"),  # gate before any paid verdict (ruling
+                                   (4.0, True, None)):                          # 109); none yet: deferred, then refused
             m = moment(mid="t", channel="T", text=t, scorer_verdict=None)
             m.pop("scorer_verdict")
             out, calls = b.run_build([m], {"t": 5}, alone=[alone])
@@ -664,6 +664,7 @@ class TestBuild(unittest.TestCase):
         calls = {}
 
         def prescreen(router, ms_, *a, **k):
+            calls.setdefault("prescreen", []).extend(m["moment_id"] for m in ms_)      # ruling 109: who reaches step A
             return {m["moment_id"]: dict(a_item("hook"), backend="fake:xai") for m in ms_}, \
                 {m["moment_id"]: [] for m in ms_}, set(), set()
 
@@ -734,6 +735,19 @@ class TestBuild(unittest.TestCase):
         self.assertIsNotNone(out["package"])                               # the layout (conversation) decides
         self.assertIn("layout 'conversation'", out["moments"]["a"]["source"])
         self.assertIn("0.61 speaker turns a minute", out["moments"]["a"]["source"])
+
+    def test_ruling_109_a_known_low_alone_never_reaches_a_paid_verdict(self):
+        """RULING 109 (21:30 Nov 14): free gates first. An ALONE score already known below 4 stops the moment before
+        step A; a moment with no score yet still goes on (stage 7 waits for the scorer, as before)."""
+        ms = [moment(mid="a", channel="A"), moment(mid="b", channel="B", text=TEXT.replace("money", "asset")),
+              moment(mid="c", channel="C", text=TEXT.replace("money", "thing"))]
+        out, calls = self.run_build(ms, {"a": 5, "b": 5, "c": 5}, alone=[3.0, 4.0, None])
+        self.assertEqual(calls.get("prescreen"), ["b", "c"])                       # "a" was never asked
+        self.assertIn("ruling 109", out["moments"]["a"]["out"])
+        self.assertEqual(out["ruling_109"], {"alone_known_below_min": 1})
+        out, calls = self.run_build([moment(mid="a", channel="A")], {"a": 5}, alone=[2.0])
+        self.assertNotIn("prescreen", calls)                                        # nothing paid at all
+        self.assertIn("ruling 109", out["why_none"])
 
     def test_it_waits_for_the_alone_scorer_and_reports_the_nearest(self):
         ms = [moment(mid="a", channel="A")]

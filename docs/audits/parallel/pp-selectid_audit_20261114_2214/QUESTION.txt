@@ -1,0 +1,21 @@
+pp-selectid, RULING 109 (the orchestrator, 21:30 ET Nov 14): "free gates run first, cheapest first; a paid verdict is
+asked only of a moment every free gate has passed".
+
+THE REPLAY (records only, cost audit pack section 10): no sealed pin lost. In the medley path the free screens already
+run before step A (the 12 h, the exclusions, the clip scorer's STAND_ALONE). In the spotlight path the free ALONE
+>= 4 check ran LAST, after the paid step A, hook rating, visual check and second family.
+
+THE CHANGE (pipeline/spotlight.py build(); tests/package/test_spotlight.py):
+- right after the clip scorer's verdicts are attached (P.with_verdict), a moment whose ALONE score is ALREADY KNOWN
+  below ALONE_MIN (4) is stopped with the reason "a free gate before any paid verdict (ruling 109)". It never reaches
+  step A or any later paid stage.
+- a moment with NO score yet goes on, as before: stage 7 waits for the scorer.
+- no moment left: why_none, with no paid call. out["ruling_109"] records how many were stopped.
+- tests: a known 3.0 never reaches step A, while a 4.0 and an unscored moment do; all low means no paid call. Two
+  existing tests change only the expected reason: the ALONE score now stops the moment earlier than the opener rule
+  or stage 7 did.
+UNCHANGED GUARDS: stage 7 still requires ALONE >= ALONE_MIN (alone_score of the CURRENT text) for every finalist, so
+the earlier stop can never let through a moment the later stage would refuse; alone_score reads P.verdict_of (the
+scorer's verdict for the moment's current text).
+PLEASE CHECK: (1) Can the early stop drop a moment that could still seal (a score that changes within the build, a
+snapped span rated differently)? (2) Is an unscored moment ever stopped? (3) Do the tests pin it?
