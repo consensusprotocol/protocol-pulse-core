@@ -8,7 +8,7 @@
   "audits": 2.5,
   "mining": 1.0
  },
- "builds": 1.297392,
+ "builds": 1.439613,
  "audits": 0.348266,
  "audit_rows": {
   "20261114_2114": 0.00619,
@@ -30,6 +30,6 @@
   "pp-ingest": 0.031,
   "pp-ingest:audits": 0.0294
  },
- "all_in": 2.109718,
+ "all_in": 2.251939,
  "videos_sealed": 0
 }

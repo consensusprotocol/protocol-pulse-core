@@ -1,0 +1,206 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "0b4372fb4e7ef1295a2881c9e019764a25efb6db6fa4ac1211e53758c62c494e",
+ "result": {
+  "text": "2017 before China really did ban Bitcoin? Yeah. China became the biggest Bitcoin market. CZ himself worked at OKCoin before starting Binance, and then we got Binance. We-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.36,
+    "end": 3.6,
+    "text": "2017 before China really did ban Bitcoin?"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 3.98,
+    "end": 3.98,
+    "text": "Yeah."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 4.019,
+    "end": 12.16,
+    "text": "China became the biggest Bitcoin market. CZ himself worked at OKCoin before starting Binance, and then we got Binance. We-"
+   }
+  ],
+  "words": [
+   {
+    "text": "2017",
+    "start": 0.36,
+    "end": 1.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "before",
+    "start": 1.72,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "China",
+    "start": 2.2,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 2.54,
+    "end": 2.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "did",
+    "start": 2.78,
+    "end": 2.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ban",
+    "start": 2.98,
+    "end": 3.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin?",
+    "start": 3.22,
+    "end": 3.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yeah.",
+    "start": 3.98,
+    "end": 3.98,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "China",
+    "start": 4.019,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "became",
+    "start": 4.38,
+    "end": 4.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.78,
+    "end": 4.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "biggest",
+    "start": 5.14,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.76,
+    "end": 6.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market.",
+    "start": 6.26,
+    "end": 6.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "CZ",
+    "start": 7.88,
+    "end": 8.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "himself",
+    "start": 8.26,
+    "end": 8.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worked",
+    "start": 8.72,
+    "end": 8.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 8.94,
+    "end": 9.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "OKCoin",
+    "start": 9.1,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "before",
+    "start": 9.7,
+    "end": 9.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "starting",
+    "start": 10.04,
+    "end": 10.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Binance,",
+    "start": 10.36,
+    "end": 10.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 10.76,
+    "end": 10.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 10.82,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 10.88,
+    "end": 10.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "got",
+    "start": 10.96,
+    "end": 11.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Binance.",
+    "start": 11.14,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We-",
+    "start": 12.08,
+    "end": 12.16,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.24
+ },
+ "usd": 0.002448,
+ "seconds": 0.77,
+ "recorded_at": "2026-11-15T15:12:40Z"
+}

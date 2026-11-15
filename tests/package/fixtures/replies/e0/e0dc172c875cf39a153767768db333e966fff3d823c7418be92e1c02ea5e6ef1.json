@@ -1,0 +1,290 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "42dabab4966b3dd48ad2275176f49fb0713c3a00f302853699847c7819fac785",
+ "result": {
+  "text": "is the name in BlackRock's prospectus, and BlackRock is far from the only one. In fact, more than 80% of all the money invested in US spot Bitcoin ETFs is held in funds that name Coinbase as one of their custodians. So that first",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.16,
+    "end": 13.52,
+    "text": "is the name in BlackRock's prospectus, and BlackRock is far from the only one. In fact, more than 80% of all the money invested in US spot Bitcoin ETFs is held in funds that name Coinbase as one of their custodians. So that first"
+   }
+  ],
+  "words": [
+   {
+    "text": "is",
+    "start": 0.16,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.34,
+    "end": 0.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "name",
+    "start": 0.46,
+    "end": 0.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 0.78,
+    "end": 0.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "BlackRock's",
+    "start": 0.92,
+    "end": 1.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "prospectus,",
+    "start": 1.42,
+    "end": 2.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 2.14,
+    "end": 2.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "BlackRock",
+    "start": 2.28,
+    "end": 2.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.74,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "far",
+    "start": 3.1,
+    "end": 3.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 3.32,
+    "end": 3.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.5,
+    "end": 3.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "only",
+    "start": 3.6,
+    "end": 3.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one.",
+    "start": 3.84,
+    "end": 3.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "In",
+    "start": 4.12,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fact,",
+    "start": 4.3,
+    "end": 4.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 4.98,
+    "end": 5.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 5.14,
+    "end": 5.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "80%",
+    "start": 5.54,
+    "end": 6.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 6.28,
+    "end": 6.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 6.52,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.66,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 6.78,
+    "end": 6.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "invested",
+    "start": 6.96,
+    "end": 7.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 7.32,
+    "end": 7.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "US",
+    "start": 7.48,
+    "end": 7.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "spot",
+    "start": 7.72,
+    "end": 7.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 7.92,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ETFs",
+    "start": 8.26,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 8.78,
+    "end": 8.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "held",
+    "start": 8.96,
+    "end": 9.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 9.24,
+    "end": 9.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "funds",
+    "start": 9.46,
+    "end": 9.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 10.04,
+    "end": 10.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "name",
+    "start": 10.26,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Coinbase",
+    "start": 10.58,
+    "end": 11.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 11.18,
+    "end": 11.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 11.32,
+    "end": 11.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 11.42,
+    "end": 11.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 11.52,
+    "end": 11.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "custodians.",
+    "start": 11.68,
+    "end": 12.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 12.62,
+    "end": 12.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 12.92,
+    "end": 13.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "first",
+    "start": 13.2,
+    "end": 13.52,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 13.72
+ },
+ "usd": 0.002744,
+ "seconds": 0.71,
+ "recorded_at": "2026-11-15T15:12:28Z"
+}

@@ -1,0 +1,254 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "f426cfe5a219b0871bc976e2082655ab662c9e156528c75fc2e738a149dad2e9",
+ "result": {
+  "text": "Easy math. We're at almost 17 years now. You have kids in high school now that have never lived without Bitcoin. Bitcoin has always existed. To them, Bitcoin is like God. It has always existed. It doesn't matter",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.08,
+    "end": 14.34,
+    "text": "Easy math. We're at almost 17 years now. You have kids in high school now that have never lived without Bitcoin. Bitcoin has always existed. To them, Bitcoin is like God. It has always existed. It doesn't matter"
+   }
+  ],
+  "words": [
+   {
+    "text": "Easy",
+    "start": 0.08,
+    "end": 0.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "math.",
+    "start": 0.34,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We're",
+    "start": 1.48,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 1.66,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "almost",
+    "start": 2.14,
+    "end": 2.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "17",
+    "start": 2.38,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years",
+    "start": 2.9,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now.",
+    "start": 3.16,
+    "end": 3.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 4.04,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 4.16,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kids",
+    "start": 4.54,
+    "end": 4.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 5.52,
+    "end": 5.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "high",
+    "start": 6.4,
+    "end": 6.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "school",
+    "start": 6.62,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 6.94,
+    "end": 7.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 7.34,
+    "end": 7.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 7.44,
+    "end": 7.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "never",
+    "start": 7.62,
+    "end": 7.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lived",
+    "start": 7.94,
+    "end": 8.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "without",
+    "start": 8.2,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 8.56,
+    "end": 9.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 9.44,
+    "end": 9.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 9.76,
+    "end": 9.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "always",
+    "start": 10.0,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "existed.",
+    "start": 10.26,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "To",
+    "start": 10.68,
+    "end": 10.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "them,",
+    "start": 10.82,
+    "end": 10.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 11.32,
+    "end": 11.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 11.64,
+    "end": 11.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 11.76,
+    "end": 11.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "God.",
+    "start": 11.94,
+    "end": 12.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It",
+    "start": 12.16,
+    "end": 12.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 12.24,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "always",
+    "start": 12.4,
+    "end": 12.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "existed.",
+    "start": 12.68,
+    "end": 13.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It",
+    "start": 13.58,
+    "end": 13.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "doesn't",
+    "start": 13.68,
+    "end": 13.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "matter",
+    "start": 14.02,
+    "end": 14.34,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.59
+ },
+ "usd": 0.002918,
+ "seconds": 0.96,
+ "recorded_at": "2026-11-15T15:12:28Z"
+}

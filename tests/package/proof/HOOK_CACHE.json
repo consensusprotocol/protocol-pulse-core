@@ -537,5 +537,38 @@
    "backend": "heimdall:qwen/qwen3.8-27b",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "9a3597d470232a515e09:eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 2,
+   "alone": 4,
+   "setup": 2,
+   "rating": 2,
+   "why": "filler slows hook and weak forward pull",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "b6be0c4132fcb2dd8766:804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 3,
+   "alone": 2,
+   "setup": 3,
+   "rating": 2,
+   "why": "incomplete phrasing hurts standalone clarity",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "e5adf2eca5e7977bb945:256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 1,
+   "alone": 2,
+   "setup": 2,
+   "rating": 1,
+   "why": "generic reassurance lacks hook and pull",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

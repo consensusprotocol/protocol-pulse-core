@@ -23576,5 +23576,332 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "31c900e6fb02e673c739:0f02e3d9c54aa2dc0825126c02fcff33d882e95c311d365f2fa6bf575a7a7769:281138a5200b527eb94bc87e6ffb1b45ce8c1564efc2ce229aee0d454e136230:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "31c900e6fb02e673c739",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "21 million Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "There will only ever be 21 million bitcoins, and there are not enough for every millionaire in America to own one.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "31c900e6fb02e673c739~trim:95ae8934799b4d9b7dacc26f245cbf8f0030f2de4bef4745b8f92390402f33e3:cf09ec7523d91d0732d465547eebf17788a786e2a5262cbef00460d76f464108:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "31c900e6fb02e673c739~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "21 million Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "There will only ever be 21 million bitcoins, and there are not enough for every millionaire in America to own one.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "900706d7e3626496c4e8:97a1f0a36f357a4f285a058384b37b84419f6d23f7003976e70257609bb358c6:d22220f6e5da80d5f02dc1357eeff2a680ff3172278d37083dd3bc2053669141:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "900706d7e3626496c4e8",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "having all these whales holding millions and millions of Bitcoin from the early days",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "If you have all these whales holding millions and millions of Bitcoin from the early days",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Having early Bitcoin whales with millions of coins from the early days still holding them constitutes a huge risk.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "He was like, \"Charlie, I have a real fear",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "9a3597d470232a515e09:eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:9ce2548e9935f3b5562f160c3bea4946d7723d4377089785abcaaa9e8b53914c:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "9a3597d470232a515e09",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "majority of the ETF buyers wouldn't have bought Bitcoin at all if there wasn't an ETF product so those buyers would have had zero exposure to Bitcoin anyways",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "those",
+     "refers_to": "majority of the ETF buyers",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "they",
+     "refers_to": "those buyers (majority of ETF buyers who wouldn't have bought otherwise)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if there wasn't an ETF product",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The majority of ETF buyers, representing over 80% of them, would not have bought Bitcoin at all and would have had zero exposure without the ETF product.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "3c02e1803c90171b5bba:82ebab23500119f65f2e0314bb40fc6372b58cc5da836d7fcc1c71e7156d4042:fdd0e0555b8b96bd19757593e76fd75f823dd45d377def1eca798a0d22b2cbf5:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "3c02e1803c90171b5bba",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [
+    {
+     "text": "in the wild early days of Bitcoin",
+     "inside": false
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "In the early days of Bitcoin, the only way to buy it was on Mt. Gox in Japan by wiring money to Mark Karpeles' personal bank account.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Today, I'm catching up with one of Bitcoin's original pioneers and someone who helped me get started in this industry.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "e755ae519354c2c0f803:047e440f9415bda092f02edbb2c20ba7d346c22c4374dc7a46aa191096be044b:90b95ff9b836e15c3c67162328755c598eaa6621aabd796dcaa3774cb76257ee:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "e755ae519354c2c0f803",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "today",
+     "refers_to": "the present",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "We",
+     "refers_to": "everyone in the world",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "today",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "In the world today there isn't anything that's not owned by anyone, but Bitcoin is owned by the world and we all own a piece of it.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "I had a fintech business with Bit Instant",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "e755ae519354c2c0f803~trim:0aaa3ebec639655eae6a10c0330095015b839762e2ef9f08d7a867a473e1b75f:70160d5f64efeadb7aa4a08c5e13ec8d17aa87f2b7ed97d76a895f1ff85e0dd9:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "e755ae519354c2c0f803~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "today",
+     "refers_to": "the present (show date)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "In the world today there isn't anything that's not owned by anyone, but Bitcoin is owned by the world and we all own a piece of it.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "you can ask me a question because I I ramble",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "a4f8ce22dc0d4b7fecef:ba54d7f73c4d0abd93968634613edd4d6582e5b61970130d1f0251d007f8331c:0ff4b795261a316599ab657e4f2cc470333240aba6ee8c6f72bef2ce8f2c78bc:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "a4f8ce22dc0d4b7fecef",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "time",
+     "refers_to": "when the speaker went to Silicon Valley to raise money after shutting down Bit Instant in 2013",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "at the time (after the 2013 events described)",
+     "inside": false
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "When crossing over to Silicon Valley after shutting down Bit Instant, it was very anti-Bitcoin.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "my lawyers called us up immediately said you have to shut down Bit Instant",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "b6be0c4132fcb2dd8766:804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:6382a030ef7d98faa405b5cfeb9a7fff43bf584f8aac6a78abffc6b7d6b7f696:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b6be0c4132fcb2dd8766",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "a honeypot where people are trying to hack Bitcoin every single day",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin has become a honeypot that attracts hacking attempts every single day.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Sorry babe, China banned Bitcoin 2014, 2013.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "3d56ddf376f5cd1945c6:483743a521a29d80ac54e329de50ed46b22c41d37e75867676f23d634f634a01:d5c738797633bef2a2e5760b25ec8b1a16c11b8bbb52d701f7617bb895786bc7:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "3d56ddf376f5cd1945c6",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "They",
+     "refers_to": "the Fed",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "the Fed",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "the SLR",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "the Fed",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in December of 2025",
+     "inside": false
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The Fed changed the SLR from 3% for GSIBs down to 1% (a 66% cut) but did not return it all the way to zero as during COVID.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "how do you expect uh one rates to move going forward? And two, do you expect Bitcoin to move in conjunction or opposition with uh US or or Bank of Japan rates?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

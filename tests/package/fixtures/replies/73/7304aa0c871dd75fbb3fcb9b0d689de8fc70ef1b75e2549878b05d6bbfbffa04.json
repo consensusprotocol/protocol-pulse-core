@@ -1,0 +1,368 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "b8da6eccdf91bdc91fca19d1c81e39cfe592c170f63c7c53dcac53a3b20d6bf9",
+ "result": {
+  "text": "It's true. That's the ultimate hold. I mean, people do that too. It's unfortunately, as you saw the, the bull and bear market since then, it's been hard to hold your Bitcoin over the last couple of years. But now we're gonna go through a, an epic bull market coming up. I agree. All right, let's-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 13.08,
+    "text": "It's true. That's the ultimate hold. I mean, people do that too. It's unfortunately, as you saw the, the bull and bear market since then, it's been hard to hold your Bitcoin over the last couple of years. But now we're gonna go through a, an epic bull market coming up."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 13.44,
+    "end": 14.58,
+    "text": "I agree. All right, let's-"
+   }
+  ],
+  "words": [
+   {
+    "text": "It's",
+    "start": 0.0,
+    "end": 0.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "true.",
+    "start": 0.2,
+    "end": 0.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's",
+    "start": 0.86,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.22,
+    "end": 1.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ultimate",
+    "start": 1.4,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hold.",
+    "start": 1.82,
+    "end": 2.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 2.72,
+    "end": 2.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 2.78,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 2.98,
+    "end": 3.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 3.3,
+    "end": 3.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 3.44,
+    "end": 3.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "too.",
+    "start": 3.66,
+    "end": 3.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 3.9,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "unfortunately,",
+    "start": 4.52,
+    "end": 5.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 5.36,
+    "end": 5.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 5.48,
+    "end": 5.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saw",
+    "start": 5.6,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the,",
+    "start": 5.76,
+    "end": 5.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.96,
+    "end": 6.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bull",
+    "start": 6.08,
+    "end": 6.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 6.2,
+    "end": 6.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bear",
+    "start": 6.3,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 6.48,
+    "end": 6.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "since",
+    "start": 6.86,
+    "end": 7.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then,",
+    "start": 7.12,
+    "end": 7.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 7.32,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 7.5,
+    "end": 7.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hard",
+    "start": 7.96,
+    "end": 8.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 8.18,
+    "end": 8.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hold",
+    "start": 8.28,
+    "end": 8.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 8.46,
+    "end": 8.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.6,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 9.06,
+    "end": 9.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.16,
+    "end": 9.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "last",
+    "start": 9.24,
+    "end": 9.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "couple",
+    "start": 9.46,
+    "end": 9.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 9.68,
+    "end": 9.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years.",
+    "start": 9.8,
+    "end": 10.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 10.08,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 10.76,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 10.88,
+    "end": 10.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 10.98,
+    "end": 11.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 11.14,
+    "end": 11.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "through",
+    "start": 11.3,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a,",
+    "start": 11.72,
+    "end": 11.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 11.78,
+    "end": 11.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "epic",
+    "start": 11.92,
+    "end": 12.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bull",
+    "start": 12.2,
+    "end": 12.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 12.36,
+    "end": 12.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "coming",
+    "start": 12.68,
+    "end": 12.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up.",
+    "start": 12.98,
+    "end": 13.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 13.44,
+    "end": 13.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "agree.",
+    "start": 13.5,
+    "end": 13.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "All",
+    "start": 14.2,
+    "end": 14.28,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "right,",
+    "start": 14.3,
+    "end": 14.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "let's-",
+    "start": 14.44,
+    "end": 14.58,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.62
+ },
+ "usd": 0.002924,
+ "seconds": 0.92,
+ "recorded_at": "2026-11-15T15:12:47Z"
+}

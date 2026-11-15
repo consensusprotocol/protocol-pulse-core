@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-15T14:28:46+00:00",
- "build": "ledger_20261115_142836",
+ "generated_at": "2026-11-15T15:10:31+00:00",
+ "build": "ledger_20261115_151023",
  "kind": "moments",
  "candidates": [
   {
@@ -19,6 +19,15 @@
    "duration": 14.28,
    "text": "But it just creates like a cycle effect because when you sell Bitcoin to someone, they're now buying it at that price at $100,000. So their cost basis is $100,000. It's their floor. So you almost don't want these people to hold Bitcoin. It's a risk.",
    "text_sha256": "40b39b85cedf5fd8b8dc3e7dc2c164485c188f47f1b2eb3758926460ce950bb4",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "72fdbc8cb467a8e1d002",
+   "video_id": "RsPBmLb6tTY",
+   "channel": "Bitcoin Magazine",
+   "duration": 14.91,
+   "text": "But if they can one shot, you know, 5 % of the Bitcoin market just by going after one guy, that to me represents a risk that I think other people don't really appreciate. I'm not saying the government would do that, but, you know, They've been known to do things like ban gold, especially in financial crises like the Great Depression.",
+   "text_sha256": "da5848024c17c663f3eca899088689bc1074be93d9300b08effa2f6e2deec96e",
    "trimmed_leading": null
   },
   {
@@ -67,6 +76,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "b7831c69e28dc2f3c256",
+   "video_id": "RsPBmLb6tTY",
+   "channel": "Bitcoin Magazine",
+   "duration": 11.02,
+   "text": "Because like let's say you're a guy who owns a hundred bitcoin or a thousand bitcoin, and bitcoin price is going to go up 20, 30 percent in the next few years. Why would you ever spend any of it? You wouldn't.",
+   "text_sha256": "e9214d383971e0e9f0c9f9852d23699a14a2d6dd628042e48e63041884c71025",
+   "trimmed_leading": null
+  },
+  {
    "pid": "03b64c9ceb3fbe7b05a4",
    "video_id": "vQ3c_lU4NZ4",
    "channel": "Scott Melker",
@@ -91,6 +109,15 @@
    "duration": 14.14,
    "text": "it just creates like a cycle effect because when you sell Bitcoin to someone, they're now buying it at that price at $100,000. So their cost basis is $100,000. It's their floor. So you almost don't want these people to hold Bitcoin. It's a risk.",
    "text_sha256": "c5fa6adf5aaf381ad3467bf9bf372f90a6757b6d9c39f3bcc32d681c0383ef3d",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "72fdbc8cb467a8e1d002~trim",
+   "video_id": "RsPBmLb6tTY",
+   "channel": "Bitcoin Magazine",
+   "duration": 14.91,
+   "text": "if they can one shot, you know, 5 % of the Bitcoin market just by going after one guy, that to me represents a risk that I think other people don't really appreciate. I'm not saying the government would do that, but, you know, They've been known to do things like ban gold, especially in financial crises like the Great Depression.",
+   "text_sha256": "8439e895177c4f7affff22805039d28af37c97191d8abc3c39fd417bff309fc2",
    "trimmed_leading": "But"
   },
   {
@@ -148,6 +175,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "3d56ddf376f5cd1945c6",
+   "video_id": "RsPBmLb6tTY",
+   "channel": "Bitcoin Magazine",
+   "duration": 8.32,
+   "text": "They didn't go all the way back to zero, which is what they did during COVID. But they changed it from, I believe, 3 % for GSIbs down to 1%. So they cut it by 66%.",
+   "text_sha256": "483743a521a29d80ac54e329de50ed46b22c41d37e75867676f23d634f634a01",
+   "trimmed_leading": null
+  },
+  {
    "pid": "9828eed5df8effcc4bdd",
    "video_id": "vQ3c_lU4NZ4",
    "channel": "Scott Melker",
@@ -193,6 +229,15 @@
    "trimmed_leading": "But"
   },
   {
+   "pid": "4601bbae9d203f3b0f5e~trim",
+   "video_id": "RsPBmLb6tTY",
+   "channel": "Bitcoin Magazine",
+   "duration": 22.02,
+   "text": "even in a high interest rate regime, as long as there's QE and some sort of fiscal stimulus, either on the treasury side or on the Fed side, I think it's massively bullish for Bitcoin. And I actually have reason to believe that this cycle, we're going to go to $300,000 just because this bull market started so much earlier than should have been predicted by all of the models.",
+   "text_sha256": "5b2ceef7a759e5bed7763501f732969e3f1ac0b69a0231a59d4f4df979001c7b",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "d706ad66082c4e92090c",
    "video_id": "vQ3c_lU4NZ4",
    "channel": "Scott Melker",
@@ -209,6 +254,24 @@
    "text": "AI and Quantum are both topics that very soon, instead of being seen as threats, they'll both be seen as mega opportunities for Bitcoin. And when that happens, kind of coupled with the having, that'll usher in the next epic bull market. Explain how you mean that.",
    "text_sha256": "95a18ad1e225c36c1232a53ef1d1c77364169df4e8410fa1ad0a53e445104291",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "146f64d1a28a0829cdec~trim",
+   "video_id": "RsPBmLb6tTY",
+   "channel": "Bitcoin Magazine",
+   "duration": 16.12,
+   "text": "I actually have reason to believe that this cycle, we're going to go to $300,000 just because this bull market started so much earlier than should have been predicted by all of the models. Hello, and welcome back to the Bitcoin magazine podcast.",
+   "text_sha256": "affde184b73614f45e3fee4914d42277894645beb1e4523710e142c87d57e0e9",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "9a3597d470232a515e09",
+   "video_id": "RsPBmLb6tTY",
+   "channel": "Bitcoin Magazine",
+   "duration": 16.5,
+   "text": "The thing that a lot of people miss is that, you know, I would say majority of the ETF buyers wouldn't have bought Bitcoin at all if there wasn't an ETF product. So those buyers, which I believe represent, you know, over 80 % of the ETF buyers, they would have had zero exposure to Bitcoin anyways.",
+   "text_sha256": "eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad",
+   "trimmed_leading": null
   },
   {
    "pid": "cf18ef7d885beb491a4c",
@@ -238,6 +301,24 @@
    "trimmed_leading": null
   },
   {
+   "pid": "ef6359c1e9d004dc4835~trim",
+   "video_id": "RsPBmLb6tTY",
+   "channel": "Bitcoin Magazine",
+   "duration": 25.04,
+   "text": "I think in the long run, higher yields are actually bullish for Bitcoin because high rates, right? High interest expense means the government just has to borrow more, which means eventually, especially in a fiscal dominance scenario, which is what I believe we're in, the Federal Reserve will have to print more. But even in a high interest rate regime and... As long as there's QE and some sort of fiscal stimulus, either on the Treasury side or on the Fed side, I think it's massively bullish for Bitcoin.",
+   "text_sha256": "021efb032dd29a4d7129777c0c06c3e48e82a72a87c5afae0bbcf52e197cbd8e",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "2e0383ca6659432c0610",
+   "video_id": "RsPBmLb6tTY",
+   "channel": "Bitcoin Magazine",
+   "duration": 24.08,
+   "text": "Most Bitcoiners you meet are stacking sats. They're not spending sats. Stacking is the name of the game because as Bitcoin progresses from, like we said, a speculative instrument to an actual, like let's say reserve currency or international monetary medium, it has to become a financial asset first and has to gain market adoption and gain usage as a store of value before it becomes a medium of exchange.",
+   "text_sha256": "6a1528e89d94e181e0aeae4a1d2117169f977a2569e6aebe7ebe365735d5390d",
+   "trimmed_leading": null
+  },
+  {
    "pid": "43ee168a53c6c5e8c4cb~trim",
    "video_id": "vQ3c_lU4NZ4",
    "channel": "Scott Melker",
@@ -263,6 +344,15 @@
    "text": "now we're going into late 2011, that we were 30 % of all the Bitcoin transaction volume on the Bitcoin blockchain at any given time. Which is not just like... purchases and sales, this is like all Bitcoin blockchain, you know, transaction volume. And so things were really heating up, getting crazy.",
    "text_sha256": "58b69b86f94e4a05171a964ea409e06cc77c9a868cee17f197922415bfd49f16",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "08a7d1840bc42bf79afe~trim",
+   "video_id": "RsPBmLb6tTY",
+   "channel": "Bitcoin Magazine",
+   "duration": 21.15,
+   "text": "that means it's treated like a financial instrument. And what do you do with a financial instrument? You collect more and more of it. So the people who are wealthy already in the fiat system and they're early to Bitcoin, they buy as much Bitcoin as they can. And all the plebs who are, let's say, working class, you know, workers or blue collar plumbers, they're buying as much Bitcoin as they can as well.",
+   "text_sha256": "d6bf4eacfbc4e34e38902d060b629b33bed258a923c9fb2bc2c5db16dbffa7c6",
+   "trimmed_leading": "Now"
   },
   {
    "pid": "3419fb21890d4d876735",
@@ -370,6 +460,15 @@
    "duration": 15.22,
    "text": "I remember, but you were part of that first wave of people that were looking at Bitcoin and trading as a professional career. And because back then, like, Bitcoin was very speculative. It wasn't something that people were really like, you can make a career off of it.",
    "text_sha256": "9b7099af2cfa91a293af69485a8dd4e8aa9a67c56fb99f1a22ac289097a3b729",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "c3399dde374a7467831c",
+   "video_id": "RsPBmLb6tTY",
+   "channel": "Bitcoin Magazine",
+   "duration": 16.86,
+   "text": "They didn't go all the way back to zero, which is what they did during COVID. But they changed it from, I believe, 3 % for GSIbs down to 1%. So they cut it by 66%. So if they wanted to go further with self -QE, they could lower it to zero. So there's so many variables at play here.",
+   "text_sha256": "18025a0ba2b215d192d1e057edcdb969a0f9ad42bb3a24e2ecbfeeb6d9970aa0",
    "trimmed_leading": null
   },
   {

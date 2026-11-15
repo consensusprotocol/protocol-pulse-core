@@ -1,0 +1,242 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "34d93a5fc5d00cd147325c34cba21027c9e4044cd22d31fa040b13cb97ba0673",
+ "result": {
+  "text": "the New York company and move into the National Trust over three years. A license that New York granted in 2018 ended up holding the Bitcoin by most of America's ETFs over the next three years",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.02,
+    "end": 11.76,
+    "text": "the New York company and move into the National Trust over three years. A license that New York granted in 2018 ended up holding the Bitcoin by most of America's ETFs over the next three years"
+   }
+  ],
+  "words": [
+   {
+    "text": "the",
+    "start": 0.02,
+    "end": 0.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "New",
+    "start": 0.14,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "York",
+    "start": 0.28,
+    "end": 0.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "company",
+    "start": 0.5,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 0.94,
+    "end": 1.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "move",
+    "start": 1.14,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 1.42,
+    "end": 1.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.68,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "National",
+    "start": 1.78,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Trust",
+    "start": 2.2,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 2.58,
+    "end": 2.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "three",
+    "start": 2.82,
+    "end": 3.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years.",
+    "start": 3.12,
+    "end": 3.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "A",
+    "start": 4.019,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "license",
+    "start": 4.18,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 4.8,
+    "end": 4.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "New",
+    "start": 5.04,
+    "end": 5.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "York",
+    "start": 5.22,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "granted",
+    "start": 5.56,
+    "end": 5.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 5.88,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2018",
+    "start": 6.14,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ended",
+    "start": 7.06,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 7.3,
+    "end": 7.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "holding",
+    "start": 7.44,
+    "end": 7.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.78,
+    "end": 7.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 7.9,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 8.26,
+    "end": 8.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 8.62,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 8.88,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "America's",
+    "start": 8.96,
+    "end": 9.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ETFs",
+    "start": 9.5,
+    "end": 9.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 10.46,
+    "end": 10.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.62,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "next",
+    "start": 10.72,
+    "end": 11.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "three",
+    "start": 11.06,
+    "end": 11.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years",
+    "start": 11.4,
+    "end": 11.76,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.98
+ },
+ "usd": 0.002396,
+ "seconds": 0.72,
+ "recorded_at": "2026-11-15T15:12:28Z"
+}

@@ -1,0 +1,290 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "74dfe7975d5d6a346f2df83b4d02cc65dc65198a957773f373aa02f8bb728c49",
+ "result": {
+  "text": "You almost don't want these people to hold Bitcoin. It's a, it's a risk if you have all these whales holding millions and millions of Bitcoin from the early days, that to me is a huge risk. I don't want them holding it anymore",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.12,
+    "end": 11.0,
+    "text": "You almost don't want these people to hold Bitcoin. It's a, it's a risk if you have all these whales holding millions and millions of Bitcoin from the early days, that to me is a huge risk. I don't want them holding it anymore"
+   }
+  ],
+  "words": [
+   {
+    "text": "You",
+    "start": 0.12,
+    "end": 0.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "almost",
+    "start": 0.26,
+    "end": 0.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 0.6,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "want",
+    "start": 0.84,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "these",
+    "start": 1.06,
+    "end": 1.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 1.24,
+    "end": 1.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 1.56,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hold",
+    "start": 1.66,
+    "end": 1.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 1.86,
+    "end": 2.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 2.42,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a,",
+    "start": 2.64,
+    "end": 2.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 2.86,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 3.02,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "risk",
+    "start": 3.2,
+    "end": 3.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 4.059,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.14,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 4.26,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 4.56,
+    "end": 4.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "these",
+    "start": 4.72,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whales",
+    "start": 5.0,
+    "end": 5.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "holding",
+    "start": 5.66,
+    "end": 5.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "millions",
+    "start": 6.04,
+    "end": 6.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 6.38,
+    "end": 6.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "millions",
+    "start": 6.5,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 6.78,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.88,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 7.18,
+    "end": 7.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.34,
+    "end": 7.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "early",
+    "start": 7.44,
+    "end": 7.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "days,",
+    "start": 7.7,
+    "end": 7.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 8.36,
+    "end": 8.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 8.6,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me",
+    "start": 8.74,
+    "end": 8.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 8.9,
+    "end": 8.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 9.04,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "huge",
+    "start": 9.14,
+    "end": 9.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "risk.",
+    "start": 9.42,
+    "end": 9.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 9.7,
+    "end": 9.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 9.76,
+    "end": 9.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "want",
+    "start": 9.94,
+    "end": 10.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "them",
+    "start": 10.16,
+    "end": 10.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "holding",
+    "start": 10.34,
+    "end": 10.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 10.62,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "anymore",
+    "start": 10.72,
+    "end": 11.0,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.06
+ },
+ "usd": 0.002212,
+ "seconds": 0.75,
+ "recorded_at": "2026-11-15T15:12:32Z"
+}
