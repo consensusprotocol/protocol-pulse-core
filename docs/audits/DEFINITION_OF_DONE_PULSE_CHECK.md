@@ -6,6 +6,30 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 01:50 PP-BACKTEST MERGED (handoff item 5, Nov 15): the editorial supply backtest (pipeline/oracle, tests/oracle, tools/backtest_oracle.py, its report and records; additions only, 74 files) lands with the integrator's two merge fixes. Audits batch 89, two cycles: cycle 1 one consensus finding (low, fixed), cycle 2 none. Both regressions green. BATCH 3 integrator spend: $0.0373.
+- **Why it could not merge as it stood (both fixed in 50ee2f49):**
+  - Keys: llm.env_key parsed a hard-coded key-file path, the house rule that held pp-tests in batch 78. Now every key is read by name through the main tree's relay.get_key, loaded by file path (sys.path untouched, no bytecode written).
+  - GPU0 (law L-r): the local back-end (gemma3:27b on GPU0's Ollama) was gated by PP_GPU0_LEASE_HELD=1, an environment variable any process can set. Now providers.gpu0_lease_held() reads the lease itself (gpu0.held(), GPU0 only), in available() (the chain walk and call_backend) and in _ollama before any request (gpu0.LeaseMissing).
+  - test_gpu0's TestNoDirectLoaders scans only top-level pipeline/*.py, so it would not have seen the old gate (now a known trap in the handoff).
+- **Tests:**
+  - tests/oracle: 178 passed under a network guard (connect and DNS refused).
+  - The live lease files were untouched, mtimes checked. GPU1's record changed hands meanwhile to stage_broadcast_service, a periodic job.
+  - conftest gives every oracle test its own lease files; a guard test proves it (with the redirection removed it fails, measured).
+  - New: the variable alone never opens the gate, a GPU1 lease never does, the real lease does; the real _ollama sends nothing without the lease; env_key opens no file; the real loader answers by name from the main tree's relay.
+  - On the pre-fix code the five lease and key tests fail for the named reasons (the variable opened the gate; _ollama sent without the lease; env_key opened the main tree's key file); the context-limit mirror passes.
+  - One stale expectation corrected: the export's layout test now follows ruling 93 (no channel is ineligible by name).
+- **Regressions on the staged merge:**
+  - regression_test.sh: 26 PASS / 0 FAIL / 4 WARN.
+  - pipeline/regression.sh: exit 0, PULSE PREVIEW and PULSE MEDLEY references REPRODUCED.
+- **Suites:** tests/oracle 178; the adversarial wall 382 passed / 3 skipped / 40 xfailed (its Nov 14 baseline exactly); test_gpu0 45; test_fresh 27 (1 skipped).
+- **Audits (Heimdall-first, ruling 107 (2); Grok not asked, no disagreement on a defect):**
+  - Cycle 1: qwen27b PASS 0.95, glm PASS 0.82. Consensus glm F3 (low): the real-loader test compared with a second literal. Fixed in b83cdccb: it compares with llm.KEY_LOADER. glm F1 / F2 were not agreed and are not defects (relay has no import-time effects; the lease is a lock held while the holder's descriptor is open).
+  - Cycle 2 (with the fix and the guard test, d5bb527e): qwen27b PASS 0.95, glm PASS 0.82, no consensus finding. glm's three low notes are not defects (batch89/cycle2/CONSENSUS.md).
+  - Cost $0.0070373 + $0.0053205 = $0.0123578.
+- **Not changed:** nothing in the render path imports pipeline.oracle. Its outputs go under --out (default /home/ultron/heimdall_probe/pp_redteam/oracle, outside the repo).
+- **Running its local A/B now** needs the GPU0 lease held by that process (gpu0.lease(owner), or an inherited lease descriptor); the variable no longer opens anything. Its Nov 12 REQUESTS.md commands (PP_GPU0_LEASE_HELD=1) are a dated record; run as written, they would now skip the local back-end and say why.
+- **BATCH 3 integrator spend $0.0373:** the earlier $0.02498 plus batch 89's $0.01236.
+
 ## 01:20 ITEM 1c LANDED (Nov 15): a SPOTLIGHT's review drop names its kind, first under the head of every caption and of the note: "KIND: SPOTLIGHT (law L-ab), one moment: the spotlight format's DEMONSTRATION; the format awaits PBX's decision". If a spotlight's text lacks that line, the drop STOPs and sends nothing; a medley's texts are unchanged. Merge of review-kind (c76541ac); audits batch 88, two cycles, no defect. BATCH 3 integrator spend: $0.0250.
 - **Why:** the drop of 3f481f5a (22:37 Nov 14) never told PBX it was the spotlight format's demonstration. The release caption's SPOTLIGHT_HEAD could not be reused: its "APPROVAL" / "approved" are forbidden in a review text (_review_forbidden, unchanged).
 - **The change (pipeline/telegram.py):**

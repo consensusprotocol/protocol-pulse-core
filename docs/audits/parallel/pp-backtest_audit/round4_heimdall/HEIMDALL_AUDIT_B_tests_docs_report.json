@@ -1,0 +1,71 @@
+{
+ "package": "B_tests_docs_report",
+ "cycle1": [
+  {
+   "backend": "heimdall-deepseek-v4.1-flash",
+   "ok": false,
+   "error": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
+  },
+  {
+   "backend": "heimdall-glm-5.3-flash",
+   "ok": false,
+   "error": "InternalServerError: Error code: 503 - {'error': {'code': 503, 'message': 'The marketplace is restarting before this response could finish. Try again in 5 seconds.', 'metadata': {'error_type': 'server'}}}"
+  },
+  {
+   "backend": "heimdall-qwen3.8-27b",
+   "ok": false,
+   "error": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
+  }
+ ],
+ "cycle2": [
+  {
+   "backend": "heimdall-deepseek-v4.1-flash",
+   "ok": false,
+   "error": "SpendStop: spend guard: 0.05 spent + 1.65 in flight + worst case 0.32 for heimdall-deepseek-v4.1-flash > cap 2.00 USD"
+  },
+  {
+   "backend": "heimdall-glm-5.3-flash",
+   "ok": false,
+   "error": "JSONDecodeError: Expecting value: line 1 column 1 (char 0)"
+  },
+  {
+   "backend": "heimdall-qwen3.8-27b",
+   "ok": true,
+   "reply": {
+    "rulings": [],
+    "missed": [
+     {
+      "severity": "MEDIUM",
+      "where": "docs/audits/BACKTEST_SUPPLY_REPORT.md:497 vs docs/audits/parallel/pp-backtest_ANALYSIS.md:206",
+      "evidence": "Report section 9 table: 'local-gemma3-27b (batch still running or stopped early: counts are of the items it finished) | 23 / 48 | 18 / 0 / 5 | 8 of 18 | 7 | 3 | - | 172.9 | 0.0 (local)'. Analysis section 5.7: 'The local model (the integrator's run, still in progress at this commit: 19 of 48 items) agreed on 6 of 15 measured and passed 7 the reference failed.'",
+      "defect": "The hand-written analysis (stated as section 5 of the report) contradicts the report's own generated table on the local witness back-end: 19/15 vs 23/18 items, and 6/15 vs 8/18 agreement.",
+      "fix": "Sync the hand-written analysis section 5.7 to the numbers actually measured in section 9 (23 items run, 18 measured, 8 agreement) or explicitly note which batch snapshot each section refers to."
+     },
+     {
+      "severity": "MEDIUM",
+      "where": "docs/audits/BACKTEST_SUPPLY_REPORT.md:539 vs docs/audits/BACKTEST_SUPPLY_REPORT.md:583",
+      "evidence": "Section 9 table: 'local-gemma3-27b (batch still running or stopped early: counts are of the items it finished) | 23 / 48 | 18 / 0 / 5 | 8 of 18 | 7 | 3'. Section 0: 'A/B witness, local-gemma3-27b: 25 of 48 planned items not run (batch still running at report time); 5 without a usable reply.'",
+      "defect": "Section 0 claims 25 items were not run, but the report's own section 9 table states 23/48 items were run (implying 25 not sent). However, the table also states 18 measured, 0 not sent (spend guard), 5 failed. 23 - 18 - 5 = 0, meaning all 23 run items were either measured or failed. The 'not run' count in section 0 (25) contradicts the 'items run / planned' (23) in section 9 if 'planned' is 48. More precisely, if 23 were run, 25 were not run. But the table says '18 / 0 / 5' for 'measured / not sent / failed'. The 0 'not sent' contradicts the 25 'not run' if 'not run' implies 'not sent'. The phrasing 'batch still running at report time' in section 0 implies interruption, while 'stopped early' in section 9 implies a different state. The numbers 23 vs 25 are consistent with 48 total, but the categorization is confusing/contradictory regarding 'not sent' vs 'not run'.",
+      "fix": "Clarify section 0 to align with section 9: '25 of 48 planned items not run because the batch was stopped early' and ensure the 'not sent' column in section 9 reflects the 25 items that never reached the model, or rename the column to 'not run' to match the batch stoppage."
+     },
+     {
+      "severity": "LOW",
+      "where": "docs/audits/BACKTEST_SUPPLY_REPORT.md:539 vs docs/audits/BACKTEST_SUPPLY_REPORT.md:497",
+      "evidence": "Section 9 table row for 'judge | local-gemma3-27b': '25 / 25 | 25 / 0 / 0 | 10 of 25 | 7 | 6 | 0 of 8'. Section 9 row for 'witness | local-gemma3-27b': '23 / 48 | 18 / 0 / 5 | 8 of 18 | 7 | 3'.",
+      "defect": "The 'median s per call' for the local judge is not explicitly listed in the table row provided in the evidence (it is '88.1' in the analysis but the table cell is empty or missing in the diff? No, the table has '88.1' in the analysis but let's check the report table). The report table has '88.1' for judge. For witness, it has '172.9'. No contradiction found here, withdrawing this candidate.",
+      "fix": "n/a"
+     }
+    ],
+    "verdict": "MEDIUM"
+   },
+   "usd": 0.004215,
+   "seconds": 90.1,
+   "tokens_in": 73107,
+   "tokens_out": 1144
+  }
+ ],
+ "findings": [],
+ "votes": {},
+ "consensus": [],
+ "spent_usd": 0.0702
+}

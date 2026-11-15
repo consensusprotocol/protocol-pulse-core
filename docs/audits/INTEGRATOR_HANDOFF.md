@@ -22,7 +22,7 @@ line says PASS path (with the Telegram ids) or HOLD (stage, row, measured facts)
      scratchpad, putting the old file back, and running them.
   3. Run TWO audit cycles and implement the consensus (commands below). Record each cycle in
      `docs/audits/pulse-sentence-law/batchNN_<name>/cycle{1,2}/`: QUESTION.txt, STEP.diff, CONSENSUS.md, heimdall/.
-     The last batch is **88** (the review texts name the spotlight kind, 2026-11-15; 85 the format-aware release, 86 the 16:9-only render, 87 the review drop's withhold / points; 81-83 the spotlight gate, alarm and readiness; 84 ruling 105).
+     The last batch is **89** (the pp-backtest merge, 2026-11-15; 88 the review texts name the spotlight kind; 85 the format-aware release, 86 the 16:9-only render, 87 the review drop's withhold / points; 81-83 the spotlight gate, alarm and readiness; 84 ruling 105).
   4. On main, stage it: `git merge --no-commit --no-ff <branch>`.
   5. Run `bash regression_test.sh` (0 FAIL) and `bash pipeline/regression.sh` (exit 0: every protected reference
      reproduced) ON THE STAGED MERGE. Worktrees lack untracked assets, so run them on main.
@@ -262,10 +262,10 @@ No session waits on the orchestrator. Standing, for all three sessions:
    - Recommendation on record: the word pass need not switch, because the pre-check supplies the render's own text.
    - Still open: the orchestrator's decision, and if wanted, a wider A/B on GPU1 when its lease is free.
 4. **The moments-first exam:** pp-tests (the wall + phase 2's exam, 5ca1c4b9) is MERGED (d1ccdfc7, 2026-11-14 10:02, audits batch 78 x4). Running the exam is the BUILDER's (DoD 10:02 Nov 14: its R-29-fixed adapter, its own ledger, hard stop $4.00), not the integrator's; read its result with that entry's two caveats (the NUMBER rule and the sign-off; PRICE_NOW's tolerance).
-5. **Merging the parallel branches.** Commits ahead of the release branch (counted 01:30 Nov 15): pp-backtest 4 (STATE DONE 383337b4, Nov 12), pp-ingest 103, pp-selectid 191. hardening-redteam and pp-tests are merged (0 ahead).
+5. **Merging the parallel branches.** Commits ahead of the release branch (counted 01:30 Nov 15): pp-ingest 103, pp-selectid 191. hardening-redteam, pp-tests and pp-backtest are merged.
    - Each needs its integrator merge audit (two cycles) and both regressions, between runs.
    - pp-ingest and pp-selectid are live sessions: coordinate first.
-   - pp-backtest (pipeline/oracle/, tests/oracle/, tools/backtest_oracle.py; additions only, about 10,500 lines) cannot merge as it stands: (1) `pipeline/oracle/llm.env_key` reads a hard-coded key-file path (the house rule that held pp-tests in batch 78: keys by name through the main tree's relay.get_key); (2) its GPU0 Ollama back-ends are gated only by an environment variable (PP_GPU0_LEASE_HELD), not by gpu0's lease (law L-r), and test_gpu0's TestNoDirectLoaders scans only top-level pipeline/*.py, so it would not see them. Its embedder is CPU-only.
+   - pp-backtest MERGED 2026-11-15 (audits batch 89) with the integrator's two fixes: keys by name through the main tree's relay.get_key (it parsed a key-file path); its local GPU0 back-end gated on the GPU0 lease itself (`providers.gpu0_lease_held`: gpu0.held(), GPU0 only), not the variable PP_GPU0_LEASE_HELD. Its local A/B now runs only in a process that holds the lease (gpu0.lease(owner), or an inherited lease descriptor); its Nov 12 REQUESTS.md commands are a dated record.
 6. **The GPU1 order ('22:50', Nov 12):** items 1, 2 and 4 are merged (5a95e9c6) and item 3 is done (8278f45a).
    - OPEN: the morning-brief question (addendum '23:00' B, DoD 23:03 Nov 12: nothing disabled, a question for the orchestrator).
    - OPEN: the GPU1 22 GB squat proposal (services/local_watchdog.py HEALTH mode, not applied).
@@ -289,6 +289,7 @@ No session waits on the orchestrator. Standing, for all three sessions:
 - Test files and `docs/references` are git-ignored: `git add --force` them (never in the same command as a push).
 - `git push --tags` would push `pre-lfs-fix-backup`, which is not ours. Push one tag through a glob.
 - Worktrees lack untracked data (the references' transcripts, the v2f run files, the outro asset). Run the regressions on main's staged merge.
+- test_gpu0's TestNoDirectLoaders scans only top-level `pipeline/*.py`: a subpackage (pipeline/oracle) is not seen, so code there must gate GPU0 itself (as `pipeline/oracle/providers.gpu0_lease_held` does) and its tests must use their own lease files (`PP_GPU0_LEASE` / `PP_GPU1_LEASE`, as tests/oracle/conftest.py does), never a render's.
 - The stop hook flags a staged merge as "UNCOMMITTED" while the regressions run. That is expected; commit only after both regressions pass.
 - Never move the release-branch HEAD while `/tmp/pulse_check_run.lock` is held by a render (E-FAIL-078). The lock FILE always exists; check `fuser`.
 - A long-running process that decodes on GPU0 keeps a CUDA context after release_all, and every other GPU0 user sees a foreign process (E-FAIL-084). Run such work as one-shot processes.

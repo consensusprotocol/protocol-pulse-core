@@ -1,0 +1,5 @@
+# Batch 89 cycle 1: one consensus finding, low, FIXED. qwen27b PASS 0.95, glm PASS 0.82; panel $0.0070373007. Grok not asked (ruling 107 (2): no disagreement on a defect).
+- glm F3 [low], agreed by both: the real-loader test compared the executed file with a second hard-coded literal. FIXED (b83cdccb): it compares with llm.KEY_LOADER, the file the loader names; the key-file rule itself is proven by the open-denied test. tests/oracle 177 passed under the network guard.
+- glm F1 [low], not agreed: a retried load after a failed exec could execute relay.py twice. Not a defect: relay.py has no import-time effect beyond definitions (its key files are read lazily, inside get_key).
+- glm F2 [low], not agreed: the lease could change hands during a long local call. Not a defect: the lease is a lock held while the holder's descriptor is open (gpu0.held(), an inherited descriptor counting as custody); no other process can take it while this process holds that descriptor.
+- glm cross-examination note: an empty key reads as missing. Unchanged behaviour (the pre-merge code and its test said the same).
