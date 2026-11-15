@@ -144,6 +144,7 @@ class TestReviewDrop(unittest.TestCase):
     def test_ruling_106_b_bad_withholds_and_points_send_nothing(self):
         for kw, pattern in (({"withhold": {"1x1": "x"}}, "withhold names a format"),
                             ({"withhold": {"9x16": " "}}, "withhold names a format"),
+                            ({"withhold": {"9x16": "x" * (T.REVIEW_POINT_MAX + 1)}}, "withhold names a format"),
                             ({"withhold": {"9x16": "a", "16x9": "b"}}, "every format withheld"),
                             ({"points": [""]}, "each open point"),
                             ({"points": ["x" * (T.REVIEW_POINT_MAX + 1)]}, "each open point"),

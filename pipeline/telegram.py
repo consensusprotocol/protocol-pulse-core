@@ -751,8 +751,10 @@ def review_drop(run_dir, send=None, withhold=None, points=()):
         raise RuntimeError("STOP: review drop: no GATE_REPORT.json for this run")
     formats = review_formats(run_dir)                           # ruling 93 as amended: the sealed formats ALONE
     withhold, points = dict(withhold or {}), list(points or ())
-    if any(f not in formats or not (isinstance(r, str) and r.strip()) for f, r in withhold.items()):
-        raise RuntimeError(f"STOP: review drop: withhold names a format outside {list(formats)} or gives no reason")
+    if any(f not in formats or not (isinstance(r, str) and r.strip() and len(r) <= REVIEW_POINT_MAX)
+           for f, r in withhold.items()):
+        raise RuntimeError(f"STOP: review drop: withhold names a format outside {list(formats)} or gives no reason "
+                           f"(<= {REVIEW_POINT_MAX} characters)")
     if not all(isinstance(p, str) and p.strip() and len(p) <= REVIEW_POINT_MAX for p in points):
         raise RuntimeError(f"STOP: review drop: each open point must be a non-empty string <= {REVIEW_POINT_MAX}")
     formats = tuple(f for f in formats if f not in withhold)
