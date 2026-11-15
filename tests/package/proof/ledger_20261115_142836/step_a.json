@@ -1,0 +1,318 @@
+{
+ "d706ad66082c4e92090c:9d43580c729b": {
+  "label": "d706ad66082c4e92090c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "now",
+    "refers_to": "the present time almost 17 years after 2010",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "them",
+    "refers_to": "kids in high school",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "Bitcoin's ongoing success and growth with younger generations",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "after almost 17 years since Bitcoin began in 2010",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Kids in high school now have never lived in a world without Bitcoin so they see it as something that has always existed like God and this means Bitcoin has been successful and will continue growing with that generation valuing digital assets.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "and this is what I'll kind of end off, and you can ask me a question because I I ramble.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "43ee168a53c6c5e8c4cb~trim:9d43580c729b": {
+  "label": "43ee168a53c6c5e8c4cb~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "today",
+    "refers_to": "the present time around the video's show date",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this morning",
+    "refers_to": "the morning of the speaking day when the node count was checked",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in the world today",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In the world today nothing exists that is not owned by anyone because Bitcoin is owned by the world, we all own a piece of it, and its network is highly decentralized with 20,000 plus known nodes plus tens of thousands more and decentralized miners.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a I love when I used to say that all the time.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "adf6d9c528a27963f790:9d43580c729b": {
+  "label": "adf6d9c528a27963f790",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "now (the present, as of the show date)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's fundamental properties are unchanged \u2014 it remains a buyable, sendable, irreversible, uncounterfeitable asset capped at 21 million.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a I just said where how it's gotten to where it is now and you know if you saw that coming",
+  "backend": "heimdall:z-ai/glm-5.3-flash",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "eb5810dcbbb6fcecc5fa~trim:9d43580c729b": {
+  "label": "eb5810dcbbb6fcecc5fa~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "we",
+    "refers_to": "speaker and early Bitcoin community",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "being early to something with time to explore it",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when you're early to something and you have time to go through it",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Upon finding Bitcoin the speaker instantly fell in love, saw it as the future within a familiar community, and experienced the passion and excitement of being early that gradually led to full commitment without one specific moment.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Yeah, that makes sense. So \u203a\u203a seeing where it is now, could you a have imagined it at that time? I know you guys had big dreams, but could you, you know, in reality, could you have imagined it at this time?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "31aa81983a1e768ed062:9d43580c729b": {
+  "label": "31aa81983a1e768ed062",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the scenario of whales holding millions of Bitcoin from the early days",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "them",
+    "refers_to": "all these whales",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the price of Bitcoin",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If you have all these whales holding millions and millions of Bitcoin from the early days",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Having early-day whales hold millions of bitcoins represents a huge risk to Bitcoin, so the speaker does not want them holding anymore and prefers the coins be rinsed and recycled via trading so the price rises as new buyers set higher floors.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "He was like, \"Charlie, I have a real fear that because of AI and because of some other things that were happening like six months ago with the AI trade and tokenized, everything's been tokenized.\" He was like, \"I have a real fear that Bitcoin has hit its peak.\" And I said,",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "3419fb21890d4d876735:9d43580c729b": {
+  "label": "3419fb21890d4d876735",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "the time",
+    "refers_to": "the period in 2013 when the speaker crossed over to Silicon Valley after shutting down BitInstant",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "at the time (of crossing over to Silicon Valley to raise money in 2013)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "When the speaker crossed over to Silicon Valley in 2013 to raise money it was very anti-Bitcoin where no one really liked it though a meetup existed and people like Ben Davenport (then at Facebook working on Messenger) were getting involved before founding BitGo.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "my lawyers called us up immediately said you have to shut down Bit Instant. Like you can't legally operate anymore. So we immediately shut down the company.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "d9212882f9a761106f87:9d43580c729b": {
+  "label": "d9212882f9a761106f87",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "a honeypot targeted by hackers every day",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "Bitcoin being a honeypot hacked every single day",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "testbed for all socioeconomic experiments on how people act and react with money",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "as of the present time (has become)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has become a honeypot that is hacked every day and has therefore become a testbed for socioeconomic experiments regarding how people interact with money.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

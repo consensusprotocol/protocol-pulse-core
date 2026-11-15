@@ -23438,5 +23438,143 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "31aa81983a1e768ed062:be11c5b3faa27758b55f78568c3b0c0037cc9858cab11ada73ac016dfe5ef1d9:cf07dd357db55c5b1451081f53338973af1fb36b572c9257e3bb9054aa4cf771:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "31aa81983a1e768ed062",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "the scenario of whales holding millions of Bitcoin from the early days",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "them",
+     "refers_to": "all these whales",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "the price of Bitcoin",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "If you have all these whales holding millions and millions of Bitcoin from the early days",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Having early-day whales hold millions of bitcoins represents a huge risk to Bitcoin, so the speaker does not want them holding anymore and prefers the coins be rinsed and recycled via trading so the price rises as new buyers set higher floors.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "He was like, \"Charlie, I have a real fear that because of AI and because of some other things that were happening like six months ago with the AI trade and tokenized, everything's been tokenized.\" He was like, \"I have a real fear that Bitcoin has hit its peak.\" And I said,",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "3419fb21890d4d876735:d81c2a5af9e8bac8a363afa76d79078a768ae48c15c31cc5377c883f1bedb564:085a18ece6f43ddb2c7dfea7f4b751c60bc0904135ad3ae5212e209dce3780d2:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "3419fb21890d4d876735",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "the time",
+     "refers_to": "the period in 2013 when the speaker crossed over to Silicon Valley after shutting down BitInstant",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "at the time (of crossing over to Silicon Valley to raise money in 2013)",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "When the speaker crossed over to Silicon Valley in 2013 to raise money it was very anti-Bitcoin where no one really liked it though a meetup existed and people like Ben Davenport (then at Facebook working on Messenger) were getting involved before founding BitGo.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "my lawyers called us up immediately said you have to shut down Bit Instant. Like you can't legally operate anymore. So we immediately shut down the company.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "d9212882f9a761106f87:c1fb905d6579f36f4967d5fd154a633872d6ecc8b13c78d8f9457fbc337f67f3:a49c6c3f49378201e534191bf5c896acc5e40aba6abc5350594771e72a6ab84f:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "d9212882f9a761106f87",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "a honeypot targeted by hackers every day",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "Bitcoin being a honeypot hacked every single day",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this",
+     "refers_to": "testbed for all socioeconomic experiments on how people act and react with money",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "as of the present time (has become)",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin has become a honeypot that is hacked every day and has therefore become a testbed for socioeconomic experiments regarding how people interact with money.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

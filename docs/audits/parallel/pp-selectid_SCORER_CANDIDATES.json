@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-15T14:12:13+00:00",
- "build": "ledger_20261115_141207",
+ "generated_at": "2026-11-15T14:28:46+00:00",
+ "build": "ledger_20261115_142836",
  "kind": "moments",
  "candidates": [
   {
@@ -166,6 +166,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "31aa81983a1e768ed062",
+   "video_id": "vQ3c_lU4NZ4",
+   "channel": "Scott Melker",
+   "duration": 14.16,
+   "text": "If you have all these whales holding millions and millions of Bitcoin from the early days, that to me is a huge risk. I don't want them holding it anymore. Rinse, recycle, repeat, just keep rolling it through. Let that price go up by people buying and selling from each other.",
+   "text_sha256": "be11c5b3faa27758b55f78568c3b0c0037cc9858cab11ada73ac016dfe5ef1d9",
+   "trimmed_leading": null
+  },
+  {
    "pid": "5fc8ff476f13e13d694b",
    "video_id": "Uns8CWWtxBI",
    "channel": "Coin Bureau",
@@ -256,6 +265,24 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "3419fb21890d4d876735",
+   "video_id": "vQ3c_lU4NZ4",
+   "channel": "Scott Melker",
+   "duration": 14.77,
+   "text": "Crossing over, Silicon Valley at the time was very anti -Bitcoin. No one really liked it. There was a Silicon Valley Bitcoin meetup list still around. Guys like Ben Davenport, the founder of BitGo, was actually working at He was a founder of the Facebook Messenger.",
+   "text_sha256": "d81c2a5af9e8bac8a363afa76d79078a768ae48c15c31cc5377c883f1bedb564",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d9212882f9a761106f87",
+   "video_id": "vQ3c_lU4NZ4",
+   "channel": "Scott Melker",
+   "duration": 19.25,
+   "text": "Bitcoin, I've noticed, has become this, because it's this honeypot where people are trying to hack it every single day. figure it out, I don't need to tell you. But because of that, it's become this testbed for all socioeconomic experiments, how people act and react with money.",
+   "text_sha256": "c1fb905d6579f36f4967d5fd154a633872d6ecc8b13c78d8f9457fbc337f67f3",
+   "trimmed_leading": null
+  },
+  {
    "pid": "eb5810dcbbb6fcecc5fa~trim",
    "video_id": "vQ3c_lU4NZ4",
    "channel": "Scott Melker",
@@ -325,15 +352,6 @@
    "duration": 13.9,
    "text": "We joked that we knew Bitcoin was going to make it when there wouldn't be just fun culture of Bitcoin conferences anymore. And the conferences that we first met, like those were so fun. But we used to have having parties. And people still do them.",
    "text_sha256": "c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "f06659b786723fa50e8d",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 19.25,
-   "text": "Bitcoin, I've noticed, has become this, because it's this honeypot where people are trying to hack it every single day. figure it out, I don't need to tell you. But because of that, it's become this testbed for all socioeconomic experiments, how people act and react with money.",
-   "text_sha256": "c1fb905d6579f36f4967d5fd154a633872d6ecc8b13c78d8f9457fbc337f67f3",
    "trimmed_leading": null
   },
   {

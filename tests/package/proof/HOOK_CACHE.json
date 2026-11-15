@@ -526,5 +526,16 @@
    "backend": "heimdall:qwen/qwen3.8-27b",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "d9212882f9a761106f87:c1fb905d6579f36f4967d5fd154a633872d6ecc8b13c78d8f9457fbc337f67f3:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 3,
+   "alone": 2,
+   "setup": 3,
+   "rating": 2,
+   "why": "Multiple 'this' references and 'figure it out, I don't need to tell you' clearly point to prior context, making it feel mid-conversation and weakening standalone clarity.",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }
