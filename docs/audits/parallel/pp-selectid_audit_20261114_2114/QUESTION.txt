@@ -1,0 +1,21 @@
+pp-selectid, RULING 108 (the orchestrator, 21:20 ET Nov 14): "NEW BATCH, 'BATCH 3', STARTS NOW and runs to 21:10 ET
+Nov 15. The old $20 ledger is CLOSED at its present figure... CAP $8.00 for the 24 hours... Budget inside it: builds +
+sealing $4.50, audits $2.50, mining and checks $1.00."
+
+THE CHANGE (tests/package/proof_ly.py and tests/package/test_ruling_102.py):
+- SPEND: the build ledger is now tests/package/proof/SPEND_B3.json, a new file. The closed $20 order's SPEND_LY.json
+  is never written again.
+- LY_LIMIT_USD 20.00 -> 4.50: the Router's limit, which no paid call passes. Each call RESERVES its upper bound while
+  in flight.
+- LY_STOP_USD 19.00 -> 4.00: the stop, at or over which no build starts. A build runs $0.15-0.50, so none ends over
+  $4.50.
+- The test of the stop moves to the new numbers and checks the ledger path.
+
+UNCHANGED GUARDS (you see only the diff):
+- proof_ledger.build_router passes spend_path=PL.SPEND, limit_usd=PL.LY_LIMIT_USD and limit_basis=PL.LY_LIMIT_BASIS
+  ("reported").
+- proof_ledger.start_refused(spent0) refuses when spent0 >= PL.LY_STOP_USD.
+- A missing ledger file is an empty one (Router._ledger), so the batch starts at $0.00.
+
+PLEASE CHECK: (1) Can any build path still write the closed SPEND_LY.json? (2) Are the stop and the limit
+consistent with "never start a build that would end over the cap"? (3) Does the test pin the behaviour?

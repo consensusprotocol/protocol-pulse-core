@@ -17,7 +17,8 @@ is out too. What is left:
 - the second recogniser is ElevenLabs scribe_v1.
 CPU and network only. The inputs are read-only: the saved runs and the main store's transcripts.
 
-SPEND: a ledger of this order's own (tests/package/proof/SPEND_LY.json) holds the price-table estimate beside the
+SPEND: a ledger of this order's own (tests/package/proof/SPEND_B3.json since ruling 108; SPEND_LY.json is the closed
+$20 order's) holds the price-table estimate beside the
 vendors' own figures (xAI cost_in_usd_ticks, Heimdall usage.cost; providers.py). RULING 48 (orchestrator 07:02 Nov 13):
 its guard is LY_LIMIT_USD on VENDOR-REPORTED dollars, the estimate counted only for a call whose vendor reports none
 (Router limit_basis="reported"); at LY_STOP_USD no new build starts (proof_ledger) and the orchestrator is told.
@@ -46,13 +47,13 @@ import speakers as SP  # noqa: E402
 
 REPLIES = os.path.join(HERE, "fixtures", "replies")
 OUT = os.path.join(HERE, "proof")
-SPEND = os.path.join(OUT, "SPEND_LY.json")
-LY_LIMIT_USD = 20.0                # RULING 83 (b) (20:33 Nov 13): $20.00 VENDOR-REPORTED for this order (ruling 48's
-LY_LIMIT_BASIS = "reported"        # $12 before; the old $40 cap by the price-table estimate read ~12x high);
-LY_STOP_USD = 19.0                 # the estimate counts only where a vendor reports none. The orchestrator 13:02 Nov
-                                   # 14: the $16 stop passed with leave; at $19 no build starts and STATE line 1 says
-                                   # so in capitals; no build may end over $20 (the cap: each paid call still RESERVES
-                                   # its price-table upper bound while in flight, and none passes the limit).
+SPEND = os.path.join(OUT, "SPEND_B3.json")   # RULING 108 (orchestrator 21:20 ET Nov 14): BATCH 3 (to 21:10 ET Nov 15)
+#   keeps its own ledger. The $20 order's SPEND_LY.json is CLOSED at $11.47 (restated on ruling 107 Q1's basis, e7f68e11).
+LY_LIMIT_USD = 4.50                # RULING 108: builds + sealing's share of batch 3's $8.00 ALL-IN cap (audits $2.50,
+LY_LIMIT_BASIS = "reported"        # mining and checks $1.00), VENDOR-REPORTED; an abandoned call at the model's own
+LY_STOP_USD = 4.00                 # rate (ruling 107 Q1). No build starts at or over $4.00 (a build runs $0.15-0.50, so
+                                   # none ends over $4.50: each paid call still RESERVES its upper bound while in
+                                   # flight, and none passes the limit); STATE line 1 says so in capitals.
 TABLE = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_LY_RERUN.md")
 DEADLINE_LOG = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_HEIMDALL_DEADLINES.jsonl")   # item 55
 RUNS = ("fresh_20261112_050611", "fresh_20261112_013452", "fresh_20261112_001448", "fresh_20261111_213954",

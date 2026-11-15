@@ -304,11 +304,16 @@ class TestOnThePinAndOnState(unittest.TestCase):
                       line)
         self.assertIn("THE LOCAL JUDGE (RULING 87'S LAST RESORT) GAVE 2 STEP-A VERDICT(S): ['c', 'e']", line)
 
-    def test_no_build_starts_at_19_dollars_and_one_starts_below(self):
-        """The orchestrator 13:02 Nov 14: the $16 stop passed with leave; at $19 stop and say so in capitals."""
-        self.assertIsNone(PLG.start_refused(18.99))
-        why = PLG.start_refused(19.0)
-        self.assertIn("at or over the $19.00 stop: no build starts", why)
+    def test_no_build_starts_at_the_stop_and_one_starts_below(self):
+        """The orchestrator 13:02 Nov 14: at the stop no build starts, and STATE line 1 says so in capitals. RULING 108
+        (21:20 Nov 14): batch 3's builds stop at $4.00 of their $4.50 share."""
+        self.assertEqual((PLG.PL.LY_STOP_USD, PLG.PL.LY_LIMIT_USD), (4.00, 4.50))
+        self.assertEqual(PLG.PL.LY_LIMIT_BASIS, "reported")               # vendor-reported (audit 2114 C1, glm)
+        self.assertGreaterEqual(PLG.PL.LY_LIMIT_USD - PLG.PL.LY_STOP_USD, 0.50)   # one build's headroom (C1, glm)
+        self.assertTrue(PLG.PL.SPEND.endswith("SPEND_B3.json"))          # never the closed $20 ledger again
+        self.assertIsNone(PLG.start_refused(3.99))
+        why = PLG.start_refused(4.0)
+        self.assertIn("at or over the $4.00 stop: no build starts", why)
         self.assertIn("SAY IT ON STATE LINE 1 IN CAPITALS", why)
 
 
