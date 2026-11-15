@@ -428,6 +428,7 @@ def cycle(now=None, limit=PER_CYCLE):
                     busy = gpu_batch(ready[:BATCH])                       # the lease per batch, left after it
                     if busy:                                              # another owner's turn: no row, retried
                         report["blocked"] = f"the GPU1 lease was not free within {LEASE_WAIT_S} s: {busy}"
+                        # ready holds this unworked batch and the jobs behind it (a worked batch is sliced off below)
                         report["blocked_rows"] += len(ready) + sum(len(of[f]) for f in pending)
                         log(f"  lease busy, the cycle stops: {report['blocked']}")
                         for p in pending:
