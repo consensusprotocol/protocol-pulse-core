@@ -971,5 +971,110 @@
    "why": "unclear referent after how it works",
    "backend": "xai:grok-4.20-0309-reasoning"
   }
+ },
+ "bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "both about Bitcoin",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin properties to hacks",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin asset to culture",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "hacks to unchanged properties",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin hacks to culture",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "unclear 'it' after parties",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "parties to Bitcoin security",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "abrupt shift to hacking",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continues no change",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "abrupt shift to hacking",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continues no change",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "dismisses hacks with no change",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "conflicts on Bitcoin change",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "agrees on no change",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "echoes no change",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
  }
 }

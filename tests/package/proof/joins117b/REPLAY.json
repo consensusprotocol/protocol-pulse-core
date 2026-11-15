@@ -1,0 +1,959 @@
+{
+ "ruling": "117 (4), the fill fix",
+ "at": "2026-11-15T22:13:51+00:00",
+ "builds": {
+  "8": {
+   "dir": "ledger_20261115_171913",
+   "cleared": 12,
+   "angles": [
+    {
+     "angle": 1,
+     "hook": "cca27461284b4e2b6569",
+     "writer": [
+      "cca27461284b4e2b6569",
+      "7c2cfccdf5fcf1673b93",
+      "1130ca09a24441488c24",
+      "9a3597d470232a515e09",
+      "e5adf2eca5e7977bb945"
+     ],
+     "rules": {
+      "orders": 200,
+      "pass_rules": 0,
+      "fail_by_rule": {
+       "the hook cannot open": 200
+      },
+      "min_flagged": null,
+      "with_at_most_one_flagged": 0,
+      "nearest": []
+     },
+     "moments": [
+      "cca27461284b4e2b6569",
+      "9a3597d470232a515e09",
+      "e5adf2eca5e7977bb945",
+      "3233deb3f11f3e39d30e",
+      "b6be0c4132fcb2dd8766",
+      "2bca1130b3eceac83ff8"
+     ],
+     "table_pairs": 25,
+     "table_flagged": 7,
+     "error": null,
+     "hook_passes_today": false,
+     "candidates": 0,
+     "best": null,
+     "best_flagged": null,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    },
+    {
+     "angle": 2,
+     "hook": "7ef148a1181168cf14a5",
+     "writer": [
+      "7ef148a1181168cf14a5",
+      "682b6c2606dd13b33a98",
+      "9a3597d470232a515e09",
+      "3233deb3f11f3e39d30e",
+      "1130ca09a24441488c24"
+     ],
+     "rules": {
+      "orders": 200,
+      "pass_rules": 2,
+      "fail_by_rule": {
+       "one segment per channel": 192,
+       "the seconds": 5,
+       "a short clip not last": 1
+      },
+      "min_flagged": 2,
+      "with_at_most_one_flagged": 0,
+      "nearest": [
+       {
+        "lineup": [
+         "7ef148a1181168cf14a5",
+         "2bca1130b3eceac83ff8",
+         "9a3597d470232a515e09"
+        ],
+        "flagged": 2,
+        "joins": [
+         {
+          "pair": "7ef148a1181168cf14a5 -> 2bca1130b3eceac83ff8",
+          "followable": false,
+          "why": "bearish to unrelated culture"
+         },
+         {
+          "pair": "2bca1130b3eceac83ff8 -> 9a3597d470232a515e09",
+          "followable": false,
+          "why": "culture to ETFs"
+         }
+        ]
+       },
+       {
+        "lineup": [
+         "7ef148a1181168cf14a5",
+         "9a3597d470232a515e09",
+         "2bca1130b3eceac83ff8"
+        ],
+        "flagged": 2,
+        "joins": [
+         {
+          "pair": "7ef148a1181168cf14a5 -> 9a3597d470232a515e09",
+          "followable": false,
+          "why": "abrupt market condition shift"
+         },
+         {
+          "pair": "9a3597d470232a515e09 -> 2bca1130b3eceac83ff8",
+          "followable": false,
+          "why": "ETFs to conferences"
+         }
+        ]
+       }
+      ]
+     },
+     "moments": [
+      "7ef148a1181168cf14a5",
+      "9a3597d470232a515e09",
+      "3233deb3f11f3e39d30e",
+      "b6be0c4132fcb2dd8766",
+      "e5adf2eca5e7977bb945",
+      "2bca1130b3eceac83ff8"
+     ],
+     "table_pairs": 25,
+     "table_flagged": 9,
+     "error": null,
+     "hook_passes_today": true,
+     "candidates": 0,
+     "best": null,
+     "best_flagged": null,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    }
+   ]
+  },
+  "9": {
+   "dir": "ledger_20261115_173403",
+   "cleared": 12,
+   "angles": [
+    {
+     "angle": 1,
+     "hook": "cca27461284b4e2b6569",
+     "writer": [
+      "cca27461284b4e2b6569",
+      "7c2cfccdf5fcf1673b93",
+      "3233deb3f11f3e39d30e",
+      "9a3597d470232a515e09",
+      "932ec723eebc680f7b39"
+     ],
+     "rules": {
+      "orders": 200,
+      "pass_rules": 0,
+      "fail_by_rule": {
+       "the hook cannot open": 200
+      },
+      "min_flagged": null,
+      "with_at_most_one_flagged": 0,
+      "nearest": []
+     },
+     "moments": [
+      "cca27461284b4e2b6569",
+      "3233deb3f11f3e39d30e",
+      "9a3597d470232a515e09",
+      "b6be0c4132fcb2dd8766",
+      "e5adf2eca5e7977bb945",
+      "2bca1130b3eceac83ff8"
+     ],
+     "table_pairs": 25,
+     "table_flagged": 7,
+     "error": null,
+     "hook_passes_today": false,
+     "candidates": 0,
+     "best": null,
+     "best_flagged": null,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    },
+    {
+     "angle": 2,
+     "hook": "7ef148a1181168cf14a5",
+     "writer": [
+      "7ef148a1181168cf14a5",
+      "682b6c2606dd13b33a98",
+      "9a3597d470232a515e09",
+      "e5adf2eca5e7977bb945"
+     ],
+     "rules": {
+      "orders": 200,
+      "pass_rules": 2,
+      "fail_by_rule": {
+       "one segment per channel": 192,
+       "the seconds": 5,
+       "a short clip not last": 1
+      },
+      "min_flagged": 2,
+      "with_at_most_one_flagged": 0,
+      "nearest": [
+       {
+        "lineup": [
+         "7ef148a1181168cf14a5",
+         "2bca1130b3eceac83ff8",
+         "9a3597d470232a515e09"
+        ],
+        "flagged": 2,
+        "joins": [
+         {
+          "pair": "7ef148a1181168cf14a5 -> 2bca1130b3eceac83ff8",
+          "followable": false,
+          "why": "bearish to unrelated culture"
+         },
+         {
+          "pair": "2bca1130b3eceac83ff8 -> 9a3597d470232a515e09",
+          "followable": false,
+          "why": "culture to ETFs"
+         }
+        ]
+       },
+       {
+        "lineup": [
+         "7ef148a1181168cf14a5",
+         "9a3597d470232a515e09",
+         "2bca1130b3eceac83ff8"
+        ],
+        "flagged": 2,
+        "joins": [
+         {
+          "pair": "7ef148a1181168cf14a5 -> 9a3597d470232a515e09",
+          "followable": false,
+          "why": "abrupt market condition shift"
+         },
+         {
+          "pair": "9a3597d470232a515e09 -> 2bca1130b3eceac83ff8",
+          "followable": false,
+          "why": "ETFs to conferences"
+         }
+        ]
+       }
+      ]
+     },
+     "moments": [
+      "7ef148a1181168cf14a5",
+      "9a3597d470232a515e09",
+      "e5adf2eca5e7977bb945",
+      "3233deb3f11f3e39d30e",
+      "b6be0c4132fcb2dd8766",
+      "2bca1130b3eceac83ff8"
+     ],
+     "table_pairs": 25,
+     "table_flagged": 9,
+     "error": null,
+     "hook_passes_today": true,
+     "candidates": 0,
+     "best": null,
+     "best_flagged": null,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    }
+   ]
+  },
+  "10": {
+   "dir": "ledger_20261115_174656",
+   "cleared": 12,
+   "angles": [
+    {
+     "angle": 1,
+     "hook": "cca27461284b4e2b6569",
+     "writer": [
+      "cca27461284b4e2b6569",
+      "7c2cfccdf5fcf1673b93",
+      "3233deb3f11f3e39d30e",
+      "9a3597d470232a515e09",
+      "932ec723eebc680f7b39"
+     ],
+     "rules": {
+      "orders": 200,
+      "pass_rules": 0,
+      "fail_by_rule": {
+       "the hook cannot open": 200
+      },
+      "min_flagged": null,
+      "with_at_most_one_flagged": 0,
+      "nearest": []
+     },
+     "moments": [
+      "cca27461284b4e2b6569",
+      "3233deb3f11f3e39d30e",
+      "9a3597d470232a515e09",
+      "b6be0c4132fcb2dd8766",
+      "e5adf2eca5e7977bb945",
+      "2bca1130b3eceac83ff8"
+     ],
+     "table_pairs": 25,
+     "table_flagged": 7,
+     "error": null,
+     "hook_passes_today": false,
+     "candidates": 0,
+     "best": null,
+     "best_flagged": null,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    },
+    {
+     "angle": 2,
+     "hook": "7ef148a1181168cf14a5",
+     "writer": [
+      "7ef148a1181168cf14a5",
+      "682b6c2606dd13b33a98",
+      "9a3597d470232a515e09",
+      "e5adf2eca5e7977bb945"
+     ],
+     "rules": {
+      "orders": 200,
+      "pass_rules": 2,
+      "fail_by_rule": {
+       "one segment per channel": 192,
+       "the seconds": 5,
+       "a short clip not last": 1
+      },
+      "min_flagged": 2,
+      "with_at_most_one_flagged": 0,
+      "nearest": [
+       {
+        "lineup": [
+         "7ef148a1181168cf14a5",
+         "2bca1130b3eceac83ff8",
+         "9a3597d470232a515e09"
+        ],
+        "flagged": 2,
+        "joins": [
+         {
+          "pair": "7ef148a1181168cf14a5 -> 2bca1130b3eceac83ff8",
+          "followable": false,
+          "why": "bearish to unrelated culture"
+         },
+         {
+          "pair": "2bca1130b3eceac83ff8 -> 9a3597d470232a515e09",
+          "followable": false,
+          "why": "culture to ETFs"
+         }
+        ]
+       },
+       {
+        "lineup": [
+         "7ef148a1181168cf14a5",
+         "9a3597d470232a515e09",
+         "2bca1130b3eceac83ff8"
+        ],
+        "flagged": 2,
+        "joins": [
+         {
+          "pair": "7ef148a1181168cf14a5 -> 9a3597d470232a515e09",
+          "followable": false,
+          "why": "abrupt market condition shift"
+         },
+         {
+          "pair": "9a3597d470232a515e09 -> 2bca1130b3eceac83ff8",
+          "followable": false,
+          "why": "ETFs to conferences"
+         }
+        ]
+       }
+      ]
+     },
+     "moments": [
+      "7ef148a1181168cf14a5",
+      "9a3597d470232a515e09",
+      "e5adf2eca5e7977bb945",
+      "3233deb3f11f3e39d30e",
+      "b6be0c4132fcb2dd8766",
+      "2bca1130b3eceac83ff8"
+     ],
+     "table_pairs": 25,
+     "table_flagged": 9,
+     "error": null,
+     "hook_passes_today": true,
+     "candidates": 0,
+     "best": null,
+     "best_flagged": null,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    }
+   ]
+  },
+  "11": {
+   "dir": "ledger_20261115_195152",
+   "cleared": 14,
+   "angles": [
+    {
+     "angle": 1,
+     "hook": "9cc94b736f4ce0d70b91",
+     "writer": [
+      "9cc94b736f4ce0d70b91",
+      "9a3597d470232a515e09",
+      "2bca1130b3eceac83ff8",
+      "6df120f5a0b0f17da0db"
+     ],
+     "rules": {
+      "orders": 1092,
+      "pass_rules": 4,
+      "fail_by_rule": {
+       "one segment per channel": 1016,
+       "a short clip not last": 49,
+       "the seconds": 23
+      },
+      "min_flagged": 2,
+      "with_at_most_one_flagged": 0,
+      "nearest": [
+       {
+        "lineup": [
+         "9cc94b736f4ce0d70b91",
+         "9a3597d470232a515e09",
+         "2bca1130b3eceac83ff8",
+         "6df120f5a0b0f17da0db"
+        ],
+        "flagged": 2,
+        "joins": [
+         {
+          "pair": "9cc94b736f4ce0d70b91 -> 9a3597d470232a515e09",
+          "followable": true,
+          "why": "continuous Bitcoin discussion"
+         },
+         {
+          "pair": "9a3597d470232a515e09 -> 2bca1130b3eceac83ff8",
+          "followable": false,
+          "why": "ETFs to conferences"
+         },
+         {
+          "pair": "2bca1130b3eceac83ff8 -> 6df120f5a0b0f17da0db",
+          "followable": false,
+          "why": "culture to fundamentals"
+         }
+        ]
+       },
+       {
+        "lineup": [
+         "9cc94b736f4ce0d70b91",
+         "9a3597d470232a515e09",
+         "2bca1130b3eceac83ff8",
+         "94a613f35c4ed30c9980"
+        ],
+        "flagged": 2,
+        "joins": [
+         {
+          "pair": "9cc94b736f4ce0d70b91 -> 9a3597d470232a515e09",
+          "followable": true,
+          "why": "continuous Bitcoin discussion"
+         },
+         {
+          "pair": "9a3597d470232a515e09 -> 2bca1130b3eceac83ff8",
+          "followable": false,
+          "why": "ETFs to conferences"
+         },
+         {
+          "pair": "2bca1130b3eceac83ff8 -> 94a613f35c4ed30c9980",
+          "followable": false,
+          "why": "culture to no change"
+         }
+        ]
+       },
+       {
+        "lineup": [
+         "9cc94b736f4ce0d70b91",
+         "2bca1130b3eceac83ff8",
+         "9a3597d470232a515e09",
+         "6df120f5a0b0f17da0db"
+        ],
+        "flagged": 3,
+        "joins": [
+         {
+          "pair": "9cc94b736f4ce0d70b91 -> 2bca1130b3eceac83ff8",
+          "followable": false,
+          "why": "purchasing power to culture"
+         },
+         {
+          "pair": "2bca1130b3eceac83ff8 -> 9a3597d470232a515e09",
+          "followable": false,
+          "why": "culture to ETFs"
+         },
+         {
+          "pair": "9a3597d470232a515e09 -> 6df120f5a0b0f17da0db",
+          "followable": false,
+          "why": "ETFs to fundamentals"
+         }
+        ]
+       }
+      ]
+     },
+     "moments": [
+      "9cc94b736f4ce0d70b91",
+      "9a3597d470232a515e09",
+      "2bca1130b3eceac83ff8",
+      "6df120f5a0b0f17da0db",
+      "94a613f35c4ed30c9980",
+      "3233deb3f11f3e39d30e",
+      "b6be0c4132fcb2dd8766",
+      "e5adf2eca5e7977bb945"
+     ],
+     "table_pairs": 49,
+     "table_flagged": 23,
+     "error": null,
+     "hook_passes_today": true,
+     "candidates": 0,
+     "best": null,
+     "best_flagged": null,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    },
+    {
+     "angle": 2,
+     "hook": "7ef148a1181168cf14a5",
+     "writer": [
+      "7ef148a1181168cf14a5",
+      "3233deb3f11f3e39d30e",
+      "9a3597d470232a515e09",
+      "94a613f35c4ed30c9980"
+     ],
+     "rules": {
+      "orders": 1092,
+      "pass_rules": 14,
+      "fail_by_rule": {
+       "one segment per channel": 1016,
+       "a short clip not last": 49,
+       "the seconds": 13
+      },
+      "min_flagged": 1,
+      "with_at_most_one_flagged": 1,
+      "nearest": [
+       {
+        "lineup": [
+         "7ef148a1181168cf14a5",
+         "9a3597d470232a515e09",
+         "b6be0c4132fcb2dd8766",
+         "6df120f5a0b0f17da0db"
+        ],
+        "flagged": 1,
+        "joins": [
+         {
+          "pair": "7ef148a1181168cf14a5 -> 9a3597d470232a515e09",
+          "followable": false,
+          "why": "abrupt market condition shift"
+         },
+         {
+          "pair": "9a3597d470232a515e09 -> b6be0c4132fcb2dd8766",
+          "followable": true,
+          "why": "Bitcoin subject clear"
+         },
+         {
+          "pair": "b6be0c4132fcb2dd8766 -> 6df120f5a0b0f17da0db",
+          "followable": true,
+          "why": "dismisses hacks with no change"
+         }
+        ]
+       },
+       {
+        "lineup": [
+         "7ef148a1181168cf14a5",
+         "2bca1130b3eceac83ff8",
+         "9a3597d470232a515e09"
+        ],
+        "flagged": 2,
+        "joins": [
+         {
+          "pair": "7ef148a1181168cf14a5 -> 2bca1130b3eceac83ff8",
+          "followable": false,
+          "why": "bearish to unrelated culture"
+         },
+         {
+          "pair": "2bca1130b3eceac83ff8 -> 9a3597d470232a515e09",
+          "followable": false,
+          "why": "culture to ETFs"
+         }
+        ]
+       },
+       {
+        "lineup": [
+         "7ef148a1181168cf14a5",
+         "3233deb3f11f3e39d30e",
+         "9a3597d470232a515e09",
+         "6df120f5a0b0f17da0db"
+        ],
+        "flagged": 2,
+        "joins": [
+         {
+          "pair": "7ef148a1181168cf14a5 -> 3233deb3f11f3e39d30e",
+          "followable": false,
+          "why": "abrupt market condition shift"
+         },
+         {
+          "pair": "3233deb3f11f3e39d30e -> 9a3597d470232a515e09",
+          "followable": true,
+          "why": "continuous Bitcoin discussion"
+         },
+         {
+          "pair": "9a3597d470232a515e09 -> 6df120f5a0b0f17da0db",
+          "followable": false,
+          "why": "ETFs to fundamentals"
+         }
+        ]
+       }
+      ]
+     },
+     "moments": [
+      "7ef148a1181168cf14a5",
+      "3233deb3f11f3e39d30e",
+      "9a3597d470232a515e09",
+      "94a613f35c4ed30c9980",
+      "6df120f5a0b0f17da0db",
+      "b6be0c4132fcb2dd8766",
+      "e5adf2eca5e7977bb945",
+      "2bca1130b3eceac83ff8"
+     ],
+     "table_pairs": 49,
+     "table_flagged": 24,
+     "error": null,
+     "hook_passes_today": true,
+     "candidates": 1,
+     "best": [
+      "7ef148a1181168cf14a5",
+      "9a3597d470232a515e09",
+      "b6be0c4132fcb2dd8766",
+      "6df120f5a0b0f17da0db"
+     ],
+     "best_flagged": 1,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    }
+   ]
+  },
+  "12": {
+   "dir": "ledger_20261115_210714",
+   "cleared": 14,
+   "angles": [
+    {
+     "angle": 1,
+     "hook": "9cc94b736f4ce0d70b91",
+     "writer": [
+      "9cc94b736f4ce0d70b91",
+      "9a3597d470232a515e09",
+      "2bca1130b3eceac83ff8",
+      "6df120f5a0b0f17da0db"
+     ],
+     "rules": {
+      "orders": 1092,
+      "pass_rules": 4,
+      "fail_by_rule": {
+       "one segment per channel": 1016,
+       "a short clip not last": 49,
+       "the seconds": 23
+      },
+      "min_flagged": 2,
+      "with_at_most_one_flagged": 0,
+      "nearest": [
+       {
+        "lineup": [
+         "9cc94b736f4ce0d70b91",
+         "9a3597d470232a515e09",
+         "2bca1130b3eceac83ff8",
+         "6df120f5a0b0f17da0db"
+        ],
+        "flagged": 2,
+        "joins": [
+         {
+          "pair": "9cc94b736f4ce0d70b91 -> 9a3597d470232a515e09",
+          "followable": true,
+          "why": "continuous Bitcoin discussion"
+         },
+         {
+          "pair": "9a3597d470232a515e09 -> 2bca1130b3eceac83ff8",
+          "followable": false,
+          "why": "ETFs to conferences"
+         },
+         {
+          "pair": "2bca1130b3eceac83ff8 -> 6df120f5a0b0f17da0db",
+          "followable": false,
+          "why": "culture to fundamentals"
+         }
+        ]
+       },
+       {
+        "lineup": [
+         "9cc94b736f4ce0d70b91",
+         "9a3597d470232a515e09",
+         "2bca1130b3eceac83ff8",
+         "94a613f35c4ed30c9980"
+        ],
+        "flagged": 2,
+        "joins": [
+         {
+          "pair": "9cc94b736f4ce0d70b91 -> 9a3597d470232a515e09",
+          "followable": true,
+          "why": "continuous Bitcoin discussion"
+         },
+         {
+          "pair": "9a3597d470232a515e09 -> 2bca1130b3eceac83ff8",
+          "followable": false,
+          "why": "ETFs to conferences"
+         },
+         {
+          "pair": "2bca1130b3eceac83ff8 -> 94a613f35c4ed30c9980",
+          "followable": false,
+          "why": "culture to no change"
+         }
+        ]
+       },
+       {
+        "lineup": [
+         "9cc94b736f4ce0d70b91",
+         "2bca1130b3eceac83ff8",
+         "9a3597d470232a515e09",
+         "6df120f5a0b0f17da0db"
+        ],
+        "flagged": 3,
+        "joins": [
+         {
+          "pair": "9cc94b736f4ce0d70b91 -> 2bca1130b3eceac83ff8",
+          "followable": false,
+          "why": "purchasing power to culture"
+         },
+         {
+          "pair": "2bca1130b3eceac83ff8 -> 9a3597d470232a515e09",
+          "followable": false,
+          "why": "culture to ETFs"
+         },
+         {
+          "pair": "9a3597d470232a515e09 -> 6df120f5a0b0f17da0db",
+          "followable": false,
+          "why": "ETFs to fundamentals"
+         }
+        ]
+       }
+      ]
+     },
+     "moments": [
+      "9cc94b736f4ce0d70b91",
+      "9a3597d470232a515e09",
+      "2bca1130b3eceac83ff8",
+      "6df120f5a0b0f17da0db",
+      "94a613f35c4ed30c9980",
+      "3233deb3f11f3e39d30e",
+      "b6be0c4132fcb2dd8766",
+      "e5adf2eca5e7977bb945"
+     ],
+     "table_pairs": 49,
+     "table_flagged": 23,
+     "error": null,
+     "hook_passes_today": true,
+     "candidates": 0,
+     "best": null,
+     "best_flagged": null,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    },
+    {
+     "angle": 2,
+     "hook": "7ef148a1181168cf14a5",
+     "writer": [
+      "7ef148a1181168cf14a5",
+      "3233deb3f11f3e39d30e",
+      "9a3597d470232a515e09",
+      "94a613f35c4ed30c9980"
+     ],
+     "rules": {
+      "orders": 1092,
+      "pass_rules": 14,
+      "fail_by_rule": {
+       "one segment per channel": 1016,
+       "a short clip not last": 49,
+       "the seconds": 13
+      },
+      "min_flagged": 1,
+      "with_at_most_one_flagged": 1,
+      "nearest": [
+       {
+        "lineup": [
+         "7ef148a1181168cf14a5",
+         "9a3597d470232a515e09",
+         "b6be0c4132fcb2dd8766",
+         "6df120f5a0b0f17da0db"
+        ],
+        "flagged": 1,
+        "joins": [
+         {
+          "pair": "7ef148a1181168cf14a5 -> 9a3597d470232a515e09",
+          "followable": false,
+          "why": "abrupt market condition shift"
+         },
+         {
+          "pair": "9a3597d470232a515e09 -> b6be0c4132fcb2dd8766",
+          "followable": true,
+          "why": "Bitcoin subject clear"
+         },
+         {
+          "pair": "b6be0c4132fcb2dd8766 -> 6df120f5a0b0f17da0db",
+          "followable": true,
+          "why": "dismisses hacks with no change"
+         }
+        ]
+       },
+       {
+        "lineup": [
+         "7ef148a1181168cf14a5",
+         "2bca1130b3eceac83ff8",
+         "9a3597d470232a515e09"
+        ],
+        "flagged": 2,
+        "joins": [
+         {
+          "pair": "7ef148a1181168cf14a5 -> 2bca1130b3eceac83ff8",
+          "followable": false,
+          "why": "bearish to unrelated culture"
+         },
+         {
+          "pair": "2bca1130b3eceac83ff8 -> 9a3597d470232a515e09",
+          "followable": false,
+          "why": "culture to ETFs"
+         }
+        ]
+       },
+       {
+        "lineup": [
+         "7ef148a1181168cf14a5",
+         "3233deb3f11f3e39d30e",
+         "9a3597d470232a515e09",
+         "6df120f5a0b0f17da0db"
+        ],
+        "flagged": 2,
+        "joins": [
+         {
+          "pair": "7ef148a1181168cf14a5 -> 3233deb3f11f3e39d30e",
+          "followable": false,
+          "why": "abrupt market condition shift"
+         },
+         {
+          "pair": "3233deb3f11f3e39d30e -> 9a3597d470232a515e09",
+          "followable": true,
+          "why": "continuous Bitcoin discussion"
+         },
+         {
+          "pair": "9a3597d470232a515e09 -> 6df120f5a0b0f17da0db",
+          "followable": false,
+          "why": "ETFs to fundamentals"
+         }
+        ]
+       }
+      ]
+     },
+     "moments": [
+      "7ef148a1181168cf14a5",
+      "3233deb3f11f3e39d30e",
+      "9a3597d470232a515e09",
+      "94a613f35c4ed30c9980",
+      "6df120f5a0b0f17da0db",
+      "b6be0c4132fcb2dd8766",
+      "e5adf2eca5e7977bb945",
+      "2bca1130b3eceac83ff8"
+     ],
+     "table_pairs": 49,
+     "table_flagged": 24,
+     "error": null,
+     "hook_passes_today": true,
+     "candidates": 1,
+     "best": [
+      "7ef148a1181168cf14a5",
+      "9a3597d470232a515e09",
+      "b6be0c4132fcb2dd8766",
+      "6df120f5a0b0f17da0db"
+     ],
+     "best_flagged": 1,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    }
+   ]
+  }
+ },
+ "agreement": {
+  "pairs": 38,
+  "agree": 28,
+  "table_unanswered": 0,
+  "verdict_mixed": 0,
+  "disagree": [
+   {
+    "build": "11",
+    "pair": "9cc94b736f4ce0d70b91 -> 9a3597d470232a515e09",
+    "table": true,
+    "verdict": false,
+    "table_why": "continuous Bitcoin discussion"
+   },
+   {
+    "build": "11",
+    "pair": "3233deb3f11f3e39d30e -> 9a3597d470232a515e09",
+    "table": true,
+    "verdict": false,
+    "table_why": "continuous Bitcoin discussion"
+   },
+   {
+    "build": "11",
+    "pair": "3233deb3f11f3e39d30e -> 9a3597d470232a515e09",
+    "table": true,
+    "verdict": false,
+    "table_why": "continuous Bitcoin discussion"
+   },
+   {
+    "build": "12",
+    "pair": "9cc94b736f4ce0d70b91 -> 9a3597d470232a515e09",
+    "table": true,
+    "verdict": false,
+    "table_why": "continuous Bitcoin discussion"
+   },
+   {
+    "build": "12",
+    "pair": "3233deb3f11f3e39d30e -> 9a3597d470232a515e09",
+    "table": true,
+    "verdict": false,
+    "table_why": "continuous Bitcoin discussion"
+   },
+   {
+    "build": "12",
+    "pair": "3233deb3f11f3e39d30e -> 94a613f35c4ed30c9980",
+    "table": false,
+    "verdict": true,
+    "table_why": "no connection"
+   },
+   {
+    "build": "12",
+    "pair": "9a3597d470232a515e09 -> b6be0c4132fcb2dd8766",
+    "table": true,
+    "verdict": false,
+    "table_why": "Bitcoin subject clear"
+   },
+   {
+    "build": "12",
+    "pair": "3233deb3f11f3e39d30e -> 9a3597d470232a515e09",
+    "table": true,
+    "verdict": false,
+    "table_why": "continuous Bitcoin discussion"
+   },
+   {
+    "build": "12",
+    "pair": "3233deb3f11f3e39d30e -> 94a613f35c4ed30c9980",
+    "table": false,
+    "verdict": true,
+    "table_why": "no connection"
+   },
+   {
+    "build": "12",
+    "pair": "9a3597d470232a515e09 -> b6be0c4132fcb2dd8766",
+    "table": true,
+    "verdict": false,
+    "table_why": "Bitcoin subject clear"
+   }
+  ]
+ },
+ "ruling_113_6_inside_12h": 0,
+ "spent_usd_reported": 0.153319
+}
