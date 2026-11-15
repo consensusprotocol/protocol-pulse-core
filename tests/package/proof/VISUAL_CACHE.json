@@ -948,6 +948,85 @@
   },
   "version": "visual-1"
  },
+ "9cc94b736f4ce0d70b91:2355.079-2359.079:visual-3:dee48eb9f7b780d1": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     2355.08,
+     2356.08,
+     2357.08,
+     2358.08,
+     2359.03
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "bug",
+    "text": "SIMPLY BITCOIN",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     2355.08,
+     2356.08,
+     2357.08,
+     2358.08,
+     2359.03
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "ON AIR",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "whole",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "SIMPLY BITCOIN"
+   },
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "ON AIR"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_15d81a9e84ea0071.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_15d81a9e84ea0071.jpg",
+   "sha256": "15d81a9e84ea00715fdf38dbfceeb3227a9bcd440d34092be4482fd7134e314e",
+   "times": [
+    2355.08,
+    2356.08,
+    2357.08,
+    2358.08,
+    2359.03
+   ]
+  },
+  "third_person": {
+   "finding": "The only other people on screen are live video participants in the show, not a still, photo, or graphic, and the spoken words make no negative claim.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2520,
+   "out": 7899,
+   "usd_reported": 0.050706
+  },
+  "version": "visual-3"
+ },
  "a5f5a1d5d1e5482718f6:937.971-957.291:visual-1:3d4e338e3629af5e": {
   "backend": "xai_vision:grok-4.7",
   "flags": [],

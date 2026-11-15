@@ -1,0 +1,224 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "da40a5d78df1d09d87a63b423faf266c4a63ac797a104a38a33bd32203fa4540",
+ "result": {
+  "text": "I don't know all the ins and outs of what brought the price down. Truth is, I don't care because the fundamentals of Bitcoin didn't change at all. So my in- my in-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.32,
+    "end": 9.64,
+    "text": "I don't know all the ins and outs of what brought the price down. Truth is, I don't care because the fundamentals of Bitcoin didn't change at all. So my in- my in-"
+   }
+  ],
+  "words": [
+   {
+    "text": "I",
+    "start": 0.32,
+    "end": 0.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 0.4,
+    "end": 0.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 0.68,
+    "end": 1.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 1.2,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.42,
+    "end": 1.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ins",
+    "start": 1.66,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.96,
+    "end": 2.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outs",
+    "start": 2.14,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.4,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 2.54,
+    "end": 2.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "brought",
+    "start": 2.78,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.04,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 3.18,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down.",
+    "start": 3.52,
+    "end": 3.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Truth",
+    "start": 4.0,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is,",
+    "start": 4.26,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.48,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 4.54,
+    "end": 4.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "care",
+    "start": 4.84,
+    "end": 5.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 5.44,
+    "end": 5.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.74,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fundamentals",
+    "start": 5.96,
+    "end": 6.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 6.72,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.88,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "didn't",
+    "start": 7.3,
+    "end": 7.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "change",
+    "start": 7.58,
+    "end": 7.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 7.88,
+    "end": 7.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all.",
+    "start": 8.02,
+    "end": 8.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 8.62,
+    "end": 8.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 8.8,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in-",
+    "start": 8.98,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 9.42,
+    "end": 9.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in-",
+    "start": 9.56,
+    "end": 9.64,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 9.72
+ },
+ "usd": 0.001944,
+ "seconds": 0.85,
+ "recorded_at": "2026-11-15T19:53:58Z"
+}

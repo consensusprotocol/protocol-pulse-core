@@ -1,0 +1,344 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "20c8ba2bac1a4a28228e97f6d01ddafaead00016af779ba3b323d39b0a43b0d2",
+ "result": {
+  "text": "Yeah, looks like, uh, china's going up, and, uh, euro, japan, germany this is the, the big thesis of course as we go through it is as the governments, plural continue to de- debase the currency, this is why we invest into, uh, bitcoin. so it makes a lot of sense even though,",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.22,
+    "end": 14.3,
+    "text": "Yeah, looks like, uh, china's going up, and, uh, euro, japan, germany this is the, the big thesis of course as we go through it is as the governments, plural continue to de- debase the currency, this is why we invest into, uh, bitcoin. so it makes a lot of sense even though,"
+   }
+  ],
+  "words": [
+   {
+    "text": "Yeah,",
+    "start": 0.22,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "looks",
+    "start": 0.38,
+    "end": 0.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 0.6,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 0.88,
+    "end": 0.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "china's",
+    "start": 1.06,
+    "end": 1.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 1.38,
+    "end": 1.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up,",
+    "start": 1.68,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and,",
+    "start": 1.98,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 2.38,
+    "end": 2.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "euro,",
+    "start": 2.64,
+    "end": 2.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "japan,",
+    "start": 3.1,
+    "end": 3.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "germany",
+    "start": 3.4,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 3.98,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 4.14,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the,",
+    "start": 4.3,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.68,
+    "end": 4.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "big",
+    "start": 4.78,
+    "end": 4.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thesis",
+    "start": 4.98,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 5.92,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "course",
+    "start": 6.04,
+    "end": 6.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 6.36,
+    "end": 6.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 6.48,
+    "end": 6.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 6.6,
+    "end": 6.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "through",
+    "start": 6.74,
+    "end": 6.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 6.9,
+    "end": 6.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 7.0,
+    "end": 7.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 7.28,
+    "end": 7.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.44,
+    "end": 7.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "governments,",
+    "start": 7.7,
+    "end": 8.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "plural",
+    "start": 8.62,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "continue",
+    "start": 9.42,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 9.76,
+    "end": 9.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "de-",
+    "start": 9.8,
+    "end": 9.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "debase",
+    "start": 9.98,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.3,
+    "end": 10.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "currency,",
+    "start": 10.42,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 10.82,
+    "end": 10.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 11.0,
+    "end": 11.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 11.16,
+    "end": 11.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 11.38,
+    "end": 11.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "invest",
+    "start": 11.48,
+    "end": 11.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into,",
+    "start": 11.9,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 12.4,
+    "end": 12.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bitcoin.",
+    "start": 12.62,
+    "end": 13.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 13.08,
+    "end": 13.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 13.2,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "makes",
+    "start": 13.28,
+    "end": 13.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 13.44,
+    "end": 13.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot",
+    "start": 13.48,
+    "end": 13.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 13.6,
+    "end": 13.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sense",
+    "start": 13.72,
+    "end": 13.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "even",
+    "start": 14.0,
+    "end": 14.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "though,",
+    "start": 14.16,
+    "end": 14.3,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.44
+ },
+ "usd": 0.002888,
+ "seconds": 1.83,
+ "recorded_at": "2026-11-15T19:54:04Z"
+}

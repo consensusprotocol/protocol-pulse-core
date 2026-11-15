@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-15T17:47:08+00:00",
- "build": "ledger_20261115_174656",
+ "generated_at": "2026-11-15T19:52:06+00:00",
+ "build": "ledger_20261115_195152",
  "kind": "moments",
  "candidates": [
   {
@@ -10,6 +10,15 @@
    "duration": 6.22,
    "text": "But there's only 21 million Bitcoin that will ever be. There aren't enough millionaires in America for every millionaire to own one Bitcoin.",
    "text_sha256": "0f02e3d9c54aa2dc0825126c02fcff33d882e95c311d365f2fa6bf575a7a7769",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "9b7d3f818bb0063f8db3",
+   "video_id": "Sps9le2Z5RI",
+   "channel": "Digital Asset News",
+   "duration": 5.86,
+   "text": "So the halving sets the clock. Liquidity sets the size of how big things become.",
+   "text_sha256": "04ab9f036360eefbd70cec972f72d5509c25715aea12e867d0e4f0ba2a26ac36",
    "trimmed_leading": null
   },
   {
@@ -121,6 +130,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "9655dbc9f24373efbe78",
+   "video_id": "Sps9le2Z5RI",
+   "channel": "Digital Asset News",
+   "duration": 9.97,
+   "text": "So my investment thesis for Bitcoin at 80 is the same as it is for Bitcoin at 62. Yeah, it's just that you're getting it cheaper.",
+   "text_sha256": "518d8c2a7cd40370025042f63ebcd2c3655d4dbcf7e55a4d1d75ca149049b3cc",
+   "trimmed_leading": null
+  },
+  {
    "pid": "03b64c9ceb3fbe7b05a4",
    "video_id": "vQ3c_lU4NZ4",
    "channel": "Scott Melker",
@@ -173,6 +191,15 @@
    "text": "there's only 21 million Bitcoin that will ever be. There aren't enough millionaires in America for every millionaire to own one Bitcoin.",
    "text_sha256": "95ae8934799b4d9b7dacc26f245cbf8f0030f2de4bef4745b8f92390402f33e3",
    "trimmed_leading": "But"
+  },
+  {
+   "pid": "9b7d3f818bb0063f8db3~trim",
+   "video_id": "Sps9le2Z5RI",
+   "channel": "Digital Asset News",
+   "duration": 5.84,
+   "text": "the halving sets the clock. Liquidity sets the size of how big things become.",
+   "text_sha256": "26338b6e238ae7294b6bafc8394e6e488dfb28374018c9240409eb15a7162299",
+   "trimmed_leading": "So"
   },
   {
    "pid": "1e7201cf2ce31682f4e1~trim",
@@ -256,6 +283,15 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "9655dbc9f24373efbe78~trim",
+   "video_id": "Sps9le2Z5RI",
+   "channel": "Digital Asset News",
+   "duration": 9.89,
+   "text": "my investment thesis for Bitcoin at 80 is the same as it is for Bitcoin at 62. Yeah, it's just that you're getting it cheaper.",
+   "text_sha256": "75b97a4543b9cf1947995ffbf379f5593f7209da9efe04d76633733859bbf392",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "03b64c9ceb3fbe7b05a4~trim",
    "video_id": "vQ3c_lU4NZ4",
    "channel": "Scott Melker",
@@ -292,6 +328,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "b8abe1a37706c77584b8",
+   "video_id": "Sps9le2Z5RI",
+   "channel": "Digital Asset News",
+   "duration": 8.94,
+   "text": "This is the big thesis, of course, as we go through it, as the government's plural, you know, debase the currency. This is why we invest into Bitcoin.",
+   "text_sha256": "6cb042ac497470318b0103b2125a0c7c3b447be44d2872bcc8c5eb1334ab1023",
+   "trimmed_leading": null
+  },
+  {
    "pid": "18d01e94a31cff680a98",
    "video_id": "4eEZCJVl83w",
    "channel": "Simply Bitcoin",
@@ -307,6 +352,15 @@
    "duration": 4.56,
    "text": "This year we raised nearly $22 billion. This is a bad year.",
    "text_sha256": "284961cd81d2fc02fab395a9cad0fe898e4c3bfb5637fcb20b4446aedbefad57",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "4376fc1598efa1cfd080",
+   "video_id": "Sps9le2Z5RI",
+   "channel": "Digital Asset News",
+   "duration": 18.43,
+   "text": "It'll happen in little pockets for little things. But on mass, we're not going to see the kind of liquidity event like we saw with COVID. And that was a major catalyst for Bitcoin's ascension beyond. That $20,000 range into where we are now.",
+   "text_sha256": "eae561d0bbb7da745a9595fc5245798fe8d3ed6d7af6cc6be7a1af82e55c6270",
    "trimmed_leading": null
   },
   {
@@ -328,6 +382,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "b57d4219246dc69c9f76",
+   "video_id": "Sps9le2Z5RI",
+   "channel": "Digital Asset News",
+   "duration": 14.08,
+   "text": "Bitcoin in 2009 will be between $10 and $20 million. Somewhere in between that range is what it is. So take this with a grain of salt. But as far as the next bull run starting, we'll take a look at a little bit of past history.",
+   "text_sha256": "deefac71e12a3b105c1b834eb15b88abce63fafc144b46f6b94f4ba8709677af",
+   "trimmed_leading": null
+  },
+  {
    "pid": "08fa8168c86b553ac4b5~trim",
    "video_id": "vQ3c_lU4NZ4",
    "channel": "Scott Melker",
@@ -346,12 +409,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "b5307a9f2f5b27d4183c",
+   "video_id": "Sps9le2Z5RI",
+   "channel": "Digital Asset News",
+   "duration": 14.6,
+   "text": "Truth is I don't care because the fundamentals of Bitcoin didn't change at all. So my investment thesis for Bitcoin at 80 is the same as it is for Bitcoin at 62. Yeah, it's just that you're getting it cheaper.",
+   "text_sha256": "b29823cc30264138d4b5e0ea6b874f0aed8a90d1f9de893bb40080932f5db636",
+   "trimmed_leading": null
+  },
+  {
    "pid": "5fc8ff476f13e13d694b",
    "video_id": "Uns8CWWtxBI",
    "channel": "Coin Bureau",
    "duration": 17.13,
    "text": "In fact, more than 80 % of all the money invested in u.s spot bitcoin ets is held in funds that name coinbase as one of their custodians. So that first yes in New York, a license to hold other people's crypto, grew into the business holding the Bitcoin behind most of America's ETF market.",
    "text_sha256": "b939c8320fd8245f2da0f42ad5f485912922e693cf3003de8854a22e2e10b1bc",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "2f7f1c8156383191d651",
+   "video_id": "Sps9le2Z5RI",
+   "channel": "Digital Asset News",
+   "duration": 21.78,
+   "text": "If everything holds up, I know a lot of people don't believe in the four -year cycles, even though this is kind of what's happening as far as like bottoms go. But we need the Fed to quantitative ease again. And like Jerry talked about, is putting that on the balance sheet. So the halving sets the clock. Liquidity sets the size of how big things become. Jerry, thoughts on this one.",
+   "text_sha256": "531aa1a244a62536051c06896b38459ae13654bd7ec4e88eb909d2d0e80d2564",
    "trimmed_leading": null
   },
   {
@@ -472,6 +553,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "6eb1fc10411990f5a328",
+   "video_id": "Sps9le2Z5RI",
+   "channel": "Digital Asset News",
+   "duration": 30.96,
+   "text": "The first part of that question, I think it's simply stated, Bitcoin has been for a very long time and will continue to be for a while longer, a speculative asset. Meaning a tremendous amount of the energy behind it going forward or appreciating higher is liquidity. And liquidity, unfortunately, is foundationally tied to the ability to borrow.",
+   "text_sha256": "3f0fa65a6eb99c9c449895f14f276d80fe935cbccef21c706ad4d36caff588db",
+   "trimmed_leading": null
+  },
+  {
    "pid": "7d626648f03282f9c249",
    "video_id": "4eEZCJVl83w",
    "channel": "Simply Bitcoin",
@@ -517,6 +607,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "76c1081394bba9bd9389",
+   "video_id": "Sps9le2Z5RI",
+   "channel": "Digital Asset News",
+   "duration": 17.87,
+   "text": "I chose Bitcoin. Here's the truth. Had I put it into Apple, because Apple was at a split adjusted $40 at that particular moment. You can go look. Apple's worth 356 last count. Bitcoin 62 plus whatever.",
+   "text_sha256": "ef193231c7dec7b6602ecc63a158036b35ec246f36d42a83c3590aade395c483",
+   "trimmed_leading": null
+  },
+  {
    "pid": "854dfc52eee95eb8570c~trim",
    "video_id": "4eEZCJVl83w",
    "channel": "Simply Bitcoin",
@@ -524,6 +623,15 @@
    "text": "I think that's why a lot of people are probably tired right now. Because it has, I mean, even, I think it was our account that posted it. And I think I used it in my show that if you look at, you know, there's always this time in Bitcoin and you can look back the 69K top in 2021. And look where we are. We're at 69K right now. So people can cherry pick that and be like, wow, Bitcoin has not grown at all in five years.",
    "text_sha256": "bce3767d640965c2c887360db891332fc1783452c833b4aa0d334cc36cc23d60",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "81d55cb2279bbebf1e83",
+   "video_id": "Sps9le2Z5RI",
+   "channel": "Digital Asset News",
+   "duration": 16.61,
+   "text": "This is the big thesis, of course, as we go through it, as the government's plural, you know, debase the currency. This is why we invest into Bitcoin. So it makes a lot of sense, even though. And it comes down to like what Jerry was talking about, the reverse repo market, the balance sheet, this is something we need to pay attention to.",
+   "text_sha256": "92b7becae3f52052ad188422a13668a25f8319046fccec8eef02e33b9ec727cb",
+   "trimmed_leading": null
   },
   {
    "pid": "6e72d71c0847271ccd10~trim",
@@ -605,6 +713,15 @@
    "text": "that means it's treated like a financial instrument. And what do you do with a financial instrument? You collect more and more of it. So the people who are wealthy already in the fiat system and they're early to Bitcoin, they buy as much Bitcoin as they can. And all the plebs who are, let's say, working class, you know, workers or blue collar plumbers, they're buying as much Bitcoin as they can as well.",
    "text_sha256": "d6bf4eacfbc4e34e38902d060b629b33bed258a923c9fb2bc2c5db16dbffa7c6",
    "trimmed_leading": "Now"
+  },
+  {
+   "pid": "2b7c156334f9472bdd13",
+   "video_id": "Sps9le2Z5RI",
+   "channel": "Digital Asset News",
+   "duration": 18.97,
+   "text": "Truth is, I don't care because the fundamentals of Bitcoin didn't change at all. So my investment thesis for Bitcoin at 80 is the same as it is for Bitcoin at 62. Yeah, it's just that you're getting it cheaper. And then I think that people are thinking about themselves is like, well, how much farther can it go?",
+   "text_sha256": "be6fa41818533a1284ade5ef05df4bdf149f449d610e20becff900b66eb912d3",
+   "trimmed_leading": null
   },
   {
    "pid": "3419fb21890d4d876735",

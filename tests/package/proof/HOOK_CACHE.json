@@ -614,5 +614,115 @@
    "backend": "heimdall:qwen/qwen3.8-27b",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "94a613f35c4ed30c9980:d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 3,
+   "setup": 3,
+   "rating": 2,
+   "why": "mild opener lacks scroll-stopping impact",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "6df120f5a0b0f17da0db:ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 3,
+   "setup": 3,
+   "rating": 2,
+   "why": "mild opening lacks scroll-stopping impact",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "9a3597d470232a515e09:eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 4,
+   "setup": 3,
+   "rating": 2,
+   "why": "slow start with generic filler lacks immediate grab",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "9cc94b736f4ce0d70b91:064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 5,
+   "setup": 4,
+   "rating": 3,
+   "why": "first seconds lack strong grab to stop scroll",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "7ef148a1181168cf14a5:11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 4,
+   "setup": 3,
+   "rating": 3,
+   "why": "mildly technical opener lacks strong curiosity pull",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "cca27461284b4e2b6569:bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 5,
+   "setup": 4,
+   "rating": 2,
+   "why": "jarring insult unlikely to stop scroll",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "b6be0c4132fcb2dd8766:804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 3,
+   "setup": 3,
+   "rating": 2,
+   "why": "vague and not gripping in first seconds",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "e5adf2eca5e7977bb945:256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 3,
+   "setup": 3,
+   "rating": 2,
+   "why": "first seconds with 'You know' not engaging enough",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "7c2cfccdf5fcf1673b93:0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 4,
+   "setup": 3,
+   "rating": 2,
+   "why": "lacks immediate impact to stop scroll",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "adf6d9c528a27963f790:8d6346f309b3d4434df733e02a43827eef9103bb9dd57603d78d1f1eb892a8eb:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 3,
+   "setup": 4,
+   "rating": 2,
+   "why": "mid-thought start with 'you know, it's still' lacks strong hook",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

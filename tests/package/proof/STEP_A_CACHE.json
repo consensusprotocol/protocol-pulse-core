@@ -25166,5 +25166,238 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "94a613f35c4ed30c9980:d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:83da1342b60c2e21cefc82870fc92f6167e23eaa25e7537f75eadbe88d747607:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "94a613f35c4ed30c9980",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Nothing about Bitcoin changed despite the recent price drop to $62K.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Jerry, what's your what's your thoughts on this recent down downtrodden effect of of Bitcoin and altcoins which are getting just demolished?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "94a613f35c4ed30c9980",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I",
+     "refers_to": "the speaker (Jerry)",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker finds it interesting that nothing about Bitcoin changed.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Jerry, what's your what's your thoughts on this recent down downtrodden effect of of Bitcoin and altcoins which are getting just demolished?",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "10eea45127ee6ebecc6b:6f6959df8176d9129ff63df23568e4f402c233c7f5c29854b7053b8ec2fb8e3f:1e0a332c5021cbae971bfc1bacd8455e91ee7083ad4b680702600692e2fc0eaf:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "10eea45127ee6ebecc6b",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [
+    {
+     "text": "in 2009",
+     "inside": true
+    }
+   ],
+   "retraction": "take this with a grain of salt",
+   "time_ok": "no",
+   "proposition": "Bitcoin will be between $10 and $20 million in 2009.",
+   "certainty": "speculative",
+   "speaker_is": "host",
+   "speaker_evidence": "when me and Jerry got in",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "6df120f5a0b0f17da0db:ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:1ca648448dad098d7a7911576145dbd83f6e7e6ab41359a73eeb7584bbd1d250:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "6df120f5a0b0f17da0db",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I",
+     "refers_to": "the speaker (Jerry)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker does not care what caused the recent Bitcoin price drop because its fundamentals have not changed at all.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Jerry, what's your what's your thoughts on this recent down downtrodden effect of of Bitcoin and altcoins which are getting just demolished?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "6df120f5a0b0f17da0db",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I",
+     "refers_to": "the speaker (Jerry)",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker does not care about the price drop because Bitcoin's fundamentals did not change at all.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Jerry, what's your what's your thoughts on this recent down downtrodden effect of of Bitcoin and altcoins which are getting just demolished?",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "76c1081394bba9bd9389:ef193231c7dec7b6602ecc63a158036b35ec246f36d42a83c3590aade395c483:f69b83adb52b6e18283f6d1d909c883e3910e5aac3e15367ff1f5afe018fa649:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "76c1081394bba9bd9389",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I",
+     "refers_to": "the speaker (Jerry)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "investable capital",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "December of 2017",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if the speaker had invested the capital in Apple at the 2017 price",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker chose to invest in Bitcoin rather than Apple in 2017 when Apple was at a split-adjusted $40, and as of last count Apple is worth $356 while Bitcoin is at $62k.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Jerry, what's your thoughts as we take a look at these things as far as like the altcoins? Well, I you know, I have to agree that there are other assets in the world that are outperforming Bitcoin over relatively short periods of time.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "b8abe1a37706c77584b8:6cb042ac497470318b0103b2125a0c7c3b447be44d2872bcc8c5eb1334ab1023:17885190b1f65c307b8e9ec966697687ad93d3536a6b097c64c866cbd6036f4f:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b8abe1a37706c77584b8",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "This",
+     "refers_to": "increasing global money supplies/governments debasing currency",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "money supply data or charts discussed earlier",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "This",
+     "refers_to": "governments debasing the currency",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The big thesis is that governments debase their currencies through expanding money supply, which is why we invest in Bitcoin.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Let me make sure. Let me turn this off. \u203a\u203a You are. \u203a\u203a I'll be damned. Hey, we're not number one in something that sucks.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "4376fc1598efa1cfd080:eae561d0bbb7da745a9595fc5245798fe8d3ed6d7af6cc6be7a1af82e55c6270:1a01c4286b24f96c0c39d0b6ae21b27583360aaf5116e0584bc02030c8240fa7:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "4376fc1598efa1cfd080",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "It",
+     "refers_to": "massive influx of liquidity for speculative assets like Bitcoin",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "the kind of liquidity event like we saw with COVID",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "now",
+     "refers_to": "the present time of the video/show",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "without the ability to easily expand our debt in a debt-based economy",
+     "inside": false
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Liquidity for speculative assets like Bitcoin will only happen in little pockets rather than en masse as with COVID, which catalyzed Bitcoin's rise beyond $20k to current levels.",
+   "certainty": "speculative",
+   "speaker_is": "host",
+   "speaker_evidence": "Jerry, if you could speak to that, this is not my usual talking points.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }
