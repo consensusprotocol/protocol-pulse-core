@@ -70,6 +70,7 @@ import shadow86 as SH  # noqa: E402
 import ledger_build as LB  # noqa: E402
 import moments as M  # noqa: E402
 import package as PK  # noqa: E402
+import hook_bar as HB  # noqa: E402
 import package_pin  # noqa: E402
 import proof_ly as PL  # noqa: E402
 import proof_saved_runs as PS  # noqa: E402
@@ -153,6 +154,19 @@ def open_work(res, sp):
     no_verdict = _errors(res) + _errors(sp)        # by structure, never a string search (audit 2155g C1, qwen)
     vis = (res or {}).get("visual") or {}
     return held + no_verdict + int(vis.get("unmeasured") or 0)
+
+
+HOOK_SHADOW = {"coherence_verdict:hook": "heimdall:qwen/qwen3.8-27b"}   # RULING 115: recorded, never deciding
+
+
+def build_shadow(routing, rt, streak):
+    """The build's shadow back-ends: RULING 86, Grok (routing.shadow) on the first heimdall_first pins, until
+    `shadow_until_clean_pins` clean pins in a row (`streak`: a callable, read only under heimdall_first); RULING 115,
+    qwen on every hook, in every build. Recorded, never deciding."""
+    shadow = None
+    if routing == "heimdall_first" and streak() < int(rt.get("shadow_until_clean_pins") or 3):
+        shadow = rt.get("shadow") or None
+    return dict(shadow or {}, **HOOK_SHADOW)
 
 
 def nothing_new(proof_dir, out_dir, fp):
@@ -431,12 +445,13 @@ def main(argv=None):
         return 0
     rt = json.load(open(P.CONFIG)).get("routing") or {}
     routing = a.routing or rt.get("mode") or "today"
-    shadow = None                                # RULING 86: Grok in shadow on the first heimdall_first pins
-    if routing == "heimdall_first" and SH.clean_streak() < int(rt.get("shadow_until_clean_pins") or 3):
-        shadow = rt.get("shadow") or None
+    shadow = build_shadow(routing, rt, SH.clean_streak)   # RULING 86 (Grok) / RULING 115 (qwen on every hook)
     router = build_router(routing, shadow, os.path.join(out_dir, "SHADOW86.jsonl"))
     say(f"  routing (ruling 85): {router.routing}; now {router.mode()} (ruling 87: the shared Heimdall health)"
-        + (f"; SHADOW (ruling 86): {shadow}" if shadow else ""))
+        + (f"; SHADOW (ruling 86 / 115): {shadow}" if shadow else ""))
+    live, live_why = PK.hook_live_bar()          # RULING 115: the bar in every build line, its floors and its sha
+    say(f"  RULING 115: {HB.text(live)}; the hook list {router.chain('coherence_verdict', 'hook')}"
+        + (f" [{live_why}]" if live_why else ""))
     say(f"  RULING 100 (deadlines follow the model, table of {(router.deadlines or {}).get('computed_at')}): "
         f"{DT.text(router.deadlines, applies=applied(router)) or 'no row applies: each gateway keeps its number'}")
     spent0 = router.spent()                      # ruling 48: the running total, vendor-reported (+ estimates where none)

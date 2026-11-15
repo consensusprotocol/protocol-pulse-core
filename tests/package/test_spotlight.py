@@ -65,7 +65,7 @@ def moment(text=TEXT, dur=20.0, mid="m1", channel="DataDash", **kw):
     m.update(text=text, channel_name=channel, published_at=(NOW - timedelta(hours=2)).isoformat(),
              hook_onset={"pass": True, "measured": True, "lead_ms": 120, "cut_in": 1.0, "why": "quiet"},
              hook_rating={"scroll": 5, "alone": 4, "setup": 3, "rating": 4, "why": "a complete claim",
-                          "backend": "fake:xai", "replayed": False},
+                          "backend": "xai:grok", "replayed": False},   # the conftest's calibrated rater (ruling 115)
              visual={"version": VP.VERSION, "measured": True, "flags": [], "backend": "fake:vis", "replayed": False,
                      "third_person": {"shown": False, "how": "none", "words_negative": False, "name_on_screen": None,
                                       "finding": "none"}, "on_screen_text": [],
@@ -183,6 +183,9 @@ class TestPinContract(unittest.TestCase):
         self.assertEqual(mp["first_comment"], pk["first_comment"])
         self.assertEqual(mp["gates"]["spotlight_source"]["format"], "CONVERSATION")   # 21:10 Nov 14: WHICH passed,
         self.assertEqual(PP.pin_seal(pin), mp["package_sha256"])                      # inside the seal
+        marked = PP.to_pin(dict(pk, hook_bar=SPOT.P.hook_bar_mark()), "t")["moments_package"]   # ruling 115 (2):
+        self.assertEqual(marked["hook_bar"]["note"], "hook passed on the calibrated bar")     # the spotlight's pin
+        self.assertEqual(marked["package_sha256"], mp["package_sha256"])                      # too, outside the seal
         integrator = PP.seal(pin["segments"], mp["edl_vo"], mp.get("signoff_expected"), mp["title"], mp["caption"],
                              mp["gates"], mp.get("btc_screen"),
                              **({"shape": mp["shape"], "first_comment": mp["first_comment"]}
@@ -618,6 +621,24 @@ class TestPackageFor(unittest.TestCase):
             self.assertEqual(asked[-1], None, name)                         # the package without it is judged
             self.assertFalse(pk["spotlight"]["closing"]["kept"], name)
 
+    def test_ruling_115_the_hook_own_row_is_the_calibrated_bar(self):
+        """RULING 115: the opener's row passes when each part is at least its calibrated floor (the rigs': scroll 3,
+        alone 4, setup 3), by the calibrated rater; ruling 90's ">= 4" (the scroll-and-alone rating) no longer decides."""
+        def row(scroll, alone, setup, backend="xai:grok"):
+            m = moment(hook_rating={"scroll": scroll, "alone": alone, "setup": setup, "rating": min(scroll, alone),
+                                    "why": "w", "backend": backend, "replayed": False})
+            return SPOT.inventory(*package()[0:1], m, FID_OK, [], True, [], CX_OK, two()[0], two(),
+                                  {"verdict": "keep", "measured": True, "replayed": False},
+                                  {"ok": True, "edges": {"cuttable": True}}, pre_of(m), m["spotlight_source"],
+                                  {"now": NOW, "day": "d", "never_delivered": True,
+                                   "one_per_channel_day": True})["hook_own"]
+        r = row(3, 4, 3)                                                    # rating 3: ruling 90 failed it
+        self.assertEqual((r["status"], r["rating"], r["setup"]), ("PASS", 3, 3))
+        self.assertIn("scroll >= 3, alone >= 4, setup >= 3", r["bar"])
+        for parts in ((5, 3, 5), (5, 5, 2), (2, 5, 5)):
+            self.assertEqual(row(*parts)["status"], "FAIL", parts)
+        self.assertEqual(row(5, 5, 5, "heimdall:qwen/qwen3.8-27b")["status"], "FAIL")   # off the calibrated rater
+
     def test_the_precheck_row_needs_one_verdict_on_this_clip(self):
         m = moment()
         rows = lambda pre: SPOT.inventory(*package()[0:1], m, FID_OK, [], True, [], CX_OK, two()[0], two(),
@@ -670,7 +691,7 @@ class TestBuild(unittest.TestCase):
     """The stages in order on stubs: each stage's failure is recorded with how far the moment got."""
 
     def run_build(self, ms, ratings, alone=None, layout="conversation", poll=None, lock=None, visual=None,
-                  onset=None, evidence=None):
+                  onset=None, evidence=None, before_package=None):
         ctx = E.Context(NOW, REG)
         calls = {}
 
@@ -681,13 +702,15 @@ class TestBuild(unittest.TestCase):
 
         def hook_ratings(router, ms_, *a, **k):
             return {m["moment_id"]: {"scroll": ratings[m["moment_id"]], "alone": 5, "setup": 3,
-                                     "rating": ratings[m["moment_id"]], "why": "w", "backend": "fake:xai"}
+                                     "rating": ratings[m["moment_id"]], "why": "w", "backend": "xai:grok"}
                     for m in ms_}, None
 
         def second(router, cleared, a_by, *a, **k):
             return {mid: [a_by[mid], dict(a_item("hook"), backend="fake:heimdall")] for mid in cleared}, {}
 
         def package_for(router, m, ctx_, sources_, a_two, truth, exc, pre, facts, **k):
+            if before_package:
+                before_package()
             calls.setdefault("package_for", []).append(m["moment_id"])
             calls.setdefault("facts", []).append(facts)
             return {"segments": [m], "shape": "spotlight"}, None
@@ -723,10 +746,29 @@ class TestBuild(unittest.TestCase):
     def test_the_best_qualifying_moment_goes_to_the_package(self):
         ms = [moment(mid="a", channel="A"), moment(mid="b", channel="B", text=TEXT.replace("money", "asset")),
               moment(mid="c", channel="C", text=TEXT.replace("money", "thing"))]
-        out, calls = self.run_build(ms, {"a": 3, "b": 4, "c": 5}, alone=[4.0, 4.0, 3.0])
+        out, calls = self.run_build(ms, {"a": 2, "b": 4, "c": 5}, alone=[4.0, 4.0, 3.0])
         self.assertEqual(calls["package_for"], ["b"])                      # c opens best but stands alone at 3
-        self.assertIn("hook's own job rates 3", out["moments"]["a"]["out"])
+        self.assertEqual((out["moments"]["a"]["hook_passes"], out["moments"]["b"]["hook_passes"]), (False, True))
+        self.assertIn("the hook's own job: scroll 2 < 3 (the calibrated hook bar (ruling 115): scroll >= 3, alone >= 4, "
+                      "setup >= 3", out["moments"]["a"]["out"])               # ruling 115: under ONE part's floor
         self.assertIn("ALONE scorer: 3.0", out["moments"]["c"]["out"])
+        self.assertIsNotNone(out["package"])
+        self.assertEqual(out["package"]["hook_bar"]["note"], "hook passed on the calibrated bar")   # ruling 115 (2)
+
+    def test_ruling_115_the_mark_names_the_bar_the_openers_were_judged_on(self):
+        """Audit 20261115_1410 C2 (glm): the live bar changes after the openers are judged (here when the package is
+        made); the mark still names the bar they were judged on."""
+        import conftest
+        cur = [conftest.rig_bar()]
+        flip = lambda: cur.__setitem__(0, dict(conftest.rig_bar(), sha256="u" * 64))
+        with mock.patch.object(SPOT.P, "_live_bar", lambda: (cur[0], None)):
+            out, calls = self.run_build([moment(mid="a", channel="A")], {"a": 4}, before_package=flip)
+        self.assertEqual((out["package"]["hook_bar"]["calibration_sha256"], cur[0]["sha256"]), ("t" * 64, "u" * 64))
+
+    def test_ruling_115_an_opener_at_every_floor_goes_to_the_package(self):
+        """Scroll 3, alone 5, setup 3: under ruling 90 (rating >= 4) it stopped; on the calibrated bar it passes."""
+        out, calls = self.run_build([moment(mid="a", channel="A")], {"a": 3})
+        self.assertEqual(calls["package_for"], ["a"])
         self.assertIsNotNone(out["package"])
 
     def test_ruling_92_amended_zero_changes_near_the_clip_stops_before_any_vision_call(self):

@@ -215,7 +215,10 @@ class TestTheCalibration(unittest.TestCase):
         chain = r.chain("coherence_verdict", "hook")
         self.assertTrue(chain and all(r.backends[n].vendor.split("/")[0] == "heimdall" for n in chain), chain)
         self.assertNotIn("xai:grok-4.20-0309-reasoning", chain)
-        self.assertEqual(chain[0], "heimdall:qwen/qwen3.8-27b")       # ruling 88's order, Grok removed
+        self.assertEqual(chain[0], "heimdall:qwen/qwen3.8-27b")       # ruling 96's order, Grok removed
+        with tempfile.TemporaryDirectory() as d:                      # production's list (Grok alone, ruling 115)
+            with self.assertRaises(RuntimeError):                     # has no Heimdall back-end: refused, never Grok
+                H.build_router(spend_path=os.path.join(d, "SPEND.json"), hook_chain=("xai:grok-4.20-0309-reasoning",))
         self.assertEqual((r.limit_usd, r.limit_basis), (H.LIMIT_USD, "reported"))
 
     def test_heimdall_only_and_refused_without_one(self):

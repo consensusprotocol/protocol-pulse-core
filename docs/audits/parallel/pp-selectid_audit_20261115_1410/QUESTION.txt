@@ -1,0 +1,80 @@
+pp-selectid: RULING 115 (orchestrator 13:24 ET Nov 15) (1) + (2), THE CALIBRATED HOOK BAR. Production code: a new
+pipeline/hook_bar.py and pipeline/hook_calibration.json; pipeline/package.py, spotlight.py, package_pin.py,
+providers.py and model_providers.json; the build driver tests/package/proof_ledger.py; ruling 112's driver
+tests/package/hook112.py. Tests: a new tests/package/conftest.py and test_hook_bar.py, and updated test_medley,
+test_spotlight, test_ledger_build, test_hook112 and tests/providers/test_providers.py.
+
+THE ORDER, verbatim in its parts:
+(1) "INTERIM BAR, LIVE AS SOON AS AUDITED, BOTH PATHS (medley hook and spotlight opener): the hook job is asked ALONE
+    at production's seed by GROK (qwen in shadow). A hook passes when EACH of its three parts (scroll, alone, setup)
+    is at least the LOWEST value that part takes across the five approved hooks under that same asking (ALONE_TEST.json
+    is the source; write the three floors into one calibration file with its sha, and name them in every build line).
+    Nothing else about the hook path changes (may-open rules, G17a, step A, CUTTABLE stay). If any floor comes out
+    below 3, stop at 3 for that part and tell me."
+(2) "MARK IT: a package sealed on the interim bar says so in its record and in the Telegram note in one plain line
+    ("hook passed on the calibrated bar"); PBX's approve or reject of it is appended to the calibration file as a new
+    example (approved = positive, rejected = negative with his reason)."
+Ruling 113 (2), which (1) builds on: the calibration "runs before a rater takes the job, again on any change of
+model, question version or seed, and once a day; a rater that fails it does not rate, and the build says so in one
+line".
+
+WHAT THE CHANGE DOES:
+- hook_bar.py: floors_from (each part's minimum over the approved hooks; a floor under 3 is stopped at 3 and listed);
+  write / load (the file sealed by the sha256 of its canonical body; a hand edit fails the seal); bar (valid only for
+  its question version, seed, asking "alone", rater when named, and under 24 h old; else None and why: NO hook
+  passes); passes (each part >= its floor AND the rating's back-end is the calibrated rater); text (the bar in one
+  line); add_example ((2): approved, or rejected with a reason; the floors are not re-derived there).
+- hook_calibration.json: Grok (xai:grok-4.20-0309-reasoning), asked alone at seed 7, question version bfdf74078d5e
+  (= package.HOOK_VERSION), measured 18:07:52 UTC. The five approved hooks' parts from ALONE_TEST.json (the two
+  whose first answer was out of contract: the retry asked once more, alone, seed 7). Floors scroll 3, alone 4,
+  setup 3; none under 3.
+- package.hook_ratings: ONE call per candidate (was one batched call), max_tokens 750, seed HOOK_SEED 7. This is the
+  calibration's own asking: hook112.calibrate called hook_ratings with ONE reference per call, so the prompt (HOOKS_PROMPT
+  with one CANDIDATE and its one key), max_tokens (600 + 150 x 1) and seed are the same bytes. HOOK_VERSION now
+  hashes HOOKS_PROMPT + HOOK_ASKING, so no batched rating cached before answers. A candidate whose chain is spent has
+  no rating; the others are still asked; the first error is returned.
+- package.hook_own: adds "setup", "passes" (hook_bar.passes on the live bar), "short", "bar". The rating
+  (min(scroll, alone)) still ORDERS hooks (hook_order); "passes" decides: _can_open, medley(), coherence(),
+  last_clip_only (ruling 62) and the spotlight's opener stage and its "hook_own" gate row.
+- In medley() and coherence() the hook's own rating used to sit INSIDE the min >= COHERENCE_MIN (4) over the clips.
+  With a scroll floor of 3, a hook that passes the bar would then fail every line-up, so the hook's slot is judged by
+  the calibrated bar and the min runs over the clips AFTER the hook (and the VO point) as before. This is the one
+  reading of "nothing else changes" we took; please say if you read it otherwise.
+- The hook list "coherence_verdict:hook" is Grok ALONE in every routing (heimdall_first, today, plan_b): the floors
+  are Grok's, so a failover model's rating could never pass (and, cached, would answer for that moment). Grok down =
+  no rating = no hook (law L-m), asked again next build. qwen answers every hook in SHADOW (proof_ledger.build_shadow;
+  providers._shadow_of / _shadow_ask look up "<role>:<kind>" first and ask it on a chain of its own).
+- (2) the mark: package.hook_bar_mark() -> {"note": "hook passed on the calibrated bar", "bar", "floors",
+  "calibration_sha256", "ruling": "115"}, set on a built medley package and a built spotlight package, and carried
+  into the pin's moments_package OUTSIDE the seal (package_pin.to_pin), for the integrator's Telegram note.
+
+UNCHANGED GUARDS THE CHANGE LEANS ON (outside the hunks; line numbers in the changed tree):
+- package._can_open (package.py:1460-1481): hook eligibility, G17a (hook_onset "pass"), stand_alone.opener; only
+  then the rating. "hook_rating" absent = not rated yet (before the build rates).
+- package.build (package.py:2691-2699): every cleared moment's carried rating is popped, the openers are rated, and
+  EVERY cleared moment then gets "hook_rating": the rating, or {"rating": None, "why": "not rated: ..."}; hook_own of
+  that is None, so an unrated hook never opens. spotlight.build does the same (spotlight.py:905-917).
+- _load_cache(None) is {} (package.py:499-507: open(None) raises TypeError, caught); _cache_put(None, ...) returns
+  at once (package.py:510-513).
+- providers.call_parsed (providers.py:690-716): an answer out of contract moves on to the next model; with a
+  one-model list the chain is then spent: ProviderError, caught per candidate in hook_ratings.
+- providers.Router.chain (providers.py:794-811): this router's overrides, then the routing's per-type list, then the
+  role's chain. proof_ledger builds with --routing heimdall_first (proof_ly.chains, tests/package/proof_ly.py:76).
+- Router._shadow_ask runs in a thread and never raises into the build; the shadow never decides (providers.py:1221+).
+- package_pin.seal (package_pin.py:200) takes segments, edl_vo, signoff, title, caption, gates, btc_screen, shape,
+  first_comment, ...: not "hook_bar", so the mark is outside the seal (to_pin :469).
+
+TESTS: 687 pass in tests/package + tests/providers; all 37 suite files of the handoff pass, one process each. 31 of 31
+mutations killed after a control run (the unmutated copy passes): the rater check, a part AT its floor, min vs max,
+the stop at 3, staleness, the question version, the seal, a rejection's reason, a floor under 3 in the file; the old
+bar in _can_open, the hook back in either min, either verdict ignoring the bar, ruling 62, one error stopping the
+others, the mark (medley, spotlight, pin), the invalid calibration's why, the version without the asking, a batch,
+setup left out; the spotlight's opener and gate row on the old bar; the three hook lists; the kind's shadow (lookup
+and chain); hook112's driver reading production's Grok-only list; no qwen shadow in a build.
+
+PLEASE CHECK: (1) that a hook passes ONLY with every part at least its floor, rated by the calibrated rater, under
+a valid (sealed, matching, fresh) calibration, on both paths; (2) that the floors in hook_calibration.json are the
+source's minimums and that production's asking is byte-for-byte the calibration's; (3) the reading of "nothing else
+changes" above (the hook's slot in the two verdicts and in ruling 62); (4) that no other model can rate a hook, and
+that qwen's shadow can never decide; (5) the mark: on a sealed package and its pin only, outside the seal; (6) the
+tests.

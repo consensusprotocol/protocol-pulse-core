@@ -1213,24 +1213,29 @@ class Router:
                     self.down[n] = was
         return ok
 
-    def _shadow_of(self, role):
-        return self.shadow.get(role) or self.shadow.get("*")
+    def _shadow_of(self, role, kind=None):
+        """RULING 86, and RULING 115 for a verdict type: "<role>:<kind>" first (the hook job's qwen), then the role,
+        then "*"."""
+        return (self.shadow.get(f"{role}:{kind}") if kind else None) or self.shadow.get(role) or self.shadow.get("*")
 
-    def _shadow_ask(self, role, prompt, max_tokens, seed, system, deciding):
+    def _shadow_ask(self, role, prompt, max_tokens, seed, system, deciding, kind=None):
         """RULING 86: ask the role's shadow back-end the same prompt, in a thread; one JSON line to shadow_log per
-        verdict with both answers. Never raises into the build and never decides."""
+        verdict with both answers. Never raises into the build and never decides. A verdict type's own shadow (RULING
+        115) is asked on a chain of its own ("shadow86:<role>:<kind>"), so it never takes another shadow's chain."""
         import threading
-        name = self._shadow_of(role)
-        self.chains.setdefault(f"shadow86:{role}", [name])
+        name = self._shadow_of(role, kind)
+        own = f"shadow86:{role}:{kind}" if kind and self.shadow.get(f"{role}:{kind}") else f"shadow86:{role}"
+        self.chains.setdefault(own, [name])
 
         def run():
-            rec = {"role": role, "prompt": prompt_text(prompt), "images": len(prompt["images"]) if is_vision(prompt)
+            rec = {"role": role, "kind": kind, "prompt": prompt_text(prompt),
+                   "images": len(prompt["images"]) if is_vision(prompt)
                    else 0, "max_tokens": max_tokens, "seed": seed, "system": system,
                    "deciding": {"backend": deciding.backend, "vendor": deciding.vendor, "text": deciding.text,
                                 "cached": bool(getattr(deciding, "cached", False))}}
             t0 = time.time()
             try:
-                r = self.call(f"shadow86:{role}", prompt, max_tokens, seed, system=system)
+                r = self.call(own, prompt, max_tokens, seed, system=system)
                 rec["shadow"] = {"backend": r.backend, "text": r.text, "seconds": round(time.time() - t0, 2),
                                  "cached": bool(getattr(r, "cached", False)),
                                  "usd_reported": (r.usage or {}).get("usd_reported"), "usd_estimate": r.usd}
@@ -1314,8 +1319,8 @@ class Router:
                     rec = json.load(f)
                 out = Reply(rec["text"], name, b.vendor, rec.get("seconds", 0.0), rec.get("usage") or {},
                             rec.get("usd", 0.0), self.replay, tried, notices, b.family, not self.replay, path)
-                if self.shadow and role in SHADOW_ROLES and self._shadow_of(role) not in (None, name):
-                    self._shadow_ask(role, prompt, max_tokens, seed, system, out)  # ruling 86: a recorded verdict too
+                if self.shadow and role in SHADOW_ROLES and self._shadow_of(role, kind) not in (None, name):
+                    self._shadow_ask(role, prompt, max_tokens, seed, system, out, kind)   # ruling 86: recorded too
                 return out
             if self.replay:
                 tried.append((name, "replay: not recorded"))
@@ -1410,8 +1415,8 @@ class Router:
                 recorded = path
             out = Reply(text, name, b.vendor, round(secs, 2), usage, usd, False, tried, notices, b.family, False,
                         recorded)
-            if self.shadow and role in SHADOW_ROLES and self._shadow_of(role) not in (None, name):
-                self._shadow_ask(role, prompt, max_tokens, seed, system, out)     # ruling 86: asked, never deciding
+            if self.shadow and role in SHADOW_ROLES and self._shadow_of(role, kind) not in (None, name):
+                self._shadow_ask(role, prompt, max_tokens, seed, system, out, kind)   # ruling 86: never deciding
             return out
         if self.replay:
             raise ReplayMiss(f"{role}: no recorded exchange ({tried})")

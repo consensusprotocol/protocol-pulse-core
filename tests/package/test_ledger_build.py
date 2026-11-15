@@ -903,6 +903,24 @@ class TestRuling85NoXai(unittest.TestCase):
                 return name
         return None
 
+    def test_ruling_115_qwen_shadows_every_hook_in_every_build(self):
+        """RULING 115: qwen answers every hook in shadow (recorded, never deciding), with ruling 86's Grok shadow on the
+        first heimdall_first pins and without it after; the streak is read only under heimdall_first."""
+        import proof_ledger as PLG
+        X, Q = "xai:grok-4.20-0309-reasoning", "heimdall:qwen/qwen3.8-27b"
+        rt = {"shadow": {"*": X}, "shadow_until_clean_pins": 3}
+        hook = {"coherence_verdict:hook": Q}
+        self.assertEqual(PLG.build_shadow("heimdall_first", rt, lambda: 0), {"*": X, **hook})
+        self.assertEqual(PLG.build_shadow("heimdall_first", rt, lambda: 3), hook)
+
+        def never():
+            raise AssertionError("the streak is read under heimdall_first only")
+        self.assertEqual(PLG.build_shadow("today", rt, never), hook)
+        r = self.pl().P.Router(env_path="/nonexistent", routing="heimdall_first",
+                               shadow=PLG.build_shadow("heimdall_first", rt, lambda: 0))
+        self.assertEqual((r._shadow_of("coherence_verdict", "hook"), r._shadow_of("coherence_verdict", "coherence")),
+                         (Q, X))                                       # the router reads them as ruled
+
     def test_ruling_96s_lists_and_xai_answering_nothing(self):
         """RULING 96 (01:40 ET Nov 14), final until re-measured, on ruling 88's structure, as the orchestrator's 06:12
         rulings amend it: (1) glm last for coherence, no Heimdall model for clips-alone; (2) qwen struck from step A."""
@@ -918,12 +936,15 @@ class TestRuling85NoXai(unittest.TestCase):
         #   confirms; RULING 102 (13:02 Nov 14): then deepseek, glm, Gemini, the local judge (ruling 87's last resort)
         self.assertEqual(ch["context_verdict"], [G, DS, X])                        # the role's default: no qwen either
         self.assertNotIn(Q, [b for k, v in ch.items() if k.startswith("context_verdict:step_a") for b in v])
-        self.assertEqual(ch["coherence_verdict:hook"], [Q, G, DS, X])              # 88 (b) / 96: the hook moved
+        self.assertEqual(ch["coherence_verdict:hook"], [X])                        # RULING 115 (amends 88 (b) / 96 for
+        #   the hook): Grok ALONE, the rater the calibrated floors are measured on (qwen in shadow, never deciding)
         self.assertEqual(ch["context_verdict:step_c"], [X, G, DS])                 # (b) / (e): no qwen
         self.assertEqual(ch["coherence_verdict:coherence"], [X, DS, G])           # 06:12 (1): glm the LAST fallback
         self.assertEqual(ch["coherence_verdict:clips_alone"], [X, GEM])           # 06:12 (1): no Heimdall model
         today = PL.chains("today")                                                 # (d) and (e) hold today too
         self.assertEqual((today["coherence_verdict:coherence"], today["context_verdict:step_c"]), ([X, DS], [X, DS, G]))
+        self.assertEqual((today["coherence_verdict:hook"], PL.plan_b_chains()["coherence_verdict:hook"]), ([X], [X]))
+        #   RULING 115: the hook is Grok's alone in every routing (no uncalibrated rating is ever cached as a hook's)
         r = PL.P.Router(env_path="/nonexistent", routing="heimdall_first", chains=ch)
         for n in [n for n in r.backends if n.startswith("xai")]:
             r.down[n] = "xAI answers nothing (the test)"
@@ -934,7 +955,8 @@ class TestRuling85NoXai(unittest.TestCase):
             ("coherence_verdict", "clips_alone"), ("coherence_verdict", "coherence"))}
         self.assertEqual(got, {("fidelity_verdict", None): G, ("exclusion_verdict", None): G,
                                ("speaker_verdict", None): G, ("viewer_takeaway", None): G,
-                               ("context_verdict", "step_c"): G, ("coherence_verdict", "hook"): Q,
+                               ("context_verdict", "step_c"): G, ("coherence_verdict", "hook"): None,   # ruling 115:
+                               #   no other model decides a hook while Grok is out (no rating = no hook, law L-m)
                                ("coherence_verdict", "clips_alone"): GEM,          # Plan B's other outside family
                                ("coherence_verdict", "coherence"): G})            # the gap is closed: glm, last
         r.down[GEM] = "Gemini answers nothing (the test)"

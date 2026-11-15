@@ -672,5 +672,30 @@ class TestRuling86Shadow(TestRuling85Routing):
             with self.assertRaises(ValueError):
                 P.Router(self.cfg(d), env_path="/nonexistent", shadow={"*": "xai:nope"})
 
+    def test_ruling_115_a_verdict_types_own_shadow_asked_on_a_chain_of_its_own(self):
+        """RULING 115: the hook job (Grok decides) is shadowed by qwen, keyed "<role>:<kind>", on a chain of its own;
+        every other verdict of the role keeps the role's ("*") shadow; each record names its kind."""
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            r = P.Router(self.cfg(d), env_path="/nonexistent", routing="heimdall_first",
+                         shadow={"*": "xai:grok", "coherence_verdict:hook": "heimdall:qwen"},
+                         shadow_log=os.path.join(d, "SHADOW.jsonl"), chains={"coherence_verdict:hook": ["xai:grok"]})
+            fs = self.fakes()
+            for b in fs:
+                if b.vendor == "heimdall":
+                    b.gateway, b.vendor = b.vendor, f"heimdall/{b.family}"
+            r.backends = {b.name: b for b in fs}
+            self.assertEqual(r.call("coherence_verdict", "the hook", 500, 7, kind="hook").backend, "xai:grok")
+            self.assertEqual(r.call("coherence_verdict", "a line-up", 500, 7, kind="coherence").backend,
+                             "heimdall:deepseek")
+            self.assertEqual(r.shadow_wait(5), 0)
+            got = sorted((x["kind"], x["prompt"], x["deciding"]["backend"], x["shadow"]["backend"])
+                         for x in self.lines(d))
+            self.assertEqual(got, [("coherence", "a line-up", "heimdall:deepseek", "xai:grok"),
+                                   ("hook", "the hook", "xai:grok", "heimdall:qwen")])
+            self.assertEqual((r.chain("shadow86:coherence_verdict:hook"), r.chain("shadow86:coherence_verdict")),
+                             (["heimdall:qwen"], ["xai:grok"]))
+            self.assertEqual((r.backends["heimdall:qwen"].calls, r.backends["xai:grok"].calls), (1, 2))
+
 if __name__ == "__main__":
     unittest.main()

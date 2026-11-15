@@ -495,6 +495,8 @@ def to_pin(pk, run_name):
                                     "spotlight": pk.get("spotlight")}                  # and why (outside the seal)
                                    if spot else {}),
                                 "gates": pk["gates"],
+                                **({"hook_bar": pk["hook_bar"]} if pk.get("hook_bar") else {}),   # ruling 115 (2): the
+                                #   calibrated hook bar's plain line for the Telegram note, floors and sha (outside the seal)
                                 **({"btc_screen": pk["btc_screen"]} if pk.get("btc_screen") is not None else {}),
                                 **({"formats": fmts} if fmts is not None else {}),   # ruling 93 amended (sealed)
                                 "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True,

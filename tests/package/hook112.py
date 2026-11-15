@@ -388,11 +388,16 @@ def ref_moments(refs=REFS):
     return out
 
 
-def heimdall_hook_chain(router):
-    """Ruling 88's hook list as production reads it, with every non-Heimdall back-end removed (the order: Heimdall
+RULING_96_HOOK = ("heimdall:qwen/qwen3.8-27b", "heimdall:z-ai/glm-5.3-flash", "heimdall:deepseek/deepseek-v4.1-flash")
+#   ruling 96's hook list without Grok: the Heimdall list ruling 112 measured. Production's hook list is Grok ALONE since
+#   ruling 115 (the calibrated rater), so the driver names its Heimdall list instead of reading production's.
+
+
+def heimdall_hook_chain(router, names=None):
+    """`names` (default: the router's own hook list) with every non-Heimdall back-end removed, in order (Heimdall
     only). Refused when none is left."""
-    chain = [n for n in router.chain("coherence_verdict", "hook")   # a Heimdall back-end's vendor is "heimdall/<family>"
-             if str(getattr(router.backends.get(n), "vendor", "")).split("/")[0] == "heimdall"]
+    chain = [n for n in (names or router.chain("coherence_verdict", "hook"))   # a Heimdall back-end's vendor is
+             if str(getattr(router.backends.get(n), "vendor", "")).split("/")[0] == "heimdall"]   # "heimdall/<family>"
     if not chain:
         raise RuntimeError("refused: ruling 88's hook list has no Heimdall back-end")
     return chain
@@ -405,13 +410,15 @@ def registry(path=os.path.join(REPO, "pipeline", "channels.json")):
         return json.load(f)
 
 
-def build_router(spend_path=SPEND, record_dir=None):
+def build_router(spend_path=SPEND, record_dir=None, hook_chain=RULING_96_HOOK):
+    """The driver's router: Heimdall only for the hook job (`hook_chain`, filtered to Heimdall), ruling 48's ledger
+    on reported spend under LIMIT_USD."""
     import deadline_table as DT
     import providers as P
     import replay85 as R
     r = P.Router(env_path=R.ENV, record_dir=record_dir, spend_path=spend_path, limit_usd=LIMIT_USD,
                  limit_basis="reported", routing="heimdall_first", deadlines=DT.load(DT.STATE, None))
-    r.chains["coherence_verdict:hook"] = heimdall_hook_chain(r)
+    r.chains["coherence_verdict:hook"] = heimdall_hook_chain(r, list(hook_chain))
     return r
 
 

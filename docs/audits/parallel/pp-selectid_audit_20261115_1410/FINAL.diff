@@ -1,0 +1,1728 @@
+diff --git a/pipeline/hook_bar.py b/pipeline/hook_bar.py
+new file mode 100644
+index 00000000..d29c4977
+--- /dev/null
++++ b/pipeline/hook_bar.py
+@@ -0,0 +1,140 @@
++"""RULING 115 (orchestrator 13:24 ET Nov 15): THE HOOK BAR IS DEFINED BY PBX'S APPROVALS.
++
++The hook job (package.hook_ratings) asks each candidate ALONE, at production's seed, on the calibrated rater (Grok).
++A hook passes when EACH of its three parts (scroll, alone, setup) is at least that part's FLOOR. A floor is the lowest
++value the part took across PBX's approved hooks, under that same asking (the source: tests/package/proof/hook113/
++ALONE_TEST.json). No floor is set below 3: the order stops a lower one at 3, and the builder reports it.
++
++The floors live in ONE calibration file, pipeline/hook_calibration.json, with its sha256. It is valid only for its
++rater, its question version (package.HOOK_VERSION), its seed and its asking ("alone"), and for 24 h after it was
++measured (ruling 113 (2): again on any change, and once a day). An invalid or stale file passes NO hook, and the
++build says why in one line (fail closed, law L-m).
++A package sealed on this bar says so in its record (NOTE). PBX's approve or reject of it is appended to the file
++(add_example), so the approved set grows.
++"""
++import copy
++import hashlib
++import json
++import os
++from datetime import datetime, timedelta, timezone
++
++PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "hook_calibration.json")
++PARTS = ("scroll", "alone", "setup")
++FLOOR_MIN = 3                       # the order: "If any floor comes out below 3, stop at 3 for that part and tell me."
++VALID_H = 24.0                      # ruling 113 (2): "once a day"
++SKEW_MIN = 5.0                      # a measured_at at most this many minutes ahead of now (clock skew) is accepted
++NOTE = "hook passed on the calibrated bar"
++
++
++def body_sha(cal):
++    """The sha256 of the calibration's canonical JSON without its own "sha256" key."""
++    b = {k: v for k, v in cal.items() if k != "sha256"}
++    return hashlib.sha256(json.dumps(b, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
++
++
++def floors_from(approved):
++    """{part: the lowest value it takes across the approved hooks' parts, never below FLOOR_MIN} and the parts that
++    came out below FLOOR_MIN (the order wants those told)."""
++    fl, low = {}, []
++    for p in PARTS:
++        vals = [a.get(p) for a in approved]
++        if not vals or any(type(v) is not int for v in vals):
++            raise ValueError(f"an approved hook has no integer {p!r}: the floors cannot be measured")
++        fl[p] = min(vals)
++        if fl[p] < FLOOR_MIN:
++            low.append(f"{p} {fl[p]} (stopped at {FLOOR_MIN})")
++            fl[p] = FLOOR_MIN
++    return fl, low
++
++
++def load(path=PATH):
++    """The calibration as written, or None with why (missing, unreadable, or its sha does not match its body)."""
++    try:
++        with open(path) as f:
++            cal = json.load(f)
++    except (OSError, ValueError) as e:
++        return None, f"the hook calibration cannot be read ({type(e).__name__}: {str(e)[:120]})"
++    if not isinstance(cal, dict) or cal.get("sha256") != body_sha(cal):
++        return None, "the hook calibration's sha256 does not match its body (edited by hand?)"
++    return cal, None
++
++
++def bar(rater, question_version, seed, now=None, path=PATH):
++    """The live bar: {"floors", "sha256", "rater", ...} when the calibration is valid for exactly this question
++    version and seed (and this rater, when one is named; passes() checks each rating's own back-end), and is under
++    VALID_H old; else (None, why), and no hook passes."""
++    cal, why = load(path)
++    if cal is None:
++        return None, why
++    for k, want in (("rater", rater), ("question_version", question_version), ("seed", seed), ("asking", "alone")):
++        if k == "rater" and want is None:
++            continue
++        if cal.get(k) != want:
++            return None, f"the hook calibration is for {k} {cal.get(k)!r}, not {want!r}: no hook passes until it is re-run"
++    try:
++        at = datetime.fromisoformat(str(cal["measured_at"]))
++        fl = {p: int(cal["floors"][p]) for p in PARTS}
++    except (KeyError, TypeError, ValueError):
++        return None, "the hook calibration has no readable measured_at or floors"
++    if at.tzinfo is None:                # a naive time cannot be compared with now (audit 20261115_1410)
++        return None, "the hook calibration's measured_at has no timezone: refused"
++    age = (now or datetime.now(timezone.utc)) - at
++    if age < -timedelta(minutes=SKEW_MIN):   # measured "in the future" would stretch the 24 h (audit 1410 C1, qwen)
++        return None, f"the hook calibration's measured_at ({cal['measured_at']}) is in the future: refused"
++    if age > timedelta(hours=VALID_H):
++        return None, f"the hook calibration is over {VALID_H:g} h old (measured {cal['measured_at']}): re-run it"
++    if any(v < FLOOR_MIN for v in fl.values()):
++        return None, f"a floor under {FLOOR_MIN} in the hook calibration: refused"
++    return {"floors": fl, "sha256": cal["sha256"], "rater": cal["rater"], "question_version": cal["question_version"],
++            "seed": cal["seed"], "measured_at": cal["measured_at"]}, None
++
++
++def passes(rec, live):
++    """(passes, why) for one hook rating record {"scroll", "alone", "setup", "backend", ...} on the live bar."""
++    if live is None:
++        return False, "no valid hook calibration"
++    if rec.get("backend") != live["rater"]:
++        return False, f"rated by {rec.get('backend')}, but the bar is calibrated on {live['rater']}"
++    short = [f"{p} {rec.get(p)} < {live['floors'][p]}" for p in PARTS
++             if type(rec.get(p)) is not int or rec[p] < live["floors"][p]]
++    return (not short), ("; ".join(short) or None)
++
++
++def text(live):
++    """The bar in one line, for every build line and record."""
++    if live is None:
++        return "no valid hook calibration: no hook passes"
++    f = live["floors"]
++    return (f"the calibrated hook bar (ruling 115): scroll >= {f['scroll']}, alone >= {f['alone']}, setup >= "
++            f"{f['setup']}, on {live['rater']} asked alone at seed {live['seed']} (calibration {live['sha256'][:12]})")
++
++
++def write(cal, path=PATH):
++    """Seal and write a calibration (its sha256 over its body), .tmp then rename."""
++    cal = dict(cal)
++    cal["sha256"] = body_sha(cal)
++    tmp = path + ".tmp"
++    with open(tmp, "w") as f:
++        json.dump(cal, f, indent=1, sort_keys=True)
++        f.write("\n")
++    os.replace(tmp, path)
++    return cal
++
++
++def add_example(story_id, verdict, hook, reason=None, path=PATH, now=None):
++    """RULING 115 (2): PBX's approve or reject of a package sealed on this bar, appended as an example (approved =
++    positive, rejected = negative with his reason). The floors are NOT re-derived here: a new floor comes from the
++    next calibration run, which asks every approved hook again. -> the calibration as written."""
++    if verdict not in ("approved", "rejected"):
++        raise ValueError("verdict is 'approved' or 'rejected'")
++    if verdict == "rejected" and not reason:
++        raise ValueError("a rejection carries PBX's reason")
++    cal, why = load(path)
++    if cal is None:
++        raise ValueError(why)
++    cal = copy.deepcopy(cal)
++    cal.setdefault("examples", []).append({
++        "story_id": story_id, "verdict": verdict, "reason": reason,
++        "hook": {k: hook.get(k) for k in ("moment_id", "text", "channel", *PARTS, "backend")},
++        "at": (now or datetime.now(timezone.utc)).isoformat(timespec="seconds")})
++    return write(cal, path)
+diff --git a/pipeline/hook_calibration.json b/pipeline/hook_calibration.json
+new file mode 100644
+index 00000000..4c606ad5
+--- /dev/null
++++ b/pipeline/hook_calibration.json
+@@ -0,0 +1,86 @@
++{
++ "approved": [
++  {
++   "alone": 4,
++   "approved": "the protected preview (references/pulse_preview_2026-11-11, PBX 2026-11-11)",
++   "backend": "xai:grok-4.20-0309-reasoning",
++   "channel": "DataDash",
++   "how": "asked alone at seed 7",
++   "ref": "ref-preview",
++   "scroll": 3,
++   "setup": 3,
++   "text": "Bitcoin has now seen a 16 % decline from the overall high from $88 ,000, touching down towards about $73 ,400, $500, give or take.",
++   "video_id": "RXTVaDsN11M",
++   "why": "lacks dramatic punch in first seconds"
++  },
++  {
++   "alone": 5,
++   "approved": "moments-fresh_20261112_050611-37c5b5f5",
++   "backend": "xai:grok-4.20-0309-reasoning",
++   "channel": "Saifedean Ammous",
++   "how": "asked alone at seed 7",
++   "ref": "ref-37c5b5f5",
++   "scroll": 3,
++   "setup": 4,
++   "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
++   "video_id": "vgsSZ4mAHfQ",
++   "why": "first 2-3s lack punch to stop scroll"
++  },
++  {
++   "alone": 5,
++   "approved": "moments-fresh_20261112_050611-41f29b1f",
++   "backend": "xai:grok-4.20-0309-reasoning",
++   "channel": "Natalie Brunell",
++   "how": "asked alone at seed 7",
++   "ref": "ref-41f29b1f",
++   "scroll": 3,
++   "setup": 4,
++   "text": "Bitcoin imposes a global free market for the first time ever.",
++   "video_id": "wdk5JZ9hPzs",
++   "why": "first seconds lack strong grab to halt scroll"
++  },
++  {
++   "alone": 5,
++   "approved": "moments-ledger_20261113_183302-0c68b589",
++   "backend": "xai:grok-4.20-0309-reasoning",
++   "channel": "Simply Bitcoin",
++   "how": "asked alone at seed 7 once more, unrecorded: the first answer was out of contract",
++   "ref": "ref-0c68b589",
++   "scroll": 3,
++   "setup": 4,
++   "text": "A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies. and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate.",
++   "video_id": "DcUbBkyeh9M",
++   "why": "first seconds too dry to halt scrolls"
++  },
++  {
++   "alone": 5,
++   "approved": "moments-ledger_20261113_215708-13949b7c",
++   "backend": "xai:grok-4.20-0309-reasoning",
++   "channel": "Simply Bitcoin",
++   "how": "asked alone at seed 7 once more, unrecorded: the first answer was out of contract",
++   "ref": "ref-13949b7c",
++   "scroll": 3,
++   "setup": 4,
++   "text": "Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued.",
++   "video_id": "DcUbBkyeh9M",
++   "why": "dry academic opener lacks scroll-stopping punch"
++  }
++ ],
++ "asking": "alone",
++ "examples": [],
++ "floors": {
++  "alone": 4,
++  "scroll": 3,
++  "setup": 3
++ },
++ "floors_below_3": [],
++ "measured_at": "2026-11-15T18:07:52+00:00",
++ "question_version": "e3cba8d92551",
++ "question_version_note": "package.HOOK_VERSION: the hook question (HOOKS_PROMPT), the asking (alone, one candidate a call) and the seed (7). Relabelled from bfdf74078d5e when the seed joined the version (audit 20261115_1410 C1, glm): the measured asking is the same.",
++ "rater": "xai:grok-4.20-0309-reasoning",
++ "rule": "a hook passes when EACH of scroll / alone / setup is at least its floor; a floor is the lowest value the part takes across the approved hooks under this asking, never below 3",
++ "ruling": "115 (orchestrator 13:24 ET Nov 15): the hook bar is defined by PBX's approvals",
++ "seed": 7,
++ "sha256": "fb964eb15a242b3ee7e385ce383546baa74e303d5009529eeab3cc18f313320b",
++ "source": "tests/package/proof/hook113/ALONE_TEST.json"
++}
+diff --git a/pipeline/model_providers.json b/pipeline/model_providers.json
+index 535c340e..c071828a 100644
+--- a/pipeline/model_providers.json
++++ b/pipeline/model_providers.json
+@@ -370,9 +370,6 @@
+     "heimdall:deepseek/deepseek-v4.1-flash"
+    ],
+    "coherence_verdict:hook": [
+-    "heimdall:qwen/qwen3.8-27b",
+-    "heimdall:z-ai/glm-5.3-flash",
+-    "heimdall:deepseek/deepseek-v4.1-flash",
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "coherence_verdict:clips_alone": [
+@@ -393,6 +390,9 @@
+     "anthropic:claude-opus-5-5",
+     "local_judge:gemma3:27b"
+    ],
++   "coherence_verdict:hook": [
++    "xai:grok-4.20-0309-reasoning"
++   ],
+    "coherence_verdict": [
+     "xai:grok-4.20-0309-reasoning",
+     "google:gemini-2.5-pro",
+@@ -457,9 +457,13 @@
+     "xai:grok-4.20-0309-reasoning",
+     "heimdall:deepseek/deepseek-v4.1-flash",
+     "heimdall:z-ai/glm-5.3-flash"
++   ],
++   "coherence_verdict:hook": [
++    "xai:grok-4.20-0309-reasoning"
+    ]
+   },
+   "ruling_88": "RULING 88 (orchestrator 22:15 Nov 13), from the replay's interim, the full table to confirm: (a) fidelity and exclusion on Heimdall now (two families, Grok last); (b) step C and the hook rating move when the full table holds the interim's 98-100 % (Grok first until then); (c) step A: Heimdall FIRST, a clip Heimdall refuses is refused and Grok is never asked, a clip Heimdall passes goes to Grok to confirm; (d) clips-alone and coherence keep Grok, glm out of both; (e) qwen never decides coherence or step C. THE FULL TABLE (01:06 ET Nov 14, 884 rows): (b) holds for the hook rating (qwen 100 % of 15 units, glm 100 % of 11, deepseek 96 %): it moved, qwen -> glm -> deepseek -> Grok; it does not hold for step C (glm 97 %, deepseek 96 %; qwen 98 % but barred by (e)): Grok first.",
++  "ruling_115": "RULING 115 (orchestrator 13:24 ET Nov 15), amending 85 / 88 / 96 for the HOOK only: the hook job is asked ALONE (one candidate a call) at production's seed by GROK, and Grok alone, in every routing (heimdall_first, today, plan_b): the calibrated floors (pipeline/hook_calibration.json, hook_bar.py) are Grok's, so no other model may decide a hook while Grok is out (no rating = no hook, law L-m). qwen answers every hook in SHADOW (recorded, never deciding; proof_ledger: shadow 'coherence_verdict:hook'). A hook passes when each of scroll / alone / setup is at least its floor.",
+   "ruling_96": "RULING 96 (orchestrator 01:40 ET Nov 14), FINAL until re-measured: HOOK qwen -> glm -> deepseek -> Grok; FIDELITY glm -> qwen -> Grok; EXCLUSION glm -> deepseek -> Grok; STEP A the Heimdall verdict first as the filter (glm first for speed: 45 s median against deepseek's 277 s; deepseek second; qwen third as failover, before Grok), Grok confirms what passes; STEP C, CLIPS-ALONE, COHERENCE, STEP B, SPEAKER, VISION: Grok first. qwen is never first where it failed an anchor. Re-run the replay monthly or when a Heimdall model changes; a type goes back to Grok first if its agreement falls under Grok's own self-agreement.",
+   "ruling_0612": "ORCHESTRATOR RULINGS 06:12 ET Nov 14 (the builder's two routing questions): (1) THE COHERENCE GAP: glm is coherence's LAST fallback, after Grok and after ruling 96's deepseek, which stays second (glm agreed with Grok on 94 % of the replay's coherence decisions, with one anchor failure in the whole table); an out-of-contract glm answer is no verdict (providers.call_parsed moves on, and after glm the chain is spent: fail closed). CLIPS-ALONE has NO Heimdall fallback (52-62 % on the replay): with Grok down it goes to Plan B's other outside family (Gemini's fenced key; OpenAI and Anthropic are frozen legs here; in Plan B mode the router already reads Plan B's coherence list, Grok -> Gemini -> OpenAI -> Anthropic), else it fails closed. (2) QWEN IS STRUCK FROM STEP A (mostly errors; 9 of 43 refusals let through): the first screen glm -> deepseek -> Grok, Grok's confirmation Grok -> glm -> deepseek, and the role's default list (no live caller: every step-A call names its kind) as the first screen. NOT CHANGED: the coherence role's default list (Grok -> deepseek), which the spotlight's closing-line and the medley's takeaway value verdicts use: the replay has no data for them (the orchestrator is asked, STATE 06:14, question B). Every other list is ruling 96's, unchanged.",
+   "ruling_102": "RULING 102 (orchestrator 13:02 ET Nov 14): STEP_A_UNAVAILABLE MUST NEVER END A CLIP. Step A's second family, in order: Heimdall deepseek (its own deadline, ruling 100) -> Heimdall glm -> GEMINI through the fenced key -> the local gemma3:27b on GPU0 through the integrator's judge service (ruling 87's last resort, recorded as such on the pin and on STATE line 1). Grok stays first (ruling 88 (c): Grok confirms a Heimdall pass); the second verdict is still off the first verdict's vendor and family. The first leg that ANSWERS gives the second verdict; an unavailable leg moves on at once, it is never a refusal and never cached. Only if no leg answers is the clip held for THIS build (STEP_A_HELD, not refused), and retried next build."
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 08c00359..d96a7cd3 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -9,8 +9,9 @@ usable()      moments a package may use: on screen eligible (word timing, law L-
+ prescreen()   step A of law L-s on EVERY usable moment's own context (ruling 58), ONCE per moment (package-independent):
+               this build's ledger (`store`) and the step-A cache every build shares (`cache`: moment id + text sha +
+               context sha + the step-A prompt); never recomputed
+-hook_ratings() RULING 59: the hook question of ruling 52 on every cleared, cuttable moment that can open, ONE batched
+-              call, cached; only a hook rated >= HOOK_MIN opens, and the angles are written FOR the passing hooks
++hook_ratings() RULING 59: the hook question of ruling 52 on every cleared, cuttable moment that can open, cached;
++              RULING 115: each candidate asked ALONE (one call each) and only a hook on the calibrated bar (hook_bar:
++              every part at least its floor, by the calibrated rater) opens; the angles are written FOR the passing hooks
+ ANGLES        role angle_write: up to MAX_ANGLES one-sentence angles, each backed by 3-8 cleared moments from >= 3
+               channels (one clip per channel, L-u), listed in PLAY ORDER (L-y 3)
+ lineup_for()  code: the hook + 2-4 clips for one angle in the proposer's play order, every segment from a different
+@@ -82,7 +83,8 @@ SHORT_CLIP_S = 8.0                 # a clip under ~8 s is a penalty unless it is
+ MAX_ANGLES = 3                     # orchestrator 05:30: at most 3 angles x 2 writes
+ WRITES = 2
+ COHERENCE_MIN = 4                  # the blind coherence verdict: every rating >= 4 and a through-line, else next angle
+-HOOK_MIN = COHERENCE_MIN           # RULING 59 (b): only a moment rated >= 4 on the hook's own job may open a line-up
++HOOK_MIN = COHERENCE_MIN           # RULING 59 (b), until ruling 115: a moment rated >= 4 on the hook's own job opened a
++#   line-up; ruling 115's calibrated bar decides now (hook_own "passes"). replay85's agreement rule still reads it.
+ BUDGET_WALL_S = 900.0              # orchestrator 22:40 ruling 5 (Heimdall as the writer; was 05:25 item 5's 360 s x2):
+ BUDGET_USD_REPORTED = 1.50         # per package 15 min wall and $1.50 by the vendors' OWN reported cost,
+ BUDGET_USD_ESTIMATE = 5.00         # with the price-table estimate (it over-states ~7x) only as a hard ceiling
+@@ -857,25 +859,45 @@ the opener of a video; the candidates are not compared with each other and never
+ For EACH candidate: """ + HOOK_QUESTION + """
+ Give "why": a few words on the candidate's weakest part.
+ Return ONLY this JSON object: {{"hooks": {{{keys}}}}}"""   # ruling 59 (a): ruling 52's ONE hook question, per candidate
+-HOOK_VERSION = hashlib.sha256(HOOKS_PROMPT.encode()).hexdigest()[:12]   # a cached rating is for exactly this question
+-
+-
+-def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None, seed=7):
+-    """RULING 59 (a): the hook question of ruling 52 (HOOK_QUESTION: scroll / alone / setup, each 1-5) asked of EVERY
+-    given moment ALONE, in ONE batched call (coherence_verdict, never the writers' vendor or family), each rating
+-    DERIVED as the lowest part (HOOK_RULE). Cached (`cache`, shared by every build) by the moment id, the sha256 of its
+-    text and the question's version: a moment is rated once, by a back-end off the writers. A reply out of contract
+-    moves on to the next model of the chain (providers.call_parsed, ruling 82 as the 20:33 order extends it). ->
+-    ({moment id: {"scroll", "alone", "setup", "rating", "why", "backend", "cached"}}, the error or None).
+-    A moment the call did not rate has no rating (law L-m: never a pass)."""
++HOOK_ASKING = "alone: one candidate a call (ruling 115)"   # ruling 115: the hook job asks each candidate ALONE
++HOOK_SEED = 7                      # production's seed for the hook job (the calibration law's seed, ruling 113 (2))
++HOOK_VERSION = hashlib.sha256((HOOKS_PROMPT + "\n" + HOOK_ASKING + f"\nseed {HOOK_SEED}").encode()).hexdigest()[:12]
++#   a cached rating is for exactly this question, this asking AND this seed (audit 20261115_1410 C1, glm): the batched
++#   ratings of before (dd497beb6930) never answer, nor would ratings asked at another seed
++
++
++def hook_live_bar():
++    """RULING 115: the calibrated hook bar for this question version and seed (hook_bar.bar), or (None, why)."""
++    import hook_bar as HB
++    return HB.bar(None, HOOK_VERSION, HOOK_SEED, path=HB.PATH)
++
++
++def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None, seed=HOOK_SEED):
++    """RULING 59 (a) / RULING 115: the hook question of ruling 52 (HOOK_QUESTION: scroll / alone / setup, each 1-5) asked
++    of EVERY given moment ALONE: ONE call per candidate (ruling 115: the asking the calibration measured; a batch moved
++    single ratings, 41f29b1f's from 3 alone to 5 among the approved hooks), on coherence_verdict's hook list (ruling
++    115: Grok; never the writers' vendor or family). Cached (`cache`, shared by every build) by the moment id, the
++    sha256 of its text and the question version (HOOK_VERSION carries the asking): a moment is rated once, by a back-end
++    off the writers. A reply out of contract moves on to the next model of the chain (providers.call_parsed, ruling 82
++    as the 20:33 order extends it). Whether a rated hook may open is hook_own's: the calibrated floors (ruling 115).
++    -> ({moment id: {"scroll", "alone", "setup", "rating", "why", "backend", "cached"}}, the first error or None).
++    A moment no call rated has no rating (law L-m: never a pass)."""
+     import providers as P
+     wv, wf = P._as_set(writer_vendor), P._as_set(writer_family)
+     off = lambda name: (lambda b: b is not None and b.vendor not in wv and b.family not in wf)(router.backends.get(name))
++    try:                                         # audit 20261115_1410 C1 (glm): only a back-end on TODAY's hook list
++        listed = set(router.chain("coherence_verdict", "hook"))   # answers from the cache, so a rater change re-asks
++    except AttributeError:                       # every hook (a rating by a model off the list can never pass the
++        listed = None                            # bar); a stand-in router without chain(): as before
++    except P.ProviderError:                      # no hook list at all: no cached rating answers (fail closed, C2 glm)
++        listed = set()
++    cache = cache if seed == HOOK_SEED else None  # the cache holds production's seed only (the key's version has it)
+     cdb, out, todo = _load_cache(cache), {}, []
+     key = lambda m: f"{m['moment_id']}:{text_sha(m['text'])}:{HOOK_VERSION}"
+     for m in ms:
+         rec = next((x for name, x in sorted((cdb.get(key(m)) or {}).items())
+-                    if isinstance(x, dict) and off(name) and x.get("backend") == name), None)
++                    if isinstance(x, dict) and off(name) and x.get("backend") == name and
++                    (listed is None or name in listed)), None)
+         if rec is not None and all(isinstance(rec.get(k), int) for k in HOOK_PARTS):
+             out[m["moment_id"]] = dict(rec, rating=min(rec[k] for k in HOOK_OWN), rule=HOOK_OWN_RULE,
+                                        cached=True)          # ruling 61: the own-job rating is scroll / alone
+@@ -883,12 +905,8 @@ def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None,
+             todo.append(m)
+     if not todo:
+         return out, None
+-    ids = [m["moment_id"] for m in todo]
+-    cands = "\n".join(f'CANDIDATE id="{m["moment_id"]}" (on screen: {CI._q(_name(m, ctx), 80)}): '
+-                      f'"{CI._q(m["text"], 900)}"' for m in todo)
+-    keys = ", ".join(f'"{i}": {{"scroll": 1, "alone": 1, "setup": 1, "why": "..."}}' for i in ids)
+ 
+-    def parse(text):
++    def parse(text, ids):
+         v = json.loads(text.strip())
+         h = v["hooks"] if isinstance(v, dict) and set(v) == {"hooks"} else None
+         if not isinstance(h, dict) or set(h) != set(ids) or any(
+@@ -896,21 +914,25 @@ def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None,
+                 any(type(x[k]) is not int or not 1 <= x[k] <= 5 for k in HOOK_PARTS) for x in h.values()):
+             raise ValueError("hook ratings out of contract")
+         return h
+-    try:                                         # the 20:33 order: an answer out of contract moves on to the next
+-        r, h = P.call_parsed(router, "coherence_verdict", HOOKS_PROMPT.format(hooks=cands, keys=keys), parse,
+-                             600 + 150 * len(ids), seed, avoid_vendor=writer_vendor, avoid_family=writer_family,
+-                             kind="hook")                                # ruling 88: the hook rating's own list
+-    except (P.ProviderError, P.SpendLimit, ValueError, TypeError, KeyError) as e:   # (it was one re-ask of the same
+-        return out, f"{type(e).__name__}: {str(e)[:200]}"     # model) unavailable, all out of contract, or the guard
+-    new = {}
+-    for m in todo:
+-        x = h[m["moment_id"]]
++    new, err = {}, None
++    for m in todo:                               # RULING 115: ALONE, one candidate a call (the calibration's asking)
++        mid = m["moment_id"]
++        cand = f'CANDIDATE id="{mid}" (on screen: {CI._q(_name(m, ctx), 80)}): "{CI._q(m["text"], 900)}"'
++        keys = f'"{mid}": {{"scroll": 1, "alone": 1, "setup": 1, "why": "..."}}'
++        try:                                     # the 20:33 order: an answer out of contract moves on to the next
++            r, h = P.call_parsed(router, "coherence_verdict", HOOKS_PROMPT.format(hooks=cand, keys=keys),
++                                 lambda t, i=(mid,): parse(t, i), 600 + 150, seed, avoid_vendor=writer_vendor,
++                                 avoid_family=writer_family, kind="hook")   # ruling 88: the hook rating's own list
++        except (P.ProviderError, P.SpendLimit, ValueError, TypeError, KeyError) as e:   # this candidate has no rating
++            err = err or f"{type(e).__name__}: {str(e)[:200]}"       # (law L-m); the others are still asked
++            continue
++        x = h[mid]
+         rec = {**{k: x[k] for k in HOOK_PARTS}, "rating": min(x[k] for k in HOOK_OWN), "why": x["why"][:300],
+-               "backend": r.backend, "rule": HOOK_OWN_RULE}           # ruling 61: scroll / alone
+-        out[m["moment_id"]] = dict(rec, cached=False, replayed=bool(getattr(r, "replayed", False)))
++               "backend": r.backend, "rule": HOOK_OWN_RULE}           # the rating orders hooks; hook_own decides
++        out[mid] = dict(rec, cached=False, replayed=bool(getattr(r, "replayed", False)))
+         new[key(m)] = {r.backend: rec}
+     _cache_put(cache, new)
+-    return out, None
++    return out, err
+ 
+ TAKEAWAY_SAID = ("The takeaway may characterise what the clips SAID, never what WILL happen. Two kinds were refused: a "
+                  "forecast or a permanence claim stated as fact ('Bitcoin outlasts politics.'), and a superlative that "
+@@ -1380,15 +1402,48 @@ def no_role_on_screen(m):
+                                         "with no clip scorer at the pin stage") + f": {c_why}; {h_why}")
+ 
+ 
++_LIVE = {}
++
++
++def _live_bar():
++    """The calibrated bar, read once per state of the calibration file (its mtime) and per minute: a build reads it a
++    few times, and a calibration that ages past its 24 h mid-build stops passing hooks within the minute."""
++    import hook_bar as HB
++    try:
++        k = (os.stat(HB.PATH).st_mtime_ns, int(time.time() // 60))
++    except OSError:
++        k = (None, int(time.time() // 60))
++    if k not in _LIVE:
++        _LIVE.clear()
++        _LIVE[k] = hook_live_bar()
++    return _LIVE[k]
++
++
++def hook_bar_mark(live=None):
++    """RULING 115 (2): what a package sealed on the calibrated bar carries in its record (and its pin, outside the seal):
++    the plain line for the Telegram note, the floors and the calibration's sha. `live`: the bar the build judged its
++    hooks on (audit 20261115_1410 C2, glm: never a fresh read that could differ at seal time); None reads it now."""
++    import hook_bar as HB
++    if live is None:
++        live, _ = _live_bar()
++    return {"note": HB.NOTE, "bar": HB.text(live), "floors": (live or {}).get("floors"),
++            "calibration_sha256": (live or {}).get("sha256"), "ruling": "115"}
++
++
+ def hook_own(m):
+-    """RULING 61 (12:00): a hook's OWN-JOB rating, the cached one ruling 59 gave it ("hook_rating"): {"scroll",
+-    "alone", "rating": the lower of the two, "source", "rule"}. 'Sets up what follows' is not part of it: it is judged
+-    at the hook -> clip_01 join. None when the moment carries no complete rating (then it never opens, law L-m)."""
++    """RULING 61 / RULING 115: a hook's OWN-JOB rating, the cached one ruling 59 gave it ("hook_rating"): {"scroll",
++    "alone", "setup", "rating": the lower of scroll and alone (it ORDERS hooks), "passes": RULING 115, every part at
++    least its calibrated floor, rated by the calibrated rater (hook_bar.passes), "short": why not, "bar": the bar in one
++    line, "source", "rule"}. None when the record lacks a part (then it never opens, law L-m)."""
++    import hook_bar as HB
+     r = (m or {}).get("hook_rating") or {}
+-    parts = {k: r.get(k) for k in HOOK_OWN}
++    parts = {k: r.get(k) for k in HOOK_PARTS}
+     if not all(isinstance(x, int) and not isinstance(x, bool) for x in parts.values()):
+         return None
+-    return dict(parts, rating=min(parts.values()), source="the hook's cached own-job rating (ruling 61)",
++    live, why = _live_bar()
++    ok, short = HB.passes(dict(parts, backend=r.get("backend")), live)
++    return dict(parts, rating=min(parts[k] for k in HOOK_OWN), passes=ok, short=why if live is None else short,
++                bar=HB.text(live), source="the hook's cached own-job rating (ruling 61), on the calibrated bar (ruling 115)",
+                 rule=HOOK_OWN_RULE)
+ 
+ 
+@@ -1417,8 +1472,9 @@ def third_opener(m):
+ def _can_open(m, pending_verdict=False):
+     """Whether a moment may OPEN a line-up: hook-eligible, its hook onset measured and passed (G17a), a first word the
+     render's STAND_ALONE takes for a hook (stand_alone.opener), and, once the build has rated the pool's hooks (RULING
+-    59: build() sets "hook_rating" on every cleared moment before any line-up), rated >= HOOK_MIN on the hook's own job
+-    (an unmeasured rating is never a pass, law L-m). A moment without the key is judged as before ruling 59."""
++    59: build() sets "hook_rating" on every cleared moment before any line-up), passing the calibrated hook bar on the
++    hook's own job (ruling 115: hook_own "passes"; an unmeasured rating is never a pass, law L-m). A moment without
++    the key is judged as before ruling 59."""
+     import stand_alone as SA
+     v = verdict_of(m)                                    # RULING 94 (b): the scorer's verdict on its current text
+     sc = (v["score"], v["fault"]) if v else (None, None)
+@@ -1432,8 +1488,8 @@ def _can_open(m, pending_verdict=False):
+         return False
+     if "hook_rating" not in m:
+         return True                                      # not rated yet: judged as before ruling 59
+-    own = hook_own(m)                                    # ruling 61: scroll / alone, the cached own-job rating
+-    return own is not None and own["rating"] >= HOOK_MIN
++    own = hook_own(m)                                    # ruling 115: every part at least its calibrated floor
++    return own is not None and own["passes"]
+ 
+ 
+ def hook_order(ms):
+@@ -1522,7 +1578,7 @@ def placement(m):
+     eligibility and a passed hook onset (G17a) it cannot open. Under SHORT_CLIP_S it may not play mid-line-up: the
+     short-clip rule binds the clips AFTER the hook only, so a short clip that can open may be the hook or the LAST clip,
+     and one that cannot open only the LAST (the 08:46 build: a 7.26 s opener was the only formable hook). RULING 59:
+-    "may open" is can_open(): once the pool's hooks are rated, only a hook rated >= HOOK_MIN opens."""
++    "may open" is can_open(): once the pool's hooks are rated, only a hook on the calibrated bar opens (ruling 115)."""
+     opens = can_open(m)
+     if m["duration_s"] < SHORT_CLIP_S:
+         return f" | under {SHORT_CLIP_S:.0f} s: " + ("only the hook or the LAST clip" if opens else "only the LAST clip")
+@@ -1688,8 +1744,9 @@ def coherence(router, pk, writer_vendor, seed=7, writer_family=None, hook=None):
+     v = dict(v, clips={**({labs[0]: own["rating"]} if own else {}), **v["clips"]},
+              hook_own=own or {"rating": None, "why": "the hook carries no cached own-job rating (ruling 61): "
+                                                      "fail closed"})
+-    ok = own is not None and _line_ok(v["through_line"]) and \
+-        min(list(v["clips"].values()) + [v["vo_point"]]) >= COHERENCE_MIN
++    ok = own is not None and own["passes"] and _line_ok(v["through_line"]) and \
++        min([x for lb, x in v["clips"].items() if lb != labs[0]] + [v["vo_point"]]) >= COHERENCE_MIN   # ruling 115:
++    #   the hook's slot is its calibrated bar, every clip after it and the VO point COHERENCE_MIN, as before
+     return ok, dict(v, backend=r.backend, measured=True, replayed=bool(getattr(r, "replayed", False)))
+ 
+ 
+@@ -1749,22 +1806,26 @@ def medley(router, segs, ctx, writer_vendor, seed=7, writer_family=None):
+              hook_own=own or {"rating": None, "why": "the hook carries no cached own-job rating (ruling 61): "
+                                                      "fail closed"})
+     flagged = [j for j in js if v["joins"][j]["followable"] is False]
+-    ok = own is not None and _line_ok(v["through_line"]) and min(v["clips"].values()) >= COHERENCE_MIN and \
+-        len(flagged) <= LY_MAX_BRIDGES
++    ok = own is not None and own["passes"] and _line_ok(v["through_line"]) and \
++        min(x for lb, x in v["clips"].items() if lb != labs[0]) >= COHERENCE_MIN and len(flagged) <= LY_MAX_BRIDGES
++    #   ruling 115: the hook's slot is its calibrated bar; every clip after it COHERENCE_MIN, as before
+     return ok, dict(v, flagged=flagged, backend=r.backend, measured=True,
+                     replayed=bool(getattr(r, "replayed", False)), cached=bool(getattr(r, "cached", False)))
+ 
+ 
+ def last_clip_only(segs, med):
+     """RULING 62 (12:00): whether a clips-alone failure is its LAST clip's alone: measured, the through-line stated,
+-    every other rating (the hook's cached one included) >= COHERENCE_MIN, the last clip's under it, and no more than
+-    LY_MAX_BRIDGES flagged joins once the join into the last clip goes with it."""
++    the hook passing its calibrated bar (ruling 115: hook_own of the line-up's own hook, as medley() judges it), every
++    clip after it but the last >= COHERENCE_MIN, the last clip's under it, and no more than LY_MAX_BRIDGES flagged
++    joins once the join into the last clip goes with it."""
+     labs = labels(len(segs))
+     cl = med.get("clips") or {}
+     if not med.get("measured") or not _line_ok(med.get("through_line")) or labs[-1] not in cl or labs[0] not in cl:
+         return False
+     rest = [j for j in med.get("flagged") or [] if j != joins(labs)[-1]]
+-    return [lb for lb, x in cl.items() if x < COHERENCE_MIN] == [labs[-1]] and len(rest) <= LY_MAX_BRIDGES
++    own = hook_own(segs[0])                              # ruling 115: the hook passes by its calibrated bar
++    return own is not None and own["passes"] and [lb for lb, x in cl.items() if lb != labs[0] and x < COHERENCE_MIN] \
++        == [labs[-1]] and len(rest) <= LY_MAX_BRIDGES
+ 
+ 
+ def reorder(segs, bad_pairs, judged, repeat_ok=False):
+@@ -2422,8 +2483,9 @@ def load_candidate(record, index=None, source=""):
+ 
+ def candidate_lineup(router, candidate, cleared, now):
+     """RULING 66: the candidate's line-up as THIS build's pool holds it, or why it is closed. Every clip must still be
+-    cleared (a clip delivered, aged out or failing a gate closes it), its hook must still open (its cached rating >=
+-    HOOK_MIN, G17a), and exactly its clips, in its order, must still form a line-up under lineup_for's own rules
++    cleared (a clip delivered, aged out or failing a gate closes it), its hook must still open (its cached rating on
++    the calibrated bar, ruling 115; G17a), and exactly its clips, in its order, must still form a line-up under
++    lineup_for's own rules
+     (the seconds, the channels, price predictions, short clips, trims, the render's STAND_ALONE).
+     -> (segs, None) or (None, why)."""
+     ids = list(candidate["lineup"])
+@@ -2433,7 +2495,7 @@ def candidate_lineup(router, candidate, cleared, now):
+     if gone:
+         return None, f"no longer cleared in this pool (delivered, aged out, or a gate fails): {gone}"
+     if not can_open(cleared[ids[0]]):
+-        return None, f"its hook no longer opens (rating >= {HOOK_MIN} and G17a): {ids[0]}"
++        return None, f"its hook no longer opens (the calibrated hook bar and G17a): {ids[0]}"
+     segs = lineup_for(dict(candidate["angle"], moments=ids), cleared, clips=(len(ids) - 1, len(ids) - 1),
+                       repeat_ok=candidate.get("supply_exception") is not None, need_onset=True,
+                       need_stand_alone=True, now=now, hook_only=True)
+@@ -2456,11 +2518,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     scorer_verdicts_path / scorer_candidates_path / build_name (ruling 56, scorer_pass): the integrator's verdicts of the
+     render's clip scorer to read, and where to write the next pass's candidates (None: neither).
+     RULING 59, HOOK FIRST: once the pool is screened, every cleared, cuttable moment that can open is rated on the hook's
+-    own job in one batched call (hook_ratings); only a hook rated >= HOOK_MIN opens; with none, the build stops there
+-    ('no hook in the pool', the three best listed) before the second screen, the angles and any line-up. The angle
++    own job (hook_ratings; ruling 115: each alone); only a hook on the calibrated bar opens; with none, the build stops
++    there ('no hook in the pool', the three best listed) before the second screen, the angles and any line-up. The angle
+     writer is given THE HOOKS and writes each angle FOR one; the angles are tried best hook first (ruling 57's
+     freshness next), each line-up opens on its angle's own hook and never swaps it.
+-    RULING 70, THE VISUAL CHECK (visual_pin): every hook rated >= HOOK_MIN is seen right after the ratings, before any
++    RULING 70, THE VISUAL CHECK (visual_pin): every hook on the bar is seen right after the ratings, before any
+     angle is asked (a hook whose sheet shows a third person while its words make a negative claim, or that is not
+     measured, may not open: can_open); every clip of a line-up that passes the clips-alone verdict is seen before any
+     write (not measured: dropped and re-lined, law L-m). Findings are sealed as FLAGS on the segment, never a reject by
+@@ -2642,7 +2704,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         m.pop("hook_rating", None)                                       # cache's), never one carried in
+     openers = {mid: m for mid, m in cleared.items() if can_open(m)}      # RULING 59 (a): every one that can open,
+     rated, hook_err = hook_ratings(router, list(openers.values()), ctx, wv, wf, cache=hook_cache) if openers else \
+-        ({}, None)                                                        # one batched call, cached
++        ({}, None)                                                        # each alone (ruling 115), cached
+     for mid, m in cleared.items():                                       # (b): the rating gates every opening now
+         m["hook_rating"] = rated.get(mid) or {"rating": None, "why": (f"not rated: {hook_err}" if mid in openers else
+                                                                       "cannot open (hook eligibility, G17a or the "
+@@ -2663,16 +2725,20 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+             + (f" ({'; '.join(f'{k}: {v[:90]}' for k, v in blocked.items())})" if blocked else "")
+             + f" ({time.time() - t0:.0f} s)")
+     best = [hook_line(m, ctx) for m in hook_order([m for mid, m in openers.items() if mid in rated])[:3]]
+-    out["hook_pool"] = {"can_open": len(openers), "rated": len(rated), "error": hook_err, "min": HOOK_MIN,
++    import hook_bar as HB
++    live, live_why = _live_bar()                         # RULING 115: the calibrated bar, named in every build line
++    out["hook_pool"] = {"can_open": len(openers), "rated": len(rated), "error": hook_err, "bar": HB.text(live),
++                        "bar_floors": (live or {}).get("floors"), "bar_sha256": (live or {}).get("sha256"),
++                        "bar_invalid": live_why,
+                         "ratings": {mid: rated[mid] for mid in sorted(rated)}, "best": best,
+                         "passing": [m["moment_id"] for m in hook_order([m for m in cleared.values() if can_open(m)])],
+                         "visual_blocked": blocked}
+-    log(f"  hooks (ruling 59): {len(openers)} can open, {len(rated)} rated, {len(out['hook_pool']['passing'])} rated >= "
+-        f"{HOOK_MIN} on the hook's own job" + (f"; NOT RATED: {hook_err}" if hook_err else "") +
+-        f" ({time.time() - t0:.0f} s)")
++    log(f"  hooks (ruling 59): {len(openers)} can open, {len(rated)} rated, {len(out['hook_pool']['passing'])} pass "
++        f"{HB.text(live)}" + (f" [{live_why}]" if live_why else "") + (f"; NOT RATED: {hook_err}" if hook_err else "")
++        + f" ({time.time() - t0:.0f} s)")
+     if not out["hook_pool"]["passing"]:                                  # (d): no line-up is paid for
+         out["why_none"] = ("no hook in the pool (ruling 59 d): " + (
+-            f"none of the {len(openers)} moments that can open rates >= {HOOK_MIN} on the hook's own job" +
++            f"none of the {len(openers)} moments that can open passes {HB.text(live)}" +
+             (f" ({len(openers) - len(rated)} not rated: {hook_err})" if hook_err else "") + "; the best: " +
+             "; ".join(f"{b['channel']} {b['rating']} (scroll {b['scroll']}, alone {b['alone']}, setup {b['setup']}): "
+                       f"{b['why']}" for b in best) if openers else
+@@ -2702,7 +2768,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         return out
+     passing = hook_order([m for m in cleared.values() if can_open(m)])    # ruling 59: the passing hooks still
+     if not passing:                                                        # cleared after the second screen
+-        out["why_none"] = ("no hook in the pool (ruling 59 d): every hook rated >= " + str(HOOK_MIN) + " failed the "
++        out["why_none"] = ("no hook in the pool (ruling 59 d): every hook that passed the calibrated bar failed the "
+                            "second vendor's step A: " + "; ".join(out["prescreen"]["second_vendor"].get(mid, "?")
+                                                                     for mid in out["hook_pool"]["passing"]))
+         return out
+@@ -3458,6 +3524,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+             if out["packages"] or out.get("budget_stop") or out.get("lock_stop") or over_budget(ai):
+                 break
+     out["package"] = out["packages"][0] if out["packages"] else None
++    if out["package"]:                                   # RULING 115 (2): a package sealed on the calibrated bar says so
++        out["package"]["hook_bar"] = hook_bar_mark(live)   # the bar its hooks were judged on (the hook stage's)
+     if candidate is not None:                             # RULING 66: what became of the candidate
+         t_ = next((t for t in out["tried"] if t.get("candidate") is not None), {})
+         out["candidate"]["result"] = t_.get("result") or t_.get("why") or out.get("why_none") or "not tried"
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index 1f409cf8..03990bc6 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -495,6 +495,8 @@ def to_pin(pk, run_name):
+                                     "spotlight": pk.get("spotlight")}                  # and why (outside the seal)
+                                    if spot else {}),
+                                 "gates": pk["gates"],
++                                **({"hook_bar": pk["hook_bar"]} if pk.get("hook_bar") else {}),   # ruling 115 (2): the
++                                #   calibrated hook bar's plain line for the Telegram note, floors and sha (outside the seal)
+                                 **({"btc_screen": pk["btc_screen"]} if pk.get("btc_screen") is not None else {}),
+                                 **({"formats": fmts} if fmts is not None else {}),   # ruling 93 amended (sealed)
+                                 "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True,
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+index 36ca7619..5e2c2cbd 100644
+--- a/pipeline/providers.py
++++ b/pipeline/providers.py
+@@ -1213,24 +1213,29 @@ class Router:
+                     self.down[n] = was
+         return ok
+ 
+-    def _shadow_of(self, role):
+-        return self.shadow.get(role) or self.shadow.get("*")
++    def _shadow_of(self, role, kind=None):
++        """RULING 86, and RULING 115 for a verdict type: "<role>:<kind>" first (the hook job's qwen), then the role,
++        then "*"."""
++        return (self.shadow.get(f"{role}:{kind}") if kind else None) or self.shadow.get(role) or self.shadow.get("*")
+ 
+-    def _shadow_ask(self, role, prompt, max_tokens, seed, system, deciding):
++    def _shadow_ask(self, role, prompt, max_tokens, seed, system, deciding, kind=None):
+         """RULING 86: ask the role's shadow back-end the same prompt, in a thread; one JSON line to shadow_log per
+-        verdict with both answers. Never raises into the build and never decides."""
++        verdict with both answers. Never raises into the build and never decides. A verdict type's own shadow (RULING
++        115) is asked on a chain of its own ("shadow86:<role>:<kind>"), so it never takes another shadow's chain."""
+         import threading
+-        name = self._shadow_of(role)
+-        self.chains.setdefault(f"shadow86:{role}", [name])
++        name = self._shadow_of(role, kind)
++        own = f"shadow86:{role}:{kind}" if kind and self.shadow.get(f"{role}:{kind}") else f"shadow86:{role}"
++        self.chains.setdefault(own, [name])
+ 
+         def run():
+-            rec = {"role": role, "prompt": prompt_text(prompt), "images": len(prompt["images"]) if is_vision(prompt)
++            rec = {"role": role, "kind": kind, "prompt": prompt_text(prompt),
++                   "images": len(prompt["images"]) if is_vision(prompt)
+                    else 0, "max_tokens": max_tokens, "seed": seed, "system": system,
+                    "deciding": {"backend": deciding.backend, "vendor": deciding.vendor, "text": deciding.text,
+                                 "cached": bool(getattr(deciding, "cached", False))}}
+             t0 = time.time()
+             try:
+-                r = self.call(f"shadow86:{role}", prompt, max_tokens, seed, system=system)
++                r = self.call(own, prompt, max_tokens, seed, system=system)
+                 rec["shadow"] = {"backend": r.backend, "text": r.text, "seconds": round(time.time() - t0, 2),
+                                  "cached": bool(getattr(r, "cached", False)),
+                                  "usd_reported": (r.usage or {}).get("usd_reported"), "usd_estimate": r.usd}
+@@ -1314,8 +1319,8 @@ class Router:
+                     rec = json.load(f)
+                 out = Reply(rec["text"], name, b.vendor, rec.get("seconds", 0.0), rec.get("usage") or {},
+                             rec.get("usd", 0.0), self.replay, tried, notices, b.family, not self.replay, path)
+-                if self.shadow and role in SHADOW_ROLES and self._shadow_of(role) not in (None, name):
+-                    self._shadow_ask(role, prompt, max_tokens, seed, system, out)  # ruling 86: a recorded verdict too
++                if self.shadow and role in SHADOW_ROLES and self._shadow_of(role, kind) not in (None, name):
++                    self._shadow_ask(role, prompt, max_tokens, seed, system, out, kind)   # ruling 86: recorded too
+                 return out
+             if self.replay:
+                 tried.append((name, "replay: not recorded"))
+@@ -1410,8 +1415,8 @@ class Router:
+                 recorded = path
+             out = Reply(text, name, b.vendor, round(secs, 2), usage, usd, False, tried, notices, b.family, False,
+                         recorded)
+-            if self.shadow and role in SHADOW_ROLES and self._shadow_of(role) not in (None, name):
+-                self._shadow_ask(role, prompt, max_tokens, seed, system, out)     # ruling 86: asked, never deciding
++            if self.shadow and role in SHADOW_ROLES and self._shadow_of(role, kind) not in (None, name):
++                self._shadow_ask(role, prompt, max_tokens, seed, system, out, kind)   # ruling 86: never deciding
+             return out
+         if self.replay:
+             raise ReplayMiss(f"{role}: no recorded exchange ({tried})")
+diff --git a/pipeline/spotlight.py b/pipeline/spotlight.py
+index c945ced3..9accfcf2 100644
+--- a/pipeline/spotlight.py
++++ b/pipeline/spotlight.py
+@@ -55,7 +55,7 @@ RUNTIME_S = PP.SPOT_RUNTIME_S          # ruling 90: total 28 to 50 s (the render
+ SNAP_TO_S = round(max(SPOT_S[0], RUNTIME_S[0] - P.FINAL_TAIL_S), 2)
+ #   13.7 s: the factory's tail (sign-off, credits card, outro, edges) is 14.3 s, so with no closing line (ruling 91's
+ #   default) a shorter clip cannot reach 28 s. A moment shorter than this is snapped; it is never padded.
+-HOOK_MIN = 4                           # ruling 90: >= 4 on the hook's own job (package.hook_own: scroll / alone)
++#   The opener's own job: ruling 90's ">= 4" (HOOK_MIN) is ruling 115's calibrated bar now (package.hook_own "passes").
+ ALONE_MIN = 4.0                        # ruling 90: >= 4 standing alone, by the ALONE scorer (its scale is 1-5)
+ CLOSING_MAX_WORDS = PP.SPOT_CLOSING_MAX_WORDS   # 12
+ COMMENT_MAX_LINES = 2                  # ruling 90: "one or two short casual lines"
+@@ -738,10 +738,12 @@ def inventory(pk, m, fid, dup, rt_ok, style, cx, a_off, a_two, exc, truth, pre,
+                           by_rule="ruling 90: the visual check clean (no ruling-70 flag, not blocked as a hook, and "
+                                   "eligible on its frames under ruling 93; a ruling-93 burned_in flag is listed)")
+     own, hr = P.hook_own(m), m.get("hook_rating") or {}
+-    rows["hook_own"] = _row(own is not None and own["rating"] >= HOOK_MIN, hr.get("backend"),
++    rows["hook_own"] = _row(own is not None and own["passes"], hr.get("backend"),
+                             bool(hr.get("replayed", False)), measured=own is not None,
+                             rating=(own or {}).get("rating"), scroll=hr.get("scroll"), alone=hr.get("alone"),
+-                            why=hr.get("why"), min=HOOK_MIN, rule="ruling 90: >= 4 on the hook's own job (ruling 61)")
++                            setup=hr.get("setup"), why=hr.get("why"), bar=(own or {}).get("bar"),
++                            rule="ruling 115: every part (scroll, alone, setup) at least its calibrated floor, rated "
++                                 "by the calibrated rater")
+     sv = P.verdict_of(m)
+     rows["stands_alone"] = _row(sv is not None and float(sv["score"]) >= ALONE_MIN,
+                                 f"the ALONE scorer ({(sv or {}).get('model')}, the render's stand_alone scorer as the "
+@@ -818,8 +820,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     stage and why it stopped), "finalists", "near", "why_none", ...}. The stages run cheapest first, each on what the
+     one before passed; every verdict is the medley's own and cached or recorded across builds: step A
+     (package.prescreen), L-v 2 and CUTTABLE (truth_for), G17a (hook_onset_for), the render's hook rules and the hook's
+-    own-job rating (package._can_open, hook_ratings: >= HOOK_MIN), the visual check clean (visual_pin: measured, no
+-    flag, not blocked as a hook), step A from the second family (package.second_screen), the ALONE scorer >= ALONE_MIN
++    own-job rating (package._can_open, hook_ratings: ruling 115's calibrated bar), the visual check clean
++    (visual_pin: measured, no flag, not blocked as a hook), step A from the second family (package.second_screen), the ALONE scorer >= ALONE_MIN
+     (a moment with no rating yet waits up to wait_s for the integrator's pass, polling the verdicts file), ruling 92's
+     source test; then, best first (rank_key), up to `finalists` moments: the exclusion verdict, the render's lock
+     pre-check (lock_check; no verdict stops the search, as in a medley build) and package_for(). lock_check None: no
+@@ -902,15 +904,17 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     passed(openers, 3)
+     rated, herr = P.hook_ratings(router, list(openers.values()), ctx, wv, wf, cache=hook_cache) if openers else \
+         ({}, None)
++    bar_at_hooks = P._live_bar()[0]                       # ruling 115 (2): the bar the openers are judged on (the mark)
+     strong = {}
+     for mid, m in openers.items():
+         m["hook_rating"] = rated.get(mid) or {"rating": None, "why": f"not rated: {herr}"}
+         own = P.hook_own(m)
+         rec[mid]["hook_own"] = (own or {}).get("rating")
+-        if own is not None and own["rating"] >= HOOK_MIN:
++        rec[mid]["hook_passes"] = bool((own or {}).get("passes"))   # ruling 115: the bar's verdict (glm, audit 1410)
++        if own is not None and own["passes"]:              # ruling 115: the calibrated bar
+             strong[mid] = m
+         else:
+-            stop(mid, f"the hook's own job rates {(own or {}).get('rating')} (needs {HOOK_MIN}): "
++            stop(mid, f"the hook's own job: {(own or {}).get('short') or 'not rated'} ({(own or {}).get('bar')}): "
+                       f"{m['hook_rating'].get('why')}")
+     passed(strong, 4)
+     vcache = VP.load_cache(visual_cache) if visual_cache else {}
+@@ -988,7 +992,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     ranked = sorted(ok_src, key=rank_key)
+     out["finalists"] = [m["moment_id"] for m in ranked]
+     log(f"  SPOTLIGHT: {len(cleared)} cleared step A, {len(cut)} cuttable, {len(openers)} open cold, {len(strong)} "
+-        f"rate >= {HOOK_MIN} as an opener, {len(clean)} clean, {len(both)} two families, {len(fine)} ALONE >= "
++        f"pass the calibrated hook bar as an opener, {len(clean)} clean, {len(both)} two families, {len(fine)} ALONE >= "
+         f"{ALONE_MIN:g}, {len(ranked)} from a conversation ({time.time() - t0:.0f} s)")
+     exc_cache = {}
+     for m in ranked[:finalists]:
+@@ -1020,6 +1024,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         if pk is not None:
+             pk["seconds"] = round(time.time() - t0, 1)
+             out["package"] = pk
++            pk["hook_bar"] = P.hook_bar_mark(bar_at_hooks)   # RULING 115 (2): sealed on the calibrated bar, said so
+             rec[mid]["out"] = "PACKAGE"
+             break
+         stop(mid, why_p)
+diff --git a/tests/package/conftest.py b/tests/package/conftest.py
+new file mode 100644
+index 00000000..0e679123
+--- /dev/null
++++ b/tests/package/conftest.py
+@@ -0,0 +1,32 @@
++"""RULING 115: THE RIGS' HOOK BAR. Every test under tests/package judges hooks on a calibrated bar whose floors are
++PINNED here: the floors ruling 115's calibration measured at 13:07 ET Nov 15 (scroll 3, alone 4, setup 3), for the
++rigs' own rater name, "xai:grok". A daily re-calibration may move production's floors; it never moves a rig's
++verdict. The fixture patches only package._live_bar: hook_bar's own functions, which tests/package/test_hook_bar.py
++tests on files of its own (and that the live file's floors are derived from their source), are never touched. A test
++class that needs production's calibration file sets `real_hook_bar = True`."""
++import os
++import sys
++
++import pytest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(HERE)), "pipeline"))
++import package as PK  # noqa: E402
++
++RIG_RATER = "xai:grok"
++RIG_FLOORS = {"scroll": 3, "alone": 4, "setup": 3}
++
++
++def rig_bar():
++    return {"floors": dict(RIG_FLOORS), "sha256": "t" * 64, "rater": RIG_RATER,
++            "question_version": PK.HOOK_VERSION, "seed": PK.HOOK_SEED, "measured_at": "2026-11-15T18:07:52+00:00"}
++
++
++@pytest.fixture(autouse=True)
++def _rig_hook_bar(request, monkeypatch):
++    if getattr(request.cls, "real_hook_bar", False):
++        yield
++        return
++    bar = rig_bar()
++    monkeypatch.setattr(PK, "_live_bar", lambda: (bar, None))
++    yield
+diff --git a/tests/package/hook112.py b/tests/package/hook112.py
+index 61686b43..6d1a84af 100644
+--- a/tests/package/hook112.py
++++ b/tests/package/hook112.py
+@@ -388,11 +388,16 @@ def ref_moments(refs=REFS):
+     return out
+ 
+ 
+-def heimdall_hook_chain(router):
+-    """Ruling 88's hook list as production reads it, with every non-Heimdall back-end removed (the order: Heimdall
++RULING_96_HOOK = ("heimdall:qwen/qwen3.8-27b", "heimdall:z-ai/glm-5.3-flash", "heimdall:deepseek/deepseek-v4.1-flash")
++#   ruling 96's hook list without Grok: the Heimdall list ruling 112 measured. Production's hook list is Grok ALONE since
++#   ruling 115 (the calibrated rater), so the driver names its Heimdall list instead of reading production's.
++
++
++def heimdall_hook_chain(router, names=None):
++    """`names` (default: the router's own hook list) with every non-Heimdall back-end removed, in order (Heimdall
+     only). Refused when none is left."""
+-    chain = [n for n in router.chain("coherence_verdict", "hook")   # a Heimdall back-end's vendor is "heimdall/<family>"
+-             if str(getattr(router.backends.get(n), "vendor", "")).split("/")[0] == "heimdall"]
++    chain = [n for n in (names or router.chain("coherence_verdict", "hook"))   # a Heimdall back-end's vendor is
++             if str(getattr(router.backends.get(n), "vendor", "")).split("/")[0] == "heimdall"]   # "heimdall/<family>"
+     if not chain:
+         raise RuntimeError("refused: ruling 88's hook list has no Heimdall back-end")
+     return chain
+@@ -405,13 +410,15 @@ def registry(path=os.path.join(REPO, "pipeline", "channels.json")):
+         return json.load(f)
+ 
+ 
+-def build_router(spend_path=SPEND, record_dir=None):
++def build_router(spend_path=SPEND, record_dir=None, hook_chain=RULING_96_HOOK):
++    """The driver's router: Heimdall only for the hook job (`hook_chain`, filtered to Heimdall), ruling 48's ledger
++    on reported spend under LIMIT_USD."""
+     import deadline_table as DT
+     import providers as P
+     import replay85 as R
+     r = P.Router(env_path=R.ENV, record_dir=record_dir, spend_path=spend_path, limit_usd=LIMIT_USD,
+                  limit_basis="reported", routing="heimdall_first", deadlines=DT.load(DT.STATE, None))
+-    r.chains["coherence_verdict:hook"] = heimdall_hook_chain(r)
++    r.chains["coherence_verdict:hook"] = heimdall_hook_chain(r, list(hook_chain))
+     return r
+ 
+ 
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 2f200ba1..881884ad 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -70,6 +70,7 @@ import shadow86 as SH  # noqa: E402
+ import ledger_build as LB  # noqa: E402
+ import moments as M  # noqa: E402
+ import package as PK  # noqa: E402
++import hook_bar as HB  # noqa: E402
+ import package_pin  # noqa: E402
+ import proof_ly as PL  # noqa: E402
+ import proof_saved_runs as PS  # noqa: E402
+@@ -155,6 +156,19 @@ def open_work(res, sp):
+     return held + no_verdict + int(vis.get("unmeasured") or 0)
+ 
+ 
++HOOK_SHADOW = {"coherence_verdict:hook": "heimdall:qwen/qwen3.8-27b"}   # RULING 115: recorded, never deciding
++
++
++def build_shadow(routing, rt, streak):
++    """The build's shadow back-ends: RULING 86, Grok (routing.shadow) on the first heimdall_first pins, until
++    `shadow_until_clean_pins` clean pins in a row (`streak`: a callable, read only under heimdall_first); RULING 115,
++    qwen on every hook, in every build. Recorded, never deciding."""
++    shadow = None
++    if routing == "heimdall_first" and streak() < int(rt.get("shadow_until_clean_pins") or 3):
++        shadow = rt.get("shadow") or None
++    return dict(shadow or {}, **HOOK_SHADOW)
++
++
+ def nothing_new(proof_dir, out_dir, fp):
+     """RULING 107 (1): the newest earlier FINISHED build (its FINGERPRINT.json) when its fingerprint is this build's and
+     it left nothing undone; else None. A build that stopped early writes none, and neither does a --from-candidate
+@@ -431,12 +445,13 @@ def main(argv=None):
+         return 0
+     rt = json.load(open(P.CONFIG)).get("routing") or {}
+     routing = a.routing or rt.get("mode") or "today"
+-    shadow = None                                # RULING 86: Grok in shadow on the first heimdall_first pins
+-    if routing == "heimdall_first" and SH.clean_streak() < int(rt.get("shadow_until_clean_pins") or 3):
+-        shadow = rt.get("shadow") or None
++    shadow = build_shadow(routing, rt, SH.clean_streak)   # RULING 86 (Grok) / RULING 115 (qwen on every hook)
+     router = build_router(routing, shadow, os.path.join(out_dir, "SHADOW86.jsonl"))
+     say(f"  routing (ruling 85): {router.routing}; now {router.mode()} (ruling 87: the shared Heimdall health)"
+-        + (f"; SHADOW (ruling 86): {shadow}" if shadow else ""))
++        + (f"; SHADOW (ruling 86 / 115): {shadow}" if shadow else ""))
++    live, live_why = PK.hook_live_bar()          # RULING 115: the bar in every build line, its floors and its sha
++    say(f"  RULING 115: {HB.text(live)}; the hook list {router.chain('coherence_verdict', 'hook')}"
++        + (f" [{live_why}]" if live_why else ""))
+     say(f"  RULING 100 (deadlines follow the model, table of {(router.deadlines or {}).get('computed_at')}): "
+         f"{DT.text(router.deadlines, applies=applied(router)) or 'no row applies: each gateway keeps its number'}")
+     spent0 = router.spent()                      # ruling 48: the running total, vendor-reported (+ estimates where none)
+diff --git a/tests/package/test_hook112.py b/tests/package/test_hook112.py
+index 57161c80..3a5a376b 100644
+--- a/tests/package/test_hook112.py
++++ b/tests/package/test_hook112.py
+@@ -215,7 +215,10 @@ class TestTheCalibration(unittest.TestCase):
+         chain = r.chain("coherence_verdict", "hook")
+         self.assertTrue(chain and all(r.backends[n].vendor.split("/")[0] == "heimdall" for n in chain), chain)
+         self.assertNotIn("xai:grok-4.20-0309-reasoning", chain)
+-        self.assertEqual(chain[0], "heimdall:qwen/qwen3.8-27b")       # ruling 88's order, Grok removed
++        self.assertEqual(chain[0], "heimdall:qwen/qwen3.8-27b")       # ruling 96's order, Grok removed
++        with tempfile.TemporaryDirectory() as d:                      # production's list (Grok alone, ruling 115)
++            with self.assertRaises(RuntimeError):                     # has no Heimdall back-end: refused, never Grok
++                H.build_router(spend_path=os.path.join(d, "SPEND.json"), hook_chain=("xai:grok-4.20-0309-reasoning",))
+         self.assertEqual((r.limit_usd, r.limit_basis), (H.LIMIT_USD, "reported"))
+ 
+     def test_heimdall_only_and_refused_without_one(self):
+diff --git a/tests/package/test_hook_bar.py b/tests/package/test_hook_bar.py
+new file mode 100644
+index 00000000..793a5f90
+--- /dev/null
++++ b/tests/package/test_hook_bar.py
+@@ -0,0 +1,265 @@
++#!/usr/bin/env python3
++"""RULING 115 (orchestrator 13:24 ET Nov 15): THE CALIBRATED HOOK BAR (pipeline/hook_bar.py). A hook passes when each of
++scroll / alone / setup is at least the LOWEST value that part takes across PBX's approved hooks under the same asking
++(ALONE, production's seed, Grok); no floor under 3; one sealed calibration file, valid for its rater, question version,
++seed and asking, for 24 h; a package sealed on it says so; PBX's verdicts on such packages are appended as examples.
++The live file is checked against its source and against production's hook job."""
++import copy
++import json
++import os
++import sys
++import tempfile
++import unittest
++from datetime import datetime, timedelta, timezone
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++for _p in ("pipeline", "tests/package"):
++    sys.path.insert(0, os.path.join(REPO, _p))
++import hook_bar as HB  # noqa: E402
++import package as PK  # noqa: E402
++import package_pin as PP  # noqa: E402
++
++AT = datetime(2026, 11, 15, 18, 7, 52, tzinfo=timezone.utc)
++G = "xai:grok-4.20-0309-reasoning"
++Q = "heimdall:qwen/qwen3.8-27b"
++
++
++def approved(*parts):
++    return [{"ref": f"ref-{i}", "scroll": s, "alone": a, "setup": u, "backend": G} for i, (s, a, u) in enumerate(parts)]
++
++
++def cal(parts=((3, 4, 3), (3, 5, 4), (4, 5, 4)), **kw):
++    ap = approved(*parts)
++    fl, low = HB.floors_from(ap)
++    return dict({"rater": G, "asking": "alone", "seed": 7, "question_version": "qv", "measured_at": AT.isoformat(),
++                 "approved": ap, "floors": fl, "floors_below_3": low, "examples": []}, **kw)
++
++
++class TestFloors(unittest.TestCase):
++    def test_each_floor_is_its_parts_lowest_value_across_the_approved_hooks(self):
++        self.assertEqual(HB.floors_from(approved((3, 4, 3), (3, 5, 4), (4, 5, 4))),
++                         ({"scroll": 3, "alone": 4, "setup": 3}, []))
++        self.assertEqual(HB.floors_from(approved((5, 5, 5), (4, 5, 5))), ({"scroll": 4, "alone": 5, "setup": 5}, []))
++
++    def test_a_floor_under_3_stops_at_3_and_is_told(self):
++        fl, low = HB.floors_from(approved((2, 5, 4), (3, 1, 4)))
++        self.assertEqual(fl, {"scroll": 3, "alone": 3, "setup": 4})
++        self.assertEqual(low, ["scroll 2 (stopped at 3)", "alone 1 (stopped at 3)"])
++
++    def test_a_part_missing_or_not_an_integer_measures_nothing(self):
++        for bad in ([{"scroll": 3, "alone": 4}], [{"scroll": 3, "alone": 4, "setup": 3.0}],
++                    [{"scroll": True, "alone": 4, "setup": 3}], []):
++            with self.assertRaises(ValueError):
++                HB.floors_from(bad)
++
++
++class TestTheFile(unittest.TestCase):
++    def setUp(self):
++        self.d = tempfile.TemporaryDirectory()
++        self.path = os.path.join(self.d.name, "hook_calibration.json")
++
++    def tearDown(self):
++        self.d.cleanup()
++
++    def bar(self, now=AT + timedelta(hours=1), **kw):
++        a = dict(dict(rater=None, question_version="qv", seed=7), **kw)
++        return HB.bar(a["rater"], a["question_version"], a["seed"], now=now, path=self.path)
++
++    def test_written_sealed_and_read_back_as_the_live_bar(self):
++        c = HB.write(cal(), self.path)
++        self.assertEqual(c["sha256"], HB.body_sha(c))
++        live, why = self.bar()
++        self.assertIsNone(why)
++        self.assertEqual((live["floors"], live["rater"], live["sha256"]),
++                         ({"scroll": 3, "alone": 4, "setup": 3}, G, c["sha256"]))
++        self.assertIn(f"scroll >= 3, alone >= 4, setup >= 3, on {G} asked alone at seed 7 (calibration "
++                      f"{c['sha256'][:12]})", HB.text(live))
++
++    def test_a_hand_edit_breaks_the_seal_and_no_hook_passes(self):
++        HB.write(cal(), self.path)
++        with open(self.path) as f:
++            c = json.load(f)
++        c["floors"]["alone"] = 3                                          # edited, not re-sealed
++        with open(self.path, "w") as f:
++            json.dump(c, f)
++        live, why = self.bar()
++        self.assertIsNone(live)
++        self.assertIn("sha256 does not match", why)
++        self.assertEqual(HB.passes({"scroll": 5, "alone": 5, "setup": 5, "backend": G}, live),
++                         (False, "no valid hook calibration"))
++        self.assertEqual(HB.text(live), "no valid hook calibration: no hook passes")
++
++    def test_missing_or_unreadable_is_no_bar(self):
++        live, why = self.bar()
++        self.assertIsNone(live)
++        self.assertIn("cannot be read", why)
++        with open(self.path, "w") as f:
++            f.write("{not json")
++        self.assertIsNone(self.bar()[0])
++
++    def test_valid_only_for_its_question_version_seed_asking_and_rater(self):
++        HB.write(cal(), self.path)
++        self.assertIsNotNone(self.bar(rater=G)[0])
++        for kw in ({"question_version": "another"}, {"seed": 8}, {"rater": Q}):
++            live, why = self.bar(**kw)
++            self.assertIsNone(live, kw)
++            self.assertIn("no hook passes until it is re-run", why)
++        HB.write(cal(asking="batched"), self.path)                         # the batch moved single ratings
++        self.assertIsNone(self.bar()[0])
++
++    def test_once_a_day_a_stale_calibration_passes_nothing(self):
++        HB.write(cal(), self.path)
++        self.assertIsNotNone(self.bar(now=AT + timedelta(hours=23, minutes=59))[0])
++        live, why = self.bar(now=AT + timedelta(hours=24, minutes=1))
++        self.assertIsNone(live)
++        self.assertIn("over 24 h old", why)
++
++    def test_a_future_or_naive_measured_at_passes_nothing(self):
++        """Audit 20261115_1410 C1 (qwen): a calibration "measured" ahead of now would stretch its 24 h; a time with no
++        timezone cannot be compared with now (it must never raise into a build)."""
++        HB.write(cal(), self.path)
++        self.assertIsNotNone(self.bar(now=AT - timedelta(minutes=4))[0])  # clock skew inside 5 min
++        live, why = self.bar(now=AT - timedelta(minutes=6))
++        self.assertIsNone(live)
++        self.assertIn("is in the future", why)
++        HB.write(cal(measured_at="2026-11-15T18:07:52"), self.path)
++        live, why = self.bar()
++        self.assertIsNone(live)
++        self.assertIn("no timezone", why)
++
++    def test_a_floor_under_3_in_the_file_is_refused(self):
++        HB.write(cal(floors={"scroll": 2, "alone": 4, "setup": 3}), self.path)
++        live, why = self.bar()
++        self.assertIsNone(live)
++        self.assertIn("a floor under 3", why)
++
++
++class TestPasses(unittest.TestCase):
++    LIVE = {"floors": {"scroll": 3, "alone": 4, "setup": 3}, "rater": G, "sha256": "s" * 64, "seed": 7}
++
++    def ok(self, s, a, u, b=G):
++        return HB.passes({"scroll": s, "alone": a, "setup": u, "backend": b}, self.LIVE)
++
++    def test_every_part_at_least_its_floor_by_the_calibrated_rater(self):
++        self.assertEqual(self.ok(3, 4, 3), (True, None))                  # at every floor
++        self.assertEqual(self.ok(5, 5, 5), (True, None))
++        self.assertEqual(self.ok(2, 4, 3), (False, "scroll 2 < 3"))
++        self.assertEqual(self.ok(3, 3, 3), (False, "alone 3 < 4"))
++        self.assertEqual(self.ok(3, 4, 2), (False, "setup 2 < 3"))
++        self.assertEqual(self.ok(2, 3, 2), (False, "scroll 2 < 3; alone 3 < 4; setup 2 < 3"))
++        self.assertEqual(self.ok(5, 5, 5, Q), (False, f"rated by {Q}, but the bar is calibrated on {G}"))
++        self.assertFalse(HB.passes({"scroll": 5, "alone": 5, "backend": G}, self.LIVE)[0])           # a part missing
++        self.assertFalse(HB.passes({"scroll": 5, "alone": 5, "setup": True, "backend": G}, self.LIVE)[0])
++
++
++class TestExamples(unittest.TestCase):
++    """RULING 115 (2): PBX's approve or reject of a package sealed on the bar is appended as an example."""
++
++    def test_approved_and_rejected_with_his_reason_appended_sealed_and_the_floors_unchanged(self):
++        with tempfile.TemporaryDirectory() as d:
++            path = os.path.join(d, "c.json")
++            HB.write(cal(), path)
++            hook = {"moment_id": "m1", "text": "Bitcoin t.", "channel": "A", "scroll": 3, "alone": 4, "setup": 3,
++                    "backend": G, "extra": 1}
++            HB.add_example("story-1", "approved", hook, path=path, now=AT)
++            c = HB.add_example("story-2", "rejected", hook, reason="the opener is mid-sentence", path=path, now=AT)
++            self.assertEqual([(e["story_id"], e["verdict"], e["reason"]) for e in c["examples"]],
++                             [("story-1", "approved", None), ("story-2", "rejected", "the opener is mid-sentence")])
++            self.assertNotIn("extra", c["examples"][0]["hook"])
++            self.assertEqual(HB.load(path)[0], c)                          # sealed
++            self.assertEqual(c["floors"], cal()["floors"])                  # a new floor comes from the next run
++            for verdict, reason in (("rejected", None), ("maybe", "r")):    # a rejection carries his reason
++                with self.assertRaises(ValueError):
++                    HB.add_example("story-3", verdict, hook, reason=reason, path=path)
++            self.assertEqual(len(HB.load(path)[0]["examples"]), 2)
++
++
++class TestTheMark(unittest.TestCase):
++    """RULING 115 (2): a package sealed on the bar says so in its record and in its pin, in one plain line, outside
++    the seal (the integrator prints it in the Telegram note)."""
++
++    def test_the_mark_is_the_bar_the_hooks_were_judged_on(self):
++        """Audit 20261115_1410 C2 (glm): a mark made at seal time names the bar the build judged its hooks on, even
++        if the calibration has changed (or expired) since."""
++        from unittest import mock
++        judged = {"floors": {"scroll": 3, "alone": 4, "setup": 3}, "sha256": "j" * 64, "rater": G, "seed": 7}
++        with mock.patch.object(PK, "_live_bar", lambda: (None, "the hook calibration is over 24 h old")):
++            m = PK.hook_bar_mark(judged)
++            self.assertEqual((m["calibration_sha256"], m["floors"]), ("j" * 64, judged["floors"]))
++            self.assertIsNone(PK.hook_bar_mark()["floors"])                 # read now: what it says now
++
++    def test_the_pin_carries_the_line_outside_the_seal(self):
++        import test_angles as TA
++        base = TA.TestPinAndTruth.pk(None)
++        plain = PP.to_pin(copy.deepcopy(base), "r")
++        self.assertNotIn("hook_bar", plain["moments_package"])
++        pin = PP.to_pin(dict(copy.deepcopy(base), hook_bar=PK.hook_bar_mark()), "r")
++        mp = pin["moments_package"]
++        self.assertEqual((mp["hook_bar"]["note"], mp["hook_bar"]["floors"], mp["hook_bar"]["ruling"]),
++                         ("hook passed on the calibrated bar", {"scroll": 3, "alone": 4, "setup": 3}, "115"))
++        self.assertEqual(mp["package_sha256"], plain["moments_package"]["package_sha256"])   # outside the seal
++        self.assertEqual(PP.pin_seal(pin), mp["package_sha256"])
++
++
++class TestTheLiveCache(unittest.TestCase):
++    """package._live_bar: the bar is read once per state of the file and per minute (so a calibration that ages past
++    its 24 h mid-build stops passing hooks within the minute), and again as soon as the file changes."""
++    real_hook_bar = True
++
++    def test_read_once_a_minute_and_again_when_the_file_changes(self):
++        import types
++        from unittest import mock
++        with tempfile.TemporaryDirectory() as d:
++            path = os.path.join(d, "c.json")
++            now = datetime.now(timezone.utc)
++            HB.write(cal(question_version=PK.HOOK_VERSION, seed=PK.HOOK_SEED, measured_at=now.isoformat()), path)
++            t, reads, real = [1000.0 * 60], [], PK.hook_live_bar
++            with mock.patch.object(HB, "PATH", path), mock.patch.object(PK, "time", types.SimpleNamespace(
++                    time=lambda: t[0])), mock.patch.object(PK, "hook_live_bar", lambda: (reads.append(1), real())[1]):
++                PK._LIVE.clear()
++                live, why = PK._live_bar()
++                self.assertEqual((live["floors"], why, len(reads)), ({"scroll": 3, "alone": 4, "setup": 3}, None, 1))
++                PK._live_bar()
++                self.assertEqual(len(reads), 1)                               # the same minute, the same file
++                t[0] += 61
++                PK._live_bar()
++                self.assertEqual(len(reads), 2)                               # a new minute: read again
++                HB.write(cal(question_version="another", measured_at=now.isoformat()), path)
++                os.utime(path, ns=(1, 1))                                      # the file changed (its mtime moved)
++                live, why = PK._live_bar()
++                self.assertEqual((live, len(reads)), (None, 3))               # read at once: no hook passes
++                self.assertIn("no hook passes until it is re-run", why)
++            PK._LIVE.clear()
++
++
++class TestTheLiveCalibration(unittest.TestCase):
++    """The calibration production reads (pipeline/hook_calibration.json): its floors are derived from their source
++    (tests/package/proof/hook113/ALONE_TEST.json: Grok asked alone at seed 7; the two out-of-contract first answers
++    asked once more), and it is for production's question version, seed and hook list."""
++    real_hook_bar = True
++
++    def test_its_floors_are_its_sources_lowest_parts(self):
++        c, why = HB.load()
++        self.assertIsNone(why)
++        with open(os.path.join(REPO, "tests", "package", "proof", "hook113", "ALONE_TEST.json")) as f:
++            src = json.load(f)
++        grok = dict(src["models"][c["rater"]], **src["retries"])          # a retry answers for an out-of-contract ask
++        self.assertEqual(sorted(a["ref"] for a in c["approved"]), sorted(grok))
++        for a in c["approved"]:
++            self.assertEqual({p: a[p] for p in HB.PARTS}, {p: grok[a["ref"]][p] for p in HB.PARTS}, a["ref"])
++            self.assertEqual(grok[a["ref"]]["backend"], c["rater"])
++        self.assertEqual(HB.floors_from(c["approved"]), (c["floors"], c["floors_below_3"]))
++        self.assertEqual((c["seed"], c["asking"]), (src["seed"], "alone"))
++
++    def test_it_is_for_productions_question_seed_and_hook_list(self):
++        import providers as P
++        c, _ = HB.load()
++        self.assertEqual((c["question_version"], c["seed"]), (PK.HOOK_VERSION, PK.HOOK_SEED))
++        for routing in P.ROUTINGS:
++            r = P.Router(env_path="/nonexistent", routing=routing)
++            self.assertEqual(r.chain("coherence_verdict", "hook"), [c["rater"]], routing)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/package/test_ledger_build.py b/tests/package/test_ledger_build.py
+index 5a109eb0..2a117a73 100644
+--- a/tests/package/test_ledger_build.py
++++ b/tests/package/test_ledger_build.py
+@@ -903,6 +903,24 @@ class TestRuling85NoXai(unittest.TestCase):
+                 return name
+         return None
+ 
++    def test_ruling_115_qwen_shadows_every_hook_in_every_build(self):
++        """RULING 115: qwen answers every hook in shadow (recorded, never deciding), with ruling 86's Grok shadow on the
++        first heimdall_first pins and without it after; the streak is read only under heimdall_first."""
++        import proof_ledger as PLG
++        X, Q = "xai:grok-4.20-0309-reasoning", "heimdall:qwen/qwen3.8-27b"
++        rt = {"shadow": {"*": X}, "shadow_until_clean_pins": 3}
++        hook = {"coherence_verdict:hook": Q}
++        self.assertEqual(PLG.build_shadow("heimdall_first", rt, lambda: 0), {"*": X, **hook})
++        self.assertEqual(PLG.build_shadow("heimdall_first", rt, lambda: 3), hook)
++
++        def never():
++            raise AssertionError("the streak is read under heimdall_first only")
++        self.assertEqual(PLG.build_shadow("today", rt, never), hook)
++        r = self.pl().P.Router(env_path="/nonexistent", routing="heimdall_first",
++                               shadow=PLG.build_shadow("heimdall_first", rt, lambda: 0))
++        self.assertEqual((r._shadow_of("coherence_verdict", "hook"), r._shadow_of("coherence_verdict", "coherence")),
++                         (Q, X))                                       # the router reads them as ruled
++
+     def test_ruling_96s_lists_and_xai_answering_nothing(self):
+         """RULING 96 (01:40 ET Nov 14), final until re-measured, on ruling 88's structure, as the orchestrator's 06:12
+         rulings amend it: (1) glm last for coherence, no Heimdall model for clips-alone; (2) qwen struck from step A."""
+@@ -918,12 +936,15 @@ class TestRuling85NoXai(unittest.TestCase):
+         #   confirms; RULING 102 (13:02 Nov 14): then deepseek, glm, Gemini, the local judge (ruling 87's last resort)
+         self.assertEqual(ch["context_verdict"], [G, DS, X])                        # the role's default: no qwen either
+         self.assertNotIn(Q, [b for k, v in ch.items() if k.startswith("context_verdict:step_a") for b in v])
+-        self.assertEqual(ch["coherence_verdict:hook"], [Q, G, DS, X])              # 88 (b) / 96: the hook moved
++        self.assertEqual(ch["coherence_verdict:hook"], [X])                        # RULING 115 (amends 88 (b) / 96 for
++        #   the hook): Grok ALONE, the rater the calibrated floors are measured on (qwen in shadow, never deciding)
+         self.assertEqual(ch["context_verdict:step_c"], [X, G, DS])                 # (b) / (e): no qwen
+         self.assertEqual(ch["coherence_verdict:coherence"], [X, DS, G])           # 06:12 (1): glm the LAST fallback
+         self.assertEqual(ch["coherence_verdict:clips_alone"], [X, GEM])           # 06:12 (1): no Heimdall model
+         today = PL.chains("today")                                                 # (d) and (e) hold today too
+         self.assertEqual((today["coherence_verdict:coherence"], today["context_verdict:step_c"]), ([X, DS], [X, DS, G]))
++        self.assertEqual((today["coherence_verdict:hook"], PL.plan_b_chains()["coherence_verdict:hook"]), ([X], [X]))
++        #   RULING 115: the hook is Grok's alone in every routing (no uncalibrated rating is ever cached as a hook's)
+         r = PL.P.Router(env_path="/nonexistent", routing="heimdall_first", chains=ch)
+         for n in [n for n in r.backends if n.startswith("xai")]:
+             r.down[n] = "xAI answers nothing (the test)"
+@@ -934,7 +955,8 @@ class TestRuling85NoXai(unittest.TestCase):
+             ("coherence_verdict", "clips_alone"), ("coherence_verdict", "coherence"))}
+         self.assertEqual(got, {("fidelity_verdict", None): G, ("exclusion_verdict", None): G,
+                                ("speaker_verdict", None): G, ("viewer_takeaway", None): G,
+-                               ("context_verdict", "step_c"): G, ("coherence_verdict", "hook"): Q,
++                               ("context_verdict", "step_c"): G, ("coherence_verdict", "hook"): None,   # ruling 115:
++                               #   no other model decides a hook while Grok is out (no rating = no hook, law L-m)
+                                ("coherence_verdict", "clips_alone"): GEM,          # Plan B's other outside family
+                                ("coherence_verdict", "coherence"): G})            # the gap is closed: glm, last
+         r.down[GEM] = "Gemini answers nothing (the test)"
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 5e7aa2f7..3fd7c137 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -156,8 +156,8 @@ class TestMedleyLineup(unittest.TestCase):
+ 
+ 
+ class TestClipsAloneVerdict(unittest.TestCase):
+-    SEGS = [dict(pm("h", "A", 12.0), hook_rating={"scroll": 5, "alone": 4, "setup": 2}), pm("x", "B", 14.0),
+-            pm("y", "C", 13.0)]
++    SEGS = [dict(pm("h", "A", 12.0), hook_rating={"scroll": 5, "alone": 4, "setup": 3, "backend": "xai:grok"}),
++            pm("x", "B", 14.0), pm("y", "C", 13.0)]   # ruling 115: rated by the rigs' calibrated rater (conftest)
+     LABS = ["hook", "clip_01", "clip_02"]
+ 
+     def run_it(self, reply):
+@@ -190,7 +190,10 @@ class TestClipsAloneVerdict(unittest.TestCase):
+         self.assertFalse(self.run_it(reply(self.LABS, line="Bitcoin."))[0])
+         self.assertFalse(self.run_it(reply(self.LABS, ratings={"clip_02": 3}))[0])
+ 
+-    def test_ruling_61_the_hook_is_rated_once_its_cached_own_job_rating_stands(self):
++    def test_ruling_61_115_the_hook_is_rated_once_and_passes_by_its_calibrated_bar(self):
++        """Ruling 61: the hook is not rated in the line-up's verdict; its cached own-job rating stands. Ruling 115:
++        it passes when EACH part is at least its calibrated floor (the rigs': scroll 3, alone 4, setup 3), rated by
++        the calibrated rater; its slot is judged by that bar, never by COHERENCE_MIN; the clips keep their bar."""
+         prompts = []
+         r = Canned(coherence_verdict=[reply(self.LABS)])
+         call = r.call
+@@ -198,15 +201,25 @@ class TestClipsAloneVerdict(unittest.TestCase):
+         ok, v = PK.medley(r, self.SEGS, E.Context(NOW, REG), {"heimdall"}, writer_family={"deepseek"})
+         self.assertTrue(ok)
+         self.assertEqual(v["clips"], {"hook": 4, "clip_01": 5, "clip_02": 5})   # min(scroll 5, alone 4), cached
+-        self.assertEqual((v["hook_own"]["scroll"], v["hook_own"]["alone"], v["hook_own"]["rating"]), (5, 4, 4))
++        self.assertEqual(tuple(v["hook_own"][k] for k in ("scroll", "alone", "setup", "rating", "passes")),
++                         (5, 4, 3, 4, True))
+         self.assertNotIn(PK.HOOK_QUESTION, prompts[0])                         # never re-asked per line-up
+         self.assertIn("NOT rated here", prompts[0])
+         self.assertIn('"hook -> clip_01"', prompts[0])                         # 'sets up': the hook's own join
+         self.assertNotIn('"hook": 1', prompts[0])
+         self.assertIn('"clip_01": 1, "clip_02": 1', prompts[0])
+-        low = [dict(self.SEGS[0], hook_rating={"scroll": 3, "alone": 5, "setup": 5}), *self.SEGS[1:]]
+-        ok, v = PK.medley(Canned(coherence_verdict=[reply(self.LABS)]), low, E.Context(NOW, REG), set())
+-        self.assertFalse(ok)                                                   # its cached rating is under the bar
++        run = lambda hr: PK.medley(Canned(coherence_verdict=[reply(self.LABS)]),
++                                   [dict(self.SEGS[0], hook_rating=hr), *self.SEGS[1:]], E.Context(NOW, REG), set())
++        ok, v = run({"scroll": 3, "alone": 4, "setup": 3, "backend": "xai:grok"})   # every part AT its floor
++        self.assertEqual((ok, v["clips"]["hook"], v["hook_own"]["passes"]), (True, 3, True))   # 3 < COHERENCE_MIN
++        for hr in ({"scroll": 2, "alone": 5, "setup": 5, "backend": "xai:grok"},   # one part under its floor
++                   {"scroll": 5, "alone": 3, "setup": 5, "backend": "xai:grok"},
++                   {"scroll": 5, "alone": 5, "setup": 2, "backend": "xai:grok"},   # setup counts (ruling 115)
++                   {"scroll": 5, "alone": 5, "setup": 5, "backend": "heimdall:qwen/qwen3.8-27b"},   # not the rater
++                   {"scroll": 5, "alone": 5, "backend": "xai:grok"}):              # a part missing: fail closed
++            ok, v = run(hr)
++            self.assertFalse(ok, hr)
++            self.assertIs(v["hook_own"].get("passes", False), False)
+         ok, v = PK.medley(Canned(coherence_verdict=[reply(self.LABS)]), [pm("h", "A", 12.0), *self.SEGS[1:]],
+                           E.Context(NOW, REG), set())
+         self.assertFalse(ok)                                                   # no cached rating: fail closed
+@@ -238,7 +251,7 @@ class TestCoherenceHookRatedOnce(unittest.TestCase):
+            "segments": [{"label": "hook", "channel": "A", "text": "Bitcoin a."},
+                         {"label": "clip_01", "channel": "B", "text": "Bitcoin b."},
+                         {"label": "clip_02", "channel": "C", "text": "Bitcoin c."}]}
+-    HOOK = dict(pm("h", "A", 12.0), hook_rating={"scroll": 5, "alone": 4, "setup": 2})
++    HOOK = dict(pm("h", "A", 12.0), hook_rating={"scroll": 5, "alone": 4, "setup": 3, "backend": "xai:grok"})
+ 
+     def reply(self, clips=None, vo=5, line="Nobody can change the rules of Bitcoin."):
+         return {"through_line": line, "clips": dict({"clip_01": 5, "clip_02": 5}, **(clips or {})), "vo_point": vo}
+@@ -264,6 +277,14 @@ class TestCoherenceHookRatedOnce(unittest.TestCase):
+         self.assertFalse(self.run_it(self.reply(vo=3))[0])
+         self.assertFalse(self.run_it(self.reply(), hook=pm("h", "A", 12.0))[0])   # no cached rating: fail closed
+         self.assertFalse(self.run_it(self.reply(), hook=dict(self.HOOK, hook_rating={"scroll": 3, "alone": 5}))[0])
++        G = "xai:grok"                                        # ruling 115: the hook's slot is its calibrated bar
++        ok, v, _, _ = self.run_it(self.reply(), hook=dict(self.HOOK, hook_rating={"scroll": 3, "alone": 4,
++                                                                                     "setup": 3, "backend": G}))
++        self.assertEqual((ok, v["clips"]["hook"]), (True, 3))
++        for hr in ({"scroll": 5, "alone": 5, "setup": 2, "backend": G}, {"scroll": 5, "alone": 3, "setup": 5,
++                                                                         "backend": G},
++                   {"scroll": 5, "alone": 5, "setup": 5, "backend": "heimdall:qwen/qwen3.8-27b"}):
++            self.assertFalse(self.run_it(self.reply(), hook=dict(self.HOOK, hook_rating=hr))[0], hr)
+ 
+     def test_out_of_contract_is_not_measured(self):
+         good = self.reply()
+@@ -1299,8 +1320,9 @@ class TestRuling58StepAEveryCandidate(unittest.TestCase):
+ 
+ class TestRuling59HookFirst(unittest.TestCase):
+     """RULING 59 (11:00): HOOK FIRST. Every cleared, cuttable moment that can open is rated on the hook's own job (ruling
+-    52's question) in one batched call, cached; only a hook rated >= 4 opens; the angles are written FOR the passing
+-    hooks and tried best hook first; with no passing hook the build stops before any line-up, listing the best three."""
++    52's question), cached; the angles are written FOR the passing hooks and tried best hook first; with no passing
++    hook the build stops before any line-up, listing the best three. RULING 115: each candidate is asked ALONE (one
++    call a candidate), and a hook passes when each of its parts is at least its calibrated floor (the rigs': conftest)."""
+ 
+     def canned(self, *replies):
+         c = Canned(coherence_verdict=list(replies))
+@@ -1308,37 +1330,94 @@ class TestRuling59HookFirst(unittest.TestCase):
+         c.backends = {"fake:coherence_verdict": B("fake", "fake")}
+         return c
+ 
+-    def test_one_batched_call_rates_every_hook_and_the_rating_is_derived_and_cached(self):
+-        import tempfile
++    def test_each_candidate_is_asked_alone_one_call_each_and_the_rating_is_derived_and_cached(self):
++        from unittest import mock
+         ms = [pm("a", "A", 12.0), pm("b", "B", 12.0)]
+-        reply = {"hooks": {"a": {"scroll": 5, "alone": 4, "setup": 5, "why": "w a"},
+-                           "b": {"scroll": 5, "alone": 2, "setup": 5, "why": "needs what came before"}}}
++        ra = {"hooks": {"a": {"scroll": 5, "alone": 4, "setup": 5, "why": "w a"}}}
++        rb = {"hooks": {"b": {"scroll": 5, "alone": 2, "setup": 5, "why": "needs what came before"}}}
+         with tempfile.TemporaryDirectory() as d:
+             cache = os.path.join(d, "HOOK_CACHE.json")
+-            c = self.canned(reply)
++            c = self.canned(ra, rb)
+             got, err = PK.hook_ratings(c, ms, ctx(), {"heimdall"}, {"deepseek"}, cache=cache)
+             self.assertIsNone(err)
+-            self.assertEqual(c.calls, [("coherence_verdict", {"heimdall"}, {"deepseek"})])   # ONE call, off the writers
+-            self.assertEqual((got["a"]["rating"], got["b"]["rating"]), (4, 2))   # the lowest part (ruling 52)
+-            self.assertEqual(got["b"]["why"], "needs what came before")
++            self.assertEqual(c.calls, [("coherence_verdict", {"heimdall"}, {"deepseek"})] * 2)   # ONE call EACH (ruling
++            #   115: the asking the calibration measured), off the writers
++            self.assertEqual((got["a"]["rating"], got["b"]["rating"]), (4, 2))   # scroll / alone: it ORDERS hooks
++            self.assertEqual((got["a"]["setup"], got["b"]["why"]), (5, "needs what came before"))   # every part kept
+             again, err = PK.hook_ratings(self.canned(), ms, ctx(), {"heimdall"}, {"deepseek"}, cache=cache)
+             self.assertEqual((err, again["a"]["rating"], again["a"]["cached"]), (None, 4, True))   # no call at all
+             new = [dict(ms[0], text="Bitcoin is a new text now."), ms[1]]
+             c = self.canned({"hooks": {"a": {"scroll": 3, "alone": 3, "setup": 3, "why": "w"}}})
+             got, _ = PK.hook_ratings(c, new, ctx(), {"heimdall"}, {"deepseek"}, cache=cache)
+             self.assertEqual((len(c.calls), got["a"]["rating"], got["b"]["cached"]), (1, 3, True))   # its new text only
++            c = self.canned(ra)                                              # a router whose hook list is missing:
++            c.chain = lambda role, kind=None: (_ for _ in ()).throw(__import__("providers").ProviderError("no chain"))
++            got, _ = PK.hook_ratings(c, ms[:1], ctx(), {"heimdall"}, {"deepseek"}, cache=cache)
++            self.assertEqual((got["a"]["cached"], len(c.calls)), (False, 1))   # no cached rating answers (fail closed)
++            with mock.patch.object(PK, "HOOK_VERSION", "another-asking"):   # a rating cached under another question
++                c = self.canned(ra, rb)                                      # or asking never answers (the batched
++                got, _ = PK.hook_ratings(c, ms, ctx(), {"heimdall"}, {"deepseek"}, cache=cache)   # ratings of before)
++                self.assertEqual((len(c.calls), got["a"]["cached"], got["b"]["cached"]), (2, False, False))
++
++    def test_the_cache_answers_only_for_todays_hook_list_and_production_seed(self):
++        """Audit 20261115_1410 C1 (glm): a rating cached by a model that is NOT on today's hook list is asked again (a
++        rater change re-asks every hook: a rating off the list can never pass the bar); a rating asked at another
++        seed never reads or writes the cache (the key's version carries production's seed)."""
++        ms = [pm("a", "A", 12.0)]
++        ra = {"hooks": {"a": {"scroll": 5, "alone": 4, "setup": 5, "why": "w"}}}
++        with tempfile.TemporaryDirectory() as d:
++            cache = os.path.join(d, "HOOK_CACHE.json")
++            c = self.canned(ra)
++            c.chain = lambda role, kind=None: ["fake:coherence_verdict"]
++            PK.hook_ratings(c, ms, ctx(), set(), set(), cache=cache)            # cached by fake:coherence_verdict
++            c = self.canned()
++            c.chain = lambda role, kind=None: ["fake:coherence_verdict"]
++            got, err = PK.hook_ratings(c, ms, ctx(), set(), set(), cache=cache)
++            self.assertEqual((err, got["a"]["cached"], c.calls), (None, True, []))   # on the list: served
++            c = self.canned(ra)
++            c.chain = lambda role, kind=None: ["xai:another-rater"]
++            got, err = PK.hook_ratings(c, ms, ctx(), set(), set(), cache=cache)
++            self.assertEqual((got["a"]["cached"], len(c.calls)), (False, 1))    # off today's list: asked again
++            before = open(cache).read()
++            c = self.canned({"hooks": {"b": {"scroll": 5, "alone": 4, "setup": 5, "why": "w"}}})
++            got, _ = PK.hook_ratings(c, [pm("b", "B", 12.0)], ctx(), set(), set(), cache=cache, seed=PK.HOOK_SEED + 1)
++            self.assertEqual((len(c.calls), open(cache).read()), (1, before))   # another seed: never written
++            c = self.canned(ra)
++            got, _ = PK.hook_ratings(c, ms, ctx(), set(), set(), cache=cache, seed=PK.HOOK_SEED + 1)
++            self.assertEqual((got["a"]["cached"], len(c.calls)), (False, 1))   # ... and never read
++
++    def test_a_candidate_left_unrated_never_stops_the_others_being_asked(self):
++        """RULING 115: one call a candidate; a candidate whose chain is spent has no rating (law L-m), the others are
++        still asked, and the first error is returned."""
++        import providers as P
++        ms = [pm("a", "A", 12.0), pm("b", "B", 12.0)]
++        c = self.canned()
++        asked = []
++
++        def call(role, prompt, *a, **k):
++            asked.append(re.findall(r'CANDIDATE id="(\w+)"', prompt))
++            if 'CANDIDATE id="a"' in prompt:
++                raise P.ProviderError("coherence_verdict: every back-end unavailable")
++            return P.Reply(json.dumps({"hooks": {"b": {"scroll": 4, "alone": 4, "setup": 4, "why": "w"}}}),
++                           "fake:coherence_verdict", "fake")
++        c.call = call
++        got, err = PK.hook_ratings(c, ms, ctx(), set(), set())
++        self.assertEqual((asked, sorted(got), got["b"]["rating"]), ([["a"], ["b"]], ["b"], 4))
++        self.assertIn("ProviderError: coherence_verdict: every back-end unavailable", err)
+ 
+     def test_the_prompt_asks_ruling_52s_question_of_each_candidate_alone(self):
+         ms = [pm("a", "A", 12.0), pm("b", "B", 12.0)]
+         prompts = []
+-        c = self.canned({"hooks": {k: {"scroll": 5, "alone": 5, "setup": 5, "why": "w"} for k in "ab"}})
++        c = self.canned(*({"hooks": {k: {"scroll": 5, "alone": 5, "setup": 5, "why": "w"}}} for k in "ab"))
+         call = c.call
+         c.call = lambda role, prompt, *a, **k: (prompts.append(prompt), call(role, prompt, *a, **k))[1]
+         PK.hook_ratings(c, ms, ctx(), set(), set())
+-        self.assertIn(PK.HOOK_QUESTION, prompts[0])                       # ONE definition of the hook's job
+-        self.assertIn('CANDIDATE id="a"', prompts[0])
+-        self.assertIn('CANDIDATE id="b"', prompts[0])
+-        self.assertIn("Judge each one ALONE", prompts[0])
++        self.assertEqual(len(prompts), 2)                                 # ruling 115: ONE candidate a call
++        for p, me, other in ((prompts[0], "a", "b"), (prompts[1], "b", "a")):
++            self.assertIn(PK.HOOK_QUESTION, p)                            # ONE definition of the hook's job
++            self.assertIn(f'CANDIDATE id="{me}"', p)
++            self.assertNotIn(f'CANDIDATE id="{other}"', p)
++            self.assertIn("Judge each one ALONE", p)
+ 
+     def chained(self, *replies):
+         """A canned chain: each call is answered by the next model (fake:1, fake:2, ...), and a model the caller
+@@ -1375,27 +1454,40 @@ class TestRuling59HookFirst(unittest.TestCase):
+         self.assertEqual(got, {})
+         self.assertIn("ProviderError", err)
+ 
+-    def test_only_a_hook_rated_4_or_more_opens(self):
++    def test_only_a_hook_on_its_calibrated_bar_opens(self):
++        """RULING 115: a rated hook opens when EACH part is at least its calibrated floor (the rigs': scroll 3, alone 4,
++        setup 3) and the calibrated rater rated it; with no valid calibration no rated hook opens (fail closed)."""
++        from unittest import mock
+         m = dict(pm("a", "A", 12.0), hook_onset={"pass": True})
+         self.assertTrue(PK.can_open(m))                                   # not rated yet: as before ruling 59
+-        for (sc, al, se), ok in (((4, 4, 1), True), ((5, 4, 5), True), ((3, 5, 5), False), ((5, 3, 5), False)):
+-            r = dict(m, hook_rating={"scroll": sc, "alone": al, "setup": se})
+-            self.assertEqual(PK.can_open(r), ok, (sc, al, se))           # ruling 61: scroll / alone, never setup
++        G = "xai:grok"
++        for (sc, al, se), ok in (((3, 4, 3), True), ((5, 4, 5), True), ((2, 5, 5), False), ((5, 3, 5), False),
++                                 ((5, 5, 2), False)):                     # setup counts now (ruling 115)
++            r = dict(m, hook_rating={"scroll": sc, "alone": al, "setup": se, "backend": G})
++            self.assertEqual(PK.can_open(r), ok, (sc, al, se))
+             self.assertEqual(PK.placement(r), "" if ok else " | cannot open (never the hook)")
+-        for bad in (None, {"rating": 5}, {"scroll": True, "alone": 5}, {"scroll": 5.0, "alone": 5}):
++        top = dict(m, hook_rating={"scroll": 5, "alone": 5, "setup": 5, "backend": G})
++        self.assertFalse(PK.can_open(dict(top, hook_rating=dict(top["hook_rating"],
++                                                                backend="heimdall:qwen/qwen3.8-27b"))))   # off the rater
++        for bad in (None, {"rating": 5}, {"scroll": True, "alone": 5, "setup": 5, "backend": G},
++                    {"scroll": 5.0, "alone": 5, "setup": 5, "backend": G}, {"scroll": 5, "alone": 5, "backend": G}):
+             self.assertFalse(PK.can_open(dict(m, hook_rating=bad)), bad)
+-        self.assertFalse(PK.can_open(dict(m, text="And Bitcoin is money.")))   # the render's hook rule
+-        low = dict(m, hook_rating={"scroll": 3, "alone": 4, "setup": 4})
++        self.assertFalse(PK.can_open(dict(top, text="And Bitcoin is money.")))   # the render's hook rule
++        low = dict(m, hook_rating={"scroll": 5, "alone": 3, "setup": 4, "backend": G})
+         self.assertFalse(PK.lineup_ok([low, pm("x", "B", 14.0), pm("y", "C", 13.0)])[0])
++        with mock.patch.object(PK, "_live_bar", lambda: (None, "the hook calibration is over 24 h old: re-run it")):
++            self.assertFalse(PK.can_open(top))                             # no valid calibration: no hook passes
++            self.assertEqual(PK.hook_own(top)["short"], "the hook calibration is over 24 h old: re-run it")
+ 
+     def test_a_line_up_opens_on_its_angles_own_hook_and_never_swaps_it(self):
+-        ms = [dict(pm(k, k.upper(), d), hook_onset={"pass": True}, hook_rating={"scroll": 5, "alone": 5, "setup": 5})
++        ms = [dict(pm(k, k.upper(), d), hook_onset={"pass": True}, hook_rating={"scroll": 5, "alone": 5, "setup": 5,
++                                                                                 "backend": "xai:grok"})
+               for k, d in (("a", 12.0), ("b", 14.0), ("c", 13.0), ("d", 13.0))]
+         by = {m["moment_id"]: m for m in ms}
+         by["b"]["scores"] = dict(by["b"]["scores"], hook_first_2s=99)     # a stronger opener elsewhere
+         segs = PK.lineup_for(angle(["b", "a", "c", "d"], "a"), by, need_onset=True, hook_only=True)
+         self.assertEqual(segs[0]["moment_id"], "a")
+-        low = dict(by, a=dict(by["a"], hook_rating={"scroll": 3, "alone": 5, "setup": 5}))
++        low = dict(by, a=dict(by["a"], hook_rating={"scroll": 5, "alone": 3, "setup": 5, "backend": "xai:grok"}))
+         self.assertIsNone(PK.lineup_for(angle(["b", "a", "c", "d"], "a"), low, need_onset=True, hook_only=True))
+         self.assertEqual(PK.lineup_for(angle(["b", "a", "c", "d"], "a"), low, need_onset=True)[0]["moment_id"], "b")
+         self.assertEqual(PK.swap_lineup(segs, {"a"}, by, keep_hook=True), (None, None))
+@@ -1408,13 +1500,15 @@ class TestRuling59HookFirst(unittest.TestCase):
+     def test_no_hook_in_the_pool_stops_before_the_second_screen_and_lists_the_best_three(self):
+         ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
+         rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None],
+-                  hooks={"h": (3, 4, 4), "x": (2, 5, 5), "y": (4, 3, 4), "z": (1, 1, 1)})
++                  hooks={"h": (3, 4, 2), "x": (2, 5, 5), "y": (4, 3, 4), "z": (1, 1, 1)})   # each under ONE floor
+         out = rig.run()
+         self.assertIsNone(out["package"])
+         self.assertTrue(out["why_none"].startswith("no hook in the pool (ruling 59 d): none of the 4 moments"))
+-        self.assertEqual([b["moment_id"] for b in out["hook_pool"]["best"]], ["h", "y", "x"])
++        self.assertIn("passes the calibrated hook bar (ruling 115): scroll >= 3, alone >= 4, setup >= 3", out["why_none"])
++        self.assertEqual([b["moment_id"] for b in out["hook_pool"]["best"]], ["y", "h", "x"])   # rating, then parts
+         self.assertEqual([b["rating"] for b in out["hook_pool"]["best"]], [3, 3, 2])
+-        self.assertIn("A 3 (scroll 3, alone 4, setup 4): why h", out["why_none"])
++        self.assertIn("A 3 (scroll 3, alone 4, setup 2): why h", out["why_none"])   # setup alone held h back
++        self.assertEqual(out["hook_pool"]["bar_floors"], {"scroll": 3, "alone": 4, "setup": 3})
+         self.assertEqual(rig.medley_calls, [])
+         self.assertNotIn("angle_write", rig.events)                     # no angle, no line-up paid for
+         self.assertEqual(len(rig.screens), 1)                            # and no second screen
+@@ -1426,7 +1520,7 @@ class TestRuling59HookFirst(unittest.TestCase):
+     def test_the_writer_is_given_the_passing_hooks_and_the_best_hook_goes_first(self):
+         ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
+         rig = Rig(ms, [["h", "x", "y", "z"], ["x", "h", "y", "z"]], [(True, [], None, Rig.LINE)], [None],
+-                  hooks={"h": (4, 4, 4), "x": (5, 5, 5), "y": (3, 3, 3), "z": (3, 4, 5)})
++                  hooks={"h": (4, 4, 4), "x": (5, 5, 5), "y": (3, 3, 3), "z": (3, 3, 5)})
+         out = rig.run()
+         p = next(p for r, p in rig.prompts if r == "angle_write")
+         self.assertIn("THE HOOKS", p)
+@@ -1438,6 +1532,28 @@ class TestRuling59HookFirst(unittest.TestCase):
+         self.assertEqual(rig.medley_calls[0][0], "x")                   # the x angle, though the writer gave it second
+         self.assertEqual(out["hook_pool"]["passing"], ["x", "h"])
+         self.assertIsNotNone(out["package"])
++        self.assertEqual((out["package"]["hook_bar"]["note"], out["package"]["hook_bar"]["floors"]),   # ruling 115 (2)
++                         ("hook passed on the calibrated bar", {"scroll": 3, "alone": 4, "setup": 3}))
++        self.assertEqual(out["package"]["hook_bar"]["calibration_sha256"], out["hook_pool"]["bar_sha256"])
++
++    def test_the_mark_names_the_bar_the_hooks_were_judged_on(self):
++        """Audit 20261115_1410 C2 (glm): the live bar changes after the hook stage (here at the write: another valid
++        calibration); the sealed package's mark still names the bar its hooks were judged on."""
++        from unittest import mock
++        import conftest
++        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
++        rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None])
++        cur = [conftest.rig_bar()]
++        write = rig.write
++
++        def flip(*a, **k):
++            cur[0] = dict(conftest.rig_bar(), sha256="u" * 64)
++            return write(*a, **k)
++        rig.write = flip
++        with mock.patch.object(PK, "_live_bar", lambda: (cur[0], None)):
++            out = rig.run()
++        self.assertIsNotNone(out["package"])
++        self.assertEqual((out["package"]["hook_bar"]["calibration_sha256"], cur[0]["sha256"]), ("t" * 64, "u" * 64))
+ 
+     def test_an_angle_not_written_for_a_passing_hook_is_out_of_contract(self):
+         ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
+@@ -1688,6 +1804,19 @@ class TestRulings6264Search(unittest.TestCase):
+         self.assertIn("ruling 62", out["tried"][0]["why"])
+         self.assertIsNotNone(out["package"])
+ 
++    def test_ruling_62_only_with_a_hook_on_its_calibrated_bar(self):
++        """RULING 115: 'only the last clip fails' needs the line-up's own hook on its calibrated bar (its slot is never
++        COHERENCE_MIN's: a scroll-3 hook at every floor counts as passing)."""
++        segs = [dict(pm("h", "A", 12.0), hook_rating={"scroll": 3, "alone": 4, "setup": 3, "backend": "xai:grok"}),
++                pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 9.0)]
++        med = dict(verdict(PK.labels(4), ratings={"hook": 3, "clip_03": 2}), measured=True, flagged=[])
++        self.assertTrue(PK.last_clip_only(segs, med))
++        for hr in ({"scroll": 5, "alone": 3, "setup": 5, "backend": "xai:grok"},
++                   {"scroll": 5, "alone": 5, "setup": 5, "backend": "heimdall:qwen/qwen3.8-27b"}, None):
++            bad = [dict(segs[0], hook_rating=hr), *segs[1:]]
++            self.assertFalse(PK.last_clip_only(bad, med), hr)                 # the hook fails: never "only the last"
++        self.assertFalse(PK.last_clip_only(segs, dict(med, clips=dict(med["clips"], clip_01=3))))   # two clips fail
++
+     def test_ruling_62_under_the_floor_swaps_as_now(self):
+         ms = [self.fresh("h", "A", 12.0), self.fresh("x", "B", 10.0), self.fresh("y", "C", 10.0),
+               self.fresh("z", "D", 9.0)]                                    # without z: 32 s, under 36.7
+diff --git a/tests/package/test_spotlight.py b/tests/package/test_spotlight.py
+index 64517b87..ad7f68a7 100644
+--- a/tests/package/test_spotlight.py
++++ b/tests/package/test_spotlight.py
+@@ -65,7 +65,7 @@ def moment(text=TEXT, dur=20.0, mid="m1", channel="DataDash", **kw):
+     m.update(text=text, channel_name=channel, published_at=(NOW - timedelta(hours=2)).isoformat(),
+              hook_onset={"pass": True, "measured": True, "lead_ms": 120, "cut_in": 1.0, "why": "quiet"},
+              hook_rating={"scroll": 5, "alone": 4, "setup": 3, "rating": 4, "why": "a complete claim",
+-                          "backend": "fake:xai", "replayed": False},
++                          "backend": "xai:grok", "replayed": False},   # the conftest's calibrated rater (ruling 115)
+              visual={"version": VP.VERSION, "measured": True, "flags": [], "backend": "fake:vis", "replayed": False,
+                      "third_person": {"shown": False, "how": "none", "words_negative": False, "name_on_screen": None,
+                                       "finding": "none"}, "on_screen_text": [],
+@@ -183,6 +183,9 @@ class TestPinContract(unittest.TestCase):
+         self.assertEqual(mp["first_comment"], pk["first_comment"])
+         self.assertEqual(mp["gates"]["spotlight_source"]["format"], "CONVERSATION")   # 21:10 Nov 14: WHICH passed,
+         self.assertEqual(PP.pin_seal(pin), mp["package_sha256"])                      # inside the seal
++        marked = PP.to_pin(dict(pk, hook_bar=SPOT.P.hook_bar_mark()), "t")["moments_package"]   # ruling 115 (2):
++        self.assertEqual(marked["hook_bar"]["note"], "hook passed on the calibrated bar")     # the spotlight's pin
++        self.assertEqual(marked["package_sha256"], mp["package_sha256"])                      # too, outside the seal
+         integrator = PP.seal(pin["segments"], mp["edl_vo"], mp.get("signoff_expected"), mp["title"], mp["caption"],
+                              mp["gates"], mp.get("btc_screen"),
+                              **({"shape": mp["shape"], "first_comment": mp["first_comment"]}
+@@ -618,6 +621,24 @@ class TestPackageFor(unittest.TestCase):
+             self.assertEqual(asked[-1], None, name)                         # the package without it is judged
+             self.assertFalse(pk["spotlight"]["closing"]["kept"], name)
+ 
++    def test_ruling_115_the_hook_own_row_is_the_calibrated_bar(self):
++        """RULING 115: the opener's row passes when each part is at least its calibrated floor (the rigs': scroll 3,
++        alone 4, setup 3), by the calibrated rater; ruling 90's ">= 4" (the scroll-and-alone rating) no longer decides."""
++        def row(scroll, alone, setup, backend="xai:grok"):
++            m = moment(hook_rating={"scroll": scroll, "alone": alone, "setup": setup, "rating": min(scroll, alone),
++                                    "why": "w", "backend": backend, "replayed": False})
++            return SPOT.inventory(*package()[0:1], m, FID_OK, [], True, [], CX_OK, two()[0], two(),
++                                  {"verdict": "keep", "measured": True, "replayed": False},
++                                  {"ok": True, "edges": {"cuttable": True}}, pre_of(m), m["spotlight_source"],
++                                  {"now": NOW, "day": "d", "never_delivered": True,
++                                   "one_per_channel_day": True})["hook_own"]
++        r = row(3, 4, 3)                                                    # rating 3: ruling 90 failed it
++        self.assertEqual((r["status"], r["rating"], r["setup"]), ("PASS", 3, 3))
++        self.assertIn("scroll >= 3, alone >= 4, setup >= 3", r["bar"])
++        for parts in ((5, 3, 5), (5, 5, 2), (2, 5, 5)):
++            self.assertEqual(row(*parts)["status"], "FAIL", parts)
++        self.assertEqual(row(5, 5, 5, "heimdall:qwen/qwen3.8-27b")["status"], "FAIL")   # off the calibrated rater
++
+     def test_the_precheck_row_needs_one_verdict_on_this_clip(self):
+         m = moment()
+         rows = lambda pre: SPOT.inventory(*package()[0:1], m, FID_OK, [], True, [], CX_OK, two()[0], two(),
+@@ -670,7 +691,7 @@ class TestBuild(unittest.TestCase):
+     """The stages in order on stubs: each stage's failure is recorded with how far the moment got."""
+ 
+     def run_build(self, ms, ratings, alone=None, layout="conversation", poll=None, lock=None, visual=None,
+-                  onset=None, evidence=None):
++                  onset=None, evidence=None, before_package=None):
+         ctx = E.Context(NOW, REG)
+         calls = {}
+ 
+@@ -681,13 +702,15 @@ class TestBuild(unittest.TestCase):
+ 
+         def hook_ratings(router, ms_, *a, **k):
+             return {m["moment_id"]: {"scroll": ratings[m["moment_id"]], "alone": 5, "setup": 3,
+-                                     "rating": ratings[m["moment_id"]], "why": "w", "backend": "fake:xai"}
++                                     "rating": ratings[m["moment_id"]], "why": "w", "backend": "xai:grok"}
+                     for m in ms_}, None
+ 
+         def second(router, cleared, a_by, *a, **k):
+             return {mid: [a_by[mid], dict(a_item("hook"), backend="fake:heimdall")] for mid in cleared}, {}
+ 
+         def package_for(router, m, ctx_, sources_, a_two, truth, exc, pre, facts, **k):
++            if before_package:
++                before_package()
+             calls.setdefault("package_for", []).append(m["moment_id"])
+             calls.setdefault("facts", []).append(facts)
+             return {"segments": [m], "shape": "spotlight"}, None
+@@ -723,11 +746,30 @@ class TestBuild(unittest.TestCase):
+     def test_the_best_qualifying_moment_goes_to_the_package(self):
+         ms = [moment(mid="a", channel="A"), moment(mid="b", channel="B", text=TEXT.replace("money", "asset")),
+               moment(mid="c", channel="C", text=TEXT.replace("money", "thing"))]
+-        out, calls = self.run_build(ms, {"a": 3, "b": 4, "c": 5}, alone=[4.0, 4.0, 3.0])
++        out, calls = self.run_build(ms, {"a": 2, "b": 4, "c": 5}, alone=[4.0, 4.0, 3.0])
+         self.assertEqual(calls["package_for"], ["b"])                      # c opens best but stands alone at 3
+-        self.assertIn("hook's own job rates 3", out["moments"]["a"]["out"])
++        self.assertEqual((out["moments"]["a"]["hook_passes"], out["moments"]["b"]["hook_passes"]), (False, True))
++        self.assertIn("the hook's own job: scroll 2 < 3 (the calibrated hook bar (ruling 115): scroll >= 3, alone >= 4, "
++                      "setup >= 3", out["moments"]["a"]["out"])               # ruling 115: under ONE part's floor
+         self.assertIn("ALONE scorer: 3.0", out["moments"]["c"]["out"])
+         self.assertIsNotNone(out["package"])
++        self.assertEqual(out["package"]["hook_bar"]["note"], "hook passed on the calibrated bar")   # ruling 115 (2)
++
++    def test_ruling_115_the_mark_names_the_bar_the_openers_were_judged_on(self):
++        """Audit 20261115_1410 C2 (glm): the live bar changes after the openers are judged (here when the package is
++        made); the mark still names the bar they were judged on."""
++        import conftest
++        cur = [conftest.rig_bar()]
++        flip = lambda: cur.__setitem__(0, dict(conftest.rig_bar(), sha256="u" * 64))
++        with mock.patch.object(SPOT.P, "_live_bar", lambda: (cur[0], None)):
++            out, calls = self.run_build([moment(mid="a", channel="A")], {"a": 4}, before_package=flip)
++        self.assertEqual((out["package"]["hook_bar"]["calibration_sha256"], cur[0]["sha256"]), ("t" * 64, "u" * 64))
++
++    def test_ruling_115_an_opener_at_every_floor_goes_to_the_package(self):
++        """Scroll 3, alone 5, setup 3: under ruling 90 (rating >= 4) it stopped; on the calibrated bar it passes."""
++        out, calls = self.run_build([moment(mid="a", channel="A")], {"a": 3})
++        self.assertEqual(calls["package_for"], ["a"])
++        self.assertIsNotNone(out["package"])
+ 
+     def test_ruling_92_amended_zero_changes_near_the_clip_stops_before_any_vision_call(self):
+         """09:03 Nov 14: the markers refuse alone only when the episode is marked and shows ZERO speaker changes in the
+diff --git a/tests/providers/test_providers.py b/tests/providers/test_providers.py
+index 7d9e0a63..d27acc23 100644
+--- a/tests/providers/test_providers.py
++++ b/tests/providers/test_providers.py
+@@ -672,5 +672,30 @@ class TestRuling86Shadow(TestRuling85Routing):
+             with self.assertRaises(ValueError):
+                 P.Router(self.cfg(d), env_path="/nonexistent", shadow={"*": "xai:nope"})
+ 
++    def test_ruling_115_a_verdict_types_own_shadow_asked_on_a_chain_of_its_own(self):
++        """RULING 115: the hook job (Grok decides) is shadowed by qwen, keyed "<role>:<kind>", on a chain of its own;
++        every other verdict of the role keeps the role's ("*") shadow; each record names its kind."""
++        import tempfile
++        with tempfile.TemporaryDirectory() as d:
++            r = P.Router(self.cfg(d), env_path="/nonexistent", routing="heimdall_first",
++                         shadow={"*": "xai:grok", "coherence_verdict:hook": "heimdall:qwen"},
++                         shadow_log=os.path.join(d, "SHADOW.jsonl"), chains={"coherence_verdict:hook": ["xai:grok"]})
++            fs = self.fakes()
++            for b in fs:
++                if b.vendor == "heimdall":
++                    b.gateway, b.vendor = b.vendor, f"heimdall/{b.family}"
++            r.backends = {b.name: b for b in fs}
++            self.assertEqual(r.call("coherence_verdict", "the hook", 500, 7, kind="hook").backend, "xai:grok")
++            self.assertEqual(r.call("coherence_verdict", "a line-up", 500, 7, kind="coherence").backend,
++                             "heimdall:deepseek")
++            self.assertEqual(r.shadow_wait(5), 0)
++            got = sorted((x["kind"], x["prompt"], x["deciding"]["backend"], x["shadow"]["backend"])
++                         for x in self.lines(d))
++            self.assertEqual(got, [("coherence", "a line-up", "heimdall:deepseek", "xai:grok"),
++                                   ("hook", "the hook", "xai:grok", "heimdall:qwen")])
++            self.assertEqual((r.chain("shadow86:coherence_verdict:hook"), r.chain("shadow86:coherence_verdict")),
++                             (["heimdall:qwen"], ["xai:grok"]))
++            self.assertEqual((r.backends["heimdall:qwen"].calls, r.backends["xai:grok"].calls), (1, 2))
++
+ if __name__ == "__main__":
+     unittest.main()

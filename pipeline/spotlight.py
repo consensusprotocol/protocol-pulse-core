@@ -55,7 +55,7 @@ RUNTIME_S = PP.SPOT_RUNTIME_S          # ruling 90: total 28 to 50 s (the render
 SNAP_TO_S = round(max(SPOT_S[0], RUNTIME_S[0] - P.FINAL_TAIL_S), 2)
 #   13.7 s: the factory's tail (sign-off, credits card, outro, edges) is 14.3 s, so with no closing line (ruling 91's
 #   default) a shorter clip cannot reach 28 s. A moment shorter than this is snapped; it is never padded.
-HOOK_MIN = 4                           # ruling 90: >= 4 on the hook's own job (package.hook_own: scroll / alone)
+#   The opener's own job: ruling 90's ">= 4" (HOOK_MIN) is ruling 115's calibrated bar now (package.hook_own "passes").
 ALONE_MIN = 4.0                        # ruling 90: >= 4 standing alone, by the ALONE scorer (its scale is 1-5)
 CLOSING_MAX_WORDS = PP.SPOT_CLOSING_MAX_WORDS   # 12
 COMMENT_MAX_LINES = 2                  # ruling 90: "one or two short casual lines"
@@ -738,10 +738,12 @@ def inventory(pk, m, fid, dup, rt_ok, style, cx, a_off, a_two, exc, truth, pre, 
                           by_rule="ruling 90: the visual check clean (no ruling-70 flag, not blocked as a hook, and "
                                   "eligible on its frames under ruling 93; a ruling-93 burned_in flag is listed)")
     own, hr = P.hook_own(m), m.get("hook_rating") or {}
-    rows["hook_own"] = _row(own is not None and own["rating"] >= HOOK_MIN, hr.get("backend"),
+    rows["hook_own"] = _row(own is not None and own["passes"], hr.get("backend"),
                             bool(hr.get("replayed", False)), measured=own is not None,
                             rating=(own or {}).get("rating"), scroll=hr.get("scroll"), alone=hr.get("alone"),
-                            why=hr.get("why"), min=HOOK_MIN, rule="ruling 90: >= 4 on the hook's own job (ruling 61)")
+                            setup=hr.get("setup"), why=hr.get("why"), bar=(own or {}).get("bar"),
+                            rule="ruling 115: every part (scroll, alone, setup) at least its calibrated floor, rated "
+                                 "by the calibrated rater")
     sv = P.verdict_of(m)
     rows["stands_alone"] = _row(sv is not None and float(sv["score"]) >= ALONE_MIN,
                                 f"the ALONE scorer ({(sv or {}).get('model')}, the render's stand_alone scorer as the "
@@ -818,8 +820,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     stage and why it stopped), "finalists", "near", "why_none", ...}. The stages run cheapest first, each on what the
     one before passed; every verdict is the medley's own and cached or recorded across builds: step A
     (package.prescreen), L-v 2 and CUTTABLE (truth_for), G17a (hook_onset_for), the render's hook rules and the hook's
-    own-job rating (package._can_open, hook_ratings: >= HOOK_MIN), the visual check clean (visual_pin: measured, no
-    flag, not blocked as a hook), step A from the second family (package.second_screen), the ALONE scorer >= ALONE_MIN
+    own-job rating (package._can_open, hook_ratings: ruling 115's calibrated bar), the visual check clean
+    (visual_pin: measured, no flag, not blocked as a hook), step A from the second family (package.second_screen), the ALONE scorer >= ALONE_MIN
     (a moment with no rating yet waits up to wait_s for the integrator's pass, polling the verdicts file), ruling 92's
     source test; then, best first (rank_key), up to `finalists` moments: the exclusion verdict, the render's lock
     pre-check (lock_check; no verdict stops the search, as in a medley build) and package_for(). lock_check None: no
@@ -902,15 +904,17 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     passed(openers, 3)
     rated, herr = P.hook_ratings(router, list(openers.values()), ctx, wv, wf, cache=hook_cache) if openers else \
         ({}, None)
+    bar_at_hooks = P._live_bar()[0]                       # ruling 115 (2): the bar the openers are judged on (the mark)
     strong = {}
     for mid, m in openers.items():
         m["hook_rating"] = rated.get(mid) or {"rating": None, "why": f"not rated: {herr}"}
         own = P.hook_own(m)
         rec[mid]["hook_own"] = (own or {}).get("rating")
-        if own is not None and own["rating"] >= HOOK_MIN:
+        rec[mid]["hook_passes"] = bool((own or {}).get("passes"))   # ruling 115: the bar's verdict (glm, audit 1410)
+        if own is not None and own["passes"]:              # ruling 115: the calibrated bar
             strong[mid] = m
         else:
-            stop(mid, f"the hook's own job rates {(own or {}).get('rating')} (needs {HOOK_MIN}): "
+            stop(mid, f"the hook's own job: {(own or {}).get('short') or 'not rated'} ({(own or {}).get('bar')}): "
                       f"{m['hook_rating'].get('why')}")
     passed(strong, 4)
     vcache = VP.load_cache(visual_cache) if visual_cache else {}
@@ -988,7 +992,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     ranked = sorted(ok_src, key=rank_key)
     out["finalists"] = [m["moment_id"] for m in ranked]
     log(f"  SPOTLIGHT: {len(cleared)} cleared step A, {len(cut)} cuttable, {len(openers)} open cold, {len(strong)} "
-        f"rate >= {HOOK_MIN} as an opener, {len(clean)} clean, {len(both)} two families, {len(fine)} ALONE >= "
+        f"pass the calibrated hook bar as an opener, {len(clean)} clean, {len(both)} two families, {len(fine)} ALONE >= "
         f"{ALONE_MIN:g}, {len(ranked)} from a conversation ({time.time() - t0:.0f} s)")
     exc_cache = {}
     for m in ranked[:finalists]:
@@ -1020,6 +1024,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         if pk is not None:
             pk["seconds"] = round(time.time() - t0, 1)
             out["package"] = pk
+            pk["hook_bar"] = P.hook_bar_mark(bar_at_hooks)   # RULING 115 (2): sealed on the calibrated bar, said so
             rec[mid]["out"] = "PACKAGE"
             break
         stop(mid, why_p)

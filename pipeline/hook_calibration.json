@@ -1,0 +1,86 @@
+{
+ "approved": [
+  {
+   "alone": 4,
+   "approved": "the protected preview (references/pulse_preview_2026-11-11, PBX 2026-11-11)",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "channel": "DataDash",
+   "how": "asked alone at seed 7",
+   "ref": "ref-preview",
+   "scroll": 3,
+   "setup": 3,
+   "text": "Bitcoin has now seen a 16 % decline from the overall high from $88 ,000, touching down towards about $73 ,400, $500, give or take.",
+   "video_id": "RXTVaDsN11M",
+   "why": "lacks dramatic punch in first seconds"
+  },
+  {
+   "alone": 5,
+   "approved": "moments-fresh_20261112_050611-37c5b5f5",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "channel": "Saifedean Ammous",
+   "how": "asked alone at seed 7",
+   "ref": "ref-37c5b5f5",
+   "scroll": 3,
+   "setup": 4,
+   "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+   "video_id": "vgsSZ4mAHfQ",
+   "why": "first 2-3s lack punch to stop scroll"
+  },
+  {
+   "alone": 5,
+   "approved": "moments-fresh_20261112_050611-41f29b1f",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "channel": "Natalie Brunell",
+   "how": "asked alone at seed 7",
+   "ref": "ref-41f29b1f",
+   "scroll": 3,
+   "setup": 4,
+   "text": "Bitcoin imposes a global free market for the first time ever.",
+   "video_id": "wdk5JZ9hPzs",
+   "why": "first seconds lack strong grab to halt scroll"
+  },
+  {
+   "alone": 5,
+   "approved": "moments-ledger_20261113_183302-0c68b589",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "channel": "Simply Bitcoin",
+   "how": "asked alone at seed 7 once more, unrecorded: the first answer was out of contract",
+   "ref": "ref-0c68b589",
+   "scroll": 3,
+   "setup": 4,
+   "text": "A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies. and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate.",
+   "video_id": "DcUbBkyeh9M",
+   "why": "first seconds too dry to halt scrolls"
+  },
+  {
+   "alone": 5,
+   "approved": "moments-ledger_20261113_215708-13949b7c",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "channel": "Simply Bitcoin",
+   "how": "asked alone at seed 7 once more, unrecorded: the first answer was out of contract",
+   "ref": "ref-13949b7c",
+   "scroll": 3,
+   "setup": 4,
+   "text": "Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued.",
+   "video_id": "DcUbBkyeh9M",
+   "why": "dry academic opener lacks scroll-stopping punch"
+  }
+ ],
+ "asking": "alone",
+ "examples": [],
+ "floors": {
+  "alone": 4,
+  "scroll": 3,
+  "setup": 3
+ },
+ "floors_below_3": [],
+ "measured_at": "2026-11-15T18:07:52+00:00",
+ "question_version": "e3cba8d92551",
+ "question_version_note": "package.HOOK_VERSION: the hook question (HOOKS_PROMPT), the asking (alone, one candidate a call) and the seed (7). Relabelled from bfdf74078d5e when the seed joined the version (audit 20261115_1410 C1, glm): the measured asking is the same.",
+ "rater": "xai:grok-4.20-0309-reasoning",
+ "rule": "a hook passes when EACH of scroll / alone / setup is at least its floor; a floor is the lowest value the part takes across the approved hooks under this asking, never below 3",
+ "ruling": "115 (orchestrator 13:24 ET Nov 15): the hook bar is defined by PBX's approvals",
+ "seed": 7,
+ "sha256": "fb964eb15a242b3ee7e385ce383546baa74e303d5009529eeab3cc18f313320b",
+ "source": "tests/package/proof/hook113/ALONE_TEST.json"
+}

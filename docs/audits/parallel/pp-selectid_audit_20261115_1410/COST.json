@@ -1,0 +1,39 @@
+{
+ "ruling": "107 (2), 20:40 ET Nov 14",
+ "changed_lines": 1075,
+ "cap_usd": 1.0,
+ "usd_reported": 0.147273,
+ "usd_upper_bound_unreported": 0.0,
+ "reviews": [
+  {
+   "review": "C1_glm-5.3-flash.md",
+   "usd_reported": 0.004287,
+   "usd_upper_bound": 0.487
+  },
+  {
+   "review": "C1_grok-4.20-0309-reasoning.md",
+   "usd_reported": 0.064637,
+   "usd_upper_bound": 0.245
+  },
+  {
+   "review": "C1_qwen3.8-27b.md",
+   "usd_reported": 0.006746,
+   "usd_upper_bound": 0.237
+  },
+  {
+   "review": "C2_glm-5.3-flash.md",
+   "usd_reported": 0.002051,
+   "usd_upper_bound": 0.214
+  },
+  {
+   "review": "C2_grok-4.20-0309-reasoning.md",
+   "usd_reported": 0.061746,
+   "usd_upper_bound": 0.252
+  },
+  {
+   "review": "C2_qwen3.8-27b.md",
+   "usd_reported": 0.007806,
+   "usd_upper_bound": 0.178
+  }
+ ]
+}

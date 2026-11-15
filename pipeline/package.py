@@ -9,8 +9,9 @@ usable()      moments a package may use: on screen eligible (word timing, law L-
 prescreen()   step A of law L-s on EVERY usable moment's own context (ruling 58), ONCE per moment (package-independent):
               this build's ledger (`store`) and the step-A cache every build shares (`cache`: moment id + text sha +
               context sha + the step-A prompt); never recomputed
-hook_ratings() RULING 59: the hook question of ruling 52 on every cleared, cuttable moment that can open, ONE batched
-              call, cached; only a hook rated >= HOOK_MIN opens, and the angles are written FOR the passing hooks
+hook_ratings() RULING 59: the hook question of ruling 52 on every cleared, cuttable moment that can open, cached;
+              RULING 115: each candidate asked ALONE (one call each) and only a hook on the calibrated bar (hook_bar:
+              every part at least its floor, by the calibrated rater) opens; the angles are written FOR the passing hooks
 ANGLES        role angle_write: up to MAX_ANGLES one-sentence angles, each backed by 3-8 cleared moments from >= 3
               channels (one clip per channel, L-u), listed in PLAY ORDER (L-y 3)
 lineup_for()  code: the hook + 2-4 clips for one angle in the proposer's play order, every segment from a different
@@ -82,7 +83,8 @@ SHORT_CLIP_S = 8.0                 # a clip under ~8 s is a penalty unless it is
 MAX_ANGLES = 3                     # orchestrator 05:30: at most 3 angles x 2 writes
 WRITES = 2
 COHERENCE_MIN = 4                  # the blind coherence verdict: every rating >= 4 and a through-line, else next angle
-HOOK_MIN = COHERENCE_MIN           # RULING 59 (b): only a moment rated >= 4 on the hook's own job may open a line-up
+HOOK_MIN = COHERENCE_MIN           # RULING 59 (b), until ruling 115: a moment rated >= 4 on the hook's own job opened a
+#   line-up; ruling 115's calibrated bar decides now (hook_own "passes"). replay85's agreement rule still reads it.
 BUDGET_WALL_S = 900.0              # orchestrator 22:40 ruling 5 (Heimdall as the writer; was 05:25 item 5's 360 s x2):
 BUDGET_USD_REPORTED = 1.50         # per package 15 min wall and $1.50 by the vendors' OWN reported cost,
 BUDGET_USD_ESTIMATE = 5.00         # with the price-table estimate (it over-states ~7x) only as a hard ceiling
@@ -857,25 +859,45 @@ the opener of a video; the candidates are not compared with each other and never
 For EACH candidate: """ + HOOK_QUESTION + """
 Give "why": a few words on the candidate's weakest part.
 Return ONLY this JSON object: {{"hooks": {{{keys}}}}}"""   # ruling 59 (a): ruling 52's ONE hook question, per candidate
-HOOK_VERSION = hashlib.sha256(HOOKS_PROMPT.encode()).hexdigest()[:12]   # a cached rating is for exactly this question
+HOOK_ASKING = "alone: one candidate a call (ruling 115)"   # ruling 115: the hook job asks each candidate ALONE
+HOOK_SEED = 7                      # production's seed for the hook job (the calibration law's seed, ruling 113 (2))
+HOOK_VERSION = hashlib.sha256((HOOKS_PROMPT + "\n" + HOOK_ASKING + f"\nseed {HOOK_SEED}").encode()).hexdigest()[:12]
+#   a cached rating is for exactly this question, this asking AND this seed (audit 20261115_1410 C1, glm): the batched
+#   ratings of before (dd497beb6930) never answer, nor would ratings asked at another seed
 
 
-def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None, seed=7):
-    """RULING 59 (a): the hook question of ruling 52 (HOOK_QUESTION: scroll / alone / setup, each 1-5) asked of EVERY
-    given moment ALONE, in ONE batched call (coherence_verdict, never the writers' vendor or family), each rating
-    DERIVED as the lowest part (HOOK_RULE). Cached (`cache`, shared by every build) by the moment id, the sha256 of its
-    text and the question's version: a moment is rated once, by a back-end off the writers. A reply out of contract
-    moves on to the next model of the chain (providers.call_parsed, ruling 82 as the 20:33 order extends it). ->
-    ({moment id: {"scroll", "alone", "setup", "rating", "why", "backend", "cached"}}, the error or None).
-    A moment the call did not rate has no rating (law L-m: never a pass)."""
+def hook_live_bar():
+    """RULING 115: the calibrated hook bar for this question version and seed (hook_bar.bar), or (None, why)."""
+    import hook_bar as HB
+    return HB.bar(None, HOOK_VERSION, HOOK_SEED, path=HB.PATH)
+
+
+def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None, seed=HOOK_SEED):
+    """RULING 59 (a) / RULING 115: the hook question of ruling 52 (HOOK_QUESTION: scroll / alone / setup, each 1-5) asked
+    of EVERY given moment ALONE: ONE call per candidate (ruling 115: the asking the calibration measured; a batch moved
+    single ratings, 41f29b1f's from 3 alone to 5 among the approved hooks), on coherence_verdict's hook list (ruling
+    115: Grok; never the writers' vendor or family). Cached (`cache`, shared by every build) by the moment id, the
+    sha256 of its text and the question version (HOOK_VERSION carries the asking): a moment is rated once, by a back-end
+    off the writers. A reply out of contract moves on to the next model of the chain (providers.call_parsed, ruling 82
+    as the 20:33 order extends it). Whether a rated hook may open is hook_own's: the calibrated floors (ruling 115).
+    -> ({moment id: {"scroll", "alone", "setup", "rating", "why", "backend", "cached"}}, the first error or None).
+    A moment no call rated has no rating (law L-m: never a pass)."""
     import providers as P
     wv, wf = P._as_set(writer_vendor), P._as_set(writer_family)
     off = lambda name: (lambda b: b is not None and b.vendor not in wv and b.family not in wf)(router.backends.get(name))
+    try:                                         # audit 20261115_1410 C1 (glm): only a back-end on TODAY's hook list
+        listed = set(router.chain("coherence_verdict", "hook"))   # answers from the cache, so a rater change re-asks
+    except AttributeError:                       # every hook (a rating by a model off the list can never pass the
+        listed = None                            # bar); a stand-in router without chain(): as before
+    except P.ProviderError:                      # no hook list at all: no cached rating answers (fail closed, C2 glm)
+        listed = set()
+    cache = cache if seed == HOOK_SEED else None  # the cache holds production's seed only (the key's version has it)
     cdb, out, todo = _load_cache(cache), {}, []
     key = lambda m: f"{m['moment_id']}:{text_sha(m['text'])}:{HOOK_VERSION}"
     for m in ms:
         rec = next((x for name, x in sorted((cdb.get(key(m)) or {}).items())
-                    if isinstance(x, dict) and off(name) and x.get("backend") == name), None)
+                    if isinstance(x, dict) and off(name) and x.get("backend") == name and
+                    (listed is None or name in listed)), None)
         if rec is not None and all(isinstance(rec.get(k), int) for k in HOOK_PARTS):
             out[m["moment_id"]] = dict(rec, rating=min(rec[k] for k in HOOK_OWN), rule=HOOK_OWN_RULE,
                                        cached=True)          # ruling 61: the own-job rating is scroll / alone
@@ -883,12 +905,8 @@ def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None,
             todo.append(m)
     if not todo:
         return out, None
-    ids = [m["moment_id"] for m in todo]
-    cands = "\n".join(f'CANDIDATE id="{m["moment_id"]}" (on screen: {CI._q(_name(m, ctx), 80)}): '
-                      f'"{CI._q(m["text"], 900)}"' for m in todo)
-    keys = ", ".join(f'"{i}": {{"scroll": 1, "alone": 1, "setup": 1, "why": "..."}}' for i in ids)
 
-    def parse(text):
+    def parse(text, ids):
         v = json.loads(text.strip())
         h = v["hooks"] if isinstance(v, dict) and set(v) == {"hooks"} else None
         if not isinstance(h, dict) or set(h) != set(ids) or any(
@@ -896,21 +914,25 @@ def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None,
                 any(type(x[k]) is not int or not 1 <= x[k] <= 5 for k in HOOK_PARTS) for x in h.values()):
             raise ValueError("hook ratings out of contract")
         return h
-    try:                                         # the 20:33 order: an answer out of contract moves on to the next
-        r, h = P.call_parsed(router, "coherence_verdict", HOOKS_PROMPT.format(hooks=cands, keys=keys), parse,
-                             600 + 150 * len(ids), seed, avoid_vendor=writer_vendor, avoid_family=writer_family,
-                             kind="hook")                                # ruling 88: the hook rating's own list
-    except (P.ProviderError, P.SpendLimit, ValueError, TypeError, KeyError) as e:   # (it was one re-ask of the same
-        return out, f"{type(e).__name__}: {str(e)[:200]}"     # model) unavailable, all out of contract, or the guard
-    new = {}
-    for m in todo:
-        x = h[m["moment_id"]]
+    new, err = {}, None
+    for m in todo:                               # RULING 115: ALONE, one candidate a call (the calibration's asking)
+        mid = m["moment_id"]
+        cand = f'CANDIDATE id="{mid}" (on screen: {CI._q(_name(m, ctx), 80)}): "{CI._q(m["text"], 900)}"'
+        keys = f'"{mid}": {{"scroll": 1, "alone": 1, "setup": 1, "why": "..."}}'
+        try:                                     # the 20:33 order: an answer out of contract moves on to the next
+            r, h = P.call_parsed(router, "coherence_verdict", HOOKS_PROMPT.format(hooks=cand, keys=keys),
+                                 lambda t, i=(mid,): parse(t, i), 600 + 150, seed, avoid_vendor=writer_vendor,
+                                 avoid_family=writer_family, kind="hook")   # ruling 88: the hook rating's own list
+        except (P.ProviderError, P.SpendLimit, ValueError, TypeError, KeyError) as e:   # this candidate has no rating
+            err = err or f"{type(e).__name__}: {str(e)[:200]}"       # (law L-m); the others are still asked
+            continue
+        x = h[mid]
         rec = {**{k: x[k] for k in HOOK_PARTS}, "rating": min(x[k] for k in HOOK_OWN), "why": x["why"][:300],
-               "backend": r.backend, "rule": HOOK_OWN_RULE}           # ruling 61: scroll / alone
-        out[m["moment_id"]] = dict(rec, cached=False, replayed=bool(getattr(r, "replayed", False)))
+               "backend": r.backend, "rule": HOOK_OWN_RULE}           # the rating orders hooks; hook_own decides
+        out[mid] = dict(rec, cached=False, replayed=bool(getattr(r, "replayed", False)))
         new[key(m)] = {r.backend: rec}
     _cache_put(cache, new)
-    return out, None
+    return out, err
 
 TAKEAWAY_SAID = ("The takeaway may characterise what the clips SAID, never what WILL happen. Two kinds were refused: a "
                  "forecast or a permanence claim stated as fact ('Bitcoin outlasts politics.'), and a superlative that "
@@ -1380,15 +1402,48 @@ def no_role_on_screen(m):
                                         "with no clip scorer at the pin stage") + f": {c_why}; {h_why}")
 
 
+_LIVE = {}
+
+
+def _live_bar():
+    """The calibrated bar, read once per state of the calibration file (its mtime) and per minute: a build reads it a
+    few times, and a calibration that ages past its 24 h mid-build stops passing hooks within the minute."""
+    import hook_bar as HB
+    try:
+        k = (os.stat(HB.PATH).st_mtime_ns, int(time.time() // 60))
+    except OSError:
+        k = (None, int(time.time() // 60))
+    if k not in _LIVE:
+        _LIVE.clear()
+        _LIVE[k] = hook_live_bar()
+    return _LIVE[k]
+
+
+def hook_bar_mark(live=None):
+    """RULING 115 (2): what a package sealed on the calibrated bar carries in its record (and its pin, outside the seal):
+    the plain line for the Telegram note, the floors and the calibration's sha. `live`: the bar the build judged its
+    hooks on (audit 20261115_1410 C2, glm: never a fresh read that could differ at seal time); None reads it now."""
+    import hook_bar as HB
+    if live is None:
+        live, _ = _live_bar()
+    return {"note": HB.NOTE, "bar": HB.text(live), "floors": (live or {}).get("floors"),
+            "calibration_sha256": (live or {}).get("sha256"), "ruling": "115"}
+
+
 def hook_own(m):
-    """RULING 61 (12:00): a hook's OWN-JOB rating, the cached one ruling 59 gave it ("hook_rating"): {"scroll",
-    "alone", "rating": the lower of the two, "source", "rule"}. 'Sets up what follows' is not part of it: it is judged
-    at the hook -> clip_01 join. None when the moment carries no complete rating (then it never opens, law L-m)."""
+    """RULING 61 / RULING 115: a hook's OWN-JOB rating, the cached one ruling 59 gave it ("hook_rating"): {"scroll",
+    "alone", "setup", "rating": the lower of scroll and alone (it ORDERS hooks), "passes": RULING 115, every part at
+    least its calibrated floor, rated by the calibrated rater (hook_bar.passes), "short": why not, "bar": the bar in one
+    line, "source", "rule"}. None when the record lacks a part (then it never opens, law L-m)."""
+    import hook_bar as HB
     r = (m or {}).get("hook_rating") or {}
-    parts = {k: r.get(k) for k in HOOK_OWN}
+    parts = {k: r.get(k) for k in HOOK_PARTS}
     if not all(isinstance(x, int) and not isinstance(x, bool) for x in parts.values()):
         return None
-    return dict(parts, rating=min(parts.values()), source="the hook's cached own-job rating (ruling 61)",
+    live, why = _live_bar()
+    ok, short = HB.passes(dict(parts, backend=r.get("backend")), live)
+    return dict(parts, rating=min(parts[k] for k in HOOK_OWN), passes=ok, short=why if live is None else short,
+                bar=HB.text(live), source="the hook's cached own-job rating (ruling 61), on the calibrated bar (ruling 115)",
                 rule=HOOK_OWN_RULE)
 
 
@@ -1417,8 +1472,9 @@ def third_opener(m):
 def _can_open(m, pending_verdict=False):
     """Whether a moment may OPEN a line-up: hook-eligible, its hook onset measured and passed (G17a), a first word the
     render's STAND_ALONE takes for a hook (stand_alone.opener), and, once the build has rated the pool's hooks (RULING
-    59: build() sets "hook_rating" on every cleared moment before any line-up), rated >= HOOK_MIN on the hook's own job
-    (an unmeasured rating is never a pass, law L-m). A moment without the key is judged as before ruling 59."""
+    59: build() sets "hook_rating" on every cleared moment before any line-up), passing the calibrated hook bar on the
+    hook's own job (ruling 115: hook_own "passes"; an unmeasured rating is never a pass, law L-m). A moment without
+    the key is judged as before ruling 59."""
     import stand_alone as SA
     v = verdict_of(m)                                    # RULING 94 (b): the scorer's verdict on its current text
     sc = (v["score"], v["fault"]) if v else (None, None)
@@ -1432,8 +1488,8 @@ def _can_open(m, pending_verdict=False):
         return False
     if "hook_rating" not in m:
         return True                                      # not rated yet: judged as before ruling 59
-    own = hook_own(m)                                    # ruling 61: scroll / alone, the cached own-job rating
-    return own is not None and own["rating"] >= HOOK_MIN
+    own = hook_own(m)                                    # ruling 115: every part at least its calibrated floor
+    return own is not None and own["passes"]
 
 
 def hook_order(ms):
@@ -1522,7 +1578,7 @@ def placement(m):
     eligibility and a passed hook onset (G17a) it cannot open. Under SHORT_CLIP_S it may not play mid-line-up: the
     short-clip rule binds the clips AFTER the hook only, so a short clip that can open may be the hook or the LAST clip,
     and one that cannot open only the LAST (the 08:46 build: a 7.26 s opener was the only formable hook). RULING 59:
-    "may open" is can_open(): once the pool's hooks are rated, only a hook rated >= HOOK_MIN opens."""
+    "may open" is can_open(): once the pool's hooks are rated, only a hook on the calibrated bar opens (ruling 115)."""
     opens = can_open(m)
     if m["duration_s"] < SHORT_CLIP_S:
         return f" | under {SHORT_CLIP_S:.0f} s: " + ("only the hook or the LAST clip" if opens else "only the LAST clip")
@@ -1688,8 +1744,9 @@ def coherence(router, pk, writer_vendor, seed=7, writer_family=None, hook=None):
     v = dict(v, clips={**({labs[0]: own["rating"]} if own else {}), **v["clips"]},
              hook_own=own or {"rating": None, "why": "the hook carries no cached own-job rating (ruling 61): "
                                                      "fail closed"})
-    ok = own is not None and _line_ok(v["through_line"]) and \
-        min(list(v["clips"].values()) + [v["vo_point"]]) >= COHERENCE_MIN
+    ok = own is not None and own["passes"] and _line_ok(v["through_line"]) and \
+        min([x for lb, x in v["clips"].items() if lb != labs[0]] + [v["vo_point"]]) >= COHERENCE_MIN   # ruling 115:
+    #   the hook's slot is its calibrated bar, every clip after it and the VO point COHERENCE_MIN, as before
     return ok, dict(v, backend=r.backend, measured=True, replayed=bool(getattr(r, "replayed", False)))
 
 
@@ -1749,22 +1806,26 @@ def medley(router, segs, ctx, writer_vendor, seed=7, writer_family=None):
              hook_own=own or {"rating": None, "why": "the hook carries no cached own-job rating (ruling 61): "
                                                      "fail closed"})
     flagged = [j for j in js if v["joins"][j]["followable"] is False]
-    ok = own is not None and _line_ok(v["through_line"]) and min(v["clips"].values()) >= COHERENCE_MIN and \
-        len(flagged) <= LY_MAX_BRIDGES
+    ok = own is not None and own["passes"] and _line_ok(v["through_line"]) and \
+        min(x for lb, x in v["clips"].items() if lb != labs[0]) >= COHERENCE_MIN and len(flagged) <= LY_MAX_BRIDGES
+    #   ruling 115: the hook's slot is its calibrated bar; every clip after it COHERENCE_MIN, as before
     return ok, dict(v, flagged=flagged, backend=r.backend, measured=True,
                     replayed=bool(getattr(r, "replayed", False)), cached=bool(getattr(r, "cached", False)))
 
 
 def last_clip_only(segs, med):
     """RULING 62 (12:00): whether a clips-alone failure is its LAST clip's alone: measured, the through-line stated,
-    every other rating (the hook's cached one included) >= COHERENCE_MIN, the last clip's under it, and no more than
-    LY_MAX_BRIDGES flagged joins once the join into the last clip goes with it."""
+    the hook passing its calibrated bar (ruling 115: hook_own of the line-up's own hook, as medley() judges it), every
+    clip after it but the last >= COHERENCE_MIN, the last clip's under it, and no more than LY_MAX_BRIDGES flagged
+    joins once the join into the last clip goes with it."""
     labs = labels(len(segs))
     cl = med.get("clips") or {}
     if not med.get("measured") or not _line_ok(med.get("through_line")) or labs[-1] not in cl or labs[0] not in cl:
         return False
     rest = [j for j in med.get("flagged") or [] if j != joins(labs)[-1]]
-    return [lb for lb, x in cl.items() if x < COHERENCE_MIN] == [labs[-1]] and len(rest) <= LY_MAX_BRIDGES
+    own = hook_own(segs[0])                              # ruling 115: the hook passes by its calibrated bar
+    return own is not None and own["passes"] and [lb for lb, x in cl.items() if lb != labs[0] and x < COHERENCE_MIN] \
+        == [labs[-1]] and len(rest) <= LY_MAX_BRIDGES
 
 
 def reorder(segs, bad_pairs, judged, repeat_ok=False):
@@ -2422,8 +2483,9 @@ def load_candidate(record, index=None, source=""):
 
 def candidate_lineup(router, candidate, cleared, now):
     """RULING 66: the candidate's line-up as THIS build's pool holds it, or why it is closed. Every clip must still be
-    cleared (a clip delivered, aged out or failing a gate closes it), its hook must still open (its cached rating >=
-    HOOK_MIN, G17a), and exactly its clips, in its order, must still form a line-up under lineup_for's own rules
+    cleared (a clip delivered, aged out or failing a gate closes it), its hook must still open (its cached rating on
+    the calibrated bar, ruling 115; G17a), and exactly its clips, in its order, must still form a line-up under
+    lineup_for's own rules
     (the seconds, the channels, price predictions, short clips, trims, the render's STAND_ALONE).
     -> (segs, None) or (None, why)."""
     ids = list(candidate["lineup"])
@@ -2433,7 +2495,7 @@ def candidate_lineup(router, candidate, cleared, now):
     if gone:
         return None, f"no longer cleared in this pool (delivered, aged out, or a gate fails): {gone}"
     if not can_open(cleared[ids[0]]):
-        return None, f"its hook no longer opens (rating >= {HOOK_MIN} and G17a): {ids[0]}"
+        return None, f"its hook no longer opens (the calibrated hook bar and G17a): {ids[0]}"
     segs = lineup_for(dict(candidate["angle"], moments=ids), cleared, clips=(len(ids) - 1, len(ids) - 1),
                       repeat_ok=candidate.get("supply_exception") is not None, need_onset=True,
                       need_stand_alone=True, now=now, hook_only=True)
@@ -2456,11 +2518,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     scorer_verdicts_path / scorer_candidates_path / build_name (ruling 56, scorer_pass): the integrator's verdicts of the
     render's clip scorer to read, and where to write the next pass's candidates (None: neither).
     RULING 59, HOOK FIRST: once the pool is screened, every cleared, cuttable moment that can open is rated on the hook's
-    own job in one batched call (hook_ratings); only a hook rated >= HOOK_MIN opens; with none, the build stops there
-    ('no hook in the pool', the three best listed) before the second screen, the angles and any line-up. The angle
+    own job (hook_ratings; ruling 115: each alone); only a hook on the calibrated bar opens; with none, the build stops
+    there ('no hook in the pool', the three best listed) before the second screen, the angles and any line-up. The angle
     writer is given THE HOOKS and writes each angle FOR one; the angles are tried best hook first (ruling 57's
     freshness next), each line-up opens on its angle's own hook and never swaps it.
-    RULING 70, THE VISUAL CHECK (visual_pin): every hook rated >= HOOK_MIN is seen right after the ratings, before any
+    RULING 70, THE VISUAL CHECK (visual_pin): every hook on the bar is seen right after the ratings, before any
     angle is asked (a hook whose sheet shows a third person while its words make a negative claim, or that is not
     measured, may not open: can_open); every clip of a line-up that passes the clips-alone verdict is seen before any
     write (not measured: dropped and re-lined, law L-m). Findings are sealed as FLAGS on the segment, never a reject by
@@ -2642,7 +2704,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         m.pop("hook_rating", None)                                       # cache's), never one carried in
     openers = {mid: m for mid, m in cleared.items() if can_open(m)}      # RULING 59 (a): every one that can open,
     rated, hook_err = hook_ratings(router, list(openers.values()), ctx, wv, wf, cache=hook_cache) if openers else \
-        ({}, None)                                                        # one batched call, cached
+        ({}, None)                                                        # each alone (ruling 115), cached
     for mid, m in cleared.items():                                       # (b): the rating gates every opening now
         m["hook_rating"] = rated.get(mid) or {"rating": None, "why": (f"not rated: {hook_err}" if mid in openers else
                                                                       "cannot open (hook eligibility, G17a or the "
@@ -2663,16 +2725,20 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
             + (f" ({'; '.join(f'{k}: {v[:90]}' for k, v in blocked.items())})" if blocked else "")
             + f" ({time.time() - t0:.0f} s)")
     best = [hook_line(m, ctx) for m in hook_order([m for mid, m in openers.items() if mid in rated])[:3]]
-    out["hook_pool"] = {"can_open": len(openers), "rated": len(rated), "error": hook_err, "min": HOOK_MIN,
+    import hook_bar as HB
+    live, live_why = _live_bar()                         # RULING 115: the calibrated bar, named in every build line
+    out["hook_pool"] = {"can_open": len(openers), "rated": len(rated), "error": hook_err, "bar": HB.text(live),
+                        "bar_floors": (live or {}).get("floors"), "bar_sha256": (live or {}).get("sha256"),
+                        "bar_invalid": live_why,
                         "ratings": {mid: rated[mid] for mid in sorted(rated)}, "best": best,
                         "passing": [m["moment_id"] for m in hook_order([m for m in cleared.values() if can_open(m)])],
                         "visual_blocked": blocked}
-    log(f"  hooks (ruling 59): {len(openers)} can open, {len(rated)} rated, {len(out['hook_pool']['passing'])} rated >= "
-        f"{HOOK_MIN} on the hook's own job" + (f"; NOT RATED: {hook_err}" if hook_err else "") +
-        f" ({time.time() - t0:.0f} s)")
+    log(f"  hooks (ruling 59): {len(openers)} can open, {len(rated)} rated, {len(out['hook_pool']['passing'])} pass "
+        f"{HB.text(live)}" + (f" [{live_why}]" if live_why else "") + (f"; NOT RATED: {hook_err}" if hook_err else "")
+        + f" ({time.time() - t0:.0f} s)")
     if not out["hook_pool"]["passing"]:                                  # (d): no line-up is paid for
         out["why_none"] = ("no hook in the pool (ruling 59 d): " + (
-            f"none of the {len(openers)} moments that can open rates >= {HOOK_MIN} on the hook's own job" +
+            f"none of the {len(openers)} moments that can open passes {HB.text(live)}" +
             (f" ({len(openers) - len(rated)} not rated: {hook_err})" if hook_err else "") + "; the best: " +
             "; ".join(f"{b['channel']} {b['rating']} (scroll {b['scroll']}, alone {b['alone']}, setup {b['setup']}): "
                       f"{b['why']}" for b in best) if openers else
@@ -2702,7 +2768,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         return out
     passing = hook_order([m for m in cleared.values() if can_open(m)])    # ruling 59: the passing hooks still
     if not passing:                                                        # cleared after the second screen
-        out["why_none"] = ("no hook in the pool (ruling 59 d): every hook rated >= " + str(HOOK_MIN) + " failed the "
+        out["why_none"] = ("no hook in the pool (ruling 59 d): every hook that passed the calibrated bar failed the "
                            "second vendor's step A: " + "; ".join(out["prescreen"]["second_vendor"].get(mid, "?")
                                                                     for mid in out["hook_pool"]["passing"]))
         return out
@@ -3458,6 +3524,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
             if out["packages"] or out.get("budget_stop") or out.get("lock_stop") or over_budget(ai):
                 break
     out["package"] = out["packages"][0] if out["packages"] else None
+    if out["package"]:                                   # RULING 115 (2): a package sealed on the calibrated bar says so
+        out["package"]["hook_bar"] = hook_bar_mark(live)   # the bar its hooks were judged on (the hook stage's)
     if candidate is not None:                             # RULING 66: what became of the candidate
         t_ = next((t for t in out["tried"] if t.get("candidate") is not None), {})
         out["candidate"]["result"] = t_.get("result") or t_.get("why") or out.get("why_none") or "not tried"
