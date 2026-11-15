@@ -1,0 +1,23 @@
+{
+ "ruling": "108, orchestrator 21:20 ET Nov 14",
+ "batch": 3,
+ "to": "2026-11-15T21:10 ET",
+ "cap": 8.0,
+ "shares": {
+  "builds": 4.5,
+  "audits": 2.5,
+  "mining": 1.0
+ },
+ "builds": 0.0,
+ "audits": 0.056304,
+ "audit_rows": {
+  "20261114_2114": 0.00619,
+  "20261114_2131": 0.050114
+ },
+ "mining": 0.0,
+ "others": {
+  "integrator": 0.0058
+ },
+ "all_in": 0.062104,
+ "videos_sealed": 0
+}
