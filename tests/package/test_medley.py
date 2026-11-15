@@ -3817,5 +3817,67 @@ class TestTakeawayValueRow(unittest.TestCase):
         package_pin.to_pin(spk(dict(pk, gates=TestMedleyPackageAndPin().gates(pk))), "test")   # the right row: pins
 
 
+class TestRuling109Channels(unittest.TestCase):
+    """RULING 109 (free gates first) on the medley's 3-channel rule (orchestrator 08:56 ET Nov 15: "one channel cannot
+    make a medley ... run the SPOTLIGHT path"): a pool of fewer than 3 channels after the free stages ends the medley
+    before any paid verdict, with the record the rule on the cleared moments returns; 3 channels are screened and
+    packaged as before; a build from a ruling-66 candidate keeps its own path."""
+    ALL = ["h", "x", "y", "z"]
+
+    def pool(self, chans):
+        return [pm(mid, ch, 12.0 + i) for i, (mid, ch) in enumerate(zip(self.ALL, chans))]
+
+    def test_one_or_two_channels_ask_nothing(self):
+        for chans in ("AAAA", "AABB"):
+            rig = Rig(self.pool(chans), self.ALL, [], [])
+            out = rig.run()
+            self.assertEqual((rig.screens, rig.events, rig.hook_calls, rig.visual_calls, rig.medley_calls),
+                             ([], [], [], [], []), chans)                  # no step A, no call of any kind
+            n = len(set(chans))
+            self.assertEqual(out["why_none"], f"the pool spans {n} channel(s) after the free stages: a medley needs 3; "
+                                              f"no paid verdict (ruling 109)")
+            self.assertEqual((out["package"], out["usable"], out["prescreen"]["cleared"], out["ruling_109"]),
+                             (None, 4, 0, {"channels": n, "pool": 4}))
+
+    def test_the_channels_are_counted_after_the_free_stages(self):
+        off = dict(pm("w", "C", 12.0), text="The weather was lovely at the lake today.")   # a third channel, but no
+        rig = Rig(self.pool("AABB") + [off], self.ALL, [], [])                             # place under the topic rule
+        out = rig.run()
+        self.assertEqual((rig.screens, rig.events), ([], []))
+        self.assertIn("w", out["no_role"])
+        self.assertEqual((out["usable"], out["ruling_109"]), (5, {"channels": 2, "pool": 4}))
+
+    def test_the_record_has_the_shape_the_rule_on_the_cleared_moments_returns(self):
+        gate = Rig(self.pool("AABB"), self.ALL, [], []).run()
+        late = Rig(self.pool("ABCD"), self.ALL, [], [],
+                   a_fail={("xai", "y"): ["REFERENT_OUTSIDE"], ("xai", "z"): ["REFERENT_OUTSIDE"]}).run()
+        self.assertEqual(late["why_none"], "2 moments cleared step A from fewer than 3 channels")   # the rule, after
+        self.assertEqual(set(gate) - {"ruling_109"}, set(late))                                     # step A was paid
+        self.assertEqual(set(gate["prescreen"]), set(late["prescreen"]))
+        self.assertEqual(set(gate["scorer"]), set(late["scorer"]))
+
+    def test_the_guard_finds_no_open_work_and_the_registry_no_line_up(self):
+        import candidates as CA
+        import proof_ledger as PLG
+        gate = Rig(self.pool("AABB"), self.ALL, [], []).run()
+        self.assertEqual(PLG.open_work(gate, {}), 0)                        # ruling 107 (1): nothing asked or undone
+        reg = CA.new_registry()
+        self.assertEqual((CA.seed(reg, gate, "proof/ledger_x"), reg["candidates"]), ([], {}))   # ruling 66: none kept
+
+    def test_three_channels_are_screened_and_packaged_as_before(self):
+        rig = Rig(self.pool("ABCA"), self.ALL, [(True, [], None, Rig.LINE)], [None])
+        out = rig.run()
+        self.assertEqual(rig.screens[0], ("xai:grok", self.ALL))
+        self.assertIsNotNone(out["package"])
+        self.assertNotIn("ruling_109", out)
+
+    def test_a_build_from_a_candidate_keeps_its_own_path(self):
+        c = PK.load_candidate(TestRuling66Candidate().record())
+        rig = Rig(self.pool("AABB"), self.ALL, [], [], candidate=c)
+        out = rig.run()
+        self.assertEqual(rig.screens, [("xai:grok", self.ALL)])           # screened as before this gate
+        self.assertNotIn("ruling_109", out)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -2543,6 +2543,24 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     #   video at most once, L-y 4)
     ad_read = ad_read_out(ms, sources)                # the exclusion screen's free part, BEFORE the angle is built
     ms = [m for m in ms if m["moment_id"] not in ad_read]     # around a moment it refuses (the 03:39 build's hook)
+    n_ch = len({m["channel_id"] for m in ms})
+    if candidate is None and n_ch < 3:
+        # RULING 109 (free gates first) on the medley's 3-channel rule (orchestrator 08:56 ET Nov 15: "one channel
+        # cannot make a medley ... run the SPOTLIGHT path"). Every later stage only removes moments (step A's `cleared`
+        # is a subset of this pool), so the same rule on the cleared moments below would refuse this pool anyway, after
+        # step A and ruling 101's confirm ahead were paid. It ends here, before any paid verdict; the spotlight (ruling
+        # 90) runs next as usual. A candidate build (ruling 66) keeps its own path: its outcome is out["candidate"].
+        why_none = (f"the pool spans {n_ch} channel(s) after the free stages: a medley needs 3; no paid verdict "
+                    f"(ruling 109)")
+        log(f"  {n_usable} usable, {len(ms)} in the pool after the free stages: {why_none}")
+        return {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable,   # out's shape
+                "current_levels": current_levels(sources.values(), ctx), "no_role": no_role, "ad_read": ad_read,
+                "trimmed": {k: v["moment_id"] for k, v in trims.items()}, "reposted": reposted,
+                "scorer": dict(scorer["record"], admitted=admitted, trims_affirmed=sorted(trims), trims_out=trim_out),
+                "prescreen": {"screened": 0, "cleared": 0, "failed": {}, "parallel_101": None,
+                              "held_102": {"first": [], "second": []}, "last_resort_87": {}},
+                "angles": [], "takeaways": [], "package": None, "why_none": why_none,
+                "ruling_109": {"channels": n_ch, "pool": len(ms)}}
     wv, wf = _writers(router)
     fb = first_bounds(router)
     plan = step_a_plan(router, ms, sources, ctx, wv, wf, store=store, cache=step_a_cache, **fb)   # RULING 101

@@ -229,9 +229,13 @@ cd /home/ultron/worktrees/pp-selectid && python3 -B tests/package/proof_ledger.p
 ```
 - `--routing heimdall_first` is REQUIRED. `pipeline/model_providers.json` still has `routing.mode` "today", so a
   build that omits the flag runs the old chains. Every build since 01:41 ET Nov 14 has run heimdall_first.
-- The last build is batch 3's build 3, 23:02 ET Nov 14 (`ledger_20261115_040228`, code 2c802bcf): no medley, no
-  spotlight, $0.21, 0 moments held, 0 items left undone (the ruling-107 (1) guard skips the next build at $0.00
-  if nothing is new).
+- The last build is batch 3's build 4, 09:12 ET Nov 15 (`ledger_20261115_141207`, code 4de643ab): no medley (2
+  channels), no spotlight (nearest: Scott Melker 26466d15, a burned-in bug the 9:16 crop would cut mid-word), $0.59,
+  0 items left undone (the ruling-107 (1) guard skips the next build at $0.00 if nothing is new).
+- A pool of FEWER THAN 3 CHANNELS after the medley's free stages ends the medley before any paid verdict (ruling 109
+  on its 3-channel rule; the orchestrator's 08:56 ET Nov 15 order: "one channel cannot make a medley ... run the
+  SPOTLIGHT path"; audit 20261115_0910). The record says why ("ruling_109": channels, pool), and the spotlight runs as
+  usual. Builds from a ruling-66 candidate skip this check (open item 5c).
 - The last pin delivered as a pass is `moments-ledger_20261113_215708-13949b7c` (built 16:57 ET Nov 13, approved
   17:14 ET; $0.24 total / $0.23 outside). It is the last `--delivered` above. The last SEALED pin is the spotlight
   `moments-ledger_20261114_230148-3f481f5a`: the integrator sent its 16:9 on the REVIEW path at 22:37 ET Nov 14
@@ -252,30 +256,22 @@ cd /home/ultron/worktrees/pp-selectid && python3 -B tests/package/proof_ledger.p
 - A build that judges nothing new costs nothing: every verdict is cached or recorded.
 
 ### 3.2 The ledger watcher (re-create it: the old session's background shells died with it)
-Rebuild whenever the ledger moves. Save this as `<your scratchpad>/rows_now.py`; run it from the worktree. It prints
-"rows word-ready videos":
-```python
-import sys
-from datetime import datetime, timezone
-for p in ("pipeline", "tests/package", "tests/select_by_id", "tests/moments"):
-    sys.path.insert(0, p)
-import ledger_build as LB
-now = datetime.now(timezone.utc)
-rows, rep = LB.rows(datetime.fromisoformat("2026-11-13T03:01:09+00:00"), now, horizon_h=12.0)
-wp, wrep = LB.word_pass_index(LB.WORD_PASS)
-print(f"{len(rows)} {wrep.get('ready')} {len({r['video_id'] for r in rows})}")
-```
-Watch it in the background (Bash `run_in_background`); it exits, and wakes you, when the word-ready count changes:
-```
-S=<your scratchpad>; B0=$(timeout 120 python3 -B $S/rows_now.py); while true; do
-  N=$(timeout 120 python3 -B $S/rows_now.py 2>/dev/null)
-  if [ -n "$N" ] && [ "$(echo $N | cut -d' ' -f2)" != "$(echo $B0 | cut -d' ' -f2)" ]; then
-    echo "CHANGED: was '$B0' now '$N' at $(TZ=America/New_York date +%H:%M)"; break; fi; sleep 300; done
-```
-At handoff (05:20 ET Nov 14) the reading was "62 1450 5". It was "231 1450 13" at 00:11 ET: the row and video counts
-fall as videos pass 12 h, so the watcher keys on word-ready, which has not moved since 00:11. BTC Sessions
-nvEftLDdab4 expired at 04:37 ET. pp-ingest also
-messages you when new hook rows land.
+Build on every ledger change (orchestrator 08:56 ET Nov 15, item 3). The watcher is `<your scratchpad>/watch_ledger.py`
+(Appendix C), run from the worktree. It ENDS, waking you, on:
+- a new moment in the 12-h ledger;
+- a moment newly word-ready (a ready window row in word_pass.jsonl, or a full-video word record in the store);
+- a changed word-pass row for a ledger moment.
+An expiry alone does not end it. It ends after 30 minutes regardless (the fallback poll), so a missed event cannot
+idle you. After acting on a state (a build launched, or nothing to build), run `--mark`, then restart
+`--watch 300 1800` in the background (Bash `run_in_background`). `--show` prints the current state against the
+baseline and writes nothing. Never mark while a build runs on a smaller set without noting the build you owe.
+The old watcher (rows_now.py, keyed on the word pass's total ready count) missed 16 Coin Bureau moments at 07:54 ET
+Nov 15: they were not word-ready, so its count never moved.
+WHEN MOMENTS ARE NOT WORD-READY, read the main tree's `logs/word_pass_worker.log` and word_pass.jsonl's mtime first. The
+integrator's worker runs a 15-minute loop in tmux, not cron. It died at 19:00:52 ET Nov 14 on an uncaught
+gpu0.LeaseBusy (stage_broadcast_service takes the GPU1 lease every 5 minutes) and was restarted at 09:05 ET Nov 15; the
+fix is the integrator's. The transcript-ingest cron's full-video Whisper fails on gpu0.LeaseMissing (117 times since
+11:30 ET Nov 12), so it is no fallback. You run no GPU: say it on STATE line 1 and tell the integrator.
 
 ### 3.3 The candidates registry (ruling 66)
 `tests/package/proof/CANDIDATES.json`, seeded from every build record (`pipeline/candidates.py`): a line-up that
@@ -506,6 +502,13 @@ then `bash regression_test.sh` (26 PASS, 0 FAIL, 5 WARN).
     removed prose and fences, but 93 of 319 answers stop before the JSON closes (far under the token budget) and 27
     are valid JSON but not the contract. No verdict type meets the bars now (hook and exclusion fell below them):
     the v4 is not a candidate. The gateway also takes json_schema (not used: per-prompt schemas would be ours).
+5c. **A candidate build that ends early kills the driver (pre-existing; flagged in audit 20261115_0910, where both
+    reviewers said track it, not in that change):** package.build's early returns before it sets out["candidate"]
+    (the 3-channel rule on the cleared moments, no work_dir, no opener, the second 3-channel rule, no hook) give a
+    ruling-66 candidate build no out["candidate"], and proof_ledger's try_one reads `o["candidate"]["class"]` outside
+    its try (tests/package/proof_ledger.py:484): KeyError after its step A was paid. It needs a due candidate on a
+    pool that fails one of those rules; none is due while every candidate is over 12 h old (CA.expire closes them
+    first). The fix: give those returns a candidate outcome as candidates.outcome reads it; test it; audit it.
 6. **Ruling 97 is answered** (STATE 01:41): nothing to build unless the orchestrator rules otherwise.
 7. **Done tonight:**
    - rulings 85-88 + 96 (125e7381, audit 0108);
@@ -851,4 +854,146 @@ def main(argv):
 
 if __name__ == "__main__":
     main(sys.argv[1:])
+```
+
+## Appendix C: the ledger watcher (copy to `<your scratchpad>/watch_ledger.py`; section 3.2)
+```python
+"""BATCH 3's ledger watcher (orchestrator 08:56 ET Nov 15, item 3: build on every ledger change, with a 30-minute
+fallback poll). Read-only on the ledger, the word pass and the store; no model call; no GPU.
+
+It polls every POLL_S seconds and ENDS (so the builder is re-invoked) with:
+- CHANGED: a new moment in the 12-h ledger, a moment newly word-ready (a ready window record in word_pass.jsonl, or a
+  full-video word record in the store), or a word-pass row (any status) for a ledger moment that had none or another;
+- FALLBACK: FALLBACK_S after it started, whatever happened, so a missed event cannot idle the builder.
+An expiry alone does not end it (nothing new to judge); it is printed. An adapter failure is printed and polled again.
+The baseline is BASE (WATCH_BASE.json beside this file): what the builder last acted on, written only by --mark.
+
+Usage: python3 -B watch_ledger.py --mark           (after each build or check: the current state becomes the baseline)
+       python3 -B watch_ledger.py --watch [POLL_S FALLBACK_S]   (default 300 1800)
+       python3 -B watch_ledger.py --show           (the current state against the baseline; writes nothing)"""
+import json
+import os
+import sys
+import time
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
+
+WT = "/home/ultron/worktrees/pp-selectid"
+for _p in ("pipeline", "tests/package", "tests/select_by_id", "tests/moments"):
+    sys.path.insert(0, os.path.join(WT, _p))
+import ledger_build as LB  # noqa: E402
+
+BASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "WATCH_BASE.json")
+SINCE = datetime.fromisoformat("2026-11-13T03:01:09+00:00")     # the build's own --since
+ET = ZoneInfo("America/New_York")
+
+
+def et(t=None):
+    return (t or datetime.now(timezone.utc)).astimezone(ET).strftime("%H:%M:%S")
+
+
+def wp_status(ids, path=LB.WORD_PASS):
+    """The LAST word-pass row of each ledger moment, classified as word_pass_index classifies it."""
+    last = {}
+    try:
+        f = open(path)
+    except FileNotFoundError:
+        return {}
+    with f:
+        for line in f:
+            try:
+                r = json.loads(line)
+            except ValueError:
+                continue
+            if isinstance(r, dict) and r.get("moment_id") in ids:
+                last[r["moment_id"]] = r
+    out = {}
+    for mid, r in last.items():
+        if r.get("error") or r.get("window_record") is None:
+            out[mid] = "failed"
+        elif r.get("sentence_ready") is not True:
+            out[mid] = "not_ready"
+        elif isinstance(r.get("window_record"), str) and isinstance(r.get("record_sha256"), str):
+            out[mid] = "ready"
+        else:
+            out[mid] = "unreadable"
+    return out
+
+
+def state():
+    now = datetime.now(timezone.utc)
+    rows, rep = LB.rows(SINCE, now, horizon_h=12.0)
+    ids = {r["moment_id"] for r in rows}
+    st = wp_status(ids)
+    full = {r["video_id"] for r in rows
+            if any(os.path.exists(os.path.join(LB.STORE, "transcripts", r["video_id"], n)) for n in LB.WORD_RECORDS)}
+    ready = {r["moment_id"] for r in rows if st.get(r["moment_id"]) == "ready" or r["video_id"] in full}
+    return {"at": now.isoformat(timespec="seconds"), "ids": sorted(ids),
+            "videos": sorted({r["video_id"] for r in rows}), "channels": sorted({r["channel_id"] for r in rows}),
+            "word_pass": st, "full_video": sorted(full), "word_ready": sorted(ready),
+            "excluded": rep.get("excluded")}
+
+
+def diff(base, cur):
+    new = sorted(set(cur["ids"]) - set(base["ids"]))
+    ready = sorted(set(cur["word_ready"]) - set(base["word_ready"]))
+    rows = sorted(mid for mid in cur["ids"] if mid in base["ids"] and cur["word_pass"].get(mid) != base["word_pass"].get(mid))
+    gone = sorted(set(base["ids"]) - set(cur["ids"]))
+    return new, ready, rows, gone
+
+
+def brief(s):
+    return (f"{len(s['ids'])} moments in 12 h ({len(s['videos'])} videos, {len(s['channels'])} channels), "
+            f"{len(s['word_ready'])} word-ready, {len(s['word_pass'])} with a word-pass row, "
+            f"{len(s['full_video'])} videos with a full-video word record")
+
+
+def main(argv):
+    mode = argv[0] if argv else "--show"
+    if mode == "--mark":
+        s = state()
+        with open(BASE + ".tmp", "w") as f:
+            json.dump(s, f, indent=1)
+        os.replace(BASE + ".tmp", BASE)
+        print(f"MARKED at {et()} ET: {brief(s)}")
+        return 0
+    if not os.path.exists(BASE):
+        print("no baseline: run --mark first")
+        return 2
+    base = json.load(open(BASE))
+    if mode == "--show":
+        cur = state()
+        print(f"baseline {et(datetime.fromisoformat(base['at']))} ET: {brief(base)}")
+        print(f"now {et()} ET: {brief(cur)}; new/ready/rows/gone: {diff(base, cur)}")
+        return 0
+    poll_s, fallback_s = (float(argv[1]), float(argv[2])) if len(argv) >= 3 else (300.0, 1800.0)
+    t_end = time.time() + fallback_s
+    print(f"watching from the baseline of {et(datetime.fromisoformat(base['at']))} ET ({brief(base)}) at {et()} ET; "
+          f"poll {poll_s:g} s, fallback {fallback_s:g} s", flush=True)
+    seen_gone = set()
+    while True:
+        try:
+            cur = state()
+        except Exception as e:                           # noqa: BLE001  a failed read is printed, never a change
+            print(f"{et()} adapter or read failed ({type(e).__name__}: {str(e)[:200]})", flush=True)
+            cur = None
+        if cur is not None:
+            new, ready, rows, gone = diff(base, cur)
+            if set(gone) - seen_gone:
+                print(f"{et()} expired since the baseline (no build: nothing new): {len(gone)}", flush=True)
+                seen_gone |= set(gone)
+            if new or ready or rows:
+                print(f"CHANGED at {et()} ET: new {len(new)} {new[:20]}; newly word-ready {len(ready)} {ready[:20]}; "
+                      f"word-pass rows changed {len(rows)} {[(m, cur['word_pass'].get(m)) for m in rows[:20]]}; "
+                      f"now {brief(cur)}", flush=True)
+                return 0
+        if time.time() >= t_end:
+            print(f"FALLBACK at {et()} ET: no change since the baseline; now " +
+                  (brief(cur) if cur is not None else "unread (the last poll failed)"), flush=True)
+            return 0
+        time.sleep(max(1.0, min(poll_s, t_end - time.time())))
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
 ```

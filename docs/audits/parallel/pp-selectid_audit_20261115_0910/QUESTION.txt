@@ -1,0 +1,50 @@
+pp-selectid, THE ORCHESTRATOR'S ORDER 08:56 ET Nov 15, item 2: "one channel cannot make a medley (channel rules), so
+run the SPOTLIGHT path on it (ruling 109 free gates first, ruling 107 guard)". RULING 109 (21:30 ET Nov 14): free
+gates first; a paid verdict only for what every free gate passed.
+
+THE FINDING. The build driver (tests/package/proof_ledger.py, UNCHANGED) always runs the medley first (package.build),
+then the spotlight (spotlight.build, ruling 90; proof_ledger.py:500). The medley pays step A on EVERY moment of its pool
+(package.prescreen, pipeline/package.py:2554 in the base) and ruling 101's Grok confirm ahead beside it (:2548-2551)
+BEFORE its 3-channel rule (:2587, UNCHANGED: `if len({m["channel_id"] for m in cleared.values()}) < 3:` -> why_none,
+return out). This morning's 12-h pool is 63 moments from 2 channels, so the medley pays step A (and the confirm ahead)
+on all of them and then refuses. The spotlight's own free gate (ruling 109: an ALONE score known below 4 never reaches
+step A, pipeline/spotlight.py:855-862, UNCHANGED) asks only what passes it.
+
+THE CHANGE (pipeline/package.py build(), after the free stages: usable, reposted_once, scorer_pass, the no-role and
+trim rules, ad_read_out; before _writers / first_bounds / step_a_plan / confirm_ahead / prescreen): when the pool spans
+fewer than 3 channels and the build is not from a ruling-66 candidate, build() returns at once with the record the rule
+at :2587 returns (the same keys; prescreen: screened 0, cleared 0, failed {}, parallel_101 None, held_102 empty,
+last_resort_87 {}), why_none "the pool spans N channel(s) after the free stages: a medley needs 3; no paid verdict
+(ruling 109)", and "ruling_109": {"channels": N, "pool": the pool's size}.
+
+WHY IT CHANGES NO OUTCOME. Nothing between the gate and :2587 adds a moment: `cleared` (:2562) is a subset of `ms`, the
+pool at the gate. So the rule at :2587 refuses every pool the gate refuses; the gate only removes the paid calls before
+it. The spotlight runs next as usual (proof_ledger.py:500), with its own free gates, and reads the same step-A cache.
+
+WHY CANDIDATE BUILDS ARE LEFT OUT. A build from a ruling-66 candidate returns its outcome in out["candidate"] (set at
+:2703, after this point), and proof_ledger's try_one reads it (tests/package/proof_ledger.py:484
+`return o, o["candidate"]["class"], ...`, outside its try). The gate's record has no "candidate", so a candidate build
+keeps its path, unchanged.
+
+A PRE-EXISTING DEFECT, FLAGGED, NOT FIXED HERE (law K2). The early returns before :2703 (the rule at :2587, :2590 no
+work_dir, the no-opener return, :2681, the no-hook return) give a CANDIDATE build no out["candidate"], so
+proof_ledger.py:484 would raise KeyError outside its try. No candidate is due today: all are over 12 h old and expire
+first (CA.expire, proof_ledger.py:380; this morning's build logged "RULING 66: no candidate is due"). Say whether you
+think it must be fixed in this change.
+
+THE GUARD. Ruling 107 (1)'s open_work (proof_ledger.py:146-155, UNCHANGED) reads prescreen.held_102 and visual.unmeasured.
+The gate's record has held_102 empty and no "visual", so it leaves no open work, which is right: nothing was asked.
+CA.seed (tests/package/candidates.py:61, UNCHANGED) reads record.get("tried") or []: the gate's record has none.
+
+TESTS: tests/package/test_medley.py, class TestRuling109Channels (5), on the existing Rig (every model stubbed):
+- one or two channels ask nothing (no step A, no call of any kind);
+- the channels are counted after the free stages (a third channel whose only moment fails the topic rule is not counted);
+- the record's keys are those the rule at :2587 returns;
+- three channels are screened and packaged as before;
+- a candidate build keeps its path.
+10 of 10 mutations are killed. tests/package (552) and tests/moments, select_by_id and providers (127) all pass.
+
+PLEASE CHECK: (1) that the gate cannot refuse a pool that could seat a medley (the subset argument: does anything after
+the gate ADD a moment or a channel?); (2) that nothing paid runs before it (scorer_pass, trim_variant, ad_read_out,
+current_levels); (3) the record's shape against the :2587 return and its readers (proof_ledger: res["usable"],
+res["prescreen"].get("cleared"), open_work; CA.seed); (4) the candidate exclusion; (5) the tests.

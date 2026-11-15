@@ -1,0 +1,93 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 967f665..08c0035 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -2543,6 +2543,24 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     #   video at most once, L-y 4)
+     ad_read = ad_read_out(ms, sources)                # the exclusion screen's free part, BEFORE the angle is built
+     ms = [m for m in ms if m["moment_id"] not in ad_read]     # around a moment it refuses (the 03:39 build's hook)
++    n_ch = len({m["channel_id"] for m in ms})
++    if candidate is None and n_ch < 3:
++        # RULING 109 (free gates first) on the medley's 3-channel rule (orchestrator 08:56 ET Nov 15: "one channel
++        # cannot make a medley ... run the SPOTLIGHT path"). Every later stage only removes moments (step A's `cleared`
++        # is a subset of this pool), so the same rule on the cleared moments below would refuse this pool anyway, after
++        # step A and ruling 101's confirm ahead were paid. It ends here, before any paid verdict; the spotlight (ruling
++        # 90) runs next as usual. A candidate build (ruling 66) keeps its own path: its outcome is out["candidate"].
++        why_none = (f"the pool spans {n_ch} channel(s) after the free stages: a medley needs 3; no paid verdict "
++                    f"(ruling 109)")
++        log(f"  {n_usable} usable, {len(ms)} in the pool after the free stages: {why_none}")
++        return {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable,   # out's shape
++                "current_levels": current_levels(sources.values(), ctx), "no_role": no_role, "ad_read": ad_read,
++                "trimmed": {k: v["moment_id"] for k, v in trims.items()}, "reposted": reposted,
++                "scorer": dict(scorer["record"], admitted=admitted, trims_affirmed=sorted(trims), trims_out=trim_out),
++                "prescreen": {"screened": 0, "cleared": 0, "failed": {}, "parallel_101": None,
++                              "held_102": {"first": [], "second": []}, "last_resort_87": {}},
++                "angles": [], "takeaways": [], "package": None, "why_none": why_none,
++                "ruling_109": {"channels": n_ch, "pool": len(ms)}}
+     wv, wf = _writers(router)
+     fb = first_bounds(router)
+     plan = step_a_plan(router, ms, sources, ctx, wv, wf, store=store, cache=step_a_cache, **fb)   # RULING 101
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index af68ac8..3f62bd8 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -3817,5 +3817,59 @@ class TestTakeawayValueRow(unittest.TestCase):
+         package_pin.to_pin(spk(dict(pk, gates=TestMedleyPackageAndPin().gates(pk))), "test")   # the right row: pins
+ 
+ 
++class TestRuling109Channels(unittest.TestCase):
++    """RULING 109 (free gates first) on the medley's 3-channel rule (orchestrator 08:56 ET Nov 15: "one channel cannot
++    make a medley ... run the SPOTLIGHT path"): a pool of fewer than 3 channels after the free stages ends the medley
++    before any paid verdict, with the record the rule on the cleared moments returns; 3 channels are screened and
++    packaged as before; a build from a ruling-66 candidate keeps its own path."""
++    ALL = ["h", "x", "y", "z"]
++
++    def pool(self, chans):
++        return [pm(mid, ch, 12.0 + i) for i, (mid, ch) in enumerate(zip(self.ALL, chans))]
++
++    def test_one_or_two_channels_ask_nothing(self):
++        for chans in ("AAAA", "AABB"):
++            rig = Rig(self.pool(chans), self.ALL, [], [])
++            out = rig.run()
++            self.assertEqual((rig.screens, rig.events, rig.hook_calls, rig.visual_calls, rig.medley_calls),
++                             ([], [], [], [], []), chans)                  # no step A, no call of any kind
++            n = len(set(chans))
++            self.assertEqual(out["why_none"], f"the pool spans {n} channel(s) after the free stages: a medley needs 3; "
++                                              f"no paid verdict (ruling 109)")
++            self.assertEqual((out["package"], out["usable"], out["prescreen"]["cleared"], out["ruling_109"]),
++                             (None, 4, 0, {"channels": n, "pool": 4}))
++
++    def test_the_channels_are_counted_after_the_free_stages(self):
++        off = dict(pm("w", "C", 12.0), text="The weather was lovely at the lake today.")   # a third channel, but no
++        rig = Rig(self.pool("AABB") + [off], self.ALL, [], [])                             # place under the topic rule
++        out = rig.run()
++        self.assertEqual((rig.screens, rig.events), ([], []))
++        self.assertIn("w", out["no_role"])
++        self.assertEqual((out["usable"], out["ruling_109"]), (5, {"channels": 2, "pool": 4}))
++
++    def test_the_record_has_the_shape_the_rule_on_the_cleared_moments_returns(self):
++        gate = Rig(self.pool("AABB"), self.ALL, [], []).run()
++        late = Rig(self.pool("ABCD"), self.ALL, [], [],
++                   a_fail={("xai", "y"): ["REFERENT_OUTSIDE"], ("xai", "z"): ["REFERENT_OUTSIDE"]}).run()
++        self.assertEqual(late["why_none"], "2 moments cleared step A from fewer than 3 channels")   # the rule, after
++        self.assertEqual(set(gate) - {"ruling_109"}, set(late))                                     # step A was paid
++        self.assertEqual(set(gate["prescreen"]), set(late["prescreen"]))
++        self.assertEqual(set(gate["scorer"]), set(late["scorer"]))
++
++    def test_three_channels_are_screened_and_packaged_as_before(self):
++        rig = Rig(self.pool("ABCA"), self.ALL, [(True, [], None, Rig.LINE)], [None])
++        out = rig.run()
++        self.assertEqual(rig.screens[0], ("xai:grok", self.ALL))
++        self.assertIsNotNone(out["package"])
++        self.assertNotIn("ruling_109", out)
++
++    def test_a_build_from_a_candidate_keeps_its_own_path(self):
++        c = PK.load_candidate(TestRuling66Candidate().record())
++        rig = Rig(self.pool("AABB"), self.ALL, [], [], candidate=c)
++        out = rig.run()
++        self.assertEqual(rig.screens, [("xai:grok", self.ALL)])           # screened as before this gate
++        self.assertNotIn("ruling_109", out)
++
++
+ if __name__ == "__main__":
+     unittest.main()
