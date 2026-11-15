@@ -1407,7 +1407,7 @@ _LIVE = {}
 
 def _live_bar():
     """The calibrated bar, read once per state of the calibration file (its mtime) and per minute: a build reads it a
-    few times, and a calibration that ages past its 24 h mid-build stops passing hooks within the minute."""
+    few times, and a calibration that ages past its own valid_h mid-build stops passing hooks within the minute."""
     import hook_bar as HB
     try:
         k = (os.stat(HB.PATH).st_mtime_ns, int(time.time() // 60))

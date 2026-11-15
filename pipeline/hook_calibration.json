@@ -81,6 +81,8 @@
  "rule": "a hook passes when EACH of scroll / alone / setup is at least its floor; a floor is the lowest value the part takes across the approved hooks under this asking, never below 3",
  "ruling": "115 (orchestrator 13:24 ET Nov 15): the hook bar is defined by PBX's approvals",
  "seed": 7,
- "sha256": "fb964eb15a242b3ee7e385ce383546baa74e303d5009529eeab3cc18f313320b",
- "source": "tests/package/proof/hook113/ALONE_TEST.json"
+ "sha256": "6978392df37e5abff8594c6fc293e29cf761718fc0530cd87ed6b3892c3fafd6",
+ "source": "tests/package/proof/hook113/ALONE_TEST.json",
+ "valid_h": null,
+ "valid_h_note": "ruling 115 (1): the interim bar's floors come from ONE fixed source (tests/package/proof/hook113/ALONE_TEST.json), so it does not expire; ruling 113 (2)'s once-a-day law is measured against ruling 115 (3)'s question version (ruling 115 (3)), whose calibration will carry its 24."
 }

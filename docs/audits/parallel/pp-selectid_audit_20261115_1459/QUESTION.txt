@@ -1,0 +1,34 @@
+pp-selectid: RULING 115 (1), a follow-up to the landed calibrated hook bar (da7b1160, audit 20261115_1410): THE
+CALIBRATION'S EXPIRY IS THE FILE'S OWN, and ruling 115's interim bar does not expire. Files: pipeline/hook_bar.py,
+pipeline/hook_calibration.json, pipeline/package.py (one docstring), tests/package/test_hook_bar.py.
+
+WHY: the landed code expired every calibration 24 h after it was measured (VALID_H, "ruling 113 (2): once a day").
+Read again, the orders do not ask that of the interim bar. Ruling 115 (1): "A hook passes when EACH of its three parts
+(scroll, alone, setup) is at least the LOWEST value that part takes across the five approved hooks under that same
+asking (ALONE_TEST.json is the source; write the three floors into one calibration file with its sha ...)": ONE fixed
+source. Ruling 115 (3): "The standing law of ruling 113 (2) is then measured against that version" (the new question
+version with examples), so the once-a-day law belongs to THAT version's calibration. With the 24 h, every build from
+13:07 ET Nov 16 would have stopped at "no hook in the pool" (the bar invalid), with no committed tool to re-measure.
+
+THE CHANGE:
+- hook_bar.bar(): the expiry is the calibration file's own "valid_h": a positive number of hours after measured_at,
+  or null for no expiry. A file with NO "valid_h" key is refused (never valid forever by an omission); a valid_h that
+  is not a positive int/float (0, -1, "24", true) is refused. Every other check is unchanged: the sha seal, the rater
+  / question version / seed / asking, a timezone on measured_at, not in the future beyond SKEW_MIN, no floor under 3.
+  The live bar carries "valid_h". VALID_H (the module constant) is gone.
+- hook_calibration.json: "valid_h": null and a "valid_h_note" citing ruling 115 (1) and (3); re-sealed (sha
+  6978392df37e...). The floors, rater, question version (e3cba8d92551), seed and measured_at are unchanged.
+- package._live_bar's docstring: "its own valid_h" for "its 24 h".
+
+UNCHANGED GUARDS: load() refuses a body whose sha256 does not match (pipeline/hook_bar.py:51-58); passes() requires the
+rating's back-end to be the calibration's rater (:96-104); package._live_bar re-reads the file on any mtime change and
+once a minute (pipeline/package.py:1406-1418).
+
+TESTS: test_hook_bar.py: a calibration lasts as long as its own valid_h says (24: valid at 23:59, refused at 24:01;
+null: valid 30 days later; no key: refused; 0 / -1 / "24" / true: refused); the live file's interim bar does not
+expire (valid 30 days after measured_at). tests/package + the medley and spotlight suites pass (274). Mutations (after
+a control run): a valid_h that never expires, an omitted valid_h accepted, a bad valid_h accepted, null treated as a
+number: 4 of 4 killed.
+
+PLEASE CHECK: (1) that no calibration can be valid forever except by an explicit null; (2) that every other check of
+bar() is unchanged; (3) the reading of rulings 115 (1) and (3) above; (4) the tests.

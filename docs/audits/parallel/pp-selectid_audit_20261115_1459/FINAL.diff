@@ -1,0 +1,189 @@
+diff --git a/pipeline/hook_bar.py b/pipeline/hook_bar.py
+index d29c4977..02161bac 100644
+--- a/pipeline/hook_bar.py
++++ b/pipeline/hook_bar.py
+@@ -6,9 +6,11 @@ value the part took across PBX's approved hooks, under that same asking (the sou
+ ALONE_TEST.json). No floor is set below 3: the order stops a lower one at 3, and the builder reports it.
+ 
+ The floors live in ONE calibration file, pipeline/hook_calibration.json, with its sha256. It is valid only for its
+-rater, its question version (package.HOOK_VERSION), its seed and its asking ("alone"), and for 24 h after it was
+-measured (ruling 113 (2): again on any change, and once a day). An invalid or stale file passes NO hook, and the
+-build says why in one line (fail closed, law L-m).
++rater, its question version (package.HOOK_VERSION), its seed and its asking ("alone"), and for as long as the FILE
++says: "valid_h" hours after it was measured, or null for no expiry. Ruling 115's interim bar is null: its floors come
++from ONE fixed source (ALONE_TEST.json), and ruling 113 (2)'s once-a-day law is measured against ruling 115 (3)'s
++question version, not this one; a calibration under that law will carry its 24. A file that names no "valid_h" is
++refused. An invalid or stale file passes NO hook, and the build says why in one line (fail closed, law L-m).
+ A package sealed on this bar says so in its record (NOTE). PBX's approve or reject of it is appended to the file
+ (add_example), so the approved set grows.
+ """
+@@ -21,8 +23,8 @@ from datetime import datetime, timedelta, timezone
+ PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "hook_calibration.json")
+ PARTS = ("scroll", "alone", "setup")
+ FLOOR_MIN = 3                       # the order: "If any floor comes out below 3, stop at 3 for that part and tell me."
+-VALID_H = 24.0                      # ruling 113 (2): "once a day"
+ SKEW_MIN = 5.0                      # a measured_at at most this many minutes ahead of now (clock skew) is accepted
++MAX_VALID_H = 24.0 * 366             # a valid_h above a year is refused (and stays far inside timedelta's range)
+ NOTE = "hook passed on the calibrated bar"
+ 
+ 
+@@ -61,8 +63,8 @@ def load(path=PATH):
+ 
+ def bar(rater, question_version, seed, now=None, path=PATH):
+     """The live bar: {"floors", "sha256", "rater", ...} when the calibration is valid for exactly this question
+-    version and seed (and this rater, when one is named; passes() checks each rating's own back-end), and is under
+-    VALID_H old; else (None, why), and no hook passes."""
++    version and seed (and this rater, when one is named; passes() checks each rating's own back-end), and is within
++    its own "valid_h" (null: no expiry); else (None, why), and no hook passes."""
+     cal, why = load(path)
+     if cal is None:
+         return None, why
+@@ -74,19 +76,26 @@ def bar(rater, question_version, seed, now=None, path=PATH):
+     try:
+         at = datetime.fromisoformat(str(cal["measured_at"]))
+         fl = {p: int(cal["floors"][p]) for p in PARTS}
+-    except (KeyError, TypeError, ValueError):
++    except (KeyError, TypeError, ValueError, OverflowError):   # Infinity / NaN floors too (audit 1459 C1, deepseek)
+         return None, "the hook calibration has no readable measured_at or floors"
+     if at.tzinfo is None:                # a naive time cannot be compared with now (audit 20261115_1410)
+         return None, "the hook calibration's measured_at has no timezone: refused"
+     age = (now or datetime.now(timezone.utc)) - at
+-    if age < -timedelta(minutes=SKEW_MIN):   # measured "in the future" would stretch the 24 h (audit 1410 C1, qwen)
++    if age < -timedelta(minutes=SKEW_MIN):   # measured "in the future" would stretch its validity (audit 1410 C1, qwen)
+         return None, f"the hook calibration's measured_at ({cal['measured_at']}) is in the future: refused"
+-    if age > timedelta(hours=VALID_H):
+-        return None, f"the hook calibration is over {VALID_H:g} h old (measured {cal['measured_at']}): re-run it"
++    if "valid_h" not in cal:                 # explicit: never a calibration valid forever by an omission
++        return None, "the hook calibration names no valid_h (hours, or null for none): refused"
++    vh = cal["valid_h"]
++    if vh is not None:
++        if type(vh) not in (int, float) or not 0 < vh <= MAX_VALID_H:   # NaN and +-Infinity fail the range too:
++            return None, (f"the hook calibration's valid_h {vh!r} is not a number of hours in (0, "   # they never
++                          f"{MAX_VALID_H:g}]: refused")       # reach timedelta (audit 1459 C1, deepseek)
++        if age > timedelta(hours=vh):
++            return None, f"the hook calibration is over {vh:g} h old (measured {cal['measured_at']}): re-run it"
+     if any(v < FLOOR_MIN for v in fl.values()):
+         return None, f"a floor under {FLOOR_MIN} in the hook calibration: refused"
+     return {"floors": fl, "sha256": cal["sha256"], "rater": cal["rater"], "question_version": cal["question_version"],
+-            "seed": cal["seed"], "measured_at": cal["measured_at"]}, None
++            "seed": cal["seed"], "measured_at": cal["measured_at"], "valid_h": vh}, None
+ 
+ 
+ def passes(rec, live):
+diff --git a/pipeline/hook_calibration.json b/pipeline/hook_calibration.json
+index 4c606ad5..5668fb3c 100644
+--- a/pipeline/hook_calibration.json
++++ b/pipeline/hook_calibration.json
+@@ -81,6 +81,8 @@
+  "rule": "a hook passes when EACH of scroll / alone / setup is at least its floor; a floor is the lowest value the part takes across the approved hooks under this asking, never below 3",
+  "ruling": "115 (orchestrator 13:24 ET Nov 15): the hook bar is defined by PBX's approvals",
+  "seed": 7,
+- "sha256": "fb964eb15a242b3ee7e385ce383546baa74e303d5009529eeab3cc18f313320b",
+- "source": "tests/package/proof/hook113/ALONE_TEST.json"
++ "sha256": "6978392df37e5abff8594c6fc293e29cf761718fc0530cd87ed6b3892c3fafd6",
++ "source": "tests/package/proof/hook113/ALONE_TEST.json",
++ "valid_h": null,
++ "valid_h_note": "ruling 115 (1): the interim bar's floors come from ONE fixed source (tests/package/proof/hook113/ALONE_TEST.json), so it does not expire; ruling 113 (2)'s once-a-day law is measured against ruling 115 (3)'s question version (ruling 115 (3)), whose calibration will carry its 24."
+ }
+diff --git a/pipeline/package.py b/pipeline/package.py
+index d96a7cd3..5bbda7a0 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -1407,7 +1407,7 @@ _LIVE = {}
+ 
+ def _live_bar():
+     """The calibrated bar, read once per state of the calibration file (its mtime) and per minute: a build reads it a
+-    few times, and a calibration that ages past its 24 h mid-build stops passing hooks within the minute."""
++    few times, and a calibration that ages past its own valid_h mid-build stops passing hooks within the minute."""
+     import hook_bar as HB
+     try:
+         k = (os.stat(HB.PATH).st_mtime_ns, int(time.time() // 60))
+diff --git a/tests/package/test_hook_bar.py b/tests/package/test_hook_bar.py
+index 793a5f90..02251454 100644
+--- a/tests/package/test_hook_bar.py
++++ b/tests/package/test_hook_bar.py
+@@ -2,7 +2,8 @@
+ """RULING 115 (orchestrator 13:24 ET Nov 15): THE CALIBRATED HOOK BAR (pipeline/hook_bar.py). A hook passes when each of
+ scroll / alone / setup is at least the LOWEST value that part takes across PBX's approved hooks under the same asking
+ (ALONE, production's seed, Grok); no floor under 3; one sealed calibration file, valid for its rater, question version,
+-seed and asking, for 24 h; a package sealed on it says so; PBX's verdicts on such packages are appended as examples.
++seed and asking, for as long as the file says (valid_h hours, or null: ruling 115's interim bar); a package sealed on it
++says so; PBX's verdicts on such packages are appended as examples.
+ The live file is checked against its source and against production's hook job."""
+ import copy
+ import json
+@@ -33,7 +34,7 @@ def cal(parts=((3, 4, 3), (3, 5, 4), (4, 5, 4)), **kw):
+     ap = approved(*parts)
+     fl, low = HB.floors_from(ap)
+     return dict({"rater": G, "asking": "alone", "seed": 7, "question_version": "qv", "measured_at": AT.isoformat(),
+-                 "approved": ap, "floors": fl, "floors_below_3": low, "examples": []}, **kw)
++                 "valid_h": 24, "approved": ap, "floors": fl, "floors_below_3": low, "examples": []}, **kw)
+ 
+ 
+ class TestFloors(unittest.TestCase):
+@@ -108,15 +109,34 @@ class TestTheFile(unittest.TestCase):
+         HB.write(cal(asking="batched"), self.path)                         # the batch moved single ratings
+         self.assertIsNone(self.bar()[0])
+ 
+-    def test_once_a_day_a_stale_calibration_passes_nothing(self):
+-        HB.write(cal(), self.path)
++    def test_a_calibration_lasts_as_long_as_its_own_valid_h_says(self):
++        """valid_h hours (a standing-law calibration: ruling 113 (2)'s once a day), or null for none (ruling 115's
++        interim bar: one fixed source); a file that names no valid_h, or a bad one, passes nothing."""
++        HB.write(cal(), self.path)                                          # valid_h 24
+         self.assertIsNotNone(self.bar(now=AT + timedelta(hours=23, minutes=59))[0])
+         live, why = self.bar(now=AT + timedelta(hours=24, minutes=1))
+         self.assertIsNone(live)
+         self.assertIn("over 24 h old", why)
++        HB.write(cal(valid_h=None), self.path)                              # the interim bar: no expiry
++        live, why = self.bar(now=AT + timedelta(days=30))
++        self.assertEqual((live["floors"], live["valid_h"], why), ({"scroll": 3, "alone": 4, "setup": 3}, None, None))
++        c = cal()
++        del c["valid_h"]
++        HB.write(c, self.path)                                              # never valid forever by an omission
++        live, why = self.bar()
++        self.assertIsNone(live)
++        self.assertIn("names no valid_h", why)
++        for bad in (0, -1, "24", True, float("nan"), float("inf"), -float("inf"), 1e300):
++            HB.write(cal(valid_h=bad), self.path)                       # never raises (audit 1459 C1, deepseek)
++            self.assertIsNone(self.bar()[0], bad)
++        for bad in (float("inf"), float("nan")):                        # nor does a floor that is not finite
++            HB.write(cal(floors={"scroll": bad, "alone": 4, "setup": 3}), self.path)
++            live, why = self.bar()
++            self.assertIsNone(live, bad)
++            self.assertIn("no readable measured_at or floors", why)
+ 
+     def test_a_future_or_naive_measured_at_passes_nothing(self):
+-        """Audit 20261115_1410 C1 (qwen): a calibration "measured" ahead of now would stretch its 24 h; a time with no
++        """Audit 20261115_1410 C1 (qwen): a calibration "measured" ahead of now would stretch its validity; a time with no
+         timezone cannot be compared with now (it must never raise into a build)."""
+         HB.write(cal(), self.path)
+         self.assertIsNotNone(self.bar(now=AT - timedelta(minutes=4))[0])  # clock skew inside 5 min
+@@ -204,7 +224,7 @@ class TestTheMark(unittest.TestCase):
+ 
+ class TestTheLiveCache(unittest.TestCase):
+     """package._live_bar: the bar is read once per state of the file and per minute (so a calibration that ages past
+-    its 24 h mid-build stops passing hooks within the minute), and again as soon as the file changes."""
++    its valid_h mid-build stops passing hooks within the minute), and again as soon as the file changes."""
+     real_hook_bar = True
+ 
+     def test_read_once_a_minute_and_again_when_the_file_changes(self):
+@@ -236,9 +256,17 @@ class TestTheLiveCache(unittest.TestCase):
+ class TestTheLiveCalibration(unittest.TestCase):
+     """The calibration production reads (pipeline/hook_calibration.json): its floors are derived from their source
+     (tests/package/proof/hook113/ALONE_TEST.json: Grok asked alone at seed 7; the two out-of-contract first answers
+-    asked once more), and it is for production's question version, seed and hook list."""
++    asked once more), and it is for production's question version, seed and hook list. Ruling 115's interim bar does
++    not expire: its floors come from that one fixed source."""
+     real_hook_bar = True
+ 
++    def test_the_interim_bar_does_not_expire(self):
++        c, why = HB.load()
++        self.assertIsNone(why)
++        at = datetime.fromisoformat(c["measured_at"])
++        live, why = HB.bar(None, c["question_version"], c["seed"], now=at + timedelta(days=30))
++        self.assertEqual((live is not None, why), (True, None))
++
+     def test_its_floors_are_its_sources_lowest_parts(self):
+         c, why = HB.load()
+         self.assertIsNone(why)

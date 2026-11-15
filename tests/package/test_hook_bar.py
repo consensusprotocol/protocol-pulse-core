@@ -2,7 +2,8 @@
 """RULING 115 (orchestrator 13:24 ET Nov 15): THE CALIBRATED HOOK BAR (pipeline/hook_bar.py). A hook passes when each of
 scroll / alone / setup is at least the LOWEST value that part takes across PBX's approved hooks under the same asking
 (ALONE, production's seed, Grok); no floor under 3; one sealed calibration file, valid for its rater, question version,
-seed and asking, for 24 h; a package sealed on it says so; PBX's verdicts on such packages are appended as examples.
+seed and asking, for as long as the file says (valid_h hours, or null: ruling 115's interim bar); a package sealed on it
+says so; PBX's verdicts on such packages are appended as examples.
 The live file is checked against its source and against production's hook job."""
 import copy
 import json
@@ -33,7 +34,7 @@ def cal(parts=((3, 4, 3), (3, 5, 4), (4, 5, 4)), **kw):
     ap = approved(*parts)
     fl, low = HB.floors_from(ap)
     return dict({"rater": G, "asking": "alone", "seed": 7, "question_version": "qv", "measured_at": AT.isoformat(),
-                 "approved": ap, "floors": fl, "floors_below_3": low, "examples": []}, **kw)
+                 "valid_h": 24, "approved": ap, "floors": fl, "floors_below_3": low, "examples": []}, **kw)
 
 
 class TestFloors(unittest.TestCase):
@@ -108,15 +109,34 @@ class TestTheFile(unittest.TestCase):
         HB.write(cal(asking="batched"), self.path)                         # the batch moved single ratings
         self.assertIsNone(self.bar()[0])
 
-    def test_once_a_day_a_stale_calibration_passes_nothing(self):
-        HB.write(cal(), self.path)
+    def test_a_calibration_lasts_as_long_as_its_own_valid_h_says(self):
+        """valid_h hours (a standing-law calibration: ruling 113 (2)'s once a day), or null for none (ruling 115's
+        interim bar: one fixed source); a file that names no valid_h, or a bad one, passes nothing."""
+        HB.write(cal(), self.path)                                          # valid_h 24
         self.assertIsNotNone(self.bar(now=AT + timedelta(hours=23, minutes=59))[0])
         live, why = self.bar(now=AT + timedelta(hours=24, minutes=1))
         self.assertIsNone(live)
         self.assertIn("over 24 h old", why)
+        HB.write(cal(valid_h=None), self.path)                              # the interim bar: no expiry
+        live, why = self.bar(now=AT + timedelta(days=30))
+        self.assertEqual((live["floors"], live["valid_h"], why), ({"scroll": 3, "alone": 4, "setup": 3}, None, None))
+        c = cal()
+        del c["valid_h"]
+        HB.write(c, self.path)                                              # never valid forever by an omission
+        live, why = self.bar()
+        self.assertIsNone(live)
+        self.assertIn("names no valid_h", why)
+        for bad in (0, -1, "24", True, float("nan"), float("inf"), -float("inf"), 1e300):
+            HB.write(cal(valid_h=bad), self.path)                       # never raises (audit 1459 C1, deepseek)
+            self.assertIsNone(self.bar()[0], bad)
+        for bad in (float("inf"), float("nan")):                        # nor does a floor that is not finite
+            HB.write(cal(floors={"scroll": bad, "alone": 4, "setup": 3}), self.path)
+            live, why = self.bar()
+            self.assertIsNone(live, bad)
+            self.assertIn("no readable measured_at or floors", why)
 
     def test_a_future_or_naive_measured_at_passes_nothing(self):
-        """Audit 20261115_1410 C1 (qwen): a calibration "measured" ahead of now would stretch its 24 h; a time with no
+        """Audit 20261115_1410 C1 (qwen): a calibration "measured" ahead of now would stretch its validity; a time with no
         timezone cannot be compared with now (it must never raise into a build)."""
         HB.write(cal(), self.path)
         self.assertIsNotNone(self.bar(now=AT - timedelta(minutes=4))[0])  # clock skew inside 5 min
@@ -204,7 +224,7 @@ class TestTheMark(unittest.TestCase):
 
 class TestTheLiveCache(unittest.TestCase):
     """package._live_bar: the bar is read once per state of the file and per minute (so a calibration that ages past
-    its 24 h mid-build stops passing hooks within the minute), and again as soon as the file changes."""
+    its valid_h mid-build stops passing hooks within the minute), and again as soon as the file changes."""
     real_hook_bar = True
 
     def test_read_once_a_minute_and_again_when_the_file_changes(self):
@@ -236,8 +256,16 @@ class TestTheLiveCache(unittest.TestCase):
 class TestTheLiveCalibration(unittest.TestCase):
     """The calibration production reads (pipeline/hook_calibration.json): its floors are derived from their source
     (tests/package/proof/hook113/ALONE_TEST.json: Grok asked alone at seed 7; the two out-of-contract first answers
-    asked once more), and it is for production's question version, seed and hook list."""
+    asked once more), and it is for production's question version, seed and hook list. Ruling 115's interim bar does
+    not expire: its floors come from that one fixed source."""
     real_hook_bar = True
+
+    def test_the_interim_bar_does_not_expire(self):
+        c, why = HB.load()
+        self.assertIsNone(why)
+        at = datetime.fromisoformat(c["measured_at"])
+        live, why = HB.bar(None, c["question_version"], c["seed"], now=at + timedelta(days=30))
+        self.assertEqual((live is not None, why), (True, None))
 
     def test_its_floors_are_its_sources_lowest_parts(self):
         c, why = HB.load()
