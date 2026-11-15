@@ -6,6 +6,60 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 15:16 TELEGRAM NOTE: A PIN SEALED ON THE CALIBRATED HOOK BAR NOW SAYS SO IN ONE PLAIN LINE (ruling 115 (2)). When a pin carries the builder's mark, every video caption of its release drop carries "hook passed on the calibrated bar" right under the run line. A malformed mark is refused before the render (check_pin_only) and again at the drop. Audits batch 92, two cycles, no finding raised. Both regressions green. BATCH 3 integrator spend: $0.0439.
+- **The order (orchestrator 13:24 ET Nov 15, ruling 115 (2), as the builder quotes it verbatim):** "MARK IT: a package sealed on the interim bar says so in its record and in the Telegram note in one plain line ("hook passed on the calibrated bar"); PBX's approve or reject of it is appended to the calibration file as a new example (approved = positive, rejected = negative with his reason)."
+  - The builder's half is live at da7b1160: every package it seals from now on carries `moments_package["hook_bar"]`, outside the seal.
+  - This batch is the Telegram half.
+- **The change (pipeline/telegram.py):**
+  - `hook_bar_mark(mp)`: returns the ruling's line when `hook_bar` is an object whose "note" is exactly that sentence, and None when there is no `hook_bar` key. Any other present value (null, a string, another note) is refused.
+  - `hook_bar_line(run_dir, edl)`: reads the run's PINNED_DECISION.json, pinned.prepare's copy of the frozen pin. That file is not attested, so the mark counts only when its package_sha256 equals the attested EDL's moments_package_sha256. An unreadable record, a bad mark or another package's mark STOPs the drop before anything is sent.
+  - `build_caption` puts the line right under the run line, so the 1024-character caption cut never reaches it.
+    - It goes in every video caption (each sealed format), never in the contact sheets or the publishing kit.
+    - It is always the fixed sentence, never the mark's own words.
+  - A review drop never carries the line: its wording law refuses 'passed' in any text. An order is needed if the orchestrator wants one there.
+- **The pre-render check (scripts/integrator/check_pin_only.py):** a malformed mark is not ready ("hook_bar: ..."). The READY line names the mark: "hook bar (ruling 115 (2)): hook passed on the calibrated bar", or "no mark".
+- **Tests (7 new):**
+  - In test_telegram_delivery.TestHookBarLine (6, on real attested runs):
+    - A marked pin's two captions carry the line as line 3, once. The mark's own text, the sheets and the kit carry nothing, and TELEGRAM_DELIVERY.json records the line.
+    - The line survives a caption cut whole.
+    - An unmarked pin and an auto run carry no line.
+    - 8 malformed marks, 3 package mismatches and 5 unreadable records each send nothing.
+  - test_review_drop: a marked pin's review drop goes out complete without the line.
+  - On the old code, five of the six delivery tests fail; the no-mark and review tests pass.
+  - After an unmutated control run, ten mutations each fail a test:
+    - the line appended after Clips;
+    - the mark's own words printed;
+    - any object accepted as the mark;
+    - no binding to the EDL;
+    - two missing digests matching;
+    - an unreadable record read as no mark;
+    - a null mark read as no mark;
+    - the line in the review texts;
+    - the line in the kit;
+    - an unmarked package printed as marked.
+- **Pin proof (the real frozen pin SPOTLIGHT_PIN_230148, 3f481f5a):**
+  - Unchanged, main's and the branch's check_pin_only agree: READY, and the branch adds the "no mark" line.
+  - With the ruling's mark added it is READY, and the seal still matches (the mark is outside the seal).
+  - A bad note or a null mark exits 1.
+  - Main's pinned.py has no unknown-key check, so a marked pin passes the render's schema check.
+- **Checks on the staged merge:**
+  - py_compile.
+  - regression_test.sh: 26 PASS / 0 FAIL / 4 WARN.
+  - pipeline/regression.sh: exit 0, the PULSE PREVIEW and PULSE MEDLEY references REPRODUCED.
+  - test_telegram_delivery, test_review_drop, test_spotlight and test_release_auth: 98 passed, 33 subtests passed under the network guard.
+- **Audits (Heimdall-first, ruling 107 (2); qwen27b + glm, effort none):**
+  - Cycle 1 and cycle 2 (same diff): qwen27b PASS 0.95, glm PASS 0.86, no findings, Grok not asked.
+  - Both replies are bare verdicts (17-18 completion tokens; the whole diff reached each). They add no evidence beyond the absence of an objection; the tests, mutations and pin proof carry the change.
+  - Cost $0.0009445 + $0.0003500 = $0.0012945.
+- **BATCH 3 integrator spend $0.0439:** the earlier $0.0426 plus batch 92's $0.0013.
+- **PBX's verdicts:** nothing in our code reads PBX's replies in the chat; his approve or reject reaches the integrator through the orchestrator. For a marked pin it goes to the builder within the hour ("approved" or "rejected: <reason, verbatim>", with the pin name, seal prefix and run dir) for hook_bar.add_example (handoff section 5).
+- **Not changed:**
+  - the seal;
+  - release_auth and the attested file set;
+  - pinned.py (the decoder sha a4c307f78c94 stands);
+  - the review drop's texts;
+  - the cron lines.
+
 ## 10:08 TRANSCRIPT INGEST, LIVE PROOF (batch 91, 2585e84f): the 10:00 cron run transcribed all 5 pending videos under the GPU0 lease and left GPU0 as found. The first completed Whisper pass since 11:30 Nov 12. BATCH 3 integrator spend: $0.0426.
 - **The run (logs/transcript_ingest.log, 10:00:01-10:07:12 ET):**
   - Caption pass: 109 videos, 5 needed Whisper.

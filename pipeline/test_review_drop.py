@@ -370,6 +370,20 @@ class TestReviewDrop(unittest.TestCase):
                       'strategic reserve"', note)
         self.assertIn("- clip 2 (Natalie Brunell): speaker unknown\n  the source names nobody", note)
 
+    def test_ruling_115_2_a_marked_pin_review_never_carries_the_hook_bar_line(self):
+        """Ruling 115 (2)'s line ('hook passed on the calibrated bar') belongs to the release caption: a review text
+        never says 'passed' (_review_forbidden), so a marked pin's review goes out without it, never refused for it."""
+        self.edl["moments_package_sha256"] = "ab" * 32
+        self._write("edl.json", self.edl)
+        self._write("PINNED_DECISION.json", {"mode": "pinned", "pin": {"moments_package": {
+            "type": "moments", "package_sha256": "ab" * 32,
+            "hook_bar": {"note": "hook passed on the calibrated bar", "ruling": "115"}}}})
+        rec = T.review_drop(self.run, send=self._send)
+        self.assertEqual(rec["status"], "complete")
+        self.assertEqual([s[0] for s in self.sent], ["video", "video", "message"])
+        for s in self.sent:
+            self.assertNotIn("calibrated bar", json.dumps(s[2]))
+
     def test_order_0005_a_pin_without_speaker_records_adds_no_block(self):
         T.review_drop(self.run, send=self._send)
         self.assertNotIn(T.SPEAKERS_HEAD, self.sent[-1][2]["text"])
