@@ -25399,5 +25399,36 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "9655dbc9f24373efbe78~trim:75b97a4543b9cf1947995ffbf379f5593f7209da9efe04d76633733859bbf392:1c6b9944417001d128bedc6ce3e7799f5b75e9978a7a5af86fa3225a6a280734:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "9655dbc9f24373efbe78~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "investment thesis",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker's investment thesis for Bitcoin is the same whether the price is at 80k or 62k, as investors are simply getting it cheaper at the lower price.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Jerry, what's your thoughts on this recent down downtrodden effect of of Bitcoin and altcoins which are getting just demolished?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }
