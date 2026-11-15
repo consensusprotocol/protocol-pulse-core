@@ -24837,5 +24837,93 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "932ec723eebc680f7b39:4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:5bc7bea321ba150503123a3603424800ba46d524c74df9b493b1ee382f7c3dd1:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "932ec723eebc680f7b39",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "now",
+     "refers_to": "the time of the discussion or video",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "now",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Although AI gets all the current hype, Bitcoin is the most transformative technology for humans and for humanity.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "932ec723eebc680f7b39",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "now",
+     "refers_to": "the current time of the video/show date (2026-11-15)",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "now",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "AI currently receives all the hype, but Bitcoin is the most transformative technology for humans and humanity.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "0dc2b594974305f02f65:f42ee2f1ad8c5ff817047f563bda800ae76fcbdab4aad8fe19749970d4bdd1bb:8ecbb5dd8ba543c41fd5ff38eb59186c5834249745016e6f0220b343db651418:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "0dc2b594974305f02f65",
+   "speaker_changes_inside": "no",
+   "view": "conditional",
+   "referents": [
+    {
+     "word": "the number",
+     "refers_to": "Bitcoin's price (number go up)",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "If the number does not go up",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "If the number does not go up then Bitcoin will fail.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

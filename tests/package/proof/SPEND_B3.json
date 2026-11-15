@@ -1,30 +1,30 @@
 {
- "usd_estimate": 14.720323,
- "calls": 167,
+ "usd_estimate": 15.133793,
+ "calls": 176,
  "by_backend": {
   "xai:grok-4.20-0309-reasoning": {
-   "calls": 74,
-   "in": 169618,
-   "out": 384612,
-   "usd_estimate": 10.46339,
+   "calls": 76,
+   "in": 173765,
+   "out": 392352,
+   "usd_estimate": 10.677625,
    "price_usd_per_1m": [
     5,
     25
    ],
-   "usd_reported": 1.1571557,
-   "reported_calls": 74,
-   "in_reported": 169618
+   "usd_reported": 1.18128625,
+   "reported_calls": 76,
+   "in_reported": 173765
   },
   "elevenlabs_stt:scribe_v1": {
-   "calls": 39,
+   "calls": 40,
    "in": 0,
    "out": 0,
-   "usd_estimate": 0.138458,
+   "usd_estimate": 0.140488,
    "price_usd_per_1m": [
     0.0,
     0.0
    ],
-   "audio_s": 692.29
+   "audio_s": 702.44
   },
   "xai_vision:grok-4.7": {
    "calls": 6,
@@ -40,81 +40,81 @@
    "in_reported": 19034
   },
   "heimdall:qwen/qwen3.8-27b": {
-   "calls": 11,
-   "in": 6708,
-   "out": 13881,
-   "usd_estimate": 0.228339,
+   "calls": 12,
+   "in": 6775,
+   "out": 13911,
+   "usd_estimate": 0.22899,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.01100688,
-   "reported_calls": 11,
-   "in_reported": 6708
+   "usd_reported": 0.01103865,
+   "reported_calls": 12,
+   "in_reported": 6775
   },
   "heimdall:deepseek/deepseek-v4.1-flash": {
-   "calls": 11,
-   "in": 18264,
-   "out": 56651,
-   "usd_estimate": 0.904557,
+   "calls": 14,
+   "in": 21511,
+   "out": 66875,
+   "usd_estimate": 1.067658,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.01166946,
-   "reported_calls": 11,
-   "in_reported": 18264
+   "usd_reported": 0.0137647,
+   "reported_calls": 14,
+   "in_reported": 21511
   },
   "heimdall:z-ai/glm-5.3-flash": {
-   "calls": 26,
-   "in": 27953,
-   "out": 88806,
-   "usd_estimate": 1.648359,
+   "calls": 28,
+   "in": 27980,
+   "out": 89143,
+   "usd_estimate": 1.681812,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.01187848,
-   "reported_calls": 17,
-   "in_reported": 27953
+   "usd_reported": 0.0119211,
+   "reported_calls": 18,
+   "in_reported": 27980
   }
  },
  "by_role": {
   "context_verdict": {
-   "calls": 82,
-   "usd_estimate": 10.386476
+   "calls": 85,
+   "usd_estimate": 10.573759
   },
   "transcribe": {
-   "calls": 39,
-   "usd_estimate": 0.138458
+   "calls": 40,
+   "usd_estimate": 0.140488
   },
   "visual_check": {
    "calls": 6,
    "usd_estimate": 1.007291
   },
   "shadow86:context_verdict": {
-   "calls": 12,
-   "usd_estimate": 1.66426
+   "calls": 13,
+   "usd_estimate": 1.757905
   },
   "shadow86:visual_check": {
    "calls": 2,
    "usd_estimate": 0.45151
   },
   "probe87:heimdall:qwen/qwen3.8-27b": {
-   "calls": 5,
-   "usd_estimate": 0.007599
+   "calls": 6,
+   "usd_estimate": 0.00825
   },
   "probe87:heimdall:deepseek/deepseek-v4.1-flash": {
-   "calls": 5,
-   "usd_estimate": 0.04062
+   "calls": 6,
+   "usd_estimate": 0.046032
   },
   "probe87:heimdall:z-ai/glm-5.3-flash": {
-   "calls": 5,
-   "usd_estimate": 0.208269
+   "calls": 6,
+   "usd_estimate": 0.213405
   },
   "angle_write": {
-   "calls": 2,
-   "usd_estimate": 0.320496
+   "calls": 3,
+   "usd_estimate": 0.439809
   },
   "coherence_verdict": {
    "calls": 5,
@@ -126,8 +126,8 @@
   }
  },
  "reserved": {},
- "usd_reported": 1.51750252,
- "usd_unreported_estimate": 0.238726,
+ "usd_reported": 1.5438027,
+ "usd_unreported_estimate": 0.244767,
  "restated_b3_meter": {
   "why": "Batch 3's builds 1 and 2 (22:05 and 22:20 ET Nov 14): three calls abandoned at their deadline never reached\nSPEND_B3.json. proof_ly.meter's wrapper refused ruling 107 Q1's `unreported` keyword, so abandon()'s booking raised\nTypeError and on_late never ran. Each is in the deadline log (\"missed_deadline\", written BEFORE the booking). This\nbooks each one now through the Router's own _settle, under its ledger lock, exactly as abandon() would have:\n_settle(None, backend, {\"in\": 0, \"out\": 0}, listed, role, unreported=booked). The logged basis is \"list\", so listed =\nbooked = the logged booked_usd. Then it records \"restated_b3_meter\" in the ledger.",
   "at": "2026-11-15T03:54:52+00:00",
