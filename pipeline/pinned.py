@@ -429,6 +429,57 @@ def relisten_verdict(token, decoder_text, second_text):
     return "pass" if all(token in canon.canon_tokens(t or "") for t in (decoder_text, second_text)) else "hold"
 
 
+def truncation_of(token, other):
+    """RULING 105: `other` is `token` with only a NON-DIGIT suffix dropped ('401' of '401k'). Never a different number
+    ('680' of '68000'), never a name (a token without a digit: 'never a different name'), never an empty reading."""
+    return (bool(other) and other != token and token.startswith(other) and any(ch.isdigit() for ch in token)
+            and not any(ch.isdigit() for ch in token[len(other):]))
+
+
+def reading_at(lock_tokens, k, tokens):
+    """The reading's canonical token(s) at the lock's token k, aligned by SequenceMatcher: the lock's own token where
+    they match, the replacing token(s) joined where they differ, "" where the reading drops it."""
+    from difflib import SequenceMatcher
+    for tag, a, b, c, d in SequenceMatcher(None, lock_tokens, tokens, autojunk=False).get_opcodes():
+        if a <= k < b:
+            return lock_tokens[k] if tag == "equal" else " ".join(tokens[c:d])
+    return ""
+
+
+def reading_near(lock_tokens, k, tokens):
+    """A SHORT window's reading at the lock's token k (a whole-span alignment can anchor a short window's edge words
+    on the wrong part of the lock): the token itself if the reading has it, else the token right after the lock's left
+    neighbours in the reading (two words, then one), else right before its right neighbours; "" when nothing anchors
+    (fail closed: never a truncation)."""
+    if lock_tokens[k] in tokens:
+        return lock_tokens[k]
+    for n in (2, 1):
+        if k - n >= 0:
+            pat = lock_tokens[k - n:k]
+            i = next((i for i in range(len(tokens) - n) if tokens[i:i + n] == pat), None)
+            if i is not None:
+                return tokens[i + n]
+    for n in (2, 1):
+        if k + 1 + n <= len(lock_tokens):
+            pat = lock_tokens[k + 1:k + 1 + n]
+            i = next((i for i in range(1, len(tokens) - n + 1) if tokens[i:i + n] == pat), None)
+            if i is not None:
+                return tokens[i - 1]
+    return ""
+
+
+def unstable_second_reading(token, decoder_readings, second_readings):
+    """RULING 105 (orchestrator 2026-11-14 '20:13'): the lock's token is adjudicated as the lock's only when (1) every
+    decoder reading of it gives it, (2) the second recogniser's readings of the SAME audio differ among themselves with
+    at least one giving it, and (3) every differing second reading is a truncation of it (truncation_of). Anything
+    else stays a final hold: a stable disagreement, a different number, a different name. Readings are the tokens at
+    the lock's place (reading_at). -> {"tests": {...}, "verdict": "pass" | "hold"}."""
+    tests = {"decoder_stable": bool(decoder_readings) and all(r == token for r in decoder_readings),
+             "second_unstable": token in second_readings and any(r != token for r in second_readings),
+             "truncations_only": all(truncation_of(token, r) for r in second_readings if r != token)}
+    return {"tests": tests, "verdict": "pass" if all(tests.values()) else "hold"}
+
+
 def _second_recogniser_words(src_path):
     """The independent second recogniser (ElevenLabs scribe_v1) on the acquired window: words on its clock."""
     vp3 = os.path.join(os.path.dirname(PIPELINE_DIR), "video_pipeline_v3")    # relay.get_key, the key loader

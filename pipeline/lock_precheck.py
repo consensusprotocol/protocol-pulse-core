@@ -78,7 +78,7 @@ SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
 VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
 CODE = ("select_passages.py", "punctuation.py", "pinned.py", "sentence_law.py", "canon.py", "gpu0.py")
 KEY = ("role", "approved_text", "trimmed_leading", "untrimmed_start")   # the request fields an answer depends on
-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103"   # what an entry's verdict judged; others never reused
+RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105"   # what an entry's verdict judged; others never reused
 EXTRA = os.environ.get("PP_LOCK_PRECHECK_EXTRA", "/home/ultron/worktrees/pp-selectid/tests/package/proof/lock_requests")
 # RULING 67's class, as the builder's pipeline/attest.py defines it (FUNCTION_WORDS and carry_class, copied in
 # behaviour): English closed-class words; NO negation, number or ordinal (those are law L-v 2's critical tokens).
@@ -378,6 +378,49 @@ def relisten(a, wd, lock, sw, spent, log=print):
     return dict(rec, decoder_reading=dec, second_reading=sec, verdict=verdict, scribe_usd=usd)
 
 
+def _history(vid, start, end, src):
+    """Every earlier answer, under any decoder sha, for this span of the SAME audio (the acquired source's sha256)."""
+    out = []
+    for p in sorted(glob.glob(os.path.join(ROOT, "results", f"{vid}.{start:.3f}-{end:.3f}.*.json"))):
+        out += [e for e in _entries(p) if src and e.get("source_file_sha256") == src and e.get("outcome") != "error"]
+    return out
+
+
+def unstable(a, lock, spoken, heard, vid, start, end):
+    """RULING 105 (orchestrator 2026-11-14 '20:13') across passes: None when no earlier pass read this audio or no
+    number / name token of the lock is disputed by any reading; else the record {token, decoder_readings,
+    second_readings, tests, verdict} of pinned.unstable_second_reading. The long readings (this pass's and every
+    earlier one's) align on the whole lock, the short re-listen readings on the lock's tokens around the token. More
+    than one disputed token is a hold (the ruling decides ONE token)."""
+    import canon
+    past = _history(vid, start, end, a["provenance"].get("source_file_sha256"))
+    if not past:
+        return None
+    L, texts = canon.canon_tokens(lock["text"]), (lock["text"], spoken)
+    longs = [("now", spoken)] + [(e["at"], (e.get("as_spoken") or {}).get("text") or "") for e in past]
+    shorts = [(at, r) for at, r in [("now", heard)] + [(e["at"], e.get("relisten")) for e in past]
+              if isinstance(r, dict) and r.get("decoder_reading") is not None]
+
+    def at(k, text, short=False):                     # a short window anchors locally (pinned.reading_near)
+        toks = canon.canon_tokens(text or "")
+        return pinned.reading_near(L, k, toks) if short else pinned.reading_at(L, k, toks)
+    seconds = lambda k: ([(w, "long window", at(k, t)) for w, t in longs if t]
+                         + [(w, "re-listen", at(k, r.get("second_reading"), True)) for w, r in shorts])
+    disputed = [k for k in range(len(L)) if pinned._lv2_critical(L[k], texts) and L[k] not in pinned.LV2_NEGATIONS
+                and not L[k].endswith("n't") and any(tok != L[k] for _, _, tok in seconds(k))]
+    if not disputed:
+        return None
+    if len(disputed) > 1:
+        return {"tokens": [L[k] for k in disputed], "verdict": "hold", "why": "more than one disputed token"}
+    k = disputed[0]
+    dec = [("now", "lock (long window)", L[k])] + [(w, "re-listen", at(k, r.get("decoder_reading"), True))
+                                                   for w, r in shorts]
+    sec = seconds(k)
+    res = pinned.unstable_second_reading(L[k], [t for _, _, t in dec], [t for _, _, t in sec])
+    return dict(res, token=L[k], decoder_readings=[{"at": w, "source": s, "token": t} for w, s, t in dec],
+                second_readings=[{"at": w, "source": s, "token": t} for w, s, t in sec])
+
+
 def _outcome(s, lock):
     if not s.get("approved_text"):
         return "decoded"
@@ -417,8 +460,13 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                             raise RuntimeError(f"ruling 103: {heard['why']}")              # no verdict: re-ask
                         if heard and heard["verdict"] == "pass":
                             verdict = "same"                     # the lock's own token stands; nothing else differed
+                    usr = unstable(a, lock, text, heard, vid, s["start"], s["end"])     # ruling 105, across passes
+                    if usr and usr["verdict"] == "pass" and verdict == "hold" and (heard or {}).get("verdict") == "hold":
+                        verdict = "same"                         # adjudicated as the lock's: the decoder's token stands
+                    elif usr and usr["verdict"] == "hold" and verdict != "hold":
+                        verdict = "hold"                         # an earlier reading of this audio is no truncation
                     spoken = {"verdict": verdict, "differences": diffs, "classes": cls, "text": text,   # 72 + 84
-                              "relisten": heard}                                                    # + 103
+                              "relisten": heard, "unstable_second_reading": usr}                    # + 103 + 105
                     if verdict == "adopt":                       # the render's own ruling 17 must adopt the spoken text
                         s2 = dict(s, approved_text=text)
                         try:
@@ -434,6 +482,11 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                                f"on {cls.count(ONE_FW)} function words (ruling 84 (b): two or more in one span hold)")
                         reason = (f"ruling 72/84: the second recogniser reads the span differently {why} | all: "
                                   f"{[d + [k] for d, k in zip(diffs, cls)]} | lock: {lock['text']!r} | spoken: {text!r}")
+                        if usr and usr["verdict"] == "hold":     # ruling 105: the same audio's readings across passes
+                            reason = (f"ruling 105: the readings of {usr.get('token') or usr.get('tokens')!r} on this "
+                                      f"audio do not adjudicate it ({usr.get('tests') or usr.get('why')}): decoder "
+                                      f"{[d['token'] for d in usr.get('decoder_readings') or []]}, second "
+                                      f"{[d['token'] for d in usr.get('second_readings') or []]} | " + reason)
                         if heard:                                # ruling 103's re-listen ran and did not clear it
                             reason += (f" | ruling 103 re-listen of {heard['token']!r} at {heard.get('window')}: "
                                        f"decoder {heard.get('decoder_reading')!r}, second "
@@ -463,6 +516,7 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                      "alternatives": lock.get("alternatives") if lock else None,     # ruling 18 / 84 (b)'s record
                      "as_spoken": spoken, "spoken_text": spoken["text"] if outcome == "adopt_spoken" else None,
                      "relisten": spoken.get("relisten") if spoken else None,      # ruling 103: both short readings
+                     "unstable_second_reading": spoken.get("unstable_second_reading") if spoken else None,   # 105
                      "cut": {k: cut.get(k) for k in ("cut_in", "cut_out", "cut_duration", "lead_in_pad_s", "error")}
                      if cut else None,
                      "rules": RULES, "scribe_usd": round(sum(spent), 4), "reused": False,
