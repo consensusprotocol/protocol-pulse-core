@@ -25,10 +25,10 @@
  "mining": 0.421459,
  "checks_r110_r111": 0.390459,
  "others": {
-  "integrator": 0.0373,
+  "integrator": 0.0395,
   "pp-ingest": 0.031,
   "pp-ingest:audits": 0.0294
  },
- "all_in": 2.066957,
+ "all_in": 2.069157,
  "videos_sealed": 0
 }
