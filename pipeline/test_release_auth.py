@@ -333,5 +333,148 @@ class TestRunFreshWiring(Base):
         self.assertIn("G17_onset_tail", bad)
 
 
+ABSENT = object()
+
+
+def vertical_fails():
+    rows = passing_rows()
+    rows["9x16"]["V1_visual_checklist"] = "FAIL"         # the 9:16 alone fails (the Blockware case, 2026-11-14)
+    return rows
+
+
+def sealed_run(parent, formats=ABSENT, rows=None, no_vertical=False):
+    """make_run with the EDL's 'formats' set as run_fresh's pinned stage writes it (not attested)."""
+    rd = make_run(parent, rows=rows, attest=False)
+    if formats is not ABSENT:
+        edit_json(os.path.join(rd, "edl.json"), lambda e: e.update(formats=formats))
+    if no_vertical:                                      # a 16:9-only run need not have any 9:16 file at all
+        for rel in RA.FORMAT_FILES["9x16"]:
+            os.remove(os.path.join(rd, rel))
+    return rd
+
+
+class TestReleaseFormats(Base):
+    """Ruling 93 as amended (orchestrator 2026-11-14 '21:10'): a clip whose source-burned captions the 9:16 crop cuts
+    mid-word is 16:9-ONLY. The pin seals moments_package["formats"] = ["16x9"]; run_fresh's pinned stage writes it into
+    the EDL; only the sealed formats decide, are bound and are sent. Must-fail: the same 9:16 failure with no sealed
+    formats (or both sealed) HOLDS; a malformed value holds; formats changed after the attestation are refused."""
+
+    def test_a_sealed_16x9_only_run_is_released_on_its_16x9_alone(self):
+        for no_vertical in (False, True):
+            rd = sealed_run(self.tmp, ["16x9"], vertical_fails(), no_vertical=no_vertical)
+            att = RA.attest(rd, {"ok": True, "why": []})
+            ok, why, _ = RA.authorise(rd)
+            self.assertEqual(att["verdict"], "ALL_PASS", (no_vertical, att["blockers"], att["other_blockers"]))
+            self.assertTrue(ok, why)
+            self.assertEqual(att["formats"], ["16x9"])
+            self.assertEqual(set(att["files"]), set(RA.BOUND) - set(RA.FORMAT_FILES["9x16"]))
+            self.assertEqual(list(att["blockers"]), ["16x9"])
+
+    def test_must_fail_the_same_9x16_failure_without_sealed_formats_holds(self):
+        for formats in (ABSENT, ["16x9", "9x16"]):
+            att = self.holds(sealed_run(self.tmp, formats, vertical_fails()), f"formats {formats}")
+            self.assertIn("V1_visual_checklist", att["blockers"]["9x16"])
+            self.assertEqual(att["formats"], ["16x9", "9x16"])
+
+    def test_the_16x9_still_decides_and_binds_a_16x9_only_run(self):
+        rows = vertical_fails()
+        rows["16x9"]["G18_word_for_word"] = "FAIL"
+        self.holds(sealed_run(self.tmp, ["16x9"], rows), "16x9 G18 FAIL")
+        rd = sealed_run(self.tmp, ["16x9"], vertical_fails())
+        self.assertEqual(RA.attest(rd, {"ok": True, "why": []})["verdict"], "ALL_PASS")
+        with open(os.path.join(rd, "qa", "contact_sheet_16x9.jpg"), "ab") as f:
+            f.write(b"x")
+        self.assertFalse(RA.authorise(rd)[0])
+
+    def test_a_malformed_formats_value_holds(self):
+        for bad in (["9x16"], ["9x16", "16x9"], ["16x9", "16x9"], [], "16x9", None, {"16x9": True},
+                    ["16x9", "9x16", "1x1"], [16]):
+            att = self.holds(sealed_run(self.tmp, bad), repr(bad))
+            self.assertTrue(any("release formats unreadable" in w for w in att["other_blockers"]), att["other_blockers"])
+
+    def test_formats_changed_after_the_attestation_are_refused(self):
+        rd = sealed_run(self.tmp, ["16x9"], vertical_fails())
+        self.assertEqual(RA.attest(rd, {"ok": True, "why": []})["verdict"], "ALL_PASS")
+        edit_json(os.path.join(rd, "edl.json"), lambda e: e.update(formats=["16x9", "9x16"]))
+        ok, why, _ = RA.authorise(rd)
+        self.assertFalse(ok)
+        self.assertTrue(any("attested formats" in w for w in why), why)
+        # an attestation edited to claim the 16:9 alone over an EDL that seals both
+        rd = sealed_run(self.tmp, ABSENT, vertical_fails())
+        RA.attest(rd, {"ok": True, "why": []})
+        edit_json(os.path.join(rd, "ATTESTATION.json"),
+                  lambda a: a.update(formats=["16x9"], verdict="ALL_PASS", blockers={"16x9": {}}))
+        ok, why, _ = RA.authorise(rd)
+        self.assertFalse(ok)
+        self.assertTrue(any("attested formats" in w for w in why), why)
+        self.assertTrue(any(w.startswith("9x16 V1_visual_checklist") for w in why), why)
+
+    def test_package_formats_reads_only_the_two_sealed_sets(self):
+        self.assertIsNone(RA.package_formats({"type": "moments"}))
+        self.assertIsNone(RA.package_formats(None))
+        self.assertEqual(RA.package_formats({"formats": ["16x9"]}), ["16x9"])
+        self.assertEqual(RA.package_formats({"formats": ["16x9", "9x16"]}), ["16x9", "9x16"])
+        for bad in (["9x16"], ["16x9", "16x9"], [], "16x9", None, ("16x9",), [16]):
+            with self.assertRaises(ValueError, msg=repr(bad)):
+                RA.package_formats({"formats": bad})
+
+
+class TestRunFreshFormats(Base):
+    """run_fresh: the pinned stage writes the sealed formats into the EDL (a malformed value is a rejected pin), and
+    the run's verdict is decided by the released formats alone."""
+    run_obj = TestRunFreshWiring.run_obj
+
+    def pinned_stage(self, rd, mp):
+        import pinned
+        import run_fresh as rf
+        pin = {"story_id": "s1", "label": "Blockware", "approved_by": "builder", "approved_at": "2026-11-14T22:00:00Z",
+               "moments_package": mp}
+
+        def fake_prepare(pin_path, run_dir, log=print):
+            json.dump({"topic": "Blockware", "hook": {}, "clips": []}, open(os.path.join(run_dir, "edl.json"), "w"))
+            return {"pin": pin, "pin_sha256": "0" * 64, "validation": {}}
+        saved = pinned.prepare, rf.free_gpu0_for_whisper
+        pinned.prepare, rf.free_gpu0_for_whisper = fake_prepare, (lambda run, stage, **kw: None)
+        try:
+            run = self.run_obj(rd)
+            rf.stage_pinned(run, "pin.json")
+            return run, json.load(open(os.path.join(rd, "edl.json")))
+        finally:
+            pinned.prepare, rf.free_gpu0_for_whisper = saved
+
+    def test_the_pinned_stage_writes_the_sealed_formats_into_the_edl(self):
+        import run_fresh as rf
+        run, edl = self.pinned_stage(tempfile.mkdtemp(dir=self.tmp), {"type": "moments", "formats": ["16x9"]})
+        self.assertEqual((edl["formats"], run.prov["release_formats"]), (["16x9"], ["16x9"]))
+        run, edl = self.pinned_stage(tempfile.mkdtemp(dir=self.tmp), {"type": "moments"})
+        self.assertNotIn("formats", edl)
+        self.assertEqual(run.prov["release_formats"], ["16x9", "9x16"])
+        with self.assertRaisesRegex(rf.Hold, "pinned decision rejected"):
+            self.pinned_stage(tempfile.mkdtemp(dir=self.tmp), {"type": "moments", "formats": ["9x16"]})
+
+    def test_the_run_verdict_is_decided_by_the_released_formats(self):
+        import run_fresh as rf
+        rows = vertical_fails()
+        ev = {fmt: {k: {"executed": True, "samples": 3} for k in r} for fmt, r in rows.items()}
+        for formats, want in ((["16x9"], rf.VERDICT_CANDIDATE), (ABSENT, rf.VERDICT_HOLD),
+                              (["16x9", "9x16"], rf.VERDICT_HOLD), (["9x16"], rf.VERDICT_HOLD)):
+            rd = sealed_run(self.tmp, formats, rows)
+            run = self.run_obj(rd)
+            rf.release_verdict(run, rows, ev)
+            self.assertEqual(run.status["verdict"], want, formats)
+            self.assertEqual(run.prov["verdicts"]["9x16"], rf.VERDICT_HOLD)     # always reported
+            if want == rf.VERDICT_CANDIDATE:
+                self.assertEqual(rf.attest_run(run)["verdict"], "ALL_PASS")
+                self.assertTrue(RA.authorise(rd)[0])
+            else:
+                self.assertTrue(run.status["holds"], formats)
+        rd = sealed_run(self.tmp, ["9x16"], passing_rows())                  # malformed: a hold, even all PASS
+        run = self.run_obj(rd)
+        rf.release_verdict(run, passing_rows(), {f: {k: {"executed": True, "samples": 3} for k in r}
+                                                 for f, r in passing_rows().items()})
+        self.assertEqual(run.status["verdict"], rf.VERDICT_HOLD)
+        self.assertTrue(any("release formats unreadable" in h for h in run.status["holds"]), run.status["holds"])
+
+
 if __name__ == "__main__":
     unittest.main()

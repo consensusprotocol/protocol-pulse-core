@@ -77,6 +77,37 @@ class TestReviewDrop(unittest.TestCase):
         self.assertEqual(self.sent, [])
         self.assertFalse(os.path.exists(os.path.join(self.run, "REVIEW_DROP.json")))
 
+    def test_ruling_93_a_16x9_only_run_drops_its_16x9_alone(self):
+        """Ruling 93 as amended: the EDL seals formats ['16x9']: the drop sends the 16:9 final alone (the 9:16 file is
+        gone: never read), says so in its caption and note, and judges only the 16:9's rows (a 9:16 content-integrity
+        failure does not block it). Must-fail: with both formats the same 9:16 failure refuses the drop."""
+        self.edl["formats"] = ["16x9"]
+        self._write("edl.json", self.edl)
+        self.report["rows"]["9x16"]["G16_sentence_boundary"] = "FAIL"
+        self._write("GATE_REPORT.json", self.report)
+        os.remove(os.path.join(self.run, "out", "segment_vertical.mp4"))
+        rec = T.review_drop(self.run, send=self._send)
+        vids = [s for s in self.sent if s[0] == "video"]
+        self.assertEqual([os.path.basename(s[1]) for s in vids], ["segment.mp4"])
+        self.assertIn(T.SIXTEEN_NINE_ONLY, vids[0][2]["caption"])
+        note = self.sent[-1][2]["text"]
+        self.assertIn(T.SIXTEEN_NINE_ONLY, note)
+        self.assertIn("16:9 sha256", note)
+        self.assertNotIn("9:16 sha256", note)
+        self.assertEqual(list(rec["sha256"]), ["16x9"])
+        self.assertEqual({x[0] for x in rec["nonpass"]}, {"16x9"})
+
+    def test_ruling_93_must_fail_both_formats_refuse_the_same_9x16_failure(self):
+        self.report["rows"]["9x16"]["G16_sentence_boundary"] = "FAIL"
+        self._write("GATE_REPORT.json", self.report)
+        self._refused("9x16 G16_sentence_boundary FAIL")
+
+    def test_ruling_93_malformed_formats_send_nothing(self):
+        for bad in (["9x16"], "16x9", None):
+            self.edl["formats"] = bad
+            self._write("edl.json", self.edl)
+            self._refused("formats are unreadable")
+
     def test_without_a_gate_report_nothing_is_sent(self):
         os.remove(os.path.join(self.run, "GATE_REPORT.json"))
         self._refused("no GATE_REPORT.json")

@@ -33,6 +33,11 @@ def main(path, want=None):
     if want and not seal.startswith(want):
         return False, f"package_sha256 {seal[:16]} is not the READY line's {want}"
     pinned.validate_schema(pin)
+    import release_auth                                  # ruling 93 as amended: the sealed formats, read as run_fresh's
+    try:                                                 # pinned stage reads them (a malformed value is not ready)
+        formats = release_auth.package_formats(mp) or list(release_auth.FORMATS)
+    except ValueError as e:
+        return False, f"formats: {e}"
     segs = pin["segments"]
     vo = pinned.moments_vo(mp, [{"index": i} for i in range(1, len(segs))], segs)
     view = {"package_type": mp.get("type"), "clips": [{"index": i} for i in range(1, len(segs))], "vo": vo,
@@ -43,7 +48,7 @@ def main(path, want=None):
     if not ok91:
         return False, why91
     out = [f"READY (pin only) {seal[:16]} title={mp.get('title')!r} intro={str(vo['intro'])[:80]!r} "
-           f"bridges after {[b['after_clip'] for b in vo['bridges']]}", f"  {why91}"]
+           f"bridges after {[b['after_clip'] for b in vo['bridges']]} formats={formats}", f"  {why91}"]
     out += [f"  {s['role']:4} {s['channel']} {s['video_id']} {s['start']:.2f}-{s['end']:.2f} ({s['end'] - s['start']:.2f} s)"
             for s in segs]
     return True, "\n".join(out)

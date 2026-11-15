@@ -1,0 +1,648 @@
+diff --git a/pipeline/release_auth.py b/pipeline/release_auth.py
+index c2004fc8..bf856a51 100644
+--- a/pipeline/release_auth.py
++++ b/pipeline/release_auth.py
+@@ -47,6 +47,54 @@ REGISTRY = os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.js
+ BOUND = ("out/segment.mp4", "out/segment_vertical.mp4", "edl.json", "qa/concat_manifest_16x9.json",
+          "qa/concat_manifest_9x16.json", "GATE_REPORT.json", "VERIFY/VERIFICATION.json",
+          "qa/contact_sheet_16x9.jpg", "qa/contact_sheet_9x16.jpg")
++# ruling 93 as amended (orchestrator 2026-11-14 '21:10'): a run releases the formats its pin SEALED (the EDL's
++# 'formats', written by pinned.build_edl from moments_package["formats"]; absent = both). A format outside that set
++# is neither attested nor bound nor sent, whatever its rows say; the set never follows the gates' outcome.
++FORMAT_FILES = {"16x9": ("out/segment.mp4", "qa/concat_manifest_16x9.json", "qa/contact_sheet_16x9.jpg"),
++                "9x16": ("out/segment_vertical.mp4", "qa/concat_manifest_9x16.json", "qa/contact_sheet_9x16.jpg")}
++FORMAT_SETS = (("16x9",), FORMATS)
++
++
++def release_formats(edl):
++    """The formats this run may release: FORMATS when the EDL has no 'formats', else exactly ('16x9',) or FORMATS
++    from a list in that order. Anything else (or an EDL that is not an object) raises ValueError."""
++    if not isinstance(edl, dict):
++        raise ValueError("the EDL is not an object")
++    if "formats" not in edl:
++        return FORMATS
++    f = edl["formats"]
++    if not (isinstance(f, list) and all(isinstance(x, str) for x in f) and tuple(f) in FORMAT_SETS):
++        raise ValueError(f"EDL formats {f!r} is not one of {[list(s) for s in FORMAT_SETS]}")
++    return tuple(f)
++
++
++def package_formats(mp):
++    """The formats a moments package SEALS (moments_package["formats"], inside package_sha256, the spelling agreed
++    with the builder 2026-11-14): None when absent (both), else exactly ['16x9'] or ['16x9', '9x16']; anything else
++    raises ValueError. run_fresh's pinned stage copies it into the EDL (pinned.py is an input of the pre-check's
++    decoder sha, so the copy is not made there)."""
++    if not isinstance(mp, dict) or "formats" not in mp:
++        return None
++    try:
++        return list(release_formats({"formats": mp["formats"]}))
++    except ValueError:
++        raise ValueError(f"moments_package formats {mp['formats']!r} is not one of "
++                         f"{[list(s) for s in FORMAT_SETS]} (absent = both)") from None
++
++
++def bound(formats):
++    """The files an attestation of `formats` binds: those formats' finals, manifests and sheets, plus the EDL, the
++    gate report and the verification pack."""
++    drop = {rel for fmt in FORMATS if fmt not in formats for rel in FORMAT_FILES[fmt]}
++    return tuple(rel for rel in BOUND if rel not in drop)
++
++
++def _edl_formats(run_dir):
++    try:
++        with open(os.path.join(run_dir, "edl.json")) as f:
++            return release_formats(json.load(f)), None
++    except (OSError, ValueError) as e:
++        return None, f"release formats unreadable: {type(e).__name__}: {e}"
+ 
+ 
+ def sha256(path):
+@@ -122,7 +170,8 @@ def _gate_report(run_dir):
+ def attest(run_dir, run_state, deliverable=True, why_not=None):
+     """Write ATTESTATION.json (atomically) from what is ON DISK: GATE_REPORT.json (rows, evidence, the digests
+     the gates measured), VERIFY/VERIFICATION.json and the digests of every bound file now. verdict ALL_PASS
+-    only when both formats satisfy the inventory, the pack passed, the files the gates measured are unchanged,
++    only when every released format (release_formats of the EDL; unreadable = HOLD) satisfies the inventory, the
++    pack passed, the files the gates measured are unchanged,
+     every bound file exists and the run itself ended clean (run_state["ok"] is True: no hold anywhere, code at
+     the launch revision). A run that is not deliverable (a replay is diagnostic) is recorded with why_not and is
+     never authorised, whatever its verdict."""
+@@ -133,18 +182,21 @@ def attest(run_dir, run_state, deliverable=True, why_not=None):
+         rep = {}
+         why.append(f"GATE_REPORT.json unreadable: {type(e).__name__}")
+     rows, evidence = rep.get("rows") or {}, rep.get("evidence")
+-    bad = {fmt: blockers(fmt, rows.get(fmt), evidence) for fmt in FORMATS}
++    formats, f_why = _edl_formats(run_dir)
++    if formats is None:                              # unreadable: HOLD, and every format is checked and bound
++        formats = FORMATS
++        why.append(f_why)
++    bad = {fmt: blockers(fmt, rows.get(fmt), evidence) for fmt in formats}
+     try:
+         pack = json.load(open(os.path.join(run_dir, "VERIFY", "VERIFICATION.json")))
+     except (OSError, ValueError):
+         pack = None
+     v_ok, v_why = verification_ok(pack)
+     files = {rel: (sha256(os.path.join(run_dir, rel)) if os.path.isfile(os.path.join(run_dir, rel)) else None)
+-             for rel in BOUND}
++             for rel in bound(formats)}
+     missing = [rel for rel, d in files.items() if d is None]
+     measured = rep.get("measured_files") or {}
+-    for rel in ("out/segment.mp4", "out/segment_vertical.mp4", "qa/concat_manifest_16x9.json",
+-                "qa/concat_manifest_9x16.json"):
++    for rel in (r for fmt in formats for r in FORMAT_FILES[fmt][:2]):   # each released final and its manifest
+         if measured.get(rel) is None or measured.get(rel) != files.get(rel):
+             why.append(f"{rel}: not the bytes the gates measured")
+     if rep.get("inventory_version") != INVENTORY_VERSION:
+@@ -153,6 +205,7 @@ def attest(run_dir, run_state, deliverable=True, why_not=None):
+         why.append("run did not end clean: " + "; ".join(map(str, (run_state or {}).get("why") or ["no state"])))
+     ok = not any(bad.values()) and v_ok and not missing and not why
+     att = {"schema": SCHEMA, "inventory_version": INVENTORY_VERSION, "verdict": "ALL_PASS" if ok else "HOLD",
++           "formats": list(formats),
+            "deliverable": bool(deliverable), "why_not_deliverable": why_not, "run_state": run_state,
+            "registry_sha256": sha256(REGISTRY) if os.path.isfile(REGISTRY) else None,   # the drop's handles / urls
+            "rows": rows, "evidence": evidence, "notes": rep.get("notes") or {}, "blockers": bad,
+@@ -183,8 +236,13 @@ def authorise(run_dir):
+         why.append(f"not deliverable: {att.get('why_not_deliverable')}")
+     if not (isinstance(att.get("run_state"), dict) and att["run_state"].get("ok") is True):
+         why.append("the run did not end clean")
++    formats, f_why = _edl_formats(run_dir)          # the EDL NOW (its digest is checked below with every bound file)
++    if formats is None:
++        return False, why + [f_why], att
++    if att.get("formats") != list(formats):
++        why.append(f"attested formats {att.get('formats')!r} differ from the EDL's {list(formats)}")
+     rows, evidence = att.get("rows") or {}, att.get("evidence")
+-    for fmt in FORMATS:
++    for fmt in formats:
+         for k, v in blockers(fmt, rows.get(fmt), evidence).items():
+             why.append(f"{fmt} {k}: {v}")
+     try:
+@@ -201,9 +259,9 @@ def authorise(run_dir):
+     if not att.get("registry_sha256") or not os.path.isfile(REGISTRY) or sha256(REGISTRY) != att["registry_sha256"]:
+         why.append("the channel registry changed since it was attested")
+     files = att.get("files") or {}
+-    if set(files) != set(BOUND):
++    if set(files) != set(bound(formats)):
+         why.append("attested file set differs from the bound set")
+-    for rel in BOUND:
++    for rel in bound(formats):
+         path = os.path.join(run_dir, rel)
+         if not files.get(rel):
+             why.append(f"{rel}: no attested digest")
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 37beb5de..2000bdde 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -357,6 +357,19 @@ def stage_pinned(run, pin_path):
+     except PinError as e:
+         raise Hold(f"pinned decision rejected: {e}")
+     pin = rec["pin"]
++    import release_auth                    # ruling 93 as amended: the SEALED formats ride in the EDL (bound by the
++    try:                                   # attestation); a malformed value is a rejected pin, never a guess
++        formats = release_auth.package_formats(pin.get("moments_package"))
++    except ValueError as e:
++        raise Hold(f"pinned decision rejected: {e}")
++    if formats is not None:
++        p = os.path.join(run.dir, "edl.json")
++        with open(p) as f:
++            edl = json.load(f)
++        edl["formats"] = formats
++        jdump(p, edl)
++    run.prov["release_formats"] = formats or list(release_auth.FORMATS)
++    print(f"  formats released: {run.prov['release_formats']}" + (" (sealed)" if formats else " (both: none sealed)"))
+     run.allow_v2f_material = bool(pin.get("reuses_v2f_material"))
+     run.prov["mode"] = "pinned"
+     run.prov["editorial"] = {"mode": "pinned", "story_id": pin["story_id"], "label": pin["label"],
+@@ -1474,7 +1487,9 @@ def write_report(run):
+     if s["holds"]:
+         L += ["## HOLD reasons"] + [f"- {h}" for h in s["holds"]] + [""]
+     if p.get("verdicts"):
+-        L += ["## Per-format verdict"] + [f"- {k}: {v}" for k, v in p["verdicts"].items()] + [""]
++        L += ["## Per-format verdict"] + [f"- {k}: {v}" for k, v in p["verdicts"].items()] \
++            + [f"- released formats: {p.get('release_formats')} (ruling 93 as amended: only these decide and are sent)",
++               ""]
+     g = p.get("gates")
+     if g:
+         for fmt in ("16x9", "9x16"):
+@@ -1575,13 +1590,32 @@ def run_tail(run, cuts, start="prepare", vision=True):
+                                           "answers": {m: (d or {}).get("rows") for m, d in (v.get("per_model") or {}).items()}}
+                                     for fmt, v in (pack.get("visual") or {}).items()}
+     run.prov["contact_sheets"] = pack.get("contact_sheets")
+-    v16, bad16 = verdict_for(rows.get("16x9"), "16x9", evidence)
+-    v9, bad9 = verdict_for(rows.get("9x16"), "9x16", evidence)
+-    run.prov["verdicts"] = {"16x9": v16, "9x16": v9}
+-    run.prov["verdict_blockers"] = {"16x9": bad16, "9x16": bad9}
+-    run.status["verdict"] = VERDICT_CANDIDATE if v16 == v9 == VERDICT_CANDIDATE else VERDICT_HOLD
++    release_verdict(run, rows, evidence)
++
++
++def release_verdict(run, rows, evidence):
++    """The run's verdict from the report's rows: CANDIDATE only when every RELEASED format (ruling 93 as amended:
++    the EDL's sealed formats, release_auth.release_formats; unreadable = a hold) passes its inventory. Every format's
++    verdict is reported in PROVENANCE; a format outside the sealed set does not decide and is never sent."""
++    import release_auth
++    unreadable = None
++    try:
++        with open(os.path.join(run.dir, "edl.json")) as f:
++            formats = release_auth.release_formats(json.load(f))
++    except (OSError, ValueError) as e:
++        formats, unreadable = release_auth.FORMATS, f"release formats unreadable: {type(e).__name__}: {e}"
++        run.status["holds"].append(unreadable)
++    verdicts = {fmt: verdict_for(rows.get(fmt), fmt, evidence) for fmt in release_auth.FORMATS}
++    run.prov["verdicts"] = {fmt: v for fmt, (v, _) in verdicts.items()}           # every format's, reported
++    run.prov["verdict_blockers"] = {fmt: bad for fmt, (_, bad) in verdicts.items()}
++    run.prov["release_formats"] = list(formats)
++    run.status["verdict"] = VERDICT_CANDIDATE if not unreadable and all(
++        verdicts[f][0] == VERDICT_CANDIDATE for f in formats) else VERDICT_HOLD
+     if run.status["verdict"] == VERDICT_HOLD:
+-        run.status["holds"] += [f"gates {k}: {v}" for k, v in {**bad16, **bad9}.items()]
++        bad = {}
++        for f in formats:
++            bad.update(verdicts[f][1])
++        run.status["holds"] += [f"gates {k}: {v}" for k, v in bad.items()]
+ 
+ 
+ def main():
+diff --git a/pipeline/telegram.py b/pipeline/telegram.py
+index bdc0fc12..d733416e 100644
+--- a/pipeline/telegram.py
++++ b/pipeline/telegram.py
+@@ -31,6 +31,9 @@ TEXT_MAX = 4096                          # Telegram sendMessage limit
+ VIDEO_MAX_BYTES = 49_000_000             # Bot API upload limit is 50 MB; checked BEFORE the first send (X1)
+ DIMS = {"16x9": (1920, 1080), "9x16": (1080, 1920)}
+ FINALS = {"16x9": "out/segment.mp4", "9x16": "out/segment_vertical.mp4"}
++# ruling 93 as amended (orchestrator 2026-11-14 '21:10'): a run sends the formats its package sealed, nothing else
++SIXTEEN_NINE_ONLY = ("16:9 ONLY: the package sealed formats ['16x9'] (ruling 93 as amended: a 9:16 crop cuts a "
++                     "source's burned captions); no 9:16 is sent")
+ 
+ 
+ def _fit(text, limit):
+@@ -80,6 +83,8 @@ def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
+              "Clips: " + ", ".join([edl["hook"].get("channel", "?")] + [c.get("channel", "?") for c in edl.get("clips", [])])]
+     if mon:                                  # claude-fable audit batch 16 #1: never 'all passed' with a failure unsaid
+         lines.insert(1, "Monitoring (reported, not release-deciding): " + "; ".join(f"{k} {v}" for k, v in mon.items()))
++    if release_auth.release_formats(edl) == ("16x9",):
++        lines.append(SIXTEEN_NINE_ONLY)
+     note = vertical_layout.layout_note(edl) if fmt == "9x16" else ""
+     if note:
+         lines.append(note)
+@@ -146,9 +151,11 @@ def headline_numbers_said(run_dir, snap=None):
+             report = json.load(f)
+     else:
+         edl, report = snap["edl"], snap["report"]
++    import release_auth
++    formats = release_auth.release_formats(edl)     # ruling 93 as amended: every format that is SENT
+     g18 = report.get("G18") or {}
+     reads = {fmt: [canon.canon_tokens(c) for r in (g18.get(fmt) or []) if isinstance(r, dict)
+-                   for c in _clauses(r.get("heard") or "")] for fmt in ("16x9", "9x16")}
++                   for c in _clauses(r.get("heard") or "")] for fmt in formats}
+     missing = []
+     for head in (edl.get("headline"), edl.get("topic")):
+         for clause in _clauses(head or ""):
+@@ -167,7 +174,7 @@ def headline_numbers_said(run_dir, snap=None):
+                                    for s, v, u in _numeric_claims(rc))
+                     ok_dir = pol is None or (rs & (UP if pol == "up" else DOWN)) and not rs & (DOWN if pol == "up" else UP)
+                     return ok_claim and names <= rs and bool(ok_dir)
+-                if not all(any(said_in(rc) for rc in reads[fmt]) for fmt in ("16x9", "9x16")):
++                if not all(any(said_in(rc) for rc in reads[fmt]) for fmt in formats):
+                     missing.append(" ".join(x for x in (sign, value, unit) if x))
+     return sorted(set(missing))
+ 
+@@ -175,12 +182,17 @@ def headline_numbers_said(run_dir, snap=None):
+ def _plan(run_dir, option, sheets, att, snap=None):
+     """Every message of the drop, built and checked BEFORE anything is sent (X1 / X4 / T13): the two finals at
+     their real dimensions and size, the contact sheets, and (release drop) the publishing kit."""
++    import release_auth
+     plan = []
+     snap = snap or snapshot(run_dir, att)
++    formats = release_auth.release_formats(snap["edl"])   # ruling 93 as amended: the sealed formats ALONE are sent
++    if list(formats) != att.get("formats"):
++        raise RuntimeError(f"STOP: the EDL's formats {list(formats)} are not the attested {att.get('formats')!r}")
+     bad = headline_numbers_said(run_dir, snap)
+     if bad:
+         raise RuntimeError(f"STOP: the headline states numbers the video does not say: {bad}")
+-    for fmt, rel in FINALS.items():
++    for fmt in formats:
++        rel = FINALS[fmt]
+         path = os.path.join(run_dir, rel)
+         w, h, dur = _dims(path)
+         if (w, h) != DIMS[fmt]:
+@@ -190,7 +202,7 @@ def _plan(run_dir, option, sheets, att, snap=None):
+         plan.append({"key": f"video:{fmt}", "kind": "video", "path": path, "rel": rel, "format": fmt,
+                      "fields": {"caption": build_caption(run_dir, fmt, att, option, duration=dur, snap=snap), "width": w,
+                                 "height": h, "duration": int(round(dur)), "supports_streaming": "true"}})
+-    for fmt in (("16x9", "9x16") if sheets else ()):        # one contact sheet of the finished video per format
++    for fmt in (formats if sheets else ()):                 # one contact sheet of the finished video per format
+         rel = f"qa/contact_sheet_{fmt}.jpg"
+         p = os.path.join(run_dir, rel)
+         kind = "photo" if _photo_ok(p) else "document"
+@@ -613,9 +625,20 @@ def _edge_levels(run_dir, fmt, seg, side, span=0.4):
+         return ""
+ 
+ 
+-def review_nonpass(run_dir):
++def review_formats(run_dir):
++    """The formats a review drop of this run sends (ruling 93 as amended): the EDL's sealed formats, release_auth's
++    reading; unreadable = nothing is sent."""
++    import release_auth
++    try:
++        with open(os.path.join(run_dir, "edl.json")) as f:
++            return release_auth.release_formats(json.load(f))
++    except (OSError, ValueError) as e:
++        raise RuntimeError(f"STOP: review drop: the run's formats are unreadable ({type(e).__name__}: {e})") from None
++
++
++def review_nonpass(run_dir, formats=None):
+     """[(format, row, verdict, reason)] for every REQUIRED row (release_auth's inventory) that is not exactly
+-    PASS, from the run's GATE_REPORT.json; refuses without one."""
++    PASS, from the run's GATE_REPORT.json, for the formats the drop sends; refuses without one."""
+     import release_auth
+     p = os.path.join(run_dir, "GATE_REPORT.json")
+     if not os.path.exists(p):
+@@ -624,7 +647,7 @@ def review_nonpass(run_dir):
+         rep = json.load(f)
+     rep["_run_dir"] = run_dir
+     out = []
+-    for fmt in ("16x9", "9x16"):
++    for fmt in (formats or review_formats(run_dir)):
+         rows = (rep.get("rows") or {}).get(fmt) or {}
+         notes = (rep.get("notes") or {}).get(fmt) or {}
+         for k in sorted(release_auth.INVENTORY[fmt]):
+@@ -649,17 +672,19 @@ def review_texts(run_dir, nonpass, digests):
+         pass
+     run_id = os.path.basename(os.path.abspath(run_dir).rstrip("/"))
+     rows = ", ".join(sorted({f"{k} {v}" for _, k, v, _ in nonpass})) or "none"
++    only = list(digests) == ["16x9"]           # ruling 93 as amended: the drop carries exactly the sealed formats
+     caps = {fmt: _fit(f"{REVIEW_HEAD}\nNot passing (required): {rows}\nrun {run_id} | {fmt} sha256 {digests[fmt]}"
+-                      f"\nReasons, links and deviations: the review note in this chat.", CAPTION_MAX)
+-            for fmt in FINALS}
++                      + (f"\n{SIXTEEN_NINE_ONLY}" if only else "")
++                      + "\nReasons, links and deviations: the review note in this chat.", CAPTION_MAX)
++            for fmt in digests}
+     segs = [("hook", edl.get("hook") or {})] + [(f"clip {c.get('index', i + 1)}", c)
+                                                  for i, c in enumerate(edl.get("clips") or [])]
+     links = edl.get("moments_sources_30s_before") or []
+     lines = [REVIEW_HEAD, "", "Required rows NOT passing (verbatim, with the measured reason):"]
+     lines += [f"- {fmt} {k} {v}: {why}" for fmt, k, v, why in nonpass] or ["- none"]
+-    lines += ["", f"Run {run_id} | HEAD {head or 'not recorded'}",
+-              f"16:9 sha256 {digests['16x9']}", f"9:16 sha256 {digests['9x16']}", "",
+-              f"Title: {edl.get('title')}", f"Caption: {edl.get('caption')}", "", "Sources (~30 s before each clip):"]
++    lines += ["", f"Run {run_id} | HEAD {head or 'not recorded'}"]
++    lines += [f"{fmt.replace('x', ':')} sha256 {digests[fmt]}" for fmt in digests] + ([SIXTEEN_NINE_ONLY] if only else [])
++    lines += ["", f"Title: {edl.get('title')}", f"Caption: {edl.get('caption')}", "", "Sources (~30 s before each clip):"]
+     for i, (role, s) in enumerate(segs):
+         link = links[i] if isinstance(links, list) and i < len(links) else \
+             f"https://www.youtube.com/watch?v={s.get('video_id')}"
+@@ -668,9 +693,9 @@ def review_texts(run_dir, nonpass, digests):
+     if sp:
+         lines += ["", SPEAKERS_HEAD] + sp
+     dev = []
+-    for fmt, rel in FINALS.items():
++    for fmt in digests:
+         try:
+-            d = _dims(os.path.join(run_dir, rel))[2]
++            d = _dims(os.path.join(run_dir, FINALS[fmt]))[2]
+             if spotlight(edl) and not 28.0 <= d <= 50.0:                  # law L-ab: a spotlight's format
+                 dev.append(f"{fmt} runtime {d:.3f} s, outside the spotlight's 28-50 s format (law L-ab)")
+             elif not spotlight(edl) and not 60.0 <= d <= 70.0:
+@@ -698,13 +723,17 @@ def review_texts(run_dir, nonpass, digests):
+ 
+ def review_drop(run_dir, send=None):
+     """Send a run that is NOT authorised for release to the approval chat as an engineering REVIEW (order
+-    '13:06'): both finals + the review note. Refuses (nothing sent) without GATE_REPORT.json, when a
++    '13:06'): the finals of the formats its EDL seals (both when none; ruling 93 as amended) + the review note.
++    Refuses (nothing sent) without GATE_REPORT.json or readable formats, when a
+     content-integrity row (REVIEW_NOT_DROPPABLE) is not PASS, when any text would carry PASS-as-verdict wording,
+     'CANDIDATE FOR APPROVAL' or 'approved', or when this run was already review-dropped. Writes REVIEW_DROP.json
+     (what was sent, to which chat, the message ids). Never writes or reads the release ledger."""
+     import hashlib
+     send = send or _send_bot_api
+-    nonpass = review_nonpass(run_dir)
++    if not os.path.exists(os.path.join(run_dir, "GATE_REPORT.json")):
++        raise RuntimeError("STOP: review drop: no GATE_REPORT.json for this run")
++    formats = review_formats(run_dir)                           # ruling 93 as amended: the sealed formats ALONE
++    nonpass = review_nonpass(run_dir, formats)
+     with open(os.path.join(run_dir, "GATE_REPORT.json")) as f:
+         rep_rows = json.load(f).get("rows") or {}
+     v1, g20 = {}, {}
+@@ -725,8 +754,8 @@ def review_drop(run_dir, send=None):
+     if os.path.exists(rpath):
+         raise RuntimeError("STOP: this run was already review-dropped (REVIEW_DROP.json exists)")
+     payload, digests = {}, {}
+-    for fmt, rel in FINALS.items():
+-        p = os.path.join(run_dir, rel)
++    for fmt in formats:
++        p = os.path.join(run_dir, FINALS[fmt])
+         if os.path.getsize(p) > VIDEO_MAX_BYTES:
+             raise RuntimeError(f"STOP: {fmt} final is {os.path.getsize(p)} bytes > {VIDEO_MAX_BYTES} (Bot API limit)")
+         with open(p, "rb") as f:
+@@ -745,7 +774,8 @@ def review_drop(run_dir, send=None):
+            "chat": "the approval chat (TELEGRAM_CHAT_ID)", "nonpass": [list(x) for x in nonpass],
+            "sha256": digests, "texts": {"captions": caps, "note": note}, "messages": []}
+     try:
+-        for fmt, rel in FINALS.items():
++        for fmt in formats:
++            rel = FINALS[fmt]
+             w, h, dur = _dims(os.path.join(run_dir, rel))
+             mid = send("video", os.path.join(run_dir, rel), {"caption": caps[fmt], "width": w, "height": h,
+                                                             "duration": int(round(dur)), "supports_streaming": "true"},
+diff --git a/pipeline/test_release_auth.py b/pipeline/test_release_auth.py
+index 318bb502..fe4665af 100644
+--- a/pipeline/test_release_auth.py
++++ b/pipeline/test_release_auth.py
+@@ -333,5 +333,148 @@ class TestRunFreshWiring(Base):
+         self.assertIn("G17_onset_tail", bad)
+ 
+ 
++ABSENT = object()
++
++
++def vertical_fails():
++    rows = passing_rows()
++    rows["9x16"]["V1_visual_checklist"] = "FAIL"         # the 9:16 alone fails (the Blockware case, 2026-11-14)
++    return rows
++
++
++def sealed_run(parent, formats=ABSENT, rows=None, no_vertical=False):
++    """make_run with the EDL's 'formats' set as run_fresh's pinned stage writes it (not attested)."""
++    rd = make_run(parent, rows=rows, attest=False)
++    if formats is not ABSENT:
++        edit_json(os.path.join(rd, "edl.json"), lambda e: e.update(formats=formats))
++    if no_vertical:                                      # a 16:9-only run need not have any 9:16 file at all
++        for rel in RA.FORMAT_FILES["9x16"]:
++            os.remove(os.path.join(rd, rel))
++    return rd
++
++
++class TestReleaseFormats(Base):
++    """Ruling 93 as amended (orchestrator 2026-11-14 '21:10'): a clip whose source-burned captions the 9:16 crop cuts
++    mid-word is 16:9-ONLY. The pin seals moments_package["formats"] = ["16x9"]; run_fresh's pinned stage writes it into
++    the EDL; only the sealed formats decide, are bound and are sent. Must-fail: the same 9:16 failure with no sealed
++    formats (or both sealed) HOLDS; a malformed value holds; formats changed after the attestation are refused."""
++
++    def test_a_sealed_16x9_only_run_is_released_on_its_16x9_alone(self):
++        for no_vertical in (False, True):
++            rd = sealed_run(self.tmp, ["16x9"], vertical_fails(), no_vertical=no_vertical)
++            att = RA.attest(rd, {"ok": True, "why": []})
++            ok, why, _ = RA.authorise(rd)
++            self.assertEqual(att["verdict"], "ALL_PASS", (no_vertical, att["blockers"], att["other_blockers"]))
++            self.assertTrue(ok, why)
++            self.assertEqual(att["formats"], ["16x9"])
++            self.assertEqual(set(att["files"]), set(RA.BOUND) - set(RA.FORMAT_FILES["9x16"]))
++            self.assertEqual(list(att["blockers"]), ["16x9"])
++
++    def test_must_fail_the_same_9x16_failure_without_sealed_formats_holds(self):
++        for formats in (ABSENT, ["16x9", "9x16"]):
++            att = self.holds(sealed_run(self.tmp, formats, vertical_fails()), f"formats {formats}")
++            self.assertIn("V1_visual_checklist", att["blockers"]["9x16"])
++            self.assertEqual(att["formats"], ["16x9", "9x16"])
++
++    def test_the_16x9_still_decides_and_binds_a_16x9_only_run(self):
++        rows = vertical_fails()
++        rows["16x9"]["G18_word_for_word"] = "FAIL"
++        self.holds(sealed_run(self.tmp, ["16x9"], rows), "16x9 G18 FAIL")
++        rd = sealed_run(self.tmp, ["16x9"], vertical_fails())
++        self.assertEqual(RA.attest(rd, {"ok": True, "why": []})["verdict"], "ALL_PASS")
++        with open(os.path.join(rd, "qa", "contact_sheet_16x9.jpg"), "ab") as f:
++            f.write(b"x")
++        self.assertFalse(RA.authorise(rd)[0])
++
++    def test_a_malformed_formats_value_holds(self):
++        for bad in (["9x16"], ["9x16", "16x9"], ["16x9", "16x9"], [], "16x9", None, {"16x9": True},
++                    ["16x9", "9x16", "1x1"], [16]):
++            att = self.holds(sealed_run(self.tmp, bad), repr(bad))
++            self.assertTrue(any("release formats unreadable" in w for w in att["other_blockers"]), att["other_blockers"])
++
++    def test_formats_changed_after_the_attestation_are_refused(self):
++        rd = sealed_run(self.tmp, ["16x9"], vertical_fails())
++        self.assertEqual(RA.attest(rd, {"ok": True, "why": []})["verdict"], "ALL_PASS")
++        edit_json(os.path.join(rd, "edl.json"), lambda e: e.update(formats=["16x9", "9x16"]))
++        ok, why, _ = RA.authorise(rd)
++        self.assertFalse(ok)
++        self.assertTrue(any("attested formats" in w for w in why), why)
++        # an attestation edited to claim the 16:9 alone over an EDL that seals both
++        rd = sealed_run(self.tmp, ABSENT, vertical_fails())
++        RA.attest(rd, {"ok": True, "why": []})
++        edit_json(os.path.join(rd, "ATTESTATION.json"),
++                  lambda a: a.update(formats=["16x9"], verdict="ALL_PASS", blockers={"16x9": {}}))
++        ok, why, _ = RA.authorise(rd)
++        self.assertFalse(ok)
++        self.assertTrue(any("attested formats" in w for w in why), why)
++        self.assertTrue(any(w.startswith("9x16 V1_visual_checklist") for w in why), why)
++
++    def test_package_formats_reads_only_the_two_sealed_sets(self):
++        self.assertIsNone(RA.package_formats({"type": "moments"}))
++        self.assertIsNone(RA.package_formats(None))
++        self.assertEqual(RA.package_formats({"formats": ["16x9"]}), ["16x9"])
++        self.assertEqual(RA.package_formats({"formats": ["16x9", "9x16"]}), ["16x9", "9x16"])
++        for bad in (["9x16"], ["16x9", "16x9"], [], "16x9", None, ("16x9",), [16]):
++            with self.assertRaises(ValueError, msg=repr(bad)):
++                RA.package_formats({"formats": bad})
++
++
++class TestRunFreshFormats(Base):
++    """run_fresh: the pinned stage writes the sealed formats into the EDL (a malformed value is a rejected pin), and
++    the run's verdict is decided by the released formats alone."""
++    run_obj = TestRunFreshWiring.run_obj
++
++    def pinned_stage(self, rd, mp):
++        import pinned
++        import run_fresh as rf
++        pin = {"story_id": "s1", "label": "Blockware", "approved_by": "builder", "approved_at": "2026-11-14T22:00:00Z",
++               "moments_package": mp}
++
++        def fake_prepare(pin_path, run_dir, log=print):
++            json.dump({"topic": "Blockware", "hook": {}, "clips": []}, open(os.path.join(run_dir, "edl.json"), "w"))
++            return {"pin": pin, "pin_sha256": "0" * 64, "validation": {}}
++        saved = pinned.prepare, rf.free_gpu0_for_whisper
++        pinned.prepare, rf.free_gpu0_for_whisper = fake_prepare, (lambda run, stage, **kw: None)
++        try:
++            run = self.run_obj(rd)
++            rf.stage_pinned(run, "pin.json")
++            return run, json.load(open(os.path.join(rd, "edl.json")))
++        finally:
++            pinned.prepare, rf.free_gpu0_for_whisper = saved
++
++    def test_the_pinned_stage_writes_the_sealed_formats_into_the_edl(self):
++        import run_fresh as rf
++        run, edl = self.pinned_stage(tempfile.mkdtemp(dir=self.tmp), {"type": "moments", "formats": ["16x9"]})
++        self.assertEqual((edl["formats"], run.prov["release_formats"]), (["16x9"], ["16x9"]))
++        run, edl = self.pinned_stage(tempfile.mkdtemp(dir=self.tmp), {"type": "moments"})
++        self.assertNotIn("formats", edl)
++        self.assertEqual(run.prov["release_formats"], ["16x9", "9x16"])
++        with self.assertRaisesRegex(rf.Hold, "pinned decision rejected"):
++            self.pinned_stage(tempfile.mkdtemp(dir=self.tmp), {"type": "moments", "formats": ["9x16"]})
++
++    def test_the_run_verdict_is_decided_by_the_released_formats(self):
++        import run_fresh as rf
++        rows = vertical_fails()
++        ev = {fmt: {k: {"executed": True, "samples": 3} for k in r} for fmt, r in rows.items()}
++        for formats, want in ((["16x9"], rf.VERDICT_CANDIDATE), (ABSENT, rf.VERDICT_HOLD),
++                              (["16x9", "9x16"], rf.VERDICT_HOLD), (["9x16"], rf.VERDICT_HOLD)):
++            rd = sealed_run(self.tmp, formats, rows)
++            run = self.run_obj(rd)
++            rf.release_verdict(run, rows, ev)
++            self.assertEqual(run.status["verdict"], want, formats)
++            self.assertEqual(run.prov["verdicts"]["9x16"], rf.VERDICT_HOLD)     # always reported
++            if want == rf.VERDICT_CANDIDATE:
++                self.assertEqual(rf.attest_run(run)["verdict"], "ALL_PASS")
++                self.assertTrue(RA.authorise(rd)[0])
++            else:
++                self.assertTrue(run.status["holds"], formats)
++        rd = sealed_run(self.tmp, ["9x16"], passing_rows())                  # malformed: a hold, even all PASS
++        run = self.run_obj(rd)
++        rf.release_verdict(run, passing_rows(), {f: {k: {"executed": True, "samples": 3} for k in r}
++                                                 for f, r in passing_rows().items()})
++        self.assertEqual(run.status["verdict"], rf.VERDICT_HOLD)
++        self.assertTrue(any("release formats unreadable" in h for h in run.status["holds"]), run.status["holds"])
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/pipeline/test_review_drop.py b/pipeline/test_review_drop.py
+index 2b7da320..49a0098e 100644
+--- a/pipeline/test_review_drop.py
++++ b/pipeline/test_review_drop.py
+@@ -77,6 +77,37 @@ class TestReviewDrop(unittest.TestCase):
+         self.assertEqual(self.sent, [])
+         self.assertFalse(os.path.exists(os.path.join(self.run, "REVIEW_DROP.json")))
+ 
++    def test_ruling_93_a_16x9_only_run_drops_its_16x9_alone(self):
++        """Ruling 93 as amended: the EDL seals formats ['16x9']: the drop sends the 16:9 final alone (the 9:16 file is
++        gone: never read), says so in its caption and note, and judges only the 16:9's rows (a 9:16 content-integrity
++        failure does not block it). Must-fail: with both formats the same 9:16 failure refuses the drop."""
++        self.edl["formats"] = ["16x9"]
++        self._write("edl.json", self.edl)
++        self.report["rows"]["9x16"]["G16_sentence_boundary"] = "FAIL"
++        self._write("GATE_REPORT.json", self.report)
++        os.remove(os.path.join(self.run, "out", "segment_vertical.mp4"))
++        rec = T.review_drop(self.run, send=self._send)
++        vids = [s for s in self.sent if s[0] == "video"]
++        self.assertEqual([os.path.basename(s[1]) for s in vids], ["segment.mp4"])
++        self.assertIn(T.SIXTEEN_NINE_ONLY, vids[0][2]["caption"])
++        note = self.sent[-1][2]["text"]
++        self.assertIn(T.SIXTEEN_NINE_ONLY, note)
++        self.assertIn("16:9 sha256", note)
++        self.assertNotIn("9:16 sha256", note)
++        self.assertEqual(list(rec["sha256"]), ["16x9"])
++        self.assertEqual({x[0] for x in rec["nonpass"]}, {"16x9"})
++
++    def test_ruling_93_must_fail_both_formats_refuse_the_same_9x16_failure(self):
++        self.report["rows"]["9x16"]["G16_sentence_boundary"] = "FAIL"
++        self._write("GATE_REPORT.json", self.report)
++        self._refused("9x16 G16_sentence_boundary FAIL")
++
++    def test_ruling_93_malformed_formats_send_nothing(self):
++        for bad in (["9x16"], "16x9", None):
++            self.edl["formats"] = bad
++            self._write("edl.json", self.edl)
++            self._refused("formats are unreadable")
++
+     def test_without_a_gate_report_nothing_is_sent(self):
+         os.remove(os.path.join(self.run, "GATE_REPORT.json"))
+         self._refused("no GATE_REPORT.json")
+diff --git a/pipeline/test_telegram_delivery.py b/pipeline/test_telegram_delivery.py
+index 301738e8..d39f0272 100644
+--- a/pipeline/test_telegram_delivery.py
++++ b/pipeline/test_telegram_delivery.py
+@@ -62,6 +62,36 @@ class TestAuthorisedDrop(Base):
+         self.assertTrue(written["authorised"])
+         self.assertEqual([m["format"] for m in written["messages"] if "format" in m], ["16x9", "9x16"])
+ 
++    def test_ruling_93_a_16x9_only_run_sends_its_16x9_alone_and_says_so(self):
++        """Ruling 93 as amended: a run whose EDL seals formats ['16x9'] sends the 16:9 final and its sheet ALONE (its
++        9:16 failed V1 and its file is gone: it is never read). Must-fail: the same run without sealed formats sends
++        nothing (not authorised)."""
++        from test_release_auth import sealed_run, vertical_fails, ABSENT
++        rd = sealed_run(self.tmp, ["16x9"], vertical_fails(), no_vertical=True)
++        RA.attest(rd, {"ok": True, "why": []})
++        rec, sent = self.deliver(rd)
++        vids = [s for s in sent if s[0] == "video"]
++        self.assertEqual([(s[1], s[2]["width"], s[2]["height"]) for s in vids], [("segment.mp4", 1920, 1080)])
++        self.assertIn(TG.SIXTEEN_NINE_ONLY, vids[0][2]["caption"])
++        self.assertEqual([(s[0], s[1]) for s in sent if s[0] not in ("video", "message")],
++                         [("photo", "contact_sheet_16x9.jpg")])
++        self.assertEqual([m["format"] for m in rec["messages"] if "format" in m], ["16x9"])
++        rd = sealed_run(self.tmp, ABSENT, vertical_fails())
++        RA.attest(rd, {"ok": True, "why": []})
++        with self.assertRaisesRegex(RuntimeError, "not authorised for release"):
++            self.deliver(rd)
++        self.assertFalse(os.path.exists(os.path.join(rd, "TELEGRAM_DELIVERY.json")))
++
++    def test_ruling_93_an_edl_whose_formats_differ_from_the_attestation_sends_nothing(self):
++        from test_release_auth import sealed_run, vertical_fails
++        rd = sealed_run(self.tmp, ["16x9"], vertical_fails())
++        RA.attest(rd, {"ok": True, "why": []})
++        att = json.load(open(os.path.join(rd, "ATTESTATION.json")))
++        snap = TG.snapshot(rd, att)
++        snap["edl"]["formats"] = ["16x9", "9x16"]           # the plan re-reads the formats from the verified EDL
++        with self.assertRaisesRegex(RuntimeError, "not the attested"):
++            TG._plan(rd, None, True, att, snap)
++
+     def test_the_caption_carries_the_duration_and_the_vertical_names_its_safe_frames(self):
+         edl = json.load(open(os.path.join(make_run(self.tmp, attest=False), "edl.json")))
+         shot = {"start": 0.0, "end": 9.4, "class": "screen", "flagged": True}
+diff --git a/scripts/integrator/check_pin_only.py b/scripts/integrator/check_pin_only.py
+index 751ff3e2..9a0fd07b 100644
+--- a/scripts/integrator/check_pin_only.py
++++ b/scripts/integrator/check_pin_only.py
+@@ -33,6 +33,11 @@ def main(path, want=None):
+     if want and not seal.startswith(want):
+         return False, f"package_sha256 {seal[:16]} is not the READY line's {want}"
+     pinned.validate_schema(pin)
++    import release_auth                                  # ruling 93 as amended: the sealed formats, read as run_fresh's
++    try:                                                 # pinned stage reads them (a malformed value is not ready)
++        formats = release_auth.package_formats(mp) or list(release_auth.FORMATS)
++    except ValueError as e:
++        return False, f"formats: {e}"
+     segs = pin["segments"]
+     vo = pinned.moments_vo(mp, [{"index": i} for i in range(1, len(segs))], segs)
+     view = {"package_type": mp.get("type"), "clips": [{"index": i} for i in range(1, len(segs))], "vo": vo,
+@@ -43,7 +48,7 @@ def main(path, want=None):
+     if not ok91:
+         return False, why91
+     out = [f"READY (pin only) {seal[:16]} title={mp.get('title')!r} intro={str(vo['intro'])[:80]!r} "
+-           f"bridges after {[b['after_clip'] for b in vo['bridges']]}", f"  {why91}"]
++           f"bridges after {[b['after_clip'] for b in vo['bridges']]} formats={formats}", f"  {why91}"]
+     out += [f"  {s['role']:4} {s['channel']} {s['video_id']} {s['start']:.2f}-{s['end']:.2f} ({s['end'] - s['start']:.2f} s)"
+             for s in segs]
+     return True, "\n".join(out)

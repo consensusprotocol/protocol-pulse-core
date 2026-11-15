@@ -6,6 +6,38 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 21:54 RULING 93 AS AMENDED, THE RELEASE SIDE, LANDED. A run releases ONLY the formats its pin sealed: moments_package["formats"] = ["16x9"]; absent = both. Merge of formats93 (e1ddcd4d, 816ebb86); audits batch 85, two cycles, no defect. The builder flips RENDER_16X9_ONLY and re-seals the Blockware moment as ["16x9"]; the integrator renders it on arrival. BATCH 3 integrator spend: $0.0118.
+- **The field** (agreed with the builder 21:27): inside package_sha256; absent = both. A medley takes the intersection over its segments (the builder's side). pinned.py is NOT changed: it is an input of the pre-check's decoder sha, which stays a4c307f78c94.
+- **What changed:**
+  - **release_auth:**
+    - release_formats(edl) and package_formats(mp) accept exactly ['16x9'] or ['16x9', '9x16']; anything else is refused.
+    - bound(formats): a format that is not released has its final, manifest and sheet unbound.
+    - attest decides and binds the EDL's formats only (unreadable = HOLD) and records 'formats'.
+    - authorise re-reads the EDL's formats now and refuses when they differ from the attested ones.
+  - **run_fresh:**
+    - stage_pinned writes the sealed formats into edl.json; a malformed value is a rejected pin.
+    - release_verdict decides on the released formats only. Every format's verdict stays in PROVENANCE; release_formats is null when unreadable.
+    - REPORT.md names the released formats.
+  - **telegram:**
+    - _plan sends the released formats' finals and sheets only, and refuses an EDL whose formats are not the attested ones.
+    - A 16:9-only caption carries "16:9 ONLY: the package sealed formats ['16x9'] (ruling 93 as amended: a 9:16 crop cuts a source's burned captions); no 9:16 is sent".
+    - review_drop / review_nonpass judge and send the EDL's formats only.
+  - **check_pin_only** prints formats=. On 3f481f5a: ['16x9', '9x16'], none sealed.
+- **NOT YET (handoff item 1b):** a 16:9-only run still RENDERS and gates its 9:16. Those rows are reported, never deciding, never sent. Rendering the 16:9 alone also needs pulse_check_run.sh:105 changed, since it delivers only when both finals exist.
+- **Tests** (all pass on the merge):
+  - TestReleaseFormats 6, TestRunFreshFormats 2, test_telegram_delivery ruling_93 2, test_review_drop ruling_93 3.
+  - On the old code (cb060adc), 12 of the 14 selected tests fail. The 2 that pass are the unchanged must-fails: with no sealed formats, or both, the same 9:16 V1 failure still HOLDS and the review drop still refuses.
+- **Suites on main with the staged merge:** release_auth 31, telegram_delivery 24, review_drop 22, fresh 27 (1 skipped), alarm 5, editorial_gate 12, spotlight 8, window_review 33, edl_rules 101, ruling91_takeaway 2, lock_precheck 49, failure_blocks 5.
+- **Regressions on the staged merge:** regression_test.sh 26 PASS / 0 FAIL / 4 WARN; pipeline/regression.sh exit 0 (PULSE PREVIEW and PULSE MEDLEY references REPRODUCED).
+- **Audits** (Heimdall-first, ruling 107 (2); Grok not asked, no disagreement):
+  - Cycle 1: qwen27b PASS 0.95, glm PASS 0.82 with 3 low notes, none agreed. Two were closed anyway: a STOP on unreadable formats in _plan, and release_formats None in PROVENANCE. One was false on the code.
+  - Cycle 2: qwen27b PASS 0.95, glm PASS 0.90, no defect.
+  - Cost $0.0035719 + $0.0024209 = $0.0059928.
+- **BATCH 3 integrator spend $0.0118:**
+  - the spotlight run's four V1 calls, $0.0057897 (21:16-21:18);
+  - audits batch 85, $0.0059928;
+  - scribe $0.
+
 ## 21:33 RULING 105 LANDED on main, in lockstep with the builder's e8e6da7b (READY 21:27; it pushes after this push). Merge of branch ruling105 (d5bf9674), audits batch 84: two cycles, no defect. BATCH 3 integrator spend: $0.0058 (unchanged: no audit or scribe call since 21:10).
 - **Decoder:** decoder_sha a4c307f78c94d1c4ee068b5c27862c79a90900880bb885fee68da616ce2a20d6 (read from the staged main). RULES "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105". Both equal the builder's constants.
 - **The rule:**

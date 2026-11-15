@@ -62,6 +62,36 @@ class TestAuthorisedDrop(Base):
         self.assertTrue(written["authorised"])
         self.assertEqual([m["format"] for m in written["messages"] if "format" in m], ["16x9", "9x16"])
 
+    def test_ruling_93_a_16x9_only_run_sends_its_16x9_alone_and_says_so(self):
+        """Ruling 93 as amended: a run whose EDL seals formats ['16x9'] sends the 16:9 final and its sheet ALONE (its
+        9:16 failed V1 and its file is gone: it is never read). Must-fail: the same run without sealed formats sends
+        nothing (not authorised)."""
+        from test_release_auth import sealed_run, vertical_fails, ABSENT
+        rd = sealed_run(self.tmp, ["16x9"], vertical_fails(), no_vertical=True)
+        RA.attest(rd, {"ok": True, "why": []})
+        rec, sent = self.deliver(rd)
+        vids = [s for s in sent if s[0] == "video"]
+        self.assertEqual([(s[1], s[2]["width"], s[2]["height"]) for s in vids], [("segment.mp4", 1920, 1080)])
+        self.assertIn(TG.SIXTEEN_NINE_ONLY, vids[0][2]["caption"])
+        self.assertEqual([(s[0], s[1]) for s in sent if s[0] not in ("video", "message")],
+                         [("photo", "contact_sheet_16x9.jpg")])
+        self.assertEqual([m["format"] for m in rec["messages"] if "format" in m], ["16x9"])
+        rd = sealed_run(self.tmp, ABSENT, vertical_fails())
+        RA.attest(rd, {"ok": True, "why": []})
+        with self.assertRaisesRegex(RuntimeError, "not authorised for release"):
+            self.deliver(rd)
+        self.assertFalse(os.path.exists(os.path.join(rd, "TELEGRAM_DELIVERY.json")))
+
+    def test_ruling_93_an_edl_whose_formats_differ_from_the_attestation_sends_nothing(self):
+        from test_release_auth import sealed_run, vertical_fails
+        rd = sealed_run(self.tmp, ["16x9"], vertical_fails())
+        RA.attest(rd, {"ok": True, "why": []})
+        att = json.load(open(os.path.join(rd, "ATTESTATION.json")))
+        snap = TG.snapshot(rd, att)
+        snap["edl"]["formats"] = ["16x9", "9x16"]           # the plan re-reads the formats from the verified EDL
+        with self.assertRaisesRegex(RuntimeError, "not the attested"):
+            TG._plan(rd, None, True, att, snap)
+
     def test_the_caption_carries_the_duration_and_the_vertical_names_its_safe_frames(self):
         edl = json.load(open(os.path.join(make_run(self.tmp, attest=False), "edl.json")))
         shot = {"start": 0.0, "end": 9.4, "class": "screen", "flagged": True}

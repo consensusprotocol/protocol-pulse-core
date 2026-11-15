@@ -1,0 +1,118 @@
+{
+ "question": "Batch 85 = RULING 93 AS AMENDED, the render side (orchestrator 2026-11-14 '21:10', relayed by the builder, in substance): \"a clip whose source-burned captions the 9:16 crop cuts mid-word is 16:9-ONLY (sealed formats: ['16x9']); the integrator renders and delivers that format alone, unless a crop exists that shows them whole.\" Found on the Blockware spotlight 3f481f5a (run pinned_20261115_013448): the 16:9 passed every gate; the 9:16 crop shows 'D MY' for the source's burned 'SOLD MY'.\nThe pin field (agreed with the builder): moments_package[\"formats\"] = [\"16x9\"], INSIDE the pin's seal package_sha256 (scripts/integrator/check_pin_only.py:30-31 recomputes the seal before launch; pinned.build_edl records the render's own digest of the whole package, moments_package_pin_sha256, pinned.py:717, unchanged); absent = both formats. pinned.py is NOT changed (it is an input of the pre-check's decoder sha).\nThe change:\n(1) release_auth: release_formats(edl) = FORMATS when the EDL has no 'formats', else exactly ('16x9',) or ('16x9','9x16') from a list in that order; anything else ValueError. package_formats(mp) reads the pin field the same way (None when absent). bound(formats) = the bound files minus the non-released formats' final, manifest and sheet. attest(): the EDL's formats (unreadable -> HOLD with every format checked and bound); blockers (release_auth.py:111, unchanged) only for released formats; only their finals/manifests must be the bytes the gates measured; the attestation records 'formats'. authorise(): re-reads the EDL's formats NOW (unreadable -> refused), refuses when the attestation's 'formats' differ, checks blockers and every bound digest (the EDL is bound) for those formats only.\n(2) run_fresh: stage_pinned copies the sealed formats into edl.json after pinned.prepare (a malformed value -> Hold \"pinned decision rejected\"); release_verdict (moved out of run_tail): CANDIDATE only when every released format passes (unreadable formats -> a hold); every format's verdict still recorded in PROVENANCE; attest_run (run_fresh.py:1533, unchanged) turns any hold into HOLD.\n(3) telegram: deliver_run still authorises first (telegram.py:238) and snapshot verifies the EDL and gate report bytes against the attestation (telegram.py:45-55); _plan sends the released formats' finals and sheets only and refuses when the verified EDL's formats differ from the attested ones; the caption of a 16:9-only send carries SIXTEEN_NINE_ONLY; headline numbers are checked on the released formats' G18 readings. review_drop / review_nonpass / review_texts: the EDL's formats only (unreadable -> nothing sent), so a 16:9-only run's 9:16 rows neither block nor appear.\n(4) check_pin_only: reports the formats; a malformed value is not ready.\nTonight the 9:16 is still RENDERED and gated for a 16:9-only run (its rows reported, never deciding, never sent); skipping its render is a later change.\nTests: TestReleaseFormats (6), TestRunFreshFormats (2), test_telegram_delivery ruling 93 (2), test_review_drop ruling 93 (3). On the old code (cb060adc) 12 of them fail; the 2 that pass are the unchanged must-fails (both formats: the 9:16 failure still holds / refuses).\nFIND: a fail-open (a format released that the pin did not seal; a 9:16 sent or attested ALL_PASS for a run whose formats are absent or both; a 16:9-only release while its own 16:9 rows, files or digests fail); a malformed or tampered 'formats' (EDL or attestation) that releases anything; a send path that reads the 9:16 for a 16:9-only run; a both-format run whose behaviour changed. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 9.9,
+   "cost": 0.0016778998,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 24.5,
+   "cost": 0.000447113,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 3,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 13.7,
+   "cost": 0.0009612015,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 27.6,
+   "cost": 0.000485646,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/telegram.py",
+   "line": 86,
+   "issue": "build_caption calls release_auth.release_formats(edl) without guarding: a malformed EDL 'formats' raises ValueError, so the authorised drop's caption build (inside _plan, after authorise) crashes instead of the earlier, clearer formats check; the run sends nothing (fail-closed) but the error surfaces as a generic traceback rather than the intended 'not the attested' STOP",
+   "evidence": "if release_auth.release_formats(edl) == (\"16x9\",):",
+   "fix": "wrap in try/except ValueError and fall back to att['formats'] (already verified equal to the EDL's by _plan) or catch it in _plan's error path",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "low",
+   "file": "pipeline/telegram.py",
+   "line": 186,
+   "issue": "headline_numbers_said reads report['G18'] for the released formats only, but the G18 report section is keyed by format regardless of release; for a 16:9-only run a 9:16 G18 failure is silently ignored \u2014 correct per ruling, yet the check no longer verifies the numbers the 16:9 actually says if the report's 16x9 G18 key were absent (reads = {'16x9': []}), making 'missing' empty and the plan pass without any G18 evidence",
+   "evidence": "reads = {fmt: [canon.canon_tokens(c) for r in (g18.get(fmt) or []) if isinstance(r, dict) for c in _clauses(r.get(\"heard\") or \"\")] for fmt in formats}",
+   "fix": "require g18.get('16x9') non-empty for every released format before planning (raise RuntimeError when the report has no G18 readings for a released format)",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F3",
+   "severity": "low",
+   "file": "pipeline/run_fresh.py",
+   "line": 1593,
+   "issue": "release_verdict catches OSError/ValueError from the EDL read but json.load can also raise (e.g. UnicodeDecodeError is a ValueError subclass \u2014 fine) \u2014 however when the EDL is unreadable it sets formats=FORMATS and appends a hold, yet still records prov['release_formats'] = ['16x9','9x16'], which contradicts the report line 'released formats' written by write_report from prov, so the report can claim both formats released while the verdict was decided under the unreadable-formats hold",
+   "evidence": "formats, unreadable = release_auth.FORMATS, f\"release formats unreadable: ...\"; run.status[\"holds\"].append(unreadable) ... run.prov[\"release_formats\"] = list(formats)",
+   "fix": "record the unreadable marker in prov (e.g. prov['release_formats'] = None) or include the unreadable reason in the report's released-formats line",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/telegram.py",
+   "line": 186,
+   "issue": "headline_numbers_said's snap path: when snap is given, edl/report come from the snapshot, but _plan's formats-vs-attestation check uses snap['edl'] while build_caption re-reads the EDL from disk via release_formats(edl) \u2014 if the on-disk EDL changed between snapshot and caption build the two readings can disagree, yet only the snapshot one is checked against the attestation",
+   "evidence": "_plan: formats = release_auth.release_formats(snap['edl']); if list(formats) != att.get('formats'): raise; build_caption: if release_auth.release_formats(edl) == ('16x9',) \u2014 edl from snapshot(run_dir, att) which re-reads the file",
+   "fix": "pass the already-verified formats into build_caption or re-verify the on-disk EDL digest there"
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/run_fresh.py",
+   "line": 370,
+   "issue": "stage_pinned writes edl.json with the sealed formats AFTER pinned.prepare, but the EDL's digest is recorded by the pin/prepare machinery before this edit; the attestation binds edl.json by its current digest so this is covered, yet the prov['release_formats'] = formats or list(FORMATS) line prints 'both: none sealed' even when package_formats returned a valid both-list, making the provenance wording ambiguous",
+   "evidence": "run.prov['release_formats'] = formats or list(release_auth.FORMATS); print(... + (' (sealed)' if formats else ' (both: none sealed)'))",
+   "fix": "distinguish 'absent' (None) from an explicit ['16x9','9x16'] seal in the provenance note"
+  }
+ ],
+ "total_cost": 0.0035718603,
+ "out_dir": "heimdall"
+}
