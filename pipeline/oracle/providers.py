@@ -8,8 +8,9 @@ ROLES     role -> ordered chain of back-ends. The local model on Ultron comes fi
           the local model improves; the A/B file of record is named per role in DECIDED_BY.
 call(role, system, user, schema, ledger, tag, avoid_vendors=())
           a back-end is skipped when: its key is missing; its vendor is in avoid_vendors (the generator and its blind
-          judge are never the same vendor); it is the local GPU0 model and this process was not started inside the
-          GPU0 lease (PP_GPU0_LEASE_HELD=1, set only by the integrator's lease wrapper: builders never touch GPU0);
+          judge are never the same vendor); it is the local GPU0 model and this process does not hold the GPU0 lease
+          (law L-r, checked on the lease itself through gpu0.held(), never an environment variable; the integrator
+          takes it and makes the model resident: builders never touch GPU0);
           it is Heimdall and Heimdall usage is at >= 90 % of its credits (a NOTIFY file is written and the chain
           falls through: never a halt). A vendor-side failure (out of credit, rate limit, 5xx, network) moves to the
           next back-end; the answer records the back-end, vendor and model that produced it. No back-end answering
@@ -163,7 +164,7 @@ def available(name, avoid_vendors=(), notify_dir=None):
     b = BACKENDS[name]
     if b["vendor"] in avoid_vendors:
         return False, f"vendor {b['vendor']} produced what this role judges"
-    if b.get("gpu0") and os.environ.get("PP_GPU0_LEASE_HELD") != "1":
+    if b.get("gpu0") and not gpu0_lease_held():
         return False, "local GPU0 model: this process does not hold the GPU0 lease (integrator runs it)"
     if b.get("key"):
         try:
@@ -186,7 +187,18 @@ def available(name, avoid_vendors=(), notify_dir=None):
     return True, "ok"
 
 
+def gpu0_lease_held():
+    """Law L-r (integrator merge, audits batch 89): True only while THIS process holds GPU0's lease, read from the lease
+    itself (gpu0.held(): an inherited lease descriptor counts as custody). A process whose CUDA_VISIBLE_DEVICES names
+    GPU1 reads GPU1's lease, so it never counts: the local back-end is GPU0's Ollama."""
+    import gpu0                                    # flat, as the pipeline imports it (pipeline/oracle/__init__.py)
+    return gpu0.current_gpu() == 0 and gpu0.held()
+
+
 def _ollama(b, system, user, schema):
+    if not gpu0_lease_held():                      # every caller, not only call_backend's: no lease, never sent
+        import gpu0
+        raise gpu0.LeaseMissing(f"ollama:{b['model']}: a GPU0 call without the GPU0 lease (law L-r)")
     body = {"model": b["model"], "stream": False, "format": schema,
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
             "options": {"temperature": 0, "num_ctx": b["num_ctx"], "num_predict": b["max_tokens"]}}

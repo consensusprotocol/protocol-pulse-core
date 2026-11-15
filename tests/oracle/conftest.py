@@ -10,6 +10,15 @@ if REPO not in sys.path:
     sys.path.insert(0, REPO)
 
 
+@pytest.fixture(autouse=True)
+def _private_gpu_leases(monkeypatch, tmp_path):
+    """No oracle test may touch a live lease (/tmp/pulse_gpu0.lease, /tmp/pulse_gpu1.lease: a render's): gpu0 reads
+    each lease's path from PP_GPU<n>_LEASE, so every test gets its own; and the process reads as a CPU session (GPU0)."""
+    monkeypatch.setenv("PP_GPU0_LEASE", str(tmp_path / "gpu0.lease"))
+    monkeypatch.setenv("PP_GPU1_LEASE", str(tmp_path / "gpu1.lease"))
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")
+
+
 def row(vid, i, channel, cid, start, end, text, timing="word", layout_eligible=True):
     from pipeline.oracle import lineup as L  # noqa: F401  (pipeline/ on sys.path)
     import canon

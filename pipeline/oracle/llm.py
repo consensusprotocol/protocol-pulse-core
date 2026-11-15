@@ -3,7 +3,8 @@
 
 No vendor and no model name lives here (law L-x): back-ends, endpoints, models and their prices are the provider config
 (pipeline/oracle/providers.py), which is also the only module that calls a model.
-keys    read by name from the main tree's .env inside this module; never printed, logged or written
+keys    read by NAME through the pipeline's loader, relay.get_key (the main tree's copy); never printed, logged or
+        written
 spend   every call's measured usage priced per back-end and appended to a ledger; a call whose worst case would take
         the ledger past the cap is never made (SpendStop); in-flight worst cases stay reserved until the call returns
 """
@@ -16,7 +17,11 @@ import re
 import threading
 import uuid
 
-ENV_PATH = "/home/ultron/protocol_pulse/.env"
+# The pipeline's key loader (integrator merge, audits batch 89; the house rule that held pp-tests in batch 78: keys by
+# NAME through it, never a key-file path parsed here). It finds the project's key files from its own location, so it is
+# the MAIN tree's copy, pinned (never taken from the environment: that would choose a file to execute in a process that
+# holds keys) and loaded by file path, so sys.path is left alone and no bytecode is written in the main tree.
+KEY_LOADER = "/home/ultron/protocol_pulse/video_pipeline_v3/relay.py"
 SPEND_CAP_USD = 60.0
 NO_TOOLS = " You have no tools and cannot read anything else: answer fully in this one message."
 
@@ -29,18 +34,36 @@ _SECRETS = set()                 # every key value this process has loaded: mask
 _KEYLIKE = re.compile(r"(sk-(?:proj-|ant-|svcacct-)?[A-Za-z0-9_\-*]{6,}|xai-[A-Za-z0-9_\-*]{6,}|Bearer\s+\S+)")
 
 
-def env_key(name, path=ENV_PATH):
-    """One key's value from the .env, by name (never printed; remembered only so redact() can mask it)."""
-    pat = re.compile(rf"^\s*(?:export\s+)?{re.escape(name)}\s*=\s*(.*?)\s*$")
-    with open(path, encoding="utf-8", errors="ignore") as f:
-        for line in f:
-            m = pat.match(line)
-            if m:
-                v = m.group(1).strip().strip('"').strip("'")
-                if v:
-                    _SECRETS.add(v)
-                    return v
-    raise KeyError(f"{name} not set in {path}")
+_GET_KEY = []
+_KEY_LOCK = threading.Lock()
+
+
+def _loader():
+    """relay.get_key from KEY_LOADER, loaded once per process (a missing loader file raises FileNotFoundError naming
+    it). sys.dont_write_bytecode is process-wide: while it loads, another thread's import skips its own .pyc too."""
+    with _KEY_LOCK:
+        if not _GET_KEY:
+            import importlib.util
+            import sys
+            spec = importlib.util.spec_from_file_location("_pp_oracle_relay", KEY_LOADER)
+            mod = importlib.util.module_from_spec(spec)
+            prev, sys.dont_write_bytecode = sys.dont_write_bytecode, True     # no __pycache__ in the main tree
+            try:
+                spec.loader.exec_module(mod)
+            finally:
+                sys.dont_write_bytecode = prev
+            _GET_KEY.append(mod.get_key)
+        return _GET_KEY[0]
+
+
+def env_key(name):
+    """One key's value by NAME through relay.get_key (the process environment first, then the project's key files);
+    never printed, remembered only so redact() can mask it. A missing or empty key raises KeyError."""
+    v = _loader()(name, required=False)
+    if not v:
+        raise KeyError(f"{name} not set")
+    _SECRETS.add(v)
+    return v
 
 
 def redact(text):

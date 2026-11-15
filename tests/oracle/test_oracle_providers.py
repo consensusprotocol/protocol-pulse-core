@@ -8,6 +8,7 @@ import pytest
 
 from pipeline.oracle import llm
 from pipeline.oracle import providers as PV
+import gpu0  # noqa: E402  (flat, as the pipeline imports it: pipeline/ is on sys.path through pipeline.oracle)
 
 PKG = os.path.dirname(PV.__file__)
 TOOL = os.path.join(os.path.dirname(os.path.dirname(PKG)), "tools", "backtest_oracle.py")
@@ -24,8 +25,7 @@ def fake_backends(monkeypatch, tmp_path):
     calls = []
     monkeypatch.setattr(llm, "env_key", lambda name, path=None: "k")
     monkeypatch.setattr(PV, "heimdall_usage", lambda: (10.0, 500.0))
-    monkeypatch.delenv("PP_GPU0_LEASE_HELD", raising=False)
-    script = {}
+    script = {}                                     # the GPU0 lease is free: conftest gives each test its own file
 
     def kind(b, system, user, schema):
         calls.append(b["model"])
@@ -81,17 +81,60 @@ def test_the_judge_never_shares_the_writers_vendor(fake_backends):
     assert row["vendor"] != "anthropic" and row["backend"] == "grok-4.7"
 
 
+@pytest.fixture
+def held_lease():
+    """This process holds the (test's own) GPU0 lease for the test: the real gpu0.lease, never a flag."""
+    with gpu0.lease("oracle test"):
+        yield
+
+
 def test_local_runs_only_inside_the_gpu0_lease_and_only_once_validated_for_the_role(fake_backends, monkeypatch):
     calls, script, ledger = fake_backends
     assert PV.available("local-gemma3-27b")[0] is False
+    with gpu0.lease("oracle test"):
+        _, _, row = PV.call("judge", "s", "u", {}, ledger, "t")              # lease held, A/B not passed yet
+        assert row["backend"] == "claude-fable-5-2" and "not yet validated" in row["tried"][0]["skipped"]
+        monkeypatch.setitem(PV.LOCAL_VALIDATED, "judge", True)
+        _, _, row = PV.call("judge", "s", "u", {}, ledger, "t")
+        assert row["backend"] == "local-gemma3-27b" and row["usd"] == 0.0
+        _, _, row = PV.call("judge", "s", "u", {}, ledger, "t", chain=["local-gemma3-27b"])   # the A/B harness path
+        assert row["backend"] == "local-gemma3-27b"
+    assert PV.available("local-gemma3-27b")[0] is False                     # the lease left: closed again
+
+
+def test_an_environment_variable_never_opens_the_gpu0_gate_only_the_lease_does(monkeypatch):
+    """Integrator merge (audits batch 89, law L-r): the pre-merge gate was PP_GPU0_LEASE_HELD=1, which any process could
+    set; now only the lease itself counts, and a process whose CUDA_VISIBLE_DEVICES names GPU1 reads GPU1's lease,
+    which never opens GPU0's Ollama."""
     monkeypatch.setenv("PP_GPU0_LEASE_HELD", "1")
-    _, _, row = PV.call("judge", "s", "u", {}, ledger, "t")                  # lease held, A/B not passed yet
-    assert row["backend"] == "claude-fable-5-2" and "not yet validated" in row["tried"][0]["skipped"]
-    monkeypatch.setitem(PV.LOCAL_VALIDATED, "judge", True)
-    _, _, row = PV.call("judge", "s", "u", {}, ledger, "t")
-    assert row["backend"] == "local-gemma3-27b" and row["usd"] == 0.0
-    _, _, row = PV.call("judge", "s", "u", {}, ledger, "t", chain=["local-gemma3-27b"])   # the A/B harness path
-    assert row["backend"] == "local-gemma3-27b"
+    assert PV.available("local-gemma3-27b")[0] is False
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "1")
+    with gpu0.lease("oracle test on GPU1"):                                  # GPU1's (test) lease, held
+        assert gpu0.held() and PV.available("local-gemma3-27b")[0] is False
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")
+    with gpu0.lease("oracle test"):
+        assert PV.available("local-gemma3-27b") == (True, "ok")
+
+
+def test_the_real_local_call_is_never_sent_without_the_lease(monkeypatch):
+    """The real _ollama (not a fake): without the lease, gpu0.LeaseMissing before any request; with it, one request to
+    the configured host. The network is a stub that records what would have been sent."""
+    import io
+    import json as _json
+    sent = []
+
+    def urlopen(req, timeout=None):
+        sent.append(req.full_url)
+        return io.BytesIO(_json.dumps({"message": {"content": "{}"}, "prompt_eval_count": 7,
+                                       "eval_count": 2}).encode())
+    monkeypatch.setattr(PV.urllib.request, "urlopen", urlopen)
+    b = PV.BACKENDS["local-gemma3-27b"]
+    with pytest.raises(gpu0.LeaseMissing):
+        PV._ollama(b, "s", "u", {})
+    assert sent == []
+    with gpu0.lease("oracle test"):
+        text, raw, row = PV._ollama(b, "s", "u", {})
+    assert text == "{}" and row["tokens_in"] == 7 and sent == [f"http://{b['host']}/api/chat"]
 
 
 def test_heimdall_at_90_percent_notifies_and_falls_back(fake_backends, monkeypatch, tmp_path):
@@ -145,9 +188,9 @@ def test_a_gateway_that_bills_per_call_is_recorded_at_its_own_figure_and_an_unpr
     assert ledger.in_flight() == 0.0
 
 
-def test_a_prompt_longer_than_the_local_context_is_never_sent_and_the_role_moves_on(fake_backends, monkeypatch):
+def test_a_prompt_longer_than_the_local_context_is_never_sent_and_the_role_moves_on(fake_backends, monkeypatch,
+                                                                                    held_lease):
     calls, script, ledger = fake_backends
-    monkeypatch.setenv("PP_GPU0_LEASE_HELD", "1")
     monkeypatch.setitem(PV.LOCAL_VALIDATED, "writer", True)               # so the context guard is what skips it
     b = PV.BACKENDS["local-gemma3-27b"]
     room = b["num_ctx"] - b["max_tokens"]
@@ -166,7 +209,7 @@ def test_the_token_estimate_never_undercounts_the_tokenizers_measured_on_the_sto
         assert llm.est_tokens(text) >= len(text) / chars_per_token
 
 
-def test_a_local_reply_that_reached_the_context_limit_is_a_failure_not_an_answer(monkeypatch):
+def test_a_local_reply_that_reached_the_context_limit_is_a_failure_not_an_answer(monkeypatch, held_lease):
     b = PV.BACKENDS["local-gemma3-27b"]
 
     class Resp:
@@ -217,11 +260,10 @@ def test_the_heimdall_tripwire_is_checked_on_every_call_not_once_per_batch(fake_
     assert PV.available("heimdall-glm-5.3-flash")[0] is False                       # no credits is not 'fine'
 
 
-def test_a_local_server_error_moves_the_role_on_like_any_vendor_outage(fake_backends, monkeypatch):
+def test_a_local_server_error_moves_the_role_on_like_any_vendor_outage(fake_backends, monkeypatch, held_lease):
     import io
     import urllib.error
     calls, script, ledger = fake_backends
-    monkeypatch.setenv("PP_GPU0_LEASE_HELD", "1")
     monkeypatch.setitem(PV.LOCAL_VALIDATED, "judge", True)
     script["gemma3:27b"] = urllib.error.HTTPError("http://127.0.0.1:11434/api/chat", 503, "busy", {}, io.BytesIO())
     _, _, row = PV.call("judge", "s", "u", {}, ledger, "t")
@@ -273,7 +315,7 @@ def test_no_model_id_shape_or_vendor_endpoint_appears_outside_the_provider_confi
 
 
 def test_a_direct_call_to_the_local_gpu0_model_without_the_lease_is_never_sent(fake_backends):
-    calls, script, ledger = fake_backends                        # the fixture removed PP_GPU0_LEASE_HELD
+    calls, script, ledger = fake_backends                        # the test's own GPU0 lease is free (conftest)
     with pytest.raises(PV.VendorDown, match="GPU0 lease"):
         PV.call_backend("local-gemma3-27b", "s", "u", {}, ledger, "t")
     assert "gemma3:27b" not in calls and ledger.in_flight() == 0.0

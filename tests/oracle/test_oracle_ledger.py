@@ -56,10 +56,9 @@ def test_an_unpriced_call_is_refused_once_the_cap_is_reached(tmp_path):
         led.allow_unpriced("heimdall")
 
 
-def test_redact_masks_every_loaded_key_and_key_shaped_tokens(tmp_path):
-    env = tmp_path / ".env"
-    env.write_text("SOME_KEY=abc123secretvalue987\n")
-    v = llm.env_key("SOME_KEY", str(env))
+def test_redact_masks_every_loaded_key_and_key_shaped_tokens(monkeypatch):
+    monkeypatch.setattr(llm, "_loader", lambda: lambda name, required=True: "abc123secretvalue987")   # by name
+    v = llm.env_key("SOME_KEY")
     text = (f"Error: Incorrect API key provided: {v}; also sk-proj-********************abcd and "
             f"Authorization: Bearer abc.def.ghi and xai-AbCdEf123456")
     out = llm.redact(text)

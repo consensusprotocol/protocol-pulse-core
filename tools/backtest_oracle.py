@@ -13,7 +13,8 @@
   ab      --role R [--backends B,...] [--runs ...] [--limit N]   blind A/B of one model role on saved data (law L-x):
           judge / witness / grouping replay the exact stored prompts on each back-end against the recorded verdicts
           (+ must-fail swaps for the judge); writer re-runs the given days per back-end with the judge fixed. A local
-          GPU0 back-end runs only inside the integrator's GPU0 lease (PP_GPU0_LEASE_HELD=1).
+          GPU0 back-end runs only while this process holds the GPU0 lease (law L-r: providers.gpu0_lease_held, read
+          from the lease itself; the integrator takes it, e.g. with gpu0.lease(owner), and makes the model resident).
   group   [--runs NAME ...] [--variant V]  the accepted line-ups grouped by development (one blind grouping
                                           call per day with >= 2; integrator Q1: distinct legal developments per day)
   score   [--runs NAME ...]               the selector's records vs the judged line-ups (pipeline/oracle/score.py)

@@ -97,7 +97,9 @@ def test_only_the_bitcoin_neighbourhood_is_exported_and_counted(saved_day):
 
 def test_layout_eligibility_is_the_selectors_predicate(saved_day):
     rows, _ = X.export_run(*saved_day, registry=REGISTRY)
-    assert {r["channel"]: r["layout_eligible"] for r in rows} == {"Caps TV": True, "Words Show": False}   # has_chyron
+    # ruling 93 (orchestrator 2026-11-13 '23:59', after this branch was written): no channel is ineligible by name;
+    # has_chyron only orders the visual check. The export follows the selector's predicate, whatever it says.
+    assert {r["channel"]: r["layout_eligible"] for r in rows} == {"Caps TV": True, "Words Show": True}
 
 
 def test_an_altered_record_fails_closed(saved_day):

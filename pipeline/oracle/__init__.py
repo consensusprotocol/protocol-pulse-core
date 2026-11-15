@@ -3,7 +3,7 @@
 Did a legal line-up exist on a saved day, and did the selector find it? Four parts, each its own module:
   export   BITCOIN_STATEMENTS_<run>.jsonl, the frozen candidate sentences of one saved universe
   lineup   the written product rules, the reply schemas (fail closed) and the deterministic line-up checks
-  llm      the two frontier calls (blind oracle, blind judge), keys read by name from the main .env, spend guard
+  llm      the two frontier calls (blind oracle, blind judge), keys by name through relay.get_key, spend guard
   score    the selector's recorded decision path against the judged line-ups: availability, recall, precision,
            the first stage that lost a legal line-up
 Always imported as `pipeline.oracle` (the repo root has an unrelated `oracle/` folder: E-FAIL-021 class).

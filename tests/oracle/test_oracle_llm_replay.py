@@ -8,15 +8,44 @@ import pytest
 from pipeline.oracle import llm
 
 
-def test_a_key_is_read_by_name_and_never_printed(tmp_path, capsys):
-    env = tmp_path / ".env"
-    env.write_text("# c\nOTHER=1\nexport OPENAI_API_KEY='sk-test-123'\nANTHROPIC_API_KEY=\n")
-    assert llm.env_key("OPENAI_API_KEY", str(env)) == "sk-test-123"
-    with pytest.raises(KeyError):
-        llm.env_key("ANTHROPIC_API_KEY", str(env))                    # empty is missing
-    with pytest.raises(KeyError):
-        llm.env_key("XAI_API_KEY", str(env))
+def test_a_key_is_asked_by_name_of_the_pipelines_loader_and_no_file_is_opened_here(monkeypatch, capsys):
+    """Integrator merge (audits batch 89; the house rule that held pp-tests in batch 78): env_key never parses a key
+    file. With every way to open a file denied, a stubbed loader still answers by name; an empty or missing key is a
+    KeyError. Must-fail on the pre-merge code: it opened its hard-coded key file."""
+    import builtins
+    import io
+    asked = []
+
+    def get_key(name, required=True):
+        asked.append(name)
+        return {"OPENAI_API_KEY": "sk-test-123", "ANTHROPIC_API_KEY": ""}.get(name, "")
+
+    def denied(*a, **k):
+        raise AssertionError(f"env_key opened a file: {a[:1]}")
+    monkeypatch.setattr(llm, "_loader", lambda: get_key, raising=False)
+    with monkeypatch.context() as m:
+        for mod in (builtins, io, os):
+            m.setattr(mod, "open", denied)
+        assert llm.env_key("OPENAI_API_KEY") == "sk-test-123"
+        with pytest.raises(KeyError):
+            llm.env_key("ANTHROPIC_API_KEY")                              # empty is missing
+        with pytest.raises(KeyError):
+            llm.env_key("XAI_API_KEY")
+    assert asked == ["OPENAI_API_KEY", "ANTHROPIC_API_KEY", "XAI_API_KEY"]
     assert "sk-test" not in capsys.readouterr().out
+
+
+def test_the_real_loader_is_the_main_trees_relay_and_answers_by_name(monkeypatch):
+    """The real route, no stub: relay.py loaded from the MAIN tree by file path answers a key set in the process
+    environment (relay reads the environment first, so no key file is read here), and leaves sys.path alone."""
+    import inspect
+    import sys
+    monkeypatch.setenv("PP_ORACLE_TEST_KEY", "value-from-the-environment")
+    monkeypatch.setattr(llm, "_GET_KEY", [])                                # loaded afresh in this test
+    path = list(sys.path)
+    assert llm.env_key("PP_ORACLE_TEST_KEY") == "value-from-the-environment"
+    assert inspect.getsourcefile(llm._GET_KEY[0]) == "/home/ultron/protocol_pulse/video_pipeline_v3/relay.py"
+    assert sys.path == path
 
 
 GPT = {"in": 2.0, "out": 10.0, "in_long": 4.0, "out_long": 15.0, "long_above": 272_000}
