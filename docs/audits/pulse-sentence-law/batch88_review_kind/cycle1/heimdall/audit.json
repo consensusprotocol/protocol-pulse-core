@@ -1,0 +1,68 @@
+{
+ "question": "Batch 88 = handoff open item 1c (found 2026-11-14 22:37): the REVIEW texts name the kind. telegram.review_drop sends a run that is NOT authorised for release to the approval chat as an engineering REVIEW (head \"REVIEW ONLY - NOT A PASS - not for publishing\"; never a release authorisation; the texts are generated in code by review_texts). The release caption of an AUTHORISED spotlight already carries SPOTLIGHT_HEAD (telegram.py:326, unchanged: \"SPOTLIGHT, CANDIDATE FOR PBX'S APPROVAL (DEMONSTRATION: the format is not yet approved)\"), but the review texts said nothing, so the drop of spotlight 3f481f5a never told PBX it was the spotlight format's demonstration. SPOTLIGHT_HEAD cannot be reused in a review text: the unchanged wording check _review_forbidden (telegram.py:598) refuses PASS / PASSED, CANDIDATE FOR APPROVAL and approved anywhere outside REVIEW_HEAD.\nThe change: REVIEW_SPOTLIGHT = \"KIND: SPOTLIGHT (law L-ab), one moment: the spotlight format's DEMONSTRATION; the format awaits PBX's decision\" and review_kind(edl) = [REVIEW_SPOTLIGHT] if spotlight(edl) else [] (spotlight, telegram.py:329, unchanged: package_type 'moments' and package_shape 'spotlight'). review_texts prepends review_kind(edl) to the lines it adds right under the head (before the caller's OPEN INTEGRITY POINT and WITHHELD lines), in every caption and in the note. review_drop reads edl.json after review_texts (review_formats, telegram.py:766, has already STOPped on an unreadable EDL) and adds the kind line to `need`, the lines that must appear WHOLE as lines in every text (telegram.py:816, unchanged check), else STOP with nothing sent; the STOP message now names the kind line. The caption is cut from the END by the unchanged _fit (telegram.py:39), so a line second under the head is never the cut part. A medley (or any non-spotlight EDL) gets no kind line: its texts are byte-identical to before. Nothing else changes: no release path, no attestation, no ledger, no wording-check change.\nTests (test_review_drop, 3 new): a spotlight's drop (one segment, a stated point) is SENT and every caption and the note read, blank lines aside: head, kind line, point line, in that order; must-fail mirror: a medley's texts have the head and then the 'Not passing' / 'Required rows NOT passing' line, no added line; review_texts stubbed to drop the kind line from a spotlight's texts -> STOP \"the kind line\", nothing sent, no REVIEW_DROP.json. 28 passed, 20 subtests. On the old code (f2a1b249) the two spotlight tests fail (the line under the head is the point; the drop sends with no kind line) and the medley mirror passes.\nFIND: a way the kind line can be missing, cut or misplaced in any text of a spotlight drop that is still sent; a medley or non-moments run whose texts change; wording in the kind line that the drop's wording check refuses, or that makes the drop read as a pass, a release or an approval; a new way for the drop to send something it did not send before. Only state what you can verify from the diff and the cited unchanged lines. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 3.3,
+   "cost": 0.000196726,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 18.1,
+   "cost": 0.000159123,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 5.8,
+   "cost": 0.000355322,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 6.4,
+   "cost": 0.000136865,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/telegram.py",
+   "line": 700,
+   "issue": "The kind line is added to `added` (so it appears in every caption and the note) but is not guaranteed to survive _fit in the note path check order; however the drop's `need` check (telegram.py:816, unchanged) catches any text where it is missing, so the only exposure is a STOP, not a bad send \u2014 no defect in the sent output. Verified: `added = review_kind(edl) + [f\"{REVIEW_POINT_HEAD}{p}\" ...]` places the kind line second under the head, and `_fit` cuts from the END, so a line second under the head is never the cut part; the `need` membership check `if not set(need) <= set(t.split(\"\\n\"))` then STOPs if it is ever absent. No way found for a sent spotlight text to lack, cut or misplace the kind line, for a medley's texts to change (review_kind returns [] for non-spotlight, so `added` is unchanged), for the kind line's wording to fail the check (REVIEW_SPOTLIGHT contains no 'PASS', 'PASSED', 'CANDIDATE FOR APPROVAL' or 'approved' \u2014 'awaits' and 'DEMONSTRATION' are not matched), or for the drop to send anything new (the sent payloads and note bytes come from the same review_texts output that is checked).",
+   "evidence": "added = review_kind(edl) + [f\"{REVIEW_POINT_HEAD}{p}\" for p in points] + \\\n        [f\"{WITHHELD_HEAD}{fmt.replace('x', ':')}: {why}\" for fmt, why in (withheld or {}).items()]",
+   "fix": "None required.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.000848036,
+ "out_dir": "heimdall"
+}

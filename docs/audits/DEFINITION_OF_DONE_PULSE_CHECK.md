@@ -6,6 +6,29 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 01:20 ITEM 1c LANDED (Nov 15): a SPOTLIGHT's review drop names its kind, first under the head of every caption and of the note: "KIND: SPOTLIGHT (law L-ab), one moment: the spotlight format's DEMONSTRATION; the format awaits PBX's decision". If a spotlight's text lacks that line, the drop STOPs and sends nothing; a medley's texts are unchanged. Merge of review-kind (c76541ac); audits batch 88, two cycles, no defect. BATCH 3 integrator spend: $0.0250.
+- **Why:** the drop of 3f481f5a (22:37 Nov 14) never told PBX it was the spotlight format's demonstration. The release caption's SPOTLIGHT_HEAD could not be reused: its "APPROVAL" / "approved" are forbidden in a review text (_review_forbidden, unchanged).
+- **The change (pipeline/telegram.py):**
+  - REVIEW_SPOTLIGHT and review_kind(edl): that line when spotlight(edl), none otherwise.
+  - review_texts puts it first among the lines added under the head, before the stated open points and withheld formats.
+  - review_drop adds it to the lines that must appear whole, as lines, in every text; otherwise STOP.
+- **Tests (test_review_drop, 3 new; 28 passed, 20 subtests):**
+  - A spotlight's drop is sent, and every text reads head, kind line, point line, in that order.
+  - Must-fail mirror: a medley's texts gain no line.
+  - review_texts stubbed to lose the line: STOP "the kind line", nothing sent, no REVIEW_DROP.json.
+  - On the old code (f2a1b249) both spotlight tests fail (the point sits under the head; the drop sends with no kind line); the mirror passes.
+- **Regressions on the staged merge:**
+  - regression_test.sh: 26 PASS / 0 FAIL / 4 WARN.
+  - pipeline/regression.sh: exit 0, PULSE PREVIEW and PULSE MEDLEY references REPRODUCED.
+- **Suites:** review_drop 28, telegram_delivery 24, release_auth 31, alarm 5, fresh 27 (1 skipped), spotlight 8, render16only 8.
+- **Audits (Heimdall-first, ruling 107 (2); Grok not asked, no disagreement):**
+  - Cycle 1: qwen27b PASS 0.95, glm PASS 0.90. One agreed low note, "fix: None required": a missing line can only STOP.
+  - Cycle 2 (same diff; asked about mutations the tests miss and about the two reads of edl.json): qwen27b PASS 0.95, glm PASS 0.90. glm's low note (the EDL is read twice) is not a defect: a change between the reads either STOPs or sends texts that carry the line.
+  - Cost $0.000848 + $0.001930 = $0.002778.
+- **Not changed:** the release path (an authorised spotlight's caption still carries SPOTLIGHT_HEAD), the wording check, attestation, the ledger. The kind line makes the same claim as SPOTLIGHT_HEAD (a demonstration of a format PBX has not yet decided on); when PBX decides, both change together.
+- **BATCH 3 integrator spend $0.0250:** the earlier $0.0222 plus batch 88's $0.0028.
+- **Handoff:** item 1c marked done; section 1b's review-path line and the last batch number (88) brought up to date.
+
 ## 22:37 REVIEW PATH DELIVERED (ruling 106 (b)): SPOTLIGHT 3f481f5a, run pinned_20261115_013448. Its 16:9 alone went to the approval chat as REVIEW ONLY - NOT A PASS - not for publishing: video message 67881, note 67882, sha256 c9166b199c2659dae82c4c9b4b45517072b530dd5838f06aa97afa80d03c5170. The 9:16 was withheld and never sent. The run stays HOLD, with no release authorisation; nothing is published. BATCH 3 integrator spend: $0.0222.
 - **How:** telegram.review_drop(run, withhold={"9x16": ...}, points=[P1, P2]) at 22:37:40 ET, from main at 3877b52e. The record is the run's REVIEW_DROP.json (status complete, withheld, points, texts, message ids).
 - **Every caption and the note carry, under the head:**

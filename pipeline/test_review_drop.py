@@ -6,6 +6,8 @@ must-fail  no GATE_REPORT.json; any content-integrity row (G16, G17, G12, G15, G
            (deliver_run / release_auth.authorise) refusing a run that has only a review drop
 must-pass  tonight's two droppable rows (G3c, G18 identity by omission): both finals + the note sent, every non-pass
            REQUIRED row listed with its reason, the head first, both sha256, REVIEW_DROP.json written
+item 1c    a spotlight's review names its kind first under the head in every text (a text without it: STOP); a
+           medley's gains no line
 Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_review_drop.py"""
 import hashlib
 import json
@@ -15,6 +17,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 PIPELINE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, PIPELINE)
@@ -156,6 +159,51 @@ class TestReviewDrop(unittest.TestCase):
                     T.review_drop(self.run, send=self._send, **kw)
                 self.assertEqual(self.sent, [])
                 self.assertFalse(os.path.exists(os.path.join(self.run, "REVIEW_DROP.json")))
+
+    KIND = getattr(T, "REVIEW_SPOTLIGHT", None)     # None before item 1c: the old code fails on the missing line
+
+    def _shape(self, shape):
+        self.edl.update(package_type="moments", package_shape=shape)
+        if shape == "spotlight":                    # law L-ab: exactly one segment, the hook
+            self.edl["clips"] = []
+        self._write("edl.json", self.edl)
+
+    def _texts(self):
+        return [s[2]["caption"] for s in self.sent if s[0] == "video"] + [self.sent[-1][2]["text"]]
+
+    def test_item_1c_a_spotlight_review_names_its_kind_first_under_the_head_in_every_text(self):
+        """Item 1c (the drop of 3f481f5a never said it was the spotlight format's demonstration): a spotlight's review
+        drop names the kind on its own line, first under the head, in both captions and the note, in words the drop's
+        wording check lets through (the drop is sent)."""
+        self._shape("spotlight")
+        rec = T.review_drop(self.run, send=self._send, points=[self.POINT])
+        texts = self._texts()
+        self.assertEqual(len(texts), 3)
+        for t in texts:
+            self.assertEqual([x for x in t.split("\n") if x][:3],
+                             [T.REVIEW_HEAD, self.KIND, T.REVIEW_POINT_HEAD + self.POINT], t)
+        self.assertEqual(rec["status"], "complete")
+
+    def test_item_1c_must_fail_a_medley_review_gains_no_kind_line(self):
+        self._shape("medley")
+        T.review_drop(self.run, send=self._send)
+        for t in self._texts():
+            lines = [x for x in t.split("\n") if x]
+            self.assertEqual(lines[0], T.REVIEW_HEAD)
+            self.assertTrue(lines[1].startswith(("Not passing (required):", "Required rows NOT passing")), lines[1])
+
+    def test_item_1c_a_spotlight_text_without_its_kind_line_sends_nothing(self):
+        """The drop checks the texts it is about to send: a spotlight's text that lost the kind line (review_texts
+        stubbed to drop it) is a STOP, with nothing sent and no REVIEW_DROP.json."""
+        self._shape("spotlight")
+        real = T.review_texts
+
+        def lost(*a, **kw):
+            caps, note = real(*a, **kw)
+            cut = lambda t: "\n".join(x for x in t.split("\n") if x != self.KIND)  # noqa: E731
+            return {f: cut(c) for f, c in caps.items()}, cut(note)
+        with mock.patch.object(T, "review_texts", lost):
+            self._refused("the kind line")
 
     def test_without_a_gate_report_nothing_is_sent(self):
         os.remove(os.path.join(self.run, "GATE_REPORT.json"))

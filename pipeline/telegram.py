@@ -481,6 +481,19 @@ REVIEW_HEAD = "REVIEW ONLY - NOT A PASS - not for publishing"
 REVIEW_POINT_HEAD = "OPEN INTEGRITY POINT: "
 WITHHELD_HEAD = "WITHHELD, NOT SENT: "
 REVIEW_POINT_MAX = 300
+# item 1c (2026-11-14 22:37: the drop of 3f481f5a never said it was the spotlight format's demonstration): a
+# spotlight's review texts name the kind, first under the head. SPOTLIGHT_HEAD (the release caption's) cannot be
+# reused: its 'APPROVAL' / 'approved' are forbidden in a review text. Keep it in step with SPOTLIGHT_HEAD.
+REVIEW_SPOTLIGHT = ("KIND: SPOTLIGHT (law L-ab), one moment: the spotlight format's DEMONSTRATION; the format awaits "
+                    "PBX's decision")
+
+
+def review_kind(edl):
+    """The kind line(s) a review text carries under its head: a spotlight's (item 1c); none for a medley, as on the
+    release path (only a spotlight's caption gains SPOTLIGHT_HEAD)."""
+    return [REVIEW_SPOTLIGHT] if spotlight(edl) else []
+
+
 # content-integrity rows: a run that fails any of them is never dropped, not even for review. V1 (two vision models)
 # is droppable ONLY when every failing V1 item is a SPLIT (one model yes, one no; ruling 23 '13:18'); both-no, a
 # missing answer, or a failing credits item whose measured ring geometry (G15_credits, DEC-11) is not PASS refuse.
@@ -669,7 +682,8 @@ def review_texts(run_dir, nonpass, digests, withheld=None, points=()):
     """The video captions and the review note, generated here and nowhere else (the caller cannot edit them):
     the head first, then every non-pass REQUIRED row, the files' sha256, run id, HEAD, title, caption, the
     per-clip source links and the deviations. The caller may only ADD (ruling 106 (b)): the open integrity points
-    it states and the formats it withholds with their reasons, both right under the head, in every caption."""
+    it states and the formats it withholds with their reasons, both right under the head, in every caption. A
+    spotlight's kind line (review_kind, item 1c) comes first under the head."""
     import release_auth
     with open(os.path.join(run_dir, "edl.json")) as f:
         edl = json.load(f)
@@ -683,7 +697,7 @@ def review_texts(run_dir, nonpass, digests, withheld=None, points=()):
     run_id = os.path.basename(os.path.abspath(run_dir).rstrip("/"))
     rows = ", ".join(sorted({f"{k} {v}" for _, k, v, _ in nonpass})) or "none"
     only = release_auth.release_formats(edl) == ("16x9",)     # ruling 93 as amended: the package SEALED 16:9 only
-    added = [f"{REVIEW_POINT_HEAD}{p}" for p in points] + \
+    added = review_kind(edl) + [f"{REVIEW_POINT_HEAD}{p}" for p in points] + \
         [f"{WITHHELD_HEAD}{fmt.replace('x', ':')}: {why}" for fmt, why in (withheld or {}).items()]
     caps = {fmt: _fit("\n".join([REVIEW_HEAD] + added) + f"\nNot passing (required): {rows}\nrun {run_id} | "
                       f"{fmt} sha256 {digests[fmt]}" + (f"\n{SIXTEEN_NINE_ONLY}" if only else "")
@@ -742,8 +756,8 @@ def review_drop(run_dir, send=None, withhold=None, points=()):
     REVIEW_POINT_MAX characters each). Both can only ADD lines and pass the same wording check. Only the formats sent
     are judged. Refuses (nothing sent) without GATE_REPORT.json or readable formats, when a
     content-integrity row (REVIEW_NOT_DROPPABLE) is not PASS, when any text would carry PASS-as-verdict wording,
-    'CANDIDATE FOR APPROVAL' or 'approved', when a stated point or withheld reason does not fit whole in every caption,
-    or when this run was already review-dropped. Writes REVIEW_DROP.json
+    'CANDIDATE FOR APPROVAL' or 'approved', when a spotlight's kind line (item 1c), a stated point or withheld reason
+    does not fit whole in every text, or when this run was already review-dropped. Writes REVIEW_DROP.json
     (what was sent, to which chat, the message ids). Never writes or reads the release ledger."""
     import hashlib
     send = send or _send_bot_api
@@ -789,7 +803,9 @@ def review_drop(run_dir, send=None, withhold=None, points=()):
             payload[fmt] = f.read()                    # read once; exactly these bytes are hashed and sent
         digests[fmt] = hashlib.sha256(payload[fmt]).hexdigest()
     caps, note = review_texts(run_dir, nonpass, digests, withheld=withhold, points=points)
-    need = [REVIEW_POINT_HEAD + p for p in points] + \
+    with open(os.path.join(run_dir, "edl.json")) as f:
+        kind = review_kind(json.load(f))                        # item 1c: a spotlight says so in every text
+    need = kind + [REVIEW_POINT_HEAD + p for p in points] + \
         [f"{WITHHELD_HEAD}{f.replace('x', ':')}: {r}" for f, r in withhold.items()]
     for t in list(caps.values()) + [note]:
         if not t.startswith(REVIEW_HEAD):
@@ -798,7 +814,8 @@ def review_drop(run_dir, send=None, withhold=None, points=()):
         if bad:
             raise RuntimeError(f"STOP: review drop refused: forbidden wording {sorted(set(bad))}")
         if not set(need) <= set(t.split("\n")):        # each stated line WHOLE, as a line (never cut by _fit)
-            raise RuntimeError("STOP: review drop: a stated point or withheld reason does not fit whole in every text")
+            raise RuntimeError("STOP: review drop: the kind line, a stated point or a withheld reason does not fit "
+                               "whole in every text")
     if len(note) > TEXT_MAX:
         raise RuntimeError(f"STOP: review note is {len(note)} characters > {TEXT_MAX}")
     rec = {"kind": "review_drop", "label": REVIEW_HEAD, "rule": "orchestrator order 2026-11-12 '13:06'",
