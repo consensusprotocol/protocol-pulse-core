@@ -1,0 +1,23 @@
+{
+ "best": "none",
+ "sample_records": 40,
+ "scores": {
+  "none": {
+   "rows": 40,
+   "answers": 40,
+   "valid": 34,
+   "valid_rate": 0.85,
+   "agree_valid": 0.7469879518072289,
+   "p50_s": 3.37
+  },
+  "medium": {
+   "rows": 40,
+   "answers": 38,
+   "valid": 27,
+   "valid_rate": 0.7105263157894737,
+   "agree_valid": 0.7647058823529411,
+   "p50_s": 50.955
+  }
+ },
+ "rule": "the higher valid-answer rate, then the higher agreement on valid answers, then the lower p50"
+}

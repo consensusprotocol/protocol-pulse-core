@@ -1,0 +1,19 @@
+{
+ "role": "replay111_none",
+ "backend": "heimdall:deepseek/deepseek-v4-flash-0731-abliterated#effort-none",
+ "model": "deepseek/deepseek-v4-flash-0731-abliterated",
+ "vendor": "heimdall",
+ "seed": 24,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation. The first clip (label \"hook\")\nopens the video. The hook is shown for context only: it is NOT rated here (its own job was judged on its own).\n\nCLIP label=\"hook\" (on screen: Simply Bitcoin): \"Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued.\"\nCLIP label=\"clip_01\" (on screen: Simply Bitcoin): \"I still think everyone should hold their own Bitcoin. I'm not the biggest fan of the trend we've seen of people sending their Bitcoin to ETFs.\"\nCLIP label=\"clip_02\" (on screen: Stephan Livera): \"I think we've seen over time, Bitcoin's volatility has trended lower and lower, effectively making Bitcoin better collateral, because you can borrow more against it and not have to worry about, a 90 % drawdown that we saw, many, many years ago in Bitcoin.\"\nCLIP label=\"clip_03\" (on screen: Bloomberg Television): \"Gold, 3,800 change, and Bitcoin, well, that's below $70,000 a coin, if that is an indication of anything.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips, the hook's own join included (does the hook set up the clip after\n   it?): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming\n   from the previous clip's ending? Answer true or false, and why in a few words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"clip_01\": 1, \"clip_02\": 1, \"clip_03\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}, \"clip_02 -> clip_03\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"through_line\": \"Cryptocurrency's evolution is marked by shifting perceptions of its stability and value, with a movie showcasing varied perspectives on Bitcoin's issues and future consolidation.\", \"clips\": {\"clip_01\": 2, \"clip_02\": 4, \"clip_03\": 3}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"Hook discusses Bitcoin's launch and stability, clip_01 continues with perspective on holding Bitcoin directly, a natural follow-up.\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"Clip_01 talks about holding Bitcoin, clip_02 discusses Bitcoin's stability, connecting concepts of self-accountability.\"}, \"clip_02 -> clip_03\": {\"followable\": true, \"why\": \"Clip_02 mentions volatility and price stability, clip_03 shows current price and sync, showing price dynamics.\"}}}",
+ "usage": {
+  "in": 565,
+  "out": 196,
+  "usd_reported": 4.153e-05
+ },
+ "usd": 0.004635,
+ "seconds": 5.88,
+ "recorded_at": "2026-11-15T07:18:30Z"
+}

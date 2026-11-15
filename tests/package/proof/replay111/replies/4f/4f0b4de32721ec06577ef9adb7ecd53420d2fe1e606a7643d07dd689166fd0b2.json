@@ -1,0 +1,19 @@
+{
+ "role": "replay111_medium",
+ "backend": "heimdall:deepseek/deepseek-v4-flash-0731-abliterated#effort-medium",
+ "model": "deepseek/deepseek-v4-flash-0731-abliterated",
+ "vendor": "heimdall",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words; the first clip, label \"hook\", opens the video and is shown for context only: it is NOT\nrated here, its own job was judged on its own).\n\nTITLE: A maturing asset outlasts the tech trade\nCAPTION: resilience is becoming the whole story. capital keeps finding a wider home.\nCLIP label=\"hook\" (on screen: Simply Bitcoin): \"Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued.\"\nCLIP label=\"clip_01\" (on screen: Yahoo Finance): \"I think, well, what we've seen in the market is on Thursday, Friday, there was actually a much bigger drop in traditional stock prices, especially tech stock. There's like 10, 20%, like Intel dropped 29%. Whereas Bitcoin only dropped like five, six percent.\"\nCLIP label=\"clip_02\" (on screen: Altcoin Daily): \"I think treasury companies will also bleed to Bitcoin. I mean, basically, everything in the industry eventually bleeds to Bitcoin.\"\nVOICE-OVER: Durability matters more than speed. A market that survives every cycle earns trust without asking. That is real maturation.\nVOICE-OVER: Clips today from Simply Bitcoin, Yahoo Finance, and Altcoin Daily. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"clip_01\": 1, \"clip_02\": 1}, \"vo_point\": 1}",
+ "text": "{\"through_line\": \"\u6bd4\u7279\u5e01\u4f5c\u4e3a\u4e00\u79cd\u6210\u719f\u8d44\u4ea7\uff0c\u5176\u97e7\u6027\u548c\u6301\u4e45\u6027\u4f7f\u5176\u5728\u79d1\u6280\u80a1\u6ce2\u52a8\u4e2d\u663e\u5f97\u66f4\u53ef\u9760\u5e76\u6301\u7eed\u5438\u5f15\u8d44\u672c\u3002\", \"clips\": {\"clip_01\": 5, \"clip_02\": 5}, \"vo_point\": 5}",
+ "usage": {
+  "in": 479,
+  "out": 406,
+  "usd_reported": 4.73e-05
+ },
+ "usd": 0.007527,
+ "seconds": 7.17,
+ "recorded_at": "2026-11-15T07:10:39Z"
+}

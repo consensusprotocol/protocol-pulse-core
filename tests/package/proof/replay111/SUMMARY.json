@@ -1,0 +1,483 @@
+{
+ "choice": {
+  "best": "none",
+  "sample_records": 40,
+  "scores": {
+   "none": {
+    "rows": 40,
+    "answers": 40,
+    "valid": 34,
+    "valid_rate": 0.85,
+    "agree_valid": 0.7469879518072289,
+    "p50_s": 3.37
+   },
+   "medium": {
+    "rows": 40,
+    "answers": 38,
+    "valid": 27,
+    "valid_rate": 0.7105263157894737,
+    "agree_valid": 0.7647058823529411,
+    "p50_s": 50.955
+   }
+  },
+  "rule": "the higher valid-answer rate, then the higher agreement on valid answers, then the lower p50"
+ },
+ "sample_keys": 40,
+ "table": {
+  "step_a|none": {
+   "records": 96,
+   "in_time": 32,
+   "late": 0,
+   "timeout": 0,
+   "error": 0,
+   "out_of_contract": 64,
+   "missed": 0,
+   "units_in_time": 232,
+   "agree": 147,
+   "stricter": 47,
+   "looser": 38,
+   "different": 0,
+   "agree_in_time_pct": 63.36206896551724,
+   "units_all": 232,
+   "agree_all_pct": 63.36206896551724,
+   "p50_s": 14.91,
+   "p90_s": 25.15,
+   "deadline_100_s": [
+    120.0
+   ],
+   "usd_reported": 0.032462
+  },
+  "step_c|none": {
+   "records": 33,
+   "in_time": 31,
+   "late": 0,
+   "timeout": 0,
+   "error": 0,
+   "out_of_contract": 2,
+   "missed": 0,
+   "units_in_time": 95,
+   "agree": 83,
+   "stricter": 10,
+   "looser": 2,
+   "different": 0,
+   "agree_in_time_pct": 87.36842105263158,
+   "units_all": 95,
+   "agree_all_pct": 87.36842105263158,
+   "p50_s": 3.1,
+   "p90_s": 5.056,
+   "deadline_100_s": [
+    120.0
+   ],
+   "usd_reported": 0.001991
+  },
+  "clips_alone|none": {
+   "records": 91,
+   "in_time": 47,
+   "late": 0,
+   "timeout": 0,
+   "error": 0,
+   "out_of_contract": 44,
+   "missed": 0,
+   "units_in_time": 94,
+   "agree": 60,
+   "stricter": 8,
+   "looser": 2,
+   "different": 24,
+   "agree_in_time_pct": 63.829787234042556,
+   "units_all": 94,
+   "agree_all_pct": 63.829787234042556,
+   "p50_s": 3.73,
+   "p90_s": 5.15,
+   "deadline_100_s": [
+    120.0
+   ],
+   "usd_reported": 0.003143
+  },
+  "coherence|none": {
+   "records": 18,
+   "in_time": 16,
+   "late": 0,
+   "timeout": 0,
+   "error": 0,
+   "out_of_contract": 2,
+   "missed": 0,
+   "units_in_time": 16,
+   "agree": 10,
+   "stricter": 5,
+   "looser": 1,
+   "different": 0,
+   "agree_in_time_pct": 62.5,
+   "units_all": 16,
+   "agree_all_pct": 62.5,
+   "p50_s": 2.3200000000000003,
+   "p90_s": 3.1189999999999998,
+   "deadline_100_s": [
+    120.0
+   ],
+   "usd_reported": 0.000454
+  },
+  "hook|none": {
+   "records": 6,
+   "in_time": 5,
+   "late": 0,
+   "timeout": 0,
+   "error": 0,
+   "out_of_contract": 1,
+   "missed": 0,
+   "units_in_time": 19,
+   "agree": 14,
+   "stricter": 2,
+   "looser": 3,
+   "different": 0,
+   "agree_in_time_pct": 73.6842105263158,
+   "units_all": 19,
+   "agree_all_pct": 73.6842105263158,
+   "p50_s": 3.56,
+   "p90_s": 5.62,
+   "deadline_100_s": [
+    120.0
+   ],
+   "usd_reported": 0.000233
+  },
+  "fidelity|none": {
+   "records": 39,
+   "in_time": 35,
+   "late": 0,
+   "timeout": 0,
+   "error": 0,
+   "out_of_contract": 4,
+   "missed": 0,
+   "units_in_time": 131,
+   "agree": 96,
+   "stricter": 20,
+   "looser": 15,
+   "different": 0,
+   "agree_in_time_pct": 73.2824427480916,
+   "units_all": 131,
+   "agree_all_pct": 73.2824427480916,
+   "p50_s": 6.83,
+   "p90_s": 10.414000000000001,
+   "deadline_100_s": [
+    120.0
+   ],
+   "usd_reported": 0.003712
+  },
+  "exclusion|none": {
+   "records": 27,
+   "in_time": 24,
+   "late": 0,
+   "timeout": 0,
+   "error": 0,
+   "out_of_contract": 3,
+   "missed": 0,
+   "units_in_time": 24,
+   "agree": 21,
+   "stricter": 3,
+   "looser": 0,
+   "different": 0,
+   "agree_in_time_pct": 87.5,
+   "units_all": 24,
+   "agree_all_pct": 87.5,
+   "p50_s": 2.4,
+   "p90_s": 3.022,
+   "deadline_100_s": [
+    120.0
+   ],
+   "usd_reported": 0.001175
+  },
+  "speaker|none": {
+   "records": 9,
+   "in_time": 9,
+   "late": 0,
+   "timeout": 0,
+   "error": 0,
+   "out_of_contract": 0,
+   "missed": 0,
+   "units_in_time": 9,
+   "agree": 8,
+   "stricter": 1,
+   "looser": 0,
+   "different": 0,
+   "agree_in_time_pct": 88.88888888888889,
+   "units_all": 9,
+   "agree_all_pct": 88.88888888888889,
+   "p50_s": 3.34,
+   "p90_s": 4.234,
+   "deadline_100_s": [
+    120.0
+   ],
+   "usd_reported": 0.000718
+  }
+ },
+ "shapes": {
+  "truncated": 93,
+  "valid JSON, not the contract": 27
+ },
+ "anchor_failures": [
+  {
+   "record": "tests/package/fixtures/replies/1c/1c64f285710ab2a84bf10e0b5b761af5e9ae086e952532ab2fee7a2d150781f8.json",
+   "type": "step_c",
+   "model": "none",
+   "unit": "hook",
+   "pins": [
+    "37c5b5f5",
+    "41f29b1f"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/1d/1d9080a526df8d21d8c108224e42337fdb585efecab636608afca82b62ed7cd3.json",
+   "type": "step_c",
+   "model": "none",
+   "unit": "clip_01",
+   "pins": [
+    "41f29b1f"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/b6/b63b1452143000122f375adce8a097024af95bc29475d579bf1f4a3bbb47bf70.json",
+   "type": "coherence",
+   "model": "none",
+   "unit": "package",
+   "pins": [
+    "37c5b5f5"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/72/7284ff4ae458538ca50de5e3dd7ac9e0a0b06a5f54faf68cd3b84cff5ad1f059.json",
+   "type": "fidelity",
+   "model": "none",
+   "unit": "title",
+   "pins": [
+    "37c5b5f5"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/72/7284ff4ae458538ca50de5e3dd7ac9e0a0b06a5f54faf68cd3b84cff5ad1f059.json",
+   "type": "fidelity",
+   "model": "none",
+   "unit": "caption",
+   "pins": [
+    "37c5b5f5"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/41/417b6e4a42687e8432e837b84bf1892b797556e5696b503c14425a63f44ebb75.json",
+   "type": "step_c",
+   "model": "none",
+   "unit": "hook",
+   "pins": [
+    "37c5b5f5",
+    "41f29b1f"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/41/417b6e4a42687e8432e837b84bf1892b797556e5696b503c14425a63f44ebb75.json",
+   "type": "step_c",
+   "model": "none",
+   "unit": "clip_02",
+   "pins": [
+    "37c5b5f5",
+    "41f29b1f"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/22/222a4e7e38acafd3fc66a8a4fd08099a5e960a2fc1c99af03ff6b8c2b363649e.json",
+   "type": "step_c",
+   "model": "none",
+   "unit": "hook",
+   "pins": [
+    "37c5b5f5",
+    "41f29b1f"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/95/95264c044fa625a9909f559031ed4ec548f0967b5242c3b0335c2b323f2c9196.json",
+   "type": "exclusion",
+   "model": "none",
+   "unit": "moment",
+   "pins": [
+    "37c5b5f5"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/61/615d90a03c0c83ef6424b25eff0d0e9c4d5df5ce157e0809718e272469856050.json",
+   "type": "step_c",
+   "model": "none",
+   "unit": "clip_02",
+   "pins": [
+    "41f29b1f"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/bc/bc04be7471b1a405dac0ca9cb90329eb9d7c195c3c7c87dcb85c1350ce3087c0.json",
+   "type": "step_c",
+   "model": "none",
+   "unit": "clip_01",
+   "pins": [
+    "41f29b1f"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/dd/dd707bb8cb58d84812cfb2b0180654684261b8725e3d6514006c657b03d46e28.json",
+   "type": "step_c",
+   "model": "none",
+   "unit": "clip_02",
+   "pins": [
+    "41f29b1f"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/05/054ce704cfb8eaca0d5738d4069342da296508f5f45eb0e3ade882cca46f4c42.json",
+   "type": "step_a",
+   "model": "none",
+   "unit": "hook",
+   "pins": [
+    "37c5b5f5"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/05/054ce704cfb8eaca0d5738d4069342da296508f5f45eb0e3ade882cca46f4c42.json",
+   "type": "step_a",
+   "model": "none",
+   "unit": "clip_01",
+   "pins": [
+    "37c5b5f5",
+    "41f29b1f"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/3a/3ae4520a414e1aeecbbe1b823e1b6abcf084e57f04dcb77aea8b21cbba11db55.json",
+   "type": "step_a",
+   "model": "none",
+   "unit": "b0b787f8a62d97d81dbb",
+   "pins": [
+    "41f29b1f"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/3a/3ae4520a414e1aeecbbe1b823e1b6abcf084e57f04dcb77aea8b21cbba11db55.json",
+   "type": "step_a",
+   "model": "none",
+   "unit": "3b3050f4afd6f3c011e7",
+   "pins": [
+    "37c5b5f5"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/23/230f8936e44cef19144f8793f1f4bd4e9885c66a78394901f5853426a2e56237.json",
+   "type": "clips_alone",
+   "model": "none",
+   "unit": "lineup",
+   "pins": [
+    "41f29b1f"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/bb/bbc94f85744e63430af45da278efad152bda15b7301efa253216b5dbbb2bf1de.json",
+   "type": "step_a",
+   "model": "none",
+   "unit": "clip_01",
+   "pins": [
+    "37c5b5f5",
+    "41f29b1f"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/cd/cd226a7498081605363c2462b04173647048bf6f78f2d059e797f49dbd674cb6.json",
+   "type": "step_a",
+   "model": "none",
+   "unit": "3b3050f4afd6f3c011e7",
+   "pins": [
+    "37c5b5f5"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/ca/caeca27a260e31a61e87b0c7b1c8a230a7005b141b2a62d6dcf0ac39a3ed1989.json",
+   "type": "step_a",
+   "model": "none",
+   "unit": "876662b7dc4e961d47e1",
+   "pins": [
+    "37c5b5f5",
+    "41f29b1f"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/ce/ce780b7c4b1e5743d258baf9da569a8bf7fbb767a2f01637c58155d0c7adfbb4.json",
+   "type": "step_a",
+   "model": "none",
+   "unit": "316f66f81603ea55899a",
+   "pins": [
+    "41f29b1f"
+   ]
+  },
+  {
+   "record": "tests/package/fixtures/replies/fc/fcedd68df1b1fa456a60b2ac4c7428b5c280a38073359aad41d31f42862ca81f.json",
+   "type": "step_a",
+   "model": "none",
+   "unit": "316f66f81603ea55899a",
+   "pins": [
+    "41f29b1f"
+   ]
+  }
+ ],
+ "bars": {
+  "step_a": {
+   "meets": false,
+   "why": [
+    "an anchor decision Grok passed is failed",
+    "27 REFERENT_OUTSIDE refusal(s) let through",
+    "agreement 63% < the bar 85%",
+    "64 of 96 answers out of contract"
+   ]
+  },
+  "step_c": {
+   "meets": false,
+   "why": [
+    "an anchor decision Grok passed is failed"
+   ]
+  },
+  "clips_alone": {
+   "meets": false,
+   "why": [
+    "an anchor decision Grok passed is failed",
+    "agreement 64% < the bar 79%",
+    "44 of 91 answers out of contract"
+   ]
+  },
+  "coherence": {
+   "meets": false,
+   "why": [
+    "an anchor decision Grok passed is failed",
+    "agreement 62% < the bar 75%",
+    "2 of 18 answers out of contract"
+   ]
+  },
+  "hook": {
+   "meets": false,
+   "why": [
+    "agreement 74% < the bar 75%",
+    "1 of 6 answers out of contract"
+   ]
+  },
+  "fidelity": {
+   "meets": false,
+   "why": [
+    "an anchor decision Grok passed is failed",
+    "4 of 39 answers out of contract"
+   ]
+  },
+  "exclusion": {
+   "meets": false,
+   "why": [
+    "an anchor decision Grok passed is failed",
+    "3 of 27 answers out of contract"
+   ]
+  },
+  "speaker": {
+   "meets": false,
+   "why": [
+    "only 9 decisions (< 10)"
+   ]
+  }
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "role": "replay111_none",
+ "backend": "heimdall:deepseek/deepseek-v4-flash-0731-abliterated#effort-none",
+ "model": "deepseek/deepseek-v4-flash-0731-abliterated",
+ "vendor": "heimdall",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words).\n\nTITLE: The overlooked case for a borderless, leaderless money\nCAPTION: The real story isn't the price but the possibility of money that exists beyond any group's reach.\nCLIP label=\"hook\" (on screen: Natalie Brunell): \"Bitcoin imposes a global free market for the first time ever.\"\nCLIP label=\"clip_01\" (on screen: Saifedean Ammous): \"Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that. Your friends chose to buy Bitcoin in 2020.\"\nCLIP label=\"clip_02\" (on screen: What Bitcoin Did): \"I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.\"\nVOICE-OVER: What stands out is how rare it is for any system to resist capture by those who usually hold power. That rarity makes it fascinating, suggests a different value.\nVOICE-OVER: Clips today from Natalie Brunell, Saifedean Ammous, and What Bitcoin Did. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"vo_point\": 1}",
+ "text": "{\"through_line\": \"Bitcoin's value lies in its ability to exist beyond any group's control, offering a rare form of money that is not captured by traditional power structures.\", \"clips\": {\"hook\": 5, \"clip_01\": 4, \"clip_02\": 4}, \"vo_point\": 5}",
+ "usage": {
+  "in": 468,
+  "out": 70,
+  "usd_reported": 2.639e-05
+ },
+ "usd": 0.002454,
+ "seconds": 3.94,
+ "recorded_at": "2026-11-15T07:18:28Z"
+}

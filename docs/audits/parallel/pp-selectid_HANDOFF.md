@@ -501,6 +501,11 @@ then `bash regression_test.sh` (26 PASS, 0 FAIL, 5 WARN).
     refusals let through); the v4 abliterated is fast (p50 2-21 s) but 43% of its answers are not valid JSON.
     Both meet the bars of 85/88/96 only for hook and exclusion. Its ledger is SPEND_R110.json (counted by batch3.py
     under mining and checks).
+    RULING 111 (02:26 ET Nov 15, tests/package/replay111.py, proof/replay111/; $0.06 + audit $0.0067): the v4 in
+    the gateway's JSON mode (response_format json_object; effort none beat medium on the 40-record sample). JSON mode
+    removed prose and fences, but 93 of 319 answers stop before the JSON closes (far under the token budget) and 27
+    are valid JSON but not the contract. No verdict type meets the bars now (hook and exclusion fell below them):
+    the v4 is not a candidate. The gateway also takes json_schema (not used: per-prompt schemas would be ours).
 6. **Ruling 97 is answered** (STATE 01:41): nothing to build unless the orchestrator rules otherwise.
 7. **Done tonight:**
    - rulings 85-88 + 96 (125e7381, audit 0108);
