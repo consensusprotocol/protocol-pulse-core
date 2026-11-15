@@ -1,0 +1,84 @@
+{
+ "question": "Batch 83 cycle 3 (VERIFICATION of a refinement after cycles 1-2 were clean): the spotlight editorial-gate fix first made a spotlight's LAW 2 / LAW 3 read ONLY the builder's sealed rows, which broke the agreed ruling-90 design pinned by test_spotlight (\"a spotlight still needs its takeaway and line job\" from the editorial review: a review WITH a takeaway judgment passed LAW 3; with takeaway None it failed; a closing line with no job judgment failed). The refinement (this diff): for a spotlight, a judgment the review DOES give stands exactly as before (vo_jobs for the closing line, earned / job / why; the takeaway, concrete / supported); only when the review gives NO judgment (it is inconclusive on one moment, as on the real held run) do the sealed rows decide: closing_value / closing_fidelity / closing_context for the line, stands_alone / hook_own (+ the closing rows with a line) for the takeaway, each exactly PASS and live. Tests: test_editorial_gate 12 passed (a new test: the review's 'not earned' and 'not concrete' fail even with every sealed row PASS); test_spotlight 8 passed (restored); the real held run's EDL and inconclusive review give READY_FOR_RENDER.\nFIND: a spotlight that passes LAW 2 / LAW 3 when the review judged against it; a spotlight that passes with the review silent and a sealed row missing, not PASS or replayed; a medley whose LAW 2 / LAW 3 changed. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 8.4,
+   "cost": 0.00053165,
+   "provider": "ImpCC",
+   "verdict": "FAIL",
+   "n_findings": 1,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 11.7,
+   "cost": 8.6614e-05,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 6.6,
+   "cost": 0.000378975,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 5.9,
+   "cost": 9.0427e-05,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/editorial_gate.py",
+   "line": 140,
+   "issue": "When the review gives the closing line a judgment, the sealed-row check is skipped entirely, so a review judgment stands even if the sealed rows are missing or not PASS \u2014 this matches the stated refinement, but it means the ruling-91 sealed-row guarantee is no longer enforced at all when vo_jobs has a judgment; the diff shows no test covering a judged line whose sealed rows are absent/not PASS, so the 'stands exactly as before' claim is only verified for the judged-and-sealed-rows-PASS combination.",
+   "evidence": "if spotlight and not isinstance(j, dict):     # ruling 91: when the review gives the closing line no judgment\n            bad = _not_live(edl, SPOTLIGHT_CLOSING)   # (it is inconclusive on one moment), the line's sealed value\n            if bad:                                   # verdict (off the writer's family) and fidelity / context rows\n                law2_errors.append(f\"{key}: the spotlight's closing line has no review judgment and lacks ruling 91's \"\n                                   f\"live PASS rows {bad}\")\n            continue",
+   "fix": "None required by the stated design; if the ruling-91 sealed-row guarantee should also hold when the review judges, add a test asserting a judged line with a not-PASS/absent sealed row fails, or re-apply the sealed-row check alongside the judgment.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "critical",
+   "file": "pipeline/editorial_gate.py",
+   "line": 166,
+   "issue": "The logic for the LAW 2 pass reason is inverted. It checks `not isinstance(vo_jobs.get(\"intro\"), dict)` to determine if the spotlight's sealed rows should be cited. However, the sealed rows are only used when the review is silent (i.e., `vo_jobs` is missing/None). If the review provides a judgment (a dict), this condition is False, and it falls back to the generic 'affirmed editorial job' reason, even if the law passed via the sealed rows path (which is impossible if a dict is present, but the logic is structurally wrong for the 'silent' case). More critically, if the review is silent (`vo_jobs` is None), `vo_jobs.get` will raise an AttributeError because `None` does not have a `get` method. The code assumes `vo_jobs` is a dict, but the previous logic `j = vo_jobs.get(key)` implies `vo_jobs` could be None or missing keys. If `vo_jobs` is None, `vo_jobs.get` crashes. If `vo_jobs` is a dict but 'intro' is missing, `get` returns None, `isinstance(None, dict)` is False, so `not False` is True. This part works for the silent case. BUT, if the review *does* give a judgment (dict), `isinstance` is True, `not True` is False. The reason becomes 'all body VO has an affirmed editorial job'. This is correct for the non-spotlight or spotlight-with-judgment case. The bug is that `vo_jobs` might be `None`. In the diff, `j = vo_jobs.get(key)` is used earlier. If `vo_jobs` is `None`, this line crashes. The test `test_a_judgment_the_review_does_give_stands` passes a dict. The test `test_spotlight` likely passes a review with `vo_jobs` as `None` or missing. If `vo_jobs` is `None`, the line `vo_jobs.get(\"intro\")` in the reason calculation will crash with `AttributeError: 'NoneType' object has no attribute 'get'`.",
+   "evidence": "reason = (\"body VO absent\" if not body_vo else \"the spotlight's closing line carries ruling 91's sealed value, \"\n                  \"fidelity and context verdicts\" if spotlight and not isinstance(vo_jobs.get(\"intro\"), dict)\n                  else \"all body VO has an affirmed editorial job\")",
+   "fix": "Ensure `vo_jobs` is a dict before calling `.get`. Use `(vo_jobs or {}).get(\"intro\")`.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.001087666,
+ "out_dir": "heimdall"
+}
