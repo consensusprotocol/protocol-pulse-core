@@ -222,6 +222,10 @@ No session waits on the orchestrator. Standing, for all three sessions:
 
 ## 5. CONTRACTS WITH THE BUILDER (file names)
 
+- **The word pass's worked-moment rule, mirrored by the builder** (pp-selectid, 10:00 Nov 15):
+  - The builder's `ledger_build` copies `pipeline/word_pass_worker.passed_ids` (:121-133): every row in word_pass.jsonl counts as worked, except an "acquisition:" failure that matches `BLOCK` (:68) without control_ok, which is retried.
+  - It uses the copy to count moments the word pass refused (worked, with no sentence-ready window) apart from those still waiting.
+  - It cannot import the worker, so tell the builder in the same hour whenever `passed_ids`, `blocked_failure` or `BLOCK` changes.
 - **Medley pin:**
   - Schema `protocol_pulse.pinned_story.v1`, machine_cuts; `segments` = hook first, then >= 1 clip, each with approved_text, transcript_sha256, time_sensitive, source_published_at, speaker, optional trimmed_leading / untrimmed_start.
   - `moments_package`: type 'moments', shape 'medley', edl_vo {intro, bridges [{text, after_clip}]}, title, caption, checks, gates, btc_screen, sources_30s_before, package_sha256 (the builder's `seal()`).
