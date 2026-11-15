@@ -25430,5 +25430,143 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "b059b1a8c139cff0b223:a4aa4e7f97d6affdcb933175fde1b0d6ac96abb68d5316063f18bb431ebb62a9:839f77c6a639cd0b66cad728cabcff1c5247f51f6e67a25a6e90ec9a0b971626:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b059b1a8c139cff0b223",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "banking system accepting Bitcoin as collateral",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this",
+     "refers_to": "Bitcoin as collateral / needing to be collateral layer",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "it having to be collateral layer / the acceptance",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this stuff",
+     "refers_to": "Bitcoin (and similar assets)",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "now (at time of speaking)",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The banking system has now accepted Bitcoin as collateral (as previously discussed), it needs to serve as a collateral layer, and sovereign nation states, wealth funds and others are owning it even though it remains too volatile to be ideal collateral.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Am I too late to buy Bitcoin? \u203a\u203a I don't think so. Because in a digital world, digital stores of value become more transportable, more usable.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "b059b1a8c139cff0b223",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "which",
+     "refers_to": "the banking system's acceptance of Bitcoin as collateral",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker (Raoul Pal)",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this",
+     "refers_to": "Bitcoin being accepted as collateral / becoming a collateral layer",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "It",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "Bitcoin becoming a collateral layer",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "It's",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "all of these people",
+     "refers_to": "sovereign nation states, sovereign wealth funds",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this stuff",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "now",
+     "inside": true
+    },
+    {
+     "text": "back in 2020 and 2021",
+     "inside": true
+    },
+    {
+     "text": "still",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker asserts that the banking system has now accepted Bitcoin as collateral, a hurdle in 2020-2021, that Bitcoin must be a collateral layer, and that while it is still too volatile to be great collateral, sovereign nation states, sovereign wealth funds, and similar entities are owning it.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "video_title=\"Raoul Pal: My Final Warning To Crypto Investors in 2027\"",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

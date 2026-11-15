@@ -1,30 +1,30 @@
 {
- "usd_estimate": 18.006427,
- "calls": 228,
+ "usd_estimate": 18.376457,
+ "calls": 236,
  "by_backend": {
   "xai:grok-4.20-0309-reasoning": {
-   "calls": 102,
-   "in": 200122,
-   "out": 470599,
-   "usd_estimate": 12.765585,
+   "calls": 104,
+   "in": 203436,
+   "out": 480783,
+   "usd_estimate": 13.036755,
    "price_usd_per_1m": [
     5,
     25
    ],
-   "usd_reported": 1.4054148,
-   "reported_calls": 102,
-   "in_reported": 200122
+   "usd_reported": 1.4332701,
+   "reported_calls": 104,
+   "in_reported": 203436
   },
   "elevenlabs_stt:scribe_v1": {
-   "calls": 44,
+   "calls": 45,
    "in": 0,
    "out": 0,
-   "usd_estimate": 0.150658,
+   "usd_estimate": 0.155708,
    "price_usd_per_1m": [
     0.0,
     0.0
    ],
-   "audio_s": 753.29
+   "audio_s": 778.54
   },
   "xai_vision:grok-4.7": {
    "calls": 7,
@@ -40,36 +40,36 @@
    "in_reported": 21554
   },
   "heimdall:qwen/qwen3.8-27b": {
-   "calls": 25,
-   "in": 11070,
-   "out": 20248,
-   "usd_estimate": 0.33693,
+   "calls": 26,
+   "in": 11137,
+   "out": 20278,
+   "usd_estimate": 0.337581,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.01604518,
-   "reported_calls": 25,
-   "in_reported": 11070
+   "usd_reported": 0.01607695,
+   "reported_calls": 26,
+   "in_reported": 11137
   },
   "heimdall:deepseek/deepseek-v4.1-flash": {
-   "calls": 18,
-   "in": 25369,
-   "out": 78853,
-   "usd_estimate": 1.258902,
+   "calls": 20,
+   "in": 26969,
+   "out": 83440,
+   "usd_estimate": 1.332507,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.01622406,
-   "reported_calls": 18,
-   "in_reported": 25369
+   "usd_reported": 0.01717644,
+   "reported_calls": 20,
+   "in_reported": 26969
   },
   "heimdall:z-ai/glm-5.3-flash": {
-   "calls": 32,
+   "calls": 34,
    "in": 30112,
    "out": 105146,
-   "usd_estimate": 1.947057,
+   "usd_estimate": 1.966611,
    "price_usd_per_1m": [
     3,
     15
@@ -81,36 +81,36 @@
  },
  "by_role": {
   "context_verdict": {
-   "calls": 96,
-   "usd_estimate": 11.95494
+   "calls": 99,
+   "usd_estimate": 12.161082
   },
   "transcribe": {
-   "calls": 44,
-   "usd_estimate": 0.150658
+   "calls": 45,
+   "usd_estimate": 0.155708
   },
   "visual_check": {
    "calls": 7,
    "usd_estimate": 1.217366
   },
   "shadow86:context_verdict": {
-   "calls": 14,
-   "usd_estimate": 1.866995
+   "calls": 15,
+   "usd_estimate": 2.019905
   },
   "shadow86:visual_check": {
    "calls": 2,
    "usd_estimate": 0.45151
   },
   "probe87:heimdall:qwen/qwen3.8-27b": {
-   "calls": 8,
-   "usd_estimate": 0.011724
+   "calls": 9,
+   "usd_estimate": 0.012375
   },
   "probe87:heimdall:deepseek/deepseek-v4.1-flash": {
-   "calls": 8,
-   "usd_estimate": 0.058701
+   "calls": 9,
+   "usd_estimate": 0.063288
   },
   "probe87:heimdall:z-ai/glm-5.3-flash": {
-   "calls": 8,
-   "usd_estimate": 0.214221
+   "calls": 9,
+   "usd_estimate": 0.214911
   },
   "angle_write": {
    "calls": 4,
@@ -130,8 +130,8 @@
   }
  },
  "reserved": {},
- "usd_reported": 1.8281536,
- "usd_unreported_estimate": 0.257846,
+ "usd_reported": 1.85699305,
+ "usd_unreported_estimate": 0.265921,
  "restated_b3_meter": {
   "why": "Batch 3's builds 1 and 2 (22:05 and 22:20 ET Nov 14): three calls abandoned at their deadline never reached\nSPEND_B3.json. proof_ly.meter's wrapper refused ruling 107 Q1's `unreported` keyword, so abandon()'s booking raised\nTypeError and on_late never ran. Each is in the deadline log (\"missed_deadline\", written BEFORE the booking). This\nbooks each one now through the Router's own _settle, under its ledger lock, exactly as abandon() would have:\n_settle(None, backend, {\"in\": 0, \"out\": 0}, listed, role, unreported=booked). The logged basis is \"list\", so listed =\nbooked = the logged booked_usd. Then it records \"restated_b3_meter\" in the ledger.",
   "at": "2026-11-15T03:54:52+00:00",

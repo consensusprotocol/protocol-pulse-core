@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-15T19:52:06+00:00",
- "build": "ledger_20261115_195152",
+ "generated_at": "2026-11-15T23:43:54+00:00",
+ "build": "ledger_20261115_234339",
  "kind": "moments",
  "candidates": [
   {
@@ -166,6 +166,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "7bb3c9a78de517193634",
+   "video_id": "VQnZuwxci08",
+   "channel": "Altcoin Daily",
+   "duration": 15.95,
+   "text": "And diving in into crypto, obviously with tokenization on layer ones, the thesis is we're early. Thinking about Bitcoin, am I too late to buy Bitcoin? Again, grab a 15 % first -time deposit bonus only with Exchange Partner BTCC.",
+   "text_sha256": "c876928a400c5a85e703038c743508e335d66e0b8595a51ede94a34e45f7ce92",
+   "trimmed_leading": null
+  },
+  {
    "pid": "2ae4ccf90b547717cc55",
    "video_id": "4eEZCJVl83w",
    "channel": "Simply Bitcoin",
@@ -308,6 +317,15 @@
    "text": "when all this happened and then we see Bitcoin dump, like me and Hurley were talking before we went live. It's like, what's the reason for Bitcoin dumping? Like who's selling coin right now? Are we really dumping because of... you know, Nvidia CEO had an affair.",
    "text_sha256": "5242864c37688cc60bf9565529a79d8fa5b8f7f39a55513e2ae11cfdcce6f13d",
    "trimmed_leading": "But"
+  },
+  {
+   "pid": "7bb3c9a78de517193634~trim",
+   "video_id": "VQnZuwxci08",
+   "channel": "Altcoin Daily",
+   "duration": 15.91,
+   "text": "diving in into crypto, obviously with tokenization on layer ones, the thesis is we're early. Thinking about Bitcoin, am I too late to buy Bitcoin? Again, grab a 15 % first -time deposit bonus only with Exchange Partner BTCC.",
+   "text_sha256": "a874a3cf16152870042e530a7054790b985d34a4b8af5ab47d065653d7b23853",
+   "trimmed_leading": "And"
   },
   {
    "pid": "2ae4ccf90b547717cc55~trim",
@@ -460,6 +478,15 @@
    "duration": 14.36,
    "text": "You have kids in high school now that have never lived without Bitcoin. Bitcoin has always existed. To them, Bitcoin is like, God, it has always existed. It doesn't matter. So you're going to continuously see that. Bitcoin has been successful.",
    "text_sha256": "664a28ff64f13fc77c29fe0628d8ab5236522d4ac00a5caf0cad50c7a1c1faa1",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b059b1a8c139cff0b223",
+   "video_id": "VQnZuwxci08",
+   "channel": "Altcoin Daily",
+   "duration": 19.75,
+   "text": "We know that... The banking system has now accepted Bitcoin as a collateral, which was a big hurdle back in 2020 and 2021. I was talking about this. It has to be collateral layer. We're seeing that. It's still too volatile to be great collateral, but we're seeing sovereign nation states, sovereign wealth funds, all of these people owning this stuff.",
+   "text_sha256": "a4aa4e7f97d6affdcb933175fde1b0d6ac96abb68d5316063f18bb431ebb62a9",
    "trimmed_leading": null
   },
   {
