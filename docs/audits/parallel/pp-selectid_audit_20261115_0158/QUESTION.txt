@@ -1,0 +1,43 @@
+pp-selectid, RULING 111 (orchestrator 01:52 ET Nov 15), THE V4 FORMAT RE-TRY.
+
+THE ORDER: re-run deepseek/deepseek-v4-flash-0731-abliterated on all 319 records of ruling 85.1's replay, with the
+contract enforced the gateway's way: response_format json (json_object, or json_schema if the gateway takes it) and
+reasoning effort none. Try efforts none and medium on a 40-record sample first and keep the better. Keep the raw text
+of every out-of-contract answer (diagnosis only, never a verdict) and report the 3 commonest failure shapes. Give
+ruling 110's table, plus per verdict type the valid-answer rate, the agreement on valid answers and every anchor
+decision Grok passed that it failed, and whether each type now meets the bars of 85/88/96. Heimdall only, cap $0.40,
+no routing change.
+
+THE GATEWAY (probed at 01:5x ET with three tiny calls): for this model it takes response_format json_object,
+response_format json_schema and reasoning_effort (none: 1 s, no reasoning; medium: the reasoning arrives in its own
+field, not in the content). No repair re-ask is needed.
+json_object IS USED, NOT json_schema: the contracts name each prompt's own labels, clip keys, joins and hook ids, so a
+schema would be ours, made per prompt, and could steer the answer. Every contract check stays with the pipeline's own
+parsers (replay85.decide).
+
+THE CHANGE:
+1. tests/package/replay110.py (ruling 110's driver, 45455462 / 397f2760): replay_one gains keep_raw (an
+   out-of-contract answer's text goes into its row as "raw_text"), names (a key -> back-end name map) and prefix
+   (its chain "<prefix>_<key>"); summary gains models. The defaults are ruling 110's behaviour: its 9 tests pass
+   unchanged, and a test in test_replay111 shows its rows carry no raw_text.
+2. tests/package/replay111.py (new):
+   - FormatBackend: providers.HeimdallBackend.complete (UNCHANGED, base pipeline/providers.py:415-434) copied, with
+     response_format {"type": "json_object"} and reasoning_effort added to the body. A test pins that its body equals
+     production's, minus those two fields.
+   - ask_one: replay110.replay_one with this order's stop (STOP_USD $0.38, under the $0.40 cap), keep_raw and the
+     effort's own chain. A test shows that at $0.40 and at $0.38 no call starts.
+   - shape(): empty, code fence, valid JSON with the wrong fields, prose around the JSON, truncated (out tokens at the
+     cap, more { than }, or the error at the very end), invalid JSON.
+   - choose(): the higher valid-answer rate, then the higher agreement on valid answers, then the lower p50.
+   - anchor_failures(): every unit replay85.anchor_units (UNCHANGED) names as an anchor's own decision, where the
+     candidate is "stricter" than Grok.
+   - table(): ruling 110's columns, plus the valid-answer rate, the agreement on valid answers, ruling 110's v4
+     figures beside, the shapes, the anchor failures and replay85.passes per type.
+   - Own ledger SPEND_R111.json, record dir proof/replay111/replies, chains replay111_none / replay111_medium (no cache
+     shared with ruling 110's replies).
+TESTS: tests/package/test_replay111.py (8). 12 of 12 mutations killed.
+
+PLEASE CHECK: (1) that FormatBackend asks exactly what production asks plus the two fields; (2) shape()'s order and
+rules, especially "truncated"; (3) choose()'s rule and its ties; (4) the spend stop under the $0.40 cap; (5) that
+ruling 110's behaviour is unchanged by the defaults; (6) the table's arithmetic (valid-answer rate = in time + late
+over in time + late + out of contract; agreement on valid answers = over every valid answer's units); (7) the tests.

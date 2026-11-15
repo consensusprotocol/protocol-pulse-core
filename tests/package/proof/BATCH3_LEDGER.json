@@ -21,12 +21,12 @@
   "20261115_0054": 0.023475
  },
  "mining": 0.330446,
- "checks_r110": 0.330446,
+ "checks_r110_r111": 0.330446,
  "others": {
-  "integrator": 0.025,
+  "integrator": 0.0373,
   "pp-ingest": 0.0,
   "pp-ingest:audits": 0.0294
  },
- "all_in": 1.301548,
+ "all_in": 1.313848,
  "videos_sealed": 0
 }

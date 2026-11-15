@@ -105,15 +105,18 @@ def _tupled(v):
     return tuple(v) if isinstance(v, list) else v
 
 
-def replay_one(router, job, cap_s=CAP_S, stop_usd=STOP_USD, sleep=time.sleep):
+def replay_one(router, job, cap_s=CAP_S, stop_usd=STOP_USD, sleep=time.sleep, keep_raw=False, names=None,
+               prefix="replay110"):
     """One record asked of one candidate -> its row, None (rate limited or refused by the guard: no row, a re-run asks
-    again; a rate limit first waits 30 s) or "stopped" (the ledger holds stop_usd: no call made)."""
+    again; a rate limit first waits 30 s) or "stopped" (the ledger holds stop_usd: no call made). RULING 111: keep_raw
+    keeps an out-of-contract answer's text in its row ("raw_text": for diagnosis only, never a verdict); names maps a
+    candidate key to its back-end's name (default: name()), and its chain is "<prefix>_<key>"."""
     p, rec, k, anchors, m = job
     if router.spent() >= stop_usd:
         return "stopped"
-    b = router.backends[name(m)]
+    b = router.backends[(names or {}).get(m) or name(m)]
     dl = router.effective_deadline(rec.get("role"), b, None)       # ruling 100: what a live call of this verdict gets
-    row = {"record": os.path.relpath(p, WT), "type": k, "model": m, "model_id": MODELS[m], "anchors": anchors,
+    row = {"record": os.path.relpath(p, WT), "type": k, "model": m, "model_id": b.model, "anchors": anchors,
            "grok_recorded_at": rec.get("recorded_at"), "grok_seconds": rec.get("seconds"), "deadline_100_s": dl,
            "cap_s": cap_s}
     try:
@@ -121,9 +124,9 @@ def replay_one(router, job, cap_s=CAP_S, stop_usd=STOP_USD, sleep=time.sleep):
     except (ValueError, TypeError, KeyError) as e:
         row["grok"], row["grok_error"] = None, f"{type(e).__name__}: {str(e)[:160]}"
     t0 = time.time()
-    router.down.pop(name(m), None)                        # a failure is never a verdict: each call is tried afresh
+    router.down.pop(b.name, None)                         # a failure is never a verdict: each call is tried afresh
     try:
-        rep = router.call(f"replay110_{m}", rec["prompt"], int(rec.get("max_tokens") or 2000),
+        rep = router.call(f"{prefix}_{m}", rec["prompt"], int(rec.get("max_tokens") or 2000),
                           int(rec.get("seed") or 7), system=rec.get("system"), deadline_s=cap_s)
     except P.SpendLimit:
         return None
@@ -149,6 +152,8 @@ def replay_one(router, job, cap_s=CAP_S, stop_usd=STOP_USD, sleep=time.sleep):
     except (ValueError, TypeError, KeyError) as e:
         row.update(heimdall=None, heimdall_error=f"out of contract: {type(e).__name__}: {str(e)[:160]}",
                    outcome="out_of_contract")
+        if keep_raw:                                  # ruling 111 (b): the text as it came, for diagnosis only
+            row["raw_text"] = rep.text
         router.reject(rep)
         return row
     row["outcome"] = "in_time" if dl is None or secs <= dl else "late"
@@ -222,11 +227,11 @@ def _s(x):
     return "-" if x is None else f"{x:.0f}"
 
 
-def summary(rows):
-    """-> {(type, model): figures} over the rows (one per record and model)."""
+def summary(rows, models=MODELS):
+    """-> {(type, model): figures} over the rows (one per record and model), for each key of `models`."""
     out = {}
     for k in R.DECIDING:
-        for m in MODELS:
+        for m in models:
             rs = [r for r in rows if r["type"] == k and r["model"] == m]
             if not rs:
                 continue
