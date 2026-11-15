@@ -6,6 +6,34 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 09:53 TRANSCRIPT INGEST: THE WHISPER PASS RUNS UNDER THE GPU0 LEASE (handoff item 10, Nov 15). Since 11:30 ET Nov 12, every run that needed Whisper died on gpu0.LeaseMissing. Now the pass takes the GPU0 lease once with no wait, unloads Whisper before leaving it, and defers to a render's yield flag (checked before every video) or to any other holder. Audits batch 91, two cycles, no consensus finding. Both regressions green. BATCH 3 integrator spend: $0.0426.
+- **The defect:**
+  - pipeline/transcript_ingest.py (cron */30, unchanged since 2026-11-06) loaded Whisper on GPU0 without the GPU0 lease. Its cron line also sets only CUDA_VISIBLE_DEVICES.
+  - gpu0.require (law L-r) refused every load: "a GPU0 load without the GPU0 lease". It would also have refused on CUDA_DEVICE_ORDER.
+  - 117 failed runs by 08:31 Nov 15; 5 videos waiting on Whisper. Captions were unaffected.
+  - Raised by the builder at 09:01.
+- **The fix:**
+  - gpu0_turn: the yield flag first ("deferred_render_wants_gpu0"), then the lease with wait_s=0 ("deferred_gpu0_busy"), held by an ExitStack for the rest of the pass.
+  - transcript_store.release_whisper is an ExitStack callback, so Whisper is unloaded before the lease goes, on a normal end and on an exception alike.
+  - A deferral marks the video and every later one, and the pass stops. A render waits at most for the video in hand; pulse_check_run exits 75 on a held lease, so the launcher waits (handoff §3 step 2).
+  - main() sets CUDA_DEVICE_ORDER=PCI_BUS_ID. The cron line is unchanged.
+  - Deferred videos are retried by the next run's caption pass (still pending_whisper).
+- **Tests (pipeline/test_transcript_ingest.py, new, 8; every load stub calls the real gpu0.require; the real lease on a private file; a busy lease held by another process):**
+  - On the old code seven fail: five on the real LeaseMissing, the out-of-memory test (no unload), and main (device order None). The production guard passes.
+  - Five mutations each fail a test: waiting 6 s for the lease; no flag check; no unload; a lease per video; no device order.
+- **Checks on the staged merge:**
+  - py_compile.
+  - regression_test.sh: 26 PASS / 0 FAIL / 4 WARN.
+  - pipeline/regression.sh: exit 0, PULSE PREVIEW and PULSE MEDLEY references REPRODUCED.
+  - test_transcript_ingest 8, test_gpu0 45 and test_fresh 27: 80 passed, 1 skipped under the network guard.
+- **Audits (Heimdall-first, ruling 107 (2); Grok not asked: no disagreement on a defect):**
+  - Cycle 1: qwen27b PASS 0.95, no findings. glm PASS 0.90, one low note (if release_whisper raised partway, the lease would go with a model loaded), not agreed (qwen27b disagreed). No change: the exception ends this one-shot process within milliseconds, and on the normal path too the CUDA context outlives the lease only by the summary write and exit (E-FAIL-084's one-shot rule).
+  - Cycle 2 (same diff): qwen27b PASS 0.95, no findings. glm PASS 0.90, three low notes, each "none required", agreed by both as confirmations.
+  - Cost $0.001788 + $0.001255 = $0.003043.
+- **BATCH 3 integrator spend $0.0426:** the earlier $0.0395 plus batch 91's $0.0030.
+- **Not changed:** the cron line; gpu0.py (the decoder sha a4c307f78c94 stands); transcript_store; the caption pass, budget and production deferral.
+- **For the next render:** the transcript ingest's Whisper pass now yields too, after the video in hand. If the lease is held when you launch, wait for it to come free (handoff §3 step 2).
+
 ## 09:34 WORD-PASS WORKER: A BUSY GPU1 LEASE NO LONGER KILLS IT (Nov 15; the worker was down 14 h). A cycle that cannot get the GPU1 lease within LEASE_WAIT_S now ends "blocked", naming the holder. No row is written, so the moments are picked again, and the worker sleeps and retries. Audits batch 90, two cycles, no consensus finding. Both regressions green. BATCH 3 integrator spend: $0.0395.
 - **The incident:**
   - 2026-11-14 18:30 ET: the cycle picked 20 moments and waited the full 1800 s for the GPU1 lease. local_watchdog's 18:00 run (every 6 h) still held it at 18:54, then stage_broadcast_service took it.

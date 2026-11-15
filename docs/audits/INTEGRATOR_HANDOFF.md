@@ -22,7 +22,7 @@ line says PASS path (with the Telegram ids) or HOLD (stage, row, measured facts)
      scratchpad, putting the old file back, and running them.
   3. Run TWO audit cycles and implement the consensus (commands below). Record each cycle in
      `docs/audits/pulse-sentence-law/batchNN_<name>/cycle{1,2}/`: QUESTION.txt, STEP.diff, CONSENSUS.md, heimdall/.
-     The last batch is **90** (the word-pass worker survives a busy GPU1 lease, 2026-11-15; 89 the pp-backtest merge; 88 the review texts name the spotlight kind; 85 the format-aware release, 86 the 16:9-only render, 87 the review drop's withhold / points; 81-83 the spotlight gate, alarm and readiness; 84 ruling 105).
+     The last batch is **91** (the transcript ingest's Whisper pass under the GPU0 lease, 2026-11-15; 90 the word-pass worker survives a busy GPU1 lease; 89 the pp-backtest merge; 88 the review texts name the spotlight kind; 85 the format-aware release, 86 the 16:9-only render, 87 the review drop's withhold / points; 81-83 the spotlight gate, alarm and readiness; 84 ruling 105).
   4. On main, stage it: `git merge --no-commit --no-ff <branch>`.
   5. Run `bash regression_test.sh` (0 FAIL) and `bash pipeline/regression.sh` (exit 0: every protected reference
      reproduced) ON THE STAGED MERGE. Worktrees lack untracked assets, so run them on main.
@@ -131,7 +131,7 @@ No session waits on the orchestrator. Standing, for all three sessions:
 1. **12 h check (rulings 76 / 77).** Every segment's `source_published_at` must be within 12 h of now:
    `python3 -c "import json,sys,datetime as d; p=json.load(open(sys.argv[1])); n=d.datetime.now(d.timezone.utc); print([(s['video_id'], round((n-d.datetime.fromisoformat(s['source_published_at'].replace('Z','+00:00'))).total_seconds()/3600,2)) for s in p['segments']])" <pin>`.
    Any value above 12.0: do not render; tell the builder and log it.
-2. **Yield GPU0:** `touch /tmp/pulse_gpu0.yield`. The pre-check, scorer and judge yield. Wait until `/tmp/pulse_gpu0.lease` is free.
+2. **Yield GPU0:** `touch /tmp/pulse_gpu0.yield`. The pre-check, scorer and judge yield; so does the transcript ingest's Whisper pass, after the video in hand (batch 91). Wait until `/tmp/pulse_gpu0.lease` is free.
 3. **Freeze** a copy: `cp <pin> data/moments_pins/<NAME>.json`.
 4. **Readiness:** `python3 -B scripts/integrator/check_pin_only.py data/moments_pins/<NAME>.json <seal prefix>`.
    - It prints READY or the reason.
@@ -284,7 +284,7 @@ No session waits on the orchestrator. Standing, for all three sessions:
    - the layout stage reusing prepare's classify plan (about 35 s per clip);
    - ruling 49 (b): telling the builder when the first trimmed clip is affirmed at validate.
 
-10. **The transcript-ingest cron's Whisper step** (`pipeline/transcript_ingest.py`, cron */30, unchanged since 2026-11-06) never takes the GPU0 lease, so every run that needs Whisper dies on `LeaseMissing` (since 11:30 Nov 12; 5 videos waiting on Nov 15). Captions still work. A fix must check the render yield flag before each video and take the lease with `wait_s=0` (`pulse_check_run.sh` exits 75 on a held lease), unload before leaving it, and never hold GPU0 against a render. Raised by the builder Nov 15 09:01; queued behind the pins.
+10. **DONE (batch 91, 2026-11-15): the transcript-ingest cron's Whisper pass runs under the GPU0 lease.** `pipeline/transcript_ingest.py` takes the lease once with `wait_s=0`, unloads Whisper before leaving it, and defers the remaining videos to the next run while the render yield flag is up (checked before every video) or another owner holds the lease; `main()` sets `CUDA_DEVICE_ORDER=PCI_BUS_ID` (the cron line is unchanged). From 11:30 Nov 12 every run that needed Whisper had died on `LeaseMissing`. Watch the first runs in `logs/transcript_ingest.log` ("whisper <id> ..." or "Whisper pass stops: deferred_...").
 
 ## 7. KNOWN TRAPS (one line each)
 

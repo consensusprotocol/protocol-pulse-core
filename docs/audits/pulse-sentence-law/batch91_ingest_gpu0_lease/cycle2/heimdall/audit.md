@@ -1,0 +1,53 @@
+# Heimdall audit
+
+**Question:** Batch 91 CYCLE 2 = the integrator's audit of a fix to pipeline/transcript_ingest.py, the editorial transcript ingest. A cron job runs it every 30 minutes as a one-shot process: `*/30 * * * * cd /home/ultron/protocol_pulse && CUDA_VISIBLE_DEVICES=0 /usr/bin/python3 pipeline/transcript_ingest.py --hours 72 --max-whisper-hours 4` (the cron line is unchanged and must stay so). One run = a caption pass over the recent uploads (no GPU), then a Whisper pass on GPU0 for the videos with no usable captions ("pending_whisper"), bounded by an audio budget and skipped while a production render runs (production_running(), :71, unchanged).
+THE DEFECT: the Whisper pass never took GPU0's lease. Law L-r (pipeline/gpu0.py, unchanged) says no lease, no load: every Whisper load goes through transcript_store._load (transcript_store.py:308, unchanged), then gpu0.whisper / swap_to, then gpu0.require (gpu0.py:280, unchanged). require raises gpu0.LeaseMissing (a BaseException) unless CUDA_VISIBLE_DEVICES == '0', CUDA_DEVICE_ORDER == 'PCI_BUS_ID' (CUDA device 0 = nvidia-smi GPU 0) and this process holds the GPU0 lease (gpu0.held(), :190). So since 11:30 ET Nov 12, every run that needed Whisper died at its first Whisper video (117 times). The cron line sets only CUDA_VISIBLE_DEVICES, so even with the lease, require would refuse on the device order.
+GPU0'S OTHER OWNERS (unchanged; the reason for the design):
+- A render: scripts/pulse_check_run.sh:78-82 takes the lease with `flock -n 8` for the whole run and EXITS 75 at once if the lease is held. Its launcher first touches the yield flag (/tmp/pulse_gpu0.yield, local_judge.YIELD_FLAG :41; local_judge.render_wants_gpu0() :83 = os.path.exists(flag)), waits until the lease is free, launches, and then removes the flag.
+- The integrator's scorer, judge and pin pre-check take the lease per batch with wait_s=0, check the flag and yield.
+- gpu0.lease(owner, wait_s=0) (:232): re-entrant within one process; with wait_s=0 it raises gpu0.LeaseBusy at once, naming the holder, if another process holds the lease; released by closing its descriptor when the context exits.
+- transcript_store.release_whisper() (:291) unloads both Whisper models (gpu0.whisper(name).unload()) and frees their memory.
+- Known trap E-FAIL-084: a long-running process keeps a CUDA context after unloading, and other GPU0 users see it as foreign. The ingest is a one-shot process: it writes its summary and exits right after the pass.
+THE CHANGE (the diff):
+(1) gpu0_turn(gpu, held, log) (transcript_ingest.py:76-97) returns None when the pass may load now, else the deferral status. The yield flag comes first ("deferred_render_wants_gpu0"). Then, only if not yet held, the lease is entered into the ExitStack `gpu` with wait_s=0 ("deferred_gpu0_busy" on gpu0.LeaseBusy), and ts.release_whisper is registered as an ExitStack callback, so that on leaving (LIFO) Whisper is unloaded BEFORE the lease is released, on a normal end and on an exception alike.
+(2) ingest() (:122-145): the Whisper loop runs inside `with contextlib.ExitStack() as gpu`. The production and budget deferrals are unchanged and come before any lease. Before each video's Whisper, gpu0_turn is asked: a deferral marks this video and every later pending video with that status and stops the pass (the flag is checked before every video, so a render waits at most for the video in hand). held turns True after the first grant, so the lease is taken once per pass. The summary is still written after the pass.
+(3) main() (:167) sets CUDA_DEVICE_ORDER = 'PCI_BUS_ID' after its CUDA_VISIBLE_DEVICES == '0' check and before any work. Nothing at import loads CUDA: transcript_store, scan and local_judge import only the standard library at module level.
+(4) The docstring's Safety section.
+CYCLE 1 (same diff, b22a5e56..52c80556): qwen27b PASS 0.95, no findings; glm PASS 0.90 with one low note, not agreed (qwen27b disagreed) and not changed: if the unchanged release_whisper raised between its two unloads, the ExitStack would still close the lease with a model loaded. That exception ends this one-shot process at once, so its CUDA memory goes within milliseconds and a foreign-process wait by the next owner ends with it; on the normal path the CUDA context likewise outlives the lease only by the summary write and exit (E-FAIL-084's one-shot rule). Re-examine the same diff independently.
+Deferred videos keep no record: the next run's caption pass returns "pending_whisper" again (no canonical transcript), so they are retried.
+TESTS (pipeline/test_transcript_ingest.py, new, 8): each Whisper load stub calls the REAL gpu0.require; the lease is real, on a private file; a busy lease is held by another process.
+- Whisper loads only under the lease, the lease is free afterwards, and release_whisper ran while the lease was still held.
+- The lease is taken once, with wait_s=0.
+- A lease another owner holds defers all three videos in under 5 s, with no load and no unload.
+- The flag defers the pass before any lease is taken.
+- A flag raised during video 1 stops the pass after it (v2, v3 deferred) and leaves the lease.
+- A GpuOOM inside the pass still unloads, then leaves the lease, then raises.
+- A production run still defers without the lease.
+- main() sets the PCI bus order before ingest() runs.
+On the old code seven fail: five on the real gpu0.LeaseMissing "a GPU0 load without the GPU0 lease", the out-of-memory test (no unload), and main (device order None). The production guard passes. Five mutations each fail a test: waiting 6 s for the lease; no flag check; no unload; a lease per video; no device order.
+FIND, verifying only from the diff and the cited unchanged lines: (a) any path by which a Whisper load happens without this process holding the GPU0 lease, or with CUDA device 0 not being nvidia-smi GPU 0; (b) any way the pass now takes the lease while a render's flag is up, waits for the lease, or keeps GPU0 from a launching render for longer than the video in hand; (c) any path where the lease is left with Whisper still loaded, or stays held after the pass (exceptions included); (d) any change that loses a video: one marked done without a transcript, or one never retried. Reply with the JSON verdict; keep the reasoning short; at most 3 findings, each with file:line and a concrete failure.
+
+**Panel:** qwen27b, glm  |  **Cost:** $0.0013
+## Consensus findings (majority of panel agrees)
+- **[low] pipeline/transcript_ingest.py:91** gpu0_turn imports gpu0 and local_judge inside the function on every call; harmless here (module import happens before any CUDA load and the modules import only stdlib), but the import of gpu0 inside gpu0_turn occurs after the yield-flag check, so if gpu0 were ever importable-fail the flag path would still defer correctly — no defect found on (a)-(d).
+  - evidence: `import gpu0
+import local_judge as LJ
+if LJ.render_wants_gpu0():`
+  - fix: none required
+  - raised by glm:F1; agree: qwen27b, glm
+- **[low] pipeline/transcript_ingest.py:131** On a deferral the loop marks pending[i:] and breaks, but the ExitStack still runs release_whisper then releases the lease even when no Whisper was ever loaded (release_whisper unloads both models, a no-op) — verified benign: the busy-lease test asserts no unload and the flag test asserts no lease taken, and the flag path returns before gpu.enter_context, so the lease is never taken while the flag is up.
+  - evidence: `why = gpu0_turn(gpu, held, log)
+if why: ... break
+held = True`
+  - fix: none required
+  - raised by glm:F2; agree: qwen27b, glm
+- **[low] pipeline/transcript_ingest.py:167** main() sets CUDA_DEVICE_ORDER after the CUDA_VISIBLE_DEVICES check and before os.makedirs/ingest; nothing at module import loads CUDA (transcript_store, scan, local_judge import stdlib only), so gpu0.require's device-order check sees 'PCI_BUS_ID' on every path, including the exception path where the ExitStack unloads then releases the lease.
+  - evidence: `os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # law L-r: CUDA device 0 is nvidia-smi GPU 0`
+  - fix: none required
+  - raised by glm:F3; agree: qwen27b, glm
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none

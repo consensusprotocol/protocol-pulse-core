@@ -8,14 +8,21 @@ transcript_store policy (captions first, Whisper on 429/unavailable). Steady sta
 
 Safety:
   - single instance (flock on data/editorial/state/ingest.lock)
-  - GPU0 only (CUDA_VISIBLE_DEVICES=0); Whisper is skipped (captions-only pass) while a production
-    render/orchestrator is running, unless --allow-during-run
+  - GPU0 only (CUDA_VISIBLE_DEVICES=0, CUDA_DEVICE_ORDER=PCI_BUS_ID set by main()); Whisper is skipped
+    (captions-only pass) while a production render/orchestrator is running, unless --allow-during-run
+  - law L-r (no lease, no load): Whisper loads only while this process holds the GPU0 lease. It is taken
+    once, with no wait, for the rest of the pass, and Whisper is unloaded before it is left. A render
+    comes first: while its yield flag is up (local_judge.YIELD_FLAG) or another owner holds the lease,
+    the remaining videos are deferred to the next run (the flag is checked before every video, so the pass
+    stops after the one in hand). Before this (Nov 12-15) every run that needed Whisper died on
+    gpu0.LeaseMissing.
   - bounded: --hours window and --max-whisper-hours audio budget per invocation
 
 Usage:
   CUDA_VISIBLE_DEVICES=0 python3 pipeline/transcript_ingest.py --hours 72 --max-whisper-hours 80
 """
 import argparse
+import contextlib
 import fcntl
 import json
 import os
@@ -33,6 +40,7 @@ from scan import fetch_rss, parse_iso_datetime  # noqa: E402
 
 CHANNELS_PATH = os.path.join(PIPELINE_DIR, "channels.json")
 PRODUCTION_PATTERNS = ("run_isolated.py", "run_fresh.py", "render16", "render_vertical")
+OWNER = "transcript_ingest Whisper pass (cron, GPU0)"
 
 
 def editorial_channels():
@@ -65,6 +73,25 @@ def production_running():
     return any(p in out for p in PRODUCTION_PATTERNS)
 
 
+def gpu0_turn(gpu, held, log=print):
+    """-> None when this process may load Whisper on GPU0 now, else why not (the deferred videos' status).
+    A render being launched (its yield flag) comes first. The lease is taken with no wait (pulse_check_run exits 75
+    on a held lease, so a render must never find this pass starting) and `gpu` (an ExitStack) keeps it for the rest
+    of the pass; Whisper is unloaded on leaving, before the lease goes (GPU0 left as found)."""
+    import gpu0
+    import local_judge as LJ
+    if LJ.render_wants_gpu0():
+        return "deferred_render_wants_gpu0"
+    if not held:
+        try:
+            gpu.enter_context(gpu0.lease(OWNER, wait_s=0))
+        except gpu0.LeaseBusy as e:
+            log(f"  GPU0 lease busy, the Whisper pass is deferred: {e}")
+            return "deferred_gpu0_busy"
+        gpu.callback(ts.release_whisper)            # LIFO: runs first on leaving, while the lease is still held
+    return None
+
+
 def priority(v):
     c = v["channel"]
     return (0 if c.get("layout_status") == "approved" else 1, c.get("tier", 9), v["age_h"])
@@ -92,22 +119,31 @@ def ingest(hours=72, max_whisper_hours=10.0, allow_during_run=False, log=print):
     whisper_ok = allow_during_run or not production_running()
     budget = max_whisper_hours * 3600
     used = 0.0
-    for v in pending:
-        meta = ts.ensure_meta(v["video_id"], rss=v["rss"], channel=v["channel"])
-        dur = meta.get("duration") or 0
-        if not whisper_ok:
-            summary["status"][v["video_id"]] = "deferred_production_running"
-            continue
-        if used + dur > budget:
-            summary["status"][v["video_id"]] = "deferred_budget"
-            continue
-        t1 = time.time()
-        rec, st = ts.acquire(v["video_id"], rss=v["rss"], channel=v["channel"],
-                             allow_whisper=True, try_captions=False)
-        used += dur
-        summary["status"][v["video_id"]] = st
-        log(f"  whisper {v['video_id']} {v['channel']['display_name']}: {st} "
-            f"({dur / 60:.0f} min audio in {time.time() - t1:.0f}s)")
+    with contextlib.ExitStack() as gpu:                  # law L-r: the GPU0 lease for the Whisper pass
+        held = False
+        for i, v in enumerate(pending):
+            meta = ts.ensure_meta(v["video_id"], rss=v["rss"], channel=v["channel"])
+            dur = meta.get("duration") or 0
+            if not whisper_ok:
+                summary["status"][v["video_id"]] = "deferred_production_running"
+                continue
+            if used + dur > budget:
+                summary["status"][v["video_id"]] = "deferred_budget"
+                continue
+            why = gpu0_turn(gpu, held, log)
+            if why:                                      # this video and every one after it: the next run
+                for w in pending[i:]:
+                    summary["status"][w["video_id"]] = why
+                log(f"  Whisper pass stops: {why} ({len(pending) - i} video(s) deferred)")
+                break
+            held = True
+            t1 = time.time()
+            rec, st = ts.acquire(v["video_id"], rss=v["rss"], channel=v["channel"],
+                                 allow_whisper=True, try_captions=False)
+            used += dur
+            summary["status"][v["video_id"]] = st
+            log(f"  whisper {v['video_id']} {v['channel']['display_name']}: {st} "
+                f"({dur / 60:.0f} min audio in {time.time() - t1:.0f}s)")
     summary.update(ended=ts.now_iso(), seconds=round(time.time() - t0),
                    whisper_audio_hours=round(used / 3600, 2))
     counts = {}
@@ -128,6 +164,8 @@ def main():
     a = ap.parse_args()
     if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":
         sys.exit("CUDA_VISIBLE_DEVICES must be 0")
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"   # law L-r: CUDA device 0 is nvidia-smi GPU 0 (gpu0.require checks
+    #                                                  it; the cron line sets only CUDA_VISIBLE_DEVICES), before any load
     os.makedirs(ts.STATE_DIR, exist_ok=True)
     lock = open(os.path.join(ts.STATE_DIR, "ingest.lock"), "w")
     try:

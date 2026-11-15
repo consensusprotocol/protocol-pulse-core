@@ -1,0 +1,69 @@
+{
+ "question": "Batch 91 = the integrator's audit of a fix to pipeline/transcript_ingest.py, the editorial transcript ingest. A cron job runs it every 30 minutes as a one-shot process: `*/30 * * * * cd /home/ultron/protocol_pulse && CUDA_VISIBLE_DEVICES=0 /usr/bin/python3 pipeline/transcript_ingest.py --hours 72 --max-whisper-hours 4` (the cron line is unchanged and must stay so). One run = a caption pass over the recent uploads (no GPU), then a Whisper pass on GPU0 for the videos with no usable captions (\"pending_whisper\"), bounded by an audio budget and skipped while a production render runs (production_running(), :71, unchanged).\nTHE DEFECT: the Whisper pass never took GPU0's lease. Law L-r (pipeline/gpu0.py, unchanged) says no lease, no load: every Whisper load goes through transcript_store._load (transcript_store.py:308, unchanged), then gpu0.whisper / swap_to, then gpu0.require (gpu0.py:280, unchanged). require raises gpu0.LeaseMissing (a BaseException) unless CUDA_VISIBLE_DEVICES == '0', CUDA_DEVICE_ORDER == 'PCI_BUS_ID' (CUDA device 0 = nvidia-smi GPU 0) and this process holds the GPU0 lease (gpu0.held(), :190). So since 11:30 ET Nov 12, every run that needed Whisper died at its first Whisper video (117 times). The cron line sets only CUDA_VISIBLE_DEVICES, so even with the lease, require would refuse on the device order.\nGPU0'S OTHER OWNERS (unchanged; the reason for the design):\n- A render: scripts/pulse_check_run.sh:78-82 takes the lease with `flock -n 8` for the whole run and EXITS 75 at once if the lease is held. Its launcher first touches the yield flag (/tmp/pulse_gpu0.yield, local_judge.YIELD_FLAG :41; local_judge.render_wants_gpu0() :83 = os.path.exists(flag)), waits until the lease is free, launches, and then removes the flag.\n- The integrator's scorer, judge and pin pre-check take the lease per batch with wait_s=0, check the flag and yield.\n- gpu0.lease(owner, wait_s=0) (:232): re-entrant within one process; with wait_s=0 it raises gpu0.LeaseBusy at once, naming the holder, if another process holds the lease; released by closing its descriptor when the context exits.\n- transcript_store.release_whisper() (:291) unloads both Whisper models (gpu0.whisper(name).unload()) and frees their memory.\n- Known trap E-FAIL-084: a long-running process keeps a CUDA context after unloading, and other GPU0 users see it as foreign. The ingest is a one-shot process: it writes its summary and exits right after the pass.\nTHE CHANGE (the diff):\n(1) gpu0_turn(gpu, held, log) (transcript_ingest.py:76-97) returns None when the pass may load now, else the deferral status. The yield flag comes first (\"deferred_render_wants_gpu0\"). Then, only if not yet held, the lease is entered into the ExitStack `gpu` with wait_s=0 (\"deferred_gpu0_busy\" on gpu0.LeaseBusy), and ts.release_whisper is registered as an ExitStack callback, so that on leaving (LIFO) Whisper is unloaded BEFORE the lease is released, on a normal end and on an exception alike.\n(2) ingest() (:122-145): the Whisper loop runs inside `with contextlib.ExitStack() as gpu`. The production and budget deferrals are unchanged and come before any lease. Before each video's Whisper, gpu0_turn is asked: a deferral marks this video and every later pending video with that status and stops the pass (the flag is checked before every video, so a render waits at most for the video in hand). held turns True after the first grant, so the lease is taken once per pass. The summary is still written after the pass.\n(3) main() (:167) sets CUDA_DEVICE_ORDER = 'PCI_BUS_ID' after its CUDA_VISIBLE_DEVICES == '0' check and before any work. Nothing at import loads CUDA: transcript_store, scan and local_judge import only the standard library at module level.\n(4) The docstring's Safety section.\nDeferred videos keep no record: the next run's caption pass returns \"pending_whisper\" again (no canonical transcript), so they are retried.\nTESTS (pipeline/test_transcript_ingest.py, new, 8): each Whisper load stub calls the REAL gpu0.require; the lease is real, on a private file; a busy lease is held by another process.\n- Whisper loads only under the lease, the lease is free afterwards, and release_whisper ran while the lease was still held.\n- The lease is taken once, with wait_s=0.\n- A lease another owner holds defers all three videos in under 5 s, with no load and no unload.\n- The flag defers the pass before any lease is taken.\n- A flag raised during video 1 stops the pass after it (v2, v3 deferred) and leaves the lease.\n- A GpuOOM inside the pass still unloads, then leaves the lease, then raises.\n- A production run still defers without the lease.\n- main() sets the PCI bus order before ingest() runs.\nOn the old code seven fail: five on the real gpu0.LeaseMissing \"a GPU0 load without the GPU0 lease\", the out-of-memory test (no unload), and main (device order None). The production guard passes. Five mutations each fail a test: waiting 6 s for the lease; no flag check; no unload; a lease per video; no device order.\nFIND, verifying only from the diff and the cited unchanged lines: (a) any path by which a Whisper load happens without this process holding the GPU0 lease, or with CUDA device 0 not being nvidia-smi GPU 0; (b) any way the pass now takes the lease while a render's flag is up, waits for the lease, or keeps GPU0 from a launching render for longer than the video in hand; (c) any path where the lease is left with Whisper still loaded, or stays held after the pass (exceptions included); (d) any change that loses a video: one marked done without a transcript, or one never retried. Reply with the JSON verdict; keep the reasoning short; at most 3 findings, each with file:line and a concrete failure.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 4.4,
+   "cost": 0.0007459189,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 15.5,
+   "cost": 0.000205251,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 8.9,
+   "cost": 0.0006461485,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 7.7,
+   "cost": 0.00019065,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/transcript_ingest.py",
+   "line": 88,
+   "issue": "gpu0_turn imports gpu0 and local_judge inside the function on every call; if a future import of gpu0 at module scope in transcript_store/scan/local_judge were added it would still be fine, but the import inside gpu0_turn happens AFTER the yield-flag check yet BEFORE the lease \u2014 no defect. However, if gpu0.lease succeeds but gpu.callback(ts.release_whisper) placement is after enter_context, an exception between the two (e.g. in enter_context's __exit__ registration) is not possible; the real residual: if ts.release_whisper itself raises during ExitStack unwind, the lease context's __exit__ still runs (ExitStack guarantees), so the lease is released \u2014 but Whisper may remain loaded if release_whisper raises mid-unload of the first model, leaving the second model loaded while the lease is released, a foreign CUDA context for the next GPU0 owner (E-FAIL-084).",
+   "evidence": "gpu.callback(ts.release_whisper)            # LIFO: runs first on leaving, while the lease is still held",
+   "fix": "Wrap release_whisper so a partial unload failure still attempts the second model's unload before the lease exits, or catch/finally inside release_whisper. Confidence 0.55.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0017879684000000002,
+ "out_dir": "heimdall"
+}
