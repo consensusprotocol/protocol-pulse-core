@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-15T15:10:31+00:00",
- "build": "ledger_20261115_151023",
+ "generated_at": "2026-11-15T17:19:25+00:00",
+ "build": "ledger_20261115_171913",
  "kind": "moments",
  "candidates": [
   {
@@ -22,6 +22,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "2da2e90db17b23c6df77",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 18.82,
+   "text": "So Bitcoin at 69K in 2021 is fundamentally different than Bitcoin at 69K in 2026. Yes, it feels worse. But the foundation that has been built. underlying Bitcoin in the view of Bitcoin in the last five years is absolutely incredible.",
+   "text_sha256": "78959ea1804fccbef3317bb05a996f5d7fca63f914e2fcab0b808ceabf56d3d9",
+   "trimmed_leading": null
+  },
+  {
    "pid": "72fdbc8cb467a8e1d002",
    "video_id": "RsPBmLb6tTY",
    "channel": "Bitcoin Magazine",
@@ -40,12 +49,39 @@
    "trimmed_leading": null
   },
   {
+   "pid": "be6019c9d240f698d3d7",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 7.8,
+   "text": "Because $1.4 billion has left the Bitcoin ETFs in five days. And MSCI just announced its kicking strategy out of its indexes.",
+   "text_sha256": "0b1ca9f533b6c6d597b88ba831c32be05f83556104c7780fafaa0aaca0301698",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "506d5bb242d6885c9139",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 19.89,
+   "text": "But like I saw this check on chain piece this morning talking about how a lot of the selling is coming from people who bought, you know, basically were chasing as it was getting close to 80K, like thinking that it was the bottom. And now they're panic selling at a loss. I'm just like, How can you be such a terrible trader that you're going to just panic sell at a loss at a 200 week moving average for Bitcoin?",
+   "text_sha256": "2ac37e0abbf0feaf9b05a5b7b687bfe7c3f0fecbcd1c2364c3de70c82923f93a",
+   "trimmed_leading": null
+  },
+  {
    "pid": "9ca89be49185085e080c",
    "video_id": "vQ3c_lU4NZ4",
    "channel": "Scott Melker",
    "duration": 16.57,
    "text": "So just like very simply, Bitcoin is very modular by design. We can upgrade Bitcoin very quickly. There are dozens and dozens of really good proposals by really good companies phenomenally securing all of our Bitcoin from the quantum's threat.",
    "text_sha256": "27eaf27285b2bbb87b9ccb65b4b078917e8a81ea2eabcdd830cae0c85baa8a57",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "c7ade4f8e692957b5e04",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 6.86,
+   "text": "And of course, for us, as Bitcoiners like, Who really cares? You know, Bitcoin doesn't have a CEO. This is like Tradfai stuff.",
+   "text_sha256": "ebd6648f81dbe8752ea98b817d5aa9aef7eddb517f4648b231f58d1bf0cc34e0",
    "trimmed_leading": null
   },
   {
@@ -94,6 +130,42 @@
    "trimmed_leading": null
   },
   {
+   "pid": "85927a2c49e1bed31faf",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 17.91,
+   "text": "Because there's, there's, they're not going to be buying Bitcoin. Someone, someone higher up realized that it's bad for the US dollar because Bitcoin is. is a better for, you know, it's in competition with the dollar. And if people wake up and realize that it should be, you know, the, the global reserve currency, then they're going to lose out.",
+   "text_sha256": "1615a80b746b113f093535b0c5b11e6e9d1bed429a42c76b42d6ed634428f0f5",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "fa23a16d63ed86805356",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 14.18,
+   "text": "But when all this happened and then we see Bitcoin dump, like me and Hurley were talking before we went live. It's like, what's the reason for Bitcoin dumping? Like who's selling coin right now? Are we really dumping because of... you know, Nvidia CEO had an affair.",
+   "text_sha256": "14ee2eba27341efdd7d48bf53cb37e52c05de38ce6ebea0ddfb065d5167b587e",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "2ae4ccf90b547717cc55",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 6.86,
+   "text": "But this, in my mind, it doesn't explain the price action we're seeing in Bitcoin right now, but it's just a brutal week.",
+   "text_sha256": "be3ce05ffaf1b0bf3f8cc13b8c3bc4490fc5b72d15e0503f915f3f4b5a53d2d2",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "1b0cd0da13ad4938e8e6",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 8.7,
+   "text": "Because there's really nothing going on in Bitcoin right now that explains this dump down to the 200 week moving average. But I'm still holding on.",
+   "text_sha256": "8121f640954ceac18611a386a460044d4af4b4d3850654521ef4eff7b367cfa7",
+   "trimmed_leading": null
+  },
+  {
    "pid": "31c900e6fb02e673c739~trim",
    "video_id": "vQ3c_lU4NZ4",
    "channel": "Scott Melker",
@@ -110,6 +182,15 @@
    "text": "it just creates like a cycle effect because when you sell Bitcoin to someone, they're now buying it at that price at $100,000. So their cost basis is $100,000. It's their floor. So you almost don't want these people to hold Bitcoin. It's a risk.",
    "text_sha256": "c5fa6adf5aaf381ad3467bf9bf372f90a6757b6d9c39f3bcc32d681c0383ef3d",
    "trimmed_leading": "But"
+  },
+  {
+   "pid": "2da2e90db17b23c6df77~trim",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 18.78,
+   "text": "Bitcoin at 69K in 2021 is fundamentally different than Bitcoin at 69K in 2026. Yes, it feels worse. But the foundation that has been built. underlying Bitcoin in the view of Bitcoin in the last five years is absolutely incredible.",
+   "text_sha256": "6f4b789283f9db81aec69a83d421a3e796d2bda8e41bb0e846beb5f16995089f",
+   "trimmed_leading": "So"
   },
   {
    "pid": "72fdbc8cb467a8e1d002~trim",
@@ -130,6 +211,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "506d5bb242d6885c9139~trim",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 19.79,
+   "text": "like I saw this check on chain piece this morning talking about how a lot of the selling is coming from people who bought, you know, basically were chasing as it was getting close to 80K, like thinking that it was the bottom. And now they're panic selling at a loss. I'm just like, How can you be such a terrible trader that you're going to just panic sell at a loss at a 200 week moving average for Bitcoin?",
+   "text_sha256": "ce4d5ccc66d7ea654aef9f3b15cbe3c072dce644002c0c19883dbf2a5715f52b",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "9ca89be49185085e080c~trim",
    "video_id": "vQ3c_lU4NZ4",
    "channel": "Scott Melker",
@@ -137,6 +227,15 @@
    "text": "just like very simply, Bitcoin is very modular by design. We can upgrade Bitcoin very quickly. There are dozens and dozens of really good proposals by really good companies phenomenally securing all of our Bitcoin from the quantum's threat.",
    "text_sha256": "477f3f4a17faf42d2429d68ddc1cac263179900d3221cd82ad6d4637c6b1a8fa",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "c7ade4f8e692957b5e04~trim",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 6.62,
+   "text": "of course, for us, as Bitcoiners like, Who really cares? You know, Bitcoin doesn't have a CEO. This is like Tradfai stuff.",
+   "text_sha256": "e31a51ea83952812761aaeef9d8de238aac14e178ea267b17a801b97b2f56c92",
+   "trimmed_leading": "And"
   },
   {
    "pid": "e755ae519354c2c0f803~trim",
@@ -166,12 +265,39 @@
    "trimmed_leading": "But"
   },
   {
+   "pid": "fa23a16d63ed86805356~trim",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 14.08,
+   "text": "when all this happened and then we see Bitcoin dump, like me and Hurley were talking before we went live. It's like, what's the reason for Bitcoin dumping? Like who's selling coin right now? Are we really dumping because of... you know, Nvidia CEO had an affair.",
+   "text_sha256": "5242864c37688cc60bf9565529a79d8fa5b8f7f39a55513e2ae11cfdcce6f13d",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "2ae4ccf90b547717cc55~trim",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 6.68,
+   "text": "this, in my mind, it doesn't explain the price action we're seeing in Bitcoin right now, but it's just a brutal week.",
+   "text_sha256": "7efc35b92cf6d4e58cdb84c8654611df92fef2e33fcfbee3d5311b865356ba4a",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "e9adac176a461f12aa6a",
    "video_id": "vQ3c_lU4NZ4",
    "channel": "Scott Melker",
    "duration": 14.08,
    "text": "This is Hal Finney. These are cryptographers. How Finney was hanging around. He was messaging me, like, these were brilliant, brilliant people that were saying that Bitcoin has all of the ingredients for fully decentralized money.",
    "text_sha256": "6203e11b50f5e14f7189fccd81dfa1a7ba079233c7f9c31925e0064393cbcd90",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "18d01e94a31cff680a98",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 11.22,
+   "text": "This was always the endgame for them, but Bitcoin was that wrench in the system. It threw itself upon the gears and upon the levers and it said, go fuck yourself.",
+   "text_sha256": "30515b72978342dca19e155bf8f11ebf6f942f88b5981948ab0377655511dff0",
    "trimmed_leading": null
   },
   {
@@ -256,6 +382,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "938f4fc749d01e275554",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 16.23,
+   "text": "I think Bitcoin. It's obviously a little bit more in the background. AI gets all the hype now, but Bitcoin is the most transformative technology for humans, for humanity. Maybe AI is for this capitalist walled garden system of just like making us slaves in the system, right?",
+   "text_sha256": "f73910f2bbd05d15964d370e20830b9ff5ef223025c66ad2085175282e43abc6",
+   "trimmed_leading": null
+  },
+  {
    "pid": "146f64d1a28a0829cdec~trim",
    "video_id": "RsPBmLb6tTY",
    "channel": "Bitcoin Magazine",
@@ -274,6 +409,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "a987bbf699c86bfe4ab0",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 20.06,
+   "text": "The whole point we're in Bitcoin is to expand our purchasing power. Like, that's the whole point. You're either in a system that loses purchasing power or you get into Bitcoin because you want to increase your purchasing power. Yeah. And what a lot of people. I think don't really get, especially from the like Keynesian MMT kind of school is that fundamental.",
+   "text_sha256": "ba1732e24bf7c71e9df6a1c75c4d5f3b76b9629c3625c66bdf6ef2f86bd26fbc",
+   "trimmed_leading": null
+  },
+  {
    "pid": "cf18ef7d885beb491a4c",
    "video_id": "vQ3c_lU4NZ4",
    "channel": "Scott Melker",
@@ -289,6 +433,15 @@
    "duration": 18.29,
    "text": "A license that New York granted in 2018 ended up holding the Bitcoin behind most of America's ETFs. Over the next three years, that business moves under the same federal regulator that charters the country's national banks. And that's a crazy turnaround for a company that was fighting US regulators just a few years ago.",
    "text_sha256": "11cd13c6f3b0067902e4127dbdfece1e3d32268e19e5cfe9ed0dec9fd3811c4c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "7d626648f03282f9c249",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 14.28,
+   "text": "Bitcoin is broken below $70,000. It's bounced off the 200 -week moving average as the fear returns to the bare market bottom levels. And here's the strange part on the very same day. Jensen's weighing walked out of Nvidia. After 33 years?",
+   "text_sha256": "f9dfeb3b7f351c9524c002d380370303e8fcd26c6b0af02c34528a336491ab81",
    "trimmed_leading": null
   },
   {
@@ -319,6 +472,33 @@
    "trimmed_leading": null
   },
   {
+   "pid": "4a7d0ba93e11365dcb9f",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 17.47,
+   "text": "I feel like, Auntie, this goes back. Like, Bitcoin is already won. And we're just watching the movie play out. And it's almost hilarious. Like all this shit. Like, we see these things that have happened with, you know, Congress and baby eating and stuff.",
+   "text_sha256": "3a059c07d20fbd14c1243c791a2f4ae55ed8fb5de4d1c721fe05f3acf7e0bb90",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "854dfc52eee95eb8570c~trim",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 22.64,
+   "text": "I think that's why a lot of people are probably tired right now. Because it has, I mean, even, I think it was our account that posted it. And I think I used it in my show that if you look at, you know, there's always this time in Bitcoin and you can look back the 69K top in 2021. And look where we are. We're at 69K right now. So people can cherry pick that and be like, wow, Bitcoin has not grown at all in five years.",
+   "text_sha256": "bce3767d640965c2c887360db891332fc1783452c833b4aa0d334cc36cc23d60",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "6e72d71c0847271ccd10~trim",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 14.58,
+   "text": "of course, for us, as Bitcoiners like, Who really cares? You know, Bitcoin doesn't have a CEO. This is like Tradfai stuff. But when all this happened and then we see Bitcoin dump, like me and Hurley were talking before we went live. It's like, what's the reason for Bitcoin dumping?",
+   "text_sha256": "927472dbe04506e2764e64ff79de88e91b4ac2e920f2afbc3cc2819bda7847eb",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "43ee168a53c6c5e8c4cb~trim",
    "video_id": "vQ3c_lU4NZ4",
    "channel": "Scott Melker",
@@ -326,6 +506,15 @@
    "text": "in the world today, there isn't anything that's not owned by anyone. Bitcoin is owned by the world. We all own a piece of it. The network is out there. You have millions of, I checked this morning, there's 20,000 plus nodes that we know about, but there's tens of thousands of more, tens of thousands of decentralized miners.",
    "text_sha256": "236c8497dd7c669e4b290a0f9fb03a7dd45777c76367ea9f0f419f42db0d53de",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "33f2b375e803649afe60",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 13.98,
+   "text": "Remember, guys, you know, I know we're on YouTube, but just look up where strategy is headquartered at. Like, it's not too far from another intelligence agency there. So it's not like they aren't aware of what strategy is doing or what Michael Saylor is doing.",
+   "text_sha256": "c2f71f62e1d671dc2517e74e07ae18c83f994cec5c7387aba0b8f38b39a0dcb4",
+   "trimmed_leading": null
   },
   {
    "pid": "26466d15581a9fdb49bc",
@@ -346,6 +535,33 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "c56fe2be4831156da626",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 21.86,
+   "text": "For us, Bitcoiners, we're like, no, all you need to do is just like, chill out, acquire Bitcoin. Yes, the day -to -day fluctuations are going to be brutal. It's not going to be easy, but you don't have to expand at all costs. And if you've been in Bitcoin long enough, you see a lot of Bitcorners that do that same kind of, I need to expand at all costs, and then they blow up.",
+   "text_sha256": "b6ab157b3e9de5801610d6994407e44026f2936945541229cef78204460b5906",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "94183053eede88542f94",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 19.13,
+   "text": "This was always the endgame for them, but Bitcoin was that wrench in the system. It threw itself upon the gears and upon the levers and it said, go fuck yourself. I feel like, offi, this goes back like, Bitcoin is already won, and we're just watching the movie play out.",
+   "text_sha256": "0e01fc12c1b85450196c3464fd1e068729a3899b361de1c00cb3c45247402b71",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5d6901124266ef9e5fa4",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 14.36,
+   "text": "One, yes, institutions are here. Wall Street is interested in Bitcoin, you know, J.P. Morgan, BlackRock, et cetera, et cetera. But there's still a lot of pushback from these institutions. They really don't want to let Bitcoin through the gate. That's... More obvious than ever. Remember, Bitwise did a report on that.",
+   "text_sha256": "883014f56cfa342ed51054927315f111864927469a3d5b6f74b92d3e175bb532",
+   "trimmed_leading": null
+  },
+  {
    "pid": "08a7d1840bc42bf79afe~trim",
    "video_id": "RsPBmLb6tTY",
    "channel": "Bitcoin Magazine",
@@ -353,6 +569,15 @@
    "text": "that means it's treated like a financial instrument. And what do you do with a financial instrument? You collect more and more of it. So the people who are wealthy already in the fiat system and they're early to Bitcoin, they buy as much Bitcoin as they can. And all the plebs who are, let's say, working class, you know, workers or blue collar plumbers, they're buying as much Bitcoin as they can as well.",
    "text_sha256": "d6bf4eacfbc4e34e38902d060b629b33bed258a923c9fb2bc2c5db16dbffa7c6",
    "trimmed_leading": "Now"
+  },
+  {
+   "pid": "b937626a014317b83c1f",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 15.18,
+   "text": "If the number does not go up, then Bitcoin will fail. So clearly that's, you know, no, we're not sitting here being like, you know, a number doesn't, you know, I don't care about number go up. We only care about the morality of not, you know. of a money that can't be debased or whatever. No, but we do need number go up.",
+   "text_sha256": "e427a80328e291d46aabac8b141735fe80954b5649b1fffb7054aa8ce051ba62",
+   "trimmed_leading": null
   },
   {
    "pid": "3419fb21890d4d876735",
@@ -391,6 +616,24 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "41879eab4f358e22d94d",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 23.77,
+   "text": "It not only debases your wealth, it debases your life. It leads you into vice. It leads you into all these things. You're probably living a half life now under a Fiat system. Over the years of inflation, debasement, Bitcoin is a tool to get that back to start to live a more fulfilling life.",
+   "text_sha256": "9e7ac10fb0080d88d2c81dfb41e26594da727b5826c7189797885c78edddd6f5",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "90594345c62743ac3a5f~trim",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 19.51,
+   "text": "we've gotten to this point now where Bitcoin is not really in that conversation. But. As we start to build and attract more of those smart, cool, incredibly talented people into Bitcoin, then Bitcoin becomes the go -to job where people go to chase gains, to chase riches, to have influence.",
+   "text_sha256": "461645f51374c91fc096c5e80dc323b2fdd47c0415bdeee1a5dcc93eeeb384ab",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "adf6d9c528a27963f790",
    "video_id": "vQ3c_lU4NZ4",
    "channel": "Scott Melker",
@@ -427,12 +670,39 @@
    "trimmed_leading": null
   },
   {
+   "pid": "91a79e826b4199899868",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 14.68,
+   "text": "I feel like, I mean, and that's the hope for Bitcoin, I feel like, right? Is that it can unseat the money changers and bring us back to... something that's a little bit more community -based, a little bit more rooted in people and the laws of nature. And you know what I mean?",
+   "text_sha256": "5492ba4a6b0f894e678dbea9145b1e97d8ded7c6f6ce24f15171a61073355dd4",
+   "trimmed_leading": null
+  },
+  {
    "pid": "e5d530258d940a6cd085",
    "video_id": "vQ3c_lU4NZ4",
    "channel": "Scott Melker",
    "duration": 22.32,
    "text": "The supply, I mean, the total amount of Bitcoin on exchanges, if you look at that chart, has just been kind of going down over the years. And so the price just tightens and tightens. The next question you could ask me is, like, will we see crazy bull markets? I don't know, like, going now from 80K to a million seems very doable, but then going from a million to 10 million, 10 million to 100.",
    "text_sha256": "98cee972a20b1eecbd5ccbfa0078928f6b80e3a1dcb2bba70a5ff364c69fc847",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "8ca2ffb3e73b9c43ff7f~trim",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 16.28,
+   "text": "when all this happened and then we see Bitcoin dump, like me and Hurley were talking before we went live. It's like, what's the reason for Bitcoin dumping? Like who's selling coin right now? Are we really dumping because of... you know, Nvidia CEO had an affair. Like, is that the reason for Bitcoin dumping?",
+   "text_sha256": "2c15d0177e82e233a9cefad5aa3481c96575fe866c706ff002627bd190fd4675",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "0b0859f79a1f54ec8663",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 18.06,
+   "text": "In Bitcoin, it's completely different. It's like, look, you want to do stuff to get ahead. But there's also a certain moral aspect of this that you kind of realize, okay, I can't do everything possible to get more sets. Because one, especially since it's such a small community, like your reputation goes a long way.",
+   "text_sha256": "7f1e0e620bec3727ed15ecfea3b8bed7d270929d90aa723d90acfa5136db675b",
    "trimmed_leading": null
   },
   {
@@ -445,12 +715,39 @@
    "trimmed_leading": null
   },
   {
+   "pid": "8d055c2063cfe171a8c3",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 15.16,
+   "text": "You have to do things a methodical certain way in Bitcoin. And really, it's just you view yourself. I have to get my skills up. I have to become a better person so that I can acquire more Bitcoin. I have to provide more value to get more Bitcoin.",
+   "text_sha256": "d79b4a56bca97592ab3f258b83a5137056331d5a6e5701ab7d5a18849b0cd5d7",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b835160dc7806a563279",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 16.34,
+   "text": "We saw Bitcoin gold and silver down really bad on this news. And even though Nvidia was down about like 10, 15 % on the day, we saw S &P 500, NASDAQ and Dow Jones essentially go up. And you're watching this and you're like, wait, this isn't making any sense.",
+   "text_sha256": "172030d61329d150a173031d0e8ddbc395f0d59d0d1d2d9f598fa674b683d30f",
+   "trimmed_leading": null
+  },
+  {
    "pid": "b3c0a2c3e892f7b9af5b",
    "video_id": "vQ3c_lU4NZ4",
    "channel": "Scott Melker",
    "duration": 15.61,
    "text": "I spoke to some guy this morning who basically has three hedge funds based off of him and his brother and two other guys trading Bitcoin out of, like, college five or six years ago. So it became an industry, but you were kind of that first wave. Was it like 20? That was probably 2018 or 19.",
    "text_sha256": "51af302ccb6fd910a4848350a3e9346c7bc6111cbdafcdbcd2b7cae211e24193",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "9b2583bb42a0e280d14d",
+   "video_id": "4eEZCJVl83w",
+   "channel": "Simply Bitcoin",
+   "duration": 20.66,
+   "text": "I think the average numbers are somewhere between like $30 and $50 billion traded a day in Bitcoin. So, you know, yeah, $1 billion is a lot of money. You know, $1.5 billion is a lot of money. You know, for in any context, that's a lot of money. But when you kind of compare that in relation to the daily trading volume, it's, you know, what, you know, 10.",
+   "text_sha256": "0a5c079efd72fcb37e645925d23b8520bde0200b392fedcf33e51278d3f81fa6",
    "trimmed_leading": null
   },
   {

@@ -650,6 +650,52 @@
   },
   "version": "visual-2"
  },
+ "7ef148a1181168cf14a5:0.000-7.000:visual-3:c7926f1ef31c833e": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [],
+  "flags": [],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": false,
+    "text": "BREAKING: Bitcoin falls under $70,000",
+    "why": "The embedded post headline only restates the speaker's own claim that Bitcoin is broken below $70,000, adding no separate allegation."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_666d2618a2cc30a8.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_666d2618a2cc30a8.jpg",
+   "sha256": "666d2618a2cc30a879b43efb4ec5a2a6ead6baa4e6d3bb042cc1991233e41043",
+   "times": [
+    0.0,
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    5.0,
+    6.0,
+    6.95
+   ]
+  },
+  "third_person": {
+   "finding": "Only the speaking host is on screen, alongside a Bitcoin price-chart graphic; no other person appears as a still, photo or graphic, and the negative wording is about Bitcoin's price, not a person.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 2950,
+   "out": 6925,
+   "usd_reported": 0.045722
+  },
+  "version": "visual-3"
+ },
  "82473bb0964f115fbdda:216.054-228.674:visual-1:67a8dd1749c407cd": {
   "backend": "xai_vision:grok-4.7",
   "flags": [],
@@ -1136,6 +1182,69 @@
    "usd_reported": 0.048534
   },
   "version": "visual-2"
+ },
+ "cca27461284b4e2b6569:2563.760-2569.280:visual-3:8b35079fb2d4804a": {
+  "backend": "heimdall:qwen/qwen3.8-27b",
+  "burned_in": [
+   {
+    "at": [
+     2563.76,
+     2564.76,
+     2565.76,
+     2566.76,
+     2567.76,
+     2568.76,
+     2569.23
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "SIMPLY BITCOIN",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "SIMPLY BITCOIN"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_9d03424c861d754e.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_9d03424c861d754e.jpg",
+   "sha256": "9d03424c861d754eaee6edee1d19e5c8dd99c9e7b03ff138ebb8b8fb96f58a7b",
+   "times": [
+    2563.76,
+    2564.76,
+    2565.76,
+    2566.76,
+    2567.76,
+    2568.76,
+    2569.23
+   ]
+  },
+  "third_person": {
+   "finding": "The two inset windows are live video feeds of show participants (not stills, photos or graphics) and no name text appears with them, so no non-speaking person is shown as a still/photo/graphic even th",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 1642,
+   "out": 5324,
+   "usd_reported": 0.0043348
+  },
+  "version": "visual-3"
  },
  "e05b34a672b73f3334ea:3475.260-3494.260:visual-1:e7ce570e2457dcb3": {
   "backend": "xai_vision:grok-4.7",

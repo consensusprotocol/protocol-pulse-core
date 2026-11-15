@@ -1,0 +1,350 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "4bd4f8943a6e72fa94b006a4d1ae91e9454a0dd7404235c878cf34f88a24b02b",
+ "result": {
+  "text": "strategy. So you see, like, and there's a few things going on. One, yes, institutions are here. Wall Street is interested in Bitcoin, you know, JP Morgan, BlackRock, et cetera, et cetera, but there's still a lot of pushback from these institutions. They really don't want to let Bitcoin through the gate. No.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 14.08,
+    "text": "strategy. So you see, like, and there's a few things going on. One, yes, institutions are here. Wall Street is interested in Bitcoin, you know, JP Morgan, BlackRock, et cetera, et cetera, but there's still a lot of pushback from these institutions. They really don't want to let Bitcoin through the gate."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 14.54,
+    "end": 14.58,
+    "text": "No."
+   }
+  ],
+  "words": [
+   {
+    "text": "strategy.",
+    "start": 0.0,
+    "end": 0.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 0.52,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 1.02,
+    "end": 1.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "see,",
+    "start": 1.22,
+    "end": 1.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 1.78,
+    "end": 2.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 2.64,
+    "end": 2.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 2.74,
+    "end": 2.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 2.94,
+    "end": 2.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "few",
+    "start": 3.02,
+    "end": 3.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "things",
+    "start": 3.22,
+    "end": 3.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 3.46,
+    "end": 3.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on.",
+    "start": 3.66,
+    "end": 3.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "One,",
+    "start": 3.86,
+    "end": 4.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yes,",
+    "start": 4.46,
+    "end": 4.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "institutions",
+    "start": 4.78,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 5.34,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here.",
+    "start": 5.44,
+    "end": 5.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Wall",
+    "start": 5.7,
+    "end": 5.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Street",
+    "start": 5.92,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 6.16,
+    "end": 6.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "interested",
+    "start": 6.26,
+    "end": 6.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 6.64,
+    "end": 6.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 6.74,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 7.2,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 7.28,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "JP",
+    "start": 7.42,
+    "end": 7.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Morgan,",
+    "start": 7.72,
+    "end": 8.039,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "BlackRock,",
+    "start": 8.18,
+    "end": 8.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "et",
+    "start": 8.64,
+    "end": 8.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cetera,",
+    "start": 8.78,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "et",
+    "start": 9.0,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cetera,",
+    "start": 9.12,
+    "end": 9.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 9.86,
+    "end": 10.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 10.02,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "still",
+    "start": 10.24,
+    "end": 10.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 10.4,
+    "end": 10.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot",
+    "start": 10.46,
+    "end": 10.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 10.58,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pushback",
+    "start": 10.7,
+    "end": 11.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 11.2,
+    "end": 11.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "these",
+    "start": 11.36,
+    "end": 11.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "institutions.",
+    "start": 11.54,
+    "end": 12.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "They",
+    "start": 12.12,
+    "end": 12.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 12.28,
+    "end": 12.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 12.56,
+    "end": 12.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "want",
+    "start": 12.76,
+    "end": 12.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 12.88,
+    "end": 12.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "let",
+    "start": 12.98,
+    "end": 13.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 13.18,
+    "end": 13.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "through",
+    "start": 13.54,
+    "end": 13.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.7,
+    "end": 13.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gate.",
+    "start": 13.84,
+    "end": 14.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "No.",
+    "start": 14.54,
+    "end": 14.58,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.52
+ },
+ "usd": 0.003104,
+ "seconds": 0.96,
+ "recorded_at": "2026-11-15T17:21:30Z"
+}

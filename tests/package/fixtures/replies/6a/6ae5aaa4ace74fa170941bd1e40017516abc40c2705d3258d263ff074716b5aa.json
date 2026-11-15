@@ -1,0 +1,446 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "57be728e4da14fab3c2644bfd57aec2ce7cf8c05a87a76afa07c017980bd414e",
+ "result": {
+  "text": "Whatever the mechanism would be for them to do that, it would make sense. Remember guys, you know, I know we're on YouTube, but just look up where Strategy is headquartered at. Like, it's not too far- Yes ... from another, uh, intelligence agency there. So it's not like they aren't aware of what Strategy is doing or what Michael Saylor is doing, and it does lead into-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 9.78,
+    "text": "Whatever the mechanism would be for them to do that, it would make sense. Remember guys, you know, I know we're on YouTube, but just look up where Strategy is headquartered at. Like, it's not too far-"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 9.84,
+    "end": 9.86,
+    "text": "Yes"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 9.86,
+    "end": 19.46,
+    "text": "... from another, uh, intelligence agency there. So it's not like they aren't aware of what Strategy is doing or what Michael Saylor is doing, and it does lead into-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Whatever",
+    "start": 0.0,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.26,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mechanism",
+    "start": 0.38,
+    "end": 0.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 0.94,
+    "end": 1.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 1.1,
+    "end": 1.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 1.26,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "them",
+    "start": 1.4,
+    "end": 1.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 1.56,
+    "end": 1.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 1.68,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that,",
+    "start": 1.88,
+    "end": 2.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 2.68,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 2.92,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "make",
+    "start": 3.18,
+    "end": 3.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sense.",
+    "start": 3.48,
+    "end": 3.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Remember",
+    "start": 3.88,
+    "end": 4.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "guys,",
+    "start": 4.42,
+    "end": 4.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.78,
+    "end": 4.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 4.88,
+    "end": 5.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 5.3,
+    "end": 5.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 5.38,
+    "end": 5.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 5.54,
+    "end": 5.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 5.7,
+    "end": 5.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "YouTube,",
+    "start": 5.9,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 6.3,
+    "end": 6.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 6.54,
+    "end": 6.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 6.72,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 6.94,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 7.06,
+    "end": 7.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Strategy",
+    "start": 7.26,
+    "end": 7.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 7.84,
+    "end": 7.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "headquartered",
+    "start": 7.98,
+    "end": 8.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at.",
+    "start": 8.54,
+    "end": 8.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 8.72,
+    "end": 8.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 8.96,
+    "end": 9.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 9.14,
+    "end": 9.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "too",
+    "start": 9.38,
+    "end": 9.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "far-",
+    "start": 9.6,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yes",
+    "start": 9.84,
+    "end": 9.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "...",
+    "start": 9.86,
+    "end": 9.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 9.9,
+    "end": 10.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "another,",
+    "start": 10.06,
+    "end": 10.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 10.92,
+    "end": 11.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "intelligence",
+    "start": 11.12,
+    "end": 11.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "agency",
+    "start": 12.18,
+    "end": 12.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there.",
+    "start": 12.8,
+    "end": 13.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 13.1,
+    "end": 13.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 13.76,
+    "end": 13.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 13.98,
+    "end": 14.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 14.22,
+    "end": 14.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 14.44,
+    "end": 14.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "aren't",
+    "start": 14.76,
+    "end": 14.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "aware",
+    "start": 15.08,
+    "end": 15.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 15.54,
+    "end": 15.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 15.7,
+    "end": 15.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Strategy",
+    "start": 15.96,
+    "end": 16.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 16.46,
+    "end": 16.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "doing",
+    "start": 16.58,
+    "end": 16.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 16.82,
+    "end": 16.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 16.92,
+    "end": 17.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Michael",
+    "start": 17.1,
+    "end": 17.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Saylor",
+    "start": 17.42,
+    "end": 17.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 17.68,
+    "end": 17.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "doing,",
+    "start": 17.82,
+    "end": 18.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 18.58,
+    "end": 18.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 18.8,
+    "end": 18.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "does",
+    "start": 18.9,
+    "end": 19.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lead",
+    "start": 19.12,
+    "end": 19.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into-",
+    "start": 19.32,
+    "end": 19.46,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 19.48
+ },
+ "usd": 0.003896,
+ "seconds": 0.96,
+ "recorded_at": "2026-11-15T17:21:31Z"
+}

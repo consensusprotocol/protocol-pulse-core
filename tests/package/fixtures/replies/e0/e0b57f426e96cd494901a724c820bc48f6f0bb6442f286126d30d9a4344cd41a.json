@@ -1,0 +1,356 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "43c6bdfd03c0e618a4c4f9fc1262e2120aa740fccc9710698145999143c8819c",
+ "result": {
+  "text": "And that's why I think it's-- I mean, people say AI is the most transformative technology right now. I think Bitcoin is, is more. It's obviously a little bit more in the background. AI gets all the hype now, but Bitcoin is the most transformative technology for humans, for humanity. Maybe AI is for this-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.18,
+    "end": 13.92,
+    "text": "And that's why I think it's-- I mean, people say AI is the most transformative technology right now. I think Bitcoin is, is more. It's obviously a little bit more in the background. AI gets all the hype now, but Bitcoin is the most transformative technology for humans, for humanity. Maybe AI is for this-"
+   }
+  ],
+  "words": [
+   {
+    "text": "And",
+    "start": 0.18,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 0.28,
+    "end": 0.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 0.46,
+    "end": 0.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 0.6,
+    "end": 0.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 0.7,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's--",
+    "start": 0.92,
+    "end": 1.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 1.62,
+    "end": 1.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 1.68,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 1.8,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say",
+    "start": 2.0,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI",
+    "start": 2.18,
+    "end": 2.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.46,
+    "end": 2.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.56,
+    "end": 2.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 2.62,
+    "end": 2.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "transformative",
+    "start": 2.8,
+    "end": 3.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "technology",
+    "start": 3.28,
+    "end": 3.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right",
+    "start": 3.7,
+    "end": 3.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now.",
+    "start": 3.82,
+    "end": 3.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 3.96,
+    "end": 4.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 4.019,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.22,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is,",
+    "start": 5.32,
+    "end": 5.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.54,
+    "end": 5.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more.",
+    "start": 5.7,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 6.06,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "obviously",
+    "start": 6.42,
+    "end": 6.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 6.68,
+    "end": 6.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "little",
+    "start": 6.74,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bit",
+    "start": 6.84,
+    "end": 6.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 6.96,
+    "end": 7.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 7.04,
+    "end": 7.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.1,
+    "end": 7.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "background.",
+    "start": 7.2,
+    "end": 7.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI",
+    "start": 7.78,
+    "end": 8.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gets",
+    "start": 8.039,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 8.26,
+    "end": 8.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.4,
+    "end": 8.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hype",
+    "start": 8.5,
+    "end": 8.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now,",
+    "start": 8.74,
+    "end": 8.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 8.96,
+    "end": 9.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 9.18,
+    "end": 9.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 9.5,
+    "end": 9.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.58,
+    "end": 9.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 9.66,
+    "end": 9.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "transformative",
+    "start": 9.84,
+    "end": 10.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "technology",
+    "start": 10.42,
+    "end": 10.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 11.06,
+    "end": 11.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "humans,",
+    "start": 11.3,
+    "end": 11.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 12.0,
+    "end": 12.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "humanity.",
+    "start": 12.12,
+    "end": 12.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Maybe",
+    "start": 12.82,
+    "end": 13.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI",
+    "start": 13.14,
+    "end": 13.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 13.5,
+    "end": 13.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 13.68,
+    "end": 13.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this-",
+    "start": 13.8,
+    "end": 13.92,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 13.99
+ },
+ "usd": 0.002798,
+ "seconds": 0.72,
+ "recorded_at": "2026-11-15T17:21:25Z"
+}

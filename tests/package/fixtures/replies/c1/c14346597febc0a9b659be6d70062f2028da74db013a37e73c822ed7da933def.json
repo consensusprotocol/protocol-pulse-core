@@ -1,0 +1,242 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "ea87a94dee6526d9df02afbefaa807d190505988c928904d495d56c153b19ff1",
+ "result": {
+  "text": "You know, not even that much of a daily trading volume of Bitcoin. I think the average number is somewhere between, like, 30 and $50 billion traded a day in Bitcoin. So, you know, yeah, one-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.08,
+    "end": 10.3,
+    "text": "You know, not even that much of a daily trading volume of Bitcoin. I think the average number is somewhere between, like, 30 and $50 billion traded a day in Bitcoin. So, you know, yeah, one-"
+   }
+  ],
+  "words": [
+   {
+    "text": "You",
+    "start": 0.08,
+    "end": 0.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 0.18,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 0.52,
+    "end": 0.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "even",
+    "start": 0.8,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.06,
+    "end": 1.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "much",
+    "start": 1.28,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 1.54,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.64,
+    "end": 1.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "daily",
+    "start": 1.94,
+    "end": 2.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trading",
+    "start": 2.48,
+    "end": 2.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "volume",
+    "start": 2.94,
+    "end": 3.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 3.4,
+    "end": 3.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 3.54,
+    "end": 3.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 3.96,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 4.059,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.3,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "average",
+    "start": 4.58,
+    "end": 4.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "number",
+    "start": 4.88,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.16,
+    "end": 5.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "somewhere",
+    "start": 5.28,
+    "end": 5.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "between,",
+    "start": 5.52,
+    "end": 5.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 5.8,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "30",
+    "start": 6.18,
+    "end": 6.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 6.52,
+    "end": 6.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$50",
+    "start": 6.68,
+    "end": 6.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 7.04,
+    "end": 7.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "traded",
+    "start": 7.74,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 8.08,
+    "end": 8.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "day",
+    "start": 8.22,
+    "end": 8.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 8.5,
+    "end": 8.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 8.62,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So,",
+    "start": 9.06,
+    "end": 9.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 9.64,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 9.7,
+    "end": 9.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yeah,",
+    "start": 9.96,
+    "end": 10.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one-",
+    "start": 10.18,
+    "end": 10.3,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 10.38
+ },
+ "usd": 0.002076,
+ "seconds": 0.9,
+ "recorded_at": "2026-11-15T17:21:42Z"
+}

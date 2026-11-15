@@ -1,0 +1,278 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "60e0d56000c8675a585c60870e9fc0578fd9cd800192b41e4c9f15d0efba104e",
+ "result": {
+  "text": "go up and, you know, like, miss me with that. We all wanna see it go up. The whole point we're in Bitcoin is to expand our purchasing power. Like, that's the whole point. You're, you're either in a system that l-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.06,
+    "end": 9.44,
+    "text": "go up and, you know, like, miss me with that. We all wanna see it go up. The whole point we're in Bitcoin is to expand our purchasing power. Like, that's the whole point. You're, you're either in a system that l-"
+   }
+  ],
+  "words": [
+   {
+    "text": "go",
+    "start": 0.06,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 0.3,
+    "end": 0.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and,",
+    "start": 0.48,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 0.76,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 0.86,
+    "end": 0.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 1.1,
+    "end": 1.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "miss",
+    "start": 1.36,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me",
+    "start": 1.58,
+    "end": 1.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 1.74,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that.",
+    "start": 2.0,
+    "end": 2.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 2.3,
+    "end": 2.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 2.48,
+    "end": 2.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wanna",
+    "start": 2.68,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "see",
+    "start": 3.0,
+    "end": 3.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 3.14,
+    "end": 3.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 3.26,
+    "end": 3.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up.",
+    "start": 3.5,
+    "end": 3.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 4.0,
+    "end": 4.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whole",
+    "start": 4.12,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "point",
+    "start": 4.32,
+    "end": 4.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 4.56,
+    "end": 4.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 4.7,
+    "end": 4.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.84,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.2,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.34,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "expand",
+    "start": 5.44,
+    "end": 5.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "our",
+    "start": 5.78,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "purchasing",
+    "start": 5.92,
+    "end": 6.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "power.",
+    "start": 6.3,
+    "end": 6.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 6.6,
+    "end": 6.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 7.26,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.5,
+    "end": 7.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whole",
+    "start": 7.6,
+    "end": 7.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "point.",
+    "start": 7.8,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You're,",
+    "start": 8.119,
+    "end": 8.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 8.4,
+    "end": 8.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "either",
+    "start": 8.54,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 8.72,
+    "end": 8.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 8.82,
+    "end": 8.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "system",
+    "start": 8.9,
+    "end": 9.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 9.24,
+    "end": 9.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "l-",
+    "start": 9.42,
+    "end": 9.44,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 9.5
+ },
+ "usd": 0.0019,
+ "seconds": 0.65,
+ "recorded_at": "2026-11-15T17:21:21Z"
+}

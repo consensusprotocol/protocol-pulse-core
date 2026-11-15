@@ -1,0 +1,194 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "0fa523a0ff381f5abecb00f1e08bd3ca83ddf52354d18e1ceb51a52c66e7b873",
+ "result": {
+  "text": "Bitcoin has broken below $70,000. It's bounced off the 200-week moving average as the fear returns to the bear market bottom levels. And here's the strange part",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.08,
+    "end": 6.98,
+    "text": "Bitcoin has broken below $70,000. It's bounced off the 200-week moving average as the fear returns to the bear market bottom levels."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 7.22,
+    "end": 8.48,
+    "text": "And here's the strange part"
+   }
+  ],
+  "words": [
+   {
+    "text": "Bitcoin",
+    "start": 0.08,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 0.38,
+    "end": 0.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "broken",
+    "start": 0.5,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "below",
+    "start": 0.82,
+    "end": 1.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$70,000.",
+    "start": 1.16,
+    "end": 2.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 2.16,
+    "end": 2.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bounced",
+    "start": 2.34,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "off",
+    "start": 2.66,
+    "end": 2.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.78,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "200-week",
+    "start": 3.0,
+    "end": 3.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "moving",
+    "start": 3.4,
+    "end": 3.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "average",
+    "start": 3.72,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 4.24,
+    "end": 4.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.36,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fear",
+    "start": 4.5,
+    "end": 4.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "returns",
+    "start": 4.72,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.56,
+    "end": 5.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.66,
+    "end": 5.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bear",
+    "start": 5.78,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 5.98,
+    "end": 6.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bottom",
+    "start": 6.3,
+    "end": 6.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "levels.",
+    "start": 6.6,
+    "end": 6.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 7.22,
+    "end": 7.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "here's",
+    "start": 7.38,
+    "end": 7.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 7.8,
+    "end": 7.9,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "strange",
+    "start": 8.0,
+    "end": 8.36,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "part",
+    "start": 8.44,
+    "end": 8.48,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 8.5
+ },
+ "usd": 0.0017,
+ "seconds": 0.64,
+ "recorded_at": "2026-11-15T17:21:23Z"
+}

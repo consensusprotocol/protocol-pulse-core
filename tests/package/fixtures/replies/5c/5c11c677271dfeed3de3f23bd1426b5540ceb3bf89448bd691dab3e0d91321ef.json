@@ -1,0 +1,350 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "163d09c6efcbcf8a1a7659cead1a45a4510359859bcd92e47da2b8b2ae886577",
+ "result": {
+  "text": "Nasdaq and Dow Jones and of course Bitcoin, gold, and silver. We saw Bitcoin, gold, and silver down really bad on this news. And even though NVIDIA was down about, like, 10, 15% on the day, we saw S&P 500, Nasdaq, and Dow Jones essentially go up. And you're watching this, and you're like",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 18.42,
+    "text": "Nasdaq and Dow Jones and of course Bitcoin, gold, and silver. We saw Bitcoin, gold, and silver down really bad on this news. And even though NVIDIA was down about, like, 10, 15% on the day, we saw S&P 500, Nasdaq, and Dow Jones essentially go up. And you're watching this, and you're like"
+   }
+  ],
+  "words": [
+   {
+    "text": "Nasdaq",
+    "start": 0.0,
+    "end": 0.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 0.42,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Dow",
+    "start": 0.62,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Jones",
+    "start": 0.94,
+    "end": 1.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.56,
+    "end": 1.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 1.68,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "course",
+    "start": 1.8,
+    "end": 2.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 2.08,
+    "end": 2.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold,",
+    "start": 2.72,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 2.94,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "silver.",
+    "start": 3.18,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 4.1,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saw",
+    "start": 4.34,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 4.82,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold,",
+    "start": 5.36,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 5.58,
+    "end": 5.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "silver",
+    "start": 5.78,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down",
+    "start": 6.26,
+    "end": 6.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 6.84,
+    "end": 7.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bad",
+    "start": 7.18,
+    "end": 7.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 7.46,
+    "end": 7.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 7.58,
+    "end": 7.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "news.",
+    "start": 7.82,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 8.6,
+    "end": 8.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "even",
+    "start": 8.78,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "though",
+    "start": 8.96,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "NVIDIA",
+    "start": 9.16,
+    "end": 9.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 9.58,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down",
+    "start": 9.74,
+    "end": 9.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about,",
+    "start": 9.96,
+    "end": 10.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 10.2,
+    "end": 10.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "10,",
+    "start": 10.44,
+    "end": 10.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "15%",
+    "start": 10.92,
+    "end": 11.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 12.06,
+    "end": 12.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.22,
+    "end": 12.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "day,",
+    "start": 12.4,
+    "end": 12.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 13.1,
+    "end": 13.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saw",
+    "start": 13.24,
+    "end": 13.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "S&P",
+    "start": 13.54,
+    "end": 13.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "500,",
+    "start": 14.02,
+    "end": 14.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Nasdaq,",
+    "start": 14.8,
+    "end": 15.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 15.3,
+    "end": 15.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Dow",
+    "start": 15.44,
+    "end": 15.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Jones",
+    "start": 15.74,
+    "end": 16.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "essentially",
+    "start": 16.059,
+    "end": 16.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 16.5,
+    "end": 16.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up.",
+    "start": 16.78,
+    "end": 16.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 17.28,
+    "end": 17.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 17.38,
+    "end": 17.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "watching",
+    "start": 17.54,
+    "end": 17.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this,",
+    "start": 17.92,
+    "end": 18.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 18.08,
+    "end": 18.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 18.18,
+    "end": 18.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 18.28,
+    "end": 18.42,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 18.46
+ },
+ "usd": 0.003692,
+ "seconds": 1.07,
+ "recorded_at": "2026-11-15T17:21:44Z"
+}
