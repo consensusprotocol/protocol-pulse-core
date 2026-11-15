@@ -370,14 +370,16 @@ class TestReviewDrop(unittest.TestCase):
                       'strategic reserve"', note)
         self.assertIn("- clip 2 (Natalie Brunell): speaker unknown\n  the source names nobody", note)
 
-    def test_ruling_115_2_a_marked_pin_review_never_carries_the_hook_bar_line(self):
-        """Ruling 115 (2)'s line ('hook passed on the calibrated bar') belongs to the release caption: a review text
-        never says 'passed' (_review_forbidden), so a marked pin's review goes out without it, never refused for it."""
+    def test_rulings_115_116_a_marked_pin_review_never_carries_a_bar_line(self):
+        """The calibrated bars' lines ('hook passed on the calibrated bar', ruling 115 (2); 'line-up passed on the
+        calibrated bar', ruling 116) belong to the release caption: a review text never says 'passed'
+        (_review_forbidden), so a marked pin's review goes out without them, never refused for them."""
         self.edl["moments_package_sha256"] = "ab" * 32
         self._write("edl.json", self.edl)
         self._write("PINNED_DECISION.json", {"mode": "pinned", "pin": {"moments_package": {
             "type": "moments", "package_sha256": "ab" * 32,
-            "hook_bar": {"note": "hook passed on the calibrated bar", "ruling": "115"}}}})
+            "hook_bar": {"note": "hook passed on the calibrated bar", "ruling": "115"},
+            "lineup_bar": {"note": "line-up passed on the calibrated bar", "ruling": "116"}}}})
         rec = T.review_drop(self.run, send=self._send)
         self.assertEqual(rec["status"], "complete")
         self.assertEqual([s[0] for s in self.sent], ["video", "video", "message"])

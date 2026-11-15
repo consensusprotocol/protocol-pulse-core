@@ -2,8 +2,9 @@
 readable). Ready = type 'moments'; every required gate of the sealed inventory exactly PASS and not replayed
 (pp-selectid's gate_problems); THEIR seal() recomputed over the pin's own bytes equals package_sha256 (and, when given,
 the digest named on the READY line); main's pinned.validate_schema and the strict pinned.moments_vo accept it; and
-main's edl_rules.takeaway_value (ruling 91's medley half, the live path's own check) passes it before launch; and a
-calibrated hook bar mark (ruling 115 (2)), when the pin carries one, is the one the drop prints (telegram.hook_bar_mark).
+main's edl_rules.takeaway_value (ruling 91's medley half, the live path's own check) passes it before launch; and
+every calibrated bar mark the pin carries (hook_bar, ruling 115 (2); lineup_bar, ruling 116) is one the drop can print
+(telegram.bar_marks).
 Usage: python3 check_pin_only.py PIN.json [expected_sha_prefix]  -> exit 0 ready / 1 not (reason printed)"""
 import importlib.util
 import json
@@ -39,11 +40,11 @@ def main(path, want=None):
         formats = release_auth.package_formats(mp) or list(release_auth.FORMATS)
     except ValueError as e:
         return False, f"formats: {e}"
-    import telegram                                      # ruling 115 (2): the drop prints the calibrated hook bar's
-    try:                                                 # line from this mark; a mark it could not print is refused
-        bar = telegram.hook_bar_mark(mp)                 # here, before a render (the drop would STOP after it)
+    import telegram                                      # rulings 115 (2) / 116: the drop prints one line per calibrated
+    try:                                                 # bar mark; a mark it could not print is refused here, before
+        bars = telegram.bar_marks(mp)                    # a render (the drop would STOP after it)
     except ValueError as e:
-        return False, f"hook_bar: {e}"
+        return False, f"calibrated bar mark: {e}"
     segs = pin["segments"]
     vo = pinned.moments_vo(mp, [{"index": i} for i in range(1, len(segs))], segs)
     view = {"package_type": mp.get("type"), "clips": [{"index": i} for i in range(1, len(segs))], "vo": vo,
@@ -55,7 +56,7 @@ def main(path, want=None):
         return False, why91
     out = [f"READY (pin only) {seal[:16]} title={mp.get('title')!r} intro={str(vo['intro'])[:80]!r} "
            f"bridges after {[b['after_clip'] for b in vo['bridges']]} formats={formats}", f"  {why91}",
-           f"  hook bar (ruling 115 (2)): {bar or 'no mark; the drop prints no hook bar line'}"]
+           f"  calibrated bars (rulings 115 (2) / 116): {'; '.join(bars) or 'no mark; the drop prints no bar line'}"]
     out += [f"  {s['role']:4} {s['channel']} {s['video_id']} {s['start']:.2f}-{s['end']:.2f} ({s['end'] - s['start']:.2f} s)"
             for s in segs]
     return True, "\n".join(out)
