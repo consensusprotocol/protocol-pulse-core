@@ -24925,5 +24925,246 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "2a2c268f79d2fa7cd2f2:7651cbc1bbcaab6e668bea1dc099c420cc5cdf89badfc7dc87ff7932c6a840e3:119af1d26caffef869f4651f73f337906c5cd92e89b8107f6cd30ef8d9761a68:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "2a2c268f79d2fa7cd2f2",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "We",
+     "refers_to": "MicroStrategy (MSTR)",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It",
+     "refers_to": "the company (MSTR)",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MicroStrategy owns about 4.05% of all the Bitcoin that will ever exist and is a company with a market capitalization of about $55 billion.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "afcbef2c94c0da7ca5bc:98a726ddd89daf23123f24760c6ed46676f516900369bb28131245669e32a613:0d95d900649d69b414d65e95a60bacd96fe0ac6e25ac4bbe7e0f4ba2999e4eba:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "afcbef2c94c0da7ca5bc",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "We",
+     "refers_to": "MicroStrategy (MSTR)",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "That",
+     "refers_to": "being like the central bank of the crypto economy",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Their company is like the central bank of the crypto economy, analogous to the Bank of Bitcoin or the Bank of England.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "4f8d376ff65bc36673b8:284961cd81d2fc02fab395a9cad0fe898e4c3bfb5637fcb20b4446aedbefad57:65fcc3bc8bb4542dc9a6cf2e4b831a13f3c7cfa130c78827487f78ac1733e40e:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "4f8d376ff65bc36673b8",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "we",
+     "refers_to": "MicroStrategy / the company (MSTR)",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "This",
+     "refers_to": "the current year (2026)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "This",
+     "refers_to": "the current year (2026)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "this year",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MicroStrategy raised nearly $22 billion this year, which the speaker calls a bad year.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "What is MSTR? We're kind of like the central bank of the crypto economy.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "4d58c0c33c08c1133d9a:b91b3f573d018e89c2a5e6d9d99a6ff69808315803a44ae1ff9facb1b76e2537:74edd27167e5c3069289de230252253c22c71839016405f6a8aaeb6dd2131341:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "4d58c0c33c08c1133d9a",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "We",
+     "refers_to": "MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "being like the central bank of the crypto economy",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "It",
+     "refers_to": "MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MicroStrategy is like the central bank of the crypto economy (Bank of Bitcoin, akin to the Bank of England), owns about 4.05% of all Bitcoin that will ever exist, and is a company with a $55 billion market cap.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "91a77d3fa0ec11aa33ab:b866a8a4ccb569cc964b349837487d2f9569cab7824313dde93d7eaa7d9fd629:174bcb2c2562f44f040ead4764a8e118baa8b356d3a8fd1a17728802caccda25:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "91a77d3fa0ec11aa33ab",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "We",
+     "refers_to": "MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It",
+     "refers_to": "MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "This year",
+     "refers_to": "the year of the video (2026)",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "This",
+     "refers_to": "the current year/situation",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "we're",
+     "refers_to": "MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "this year (in a crypto winter)",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MicroStrategy owns about 4.05% of all the Bitcoin that will ever exist, is a $55 billion market cap company, and raised nearly $22 billion this bad year in crypto winter.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "e6877b65bfc277d63194:a6de97029cd639f3268d34d5692adcb139d7457831daf2c2452aa5ac07e27f62:111c887ac2b2f37304b49b7d42f0dc6ea2e4d74c8f1789ec1473d0b889ca34e8:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "e6877b65bfc277d63194",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "This",
+     "refers_to": "the year of the video/publication (2026)",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "we",
+     "refers_to": "MSTR/MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "the company (MSTR)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "this year",
+     "inside": true
+    },
+    {
+     "text": "in a crypto winter (bad year)",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Despite it being a bad year in crypto winter, MicroStrategy raised nearly $22 billion this year and derives its value primarily from holding $65-70 billion in capital plus its ability to create credit.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

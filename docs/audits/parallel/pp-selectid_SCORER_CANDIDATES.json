@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-15T17:34:14+00:00",
- "build": "ledger_20261115_173403",
+ "generated_at": "2026-11-15T17:47:08+00:00",
+ "build": "ledger_20261115_174656",
  "kind": "moments",
  "candidates": [
   {
@@ -301,6 +301,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "4f8d376ff65bc36673b8",
+   "video_id": "e0dJ1_ClzVo",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 4.56,
+   "text": "This year we raised nearly $22 billion. This is a bad year.",
+   "text_sha256": "284961cd81d2fc02fab395a9cad0fe898e4c3bfb5637fcb20b4446aedbefad57",
+   "trimmed_leading": null
+  },
+  {
    "pid": "3d56ddf376f5cd1945c6",
    "video_id": "RsPBmLb6tTY",
    "channel": "Bitcoin Magazine",
@@ -382,6 +391,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "91a77d3fa0ec11aa33ab",
+   "video_id": "e0dJ1_ClzVo",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 17.06,
+   "text": "We own about 4.05 % of all the Bitcoin that will ever exist. It's about a $55 billion market cap company. This year we raised nearly $22 billion. This is a bad year. You know, we're in a crypto winner, but we've raised nearly $22 billion.",
+   "text_sha256": "b866a8a4ccb569cc964b349837487d2f9569cab7824313dde93d7eaa7d9fd629",
+   "trimmed_leading": null
+  },
+  {
    "pid": "834771d01150bfa69660",
    "video_id": "4eEZCJVl83w",
    "channel": "Simply Bitcoin",
@@ -415,6 +433,15 @@
    "duration": 20.06,
    "text": "The whole point we're in Bitcoin is to expand our purchasing power. Like, that's the whole point. You're either in a system that loses purchasing power or you get into Bitcoin because you want to increase your purchasing power. Yeah. And what a lot of people. I think don't really get, especially from the like Keynesian MMT kind of school is that fundamental.",
    "text_sha256": "ba1732e24bf7c71e9df6a1c75c4d5f3b76b9629c3625c66bdf6ef2f86bd26fbc",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "4d58c0c33c08c1133d9a",
+   "video_id": "e0dJ1_ClzVo",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 14.26,
+   "text": "We're kind of like the central bank of the crypto economy. That's the way, Bank of Bitcoin, Bank of England. We own about 4.05 % of all the Bitcoin that will ever exist. It's about a $55 billion market cap company.",
+   "text_sha256": "b91b3f573d018e89c2a5e6d9d99a6ff69808315803a44ae1ff9facb1b76e2537",
    "trimmed_leading": null
   },
   {
@@ -667,6 +694,15 @@
    "duration": 17.37,
    "text": "Coinbase, every bank looks like Coinbase, but Coinbase did it first. So like Bitcoin has become, and that's one of the values that we're seeing in the future and why you'll see bull markets continue to happen, is that they'll always need to be innovation. And in the world today, there isn't anything that's not owned by anyone.",
    "text_sha256": "9f453a712620c5253935aff23ed56e5d2c3463029e7a0b69529b989d8725219b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e6877b65bfc277d63194",
+   "video_id": "e0dJ1_ClzVo",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 20.79,
+   "text": "This year we raised nearly $22 billion. This is a bad year. You know, we're in a crypto winner, but we've raised nearly $22 billion. Why does the company have value? Well, I mean, the company has value primarily because, A, it holds about $65, $70 billion a capital, but B, it can create credit.",
+   "text_sha256": "a6de97029cd639f3268d34d5692adcb139d7457831daf2c2452aa5ac07e27f62",
    "trimmed_leading": null
   },
   {
