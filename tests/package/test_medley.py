@@ -1921,6 +1921,35 @@ class TestRuling117JoinSearch(unittest.TestCase):
         rig.run()
         self.assertEqual((len(rig.join_calls[0]), rig.join_calls[0][:3]), (8, ["h", "m0", "m1"]))
 
+    def test_the_table_holds_only_moments_that_can_stand_beside_the_hook_a_new_channel_first(self):
+        """The 16:54 replay: never the hook's own video, never a clip-ineligible moment; after the writer's picks, a
+        moment of a channel not yet in the set comes before a second moment of a channel already in it, whatever their
+        rank scores."""
+        ms = [pm("h", "A", 12.0, vid="V1"), pm("x", "B", 14.0), pm("y", "C", 13.0),
+              pm("a2", "A", 13.0, rank=99.0, vid="V1"),                       # the hook's own video: never
+              pm("n", "E", 13.0, rank=99.0, clip=False),                      # not clip-eligible: never
+              pm("b2", "B", 13.0, rank=50.0),                                 # B is in the set already: after...
+              pm("d", "D", 13.0, rank=1.0),                                   # ...the new channel D
+              pm("e1", "E", 13.0, rank=90.0), pm("e2", "E", 13.0, rank=80.0)]   # E: its first new, its second not
+        rig = Rig(ms, ["h", "x", "y"], [(True, [], None, Rig.LINE)], [None], joins={})
+        rig.run()
+        self.assertEqual(rig.join_calls, [["h", "x", "y", "e1", "d", "e2", "b2"]])
+
+    def test_the_writers_own_picks_join_the_table_only_when_they_can_stand_beside_the_hook(self):
+        c = {m["moment_id"]: m for m in [pm("h", "A", 12.0, vid="V1"), pm("w", "A", 13.0, vid="V1"),
+                                         pm("z", "C", 13.0, clip=False), pm("x", "D", 13.0), pm("q", "E", 13.0)]}
+        angle = {"hook": "h", "moments": ["h", "w", "z", "x"]}
+        self.assertEqual(PK.join_moments(angle, c), ["h", "x", "q"])
+        self.assertEqual(PK.join_moments(angle, c, doomed={"x"}), ["h", "q"])            # a doomed moment: never
+
+    def test_a_moment_doomed_in_an_earlier_angle_never_joins_a_later_angles_table(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 14.0), pm("w", "E", 14.0)]
+        rig = Rig(ms, [["h", "x", "y"], ["h", "x", "z", "w"]], [(True, [], None, Rig.LINE)] * 2, [None, None],
+                  excluded={"x"}, joins={})
+        out = rig.run()
+        self.assertIn("'x': 'exclusion'", out["tried"][0]["why"])                     # angle 1 dooms x
+        self.assertEqual(rig.join_calls, [["h", "x", "y", "w", "z"], ["h", "z", "w", "y"]])   # equal ranks: by id
+
     def test_no_table_or_an_empty_one_is_the_build_as_before(self):
         ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
         for joins in (None, {}):

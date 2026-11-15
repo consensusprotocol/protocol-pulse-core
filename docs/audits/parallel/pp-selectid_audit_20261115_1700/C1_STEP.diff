@@ -1,0 +1,81 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 7a058ff..fc9cd76 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -1936,6 +1936,30 @@ def reorder(segs, bad_pairs, judged, repeat_ok=False):
+     return best[1] if best else None
+ 
+ 
++def join_moments(angle, cleared, doomed=frozenset()):
++    """RULING 117 (2): the moments an angle's join table is asked of -> their ids, the hook first: "the moments that
++    can be in a line-up for an angle" (from `cleared`: step A from both vendors, the second pass, CUTTABLE; not
++    doomed), at most JOIN_MOMENTS_MAX. lineup_ok's own rules bound the set: every clip is clip-eligible, and every
++    segment has its own video (one channel per segment, and L-y 4's supply exception still needs a video per segment),
++    so never a moment of the hook's own video. Order: the hook, its writer's other moments, then the rest of the pool by
++    rank score, one moment of each channel not yet in the set first (the 16:54 replay: a rank-only fill spent the
++    table on the hook's own video)."""
++    h = angle["hook"]
++    hv = cleared[h]["video_id"]
++
++    def can(x):
++        m = cleared[x]
++        return x != h and x not in doomed and m["video_id"] != hv and \
++            bool(((m.get("eligibility") or {}).get("clip") or {}).get("ok"))
++    own = [x for x in angle["moments"] if x in cleared and can(x)]
++    chans = {cleared[x]["channel_id"] for x in [h, *own]}
++    first, then = [], []
++    for x in sorted((x for x in cleared if can(x) and x not in own), key=lambda x: (-cleared[x].get("rank_score", 0), x)):
++        (then if cleared[x]["channel_id"] in chans else first).append(x)
++        chans.add(cleared[x]["channel_id"])
++    return ([h] + own + first + then)[:JOIN_MOMENTS_MAX]
++
++
+ def join_table(router, ms, ctx, writer_vendor, writer_family=None, cache=None, seed=7):
+     """RULING 117 (2): the JOIN TABLE. The clips-alone verdict's own join question (JOIN_QUESTION) asked ONCE per ordered
+     pair of `ms` (the angle's hook first, then its other moments; at most JOIN_MOMENTS_MAX; the hook is never B), one
+@@ -3267,12 +3291,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+             dropped, n_lineup, swapped, filled = set(), 0, None, None
+             jt, a_ratings, ext = {}, {}, angle            # RULING 117: this angle's join table; its clips' ratings
+             if candidate is None and angle["hook"] in cleared and angle["hook"] not in doomed:
+-                # the moments that can be in its line-up: its hook, its writer's other moments, then the rest of the
+-                # cleared pool (step A from both vendors, the second pass, CUTTABLE) by rank score; at most 8
+-                own_ = [x for x in angle["moments"] if x != angle["hook"] and x in cleared and x not in doomed]
+-                rest_ = sorted((x for x in cleared if x not in doomed and x != angle["hook"] and x not in own_),
+-                               key=lambda x: (-cleared[x].get("rank_score", 0), x))
+-                jids = ([angle["hook"]] + own_ + rest_)[:JOIN_MOMENTS_MAX]
++                jids = join_moments(angle, cleared, doomed)  # the moments that CAN be in its line-up
+                 ext = dict(angle, moments=jids)           # the search's angle: the writer's order first
+                 jms = [cleared[x] for x in jids]
+                 jt, jt_err = join_table(router, jms, ctx, writers_v, writers_f, cache=join_cache)
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index b00f780..4366178 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -1921,6 +1921,27 @@ class TestRuling117JoinSearch(unittest.TestCase):
+         rig.run()
+         self.assertEqual((len(rig.join_calls[0]), rig.join_calls[0][:3]), (8, ["h", "m0", "m1"]))
+ 
++    def test_the_table_holds_only_moments_that_can_stand_beside_the_hook_a_new_channel_first(self):
++        """The 16:54 replay: never the hook's own video, never a clip-ineligible moment; after the writer's picks, a
++        moment of a channel not yet in the set comes before a second moment of a channel already in it, whatever their
++        rank scores."""
++        ms = [pm("h", "A", 12.0, vid="V1"), pm("x", "B", 14.0), pm("y", "C", 13.0),
++              pm("a2", "A", 13.0, rank=99.0, vid="V1"),                       # the hook's own video: never
++              pm("n", "E", 13.0, rank=99.0, clip=False),                      # not clip-eligible: never
++              pm("b2", "B", 13.0, rank=50.0),                                 # B is in the set already: after...
++              pm("d", "D", 13.0, rank=1.0),                                   # ...the new channel D
++              pm("e1", "E", 13.0, rank=90.0), pm("e2", "E", 13.0, rank=80.0)]   # E: its first new, its second not
++        rig = Rig(ms, ["h", "x", "y"], [(True, [], None, Rig.LINE)], [None], joins={})
++        rig.run()
++        self.assertEqual(rig.join_calls, [["h", "x", "y", "e1", "d", "e2", "b2"]])
++
++    def test_the_writers_own_picks_join_the_table_only_when_they_can_stand_beside_the_hook(self):
++        c = {m["moment_id"]: m for m in [pm("h", "A", 12.0, vid="V1"), pm("w", "A", 13.0, vid="V1"),
++                                         pm("z", "C", 13.0, clip=False), pm("x", "D", 13.0), pm("q", "E", 13.0)]}
++        angle = {"hook": "h", "moments": ["h", "w", "z", "x"]}
++        self.assertEqual(PK.join_moments(angle, c), ["h", "x", "q"])
++        self.assertEqual(PK.join_moments(angle, c, doomed={"x"}), ["h", "q"])            # a doomed moment: never
++
+     def test_no_table_or_an_empty_one_is_the_build_as_before(self):
+         ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+         for joins in (None, {}):

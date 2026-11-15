@@ -1936,6 +1936,30 @@ def reorder(segs, bad_pairs, judged, repeat_ok=False):
     return best[1] if best else None
 
 
+def join_moments(angle, cleared, doomed=frozenset()):
+    """RULING 117 (2): the moments an angle's join table is asked of -> their ids, the hook first: "the moments that
+    can be in a line-up for an angle" (from `cleared`: step A from both vendors, the second pass, CUTTABLE; not
+    doomed), at most JOIN_MOMENTS_MAX. lineup_ok's own rules bound the set: every clip is clip-eligible, and every
+    segment has its own video (one channel per segment, and L-y 4's supply exception still needs a video per segment),
+    so never a moment of the hook's own video. Order: the hook, its writer's other moments, then the rest of the pool by
+    rank score, one moment of each channel not yet in the set first (the 16:54 replay: a rank-only fill spent the
+    table on the hook's own video)."""
+    h = angle["hook"]
+    hv = cleared[h]["video_id"]
+
+    def can(x):
+        m = cleared[x]
+        return x != h and x not in doomed and m["video_id"] != hv and \
+            bool(((m.get("eligibility") or {}).get("clip") or {}).get("ok"))
+    own = [x for x in angle["moments"] if x in cleared and can(x)]
+    chans = {cleared[x]["channel_id"] for x in [h, *own]}
+    first, then = [], []
+    for x in sorted((x for x in cleared if can(x) and x not in own), key=lambda x: (-cleared[x].get("rank_score", 0), x)):
+        (then if cleared[x]["channel_id"] in chans else first).append(x)
+        chans.add(cleared[x]["channel_id"])
+    return ([h] + own + first + then)[:JOIN_MOMENTS_MAX]
+
+
 def join_table(router, ms, ctx, writer_vendor, writer_family=None, cache=None, seed=7):
     """RULING 117 (2): the JOIN TABLE. The clips-alone verdict's own join question (JOIN_QUESTION) asked ONCE per ordered
     pair of `ms` (the angle's hook first, then its other moments; at most JOIN_MOMENTS_MAX; the hook is never B), one
@@ -3267,12 +3291,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
             dropped, n_lineup, swapped, filled = set(), 0, None, None
             jt, a_ratings, ext = {}, {}, angle            # RULING 117: this angle's join table; its clips' ratings
             if candidate is None and angle["hook"] in cleared and angle["hook"] not in doomed:
-                # the moments that can be in its line-up: its hook, its writer's other moments, then the rest of the
-                # cleared pool (step A from both vendors, the second pass, CUTTABLE) by rank score; at most 8
-                own_ = [x for x in angle["moments"] if x != angle["hook"] and x in cleared and x not in doomed]
-                rest_ = sorted((x for x in cleared if x not in doomed and x != angle["hook"] and x not in own_),
-                               key=lambda x: (-cleared[x].get("rank_score", 0), x))
-                jids = ([angle["hook"]] + own_ + rest_)[:JOIN_MOMENTS_MAX]
+                jids = join_moments(angle, cleared, doomed)  # the moments that CAN be in its line-up
                 ext = dict(angle, moments=jids)           # the search's angle: the writer's order first
                 jms = [cleared[x] for x in jids]
                 jt, jt_err = join_table(router, jms, ctx, writers_v, writers_f, cache=join_cache)

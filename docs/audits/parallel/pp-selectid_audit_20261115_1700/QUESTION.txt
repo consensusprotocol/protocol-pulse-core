@@ -1,0 +1,37 @@
+pp-selectid: RULING 117 (orchestrator 16:24 ET Nov 15), THE JOINS: SEARCH, DO NOT LOOSEN; (2)'s set of moments.
+Files: pipeline/package.py (join_moments, NEW; build()'s one call of it), tests/package/test_medley.py.
+
+THE ORDER, verbatim: "(2) BUILD THE JOIN TABLE: for the moments that can be in a line-up for an angle (the hook and the
+clips that passed step A from both vendors, the second pass and CUTTABLE; cap 8 moments an angle), ask ONCE per ordered
+pair ...". The join law does NOT move (one bridge); the full verdicts still decide.
+
+WHY: the landed table (audit 20261115_1632, commit 2d2819c3) filled its 8 moments with the hook, the writer's picks,
+then the cleared pool by rank score. Replayed on today's builds 8-12 (commit bb8a842c), zero of 10 angles reached a
+line-up: 7 of today's 14 cleared moments are of the hooks' own video (one Simply Bitcoin video), and lineup_ok never
+lets two segments share a video, so most of each table was moments that can never stand beside that hook.
+
+THE CHANGE: join_moments(angle, cleared, doomed) -> ids, the hook first. It replaces the inline fill in build() at the
+same call site (pipeline/package.py:3294); the table (join_table), the search and the verdicts are unchanged.
+- A moment is in the set only when it CAN be in a line-up with this hook under lineup_ok's own rules: not the hook,
+  not doomed, NOT of the hook's own video, and clip-eligible (eligibility.clip.ok truthy: lineup_ok's own test).
+- Order: the hook; the writer's other moments (the writer's order, the same filter); then the rest of the cleared
+  pool by rank score (ties by id), one moment of each channel not yet in the set first, then the others in rank
+  order. At most JOIN_MOMENTS_MAX (8).
+
+UNCHANGED GUARDS (not in the diff hunks):
+- lineup_ok, pipeline/package.py:1591-1619: every clip clip-eligible (1602-1603); one segment per channel, or
+  (repeat_ok, L-y 4's supply exception) one channel twice with every segment its own video (1604-1607).
+- search_lineups, pipeline/package.py:2031: the hook is the angle's own hook, always first; every candidate goes
+  through lineup_ok (2057) with LY_MAX_BRIDGES (pipeline/package.py:243, = 1); build() passes it
+  frozenset(dropped | doomed) (3319, 3403), so a doomed or dropped moment never enters a line-up either way.
+- join_table, the join question, JOIN_CACHE, medley() / coherence() and their floors: not touched.
+
+TESTS (test_medley TestRuling117JoinSearch, 15): the build-level fill (a moment of the hook's own video and a
+clip-ineligible moment never join; a new channel's first moment comes before a second moment of a channel already in
+the set, whatever their rank scores; a new channel's second moment counts as a channel already in the set); the
+earlier cap test; join_moments directly (the writer's own picks join only when they can stand beside the hook; a
+doomed moment never). All 40 suite files pass. Mutations after a control run: the fill (K1-K9) and J1-J14.
+
+PLEASE CHECK: (1) that the filter removes ONLY moments lineup_ok could never accept beside this hook, so the search
+loses no line-up it could have found; (2) that the order is as stated and deterministic; (3) that nothing about the
+join law, the table's question, its cache or the verdicts moved; (4) the tests.
