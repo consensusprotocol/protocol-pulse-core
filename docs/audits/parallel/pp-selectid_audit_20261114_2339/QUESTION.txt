@@ -1,0 +1,36 @@
+pp-selectid, RULING 110 (orchestrator 23:32 ET Nov 14), HEIMDALL CANDIDATES: replay ruling 85.1's recorded Grok
+verdicts against two Heimdall models, per verdict type: agreement with the recorded Grok verdict, p50/p90 latency,
+error and missed-deadline counts, ruling 100's deadlines; a table in STATE and proof/. NO routing change (a model moves
+into a verdict type only by a later ruling, at the bars of rulings 85/88/96). Heimdall calls only, no outside spend.
+
+THE MODELS (the gateway's own list, GET /models, 23:3x ET): deepseek/deepseek-v4.1-flash-1017-uncensored (the v4.1 we
+run, uncensored) and deepseek/deepseek-v4-flash-0731-abliterated (the ONLY DeepSeek v4, not 4.1, the gateway lists).
+
+THE CHANGE: one new driver, tests/package/replay110.py, and its test. Nothing else changes (no config file, no
+pipeline code, ruling 85.1's replay85.py untouched). It REUSES, UNCHANGED, ruling 85.1's own code for the method:
+replay85.kind / decide (tests/package/replay85.py:68, :85: an answer -> the pipeline's decision by its own parsers,
+ValueError/TypeError/KeyError = out of contract), compare (:178), grok_self (:343, Grok against Grok, the bar),
+passes (:531, the bars of 85/88/96; MIN_UNITS :528).
+- THE RECORDS: exactly the records behind ruling 85.1's RESULTS.jsonl, once each (319, all readable today; a record
+  that cannot be read, or reads as another type, is set aside and counted).
+- THE CANDIDATES: each a providers.HeimdallBackend made in the driver from the configured
+  heimdall:deepseek/deepseek-v4.1-flash spec with the model id swapped, on its own chain "replay110_<m>".
+- RULING 100: per call, deadline_100 = Router.effective_deadline(<the record's own verdict role>, candidate)
+  (UNCHANGED, pipeline/providers.py:1089-1101, under routing heimdall_first: the pair's deadline-table row, else
+  role_deadline :1076-1087, the gateway's configured 120 s). Today both candidates have no row: 120 s for every
+  type. The call itself is cut at CAP_S = 300 s (ruling 100's ceiling) so its latency is measured: IN TIME if it
+  answered within deadline_100; LATE (a missed deadline in production) if after it and before 300 s; TIMEOUT if no
+  answer by 300 s (the Router's ProviderError, :1410, carries "abandoned at the deadline"); ERROR otherwise; OUT OF
+  CONTRACT if decide() raised. Agreement is given on the in-time answers and on every answer.
+- THE DEADLINE TABLE is read with DT.load(DT.STATE, None) (UNCHANGED, pipeline/deadline_table.py:77-100: with no
+  record dir it is never saved over the production table).
+- SPEND: its own ledger tests/package/proof/SPEND_R110.json (vendor-reported basis), limit $3.00 for the reservations
+  in flight (each holds its list-price upper bound, ~$0.3) with reserve_wait_s 600 (7a2ddf91); NO CALL STARTS once
+  the ledger holds $0.75 (batch 3's mining/checks share is $1.00). A rate limit (HTTP 429) or a guard refusal writes no
+  row (a re-run asks again); its own record dir and deadline log; no breaker or health state is written (the Router
+  gets neither).
+
+PLEASE CHECK: (1) the classification against ruling 100 (in time / late / timeout / error / out of contract) and the
+deadline it reads; (2) that the set is ruling 85.1's and the decisions are its own; (3) the spend stop and the guard;
+(4) anything that could write production state or change routing; (5) the table's arithmetic (p50/p90 over answers
+only; missed = late + timeouts); (6) the tests.

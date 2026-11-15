@@ -489,6 +489,13 @@ then `bash regression_test.sh` (26 PASS, 0 FAIL, 5 WARN).
     spotlight `out` says "(ruling 109)", and look each one's moment id (a snapped span or a trim has its own id) up
     in STEP_A_CACHE.json to tell a first-screen call saved from a cached verdict. Build 2 of batch 3: 49 stopped,
     4 uncached ($0.03 saved at $0.0075 a moment).
+5b. **Ruling 110 (d), PENDING the Heimdall team's 2x deepseek speed-up ("this week", told 23:32 ET Nov 14):** when
+    it lands, re-measure deepseek's p50/p90 and reset the ruling-100 deadlines from the NEW numbers. The daily
+    table (deadline_table.compute) pools EVERY recorded answer, so the old slow ones would dilute a reset:
+    computing from the answers after the change needs a `since` in compute (a code change: audit it). To see it
+    land: compare each build's deepseek answer times (tests/package/fixtures/replies, role context_verdict) with
+    the table's step-A p50 165 s / p90 272 s; and re-run tests/package/replay110.py with a fresh OUT for the
+    same 319 records. No routing change from ruling 110: a candidate enters a verdict type only by a later ruling.
 6. **Ruling 97 is answered** (STATE 01:41): nothing to build unless the orchestrator rules otherwise.
 7. **Done tonight:**
    - rulings 85-88 + 96 (125e7381, audit 0108);

@@ -1,0 +1,5561 @@
+{
+ "ruling": "110 (a), orchestrator 23:32 ET Nov 14",
+ "listed_at_utc": "2026-11-15T04:32:52Z",
+ "how": "GET <the configured Heimdall base_url>/models with the configured key (read by name; neither recorded here)",
+ "picked": {
+  "v4.1 uncensored": "deepseek/deepseek-v4.1-flash-1017-uncensored",
+  "DeepSeek v4 (not 4.1)": "deepseek/deepseek-v4-flash-0731-abliterated (the only v4 listed; an abliterated build, not a plain v4: NOT OBVIOUS, so the full list goes to STATE line 1)"
+ },
+ "count": 21,
+ "models": [
+  {
+   "id": "conpro/gork-27b",
+   "canonical_slug": "conpro/gork-27b",
+   "hugging_face_id": "ConsensusProtocol-Thanos/Gork-27b-Cybersecurity-NVFP4",
+   "name": "Consensus Protocol: Gork 27B",
+   "created": 1794156447,
+   "expiration_date": null,
+   "description": "NVFP4 quantization of Gork-27B-Cybersecurity: 24 GB instead of 54 GB; security and general scores are within 2 points of the BF16 model, and BFCL parallel tool calls are 3\u20134 points higher.",
+   "context_length": 1000000,
+   "architecture": {
+    "modality": "text->text",
+    "input_modalities": [
+     "text"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "apache-2.0",
+   "parameter_count": 19831376928,
+   "weights_dtype": "F8_E4M3",
+   "pricing": {
+    "prompt": "0.0000000465",
+    "completion": "0.00000031",
+    "input_cache_read": "0.000000011625",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 1000000,
+    "max_completion_tokens": 65536,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "frequency_penalty",
+    "max_completion_tokens",
+    "max_tokens",
+    "presence_penalty",
+    "repetition_penalty",
+    "response_format",
+    "seed",
+    "stop",
+    "structured_outputs",
+    "temperature",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_p"
+   ],
+   "parameter_offers": [
+    {
+     "text": {
+      "seed": {
+       "type": "integer"
+      },
+      "stop": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       ]
+      },
+      "tools": {
+       "type": "array",
+       "items": {}
+      },
+      "top_k": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 200
+      },
+      "top_p": {
+       "default": 0.95,
+       "type": "number",
+       "maximum": 1,
+       "exclusiveMinimum": 0
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "temperature": {
+       "default": 0.6,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {},
+      "response_format": {},
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "maximum": 2,
+       "exclusiveMinimum": 0
+      },
+      "structured_outputs": {
+       "type": "boolean"
+      },
+      "max_completion_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      }
+     }
+    }
+   ],
+   "default_parameters": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20
+   },
+   "family": {
+    "id": "conpro/gork-27b",
+    "name": "Consensus Protocol: Gork 27B"
+   },
+   "author": "conpro",
+   "tags": [
+    "cybersecurity",
+    "tools"
+   ],
+   "endpoint_count": 1,
+   "links": {
+    "details": "/api/v1/models/conpro/gork-27b/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "ConsensusProtocol-Thanos/Gork-27b-Cybersecurity-NVFP4",
+    "read_at": 1794261867,
+    "availability": "public",
+    "languages": [
+     "en"
+    ]
+   }
+  },
+  {
+   "id": "deepseek/deepseek-v4.1-flash-1017-uncensored",
+   "canonical_slug": "deepseek/deepseek-v4.1-flash-1017-uncensored",
+   "hugging_face_id": "dealignai/DeepSeek-V4.1-Flash-1017-UNCENSORED-FP8",
+   "name": "DeepSeek: DeepSeek V4.1 Flash 1017 Uncensored (DealignAI)",
+   "created": 1792296691,
+   "expiration_date": null,
+   "description": "Uncensored release \u00b7 Native FP8 (e4m3) + FP4 experts \u00b7 40-layer MoE \u00b7 1M context \u00b7 Vision + video \u00b7 Reasoning tiers \u00b7 Tools",
+   "context_length": 1048576,
+   "architecture": {
+    "modality": "text+image->text",
+    "input_modalities": [
+     "text",
+     "image"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "mit",
+   "parameter_count": 763205315794,
+   "weights_dtype": "I8",
+   "pricing": {
+    "prompt": "0.000000062",
+    "completion": "0.000000186",
+    "input_cache_read": "0.00000000155",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 1048576,
+    "max_completion_tokens": 131072,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "frequency_penalty",
+    "max_tokens",
+    "min_p",
+    "presence_penalty",
+    "reasoning_effort",
+    "repetition_penalty",
+    "response_format",
+    "seed",
+    "stop",
+    "temperature",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_p"
+   ],
+   "parameter_offers": [
+    {
+     "text": {
+      "seed": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 2147483647
+      },
+      "stop": {
+       "type": "array",
+       "items": {}
+      },
+      "min_p": {
+       "default": 0,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "tools": {
+       "type": "boolean"
+      },
+      "top_k": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 200
+      },
+      "top_p": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 131072
+      },
+      "temperature": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {},
+      "response_format": {},
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "default": "low",
+       "type": "string",
+       "enum": [
+        "low",
+        "high",
+        "xhigh",
+        "max"
+       ]
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      }
+     }
+    }
+   ],
+   "reasoning": {
+    "supported_efforts": [
+     "max",
+     "xhigh",
+     "high",
+     "low"
+    ],
+    "default_effort": "low",
+    "default_enabled": true
+   },
+   "default_parameters": {},
+   "family": {
+    "id": "deepseek/deepseek-v4.1-flash-1017",
+    "name": "DeepSeek: DeepSeek V4.1 Flash 1017"
+   },
+   "author": "deepseek",
+   "tags": [
+    "reasoning",
+    "tools"
+   ],
+   "endpoint_count": 1,
+   "links": {
+    "details": "/api/v1/models/deepseek/deepseek-v4.1-flash-1017-uncensored/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "dealignai/DeepSeek-V4.1-Flash-1017-UNCENSORED-FP8",
+    "read_at": 1794150717,
+    "availability": "public",
+    "languages": [
+     "en",
+     "zh",
+     "es",
+     "fr",
+     "ru",
+     "it",
+     "th"
+    ],
+    "weights_revision": "c19ca5ca4eaeb79d29fdf08aea8327da95b1116a",
+    "weights_updated_at": 1792327529,
+    "downloads": 15915,
+    "likes": 590
+   }
+  },
+  {
+   "id": "minimax/minimax-m3.1-flash",
+   "canonical_slug": "minimax/minimax-m3.1-flash",
+   "hugging_face_id": "MiniMaxAI/MiniMax-M3.1-Flash",
+   "name": "MiniMax: MiniMax M3.1 Flash",
+   "created": 1792219070,
+   "expiration_date": null,
+   "description": "MiniMax M3.1 Flash with NVFP4 expert and MXFP8 linear weights supports text, image and video input, reasoning, tool calling and structured JSON output. Each request has a 1,048,576-token context limit with at most 65,536 output tokens. Built with MiniMax M3.1-Flash.",
+   "context_length": 1048576,
+   "architecture": {
+    "modality": "text+image+video->text",
+    "input_modalities": [
+     "text",
+     "image",
+     "video"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "minimax-community",
+   "parameter_count": 220490854016,
+   "weights_dtype": "U8",
+   "pricing": {
+    "prompt": "0.0000000465",
+    "completion": "0.000000186",
+    "input_cache_read": "0.0000000093",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 1048576,
+    "max_completion_tokens": 65536,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "allowed_token_ids",
+    "cache_salt",
+    "frequency_penalty",
+    "ignore_eos",
+    "include_stop_str_in_output",
+    "logprobs",
+    "max_completion_tokens",
+    "max_tokens",
+    "min_tokens",
+    "n",
+    "parallel_tool_calls",
+    "presence_penalty",
+    "reasoning",
+    "reasoning_effort",
+    "repetition_penalty",
+    "response_format",
+    "return_tokens_as_token_ids",
+    "seed",
+    "stop",
+    "stop_token_ids",
+    "structured_outputs",
+    "temperature",
+    "tool_call_dispatch",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_logprobs",
+    "top_p"
+   ],
+   "parameter_offers": [
+    {
+     "text": {
+      "n": {
+       "default": 1,
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 1
+      },
+      "seed": {
+       "type": "integer"
+      },
+      "stop": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "array",
+         "items": {
+          "type": "string"
+         },
+         "maxItems": 4
+        }
+       ]
+      },
+      "tools": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "properties": {
+         "type": {
+          "type": "string",
+          "enum": [
+           "function"
+          ]
+         },
+         "function": {
+          "type": "object",
+          "properties": {
+           "name": {
+            "type": "string"
+           },
+           "strict": {
+            "type": "boolean"
+           },
+           "parameters": {},
+           "description": {
+            "type": "string"
+           }
+          }
+         }
+        }
+       },
+       "maxItems": 1536
+      },
+      "top_k": {
+       "type": "integer",
+       "minimum": -1,
+       "maximum": 2147483647
+      },
+      "top_p": {
+       "type": "number",
+       "maximum": 1,
+       "exclusiveMinimum": 0
+      },
+      "logprobs": {
+       "default": false,
+       "type": "boolean"
+      },
+      "reasoning": {
+       "type": "object",
+       "properties": {
+        "effort": {
+         "type": "string",
+         "enum": [
+          "minimal",
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+         ]
+        }
+       }
+      },
+      "cache_salt": {
+       "type": "string"
+      },
+      "ignore_eos": {
+       "default": false,
+       "type": "boolean"
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "min_tokens": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 65536
+      },
+      "temperature": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {
+       "anyOf": [
+        {
+         "type": "string",
+         "enum": [
+          "none",
+          "auto",
+          "required"
+         ]
+        },
+        {
+         "type": "object",
+         "properties": {
+          "type": {
+           "type": "string",
+           "enum": [
+            "function"
+           ]
+          },
+          "function": {
+           "type": "object",
+           "properties": {
+            "name": {
+             "type": "string"
+            }
+           }
+          }
+         }
+        }
+       ]
+      },
+      "top_logprobs": {
+       "x-heimdall-requires": {
+        "logprobs": true
+       },
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 20
+      },
+      "stop_token_ids": {
+       "type": "array",
+       "items": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "response_format": {
+       "type": "object",
+       "properties": {
+        "type": {
+         "type": "string",
+         "enum": [
+          "text",
+          "json_object",
+          "json_schema"
+         ]
+        },
+        "json_schema": {
+         "type": "object",
+         "properties": {
+          "name": {
+           "type": "string"
+          },
+          "schema": {},
+          "strict": {
+           "type": "boolean"
+          },
+          "description": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      },
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "default": "medium",
+       "type": "string",
+       "enum": [
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+       ]
+      },
+      "allowed_token_ids": {
+       "type": "array",
+       "items": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "maximum": 2,
+       "exclusiveMinimum": 0
+      },
+      "structured_outputs": {
+       "type": "boolean"
+      },
+      "tool_call_dispatch": {
+       "type": "boolean"
+      },
+      "parallel_tool_calls": {
+       "default": true,
+       "type": "boolean"
+      },
+      "max_completion_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "include_stop_str_in_output": {
+       "default": false,
+       "type": "boolean"
+      },
+      "return_tokens_as_token_ids": {
+       "default": false,
+       "x-heimdall-requires": {
+        "logprobs": true
+       },
+       "type": "boolean"
+      }
+     }
+    }
+   ],
+   "reasoning": {
+    "supported_efforts": [
+     "xhigh",
+     "high",
+     "medium",
+     "low",
+     "minimal"
+    ]
+   },
+   "default_parameters": {
+    "temperature": 1,
+    "top_p": 0.95
+   },
+   "family": {
+    "id": "minimax/minimax-m3.1-flash",
+    "name": "MiniMax: MiniMax M3.1 Flash"
+   },
+   "author": "minimax",
+   "tags": [
+    "moe",
+    "reasoning",
+    "tools",
+    "vision"
+   ],
+   "endpoint_count": 1,
+   "links": {
+    "details": "/api/v1/models/minimax/minimax-m3.1-flash/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "MiniMaxAI/MiniMax-M3.1-Flash",
+    "read_at": 1794153777,
+    "availability": "public",
+    "papers": [
+     "2606.13392"
+    ],
+    "weights_revision": "ce7f4df87d2e05262f5775f373dac4772f134041",
+    "weights_updated_at": 1793840130,
+    "downloads": 51155,
+    "likes": 564
+   }
+  },
+  {
+   "id": "nvidia/nemotron-3.5-super-vl",
+   "canonical_slug": "nvidia/nemotron-3.5-super-vl",
+   "hugging_face_id": "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-NVFP4",
+   "name": "NVIDIA: Nemotron 3.5 Super VL",
+   "created": 1791819126,
+   "expiration_date": null,
+   "description": "NVIDIA's Nemotron 3.5 Super VL (120B total, 12B active parameters) with NVFP4 expert weights supports text, image and video input (one image and one video per request), reasoning, tool calling and structured JSON output. Each request has a 1,048,576-token context limit with at most 65,536 output tokens.",
+   "context_length": 1048576,
+   "architecture": {
+    "modality": "text+image+video->text",
+    "input_modalities": [
+     "text",
+     "image",
+     "video"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "openmdw-1.1",
+   "parameter_count": 65769840138,
+   "weights_dtype": "U8",
+   "pricing": {
+    "prompt": "0.0000000465",
+    "completion": "0.000000155",
+    "input_cache_read": "0.0000000062",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 1048576,
+    "max_completion_tokens": 65536,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "allowed_token_ids",
+    "cache_salt",
+    "chat_template_kwargs",
+    "frequency_penalty",
+    "guided_choice",
+    "guided_grammar",
+    "guided_json",
+    "guided_regex",
+    "ignore_eos",
+    "include_stop_str_in_output",
+    "logprobs",
+    "max_completion_tokens",
+    "max_tokens",
+    "min_tokens",
+    "n",
+    "parallel_tool_calls",
+    "presence_penalty",
+    "reasoning",
+    "reasoning_effort",
+    "repetition_penalty",
+    "response_format",
+    "return_tokens_as_token_ids",
+    "seed",
+    "stop",
+    "stop_token_ids",
+    "structured_outputs",
+    "temperature",
+    "thinking",
+    "tool_call_dispatch",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_logprobs",
+    "top_p"
+   ],
+   "parameter_offers": [
+    {
+     "text": {
+      "n": {
+       "default": 1,
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 1
+      },
+      "seed": {
+       "type": "integer"
+      },
+      "stop": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "array",
+         "items": {
+          "type": "string"
+         },
+         "maxItems": 4
+        }
+       ]
+      },
+      "tools": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "properties": {
+         "type": {
+          "type": "string",
+          "enum": [
+           "function"
+          ]
+         },
+         "function": {
+          "type": "object",
+          "properties": {
+           "name": {
+            "type": "string"
+           },
+           "strict": {
+            "type": "boolean"
+           },
+           "parameters": {},
+           "description": {
+            "type": "string"
+           }
+          }
+         }
+        }
+       },
+       "maxItems": 1536
+      },
+      "top_k": {
+       "type": "integer",
+       "minimum": -1,
+       "maximum": 2147483647
+      },
+      "top_p": {
+       "type": "number",
+       "maximum": 1,
+       "exclusiveMinimum": 0
+      },
+      "logprobs": {
+       "default": false,
+       "type": "boolean"
+      },
+      "thinking": {
+       "type": "object",
+       "properties": {
+        "type": {
+         "type": "string",
+         "enum": [
+          "disabled"
+         ]
+        }
+       }
+      },
+      "reasoning": {
+       "type": "object",
+       "properties": {
+        "effort": {
+         "type": "string",
+         "enum": [
+          "none",
+          "minimal",
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+         ]
+        }
+       }
+      },
+      "cache_salt": {
+       "type": "string"
+      },
+      "ignore_eos": {
+       "default": false,
+       "type": "boolean"
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "min_tokens": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 65536
+      },
+      "guided_json": {},
+      "temperature": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {
+       "anyOf": [
+        {
+         "type": "string",
+         "enum": [
+          "none",
+          "auto",
+          "required"
+         ]
+        },
+        {
+         "type": "object",
+         "properties": {
+          "type": {
+           "type": "string",
+           "enum": [
+            "function"
+           ]
+          },
+          "function": {
+           "type": "object",
+           "properties": {
+            "name": {
+             "type": "string"
+            }
+           }
+          }
+         }
+        }
+       ]
+      },
+      "guided_regex": {
+       "type": "string"
+      },
+      "top_logprobs": {
+       "x-heimdall-requires": {
+        "logprobs": true
+       },
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 20
+      },
+      "guided_choice": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "guided_grammar": {
+       "type": "string"
+      },
+      "stop_token_ids": {
+       "type": "array",
+       "items": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "response_format": {
+       "type": "object",
+       "properties": {
+        "type": {
+         "type": "string",
+         "enum": [
+          "text",
+          "json_object",
+          "json_schema"
+         ]
+        },
+        "json_schema": {
+         "type": "object",
+         "properties": {
+          "name": {
+           "type": "string"
+          },
+          "schema": {},
+          "strict": {
+           "type": "boolean"
+          },
+          "description": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      },
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "default": "medium",
+       "type": "string",
+       "enum": [
+        "none",
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+       ]
+      },
+      "allowed_token_ids": {
+       "type": "array",
+       "items": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "maximum": 2,
+       "exclusiveMinimum": 0
+      },
+      "structured_outputs": {
+       "type": "boolean"
+      },
+      "tool_call_dispatch": {
+       "type": "boolean"
+      },
+      "parallel_tool_calls": {
+       "default": true,
+       "type": "boolean"
+      },
+      "chat_template_kwargs": {
+       "type": "object",
+       "properties": {
+        "enable_thinking": {
+         "default": true,
+         "type": "boolean"
+        }
+       }
+      },
+      "max_completion_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "include_stop_str_in_output": {
+       "default": false,
+       "type": "boolean"
+      },
+      "return_tokens_as_token_ids": {
+       "default": false,
+       "x-heimdall-requires": {
+        "logprobs": true
+       },
+       "type": "boolean"
+      }
+     }
+    }
+   ],
+   "reasoning": {
+    "supported_efforts": [
+     "xhigh",
+     "high",
+     "medium",
+     "low",
+     "minimal",
+     "none"
+    ],
+    "mandatory": false
+   },
+   "default_parameters": {
+    "temperature": 1,
+    "top_p": 0.95
+   },
+   "family": {
+    "id": "nvidia/nemotron-3.5-super-vl",
+    "name": "NVIDIA: Nemotron 3.5 Super VL"
+   },
+   "author": "nvidia",
+   "tags": [
+    "moe",
+    "reasoning",
+    "tools",
+    "vision"
+   ],
+   "endpoint_count": 1,
+   "links": {
+    "details": "/api/v1/models/nvidia/nemotron-3.5-super-vl/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "nvidia/NVIDIA-Nemotron-3.5-Super-VL-120B-A12B-NVFP4",
+    "read_at": 1794220922,
+    "availability": "public",
+    "languages": [
+     "en",
+     "es",
+     "fr",
+     "de",
+     "it",
+     "ja"
+    ],
+    "weights_revision": "da5b2650a835292c678994a1fa3fb653250fb508",
+    "weights_updated_at": 1792792013,
+    "downloads": 54577,
+    "likes": 265
+   }
+  },
+  {
+   "id": "xiaomi/mimo-v2.6-flash-rl",
+   "canonical_slug": "xiaomi/mimo-v2.6-flash-rl",
+   "hugging_face_id": "XiaomiMiMo/MiMo-V2.6-Flash-RL",
+   "name": "Xiaomi: MiMo V2.6 Flash RL",
+   "created": 1790005191,
+   "expiration_date": null,
+   "description": "Xiaomi's MiMo V2.6 Flash RL supports text, image, video and audio input, reasoning, tool calling and structured JSON output. Each request has a 1,000,000-token context limit with at most 65,536 output tokens.",
+   "context_length": 1000000,
+   "architecture": {
+    "modality": "text+image+video+audio->text",
+    "input_modalities": [
+     "text",
+     "image",
+     "video",
+     "audio"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "mit",
+   "parameter_count": 310756322688,
+   "weights_dtype": "U8",
+   "pricing": {
+    "prompt": "0.0000000434",
+    "completion": "0.0000000868",
+    "input_cache_read": "0.000000000868",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 1000000,
+    "max_completion_tokens": 65536,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "allowed_token_ids",
+    "cache_salt",
+    "chat_template_kwargs",
+    "frequency_penalty",
+    "guided_choice",
+    "guided_grammar",
+    "guided_regex",
+    "ignore_eos",
+    "include_stop_str_in_output",
+    "logprobs",
+    "max_completion_tokens",
+    "max_tokens",
+    "min_tokens",
+    "n",
+    "parallel_tool_calls",
+    "presence_penalty",
+    "reasoning",
+    "reasoning_effort",
+    "repetition_penalty",
+    "response_format",
+    "return_tokens_as_token_ids",
+    "seed",
+    "stop",
+    "stop_token_ids",
+    "structured_outputs",
+    "temperature",
+    "thinking",
+    "tool_call_dispatch",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_logprobs",
+    "top_p"
+   ],
+   "parameter_offers": [
+    {
+     "text": {
+      "n": {
+       "default": 1,
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 1
+      },
+      "seed": {
+       "type": "integer"
+      },
+      "stop": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "array",
+         "items": {
+          "type": "string"
+         },
+         "maxItems": 4
+        }
+       ]
+      },
+      "tools": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "properties": {
+         "type": {
+          "type": "string",
+          "enum": [
+           "function"
+          ]
+         },
+         "function": {
+          "type": "object",
+          "properties": {
+           "name": {
+            "type": "string"
+           },
+           "strict": {
+            "type": "boolean"
+           },
+           "parameters": {},
+           "description": {
+            "type": "string"
+           }
+          }
+         }
+        }
+       },
+       "maxItems": 1536
+      },
+      "top_k": {
+       "type": "integer",
+       "minimum": -1,
+       "maximum": 2147483647
+      },
+      "top_p": {
+       "type": "number",
+       "maximum": 1,
+       "exclusiveMinimum": 0
+      },
+      "logprobs": {
+       "default": false,
+       "type": "boolean"
+      },
+      "thinking": {
+       "type": "object",
+       "properties": {
+        "type": {
+         "type": "string",
+         "enum": [
+          "disabled"
+         ]
+        }
+       }
+      },
+      "reasoning": {
+       "type": "object",
+       "properties": {
+        "effort": {
+         "type": "string",
+         "enum": [
+          "none",
+          "minimal",
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+         ]
+        }
+       }
+      },
+      "cache_salt": {
+       "type": "string"
+      },
+      "ignore_eos": {
+       "default": false,
+       "type": "boolean"
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "min_tokens": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 65536
+      },
+      "temperature": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {
+       "anyOf": [
+        {
+         "type": "string",
+         "enum": [
+          "none",
+          "auto",
+          "required"
+         ]
+        },
+        {
+         "type": "object",
+         "properties": {
+          "type": {
+           "type": "string",
+           "enum": [
+            "function"
+           ]
+          },
+          "function": {
+           "type": "object",
+           "properties": {
+            "name": {
+             "type": "string"
+            }
+           }
+          }
+         }
+        }
+       ]
+      },
+      "guided_regex": {
+       "type": "string"
+      },
+      "top_logprobs": {
+       "x-heimdall-requires": {
+        "logprobs": true
+       },
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 20
+      },
+      "guided_choice": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "guided_grammar": {
+       "type": "string"
+      },
+      "stop_token_ids": {
+       "type": "array",
+       "items": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "response_format": {
+       "type": "object",
+       "properties": {
+        "type": {
+         "type": "string",
+         "enum": [
+          "text",
+          "json_object",
+          "json_schema"
+         ]
+        },
+        "json_schema": {
+         "type": "object",
+         "properties": {
+          "name": {
+           "type": "string"
+          },
+          "schema": {},
+          "strict": {
+           "type": "boolean"
+          },
+          "description": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      },
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "default": "medium",
+       "type": "string",
+       "enum": [
+        "none",
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+       ]
+      },
+      "allowed_token_ids": {
+       "type": "array",
+       "items": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "maximum": 2,
+       "exclusiveMinimum": 0
+      },
+      "structured_outputs": {
+       "type": "boolean"
+      },
+      "tool_call_dispatch": {
+       "type": "boolean"
+      },
+      "parallel_tool_calls": {
+       "default": true,
+       "type": "boolean"
+      },
+      "chat_template_kwargs": {
+       "type": "object",
+       "properties": {
+        "enable_thinking": {
+         "default": true,
+         "type": "boolean"
+        }
+       }
+      },
+      "max_completion_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "include_stop_str_in_output": {
+       "default": false,
+       "type": "boolean"
+      },
+      "return_tokens_as_token_ids": {
+       "default": false,
+       "x-heimdall-requires": {
+        "logprobs": true
+       },
+       "type": "boolean"
+      }
+     }
+    }
+   ],
+   "reasoning": {
+    "supported_efforts": [
+     "xhigh",
+     "high",
+     "medium",
+     "low",
+     "minimal",
+     "none"
+    ],
+    "mandatory": false
+   },
+   "default_parameters": {},
+   "family": {
+    "id": "xiaomi/mimo-v2.6-flash-rl",
+    "name": "Xiaomi: MiMo V2.6 Flash RL"
+   },
+   "author": "xiaomi",
+   "tags": [
+    "moe",
+    "reasoning",
+    "tools",
+    "vision"
+   ],
+   "endpoint_count": 1,
+   "links": {
+    "details": "/api/v1/models/xiaomi/mimo-v2.6-flash-rl/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "XiaomiMiMo/MiMo-V2.6-Flash-RL",
+    "read_at": 1794442105,
+    "availability": "public",
+    "languages": [
+     "en",
+     "zh"
+    ],
+    "weights_revision": "f657ba2f7d24c9adc5730675baaa2d34de878a49",
+    "weights_updated_at": 1793196988,
+    "downloads": 69744,
+    "likes": 593
+   }
+  },
+  {
+   "id": "meta-models/muse-spark-open-816b-a42b",
+   "canonical_slug": "meta-models/muse-spark-open-816b-a42b",
+   "hugging_face_id": "meta-models/Muse-Spark-Open-816B-A42B-NVFP4",
+   "name": "Meta: Muse Spark Open",
+   "created": 1789500190,
+   "expiration_date": null,
+   "description": null,
+   "context_length": 1048576,
+   "architecture": {
+    "modality": "text+image+video->text",
+    "input_modalities": [
+     "text",
+     "image",
+     "video"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "muse-model-license",
+   "parameter_count": 822036529664,
+   "weights_dtype": "U8",
+   "pricing": {
+    "prompt": "0.000000186",
+    "completion": "0.000000744",
+    "input_cache_read": "0.0000000465",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 1048576,
+    "max_completion_tokens": 65536,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "frequency_penalty",
+    "max_tokens",
+    "min_p",
+    "presence_penalty",
+    "reasoning_effort",
+    "repetition_penalty",
+    "response_format",
+    "seed",
+    "stop",
+    "temperature",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_p"
+   ],
+   "parameter_offers": [
+    {
+     "text": {
+      "seed": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 2147483647
+      },
+      "stop": {
+       "type": "array",
+       "items": {}
+      },
+      "min_p": {
+       "default": 0,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "tools": {
+       "type": "boolean"
+      },
+      "top_k": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 200
+      },
+      "top_p": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "temperature": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {},
+      "response_format": {},
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "default": "medium",
+       "type": "string",
+       "enum": [
+        "low",
+        "medium",
+        "high"
+       ]
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      }
+     }
+    }
+   ],
+   "reasoning": {
+    "supported_efforts": [
+     "high",
+     "medium",
+     "low"
+    ],
+    "default_effort": "medium",
+    "default_enabled": true
+   },
+   "default_parameters": {},
+   "family": {
+    "id": "meta-models/muse-spark-open-816b-a42b",
+    "name": "Meta: Muse Spark Open"
+   },
+   "author": "meta-models",
+   "tags": [
+    "reasoning",
+    "tools"
+   ],
+   "endpoint_count": 1,
+   "links": {
+    "details": "/api/v1/models/meta-models/muse-spark-open-816b-a42b/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "meta-models/Muse-Spark-Open-816B-A42B-NVFP4",
+    "read_at": 1794568662,
+    "availability": "gated",
+    "languages": [
+     "en"
+    ],
+    "weights_revision": "6b5fa7bb2d5bcf422a01852ae562a8f7f52b55c3",
+    "weights_updated_at": 1794336947,
+    "downloads": 18764,
+    "likes": 253
+   }
+  },
+  {
+   "id": "deepseek/deepseek-v4.1-flash",
+   "canonical_slug": "deepseek/deepseek-v4.1-flash",
+   "hugging_face_id": "deepseek-ai/DeepSeek-V4.1-Flash",
+   "name": "DeepSeek: DeepSeek V4.1 Flash",
+   "created": 1789006678,
+   "expiration_date": null,
+   "description": "We introduce DeepSeek-V4.1-Flash, a multimodal Mixture-of-Experts (MoE) model with 552B backbone parameters and support for contexts of up to one million tokens. The model natively processes images and text, and generates text autoregressively.",
+   "context_length": 1048576,
+   "architecture": {
+    "modality": "text+image->text",
+    "input_modalities": [
+     "text",
+     "image"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "mit",
+   "parameter_count": 763205315794,
+   "weights_dtype": "I8",
+   "pricing": {
+    "prompt": "0.000000062",
+    "completion": "0.000000186",
+    "input_cache_read": "0.00000000155",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 1048576,
+    "max_completion_tokens": 131072,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "frequency_penalty",
+    "max_tokens",
+    "min_p",
+    "presence_penalty",
+    "reasoning_effort",
+    "repetition_penalty",
+    "response_format",
+    "seed",
+    "stop",
+    "temperature",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_p"
+   ],
+   "parameter_offers": [
+    {
+     "text": {
+      "seed": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 2147483647
+      },
+      "stop": {
+       "type": "array",
+       "items": {}
+      },
+      "min_p": {
+       "default": 0,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "tools": {
+       "type": "boolean"
+      },
+      "top_k": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 200
+      },
+      "top_p": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 131072
+      },
+      "temperature": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {},
+      "response_format": {},
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "default": "low",
+       "type": "string",
+       "enum": [
+        "low",
+        "high",
+        "xhigh",
+        "max"
+       ]
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      }
+     }
+    }
+   ],
+   "reasoning": {
+    "supported_efforts": [
+     "max",
+     "xhigh",
+     "high",
+     "low"
+    ],
+    "default_effort": "low",
+    "default_enabled": true
+   },
+   "default_parameters": {},
+   "family": {
+    "id": "deepseek/deepseek-v4.1-flash",
+    "name": "DeepSeek: DeepSeek V4.1 Flash"
+   },
+   "author": "deepseek",
+   "tags": [
+    "reasoning",
+    "tools"
+   ],
+   "endpoint_count": 1,
+   "links": {
+    "details": "/api/v1/models/deepseek/deepseek-v4.1-flash/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "deepseek-ai/DeepSeek-V4.1-Flash",
+    "read_at": 1794158379,
+    "availability": "public",
+    "weights_revision": "314113f8a7dadb388215396ba5fbee2c610a04d6",
+    "weights_updated_at": 1792142848,
+    "downloads": 1842868,
+    "likes": 4901
+   }
+  },
+  {
+   "id": "z-ai/glm-5.3-flash-cybersecurity",
+   "canonical_slug": "z-ai/glm-5.3-flash-cybersecurity",
+   "hugging_face_id": "dealignai/GLM-5.3-Flash-CYBERSECURITY-W4A16",
+   "name": "Z.ai: GLM 5.3 Flash Cybersecurity (DealignAI)",
+   "created": 1788118053,
+   "expiration_date": null,
+   "description": "DealignAI's cybersecurity build of GLM 5.3 Flash, with refusals removed, in W4A16 (int4 experts, BF16 activations). It takes text, image and video input, reasons, calls tools and returns structured JSON. Each request has a 1,048,576-token context limit with at most 65,536 output tokens. Its template knows three reasoning levels: minimal and low run at Low, medium and high at High, xhigh at Max; thinking cannot be switched off. Its safety guardrails are substantially reduced.",
+   "context_length": 1048576,
+   "architecture": {
+    "modality": "text+image+video->text",
+    "input_modalities": [
+     "text",
+     "image",
+     "video"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "mit",
+   "parameter_count": 321323031390,
+   "weights_dtype": "I32",
+   "pricing": {
+    "prompt": "0.0000000465",
+    "completion": "0.000000155",
+    "input_cache_read": "0.0000000093",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 1048576,
+    "max_completion_tokens": 65536,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "add_generation_prompt",
+    "allowed_token_ids",
+    "cache_salt",
+    "chat_template_kwargs",
+    "continue_final_message",
+    "frequency_penalty",
+    "guided_choice",
+    "guided_grammar",
+    "guided_json",
+    "guided_regex",
+    "ignore_eos",
+    "include_stop_str_in_output",
+    "logprobs",
+    "max_completion_tokens",
+    "max_tokens",
+    "min_p",
+    "min_tokens",
+    "n",
+    "parallel_tool_calls",
+    "presence_penalty",
+    "reasoning",
+    "reasoning_effort",
+    "repetition_penalty",
+    "response_format",
+    "return_tokens_as_token_ids",
+    "seed",
+    "stop",
+    "stop_token_ids",
+    "structured_outputs",
+    "temperature",
+    "tool_call_dispatch",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_logprobs",
+    "top_p"
+   ],
+   "parameter_offers": [
+    {
+     "text": {
+      "seed": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 2147483647
+      },
+      "stop": {
+       "type": "array",
+       "items": {}
+      },
+      "min_p": {
+       "default": 0,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "tools": {
+       "type": "boolean"
+      },
+      "top_k": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 200
+      },
+      "top_p": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "temperature": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {},
+      "response_format": {},
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "default": "medium",
+       "type": "string",
+       "enum": [
+        "none",
+        "low",
+        "medium",
+        "high"
+       ]
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      }
+     }
+    },
+    {
+     "text": {
+      "n": {
+       "default": 1,
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 1
+      },
+      "seed": {
+       "type": "integer"
+      },
+      "stop": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "array",
+         "items": {
+          "type": "string"
+         },
+         "maxItems": 4
+        }
+       ]
+      },
+      "tools": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "properties": {
+         "type": {
+          "type": "string",
+          "enum": [
+           "function"
+          ]
+         },
+         "function": {
+          "type": "object",
+          "properties": {
+           "name": {
+            "type": "string"
+           },
+           "strict": {
+            "type": "boolean"
+           },
+           "parameters": {},
+           "description": {
+            "type": "string"
+           }
+          }
+         }
+        }
+       },
+       "maxItems": 1536
+      },
+      "top_k": {
+       "type": "integer",
+       "minimum": -1,
+       "maximum": 2147483647
+      },
+      "top_p": {
+       "type": "number",
+       "maximum": 1,
+       "exclusiveMinimum": 0
+      },
+      "logprobs": {
+       "default": false,
+       "type": "boolean"
+      },
+      "reasoning": {
+       "type": "object",
+       "properties": {
+        "effort": {
+         "type": "string",
+         "enum": [
+          "minimal",
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+         ]
+        }
+       }
+      },
+      "cache_salt": {
+       "type": "string"
+      },
+      "ignore_eos": {
+       "default": false,
+       "type": "boolean"
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "min_tokens": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 65536
+      },
+      "guided_json": {},
+      "temperature": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {
+       "anyOf": [
+        {
+         "type": "string",
+         "enum": [
+          "none",
+          "auto",
+          "required"
+         ]
+        },
+        {
+         "type": "object",
+         "properties": {
+          "type": {
+           "type": "string",
+           "enum": [
+            "function"
+           ]
+          },
+          "function": {
+           "type": "object",
+           "properties": {
+            "name": {
+             "type": "string"
+            }
+           }
+          }
+         }
+        }
+       ]
+      },
+      "guided_regex": {
+       "type": "string"
+      },
+      "top_logprobs": {
+       "x-heimdall-requires": {
+        "logprobs": true
+       },
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 20
+      },
+      "guided_choice": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "guided_grammar": {
+       "type": "string"
+      },
+      "stop_token_ids": {
+       "type": "array",
+       "items": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "response_format": {
+       "type": "object",
+       "properties": {
+        "type": {
+         "type": "string",
+         "enum": [
+          "text",
+          "json_object",
+          "json_schema"
+         ]
+        },
+        "json_schema": {
+         "type": "object",
+         "properties": {
+          "name": {
+           "type": "string"
+          },
+          "schema": {},
+          "strict": {
+           "type": "boolean"
+          },
+          "description": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      },
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "default": "medium",
+       "type": "string",
+       "enum": [
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+       ]
+      },
+      "allowed_token_ids": {
+       "type": "array",
+       "items": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "maximum": 2,
+       "exclusiveMinimum": 0
+      },
+      "structured_outputs": {
+       "type": "boolean"
+      },
+      "tool_call_dispatch": {
+       "type": "boolean"
+      },
+      "parallel_tool_calls": {
+       "default": true,
+       "type": "boolean"
+      },
+      "chat_template_kwargs": {
+       "type": "object",
+       "properties": {
+        "enable_thinking": {
+         "default": true,
+         "type": "boolean"
+        }
+       }
+      },
+      "add_generation_prompt": {
+       "type": "boolean"
+      },
+      "max_completion_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "continue_final_message": {
+       "type": "boolean"
+      },
+      "include_stop_str_in_output": {
+       "default": false,
+       "type": "boolean"
+      },
+      "return_tokens_as_token_ids": {
+       "default": false,
+       "x-heimdall-requires": {
+        "logprobs": true
+       },
+       "type": "boolean"
+      }
+     }
+    }
+   ],
+   "reasoning": {
+    "supported_efforts": [
+     "xhigh",
+     "high",
+     "medium",
+     "low",
+     "minimal"
+    ]
+   },
+   "default_parameters": {
+    "temperature": 1,
+    "top_p": 0.95,
+    "repetition_penalty": 1.1
+   },
+   "family": {
+    "id": "z-ai/glm-5.3-flash",
+    "name": "Z.ai: GLM 5.3 Flash"
+   },
+   "author": "z-ai",
+   "tags": [
+    "cybersecurity",
+    "moe",
+    "reasoning",
+    "tools",
+    "vision"
+   ],
+   "endpoint_count": 2,
+   "links": {
+    "details": "/api/v1/models/z-ai/glm-5.3-flash-cybersecurity/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "dealignai/GLM-5.3-Flash-CYBERSECURITY-W4A16",
+    "read_at": 1794457187,
+    "availability": "public",
+    "weights_revision": "4c2ee763ff75f3ba50652ee0f024b0b630cd54a0",
+    "weights_updated_at": 1789835565,
+    "downloads": 4372,
+    "likes": 48
+   }
+  },
+  {
+   "id": "z-ai/glm-5.3-flash",
+   "canonical_slug": "z-ai/glm-5.3-flash",
+   "hugging_face_id": "JANGQ-AI/GLM-5.3-Flash-W4A16",
+   "name": "Z.ai: GLM 5.3 Flash",
+   "created": 1788090016,
+   "expiration_date": null,
+   "description": "GLM-5.3-Flash \u2014 195 GB on disk (down from the 643 GB BF16 source) \u2014 INT4 W4A16 quantization of the routed experts in compressed-tensors pack-quantized format, for Hopper (H100 / H200) via vLLM Marlin kernels.",
+   "context_length": 1048576,
+   "architecture": {
+    "modality": "text+image->text",
+    "input_modalities": [
+     "text",
+     "image"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "glm-5.3",
+   "parameter_count": 321323031390,
+   "weights_dtype": "I32",
+   "pricing": {
+    "prompt": "0.000000031",
+    "completion": "0.000000124",
+    "input_cache_read": "0.0000000155",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 1048576,
+    "max_completion_tokens": 65536,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "frequency_penalty",
+    "max_tokens",
+    "min_p",
+    "presence_penalty",
+    "reasoning_effort",
+    "repetition_penalty",
+    "response_format",
+    "seed",
+    "stop",
+    "temperature",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_p"
+   ],
+   "parameter_offers": [
+    {
+     "text": {
+      "seed": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 2147483647
+      },
+      "stop": {
+       "type": "array",
+       "items": {}
+      },
+      "min_p": {
+       "default": 0,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "tools": {
+       "type": "boolean"
+      },
+      "top_k": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 200
+      },
+      "top_p": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "temperature": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {},
+      "response_format": {},
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "default": "medium",
+       "type": "string",
+       "enum": [
+        "none",
+        "low",
+        "medium",
+        "high"
+       ]
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      }
+     }
+    }
+   ],
+   "reasoning": {
+    "supported_efforts": [
+     "high",
+     "medium",
+     "low",
+     "none"
+    ],
+    "mandatory": false,
+    "default_effort": "medium",
+    "default_enabled": true
+   },
+   "default_parameters": {
+    "temperature": 1,
+    "top_p": 0.95,
+    "repetition_penalty": 1.1
+   },
+   "family": {
+    "id": "z-ai/glm-5.3-flash",
+    "name": "Z.ai: GLM 5.3 Flash"
+   },
+   "author": "z-ai",
+   "tags": [
+    "reasoning",
+    "tools"
+   ],
+   "endpoint_count": 1,
+   "links": {
+    "details": "/api/v1/models/z-ai/glm-5.3-flash/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "JANGQ-AI/GLM-5.3-Flash-W4A16",
+    "read_at": 1794158382,
+    "availability": "public",
+    "languages": [
+     "en",
+     "zh"
+    ],
+    "weights_revision": "c798f2dafb360369f8a824db510fc93c275526eb",
+    "weights_updated_at": 1788326265,
+    "downloads": 141,
+    "likes": 1
+   }
+  },
+  {
+   "id": "qwen/qwen3.8-flash-next-abliterated",
+   "canonical_slug": "qwen/qwen3.8-flash-next-abliterated",
+   "hugging_face_id": "dealignai/Qwen3.8-Flash-Next-ABLITERATED-NVFP4",
+   "name": "Qwen: Qwen3.8 Flash Next Abliterated (DealignAI)",
+   "created": 1787889913,
+   "expiration_date": null,
+   "description": "DealignAI's abliterated Qwen3.8 Flash Next supports text, images and video, reasoning, tool use, and structured JSON. Requests share model cache capacity with a 1,000,000-token context limit per request and up to 65,536 output tokens.",
+   "context_length": 1000000,
+   "architecture": {
+    "modality": "text+image+video->text",
+    "input_modalities": [
+     "text",
+     "image",
+     "video"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "qwen-community-license-1.0",
+   "parameter_count": 119602003859,
+   "weights_dtype": "U8",
+   "pricing": {
+    "prompt": "0.0000000465",
+    "completion": "0.0000001457",
+    "input_cache_read": "0.000000031",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 1000000,
+    "max_completion_tokens": 65536,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "add_generation_prompt",
+    "allowed_token_ids",
+    "cache_salt",
+    "chat_template_kwargs",
+    "continue_final_message",
+    "frequency_penalty",
+    "guided_choice",
+    "guided_grammar",
+    "guided_json",
+    "guided_regex",
+    "ignore_eos",
+    "include_stop_str_in_output",
+    "logprobs",
+    "max_completion_tokens",
+    "max_tokens",
+    "min_tokens",
+    "n",
+    "parallel_tool_calls",
+    "presence_penalty",
+    "reasoning",
+    "reasoning_effort",
+    "repetition_penalty",
+    "response_format",
+    "return_tokens_as_token_ids",
+    "seed",
+    "stop",
+    "stop_token_ids",
+    "structured_outputs",
+    "temperature",
+    "thinking",
+    "tool_call_dispatch",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_logprobs",
+    "top_p"
+   ],
+   "parameter_offers": [
+    {
+     "text": {
+      "n": {
+       "default": 1,
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 1
+      },
+      "seed": {
+       "type": "integer"
+      },
+      "stop": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "array",
+         "items": {
+          "type": "string"
+         },
+         "maxItems": 4
+        }
+       ]
+      },
+      "tools": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "properties": {
+         "type": {
+          "type": "string",
+          "enum": [
+           "function"
+          ]
+         },
+         "function": {
+          "type": "object",
+          "properties": {
+           "name": {
+            "type": "string"
+           },
+           "strict": {
+            "type": "boolean"
+           },
+           "parameters": {},
+           "description": {
+            "type": "string"
+           }
+          }
+         }
+        }
+       },
+       "maxItems": 1536
+      },
+      "top_k": {
+       "default": 20,
+       "type": "integer",
+       "minimum": -1,
+       "maximum": 2147483647
+      },
+      "top_p": {
+       "default": 0.95,
+       "type": "number",
+       "maximum": 1,
+       "exclusiveMinimum": 0
+      },
+      "logprobs": {
+       "default": false,
+       "type": "boolean"
+      },
+      "thinking": {
+       "type": "object",
+       "properties": {
+        "type": {
+         "type": "string",
+         "enum": [
+          "disabled"
+         ]
+        }
+       }
+      },
+      "reasoning": {
+       "type": "object",
+       "properties": {
+        "effort": {
+         "type": "string",
+         "enum": [
+          "none",
+          "minimal",
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+         ]
+        }
+       }
+      },
+      "cache_salt": {
+       "type": "string"
+      },
+      "ignore_eos": {
+       "default": false,
+       "type": "boolean"
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "min_tokens": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 65536
+      },
+      "guided_json": {},
+      "temperature": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {
+       "anyOf": [
+        {
+         "type": "string",
+         "enum": [
+          "none",
+          "auto",
+          "required"
+         ]
+        },
+        {
+         "type": "object",
+         "properties": {
+          "type": {
+           "type": "string",
+           "enum": [
+            "function"
+           ]
+          },
+          "function": {
+           "type": "object",
+           "properties": {
+            "name": {
+             "type": "string"
+            }
+           }
+          }
+         }
+        }
+       ]
+      },
+      "guided_regex": {
+       "type": "string"
+      },
+      "top_logprobs": {
+       "x-heimdall-requires": {
+        "logprobs": true
+       },
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 20
+      },
+      "guided_choice": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "guided_grammar": {
+       "type": "string"
+      },
+      "stop_token_ids": {
+       "type": "array",
+       "items": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "response_format": {
+       "type": "object",
+       "properties": {
+        "type": {
+         "type": "string",
+         "enum": [
+          "text",
+          "json_object",
+          "json_schema"
+         ]
+        },
+        "json_schema": {
+         "type": "object",
+         "properties": {
+          "name": {
+           "type": "string"
+          },
+          "schema": {},
+          "strict": {
+           "type": "boolean"
+          },
+          "description": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      },
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "default": "medium",
+       "type": "string",
+       "enum": [
+        "none",
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+       ]
+      },
+      "allowed_token_ids": {
+       "type": "array",
+       "items": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "maximum": 2,
+       "exclusiveMinimum": 0
+      },
+      "structured_outputs": {
+       "type": "boolean"
+      },
+      "tool_call_dispatch": {
+       "type": "boolean"
+      },
+      "parallel_tool_calls": {
+       "default": true,
+       "type": "boolean"
+      },
+      "chat_template_kwargs": {
+       "type": "object",
+       "properties": {
+        "enable_thinking": {
+         "default": true,
+         "type": "boolean"
+        },
+        "reasoning_effort": {
+         "default": "low",
+         "type": "string",
+         "enum": [
+          "none",
+          "minimal",
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+         ]
+        },
+        "preserve_thinking": {
+         "default": true,
+         "type": "boolean"
+        }
+       }
+      },
+      "add_generation_prompt": {
+       "type": "boolean"
+      },
+      "max_completion_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "continue_final_message": {
+       "type": "boolean"
+      },
+      "include_stop_str_in_output": {
+       "default": false,
+       "type": "boolean"
+      },
+      "return_tokens_as_token_ids": {
+       "default": false,
+       "x-heimdall-requires": {
+        "logprobs": true
+       },
+       "type": "boolean"
+      }
+     }
+    }
+   ],
+   "reasoning": {
+    "supported_efforts": [
+     "xhigh",
+     "high",
+     "medium",
+     "low",
+     "minimal",
+     "none"
+    ],
+    "mandatory": false
+   },
+   "default_parameters": {
+    "temperature": 1,
+    "top_p": 0.95,
+    "top_k": 20
+   },
+   "family": {
+    "id": "qwen/qwen3.8-flash-next",
+    "name": "Qwen: Qwen3.8 Flash Next"
+   },
+   "author": "qwen",
+   "tags": [
+    "abliterated",
+    "moe",
+    "reasoning",
+    "tools",
+    "vision"
+   ],
+   "endpoint_count": 1,
+   "links": {
+    "details": "/api/v1/models/qwen/qwen3.8-flash-next-abliterated/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "dealignai/Qwen3.8-Flash-Next-ABLITERATED-NVFP4",
+    "read_at": 1794209536,
+    "availability": "public",
+    "weights_revision": "be794b990578ef3031eccf9f28e675a289a09ee9",
+    "weights_updated_at": 1787890578,
+    "downloads": 5867,
+    "likes": 33
+   }
+  },
+  {
+   "id": "qwen/qwen3.8-27b",
+   "canonical_slug": "qwen/qwen3.8-27b",
+   "hugging_face_id": null,
+   "name": "Qwen: Qwen3.8 27B",
+   "created": 1787875200,
+   "expiration_date": null,
+   "description": null,
+   "context_length": 1000000,
+   "architecture": {
+    "modality": "text+image+video->text",
+    "input_modalities": [
+     "text",
+     "image",
+     "video"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": null,
+   "parameter_count": null,
+   "weights_dtype": null,
+   "pricing": {
+    "prompt": "0.0000000465",
+    "completion": "0.000000713",
+    "input_cache_read": "0.000000011625",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 1000000,
+    "max_completion_tokens": 65536,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "add_generation_prompt",
+    "allowed_token_ids",
+    "cache_salt",
+    "chat_template_kwargs",
+    "continue_final_message",
+    "frequency_penalty",
+    "guided_choice",
+    "guided_grammar",
+    "guided_json",
+    "guided_regex",
+    "ignore_eos",
+    "include_stop_str_in_output",
+    "logit_bias",
+    "logprobs",
+    "max_completion_tokens",
+    "max_tokens",
+    "min_p",
+    "min_tokens",
+    "n",
+    "parallel_tool_calls",
+    "presence_penalty",
+    "reasoning",
+    "reasoning_effort",
+    "repetition_penalty",
+    "response_format",
+    "return_tokens_as_token_ids",
+    "seed",
+    "stop",
+    "stop_token_ids",
+    "structured_outputs",
+    "temperature",
+    "thinking",
+    "tool_call_dispatch",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_logprobs",
+    "top_p"
+   ],
+   "parameter_offers": [
+    {
+     "text": {
+      "seed": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 2147483647
+      },
+      "stop": {
+       "type": "array",
+       "items": {}
+      },
+      "min_p": {
+       "default": 0,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "tools": {
+       "type": "boolean"
+      },
+      "top_k": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 200
+      },
+      "top_p": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "logprobs": {
+       "type": "boolean"
+      },
+      "logit_bias": {},
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "temperature": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {},
+      "response_format": {},
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "default": "medium",
+       "type": "string",
+       "enum": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+       ]
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      }
+     }
+    },
+    {
+     "text": {
+      "n": {
+       "default": 1,
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 1
+      },
+      "seed": {
+       "type": "integer"
+      },
+      "stop": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "array",
+         "items": {
+          "type": "string"
+         },
+         "maxItems": 4
+        }
+       ]
+      },
+      "tools": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "properties": {
+         "type": {
+          "type": "string",
+          "enum": [
+           "function"
+          ]
+         },
+         "function": {
+          "type": "object",
+          "properties": {
+           "name": {
+            "type": "string"
+           },
+           "strict": {
+            "type": "boolean"
+           },
+           "parameters": {},
+           "description": {
+            "type": "string"
+           }
+          }
+         }
+        }
+       },
+       "maxItems": 1536
+      },
+      "top_k": {
+       "default": 20,
+       "type": "integer",
+       "minimum": -1,
+       "maximum": 2147483647
+      },
+      "top_p": {
+       "default": 0.95,
+       "type": "number",
+       "maximum": 1,
+       "exclusiveMinimum": 0
+      },
+      "logprobs": {
+       "default": false,
+       "type": "boolean"
+      },
+      "thinking": {
+       "type": "object",
+       "properties": {
+        "type": {
+         "type": "string",
+         "enum": [
+          "disabled"
+         ]
+        }
+       }
+      },
+      "reasoning": {
+       "type": "object",
+       "properties": {
+        "effort": {
+         "type": "string",
+         "enum": [
+          "none",
+          "minimal",
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+         ]
+        }
+       }
+      },
+      "cache_salt": {
+       "type": "string"
+      },
+      "ignore_eos": {
+       "default": false,
+       "type": "boolean"
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "min_tokens": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 65536
+      },
+      "guided_json": {},
+      "temperature": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {
+       "anyOf": [
+        {
+         "type": "string",
+         "enum": [
+          "none",
+          "auto",
+          "required"
+         ]
+        },
+        {
+         "type": "object",
+         "properties": {
+          "type": {
+           "type": "string",
+           "enum": [
+            "function"
+           ]
+          },
+          "function": {
+           "type": "object",
+           "properties": {
+            "name": {
+             "type": "string"
+            }
+           }
+          }
+         }
+        }
+       ]
+      },
+      "guided_regex": {
+       "type": "string"
+      },
+      "top_logprobs": {
+       "x-heimdall-requires": {
+        "logprobs": true
+       },
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 20
+      },
+      "guided_choice": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "guided_grammar": {
+       "type": "string"
+      },
+      "stop_token_ids": {
+       "type": "array",
+       "items": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "response_format": {
+       "type": "object",
+       "properties": {
+        "type": {
+         "type": "string",
+         "enum": [
+          "text",
+          "json_object",
+          "json_schema"
+         ]
+        },
+        "json_schema": {
+         "type": "object",
+         "properties": {
+          "name": {
+           "type": "string"
+          },
+          "schema": {},
+          "strict": {
+           "type": "boolean"
+          },
+          "description": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      },
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "default": "medium",
+       "type": "string",
+       "enum": [
+        "none",
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+       ]
+      },
+      "allowed_token_ids": {
+       "type": "array",
+       "items": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "maximum": 2,
+       "exclusiveMinimum": 0
+      },
+      "structured_outputs": {
+       "type": "boolean"
+      },
+      "tool_call_dispatch": {
+       "type": "boolean"
+      },
+      "parallel_tool_calls": {
+       "default": true,
+       "type": "boolean"
+      },
+      "chat_template_kwargs": {
+       "type": "object",
+       "properties": {
+        "enable_thinking": {
+         "default": true,
+         "type": "boolean"
+        },
+        "reasoning_effort": {
+         "default": "low",
+         "type": "string",
+         "enum": [
+          "none",
+          "minimal",
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+         ]
+        },
+        "preserve_thinking": {
+         "default": true,
+         "type": "boolean"
+        }
+       }
+      },
+      "add_generation_prompt": {
+       "type": "boolean"
+      },
+      "max_completion_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "continue_final_message": {
+       "type": "boolean"
+      },
+      "include_stop_str_in_output": {
+       "default": false,
+       "type": "boolean"
+      },
+      "return_tokens_as_token_ids": {
+       "default": false,
+       "x-heimdall-requires": {
+        "logprobs": true
+       },
+       "type": "boolean"
+      }
+     }
+    }
+   ],
+   "reasoning": {
+    "supported_efforts": [
+     "xhigh",
+     "high",
+     "medium",
+     "low",
+     "minimal",
+     "none"
+    ],
+    "mandatory": false
+   },
+   "default_parameters": {
+    "temperature": 1,
+    "top_p": 0.95,
+    "top_k": 20
+   },
+   "family": {
+    "id": "qwen/qwen3.8-27b",
+    "name": "Qwen: Qwen3.8 27B"
+   },
+   "author": "qwen",
+   "tags": [
+    "reasoning",
+    "tools",
+    "vision"
+   ],
+   "endpoint_count": 2,
+   "links": {
+    "details": "/api/v1/models/qwen/qwen3.8-27b/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null
+  },
+  {
+   "id": "tencent/wemm-embedding-2b",
+   "canonical_slug": "tencent/wemm-embedding-2b",
+   "hugging_face_id": "tencent/WeMM-Embedding-2B",
+   "name": "Tencent: WeMM Embedding 2B",
+   "created": 1787627405,
+   "expiration_date": null,
+   "description": "WeMM-Embedding-2B is a universal multimodal embedding model built on Qwen3.5. It accepts text, images, videos, visual documents, and interleaved multimodal inputs, and returns a 2,048-dimensional L2-normalized embedding. Audio input is not supported.",
+   "context_length": 32768,
+   "architecture": {
+    "modality": "text+image->embeddings",
+    "input_modalities": [
+     "text",
+     "image"
+    ],
+    "output_modalities": [
+     "embeddings"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "apache-2.0",
+   "parameter_count": 2720809792,
+   "weights_dtype": "BF16",
+   "pricing": {
+    "prompt": "0.000000031",
+    "input_cache_read": "0.0000000155",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 32768,
+    "max_completion_tokens": null,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "dimensions",
+    "encoding_format"
+   ],
+   "parameter_offers": [
+    {
+     "embeddings": {
+      "dimensions": {
+       "default": 2048,
+       "type": "number",
+       "enum": [
+        64,
+        128,
+        256,
+        512,
+        1024,
+        2048
+       ]
+      },
+      "encoding_format": {
+       "type": "string",
+       "enum": [
+        "float",
+        "base64"
+       ]
+      }
+     }
+    }
+   ],
+   "default_parameters": {},
+   "family": {
+    "id": "tencent/wemm-embedding-2b",
+    "name": "Tencent: WeMM Embedding 2B"
+   },
+   "author": "tencent",
+   "tags": [
+    "en",
+    "feature-extraction",
+    "image-embedding",
+    "image-text-to-text",
+    "mrl",
+    "multimodal-embedding",
+    "qwen3_5",
+    "text-embedding",
+    "video-embedding",
+    "zh"
+   ],
+   "endpoint_count": 1,
+   "links": {
+    "details": "/api/v1/models/tencent/wemm-embedding-2b/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": [
+    64,
+    128,
+    256,
+    512,
+    1024,
+    2048
+   ],
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "tencent/WeMM-Embedding-2B",
+    "read_at": 1794158381,
+    "availability": "public",
+    "languages": [
+     "zh",
+     "en"
+    ],
+    "papers": [
+     "2608.24053"
+    ],
+    "weights_revision": "bbd6cd4bf52cfc6716f752a2df80b2706720bd95",
+    "weights_updated_at": 1788438196,
+    "downloads": 13540,
+    "likes": 125
+   }
+  },
+  {
+   "id": "ornith-ai/ornith-1.5-35b-a3b",
+   "canonical_slug": "ornith-ai/ornith-1.5-35b-a3b",
+   "hugging_face_id": "ornith-ai/Ornith-1.5-35B-A3B-NVFP4",
+   "name": "Ornith: Ornith 1.5 35B A3B",
+   "created": 1787035483,
+   "expiration_date": null,
+   "description": "Chirp Chirp! \ud83d\udc26 We are introducing Ornith-1.5, a major step toward building foundation models through end-to-end self-improvement.",
+   "context_length": 1048576,
+   "architecture": {
+    "modality": "text+image+video->text",
+    "input_modalities": [
+     "text",
+     "image",
+     "video"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "mit",
+   "parameter_count": 19528501104,
+   "weights_dtype": "U8",
+   "pricing": {
+    "prompt": "0.000000031",
+    "completion": "0.0000002697",
+    "input_cache_read": "0.00000000775",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 1048576,
+    "max_completion_tokens": 65536,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "frequency_penalty",
+    "max_completion_tokens",
+    "max_tokens",
+    "presence_penalty",
+    "reasoning_effort",
+    "repetition_penalty",
+    "response_format",
+    "seed",
+    "stop",
+    "structured_outputs",
+    "temperature",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_p"
+   ],
+   "parameter_offers": [
+    {
+     "text": {
+      "seed": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 2147483647
+      },
+      "tools": {},
+      "top_k": {
+       "default": 20,
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 100
+      },
+      "top_p": {
+       "default": 0.95,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 131072
+      },
+      "temperature": {
+       "default": 0.6,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {},
+      "reasoning_effort": {
+       "default": "low",
+       "type": "string",
+       "enum": [
+        "low",
+        "high",
+        "xhigh",
+        "max"
+       ]
+      }
+     }
+    },
+    {
+     "text": {
+      "seed": {
+       "type": "integer"
+      },
+      "stop": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       ]
+      },
+      "tools": {
+       "type": "array",
+       "items": {}
+      },
+      "top_k": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 200
+      },
+      "top_p": {
+       "default": 0.95,
+       "type": "number",
+       "maximum": 1,
+       "exclusiveMinimum": 0
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "temperature": {
+       "default": 0.6,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {},
+      "response_format": {},
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "type": "string",
+       "enum": [
+        "none",
+        "medium"
+       ]
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "maximum": 2,
+       "exclusiveMinimum": 0
+      },
+      "structured_outputs": {
+       "type": "boolean"
+      },
+      "max_completion_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      }
+     }
+    }
+   ],
+   "reasoning": {
+    "supported_efforts": [
+     "medium",
+     "none"
+    ],
+    "mandatory": false
+   },
+   "default_parameters": {
+    "temperature": 1,
+    "top_p": 0.95,
+    "top_k": 20
+   },
+   "family": {
+    "id": "ornith-ai/ornith-1.5-35b-a3b",
+    "name": "Ornith: Ornith 1.5 35B A3B"
+   },
+   "author": "ornith-ai",
+   "tags": [
+    "long-context",
+    "moe",
+    "reasoning",
+    "tools",
+    "vision"
+   ],
+   "endpoint_count": 2,
+   "links": {
+    "details": "/api/v1/models/ornith-ai/ornith-1.5-35b-a3b/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "ornith-ai/Ornith-1.5-35B-A3B-NVFP4",
+    "read_at": 1794296181,
+    "availability": "public",
+    "weights_revision": "94e431d9cc47fa1986a7a1a4e9a80f7f118b03aa",
+    "weights_updated_at": 1787726277,
+    "downloads": 1102552,
+    "likes": 72
+   }
+  },
+  {
+   "id": "internscience/agents-a1-4b-cybersecurity",
+   "canonical_slug": "internscience/agents-a1-4b-cybersecurity",
+   "hugging_face_id": "hotdogs/Agents-A1-4B-cyber-lora",
+   "name": "InternScience: Agents A1 4B Cybersecurity (hotdogs)",
+   "created": 1786132531,
+   "expiration_date": null,
+   "description": "hotdogs' cybersecurity build of InternScience's Agents-A1 4B: his abliterated Fable-Preview fine-tune with a cybersecurity LoRA (Fenrir, Trendyol and Cybersecurity-ShareGPT data) merged at half strength, in INT8 W8A8. Text input, reasoning that can be switched off, tool calling and structured JSON. Each request has a 262,144-token context limit with at most 65,536 output tokens. Its safety guardrails are reduced.",
+   "context_length": 262144,
+   "architecture": {
+    "modality": "text->text",
+    "input_modalities": [
+     "text"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "mit",
+   "parameter_count": null,
+   "weights_dtype": null,
+   "pricing": {
+    "prompt": "0.00000000186",
+    "completion": "0.00000000775",
+    "input_cache_read": "0.000000000465",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 262144,
+    "max_completion_tokens": 65536,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "add_generation_prompt",
+    "allowed_token_ids",
+    "cache_salt",
+    "chat_template_kwargs",
+    "continue_final_message",
+    "frequency_penalty",
+    "guided_choice",
+    "guided_grammar",
+    "guided_json",
+    "guided_regex",
+    "ignore_eos",
+    "include_stop_str_in_output",
+    "logprobs",
+    "max_completion_tokens",
+    "max_tokens",
+    "min_tokens",
+    "n",
+    "parallel_tool_calls",
+    "presence_penalty",
+    "reasoning",
+    "reasoning_effort",
+    "repetition_penalty",
+    "response_format",
+    "return_tokens_as_token_ids",
+    "seed",
+    "stop",
+    "stop_token_ids",
+    "structured_outputs",
+    "temperature",
+    "thinking",
+    "tool_call_dispatch",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_logprobs",
+    "top_p"
+   ],
+   "parameter_offers": [
+    {
+     "text": {
+      "n": {
+       "default": 1,
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 1
+      },
+      "seed": {
+       "type": "integer"
+      },
+      "stop": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "array",
+         "items": {
+          "type": "string"
+         },
+         "maxItems": 4
+        }
+       ]
+      },
+      "tools": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "properties": {
+         "type": {
+          "type": "string",
+          "enum": [
+           "function"
+          ]
+         },
+         "function": {
+          "type": "object",
+          "properties": {
+           "name": {
+            "type": "string"
+           },
+           "strict": {
+            "type": "boolean"
+           },
+           "parameters": {},
+           "description": {
+            "type": "string"
+           }
+          }
+         }
+        }
+       },
+       "maxItems": 1536
+      },
+      "top_k": {
+       "default": 20,
+       "type": "integer",
+       "minimum": -1,
+       "maximum": 2147483647
+      },
+      "top_p": {
+       "default": 0.95,
+       "type": "number",
+       "maximum": 1,
+       "exclusiveMinimum": 0
+      },
+      "logprobs": {
+       "default": false,
+       "type": "boolean"
+      },
+      "thinking": {
+       "type": "object",
+       "properties": {
+        "type": {
+         "type": "string",
+         "enum": [
+          "disabled"
+         ]
+        }
+       }
+      },
+      "reasoning": {
+       "type": "object",
+       "properties": {
+        "effort": {
+         "type": "string",
+         "enum": [
+          "none",
+          "minimal",
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+         ]
+        }
+       }
+      },
+      "cache_salt": {
+       "type": "string"
+      },
+      "ignore_eos": {
+       "default": false,
+       "type": "boolean"
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "min_tokens": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 65536
+      },
+      "guided_json": {},
+      "temperature": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {
+       "anyOf": [
+        {
+         "type": "string",
+         "enum": [
+          "none",
+          "auto",
+          "required"
+         ]
+        },
+        {
+         "type": "object",
+         "properties": {
+          "type": {
+           "type": "string",
+           "enum": [
+            "function"
+           ]
+          },
+          "function": {
+           "type": "object",
+           "properties": {
+            "name": {
+             "type": "string"
+            }
+           }
+          }
+         }
+        }
+       ]
+      },
+      "guided_regex": {
+       "type": "string"
+      },
+      "top_logprobs": {
+       "x-heimdall-requires": {
+        "logprobs": true
+       },
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 20
+      },
+      "guided_choice": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "guided_grammar": {
+       "type": "string"
+      },
+      "stop_token_ids": {
+       "type": "array",
+       "items": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "response_format": {
+       "type": "object",
+       "properties": {
+        "type": {
+         "type": "string",
+         "enum": [
+          "text",
+          "json_object",
+          "json_schema"
+         ]
+        },
+        "json_schema": {
+         "type": "object",
+         "properties": {
+          "name": {
+           "type": "string"
+          },
+          "schema": {},
+          "strict": {
+           "type": "boolean"
+          },
+          "description": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      },
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "default": "medium",
+       "type": "string",
+       "enum": [
+        "none",
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+       ]
+      },
+      "allowed_token_ids": {
+       "type": "array",
+       "items": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "maximum": 2,
+       "exclusiveMinimum": 0
+      },
+      "structured_outputs": {
+       "type": "boolean"
+      },
+      "tool_call_dispatch": {
+       "type": "boolean"
+      },
+      "parallel_tool_calls": {
+       "default": true,
+       "type": "boolean"
+      },
+      "chat_template_kwargs": {
+       "type": "object",
+       "properties": {
+        "enable_thinking": {
+         "default": true,
+         "type": "boolean"
+        }
+       }
+      },
+      "add_generation_prompt": {
+       "type": "boolean"
+      },
+      "max_completion_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "continue_final_message": {
+       "type": "boolean"
+      },
+      "include_stop_str_in_output": {
+       "default": false,
+       "type": "boolean"
+      },
+      "return_tokens_as_token_ids": {
+       "default": false,
+       "x-heimdall-requires": {
+        "logprobs": true
+       },
+       "type": "boolean"
+      }
+     }
+    }
+   ],
+   "reasoning": {
+    "supported_efforts": [
+     "xhigh",
+     "high",
+     "medium",
+     "low",
+     "minimal",
+     "none"
+    ],
+    "mandatory": false
+   },
+   "default_parameters": {},
+   "family": {
+    "id": "internscience/agents-a1-4b",
+    "name": "InternScience: Agents A1 4B"
+   },
+   "author": "internscience",
+   "tags": [
+    "cybersecurity",
+    "reasoning",
+    "tools"
+   ],
+   "endpoint_count": 1,
+   "links": {
+    "details": "/api/v1/models/internscience/agents-a1-4b-cybersecurity/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "hotdogs/Agents-A1-4B-cyber-lora",
+    "read_at": 1794555521,
+    "availability": "public",
+    "languages": [
+     "en",
+     "th"
+    ],
+    "datasets": [
+     "AlicanKiraz0/Cybersecurity-Dataset-Fenrir-v2.1",
+     "Trendyol/Trendyol-Cybersecurity-Instruction-Tuning-Dataset",
+     "ChaoticNeutrals/Cybersecurity-ShareGPT"
+    ]
+   }
+  },
+  {
+   "id": "inclusionai/ling-3.0-flash",
+   "canonical_slug": "inclusionai/ling-3.0-flash",
+   "hugging_face_id": "inclusionAI/Ling-3.0-flash-fp4",
+   "name": "inclusionAI: Ling 3.0 Flash",
+   "created": 1785687281,
+   "expiration_date": null,
+   "description": "inclusionAI's Ling 3.0 Flash with MXFP4 expert and FP8 dense weights supports text input, reasoning, tool calling and structured JSON output. Each request has a 262,144-token context limit with at most 65,536 output tokens.",
+   "context_length": 262144,
+   "architecture": {
+    "modality": "text->text",
+    "input_modalities": [
+     "text"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "mit",
+   "parameter_count": 65578478560,
+   "weights_dtype": "I8",
+   "pricing": {
+    "prompt": "0.0000000124",
+    "completion": "0.0000000372",
+    "input_cache_read": "0.00000000248",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 262144,
+    "max_completion_tokens": 65536,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "allowed_token_ids",
+    "cache_salt",
+    "chat_template_kwargs",
+    "frequency_penalty",
+    "guided_choice",
+    "guided_grammar",
+    "guided_json",
+    "guided_regex",
+    "ignore_eos",
+    "include_stop_str_in_output",
+    "logprobs",
+    "max_completion_tokens",
+    "max_tokens",
+    "min_p",
+    "min_tokens",
+    "n",
+    "parallel_tool_calls",
+    "presence_penalty",
+    "prompt_logprobs",
+    "reasoning",
+    "reasoning_effort",
+    "repetition_penalty",
+    "response_format",
+    "return_tokens_as_token_ids",
+    "seed",
+    "stop",
+    "stop_token_ids",
+    "structured_outputs",
+    "temperature",
+    "thinking",
+    "tool_call_dispatch",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_logprobs",
+    "top_p"
+   ],
+   "parameter_offers": [
+    {
+     "text": {
+      "seed": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 2147483647
+      },
+      "stop": {
+       "type": "array",
+       "items": {}
+      },
+      "min_p": {
+       "default": 0,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "tools": {
+       "type": "boolean"
+      },
+      "top_k": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 200
+      },
+      "top_p": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 32768
+      },
+      "temperature": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {},
+      "response_format": {},
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "default": "medium",
+       "type": "string",
+       "enum": [
+        "none",
+        "low",
+        "medium",
+        "high"
+       ]
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      }
+     }
+    },
+    {
+     "text": {
+      "n": {
+       "default": 1,
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 1
+      },
+      "seed": {
+       "type": "integer"
+      },
+      "stop": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "array",
+         "items": {
+          "type": "string"
+         },
+         "maxItems": 4
+        }
+       ]
+      },
+      "tools": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "properties": {
+         "type": {
+          "type": "string",
+          "enum": [
+           "function"
+          ]
+         },
+         "function": {
+          "type": "object",
+          "properties": {
+           "name": {
+            "type": "string"
+           },
+           "strict": {
+            "type": "boolean"
+           },
+           "parameters": {},
+           "description": {
+            "type": "string"
+           }
+          }
+         }
+        }
+       },
+       "maxItems": 1536
+      },
+      "top_k": {
+       "type": "integer",
+       "minimum": -1,
+       "maximum": 2147483647
+      },
+      "top_p": {
+       "type": "number",
+       "maximum": 1,
+       "exclusiveMinimum": 0
+      },
+      "logprobs": {
+       "default": false,
+       "type": "boolean"
+      },
+      "thinking": {
+       "type": "object",
+       "properties": {
+        "type": {
+         "type": "string",
+         "enum": [
+          "disabled"
+         ]
+        }
+       }
+      },
+      "reasoning": {
+       "type": "object",
+       "properties": {
+        "effort": {
+         "type": "string",
+         "enum": [
+          "none",
+          "minimal",
+          "low",
+          "medium",
+          "high",
+          "xhigh"
+         ]
+        }
+       }
+      },
+      "cache_salt": {
+       "type": "string"
+      },
+      "ignore_eos": {
+       "default": false,
+       "type": "boolean"
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "min_tokens": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 65536
+      },
+      "guided_json": {},
+      "temperature": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {
+       "anyOf": [
+        {
+         "type": "string",
+         "enum": [
+          "none",
+          "auto",
+          "required"
+         ]
+        },
+        {
+         "type": "object",
+         "properties": {
+          "type": {
+           "type": "string",
+           "enum": [
+            "function"
+           ]
+          },
+          "function": {
+           "type": "object",
+           "properties": {
+            "name": {
+             "type": "string"
+            }
+           }
+          }
+         }
+        }
+       ]
+      },
+      "guided_regex": {
+       "type": "string"
+      },
+      "top_logprobs": {
+       "x-heimdall-requires": {
+        "logprobs": true
+       },
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 20
+      },
+      "guided_choice": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "guided_grammar": {
+       "type": "string"
+      },
+      "stop_token_ids": {
+       "type": "array",
+       "items": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "prompt_logprobs": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 20
+      },
+      "response_format": {
+       "type": "object",
+       "properties": {
+        "type": {
+         "type": "string",
+         "enum": [
+          "text",
+          "json_object",
+          "json_schema"
+         ]
+        },
+        "json_schema": {
+         "type": "object",
+         "properties": {
+          "name": {
+           "type": "string"
+          },
+          "schema": {},
+          "strict": {
+           "type": "boolean"
+          },
+          "description": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      },
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "default": "medium",
+       "type": "string",
+       "enum": [
+        "none",
+        "minimal",
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+       ]
+      },
+      "allowed_token_ids": {
+       "type": "array",
+       "items": {
+        "type": "integer",
+        "minimum": 0
+       }
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "maximum": 2,
+       "exclusiveMinimum": 0
+      },
+      "structured_outputs": {
+       "type": "boolean"
+      },
+      "tool_call_dispatch": {
+       "type": "boolean"
+      },
+      "parallel_tool_calls": {
+       "default": true,
+       "type": "boolean"
+      },
+      "chat_template_kwargs": {
+       "type": "object",
+       "properties": {
+        "enable_thinking": {
+         "default": true,
+         "type": "boolean"
+        }
+       }
+      },
+      "max_completion_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "include_stop_str_in_output": {
+       "default": false,
+       "type": "boolean"
+      },
+      "return_tokens_as_token_ids": {
+       "default": false,
+       "x-heimdall-requires": {
+        "logprobs": true
+       },
+       "type": "boolean"
+      }
+     }
+    }
+   ],
+   "reasoning": {
+    "supported_efforts": [
+     "xhigh",
+     "high",
+     "medium",
+     "low",
+     "minimal",
+     "none"
+    ],
+    "mandatory": false
+   },
+   "default_parameters": {},
+   "family": {
+    "id": "inclusionai/ling-3.0-flash",
+    "name": "inclusionAI: Ling 3.0 Flash"
+   },
+   "author": "inclusionai",
+   "tags": [
+    "moe",
+    "reasoning",
+    "tools"
+   ],
+   "endpoint_count": 2,
+   "links": {
+    "details": "/api/v1/models/inclusionai/ling-3.0-flash/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "inclusionAI/Ling-3.0-flash-fp4",
+    "read_at": 1794220922,
+    "availability": "public",
+    "weights_revision": "3bae1cf4011b48475b2cc038fff283af49053ebc",
+    "weights_updated_at": 1787212158,
+    "downloads": 1153,
+    "likes": 26
+   }
+  },
+  {
+   "id": "deepseek/deepseek-v4-flash-0731-abliterated",
+   "canonical_slug": "deepseek/deepseek-v4-flash-0731-abliterated",
+   "hugging_face_id": "cebeuq/DeepSeek-V4-Flash-0731-abliterated",
+   "name": "DeepSeek: DeepSeek V4 Flash 0731 Abliterated (cebeuq)",
+   "created": 1785611388,
+   "expiration_date": null,
+   "description": "A decensored (abliterated) rebuild of deepseek-ai/DeepSeek-V4-Flash-0731 \u2014 a 284B-parameter DeepSeek-V4 MoE agentic-coding / reasoning model \u2014 served unquantized at native FP4+FP8 across 2\u00d7 NVIDIA DGX Spark (GB10, 128 GB each) with vLLM.",
+   "context_length": 1048576,
+   "architecture": {
+    "modality": "text->text",
+    "input_modalities": [
+     "text"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "mit",
+   "parameter_count": 305723922366,
+   "weights_dtype": "I8",
+   "pricing": {
+    "prompt": "0.0000000434",
+    "completion": "0.0000000868",
+    "input_cache_read": "0.0000000093",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 1048576,
+    "max_completion_tokens": 131072,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "frequency_penalty",
+    "max_tokens",
+    "min_p",
+    "presence_penalty",
+    "reasoning_effort",
+    "repetition_penalty",
+    "response_format",
+    "seed",
+    "stop",
+    "temperature",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_p"
+   ],
+   "parameter_offers": [
+    {
+     "text": {
+      "seed": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 2147483647
+      },
+      "stop": {
+       "type": "array",
+       "items": {}
+      },
+      "min_p": {
+       "default": 0,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "tools": {},
+      "top_k": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 200
+      },
+      "top_p": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 131072
+      },
+      "temperature": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {},
+      "response_format": {},
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "default": "medium",
+       "type": "string",
+       "enum": [
+        "none",
+        "low",
+        "medium",
+        "high"
+       ]
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      }
+     }
+    }
+   ],
+   "reasoning": {
+    "supported_efforts": [
+     "high",
+     "medium",
+     "low",
+     "none"
+    ],
+    "mandatory": false,
+    "default_effort": "medium",
+    "default_enabled": true
+   },
+   "default_parameters": {
+    "temperature": 1,
+    "top_p": 1
+   },
+   "family": {
+    "id": "deepseek/deepseek-v4-flash-0731",
+    "name": "DeepSeek: DeepSeek V4 Flash 0731"
+   },
+   "author": "deepseek",
+   "tags": [
+    "reasoning"
+   ],
+   "endpoint_count": 1,
+   "links": {
+    "details": "/api/v1/models/deepseek/deepseek-v4-flash-0731-abliterated/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "cebeuq/DeepSeek-V4-Flash-0731-abliterated",
+    "read_at": 1794158378,
+    "availability": "public",
+    "weights_revision": "21bd923c2574d9edcd7b914885024ce72fd5c076",
+    "weights_updated_at": 1785628095,
+    "downloads": 1608,
+    "likes": 45
+   }
+  },
+  {
+   "id": "google/diffusiongemma-26b-a4b",
+   "canonical_slug": "google/diffusiongemma-26b-a4b",
+   "hugging_face_id": "nvidia/diffusiongemma-26B-A4B-it-NVFP4",
+   "name": "Google: DiffusionGemma 26B A4B",
+   "created": 1781107245,
+   "expiration_date": null,
+   "description": "A 26B mixture-of-experts diffusion language model from Google. It denoises 256-token blocks in parallel instead of writing one token at a time, so a stream arrives in blocks and a reply under one block arrives in one chunk. Sampling controls such as temperature and seed do not apply to its sampler, and structured output is not available.",
+   "context_length": 262144,
+   "architecture": {
+    "modality": "text+image+video->text",
+    "input_modalities": [
+     "text",
+     "image",
+     "video"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "apache-2.0",
+   "parameter_count": 14404786224,
+   "weights_dtype": "U8",
+   "pricing": {
+    "prompt": "0.000000031",
+    "completion": "0.000000124",
+    "input_cache_read": "0.00000000775",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 262144,
+    "max_completion_tokens": 65536,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "max_completion_tokens",
+    "max_tokens",
+    "reasoning_effort",
+    "stop",
+    "tool_choice",
+    "tools"
+   ],
+   "parameter_offers": [
+    {
+     "text": {
+      "stop": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        }
+       ]
+      },
+      "tools": {
+       "type": "array",
+       "items": {}
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "tool_choice": {},
+      "reasoning_effort": {
+       "type": "string",
+       "enum": [
+        "none",
+        "medium"
+       ]
+      },
+      "max_completion_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      }
+     }
+    }
+   ],
+   "reasoning": {
+    "supported_efforts": [
+     "medium",
+     "none"
+    ],
+    "mandatory": false
+   },
+   "default_parameters": {},
+   "family": {
+    "id": "google/diffusiongemma-26b-a4b",
+    "name": "Google: DiffusionGemma 26B A4B"
+   },
+   "author": "google",
+   "tags": [
+    "diffusion",
+    "moe",
+    "reasoning",
+    "tools",
+    "vision"
+   ],
+   "endpoint_count": 1,
+   "links": {
+    "details": "/api/v1/models/google/diffusiongemma-26b-a4b/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "nvidia/diffusiongemma-26B-A4B-it-NVFP4",
+    "read_at": 1794296178,
+    "availability": "public",
+    "weights_revision": "ec4ff3df205028f4e81c954c2227f9312b3ec2ea",
+    "weights_updated_at": 1783187869,
+    "downloads": 27183,
+    "likes": 147
+   }
+  },
+  {
+   "id": "hidream-ai/hidream-o1-image",
+   "canonical_slug": "hidream-ai/hidream-o1-image",
+   "hugging_face_id": "Comfy-Org/HiDream-O1-Image",
+   "name": "HiDream: HiDream O1 Image",
+   "created": 1778372882,
+   "expiration_date": null,
+   "description": "Place the files in the following folders:",
+   "context_length": 1024,
+   "architecture": {
+    "modality": "text->image",
+    "input_modalities": [
+     "text"
+    ],
+    "output_modalities": [
+     "image"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "mit",
+   "parameter_count": null,
+   "weights_dtype": null,
+   "pricing": {
+    "prompt": "0",
+    "input_cache_read": "0",
+    "image_output": "0.0062",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 1024,
+    "max_completion_tokens": null,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "n",
+    "quality",
+    "seed",
+    "size"
+   ],
+   "parameter_offers": [
+    {
+     "image": {
+      "n": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 4
+      },
+      "seed": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 2147483647
+      },
+      "size": {},
+      "quality": {
+       "default": "standard",
+       "type": "string",
+       "enum": [
+        "standard",
+        "hd"
+       ]
+      }
+     }
+    }
+   ],
+   "default_parameters": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "repetition_penalty": 1
+   },
+   "family": {
+    "id": "hidream-ai/hidream-o1-image",
+    "name": "HiDream: HiDream O1 Image"
+   },
+   "author": "hidream-ai",
+   "tags": [
+    "comfyui",
+    "diffusion-single-file",
+    "eval-results",
+    "image-text-to-image",
+    "image-text-to-text",
+    "qwen3_vl",
+    "text-to-image"
+   ],
+   "endpoint_count": 1,
+   "links": {
+    "details": "/api/v1/models/hidream-ai/hidream-o1-image/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "Comfy-Org/HiDream-O1-Image",
+    "read_at": 1794158419,
+    "availability": "public",
+    "weights_revision": "377ec7124bc46a15736c68cd9e4ad6d7da7a7614",
+    "weights_updated_at": 1790150471,
+    "downloads": 59748,
+    "likes": 83
+   }
+  },
+  {
+   "id": "openbmb/voxcpm2",
+   "canonical_slug": "openbmb/voxcpm2",
+   "hugging_face_id": "openbmb/VoxCPM2",
+   "name": "OpenBMB: VoxCPM2",
+   "created": 1775193950,
+   "expiration_date": null,
+   "description": "VoxCPM2 is a tokenizer-free, diffusion autoregressive Text-to-Speech model \u2014 2B parameters, 30 languages, 48kHz audio output, trained on over 2 million hours of multilingual speech data.",
+   "context_length": 8192,
+   "architecture": {
+    "modality": "text+audio->speech",
+    "input_modalities": [
+     "text",
+     "audio"
+    ],
+    "output_modalities": [
+     "speech"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "apache-2.0",
+   "parameter_count": 2290004544,
+   "weights_dtype": "BF16",
+   "pricing": {
+    "character": "0.00000465",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 8192,
+    "max_completion_tokens": null,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "input_references",
+    "language",
+    "max_new_tokens",
+    "response_format",
+    "speed",
+    "voice"
+   ],
+   "parameter_offers": [
+    {
+     "speech": {
+      "speed": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0.25,
+       "maximum": 4
+      },
+      "voice": {
+       "type": "string",
+       "enum": [
+        "default"
+       ]
+      },
+      "language": {
+       "type": "string",
+       "enum": [
+        "zh",
+        "en",
+        "ar",
+        "my",
+        "da",
+        "nl",
+        "fi",
+        "fr",
+        "de",
+        "el",
+        "he",
+        "hi",
+        "id",
+        "it",
+        "ja",
+        "km",
+        "ko",
+        "lo",
+        "ms",
+        "no",
+        "pl",
+        "pt",
+        "ru",
+        "es",
+        "sw",
+        "sv",
+        "tl",
+        "th",
+        "tr",
+        "vi"
+       ]
+      },
+      "max_new_tokens": {
+       "type": "integer",
+       "minimum": 3,
+       "maximum": 4096
+      },
+      "response_format": {
+       "type": "string",
+       "enum": [
+        "wav",
+        "mp3",
+        "opus",
+        "flac",
+        "pcm"
+       ]
+      },
+      "input_references": {
+       "type": "array",
+       "maxItems": 1
+      }
+     }
+    }
+   ],
+   "default_parameters": {},
+   "family": {
+    "id": "openbmb/voxcpm2",
+    "name": "OpenBMB: VoxCPM2"
+   },
+   "author": "openbmb",
+   "tags": [
+    "ar",
+    "audio",
+    "diffusion",
+    "en",
+    "multilingual",
+    "my",
+    "text-to-speech",
+    "tts",
+    "voice-cloning",
+    "voice-design",
+    "voxcpm",
+    "zh"
+   ],
+   "endpoint_count": 1,
+   "links": {
+    "details": "/api/v1/models/openbmb/voxcpm2/endpoints"
+   },
+   "speech": {
+    "voices": [
+     "default"
+    ],
+    "formats": [
+     "flac",
+     "mp3",
+     "opus",
+     "pcm",
+     "wav"
+    ],
+    "min_speed": 0.25,
+    "max_speed": 4
+   },
+   "supported_voices": [
+    "default"
+   ],
+   "supported_dimensions": null,
+   "supported_languages": [
+    "zh",
+    "en",
+    "ar",
+    "my",
+    "da",
+    "nl",
+    "fi",
+    "fr",
+    "de",
+    "el",
+    "he",
+    "hi",
+    "id",
+    "it",
+    "ja",
+    "km",
+    "ko",
+    "lo",
+    "ms",
+    "no",
+    "pl",
+    "pt",
+    "ru",
+    "es",
+    "sw",
+    "sv",
+    "tl",
+    "th",
+    "tr",
+    "vi"
+   ],
+   "hugging_face": {
+    "id": "openbmb/VoxCPM2",
+    "read_at": 1794158394,
+    "availability": "public",
+    "languages": [
+     "zh",
+     "en",
+     "ar",
+     "my",
+     "da",
+     "nl",
+     "fi",
+     "fr",
+     "de",
+     "el",
+     "he",
+     "hi",
+     "id",
+     "it",
+     "ja",
+     "km",
+     "ko",
+     "lo",
+     "ms",
+     "no",
+     "pl",
+     "pt",
+     "ru",
+     "es",
+     "sw",
+     "sv",
+     "tl",
+     "th",
+     "tr",
+     "vi"
+    ],
+    "papers": [
+     "2509.24650"
+    ],
+    "weights_revision": "32279effe8c19989596f05d353d1447f51d9e915",
+    "weights_updated_at": 1787038637,
+    "downloads": 978473,
+    "likes": 1759
+   }
+  },
+  {
+   "id": "google/gemma-4-31b-it",
+   "canonical_slug": "google/gemma-4-31b-it",
+   "hugging_face_id": "unsloth/gemma-4-31B-it-GGUF",
+   "name": "Google: Gemma 4 31B",
+   "created": 1775054418,
+   "expiration_date": null,
+   "description": "Gemma is a family of open models built by Google DeepMind. Gemma 4 models are multimodal, handling text and image input (with audio supported on small models) and generating text output. This release includes open-weights models in both pre-trained and instruction-tuned variants. Gemma 4 features a context window of up to 256K tokens and maintains multilingual support in over 140 languages.",
+   "context_length": 65536,
+   "architecture": {
+    "modality": "text+image->text",
+    "input_modalities": [
+     "text",
+     "image"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "apache-2.0",
+   "parameter_count": null,
+   "weights_dtype": null,
+   "pricing": {
+    "prompt": "0.000000031",
+    "completion": "0.000000124",
+    "input_cache_read": "0.0000000155",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 65536,
+    "max_completion_tokens": 65536,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "frequency_penalty",
+    "max_tokens",
+    "min_p",
+    "presence_penalty",
+    "reasoning_effort",
+    "repetition_penalty",
+    "response_format",
+    "seed",
+    "stop",
+    "temperature",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_p"
+   ],
+   "parameter_offers": [
+    {
+     "text": {
+      "seed": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 2147483647
+      },
+      "stop": {
+       "type": "array",
+       "items": {}
+      },
+      "min_p": {
+       "default": 0,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "tools": {},
+      "top_k": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 200
+      },
+      "top_p": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 65536
+      },
+      "temperature": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {},
+      "response_format": {},
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "default": "medium",
+       "type": "string",
+       "enum": [
+        "none",
+        "low",
+        "medium",
+        "high"
+       ]
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "repetition_penalty": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      }
+     }
+    }
+   ],
+   "reasoning": {
+    "supported_efforts": [
+     "high",
+     "medium",
+     "low",
+     "none"
+    ],
+    "mandatory": false,
+    "default_effort": "medium",
+    "default_enabled": true
+   },
+   "default_parameters": {},
+   "family": {
+    "id": "google/gemma-4-31b-it",
+    "name": "Google: Gemma 4 31B"
+   },
+   "author": "google",
+   "tags": [
+    "reasoning"
+   ],
+   "endpoint_count": 1,
+   "links": {
+    "details": "/api/v1/models/google/gemma-4-31b-it/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "unsloth/gemma-4-31B-it-GGUF",
+    "read_at": 1794158380,
+    "availability": "public",
+    "weights_revision": "c1ac76e99d5513b141e8adde7288b85c3f9c32ec",
+    "weights_updated_at": 1784293782,
+    "downloads": 392923,
+    "likes": 672
+   }
+  },
+  {
+   "id": "openai/gpt-oss-20b",
+   "canonical_slug": "openai/gpt-oss-20b",
+   "hugging_face_id": "openai/gpt-oss-20b",
+   "name": "OpenAI: gpt-oss-20b",
+   "created": 1754346809,
+   "expiration_date": null,
+   "description": "Welcome to the gpt-oss series, OpenAI\u2019s open-weight models designed for powerful reasoning, agentic tasks, and versatile developer use cases.",
+   "context_length": 131072,
+   "architecture": {
+    "modality": "text->text",
+    "input_modalities": [
+     "text"
+    ],
+    "output_modalities": [
+     "text"
+    ],
+    "tokenizer": null,
+    "instruct_type": null
+   },
+   "license": "apache-2.0",
+   "parameter_count": 20914757184,
+   "weights_dtype": "U8",
+   "pricing": {
+    "prompt": "0.000000031",
+    "completion": "0.000000124",
+    "input_cache_read": "0.0000000155",
+    "discount": 0.69
+   },
+   "top_provider": {
+    "context_length": 131072,
+    "max_completion_tokens": 32768,
+    "is_moderated": false
+   },
+   "per_request_limits": null,
+   "supported_parameters": [
+    "frequency_penalty",
+    "logit_bias",
+    "logprobs",
+    "max_tokens",
+    "min_p",
+    "presence_penalty",
+    "reasoning_effort",
+    "response_format",
+    "seed",
+    "stop",
+    "temperature",
+    "tool_choice",
+    "tools",
+    "top_k",
+    "top_p"
+   ],
+   "parameter_offers": [
+    {
+     "text": {
+      "seed": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 2147483647
+      },
+      "stop": {
+       "type": "array",
+       "items": {}
+      },
+      "min_p": {
+       "default": 0,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "tools": {
+       "type": "boolean"
+      },
+      "top_k": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 200
+      },
+      "top_p": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "logprobs": {
+       "type": "boolean"
+      },
+      "logit_bias": {},
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 32768
+      },
+      "temperature": {
+       "default": 1,
+       "type": "number",
+       "minimum": 0,
+       "maximum": 2
+      },
+      "tool_choice": {},
+      "response_format": {},
+      "presence_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      },
+      "reasoning_effort": {
+       "default": "medium",
+       "type": "string",
+       "enum": [
+        "low",
+        "medium",
+        "high"
+       ]
+      },
+      "frequency_penalty": {
+       "default": 0,
+       "type": "number",
+       "minimum": -2,
+       "maximum": 2
+      }
+     }
+    }
+   ],
+   "reasoning": {
+    "supported_efforts": [
+     "high",
+     "medium",
+     "low"
+    ],
+    "default_effort": "medium",
+    "default_enabled": true
+   },
+   "default_parameters": {},
+   "family": {
+    "id": "openai/gpt-oss-20b",
+    "name": "OpenAI: gpt-oss-20b"
+   },
+   "author": "openai",
+   "tags": [
+    "reasoning",
+    "tools"
+   ],
+   "endpoint_count": 1,
+   "links": {
+    "details": "/api/v1/models/openai/gpt-oss-20b/endpoints"
+   },
+   "supported_voices": null,
+   "supported_dimensions": null,
+   "supported_languages": null,
+   "hugging_face": {
+    "id": "openai/gpt-oss-20b",
+    "read_at": 1794158380,
+    "availability": "public",
+    "papers": [
+     "2508.10925"
+    ],
+    "weights_revision": "6cee5e81ee83917806bbde320786a8fb61efebee",
+    "weights_updated_at": 1756229147,
+    "downloads": 5868863,
+    "likes": 5288
+   }
+  }
+ ]
+}
