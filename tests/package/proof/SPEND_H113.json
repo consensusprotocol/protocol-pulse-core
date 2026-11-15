@@ -1,0 +1,27 @@
+{
+ "usd_estimate": 0.332035,
+ "calls": 3,
+ "by_backend": {
+  "xai:grok-4.20-0309-reasoning": {
+   "calls": 3,
+   "in": 2682,
+   "out": 12745,
+   "usd_estimate": 0.332035,
+   "price_usd_per_1m": [
+    5,
+    25
+   ],
+   "usd_reported": 0.0341398,
+   "reported_calls": 3,
+   "in_reported": 2682
+  }
+ },
+ "by_role": {
+  "coherence_verdict": {
+   "calls": 3,
+   "usd_estimate": 0.332035
+  }
+ },
+ "reserved": {},
+ "usd_reported": 0.0341398
+}

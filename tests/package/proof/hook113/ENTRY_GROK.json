@@ -1,0 +1,260 @@
+{
+ "ruling": "113 (2), the entry test on Grok",
+ "at": "2026-11-15T17:44:37+00:00",
+ "rater": "xai:grok-4.20-0309-reasoning",
+ "question_version": "dd497beb6930",
+ "law_seed": 7,
+ "refs": [
+  {
+   "moment_id": "ref-preview",
+   "label": "the protected preview (L-d, PBX 2026-11-11)",
+   "channel_name": "DataDash",
+   "video_id": "RXTVaDsN11M",
+   "seconds": 9.08,
+   "text": "Bitcoin has now seen a 16 % decline from the overall high from $88 ,000, touching down towards about $73 ,400, $500, give or take."
+  },
+  {
+   "moment_id": "ref-37c5b5f5",
+   "label": "the protected moments reference 37c5b5f5",
+   "channel_name": "Saifedean Ammous",
+   "video_id": "vgsSZ4mAHfQ",
+   "seconds": 8.38,
+   "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that."
+  },
+  {
+   "moment_id": "ref-41f29b1f",
+   "label": "the protected medley reference 41f29b1f",
+   "channel_name": "Natalie Brunell",
+   "video_id": "wdk5JZ9hPzs",
+   "seconds": 3.5,
+   "text": "Bitcoin imposes a global free market for the first time ever."
+  },
+  {
+   "moment_id": "ref-0c68b589",
+   "label": "the published medley 0c68b589",
+   "channel_name": "Simply Bitcoin",
+   "video_id": "DcUbBkyeh9M",
+   "seconds": 16.62,
+   "text": "A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies. and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate."
+  },
+  {
+   "moment_id": "ref-13949b7c",
+   "label": "the last sealed medley 13949b7c (delivered as a pass 17:14 ET Nov 13)",
+   "channel_name": "Simply Bitcoin",
+   "video_id": "DcUbBkyeh9M",
+   "seconds": 12.62,
+   "text": "Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued."
+  }
+ ],
+ "runs": [
+  {
+   "seed": 7,
+   "ratings": {
+    "ref-preview": {
+     "scroll": 3,
+     "alone": 5,
+     "setup": 3,
+     "rating": 3,
+     "why": "dry price update lacks excitement",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-37c5b5f5": {
+     "scroll": 4,
+     "alone": 5,
+     "setup": 4,
+     "rating": 4,
+     "why": "abstract principle less immediate",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-41f29b1f": {
+     "scroll": 5,
+     "alone": 5,
+     "setup": 5,
+     "rating": 5,
+     "why": "bold but needs follow-up payoff",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-0c68b589": {
+     "scroll": 2,
+     "alone": 4,
+     "setup": 5,
+     "rating": 2,
+     "why": "slow start before mentioning Bitcoin",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-13949b7c": {
+     "scroll": 3,
+     "alone": 5,
+     "setup": 4,
+     "rating": 3,
+     "why": "general history before Bitcoin",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    }
+   },
+   "error": null,
+   "writers": [
+    [
+     "openai"
+    ],
+    [
+     "gpt"
+    ]
+   ]
+  },
+  {
+   "seed": 8,
+   "ratings": {
+    "ref-preview": {
+     "scroll": 3,
+     "alone": 5,
+     "setup": 3,
+     "rating": 3,
+     "why": "specific price info lacks intrigue",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-37c5b5f5": {
+     "scroll": 3,
+     "alone": 5,
+     "setup": 4,
+     "rating": 3,
+     "why": "opening not punchy enough",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-41f29b1f": {
+     "scroll": 5,
+     "alone": 5,
+     "setup": 5,
+     "rating": 5,
+     "why": "slightly abstract claim",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-0c68b589": {
+     "scroll": 2,
+     "alone": 5,
+     "setup": 5,
+     "rating": 2,
+     "why": "slow to introduce Bitcoin",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-13949b7c": {
+     "scroll": 4,
+     "alone": 5,
+     "setup": 4,
+     "rating": 4,
+     "why": "dry historical facts",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    }
+   },
+   "error": null,
+   "writers": [
+    [
+     "openai"
+    ],
+    [
+     "gpt"
+    ]
+   ]
+  },
+  {
+   "seed": 9,
+   "ratings": {
+    "ref-preview": {
+     "scroll": 3,
+     "alone": 5,
+     "setup": 3,
+     "rating": 3,
+     "why": "dry price decline fact",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-37c5b5f5": {
+     "scroll": 4,
+     "alone": 5,
+     "setup": 4,
+     "rating": 4,
+     "why": "abstract without urgency",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-41f29b1f": {
+     "scroll": 5,
+     "alone": 5,
+     "setup": 5,
+     "rating": 5,
+     "why": "bold claim needs context",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-0c68b589": {
+     "scroll": 2,
+     "alone": 5,
+     "setup": 5,
+     "rating": 2,
+     "why": "slow start no BTC mention",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-13949b7c": {
+     "scroll": 3,
+     "alone": 5,
+     "setup": 4,
+     "rating": 3,
+     "why": "opens too generally",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    }
+   },
+   "error": null,
+   "writers": [
+    [
+     "openai"
+    ],
+    [
+     "gpt"
+    ]
+   ]
+  }
+ ],
+ "spent_usd": 0.03414,
+ "pass": false
+}
