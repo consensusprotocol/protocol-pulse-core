@@ -58,7 +58,7 @@ class TestRequest(Dirs):
         self.assertNotIn("trimmed_leading", s[1])                                        # only a trimmed moment
         self.assertEqual((s[2]["trimmed_leading"], s[2]["untrimmed_start"]), ("And", 1690.9))
         self.assertEqual(os.path.basename(LP.result_file(s[0], self.res)),
-                         "DcUbBkyeh9M.216.054-228.674.d1e155c642a6.json")             # ruling 103's decoder
+                         "DcUbBkyeh9M.216.054-228.674.a4c307f78c94.json")             # ruling 105's decoder
 
     def test_a_request_is_renamed_from_its_tmp_and_never_written_over(self):
         segs = LP.segments_of([HOOK, CLIP])
@@ -133,8 +133,9 @@ class TestRuling84(unittest.TestCase):
     s = LP.segments_of([BREEDLOVE])[0]
 
     def test_the_rules_string_is_the_integrators(self):
-        """RULING 103 (14:12 Nov 14) joined the integrator's rules string (its message of 14:3x Nov 14)."""
-        self.assertEqual(LP.RULES, "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103")
+        """RULING 103 (14:12 Nov 14) and RULING 105 (20:13 Nov 14) joined the integrator's rules string (its messages
+        of 14:3x and 20:5x Nov 14)."""
+        self.assertEqual(LP.RULES, "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105")
 
     def test_the_held_span_of_the_20_12_build_now_adopts(self):
         spoken = "So over time, um, I came to think, uh, or the money itself was broken."
@@ -205,11 +206,11 @@ class TestCheck(Dirs):
 
     def test_an_answer_in_the_old_decoders_file_is_never_read(self):
         """Audit 1845 C2 (glm): ruling 73 changed the decoder, ruling 84 changed it again, and ruling 90 (the
-        integrator's spotlight branches) again, and ruling 103 with the canon-401k fix again (14:3x Nov 14); a file
-        named for an older decoder (25cd6f15e6c9, 8a101f222598, 962353613cb0, c705b20ed800) is never opened, even
-        with a matching, newer entry under the current rules."""
+        integrator's spotlight branches) again, ruling 103 with the canon-401k fix again (14:3x Nov 14), and ruling 105
+        again (20:5x Nov 14); a file named for an older decoder (25cd6f15e6c9, 8a101f222598, 962353613cb0, c705b20ed800,
+        d1e155c642a6) is never opened, even with a matching, newer entry under the current rules."""
         s = LP.segments_of([HOOK])[0]
-        for dec in ("25cd6f15e6c9", "8a101f222598", "962353613cb0", "c705b20ed800"):
+        for dec in ("25cd6f15e6c9", "8a101f222598", "962353613cb0", "c705b20ed800", "d1e155c642a6"):
             old = LP.result_file(s, self.res, decoder=dec)
             with open(old, "w") as f:
                 json.dump([entry(s, "no_difference", at="2026-11-14T02:00:00Z")], f)

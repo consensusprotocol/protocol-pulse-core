@@ -39,12 +39,15 @@ import time
 from datetime import datetime, timezone
 
 import attest as AT
+import canon as C
 
-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103"   # RULING 103 (orchestrator 14:12 Nov 14): the
+RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105"   # RULING 105 (orchestrator
+#   20:13 Nov 14): the unstable second reading joins the rules (the integrator's messages of 20:5x-21:0x Nov 14).
+#   RULING 103 (orchestrator 14:12 Nov 14): the
 #   targeted re-listen joins the rules (the integrator's message of 14:3x Nov 14); entries under the old RULES are never
 #   read. RULING 84 (orchestrator 20:41 Nov 13): the integrator's
 #   RULES string (its message of 20:4x Nov 13). RULING 73 (live 18:43:08 Nov 13, merged 585b6da5 on the integrator's
-DECODER = "d1e155c642a6"                      # side): the render's own cut placement joins the pre-check (a passing
+DECODER = "a4c307f78c94"                      # side): the render's own cut placement joins the pre-check (a passing
 #   entry carries "cut"; a span the render cannot cut holds: "ruling 73: the render cannot cut this span: ..."). RULING
 #   84 changed the render's adjudicate_lock (pinned.py), so the decoder_sha changed: 962353613cb0e065008ab0405ca8550111ddd3ca3ba70f0ae65b4b77ab1876d8
 #   (ruling 73's was 8a101f222598a4f725e7cf85626e90fb2fae35df8d81d3ff430469728114e1a7). RULING 90 (the integrator's
@@ -52,6 +55,8 @@ DECODER = "d1e155c642a6"                      # side): the render's own cut plac
 #   lock and class unchanged, entries under the old sha not reused): c705b20ed80025af629856e6c34eb609834fef3f708b8614ca26749a4fc8088c
 #   RULING 103 with the canon-401k fix (law L-k: '401k' is a plan's name, never 401000), landed together on the
 #   integrator's side (canon-401k 373d0fed + 077407dc, audited batches 79 and 80): d1e155c642a6aaacd578ac5ad2f47c9cd1d71594c9913dc4f0f231fd6b2258ce
+#   RULING 105 (the integrator's branch ruling105 d5bf9674, audited batch 84; both sides land in lockstep as with 103):
+#   a4c307f78c94d1c4ee068b5c27862c79a90900880bb885fee68da616ce2a20d6
 RESULTS = "/home/ultron/protocol_pulse/data/lock_precheck/results"        # the integrator's; read only
 REQUESTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
                         "lock_requests")      # this worktree's; the service only reads it
@@ -138,6 +143,12 @@ def decide(seg, e):
     if e is None:
         return {"verdict": "error", "outcome": None, "why": "no answer from the render's lock in time (law L-m)"}
     out, why = e.get("outcome"), str(e.get("reason") or "")[:400]
+    u = e.get("unstable_second_reading")
+    if u is not None and (out in PASS or out == "adopt_spoken"):   # RULING 105: a pass (or an adoption) that rests
+        bad = ruling_105_fails(u)                                  # on the readings across passes (glm, audit 2049 C1)
+        if bad:                                       # this side's own check of the record disagrees: fail closed
+            return {"verdict": "hold", "outcome": out, "why": f"ruling 105 (this side's check of the pre-check's "
+                                                              f"record): {bad}"}
     if out in PASS:
         return {"verdict": "pass", "outcome": out, "why": why}
     if out == "hold":
@@ -178,13 +189,69 @@ def check(segs, request_id, requests_dir=REQUESTS, results_dir=RESULTS, timeout_
     rows = []
     for s, e in zip(req, got):
         d = decide(s, e)
-        rows.append(dict(s, **d, relisten=relisten_of(e), entry=None if e is None else {
+        rows.append(dict(s, **d, relisten=relisten_of(e), unstable_second_reading=unstable_of(e),
+                         entry=None if e is None else {
             "request_id": e.get("request_id"), "at": e.get("at"), "outcome": e.get("outcome"),
             "lock_sha256": (e.get("lock") or {}).get("sha256") if isinstance(e.get("lock"), dict) else None,
             "file": os.path.basename(result_file(s, results_dir))}))
     errs = [f"{x['video_id']} {x['start']}-{x['end']}: {x['why']}" for x in rows if x["verdict"] == "error"]
     return {"ok": all(x["verdict"] in ("pass", "adopt") for x in rows), "request_id": sent, "segments": rows,
             "error": "; ".join(errs)[:600] or None}
+
+
+def _canon(x):
+    """A reading's canonical form through canon (the integrator's canon, byte-identical): '68,000' -> '68000', '401K'
+    and '401(k)' -> '401k', 'forty-five' -> '45'. None for a non-string or a reading with no token (audit 2049 C1,
+    qwen and glm: never a raw-string comparison, law L-k)."""
+    return (C.canon(x) or None) if isinstance(x, str) else None
+
+
+def _truncation(r, token):
+    """RULING 105 (3): r is the lock's NUMBER token cut short: a prefix of it that keeps a digit and drops only a
+    NON-DIGIT suffix ('401' of '401k'). A name (a token with no digit) never qualifies, nor does a dropped token ("")
+    or a different number ('68000' of '86000')."""
+    return (isinstance(r, str) and bool(r) and r != token and token.startswith(r) and any(ch.isdigit() for ch in r)
+            and not any(ch.isdigit() for ch in token[len(r):]))
+
+
+def ruling_105_fails(u):
+    """RULING 105 (orchestrator 20:13 Nov 14), checked on THIS side from the record the pre-check sealed
+    ("unstable_second_reading"), every token read through canon: the token is adjudicated as the lock's only when
+    (1) the decoder read it the same on
+    every pass, (2) the second recogniser's repeated readings of the same audio differ among themselves and one of
+    them IS the token, and (3) every differing reading is a truncation of it. -> None when the record's pass holds on
+    its own readings; else why not (a record that is not an object, the many-token form, a hold verdict, or any of the
+    three not met: every one a hold, never a pass)."""
+    if not isinstance(u, dict):
+        return f"the record is not an object ({type(u).__name__})"
+    if "tokens" in u or u.get("verdict") != "pass":
+        return f"the record's verdict is {u.get('verdict')!r}" + (f" ({u.get('why')})" if u.get("why") else "")
+    tok, dec, sec = _canon(u.get("token")), u.get("decoder_readings"), u.get("second_readings")
+    if not (tok and any(ch.isdigit() for ch in tok)):
+        return f"the token {u.get('token')!r} is not a number (a name never qualifies)"
+    if not (isinstance(dec, list) and dec and isinstance(sec, list) and len(sec) >= 2):
+        return "the record holds too few readings (the decoder's, and at least two of the second recogniser's)"
+    dt = [_canon(x.get("token")) if isinstance(x, dict) else None for x in dec]       # every token canonical
+    st = [_canon(x.get("token")) if isinstance(x, dict) else None for x in sec]
+    if any(x != tok for x in dt):
+        return f"(1) the decoder is not stable: {dt}"
+    if len(set(st)) < 2 or tok not in st:
+        return f"(2) the second recogniser is stable in its readings or never reads the token: {st}"
+    odd = [x for x in st if x != tok and not _truncation(x, tok)]
+    if odd:
+        return f"(3) a differing reading is not a truncation of {tok!r}: {odd}"
+    tests = u.get("tests")
+    if not (isinstance(tests, dict) and all(tests.get(k) is True for k in
+                                            ("decoder_stable", "second_unstable", "truncations_only"))):
+        return f"the record's own tests do not all hold: {tests}"
+    return None
+
+
+def unstable_of(e):
+    """RULING 105: the entry's unstable-second-reading record as it stands, or None (the entry's null, a missing key,
+    or anything that is not an object). It is sealed onto the segment as it stands (apply; package_pin)."""
+    r = (e or {}).get("unstable_second_reading") if isinstance(e, dict) else None
+    return r if isinstance(r, dict) else None
 
 
 def relisten_of(e):
@@ -231,6 +298,8 @@ def apply(pk, pre):
             s["text"], s["attested"] = r["spoken_text"], attested(r)
         if isinstance(r.get("relisten"), dict):          # RULING 103: "Record both short readings on the pin"
             s["relisten"] = json.loads(json.dumps(r["relisten"]))   # a copy as it stands (sealed: SEALED_LATER)
+        if isinstance(r.get("unstable_second_reading"), dict):     # RULING 105: "All readings are recorded on the
+            s["unstable_second_reading"] = json.loads(json.dumps(r["unstable_second_reading"]))   # pin" (sealed)
     pk["hook_first_words"] = " ".join(segs[0]["text"].split()[:8])      # as package._package derives it
     pk["precheck"] = {"ok": True, "request_id": pre.get("request_id"),
                       "segments": [dict({k: r.get(k) for k in ("video_id", "start", "end", "role", "verdict", "outcome",

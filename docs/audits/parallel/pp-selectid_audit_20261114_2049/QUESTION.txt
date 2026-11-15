@@ -1,0 +1,46 @@
+pp-selectid, RULING 105 (the orchestrator, 20:13 ET Nov 14), the BUILDER's side. It lands in lockstep with the
+integrator's pre-check: branch ruling105 d5bf9674, audited (its batch 84), FINAL decoder_sha a4c307f78c94..., RULES
+"... + ruling 103 + ruling 105".
+
+THE RULING: "when (1) the primary decoder's reading of the token is stable across its passes, (2) the second
+recogniser's repeated readings of the SAME audio differ among themselves and at least one equals the lock's token,
+and (3) every differing reading is a TRUNCATION of the lock's token (a prefix of the same term: '401' of '401k'), never
+a different number or name, the token is adjudicated as the lock's and the clip may seal. All readings are recorded on
+the pin (decoder passes, each scribe reading with its call id) under 'unstable_second_reading'. Anything else stays a
+final hold: a second recogniser that is stable in its disagreement, a different number ('68,000' / '86,000'), a
+different name. Must-fail tests for those three."
+
+THE INTEGRATOR'S FIELD SHAPE (its message, 20:5x Nov 14): the result entry's key "unstable_second_reading" is null, or
+{"token": str, "decoder_readings": [{"at", "source", "token"}], "second_readings": [{"at", "source", "token"}],
+"tests": {"decoder_stable", "second_unstable", "truncations_only"}, "verdict": "pass" | "hold"}. The edge form for more
+than one disputed token is {"tokens": [...], "verdict": "hold", "why": "..."}. A truncation is the token minus a
+NON-DIGIT suffix only; names never qualify, nor does a dropped token. A ruling-105 pass leaves the normal outcome
+(no_difference etc.); a ruling-105 hold is "hold".
+
+THE CHANGE ON THIS SIDE:
+- pipeline/lock_precheck.py:
+  - DECODER and RULES as above.
+  - _truncation(r, token) and ruling_105_fails(u): THIS side's own re-check of a pass that rests on the record (defence
+    in depth, law L-j fail closed). decide() makes a PASS outcome a HOLD when the entry carries a record that does not
+    hold on its own readings.
+  - unstable_of(e): the record as it stands, or None when it is not an object.
+  - check() rows carry it; apply() copies it onto the segment.
+- pipeline/package_pin.py: SEALED_LATER and to_pin's carry gain "unstable_second_reading", only when present, so every
+  pin without it seals as before.
+- tests/package/test_lock_precheck.py: the literal decoder and rules; d1e155c642a6 joins the never-read decoders.
+- tests/package/test_ruling_105.py (new): 16 tests, including the must-fail cases.
+
+UNCHANGED GUARDS (you see only the diff):
+- decide() handles a "hold" outcome after the PASS branch: it returns hold whatever the record says.
+- apply() raises ValueError unless pre["ok"] is True, which needs every row to pass or adopt.
+- package_pin.seal() adds a SEALED_LATER key to a segment's body only when the segment carries that key.
+- The integrator's check_pin_only imports package_pin.py LIVE from this worktree, so the seal must stay backward
+  compatible: the frozen 3f481f5a pin is tested to still recompute.
+
+PLEASE CHECK:
+(1) Does ruling_105_fails implement the three tests exactly, with no gap through which a different number, a name, or
+    a stable disagreement passes? Can it refuse a record the integrator rightly passes, such as a token with a
+    comma or other formatting?
+(2) Is a pass outcome carrying a non-object record correctly a hold? Is a hold outcome never turned into a pass?
+(3) Seal compatibility: can any existing pin's recompute change?
+(4) Do the tests pin every branch? The mutation results are listed in the consensus file.
