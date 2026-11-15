@@ -69,28 +69,31 @@ def _mux9(video9, audio_from16, dst):
         raise RuntimeError(f"9:16 mux failed: {r.stderr.strip()[-200:]}")
 
 
-def correct_finals(final16, final9):
+def correct_finals(final16, final9=None):
+    """final9 None: a run that renders the 16:9 alone (ruling 93 as amended, a pin sealed formats ['16x9']); the
+    16:9 is corrected and re-measured exactly as when a 9:16 rides with it, and there is no 9:16 to mux or compare."""
     rec = {"target_i": TARGET_I, "target_tp": TARGET_TP, "tol_lu": TOL_LU}
     before = measure(final16)
     rec["before_16x9"] = before
     if abs(before["input_i"] - TARGET_I) <= TOL_LU and before["input_tp"] <= TARGET_TP:
         rec["action"] = "none: within tolerance"
         return rec
-    t16, t9 = final16 + ".loud.mp4", final9 + ".loud.mp4"
+    t16, t9 = final16 + ".loud.mp4", (final9 + ".loud.mp4" if final9 else None)
     try:
         rec["normalization_type"] = _correct16(final16, t16, before)
-        _mux9(final9, t16, t9)
-        a16, a9 = measure(t16), measure(t9)
-        rec["after_16x9"], rec["after_9x16"] = a16, a9
-        bad = [f"{n} {a['input_i']} LUFS / {a['input_tp']} dBTP" for n, a in (("16x9", a16), ("9x16", a9))
+        if final9:
+            _mux9(final9, t16, t9)
+        after = {"16x9": measure(t16), **({"9x16": measure(t9)} if final9 else {})}
+        rec.update({f"after_{n}": a for n, a in after.items()})
+        bad = [f"{n} {a['input_i']} LUFS / {a['input_tp']} dBTP" for n, a in after.items()
                if abs(a["input_i"] - TARGET_I) > TOL_LU or a["input_tp"] > TARGET_TP]
         if bad:
             rec["action"] = f"kept the rendered finals: the corrected files re-measure off target ({'; '.join(bad)})"
             return rec
-        if audio_md5(t16) != audio_md5(t9):                # Law 23 (audit batch 53 C2): one audio, byte for byte
+        if final9 and audio_md5(t16) != audio_md5(t9):     # Law 23 (audit batch 53 C2): one audio, byte for byte
             rec["action"] = "kept the rendered finals: the 9:16 audio is not the 16:9's corrected audio"
             return rec
-        _replace_pair((t16, final16), (t9, final9))
+        _replace_pair((t16, final16), *([(t9, final9)] if final9 else []))
         rec["action"] = "corrected"
         return rec
     except (RuntimeError, OSError) as e:
@@ -98,7 +101,7 @@ def correct_finals(final16, final9):
         return rec
     finally:
         for t in (t16, t9):
-            if os.path.exists(t):
+            if t and os.path.exists(t):
                 os.unlink(t)
 
 

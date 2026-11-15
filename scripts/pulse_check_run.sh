@@ -102,7 +102,9 @@ if [ "$TELEGRAM" = 1 ] && [ "$RC" != 0 ]; then
   # orchestrator 2026-11-11 08:30: PBX gets a run only when it passes; a HOLD is never sent (its REPORT.md,
   # GATE_REPORT.json and contact sheets in the run dir are the record)
   echo "HOLD (run_fresh exit $RC): not delivered; see $RUN_DIR/REPORT.md" | tee -a "$LOG"
-elif [ "$TELEGRAM" = 1 ] && [ -n "$RUN_DIR" ] && [ -f "$RUN_DIR/out/segment.mp4" ] && [ -f "$RUN_DIR/out/segment_vertical.mp4" ]; then
+elif [ "$TELEGRAM" = 1 ] && [ -n "$RUN_DIR" ] && [ -f "$RUN_DIR/out/segment.mp4" ]; then
+  # ruling 93 as amended: a 16:9-only run has no 9:16 final; release_auth.authorise refuses any SEALED format
+  # whose final is missing or changed, so the 16:9 is the only file this guard needs
   python3 -c "import sys, telegram; r = telegram.deliver_run(sys.argv[1]); print('delivered:', [m.get('message_id') for m in r['messages']])" \
     "$RUN_DIR" 9>&- 2>&1 | tee -a "$LOG" 9>&-
   if [ "${PIPESTATUS[0]}" != 0 ]; then

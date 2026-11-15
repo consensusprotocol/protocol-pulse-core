@@ -6,6 +6,57 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 22:27 ITEM 1b LANDED: a run whose EDL seals formats ['16x9'] RENDERS, gates and verifies the 16:9 ALONE (ruling 93 as amended: "renders and delivers that format alone"). Merge of render16only (d1214c16); audits batch 86, two cycles, no defect. BATCH 3 integrator spend: $0.0196.
+- **What changed:**
+  - run_fresh.run_formats: unreadable formats are a Hold.
+  - stage_render runs the 9:16 shoutout, render, log, postflight, loudness mux and fallback probe only when '9x16' is sealed.
+  - loudness.correct_finals(final16) corrects the 16:9 alone.
+  - stage_gates measures the 9:16 only when it is rendered, and every per-format loop runs over the sealed formats. If the finals do not match the sealed formats, that is a Hold. GATE_REPORT records 'formats'.
+  - run_tail's replay passes no 9:16 for a 16:9-only run.
+  - verify_pack.build ('complete' / 'passed' over the sealed formats), write_report and pulse_check_run.sh now deliver on the 16:9 final; release_auth refuses any sealed final that is missing.
+- **Tests:**
+  - test_render16only 8: stubs at every renderer and gate seam record the final each was given. Must-fail mirrors: no sealed formats renders and gates both.
+  - test_loudness ruling_93.
+  - On the old code (c396c3c8, a full checkout) the 6 new-behaviour tests fail and the 3 mirrors pass.
+- **Not yet proven on a real render:** the first sealed ['16x9'] pin is that proof. Its out/ should hold no segment_vertical.mp4 and its REPORT.md no 9:16 table.
+- **Regressions on the staged merge:**
+  - regression_test.sh: 26 PASS / 0 FAIL / 4 WARN.
+  - pipeline/regression.sh: exit 0, PULSE PREVIEW and PULSE MEDLEY references REPRODUCED.
+- **Suites:** render16only 8, loudness 9, release_auth 31, telegram_delivery 24, review_drop 22, fresh 27 (1 skipped), spotlight 8, edl_rules 101, failure_blocks 5, lock_precheck 49.
+- **Audits (Heimdall-first):**
+  - Cycle 1: qwen27b PASS 0.95, glm PASS 0.72; three low notes, each "fix: none". The raise in verify_pack is a Hold through Run.stage, run_fresh.py:254 / 274-279.
+  - Cycle 2: qwen27b PASS 0.95, glm PASS 0.90, no defect.
+  - Cost $0.0032798 + $0.0044856 = $0.0077654, inside BATCH 3's $0.0196.
+- **Note:** story_ledger.record_if_approved still requires two finals, but only for AUTO runs, and those never carry sealed formats. Unchanged.
+
+## 22:27 NO RE-SEALED PIN for Blockware; 3f481f5a's 16:9 GOES ON THE REVIEW PATH (ruling 106 (b), the standing default), the 9:16 withheld, both open points stated in every caption. The run stays HOLD: no release authorisation, nothing published. BATCH 3 integrator spend: $0.0196.
+- **What happened** (the builder's records, 22:2x ET):
+  - Build ledger_20261115_030549 (code 0d6957dd, $0.27) put the Blockware moment in 3f481f5a's place, as the reseal directive said.
+  - L-s STEP A (xai:grok-4.20-0309-reasoning) REFUSED it on re-judgment: REFERENT_OUTSIDE ('now' -> "time of speaking/publishing in 2026", inside false) and CONDITION_OUTSIDE ("achieving ~20% annual returns via Bitcoin", inside false).
+  - Records:
+    - verdict: tests/package/proof/ledger_20261115_030549/step_a.json, key 06d34e155feae654ee56:9d43580c729b;
+    - call: tests/package/fixtures/replies/53/53935a4f....json, 2026-11-15T03:07:53Z, one call for two excerpts, $0.0179 (about $0.009 for Blockware).
+- **The same context had cleared it before.**
+  - Grok at 2026-11-14T17:32:37Z (12:32 ET): ledger_20261114_230148/step_a.json, same key. 'now' inside; conditions "on my 20th birthday" and "by 45" both inside. This is the verdict 3f481f5a was sealed on.
+  - deepseek, the second family, at 18:49:48Z (13:49 ET).
+  - Both prompts carry the same 923-character after-context, word for word. Grok disagreed with itself; its measured step-A self-agreement is 85 %.
+  - The second call happened because the two-clip batch paired Blockware with a different moment, so the cache missed. It was not a change of context.
+- **The after-context** (as stored; the speaker right after the clip's "...financially independent by 45."): "If you do what my parents' generation did ... a 7 to 10% return, which leaves most people achieving financial independence at 65 instead of 45 ... If you can get that 10% return per year up to 20%, that closes the gap ...".
+  - On the integrity reading (ruling 106 (b): stricter for integrity), the refusal stands: "on pace to be financially independent by 45" rests on a ~20% annual return said after the clip.
+- **Why the review path:** ruling 106 (b): "a finished video that passes every gate is always launched and delivered as a candidate; one open integrity point means the REVIEW path with that point in the caption, never left unrendered."
+  - The run's 16:9 cleared all 24 of its rows. Its 9:16 is void under ruling 93 as amended (the crop cuts the burned captions).
+- **The points the drop states** (each whole, under the head of every caption and of the note; checked against the forbidden wording):
+  - OPEN INTEGRITY POINT: "L-s step A refused the moment on re-judgment (Grok, 22:07 ET): CONDITION_OUTSIDE, 'financially independent by 45' rests on ~20% annual returns said after the clip; REFERENT_OUTSIDE, 'now'. The same context drew no objection from Grok at 12:32 ET or deepseek at 13:49 ET."
+  - OPEN INTEGRITY POINT: the package caption's "a guest". The builder's role rule refuses it (its 21:27 message: "'a guest' now fails the fidelity gate"), and no re-written caption was sealed.
+  - WITHHELD, NOT SENT: 9:16: "ruling 93 as amended: the 9:16 crop cuts the source's burned captions mid-word ('SOLD MY' reads 'D MY' at 2.0 s)".
+- **Mechanics:**
+  - telegram.review_drop could neither withhold a format of a run whose EDL predates 'formats' nor state a point; its texts are code-generated.
+  - Added (audit batch 87, two cycles, Heimdall-first):
+    - withhold {format: reason}, which can only withhold;
+    - points, which can only add lines and must fit whole as lines, else STOP.
+    - Both are recorded in REVIEW_DROP.json.
+  - The drop follows that landing; its own DoD entry gives the message ids.
+
 ## 21:54 RULING 93 AS AMENDED, THE RELEASE SIDE, LANDED. A run releases ONLY the formats its pin sealed: moments_package["formats"] = ["16x9"]; absent = both. Merge of formats93 (e1ddcd4d, 816ebb86); audits batch 85, two cycles, no defect. The builder flips RENDER_16X9_ONLY and re-seals the Blockware moment as ["16x9"]; the integrator renders it on arrival. BATCH 3 integrator spend: $0.0118.
 - **The field** (agreed with the builder 21:27): inside package_sha256; absent = both. A medley takes the intersection over its segments (the builder's side). pinned.py is NOT changed: it is an input of the pre-check's decoder sha, which stays a4c307f78c94.
 - **What changed:**

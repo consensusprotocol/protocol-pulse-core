@@ -52,13 +52,25 @@ def _sheet(items, out, tile_w):
     return out
 
 
+def run_formats(run_dir):
+    """The formats this run renders (ruling 93 as amended: the EDL's sealed formats, release_auth.release_formats;
+    absent = both). Unreadable raises: a pack is never built for formats the run did not seal."""
+    import release_auth
+    with open(os.path.join(run_dir, "edl.json")) as f:
+        return release_auth.release_formats(json.load(f))
+
+
 def build(run_dir, vision=True):
     vdir = os.path.join(run_dir, "VERIFY")
     os.makedirs(vdir, exist_ok=True)
     with open(os.path.join(run_dir, "GATE_REPORT.json")) as f:
         rep = json.load(f)
-    pack = {"words": rep.get("G18"), "joins": {}, "credits": {"G12": {}, "G15": {}}, "vision": bool(vision)}
+    formats = run_formats(run_dir)
+    pack = {"words": rep.get("G18"), "joins": {}, "credits": {"G12": {}, "G15": {}}, "vision": bool(vision),
+            "formats": list(formats)}
     for fmt, final, tile in (("16x9", "segment.mp4", 480), ("9x16", "segment_vertical.mp4", 270)):
+        if fmt not in formats:                       # a 16:9-only run has no 9:16 to verify
+            continue
         final = os.path.join(run_dir, "out", final)
         with open(os.path.join(run_dir, "qa", f"concat_manifest_{fmt}.json")) as f:
             segs = json.load(f)["segments"]
@@ -83,17 +95,17 @@ def build(run_dir, vision=True):
                                     "sheet": _sheet(c_items, os.path.join(vdir, f"credits_{fmt}.jpg"), tile)}
         pack["credits"]["G12"][fmt] = rep.get("rows", {}).get(fmt, {}).get("G12_credits")
         pack["credits"]["G15"][fmt] = rep.get(f"G15_{fmt}")
-    files = [pack["joins"][f]["sheet"] for f in ("16x9", "9x16")] + \
-            [pack["credits"].get(f, {}).get("sheet") for f in ("16x9", "9x16")]
-    credits_rows = [pack["credits"][g].get(f) for g in ("G12", "G15") for f in ("16x9", "9x16")]
-    _sheets_and_checklist(run_dir, rep, pack, vision)
+    files = [pack["joins"][f]["sheet"] for f in formats] + \
+            [pack["credits"].get(f, {}).get("sheet") for f in formats]
+    credits_rows = [pack["credits"][g].get(f) for g in ("G12", "G15") for f in formats]
+    _sheets_and_checklist(run_dir, rep, pack, vision, formats)
     words = pack["words"] if isinstance(pack["words"], dict) else {}
-    pack["complete"] = all(isinstance(words.get(f), list) and words[f] for f in ("16x9", "9x16")) \
+    pack["complete"] = all(isinstance(words.get(f), list) and words[f] for f in formats) \
         and all(p and os.path.exists(p) for p in files) \
         and all(r is not None for r in credits_rows) \
-        and all(os.path.exists((pack["contact_sheets"].get(f) or {}).get("path") or "") for f in ("16x9", "9x16"))
+        and all(os.path.exists((pack["contact_sheets"].get(f) or {}).get("path") or "") for f in formats)
     pack["passed"] = pack["complete"] is True and pack["vision"] is True and \
-        all((pack["visual"].get(f) or {}).get("ok") is True for f in ("16x9", "9x16"))
+        all((pack["visual"].get(f) or {}).get("ok") is True for f in formats)
     tmp = os.path.join(vdir, "VERIFICATION.json.tmp")
     with open(tmp, "w") as f:
         json.dump(pack, f, indent=2, default=str)
@@ -146,7 +158,7 @@ def avatar_note(channels, registry=None):
     return (" Registered avatars that are the channel's own monogram or logo: " + "; ".join(marks) + ".") if marks else ""
 
 
-def _sheets_and_checklist(run_dir, rep, pack, vision):
+def _sheets_and_checklist(run_dir, rep, pack, vision, formats=("16x9", "9x16")):
     """Contact sheet per format (qa/) and the visual checklist answered from it; V1 rows written into
     GATE_REPORT.json (a new check on top of the gates: any "no", missing answer or route error = FAIL)."""
     import visual_check as VC
@@ -161,6 +173,8 @@ def _sheets_and_checklist(run_dir, rep, pack, vision):
     pack["contact_sheets"], pack["visual"] = {}, {}
     v1_rows = {}                                        # fmt -> (exact verdict, note, answers counted)
     for fmt, final in (("16x9", "segment.mp4"), ("9x16", "segment_vertical.mp4")):
+        if fmt not in formats:                          # ruling 93 as amended: only the run's formats are asked
+            continue
         with open(os.path.join(run_dir, "qa", f"concat_manifest_{fmt}.json")) as f:
             segs = json.load(f)["segments"]
         sheet = os.path.join(run_dir, "qa", f"contact_sheet_{fmt}.jpg")

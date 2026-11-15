@@ -59,6 +59,28 @@ class TestLoudness(unittest.TestCase):
         self.assertEqual(stream_md5(f16, "0:a"), stream_md5(f9, "0:a"))                     # Law 23: one audio
         self.assertEqual([n for n in os.listdir(self.d) if n.endswith(".loud.mp4")], [])
 
+    def test_ruling_93_a_16x9_alone_is_corrected_with_no_vertical(self):
+        """Ruling 93 as amended: a run that renders the 16:9 alone (final9 None) is corrected and re-measured on its
+        own; nothing is muxed, no 9:16 is read or written. Must-fail on the old code: correct_finals needs final9."""
+        f16, f9 = make_pair(self.d, 0.03)
+        os.remove(f9)
+        v16 = stream_md5(f16, "0:v")
+        rec = LD.correct_finals(f16)
+        self.assertEqual(rec["action"], "corrected", rec)
+        self.assertNotIn("after_9x16", rec)
+        m = LD.measure(f16)
+        self.assertLessEqual(abs(m["input_i"] - LD.TARGET_I), LD.TOL_LU, m)
+        self.assertLessEqual(m["input_tp"], LD.TARGET_TP, m)
+        self.assertEqual(stream_md5(f16, "0:v"), v16)
+        self.assertEqual(sorted(os.listdir(self.d)), ["segment.mp4"])          # no temp, no .orig, no 9:16
+        with mock.patch.object(LD, "measure", side_effect=[LD.measure(f16) | {"input_i": -30.0},
+                                                           {"input_i": -20.0, "input_tp": -3.0}]), \
+                mock.patch.object(LD, "_correct16", side_effect=lambda s, d, m: shutil.copy(s, d)):
+            before = sha(f16)
+            rec = LD.correct_finals(f16)                                        # an off-target re-measure keeps it
+        self.assertTrue(rec["action"].startswith("kept the rendered finals"), rec)
+        self.assertEqual(sha(f16), before)
+
     def test_a_pair_within_tolerance_is_never_rewritten(self):          # audit batch 53 C1 (glm F3): a pair that
         f16, f9 = make_pair(self.d, 0.03)                             # MEASURES in tolerance, no correction first
         s16, s9 = sha(f16), sha(f9)

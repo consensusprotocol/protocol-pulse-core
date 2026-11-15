@@ -1,0 +1,807 @@
+diff --git a/pipeline/loudness.py b/pipeline/loudness.py
+index 2b921bc0..9eebbc51 100644
+--- a/pipeline/loudness.py
++++ b/pipeline/loudness.py
+@@ -69,28 +69,31 @@ def _mux9(video9, audio_from16, dst):
+         raise RuntimeError(f"9:16 mux failed: {r.stderr.strip()[-200:]}")
+ 
+ 
+-def correct_finals(final16, final9):
++def correct_finals(final16, final9=None):
++    """final9 None: a run that renders the 16:9 alone (ruling 93 as amended, a pin sealed formats ['16x9']); the
++    16:9 is corrected and re-measured exactly as when a 9:16 rides with it, and there is no 9:16 to mux or compare."""
+     rec = {"target_i": TARGET_I, "target_tp": TARGET_TP, "tol_lu": TOL_LU}
+     before = measure(final16)
+     rec["before_16x9"] = before
+     if abs(before["input_i"] - TARGET_I) <= TOL_LU and before["input_tp"] <= TARGET_TP:
+         rec["action"] = "none: within tolerance"
+         return rec
+-    t16, t9 = final16 + ".loud.mp4", final9 + ".loud.mp4"
++    t16, t9 = final16 + ".loud.mp4", (final9 + ".loud.mp4" if final9 else None)
+     try:
+         rec["normalization_type"] = _correct16(final16, t16, before)
+-        _mux9(final9, t16, t9)
+-        a16, a9 = measure(t16), measure(t9)
+-        rec["after_16x9"], rec["after_9x16"] = a16, a9
+-        bad = [f"{n} {a['input_i']} LUFS / {a['input_tp']} dBTP" for n, a in (("16x9", a16), ("9x16", a9))
++        if final9:
++            _mux9(final9, t16, t9)
++        after = {"16x9": measure(t16), **({"9x16": measure(t9)} if final9 else {})}
++        rec.update({f"after_{n}": a for n, a in after.items()})
++        bad = [f"{n} {a['input_i']} LUFS / {a['input_tp']} dBTP" for n, a in after.items()
+                if abs(a["input_i"] - TARGET_I) > TOL_LU or a["input_tp"] > TARGET_TP]
+         if bad:
+             rec["action"] = f"kept the rendered finals: the corrected files re-measure off target ({'; '.join(bad)})"
+             return rec
+-        if audio_md5(t16) != audio_md5(t9):                # Law 23 (audit batch 53 C2): one audio, byte for byte
++        if final9 and audio_md5(t16) != audio_md5(t9):     # Law 23 (audit batch 53 C2): one audio, byte for byte
+             rec["action"] = "kept the rendered finals: the 9:16 audio is not the 16:9's corrected audio"
+             return rec
+-        _replace_pair((t16, final16), (t9, final9))
++        _replace_pair((t16, final16), *([(t9, final9)] if final9 else []))
+         rec["action"] = "corrected"
+         return rec
+     except (RuntimeError, OSError) as e:
+@@ -98,7 +101,7 @@ def correct_finals(final16, final9):
+         return rec
+     finally:
+         for t in (t16, t9):
+-            if os.path.exists(t):
++            if t and os.path.exists(t):
+                 os.unlink(t)
+ 
+ 
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index c8ad9bff..19d1233a 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -907,6 +907,17 @@ def stage_layout(run, cuts):
+ FALLBACK_RE = re.compile(r"reframe failed for (\S+), using original")
+ 
+ 
++def run_formats(run_dir):
++    """The formats this run renders, gates and releases (ruling 93 as amended: the EDL's sealed formats,
++    release_auth.release_formats; absent = both). Unreadable is a Hold: a run never guesses its formats."""
++    import release_auth
++    try:
++        with open(os.path.join(run_dir, "edl.json")) as f:
++            return release_auth.release_formats(json.load(f))
++    except (OSError, ValueError) as e:
++        raise Hold(f"release formats unreadable: {type(e).__name__}: {e}")
++
++
+ def stage_render(run):
+     from shoutout import build_shoutout
+     from render16 import render_16x9
+@@ -914,10 +925,11 @@ def stage_render(run):
+     from run_isolated import preflight_check, postflight_check
+     from config import resolve_paths
+ 
++    formats = run_formats(run.dir)                   # ruling 93 as amended: a 16:9-only run renders the 16:9 alone
+     paths = resolve_paths(run.dir)
+     write_transitions(run, TRANSITION_STYLE)
+-    build_shoutout(run.dir, None, "16x9")
+-    build_shoutout(run.dir, None, "9x16")
++    for fmt in formats:
++        build_shoutout(run.dir, None, fmt)
+     preflight_check(run.dir)
+ 
+     limiter = -3.5 if run.machine_cuts else -3.0
+@@ -929,29 +941,34 @@ def stage_render(run):
+         tot16 = max(s.get("end", 0) for s in json.load(f)["segments"])
+     postflight_check(final16, tot16, "16x9")
+ 
+-    with Capture() as cap9:
+-        render_9x16(run.dir, None, "segment_vertical.mp4", alimiter_dbfs=limiter)
+-    final9 = os.path.join(paths["out_dir"], "segment_vertical.mp4")
+-    man9 = os.path.join(paths["qa_dir"], "concat_manifest_9x16.json")
+-    with open(man9) as f:
+-        tot9 = max(s.get("end", 0) for s in json.load(f)["segments"])
+-    log9 = cap9.text()
+-    with open(os.path.join(run.dir, "render_9x16.log"), "w") as f:
+-        f.write(log9)
++    final9 = man9 = None
++    log9 = ""
++    if "9x16" in formats:
++        with Capture() as cap9:
++            render_9x16(run.dir, None, "segment_vertical.mp4", alimiter_dbfs=limiter)
++        final9 = os.path.join(paths["out_dir"], "segment_vertical.mp4")
++        man9 = os.path.join(paths["qa_dir"], "concat_manifest_9x16.json")
++        with open(man9) as f:
++            tot9 = max(s.get("end", 0) for s in json.load(f)["segments"])
++        log9 = cap9.text()
++        with open(os.path.join(run.dir, "render_9x16.log"), "w") as f:
++            f.write(log9)
+     with open(os.path.join(run.dir, "render_16x9.log"), "w") as f:
+         f.write(cap16.text())
+-    postflight_check(final9, tot9, "9x16", log_output=log9)
++    if final9:
++        postflight_check(final9, tot9, "9x16", log_output=log9)
+     # ruling 29 (orchestrator '01:55'): the final mix measured and corrected to target BEFORE the gates (two-pass
+     # loudnorm on the 16:9, its exact audio muxed into the 9:16, both re-measured); G5 unchanged
+     import loudness
+     run.prov["loudness"] = loudness.correct_finals(final16, final9)
+     print(f"  loudness: {run.prov['loudness'].get('action')}")
+ 
+-    # Vertical silent-fallback detection (PBX item 6): log evidence + structural evidence
++    # Vertical silent-fallback detection (PBX item 6): log evidence + structural evidence (a 9:16 that is not
++    # rendered has nothing to fall back from: its row is not part of the run)
+     with open(paths["cuts_json"]) as f:
+         cuts = json.load(f)
+-    fb = {"log_hits": FALLBACK_RE.findall(log9), "structural": [], "checked": []}
+-    for c in cuts:
++    fb = {"log_hits": FALLBACK_RE.findall(log9), "structural": [], "checked": [], "formats": list(formats)}
++    for c in (cuts if final9 else []):
+         vp = os.path.join(paths["qa_dir"], f"vert_{c['clip_id']}.mp4")
+         if not os.path.exists(vp):
+             fb["structural"].append(f"{c['clip_id']}: vert file missing")
+@@ -961,8 +978,9 @@ def stage_render(run):
+             fb["structural"].append(f"{c['clip_id']}: vert file {m['width']}x{m['height']}")
+         fb["checked"].append(c["clip_id"])          # counted only once its file was probed (cycle 2 F1)
+     fb["outro_conform_fallback_16x9"] = "PBX outro conform failed" in cap16.text()
+-    fb["outro_conform_fallback_9x16"] = "PBX outro conform failed" in log9 or \
+-        "outro conform failed" in log9.lower()
++    if final9:
++        fb["outro_conform_fallback_9x16"] = "PBX outro conform failed" in log9 or \
++            "outro conform failed" in log9.lower()
+     fb["fallback_occurred"] = bool(fb["log_hits"] or fb["structural"])
+     run.prov["vertical_fallback_check"] = fb
+ 
+@@ -972,7 +990,7 @@ def stage_render(run):
+     # G4s checks every label against the picture.
+     with open(os.path.join(run.dir, "VERTICAL_LAYOUT.json")) as f:
+         plans = json.load(f)
+-    for man in (man16, man9):
++    for man in (m for m in (man16, man9) if m):
+         with open(man) as f:
+             m = json.load(f)
+         for sg in m["segments"]:
+@@ -1029,10 +1047,15 @@ def stage_gates(run, final16, man16, final9, man9):
+         cuts = json.load(f)
+     with open(man16) as f:
+         segs16 = json.load(f)["segments"]
+-    with open(man9) as f:
+-        segs9 = json.load(f)["segments"]
++    formats = run_formats(run.dir)                   # ruling 93 as amended: the rendered (sealed) formats are gated
++    if ("9x16" in formats) != bool(final9 and man9):
++        raise Hold(f"the rendered finals do not match the run's formats {list(formats)}")
++    segs9 = None
++    if final9:
++        with open(man9) as f:
++            segs9 = json.load(f)["segments"]
+     # the bytes every gate below measures (release_auth: the attested files must be these files)
+-    measured = {os.path.relpath(p, run.dir): sha256(p) for p in (final16, final9, man16, man9)}
++    measured = {os.path.relpath(p, run.dir): sha256(p) for p in (final16, final9, man16, man9) if p}
+ 
+     # Production gate runner — invoked exactly as in the v2f run.
+     # G8 needs its sources (2026-11-11: it was never given any, so it always failed "no_source" and was
+@@ -1040,14 +1063,19 @@ def stage_gates(run, final16, man16, final9, man9):
+     src16 = {c["clip_id"]: os.path.join(qa, f"final_{c['clip_id']}.mp4") for c in cuts}
+     src9 = {c["clip_id"]: os.path.join(qa, f"vert_{c['clip_id']}.mp4") for c in cuts}
+     ok16, r16 = run_gates(run.dir, final16, man16, source_clips=src16, prepared_clips=src16)   # ruling 21: G3c on
+-    ok9, r9 = run_gates(run.dir, final9, man9, source_clips=src9, prepared_clips=src9)         # the prepared clips
++    ok9, r9 = (run_gates(run.dir, final9, man9, source_clips=src9, prepared_clips=src9)        # the prepared clips
++               if final9 else (None, None))
+     import qa_gates  # patched by run_gates (BASE/VO_DIR) — same module instance
+ 
+-    rows = {"16x9": {}, "9x16": {}}
+-    flags = {"16x9": [], "9x16": []}
+-    limits = {"16x9": [], "9x16": []}
+-    notes = {"16x9": {}, "9x16": {}}          # why a row reads what it reads (rows hold exact verdicts only)
+-    evidence = {"16x9": {}, "9x16": {}}       # that the gate ran, and on how many samples
++    rows = {fmt: {} for fmt in formats}
++    flags = {fmt: [] for fmt in formats}
++    limits = {fmt: [] for fmt in formats}
++    notes = {fmt: {} for fmt in formats}      # why a row reads what it reads (rows hold exact verdicts only)
++    evidence = {fmt: {} for fmt in formats}   # that the gate ran, and on how many samples
++
++    def each(*items):
++        """the (format, ...) tuples of the formats this run renders, in order"""
++        return [x for x in items if x[0] in formats]
+ 
+     def put(fmt, row, verdict, data, note=None):
+         """One gate row: an exact verdict (release_auth.VERDICTS, no prefixes, no waiver text), what it measured,
+@@ -1059,7 +1087,7 @@ def stage_gates(run, final16, man16, final9, man9):
+         elif row in notes[fmt]:
+             del notes[fmt][row]
+ 
+-    for fmt, res in (("16x9", r16), ("9x16", r9)):
++    for fmt, res in each(("16x9", r16), ("9x16", r9)):
+         for k, v in res.items():
+             if isinstance(v, dict) and "pass" in v and k not in ("G8_sharpness", "G9_tail",
+                                                                    "G11_parity"):
+@@ -1070,9 +1098,11 @@ def stage_gates(run, final16, man16, final9, man9):
+                     put(fmt, k, _status(v["pass"] is True), v.get("table", v.get("data")))
+         # G11 inside run_gates has no horizontal final (it skips); the real G11 is the 9x16 row below
+ 
+-    # G11 for real (vertical vs horizontal)
+-    g11_ok, g11 = qa_gates.gate_g11(final9, final16, segs9, segs16)
+-    put("9x16", "G11_parity", _status(g11_ok), g11)
++    # G11 for real (vertical vs horizontal); a 16:9-only run has no vertical
++    g11 = None
++    if final9:
++        g11_ok, g11 = qa_gates.gate_g11(final9, final16, segs9, segs16)
++        put("9x16", "G11_parity", _status(g11_ok), g11)
+ 
+     # G14 / G14c / G15
+     speech = G.g14_run_speech(run.dir, cuts)         # ruling 13: G14 samples the LOCKED words minus measured pauses
+@@ -1094,7 +1124,7 @@ def stage_gates(run, final16, man16, final9, man9):
+         path = os.path.join(qa, f"g14_manifest_{tag}.json")
+         jdump(path, m)
+         return path
+-    man16_g14, man9_g14 = _g14_manifest(man16, "16x9"), _g14_manifest(man9, "9x16")
++    man16_g14, man9_g14 = _g14_manifest(man16, "16x9"), (_g14_manifest(man9, "9x16") if final9 else None)
+     g14_16_ok, g14_16 = G.gate_g14(final16, man16_g14, source_clips=src_clips, qa_dir=g14dir16)
+     fails16 = [d for d in g14_16 if d.get("status") == "FAIL"]
+     put("16x9", "G14_av_alignment", "PASS" if g14_16_ok else "FAIL" if fails16 else "HOLD", g14_16,
+@@ -1104,32 +1134,38 @@ def stage_gates(run, final16, man16, final9, man9):
+                           "declared), plate correctness not verified")
+     # 9:16: the audio-offset part only (frame similarity of a 9:16 crop against the 16:9 source is not valid);
+     # the gate's own per-segment verdict (DEC-12e): >= 3 conclusive matching samples, zero mismatches
+-    g14_9_ok, g14_9 = G.gate_g14(final9, man9_g14, source_clips=src_clips, qa_dir=g14dir9, frames=False)
+-    fails9 = [d for d in g14_9 if d.get("status") == "FAIL"]
+-    put("9x16", "G14_audio_offset", "PASS" if g14_9_ok else "FAIL" if fails9 else "HOLD", g14_9,
+-        None if g14_9_ok or fails9 else "inconclusive")
+-    put("9x16", "G14_frame_similarity", "LIMITED", None, "not valid for 9:16 crop vs 16:9 source")
+-    limits["9x16"].append("G14 frame_sim compares a 9:16 crop with the 16:9 source (v2e positive "
+-                          "control: 0.24-0.54 on correct frames); only the audio-offset part is "
+-                          "scored; VO sections auto-PASS")
+-    g14c_ok, g14c = G.gate_g14c(final16, final9, tolerance_ms=42)
+-    put("9x16", "G14c_duration_parity", _status(g14c_ok), g14c)
++    g14_9 = g14c = None
++    if final9:
++        g14_9_ok, g14_9 = G.gate_g14(final9, man9_g14, source_clips=src_clips, qa_dir=g14dir9, frames=False)
++        fails9 = [d for d in g14_9 if d.get("status") == "FAIL"]
++        put("9x16", "G14_audio_offset", "PASS" if g14_9_ok else "FAIL" if fails9 else "HOLD", g14_9,
++            None if g14_9_ok or fails9 else "inconclusive")
++        put("9x16", "G14_frame_similarity", "LIMITED", None, "not valid for 9:16 crop vs 16:9 source")
++        limits["9x16"].append("G14 frame_sim compares a 9:16 crop with the 16:9 source (v2e positive "
++                              "control: 0.24-0.54 on correct frames); only the audio-offset part is "
++                              "scored; VO sections auto-PASS")
++        g14c_ok, g14c = G.gate_g14c(final16, final9, tolerance_ms=42)
++        put("9x16", "G14c_duration_parity", _status(g14c_ok), g14c)
+     for sub in ("g15_16x9", "g15_9x16"):
+         os.makedirs(os.path.join(qa, sub), exist_ok=True)
+     import credit_rings                             # DEC-11: G15 also checks each disc is the credited avatar
+     with open(os.path.join(run.dir, "edl.json")) as f:
+         credited = credit_rings.credit_channels(json.load(f))
+     g15_16_ok, g15_16 = G.gate_g15(final16, segs16, os.path.join(qa, "g15_16x9"), channels=credited)
+-    g15_9_ok, g15_9 = G.gate_g15(final9, segs9, os.path.join(qa, "g15_9x16"), channels=credited)
+     put("16x9", "G15_credits", _status(g15_16_ok), g15_16)
+-    put("9x16", "G15_credits", _status(g15_9_ok), g15_9)
++    g15_9 = None
++    if final9:
++        g15_9_ok, g15_9 = G.gate_g15(final9, segs9, os.path.join(qa, "g15_9x16"), channels=credited)
++        put("9x16", "G15_credits", _status(g15_9_ok), g15_9)
+     # G20 SIGNOFF_NAMES_ALL (law L-a): the rendered sign-off names exactly the credited channels
+     for sub in ("g20_16x9", "g20_9x16"):
+         os.makedirs(os.path.join(qa, sub), exist_ok=True)
+     g20_16_ok, g20_16 = G.gate_g20(final16, segs16, credited, os.path.join(qa, "g20_16x9"))
+-    g20_9_ok, g20_9 = G.gate_g20(final9, segs9, credited, os.path.join(qa, "g20_9x16"))
+     put("16x9", "G20_signoff_names_all", _status(g20_16_ok), g20_16)
+-    put("9x16", "G20_signoff_names_all", _status(g20_9_ok), g20_9)
++    g20_9 = None
++    if final9:
++        g20_9_ok, g20_9 = G.gate_g20(final9, segs9, credited, os.path.join(qa, "g20_9x16"))
++        put("9x16", "G20_signoff_names_all", _status(g20_9_ok), g20_9)
+ 
+     # G8 — production result + source-relative report (threshold untouched)
+     g8dir = os.path.join(qa, "g8_relative")
+@@ -1139,17 +1175,17 @@ def stage_gates(run, final16, man16, final9, man9):
+     ratios = {r["segment"]: r["ratio"] for r in g8rel}
+     degraded = {k: v for k, v in ratios.items() if v < g8_degradation_ratio}
+     g8_report = {"production_result_16x9": r16["G8_sharpness"]["pass"],
+-                 "production_result_9x16": r9["G8_sharpness"]["pass"],
++                 "production_result_9x16": r9["G8_sharpness"]["pass"] if final9 else None,
+                  "relative_reference": "prepared 1920x1080 clip (source camera, scaled) at the "
+                                        "same relative offset",
+                  "relative_16x9": g8rel, "degraded_below_0.85": degraded}
+-    for fmt, res in (("16x9", r16), ("9x16", r9)):
++    for fmt, res in each(("16x9", r16), ("9x16", r9)):
+         # DEC-1 floor + DEC-3 soft-source rule live in the gate itself; no waiver (DEC-8)
+         put(fmt, "G8_sharpness", _status(res["G8_sharpness"]["pass"] is True), res["G8_sharpness"].get("table"))
+ 
+     # G9 — approved known exception only if the outro is hash-identical to the locked outro
+     g9_report = {}
+-    for fmt, res in (("16x9", r16), ("9x16", r9)):
++    for fmt, res in each(("16x9", r16), ("9x16", r9)):
+         d = res["G9_tail"].get("data", {})
+         conformed = conform_outro(fmt)  # cached, content-keyed; no re-encode when present
+         from config import OUTRO_MASTER_16x9, OUTRO_MASTER_9x16
+@@ -1171,7 +1207,7 @@ def stage_gates(run, final16, man16, final9, man9):
+         plans = json.load(f)
+     prepared = {cid: os.path.join(qa, f"final_{cid}.mp4") for cid in plans}
+     g4_shots, g4s = {}, {}
+-    for fmt, final, man, sgs in (("16x9", final16, man16, segs16), ("9x16", final9, man9, segs9)):
++    for fmt, final, man, sgs in each(("16x9", final16, man16, segs16), ("9x16", final9, man9, segs9)):
+         g4dir = os.path.join(qa, f"g4_shots_{fmt}")
+         os.makedirs(g4dir, exist_ok=True)
+         with open(man) as f:
+@@ -1184,18 +1220,18 @@ def stage_gates(run, final16, man16, final9, man9):
+ 
+     # G16 SENTENCE_BOUNDARY: re-run on the final cut state (format-independent; same row in both)
+     g16_ok, g16 = L.gate_g16(run.dir)
+-    for fmt in ("16x9", "9x16"):
++    for fmt in formats:
+         put(fmt, "G16_sentence_boundary", _status(g16_ok), g16)
+ 
+     # G17 ONSET/TAIL: prepared clips (>= 80 ms genuine lead-in/tail) + each final (edge words >= 85 %)
+     g17a_ok, g17a = L.gate_g17_prepared({c["clip_id"]: os.path.join(qa, f"final_{c['clip_id']}.mp4")
+                                           for c in cuts})
+     g17b16_ok, g17b16 = L.gate_g17_output(final16, segs16, cuts, run.dir)
+-    g17b9_ok, g17b9 = L.gate_g17_output(final9, segs9, cuts, run.dir)
++    g17b9_ok, g17b9 = L.gate_g17_output(final9, segs9, cuts, run.dir) if final9 else (None, None)
+     # G17c (law L-b): the first and last word of every prepared clip, with their decay, at full level
+     # (within 1 dB of the unfaded source); format-independent, part of the G17 row in both formats
+     g17c_ok, g17c = L.gate_g17_edges(run.dir)
+-    for fmt, b_ok, b in (("16x9", g17b16_ok, g17b16), ("9x16", g17b9_ok, g17b9)):
++    for fmt, b_ok, b in each(("16x9", g17b16_ok, g17b16), ("9x16", g17b9_ok, g17b9)):
+         put(fmt, "G17_onset_tail", _status(g17a_ok and b_ok and g17c_ok), None)
+         evidence[fmt]["G17_onset_tail"]["samples"] = min(_samples(g17a), _samples(b), _samples(g17c))
+ 
+@@ -1207,7 +1243,7 @@ def stage_gates(run, final16, man16, final9, man9):
+     # is measured on the FINAL of that format (the bytes being approved, sentence_law.edges_on_final), never on
+     # the prepared clip; when it cannot prove the edge, the dissent / the failure stands and the run HOLDS.
+     lc = {}
+-    for fmt, res, final, sgs in (("16x9", r16, final16, segs16), ("9x16", r9, final9, segs9)):
++    for fmt, res, final, sgs in each(("16x9", r16, final16, segs16), ("9x16", r9, final9, segs9)):
+         g3b = (res.get("G3b_cut_out_clean") or {}).get("table") or []
+         dissent = [e["segment"] for e in g3b if isinstance(e, dict) and e.get("dissent") and e.get("last_found")]
+         g3c = (res.get("G3c_acoustic_tail") or {}).get("table") or []
+@@ -1254,7 +1290,7 @@ def stage_gates(run, final16, man16, final9, man9):
+     missing = [cid for cid, c in g18_clips.items() if not c["lock_text"]]
+     tr = WD.Transcriber()
+     g18 = {}
+-    for fmt, final, sgs in (("16x9", final16, segs16), ("9x16", final9, segs9)):
++    for fmt, final, sgs in each(("16x9", final16, segs16), ("9x16", final9, segs9)):
+         ok, g18[fmt] = WD.gate_g18(final, sgs, g18_clips, transcriber=tr)
+         put(fmt, "G18_word_for_word", _status(ok and not missing), g18[fmt],
+             f"no selection lock: {missing}" if missing else None)
+@@ -1269,14 +1305,15 @@ def stage_gates(run, final16, man16, final9, man9):
+     with open(os.path.join(run.dir, "CLIP_CONTRACT.json")) as f:
+         snap_rec = {r["clip_id"]: (r.get("shot_snap") or {}) for r in json.load(f)}
+     g19 = {}
+-    for fmt, final, sgs in (("16x9", final16, segs16), ("9x16", final9, segs9)):
++    for fmt, final, sgs in each(("16x9", final16, segs16), ("9x16", final9, segs9)):
+         ok, g19[fmt] = edge_shots.gate_g19(final, sgs, snap_rec, FPS)
+         put(fmt, "G19_edge_shots", _status(ok), g19[fmt])
+ 
+     fb = run.prov["vertical_fallback_check"]
+-    put("9x16", "vertical_silent_fallback", _status(fb["fallback_occurred"] is False),
+-        fb.get("checked") or [],                     # the vertical clips checked (render log + dimensions)
+-        "fallback occurred" if fb["fallback_occurred"] else "no fallback")
++    if final9:
++        put("9x16", "vertical_silent_fallback", _status(fb["fallback_occurred"] is False),
++            fb.get("checked") or [],                 # the vertical clips checked (render log + dimensions)
++            "fallback occurred" if fb["fallback_occurred"] else "no fallback")
+ 
+     import release_auth
+     gates_out = {"inventory_version": release_auth.INVENTORY_VERSION, "rows": rows, "notes": notes,
+@@ -1285,7 +1322,7 @@ def stage_gates(run, final16, man16, final9, man9):
+                  "G15_16x9": g15_16, "G15_9x16": g15_9, "G20_16x9": g20_16, "G20_9x16": g20_9, "G17c": g17c, "L-c": lc, "G8": g8_report, "G9": g9_report, "G16": g16,
+                  "G17": {"prepared": g17a, "16x9": g17b16, "9x16": g17b9}, "G18": g18, "G19": g19,
+                  "G4_per_shot": g4_shots, "G4s": g4s,
+-                 "run_gates_overall": {"16x9": ok16, "9x16": ok9}}
++                 "run_gates_overall": {"16x9": ok16, "9x16": ok9}, "formats": list(formats)}
+     jdump(os.path.join(run.dir, "GATE_REPORT.json"), gates_out)
+     run.prov["gates"] = {"rows": rows, "notes": notes, "flags": flags, "limitations": limits}
+     return rows, flags, limits
+@@ -1492,7 +1529,7 @@ def write_report(run):
+                ""]
+     g = p.get("gates")
+     if g:
+-        for fmt in ("16x9", "9x16"):
++        for fmt in (f for f in ("16x9", "9x16") if f in g["rows"]):     # a 16:9-only run has no 9:16 table
+             L += [f"## Gates {fmt}", "| gate | result |", "|---|---|"]
+             L += [f"| {k} | {v} |" for k, v in g["rows"][fmt].items()]
+             L += [f"- flags: {g['flags'][fmt]}"] + [f"- LIMITATION: {x}" for x in g["limitations"][fmt]]
+@@ -1577,6 +1614,8 @@ def run_tail(run, cuts, start="prepare", vision=True):
+     else:
+         final16, final9 = (os.path.join(run.dir, "out", n) for n in ("segment.mp4", "segment_vertical.mp4"))
+         man16, man9 = (os.path.join(run.dir, "qa", f"concat_manifest_{f}.json") for f in ("16x9", "9x16"))
++        if "9x16" not in run_formats(run.dir):       # a 16:9-only run's replay gates the 16:9 alone
++            final9 = man9 = None
+     rows, flags, limits = run.stage("gates", lambda: stage_gates(run, final16, man16, final9, man9))
+     # mission 4a / DEC-8: the automated verification pack (words, joins, credits) for the drop
+     import verify_pack
+diff --git a/pipeline/test_loudness.py b/pipeline/test_loudness.py
+index 22353da2..dbe9574a 100644
+--- a/pipeline/test_loudness.py
++++ b/pipeline/test_loudness.py
+@@ -59,6 +59,28 @@ class TestLoudness(unittest.TestCase):
+         self.assertEqual(stream_md5(f16, "0:a"), stream_md5(f9, "0:a"))                     # Law 23: one audio
+         self.assertEqual([n for n in os.listdir(self.d) if n.endswith(".loud.mp4")], [])
+ 
++    def test_ruling_93_a_16x9_alone_is_corrected_with_no_vertical(self):
++        """Ruling 93 as amended: a run that renders the 16:9 alone (final9 None) is corrected and re-measured on its
++        own; nothing is muxed, no 9:16 is read or written. Must-fail on the old code: correct_finals needs final9."""
++        f16, f9 = make_pair(self.d, 0.03)
++        os.remove(f9)
++        v16 = stream_md5(f16, "0:v")
++        rec = LD.correct_finals(f16)
++        self.assertEqual(rec["action"], "corrected", rec)
++        self.assertNotIn("after_9x16", rec)
++        m = LD.measure(f16)
++        self.assertLessEqual(abs(m["input_i"] - LD.TARGET_I), LD.TOL_LU, m)
++        self.assertLessEqual(m["input_tp"], LD.TARGET_TP, m)
++        self.assertEqual(stream_md5(f16, "0:v"), v16)
++        self.assertEqual(sorted(os.listdir(self.d)), ["segment.mp4"])          # no temp, no .orig, no 9:16
++        with mock.patch.object(LD, "measure", side_effect=[LD.measure(f16) | {"input_i": -30.0},
++                                                           {"input_i": -20.0, "input_tp": -3.0}]), \
++                mock.patch.object(LD, "_correct16", side_effect=lambda s, d, m: shutil.copy(s, d)):
++            before = sha(f16)
++            rec = LD.correct_finals(f16)                                        # an off-target re-measure keeps it
++        self.assertTrue(rec["action"].startswith("kept the rendered finals"), rec)
++        self.assertEqual(sha(f16), before)
++
+     def test_a_pair_within_tolerance_is_never_rewritten(self):          # audit batch 53 C1 (glm F3): a pair that
+         f16, f9 = make_pair(self.d, 0.03)                             # MEASURES in tolerance, no correction first
+         s16, s9 = sha(f16), sha(f9)
+diff --git a/pipeline/test_render16only.py b/pipeline/test_render16only.py
+new file mode 100644
+index 00000000..13d439d8
+--- /dev/null
++++ b/pipeline/test_render16only.py
+@@ -0,0 +1,273 @@
++#!/usr/bin/env python3
++"""Ruling 93 as amended (orchestrator 2026-11-14 '21:10'): "the integrator renders and delivers that format alone".
++A run whose EDL seals formats ['16x9'] RENDERS, GATES and VERIFIES the 16:9 alone: no 9:16 shoutout, render,
++postflight, loudness mux, gate, sheet or row. Every renderer and gate is stubbed at its seam (no GPU, no network);
++the stubs record which final each one was given. Must-fail: the same run with no sealed formats renders and gates
++both (today's behaviour), and finals that do not match the sealed formats are a Hold.
++Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_render16only.py"""
++import contextlib
++import json
++import os
++import shutil
++import sys
++import tempfile
++import unittest
++from unittest import mock
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++import run_fresh as rf  # noqa: E402
++
++ABSENT = object()
++SEG = [{"label": "hook", "type": "talking_head", "start": 0.0, "end": 1.0},
++       {"label": "shoutout", "type": "shoutout", "start": 1.0, "end": 2.0}]
++
++
++def run_dir(parent, formats=ABSENT):
++    rd = tempfile.mkdtemp(prefix="r16_", dir=parent)
++    for sub in ("out", "qa", "VERIFY"):
++        os.makedirs(os.path.join(rd, sub))
++    edl = {"topic": "t", "hook": {"channel": "Blockware Solutions", "selection_lock": {"text": "I sold my stocks."}},
++           "clips": []}
++    if formats is not ABSENT:
++        edl["formats"] = formats
++    for name, obj in (("edl.json", edl), ("VERTICAL_LAYOUT.json", {}), ("CLIP_CONTRACT.json", [{"clip_id": "hook"}]),
++                      ("cuts_final.json", [{"clip_id": "hook", "video_id": "AAAAAAAAAAA", "cut_in": 0.0,
++                                            "cut_out": 1.0}])):
++        json.dump(obj, open(os.path.join(rd, name), "w"))
++    return rd
++
++
++def finals(rd, fmts):
++    """The renders' outputs as the stubs (and a real render) leave them: each format's final and manifest."""
++    out = {}
++    for fmt, name in (("16x9", "segment.mp4"), ("9x16", "segment_vertical.mp4")):
++        if fmt in fmts:
++            open(os.path.join(rd, "out", name), "wb").write(fmt.encode())
++            json.dump({"segments": SEG}, open(os.path.join(rd, "qa", f"concat_manifest_{fmt}.json"), "w"))
++            out[fmt] = (os.path.join(rd, "out", name), os.path.join(rd, "qa", f"concat_manifest_{fmt}.json"))
++        else:
++            out[fmt] = (None, None)
++    return out
++
++
++def run_obj(rd):
++    run = rf.Run(rd)
++    run.machine_cuts = False
++    return run
++
++
++class TestRenderStage(unittest.TestCase):
++    def setUp(self):
++        self.tmp = tempfile.mkdtemp(prefix="r16t_")
++        self.addCleanup(shutil.rmtree, self.tmp, True)
++
++    def render(self, rd):
++        import loudness
++        import render16
++        import render_vertical
++        import run_isolated
++        import shoutout
++        calls = []
++
++        def r16(d, qa, name, alimiter_dbfs=None):
++            finals(d, ("16x9",))
++            calls.append("render_16x9")
++
++        def r9(d, qa, name, alimiter_dbfs=None):
++            finals(d, ("9x16",))
++            open(os.path.join(d, "qa", "vert_hook.mp4"), "wb").write(b"v")     # the reframed clip it leaves
++            calls.append("render_9x16")
++        with contextlib.ExitStack() as st:
++            for obj, attr, fn in (
++                    (shoutout, "build_shoutout", lambda d, q, fmt="16x9": calls.append(f"shoutout {fmt}")),
++                    (render16, "render_16x9", r16), (render_vertical, "render_9x16", r9),
++                    (run_isolated, "preflight_check", lambda d: None),
++                    (run_isolated, "postflight_check", lambda p, t, a, log_output="": calls.append(f"postflight {a}")),
++                    (loudness, "correct_finals", lambda f16, f9=None: calls.append(
++                        f"loudness {os.path.basename(f16)} {f9 and os.path.basename(f9)}") or {"action": "stub"}),
++                    (rf, "write_transitions", lambda run, style: None),
++                    (rf, "media_summary", lambda p: {"width": 1080, "height": 1920})):
++                st.enter_context(mock.patch.object(obj, attr, fn))
++            run = run_obj(rd)
++            return rf.stage_render(run), calls, run
++
++    def test_a_16x9_only_run_renders_the_16x9_alone(self):
++        rd = run_dir(self.tmp, ["16x9"])
++        (f16, m16, f9, m9), calls, run = self.render(rd)
++        self.assertEqual((os.path.basename(f16), f9, m9), ("segment.mp4", None, None))
++        self.assertEqual(calls, ["shoutout 16x9", "render_16x9", "postflight 16x9", "loudness segment.mp4 None"])
++        self.assertFalse(os.path.exists(os.path.join(rd, "out", "segment_vertical.mp4")))
++        fb = run.prov["vertical_fallback_check"]
++        self.assertEqual((fb["formats"], fb["checked"], fb["fallback_occurred"]), (["16x9"], [], False))
++        self.assertNotIn("outro_conform_fallback_9x16", fb)
++
++    def test_must_fail_no_sealed_formats_renders_both(self):
++        rd = run_dir(self.tmp)
++        (f16, m16, f9, m9), calls, run = self.render(rd)
++        self.assertEqual(os.path.basename(f9), "segment_vertical.mp4")
++        self.assertEqual(calls, ["shoutout 16x9", "shoutout 9x16", "render_16x9", "postflight 16x9", "render_9x16",
++                                 "postflight 9x16", "loudness segment.mp4 segment_vertical.mp4"])
++        self.assertEqual(run.prov["vertical_fallback_check"]["checked"], ["hook"])
++
++    def test_unreadable_formats_hold_before_anything_renders(self):
++        rd = run_dir(self.tmp, ["9x16"])
++        with self.assertRaisesRegex(rf.Hold, "release formats unreadable"):
++            self.render(rd)
++        self.assertEqual(os.listdir(os.path.join(rd, "out")), [])
++
++
++class TestGateStage(unittest.TestCase):
++    """stage_gates with every gate stubbed: each stub records the final it measured."""
++
++    def setUp(self):
++        self.tmp = tempfile.mkdtemp(prefix="r16g_")
++        self.addCleanup(shutil.rmtree, self.tmp, True)
++
++    def gates(self, rd, f16, m16, f9, m9):
++        import config
++        import credit_rings
++        import edge_shots
++        import gates as G
++        import qa_gates
++        import sentence_law as L
++        import vertical_layout as V
++        import word_diff as WD
++        seen = []
++        outro = os.path.join(self.tmp, "outro.mp4")
++        open(outro, "wb").write(b"outro")
++
++        def rec(name, ret):
++            def f(*a, **k):
++                seen.append((name, next((os.path.basename(x) for x in list(a) + list(k.values())
++                                         if isinstance(x, str) and x.endswith(".mp4")), None)))
++                return ret
++            return f
++        res = {"G3b_cut_out_clean": {"pass": True, "table": []}, "G3c_acoustic_tail": {"pass": True, "table": []},
++               "G5_tech": {"pass": True, "data": [1]}, "G8_sharpness": {"pass": True, "table": [1]},
++               "G9_tail": {"pass": True, "data": {"x": 1}}}
++        with contextlib.ExitStack() as st:
++            for obj, attr, fn in (
++                    (rf, "free_gpu0_for_whisper", lambda run, stage, **k: None),
++                    (G, "run_gates", rec("run_gates", (True, res))),
++                    (G, "g14_run_speech", lambda d, cuts: {"hook": []}),
++                    (G, "gate_g14", rec("G14", (True, [{"status": "PASS"}]))),
++                    (G, "gate_g14c", rec("G14c", (True, [1]))),
++                    (G, "gate_g15", rec("G15", (True, [1]))),
++                    (G, "gate_g20", rec("G20", (True, [1]))),
++                    (qa_gates, "gate_g11", rec("G11", (True, [1]))),
++                    (qa_gates, "gate_g8", rec("G8", (True, [{"segment": "hook", "ratio": 1.0}]))),
++                    (qa_gates, "gate_g4", rec("G4", (True, [1]))),
++                    (credit_rings, "credit_channels", lambda edl: ["Blockware Solutions"]),
++                    (config, "conform_outro", lambda fmt: outro),
++                    (config, "OUTRO_MASTER_16x9", outro), (config, "OUTRO_MASTER_9x16", outro),
++                    (V, "per_shot_manifest", lambda sgs, plans: []),
++                    (V, "gate_g4s", lambda plans, prepared, vert_final=None, vert_segments=None:
++                     seen.append(("G4s", vert_final and os.path.basename(vert_final))) or (True, [1])),
++                    (L, "gate_g16", lambda d: (True, [1])),
++                    (L, "gate_g17_prepared", lambda clips: (True, [1])),
++                    (L, "gate_g17_output", rec("G17", (True, [1]))),
++                    (L, "gate_g17_edges", lambda d: (True, [1])),
++                    (WD, "Transcriber", lambda: object()),
++                    (WD, "gate_g18", rec("G18", (True, [1]))),
++                    (edge_shots, "gate_g19", rec("G19", (True, [1])))):
++                st.enter_context(mock.patch.object(obj, attr, fn))
++            run = run_obj(rd)
++            run.prov["vertical_fallback_check"] = {"outro_conform_fallback_16x9": False,
++                                                   "outro_conform_fallback_9x16": False,
++                                                   "fallback_occurred": False, "checked": ["hook"]}
++            rows, _, _ = rf.stage_gates(run, f16, m16, f9, m9)
++            return rows, seen, json.load(open(os.path.join(rd, "GATE_REPORT.json")))
++
++    def test_a_16x9_only_run_gates_the_16x9_alone(self):
++        rd = run_dir(self.tmp, ["16x9"])
++        f = finals(rd, ("16x9",))
++        rows, seen, rep = self.gates(rd, *f["16x9"], *f["9x16"])
++        self.assertEqual(list(rows), ["16x9"])
++        self.assertEqual(list(rep["rows"]), ["16x9"])
++        self.assertEqual(rep["formats"], ["16x9"])
++        self.assertEqual(set(rep["measured_files"]), {"out/segment.mp4", "qa/concat_manifest_16x9.json"})
++        self.assertNotIn("segment_vertical.mp4", {x for _, x in seen})
++        self.assertFalse({"G11", "G14c"} & {n for n, _ in seen}, seen)
++        self.assertEqual({n for n, x in seen if x == "segment.mp4"},
++                         {"run_gates", "G14", "G15", "G20", "G8", "G4", "G17", "G18", "G19"})
++        for k in ("G16_sentence_boundary", "G17_onset_tail", "G18_word_for_word", "G19_edge_shots", "G15_credits",
++                  "G20_signoff_names_all", "G14_av_alignment", "G4s_layout_truth"):
++            self.assertIn(k, rows["16x9"])
++
++    def test_must_fail_no_sealed_formats_gates_both(self):
++        rd = run_dir(self.tmp)
++        f = finals(rd, ("16x9", "9x16"))
++        rows, seen, rep = self.gates(rd, *f["16x9"], *f["9x16"])
++        self.assertEqual(list(rows), ["16x9", "9x16"])
++        self.assertTrue({"G11", "G14c"} <= {n for n, _ in seen}, seen)
++        self.assertIn("vertical_silent_fallback", rows["9x16"])
++        self.assertEqual({n for n, x in seen if x == "segment_vertical.mp4"},
++                         {"run_gates", "G11", "G14", "G15", "G20", "G4", "G4s", "G17", "G18", "G19"})
++
++    def test_finals_that_do_not_match_the_sealed_formats_hold(self):
++        rd = run_dir(self.tmp, ["16x9"])                    # sealed 16:9 alone, a 9:16 handed in
++        f = finals(rd, ("16x9", "9x16"))
++        with self.assertRaisesRegex(rf.Hold, "do not match the run's formats"):
++            self.gates(rd, *f["16x9"], *f["9x16"])
++        rd = run_dir(self.tmp)                              # both sealed, no 9:16 rendered
++        f = finals(rd, ("16x9",))
++        with self.assertRaisesRegex(rf.Hold, "do not match the run's formats"):
++            self.gates(rd, *f["16x9"], *f["9x16"])
++
++
++class TestVerifyPack(unittest.TestCase):
++    """verify_pack.build (vision off: V1 SKIPPED) covers the run's formats alone; its 'complete' needs only them."""
++
++    def setUp(self):
++        self.tmp = tempfile.mkdtemp(prefix="r16v_")
++        self.addCleanup(shutil.rmtree, self.tmp, True)
++
++    def build(self, rd, fmts):
++        import verify_pack as VP
++        import visual_check as VC
++        finals(rd, fmts)
++        rep = {"G18": {f: [{"segment": "hook"}] for f in fmts},
++               "rows": {f: {"G12_credits": "PASS"} for f in fmts}, **{f"G15_{f}": [1] for f in fmts}}
++        json.dump(rep, open(os.path.join(rd, "GATE_REPORT.json"), "w"))
++        asked = []
++
++        def frame(final, t, out):
++            asked.append(os.path.basename(final))
++            open(out, "wb").write(b"jpg")
++            return out
++
++        def sheet(items, out, tile):
++            open(out, "wb").write(b"jpg")
++            return out
++
++        def contact(final, segs, fmt, out, work):
++            asked.append(os.path.basename(final))
++            open(out, "wb").write(b"jpg")
++            return {"path": out}
++        with mock.patch.object(VP, "_frame", frame), mock.patch.object(VP, "_sheet", sheet), \
++                mock.patch.object(VC, "contact_sheet", contact):
++            return VP.build(rd, vision=False), asked
++
++    def test_a_16x9_only_pack_is_complete_on_the_16x9_alone(self):
++        rd = run_dir(self.tmp, ["16x9"])
++        pack, asked = self.build(rd, ("16x9",))
++        self.assertTrue(pack["complete"], pack)
++        self.assertEqual(pack["formats"], ["16x9"])
++        self.assertEqual(set(asked), {"segment.mp4"})
++        self.assertEqual(list(pack["joins"]), ["16x9"])
++        rep = json.load(open(os.path.join(rd, "GATE_REPORT.json")))
++        self.assertEqual(list(rep["rows"]), ["16x9"])                    # V1 written for the 16:9 alone
++
++    def test_must_fail_no_sealed_formats_needs_the_9x16_too(self):
++        rd = run_dir(self.tmp)
++        with self.assertRaises((FileNotFoundError, OSError)):          # no 9:16 manifest: the pack cannot be built
++            self.build(rd, ("16x9",))
++        rd = run_dir(self.tmp)
++        pack, asked = self.build(rd, ("16x9", "9x16"))
++        self.assertEqual(set(asked), {"segment.mp4", "segment_vertical.mp4"})
++        self.assertTrue(pack["complete"], pack)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/verify_pack.py b/pipeline/verify_pack.py
+index 689d2b92..fb6a98df 100644
+--- a/pipeline/verify_pack.py
++++ b/pipeline/verify_pack.py
+@@ -52,13 +52,25 @@ def _sheet(items, out, tile_w):
+     return out
+ 
+ 
++def run_formats(run_dir):
++    """The formats this run renders (ruling 93 as amended: the EDL's sealed formats, release_auth.release_formats;
++    absent = both). Unreadable raises: a pack is never built for formats the run did not seal."""
++    import release_auth
++    with open(os.path.join(run_dir, "edl.json")) as f:
++        return release_auth.release_formats(json.load(f))
++
++
+ def build(run_dir, vision=True):
+     vdir = os.path.join(run_dir, "VERIFY")
+     os.makedirs(vdir, exist_ok=True)
+     with open(os.path.join(run_dir, "GATE_REPORT.json")) as f:
+         rep = json.load(f)
+-    pack = {"words": rep.get("G18"), "joins": {}, "credits": {"G12": {}, "G15": {}}, "vision": bool(vision)}
++    formats = run_formats(run_dir)
++    pack = {"words": rep.get("G18"), "joins": {}, "credits": {"G12": {}, "G15": {}}, "vision": bool(vision),
++            "formats": list(formats)}
+     for fmt, final, tile in (("16x9", "segment.mp4", 480), ("9x16", "segment_vertical.mp4", 270)):
++        if fmt not in formats:                       # a 16:9-only run has no 9:16 to verify
++            continue
+         final = os.path.join(run_dir, "out", final)
+         with open(os.path.join(run_dir, "qa", f"concat_manifest_{fmt}.json")) as f:
+             segs = json.load(f)["segments"]
+@@ -83,17 +95,17 @@ def build(run_dir, vision=True):
+                                     "sheet": _sheet(c_items, os.path.join(vdir, f"credits_{fmt}.jpg"), tile)}
+         pack["credits"]["G12"][fmt] = rep.get("rows", {}).get(fmt, {}).get("G12_credits")
+         pack["credits"]["G15"][fmt] = rep.get(f"G15_{fmt}")
+-    files = [pack["joins"][f]["sheet"] for f in ("16x9", "9x16")] + \
+-            [pack["credits"].get(f, {}).get("sheet") for f in ("16x9", "9x16")]
+-    credits_rows = [pack["credits"][g].get(f) for g in ("G12", "G15") for f in ("16x9", "9x16")]
+-    _sheets_and_checklist(run_dir, rep, pack, vision)
++    files = [pack["joins"][f]["sheet"] for f in formats] + \
++            [pack["credits"].get(f, {}).get("sheet") for f in formats]
++    credits_rows = [pack["credits"][g].get(f) for g in ("G12", "G15") for f in formats]
++    _sheets_and_checklist(run_dir, rep, pack, vision, formats)
+     words = pack["words"] if isinstance(pack["words"], dict) else {}
+-    pack["complete"] = all(isinstance(words.get(f), list) and words[f] for f in ("16x9", "9x16")) \
++    pack["complete"] = all(isinstance(words.get(f), list) and words[f] for f in formats) \
+         and all(p and os.path.exists(p) for p in files) \
+         and all(r is not None for r in credits_rows) \
+-        and all(os.path.exists((pack["contact_sheets"].get(f) or {}).get("path") or "") for f in ("16x9", "9x16"))
++        and all(os.path.exists((pack["contact_sheets"].get(f) or {}).get("path") or "") for f in formats)
+     pack["passed"] = pack["complete"] is True and pack["vision"] is True and \
+-        all((pack["visual"].get(f) or {}).get("ok") is True for f in ("16x9", "9x16"))
++        all((pack["visual"].get(f) or {}).get("ok") is True for f in formats)
+     tmp = os.path.join(vdir, "VERIFICATION.json.tmp")
+     with open(tmp, "w") as f:
+         json.dump(pack, f, indent=2, default=str)
+@@ -146,7 +158,7 @@ def avatar_note(channels, registry=None):
+     return (" Registered avatars that are the channel's own monogram or logo: " + "; ".join(marks) + ".") if marks else ""
+ 
+ 
+-def _sheets_and_checklist(run_dir, rep, pack, vision):
++def _sheets_and_checklist(run_dir, rep, pack, vision, formats=("16x9", "9x16")):
+     """Contact sheet per format (qa/) and the visual checklist answered from it; V1 rows written into
+     GATE_REPORT.json (a new check on top of the gates: any "no", missing answer or route error = FAIL)."""
+     import visual_check as VC
+@@ -161,6 +173,8 @@ def _sheets_and_checklist(run_dir, rep, pack, vision):
+     pack["contact_sheets"], pack["visual"] = {}, {}
+     v1_rows = {}                                        # fmt -> (exact verdict, note, answers counted)
+     for fmt, final in (("16x9", "segment.mp4"), ("9x16", "segment_vertical.mp4")):
++        if fmt not in formats:                          # ruling 93 as amended: only the run's formats are asked
++            continue
+         with open(os.path.join(run_dir, "qa", f"concat_manifest_{fmt}.json")) as f:
+             segs = json.load(f)["segments"]
+         sheet = os.path.join(run_dir, "qa", f"contact_sheet_{fmt}.jpg")
+diff --git a/scripts/pulse_check_run.sh b/scripts/pulse_check_run.sh
+index 1161b248..041c8454 100755
+--- a/scripts/pulse_check_run.sh
++++ b/scripts/pulse_check_run.sh
+@@ -102,7 +102,9 @@ if [ "$TELEGRAM" = 1 ] && [ "$RC" != 0 ]; then
+   # orchestrator 2026-11-11 08:30: PBX gets a run only when it passes; a HOLD is never sent (its REPORT.md,
+   # GATE_REPORT.json and contact sheets in the run dir are the record)
+   echo "HOLD (run_fresh exit $RC): not delivered; see $RUN_DIR/REPORT.md" | tee -a "$LOG"
+-elif [ "$TELEGRAM" = 1 ] && [ -n "$RUN_DIR" ] && [ -f "$RUN_DIR/out/segment.mp4" ] && [ -f "$RUN_DIR/out/segment_vertical.mp4" ]; then
++elif [ "$TELEGRAM" = 1 ] && [ -n "$RUN_DIR" ] && [ -f "$RUN_DIR/out/segment.mp4" ]; then
++  # ruling 93 as amended: a 16:9-only run has no 9:16 final; release_auth.authorise refuses any SEALED format
++  # whose final is missing or changed, so the 16:9 is the only file this guard needs
+   python3 -c "import sys, telegram; r = telegram.deliver_run(sys.argv[1]); print('delivered:', [m.get('message_id') for m in r['messages']])" \
+     "$RUN_DIR" 9>&- 2>&1 | tee -a "$LOG" 9>&-
+   if [ "${PIPESTATUS[0]}" != 0 ]; then
