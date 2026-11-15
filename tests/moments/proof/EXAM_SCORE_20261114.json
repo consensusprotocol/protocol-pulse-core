@@ -1,0 +1,2227 @@
+{
+ "context_integrity": {
+  "n": 63,
+  "must_reject": 41,
+  "must_accept": 22,
+  "holes": [
+   [
+    "context_integrity__wrong_speaker__01.json",
+    "wrong_speaker"
+   ]
+  ],
+  "holes_hidden_by_another_line": [],
+  "lost_yield": [
+   [
+    "context_integrity__clean_assertion__03.json",
+    "clean_assertion",
+    ""
+   ],
+   [
+    "context_integrity__clean_assertion__12.json",
+    "clean_assertion",
+    ""
+   ]
+  ],
+  "lost_yield_dated_signoff_only": [],
+  "errors": [
+   [
+    "GateNotMeasured: no recorded verdict (replay): context_verdict: no recorded exchange ",
+    2
+   ]
+  ],
+  "n_errors": 2,
+  "rows": [
+   {
+    "file": "context_integrity__answer_without_question__01.json",
+    "class": "answer_without_question",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__answer_without_question__02.json",
+    "class": "answer_without_question",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__answer_without_question__03.json",
+    "class": "answer_without_question",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__clean_assertion__01.json",
+    "class": "clean_assertion",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__clean_assertion__02.json",
+    "class": "clean_assertion",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__clean_assertion__03.json",
+    "class": "clean_assertion",
+    "want": "pass",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__clean_assertion__04.json",
+    "class": "clean_assertion",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__clean_assertion__05.json",
+    "class": "clean_assertion",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__clean_assertion__06.json",
+    "class": "clean_assertion",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__clean_assertion__07.json",
+    "class": "clean_assertion",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__clean_assertion__08.json",
+    "class": "clean_assertion",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__clean_assertion__09.json",
+    "class": "clean_assertion",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__clean_assertion__10.json",
+    "class": "clean_assertion",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__clean_assertion__11.json",
+    "class": "clean_assertion",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__clean_assertion__12.json",
+    "class": "clean_assertion",
+    "want": "pass",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__clean_assertion__13.json",
+    "class": "clean_assertion",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__clean_assertion__14.json",
+    "class": "clean_assertion",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__clean_assertion__15.json",
+    "class": "clean_assertion",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__clean_assertion__16.json",
+    "class": "clean_assertion",
+    "want": "pass",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): context_verdict: no recorded exchange ([('xai:grok-4.20-0309-reasoning', 'replay: not recorded'), ('heimdall:z-ai/glm-5.3-flash', "
+   },
+   {
+    "file": "context_integrity__clean_conjunction_opener__01.json",
+    "class": "clean_conjunction_opener",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__clean_conjunction_opener__02.json",
+    "class": "clean_conjunction_opener",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__clean_conjunction_opener__03.json",
+    "class": "clean_conjunction_opener",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__clean_conjunction_opener__04.json",
+    "class": "clean_conjunction_opener",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__clean_conjunction_opener__05.json",
+    "class": "clean_conjunction_opener",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__clean_conjunction_opener__06.json",
+    "class": "clean_conjunction_opener",
+    "want": "pass",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__conditional_split__01.json",
+    "class": "conditional_split",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__conditional_split__02.json",
+    "class": "conditional_split",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__false_dialogue__01.json",
+    "class": "false_dialogue",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__false_dialogue__02.json",
+    "class": "false_dialogue",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__false_dialogue__03.json",
+    "class": "false_dialogue",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__hypothetical__01.json",
+    "class": "hypothetical",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__hypothetical__02.json",
+    "class": "hypothetical",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__hypothetical__03.json",
+    "class": "hypothetical",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__later_retraction__01.json",
+    "class": "later_retraction",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__later_retraction__02.json",
+    "class": "later_retraction",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__quoting_opponent__01.json",
+    "class": "quoting_opponent",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__quoting_opponent__02.json",
+    "class": "quoting_opponent",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__quoting_opponent__03.json",
+    "class": "quoting_opponent",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__reading_aloud__01.json",
+    "class": "reading_aloud",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__reading_aloud__02.json",
+    "class": "reading_aloud",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__reading_aloud__03.json",
+    "class": "reading_aloud",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__sarcasm__01.json",
+    "class": "sarcasm",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__sarcasm__02.json",
+    "class": "sarcasm",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__sarcasm__03.json",
+    "class": "sarcasm",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__some_people_say__01.json",
+    "class": "some_people_say",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__some_people_say__02.json",
+    "class": "some_people_say",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__some_people_say__03.json",
+    "class": "some_people_say",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__stale_time_reference__01.json",
+    "class": "stale_time_reference",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__stale_time_reference__02.json",
+    "class": "stale_time_reference",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__stale_time_reference__03.json",
+    "class": "stale_time_reference",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__steelman__01.json",
+    "class": "steelman",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__steelman__02.json",
+    "class": "steelman",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__steelman__03.json",
+    "class": "steelman",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__title_adds_thesis__01.json",
+    "class": "title_adds_thesis",
+    "want": "fail",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): context_verdict: no recorded exchange ([('xai:grok-4.20-0309-reasoning', 'replay: not recorded'), ('heimdall:z-ai/glm-5.3-flash', "
+   },
+   {
+    "file": "context_integrity__title_adds_thesis__02.json",
+    "class": "title_adds_thesis",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__title_adds_thesis__03.json",
+    "class": "title_adds_thesis",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__unresolved_referent__01.json",
+    "class": "unresolved_referent",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__unresolved_referent__02.json",
+    "class": "unresolved_referent",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__unresolved_referent__03.json",
+    "class": "unresolved_referent",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__unresolved_referent__04.json",
+    "class": "unresolved_referent",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__wrong_speaker__01.json",
+    "class": "wrong_speaker",
+    "want": "fail",
+    "verdict": "pass"
+   },
+   {
+    "file": "context_integrity__wrong_speaker__02.json",
+    "class": "wrong_speaker",
+    "want": "fail",
+    "verdict": "fail"
+   },
+   {
+    "file": "context_integrity__wrong_speaker__03.json",
+    "class": "wrong_speaker",
+    "want": "fail",
+    "verdict": "fail"
+   }
+  ]
+ },
+ "vo_fidelity": {
+  "n": 92,
+  "must_reject": 52,
+  "must_accept": 40,
+  "holes": [
+   [
+    "vo_fidelity__certainty_upgrade__04.json",
+    "certainty_upgrade"
+   ],
+   [
+    "vo_fidelity__commentary_recharacterises__01.json",
+    "commentary_recharacterises"
+   ],
+   [
+    "vo_fidelity__could_to_will__01.json",
+    "could_to_will"
+   ]
+  ],
+  "holes_hidden_by_another_line": [
+   [
+    "vo_fidelity__certainty_upgrade__03.json",
+    "certainty_upgrade",
+    [
+     "title:NEEDS_SOURCE"
+    ]
+   ],
+   [
+    "vo_fidelity__commentary_accuses__02.json",
+    "commentary_accuses",
+    [
+     "title:NEEDS_SOURCE"
+    ]
+   ],
+   [
+    "vo_fidelity__commentary_recharacterises__03.json",
+    "commentary_recharacterises",
+    [
+     "title:NEEDS_SOURCE"
+    ]
+   ]
+  ],
+  "lost_yield": [
+   [
+    "vo_fidelity__faithful_paraphrase__01.json",
+    "faithful_paraphrase",
+    [
+     "bridge_1:NUMBER"
+    ]
+   ],
+   [
+    "vo_fidelity__faithful_paraphrase__03.json",
+    "faithful_paraphrase",
+    [
+     "bridge_1:ATTRIBUTION"
+    ]
+   ],
+   [
+    "vo_fidelity__faithful_paraphrase__05.json",
+    "faithful_paraphrase",
+    [
+     "bridge_1:NUMBER"
+    ]
+   ],
+   [
+    "vo_fidelity__faithful_paraphrase__06.json",
+    "faithful_paraphrase",
+    [
+     "bridge_1:NUMBER"
+    ]
+   ],
+   [
+    "vo_fidelity__hedge_matched_attribution__01.json",
+    "hedge_matched_attribution",
+    [
+     "bridge_2:ATTRIBUTION"
+    ]
+   ],
+   [
+    "vo_fidelity__hedge_matched_attribution__02.json",
+    "hedge_matched_attribution",
+    [
+     "bridge_1:ATTRIBUTION"
+    ]
+   ],
+   [
+    "vo_fidelity__hedge_matched_attribution__03.json",
+    "hedge_matched_attribution",
+    [
+     "bridge_1:ATTRIBUTION",
+     "title:NEEDS_SOURCE"
+    ]
+   ],
+   [
+    "vo_fidelity__hedge_matched_attribution__04.json",
+    "hedge_matched_attribution",
+    [
+     "title:VERDICT_UNCERTAIN"
+    ]
+   ],
+   [
+    "vo_fidelity__hedge_matched_attribution__05.json",
+    "hedge_matched_attribution",
+    [
+     "bridge_2:ATTRIBUTION"
+    ]
+   ],
+   [
+    "vo_fidelity__hedge_matched_attribution__06.json",
+    "hedge_matched_attribution",
+    [
+     "bridge_1:ATTRIBUTION"
+    ]
+   ],
+   [
+    "vo_fidelity__hedge_matched_attribution__07.json",
+    "hedge_matched_attribution",
+    [
+     "bridge_1:ATTRIBUTION"
+    ]
+   ],
+   [
+    "vo_fidelity__hedge_matched_attribution__08.json",
+    "hedge_matched_attribution",
+    [
+     "bridge_1:ATTRIBUTION"
+    ]
+   ],
+   [
+    "vo_fidelity__hedge_matched_attribution__09.json",
+    "hedge_matched_attribution",
+    [
+     "bridge_2:ATTRIBUTION",
+     "bridge_2:RELATION"
+    ]
+   ],
+   [
+    "vo_fidelity__hedge_matched_attribution__10.json",
+    "hedge_matched_attribution",
+    [
+     "bridge_1:ATTRIBUTION",
+     "title:NEEDS_SOURCE"
+    ]
+   ],
+   [
+    "vo_fidelity__hedge_matched_attribution__11.json",
+    "hedge_matched_attribution",
+    [
+     "bridge_1:ATTRIBUTION"
+    ]
+   ],
+   [
+    "vo_fidelity__host_commentary__02.json",
+    "host_commentary",
+    [
+     "bridge_2:COMMENTARY"
+    ]
+   ],
+   [
+    "vo_fidelity__host_commentary__05.json",
+    "host_commentary",
+    [
+     "title:NEEDS_SOURCE"
+    ]
+   ],
+   [
+    "vo_fidelity__host_commentary__06.json",
+    "host_commentary",
+    [
+     "title:NEEDS_SOURCE"
+    ]
+   ],
+   [
+    "vo_fidelity__host_commentary__08.json",
+    "host_commentary",
+    [
+     "title:VERDICT_UNCERTAIN"
+    ]
+   ],
+   [
+    "vo_fidelity__host_commentary__09.json",
+    "host_commentary",
+    [
+     "title:NEEDS_SOURCE"
+    ]
+   ],
+   [
+    "vo_fidelity__host_commentary__11.json",
+    "host_commentary",
+    [
+     "bridge_1:NAME",
+     "bridge_1:NEEDS_SOURCE"
+    ]
+   ],
+   [
+    "vo_fidelity__host_commentary__12.json",
+    "host_commentary",
+    [
+     "title:NEEDS_SOURCE"
+    ]
+   ],
+   [
+    "vo_fidelity__host_commentary__13.json",
+    "host_commentary",
+    [
+     "bridge_2:COMMENTARY"
+    ]
+   ],
+   [
+    "vo_fidelity__host_commentary__14.json",
+    "host_commentary",
+    [
+     "title:VERDICT_UNCERTAIN"
+    ]
+   ],
+   [
+    "vo_fidelity__host_commentary__16.json",
+    "host_commentary",
+    [
+     "bridge_3:NEEDS_SOURCE",
+     "bridge_3:TIME"
+    ]
+   ]
+  ],
+  "lost_yield_dated_signoff_only": [],
+  "errors": [
+   [
+    "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ",
+    19
+   ]
+  ],
+  "n_errors": 19,
+  "rows": [
+   {
+    "file": "vo_fidelity__absent_name__01.json",
+    "class": "absent_name",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "ATTRIBUTION",
+      "detail": "'Jerome Powell': no cited segment is spoken by Jerome Powell or comes from that show"
+     },
+     {
+      "slot": "bridge_1",
+      "rule": "NAME",
+      "detail": "'Jerome' is not said in the cited sentences (and is not a credited show, a verified speaker or the show date)"
+     },
+     {
+      "slot": "bridge_1",
+      "rule": "NAME",
+      "detail": "'Powell' is not said in the cited sentences (and is not a credited show, a verified speaker or the show date)"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__absent_name__02.json",
+    "class": "absent_name",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "ATTRIBUTION",
+      "detail": "'Michael Saylor': no cited segment is spoken by Michael Saylor or comes from that show"
+     },
+     {
+      "slot": "bridge_1",
+      "rule": "NAME",
+      "detail": "'Michael' is not said in the cited sentences (and is not a credited show, a verified speaker or the show date)"
+     },
+     {
+      "slot": "bridge_1",
+      "rule": "NAME",
+      "detail": "'Saylor' is not said in the cited sentences (and is not a credited show, a verified speaker or the show date)"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__absent_name__03.json",
+    "class": "absent_name",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "NAME",
+      "detail": "'Larry' is not said in the cited sentences (and is not a credited show, a verified speaker or the show date)"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__banned_framing__01.json",
+    "class": "banned_framing",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "NUMBER",
+      "detail": "5 is not in the cited sentences"
+     },
+     {
+      "slot": "bridge_1",
+      "rule": "FRAMING",
+      "detail": "'confirm' framing is not the source's own word (L-t)"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__banned_framing__02.json",
+    "class": "banned_framing",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "FRAMING",
+      "detail": "'expose' framing is not the source's own word (L-t)"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__banned_framing__03.json",
+    "class": "banned_framing",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "FRAMING",
+      "detail": "'admit' framing is not the source's own word (L-t)"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__certainty_upgrade__01.json",
+    "class": "certainty_upgrade",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_2",
+      "rule": "VERDICT_NO",
+      "detail": "The CoinTelegraph speaker knows Bitcoin is about to take off."
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_2"
+    ]
+   },
+   {
+    "file": "vo_fidelity__certainty_upgrade__02.json",
+    "class": "certainty_upgrade",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "FRAMING",
+      "detail": "'confirm' framing is not the source's own word (L-t)"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__certainty_upgrade__03.json",
+    "class": "certainty_upgrade",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "title",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     }
+    ],
+    "credited": false,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__certainty_upgrade__04.json",
+    "class": "certainty_upgrade",
+    "want": "fail",
+    "verdict": "pass",
+    "violations": []
+   },
+   {
+    "file": "vo_fidelity__commentary_accuses__01.json",
+    "class": "commentary_accuses",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "COMMENTARY",
+      "detail": "host commentary 'That selling looked coordinated to me.' fails accusation"
+     },
+     {
+      "slot": "title",
+      "rule": "VERDICT_UNCERTAIN",
+      "detail": "The video's title is 'The long view on Bitcoin' and it concerns Bitcoin."
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__commentary_accuses__02.json",
+    "class": "commentary_accuses",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "title",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     }
+    ],
+    "credited": false,
+    "bad_slots": [
+     "bridge_2"
+    ]
+   },
+   {
+    "file": "vo_fidelity__commentary_as_quote__01.json",
+    "class": "commentary_as_quote",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "VERDICT_NO",
+      "detail": "TFTC put it that sound money always wins"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__commentary_imperative__01.json",
+    "class": "commentary_imperative",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_2",
+      "rule": "COMMENTARY",
+      "detail": "host commentary 'Get your savings out of cash while you still can.' fails imperative_or_prediction"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_2"
+    ]
+   },
+   {
+    "file": "vo_fidelity__commentary_imperative__02.json",
+    "class": "commentary_imperative",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_2",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     },
+     {
+      "slot": "bridge_2",
+      "rule": "TIME",
+      "detail": "'tonight' is not said in the cited sentences (L-v 3: time words need the source's own)"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_2"
+    ]
+   },
+   {
+    "file": "vo_fidelity__commentary_predicts__01.json",
+    "class": "commentary_predicts",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_2",
+      "rule": "COMMENTARY",
+      "detail": "host commentary 'This is the last cheap entry we will see for a while.' fails imperative_or_prediction"
+     },
+     {
+      "slot": "title",
+      "rule": "VERDICT_NO",
+      "detail": "The title is Bitcoin and the money question."
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_2"
+    ]
+   },
+   {
+    "file": "vo_fidelity__commentary_predicts__02.json",
+    "class": "commentary_predicts",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "COMMENTARY",
+      "detail": "host commentary 'The squeeze is coming, and it won't be gentle.' fails imperative_or_prediction"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__commentary_recharacterises__01.json",
+    "class": "commentary_recharacterises",
+    "want": "fail",
+    "verdict": "pass",
+    "violations": []
+   },
+   {
+    "file": "vo_fidelity__commentary_recharacterises__02.json",
+    "class": "commentary_recharacterises",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_2",
+      "rule": "VERDICT_NO",
+      "detail": "The speakers in both clips are worried about the dollar."
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_2"
+    ]
+   },
+   {
+    "file": "vo_fidelity__commentary_recharacterises__03.json",
+    "class": "commentary_recharacterises",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "title",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     }
+    ],
+    "credited": false,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__commentary_smuggles_name__01.json",
+    "class": "commentary_smuggles_name",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_2",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     },
+     {
+      "slot": "bridge_2",
+      "rule": "NAME",
+      "detail": "'Jerome' is not said in the cited sentences (and is not a credited show, a verified speaker or the show date)"
+     },
+     {
+      "slot": "bridge_2",
+      "rule": "NAME",
+      "detail": "'Powell' is not said in the cited sentences (and is not a credited show, a verified speaker or the show date)"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_2"
+    ]
+   },
+   {
+    "file": "vo_fidelity__commentary_smuggles_name__02.json",
+    "class": "commentary_smuggles_name",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     },
+     {
+      "slot": "bridge_1",
+      "rule": "NAME",
+      "detail": "'Nvidia' is not said in the cited sentences (and is not a credited show, a verified speaker or the show date)"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__commentary_smuggles_name__03.json",
+    "class": "commentary_smuggles_name",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_2",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     },
+     {
+      "slot": "bridge_2",
+      "rule": "NAME",
+      "detail": "'Michael' is not said in the cited sentences (and is not a credited show, a verified speaker or the show date)"
+     },
+     {
+      "slot": "bridge_2",
+      "rule": "NAME",
+      "detail": "'Saylor' is not said in the cited sentences (and is not a credited show, a verified speaker or the show date)"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_2"
+    ]
+   },
+   {
+    "file": "vo_fidelity__commentary_smuggles_number__01.json",
+    "class": "commentary_smuggles_number",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_2",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     },
+     {
+      "slot": "bridge_2",
+      "rule": "NUMBER",
+      "detail": "8 percent is not in the cited sentences"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_2"
+    ]
+   },
+   {
+    "file": "vo_fidelity__commentary_smuggles_number__02.json",
+    "class": "commentary_smuggles_number",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     },
+     {
+      "slot": "bridge_1",
+      "rule": "NUMBER",
+      "detail": "100 is not in the cited sentences"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__commentary_smuggles_number__03.json",
+    "class": "commentary_smuggles_number",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     },
+     {
+      "slot": "bridge_1",
+      "rule": "NUMBER",
+      "detail": "100000 is not in the cited sentences"
+     },
+     {
+      "slot": "bridge_1",
+      "rule": "PRICE_NOW",
+      "detail": "states the level(s) [100000.0] as if current, but this universe's current levels are []; mark it as history or drop it (L-v 3 / L-t)"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__could_to_will__01.json",
+    "class": "could_to_will",
+    "want": "fail",
+    "verdict": "pass",
+    "violations": []
+   },
+   {
+    "file": "vo_fidelity__could_to_will__02.json",
+    "class": "could_to_will",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "VERDICT_NO",
+      "detail": "On TFTC, Congress will bring a speedier end to the war in Iran."
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__could_to_will__03.json",
+    "class": "could_to_will",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "VERDICT_NO",
+      "detail": "On CoinTelegraph, the speaker stated that nothing will derail Bitcoin."
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__fact_not_in_clips__01.json",
+    "class": "fact_not_in_clips",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "NUMBER",
+      "detail": "21000000 is not in the cited sentences"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__fact_not_in_clips__02.json",
+    "class": "fact_not_in_clips",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "NUMBER",
+      "detail": "2024 is not in the cited sentences"
+     },
+     {
+      "slot": "bridge_1",
+      "rule": "NUMBER",
+      "detail": "3.125 is not in the cited sentences"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__fact_not_in_clips__03.json",
+    "class": "fact_not_in_clips",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "NUMBER",
+      "detail": "2024 is not in the cited sentences"
+     },
+     {
+      "slot": "bridge_1",
+      "rule": "NAME",
+      "detail": "'US' is not said in the cited sentences (and is not a credited show, a verified speaker or the show date)"
+     },
+     {
+      "slot": "bridge_1",
+      "rule": "NAME",
+      "detail": "'ETFs' is not said in the cited sentences (and is not a credited show, a verified speaker or the show date)"
+     },
+     {
+      "slot": "bridge_1",
+      "rule": "NAME",
+      "detail": "'January' is not said in the cited sentences (and is not a credited show, a verified speaker or the show date)"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__faithful_paraphrase__01.json",
+    "class": "faithful_paraphrase",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "NUMBER",
+      "detail": "5 is not in the cited sentences of the attributed speaker / show"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__faithful_paraphrase__02.json",
+    "class": "faithful_paraphrase",
+    "want": "pass",
+    "verdict": "pass",
+    "violations": []
+   },
+   {
+    "file": "vo_fidelity__faithful_paraphrase__03.json",
+    "class": "faithful_paraphrase",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "ATTRIBUTION",
+      "detail": "'the speaker ...': name who speaks, by the show ('on <show>') or by a verified name"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__faithful_paraphrase__04.json",
+    "class": "faithful_paraphrase",
+    "want": "pass",
+    "verdict": "pass",
+    "violations": []
+   },
+   {
+    "file": "vo_fidelity__faithful_paraphrase__05.json",
+    "class": "faithful_paraphrase",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "NUMBER",
+      "detail": "3 is not in the cited sentences of the attributed speaker / show"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__faithful_paraphrase__06.json",
+    "class": "faithful_paraphrase",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "NUMBER",
+      "detail": "3 is not in the cited sentences of the attributed speaker / show"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__financial_imperative__01.json",
+    "class": "financial_imperative",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "signoff_3",
+      "rule": "IMPERATIVE",
+      "detail": "financial imperative or advice framing: 'Buy'"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "signoff_3"
+    ]
+   },
+   {
+    "file": "vo_fidelity__financial_imperative__02.json",
+    "class": "financial_imperative",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "signoff_3",
+      "rule": "IMPERATIVE",
+      "detail": "financial imperative or advice framing: 'You should be stacking'"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "signoff_3"
+    ]
+   },
+   {
+    "file": "vo_fidelity__financial_imperative__03.json",
+    "class": "financial_imperative",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "signoff_2",
+      "rule": "IMPERATIVE",
+      "detail": "financial imperative or advice framing: 'Don't sell'"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "signoff_2"
+    ]
+   },
+   {
+    "file": "vo_fidelity__hedge_matched_attribution__01.json",
+    "class": "hedge_matched_attribution",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_2",
+      "rule": "ATTRIBUTION",
+      "detail": "'the speaker ...': name who speaks, by the show ('on <show>') or by a verified name"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__hedge_matched_attribution__02.json",
+    "class": "hedge_matched_attribution",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "ATTRIBUTION",
+      "detail": "'the speaker ...': name who speaks, by the show ('on <show>') or by a verified name"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__hedge_matched_attribution__03.json",
+    "class": "hedge_matched_attribution",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "ATTRIBUTION",
+      "detail": "'the speaker ...': name who speaks, by the show ('on <show>') or by a verified name"
+     },
+     {
+      "slot": "title",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__hedge_matched_attribution__04.json",
+    "class": "hedge_matched_attribution",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "title",
+      "rule": "VERDICT_UNCERTAIN",
+      "detail": "The video's title is 'Bitcoin and the money question.'"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__hedge_matched_attribution__05.json",
+    "class": "hedge_matched_attribution",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_2",
+      "rule": "ATTRIBUTION",
+      "detail": "'the speaker ...': name who speaks, by the show ('on <show>') or by a verified name"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__hedge_matched_attribution__06.json",
+    "class": "hedge_matched_attribution",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "ATTRIBUTION",
+      "detail": "'the speaker ...': name who speaks, by the show ('on <show>') or by a verified name"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__hedge_matched_attribution__07.json",
+    "class": "hedge_matched_attribution",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "ATTRIBUTION",
+      "detail": "'the speaker ...': name who speaks, by the show ('on <show>') or by a verified name"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__hedge_matched_attribution__08.json",
+    "class": "hedge_matched_attribution",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "ATTRIBUTION",
+      "detail": "'the speaker ...': name who speaks, by the show ('on <show>') or by a verified name"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__hedge_matched_attribution__09.json",
+    "class": "hedge_matched_attribution",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_2",
+      "rule": "ATTRIBUTION",
+      "detail": "'the speaker ...': name who speaks, by the show ('on <show>') or by a verified name"
+     },
+     {
+      "slot": "bridge_2",
+      "rule": "RELATION",
+      "detail": "'each other' relates speakers who were not in one conversation"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__hedge_matched_attribution__10.json",
+    "class": "hedge_matched_attribution",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "ATTRIBUTION",
+      "detail": "'the speaker ...': name who speaks, by the show ('on <show>') or by a verified name"
+     },
+     {
+      "slot": "title",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__hedge_matched_attribution__11.json",
+    "class": "hedge_matched_attribution",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "ATTRIBUTION",
+      "detail": "'the speaker ...': name who speaks, by the show ('on <show>') or by a verified name"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__host_commentary__01.json",
+    "class": "host_commentary",
+    "want": "pass",
+    "verdict": "pass",
+    "violations": []
+   },
+   {
+    "file": "vo_fidelity__host_commentary__02.json",
+    "class": "host_commentary",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_2",
+      "rule": "COMMENTARY",
+      "detail": "host commentary 'That one stays with me.' fails speaker_view"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__host_commentary__03.json",
+    "class": "host_commentary",
+    "want": "pass",
+    "verdict": "pass",
+    "violations": []
+   },
+   {
+    "file": "vo_fidelity__host_commentary__04.json",
+    "class": "host_commentary",
+    "want": "pass",
+    "verdict": "pass",
+    "violations": []
+   },
+   {
+    "file": "vo_fidelity__host_commentary__05.json",
+    "class": "host_commentary",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "title",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__host_commentary__06.json",
+    "class": "host_commentary",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "title",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__host_commentary__07.json",
+    "class": "host_commentary",
+    "want": "pass",
+    "verdict": "pass",
+    "violations": []
+   },
+   {
+    "file": "vo_fidelity__host_commentary__08.json",
+    "class": "host_commentary",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "title",
+      "rule": "VERDICT_UNCERTAIN",
+      "detail": "The video's title is 'Bitcoin and the money question'."
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__host_commentary__09.json",
+    "class": "host_commentary",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "title",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__host_commentary__10.json",
+    "class": "host_commentary",
+    "want": "pass",
+    "verdict": "pass",
+    "violations": []
+   },
+   {
+    "file": "vo_fidelity__host_commentary__11.json",
+    "class": "host_commentary",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     },
+     {
+      "slot": "bridge_1",
+      "rule": "NAME",
+      "detail": "'AI' is not said in the cited sentences (and is not a credited show, a verified speaker or the show date)"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__host_commentary__12.json",
+    "class": "host_commentary",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "title",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__host_commentary__13.json",
+    "class": "host_commentary",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_2",
+      "rule": "COMMENTARY",
+      "detail": "host commentary 'That is why scarcity matters to me.' fails speaker_view"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__host_commentary__14.json",
+    "class": "host_commentary",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "title",
+      "rule": "VERDICT_UNCERTAIN",
+      "detail": "The video's title is 'The long view on Bitcoin'."
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__host_commentary__15.json",
+    "class": "host_commentary",
+    "want": "pass",
+    "verdict": "pass",
+    "violations": []
+   },
+   {
+    "file": "vo_fidelity__host_commentary__16.json",
+    "class": "host_commentary",
+    "want": "pass",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_3",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     },
+     {
+      "slot": "bridge_3",
+      "rule": "TIME",
+      "detail": "'tonight' is not said in the cited sentences (L-v 3: time words need the source's own)"
+     }
+    ],
+    "only_dated_signoff": false
+   },
+   {
+    "file": "vo_fidelity__invented_agreement__01.json",
+    "class": "invented_agreement",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "RELATION",
+      "detail": "'agrees' relates speakers who were not in one conversation"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__invented_agreement__02.json",
+    "class": "invented_agreement",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "RELATION",
+      "detail": "'backs that up' relates speakers who were not in one conversation"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__invented_agreement__03.json",
+    "class": "invented_agreement",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_1",
+      "rule": "RELATION",
+      "detail": "'echoes' relates speakers who were not in one conversation"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_1"
+    ]
+   },
+   {
+    "file": "vo_fidelity__invented_relation__01.json",
+    "class": "invented_relation",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_2",
+      "rule": "RELATION",
+      "detail": "'answers him' relates speakers who were not in one conversation"
+     },
+     {
+      "slot": "title",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_2"
+    ]
+   },
+   {
+    "file": "vo_fidelity__invented_relation__02.json",
+    "class": "invented_relation",
+    "want": "fail",
+    "verdict": "fail",
+    "violations": [
+     {
+      "slot": "bridge_2",
+      "rule": "RELATION",
+      "detail": "'pushes back' relates speakers who were not in one conversation"
+     },
+     {
+      "slot": "title",
+      "rule": "NEEDS_SOURCE",
+      "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+     }
+    ],
+    "credited": true,
+    "bad_slots": [
+     "bridge_2"
+    ]
+   },
+   {
+    "file": "vo_fidelity__manifest_language__01.json",
+    "class": "manifest_language",
+    "want": "pass",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   },
+   {
+    "file": "vo_fidelity__manifest_language__02.json",
+    "class": "manifest_language",
+    "want": "pass",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   },
+   {
+    "file": "vo_fidelity__manifest_language__03.json",
+    "class": "manifest_language",
+    "want": "pass",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   },
+   {
+    "file": "vo_fidelity__manifest_language__04.json",
+    "class": "manifest_language",
+    "want": "pass",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   },
+   {
+    "file": "vo_fidelity__manifest_language__05.json",
+    "class": "manifest_language",
+    "want": "pass",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   },
+   {
+    "file": "vo_fidelity__manifest_language__06.json",
+    "class": "manifest_language",
+    "want": "pass",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   },
+   {
+    "file": "vo_fidelity__manifest_language__07.json",
+    "class": "manifest_language",
+    "want": "pass",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   },
+   {
+    "file": "vo_fidelity__number_rounded__01.json",
+    "class": "number_rounded",
+    "want": "fail",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   },
+   {
+    "file": "vo_fidelity__number_rounded__02.json",
+    "class": "number_rounded",
+    "want": "fail",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   },
+   {
+    "file": "vo_fidelity__number_rounded__03.json",
+    "class": "number_rounded",
+    "want": "fail",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   },
+   {
+    "file": "vo_fidelity__number_swapped__01.json",
+    "class": "number_swapped",
+    "want": "fail",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   },
+   {
+    "file": "vo_fidelity__number_swapped__02.json",
+    "class": "number_swapped",
+    "want": "fail",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   },
+   {
+    "file": "vo_fidelity__number_swapped__03.json",
+    "class": "number_swapped",
+    "want": "fail",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   },
+   {
+    "file": "vo_fidelity__stale_price_line__01.json",
+    "class": "stale_price_line",
+    "want": "fail",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   },
+   {
+    "file": "vo_fidelity__stale_price_title__01.json",
+    "class": "stale_price_title",
+    "want": "fail",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   },
+   {
+    "file": "vo_fidelity__stale_price_title__02.json",
+    "class": "stale_price_title",
+    "want": "fail",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   },
+   {
+    "file": "vo_fidelity__stance_flip__01.json",
+    "class": "stance_flip",
+    "want": "fail",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   },
+   {
+    "file": "vo_fidelity__stance_flip__02.json",
+    "class": "stance_flip",
+    "want": "fail",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   },
+   {
+    "file": "vo_fidelity__stance_flip__03.json",
+    "class": "stance_flip",
+    "want": "fail",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): fidelity_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:qwen/qwen3.8-27b', 'r"
+   }
+  ]
+ },
+ "exclusions": {
+  "n": 33,
+  "must_reject": 21,
+  "must_accept": 12,
+  "holes": [],
+  "holes_hidden_by_another_line": [],
+  "lost_yield": [],
+  "lost_yield_dated_signoff_only": [],
+  "errors": [
+   [
+    "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ",
+    32
+   ]
+  ],
+  "n_errors": 32,
+  "rows": [
+   {
+    "file": "exclusions__accusation__01.json",
+    "class": "accusation",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__accusation__02.json",
+    "class": "accusation",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__accusation__03.json",
+    "class": "accusation",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__ad_read__01.json",
+    "class": "ad_read",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__ad_read__02.json",
+    "class": "ad_read",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__ad_read__03.json",
+    "class": "ad_read",
+    "want": "exclude",
+    "verdict": "exclude"
+   },
+   {
+    "file": "exclusions__ad_read__04.json",
+    "class": "ad_read",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__ad_read__05.json",
+    "class": "ad_read",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__altcoin__01.json",
+    "class": "altcoin",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__altcoin__02.json",
+    "class": "altcoin",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__altcoin__03.json",
+    "class": "altcoin",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__framed_prediction__01.json",
+    "class": "framed_prediction",
+    "want": "keep",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__framed_prediction__02.json",
+    "class": "framed_prediction",
+    "want": "keep",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__framed_prediction__03.json",
+    "class": "framed_prediction",
+    "want": "keep",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__framed_prediction__04.json",
+    "class": "framed_prediction",
+    "want": "keep",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__guaranteed_return__01.json",
+    "class": "guaranteed_return",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__guaranteed_return__02.json",
+    "class": "guaranteed_return",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__imperative__01.json",
+    "class": "imperative",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__imperative__02.json",
+    "class": "imperative",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__neutral_company__01.json",
+    "class": "neutral_company",
+    "want": "keep",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__neutral_company__02.json",
+    "class": "neutral_company",
+    "want": "keep",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__neutral_company__03.json",
+    "class": "neutral_company",
+    "want": "keep",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__neutral_company__04.json",
+    "class": "neutral_company",
+    "want": "keep",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__partner_attack__01.json",
+    "class": "partner_attack",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__partner_attack__02.json",
+    "class": "partner_attack",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__policy_criticism__01.json",
+    "class": "policy_criticism",
+    "want": "keep",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__policy_criticism__02.json",
+    "class": "policy_criticism",
+    "want": "keep",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__policy_criticism__03.json",
+    "class": "policy_criticism",
+    "want": "keep",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__policy_criticism__04.json",
+    "class": "policy_criticism",
+    "want": "keep",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__single_source_breaking__01.json",
+    "class": "single_source_breaking",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__single_source_breaking__02.json",
+    "class": "single_source_breaking",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__third_party_media__01.json",
+    "class": "third_party_media",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   },
+   {
+    "file": "exclusions__third_party_media__02.json",
+    "class": "third_party_media",
+    "want": "exclude",
+    "verdict": "ERROR",
+    "why": "GateNotMeasured: no recorded verdict (replay): exclusion_verdict: no recorded exchange ([('heimdall:z-ai/glm-5.3-flash', 'replay: not recorded'), ('heimdall:deepseek/deepseek-v4"
+   }
+  ]
+ }
+}

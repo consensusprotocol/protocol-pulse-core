@@ -1,0 +1,127 @@
+{
+ "schema": "pp.unstable_second_reading/0",
+ "ruling": "RULING 105 (orchestrator 20:13 ET Nov 14): when (1) the primary decoder's reading of the token is stable across its passes, (2) the second recogniser's repeated readings of the SAME audio differ among themselves and at least one equals the lock's token, and (3) every differing reading is a TRUNCATION of the lock's token, the token is adjudicated as the lock's and the clip may seal. 'All readings are recorded on the pin (decoder passes, each scribe reading with its call id) under unstable_second_reading.' This case was run under the rule by the orchestrator's decision, before the rule's audited code.",
+ "story_id": "moments-ledger_20261114_230148-3f481f5a",
+ "package_sha256": "3f481f5a6514157f7e3f1faa130d577edfe2e95d5c1bad7cc2882b8ef9bb5adc",
+ "segment": {
+  "video_id": "7BqLu-wzbU0",
+  "start": 0.0,
+  "end": 22.94,
+  "role": "hook"
+ },
+ "token": "401k",
+ "same_audio": {
+  "source_file_sha256": "8abb33663c2f94dbe0ec97dfd8432d44cd67a5a4862d68311e2ac1389a2c7cf7",
+  "basis": "both production entries name the same source file; the 14:16 re-listen re-read a window of the same span"
+ },
+ "where": "beside the pin, not inside it: the pin was sealed at 23:23:04Z and the integrator renders a byte-identical frozen copy since 20:09:36 ET, so no field can enter its seal. The audited code that follows the render carries 'unstable_second_reading' onto each later pin's segment, sealed.",
+ "decoder_passes": [
+  {
+   "at": "2026-11-14T18:51:07Z",
+   "kind": "pre-check, long window",
+   "window": [
+    0.0,
+    22.94
+   ],
+   "decoder_sha": "c705b20ed80025af629856e6c34eb609834fef3f708b8614ca26749a4fc8088c",
+   "faster_whisper": "1.2.1",
+   "request_id": "pp-selectid.ledger_20261114_183413.1",
+   "reading": "401k",
+   "text": "I don't have a 401k,",
+   "record": "data/lock_precheck/results/7BqLu-wzbU0.0.000-22.940.c705b20ed800.json (the lock text in 'reason')"
+  },
+  {
+   "at": "2026-11-14T19:16:06Z",
+   "kind": "ruling 103 targeted re-listen (the integrator's proof run, scratch root, the code since merged)",
+   "window": [
+    14.84,
+    18.38
+   ],
+   "reading": "401k",
+   "text": "IRA. I don't have a 401k. I don't own a single",
+   "record": "the integrator's message to the builder, 20:1x ET Nov 14 (its proof run's entry)"
+  },
+  {
+   "at": "2026-11-14T23:17:27Z",
+   "kind": "pre-check, long window (production)",
+   "window": [
+    0.0,
+    22.94
+   ],
+   "decoder_sha": "d1e155c642a6aaacd578ac5ad2f47c9cd1d71594c9913dc4f0f231fd6b2258ce",
+   "faster_whisper": "1.2.1",
+   "request_id": "pp-selectid.ledger_20261114_230148.1",
+   "reading": "401k",
+   "text": "I don't have a 401k,",
+   "lock_sha256": "2044e9d8e1fe60dd67e8e848572e35d6d98ebb65ea950d4de80268615b4dbf9d",
+   "record": "data/lock_precheck/results/7BqLu-wzbU0.0.000-22.940.d1e155c642a6.json (lock.text)"
+  }
+ ],
+ "second_readings": [
+  {
+   "recogniser": "elevenlabs scribe_v1",
+   "at": "2026-11-14T18:51:07Z",
+   "window": [
+    0.0,
+    22.94
+   ],
+   "call_id": null,
+   "call": "pre-check request pp-selectid.ledger_20261114_183413.1",
+   "reading": "401",
+   "text": "I don't have a 401 ,",
+   "usd": 0.0076
+  },
+  {
+   "recogniser": "elevenlabs scribe_v1",
+   "at": "2026-11-14T19:16:06Z",
+   "window": [
+    14.84,
+    18.38
+   ],
+   "call_id": null,
+   "call": "the integrator's ruling-103 proof run, entry at 2026-11-14T19:16:06Z",
+   "reading": "401",
+   "text": "Roth IRA. I don't have a 401 . I don't own a single",
+   "usd": 0.0007
+  },
+  {
+   "recogniser": "elevenlabs scribe_v1",
+   "at": "2026-11-14T23:17:27Z",
+   "window": [
+    0.0,
+    22.94
+   ],
+   "call_id": null,
+   "call": "pre-check request pp-selectid.ledger_20261114_230148.1",
+   "reading": "401k",
+   "text": "I don't have a 401k,",
+   "usd": 0.0076
+  }
+ ],
+ "call_id_note": "no scribe call id exists: the second recogniser returns words, text and seconds only (the integrator, 20:1x ET Nov 14), so each call is named by its time, window and pre-check request",
+ "tests": {
+  "1_decoder_stable": {
+   "readings": [
+    "401k",
+    "401k",
+    "401k"
+   ],
+   "pass": true
+  },
+  "2_second_differs_and_one_equals_lock": {
+   "readings": [
+    "401",
+    "401",
+    "401k"
+   ],
+   "pass": true
+  },
+  "3_every_differing_reading_a_truncation": {
+   "differing": [
+    "401"
+   ],
+   "pass": true
+  }
+ },
+ "adjudicated": "401k, the lock's token: all three tests hold, so under ruling 105 the clip may seal"
+}
