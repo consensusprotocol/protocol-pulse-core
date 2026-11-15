@@ -108,6 +108,54 @@ class TestReviewDrop(unittest.TestCase):
             self._write("edl.json", self.edl)
             self._refused("formats are unreadable")
 
+    POINT = ("L-s step A refused the moment on re-judgment (Grok, 22:07 ET): CONDITION_OUTSIDE, 'by 45' rests on "
+             "~20% returns said after the clip; REFERENT_OUTSIDE, 'now'.")
+    WHY9 = "ruling 93 as amended: the 9:16 crop cuts the source's burned captions mid-word"
+
+    def test_ruling_106_b_a_withheld_format_and_a_stated_point_ride_in_every_text(self):
+        """Ruling 106 (b): the REVIEW path carries the open integrity point in the caption; a format the integrator
+        withholds (ruling 93 as amended) is never read or sent, and its reason is stated. Only the sent format is
+        judged (the 9:16's content-integrity failure does not block a 16:9 drop). Must-fail: with no withhold the
+        same run sends both finals and no point line exists."""
+        self.report["rows"]["9x16"]["G16_sentence_boundary"] = "FAIL"
+        self._write("GATE_REPORT.json", self.report)
+        os.remove(os.path.join(self.run, "out", "segment_vertical.mp4"))
+        rec = T.review_drop(self.run, send=self._send, withhold={"9x16": self.WHY9}, points=[self.POINT])
+        vids = [s for s in self.sent if s[0] == "video"]
+        self.assertEqual([os.path.basename(s[1]) for s in vids], ["segment.mp4"])
+        cap, note = vids[0][2]["caption"], self.sent[-1][2]["text"]
+        for t in (cap, note):
+            self.assertTrue(t.startswith(T.REVIEW_HEAD), t)
+            self.assertIn(T.REVIEW_POINT_HEAD + self.POINT, t)
+            self.assertIn(T.WITHHELD_HEAD + "9:16: " + self.WHY9, t)
+        self.assertLess(cap.index(self.POINT), cap.index("Not passing"))     # under the head, never trimmed away
+        self.assertNotIn("9:16 sha256", note)
+        self.assertEqual((rec["withheld"], rec["points"]), ({"9x16": self.WHY9}, [self.POINT]))
+        self.assertEqual({x[0] for x in rec["nonpass"]}, {"16x9"})
+        self.assertNotIn(T.SIXTEEN_NINE_ONLY, note)                           # not sealed: withheld, said so
+
+    def test_ruling_106_b_must_fail_without_withhold_both_go_and_no_point_line(self):
+        rec = T.review_drop(self.run, send=self._send)
+        self.assertEqual([os.path.basename(s[1]) for s in self.sent if s[0] == "video"],
+                         ["segment.mp4", "segment_vertical.mp4"])
+        self.assertNotIn(T.REVIEW_POINT_HEAD, self.sent[-1][2]["text"])
+        self.assertEqual((rec["withheld"], rec["points"]), ({}, []))
+
+    def test_ruling_106_b_bad_withholds_and_points_send_nothing(self):
+        for kw, pattern in (({"withhold": {"1x1": "x"}}, "withhold names a format"),
+                            ({"withhold": {"9x16": " "}}, "withhold names a format"),
+                            ({"withhold": {"9x16": "a", "16x9": "b"}}, "every format withheld"),
+                            ({"points": [""]}, "each open point"),
+                            ({"points": ["x" * (T.REVIEW_POINT_MAX + 1)]}, "each open point"),
+                            ({"points": [7]}, "each open point"),
+                            ({"points": ["an earlier verdict passed it"]}, "forbidden wording"),
+                            ({"points": [c * T.REVIEW_POINT_MAX for c in "wxyz"]}, "does not fit whole")):
+            with self.subTest(kw=kw):
+                with self.assertRaisesRegex(RuntimeError, pattern):
+                    T.review_drop(self.run, send=self._send, **kw)
+                self.assertEqual(self.sent, [])
+                self.assertFalse(os.path.exists(os.path.join(self.run, "REVIEW_DROP.json")))
+
     def test_without_a_gate_report_nothing_is_sent(self):
         os.remove(os.path.join(self.run, "GATE_REPORT.json"))
         self._refused("no GATE_REPORT.json")
