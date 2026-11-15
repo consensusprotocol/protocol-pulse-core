@@ -6,6 +6,21 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 10:08 TRANSCRIPT INGEST, LIVE PROOF (batch 91, 2585e84f): the 10:00 cron run transcribed all 5 pending videos under the GPU0 lease and left GPU0 as found. The first completed Whisper pass since 11:30 Nov 12. BATCH 3 integrator spend: $0.0426.
+- **The run (logs/transcript_ingest.log, 10:00:01-10:07:12 ET):**
+  - Caption pass: 109 videos, 5 needed Whisper.
+  - Lease: the process (pid 3929037) held /tmp/pulse_gpu0.lease with the record "transcript_ingest Whisper pass (cron, GPU0)", and GPU0 showed it as the only compute process (2382 MiB).
+  - Whisper:
+    - Gr8TZLaIZ4U, Swan Bitcoin: 8 min of audio in 38 s.
+    - acxge3Orsv8, What Bitcoin Did: 152 min in 264 s.
+    - m83V9Xl9wLg, Digital Asset News: 24 min in 47 s.
+    - ArpmEcnzCCM, DataDash: 14 min in 33 s.
+    - 5XVw_oMX3Ng, CNBC Television: 5 min in 18 s.
+  - Result: "ingest done" in 431 s: whisper 5, captions 2, cached 84, skipped_live 15, error:AcquisitionError 1. The error is KRvh4AcSofA, a live event YouTube says begins in 23 hours; it is not a GPU failure.
+  - ingest_runs.jsonl has its summary row: 3.37 h of audio. The earlier runs that needed Whisper died before writing one.
+- **After the run:** the process exited, no process holds the GPU0 lease, and GPU0 is at 18 MiB and 0% with no compute process.
+- **For a render launch:** a long video in hand holds GPU0 for minutes (152 min of audio took 264 s). If the lease is held after the yield flag is up, wait for it (handoff §3 step 2). The pass stops before the next video.
+
 ## 09:53 TRANSCRIPT INGEST: THE WHISPER PASS RUNS UNDER THE GPU0 LEASE (handoff item 10, Nov 15). Since 11:30 ET Nov 12, every run that needed Whisper died on gpu0.LeaseMissing. Now the pass takes the GPU0 lease once with no wait, unloads Whisper before leaving it, and defers to a render's yield flag (checked before every video) or to any other holder. Audits batch 91, two cycles, no consensus finding. Both regressions green. BATCH 3 integrator spend: $0.0426.
 - **The defect:**
   - pipeline/transcript_ingest.py (cron */30, unchanged since 2026-11-06) loaded Whisper on GPU0 without the GPU0 lease. Its cron line also sets only CUDA_VISIBLE_DEVICES.

@@ -288,7 +288,7 @@ No session waits on the orchestrator. Standing, for all three sessions:
    - the layout stage reusing prepare's classify plan (about 35 s per clip);
    - ruling 49 (b): telling the builder when the first trimmed clip is affirmed at validate.
 
-10. **DONE (batch 91, 2026-11-15): the transcript-ingest cron's Whisper pass runs under the GPU0 lease.** `pipeline/transcript_ingest.py` takes the lease once with `wait_s=0`, unloads Whisper before leaving it, and defers the remaining videos to the next run while the render yield flag is up (checked before every video) or another owner holds the lease; `main()` sets `CUDA_DEVICE_ORDER=PCI_BUS_ID` (the cron line is unchanged). From 11:30 Nov 12 every run that needed Whisper had died on `LeaseMissing`. Watch the first runs in `logs/transcript_ingest.log` ("whisper <id> ..." or "Whisper pass stops: deferred_...").
+10. **DONE (batch 91, 2026-11-15): the transcript-ingest cron's Whisper pass runs under the GPU0 lease.** `pipeline/transcript_ingest.py` takes the lease once with `wait_s=0`, unloads Whisper before leaving it, and defers the remaining videos to the next run while the render yield flag is up (checked before every video) or another owner holds the lease; `main()` sets `CUDA_DEVICE_ORDER=PCI_BUS_ID` (the cron line is unchanged). From 11:30 Nov 12 every run that needed Whisper had died on `LeaseMissing`. Live proof, the 10:00 run: all 5 pending videos transcribed under the lease (3.37 h of audio in 431 s), GPU0 left at 18 MiB. A long video in hand holds GPU0 for minutes (152 min of audio took 264 s).
 
 ## 7. KNOWN TRAPS (one line each)
 
