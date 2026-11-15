@@ -44,7 +44,7 @@ def test_the_real_loader_is_the_main_trees_relay_and_answers_by_name(monkeypatch
     monkeypatch.setattr(llm, "_GET_KEY", [])                                # loaded afresh in this test
     path = list(sys.path)
     assert llm.env_key("PP_ORACLE_TEST_KEY") == "value-from-the-environment"
-    assert inspect.getsourcefile(llm._GET_KEY[0]) == "/home/ultron/protocol_pulse/video_pipeline_v3/relay.py"
+    assert inspect.getsourcefile(llm._GET_KEY[0]) == llm.KEY_LOADER       # the file the loader names, executed
     assert sys.path == path
 
 
