@@ -872,6 +872,25 @@ def hook_live_bar():
     return HB.bar(None, HOOK_VERSION, HOOK_SEED, path=HB.PATH)
 
 
+BRACES_NOTE = "trailing closing brace(s) dropped (STATE Q2, 15:04 ET Nov 15)"
+
+
+def hook_answer(text):
+    """STATE Q2 (15:04 ET Nov 15, default at 15:24): the hook job's answer as JSON. Grok's answers out of contract were
+    valid JSON followed by ONE extra closing brace; an answer whose only extra is trailing closing braces (and white
+    space) is read as the object before them. -> (object, how many braces were dropped). Anything else that is not one
+    JSON object raises ValueError: out of contract, as before (and the contract's own checks still apply)."""
+    t = (text or "").strip()
+    try:
+        return json.loads(t), 0
+    except ValueError:
+        v, end = json.JSONDecoder().raw_decode(t)        # ValueError when no object starts the answer
+        rest = t[end:]
+        if not rest.strip() or rest.replace("}", "").strip():
+            raise ValueError(f"hook answer: {rest.strip()[:40]!r} after the object") from None
+        return v, rest.count("}")
+
+
 def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None, seed=HOOK_SEED):
     """RULING 59 (a) / RULING 115: the hook question of ruling 52 (HOOK_QUESTION: scroll / alone / setup, each 1-5) asked
     of EVERY given moment ALONE: ONE call per candidate (ruling 115: the asking the calibration measured; a batch moved
@@ -907,7 +926,7 @@ def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None,
         return out, None
 
     def parse(text, ids):
-        v = json.loads(text.strip())
+        v, _ = hook_answer(text)                 # STATE Q2: an answer whose only extra is trailing closing braces
         h = v["hooks"] if isinstance(v, dict) and set(v) == {"hooks"} else None
         if not isinstance(h, dict) or set(h) != set(ids) or any(
                 not isinstance(x, dict) or set(x) != set(HOOK_PARTS) | {"why"} or not isinstance(x["why"], str) or
@@ -926,9 +945,10 @@ def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None,
         except (P.ProviderError, P.SpendLimit, ValueError, TypeError, KeyError) as e:   # this candidate has no rating
             err = err or f"{type(e).__name__}: {str(e)[:200]}"       # (law L-m); the others are still asked
             continue
-        x = h[mid]
+        x, dropped = h[mid], hook_answer(r.text)[1]
         rec = {**{k: x[k] for k in HOOK_PARTS}, "rating": min(x[k] for k in HOOK_OWN), "why": x["why"][:300],
-               "backend": r.backend, "rule": HOOK_OWN_RULE}           # the rating orders hooks; hook_own decides
+               "backend": r.backend, "rule": HOOK_OWN_RULE,           # the rating orders hooks; hook_own decides
+               **({"answer_note": f"{dropped} {BRACES_NOTE}"} if dropped else {})}   # said, when it was read so
         out[mid] = dict(rec, cached=False, replayed=bool(getattr(r, "replayed", False)))
         new[key(m)] = {r.backend: rec}
     _cache_put(cache, new)

@@ -83,7 +83,10 @@ class TestRate(unittest.TestCase):
                 mock.patch.object(X, "SPEND", os.path.join(d, "S.json")), mock.patch.object(X, "rate", rate), \
                 mock.patch.object(X, "build_router", R), mock.patch.object(X.H, "ref_moments", lambda: POS), \
                 mock.patch.object(X, "negatives", lambda: NEG), mock.patch.object(X.H, "registry", lambda: []):
+            with open(os.path.join(d, "S.json"), "w") as f:            # the report names the REPORTED figure,
+                f.write('{"usd_reported": 0.1, "usd_estimate": 1.0}')     # never the estimate (15:17 ET Nov 15)
             out = X.run(["grok", "qwen"])
+            self.assertEqual(out["spent_usd_reported"], 0.1)
             self.assertTrue(os.path.exists(os.path.join(d, "QUESTION_V2_TEST.json")))
             X.report()
             self.assertIn("by xai:grok-4.20-0309-reasoning", open(os.path.join(d, "REPORT.md")).read())

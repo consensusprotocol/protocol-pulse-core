@@ -1386,6 +1386,23 @@ class TestRuling59HookFirst(unittest.TestCase):
             got, _ = PK.hook_ratings(c, ms, ctx(), set(), set(), cache=cache, seed=PK.HOOK_SEED + 1)
             self.assertEqual((got["a"]["cached"], len(c.calls)), (False, 1))   # ... and never read
 
+    def test_q2_an_answer_whose_only_extra_is_trailing_closing_braces_is_read(self):
+        """STATE Q2 (15:04 ET Nov 15, default 15:24): Grok's out-of-contract hook answers were valid JSON and ONE extra
+        closing brace; such an answer is read and its record says so; any other extra stays out of contract, and the
+        contract's own checks still apply."""
+        ms = [pm("a", "A", 12.0)]
+        ok = '{"hooks": {"a": {"scroll": 4, "alone": 4, "setup": 4, "why": "w"}}}'
+        for extra, n in (("}", 1), ("}}\n", 2), (" }", 1)):
+            got, err = PK.hook_ratings(self.canned(ok + extra), ms, ctx(), set(), set())
+            self.assertEqual((err, got["a"]["rating"], got["a"].get("answer_note")),
+                             (None, 4, f"{n} {PK.BRACES_NOTE}"), extra)
+        got, err = PK.hook_ratings(self.canned(ok), ms, ctx(), set(), set())
+        self.assertEqual((err, "answer_note" in got["a"]), (None, False))
+        for bad in (ok + "} x", ok + "]", ok + ', "b": 1}', '{"hooks": {"a": {"scroll": 4}}}}', "} " + ok):
+            got, err = PK.hook_ratings(self.canned(bad, bad), ms, ctx(), set(), set())
+            self.assertEqual(got, {}, bad)                                   # out of contract: no rating
+            self.assertIn("Error", err)
+
     def test_a_candidate_left_unrated_never_stops_the_others_being_asked(self):
         """RULING 115: one call a candidate; a candidate whose chain is spent has no rating (law L-m), the others are
         still asked, and the first error is returned."""

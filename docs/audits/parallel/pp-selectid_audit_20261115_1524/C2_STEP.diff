@@ -1,0 +1,125 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 5bbda7a..1afb4a7 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -872,6 +872,25 @@ def hook_live_bar():
+     return HB.bar(None, HOOK_VERSION, HOOK_SEED, path=HB.PATH)
+ 
+ 
++BRACES_NOTE = "trailing closing brace(s) dropped (STATE Q2, 15:04 ET Nov 15)"
++
++
++def hook_answer(text):
++    """STATE Q2 (15:04 ET Nov 15, default at 15:24): the hook job's answer as JSON. Grok's answers out of contract were
++    valid JSON followed by ONE extra closing brace; an answer whose only extra is trailing closing braces (and white
++    space) is read as the object before them. -> (object, how many braces were dropped). Anything else that is not one
++    JSON object raises ValueError: out of contract, as before (and the contract's own checks still apply)."""
++    t = (text or "").strip()
++    try:
++        return json.loads(t), 0
++    except ValueError:
++        v, end = json.JSONDecoder().raw_decode(t)        # ValueError when no object starts the answer
++        rest = t[end:]
++        if not rest.strip() or rest.replace("}", "").strip():
++            raise ValueError(f"hook answer: {rest.strip()[:40]!r} after the object") from None
++        return v, rest.count("}")
++
++
+ def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None, seed=HOOK_SEED):
+     """RULING 59 (a) / RULING 115: the hook question of ruling 52 (HOOK_QUESTION: scroll / alone / setup, each 1-5) asked
+     of EVERY given moment ALONE: ONE call per candidate (ruling 115: the asking the calibration measured; a batch moved
+@@ -907,7 +926,7 @@ def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None,
+         return out, None
+ 
+     def parse(text, ids):
+-        v = json.loads(text.strip())
++        v, _ = hook_answer(text)                 # STATE Q2: an answer whose only extra is trailing closing braces
+         h = v["hooks"] if isinstance(v, dict) and set(v) == {"hooks"} else None
+         if not isinstance(h, dict) or set(h) != set(ids) or any(
+                 not isinstance(x, dict) or set(x) != set(HOOK_PARTS) | {"why"} or not isinstance(x["why"], str) or
+@@ -926,9 +945,10 @@ def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None,
+         except (P.ProviderError, P.SpendLimit, ValueError, TypeError, KeyError) as e:   # this candidate has no rating
+             err = err or f"{type(e).__name__}: {str(e)[:200]}"       # (law L-m); the others are still asked
+             continue
+-        x = h[mid]
++        x, dropped = h[mid], hook_answer(r.text)[1]
+         rec = {**{k: x[k] for k in HOOK_PARTS}, "rating": min(x[k] for k in HOOK_OWN), "why": x["why"][:300],
+-               "backend": r.backend, "rule": HOOK_OWN_RULE}           # the rating orders hooks; hook_own decides
++               "backend": r.backend, "rule": HOOK_OWN_RULE,           # the rating orders hooks; hook_own decides
++               **({"answer_note": f"{dropped} {BRACES_NOTE}"} if dropped else {})}   # said, when it was read so
+         out[mid] = dict(rec, cached=False, replayed=bool(getattr(r, "replayed", False)))
+         new[key(m)] = {r.backend: rec}
+     _cache_put(cache, new)
+diff --git a/tests/package/hook115.py b/tests/package/hook115.py
+index b5458cf..09deef0 100644
+--- a/tests/package/hook115.py
++++ b/tests/package/hook115.py
+@@ -114,6 +114,15 @@ def verdict(rows, model=None):
+     return {"passes": ok, "approved": a, "negatives": n}
+ 
+ 
++def spent_reported(path=None):
++    """The ledger's VENDOR-REPORTED total (its usd_reported line), never the price table's estimate."""
++    path = path or SPEND
++    if not os.path.exists(path):
++        return 0.0
++    with open(path) as f:
++        return round(float(json.load(f).get("usd_reported") or 0.0), 6)
++
++
+ def run(models, now=None):
+     """Every model, both variants, the ten each -> the result, also written to QUESTION_V2_TEST.json."""
+     now = now or datetime.now(timezone.utc)
+@@ -140,8 +149,7 @@ def run(models, now=None):
+                       f"{rows[-1].get('error') or ''}; ${r.spent():.4f}", flush=True)
+             res[variant] = {"rows": rows, **verdict(rows, MODELS[key])}
+         out["models"][MODELS[key]] = res
+-    out["spent_usd_reported"] = round(P.Router(env_path=R.ENV, spend_path=SPEND).spent(), 6) if \
+-        os.path.exists(SPEND) else 0.0
++    out["spent_usd_reported"] = spent_reported()
+     os.makedirs(OUT, exist_ok=True)
+     with open(os.path.join(OUT, "QUESTION_V2_TEST.json"), "w") as f:
+         json.dump(out, f, indent=1)
+diff --git a/tests/package/test_hook115.py b/tests/package/test_hook115.py
+index 5384fa4..c9c944e 100644
+--- a/tests/package/test_hook115.py
++++ b/tests/package/test_hook115.py
+@@ -83,7 +83,10 @@ class TestRate(unittest.TestCase):
+                 mock.patch.object(X, "SPEND", os.path.join(d, "S.json")), mock.patch.object(X, "rate", rate), \
+                 mock.patch.object(X, "build_router", R), mock.patch.object(X.H, "ref_moments", lambda: POS), \
+                 mock.patch.object(X, "negatives", lambda: NEG), mock.patch.object(X.H, "registry", lambda: []):
++            with open(os.path.join(d, "S.json"), "w") as f:            # the report names the REPORTED figure,
++                f.write('{"usd_reported": 0.1, "usd_estimate": 1.0}')     # never the estimate (15:17 ET Nov 15)
+             out = X.run(["grok", "qwen"])
++            self.assertEqual(out["spent_usd_reported"], 0.1)
+             self.assertTrue(os.path.exists(os.path.join(d, "QUESTION_V2_TEST.json")))
+             X.report()
+             self.assertIn("by xai:grok-4.20-0309-reasoning", open(os.path.join(d, "REPORT.md")).read())
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 3fd7c13..33db082 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -1386,6 +1386,23 @@ class TestRuling59HookFirst(unittest.TestCase):
+             got, _ = PK.hook_ratings(c, ms, ctx(), set(), set(), cache=cache, seed=PK.HOOK_SEED + 1)
+             self.assertEqual((got["a"]["cached"], len(c.calls)), (False, 1))   # ... and never read
+ 
++    def test_q2_an_answer_whose_only_extra_is_trailing_closing_braces_is_read(self):
++        """STATE Q2 (15:04 ET Nov 15, default 15:24): Grok's out-of-contract hook answers were valid JSON and ONE extra
++        closing brace; such an answer is read and its record says so; any other extra stays out of contract, and the
++        contract's own checks still apply."""
++        ms = [pm("a", "A", 12.0)]
++        ok = '{"hooks": {"a": {"scroll": 4, "alone": 4, "setup": 4, "why": "w"}}}'
++        for extra, n in (("}", 1), ("}}\n", 2), (" }", 1)):
++            got, err = PK.hook_ratings(self.canned(ok + extra), ms, ctx(), set(), set())
++            self.assertEqual((err, got["a"]["rating"], got["a"].get("answer_note")),
++                             (None, 4, f"{n} {PK.BRACES_NOTE}"), extra)
++        got, err = PK.hook_ratings(self.canned(ok), ms, ctx(), set(), set())
++        self.assertEqual((err, "answer_note" in got["a"]), (None, False))
++        for bad in (ok + "} x", ok + "]", ok + ', "b": 1}', '{"hooks": {"a": {"scroll": 4}}}}', "} " + ok):
++            got, err = PK.hook_ratings(self.canned(bad, bad), ms, ctx(), set(), set())
++            self.assertEqual(got, {}, bad)                                   # out of contract: no rating
++            self.assertIn("Error", err)
++
+     def test_a_candidate_left_unrated_never_stops_the_others_being_asked(self):
+         """RULING 115: one call a candidate; a candidate whose chain is spent has no rating (law L-m), the others are
+         still asked, and the first error is returned."""

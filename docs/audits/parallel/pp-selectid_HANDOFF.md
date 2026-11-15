@@ -323,7 +323,7 @@ clips close it (ruling 76).
 |---|---|
 | step A first screen (context_verdict:step_a_first), and any context_verdict with no kind of its own | glm -> deepseek -> qwen -> Grok (step A: 2 clips, 120 s a call) |
 | step A confirm (context_verdict:step_a_second) | Grok (8-clip batches, no deadline) -> qwen -> glm -> deepseek |
-| hook rating (coherence_verdict:hook) | qwen -> glm -> deepseek -> Grok |
+| hook rating (coherence_verdict:hook) | RULING 115: Grok ALONE in every routing (heimdall_first, today, plan_b), one candidate a call at seed 7; qwen in shadow (`proof_ledger.build_shadow`); was ruling 96's qwen -> glm -> deepseek -> Grok |
 | fidelity_verdict | glm -> qwen -> Grok |
 | exclusion_verdict | glm -> deepseek -> Grok |
 | step C (context_verdict:step_c) | Grok -> glm -> deepseek |
@@ -407,6 +407,12 @@ tests/providers/test_*.py pipeline/test_stand_alone.py; do python3 -B -m pytest 
 then `bash regression_test.sh` (26 PASS, 0 FAIL, 5 WARN).
 
 ## 4. Contracts with the integrator (it imports this worktree's `pipeline/package_pin.py` LIVE)
+
+- **The hook mark (ruling 115 (2), from da7b1160):** every sealed pin carries moments_package["hook_bar"], outside the
+  seal; its "note" is always exactly "hook passed on the calibrated bar" (hook_bar.NOTE). The integrator prints it
+  under the run line of each release caption only when the note is exactly that and the package sha matches; a
+  malformed mark STOPs their drop and check_pin_only refuses it before a render. PBX's verdicts on marked pins come
+  back to this builder (their handoff section 5).
 
 - **Medley pin:**
   - `package_pin.to_pin` / `write_pin` -> `MOMENTS_PIN_LEDGER.json`, schema `protocol_pulse.pinned_story.v1`,
@@ -524,6 +530,33 @@ then `bash regression_test.sh` (26 PASS, 0 FAIL, 5 WARN).
       - the ledger-id fallback test;
       - spotlight_trace's tie rule;
       - the end-to-end test's content assertions.
+5e. **RULINGS 113-115 (12:46-13:24 ET Nov 15), THE HOOK RATER AND THE CALIBRATED BAR: LIVE (da7b1160, bfd5091d).**
+    - Ruling 113: Grok failed the entry test too (every approved hook 3 on scroll asked alone); per its order the
+      builder stopped and reported (762c910f). (5) later start, measured free: proof/hook113/LATER_START.md (65 of 116
+      failed openings have a later sentence start passing the opener rule; no live use). (6) clips-alone second
+      asking: proof/hook113/CLIPS_ALONE_SECOND.md (2 of 34 pass on a second asking).
+    - Ruling 115 (1): pipeline/hook_bar.py + pipeline/hook_calibration.json (sealed; floors scroll 3, alone 4,
+      setup 3: the lowest each part takes across the five approved hooks in proof/hook113/ALONE_TEST.json; rater
+      xai:grok-4.20-0309-reasoning, question version = package.HOOK_VERSION (prompt + "alone" + seed 7), "valid_h"
+      null: the interim bar does not expire). A hook passes when every part meets its floor AND the calibrated rater
+      gave it (hook_own "passes"); its slot in the clips-alone / coherence / ruling-62 checks is that bar, the clips
+      after it keep COHERENCE_MIN (Q1, kept on ruling 106's default 15:24). A changed prompt, seed or rater makes the
+      bar invalid: NO hook passes, and every build line says why. Cached hook ratings answer only from a model on
+      today's hook list and at production's seed.
+    - Ruling 115 (2): a sealed package (medley and spotlight) carries moments_package["hook_bar"] {"note": "hook
+      passed on the calibrated bar", "bar", "floors", "calibration_sha256", "ruling": "115"}, OUTSIDE the seal; the
+      integrator prints the note on a release drop (their c8bf22c7). PBX's approve / reject of such a pin comes from
+      the integrator: append it with `hook_bar.add_example(story_id, "approved"|"rejected", hook, reason=...)` (a
+      rejection needs his reason); the floors are not re-derived there.
+    - Ruling 115 (3): proof/hook115/REPORT.md: as ordered qwen passes, Grok misses one rating; leave-one-out both
+      fail (the examples teach the texts, not the ruler): NOT recommended; qwen's agreement run not made (its
+      order is the orchestrator's).
+    - Ruling 114: proof/replay114/REPORT.md (the x-bf-tunnel-instance header changes nothing measurable).
+    - Q2 (default 15:24, landed with audit 20261115_1524): the hook job reads an answer whose only extra is trailing
+      closing braces (Grok's slip; package.hook_answer); such a rating's record carries "answer_note".
+    - RULING 116 (15:30 ET Nov 15): the line-up verdicts on PBX's approved line-ups: they FAIL today on one rating of
+      3 (proof/clips116/REPORT.md); Q3 (15:34, default APPLY at 15:54): calibrated line-up floors (clips >= 3, VO
+      point >= 3, at most one flagged join, a through-line), marked on the pin like the hook's.
 6. **Ruling 97 is answered** (STATE 01:41): nothing to build unless the orchestrator rules otherwise.
 7. **Done tonight:**
    - rulings 85-88 + 96 (125e7381, audit 0108);

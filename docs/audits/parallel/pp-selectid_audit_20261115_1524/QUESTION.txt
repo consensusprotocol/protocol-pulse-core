@@ -1,0 +1,40 @@
+pp-selectid: STATE Q2 (15:04 ET Nov 15; ruling 106's default at 15:24: YES, audit-first), THE HOOK JOB READS AN
+ANSWER WHOSE ONLY EXTRA IS TRAILING CLOSING BRACES. And a one-line fix to ruling 115 (3)'s driver (the spend it
+reports). Files: pipeline/package.py (hook_answer, hook_ratings' parse and record), tests/package/test_medley.py,
+tests/package/hook115.py, tests/package/test_hook115.py.
+
+THE QUESTION AS ASKED ON STATE LINE 1 (15:04 ET), verbatim: "Q2 GROK'S OUT-OF-CONTRACT HOOK ANSWER IS VALID JSON WITH
+ONE EXTRA CLOSING BRACE (1 OF 10 TODAY; THE ALONE-TEST'S 2 WERE JSONDecodeErrors TOO, THEIR TEXT NOT KEPT, SO NOT
+KNOWN TO BE THE SAME): ACCEPT AN ANSWER WHOSE ONLY EXTRA IS TRAILING CLOSING BRACES (AUDIT-FIRST)? RECOMMENDED: YES.
+DEFAULT IN 20 MIN: YES." No answer came by 15:24, so the default is acted on.
+
+THE EVIDENCE: build 11 (ledger_20261115_195152) kept Grok's refused hook answer in its shadow log (SHADOW86.jsonl, the
+deciding text): '{"hooks": {"2bca1130b3eceac83ff8": {"scroll": 2, "alone": 3, "setup": 3, "why": "conversational
+opener lacks punch"}}}}' -> json.loads: "Extra data: line 1 column 119". The object is complete; the last "}" is extra.
+Ruling 115 (3)'s test lost one Grok rating per variant the same way (JSONDecodeError; text not kept).
+
+THE CHANGE:
+- package.hook_answer(text): json.loads first; only when that fails, json.JSONDecoder().raw_decode reads the object
+  that STARTS the answer, and the rest must be closing braces and white space only (at least one brace) -> (object,
+  braces dropped). Any other rest (text, "]", another key, nothing at all) raises ValueError: out of contract as
+  before. hook_ratings' parse uses it; the contract's own checks are unchanged and still apply to the object (a
+  partial object followed by braces is still refused). Only the hook job reads answers this way; every other verdict
+  keeps json.loads.
+- The record of a rating read this way says so: "answer_note": "<n> trailing closing brace(s) dropped (STATE Q2,
+  15:04 ET Nov 15)" (the cache keeps it with the rating).
+- hook115.py: the run's reported spend is read from the ledger's usd_reported line (spent_reported); its closing read
+  had built a router on the estimate basis and written the price table's estimate ($1.0964 against $0.1062 reported:
+  corrected by hand in the committed result file, c7775751).
+
+UNCHANGED GUARDS: providers.call_parsed (pipeline/providers.py:690-716) moves on to the next model when parse raises
+ValueError / TypeError / KeyError; hook_ratings catches the chain spent per candidate (law L-m: no rating);
+_cache_put stores only records hook_ratings built.
+
+TESTS: test_medley's new test: one, two (with a newline) or a spaced trailing brace is read, rating 4, and the
+record carries the note; a clean answer carries none; "} x", "]", a further key, a partial object plus a brace, and a
+brace BEFORE the object stay out of contract (no rating). test_hook115: the reported figure, never the estimate.
+Suites: 281 pass (medley, hook115, spotlight, hook_bar). Mutations (after a control run): braces never accepted, any
+trailing text accepted, the record not saying so, the estimate read as reported: 4 of 4 killed.
+
+PLEASE CHECK: (1) that nothing but a complete object followed ONLY by closing braces is read; (2) that the hook
+contract's checks still decide; (3) that no other verdict's parsing changes; (4) the spend fix; (5) the tests.

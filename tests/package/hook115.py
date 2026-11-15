@@ -114,6 +114,15 @@ def verdict(rows, model=None):
     return {"passes": ok, "approved": a, "negatives": n}
 
 
+def spent_reported(path=None):
+    """The ledger's VENDOR-REPORTED total (its usd_reported line), never the price table's estimate."""
+    path = path or SPEND
+    if not os.path.exists(path):
+        return 0.0
+    with open(path) as f:
+        return round(float(json.load(f).get("usd_reported") or 0.0), 6)
+
+
 def run(models, now=None):
     """Every model, both variants, the ten each -> the result, also written to QUESTION_V2_TEST.json."""
     now = now or datetime.now(timezone.utc)
@@ -140,8 +149,7 @@ def run(models, now=None):
                       f"{rows[-1].get('error') or ''}; ${r.spent():.4f}", flush=True)
             res[variant] = {"rows": rows, **verdict(rows, MODELS[key])}
         out["models"][MODELS[key]] = res
-    out["spent_usd_reported"] = round(P.Router(env_path=R.ENV, spend_path=SPEND).spent(), 6) if \
-        os.path.exists(SPEND) else 0.0
+    out["spent_usd_reported"] = spent_reported()
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, "QUESTION_V2_TEST.json"), "w") as f:
         json.dump(out, f, indent=1)
