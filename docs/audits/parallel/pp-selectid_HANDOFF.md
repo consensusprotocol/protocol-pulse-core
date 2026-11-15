@@ -194,8 +194,25 @@ Added 20:2x ET Nov 14 (rulings after this file was written; each has its own mod
   name, each with a must-fail test. First case: Blockware 3f481f5a, recorded beside its pin in
   `tests/package/proof/ledger_20261114_230148/UNSTABLE_SECOND_READING.json`. The audited code follows that render.
 - 106 HOW QUESTIONS WORK: see the end of section 1.
-- 107 COST (20:20 Nov 14). (1) A build that judges nothing new must cost $0.00. (2) Audits go Heimdall-first (see
-  AUDIT-FIRST in section 1). (3) STATE line 1 carries ALL-IN TODAY (see section 1).
+- 107 COST (20:20 Nov 14).
+  - (1) A build that judges nothing new costs $0.00. proof_ledger fingerprints its inputs before any router exists;
+    nothing new means NOTHING_NEW.json and a stop (9895c861).
+  - (2) Audits go Heimdall-first (Appendix A).
+  - (3) STATE line 1 carries the all-in figure (now batch 3's, section 3.5).
+  - Q1 (20:40): an abandoned call is booked at the model's own reported rate (e7f68e11).
+- 93 AMENDED (21:10 Nov 14).
+  - The source's burned CAPTIONS are asked for by visual-3: one frame a second, kind "caption" with its times.
+  - A caption the 9:16 crop cuts makes the clip 16:9-ONLY, never ineligible: moments_package["formats"] =
+    ["16x9"], sealed; absent means both (visual_pin.formats, package_pin.formats_of).
+  - A role ("a guest", "the host", "an analyst") is a claim: rule ROLE in vo_fidelity, and both writers are told.
+  - The pin's spotlight_source row carries "format" (FIRST_HAND / CONVERSATION).
+  - The flip (RENDER_16X9_ONLY True) followed the integrator's format-aware release (0d6957dd).
+- 108 BATCH 3 (21:20 Nov 14 to 21:10 Nov 15): the $8.00 all-in cap; section 3.5.
+- 109 (21:30 Nov 14): free gates first, cheapest first. In the spotlight build, an ALONE score already known below 4
+  never reaches a paid verdict (7b69e5ef). The medley's free screens already ran first.
+- THE RE-SEAL DIRECTIVE (ruling 104's file, "reseal": true) puts the SAME moment, as a marked copy, in its own earlier
+  story's day place, never as a second spotlight. It was used once, on ruling 106's default at 21:48 Nov 14:
+  Blockware 06d34e15, refused by step A (Grok disagreeing with itself on the same context).
 
 ## 3. The pipeline as it runs
 
@@ -273,11 +290,19 @@ clips close it (ruling 76).
   deletes a reply that is out of contract.
 - The L-v 2 audio windows live in `--work-dir` (default under proof_ly.SCRATCH, "lv2").
 
-### 3.5 Spend (rulings 48 / 83)
-- `tests/package/proof/SPEND_LY.json`: usd_reported + usd_unreported_estimate. CAP $20.00, STOP AND TELL at $16.00;
-  no build starts at $16.
-- NOW: $13.83 (at 05:19 ET Nov 14; $7.94 vendor-reported + $5.89 estimated where a vendor reports none).
-- The audit drivers' calls are NOT on this ledger (they print their own upper-bound estimate); the replays' are.
+### 3.5 Spend (ruling 108: BATCH 3, 21:20 ET Nov 14 to 21:10 ET Nov 15)
+- The $20 order's `tests/package/proof/SPEND_LY.json` is CLOSED at $11.47, restated on ruling 107 Q1's basis
+  (e7f68e11). Never write it again.
+- Builds book into `tests/package/proof/SPEND_B3.json` (proof_ly.SPEND). Its basis is vendor-reported, plus abandoned
+  calls at the model's OWN reported rate (ruling 107 Q1, providers.Router.booking_usd). The builds' share is a $4.50
+  LIMIT; no build starts at $4.00 or more.
+- THE BATCH LEDGER (you keep it): `tests/package/proof/BATCH3_LEDGER.json`, written by the script in Appendix B. It
+  sums the builds, every audit started in the batch (each audit folder's COST.json) and the other two sessions'
+  reported spend, which they put on their own STATE line 1 each hour. The all-in cap is $8.00 (builds and sealing
+  $4.50, audits $2.50, mining and checks $1.00).
+- At $6.00 all-in, say so on line 1 in CAPITALS. At $7.50 it is "ALARM FOR PBX: ..." on line 1 (ruling 106 (d)).
+- Line 1, every build: 'BATCH 3: $x of $8.00 (builds $a, audits $b, mining $c); videos sealed n; cost per sealed
+  video $y'.
 
 ### 3.6 Routing: ruling 96 (heimdall_first; the driver passes `--routing heimdall_first`)
 
@@ -417,6 +442,13 @@ then `bash regression_test.sh` (26 PASS, 0 FAIL, 5 WARN).
   - The contract: probe_due stamps the slot, saves and returns True as one step under the flock. A claimed slot that
     sends no probe_result stays spent.
 
+- CONTRACTS ADDED 14 Nov evening (both land in lockstep with the integrator):
+  - moments_package["formats"]: exactly ["16x9"] when sealed; absent means both. The integrator's
+    release_auth.package_formats reads it, and check_pin_only recomputes through pin_seal.
+  - 'unstable_second_reading' (ruling 105): the pre-check entry's record, carried onto the segment as it stands and
+    sealed via SEALED_LATER only when present. This side re-checks a pass that rests on it (lock_precheck.
+    ruling_105_fails). DECODER a4c307f78c94.
+
 ## 5. Open items, in priority order
 
 1. **Ruling 91's MEDLEY half is NOT BUILT:** the value verdict on a medley's takeaway (off the writer's family, four
@@ -481,45 +513,121 @@ then `bash regression_test.sh` (26 PASS, 0 FAIL, 5 WARN).
 - `usable()`'s default ceiling is the medley's 20 s; the spotlight passes `seg_max=35`.
 - Grok disagrees with itself 15-40 % of the time on the same prompt: judge any model swap against that baseline (replay85's TABLE.md), never against 100 %.
 
-## Appendix A: the audit driver (copy to `<your scratchpad>/audit_<LABEL>.py`, set LABEL / DEV / FILES)
+## Appendix A: the audit driver under RULING 107 (2) (copy to `<your scratchpad>/audit_<LABEL>.py`)
 
-This is the driver that ran audits 2322, 0003, 0041, 0108 and 0230.
-1. Write `docs/audits/parallel/pp-selectid_audit_<LABEL>/QUESTION.txt`: what changed, the rulings, and what to
-   attack.
-2. Run `python3 -B audit_<LABEL>.py 1`. Read the three reviews and write `C1_CONSENSUS.md` (implemented / refuted with
-   evidence).
-3. Fix the code in DEV, then run `python3 -B audit_<LABEL>.py 2 C1_CONSENSUS.md`. Write `C2_CONSENSUS.md`.
-4. To re-ask failed reviewers only: `... 2 C1_CONSENSUS.md glm-5.3-flash`.
+Set LABEL (ET date and time, from `date`), DEV (the scratch copy) and FILES (every edited file; `git add -N` new
+ones). Then:
+1. Write `docs/audits/parallel/pp-selectid_audit_<LABEL>/QUESTION.txt`: what changed, the rulings, the unchanged
+   guards (with file:line), and what to check.
+2. Run `python3 -B audit_<LABEL>.py 1`.
+   - The reviewers are two Heimdall families. glm's breaker open means deepseek + qwen.
+   - Grok runs only on a P1 disagreement or a missing answer. A review cut at its cap with no closing
+     "P1_OR_WORSE: n" counts as missing.
+   - The caps are $0.30 under 60 changed lines and $1.00 over.
+   - COST.json in the folder holds the vendor-reported total. PUT IT ON THE COMMIT LINE.
+3. Write `C1_CONSENSUS.md`: what you implemented, and what you refuted with evidence.
+4. Fix the code in DEV. Run `... 2 C1_CONSENSUS.md`, then write `C2_CONSENSUS.md`.
+5. A third cycle runs only on a real defect that cycle 2 found: `DEFECT="<it>" ... 3 C2_CONSENSUS.md`.
+
 ```python
-import importlib.util, json, subprocess, sys, threading, time, urllib.request
+"""The pp-selectid audit driver under RULING 107 (2) as the orchestrator set it at 20:40 ET Nov 14:
+- reviewers: TWO HEIMDALL FAMILIES (qwen + glm; while glm's breaker is open, deepseek + qwen: any family whose ruling-99
+  breaker is open is skipped, in the order qwen, glm, deepseek);
+- GROK is asked only when those two DISAGREE ON A P1 (one raises a P0 or P1 finding, the other none) or one of them
+  gives NO ANSWER (failed or empty);
+- a change UNDER 60 CHANGED LINES: one reviewer set, two cycles, cap $0.30 VENDOR-REPORTED; over that, cap $1.00; a
+  call with no vendor figure counts at its list-price upper bound (the safe side);
+- a THIRD CYCLE only when cycle 2 found a REAL DEFECT: DEFECT="<the defect, one line>" in the environment, else refused;
+- each review records the vendor's own cost (Heimdall usage.cost; xAI usage.cost_in_usd_ticks, 1 USD = 1e10 ticks)
+  beside the upper bound, and COST.json in the audit folder holds the running total: report it on the commit line.
+The code sent is the actual change: the git diff against the scratch copy's base (no whole files).
+
+Copy to <scratchpad>/audit_<LABEL>.py and set LABEL / DEV / FILES. Write QUESTION.txt first.
+Usage: python3 -B audit_<LABEL>.py <cycle> [<previous cycle's consensus file>]"""
+import importlib.util, json, os, re, subprocess, sys, threading, time, urllib.request
 from pathlib import Path
 
-LABEL = "HHMM"                                          # the audit's label (ET time it starts)
+LABEL = "YYYYMMDD_HHMM"                                          # the audit's label (ET date + time it starts, from date)
 WT = Path("/home/ultron/worktrees/pp-selectid")
 AUD = WT / "docs" / "audits" / "parallel" / f"pp-selectid_audit_{LABEL}"
-DEV = Path("<your scratchpad>/devNN")                   # the scratch copy: its git base = worktree HEAD of every file
-FILES = ["pipeline/....py", "tests/.../test_....py"]   # every file the change touches (check `git diff --stat HEAD`)
+DEV = Path("/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/a80f37a3-3482-4017-9152-9c0c6e2f0dab/scratchpad/devNN")
+FILES = []                                                       # every edited file, as in DEV's git base
 ENV = "/home/ultron/protocol_pulse/" + "." + "env"      # read by name inside code only; never printed
+SMALL_LINES, SMALL_CAP, CAP = 60, 0.30, 1.00                     # ruling 107 (2), 20:40 Nov 14
 sys.path.insert(0, str(WT / "pipeline"))
 from providers import env_value  # noqa: E402
+import circuit_breaker as CB  # noqa: E402
 
 HEIMDALL = "https://api-staging.heimdallm.com/api/v1/chat/completions"
-REVIEWERS = {
-    "grok-4.20-0309-reasoning": {"url": "https://api.x.ai/v1/chat/completions", "key": "XAI_API_KEY_MEDLEY",
-        "body": {"model": "grok-4.20-0309-reasoning", "max_tokens": 30000, "temperature": 0}, "price": (5, 25)},
-    "qwen3.8-27b": {"url": HEIMDALL, "key": "HEIMDALL_API_KEY",
+THIRD = "grok-4.20-0309-reasoning"
+REVIEWERS = {                                                    # name -> call; "breaker": its ruling-99 model id
+    "qwen3.8-27b": {"url": HEIMDALL, "key": "HEIMDALL_API_KEY", "breaker": "heimdall:qwen/qwen3.8-27b",
         "body": {"model": "qwen/qwen3.8-27b", "max_tokens": 16000, "temperature": 0,
                  "reasoning": {"effort": "none"}}, "price": (3, 15)},
-    "glm-5.3-flash": {"url": HEIMDALL, "key": "HEIMDALL_API_KEY",
+    "glm-5.3-flash": {"url": HEIMDALL, "key": "HEIMDALL_API_KEY", "breaker": "heimdall:z-ai/glm-5.3-flash",
         "body": {"model": "z-ai/glm-5.3-flash", "max_tokens": 24000, "temperature": 0,
                  "reasoning": {"effort": "none"}}, "price": (3, 15)},
+    "deepseek-v4.1-flash": {"url": HEIMDALL, "key": "HEIMDALL_API_KEY", "breaker": "heimdall:deepseek/deepseek-v4.1-flash",
+        "body": {"model": "deepseek/deepseek-v4.1-flash", "max_tokens": 16000, "temperature": 0}, "price": (3, 15)},
+    THIRD: {"url": "https://api.x.ai/v1/chat/completions", "key": "XAI_API_KEY_MEDLEY", "breaker": None,
+        "body": {"model": "grok-4.20-0309-reasoning", "max_tokens": 30000, "temperature": 0}, "price": (5, 25)},
 }
+ORDER = ["qwen3.8-27b", "glm-5.3-flash", "deepseek-v4.1-flash"]
+HEAD = re.compile(r"usd_reported=([0-9.]+|none) usd~([0-9.]+)")
+P1 = re.compile(r"\[P[01]\]")
+ASK = ("\n\nTag EVERY finding with its severity: [P0] (wrong result, data loss, a gate passing what it must refuse), "
+       "[P1] (a real defect that must be fixed before merge), [P2] (should fix), [P3] (nit). "
+       "End with ONE line: P1_OR_WORSE: <the number of [P0] and [P1] findings>.\n")
 spec = importlib.util.spec_from_file_location("cross_llm_audit", WT / "utils" / "cross_llm_audit.py")
 m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
 m.BASE, m.GOSPELS = WT, WT / "docs" / "gospels"
 FEATURE = f"pp-selectid-{LABEL}"
 m.FEATURE_MAP[FEATURE] = ("PULSE_SENTENCE_LAW_GOSPEL.md", "pp-selectid")
 m.CUSTOM_REVIEW_TASKS[FEATURE] = (AUD / "QUESTION.txt").read_text()
+
+
+def first_two():
+    """The two Heimdall families asked first: ORDER, skipping any whose ruling-99 breaker is open."""
+    try:
+        shut = {o["model"] for o in CB.summary(CB.STATE)["open"]}
+    except Exception as e:                                       # noqa: BLE001  unreadable: no family is skipped
+        print(f"breaker state unreadable ({type(e).__name__}): no family skipped", flush=True)
+        shut = set()
+    names = [n for n in ORDER if REVIEWERS[n]["breaker"] not in shut]
+    if len(names) < 2:
+        sys.exit(f"refused: fewer than two Heimdall families are closed to breakers ({sorted(shut)})")
+    return names[:2], sorted(shut)
+
+
+def reported_usd(name, u):
+    """The vendor's own dollars for one reply, or None when it gives none."""
+    if name == THIRD:
+        t = u.get("cost_in_usd_ticks")
+        return t / 1e10 if isinstance(t, (int, float)) else None
+    c = u.get("cost")
+    return float(c) if isinstance(c, (int, float)) else None
+
+
+def cost():
+    """(vendor-reported dollars, upper-bound dollars of the reviews with no vendor figure, their count, per review)."""
+    rep = upper = 0.0
+    n_upper, rows = 0, []
+    for p in sorted(AUD.glob("C*_*.md")):
+        h = HEAD.search(p.read_text()[:400])
+        if not h:
+            continue
+        if h.group(1) == "none":
+            upper += float(h.group(2)); n_upper += 1
+        else:
+            rep += float(h.group(1))
+        rows.append({"review": p.name, "usd_reported": None if h.group(1) == "none" else float(h.group(1)),
+                     "usd_upper_bound": float(h.group(2))})
+    return rep, upper, n_upper, rows
+
+
+def spent():
+    rep, upper, _, _ = cost()
+    return rep + upper                                           # a call with no vendor figure counts at its bound
 
 
 def review(name, prompt, out):
@@ -534,56 +642,158 @@ def review(name, prompt, out):
         j = json.loads(urllib.request.urlopen(req, timeout=1800).read())
         text = j["choices"][0]["message"].get("content") or ""
         u = j.get("usage") or {}
-        usd = (u.get("prompt_tokens", 0) * r["price"][0] + u.get("completion_tokens", 0) * r["price"][1]) / 1e6
+        upper = (u.get("prompt_tokens", 0) * r["price"][0] + u.get("completion_tokens", 0) * r["price"][1]) / 1e6
+        rep = reported_usd(name, u)
         head = (f"# {name} ({r['body']['model']}) {round(time.time() - t0)} s finish="
                 f"{j['choices'][0].get('finish_reason')} usage in {u.get('prompt_tokens')} / out "
-                f"{u.get('completion_tokens')} usd~{usd:.3f} (upper-bound price)"
-                + (" EMPTY" if not text.strip() else "") + "\n\n")
+                f"{u.get('completion_tokens')} usd_reported={'none' if rep is None else f'{rep:.6f}'} "
+                f"usd~{upper:.3f} (upper-bound price)" + (" EMPTY" if not text.strip() else "") + "\n\n")
     except Exception as e:
         head, text = f"# {name}: FAILED {type(e).__name__}: {str(e)[:200]}\n\n", ""
     out.write_text(head + text)
-    print(out.name, head.strip()[:200], flush=True)
+    print(out.name, head.strip()[:220], flush=True)
+
+
+def down(p):
+    """No answer: failed, empty, or cut off at its token cap with no closing P1_OR_WORSE line (its tags are then a
+    fragment, never a count)."""
+    if not p.exists():
+        return True
+    t = p.read_text()
+    return ("FAILED" in t[:400] or "EMPTY" in t[:400] or
+            ("finish=length" in t[:400] and not re.search(r"P1_OR_WORSE:\s*\d+", t)))
+
+
+def p1_count(text):
+    """The review's own closing 'P1_OR_WORSE: n'; without one, its [P0] / [P1] tags."""
+    n = re.findall(r"P1_OR_WORSE:\s*(\d+)", text)
+    return int(n[-1]) if n else len(P1.findall(text))
+
+
+def run(names, prompt, cycle):
+    ts = [threading.Thread(target=review, args=(n, prompt, AUD / f"C{cycle}_{n}.md")) for n in names]
+    for t in ts:
+        t.start()
+    for t in ts:
+        t.join()
 
 
 def main():
     cycle = int(sys.argv[1])
-    names = sys.argv[3].split(",") if len(sys.argv) > 3 else list(REVIEWERS)
     diff = subprocess.run(["git", "diff", "HEAD", "--", *FILES], cwd=DEV, capture_output=True, text=True,
                           check=True).stdout
+    changed = sum(1 for ln in diff.splitlines()
+                  if ln[:1] in "+-" and not ln.startswith("+++") and not ln.startswith("---"))
+    cap = SMALL_CAP if changed < SMALL_LINES else CAP
+    if cycle >= 3 and not os.environ.get("DEFECT", "").strip():
+        sys.exit("refused: a third cycle only when cycle 2 found a real defect (DEFECT=\"<the defect>\")")
+    if spent() >= cap:
+        sys.exit(f"refused: ${spent():.4f} spent of the ${cap:.2f} cap ({changed} changed lines)")
     (AUD / f"C{cycle}_STEP.diff").write_text(diff)
     m.EXPLICIT_FILES[FEATURE] = [str((AUD / f"C{cycle}_STEP.diff").relative_to(WT))]
     package = m.build_audit_package(FEATURE)
     assert f"### File: {m.EXPLICIT_FILES[FEATURE][0]}" in package, "the package holds no code"
     if cycle == 1:
         prompt = package
-    else:                                   # cycle 2 cross-validates cycle 1's reviews and consensus
+    else:                                   # a later cycle cross-validates the previous cycle's reviews and consensus
         prev = f"C{cycle - 1}_"
         c1 = {p.stem[3:]: p.read_text() for p in sorted(AUD.glob(prev + "*.md"))
-              if p.stem not in (prev + "PROMPT", prev + "CONSENSUS") and "FAILED" not in p.read_text()[:200]
-              and "EMPTY" not in p.read_text()[:300]}
+              if p.stem not in (prev + "PROMPT", prev + "CONSENSUS") and not down(p)}
         prompt = m.build_cycle2_prompt(FEATURE, package, c1, (AUD / sys.argv[2]).read_text()).replace(
             "## ORIGINAL CODE (same code as Cycle 1)", "## THE CODE NOW: the FIXED diff")
+        if cycle >= 3:
+            prompt += f"\n\nTHIS THIRD CYCLE CHECKS THE FIX OF CYCLE 2'S REAL DEFECT: {os.environ['DEFECT'].strip()}\n"
+    prompt += ASK
     (AUD / f"C{cycle}_PROMPT.md").write_text(prompt)
-    print(f"prompt {len(prompt.encode())} bytes; diff {len(diff.encode())} bytes", flush=True)
-    ts = [threading.Thread(target=review, args=(n, prompt, AUD / f"C{cycle}_{n}.md")) for n in names]
-    for t in ts:
-        t.start()
-    for t in ts:
-        t.join()
-    print(f"CYCLE{cycle}_DONE", flush=True)
+    first, shut = first_two()
+    print(f"prompt {len(prompt.encode())} bytes; {changed} changed lines, cap ${cap:.2f}; reviewers {first}"
+          + (f" (breakers open: {shut})" if shut else ""), flush=True)
+    run(first, prompt, cycle)
+    outs = [AUD / f"C{cycle}_{n}.md" for n in first]
+    p1 = [None if down(p) else p1_count(p.read_text()) for p in outs]
+    why = ("one of them gave no answer" if None in p1 else
+           "they disagree on a P1 (one raises a P0 / P1, the other none)" if (p1[0] == 0) != (p1[1] == 0) else None)
+    print(f"P0/P1 findings: {dict(zip(first, p1))}; Grok: {why or 'not asked (they agree)'}", flush=True)
+    if why:
+        if spent() >= cap:
+            print(f"GROK REFUSED: ${spent():.4f} spent of the ${cap:.2f} cap", flush=True)
+        else:
+            run([THIRD], prompt, cycle)
+    rep, upper, n_upper, rows = cost()
+    (AUD / "COST.json").write_text(json.dumps({"ruling": "107 (2), 20:40 ET Nov 14", "changed_lines": changed,
+                                               "cap_usd": cap, "usd_reported": round(rep, 6),
+                                               "usd_upper_bound_unreported": round(upper, 6),
+                                               "reviews": rows}, indent=1) + "\n")
+    print(f"CYCLE{cycle}_DONE AUDIT COST so far: ${rep:.4f} vendor-reported"
+          + (f" + ${upper:.4f} upper bound for {n_upper} review(s) with no vendor figure" if n_upper else ""),
+          flush=True)
 
 
 if __name__ == "__main__":
     main()
 ```
-- Run it in the background. A cycle took 1-14 min in audits 2322-0230; glm is the slowest. glm has failed with HTTP 503
-  and IncompleteRead, and has hit its 24k-token cap (finish=length). Record any of these in the consensus file and
-  re-ask that reviewer alone.
-- Its calls are not on SPEND_LY.json. It prints an upper-bound estimate, $0.14-0.74 a cycle for the three
-  reviewers so far; add it to the commit message.
-- After the audit:
-  - copy the scratch copy's files to the worktree;
-  - re-run the suites and `bash regression_test.sh`;
-  - `python3 -m py_compile` every changed .py;
-  - commit with `--file`: the audit folder, the code and the tests (`git add -f` for new test_*). Push in its own
-    command.
+
+## Appendix B: the batch-3 ledger keeper (copy to `<your scratchpad>/batch3.py`)
+
+`python3 -B batch3.py --other integrator=<usd> --other pp-ingest=<usd> [--sealed N]` writes BATCH3_LEDGER.json and
+prints line 1's figure.
+
+```python
+"""RULING 108 (orchestrator 21:20 ET Nov 14): BATCH 3's all-in ledger, kept by the builder, to 21:10 ET Nov 15.
+builds = tests/package/proof/SPEND_B3.json (vendor-reported + abandoned calls at the model's own rate);
+audits = every pp-selectid audit folder started in the batch (label >= START_LABEL): its COST.json (vendor-reported,
+the upper bound only for a review with no vendor figure); others = the other sessions' own reported spend, as they
+report it on their STATE line 1 (set by hand from their reports: --other NAME=USD). Writes
+tests/package/proof/BATCH3_LEDGER.json and prints STATE line 1's figure.
+Usage: python3 -B batch3.py [--other integrator=0.0058 --other pp-ingest=0.00] [--sealed N]"""
+import glob, json, os, sys
+WT = "/home/ultron/worktrees/pp-selectid"
+START_LABEL, CAP, TELL, ALARM = "20261114_2110", 8.00, 6.00, 7.50
+SHARE = {"builds": 4.50, "audits": 2.50, "mining": 1.00}
+OUT = os.path.join(WT, "tests/package/proof/BATCH3_LEDGER.json")
+
+
+def main(argv):
+    others, sealed = {}, None
+    if os.path.exists(OUT):
+        prev = json.load(open(OUT))
+        others, sealed = prev.get("others") or {}, prev.get("videos_sealed")
+    it = iter(argv)
+    for a in it:
+        if a == "--other":
+            k, v = next(it).split("=")
+            others[k] = float(v)
+        elif a == "--sealed":
+            sealed = int(next(it))
+    try:
+        d = json.load(open(os.path.join(WT, "tests/package/proof/SPEND_B3.json")))
+        builds = float(d.get("usd_reported", 0.0)) + float(d.get("usd_unreported_estimate", 0.0))
+    except OSError:
+        builds = 0.0
+    audits, rows = 0.0, {}
+    for f in sorted(glob.glob(os.path.join(WT, "docs/audits/parallel/pp-selectid_audit_2*/COST.json"))):
+        label = f.split("pp-selectid_audit_")[1].split("/")[0]
+        if label >= START_LABEL:
+            c = json.load(open(f))
+            usd = float(c.get("usd_reported", 0.0)) + float(c.get("usd_upper_bound_unreported", 0.0))
+            rows[label] = round(usd, 6)
+            audits += usd
+    mining = float(others.get("pp-ingest", 0.0))
+    other = sum(v for k, v in others.items() if k != "pp-ingest")
+    total = builds + audits + mining + other
+    sealed = sealed or 0
+    rec = {"ruling": "108, orchestrator 21:20 ET Nov 14", "batch": 3, "to": "2026-11-15T21:10 ET", "cap": CAP,
+           "shares": SHARE, "builds": round(builds, 6), "audits": round(audits, 6), "audit_rows": rows,
+           "mining": round(mining, 6), "others": others, "all_in": round(total, 6), "videos_sealed": sealed}
+    json.dump(rec, open(OUT, "w"), indent=1)
+    per = f"${total / sealed:.2f}" if sealed else "n/a"
+    flag = (" ALARM FOR PBX: BATCH 3 HAS SPENT ${:.2f} OF $8.00.".format(total) if total >= ALARM else
+            " BATCH 3 HAS PASSED $6.00." if total >= TELL else "")
+    print(f"BATCH 3: ${total:.2f} of $8.00 (builds ${builds:.2f}, audits ${audits:.2f}, mining ${mining:.2f}"
+          + (f", integrator ${others.get('integrator', 0.0):.2f}" if "integrator" in others else "")
+          + f"); videos sealed {sealed}; cost per sealed video {per}.{flag}")
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
+```
