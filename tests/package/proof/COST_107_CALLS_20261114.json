@@ -1,0 +1,3594 @@
+{
+ "what": "RULING 107 (1): every reply each of today's builds recorded (tests/package/fixtures/replies, by recorded_at inside the build's window), its vendor-reported cost and what it judged. 'REPEAT' = every subject already judged earlier today by the same model; 'shadow' = ruling 86's measurement. Calls with no recorded reply (abandoned at a deadline, the ruling-87 probes, the min_out measurement, the ruling-85 replay) are in SPEND_LY.json's per-commit deltas",
+ "builds": {
+  "00:11 ET": {
+   "calls": [
+    {
+     "at_utc": "05:12:55",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0235506,
+     "usd_list": 0.1929,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "7689ae39f60b552e18cc",
+      "11dcf2a3dc9d1c155ab7",
+      "1ddf18ce2d9e8287326b",
+      "924e5594aaf79bf2bbcf",
+      "11df638c20ffedd21603",
+      "8fce1a797169f12c25ec",
+      "18d428d0fe1c94bfb1ef"
+     ],
+     "reply": "21/217e49b1af0cad773b743ef8a739eb3b3d30d7d63ab3e9d071676b0fa3ae38fe.json"
+    },
+    {
+     "at_utc": "05:13:06",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.003268,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "44b2058ecb41fa6b286ab708e518f91232c886cfdfc9e5371cc7b8a11f5b98e1"
+     ],
+     "reply": "2f/2f6af1373b082e29d571fc40d1b4df786fc14aebe1a2fbd25be44052992d1b00.json"
+    },
+    {
+     "at_utc": "05:13:14",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.002508,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "77025c1d518abdf9631c15aa27e828f4e68e2e155a36bdbef5a1c1619a71c3b5"
+     ],
+     "reply": "d3/d359622100f34933c1c489d2cb41c6e1be7149a08fd0f07b8c6ebc4ffe33ba89.json"
+    },
+    {
+     "at_utc": "05:13:19",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.003456,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "0c131484ce313f6b6bf59ac2419485b0380875497c00227e18c7663c911749c6"
+     ],
+     "reply": "9d/9db84b7e0d731b6b33ca31e2aa50060b7bec90e80342f9413e4d724d8d94803c.json"
+    },
+    {
+     "at_utc": "05:13:30",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.00364,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "5a51aabc1957967c5df5180991ce9fe9d3f63ec28a58c8b47c91a2202359ae9e"
+     ],
+     "reply": "e0/e0542fb4a41fc5bc4c5373e8c8ffb0cf78ec6b4c9bded3203d1fd6a36ca1c736.json"
+    },
+    {
+     "at_utc": "05:13:52",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.00832685,
+     "usd_list": 0.08006,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "11df638c20ffedd21603",
+       "924e5594aaf79bf2bbcf"
+      ]
+     ],
+     "reply": "64/6447f9bfb91544452603a02b9f4051bb656a19100861d3156740ec8f39f72563.json"
+    },
+    {
+     "at_utc": "05:14:55",
+     "role": "visual_check",
+     "backend": "xai_vision:grok-4.7",
+     "usd_reported": 0.02728,
+     "usd_list": 0.11072,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "AI can copy software, undercut margins, replace employees, help foreign actors to overthrow your CEO"
+     ],
+     "reply": "29/29f640420b2f3f2362fc46211a4bd9f34a4a6ef9091000717cf4961be2ab6acf.json"
+    },
+    {
+     "at_utc": "05:16:18",
+     "role": "context_verdict",
+     "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+     "usd_reported": 0.0007081,
+     "usd_list": 0.053859,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "11df638c20ffedd21603"
+     ],
+     "reply": "80/808e7c1f584cd8c838ec8ea7688dce2d0c12e22ebee772e3c227aea3e9198432.json"
+    },
+    {
+     "at_utc": "05:16:42",
+     "role": "context_verdict",
+     "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+     "usd_reported": 0.00088759,
+     "usd_list": 0.068484,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "924e5594aaf79bf2bbcf"
+     ],
+     "reply": "e7/e7be56484d178acc1b79938e12c4c94cd0788289a82a9d46121b01216d47f8d0.json"
+    },
+    {
+     "at_utc": "05:19:09",
+     "role": "context_verdict",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "usd_reported": 0.00076014,
+     "usd_list": 0.019002,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "1ddf18ce2d9e8287326b"
+     ],
+     "reply": "a5/a5491335dad09305828f4b87f6b37021630e1f67cfc3e00ab4c1f50f429dcd07.json"
+    },
+    {
+     "at_utc": "05:21:38",
+     "role": "angle_write",
+     "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+     "usd_reported": 0.0013376,
+     "usd_list": 0.106041,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "11df638c20ffedd21603",
+       "1ddf18ce2d9e8287326b",
+       "7004b98d5ef71d120f1a",
+       "7e3e474ca01cd2ff8362",
+       "d21c32a4adf9f84b5691",
+       "e05b34a672b73f3334ea",
+       "f003b72d2fe13d894ea5",
+       "f063cce3e0c86a774f63"
+      ]
+     ],
+     "reply": "f3/f3acb32a71ba6561989a1b5c7ef4f8749c3553a0caecb683c33ed7f7fe451fa4.json"
+    },
+    {
+     "at_utc": "05:22:02",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0104756,
+     "usd_list": 0.10061,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "17/17d958c44811d8ba9e6fb6fded9f9cadc658f151c9e0fba6d0381ec561ff20e4.json"
+    },
+    {
+     "at_utc": "05:22:26",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0102981,
+     "usd_list": 0.09894,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "54/54efae2c2b53527704754b797eba640db8efefb940a6f7d6f20697b67c5f5f1d.json"
+    },
+    {
+     "at_utc": "05:23:14",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0220381,
+     "usd_list": 0.18757,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "2eac136611eefcd5868f",
+      "30610e37175e46f0146b",
+      "9033a5744950e6318575",
+      "3eab7c7941d278762d4e",
+      "b0feab0cb1a2b3a0bb14"
+     ],
+     "reply": "7d/7dfc7cf8e7846dd8cbac255ea956aa0aa041816281ec1d41fe7532bcb4ff7a57.json"
+    },
+    {
+     "at_utc": "05:23:20",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004018,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "54a874197938ef82c9e972aa3f2b92c08977081b049995b233185af9849389f0"
+     ],
+     "reply": "11/11707c1d1f5d4fc4512f285fd840f7a9eb428d41013d09ec31e137bc17bcaa41.json"
+    },
+    {
+     "at_utc": "05:23:27",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.003964,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "d03f035089a8466762e94a10f271107e0e79173a09482400a8219aa5a2dedb74"
+     ],
+     "reply": "7d/7dbcefe94427c4a7e7e58b65f64f8c9b72e03e0f8064ec22dfc17895866a0b43.json"
+    },
+    {
+     "at_utc": "05:23:33",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004892,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "49b2f2f6bfd64dc3ee5db97ead91103e72aece4aa8b7cd420d91b895e77a1222"
+     ],
+     "reply": "ae/ae0f30f312277cc110e7345a17f22284e2902374f45f5a99c8eeb442c78b8bae.json"
+    },
+    {
+     "at_utc": "05:23:39",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004228,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "259c5d97d2b249f15ca1b9303eb83aa2b43c6363d36dd948765f8d1ad8bac622"
+     ],
+     "reply": "74/74ea3e918cdd3058af03fa2a014b5bab8bc9f4be7c85852e84ae6764bfd62fac.json"
+    },
+    {
+     "at_utc": "05:24:02",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0045281,
+     "usd_list": 0.042245,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "b0feab0cb1a2b3a0bb14"
+      ]
+     ],
+     "reply": "06/0696191d02892fca8b3a2ac60c47816dda895868a2f75629d32d832bf3f09c37.json"
+    }
+   ],
+   "usd_reported_by_category": {
+    "first judgment": 0.0894,
+    "first judgment (no reusable subject)": 0.0208
+   }
+  },
+  "01:01 ET": {
+   "calls": [
+    {
+     "at_utc": "06:02:42",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.02226685,
+     "usd_list": 0.200905,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "79054d4b967721a77c40~trim",
+      "72e9a3529c27be3eb69d~trim",
+      "15ec187ca5107cf86bdd"
+     ],
+     "reply": "d8/d854d48d6a223085a0edbbc007b366764405d8f015fd150be76275d123f9e66c.json"
+    },
+    {
+     "at_utc": "06:02:52",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.00328,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "0cb8d758a429f2e0ad45dee37b731a1c1dcdd1e5abf3a4212a378ff7f302104c"
+     ],
+     "reply": "63/63dbb8752ac8924cb14055ce2d4f37b3979b0d2b96487541a9f6fdeba10bdae6.json"
+    },
+    {
+     "at_utc": "06:02:55",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.003356,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "f051c68549020cf4cea11090f47399f7ab0940a4ad83bffc4b78f3aa5fbff6a7"
+     ],
+     "reply": "45/4520fe3b0e05913e13132ea2f95411bb45fb57ceced4f325287aaa1881808dcf.json"
+    },
+    {
+     "at_utc": "06:03:33",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01935435,
+     "usd_list": 0.14448,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "201ab34d26468340e80e",
+      "35160833f97c13bf4ce5~trim",
+      "b734abb0ab69e02cbf19~trim",
+      "ac64cce1167a570fe7ff",
+      "05f1e4a9f750546eb83a",
+      "42613c14bb116338d8d8~trim",
+      "078ba65616fa0da8f3c4~trim",
+      "7f2bf26b73cabe67ba12~trim"
+     ],
+     "reply": "fb/fb8d7f851e37f7eee91c692c2a1ec9ae43f6a6f4a7c2dbd155743a5621ff3f11.json"
+    },
+    {
+     "at_utc": "06:03:45",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0238081,
+     "usd_list": 0.194275,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "ab72c96d18f352cd82fa~trim",
+      "a5438e7235bf6e4aaa84~trim",
+      "a9c047f96aca4be3b265~trim",
+      "b1b8e9151eb8b448d12d~trim",
+      "558ddf87fe4ab2156038~trim",
+      "58fe56ce50d3cb5626a7~trim",
+      "7e97fff2f17bf5a4dac8~trim",
+      "8c33889b6aa101221312~trim"
+     ],
+     "reply": "ae/ae438bd93bdbb2607b242f06d6887ecd0311fcd8d896fc53b4b6fc169787ea78.json"
+    },
+    {
+     "at_utc": "06:03:57",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0300406,
+     "usd_list": 0.25087,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "2184e3ea5900463421f8",
+      "376def79159acfa49e33",
+      "6c6c686c21aa7c68db80~trim",
+      "b05aed91079ce64702e4~trim",
+      "b86abddfd86cc00a9a49~trim",
+      "202c6f3850185a64ef78~trim",
+      "9178e9bad3afb0371e0d",
+      "c19c84270b4db30d9c1a~trim"
+     ],
+     "reply": "c7/c734d7ed3b0e9bda0502c51e8162699346ddad6498a668452433d655bd219ce9.json"
+    },
+    {
+     "at_utc": "06:04:01",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.02833685,
+     "usd_list": 0.24878,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "d101ef08558730c3bfc7",
+      "0162cab4e48de543af44",
+      "b24c401091919954acc7~trim",
+      "a2ff8db25e3a80a93f98",
+      "c7753dad8a9408e75148"
+     ],
+     "reply": "12/12e30ed0c9132368dcaabfd21c69e2ed6ffb3763b8704e502e25cd474ec173b9.json"
+    },
+    {
+     "at_utc": "06:04:08",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004486,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "e9e33db277d4f0ae2f6c4d349b893f3e20d2fa7254cceae9f16331e3f5d6178e"
+     ],
+     "reply": "97/978b3c96a5c9ded425b2e3f6a057784a93fd6ff36a3a6da940ea9659a6713487.json"
+    },
+    {
+     "at_utc": "06:04:08",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004218,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "77ea793b8ef0ad0e581f18c47b81904cedb1d19b9c710d63bf4a6d669b30eb26"
+     ],
+     "reply": "0f/0fe21d0b5e34612487c9e8016b6dc02c0f4ae4c62cc17fe4f3aede69549db5bb.json"
+    },
+    {
+     "at_utc": "06:04:10",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.005316,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "d93669144ec8fd09bf58c086d984b8b32fe40a3c79fe0069cb841659d7cc28d2"
+     ],
+     "reply": "1f/1f7b0812b8e449347f758cb16bf1b8c7b68c0d4e0620db0b9a4fa89bac950866.json"
+    },
+    {
+     "at_utc": "06:04:10",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.006144,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "358e8a7b6beb365260bbe5095905d6b315fe4a0d15dea88519d84dcb93f0321a"
+     ],
+     "reply": "a2/a257e40205743818aad63934f5998db7474f6ad81f2929fc281a8729822747c4.json"
+    },
+    {
+     "at_utc": "06:04:14",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.005858,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "bd73cf9ea7cde041c4e4bdf0e3d973744b47aacb4460650fe77d839f25113792"
+     ],
+     "reply": "2c/2cf24b56b15eae24f30e4c34d1371904f356b63745d3cdec72b0882e300e2ac5.json"
+    },
+    {
+     "at_utc": "06:04:18",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.006176,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "0a41fc12d9566843bd5381e4e83ee7aba4dd15414fb24fb9a45fead5b6b86482"
+     ],
+     "reply": "2d/2d676f1aea79703b4a74a2d048643602ffa8494f4de6d99533977e36b47890a9.json"
+    },
+    {
+     "at_utc": "06:04:20",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004176,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "fbcbcce09b0d8da446b177d8f55cdcfaa0e9568c4042669a6393088599bc562a"
+     ],
+     "reply": "18/18a37d9fffb81826bdfe49ed4b934c1d14237e5e6839bc8b4d40b41ed8789ab2.json"
+    },
+    {
+     "at_utc": "06:04:24",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.005698,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "f96a44ae59138dccd66ed7673a4f54320c6bfa986c6a5159fac5ca9126411f3a"
+     ],
+     "reply": "82/8262515d38eab8ae5e026df3223f197173e74960515bbef4f0f3d4f0d1408785.json"
+    },
+    {
+     "at_utc": "06:04:25",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.006562,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "eb1705e020a69306c967bf8ca596ce93fe43be355337bdc3b259827be34f5dc5"
+     ],
+     "reply": "15/159a2269f1f3127ac485747564e02f103e298ad98c5667e5b046f6b6edfe0cef.json"
+    },
+    {
+     "at_utc": "06:04:26",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.00391,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "c91440af0e8a8fe029ee7f700797f9f829a37e8740b8f4a05c66637ee648ae52"
+     ],
+     "reply": "73/738ec2265a0b2f07e75ca8c8cbb81c55dc1c2c7ad6ccec57675b8254f8a1b939.json"
+    },
+    {
+     "at_utc": "06:04:28",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004762,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "3a5abe5ecdfc3480d317452182b2475ceb1dcde8b412c72bda7ecdc53b42fbcb"
+     ],
+     "reply": "af/afdcd2b64d88943b64765e9ce8e7641c2359ee130f17e12338042093bc9f02d0.json"
+    },
+    {
+     "at_utc": "06:04:32",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004448,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "14502383ec72677b80d15223cc92a30506ea2549ba55f4be29657a5dd0a451d4"
+     ],
+     "reply": "e4/e49e983d5c692b5e6f1b335056672cef70aee0f8227f51472ac2b43c1b640f79.json"
+    },
+    {
+     "at_utc": "06:04:32",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.00431,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "d44d0530ba32ac9f1718473c37686478a86ab6aba577409c544f40700accd6ed"
+     ],
+     "reply": "4a/4a7fb7a4b26e645ccca9c87b12c98a57be57c6f67b6851fe8d416a9cb991a94d.json"
+    },
+    {
+     "at_utc": "06:04:33",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.00441,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "5d4fbac9a208192085a1d12789a5a889e79413df4793ec20be4b70a00d0c34a9"
+     ],
+     "reply": "27/27e342ddb8c3498071d55bf65c9132f06b4e811f5e15bf3f174c09722f808432.json"
+    },
+    {
+     "at_utc": "06:04:35",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004264,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "dd4a6f5d702792790ad10a1960ce49b933b17c60bf03963f14a664c3ccba1b4b"
+     ],
+     "reply": "7e/7e6d57a7024e823263d25a3f70d907b6ca08483074136c6f221c2a3655fa40b7.json"
+    },
+    {
+     "at_utc": "06:04:38",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004178,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "43df8769e3a982dc69d238facbf797f3e1dcb489aee342a848ea70014c63c129"
+     ],
+     "reply": "78/781a28fa96573475887e57ca938797ca3ecddec8f8eefb5ddd9d29ce2b85b7cd.json"
+    },
+    {
+     "at_utc": "06:04:39",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.00478,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "7c6377417506f02882ea569e74582fc4309f2aebafa397d56ff2fdc458b66261"
+     ],
+     "reply": "d8/d8221d5b2db75465c5173439bb07b3c069ca0ecd5a655c09a940b60b3fcfaad1.json"
+    },
+    {
+     "at_utc": "06:04:47",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.003976,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "b536d4b04657345d6fbe115ec1c1dfb4f426c24d4ab042befe228c330cf19001"
+     ],
+     "reply": "9e/9efa1ca9b4e62f5b0a0ae99bdcd113fbc48027bd082f3dbfcca8cb51a76bcc38.json"
+    },
+    {
+     "at_utc": "06:05:01",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0037531,
+     "usd_list": 0.03466,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "d7578b88ff8e0129064f"
+      ]
+     ],
+     "reply": "4e/4e5f29a9356def198318c2a2a0fd068429045029edd10b30b34b82c40f53a339.json"
+    }
+   ],
+   "usd_reported_by_category": {
+    "first judgment": 0.1276
+   }
+  },
+  "09:49 ET": {
+   "calls": [
+    {
+     "at_utc": "14:50:02",
+     "role": "context_verdict",
+     "backend": "heimdall:z-ai/glm-5.3-flash",
+     "usd_reported": 0.00027361,
+     "usd_list": 0.031956,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "704fa6e1af4a86ff1d07"
+     ],
+     "reply": "77/77442b5c4e1effc2e5279bfc6c69d38fd70cc95bee333b98e794a8f2dcf614ef.json"
+    },
+    {
+     "at_utc": "14:50:19",
+     "role": "shadow86:context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.00812935,
+     "usd_list": 0.07009,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [
+      "704fa6e1af4a86ff1d07"
+     ],
+     "reply": "87/87e01f5c52dcd5cf4cbd1351feecd5f7e5ea4cfa5d72b083057e134afc87e6eb.json"
+    },
+    {
+     "at_utc": "14:52:41",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0161231,
+     "usd_list": 0.145115,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "4d9418596b2fdd0a0a88~trim",
+      "d0adae88e4f7b5354a72"
+     ],
+     "reply": "89/896c8d2f1411a0caf1e36461ddf40f3b86598f0730c64d70013b59b399a40156.json"
+    },
+    {
+     "at_utc": "14:53:02",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004666,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "11df6a7c24d7b95f9e53dd98eadb887367245f616de79f9cb78b14d3316967cd"
+     ],
+     "reply": "c4/c44f7ffe8123a7f8d703c43f049c9092f93a8c0ee21288d625895892c72a05a0.json"
+    }
+   ],
+   "usd_reported_by_category": {
+    "first judgment": 0.0164,
+    "shadow (ruling 86)": 0.0081
+   }
+  },
+  "09:55 ET": {
+   "calls": [
+    {
+     "at_utc": "14:55:49",
+     "role": "context_verdict",
+     "backend": "heimdall:z-ai/glm-5.3-flash",
+     "usd_reported": 0.00012211,
+     "usd_list": 0.013137,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "4effcd61b4b012e82945",
+      "1f42e788a93fa09117a9"
+     ],
+     "reply": "48/489bfca340198308e47e8568f957df72129efbf0c7311b621844ece4f02ad82c.json"
+    },
+    {
+     "at_utc": "14:56:29",
+     "role": "shadow86:context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01729185,
+     "usd_list": 0.15708,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [
+      "4effcd61b4b012e82945",
+      "1f42e788a93fa09117a9"
+     ],
+     "reply": "54/54bd2b15f98a2a8719ecc38a412f0311bf39a6c0929f1ba5fbc0100e7fa66587.json"
+    },
+    {
+     "at_utc": "14:58:20",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0167031,
+     "usd_list": 0.151365,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "07c844d922fa6dddf59e",
+      "b4831bdba3bc73769a7d"
+     ],
+     "reply": "63/63b3702ea1e03a4c7964ec5ba58774e9b13b967963f6627340e6b98c9a3efaf2.json"
+    },
+    {
+     "at_utc": "14:58:25",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0185281,
+     "usd_list": 0.1696,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "eb0fd778800d99d16559",
+      "63e84dd53de85f9e6337"
+     ],
+     "reply": "b8/b86cf88cec55284c8bfaa7fb00d52804ad74857c8e61a6b0b5a2c5ede3b22c7e.json"
+    },
+    {
+     "at_utc": "14:58:33",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0212981,
+     "usd_list": 0.197165,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "ec4c0ff49fdb895ef08e",
+      "eb402a210905c778432d"
+     ],
+     "reply": "f1/f1f7c08ef989ba8892848a751344aee0f4de1dc472e48ec2d533d847549bfcd5.json"
+    },
+    {
+     "at_utc": "15:01:19",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01504435,
+     "usd_list": 0.13402,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "7c0121c6c14b8b930a2a",
+      "98f8c426a874add381bf"
+     ],
+     "reply": "a0/a0f3f9cae3e4c2e4c6818e213efec004917fcbd4bc443f1194f50ece209b9bb7.json"
+    },
+    {
+     "at_utc": "15:01:22",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0162681,
+     "usd_list": 0.146355,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "da859ee356c68c74ce2f",
+      "cbf391e7523ac232206a"
+     ],
+     "reply": "e5/e543438edba3d9c5a459db44247651ee4a1a93f15d1cf3109a2e56dc1de54ba8.json"
+    },
+    {
+     "at_utc": "15:01:29",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0186356,
+     "usd_list": 0.16958,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "9e63b39a556c9ed33ed7",
+      "c931a4f668731b60de7f~trim"
+     ],
+     "reply": "6a/6a0bf5cf91845b5bfe0f128b8d5fae555a82bf01d81b08dffe030f5fc8d4e01a.json"
+    },
+    {
+     "at_utc": "15:01:29",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0180706,
+     "usd_list": 0.164605,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "2de8e757031888803e1e",
+      "3fc97f3afec6a4386667"
+     ],
+     "reply": "80/80069577246170cd670cbfa3202da899f3f019d9a1187f8233dc8f9a064a780b.json"
+    },
+    {
+     "at_utc": "15:01:32",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0184681,
+     "usd_list": 0.168625,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "5b159ce6a40b1251f0fe~trim",
+      "a7ed3a348a7136992e88~trim"
+     ],
+     "reply": "8a/8a02607cd3ec404c306c635b490f811e97088255225979381dde511bddb71e41.json"
+    },
+    {
+     "at_utc": "15:01:39",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.02068185,
+     "usd_list": 0.190185,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "23caa285d4cbeb43e51c~trim",
+      "93fca317d9fe229b4001"
+     ],
+     "reply": "d9/d95cbb8b110b1e786830dfd07f1d76a31802cee8b3169e1c5efc70230f350b09.json"
+    },
+    {
+     "at_utc": "15:04:23",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.02329685,
+     "usd_list": 0.216125,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "ccdb0097bea1f57a6348",
+      "9a2febf853f2761ea0f6"
+     ],
+     "reply": "e0/e071a0e29c1de1a3a653303f8979e4087246bdad39b4549c8934c28fb6b84881.json"
+    },
+    {
+     "at_utc": "15:04:47",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.005002,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "dd0c3c016b849d5ce456e25ba56b516d01043a689850a3338ea1e4ff8a31bb5b"
+     ],
+     "reply": "71/71d5f03f68ce54e36a474b66d4168d74aca2f8545414f176f6924ce0349874a4.json"
+    },
+    {
+     "at_utc": "15:04:49",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004796,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "114a27cd0ca907a7816a766207f8af92958396a87194f1ca0fac1508f03f39ac"
+     ],
+     "reply": "f4/f4a6178c0ede09a1859b089945e685c79fb5c837d34faa03c3f809c2010231ae.json"
+    },
+    {
+     "at_utc": "15:04:50",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004464,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "e98345ae3ecfbf4beb6ac2c3f327bb114b9b3a0e4363af6ebb7d59a5a2c64152"
+     ],
+     "reply": "aa/aad97b6e4f195030f5d8bf5497bb6a743bd077270bdb29103dd788eb8530fa67.json"
+    },
+    {
+     "at_utc": "15:04:50",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004654,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "f4a939a7b7ee3abba941680a9541bef1e67edd6c362584a320bd9a1f59c18f80"
+     ],
+     "reply": "b0/b08a365a1cc5ed327bdf354ba3e89547140d4ac651ccaf8960f989ed6dfd883e.json"
+    },
+    {
+     "at_utc": "15:04:53",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.006308,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "85fd45d68b99ba181e3bc9dbab6e1c530afd9c7c775b742272bb748b60f10040"
+     ],
+     "reply": "01/0161ff929590113cdcaa6334fabdf1e51f10fd630b0c50b05e97f57f3d22f6a9.json"
+    }
+   ],
+   "usd_reported_by_category": {
+    "first judgment": 0.1871,
+    "shadow (ruling 86)": 0.0173
+   }
+  },
+  "11:29 ET": {
+   "calls": [
+    {
+     "at_utc": "16:32:27",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01527185,
+     "usd_list": 0.13532,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "7cdfb91fd54d185ad149",
+      "efb097a26dc705eb5dfa"
+     ],
+     "reply": "cb/cb160e9902473a7aeb18041501dab75f76527892d179d3f4c2767bbce06f8f3c.json"
+    },
+    {
+     "at_utc": "16:32:29",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01545435,
+     "usd_list": 0.137475,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "3aab6902ebb87738edc2",
+      "710caa666883a37ec4a5"
+     ],
+     "reply": "da/da950fbfb041312f897f5260108637a5d6861ccba175d2ea2af53e3844daa8d4.json"
+    },
+    {
+     "at_utc": "16:32:33",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01487435,
+     "usd_list": 0.131885,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "a7d6255523f0656489cc",
+      "d50b23b1bf9e981c6992"
+     ],
+     "reply": "60/60ad18f593138132d8bc5bafb54255d0fbebb6eab44d52bdb447de51b0c02b3b.json"
+    },
+    {
+     "at_utc": "16:32:35",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01740495,
+     "usd_list": 0.157845,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "b3ad2b8356e4a8d70dd9",
+      "c3d02145771fb936d4f9"
+     ],
+     "reply": "b8/b845ab50a844f2de251f7b773ca7fd2cea3b7d822c1c1621a7defa7f59aba780.json"
+    },
+    {
+     "at_utc": "16:32:39",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01916935,
+     "usd_list": 0.174505,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "eade93c11a2a492ea763",
+      "1049bbce329720f0d4fa"
+     ],
+     "reply": "36/3602fcff4b9fadb9a970a18699b44e519105a8abc51bfe2057c9c4dc478d7422.json"
+    },
+    {
+     "at_utc": "16:32:50",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.003112,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "b8629dc8eaa7db1d0e8bf0f7b9b4080cd6cf9bf83db34ce1eefa70e9da4cbc18"
+     ],
+     "reply": "c7/c7ffa83f6e22b538ddc27c228fd4107fd87b0da382c2f0e08b1876c00a47bc12.json"
+    },
+    {
+     "at_utc": "16:32:52",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.0036,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "facf30a7dfbc62b424d7288212a41e620184c84d3c7043d65b785fc9ba4bc47e"
+     ],
+     "reply": "14/14489a85cf443132fa8419ac9bf3ca45c5fa3693672f81005543fc047c24dde7.json"
+    },
+    {
+     "at_utc": "16:32:56",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.002152,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "c66f5f372fcc45c3ed4d6a0cdb03f520607d212228a69c340592cf6030f58a9b"
+     ],
+     "reply": "0b/0b14c5081dc8f3ee908f6f626023224059bc5163411b4287ed5fc8dcea7a5062.json"
+    },
+    {
+     "at_utc": "16:32:58",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.002452,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "26b40c381cd32d75c34beffb89f2449912a03866dbf476cdeda2d75618465901"
+     ],
+     "reply": "11/111ed8231180fd9f6cde948410fd0bb4c56bfb07de7f51e4af2f36fa0264e9ac.json"
+    },
+    {
+     "at_utc": "16:33:00",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.002648,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "2ff840b540191fcc93ac7ed476ee6e15aacff81df6a8943cb11ab51ce6f157a5"
+     ],
+     "reply": "eb/eb7c95227842b0aabddaf59b7ab1dc8f813bc5c61e8752d9c26d4c47936bb0e1.json"
+    },
+    {
+     "at_utc": "16:33:00",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.00234,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "fd27d9611512a96186baa445066b78fcc5eadf67d4dc7f9cbd524257c5b2b09f"
+     ],
+     "reply": "ec/ec2b677118a172b40239f0657ba872dee6b9345ed59a5b822c190fe02a0b5d22.json"
+    },
+    {
+     "at_utc": "16:33:01",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.002932,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "f06964b62b49149247ec87c1e328bd355e054434e3a1a9744098be81b435cdf0"
+     ],
+     "reply": "e1/e184181dc12a1b0ab03c82819e6ea25085182f159abfd341e94c33c75c94f046.json"
+    },
+    {
+     "at_utc": "16:33:02",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.003768,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "318b2a72913666e25a401da58ca5aa549b751475e74a69a3fe0c64e9b074a6a9"
+     ],
+     "reply": "e8/e813c73c1203fd84714fbbfe5bd8e88f99ae68e76a12dcf7f9763673a8d4740c.json"
+    },
+    {
+     "at_utc": "16:33:05",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.00368,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "c470c792f2ed96492807648f07d7857ab2f858626851a8701221b06d222f3ad8"
+     ],
+     "reply": "ec/ecd3c8aa5e07be49d147126048faa28858b38c126910ee65435f3f4e86dd878b.json"
+    },
+    {
+     "at_utc": "16:33:30",
+     "role": "coherence_verdict",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "usd_reported": 0.00096481,
+     "usd_list": 0.021357,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "704fa6e1af4a86ff1d07",
+       "b3ad2b8356e4a8d70dd9"
+      ]
+     ],
+     "reply": "bd/bd776e5416f0db8e62faeb6b14fe8e51c305c6fd21ae13c501dda832852914b1.json"
+    },
+    {
+     "at_utc": "16:33:50",
+     "role": "shadow86:coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.00738435,
+     "usd_list": 0.070095,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "704fa6e1af4a86ff1d07",
+       "b3ad2b8356e4a8d70dd9"
+      ]
+     ],
+     "reply": "87/8779b590c09c7275aeb71644c57bc2a9698053ddab1d808fc776250e09b83caa.json"
+    },
+    {
+     "at_utc": "16:35:21",
+     "role": "visual_check",
+     "backend": "xai_vision:grok-4.7",
+     "usd_reported": 0.046418,
+     "usd_list": 0.190385,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "On the 29th of October, Binance's hot wallets gave up Ethereum, Bitcoin, USDT, USDC, about 233 milli"
+     ],
+     "reply": "cf/cf00e4a0a11996de0336815d9f3a7b2f6d1224472c9310f9b4e92e66ea708c3c.json"
+    },
+    {
+     "at_utc": "16:35:45",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0121287,
+     "usd_list": 0.106785,
+     "category": "REPEAT",
+     "first_seen_in": [
+      "09:49",
+      "09:55"
+     ],
+     "subjects": [
+      "4effcd61b4b012e82945",
+      "704fa6e1af4a86ff1d07"
+     ],
+     "reply": "03/0378d90683e38eb42bdd38f7a3a3e58c1a983e8d949e909a925b695e132064d8.json"
+    },
+    {
+     "at_utc": "16:38:02",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0154231,
+     "usd_list": 0.13687,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "ea1fc684ee2a95f0473a~trim",
+      "c3d02145771fb936d4f9~trim"
+     ],
+     "reply": "cf/cf3b629e9ead08240e3f2e58137ffd24a4d5cd266b590cfb87c4333ac5f19e0d.json"
+    },
+    {
+     "at_utc": "16:38:02",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0150056,
+     "usd_list": 0.132515,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "2e3622d2282ef2692994",
+      "f51962672170ebaac719"
+     ],
+     "reply": "55/55eb895c1d2ecde1f5aa4501961eb1e949a46b96a2a2c59c572b25b238ff5a32.json"
+    },
+    {
+     "at_utc": "16:38:13",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.02022935,
+     "usd_list": 0.186245,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "e202d5ec74a53c22a5ff~trim",
+      "64f28f858f21b75dd1fa"
+     ],
+     "reply": "cd/cd0a785b4271607925cf8a6409ae7f132288781889b34189247edb7788e623d0.json"
+    },
+    {
+     "at_utc": "16:38:14",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0212881,
+     "usd_list": 0.19495,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "8976434fa074337ce69d",
+      "c0849ea02c9857cf9ebb~trim"
+     ],
+     "reply": "b5/b5fb5aca6385dcfc26768701113e1328cec5e1c0efcf19709f2c8960fe5dec17.json"
+    },
+    {
+     "at_utc": "16:38:18",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.02264185,
+     "usd_list": 0.208795,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "3868d86dcb0cc7df9f6c",
+      "e959d5ade74f877900c0"
+     ],
+     "reply": "7d/7dc4ee9febe6cb903f3883c8dd54ad5bd62586e1df40e4540fe5d4db48fe2e53.json"
+    },
+    {
+     "at_utc": "16:38:24",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0242981,
+     "usd_list": 0.2252,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "4f8d42ac7d400d93b0d2",
+      "a56b39c9c2c9ea896e29~trim"
+     ],
+     "reply": "38/38870e0f14136bd7979c61e6f1b1b88c19e1a0d76c9ac9f5affe523f0fa746b4.json"
+    },
+    {
+     "at_utc": "16:38:31",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0144581,
+     "usd_list": 0.12674,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "e68cc1564197965e962f~trim",
+      "79eb86c1b0670fe1e579~trim"
+     ],
+     "reply": "5f/5fbe56ba96989a366b39d5fc723d8828b40c2261653855dfe22cc899c88ce3e0.json"
+    },
+    {
+     "at_utc": "16:38:40",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01842745,
+     "usd_list": 0.16849,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "422219f06d09c5aeebf4",
+      "98dac99f884b77763b5f~trim"
+     ],
+     "reply": "c7/c727c08d14d7f209b0bd82f4745b7521c511357f2fc0de99f5c44d5d8cdc7cde.json"
+    },
+    {
+     "at_utc": "16:38:51",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.00412,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "ff1f117d69a91cdea264618725960a3fbe7bd3ef199333d3705ab6cd7a63a0d9"
+     ],
+     "reply": "f4/f4eecb55f6f0dbbd8605b54e41f24d3fc1fe1e09b2dd90ff315439cc0a2fd030.json"
+    },
+    {
+     "at_utc": "16:38:51",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004232,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "986b6e502147804d4df9a9795516253698b06b14ff78a9471395652f3d05f8b0"
+     ],
+     "reply": "70/7020d9286b42de914784f2bcc21ce5e2e49e3cba05de5196fc61dd50fc0f3e59.json"
+    },
+    {
+     "at_utc": "16:38:52",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.00518,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "d3620e8c44fc23c354913473a255bf577197d9b4bac1402194592d9f0f970be1"
+     ],
+     "reply": "b2/b20c4750dfb35b300c1127a759d0e96cecf37b6fbfda4cae1f4550739dd6b318.json"
+    },
+    {
+     "at_utc": "16:39:03",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004848,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "f30be8e489021097edffa3dc76cb4e02e37c10bac3accde795c6ac91111c78e2"
+     ],
+     "reply": "94/94f87ade009aacf0ba828f00ec4c6e7e591ef2551d827339c4a513a51657ecab.json"
+    },
+    {
+     "at_utc": "16:39:05",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.005212,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "6ca212b251986a150accd3a0361be1588bfd57be64ed4c549f6818e790f4d484"
+     ],
+     "reply": "60/60248724c7d02711953416013f7f14a6ab20043e9238410d8c558848a43f03e8.json"
+    },
+    {
+     "at_utc": "16:39:05",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004676,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "8697346d9fd4167a8f165e8bb27fc200bc36d674e13259cd0728ff68782162f8"
+     ],
+     "reply": "18/18f6b6a53dee844ce8dac9b16ad14d505dde2b5e3469bc2fe9ed3a3dffc5323f.json"
+    },
+    {
+     "at_utc": "16:39:06",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.00528,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "aec61e16d612cbc1f01a622a0abb8243f71dd529a6f8d802c35cba189324e529"
+     ],
+     "reply": "a0/a071622b7ebd70888b4a9964f31c468876a635580343ffa323591deff7450cee.json"
+    },
+    {
+     "at_utc": "16:39:08",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004796,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "31de02ff2a8b9962ecfa888862572410fde017a20852dfff71886804813059cc"
+     ],
+     "reply": "5e/5e4ca8513860a2267ebbac3cb9b70becaa659d34325567316c64f28f3fb4fed4.json"
+    },
+    {
+     "at_utc": "16:39:12",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004346,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "fc340410f6e2e99dbde39d0f88a9156f231a919e18e926a81f883dc98e6f6e75"
+     ],
+     "reply": "c5/c5dd799bad5a4bc825428e35a85838691f0d44bfa5b57d71247f4bde8da1d9e9.json"
+    },
+    {
+     "at_utc": "16:39:18",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.005072,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "9deab2bc1dfd6f68408ee5fc59432888fdfec4595c1788296286b1a3d1e5d40e"
+     ],
+     "reply": "94/9488522ef4b69c93aa0c61794120289d8bd62e61c1c72fef87e42f7059b816c3.json"
+    },
+    {
+     "at_utc": "16:39:32",
+     "role": "coherence_verdict",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "usd_reported": 0.00058423,
+     "usd_list": 0.01314,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "2e3622d2282ef2692994"
+      ]
+     ],
+     "reply": "04/049908a27483fab95685a74f0a67122d3c7a100c56c09362cd16bfb0ec3fe8eb.json"
+    },
+    {
+     "at_utc": "16:39:40",
+     "role": "shadow86:coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0036931,
+     "usd_list": 0.033925,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "2e3622d2282ef2692994"
+      ]
+     ],
+     "reply": "f4/f43f22f01dfd4a563c47a3d0e2cea275301868353d707f2edc52ff014b298305.json"
+    }
+   ],
+   "usd_reported_by_category": {
+    "first judgment": 0.2819,
+    "shadow (ruling 86)": 0.0111,
+    "REPEAT": 0.0121
+   }
+  },
+  "11:42 ET": {
+   "calls": [
+    {
+     "at_utc": "16:45:49",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01828185,
+     "usd_list": 0.16473,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "206e061739f6b989809a",
+      "0d39ef4732c8c206ffae~trim"
+     ],
+     "reply": "1b/1b63e9738faa06423d56d52ec065915c56fcc976fa22af1e18ee6c7cb6b9e2cc.json"
+    },
+    {
+     "at_utc": "16:45:58",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0220812,
+     "usd_list": 0.20328,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "b3847c05e85387dc96b1",
+      "b36fbc2652b71924a361"
+     ],
+     "reply": "4a/4ab5b92e8c6cee2789ba332ee56c44d3fefdd4c626fe135a691d374def485b8e.json"
+    },
+    {
+     "at_utc": "16:46:20",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004566,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "956f000e2bbcb6ad68f742cc35c6c00722000735e2c57c08353c4b4a01496bee"
+     ],
+     "reply": "d8/d8384d62be584a51e8e626901cf776c2aafae1ec1556b15ec480932a372f2653.json"
+    },
+    {
+     "at_utc": "16:46:29",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.006904,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "9de5cf855a4f660c1f9d6a628dc7ae640010c32ff127f40bc21cc5b9d774a626"
+     ],
+     "reply": "ca/caf7b3caa7ea5c226ce39ba61cccaeed551bc71c774ebe258009e185ca869396.json"
+    }
+   ],
+   "usd_reported_by_category": {
+    "first judgment": 0.0404
+   }
+  },
+  "12:03 ET": {
+   "calls": [
+    {
+     "at_utc": "17:03:58",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0127606,
+     "usd_list": 0.115645,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "5725aeda167432775db9"
+     ],
+     "reply": "d4/d4e247c4f91aeb2344497683b56d9f88124906daaf87cbc0393571591a10bc6e.json"
+    },
+    {
+     "at_utc": "17:04:00",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0137856,
+     "usd_list": 0.1227,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "fad8df4e001b54c720d9",
+      "5735db643191d7e6f30c"
+     ],
+     "reply": "87/87e373b1ea08f65ff4eaa28db7e7449ca8c553618066dd74ab32c85efce665d9.json"
+    },
+    {
+     "at_utc": "17:04:03",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0144456,
+     "usd_list": 0.12888,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "73c02a63cf4e89076428",
+      "e9f0cf97ce933070ef7c"
+     ],
+     "reply": "c1/c103a4104242175091f738be132c1e5a5262aa216c6957b254f01a30b78df764.json"
+    },
+    {
+     "at_utc": "17:04:08",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0176481,
+     "usd_list": 0.15942,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "23114b06920582460e85",
+      "861f0c97d093b4fd4220"
+     ],
+     "reply": "2b/2bb1995a3c35357dd2cf17333cdae5bbf36de7fb65e512e3fb3e132a5880605b.json"
+    },
+    {
+     "at_utc": "17:06:02",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0151587,
+     "usd_list": 0.135915,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "30075b155874ab2de3c7",
+      "22018cf6e0db2d846def"
+     ],
+     "reply": "ee/ee4e5568236c7dc11c835146c14e4311fb564eb99a6ad184236ae2831afed4dc.json"
+    },
+    {
+     "at_utc": "17:06:10",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004284,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "f8cbac45b834d16cdd28e19dd10ba53bf1414ead77ea06543c1b3ca99847b635"
+     ],
+     "reply": "5d/5d8a95c70e5f6bfc7b848ec5b752e870641e23d496390e2688e581105c1d3045.json"
+    },
+    {
+     "at_utc": "17:06:11",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.002448,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "27126501350b1b2d7e310cf27618359e4ad5409ea8ebb0de0297d965a15adc05"
+     ],
+     "reply": "08/088221056a557af2bcd7d74c8e9f2118891d163a1177a76f28a2d7154e2e28f9.json"
+    },
+    {
+     "at_utc": "17:06:17",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.00224,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "8603f7d2d4458c92b118e8bba5d0c36f5b245aee5d1792f00c6cc20646ef223a"
+     ],
+     "reply": "bb/bbf5eb6f303edaf53bf295c3f54a17f1b440c21d1028182576f807f74dffb3db.json"
+    },
+    {
+     "at_utc": "17:06:19",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.001948,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "7600c7689457d682737138c293fc64f7026c9cfc6d29e888e28085686e79879a"
+     ],
+     "reply": "82/82e69bef613f35302a764534eed6b52da1a4e43c089ef17d43be4f4227a6b69d.json"
+    },
+    {
+     "at_utc": "17:06:20",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.003692,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "7c7ad729af266fc46af97ca547a4dac7e2cd9b73c0fba2471afbef83679815af"
+     ],
+     "reply": "f7/f7692c4d3bb1ef9149a392460af66baadf807b8a510c1fadc187479a5d483074.json"
+    },
+    {
+     "at_utc": "17:06:22",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004748,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "777d57e4d333e2d094ea38939eb93ed6cae22ea765b7a9efc5ee5f3392f54c45"
+     ],
+     "reply": "91/9143ef58473a52db987ccbaa29d578891952fdbb3ebeaf3c6a0ece4000a0c3de.json"
+    },
+    {
+     "at_utc": "17:06:36",
+     "role": "coherence_verdict",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "usd_reported": 0.00069852,
+     "usd_list": 0.015678,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "22018cf6e0db2d846def",
+       "30075b155874ab2de3c7"
+      ]
+     ],
+     "reply": "b6/b6592e4ac0823e9483a43857b2226f2fc81db244d6d35f13a71513456a0b42ea.json"
+    },
+    {
+     "at_utc": "17:06:52",
+     "role": "shadow86:coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0062106,
+     "usd_list": 0.05868,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "22018cf6e0db2d846def",
+       "30075b155874ab2de3c7"
+      ]
+     ],
+     "reply": "bc/bca3768407c8b4e344a44ba5521e60b11297bd276740ea21584f8adf179e7824.json"
+    },
+    {
+     "at_utc": "17:09:01",
+     "role": "visual_check",
+     "backend": "xai_vision:grok-4.7",
+     "usd_reported": 0.05818,
+     "usd_list": 0.24156,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "Bitcoin is kind of like this sound money virus that is infiltrating the system.\" Answer four questi"
+     ],
+     "reply": "b3/b35e5325f8d52f0ec20f8ced5c650f00e151b0679936d3b4692bf8e28d05dae1.json"
+    },
+    {
+     "at_utc": "17:09:44",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0167837,
+     "usd_list": 0.15188,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "70f16ce108b0083275dc",
+      "92cb306efb63543581dd"
+     ],
+     "reply": "55/553a96db096e86689345f711c41705a3d08e3c74a7b0d29adf688d44b325d863.json"
+    },
+    {
+     "at_utc": "17:09:45",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01667685,
+     "usd_list": 0.151125,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "0e20031e46ad9ad30c91",
+      "a70f7d22798173c122eb"
+     ],
+     "reply": "d1/d1ad3b5dfd49a4cdaacc796f47531da7a0d69921e1d959b6a683512fa8df72cb.json"
+    },
+    {
+     "at_utc": "17:09:51",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0194081,
+     "usd_list": 0.17858,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "c762a1951bb30926fb96",
+      "42dc41d2e53264a70420"
+     ],
+     "reply": "61/61a41a89d6b7e05f81490271759bf1dba5ec6f1402a7be2ae36eaac8ef82e5bd.json"
+    },
+    {
+     "at_utc": "17:10:02",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.02352495,
+     "usd_list": 0.218895,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "46ce4069efe4e25e0d38",
+      "383c02b65c9218f3b8bb"
+     ],
+     "reply": "63/6373905fd5b58f2b8f38f3e0382dd91aeb2403ca2521a5e6f59862c1b18b4288.json"
+    },
+    {
+     "at_utc": "17:10:23",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.005166,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "e66491fcc9c7cfe8b9bae4e38d05e3fd8bae52853744347ad8ed175a1ee9525e"
+     ],
+     "reply": "72/7287008f1f0e4928dc067d5345d73cb999a7f4dfe05170c8c6aaaeb25ad04a5c.json"
+    },
+    {
+     "at_utc": "17:10:26",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.00462,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "20837fcd2daec4d6bd7cfd5feb58df4539ed54f7e645be3effe9bd99274b2f9b"
+     ],
+     "reply": "14/142ece381a39506a3c6c412df1c2d3d38f227988fd21e61ed23d879404ec35a0.json"
+    },
+    {
+     "at_utc": "17:10:31",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.00693,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "42920b22d71d47854bb0dd31bcc79b5b9bee0bc1f80b1ede8aaca03259db7050"
+     ],
+     "reply": "51/51f403d130f192628b408f093fe681052f221f755e48474313cb0702b9322752.json"
+    },
+    {
+     "at_utc": "17:10:51",
+     "role": "coherence_verdict",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "usd_reported": 0.000568,
+     "usd_list": 0.011316,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "0e20031e46ad9ad30c91",
+       "c762a1951bb30926fb96"
+      ]
+     ],
+     "reply": "ea/eafa86554453d208b45b4004ac3386e6ce396ebe7188aaa5bc67a420621380eb.json"
+    },
+    {
+     "at_utc": "17:11:08",
+     "role": "shadow86:coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.00719935,
+     "usd_list": 0.06805,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "0e20031e46ad9ad30c91",
+       "c762a1951bb30926fb96"
+      ]
+     ],
+     "reply": "fa/fa9c4ae639b64cf2751a568c8e57adc07f657cdf2b0e3e368ce8cc3b19275867.json"
+    },
+    {
+     "at_utc": "17:13:09",
+     "role": "visual_check",
+     "backend": "xai_vision:grok-4.7",
+     "usd_reported": 0.061178,
+     "usd_list": 0.251845,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "Bitcoin is kind of like this sound money virus that is infiltrating the system. That's a great thing"
+     ],
+     "reply": "04/044cab3a76631140be1e0f75a3923a6f6c7ac74b636245a726b2806378b1de33.json"
+    },
+    {
+     "at_utc": "17:14:42",
+     "role": "context_verdict",
+     "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+     "usd_reported": 0.00083409,
+     "usd_list": 0.063987,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "0e20031e46ad9ad30c91"
+     ],
+     "reply": "92/92a620ceb431ce519d1fc8d0bce484d4793d2d0f963eede29af93beaf913d027.json"
+    },
+    {
+     "at_utc": "17:15:16",
+     "role": "shadow86:context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0150206,
+     "usd_list": 0.138455,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [
+      "0e20031e46ad9ad30c91"
+     ],
+     "reply": "56/565c64dda193b6b9abe8641cf189fb1e98b46f55f1ef72a21b3bd85098f825f5.json"
+    }
+   ],
+   "usd_reported_by_category": {
+    "first judgment": 0.2717,
+    "shadow (ruling 86)": 0.0284
+   }
+  },
+  "12:24 ET": {
+   "calls": [
+    {
+     "at_utc": "17:25:34",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01602185,
+     "usd_list": 0.14552,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "95490606c53e4959a46e",
+      "2f055ee4b44dbaa008ca"
+     ],
+     "reply": "78/7869db7039721b4b225f8b6f090df0c3a2c3c212843b5a45b86884ac84c646d1.json"
+    },
+    {
+     "at_utc": "17:25:35",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01591435,
+     "usd_list": 0.143485,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "7b7b2406019e1a5fea09",
+      "933f9d33a8e345356177"
+     ],
+     "reply": "5f/5fdb2e072d7da98764d18d57de26a873b18de17f3188e02ffc82b0afadf17c0d.json"
+    },
+    {
+     "at_utc": "17:25:37",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01501435,
+     "usd_list": 0.13477,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "2e466dcc10c4390f042c",
+      "54e68763d2b2c33888da"
+     ],
+     "reply": "a6/a6b7ac2d17639a87d4f69b771a9da6d5a1026c33c5f677ce4a42200a56f82084.json"
+    },
+    {
+     "at_utc": "17:25:39",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0178856,
+     "usd_list": 0.16334,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "9f173eb2984576d2a970",
+      "e4eb5b1d99927b2a0a4e"
+     ],
+     "reply": "81/81b5b2ae999c5b4595e22bd09bbfbaf1a634e5037259cfce9be3d78dab06403e.json"
+    },
+    {
+     "at_utc": "17:25:47",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004976,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "c1ac76cc7ec382bd05e876e08d03bff1bc0b4702adfdb6d72f3995648634cb5c"
+     ],
+     "reply": "d5/d53348c055956c8b33b09c84615d58bcd8ab14a7282d776a8906546435d07c09.json"
+    },
+    {
+     "at_utc": "17:25:58",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.003124,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "3ea925adaa1def19039668fbfb99055a5defad2a8e7eb3a6a80bbd1245bc58da"
+     ],
+     "reply": "0e/0e8ae7acc7e72174fe341b0e0bd1af05e5861f2a7fd81ea2f18f95b4671d3b68.json"
+    },
+    {
+     "at_utc": "17:26:13",
+     "role": "coherence_verdict",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "usd_reported": 0.0004123,
+     "usd_list": 0.008217,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "933f9d33a8e345356177"
+      ]
+     ],
+     "reply": "18/181a0dd5c1503a604ac939a6faf97445b615ebcb37792c9dbb37f7e49e45ac0a.json"
+    },
+    {
+     "at_utc": "17:26:24",
+     "role": "shadow86:coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0043556,
+     "usd_list": 0.04073,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "933f9d33a8e345356177"
+      ]
+     ],
+     "reply": "ee/ee776dbc0d62ad9854f50294d73e4cb3948255ff803d5eb860a69f761bb8be3c.json"
+    },
+    {
+     "at_utc": "17:29:43",
+     "role": "visual_check",
+     "backend": "xai_vision:grok-4.7",
+     "usd_reported": 0.098696,
+     "usd_list": 0.40819,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "We're the largest holder of Bitcoin in the world as an institution. If you're a Bitcoin investor, th"
+     ],
+     "reply": "2e/2e3b0dd7e4fd4358e7ea064c6ff8dd2769f8ff642693b673428917d2c5548a24.json"
+    },
+    {
+     "at_utc": "17:32:31",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01633435,
+     "usd_list": 0.147355,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "3c3679159b58612ae873",
+      "888cf86d36258b87c0fa"
+     ],
+     "reply": "5b/5b247f5f8d3cca083c9497dd69ae8727994facc7bf33d3c2cf4852c8c5457476.json"
+    },
+    {
+     "at_utc": "17:32:35",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01537935,
+     "usd_list": 0.137895,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "ece4072374c42a4331ef",
+      "157d7aabbb2adca8f60d~trim"
+     ],
+     "reply": "c8/c82bb466f15c25d6b93a9c32e65ff9f7dddbe950cf2e15202ee45e9d76e346ae.json"
+    },
+    {
+     "at_utc": "17:32:37",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01817245,
+     "usd_list": 0.169015,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "06d34e155feae654ee56",
+      "d6a80171491e2b5395b9~trim"
+     ],
+     "reply": "10/1062c67f02081a8cdfee8a9b67f315b7d1c109846b0c3b12022e13d248b10c15.json"
+    },
+    {
+     "at_utc": "17:32:37",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01867435,
+     "usd_list": 0.169615,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "514455ecf0bd9312e4a4~trim",
+      "b02d5f5e5d7e25cc6d78"
+     ],
+     "reply": "0e/0eddfab2212250c7a0d8aaaf70db77f8f0b4d9d3e9a24b4697da2e815bce64fb.json"
+    },
+    {
+     "at_utc": "17:32:43",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.02144685,
+     "usd_list": 0.199335,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "b04337f6fdffa0029f2d",
+      "a84e4fbdb80b7eba0dfc"
+     ],
+     "reply": "21/219d0fc4676616863d255a9afec25188f2e07b748fe52024a636cbb484174cfb.json"
+    },
+    {
+     "at_utc": "17:33:01",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004088,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "caaa7d94b14bc2e3cc165eb5bbbd5de9041fc20d672da2eee28dfad7fb485913"
+     ],
+     "reply": "be/beeaea3d70cb147cfdb885f73f12d2253c5f08718aeebed47ef91481f5189671.json"
+    },
+    {
+     "at_utc": "17:33:07",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004888,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "c0824a5be96c9060d3cd1f8aebb8975c91f04969472b9b5da0e012cc2fae55ab"
+     ],
+     "reply": "72/72c39615f224b17d5e6dc821464d716b5dbef600087a6edb8ef80dc17c9a1e33.json"
+    },
+    {
+     "at_utc": "17:33:24",
+     "role": "coherence_verdict",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "usd_reported": 0.00045654,
+     "usd_list": 0.00909,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "06d34e155feae654ee56"
+      ]
+     ],
+     "reply": "8e/8ea34c754cff41d2b4e42d55fdf21afb088203ccf3b8e5e76ac48172b6b3a403.json"
+    },
+    {
+     "at_utc": "17:33:36",
+     "role": "shadow86:coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0052456,
+     "usd_list": 0.049405,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "06d34e155feae654ee56"
+      ]
+     ],
+     "reply": "5d/5dc201b038e0eee18f88a51cd349dfc47811f2459d24ca62c156734e89d28bdb.json"
+    },
+    {
+     "at_utc": "17:34:28",
+     "role": "visual_check",
+     "backend": "xai_vision:grok-4.7",
+     "usd_reported": 0.019076,
+     "usd_list": 0.07633,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "On my 20th birthday, I sold every stock in my Roth IRA and put it all into Bitcoin. That ended up be"
+     ],
+     "reply": "c4/c4f6ea6be08780143f68a2b33a4bd8b3f4aa431a053e063f9728f34457223987.json"
+    }
+   ],
+   "usd_reported_by_category": {
+    "first judgment": 0.2735,
+    "shadow (ruling 86)": 0.0096
+   }
+  },
+  "12:40 ET": {
+   "calls": [
+    {
+     "at_utc": "17:40:52",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0111481,
+     "usd_list": 0.096895,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "994b5c8a4b7e00490500",
+      "c9a9722716033dbb9cf6"
+     ],
+     "reply": "6a/6a7381743a1e27589791bf93e5d1d19e54b4d88200734f3f400f9a33c4579b0f.json"
+    },
+    {
+     "at_utc": "17:40:59",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0142531,
+     "usd_list": 0.126925,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "b5980c46a8ca2fe572c7",
+      "c7b73b3449d57df7912a"
+     ],
+     "reply": "0a/0a11ebc5a78d982801932717598358e55aacd58ebed8269e77044da00b8f7eeb.json"
+    },
+    {
+     "at_utc": "17:41:01",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0151406,
+     "usd_list": 0.136685,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "cb80340f857a99178919",
+      "7f9187e95075b8dcb74a"
+     ],
+     "reply": "05/05b925754985103b31ab0dfe17f2211a1e5a25d7abb3bac258f66beef790023f.json"
+    },
+    {
+     "at_utc": "17:41:02",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0151481,
+     "usd_list": 0.13544,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "9e059304bfc5bc1e2d85~trim",
+      "ee12dbbe04fc4b9b1c36"
+     ],
+     "reply": "57/570db292e8ac2afc112da92549ac5d56e0a4fbd1c3b0b9eba6b64ffb7a47413c.json"
+    },
+    {
+     "at_utc": "17:41:13",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01960435,
+     "usd_list": 0.180385,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "88b47fefa2c68c1a227a~trim",
+      "a49592a93a4a81a8d050"
+     ],
+     "reply": "ff/ff94886c70750b198a5ede180c2b938db0330dd3af17185f5f08183b00cb40c6.json"
+    },
+    {
+     "at_utc": "17:41:23",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.002664,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "6235d9058f8b88b3a16513ecce47fc3a1e228d719086665f4f73228951064daa"
+     ],
+     "reply": "09/093500d691c496ad637fb789b10d02e4b2fa3b4c0460adb2f5c860a4bdffd33b.json"
+    },
+    {
+     "at_utc": "17:41:27",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.00262,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "e747a3eb7e765e2c9582d50e6f28fa9791769b3787cfbcea5f1a3bbd5488474a"
+     ],
+     "reply": "d7/d784d5d573cc0cbfe3d1b7055d5e5fcc456f1afdcc4ed63f43e34a20718a6838.json"
+    },
+    {
+     "at_utc": "17:41:32",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.002204,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "70c5228125979ab003ca8c791521a792cad97a5ae66b5e2a382d54ac270c5e41"
+     ],
+     "reply": "fb/fb453d84687337e0fce1d909daac4b1d548b55690ec0ff1abfd68c23132e6331.json"
+    },
+    {
+     "at_utc": "17:41:36",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.003476,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "e7cbf99e39d8eb884ecf99d5745a64cb6dc1bbb59c9407e79ca507efb49fcdee"
+     ],
+     "reply": "0b/0bb72b7cbb6750f08d903ee532495c82d9ce18525e76a04ce6bd32d56dc1461d.json"
+    },
+    {
+     "at_utc": "17:41:57",
+     "role": "coherence_verdict",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "usd_reported": 0.00061441,
+     "usd_list": 0.012171,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "a49592a93a4a81a8d050",
+       "cb80340f857a99178919"
+      ]
+     ],
+     "reply": "91/91baaea01813f2fa86aaa16d3faee91289ce945a63102dcf81cfe37ce5c127ca.json"
+    },
+    {
+     "at_utc": "17:42:14",
+     "role": "shadow86:coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0067506,
+     "usd_list": 0.064215,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "a49592a93a4a81a8d050",
+       "cb80340f857a99178919"
+      ]
+     ],
+     "reply": "46/463ec05f1619a760f53bb178b32d57654842004e89fc7704417f848a01329db3.json"
+    },
+    {
+     "at_utc": "17:44:37",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0129756,
+     "usd_list": 0.114435,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "129d962df2f71d53ef75~trim",
+      "1306d03f2a72fd0af4d0"
+     ],
+     "reply": "02/02dfb0bb394293b32800d5e1ffb4a48ea14443dabc3e79d4e87e38fde480a69f.json"
+    },
+    {
+     "at_utc": "17:44:45",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01644185,
+     "usd_list": 0.149405,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "139139443bdc32ae3e3b~trim",
+      "8ff932fc2cd797f3a4ae"
+     ],
+     "reply": "de/dec622ba926230b09f8b6e2cb3a16e4ca8f765f47ade7c859a69b156ce7f2831.json"
+    },
+    {
+     "at_utc": "17:44:46",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0178956,
+     "usd_list": 0.16344,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "7c5844550969e471cd1f",
+      "f8fa70776de5b2d2e4ac"
+     ],
+     "reply": "1b/1b034894989c7dc6ac95cf52deabff85afff790826e5546fd1b8445eb98f04fc.json"
+    },
+    {
+     "at_utc": "17:44:49",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01885935,
+     "usd_list": 0.17361,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "d62a1004294ea1c5b1e5",
+      "6b33291720bfc3eab9fe"
+     ],
+     "reply": "ed/ed2b718a4f88d378c767fa38d46615aceef54410805d1e30da0ccc57f2a0351a.json"
+    },
+    {
+     "at_utc": "17:45:02",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.00428,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "7887cafa85d318d88d9dc066dc50b589d943dfe41ce74680ccb33a12ce4a63a7"
+     ],
+     "reply": "48/4820952a755f3c7172cfaa83d20d8387f04519e42f552ac1e612fc1429f6cc7b.json"
+    },
+    {
+     "at_utc": "17:45:11",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004394,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "c23820aeaa1da8cb8fb003498802a911b3ee6671f6e2144df9aa9608cef97408"
+     ],
+     "reply": "d2/d2cb5b645afce02363d7f6f52c0ead187c7a3afb7288f8c1a1a612a78b05cd98.json"
+    },
+    {
+     "at_utc": "17:45:15",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.005282,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "263cbd9faa4e55e7d61cab38504e31871f7c3d43b622c127b10f936b565555a9"
+     ],
+     "reply": "6f/6f8268a63a2182ec935cca3db106bc39a986ade2b31076727999a32bd6381c7a.json"
+    },
+    {
+     "at_utc": "17:45:16",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.00655,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "144fe3f1673e1613c8e74e7db31cac5804f9fcf9a4633806c6cfc2de5c03cf81"
+     ],
+     "reply": "56/56582f7cb1c295d2fe7698b85314fb2c0d31708acc7dd8719069ed68aaaa988f.json"
+    },
+    {
+     "at_utc": "17:45:40",
+     "role": "coherence_verdict",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "usd_reported": 0.00063971,
+     "usd_list": 0.012699,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "1306d03f2a72fd0af4d0",
+       "7c5844550969e471cd1f"
+      ]
+     ],
+     "reply": "d6/d6770d4f7949f497dcf8a0011457a6486c9d2178cb626885e921d6b909e33b0f.json"
+    },
+    {
+     "at_utc": "17:45:54",
+     "role": "shadow86:coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0066056,
+     "usd_list": 0.062165,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "1306d03f2a72fd0af4d0",
+       "7c5844550969e471cd1f"
+      ]
+     ],
+     "reply": "6d/6dfffa987e4837595fdf1b7275698dc6bf146d4351b3cb7363da72d37af03580.json"
+    }
+   ],
+   "usd_reported_by_category": {
+    "first judgment": 0.1427,
+    "shadow (ruling 86)": 0.0134
+   }
+  },
+  "13:34 ET": {
+   "calls": [
+    {
+     "at_utc": "18:35:00",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01199435,
+     "usd_list": 0.104915,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "f083d3f96ba2ff322ff5",
+      "dd82d548eb807dbd16c9"
+     ],
+     "reply": "62/627dc000ea9643ffd43a96ede9b7811e775a5d72d00ae1a893064e526275c76d.json"
+    },
+    {
+     "at_utc": "18:35:05",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0131606,
+     "usd_list": 0.11585,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "5bc4d12aa667407bed6c",
+      "5bc4d12aa667407bed6c~trim"
+     ],
+     "reply": "62/62cc66e43c126ec3ca9a35277274a902d726e8cf8cef81e5af09c864f23f7db2.json"
+    },
+    {
+     "at_utc": "18:35:14",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0160031,
+     "usd_list": 0.14885,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "1cccbd3811e8eb70e748"
+     ],
+     "reply": "1c/1cbfa8147b10262c655240606f2850a6a9f38bc60438158f9ffd5867eacff124.json"
+    },
+    {
+     "at_utc": "18:35:17",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01792685,
+     "usd_list": 0.16328,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "7d9a721942de505c5d4f",
+      "f63eb650af0400385f9f"
+     ],
+     "reply": "d3/d3102c63bf1208e5421414c3f7a0772cc7b47f461bd6d936ea82bf42b8ea85e9.json"
+    },
+    {
+     "at_utc": "18:36:23",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01925185,
+     "usd_list": 0.176605,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "7d4beb6e36508e978089",
+      "9e059304bfc5bc1e2d85"
+     ],
+     "reply": "d1/d1b7c75af8b873fa36edd1de8e8bdc9ced25bbd965e72f00fcbf07e3a0d20784.json"
+    },
+    {
+     "at_utc": "18:40:57",
+     "role": "context_verdict",
+     "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+     "usd_reported": 0.00223149,
+     "usd_list": 0.197817,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "30075b155874ab2de3c7",
+      "933f9d33a8e345356177",
+      "b3ad2b8356e4a8d70dd9",
+      "a49592a93a4a81a8d050",
+      "ec4c0ff49fdb895ef08e",
+      "22018cf6e0db2d846def",
+      "cb80340f857a99178919",
+      "eb402a210905c778432d"
+     ],
+     "reply": "1b/1bc12f7744bca5799eb26256f2917c99b243b14425e6b4ad30ae45f7d5234f2a.json"
+    },
+    {
+     "at_utc": "18:41:48",
+     "role": "shadow86:context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.03034685,
+     "usd_list": 0.257915,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [
+      "09:55",
+      "11:29",
+      "12:03",
+      "12:24",
+      "12:40"
+     ],
+     "subjects": [
+      "30075b155874ab2de3c7",
+      "933f9d33a8e345356177",
+      "b3ad2b8356e4a8d70dd9",
+      "a49592a93a4a81a8d050",
+      "ec4c0ff49fdb895ef08e",
+      "22018cf6e0db2d846def",
+      "cb80340f857a99178919",
+      "eb402a210905c778432d"
+     ],
+     "reply": "52/52a2dedf425cae7cda74a9abaeb4c62566de2786b5cc30aa8f82f47ffa609d26.json"
+    },
+    {
+     "at_utc": "18:44:23",
+     "role": "angle_write",
+     "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+     "usd_reported": 0.00174792,
+     "usd_list": 0.138459,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "22018cf6e0db2d846def",
+       "30075b155874ab2de3c7",
+       "4effcd61b4b012e82945",
+       "704fa6e1af4a86ff1d07",
+       "933f9d33a8e345356177",
+       "a49592a93a4a81a8d050",
+       "b3ad2b8356e4a8d70dd9",
+       "cb80340f857a99178919",
+       "eb402a210905c778432d",
+       "ec4c0ff49fdb895ef08e"
+      ]
+     ],
+     "reply": "60/60443c34e28cca9f2e905d6e34c7f5fed21d3c4aeedbdcebe4f4cfe2ea7cde4c.json"
+    },
+    {
+     "at_utc": "18:44:38",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.00626935,
+     "usd_list": 0.058315,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "be/beaef68ab46f3857a10267b134f259d71521687d2f8c26d0ff23da3fce2fd130.json"
+    },
+    {
+     "at_utc": "18:44:52",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.00669185,
+     "usd_list": 0.062405,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "2c/2cb8d8f01ff8f9a9faa1b7126fdd69964906a9dd3b558b8086df85859820d476.json"
+    },
+    {
+     "at_utc": "18:45:03",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.00555185,
+     "usd_list": 0.05114,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "3f/3fda0bec8a9a3a38fafd44172d7c92e41cb714f7761b78f6259ca9a1fe0ba185.json"
+    },
+    {
+     "at_utc": "18:45:26",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.00926245,
+     "usd_list": 0.09013,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "0c/0c7de2c60d3cb0eccd1c3595a007e6852b5fd9af5f62cf6b13ef19b2ca89b89f.json"
+    },
+    {
+     "at_utc": "18:45:43",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0067787,
+     "usd_list": 0.06536,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "0d/0dcb8923626f101eebe0762f696e3905d5e44c9049503238396d2131d4569ea2.json"
+    },
+    {
+     "at_utc": "18:46:05",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.00806495,
+     "usd_list": 0.077975,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "80/80419d714879c5154ba407d3789e767a24ab141ff0ad13ced3d86e119ff97c76.json"
+    },
+    {
+     "at_utc": "18:46:14",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0044381,
+     "usd_list": 0.040445,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "62/629a5b166cf2b8606e17e53a2372136f7407f2ea844588f47694cf116534a156.json"
+    },
+    {
+     "at_utc": "18:46:56",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0168081,
+     "usd_list": 0.151485,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "dab001bab2343f1968cb",
+      "0c36a4488b906f2e4eaf"
+     ],
+     "reply": "80/80263444f3735b8e3969d0dcb3a54bf5564cc5cf2fa90fba5e68bef935d19e86.json"
+    },
+    {
+     "at_utc": "18:46:56",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01542185,
+     "usd_list": 0.139145,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "1abf62635b6422bce8dd",
+      "902fb9c0b9b1ac6335d7~trim"
+     ],
+     "reply": "2b/2bed3e215d0e96544b19d3068565dcf497b124f0e613b13cb3db1e7019bab1da.json"
+    },
+    {
+     "at_utc": "18:46:59",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0172931,
+     "usd_list": 0.15629,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "ae50e01f802ee33c2807~trim",
+      "e961be05baa6f473fd66"
+     ],
+     "reply": "59/592ae4add2d07fd960db5d5704ca6202ab80d7dd92d1f7a5c9d41353f5e8b207.json"
+    },
+    {
+     "at_utc": "18:47:01",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0181881,
+     "usd_list": 0.166245,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "2e21c7dc76f2cffa169f~trim",
+      "7ba59050e5ee6fcd14bb"
+     ],
+     "reply": "99/99aa6f4e6737a044f89d3bfac17c4d0a09516937a34a392db0d9fbed91e367ea.json"
+    },
+    {
+     "at_utc": "18:47:08",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004254,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "f1291426ebe647129dc108d13be9595b804c9234ebcde85d0ef5a2ee376b0413"
+     ],
+     "reply": "7d/7dfbe5b763690884a0fd0bbfc23a9137782a11384b9c2f258fddc7a97e28e818.json"
+    },
+    {
+     "at_utc": "18:47:22",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004184,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "2c7bd4fbc99724d88bede1800a6e2a4911ff1a42ed8901c1bf847c08f37254b2"
+     ],
+     "reply": "ad/ada0bd960b35338db9a999dea557a17d49b571bcbf658c64e370283299601230.json"
+    },
+    {
+     "at_utc": "18:47:42",
+     "role": "coherence_verdict",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "usd_reported": 0.00046974,
+     "usd_list": 0.009339,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "0c36a4488b906f2e4eaf"
+      ]
+     ],
+     "reply": "9b/9bef805293301e8a6518de1b8769ff020a6381195b9b9caf2bd8c5037b822cd9.json"
+    },
+    {
+     "at_utc": "18:47:55",
+     "role": "shadow86:coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.00587435,
+     "usd_list": 0.055715,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "0c36a4488b906f2e4eaf"
+      ]
+     ],
+     "reply": "13/137702882c16a3bd5e4c0eb4af884fb01270bfb2fab142392c58a3b785170116.json"
+    },
+    {
+     "at_utc": "18:49:48",
+     "role": "context_verdict",
+     "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+     "usd_reported": 0.00107899,
+     "usd_list": 0.084453,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "06d34e155feae654ee56"
+     ],
+     "reply": "41/41f5d10b6191a66b0247bfdfe467c5fdb93b3ad59e84a888ebe63b0bfe37588d.json"
+    },
+    {
+     "at_utc": "18:49:53",
+     "role": "visual_check",
+     "backend": "xai_vision:grok-4.7",
+     "usd_reported": 0.004968,
+     "usd_list": 0.01892,
+     "category": "REPEAT",
+     "first_seen_in": [
+      "12:24"
+     ],
+     "subjects": [
+      "On my 20th birthday, I sold every stock in my Roth IRA and put it all into Bitcoin. That ended up be"
+     ],
+     "reply": "e2/e20a90f9b2580f89430e9def393fb4e7006008623e06751528427318f08ab5f7.json"
+    },
+    {
+     "at_utc": "18:50:01",
+     "role": "exclusion_verdict",
+     "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+     "usd_reported": 8.86e-05,
+     "usd_list": 0.005865,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "d2/d2b518661044b2cd7485966bc535f81710bfbeacdd98725c83b153d9de16f8f6.json"
+    },
+    {
+     "at_utc": "18:50:05",
+     "role": "shadow86:exclusion_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.00245685,
+     "usd_list": 0.01998,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "3f/3ff87dc402de2428d4b2b802f4458345076a534f7e895fc29afb6687e7fe09a4.json"
+    },
+    {
+     "at_utc": "18:50:18",
+     "role": "shadow86:context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0142981,
+     "usd_list": 0.13384,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [
+      "12:24"
+     ],
+     "subjects": [
+      "06d34e155feae654ee56"
+     ],
+     "reply": "21/21bbcd6edda9d86dcc83716cd4df0b18b3147688e982d82949f70075be20456b.json"
+    }
+   ],
+   "usd_reported_by_category": {
+    "first judgment": 0.1516,
+    "shadow (ruling 86)": 0.053,
+    "first judgment (no reusable subject)": 0.0471,
+    "REPEAT": 0.005
+   }
+  },
+  "14:20 ET": {
+   "calls": [
+    {
+     "at_utc": "19:21:51",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01302935,
+     "usd_list": 0.119435,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "baf4bf24c2aa35df4c49"
+     ],
+     "reply": "ae/ae2db42175684dd6a088b76d4410e97b400e042ab95f02e58864c2bc95df904e.json"
+    },
+    {
+     "at_utc": "19:25:14",
+     "role": "context_verdict",
+     "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+     "usd_reported": 0.00178138,
+     "usd_list": 0.13758,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "9e059304bfc5bc1e2d85",
+      "eb0fd778800d99d16559",
+      "5725aeda167432775db9"
+     ],
+     "reply": "52/525841fd0a60fba0f1c7f7a7492c5d84c8689e8656870ae964247b2665e6103d.json"
+    },
+    {
+     "at_utc": "19:25:51",
+     "role": "shadow86:context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0181931,
+     "usd_list": 0.160295,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [
+      "09:55",
+      "12:03",
+      "13:34"
+     ],
+     "subjects": [
+      "9e059304bfc5bc1e2d85",
+      "eb0fd778800d99d16559",
+      "5725aeda167432775db9"
+     ],
+     "reply": "f6/f6d18e396415afe8257329ab7eb0ccf567b336da9059c2a8ee0d58530f877b71.json"
+    },
+    {
+     "at_utc": "19:28:23",
+     "role": "angle_write",
+     "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+     "usd_reported": 0.0013521,
+     "usd_list": 0.105444,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "22018cf6e0db2d846def",
+       "30075b155874ab2de3c7",
+       "4effcd61b4b012e82945",
+       "5725aeda167432775db9",
+       "704fa6e1af4a86ff1d07",
+       "933f9d33a8e345356177",
+       "9e059304bfc5bc1e2d85",
+       "a49592a93a4a81a8d050",
+       "b3ad2b8356e4a8d70dd9",
+       "cb80340f857a99178919",
+       "eb0fd778800d99d16559",
+       "eb402a210905c778432d",
+       "ec4c0ff49fdb895ef08e"
+      ]
+     ],
+     "reply": "54/549b236b5e89b8fef429ddc070b0b2965181018500e22a5c4467cc8c68a8aef3.json"
+    },
+    {
+     "at_utc": "19:28:46",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0092231,
+     "usd_list": 0.08765,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "2d/2dd2a5666536388fbb831daada79790651047729a807751f0ef4531146edc9f2.json"
+    },
+    {
+     "at_utc": "19:28:59",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0058906,
+     "usd_list": 0.054415,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "02/0271205e1c53797e4a76b04de593ea6e958e228513013301dd335e3532968719.json"
+    },
+    {
+     "at_utc": "19:29:12",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0058981,
+     "usd_list": 0.054385,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "de/def07f824364998c181c26d45bbc3136a989ba6e586fc7e900ad5efafb0b0575.json"
+    },
+    {
+     "at_utc": "19:29:36",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0094256,
+     "usd_list": 0.09047,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "a9/a9a6f0bc90ed25a3d96acb683574e2f2e6dfbffbeef1c068f2aaef976b004795.json"
+    },
+    {
+     "at_utc": "19:30:18",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0145081,
+     "usd_list": 0.129895,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "7db867b846e84a4ab586",
+      "a09d2e1fa91290142664~trim"
+     ],
+     "reply": "65/6549c4cf27702e4bc7f1efccf82699726dff426ed49b1f20c0c213432e9dc55c.json"
+    },
+    {
+     "at_utc": "19:30:26",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0196956,
+     "usd_list": 0.17823,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "023cca5f86cc39618300~trim",
+      "2cf9382f1209dea701c0~trim"
+     ],
+     "reply": "25/25ac69d92fd5012f3c3db6b352803560ba192150df802ce85eb66c3d36ef5d12.json"
+    },
+    {
+     "at_utc": "19:30:30",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0201206,
+     "usd_list": 0.1856,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "ff3a74144dc1f9220038",
+      "df978d34fe61f7830a1d~trim"
+     ],
+     "reply": "ae/aef5dd24589c09be505594d892991fb25a0c042ad2816a99f105ed114a6418e5.json"
+    },
+    {
+     "at_utc": "19:30:30",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01884185,
+     "usd_list": 0.176915,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "a3bd7b1f28874036fe53"
+     ],
+     "reply": "ed/ed5a5b3e358ab11bf2ef435e3c1f8ce9114cf8cf5ca9aa1d9796fcbef6989d36.json"
+    },
+    {
+     "at_utc": "19:30:44",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004602,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "85a6af7fe188fb5418db80fce069906c225d7cd0705038a3f8ddc152cd857bb4"
+     ],
+     "reply": "50/50aba3aff97d25469983189378620044b6cab07ad68678de89b54a36b57c5329.json"
+    }
+   ],
+   "usd_reported_by_category": {
+    "first judgment": 0.0893,
+    "shadow (ruling 86)": 0.0182,
+    "first judgment (no reusable subject)": 0.0304
+   }
+  },
+  "18:01 ET": {
+   "calls": [
+    {
+     "at_utc": "23:02:31",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0086156,
+     "usd_list": 0.074795,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "0c15358fb84ecdeca26f"
+     ],
+     "reply": "87/872b1cb2f02787f0ed1b57459cccd400002142175ec78b73db54bc6c3575c752.json"
+    },
+    {
+     "at_utc": "23:03:44",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0147656,
+     "usd_list": 0.130745,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "266e7687898e26a9fa27",
+      "408ef969709952011d0d"
+     ],
+     "reply": "67/6749e75011c39e684068fe4d3d10480f0f0fc1dd5ec64834aae9f16cec745e46.json"
+    },
+    {
+     "at_utc": "23:03:54",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004772,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "33a2f9cac8498be09fefbb13830672dfa5ae38de93d16187549d70b9762bfc2a"
+     ],
+     "reply": "99/993d74b4fe1e1320351b287b9ab1fbafdace0d18e129ae54659a666d02cb825a.json"
+    },
+    {
+     "at_utc": "23:03:54",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.003236,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "eacce1c925e70ffe0914ed36446713c732518c261e4265e5ac38b3eab6964e02"
+     ],
+     "reply": "e4/e41e337018302c07d3b50a0d3f71bd6982481bd6be09ff460d3c81752700ce63.json"
+    },
+    {
+     "at_utc": "23:04:09",
+     "role": "coherence_verdict",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "usd_reported": 0.00034803,
+     "usd_list": 0.006957,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "408ef969709952011d0d"
+      ]
+     ],
+     "reply": "2b/2b6cc6fbd008f584a24601fe8caa6ed96524e4c12a3c4c7a6bfb1a4babccc21b.json"
+    },
+    {
+     "at_utc": "23:04:18",
+     "role": "shadow86:coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0038731,
+     "usd_list": 0.036115,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "408ef969709952011d0d"
+      ]
+     ],
+     "reply": "c6/c61f30696729a30106925fd73a62520fb6f257ff28394bab78fd50e29aa5f1af.json"
+    },
+    {
+     "at_utc": "23:06:03",
+     "role": "context_verdict",
+     "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+     "usd_reported": 0.00096534,
+     "usd_list": 0.074706,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "408ef969709952011d0d"
+     ],
+     "reply": "fc/fc66142ebe5a200dc0dbb8ab3688d49d53bc6a9907ce992f0f548fa6b92509a7.json"
+    },
+    {
+     "at_utc": "23:06:23",
+     "role": "shadow86:context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01006685,
+     "usd_list": 0.089525,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [
+      "408ef969709952011d0d"
+     ],
+     "reply": "5c/5c08d966893374f07bef48b2293d80ed53e52288202ae204f3d5aa2be6138d5b.json"
+    },
+    {
+     "at_utc": "23:09:46",
+     "role": "angle_write",
+     "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+     "usd_reported": 0.00167104,
+     "usd_list": 0.134775,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "22018cf6e0db2d846def",
+       "30075b155874ab2de3c7",
+       "408ef969709952011d0d",
+       "4effcd61b4b012e82945",
+       "5725aeda167432775db9",
+       "704fa6e1af4a86ff1d07",
+       "933f9d33a8e345356177",
+       "9e059304bfc5bc1e2d85",
+       "a49592a93a4a81a8d050",
+       "b3ad2b8356e4a8d70dd9",
+       "cb80340f857a99178919",
+       "eb0fd778800d99d16559",
+       "eb402a210905c778432d",
+       "ec4c0ff49fdb895ef08e"
+      ]
+     ],
+     "reply": "1e/1ef3c4dca95c0f3505e74e64dea295b6237fc61207c804ae11f9a352eab39c7f.json"
+    },
+    {
+     "at_utc": "23:10:04",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0082381,
+     "usd_list": 0.078115,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "74/74950170c42780a3802cb2b5abba3a7cbeb7435ba48f246afee9abe7a526ea42.json"
+    },
+    {
+     "at_utc": "23:10:28",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.00983435,
+     "usd_list": 0.093935,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "6f/6f5d426ee7ca0d883a8c4f1a13ec46be8489f1e3ee360d5565c231e5c29b94f5.json"
+    },
+    {
+     "at_utc": "23:10:36",
+     "role": "exclusion_verdict",
+     "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+     "usd_reported": 9.523e-05,
+     "usd_list": 0.005964,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "57/57b1f8241bfd2bc4fa865dfec71f372999a073bcf015f1a7ad7191215af4b622.json"
+    },
+    {
+     "at_utc": "23:10:37",
+     "role": "exclusion_verdict",
+     "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+     "usd_reported": 0.00010032,
+     "usd_list": 0.006234,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "1b/1b6d8ec95d4a42cd50e42bd41a722e201eeff517680f4ce7a09ad46758fc4903.json"
+    },
+    {
+     "at_utc": "23:10:41",
+     "role": "shadow86:exclusion_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0030281,
+     "usd_list": 0.02411,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "23/232e2893fcd496742c26bad08a52f161065a1aacca60eec10fc3f8a50d79bb6d.json"
+    },
+    {
+     "at_utc": "23:10:42",
+     "role": "shadow86:exclusion_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0029756,
+     "usd_list": 0.02318,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "26/263a302a24a8e0a64db27c0958a9479ec01dae15f9a8ba0ad9b5613bb9b1be50.json"
+    },
+    {
+     "at_utc": "23:10:43",
+     "role": "exclusion_verdict",
+     "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+     "usd_reported": 0.00015736,
+     "usd_list": 0.010602,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "c3/c371f90d2714fff5ee1922c0d42eb84f3c1d4330e9cbe342e3c3c4b3f2faa2db.json"
+    },
+    {
+     "at_utc": "23:10:52",
+     "role": "shadow86:exclusion_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0052931,
+     "usd_list": 0.0455,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "b7/b7e1aef016602922b33f8f2322959ecfd379b89fb8ef038e76111f0837750ced.json"
+    },
+    {
+     "at_utc": "23:11:03",
+     "role": "exclusion_verdict",
+     "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+     "usd_reported": 0.00029283,
+     "usd_list": 0.021795,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "f8/f81f91d7f1bdcb78babb6ddb111cca440273b112734568e8d700155bc50147cd.json"
+    },
+    {
+     "at_utc": "23:11:13",
+     "role": "shadow86:exclusion_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.00558435,
+     "usd_list": 0.049215,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "18/18fbeba1b74f9dd93a4d04eaf4eda58549b43bd81f3ce9016ea620c65f2e071e.json"
+    },
+    {
+     "at_utc": "23:12:48",
+     "role": "visual_check",
+     "backend": "xai_vision:grok-4.7",
+     "usd_reported": 0.048534,
+     "usd_list": 0.199275,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "People don't understand Bitcoin is capital. They don't understand his digital credit, is mispriced,"
+     ],
+     "reply": "ea/ea6b110501ac291f848c11d75ca5a6d02e48329fb6595b042b8bdea5714e1145.json"
+    },
+    {
+     "at_utc": "23:13:49",
+     "role": "visual_check",
+     "backend": "xai_vision:grok-4.7",
+     "usd_reported": 0.079166,
+     "usd_list": 0.326805,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "For me, you can ask me my opinion, or I can just tell you what's in my portfolio. And it's Bitcoin,"
+     ],
+     "reply": "e7/e7f67af55f423ca9d3d09fef3d192fc90285a156c12a28ee8fb2abca0ff9e29a.json"
+    },
+    {
+     "at_utc": "23:15:12",
+     "role": "visual_check",
+     "backend": "xai_vision:grok-4.7",
+     "usd_reported": 0.122182,
+     "usd_list": 0.506125,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "I don't believe that meme coins are going to flip Bitcoin like some people have said before in the p"
+     ],
+     "reply": "da/da2224e88d46c0ca4055018daa61c05da5beb82fbb0181298a8a1579c318b431.json"
+    },
+    {
+     "at_utc": "23:15:58",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0174356,
+     "usd_list": 0.160475,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "77f48524f35281ea375b",
+      "3f20de5b328db9e489dd~trim"
+     ],
+     "reply": "80/80e4dd4605b56ab7d5a8fb56bbf86a0ce8151f18af06704b92f7983d3fc5badd.json"
+    },
+    {
+     "at_utc": "23:16:00",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01865185,
+     "usd_list": 0.170485,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "f0bdd696014300f2a46f~trim",
+      "c7a3e8d31e80d7f4ac66~trim"
+     ],
+     "reply": "42/42fc6a7dd729b1ea10a806dbfc78d7cf125092f768bfd678bfc17ee22ef3872a.json"
+    },
+    {
+     "at_utc": "23:16:00",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01856435,
+     "usd_list": 0.16964,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "879fa6d224b9cc309933~trim",
+      "b707975a220b3a29d85a~trim"
+     ],
+     "reply": "2c/2cf06c31c61a5cb5cf9ad8e39a8a1c3ede97a0ce4e7dc4516c465e95f7da4147.json"
+    },
+    {
+     "at_utc": "23:16:07",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.004752,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "0fec6f22c3c77df9a2d232d060195a64dbcac7ef36df40f58fea5c1206dc62bd"
+     ],
+     "reply": "bb/bb50b85fb54e5c4c7390ac35d100d974a7acea40ae04a05985233b34c872799e.json"
+    },
+    {
+     "at_utc": "23:16:20",
+     "role": "transcribe",
+     "backend": "elevenlabs_stt:scribe_v1",
+     "usd_reported": null,
+     "usd_list": 0.005356,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      "2e8f3adf8bc2d5f4af1a59ea2a96fa1f06b0498db33d6840ef2dc87c155d0521"
+     ],
+     "reply": "f3/f3a5ba572366f98142eb617c23deace4f739894c0289d2cd08b58cf1f6bd7d0b.json"
+    },
+    {
+     "at_utc": "23:20:17",
+     "role": "angle_write",
+     "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+     "usd_reported": 0.00128836,
+     "usd_list": 0.101448,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "06d34e155feae654ee56"
+      ]
+     ],
+     "reply": "6d/6d7e92ef737c5aa8085a38d2383f90546dbce9e21ab5035d1c5f2de7399edcd8.json"
+    },
+    {
+     "at_utc": "23:21:58",
+     "role": "angle_write",
+     "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+     "usd_reported": 0.00082937,
+     "usd_list": 0.064323,
+     "category": "REPEAT",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "06d34e155feae654ee56"
+      ]
+     ],
+     "reply": "93/9307417c2e9efd91244a89e9da951544ab0871db3e3f56e7388e0ea102bf01d8.json"
+    },
+    {
+     "at_utc": "23:22:08",
+     "role": "viewer_takeaway",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.0046656,
+     "usd_list": 0.042855,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "34/3443342221458725231053c5e3ddffb0e47ddb722c97705014279c12d214d521.json"
+    },
+    {
+     "at_utc": "23:22:10",
+     "role": "coherence_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.00541435,
+     "usd_list": 0.05137,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "8f/8f7958d86de26a09b08b0bc2bd373e6a32c0a6168c30c7e7d560972a3699e4c5.json"
+    },
+    {
+     "at_utc": "23:22:17",
+     "role": "viewer_takeaway",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.00488185,
+     "usd_list": 0.04453,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "14/146345a1611750674863048e7aaafc3aa2926f988ebc5ae5de36380b72624754.json"
+    },
+    {
+     "at_utc": "23:22:31",
+     "role": "fidelity_verdict",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "usd_reported": 0.00111427,
+     "usd_list": 0.022086,
+     "category": "first judgment",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "06d34e155feae654ee56"
+      ]
+     ],
+     "reply": "d2/d2458eaf342b48ba13c9859d9a5a173e8adc804c122f9c44d4a82aee0e4a70f3.json"
+    },
+    {
+     "at_utc": "23:22:34",
+     "role": "fidelity_verdict",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "usd_reported": 0.00239212,
+     "usd_list": 0.052371,
+     "category": "REPEAT",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "06d34e155feae654ee56"
+      ]
+     ],
+     "reply": "a6/a6ac75861200430ecef02ffb7b08d63af30f119391cc74be24243f81efb1b60f.json"
+    },
+    {
+     "at_utc": "23:22:41",
+     "role": "context_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01133185,
+     "usd_list": 0.107245,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "20/20eb26d15c56b7c708421693b9b1b7821de27c2dff4e661840539cab94d5a95b.json"
+    },
+    {
+     "at_utc": "23:22:58",
+     "role": "shadow86:fidelity_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01226685,
+     "usd_list": 0.11604,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "06d34e155feae654ee56"
+      ]
+     ],
+     "reply": "57/57e6d169f3b0510ac4aacda3a51c1530e181d83dfb68b4fead51cdca41100b70.json"
+    },
+    {
+     "at_utc": "23:23:04",
+     "role": "speaker_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.01154185,
+     "usd_list": 0.10507,
+     "category": "first judgment (no reusable subject)",
+     "first_seen_in": [],
+     "subjects": [],
+     "reply": "76/76f786f73bbf6408735e83c964bc931864d92d886cef0e56b6da433964f96ad2.json"
+    },
+    {
+     "at_utc": "23:23:33",
+     "role": "shadow86:fidelity_verdict",
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "usd_reported": 0.02543435,
+     "usd_list": 0.247205,
+     "category": "shadow (ruling 86)",
+     "first_seen_in": [],
+     "subjects": [
+      [
+       "06d34e155feae654ee56"
+      ]
+     ],
+     "reply": "62/62fc0d07df31e810882e1a4bc5f9fb0279bcf83f91bb08e215da2f3a0aaac0c8.json"
+    }
+   ],
+   "usd_reported_by_category": {
+    "first judgment": 0.3333,
+    "shadow (ruling 86)": 0.0685,
+    "first judgment (no reusable subject)": 0.0566,
+    "REPEAT": 0.0032
+   }
+  }
+ }
+}

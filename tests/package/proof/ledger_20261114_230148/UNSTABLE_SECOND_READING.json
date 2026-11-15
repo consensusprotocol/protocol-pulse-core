@@ -123,5 +123,25 @@
    "pass": true
   }
  },
- "adjudicated": "401k, the lock's token: all three tests hold, so under ruling 105 the clip may seal"
+ "adjudicated": "401k, the lock's token: all three tests hold, so under ruling 105 the clip may seal",
+ "builder_scribe_readings": {
+  "note": "the builder's own transcript-truth calls to the same recogniser (scribe_v1) on its OWN cut of the same span: a different audio file (its own sha), so they are not the pre-check's 'SAME audio' series of test (2); recorded for completeness",
+  "readings": [
+   {
+    "recogniser": "elevenlabs scribe_v1",
+    "at": "2026-11-14T17:33:07Z",
+    "role": "transcribe (CUTTABLE, transcript_truth)",
+    "audio_sha256": "c0824a5be96c9060d3cd1f8aebb8975c91f04969472b9b5da0e012cc2fae55ab",
+    "audio_s": 24.44,
+    "reading": "401k",
+    "word": {
+     "text": "401k,",
+     "start": 16.54,
+     "end": 16.82
+    },
+    "call_id": null,
+    "record": "tests/package/fixtures/replies (role transcribe, recorded_at 2026-11-14T17:33:07Z)"
+   }
+  ]
+ }
 }
