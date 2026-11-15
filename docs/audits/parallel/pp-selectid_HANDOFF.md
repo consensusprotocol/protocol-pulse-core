@@ -239,8 +239,10 @@ cd /home/ultron/worktrees/pp-selectid && python3 -B tests/package/proof_ledger.p
   `spotlight` and `next_attempt`), package.log, step_a.json.
 - A medley pin is MOMENTS_PIN_LEDGER.json; a spotlight pin is SPOTLIGHT_PIN.json, and a row in
   `tests/package/proof/SPOTLIGHTS.json`.
-- Commit each build's record (data, no audit) with STATE, `CANDIDATES.json`, the caches, `SPEND_LY.json` and new
-  `tests/package/fixtures/replies/*` recordings.
+- Commit each build's record (data, no audit) with STATE, `CANDIDATES.json`, the caches, `SPEND_B3.json`,
+  `BATCH3_LEDGER.json`, the deadline log and new `tests/package/fixtures/replies/*` recordings (not the
+  `gate_replies/` the integrator's gate adapter writes, and never runtime state: `*.lock`, BREAKERS.json,
+  HEIMDALL_HEALTH.json, DEADLINE_TABLE.json, judge_requests/).
 - A build that judges nothing new costs nothing: every verdict is cached or recorded.
 
 ### 3.2 The ledger watcher (re-create it: the old session's background shells died with it)
@@ -301,6 +303,15 @@ clips close it (ruling 76).
   reported spend, which they put on their own STATE line 1 each hour. The all-in cap is $8.00 (builds and sealing
   $4.50, audits $2.50, mining and checks $1.00).
 - At $6.00 all-in, say so on line 1 in CAPITALS. At $7.50 it is "ALARM FOR PBX: ..." on line 1 (ruling 106 (d)).
+- RESERVATIONS: while a paid call is in flight the guard holds its LIST-price upper bound (a Grok step-A call is
+  about $0.85: prompt + 8 x max_tokens of reasoning). Under $4.50 only about four fit at once, and step A runs six
+  (package.PRESCREEN_WORKERS). The ledger build's router therefore WAITS for calls in flight before refusing a call
+  that fits by itself (Router reserve_wait_s = proof_ly.RESERVE_WAIT_S, 600 s; 7a2ddf91). Before that, builds 1-2
+  held 65 moments on SpendLimit while under $0.30 was spent ($0.02 and $0.27). Every other Router (the render's) keeps reserve_wait_s 0: refused
+  at once. Lower the limit, or raise the parallelism, and this headroom must be checked again.
+- proof_ly.meter wraps Router._settle and must pass every keyword on (**kw). Its old signature turned each call
+  abandoned at its deadline into a TypeError hold and lost 3 glm bookings; they were booked by hand
+  (`restated_b3_meter` in SPEND_B3.json, +$0.086).
 - Line 1, every build: 'BATCH 3: $x of $8.00 (builds $a, audits $b, mining $c); videos sealed n; cost per sealed
   video $y'.
 
@@ -467,6 +478,12 @@ then `bash regression_test.sh` (26 PASS, 0 FAIL, 5 WARN).
 4. **Re-measure ruling 92's 1.0 turns-a-minute line** after 20 spotlights' worth of episodes, and tell the
    orchestrator. A data point is on record: Stephan Livera's interview podcast measured 0.61.
 5. **Re-run the replay** (`tests/package/replay85.py`) monthly or when a Heimdall model changes (ruling 96).
+5a. **Ruling 109's count is not in the build record:** spotlight.build sets out["ruling_109"], but
+    proof_ledger copies only listed spotlight keys (`res["spotlight"] = {k: sp.get(k) for k in (...)}`), so
+    package.json lacks it. Until it is added (a code change: test it, audit it), count the moments whose
+    spotlight `out` says "(ruling 109)", and look each one's moment id (a snapped span or a trim has its own id) up
+    in STEP_A_CACHE.json to tell a first-screen call saved from a cached verdict. Build 2 of batch 3: 49 stopped,
+    4 uncached ($0.03 saved at $0.0075 a moment).
 6. **Ruling 97 is answered** (STATE 01:41): nothing to build unless the orchestrator rules otherwise.
 7. **Done tonight:**
    - rulings 85-88 + 96 (125e7381, audit 0108);
@@ -501,6 +518,13 @@ then `bash regression_test.sh` (26 PASS, 0 FAIL, 5 WARN).
 - A scratch copy's git base must include every file you edit, or that file's change never reaches the audited diff (also `git add -N` new files).
 - Never swap files in a scratch copy while suites run in it.
 - `pkill -f <pattern>` matching your own shell kills the shell (exit 144): use `ps -eo pid,args` + awk.
+- The same self-match breaks an "is a build running?" guard: `ps -eo args | grep '[p]roof_ledger.py'` matches the
+  shell that launches the build, so the build never starts. Guard on the process name:
+  `ps -eo comm=,args= | awk '$1 ~ /^python/ && $0 ~ /proof_ledger\.py/' | grep -q .`
+- A wrapper over a Router method must take and pass `*a, **kw`: a new keyword in the router (ruling 107 Q1's
+  `unreported`) otherwise raises inside the router and holds every call that reaches that path.
+- A spend limit below (parallel calls x a call's upper bound) refuses calls at once unless the router waits
+  (reserve_wait_s): read the SpendLimit message's "reserved" figure before blaming the spend.
 - `-f` and `push` in one command are blocked by the pre_bash hook: push in its own command.
 - New `test_*` files are git-ignored: `git add -f`.
 - The stop hook flags OTHER sessions' main-tree files: never commit them.
@@ -735,15 +759,17 @@ if __name__ == "__main__":
 
 ## Appendix B: the batch-3 ledger keeper (copy to `<your scratchpad>/batch3.py`)
 
-`python3 -B batch3.py --other integrator=<usd> --other pp-ingest=<usd> [--sealed N]` writes BATCH3_LEDGER.json and
-prints line 1's figure.
+`python3 -B batch3.py --other integrator=<usd> --other pp-ingest=<usd> --other pp-ingest:audits=<usd> [--sealed N]`
+writes BATCH3_LEDGER.json and prints line 1's figure. A session's audits go in as `NAME:audits` and count under
+audits; `pp-ingest` alone is mining and checks. The values persist in the ledger between runs.
 
 ```python
 """RULING 108 (orchestrator 21:20 ET Nov 14): BATCH 3's all-in ledger, kept by the builder, to 21:10 ET Nov 15.
 builds = tests/package/proof/SPEND_B3.json (vendor-reported + abandoned calls at the model's own rate);
 audits = every pp-selectid audit folder started in the batch (label >= START_LABEL): its COST.json (vendor-reported,
 the upper bound only for a review with no vendor figure); others = the other sessions' own reported spend, as they
-report it on their STATE line 1 (set by hand from their reports: --other NAME=USD). Writes
+report it on their STATE line 1 (set by hand from their reports: --other NAME=USD; --other NAME:audits=USD for a
+session's audits, counted under audits; pp-ingest alone is mining and checks). Writes
 tests/package/proof/BATCH3_LEDGER.json and prints STATE line 1's figure.
 Usage: python3 -B batch3.py [--other integrator=0.0058 --other pp-ingest=0.00] [--sealed N]"""
 import glob, json, os, sys
@@ -778,8 +804,9 @@ def main(argv):
             usd = float(c.get("usd_reported", 0.0)) + float(c.get("usd_upper_bound_unreported", 0.0))
             rows[label] = round(usd, 6)
             audits += usd
-    mining = float(others.get("pp-ingest", 0.0))
-    other = sum(v for k, v in others.items() if k != "pp-ingest")
+    mining = float(others.get("pp-ingest", 0.0))              # pp-ingest's mining and checks
+    audits += sum(v for k, v in others.items() if k.endswith(":audits"))   # another session's audits ("NAME:audits")
+    other = sum(v for k, v in others.items() if k != "pp-ingest" and not k.endswith(":audits"))
     total = builds + audits + mining + other
     sealed = sealed or 0
     rec = {"ruling": "108, orchestrator 21:20 ET Nov 14", "batch": 3, "to": "2026-11-15T21:10 ET", "cap": CAP,
