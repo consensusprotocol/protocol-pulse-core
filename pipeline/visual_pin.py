@@ -45,10 +45,9 @@ TILES, EVERY_S, TILE_W, COLS = 40, 1.0, 320, 6   # 21:10 Nov 14: "at least one f
 HOW = ("still", "photo", "graphic", "none")
 BURNED = ("ticker", "crawl", "lower_third", "bug", "caption")   # ruling 93: question 4's kinds; "caption" (ruling 93
 CAPTION = "caption"                                    # amended): the source's own burned subtitles of the words
-RENDER_16X9_ONLY = False      # the integrator's render cannot yet pass a 16:9-only pin (its message 21:2x Nov 14: its
-#   release_auth needs the 9:16 rows; it builds the format-aware path, audited): until it says so, a clip that is
-#   16:9-only is HELD here (layout_block), and no 16:9-only pin is sealed. Flipped on its word, with the package-level
-#   "formats" (package_pin), in one audited change.
+RENDER_16X9_ONLY = True       # the integrator's format-aware release LANDED (c396c3c8, its message 21:55 ET Nov 14: run_fresh,
+#   release_auth and the review drop read moments_package["formats"], exactly ["16x9"] or ["16x9", "9x16"]): a 16:9-only
+#   clip is eligible and sealed with formats ["16x9"]. Until then it was HELD here (layout_block, with this False).
 RUNNING = ("ticker", "crawl")                          # ruling 93: "a ticker or crawl = not eligible"
 IN_9X16 = ("whole", "out", "cut")
 FORMAT = "bv*[height<=480][ext=mp4]/bv*[height<=480]/b[height<=480]"

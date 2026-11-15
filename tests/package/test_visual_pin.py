@@ -113,11 +113,11 @@ class TestContract(unittest.TestCase):
         self.assertEqual(VP.formats(blockware), ["16x9"])
         self.assertEqual([f["kind"] for f in VP.flags(blockware)], ["burned_caption", "burned_caption"])
         self.assertEqual(VP.flags(blockware)[1]["at"], [16.35, 19.62])
-        self.assertIn("16:9-only", VP.layout_block(blockware))               # held while the render cannot pass it
-        self.assertNotIn("ticker", VP.layout_block(blockware))
-        with mock.patch.object(VP, "RENDER_16X9_ONLY", True):
-            self.assertIsNone(VP.layout_block(blockware))                    # then eligible, 16:9 only
-            self.assertEqual(VP.formats(blockware), ["16x9"])
+        with mock.patch.object(VP, "RENDER_16X9_ONLY", False):
+            self.assertIn("16:9-only", VP.layout_block(blockware))           # held while the render cannot pass it
+            self.assertNotIn("ticker", VP.layout_block(blockware))
+        self.assertIsNone(VP.layout_block(blockware))                        # the integrator's release landed
+        self.assertEqual(VP.formats(blockware), ["16x9"])                    # (c396c3c8): eligible, 16:9 only
         whole = rec(cap("FINANCIALLY INDEPENDENT BY 45", "whole"))
         self.assertIsNone(VP.formats(whole))                                 # a crop shows it whole: both formats
         self.assertIsNone(VP.layout_block(whole))

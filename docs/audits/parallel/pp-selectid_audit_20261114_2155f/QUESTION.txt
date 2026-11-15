@@ -1,0 +1,11 @@
+pp-selectid: the FLIP of visual_pin.RENDER_16X9_ONLY to True. The integrator's format-aware release has landed
+(c396c3c8, its message at 21:55 ET Nov 14): run_fresh, release_auth and the review drop read moments_package["formats"],
+exactly ["16x9"] or ["16x9", "9x16"]; anything else is a rejected pin. RULING 93 AMENDED (orchestrator 21:10): a clip
+whose source caption the 9:16 crop cuts is 16:9-ONLY, sealed as formats ["16x9"], and not ineligible.
+
+THE CHANGE: RENDER_16X9_ONLY False -> True, with its comment. layout_block no longer holds a 16:9-only clip;
+package_pin.formats_of seals moments_package["formats"] = ["16x9"] for it (landed 1e4fb5a9, audited 20261114_2131).
+The test pins both directions: patched to False, the clip is held; by default it is eligible and 16:9-only.
+UNCHANGED GUARDS: package_pin.seal adds "formats" to the body only when present; pin_seal passes it; the
+integrator's check_pin_only recomputes through pin_seal.
+PLEASE CHECK: (1) Can any 16:9-only clip now reach a pin WITHOUT "formats" sealed? (2) Does the test pin the flip?
