@@ -453,18 +453,17 @@ def reading_near(lock_tokens, k, tokens):
     (fail closed: never a truncation)."""
     if lock_tokens[k] in tokens:
         return lock_tokens[k]
-    for n in (2, 1):
+    mid = (len(tokens) - 1) / 2                      # the window is cut around the token: of repeated anchors (audit
+    for n in (2, 1):                                 # batch 84 c1, glm), the one nearest the reading's middle
         if k - n >= 0:
-            pat = lock_tokens[k - n:k]
-            i = next((i for i in range(len(tokens) - n) if tokens[i:i + n] == pat), None)
-            if i is not None:
-                return tokens[i + n]
+            hits = [i + n for i in range(len(tokens) - n) if tokens[i:i + n] == lock_tokens[k - n:k]]
+            if hits:
+                return tokens[min(hits, key=lambda j: abs(j - mid))]
     for n in (2, 1):
         if k + 1 + n <= len(lock_tokens):
-            pat = lock_tokens[k + 1:k + 1 + n]
-            i = next((i for i in range(1, len(tokens) - n + 1) if tokens[i:i + n] == pat), None)
-            if i is not None:
-                return tokens[i - 1]
+            hits = [i - 1 for i in range(1, len(tokens) - n + 1) if tokens[i:i + n] == lock_tokens[k + 1:k + 1 + n]]
+            if hits:
+                return tokens[min(hits, key=lambda j: abs(j - mid))]
     return ""
 
 

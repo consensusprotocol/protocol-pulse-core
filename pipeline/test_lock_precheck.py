@@ -752,6 +752,11 @@ class TestRuling105(Base):
         e = self.ask(self.RUN, self.RUN)
         self.assertEqual((e["outcome"], e["unstable_second_reading"]), ("no_difference", None), e)
 
+    def test_a_repeated_anchor_reads_the_token_at_the_windows_middle(self):   # audit batch 84 c1 (glm)
+        L = "i said a 401 and a 401k and a lot".split()
+        self.assertEqual(pinned.reading_near(L, 6, "and a 401 and a 401 and a".split()), "401")     # middle occurrence
+        self.assertEqual(pinned.reading_near(L, 6, "x y z".split()), "")                          # nothing anchors
+
     def test_the_truncation_rule(self):
         T = pinned.truncation_of
         self.assertEqual([T("401k", "401"), T("68000", "680"), T("saylor", "say"), T("401k", ""), T("403b", "403")],
