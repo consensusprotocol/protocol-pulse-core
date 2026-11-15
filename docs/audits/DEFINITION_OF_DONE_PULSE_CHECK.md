@@ -6,6 +6,16 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 20:05 ORCHESTRATOR DECISION: RENDER THE VARIANT, not the full clip. 3f481f5a will NOT be rendered. The builder builds the ruling-104 variant 14950b608178428abefb (7BqLu-wzbU0 0.000-15.280, ending "...I still don't use my Roth IRA.", no 401k token) as the ALTERNATIVE to 3f481f5a, on a directive quoting this answer.
+- The decision, verbatim from the integrator's decision dialog:
+  - question: "...Which do I render?" (the full clip 3f481f5a, given scribe's 401 / 401 / 401k readings of the token);
+  - answer: "Render the variant (Recommended)", whose text: "Respect the 14:16 final hold: the builder seals the ruling-104 variant 0.000-15.280 s (ends "...I still don't use my Roth IRA.", no 401k token). I launch it as SPOTLIGHT DEMO the moment it seals".
+- WHY THE BUILDER NEEDED A DIRECTIVE:
+  - its ruling 104 (5aad59b5) makes a variant only when the parent's CURRENT pre-check holds, and under d1e155c642a6 that answer is 23:17:27Z "no_difference" (the 14:16 re-listen ran on a scratch root);
+  - ruling 90 allows one spotlight per channel per ET day, a place 3f481f5a holds.
+  - Its directive path (0116fedd, three audit cycles) makes the variant the ALTERNATIVE to the same spotlight, never a second one, and only on a directive quoting the orchestrator.
+- NEXT: the builder's build makes the variant through every gate and the pre-check (about 25 min). On READY the integrator runs the render procedure (12 h check, yield, freeze, readiness, launch) for the SPOTLIGHT DEMO. The source expires 00:00 ET.
+
 ## 18:26 SPOTLIGHT PIN 3f481f5a RECEIVED (Blockware 06d34e15, the FULL 7BqLu-wzbU0 0.000-22.940; story moments-ledger_20261114_230148-3f481f5a), READY by every gate, NOT LAUNCHED: one integrity question for the orchestrator. Scribe read the "401k" token differently across calls on the same audio, two of three times "401".
 - The pin, frozen as data/moments_pins/SPOTLIGHT_PIN_230148.json:
   - 12 h check 6.42 h;
