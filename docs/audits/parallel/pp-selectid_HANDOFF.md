@@ -153,7 +153,7 @@ branch carries it and it never reached this session (addressed to another sessio
 - 88 Folded into 96: (a) fidelity / exclusion on Heimdall; (b) the hook moved, step C stayed Grok first (the full table); (c) step A Heimdall first, Grok confirms the passes in 8-clip batches; (d) clips-alone / coherence Grok, glm out; (e) qwen never decides coherence or step C: `model_providers.json` routing.heimdall_first, `package.first_bounds` / `_second_bounds`.
 - 89 A report from records (answered on STATE: no clip has a followable join after L6H7538ogGs). STANDING: "Build nothing for [a two-clip Short] until I rule." "Keep building as new uploads arrive."
 - 90 THE SPOTLIGHT (LAW): one moment, one speaker, one channel, 12-35 s of clip (snapped outward to 13.7 s, never padded); ≥ 4 on the hook's own job AND the ALONE scorer ≥ 4; step A from both families; the visual check clean; ≤ 12 h; never a delivered span; one per channel per ET day; at most one closing line; the sign-off + credits with that channel; 28-50 s; title ≤ 8 words; caption in house style; the first comment in PBX's format; built after the medley search (no medley, or a moment no medley used); the 22:58 note: L-u's 20 s is a medley rule, the spotlight's ceiling is 35 s: `pipeline/spotlight.py`, `package_pin` (SPOTLIGHT_GATES ...), the driver (`SPOTLIGHT_PIN.json`, `SPOTLIGHTS.json`).
-- 91 The closing line must earn its place: default NO line; one write and ONE value verdict off the writer's family (four clear yeses, ≤ 12 words), plus fidelity and context; anything less means no line: `spotlight.value_verdict` / `package_for`. Its MEDLEY half (the same value verdict on a medley's takeaway: lose it to the no-voice shape only if the clips meet the seconds, else one rewrite) is NOT BUILT: open item 1.
+- 91 The closing line must earn its place: default NO line; one write and ONE value verdict off the writer's family (four clear yeses, ≤ 12 words), plus fidelity and context; anything less means no line: `spotlight.value_verdict` / `package_for`. Its MEDLEY half (the same value verdict on a medley's takeaway: lose it to the no-voice shape only if the clips meet the seconds, else one rewrite) is BUILT: `package.takeaway_value` (6626c45d, 06:33 ET Nov 14, audit 0608; tests in test_medley.py; the seal's `takeaway_value` row agreed with the integrator).
 - 92 Spotlight sources: conversation, not reaction. A measured layout verdict of "conversation" or "first_hand" is required; caption markers can only make it stricter (a marked episode under 1.0 turns a minute is not a conversation); unmeasured never passes. 23:50: KEEP 1.0, re-measure after 20 spotlights' worth of episodes: `spotlight.source_test` / `layout_for` / `episode_turns`, `LAYOUT_CACHE.json`.
 - 93 DEC-12d per CLIP, never by channel name: the visual check's question 4. A ticker or crawl, or a lower third / bug that is not whole in the 16:9, that the 9:16 would cut mid-word, or that covers the speaker, holds the clip in any role; a whole static strap / bug is eligible and flagged: `eligibility.layout_ok`, `visual_pin` (visual-2, `layout_block`, `burned_block`), `package.build`, `spotlight.clean_visual`.
 - 94 Hook openers, medley and spotlight: (a) a conjunction / reply opener opens as ruling 33's trim variant (a clean cut, and the scorer affirms it); (b) I / me / my / we / us / our / you / your open freely; a third-person or demonstrative opener needs the scorer's affirmation: `pipeline/stand_alone.py` (the integrator's 409188ef, BYTE FOR BYTE), `eligibility` T8, `package._can_open` / `hook_trim` / `third_opener` / `scorer_pass`, `spotlight.pool`.
@@ -229,9 +229,15 @@ cd /home/ultron/worktrees/pp-selectid && python3 -B tests/package/proof_ledger.p
 ```
 - `--routing heimdall_first` is REQUIRED. `pipeline/model_providers.json` still has `routing.mode` "today", so a
   build that omits the flag runs the old chains. Every build since 01:41 ET Nov 14 has run heimdall_first.
-- The last build is 01:41 ET Nov 14 (`ledger_20261114_064132`, commit 604ed5f5): no medley, no spotlight, $0.00.
-- The last sealed and delivered pin is `moments-ledger_20261113_215708-13949b7c` (built 16:57 ET Nov 13, approved
-  17:14 ET; $0.24 total / $0.23 outside). It is the last `--delivered` above.
+- The last build is batch 3's build 3, 23:02 ET Nov 14 (`ledger_20261115_040228`, code 2c802bcf): no medley, no
+  spotlight, $0.21, 0 moments held, 0 items left undone (the ruling-107 (1) guard skips the next build at $0.00
+  if nothing is new).
+- The last pin delivered as a pass is `moments-ledger_20261113_215708-13949b7c` (built 16:57 ET Nov 13, approved
+  17:14 ET; $0.24 total / $0.23 outside). It is the last `--delivered` above. The last SEALED pin is the spotlight
+  `moments-ledger_20261114_230148-3f481f5a`: the integrator sent its 16:9 on the REVIEW path at 22:37 ET Nov 14
+  ("REVIEW ONLY - NOT A PASS", ruling 106 (b); two open integrity points stated; the 9:16 withheld). It is not in
+  `--delivered`; the reseal directive (RULING_104_DIRECTIVES.json) holds its place for 06d34e15, which step A
+  refused on re-judgment (cached: no new cost).
 - Every pin you seal and the integrator delivers is ADDED to `--delivered` (its spans and speech are never used again,
   ruling 76 b).
 - The default `--work-dir` is `<proof_ly.SCRATCH>/lv2`, a hard-coded OLD session's scratchpad (see section 6).
@@ -462,10 +468,9 @@ then `bash regression_test.sh` (26 PASS, 0 FAIL, 5 WARN).
 
 ## 5. Open items, in priority order
 
-1. **Ruling 91's MEDLEY half is NOT BUILT:** the value verdict on a medley's takeaway (off the writer's family, four
-   clear yeses, ≤ the takeaway's word cap). If it fails, the medley falls back to L-y's no-voice shape only if its
-   clips meet the seconds; otherwise the takeaway may be rewritten once. Build it in package.build's takeaway path
-   (reuse `spotlight.value_verdict`'s contract), test it, audit it two cycles, commit.
+1. **Done (this item was stale until 23:15 ET Nov 14):** ruling 91's MEDLEY half has been built since 6626c45d (06:33 ET
+   Nov 14, audit 0608): `package.takeaway_value`, the value verdict on a medley's takeaway, with the no-voice
+   fallback and one rewrite; tests in test_medley.py. Nothing to build.
 2. **Standing:** build on every ledger change; seal the first medley or spotlight that passes; send it to the
    integrator at once; STATE line 1 after every build (counts, spend, last pin cost, and the three nearest +
    ruling 95's next attempt when nothing seals).
