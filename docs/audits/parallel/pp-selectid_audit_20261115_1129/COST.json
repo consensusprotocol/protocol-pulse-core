@@ -1,8 +1,8 @@
 {
  "ruling": "107 (2), 20:40 ET Nov 14",
- "changed_lines": 771,
- "cap_usd": 1.0,
- "usd_reported": 0.052707,
+ "changed_lines": 44,
+ "cap_usd": 0.3,
+ "usd_reported": 0.055737,
  "usd_upper_bound_unreported": 0.0,
  "reviews": [
   {
@@ -29,6 +29,16 @@
    "review": "C2_qwen3.8-27b.md",
    "usd_reported": 0.005703,
    "usd_upper_bound": 0.123
+  },
+  {
+   "review": "C3_glm-5.3-flash.md",
+   "usd_reported": 0.000472,
+   "usd_upper_bound": 0.051
+  },
+  {
+   "review": "C3_qwen3.8-27b.md",
+   "usd_reported": 0.002558,
+   "usd_upper_bound": 0.054
   }
  ]
 }

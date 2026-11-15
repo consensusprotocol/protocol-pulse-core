@@ -2,6 +2,7 @@
 """RULING 112's diagnosis driver (tests/package/hook112.py), offline: where each moment stopped on the way to the hook
 job (both paths), the distinct roll-up, the near misses and the part that holds a 3 back, pp-ingest's hook pass read
 from a database of the same shape, and the calibration's guards (Heimdall only, no cache, the stop)."""
+import io
 import json
 import os
 import sqlite3
@@ -251,6 +252,39 @@ class TestTheCalibration(unittest.TestCase):
         cache = json.load(open(os.path.join(H.PROOF, "HOOK_CACHE.json")))
         self.assertFalse(any(k.split(":")[0].startswith("ref-") for k in cache))
         self.assertTrue(all(r["text"] for r in refs))
+
+
+class TestTheDriverEndToEnd(unittest.TestCase):
+    """main() itself, with the calibration on: the run of 11:52 ET Nov 15 died at an import its tests never reached
+    (proof_saved_runs, another test folder's module). The router and the one paid call are stubbed; everything else is
+    the driver's own path, writing into a temporary folder."""
+
+    def test_main_runs_the_calibration_and_writes_every_part(self):
+        from unittest import mock
+        import package as PK
+        asked = []
+
+        def rate(router, ms, ctx, wv, wf, cache="unset", seed=None):
+            asked.append((len(ms), cache, seed, ctx.channel("no-such-channel") is None))
+            return {m["moment_id"]: {"scroll": 4, "alone": 4, "setup": 4, "rating": 4, "why": "w",
+                                     "backend": "heimdall:qwen"} for m in ms}, None
+        with tempfile.TemporaryDirectory() as d:
+            proof, out = os.path.join(d, "proof"), os.path.join(d, "proof", "hook112")
+            os.makedirs(proof)
+            with open(os.path.join(proof, "HOOK_CACHE.json"), "w") as f:
+                json.dump({}, f)
+            db = TestTheHookPass().db(d)
+            with mock.patch.object(H, "PROOF", proof), mock.patch.object(H, "OUT", out), \
+                    mock.patch.object(H, "QUEUE_DB", db), mock.patch.object(H, "LEDGER", os.path.join(d, "none")), \
+                    mock.patch.object(H, "build_router", lambda *a, **k: FakeRouter(["heimdall:qwen"])), \
+                    mock.patch.object(PK, "hook_ratings", rate), mock.patch("sys.stdout", new=io.StringIO()):
+                self.assertEqual(H.main(["--since", "2026-11-13T16:15:00+00:00"]), 0)
+            cal = json.load(open(os.path.join(out, "CALIBRATION.json")))
+            self.assertEqual(sorted(os.listdir(out)), ["CALIBRATION.json", "FUNNEL.json", "HOOK_PASS.json",
+                                                       "NEAR_MISSES.json", "REPORT.md"])
+        self.assertEqual(asked, [(len(H.REFS), None, s, True) for s in H.SEEDS])   # every seed, no cache, a context
+        self.assertEqual([r["seed"] for r in cal["runs"]], list(H.SEEDS))
+        self.assertEqual(len(cal["refs"]), len(H.REFS))
 
 
 if __name__ == "__main__":

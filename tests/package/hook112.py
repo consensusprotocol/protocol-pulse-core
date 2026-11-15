@@ -398,6 +398,13 @@ def heimdall_hook_chain(router):
     return chain
 
 
+def registry(path=os.path.join(REPO, "pipeline", "channels.json")):
+    """The channel registry the builds' eligibility Context reads (tests/select_by_id/proof_saved_runs.REG is this same
+    file), read here so the driver needs no module from another test folder."""
+    with open(path) as f:
+        return json.load(f)
+
+
 def build_router(spend_path=SPEND, record_dir=None):
     import deadline_table as DT
     import providers as P
@@ -493,12 +500,11 @@ def main(argv=None):
     cal = {"refs": [], "runs": [], "skipped": a.no_calibration}
     if not a.no_calibration:
         import eligibility as E
-        import proof_saved_runs as PS
         refs = ref_moments()
         router = build_router(SPEND, os.path.join(OUT, "replies"))
         ok = [r for r in refs if not r.get("error")]
         cal = {"refs": refs, "chain": router.chain("coherence_verdict", "hook"),
-               "runs": calibrate(router, ok, E.Context(now, PS.REG)), "spent_usd": round(router.spent(), 6)}
+               "runs": calibrate(router, ok, E.Context(now, registry())), "spent_usd": round(router.spent(), 6)}
     for fname, obj in (("FUNNEL.json", fun), ("CALIBRATION.json", cal), ("NEAR_MISSES.json", nm),
                        ("HOOK_PASS.json", hp)):
         with open(os.path.join(OUT, fname), "w") as f:

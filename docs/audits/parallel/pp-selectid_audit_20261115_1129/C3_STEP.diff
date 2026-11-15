@@ -1,0 +1,83 @@
+diff --git a/tests/package/hook112.py b/tests/package/hook112.py
+index fdba4ba..61686b4 100644
+--- a/tests/package/hook112.py
++++ b/tests/package/hook112.py
+@@ -398,6 +398,13 @@ def heimdall_hook_chain(router):
+     return chain
+ 
+ 
++def registry(path=os.path.join(REPO, "pipeline", "channels.json")):
++    """The channel registry the builds' eligibility Context reads (tests/select_by_id/proof_saved_runs.REG is this same
++    file), read here so the driver needs no module from another test folder."""
++    with open(path) as f:
++        return json.load(f)
++
++
+ def build_router(spend_path=SPEND, record_dir=None):
+     import deadline_table as DT
+     import providers as P
+@@ -493,12 +500,11 @@ def main(argv=None):
+     cal = {"refs": [], "runs": [], "skipped": a.no_calibration}
+     if not a.no_calibration:
+         import eligibility as E
+-        import proof_saved_runs as PS
+         refs = ref_moments()
+         router = build_router(SPEND, os.path.join(OUT, "replies"))
+         ok = [r for r in refs if not r.get("error")]
+         cal = {"refs": refs, "chain": router.chain("coherence_verdict", "hook"),
+-               "runs": calibrate(router, ok, E.Context(now, PS.REG)), "spent_usd": round(router.spent(), 6)}
++               "runs": calibrate(router, ok, E.Context(now, registry())), "spent_usd": round(router.spent(), 6)}
+     for fname, obj in (("FUNNEL.json", fun), ("CALIBRATION.json", cal), ("NEAR_MISSES.json", nm),
+                        ("HOOK_PASS.json", hp)):
+         with open(os.path.join(OUT, fname), "w") as f:
+diff --git a/tests/package/test_hook112.py b/tests/package/test_hook112.py
+index cead604..57161c8 100644
+--- a/tests/package/test_hook112.py
++++ b/tests/package/test_hook112.py
+@@ -2,6 +2,7 @@
+ """RULING 112's diagnosis driver (tests/package/hook112.py), offline: where each moment stopped on the way to the hook
+ job (both paths), the distinct roll-up, the near misses and the part that holds a 3 back, pp-ingest's hook pass read
+ from a database of the same shape, and the calibration's guards (Heimdall only, no cache, the stop)."""
++import io
+ import json
+ import os
+ import sqlite3
+@@ -253,5 +254,38 @@ class TestTheCalibration(unittest.TestCase):
+         self.assertTrue(all(r["text"] for r in refs))
+ 
+ 
++class TestTheDriverEndToEnd(unittest.TestCase):
++    """main() itself, with the calibration on: the run of 11:52 ET Nov 15 died at an import its tests never reached
++    (proof_saved_runs, another test folder's module). The router and the one paid call are stubbed; everything else is
++    the driver's own path, writing into a temporary folder."""
++
++    def test_main_runs_the_calibration_and_writes_every_part(self):
++        from unittest import mock
++        import package as PK
++        asked = []
++
++        def rate(router, ms, ctx, wv, wf, cache="unset", seed=None):
++            asked.append((len(ms), cache, seed, ctx.channel("no-such-channel") is None))
++            return {m["moment_id"]: {"scroll": 4, "alone": 4, "setup": 4, "rating": 4, "why": "w",
++                                     "backend": "heimdall:qwen"} for m in ms}, None
++        with tempfile.TemporaryDirectory() as d:
++            proof, out = os.path.join(d, "proof"), os.path.join(d, "proof", "hook112")
++            os.makedirs(proof)
++            with open(os.path.join(proof, "HOOK_CACHE.json"), "w") as f:
++                json.dump({}, f)
++            db = TestTheHookPass().db(d)
++            with mock.patch.object(H, "PROOF", proof), mock.patch.object(H, "OUT", out), \
++                    mock.patch.object(H, "QUEUE_DB", db), mock.patch.object(H, "LEDGER", os.path.join(d, "none")), \
++                    mock.patch.object(H, "build_router", lambda *a, **k: FakeRouter(["heimdall:qwen"])), \
++                    mock.patch.object(PK, "hook_ratings", rate), mock.patch("sys.stdout", new=io.StringIO()):
++                self.assertEqual(H.main(["--since", "2026-11-13T16:15:00+00:00"]), 0)
++            cal = json.load(open(os.path.join(out, "CALIBRATION.json")))
++            self.assertEqual(sorted(os.listdir(out)), ["CALIBRATION.json", "FUNNEL.json", "HOOK_PASS.json",
++                                                       "NEAR_MISSES.json", "REPORT.md"])
++        self.assertEqual(asked, [(len(H.REFS), None, s, True) for s in H.SEEDS])   # every seed, no cache, a context
++        self.assertEqual([r["seed"] for r in cal["runs"]], list(H.SEEDS))
++        self.assertEqual(len(cal["refs"]), len(H.REFS))
++
++
+ if __name__ == "__main__":
+     unittest.main()
