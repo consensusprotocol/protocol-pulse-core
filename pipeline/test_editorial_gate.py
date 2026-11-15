@@ -162,6 +162,12 @@ class TestSpotlightLaws2And3(unittest.TestCase):
     def test_a_medley_still_needs_the_review(self):
         self.assertEqual(self.laws(self.edl(shape=None)), (False, False))
 
+    def test_a_judgment_the_review_does_give_stands(self):     # the sealed rows only fill the review's silence
+        review = {"vo_jobs": {"intro": {"job": "context", "why": "restates the clip", "earned": False}},
+                  "takeaway": {"text": "selling early", "concrete": False, "supported": True}}
+        g = evaluate_editorial_gate(self.edl(), review)["laws"]   # every sealed row PASS and live
+        self.assertEqual((g["LAW_2_VO_HAS_A_JOB"]["pass"], g["LAW_3_CONCRETE_TAKEAWAY"]["pass"]), (False, False))
+
 
 if __name__ == "__main__":
     unittest.main()
