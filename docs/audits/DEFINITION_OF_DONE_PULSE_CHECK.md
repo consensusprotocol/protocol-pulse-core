@@ -6,6 +6,18 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 21:33 RULING 105 LANDED on main, in lockstep with the builder's e8e6da7b (READY 21:27; it pushes after this push). Merge of branch ruling105 (d5bf9674), audits batch 84: two cycles, no defect. BATCH 3 integrator spend: $0.0058 (unchanged: no audit or scribe call since 21:10).
+- **Decoder:** decoder_sha a4c307f78c94d1c4ee068b5c27862c79a90900880bb885fee68da616ce2a20d6 (read from the staged main). RULES "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105". Both equal the builder's constants.
+- **The rule:**
+  - When the second recogniser disagrees WITH ITSELF on the same audio (across passes, same source_file_sha256), the decoder's reading is stable, and every differing reading is a truncation of the lock's token ('401' of '401k'), the token is the lock's: pinned.unstable_second_reading.
+  - Otherwise the hold is final: a stable disagreement, a different number, a different name, or more than one disputed token.
+  - lock_precheck records 'unstable_second_reading' on the entry, and the builder seals it via SEALED_LATER only when non-null.
+- **Regressions on the staged merge:**
+  - regression_test.sh: 26 PASS / 0 FAIL / 4 WARN.
+  - pipeline/regression.sh: exit 0, protected references reproduce.
+- **Suites:** test_lock_precheck 49 passed, test_canon 23, test_ruling17_lock 25, test_spotlight 8.
+- **Service:** the pre-check service serves the new sha from its next batch. The re-sealed 16:9-only Blockware moment is re-read under it with ruling 105's history.
+
 ## 21:25 HOLD at gates, SPOTLIGHT DEMO 3f481f5a (run runs/pinned_20261115_013448, HEAD 1cac3836), not delivered. 16x9: every gate PASS, 24 of 24 rows, V1 PASS on both models. 9x16: V1_visual_checklist FAIL on one item, watermark_present, a SPLIT (qwen 'no', nemotron 'yes'). Separately, the 9:16 crop cuts the source's burned captions mid-word ("SOLD MY" reads "D MY" at 2.0 s), so under ruling 93 as amended the clip is 16:9-ONLY. BATCH 3 integrator spend: $0.0058.
 - **Log:** "=== VERDICT: HOLD | RELEASE STATE: HOLD_FOR_HUMAN_APPROVAL === HOLD: gates V1_visual_checklist: FAIL". run_fresh exited 3 with "not delivered". GATE_REPORT.json was written at 21:18:50 ET. Nothing was sent or published.
 - **Stages:** every stage before the gates passed on this run, including validate, where the first launch held (LAW 2 / LAW 3; fixed in 1cac3836).

@@ -1,0 +1,5 @@
+# Batch 84 cycle 2: NO DEFECT; batch 84 closes (glm PASS; Grok, asked third on qwen27b's FAIL (ruling 107 (2)), PASS 0.8 with 0 findings, $0.011; qwen27b FAIL on claims verified false; panel $0.0032)
+- "Consensus" qwen27b F2 (truncation_of would take '123' of '1234'): FALSE on the code. truncation_of('1234', '123') is False (the dropped '4' is a digit); likewise '68000'/'680' and '401k'/'40'; only '401k'/'401' qualifies. An ordinal never reaches it as a digit token: canon reads '2nd' as 'ord2', which no bare '2' prefixes.
+- "Consensus" qwen27b F3: its own text concludes "This is correct per the ruling. No defect found." with "No fix needed."
+- qwen27b F1 "high" (rejected): the current pass's readings should not count. FALSE: the ruling counts the second recogniser's REPEATED readings of the same audio, the current pass's included; its own example counts all three (13:51 long, 14:16 short, 18:17 long).
+- glm F1 (low, rejected): a past re-listen that agreed is counted. Harmless by its own words: a reading equal to the token never breaks a test.

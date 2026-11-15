@@ -688,5 +688,80 @@ class TestRuling103(Base):
         self.assertEqual(pinned.RELISTEN_PAD_S, 1.5)
 
 
+SRC = hashlib.sha256(b"\0" * 100_001).hexdigest()         # the fake download's bytes: the same audio as a planted past pass
+
+
+class TestRuling105(Base):
+    """RULING 105 (orchestrator 2026-11-14 '20:13'): across passes on the SAME audio, a number token is adjudicated as
+    the lock's only when the decoder is stable, the second recogniser's readings differ among themselves with one
+    giving the token, and every differing reading is a truncation ('401' of '401k'). Must-fail (the order): a stable
+    disagreement, a different number ('68,000' / '86,000'), a different name."""
+    RUN = "I don't have a 401k."
+
+    def past(self, heard, src=SRC):
+        p = LP.result_path(VID, START, END, "f" * 64)            # an earlier pass under another decoder sha
+        os.makedirs(os.path.dirname(p), exist_ok=True)
+        with open(p, "w") as f:
+            json.dump([{"at": "2026-11-14T18:51:07Z", "outcome": "hold", "source_file_sha256": src,
+                        "as_spoken": {"text": heard}, "relisten": None}], f)
+
+    def ask(self, run, heard, decoder=None, second=None):
+        self.run_words, self.scribe_words = spread(run), spread(heard)
+        self.short_decoder = spread(decoder) if decoder else None
+        self.short_second = spread(second) if second else None
+        self.request("r105", approved_text=run)
+        LP.serve_once(log=self.log)
+        return self.entry(run)
+
+    def test_the_401k_history_adjudicates_as_the_lock(self):
+        self.past("I don't have a 401 ,")                          # 13:51: the second recogniser read 401
+        e = self.ask(self.RUN, self.RUN)                            # now it reads 401k: no difference
+        u = e["unstable_second_reading"]
+        self.assertEqual((e["outcome"], u["verdict"], u["token"]), ("no_difference", "pass", "401k"), e)
+        self.assertEqual(sorted(d["token"] for d in u["second_readings"]), ["401", "401k"])
+        self.assertTrue(all(u["tests"].values()))
+
+    def test_a_hold_now_is_adjudicated_by_the_unstable_history(self):
+        self.past(self.RUN)                                         # an earlier pass read 401k
+        e = self.ask(self.RUN, "I don't have a 401 ,", "have a 401k. I don't", "have a 401, I don't")
+        self.assertEqual((e["outcome"], e["relisten"]["verdict"]), ("no_difference", "hold"), e)   # 103 alone held
+        self.assertEqual(e["unstable_second_reading"]["verdict"], "pass")
+
+    def test_a_stable_disagreement_holds(self):
+        self.past("I don't have a 401 ,")
+        e = self.ask(self.RUN, "I don't have a 401 ,", "have a 401k. I don't", "have a 401, I don't")
+        self.assertEqual((e["outcome"], e["unstable_second_reading"]["verdict"]), ("hold", "hold"), e)
+        self.assertFalse(e["unstable_second_reading"]["tests"]["second_unstable"])
+        self.assertIn("ruling 105", e["reason"])
+
+    def test_a_different_number_holds_even_when_it_agrees_now(self):
+        run = "It cost them 68,000 dollars."
+        self.past("It cost them 86,000 dollars.")
+        e = self.ask(run, run)
+        self.assertEqual((e["outcome"], e["unstable_second_reading"]["verdict"]), ("hold", "hold"), e)
+        self.assertFalse(e["unstable_second_reading"]["tests"]["truncations_only"])
+
+    def test_a_different_name_holds_even_when_it_agrees_now(self):
+        run = "Then I asked Saylor about it."
+        self.past("Then I asked Taylor about it.")
+        e = self.ask(run, run)
+        self.assertEqual((e["outcome"], e["unstable_second_reading"]["verdict"]), ("hold", "hold"), e)
+
+    def test_another_audio_is_not_history(self):
+        self.past("I don't have a 401 ,", src="0" * 64)
+        e = self.ask(self.RUN, self.RUN)
+        self.assertEqual((e["outcome"], e["unstable_second_reading"]), ("no_difference", None), e)
+
+    def test_a_repeated_anchor_reads_the_token_at_the_windows_middle(self):   # audit batch 84 c1 (glm)
+        L = "i said a 401 and a 401k and a lot".split()
+        self.assertEqual(pinned.reading_near(L, 6, "and a 401 and a 401 and a".split()), "401")     # middle occurrence
+        self.assertEqual(pinned.reading_near(L, 6, "x y z".split()), "")                          # nothing anchors
+
+    def test_the_truncation_rule(self):
+        T = pinned.truncation_of
+        self.assertEqual([T("401k", "401"), T("68000", "680"), T("saylor", "say"), T("401k", ""), T("403b", "403")],
+                         [True, False, False, False, True])
+
+
 if __name__ == "__main__":
     unittest.main()

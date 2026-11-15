@@ -1,0 +1,69 @@
+{
+ "question": "Batch 84 = RULING 105 (orchestrator 2026-11-14 '20:13', verbatim): \"the hold exists because two INDEPENDENT readings disagreed on a number or name. Here the second recogniser disagrees WITH ITSELF on the same audio (one reading '401k', two '401'), while the decoder reads '401k' every time. A witness that changes its answer on identical audio is not evidence of a different word. So: when (1) the primary decoder's reading of the token is stable across its passes, (2) the second recogniser's repeated readings of the SAME audio differ among themselves and at least one equals the lock's token, and (3) every differing reading is a TRUNCATION of the lock's token (a prefix of the same term: '401' of '401k'), never a different number or name, the token is adjudicated as the lock's and the clip may seal. All readings are recorded on the pin ... under 'unstable_second_reading'. Anything else stays a final hold: a second recogniser that is stable in its disagreement, a different number ('68,000' / '86,000'), a different name. Must-fail tests for those three.\"\nContext: pipeline/lock_precheck.py is the pin-stage pre-check; per segment it builds the lock, compares it with the second recogniser's long reading (rulings 72 / 84) and, on ONE number / name token, re-listens a short window with both recognisers (ruling 103). Each pass's answer is appended to results/<vid>.<start>-<end>.<decoder sha12>.json with the acquired source's source_file_sha256. Within one pass ruling 103 already decides; ruling 105's case is ACROSS passes (on Blockware the 13:51 pass read '401', a later pass under a new decoder sha read '401k' with no difference).\nThe change: pinned.truncation_of (the token minus a NON-DIGIT suffix only; a token without a digit, a name, never qualifies; an empty reading never does), reading_at (a long reading's token at the lock's token k by SequenceMatcher over the whole lock), reading_near (a SHORT window's token at k anchored on the lock's neighbours, because a whole-lock alignment can anchor a short window's edge words on the wrong part of the lock; \"\" when nothing anchors), unstable_second_reading (the three tests). lock_precheck._history: every earlier answer for the SAME span with the SAME source sha256 under any decoder sha (errors excluded); unstable(): no history -> None (ruling 103 alone decides, behaviour unchanged); else the lock's number / name tokens (never a negation) that any reading disputes; more than one -> hold; one -> the decoder readings (the lock + every re-listen's decoder reading) and the second readings (every long reading + every re-listen's second reading) at that token, judged by unstable_second_reading. In answer(): a current single-token hold whose re-listen held becomes \"same\" on a ruling-105 pass; a current agreement (\"same\" / \"adopt\") becomes \"hold\" on a ruling-105 hold (an earlier reading of this audio was no truncation). The entry records 'unstable_second_reading'; RULES adds 'ruling 105'.\nTests: TestRuling105 (7): the 401k history adjudicates as the lock's (agreeing now; and holding now); a stable disagreement holds; 68,000 / 86,000 holds even when it agrees now; a different name holds even when it agrees now; another audio is not history; the truncation rule. 48 passed; on the old files all 7 fail.\nFIND: a fail-open (a number or name passing without all three tests true, or on another audio's readings); a negation or more than one disputed token adjudicated; a truncation that is really a different number or name; a short-window alignment that can read the wrong token; a change for a span with no history. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 4.3,
+   "cost": 0.0002967475,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 12.5,
+   "cost": 0.000197067,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 8.0,
+   "cost": 0.00050592,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 11.7,
+   "cost": 0.000199547,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "pipeline/lock_precheck.py",
+   "line": 401,
+   "issue": "A short-window reading can be read at the wrong token: reading_near anchors on the lock's left neighbours and returns the token right after them, but if the reading repeats that neighbour pattern the wrong occurrence (and so the wrong token) is taken; the same for the right-neighbour anchor. This can make a genuinely different number/name pass (or a truncation test fail) without any of the three ruling-105 tests actually being evaluated on the right token.",
+   "evidence": "i = next((i for i in range(len(tokens) - n) if tokens[i:i + n] == pat), None)\\n            if i is not None:\\n                return tokens[i + n]",
+   "fix": "Prefer the occurrence nearest the expected position (e.g. the one whose surrounding context also matches, or the last/first occurrence by proximity to k), or fall back to reading_at when the anchor is ambiguous.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0011992815,
+ "out_dir": "heimdall"
+}
