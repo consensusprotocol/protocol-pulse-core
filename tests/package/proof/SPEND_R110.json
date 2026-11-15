@@ -1,0 +1,46 @@
+{
+ "usd_estimate": 26.483007,
+ "calls": 638,
+ "by_backend": {
+  "heimdall:deepseek/deepseek-v4-flash-0731-abliterated": {
+   "calls": 319,
+   "in": 770040,
+   "out": 198804,
+   "usd_estimate": 5.29218,
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "usd_reported": 0.04937517,
+   "reported_calls": 319,
+   "in_reported": 770040
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash-1017-uncensored": {
+   "calls": 319,
+   "in": 778334,
+   "out": 1257055,
+   "usd_estimate": 21.190827,
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "usd_reported": 0.28107071,
+   "reported_calls": 319,
+   "in_reported": 778334
+  }
+ },
+ "by_role": {
+  "replay110_dsv4": {
+   "calls": 319,
+   "usd_estimate": 5.29218
+  },
+  "replay110_dsv41unc": {
+   "calls": 319,
+   "usd_estimate": 21.190827
+  }
+ },
+ "reserved": {},
+ "usd_reported": 0.33044588,
+ "usd_unreported_estimate": 0.0,
+ "late_answers": 5
+}

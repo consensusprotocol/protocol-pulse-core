@@ -496,6 +496,11 @@ then `bash regression_test.sh` (26 PASS, 0 FAIL, 5 WARN).
     land: compare each build's deepseek answer times (tests/package/fixtures/replies, role context_verdict) with
     the table's step-A p50 165 s / p90 272 s; and re-run tests/package/replay110.py with a fresh OUT for the
     same 319 records. No routing change from ruling 110: a candidate enters a verdict type only by a later ruling.
+    (a)-(c) DONE 01:30 ET Nov 15 (STATE line 1; tests/package/proof/replay110/TABLE.md; $0.33 of Heimdall):
+    the v4.1 uncensored is no faster than our v4.1 (step A p50 191 s) and looser on step A (23 REFERENT_OUTSIDE
+    refusals let through); the v4 abliterated is fast (p50 2-21 s) but 43% of its answers are not valid JSON.
+    Both meet the bars of 85/88/96 only for hook and exclusion. Its ledger is SPEND_R110.json (counted by batch3.py
+    under mining and checks).
 6. **Ruling 97 is answered** (STATE 01:41): nothing to build unless the orchestrator rules otherwise.
 7. **Done tonight:**
    - rulings 85-88 + 96 (125e7381, audit 0108);
@@ -781,7 +786,8 @@ builds = tests/package/proof/SPEND_B3.json (vendor-reported + abandoned calls at
 audits = every pp-selectid audit folder started in the batch (label >= START_LABEL): its COST.json (vendor-reported,
 the upper bound only for a review with no vendor figure); others = the other sessions' own reported spend, as they
 report it on their STATE line 1 (set by hand from their reports: --other NAME=USD; --other NAME:audits=USD for a
-session's audits, counted under audits; pp-ingest alone is mining and checks). Writes
+session's audits, counted under audits; pp-ingest alone is mining and checks; RULING 110's replay ledger,
+SPEND_R110.json, is read and counted under mining and checks). Writes
 tests/package/proof/BATCH3_LEDGER.json and prints STATE line 1's figure.
 Usage: python3 -B batch3.py [--other integrator=0.0058 --other pp-ingest=0.00] [--sealed N]"""
 import glob, json, os, sys
@@ -816,14 +822,19 @@ def main(argv):
             usd = float(c.get("usd_reported", 0.0)) + float(c.get("usd_upper_bound_unreported", 0.0))
             rows[label] = round(usd, 6)
             audits += usd
-    mining = float(others.get("pp-ingest", 0.0))              # pp-ingest's mining and checks
+    try:                                                       # RULING 110: this builder's replay of the Heimdall
+        r110 = json.load(open(os.path.join(WT, "tests/package/proof/SPEND_R110.json")))   # candidates: a check
+        checks = float(r110.get("usd_reported", 0.0)) + float(r110.get("usd_unreported_estimate", 0.0))
+    except OSError:
+        checks = 0.0
+    mining = float(others.get("pp-ingest", 0.0)) + checks    # pp-ingest's mining and checks, and this builder's
     audits += sum(v for k, v in others.items() if k.endswith(":audits"))   # another session's audits ("NAME:audits")
     other = sum(v for k, v in others.items() if k != "pp-ingest" and not k.endswith(":audits"))
     total = builds + audits + mining + other
     sealed = sealed or 0
     rec = {"ruling": "108, orchestrator 21:20 ET Nov 14", "batch": 3, "to": "2026-11-15T21:10 ET", "cap": CAP,
            "shares": SHARE, "builds": round(builds, 6), "audits": round(audits, 6), "audit_rows": rows,
-           "mining": round(mining, 6), "others": others, "all_in": round(total, 6), "videos_sealed": sealed}
+           "mining": round(mining, 6), "checks_r110": round(checks, 6), "others": others, "all_in": round(total, 6), "videos_sealed": sealed}
     json.dump(rec, open(OUT, "w"), indent=1)
     per = f"${total / sealed:.2f}" if sealed else "n/a"
     flag = (" ALARM FOR PBX: BATCH 3 HAS SPENT ${:.2f} OF $8.00.".format(total) if total >= ALARM else
