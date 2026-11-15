@@ -1,19 +1,19 @@
 {
- "usd_estimate": 12.128311,
- "calls": 130,
+ "usd_estimate": 12.257786,
+ "calls": 131,
  "by_backend": {
   "xai:grok-4.20-0309-reasoning": {
-   "calls": 61,
-   "in": 137024,
-   "out": 327558,
-   "usd_estimate": 8.87407,
+   "calls": 62,
+   "in": 138749,
+   "out": 332392,
+   "usd_estimate": 9.003545,
    "price_usd_per_1m": [
     5,
     25
    ],
-   "usd_reported": 0.9759286,
-   "reported_calls": 61,
-   "in_reported": 137024
+   "usd_reported": 0.99003545,
+   "reported_calls": 62,
+   "in_reported": 138749
   },
   "elevenlabs_stt:scribe_v1": {
    "calls": 27,
@@ -81,8 +81,8 @@
  },
  "by_role": {
   "context_verdict": {
-   "calls": 70,
-   "usd_estimate": 9.068548
+   "calls": 71,
+   "usd_estimate": 9.198023
   },
   "transcribe": {
    "calls": 27,
@@ -126,7 +126,7 @@
   }
  },
  "reserved": {},
- "usd_reported": 1.23830929,
+ "usd_reported": 1.25241614,
  "usd_unreported_estimate": 0.201304,
  "restated_b3_meter": {
   "why": "Batch 3's builds 1 and 2 (22:05 and 22:20 ET Nov 14): three calls abandoned at their deadline never reached\nSPEND_B3.json. proof_ly.meter's wrapper refused ruling 107 Q1's `unreported` keyword, so abandon()'s booking raised\nTypeError and on_late never ran. Each is in the deadline log (\"missed_deadline\", written BEFORE the booking). This\nbooks each one now through the Router's own _settle, under its ledger lock, exactly as abandon() would have:\n_settle(None, backend, {\"in\": 0, \"out\": 0}, listed, role, unreported=booked). The logged basis is \"list\", so listed =\nbooked = the logged booked_usd. Then it records \"restated_b3_meter\" in the ledger.",

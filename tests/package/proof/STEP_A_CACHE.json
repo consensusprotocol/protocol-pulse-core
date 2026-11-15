@@ -23903,5 +23903,35 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "b7831c69e28dc2f3c256:e9214d383971e0e9f0c9f9852d23699a14a2d6dd628042e48e63041884c71025:cea3abafcf80fda3ed830122cb7bc1c9257a3bfc7d80cf0abddc6fd2d4fa3b4b:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b7831c69e28dc2f3c256",
+   "speaker_changes_inside": "no",
+   "view": "conditional",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "the bitcoin owned by the hypothetical person",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "bitcoin price is going to go up 20, 30 percent in the next few years",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Someone owning hundreds or thousands of bitcoin would not spend any of it while expecting the price to rise 20-30% over the next few years.",
+   "certainty": "speculative",
+   "speaker_is": "guest",
+   "speaker_evidence": "Yeah, I would agree. And I I'll I'll also, you know, parrot what you said about the genie coefficient of Bitcoin.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }
