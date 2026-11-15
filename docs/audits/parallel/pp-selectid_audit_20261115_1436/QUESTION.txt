@@ -1,0 +1,46 @@
+pp-selectid: RULING 115 (3) (orchestrator 13:24 ET Nov 15), THE PROPER FIX, REPORT BEFORE USE. A new measurement
+driver, tests/package/hook115.py, and its offline tests tests/package/test_hook115.py. Nothing in pipeline/ changes;
+the hook job keeps ruling 115 (1)'s question; nothing here is read by a build.
+
+THE ORDER, verbatim: "(3) THE PROPER FIX, in parallel, report before use: your (b), a new hook-question version
+carrying the approved hooks as positive examples AND five clear negatives from the near-miss file (the
+mid-conversation openers rated 2, e.g. "you know, it's still an asset"). It takes the job only when it rates all five
+approved at 4 or more AND all five negatives at 3 or less, on Grok and separately on qwen (qwen wins the job back if
+it passes both and agrees at ruling 85's bar). The standing law of ruling 113 (2) is then measured against that
+version." Ruling 115's cap: $0.50 in all.
+
+THE DRIVER:
+- The positives: hook112.ref_moments() (UNCHANGED, tests/package/hook112.py:373-388): the five PBX-approved hooks,
+  their approved text verbatim, ids "ref-<key>".
+- The negatives (NEGATIVES): five moments rated 2 as mid-conversation openers in ruling 112's 48 h, one per channel
+  (Scott Melker "You know, it's still an asset...", the order's own example; CoinTelegraph "Now, all that said...";
+  CNBC Television "There is, though, one potential bright spot here..."; The Bitcoin Layer "...turning though...";
+  Simply Bitcoin "As I've said multiple times on this show..."). negatives() reads each one's text from the builds
+  (hook112.build_records / all_ratings, UNCHANGED: the source of the near-miss file) where it was rated 2, and gives
+  it an id of its own ("neg-<id>"), so no cache entry can answer for it.
+- prompt_v2: package.HOOKS_PROMPT unchanged with ONE block after its first paragraph: the approved openers (each "opened
+  a video he approved for publishing") and the failing ones ("each starts mid-conversation, leaning on something said
+  before it"), each with its channel. No example carries a rating. The braces of the texts are escaped for the
+  prompt's .format. HOOK_QUESTION (ruling 52's one question) and the reply contract are the same bytes.
+- rate(): package.hook_ratings on ONE moment, cache None (so nothing is read from or written to HOOK_CACHE.json:
+  _load_cache(None) is {} and _cache_put(None, ...) returns at once, pipeline/package.py:499-513), at seed 7, with
+  HOOKS_PROMPT patched to the v2 text only for the call (unittest.mock.patch.object, restored on exit), avoiding the
+  writers' vendor and family (package._writers) as production does.
+- build_router(model): providers.Router under heimdall_first with "coherence_verdict:hook" = [that model] alone
+  (Grok xai:grok-4.20-0309-reasoning, or qwen heimdall:qwen/qwen3.8-27b), its own ledger SPEND_H115.json, limit $0.55
+  on reported spend; no call starts at STOP_USD $0.25.
+- THE TEST, as ordered: the ten, each alone, on each model; passes = every approved own-job rating (min(scroll,
+  alone), ruling 61) >= 4 AND every negative's <= 3. Because the ten rated ARE the examples the prompt carries, a
+  pass may only show the model copying its examples: the same ten are also asked LEAVE-ONE-OUT (the rated item left
+  out of the block), reported beside it. ~40 calls: Grok ~$0.005 each, qwen ~$0.0003.
+- Output: proof/hook115/QUESTION_V2_TEST.json (every rating, the question as asked) and REPORT.md.
+
+TESTS (offline): the block sits after the first paragraph, HOOK_QUESTION is unchanged in the filled prompt, braces in
+a text survive .format, no example carries a rating; leave-one-out drops only the rated item; rate() asks one moment
+with cache None and seed 7 and restores HOOKS_PROMPT; the verdict's rule (including a missing rating); the five
+negatives are read from the proof builds with their texts.
+
+PLEASE CHECK: (1) that the v2 prompt differs from production's only by the block; (2) that nothing can read or write
+the production cache, and HOOKS_PROMPT is restored after every call; (3) that only the named model can answer each
+run (no failover to another model); (4) the verdict's rule against the order; (5) the stop under the cap; (6) the
+tests.

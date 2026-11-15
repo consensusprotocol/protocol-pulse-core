@@ -1,0 +1,48 @@
+pp-selectid: RULING 114 (orchestrator 13:18 ET Nov 15), V4 ON AN XINFER WORKER. A new measurement driver,
+tests/package/replay114.py, and its offline tests tests/package/test_replay114.py. Nothing in pipeline/ changes; no
+build reads anything this writes; no routing change.
+
+THE ORDER, verbatim: "The Heimdall team read our v4 samples. Jon Pry: the unclosed JSON is "the usual vllm schema
+problem; the xinfer workers don't have this issue", and a request carrying the HTTP header x-bf-tunnel-instance:
+pinga282 goes to an xinfer worker IF the gateway forwards the header (he has asked Thanos whether it does; we can
+simply try). DO: (a) 30 of the 93 records that came back unclosed in replay111 (the same 5 I sent the team among them:
+out_tokens 7, 122, 171, 497, 1564), same settings as replay111 (json_object, reasoning effort none), ONCE WITH the
+header and ONCE WITHOUT, same seed. (b) THIS TIME RECORD per call: finish_reason, the response's id, and every
+response header (so we can see which instance answered, e.g. any x-bf-* header), plus out_tokens and seconds. Never
+log our own request's Authorization. (c) Report: unclosed with header / without header; whether any response header
+shows the instance changed; finish_reason counts for the unclosed ones. If the header changes nothing, say so: it may
+not be forwarded. (d) Proof to proof/replay114/." Heimdall only, cap $0.15.
+
+THE DRIVER:
+- unclosed(): replay111's OUT_OF_CONTRACT.jsonl rows of shape "truncated" (93). pick(): one record for each of the
+  five named out_tokens first, then the others spread evenly in out_tokens order -> 30 distinct records (today: 15
+  step_a, 14 clips_alone, 1 coherence).
+- ask(): the call is replay111's own: replay111.FormatBackend("none").complete(prompt, max_tokens, seed,
+  system) with the record's own prompt, max_tokens, seed and system (tests/package/replay111.py:56-87, UNCHANGED:
+  model deepseek/deepseek-v4-flash-0731-abliterated, response_format json_object, reasoning_effort "none",
+  max_tokens via max_out, temperature from the template spec, the system line + " Reply with one JSON object
+  only."). The only change is the transport: capturing() swaps providers._http_json (the function FormatBackend
+  calls, providers.py:124-127, UNCHANGED) for a Capture that sends the same request plus the extra header on the
+  "with" leg and keeps the RESPONSE's status, every header, id, finish_reason, usage and model. On an HTTP error it
+  keeps that response's status and headers and re-raises (providers._with_backoff, UNCHANGED, still retries 429 /
+  5xx). The real _http_json is restored in a finally.
+- The request's headers (the Authorization among them) are never put in a row: a row holds leg, x_bf_header_sent,
+  seed, max_tokens, seconds, status, response_headers, id, finish_reason, usage, response_model, out_tokens,
+  usd_reported, shape, unclosed, text (diagnosis only), and the record's id.
+- shape_of(): "closed JSON" when the text parses, else replay111.shape (unchanged); unclosed = "truncated".
+- run(): one call at a time; the two legs alternate which goes first (record i even: with first); a re-run skips
+  (record, leg) pairs already in RESULTS.jsonl; no call starts once SPEND_R114.json holds STOP_USD $0.14
+  (vendor-reported usage.cost, added after each call). Calls are ~$0.0003 (replay111: 96 step-A calls $0.032).
+- report(): per leg: calls, errors, unclosed, shapes, finish_reason counts (all, and the unclosed); the response
+  headers whose value differs between a record's two legs; every x-bf* response header seen; REPORT.md and
+  SUMMARY.json.
+
+TESTS (offline: urlopen replaced by a fake gateway, a fake key, temporary files): the pick; the header sent on its
+leg only and the two requests otherwise identical (seed, model, response_format, reasoning_effort); the row's fields;
+no key, "Bearer" or "authorization" in any row; a failed call is a row with the response's headers; both legs,
+alternating, resumed without re-asking, stopped at the cap, and the real ledger never touched. (A first version bound
+the ledger path at definition time, so the test's patch missed it: fixed, and the test now checks the real ledger.)
+
+PLEASE CHECK: (1) that the request is byte-for-byte replay111's apart from the one header; (2) that no request header
+(the Authorization) can reach a row, the report or a log line; (3) the stop under the cap; (4) the report's counts;
+(5) the tests.

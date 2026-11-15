@@ -1,0 +1,34 @@
+{
+ "ruling": "107 (2), 20:40 ET Nov 14",
+ "changed_lines": 295,
+ "cap_usd": 1.0,
+ "usd_reported": 0.034923,
+ "usd_upper_bound_unreported": 0.0,
+ "reviews": [
+  {
+   "review": "C1_glm-5.3-flash.md",
+   "usd_reported": 0.000852,
+   "usd_upper_bound": 0.095
+  },
+  {
+   "review": "C1_grok-4.20-0309-reasoning.md",
+   "usd_reported": 0.027111,
+   "usd_upper_bound": 0.073
+  },
+  {
+   "review": "C1_qwen3.8-27b.md",
+   "usd_reported": 0.002673,
+   "usd_upper_bound": 0.079
+  },
+  {
+   "review": "C2_glm-5.3-flash.md",
+   "usd_reported": 0.001006,
+   "usd_upper_bound": 0.112
+  },
+  {
+   "review": "C2_qwen3.8-27b.md",
+   "usd_reported": 0.003281,
+   "usd_upper_bound": 0.071
+  }
+ ]
+}
