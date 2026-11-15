@@ -474,6 +474,7 @@ def main(argv=None):
               spend=lambda: (own["est"], own["best"]),
               step_a_cache=os.path.join(HERE, "proof", "STEP_A_CACHE.json"),     # ruling 58: paid for once
               hook_cache=os.path.join(HERE, "proof", "HOOK_CACHE.json"),          # ruling 59 (a): cached
+              join_cache=os.path.join(HERE, "proof", "JOIN_CACHE.json"),          # ruling 117: cached
               scorer_verdicts_path=PK.SCORER_VERDICTS,                            # ruling 56 / 60: read only
               scorer_candidates_path=PK.SCORER_CANDIDATES, build_name=os.path.basename(out_dir),
               visual_cache=os.path.join(HERE, "proof", "VISUAL_CACHE.json"),       # ruling 70

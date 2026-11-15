@@ -1,0 +1,56 @@
+pp-selectid: RULING 117 (orchestrator 16:24 ET Nov 15), THE JOINS: SEARCH, DO NOT LOOSEN (2)+(3). Files:
+pipeline/package.py (join_table, search_lineups, JOIN_QUESTION / JOINS_PROMPT, build()'s angle loop),
+pipeline/model_providers.json (the joins list), tests/package/proof_ledger.py (the join cache), tests/package/test_medley.py.
+
+THE ORDER, verbatim: "(2) BUILD THE JOIN TABLE: for the moments that can be in a line-up for an angle (the hook and the
+clips that passed step A from both vendors, the second pass and CUTTABLE; cap 8 moments an angle), ask ONCE per ordered
+pair 'coming from the end of A, is B's subject or referent clear with no narration' (the join question as it stands,
+one pair per item, batched in one call where the contract allows; Grok, the calibrated rater; cached by the two texts).
+Then choose the order BY SEARCH over the table: hook first, 2-4 clips, the seconds and channel rules as now, at most one
+flagged join, highest clip ratings first. No model call in the search. (3) THE FULL VERDICT STILL DECIDES: the chosen
+line-up goes through the clips-alone and coherence verdicts unchanged (calibrated bars); the table only picks what to
+ask them. Report how often the table's joins and the full verdict's joins agree." The join law does NOT move (one
+bridge).
+
+THE CHANGE:
+- JOIN_QUESTION: the clips-alone verdict's own join sentence (a test checks it is in MEDLEY_PROMPT, white space
+  normalized; MEDLEY_PROMPT itself is unchanged, so the line-up calibration's version stands). JOINS_PROMPT: the
+  moments once ("CLIP id=c1 ..."), the pairs ("PAIR id=p1: c1 -> c3"), the question per pair, one item a pair:
+  {"pairs": {"p1": {"followable": bool, "why": str}}}.
+- join_table(router, ms, ...): ms = the angle's hook then its other moments that are in `cleared` (cleared = the
+  build's moments that passed step A from both vendors, the second pass and CUTTABLE) and not doomed, at most 8. Every
+  ordered pair with the hook never second (8 moments: 49 pairs), 25 pairs a call, coherence_verdict kind "joins"
+  (Grok ALONE in every routing: model_providers.json), off the writers. Cached by the two texts' sha and JOINS_VERSION
+  (JOIN_CACHE.json), served only from a back-end on today's joins list; an out-of-contract chunk moves on
+  (call_parsed) and leaves its pairs unanswered; the others are still asked.
+- search_lineups(angle, by_id, table, dropped, judged, bad_pairs, ratings, floor, repeat_ok): the angle's own hook
+  first, then 2-4 of its other moments in EVERY order; kept only when lineup_ok passes (the rules as now: can open,
+  clip-eligible, one per channel or the supply exception, price predictions, trimmed clips, a clip under 8 s only
+  last, the seconds window, the render's STAND_ALONE), not judged yet, and at most LY_MAX_BRIDGES flagged joins, where
+  a join is flagged when the table says not followable, when the table has NO answer for it, or when a verdict of
+  this build flagged it. Best first: fewest flagged joins, then the clips' known ratings (lowest, then mean; a clip not
+  rated yet counts at the floor), then the writer's play order (fewest moves). No model call.
+- build(): per angle (not for a ruling-66 candidate), the table is asked once, before its first line-up, and recorded
+  (out["join_tables"]). A fresh line-up is the search's best (one channel per segment first, then the supply
+  exception); after a failed clips-alone verdict, its clips' ratings are kept, a clip under THAT verdict's floor leaves
+  the angle (dropped), and the search's next line-up is asked (rec["why"] names ruling 117). With no table (the call
+  failed, or no pair answered) or nothing left in the search, the build goes on exactly as before (lineup_for, then
+  rulings 62 / 63 / 41). Every judged line-up records its joins as the table had them against the verdict
+  (rec["join_table_vs_verdict"]); out["join_agreement"] counts agree / joins / unanswered.
+
+UNCHANGED GUARDS: medley() / coherence() decide every line-up (their prompts, floors and marks unchanged);
+LINEUPS_PER_BUILD (8 judged line-ups a build) and the spins guard bound the loop; lineup_ok
+(pipeline/package.py, "def lineup_ok"); _load_cache / _cache_put (None: neither read nor written); call_parsed.
+
+TESTS (test_medley TestRuling117JoinSearch, 12): the question is the verdict's own; once per ordered pair, the hook
+never second, one call, off the writers, kind "joins", cached by texts (a changed text re-asks only its pairs); 49
+pairs in 2 calls; a failed chunk leaves only its pairs unanswered; the cache only for today's joins list; the search:
+every order under lineup_ok, never two flagged, a short clip only last, judged / dropped excluded, an unanswered pair
+and a verdict's flag each count as flagged, known ratings rank; the build asks the search's line-up first, records
+the agreement, takes the search's next after a failure, drops a clip under the verdict's floor (and asks no third
+verdict once the search runs out), and with no table or an empty one is the build as before. All 40 suite files pass
+(805 + 4 tests). Mutations after a control run: 14 of 14 killed.
+
+PLEASE CHECK: (1) that nothing about the join law or the verdicts moved (one bridge; the verdicts decide); (2) that
+the search applies exactly lineup_for's rules (via lineup_ok) and counts unanswered pairs as flagged; (3) the
+build's fallbacks (no table, no candidates) keep today's behaviour; (4) the cache and the contract; (5) the tests.

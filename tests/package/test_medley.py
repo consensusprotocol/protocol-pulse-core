@@ -552,8 +552,9 @@ class Rig:
                  spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None,
                  trim_fail=(), hooks=None, hook_err=None, verdicts=None, follow_up=None, fids=None, lines=None,
                  cached=False, candidate=None, visuals=None, registered=None, lock_check=None, values=None,
-                 real_value=False, caption=None, coherences=None):
+                 real_value=False, caption=None, coherences=None, joins=None):
         import providers as P
+        self.joins, self.join_calls = joins, []           # RULING 117: {(a, b): followable}; None = no table (as before)
         self.coherences = list(coherences or [])         # RULING 116: (ok, every clip's rating, the VO point) in order
         self.values, self.value_calls = list(values or []), []   # ruling 91: the value verdicts' answers, in order
         self.real_value = real_value                       # ruling 91: package.takeaway_value itself, on the router
@@ -629,6 +630,20 @@ class Rig:
             sc, al, se = self.hooks.get(m["moment_id"], (5, 5, 5) if m["moment_id"] in self.angle_hooks else (3, 3, 3))
             out[m["moment_id"]] = {"scroll": sc, "alone": al, "setup": se, "rating": min(sc, al),   # ruling 61
                                    "why": f"why {m['moment_id']}", "backend": "xai:grok", "cached": False}
+        return out, None
+
+    def join_table(self, router, ms, ctx_, wv, wf=None, cache=None, seed=7):
+        """Ruling 117 as the real join_table answers: every ordered pair of `ms` (the hook never B) the rig knows
+        (self.joins), followable or not; a pair it does not know is not answered. None: no table at all."""
+        self.join_calls.append([m["moment_id"] for m in ms])
+        if self.joins is None:
+            return {}, None
+        out = {}
+        for a in ms:
+            for b in ms[1:]:
+                if a is not b and (a["moment_id"], b["moment_id"]) in self.joins:
+                    out[(a["moment_id"], b["moment_id"])] = {"followable": self.joins[(a["moment_id"], b["moment_id"])],
+                                                             "why": "w", "backend": "xai:grok", "cached": False}
         return out, None
 
     def coherence(self, router, pk, *a, **k):
@@ -728,6 +743,7 @@ class Rig:
                                                      "edges": {"cuttable": m["moment_id"] not in self.uncuttable}},
             "hook_onset_for": self.onset,
             "hook_ratings": self.rate_hooks,
+            "join_table": self.join_table,
             "takeaway_value": self.value,                  # ruling 91 (medley half)
             "coherence": self.coherence,
         }
@@ -1707,6 +1723,211 @@ class TestRuling116LineupBar(unittest.TestCase):
             out = rig.run()
         self.assertIsNotNone(out["package"])
         self.assertNotIn("lineup_bar", out["package"])                                  # the standard bar: no mark
+
+
+class TestRuling117JoinSearch(unittest.TestCase):
+    """RULING 117 (orchestrator 16:24 ET Nov 15), SEARCH, DO NOT LOOSEN: the join table (the clips-alone verdict's own
+    join question once per ordered pair of an angle's moments, Grok, cached) and the line-ups chosen BY SEARCH over it
+    (hook first, 2-4 clips in every order, the rules as now, at most one flagged join); the verdicts still decide."""
+
+    def canned(self, *replies):
+        c = Canned(coherence_verdict=list(replies))
+        B = lambda v, f: type("B", (), {"vendor": v, "family": f})()
+        c.backends = {"fake:coherence_verdict": B("fake", "fake")}
+        return c
+
+    @staticmethod
+    def all_pairs(prompt, followable=True):
+        ids = re.findall(r'PAIR id="(p\d+)"', prompt)
+        return {"pairs": {p: {"followable": followable, "why": "w"} for p in ids}}
+
+    def test_the_question_is_the_clips_alone_verdicts_own(self):
+        self.assertIn(PK.JOIN_QUESTION, " ".join(PK.MEDLEY_PROMPT.split()))   # ONE join question
+        self.assertIn(PK.JOIN_QUESTION, PK.JOINS_PROMPT)
+
+    def test_once_per_ordered_pair_the_hook_never_second_batched_and_cached(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        prompts = []
+        c = self.canned()
+        import providers as P
+
+        def call(role, prompt, *a, **k):
+            prompts.append(prompt)
+            c.calls.append((role, k.get("avoid_vendor"), k.get("avoid_family"), k.get("kind")))
+            return P.Reply(json.dumps(self.all_pairs(prompt)), "fake:coherence_verdict", "fake")
+        c.call = call
+        with tempfile.TemporaryDirectory() as d:
+            cache = os.path.join(d, "JOIN_CACHE.json")
+            got, err = PK.join_table(c, ms, ctx(), {"heimdall"}, {"deepseek"}, cache=cache)
+            self.assertIsNone(err)
+            self.assertEqual(sorted(got), [("h", "x"), ("h", "y"), ("x", "y"), ("y", "x")])   # 4 pairs, no (.., h)
+            self.assertEqual(c.calls, [("coherence_verdict", {"heimdall"}, {"deepseek"}, "joins")])   # one call
+            self.assertIn(PK.JOIN_QUESTION, prompts[0])
+            again, err = PK.join_table(self.canned(), ms, ctx(), {"heimdall"}, {"deepseek"}, cache=cache)
+            self.assertEqual((err, len(again), all(x["cached"] for x in again.values())), (None, 4, True))   # no call
+            prompts.clear()
+            c.calls.clear()
+            new = [ms[0], dict(ms[1], text="Bitcoin is a new text now."), ms[2]]
+            got, _ = PK.join_table(c, new, ctx(), set(), set(), cache=cache)
+            self.assertEqual(len(re.findall(r'PAIR id=', prompts[0])), 3)       # only the pairs with the new text
+        big = [pm(f"m{i}", chr(65 + i), 10.0) for i in range(9)]
+        prompts.clear()
+        c.calls.clear()
+        got, _ = PK.join_table(c, big, ctx(), set(), set())
+        self.assertEqual((len(got), len(prompts)), (49, 2))                     # 8 moments: 49 pairs in 25 + 24
+
+    def test_a_chunk_out_of_contract_has_no_entries_and_the_others_are_still_asked(self):
+        big = [pm(f"m{i}", chr(65 + i), 10.0) for i in range(8)]
+        import providers as P
+        c, n = self.canned(), [0]
+
+        def call(role, prompt, *a, **k):
+            n[0] += 1
+            if n[0] == 1:
+                raise P.ProviderError("coherence_verdict: every back-end unavailable")
+            return P.Reply(json.dumps(self.all_pairs(prompt, False)), "fake:coherence_verdict", "fake")
+        c.call = call
+        got, err = PK.join_table(c, big, ctx(), set(), set())
+        self.assertEqual((len(got), "ProviderError" in err), (24, True))       # the second chunk only
+        self.assertTrue(all(x["followable"] is False for x in got.values()))
+
+    def moments(self):
+        h = dict(pm("h", "A", 12.0), hook_onset={"pass": True})
+        return {m["moment_id"]: m for m in (h, pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 6.0))}
+
+    def test_the_search_every_order_the_rules_and_at_most_one_flagged_join(self):
+        by = self.moments()
+        a = angle(["h", "x", "y", "z"], "h")
+        T = lambda ok: {"followable": ok}
+        table = {(p, q): T(True) for p in "hxyz" for q in "xyz" if p != q}
+        table[("h", "x")] = T(False)
+        table[("x", "y")] = T(False)                                          # the writer's order: two flagged
+        got = PK.search_lineups(a, by, table)
+        self.assertTrue(got)
+        best = [m["moment_id"] for m in got[0]]
+        self.assertEqual(best[0], "h")                                       # the hook first
+        ids = [[m["moment_id"] for m in s] for s in got]
+        self.assertNotIn(["h", "x", "y", "z"], ids)                          # two flagged: never offered
+        for s in ids:
+            self.assertLessEqual(sum(table.get((p, q), {}).get("followable") is not True for p, q in zip(s, s[1:])), 1)
+            self.assertTrue(PK.lineup_ok([by[i] for i in s])[0])              # the rules as now
+            self.assertNotIn("z", s[1:-1])                                    # z is short (6 s): only last
+        self.assertEqual(sum(table.get((p, q), {}).get("followable") is not True for p, q in zip(best, best[1:])), 0)
+        del table[("y", "z")]                                                # no answer counts as flagged
+        self.assertTrue(all(sum((p, q) == ("y", "z") or table.get((p, q), {}).get("followable") is not True
+                                for p, q in zip(s, s[1:])) <= 1 for s in
+                            [[m["moment_id"] for m in x] for x in PK.search_lineups(a, by, table)]))
+        judged = {tuple(best)}
+        self.assertNotIn(best, [[m["moment_id"] for m in s] for s in PK.search_lineups(a, by, table, judged=judged)])
+        self.assertFalse([s for s in PK.search_lineups(a, by, table, dropped=frozenset({"x", "y"}))])   # 1 clip left
+        bp = {("h", "y")}                                                    # a verdict flagged it: it counts
+        for s in [[m["moment_id"] for m in x] for x in PK.search_lineups(a, by, table, bad_pairs=bp)]:
+            n_bad = sum((p, q) in bp or table.get((p, q), {}).get("followable") is not True for p, q in zip(s, s[1:]))
+            self.assertLessEqual(n_bad, 1)
+
+    def test_an_unanswered_pair_and_a_verdicts_flag_each_count_as_flagged(self):
+        by = dict(self.moments(), z=pm("z", "D", 13.0))
+        a = angle(["h", "x", "y", "z"], "h")
+        table = {(p, q): {"followable": True} for p in "hxyz" for q in "xyz" if p != q}
+        ids = lambda got: [[m["moment_id"] for m in s] for s in got]
+        self.assertEqual(ids(PK.search_lineups(a, by, table))[0], ["h", "x", "y"])   # the writer's order first
+        t2 = dict(table)
+        t2[("h", "x")] = {"followable": False}
+        del t2[("x", "y")]                                                   # no answer for x -> y
+        self.assertNotIn(["h", "x", "y"], ids(PK.search_lineups(a, by, t2)))       # flagged + unanswered: 2
+        self.assertNotIn(["h", "x", "y"], ids(PK.search_lineups(a, by, table, bad_pairs={("h", "x"), ("x", "y")})))
+
+    def test_the_search_prefers_higher_known_ratings(self):
+        by = dict(self.moments(), z=pm("z", "D", 13.0))                      # z long enough to stand in for y
+        a = angle(["h", "x", "y", "z"], "h")
+        table = {(p, q): {"followable": True} for p in "hxyz" for q in "xyz" if p != q}
+        got = PK.search_lineups(a, by, table, ratings={"x": 5, "y": 2}, floor=3)
+        self.assertNotIn("y", [m["moment_id"] for m in got[0]])              # a 2 ranks below the unknown z
+
+    def test_a_build_asks_the_searchs_line_up_first_and_records_the_agreement(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        joins = {("h", "x"): False, ("x", "y"): False, ("h", "y"): True, ("y", "x"): True}
+        rig = Rig(ms, ["h", "x", "y"], [(True, [], None, Rig.LINE)], [None], joins=joins)
+        out = rig.run()
+        self.assertEqual(rig.medley_calls, [["h", "y", "x"]])                  # the table's order, not the writer's
+        self.assertEqual(rig.join_calls, [["h", "x", "y"]])
+        self.assertEqual(out["tried"][0]["join_table_vs_verdict"],
+                         {"hook -> clip_01": {"table": True, "verdict": True},
+                          "clip_01 -> clip_02": {"table": True, "verdict": True}})
+        self.assertEqual(out["join_agreement"], {"joins": 2, "agree": 2, "table_unanswered": 0})
+        self.assertEqual(out["join_tables"][0]["moments"], ["h", "x", "y"])
+        self.assertIsNotNone(out["package"])
+
+    def test_after_a_failed_verdict_the_search_gives_the_next_line_up(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
+        joins = {(p, q): True for p in "hxyz" for q in "xyz" if p != q}
+        rig = Rig(ms, ["h", "x", "y", "z"], [(False, ["hook -> clip_01", "clip_01 -> clip_02"], None, Rig.LINE),
+                                             (True, [], None, Rig.LINE)], [None], joins=joins)
+        out = rig.run()
+        first, second = rig.medley_calls                                      # the search's shortest first: h x y
+        self.assertEqual(first, ["h", "x", "y"])
+        self.assertIn("ruling 117", out["tried"][0]["why"])
+        flagged = {("h", "x"), ("x", "y")}                                    # the verdict's flags count as flagged
+        self.assertEqual(sum(p in flagged for p in zip(second, second[1:])), 0)   # the next has neither
+        self.assertIsNotNone(out["package"])
+
+    def test_the_cache_answers_only_for_todays_joins_list(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0)]
+        import providers as P
+        c = self.canned()
+        c.call = lambda role, prompt, *a, **k: (c.calls.append(role), P.Reply(
+            json.dumps(self.all_pairs(prompt)), "fake:coherence_verdict", "fake"))[1]
+        c.chain = lambda role, kind=None: ["fake:coherence_verdict"]
+        with tempfile.TemporaryDirectory() as d:
+            cache = os.path.join(d, "JOIN_CACHE.json")
+            PK.join_table(c, ms, ctx(), set(), set(), cache=cache)
+            c.calls.clear()
+            got, _ = PK.join_table(c, ms, ctx(), set(), set(), cache=cache)
+            self.assertEqual((c.calls, got[("h", "x")]["cached"]), ([], True))     # on the list: served
+            c.chain = lambda role, kind=None: ["xai:another-rater"]
+            got, _ = PK.join_table(c, ms, ctx(), set(), set(), cache=cache)
+            self.assertEqual((len(c.calls), got[("h", "x")]["cached"]), (1, False))   # off it: asked again
+
+    def test_a_clip_under_the_verdicts_floor_leaves_the_search(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
+        joins = {(p, q): True for p in "hxyz" for q in "xyz" if p != q}
+        rig = Rig(ms, ["h", "x", "y", "z"], [(False, [], {"clip_01": 2}, Rig.LINE), (True, [], None, Rig.LINE)],
+                  [None], joins=joins)
+        out = rig.run()
+        first, second = rig.medley_calls
+        self.assertEqual(first[1], "x")                                      # x rated 2 on the calibrated bar
+        self.assertNotIn("x", second)                                         # out of every later line-up
+        self.assertIn("ruling 117", out["tried"][0]["why"])
+
+    def test_clips_under_a_verdicts_floor_never_come_back_when_the_search_runs_out(self):
+        """x, then y, rated 2: each leaves the search; with neither, no line-up of 2-4 clips is left, so no third
+        verdict is asked (with them kept, the search would ask a line-up holding a clip already rated 2)."""
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
+        joins = {(p, q): True for p in "hxyz" for q in "xyz" if p != q}
+        rig = Rig(ms, ["h", "x", "y", "z"], [(False, [], {"clip_01": 2}, Rig.LINE), (False, [], {"clip_01": 2}, Rig.LINE),
+                                             (True, [], None, Rig.LINE)], [None], joins=joins)
+        rig.run()
+        self.assertEqual(rig.medley_calls, [["h", "x", "y"], ["h", "y", "z"]])
+
+    def test_the_tables_moments_are_the_hook_its_writers_picks_then_the_cleared_pool(self):
+        """The order's set: the hook and the clips that passed step A from both vendors, the second pass and CUTTABLE
+        (the cleared pool), at most 8: the writer's own moments first, then the pool by rank score."""
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("w", "D", 13.0)]
+        rig = Rig(ms, ["h", "x", "y"], [(True, [], None, Rig.LINE)], [None], joins={})
+        rig.run()
+        self.assertEqual(rig.join_calls, [["h", "x", "y", "w"]])
+        big = [pm("h", "A", 12.0)] + [pm(f"m{i}", chr(66 + i), 10.0) for i in range(9)]
+        rig = Rig(big, ["h", "m0", "m1"], [(True, [], None, Rig.LINE)], [None], joins={})
+        rig.run()
+        self.assertEqual((len(rig.join_calls[0]), rig.join_calls[0][:3]), (8, ["h", "m0", "m1"]))
+
+    def test_no_table_or_an_empty_one_is_the_build_as_before(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        for joins in (None, {}):
+            rig = Rig(ms, ["h", "x", "y"], [(True, [], None, Rig.LINE)], [None], joins=joins)
+            out = rig.run()
+            self.assertEqual(rig.medley_calls, [["h", "x", "y"]])              # the writer's order
+            self.assertNotIn("join_agreement", out)
 
 
 class TestRuling56Scorer(unittest.TestCase):

@@ -1015,6 +1015,25 @@ MEDLEY_VERSION = hashlib.sha256(MEDLEY_PROMPT.encode()).hexdigest()[:12]        
 COHERENCE_VERSION = hashlib.sha256(COHERENCE_PROMPT.encode()).hexdigest()[:12]   # valid for exactly these questions
 STANDARD_LINEUP = {"clips_alone": {"clip": COHERENCE_MIN}, "coherence": {"clip": COHERENCE_MIN,
                                                                          "vo_point": COHERENCE_MIN}}
+JOIN_QUESTION = ("could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear "
+                 "coming from the previous clip's ending?")   # RULING 117: the clips-alone verdict's own join question
+JOINS_PROMPT = """You judge JOINS between clips of 60-second videos made of other channels' own words (each clip is a
+person's own words from a show; the shows were not in one conversation). In each PAIR, clip A plays and clip B follows
+it at once, with NO narration between them. Judge each pair ALONE: the pairs are not one video, and nothing else plays
+before or between A and B.
+
+THE CLIPS:
+{clips}
+
+THE PAIRS (A -> B):
+{pairs}
+
+For EACH pair, the join question (the previous clip is A, the next clip is B): """ + JOIN_QUESTION + """ Answer
+"followable": true or false, and "why": a few words.
+Return ONLY this JSON object: {{"pairs": {{{keys}}}}}"""
+JOINS_VERSION = hashlib.sha256(JOINS_PROMPT.encode()).hexdigest()[:12]   # a cached join is for exactly this question
+JOIN_MOMENTS_MAX = 8                 # ruling 117: the hook and its angle's other moments, at most 8 an angle
+JOIN_PAIRS_PER_CALL = 25             # pairs a call (one item a pair)
 #   the standard bar: every verdict not given by the calibrated rater, and every verdict while the file is invalid
 
 
@@ -1917,6 +1936,109 @@ def reorder(segs, bad_pairs, judged, repeat_ok=False):
     return best[1] if best else None
 
 
+def join_table(router, ms, ctx, writer_vendor, writer_family=None, cache=None, seed=7):
+    """RULING 117 (2): the JOIN TABLE. The clips-alone verdict's own join question (JOIN_QUESTION) asked ONCE per ordered
+    pair of `ms` (the angle's hook first, then its other moments; at most JOIN_MOMENTS_MAX; the hook is never B), one
+    pair an item, JOIN_PAIRS_PER_CALL pairs a call, on coherence_verdict's "joins" list (Grok, the calibrated rater),
+    never the writers' vendor or family. Cached (`cache`, shared by every build) by the two texts and JOINS_VERSION;
+    only a back-end on today's joins list answers from it. A reply out of contract moves on (providers.call_parsed).
+    -> ({(a id, b id): {"followable", "why", "backend", "cached"}}, the first error or None). A pair no call answered has
+    no entry: the search counts it as flagged (law L-m)."""
+    import providers as P
+    ms = list(ms)[:JOIN_MOMENTS_MAX]
+    if len(ms) < 2:
+        return {}, None
+    wv, wf = P._as_set(writer_vendor), P._as_set(writer_family)
+    off = lambda name: (lambda b: b is not None and b.vendor not in wv and b.family not in wf)(router.backends.get(name))
+    try:
+        listed = set(router.chain("coherence_verdict", "joins"))
+    except AttributeError:                       # a stand-in router without chain(): any back-end off the writers
+        listed = None
+    except P.ProviderError:                      # no joins list: no cached join answers (fail closed)
+        listed = set()
+    key = lambda a, b: f"{text_sha(a['text'])}:{text_sha(b['text'])}:{JOINS_VERSION}"
+    cdb, out, todo = _load_cache(cache), {}, []
+    for a in ms:
+        for b in ms[1:]:
+            if a is b:
+                continue
+            rec = next((x for name, x in sorted((cdb.get(key(a, b)) or {}).items())
+                        if isinstance(x, dict) and off(name) and x.get("backend") == name and
+                        (listed is None or name in listed) and type(x.get("followable")) is bool), None)
+            if rec is not None:
+                out[(a["moment_id"], b["moment_id"])] = dict(rec, cached=True)
+            else:
+                todo.append((a, b))
+    new, err = {}, None
+    for i in range(0, len(todo), JOIN_PAIRS_PER_CALL):
+        chunk = todo[i:i + JOIN_PAIRS_PER_CALL]
+        involved = list(dict.fromkeys(m["moment_id"] for ab in chunk for m in ab))
+        cid = {mid: f"c{k + 1}" for k, mid in enumerate(involved)}
+        by = {m["moment_id"]: m for ab in chunk for m in ab}
+        clips = "\n".join(f'CLIP id="{cid[mid]}" (on screen: {CI._q(_name(by[mid], ctx), 80)}): '
+                          f'"{CI._q(by[mid]["text"], 900)}"' for mid in involved)
+        pids = {f"p{k + 1}": ab for k, ab in enumerate(chunk)}
+        pairs = "\n".join(f'PAIR id="{p}": {cid[a["moment_id"]]} -> {cid[b["moment_id"]]}' for p, (a, b) in pids.items())
+        keys = ", ".join(f'"{p}": {{"followable": true, "why": "..."}}' for p in pids)
+
+        def parse(text, want=frozenset(pids)):
+            v = json.loads(text.strip())
+            h = v["pairs"] if isinstance(v, dict) and set(v) == {"pairs"} else None
+            if not isinstance(h, dict) or set(h) != set(want) or any(
+                    not isinstance(x, dict) or set(x) != {"followable", "why"} or type(x["followable"]) is not bool
+                    or not isinstance(x["why"], str) for x in h.values()):
+                raise ValueError("join table out of contract")
+            return h
+        try:
+            r, h = P.call_parsed(router, "coherence_verdict", JOINS_PROMPT.format(clips=clips, pairs=pairs, keys=keys),
+                                 parse, 400 + 60 * len(chunk), seed, avoid_vendor=writer_vendor,
+                                 avoid_family=writer_family, kind="joins")
+        except (P.ProviderError, P.SpendLimit, ValueError, TypeError, KeyError) as e:   # these pairs have no entry
+            err = err or f"{type(e).__name__}: {str(e)[:200]}"
+            continue
+        for p, (a, b) in pids.items():
+            rec = {"followable": h[p]["followable"], "why": h[p]["why"][:200], "backend": r.backend}
+            out[(a["moment_id"], b["moment_id"])] = dict(rec, cached=False)
+            new[key(a, b)] = {r.backend: rec}
+    _cache_put(cache, new)
+    return out, err
+
+
+def search_lineups(angle, by_id, table, dropped=frozenset(), judged=(), bad_pairs=frozenset(), ratings=None,
+                   floor=None, repeat_ok=False):
+    """RULING 117 (2): the line-ups of `angle` chosen BY SEARCH over the join table, no model call. Hook first (the
+    angle's own, ruling 59 c), then 2-4 of its other moments (not dropped; at most JOIN_MOMENTS_MAX in all) in EVERY
+    order, under every line-up rule as now (lineup_ok: can open, clip-eligible, one per channel or the supply exception,
+    price predictions, a short clip only last, the seconds, the render's STAND_ALONE), not judged yet, and at most
+    LY_MAX_BRIDGES flagged joins: a join is flagged when the table finds it unfollowable, when the table has no answer
+    for it, or when a verdict of this build flagged it (bad_pairs). Best first: the fewest flagged joins, then the
+    highest clip ratings (`ratings`: each clip's clips-alone rating in this angle's verdicts so far; a clip not rated
+    yet counts at `floor`): the lowest, then the mean; then the writer's play order kept. -> [segs, ...]."""
+    h = by_id.get(angle["hook"])
+    if h is None or angle["hook"] in dropped:
+        return []
+    ratings, floor = ratings or {}, COHERENCE_MIN if floor is None else floor
+    pos = {m: i for i, m in enumerate(angle["moments"])}
+    others = [by_id[m] for m in angle["moments"] if m != angle["hook"] and m in by_id and m not in dropped]
+    others = others[:JOIN_MOMENTS_MAX - 1]
+    flagged = lambda a, b: (a, b) in bad_pairs or (table.get((a, b)) or {}).get("followable") is not True
+    cands = []
+    for n in range(LY_CLIPS[0], LY_CLIPS[1] + 1):
+        for perm in itertools.permutations(others, n):
+            segs = [h, *perm]
+            ids = tuple(m["moment_id"] for m in segs)
+            if ids in judged:
+                continue
+            nf = sum(flagged(a, b) for a, b in zip(ids, ids[1:]))
+            if nf > LY_MAX_BRIDGES or not lineup_ok(segs, repeat_ok=repeat_ok)[0]:
+                continue
+            rs = [ratings.get(m["moment_id"], floor) for m in perm]
+            moves = sum(abs(pos.get(m["moment_id"], 99) - k) for k, m in enumerate(perm, 1))
+            cands.append(((nf, -min(rs), -sum(rs) / len(rs), moves), segs))
+    cands.sort(key=lambda x: x[0])
+    return [s for _, s in cands]
+
+
 def allot(angles, per):
     """RULING 64 (12:00): at most `per` angles per hook, in the writer's order (the excess is dropped, recorded)."""
     seen, out = {}, []
@@ -2574,6 +2696,7 @@ def candidate_lineup(router, candidate, cleared, now):
 def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
           writes=WRITES, work_dir=None, store=None, spend=None, lineups=LINEUPS_PER_BUILD, step_a_cache=None,
           hook_cache=None, scorer_verdicts_path=None, scorer_candidates_path=None, build_name="", candidate=None,
+          join_cache=None,
           visual_cache=None, registered=None, lock_check=None, scorer_extra=()):
     """L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
@@ -2582,6 +2705,12 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     work_dir: where law L-v 2's audio windows go (required: without it no package can pass). store: the step-A ledger.
     spend: a callable returning the ledger's USD (dollars per package).
     step_a_cache / hook_cache (rulings 58 / 59): the verdict caches every build shares (None: this build's only).
+    join_cache (RULING 117): the join table's cache, shared the same way. RULING 117, SEARCH, DO NOT LOOSEN: each angle's
+    join table (join_table: the join question once per ordered pair of its moments, Grok) is built before its first
+    line-up; the line-ups are then chosen BY SEARCH over it (search_lineups: hook first, 2-4 clips in every order, the
+    rules as now, at most one flagged join), the first and, after each failed verdict, the next; the clips-alone and
+    coherence verdicts still decide every line-up. With no table (the call failed or no entry) or no line-up left in
+    the search, the line-up is chosen as before (lineup_for, then rulings 62 / 63 / 41).
     scorer_verdicts_path / scorer_candidates_path / build_name (ruling 56, scorer_pass): the integrator's verdicts of the
     render's clip scorer to read, and where to write the next pass's candidates (None: neither).
     RULING 59, HOOK FIRST: once the pool is screened, every cleared, cuttable moment that can open is rated on the hook's
@@ -3136,6 +3265,24 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     with ThreadPoolExecutor(max_workers=8) as pool:
         for ai, angle in (enumerate(angles) if candidate is None else [(candidate["ai"], angles[0])]):
             dropped, n_lineup, swapped, filled = set(), 0, None, None
+            jt, a_ratings, ext = {}, {}, angle            # RULING 117: this angle's join table; its clips' ratings
+            if candidate is None and angle["hook"] in cleared and angle["hook"] not in doomed:
+                # the moments that can be in its line-up: its hook, its writer's other moments, then the rest of the
+                # cleared pool (step A from both vendors, the second pass, CUTTABLE) by rank score; at most 8
+                own_ = [x for x in angle["moments"] if x != angle["hook"] and x in cleared and x not in doomed]
+                rest_ = sorted((x for x in cleared if x not in doomed and x != angle["hook"] and x not in own_),
+                               key=lambda x: (-cleared[x].get("rank_score", 0), x))
+                jids = ([angle["hook"]] + own_ + rest_)[:JOIN_MOMENTS_MAX]
+                ext = dict(angle, moments=jids)           # the search's angle: the writer's order first
+                jms = [cleared[x] for x in jids]
+                jt, jt_err = join_table(router, jms, ctx, writers_v, writers_f, cache=join_cache)
+                out.setdefault("join_tables", []).append(
+                    {"angle": ai + 1, "moments": [m["moment_id"] for m in jms], "error": jt_err,
+                     "pairs": {f"{a} -> {b}": {"followable": x["followable"], "why": x["why"], "cached": x["cached"]}
+                               for (a, b), x in jt.items()}})
+                log(f"  angle {ai + 1}: join table (ruling 117) {len(jt)} pair(s) of {len(jms)} moments, "
+                    f"{sum(x['followable'] is not True for x in jt.values())} not followable"
+                    + (f"; NOT ASKED: {jt_err}" if jt_err else "") + f" ({time.time() - t0:.0f} s)")
             if candidate is not None:                     # RULING 66: its own seeds, so its recorded calls are served
                 n_lineup, swapped = candidate["n_lineup"] - 1, cand_segs
             while total < lineups and not out["packages"] and not out.get("budget_stop") and \
@@ -3148,6 +3295,15 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                     segs, swapped = swapped, None
                     exception = supply_exception(segs, ctx)
                 else:
+                    segs, filled = None, None
+                    if jt:                                # RULING 117: chosen by search over the join table
+                        found = search_lineups(ext, cleared, jt, frozenset(dropped | doomed), judged, bad_pairs,
+                                               a_ratings, lineup_floors("clips_alone", None)[0]["clip"]) or \
+                            search_lineups(ext, cleared, jt, frozenset(dropped | doomed), judged, bad_pairs,
+                                           a_ratings, lineup_floors("clips_alone", None)[0]["clip"], repeat_ok=True)
+                        segs = found[0] if found else None
+                        exception = supply_exception(segs, ctx) if segs is not None else None
+                if swapped is None and segs is None:      # no table, or the search has nothing: as before
                     segs, exception = lineup_for(angle, cleared, frozenset(dropped | doomed), need_onset=True,
                                                  need_stand_alone=True, now=ctx.now, hook_only=True), None
                     if segs is None:                      # L-y 4: one clip per channel unless the supply forces otherwise
@@ -3194,6 +3350,19 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                     judged[key] = (ok_m, med)
                     total += 0 if med.get("replayed") or med.get("cached") else 1   # 12:00: JUDGED line-ups
                 rec["medley"], rec["medley_ok"] = med, ok_m
+                if jt and med.get("measured"):            # RULING 117 (3): the table's joins against the verdict's
+                    ids_ = [m["moment_id"] for m in segs]
+                    cmp_ = {j: {"table": (jt.get((a, b)) or {}).get("followable"),
+                                "verdict": (med.get("joins") or {}).get(j, {}).get("followable")}
+                            for j, (a, b) in zip(joins(labels(len(segs))), zip(ids_, ids_[1:]))}
+                    rec["join_table_vs_verdict"] = cmp_
+                    ag = out.setdefault("join_agreement", {"joins": 0, "agree": 0, "table_unanswered": 0})
+                    for x in cmp_.values():
+                        if x["table"] is None:
+                            ag["table_unanswered"] += 1
+                        else:
+                            ag["joins"] += 1
+                            ag["agree"] += x["table"] == x["verdict"]
                 labs_ = labels(len(segs))
                 bad_pairs |= {(segs[labs_.index(a)]["moment_id"], segs[labs_.index(b)]["moment_id"])
                               for a, b in (j.split(" -> ") for j in med.get("flagged") or [])}   # ruling 63
@@ -3204,6 +3373,24 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                 if candidate is not None and not ok_m:    # RULING 66: a candidate failing a gate is closed
                     rec["why"] = "ruling 66: the candidate fails its clips-alone verdict now: closed"
                     break
+                if not ok_m and jt and med.get("measured"):   # RULING 117: the search over the table picks the next
+                    floor_ = (med.get("floors") or STANDARD_LINEUP["clips_alone"])["clip"]
+                    for lb_, mm in zip(labs[1:], segs[1:]):
+                        x = (med.get("clips") or {}).get(lb_)
+                        if type(x) is int:
+                            a_ratings[mm["moment_id"]] = max(x, a_ratings.get(mm["moment_id"], 0))
+                            if x < floor_:                # a clip under this verdict's floor leaves the search
+                                dropped.add(mm["moment_id"])
+                    found = search_lineups(ext, cleared, jt, frozenset(dropped | doomed), judged, bad_pairs,
+                                           a_ratings, floor_) or \
+                        search_lineups(ext, cleared, jt, frozenset(dropped | doomed), judged, bad_pairs, a_ratings,
+                                       floor_, repeat_ok=True)
+                    if found:
+                        swapped = found[0]
+                        rec["why"] = (f"ruling 117: the clips alone fail ({med.get('clips')}, flagged "
+                                      f"{med.get('flagged')}): the join table's search gives the next line-up "
+                                      f"{[m['moment_id'] for m in swapped]}")
+                        continue
                 if not ok_m:                              # L-y 2 / 3: pick clips that sit together
                     by_lab = dict(zip(labs, segs))
                     cl = med.get("clips") or {}
