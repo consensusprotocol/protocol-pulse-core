@@ -403,17 +403,22 @@ def main(argv=None):
     rows, rep = LB.rows(since, now, horizon_h=a.hours)
     say(f"  adapter: {len(rows)} rows ({json.dumps(rep.get('excluded'))})")
     wp, wp_rep = LB.word_pass_index(a.word_pass)
-    refused = wp_rep.get("refused") or []                # final: the worker never re-works them (the inputs keep ids)
-    say(f"  word pass: {json.dumps(dict(wp_rep, refused=len(refused)))}")
+    wp_refused = wp_rep.get("refused") or []             # final: the worker never re-works them (the inputs keep ids);
+    #   a name of its own: main() later binds `refused` to start_refused()'s answer
+    say(f"  word pass: {json.dumps(dict(wp_rep, refused=len(wp_refused)))}")
     moments, sources, inputs = LB.build_inputs(rows, ctx, log=say, word_pass=wp,
                                                ledger_store=os.path.join(LB.INGEST_ROOT, "data", "editorial"),
-                                               word_pass_refused=refused)
+                                               word_pass_refused=wp_refused)
     inputs["word_pass"] = wp_rep
+    try:                                                 # RULING 95: when the next qualifying episode could arrive. It
+        next_try = SPOT.next_attempt(rows, wp, now, refused=wp_refused)   # reads the inputs alone, so it is computed
+    except Exception as e:                               # noqa: BLE001  here, recorded with them, and is a report,
+        next_try = {"error": f"{type(e).__name__}: {str(e)[:200]}"}       # never the build
     moments = with_variants(moments, sources, ctx, inputs, say)   # RULING 104: beside their parents, every gate again
     with open(os.path.join(out_dir, "inputs.json"), "w") as f:
         json.dump({"since": since.isoformat(), "publish_window_h": a.hours, "delivered_pins": pins,
-                   "adapter_report": rep, "inputs": inputs, "delivered": delivered, "moments": moments},
-                  f, indent=1, default=str)
+                   "adapter_report": rep, "inputs": inputs, "delivered": delivered, "moments": moments,
+                   "next_attempt": next_try}, f, indent=1, default=str)
     pool = json.loads(json.dumps(moments, default=str))   # RULING 107 (1): the pool as it came in, before any stage
     fp, fp_parts = fingerprint(pool, delivered, pins, since, now, reg, a.routing)
     same = None if cand is not None else nothing_new(os.path.join(HERE, "proof"), out_dir, fp)
@@ -506,10 +511,7 @@ def main(argv=None):
                     spotlit=spotlit)
     res["spotlight"] = {k: sp.get(k) for k in ("package", "why_none", "finalists", "near", "moments", "pool",
                                                 "scorer_waited_s", "lock_stop", "scorer")}
-    try:                                                 # RULING 95: when the next qualifying episode could arrive
-        res["next_attempt"] = SPOT.next_attempt(rows, wp, now, refused=refused)
-    except Exception as e:                               # noqa: BLE001  a report, never the build
-        res["next_attempt"] = {"error": f"{type(e).__name__}: {str(e)[:200]}"}
+    res["next_attempt"] = next_try                       # RULING 95, computed beside the inputs above
     res.update(seconds=round(time.time() - t0, 1), usd_estimate=round(own["est"], 4), usd_best_known=round(own["best"], 4),
                full={k: round(v, 4) for k, v in used.items()}, code=PL.code_sha(), now=now.isoformat(),
                since=since.isoformat(), delivered_pins=pins, chains=router.chains, inputs=inputs)

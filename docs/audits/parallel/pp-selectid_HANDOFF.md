@@ -524,6 +524,10 @@ then `bash regression_test.sh` (26 PASS, 0 FAIL, 5 WARN).
 
 ## 6. Known traps (one line each)
 
+- proof_ledger.main() binds `refused = start_refused(spent0)` before the router. Never give that name to anything read
+  after it: the word pass's refused list was called `refused` until audit 20261115_1019, so ruling 95 got None (builds
+  6 and 7 printed "0 refused"). It is `wp_refused` now, and ruling 95 is computed beside build_inputs (in inputs.json).
+  The build record's copy past the router has no test: check package.json "next_attempt" against inputs.json's.
 - A passing line-up was thrown away when a later gate failed: ruling 66's registry keeps it, and only a failing clip is dropped (44).
 - An outage cached as a verdict: only a PARSED answer is ever cached; a failed / late / out-of-contract call is "no verdict", never a pass, never stored.
 - The 24-candidate cap starved step A: retired (58, `PRESCREEN_N = None`).

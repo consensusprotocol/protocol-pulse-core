@@ -1,0 +1,90 @@
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 63860a3..30bbf8e 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -403,17 +403,23 @@ def main(argv=None):
+     rows, rep = LB.rows(since, now, horizon_h=a.hours)
+     say(f"  adapter: {len(rows)} rows ({json.dumps(rep.get('excluded'))})")
+     wp, wp_rep = LB.word_pass_index(a.word_pass)
+-    refused = wp_rep.get("refused") or []                # final: the worker never re-works them (the inputs keep ids)
+-    say(f"  word pass: {json.dumps(dict(wp_rep, refused=len(refused)))}")
++    wp_refused = wp_rep.get("refused") or []             # final: the worker never re-works them (the inputs keep ids).
++    #   Its own name: main() later binds `refused` to start_refused()'s answer (build 6, 10:10 ET Nov 15, reported
++    #   0 refused on ruling 95's line when this list was still called `refused`)
++    say(f"  word pass: {json.dumps(dict(wp_rep, refused=len(wp_refused)))}")
+     moments, sources, inputs = LB.build_inputs(rows, ctx, log=say, word_pass=wp,
+                                                ledger_store=os.path.join(LB.INGEST_ROOT, "data", "editorial"),
+-                                               word_pass_refused=refused)
++                                               word_pass_refused=wp_refused)
+     inputs["word_pass"] = wp_rep
++    try:                                                 # RULING 95: when the next qualifying episode could arrive. It
++        next_try = SPOT.next_attempt(rows, wp, now, refused=wp_refused)   # reads the inputs alone, so it is computed
++    except Exception as e:                               # noqa: BLE001  here, recorded with them, and is a report,
++        next_try = {"error": f"{type(e).__name__}: {str(e)[:200]}"}       # never the build
+     moments = with_variants(moments, sources, ctx, inputs, say)   # RULING 104: beside their parents, every gate again
+     with open(os.path.join(out_dir, "inputs.json"), "w") as f:
+         json.dump({"since": since.isoformat(), "publish_window_h": a.hours, "delivered_pins": pins,
+-                   "adapter_report": rep, "inputs": inputs, "delivered": delivered, "moments": moments},
+-                  f, indent=1, default=str)
++                   "adapter_report": rep, "inputs": inputs, "delivered": delivered, "moments": moments,
++                   "next_attempt": next_try}, f, indent=1, default=str)
+     pool = json.loads(json.dumps(moments, default=str))   # RULING 107 (1): the pool as it came in, before any stage
+     fp, fp_parts = fingerprint(pool, delivered, pins, since, now, reg, a.routing)
+     same = None if cand is not None else nothing_new(os.path.join(HERE, "proof"), out_dir, fp)
+@@ -506,10 +512,7 @@ def main(argv=None):
+                     spotlit=spotlit)
+     res["spotlight"] = {k: sp.get(k) for k in ("package", "why_none", "finalists", "near", "moments", "pool",
+                                                 "scorer_waited_s", "lock_stop", "scorer")}
+-    try:                                                 # RULING 95: when the next qualifying episode could arrive
+-        res["next_attempt"] = SPOT.next_attempt(rows, wp, now, refused=refused)
+-    except Exception as e:                               # noqa: BLE001  a report, never the build
+-        res["next_attempt"] = {"error": f"{type(e).__name__}: {str(e)[:200]}"}
++    res["next_attempt"] = next_try                       # RULING 95, computed beside the inputs above
+     res.update(seconds=round(time.time() - t0, 1), usd_estimate=round(own["est"], 4), usd_best_known=round(own["best"], 4),
+                full={k: round(v, 4) for k, v in used.items()}, code=PL.code_sha(), now=now.isoformat(),
+                since=since.isoformat(), delivered_pins=pins, chains=router.chains, inputs=inputs)
+diff --git a/tests/package/test_ruling_107_guard.py b/tests/package/test_ruling_107_guard.py
+index c1b3e31..cf9d7a6 100644
+--- a/tests/package/test_ruling_107_guard.py
++++ b/tests/package/test_ruling_107_guard.py
+@@ -161,8 +161,9 @@ class TestTheDriverAsksNoModel(Paths):
+     PIN_PATHS = [os.path.join(HERE, "proof", "fresh_20261112_050611", n) for n in ("MOMENTS_PIN.json",
+                                                                                   "MOMENTS_PIN_LY.json")]
+ 
+-    def run_driver(self, left, wp_rep=None, seen=None):
+-        """wp_rep: the word pass's report the stubbed index gives; seen: filled with build_inputs' keyword arguments."""
++    def run_driver(self, left, wp_rep=None, seen=None, rows=None):
++        """wp_rep: the word pass's report the stubbed index gives; seen: filled with build_inputs' keyword arguments;
++        rows: the ledger rows the stubbed adapter gives (default none)."""
+         proof = os.path.join(self.tmp.name, "drv", "proof")
+         os.makedirs(proof)
+         delivered, last, pins = PLG.delivered_pins(self.PIN_PATHS)
+@@ -185,7 +186,7 @@ class TestTheDriverAsksNoModel(Paths):
+         stubs = [mock.patch.object(PLG, "HERE", os.path.join(self.tmp.name, "drv")),
+                  mock.patch.object(PLG, "REGISTRY", os.path.join(proof, "CANDIDATES.json")),
+                  mock.patch.object(PLG.PS, "ledger_entries", lambda *a, **k: []),
+-                 mock.patch.object(PLG.LB, "rows", lambda *a, **k: ([], {"excluded": {}})),
++                 mock.patch.object(PLG.LB, "rows", lambda *a, **k: (list(rows or []), {"excluded": {}})),
+                  mock.patch.object(PLG.LB, "word_pass_index", lambda *a, **k: ({}, dict(wp_rep or {"rows": 0}))),
+                  mock.patch.object(PLG.LB, "build_inputs", inputs),
+                  mock.patch.object(PLG, "with_variants", lambda moments, *a, **k: moments),
+@@ -223,6 +224,19 @@ class TestTheDriverAsksNoModel(Paths):
+         self.assertEqual(json.load(open(os.path.join(runs[0], "inputs.json")))["inputs"]["word_pass"]["refused"],
+                          ["Xa1", "Yb2"])
+ 
++    def test_ruling_95_counts_the_refused_from_the_inputs_alone(self):
++        """Build 6 (10:10 ET Nov 15) printed "0 refused" on ruling 95's line: main() rebound the driver's list to
++        start_refused()'s answer before ruling 95 read it. Ruling 95 now reads the inputs beside build_inputs, and
++        inputs.json records it, even for a build that stops with nothing new."""
++        at = datetime.now(timezone.utc).isoformat()
++        rows = [{"video_id": "v1", "channel_name": "Talk", "published_at": at, "moment_id": m,
++                 "episode": {"turns_per_min": 2.0}, "mined": {"pass": "moment", "prompt_version": "mine/2"}}
++                for m in ("Xa1", "Yb2", "Zc3")]
++        rc, runs = self.run_driver(left=0, wp_rep={"rows": 2, "ready": 0, "refused": ["Xa1", "Yb2"]}, rows=rows)
++        na = json.load(open(os.path.join(runs[0], "inputs.json")))["next_attempt"]["conversation"]
++        self.assertEqual((rc, na["rows"], na["word_pass_ready"], na["word_pass_refused"], na["word_pass_waiting"]),
++                         (0, 3, 0, 2, 1))
++
+     def test_work_left_undone_goes_on_to_the_router(self):
+         rc, runs = self.run_driver(left=1)
+         self.assertEqual(rc, "router")

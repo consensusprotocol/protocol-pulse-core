@@ -161,8 +161,9 @@ class TestTheDriverAsksNoModel(Paths):
     PIN_PATHS = [os.path.join(HERE, "proof", "fresh_20261112_050611", n) for n in ("MOMENTS_PIN.json",
                                                                                   "MOMENTS_PIN_LY.json")]
 
-    def run_driver(self, left, wp_rep=None, seen=None):
-        """wp_rep: the word pass's report the stubbed index gives; seen: filled with build_inputs' keyword arguments."""
+    def run_driver(self, left, wp_rep=None, seen=None, rows=None):
+        """wp_rep: the word pass's report the stubbed index gives; seen: filled with build_inputs' keyword arguments;
+        rows: the ledger rows the stubbed adapter gives (default none)."""
         proof = os.path.join(self.tmp.name, "drv", "proof")
         os.makedirs(proof)
         delivered, last, pins = PLG.delivered_pins(self.PIN_PATHS)
@@ -185,7 +186,7 @@ class TestTheDriverAsksNoModel(Paths):
         stubs = [mock.patch.object(PLG, "HERE", os.path.join(self.tmp.name, "drv")),
                  mock.patch.object(PLG, "REGISTRY", os.path.join(proof, "CANDIDATES.json")),
                  mock.patch.object(PLG.PS, "ledger_entries", lambda *a, **k: []),
-                 mock.patch.object(PLG.LB, "rows", lambda *a, **k: ([], {"excluded": {}})),
+                 mock.patch.object(PLG.LB, "rows", lambda *a, **k: (list(rows or []), {"excluded": {}})),
                  mock.patch.object(PLG.LB, "word_pass_index", lambda *a, **k: ({}, dict(wp_rep or {"rows": 0}))),
                  mock.patch.object(PLG.LB, "build_inputs", inputs),
                  mock.patch.object(PLG, "with_variants", lambda moments, *a, **k: moments),
@@ -222,6 +223,18 @@ class TestTheDriverAsksNoModel(Paths):
         self.assertNotIn("Xa1", log)
         self.assertEqual(json.load(open(os.path.join(runs[0], "inputs.json")))["inputs"]["word_pass"]["refused"],
                          ["Xa1", "Yb2"])
+
+    def test_ruling_95_counts_the_refused_from_the_inputs_alone(self):
+        """Ruling 95 reads the inputs beside build_inputs (before main() rebinds any name for the spend check), and
+        inputs.json records it, even for a build that stops with nothing new."""
+        at = datetime.now(timezone.utc).isoformat()
+        rows = [{"video_id": "v1", "channel_name": "Talk", "published_at": at, "moment_id": m,
+                 "episode": {"turns_per_min": 2.0}, "mined": {"pass": "moment", "prompt_version": "mine/2"}}
+                for m in ("Xa1", "Yb2", "Zc3")]
+        rc, runs = self.run_driver(left=0, wp_rep={"rows": 2, "ready": 0, "refused": ["Xa1", "Yb2"]}, rows=rows)
+        na = json.load(open(os.path.join(runs[0], "inputs.json")))["next_attempt"]["conversation"]
+        self.assertEqual((rc, na["rows"], na["word_pass_ready"], na["word_pass_refused"], na["word_pass_waiting"]),
+                         (0, 3, 0, 2, 1))
 
     def test_work_left_undone_goes_on_to_the_router(self):
         rc, runs = self.run_driver(left=1)

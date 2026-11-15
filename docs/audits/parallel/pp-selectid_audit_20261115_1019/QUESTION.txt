@@ -1,0 +1,34 @@
+pp-selectid: RULING 95'S REFUSED COUNT IN THE BUILD DRIVER, A NAME COLLISION FIXED. Reporting only: no gate, verdict
+or selection changes.
+
+THE DEFECT (mine; it landed in e19ec46c under audit 20261115_0951, where the mutation that dropped this keyword
+SURVIVED, untested). In tests/package/proof_ledger.py main(), the word pass's refused ids were bound to `refused` at
+:406 and passed to build_inputs at :410 (right) and to spotlight.next_attempt at :510 (wrong). Between the two, at :438
+(UNCHANGED, base 1ffe2302), main() rebinds the same name: `refused = start_refused(spent0)`, the spend check's answer,
+None when a build may start. So ruling 95 got refused=None. Builds 6 and 7 (10:10 and 10:16 ET Nov 15) printed
+"19 waiting / 0 refused" and "17 waiting / 0 refused" for Bitcoin Magazine, whose rows were 12 and then 17 refused.
+build_inputs' counts were right (16 and 21 refused).
+
+THE FIX (tests/package/proof_ledger.py):
+1. The list is named `wp_refused`, a name nothing else in main() binds. A comment says why.
+2. Ruling 95's record (spotlight.next_attempt, UNCHANGED) is computed right after build_inputs, from the inputs alone
+   (rows, the word-pass index, now, wp_refused). This is BEFORE the spend check and before any router. The record is
+   written into inputs.json as "next_attempt", so even a build that stops with nothing new (ruling 107 (1)) records it.
+   The build record's res["next_attempt"] is that same value; its try/except (a report, never the build) is kept.
+   The value is the same as before, because next_attempt reads nothing the build later changes.
+
+TESTS: test_ruling_107_guard's run_driver gains an optional `rows` (the stubbed adapter's rows). A new test,
+test_ruling_95_counts_the_refused_from_the_inputs_alone, runs the real driver to its nothing-new stop with 3 rows, 2 of
+them refused, and reads inputs.json: 3 rows, 0 ready, 2 refused, 1 waiting. Mutations: 4 of 5 killed after a control
+run (the unmutated copy passes all 51 tests in the two files):
+- ruling 95 without the refused: killed;
+- not recorded in inputs.json: killed;
+- build_inputs without the refused: killed;
+- the log giving ids: killed.
+The 1 that survives: res["next_attempt"] set to {} in the build record, past the router, which no test reaches (the
+harness stops at nothing-new or at build_router). Suites: 685 pass.
+
+PLEASE CHECK: (1) that nothing between the new computation and the build record could change what next_attempt reads
+(rows, wp, now, wp_refused); (2) that no other name in main() collides (`wp_refused`, `next_try`); (3) that moving
+ruling 95 before the guard changes no build outcome and keeps the "a report, never the build" behaviour; (4) the test
+and its harness change; (5) whether the surviving mutation matters.
