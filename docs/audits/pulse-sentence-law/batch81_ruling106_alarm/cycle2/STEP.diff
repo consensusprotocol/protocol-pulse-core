@@ -1,0 +1,139 @@
+diff --git a/pipeline/telegram.py b/pipeline/telegram.py
+index 8b7cc89f..bdc0fc12 100644
+--- a/pipeline/telegram.py
++++ b/pipeline/telegram.py
+@@ -758,3 +758,57 @@ def review_drop(run_dir, send=None):
+         with open(rpath, "w") as f:                    # whatever was sent is recorded, even on a failure midway
+             json.dump(rec, f, indent=1)
+     return rec
++
++
++# ==============================================================
++# THE ALARM (ruling 106 (d), orchestrator 2026-11-14 '20:21'): ONE plain text line to PBX's Telegram review chat when
++# something that needs the orchestrator or PBX has waited 45 minutes. At most one per issue and at most one an hour in
++# total, enforced HERE (a file lock over an append-only log); nothing for routine progress. No media, no release
++# authorisation: it never touches a run or the release ledger.
++# ==============================================================
++
++ALARM_HEAD = "PULSE CHECK NEEDS A DECISION: "
++ALARM_GAP_S = 3600
++ALARM_LOG = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "pulse_check",
++                         "alarms.jsonl")
++
++
++class AlarmRefused(RuntimeError):
++    """The alarm was NOT sent: a rate limit or a malformed line (ruling 106 (d))."""
++
++
++def send_alarm(issue, sentence, waiting_since, send=None, now=None, log_path=None):
++    """One alarm line -> its Telegram message id. Refused, with nothing sent, for an issue already alarmed, any alarm
++    inside ALARM_GAP_S of the last one, or an empty / multi-line issue, sentence or time. A send whose outcome is
++    unknown still counts (it is never resent); only an explicit Telegram refusal (SendRejected) does not."""
++    import fcntl
++    import time
++    parts = [str(x).strip() for x in (issue, sentence, waiting_since)]
++    if not all(parts) or any("\n" in p or "\r" in p for p in parts):
++        raise AlarmRefused("an alarm needs one-line issue, sentence and waiting-since time")
++    issue, sentence, waiting_since = parts
++    text = f"{ALARM_HEAD}{sentence.rstrip('.')}. Waiting since {waiting_since}."
++    send = send or (lambda t: _send_bot_api("message", None, {"text": t}))
++    path = log_path or ALARM_LOG
++    os.makedirs(os.path.dirname(path), exist_ok=True)
++    with open(path, "a+") as f:
++        fcntl.flock(f, fcntl.LOCK_EX)                    # one sender at a time, across processes
++        f.seek(0)
++        past = [json.loads(line) for line in f if line.strip()]
++        t = time.time() if now is None else now
++        if any(p.get("issue") == issue for p in past):
++            raise AlarmRefused(f"issue {issue!r} was already alarmed (at most one per issue)")
++        if past and t - max(p["at"] for p in past) < ALARM_GAP_S:
++            raise AlarmRefused("an alarm was sent within the hour (at most one an hour in total)")
++        rec = {"at": t, "issue": issue, "text": text, "message_id": None, "outcome": "unknown"}
++        try:
++            rec["message_id"], rec["outcome"] = send(text), "sent"
++        except SendRejected:
++            raise                                       # a definite non-send: not recorded, may be retried
++        except BaseException:
++            f.write(json.dumps(rec) + "\n")             # the outcome is unknown: it counts, never resent
++            f.flush()
++            raise
++        f.write(json.dumps(rec) + "\n")
++        f.flush()
++    return rec["message_id"]
+diff --git a/pipeline/test_alarm.py b/pipeline/test_alarm.py
+new file mode 100644
+index 00000000..33e440f6
+--- /dev/null
++++ b/pipeline/test_alarm.py
+@@ -0,0 +1,71 @@
++#!/usr/bin/env python3
++"""Ruling 106 (d) (orchestrator 2026-11-14 '20:21'), THE ALARM: one plain text line to PBX's Telegram review chat,
++'PULSE CHECK NEEDS A DECISION: <one sentence>. Waiting since <time>.', at most one per issue and at most one an hour
++in total, enforced in code. Must-fail: a second alarm inside the hour is refused (nothing sent). Every test uses a
++fake sender and a temporary log: nothing here reaches the network."""
++import json
++import os
++import sys
++import tempfile
++import unittest
++
++sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
++import telegram as T  # noqa: E402
++
++
++class TestAlarm(unittest.TestCase):
++    def setUp(self):
++        self.log = os.path.join(tempfile.mkdtemp(prefix="alarm_test_"), "alarms.jsonl")
++        self.sent = []
++
++    def send(self, text):
++        self.sent.append(text)
++        return 1000 + len(self.sent)
++
++    def alarm(self, issue, now, sentence="A finished spotlight is waiting for a launch decision", send=None):
++        return T.send_alarm(issue, sentence, "20:09 ET", send=send or self.send, now=now, log_path=self.log)
++
++    def test_the_line_is_exact(self):
++        self.assertEqual(self.alarm("spotlight-3f481f5a", 10_000.0, sentence="One video is ready."), 1001)
++        self.assertEqual(self.sent, ["PULSE CHECK NEEDS A DECISION: One video is ready. Waiting since 20:09 ET."])
++
++    def test_a_second_alarm_inside_the_hour_is_refused(self):
++        self.alarm("issue-a", 10_000.0)
++        with self.assertRaises(T.AlarmRefused):
++            self.alarm("issue-b", 10_000.0 + T.ALARM_GAP_S - 1)          # a different issue, 59:59 later
++        self.assertEqual(len(self.sent), 1)                               # nothing sent
++        self.alarm("issue-b", 10_000.0 + T.ALARM_GAP_S)                   # an hour later it may go
++        self.assertEqual(len(self.sent), 2)
++
++    def test_one_alarm_per_issue_ever(self):
++        self.alarm("issue-a", 10_000.0)
++        with self.assertRaises(T.AlarmRefused):
++            self.alarm("issue-a", 10_000.0 + 5 * T.ALARM_GAP_S)
++        self.assertEqual(len(self.sent), 1)
++
++    def test_an_unknown_outcome_counts_and_a_refusal_does_not(self):
++        def rejected(text):
++            raise T.SendRejected("STOP: Telegram sendMessage refused: 400 Bad Request")
++
++        def unknown(text):
++            raise RuntimeError("STOP: Telegram sendMessage: outcome unknown (Timeout)")
++        with self.assertRaises(T.SendRejected):
++            self.alarm("issue-a", 10_000.0, send=rejected)               # not sent: not recorded
++        self.alarm("issue-a", 10_001.0)                                   # so it may be retried at once
++        with self.assertRaises(RuntimeError):
++            self.alarm("issue-b", 10_001.0 + T.ALARM_GAP_S, send=unknown)  # an hour after the send: unknown, it counts
++        with self.assertRaises(T.AlarmRefused):
++            self.alarm("issue-c", 10_001.0 + T.ALARM_GAP_S + 60)
++        outcomes = [json.loads(line)["outcome"] for line in open(self.log)]
++        self.assertEqual(outcomes, ["sent", "unknown"])
++
++    def test_a_malformed_line_is_refused_and_nothing_sent(self):
++        for issue, sentence in (("", "x"), ("issue", ""), ("issue", "two\nlines"), ("a\nb", "x")):
++            with self.subTest(issue=issue, sentence=sentence):
++                with self.assertRaises(T.AlarmRefused):
++                    self.alarm(issue, 10_000.0, sentence=sentence)
++        self.assertEqual(self.sent, [])
++
++
++if __name__ == "__main__":
++    unittest.main()

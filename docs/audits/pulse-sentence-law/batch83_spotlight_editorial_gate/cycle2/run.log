@@ -1,0 +1,21 @@
+20:19:55
+# Heimdall audit
+
+**Question:** Batch 83 cycle 2 = the first spotlight render (3f481f5a, 2026-11-14) HELD at validate on the editorial law gate: LAW_2_VO_HAS_A_JOB ("intro: non-empty VO requires a job judgment") and LAW_3_CONCRETE_TAKEAWAY ("takeaway judgment is required"), because the editorial review (a local model with a medley prompt) is inconclusive on one moment ("only one clip and a single voiceover line"). Law L-ab already exempts a spotlight from LAW 1 and LAW 4 in this gate. Ruling 91 (verbatim): the spotlight's closing line "is kept only if a separate VALUE verdict (off the writer's family) answers all of: it says something the clip does not already say; it does not restate, summarise or cheer the clip; a viewer would miss it if it were cut; it is 12 words or fewer; plus the usual fidelity and context gates." The builder seals that verdict as closing_value / closing_fidelity / closing_context, and the moment's own verdicts as stands_alone / hook_own; the EDL carries them as moments_gates. Ruling 106 (b): for taste and process laws, the reading that delivers; for integrity, the stricter.
+The change (spotlight only): LAW 2 judges the closing line by closing_value / closing_fidelity / closing_context, each exactly PASS and live (replayed False), instead of the review's vo_jobs; LAW 3 passes on stands_alone / hook_own (+ the closing rows when there is a line), each PASS and live. Missing, not PASS or replayed: FAIL. A medley is unchanged. Tests: TestSpotlightLaws2And3 (3), failing on the old file; real data: the held run's EDL and review give READY_FOR_RENDER.
+Cycle 1: qwen27b PASS, glm PASS, no findings.
+FIND: anything cycle 1 missed (the same questions as cycle 1). Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.
+
+**Panel:** qwen27b, glm  |  **Cost:** $0.0002
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none
+
+
+saved: heimdall
+exit 0 20:20:00

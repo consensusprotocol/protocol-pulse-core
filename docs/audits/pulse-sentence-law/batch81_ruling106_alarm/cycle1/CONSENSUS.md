@@ -1,0 +1,1 @@
+# Batch 81 cycle 1: no consensus finding (qwen27b PASS; glm PASS, its note not agreed: SendRejected is raised only on Telegram's explicit refusal, nothing sent; a lost answer is RuntimeError, logged 'unknown', it counts). Grok not asked (ruling 107 (2): no disagreement).

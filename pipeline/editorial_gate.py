@@ -37,6 +37,16 @@ def _pass(name, reason):
     return {"law": name, "pass": True, "reasons": [reason]}
 
 
+SPOTLIGHT_CLOSING = ("closing_value", "closing_fidelity", "closing_context")   # ruling 91, sealed by the builder
+
+
+def _not_live(edl, rows):
+    """The sealed rows (the EDL's moments_gates, copied from the pin) that are not exactly PASS and live."""
+    g = edl.get("moments_gates")
+    return [r for r in rows if not (isinstance(g, dict) and isinstance(g.get(r), dict)
+                                    and g[r].get("status") == "PASS" and g[r].get("replayed") is False)]
+
+
 def evaluate_editorial_gate(edl, review):
     """Return a fail-closed editorial gate result for an EDL + supplied review."""
     result = {
@@ -128,6 +138,12 @@ def evaluate_editorial_gate(edl, review):
             law2_errors.append(f"{key}: known filler VO rejected: {text!r}")
             continue
         j = vo_jobs.get(key)
+        if spotlight and not isinstance(j, dict):     # ruling 91: when the review gives the closing line no judgment
+            bad = _not_live(edl, SPOTLIGHT_CLOSING)   # (it is inconclusive on one moment), the line's sealed value
+            if bad:                                   # verdict (off the writer's family) and fidelity / context rows
+                law2_errors.append(f"{key}: the spotlight's closing line has no review judgment and lacks ruling 91's "
+                                   f"live PASS rows {bad}")
+            continue
         if not isinstance(j, dict):
             law2_errors.append(f"{key}: non-empty VO requires a job judgment")
             continue
@@ -146,7 +162,9 @@ def evaluate_editorial_gate(edl, review):
             "LAW_2_VO_HAS_A_JOB", law2_errors
         )
     else:
-        reason = "body VO absent" if not body_vo else "all body VO has an affirmed editorial job"
+        reason = ("body VO absent" if not body_vo else "the spotlight's closing line carries ruling 91's sealed value, "
+                  "fidelity and context verdicts" if spotlight and not isinstance(vo_jobs.get("intro"), dict)
+                  else "all body VO has an affirmed editorial job")
         result["laws"]["LAW_2_VO_HAS_A_JOB"] = _pass("LAW_2_VO_HAS_A_JOB", reason)
 
     # LAW 3: one concrete, supported viewer takeaway.
@@ -162,7 +180,13 @@ def evaluate_editorial_gate(edl, review):
             law3_errors.append("reviewer did not affirm takeaway is concrete")
         if takeaway.get("supported") is not True:
             law3_errors.append("reviewer did not affirm takeaway is supported by selected material")
-    if law3_errors:
+    if spotlight and not isinstance(takeaway, dict):   # law L-ab: with no review judgment (inconclusive on one moment),
+        bad = _not_live(edl, ("stands_alone", "hook_own") + (SPOTLIGHT_CLOSING if body_vo else ()))
+        result["laws"]["LAW_3_CONCRETE_TAKEAWAY"] = _fail("LAW_3_CONCRETE_TAKEAWAY", [
+            f"the spotlight's moment lacks live PASS rows {bad}"]) if bad else _pass(
+            "LAW_3_CONCRETE_TAKEAWAY", "a spotlight's takeaway is its moment, sealed as standing alone (stands_alone, "
+            "hook_own)" + (" with its closing line's ruling-91 verdicts" if body_vo else ""))
+    elif law3_errors:
         result["laws"]["LAW_3_CONCRETE_TAKEAWAY"] = _fail(
             "LAW_3_CONCRETE_TAKEAWAY", law3_errors
         )

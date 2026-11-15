@@ -758,3 +758,57 @@ def review_drop(run_dir, send=None):
         with open(rpath, "w") as f:                    # whatever was sent is recorded, even on a failure midway
             json.dump(rec, f, indent=1)
     return rec
+
+
+# ==============================================================
+# THE ALARM (ruling 106 (d), orchestrator 2026-11-14 '20:21'): ONE plain text line to PBX's Telegram review chat when
+# something that needs the orchestrator or PBX has waited 45 minutes. At most one per issue and at most one an hour in
+# total, enforced HERE (a file lock over an append-only log); nothing for routine progress. No media, no release
+# authorisation: it never touches a run or the release ledger.
+# ==============================================================
+
+ALARM_HEAD = "PULSE CHECK NEEDS A DECISION: "
+ALARM_GAP_S = 3600
+ALARM_LOG = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "pulse_check",
+                         "alarms.jsonl")
+
+
+class AlarmRefused(RuntimeError):
+    """The alarm was NOT sent: a rate limit or a malformed line (ruling 106 (d))."""
+
+
+def send_alarm(issue, sentence, waiting_since, send=None, now=None, log_path=None):
+    """One alarm line -> its Telegram message id. Refused, with nothing sent, for an issue already alarmed, any alarm
+    inside ALARM_GAP_S of the last one, or an empty / multi-line issue, sentence or time. A send whose outcome is
+    unknown still counts (it is never resent); only an explicit Telegram refusal (SendRejected) does not."""
+    import fcntl
+    import time
+    parts = [str(x).strip() for x in (issue, sentence, waiting_since)]
+    if not all(parts) or any("\n" in p or "\r" in p for p in parts):
+        raise AlarmRefused("an alarm needs one-line issue, sentence and waiting-since time")
+    issue, sentence, waiting_since = parts
+    text = f"{ALARM_HEAD}{sentence.rstrip('.')}. Waiting since {waiting_since}."
+    send = send or (lambda t: _send_bot_api("message", None, {"text": t}))
+    path = log_path or ALARM_LOG
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "a+") as f:
+        fcntl.flock(f, fcntl.LOCK_EX)                    # one sender at a time, across processes
+        f.seek(0)
+        past = [json.loads(line) for line in f if line.strip()]
+        t = time.time() if now is None else now
+        if any(p.get("issue") == issue for p in past):
+            raise AlarmRefused(f"issue {issue!r} was already alarmed (at most one per issue)")
+        if past and t - max(p["at"] for p in past) < ALARM_GAP_S:
+            raise AlarmRefused("an alarm was sent within the hour (at most one an hour in total)")
+        rec = {"at": t, "issue": issue, "text": text, "message_id": None, "outcome": "unknown"}
+        try:
+            rec["message_id"], rec["outcome"] = send(text), "sent"
+        except SendRejected:
+            raise                                       # a definite non-send: not recorded, may be retried
+        except BaseException:
+            f.write(json.dumps(rec) + "\n")             # the outcome is unknown: it counts, never resent
+            f.flush()
+            raise
+        f.write(json.dumps(rec) + "\n")
+        f.flush()
+    return rec["message_id"]

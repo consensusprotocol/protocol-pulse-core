@@ -1,0 +1,22 @@
+20:19:55
+# Heimdall audit
+
+**Question:** Batch 81 cycle 2 = RULING 106 (d) (orchestrator 2026-11-14 '20:21', verbatim): "THE ALARM. If something that needs me or PBX has waited 45 minutes (a ready video not launched, a cap reached, a real outage, every build refused), the INTEGRATOR sends ONE plain text message to PBX's Telegram review chat through the pipeline's own sender: 'PULSE CHECK NEEDS A DECISION: <one sentence>. Waiting since <time>.' At most one per issue and at most one an hour in total; nothing for routine progress." and "YOUR SIDE OF (d): the one-line Telegram text sender (reuse telegram.py's sender; a plain message, no media, no release authorisation; rate limits enforced in code; a test that a second alarm inside the hour is refused)".
+The change: telegram.send_alarm(issue, sentence, waiting_since) builds exactly 'PULSE CHECK NEEDS A DECISION: <sentence>. Waiting since <time>.' and sends it through the existing _send_bot_api("message", ...) (the approval chat; credentials read by name, never printed). Under an exclusive fcntl lock on an append-only log (data/pulse_check/alarms.jsonl) it refuses (AlarmRefused, nothing sent): an issue already in the log; any alarm within ALARM_GAP_S (3600 s) of the last logged one; an empty or multi-line issue, sentence or time. An explicit Telegram refusal (SendRejected) is not logged (nothing was sent, it may be retried); any other failure is logged as outcome "unknown" and counts (never resent). Tests: test_alarm (5) with a fake sender and a temporary log; they fail on the old file.
+Cycle 1: qwen27b PASS; glm PASS with one low note not agreed: 'a SendRejected after the send reached Telegram is not logged'. _send_bot_api raises SendRejected ONLY on Telegram's explicit refusal (ok false with an integer error_code: nothing sent); a lost or unreadable answer raises RuntimeError, which send_alarm logs as 'unknown' and counts.
+FIND: anything cycle 1 missed (the same questions as cycle 1). Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.
+
+**Panel:** qwen27b, glm  |  **Cost:** $0.0007
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- glm:F1 [low] The one-per-issue and one-per-hour checks read the log inside the fcntl lock, but the send happens while the lock is held too — fine — yet the 'unknown' failure path writes the record and re-raises, so the caller cannot distinguish 'unknown, counted' from 'refused, not counted' except by exception type; a RuntimeError subclass elsewhere could be mistaken for AlarmRefused semantics. Minor, not a ruling breach. (agree: 1)
+
+## Added in cross-examination (not voted on)
+- glm: [low] The one-per-issue check scans the whole log for any past record with the same issue, but the one-per-hour check only compares against the LAST logged alarm's time (max 'at'); a SendRejected refusal is not logged, so a successful send followed by a refusal followed by a retry is fine, yet if the log's last record is an 'unknown' whose send actually succeeded later, the hour window is measured from the log time, not the real send time — only a drift concern, not a ruling breach.
+- glm: [low] The log is opened 'a+' and read via f.seek(0), but the record is written while the lock is held and flushed; however, if the process crashes between send() succeeding and f.write, the alarm was sent but never logged, so a retry would send a second Telegram message for the same issue even though the ruling says at most one per issue — the log, not Telegram, is the source of truth. Inherent to the design, not a ruling breach.
+
+
+saved: heimdall
+exit 0 20:20:28

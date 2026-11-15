@@ -122,5 +122,52 @@ class TestEditorialGateRealMaterial(unittest.TestCase):
             self.assertIn("LAW_4_SEQUENCE_PROGRESSES: FAIL", text)
 
 
+class TestSpotlightLaws2And3(unittest.TestCase):
+    """Law L-ab / ruling 91 (found on the first spotlight render, 3f481f5a, 2026-11-14): the medley review is
+    inconclusive on one moment, so a spotlight's LAW 2 (its closing line has a job) and LAW 3 (its takeaway) read the
+    builder's sealed rows: closing_value / closing_fidelity / closing_context for the line, stands_alone / hook_own for
+    the moment, each exactly PASS and live. Must-fail: any of them missing, not PASS or replayed. A medley unchanged."""
+    REVIEW = {"inconclusive": True, "inconclusive_reason": "only one clip and a single voiceover line"}
+    LINE = "Most people focus on the buy. The leaving is the story."
+
+    def edl(self, line=LINE, shape="spotlight", **rows):
+        gates = {r: {"status": "PASS", "replayed": False} for r in
+                 ("stands_alone", "hook_own", "closing_value", "closing_fidelity", "closing_context")}
+        for r, v in rows.items():
+            if v is None:
+                gates.pop(r)
+            else:
+                gates[r] = dict(gates[r], **v)
+        return {"package_type": "moments", "package_shape": shape, "clips": [],
+                "vo": {"intro": line, "bridges": []}, "moments_gates": gates}
+
+    def laws(self, edl):
+        g = evaluate_editorial_gate(edl, self.REVIEW)["laws"]
+        return g["LAW_2_VO_HAS_A_JOB"]["pass"], g["LAW_3_CONCRETE_TAKEAWAY"]["pass"]
+
+    def test_the_sealed_rows_judge_the_line_and_the_moment(self):
+        self.assertEqual(self.laws(self.edl()), (True, True))
+        self.assertEqual(self.laws(self.edl(line=None, closing_value=None)), (True, True))   # zero-line spotlight
+
+    def test_a_missing_failed_or_replayed_row_fails(self):
+        for row in ("closing_value", "closing_fidelity", "closing_context"):
+            for bad in (None, {"status": "FAIL"}, {"replayed": True}, {"replayed": None}):
+                with self.subTest(row=row, bad=bad):
+                    self.assertEqual(self.laws(self.edl(**{row: bad})), (False, False))
+        for row in ("stands_alone", "hook_own"):
+            for bad in (None, {"status": "NOT RUN"}, {"replayed": True}):
+                with self.subTest(row=row, bad=bad):
+                    self.assertEqual(self.laws(self.edl(**{row: bad})), (True, False))
+
+    def test_a_medley_still_needs_the_review(self):
+        self.assertEqual(self.laws(self.edl(shape=None)), (False, False))
+
+    def test_a_judgment_the_review_does_give_stands(self):     # the sealed rows only fill the review's silence
+        review = {"vo_jobs": {"intro": {"job": "context", "why": "restates the clip", "earned": False}},
+                  "takeaway": {"text": "selling early", "concrete": False, "supported": True}}
+        g = evaluate_editorial_gate(self.edl(), review)["laws"]   # every sealed row PASS and live
+        self.assertEqual((g["LAW_2_VO_HAS_A_JOB"]["pass"], g["LAW_3_CONCRETE_TAKEAWAY"]["pass"]), (False, False))
+
+
 if __name__ == "__main__":
     unittest.main()

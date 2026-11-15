@@ -6,6 +6,23 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 20:33 MERGED: the spotlight editorial-gate fix (the 20:16 HOLD's cause), ruling 106 (d)'s alarm sender, and check_pin_only's spotlight readiness (branch alarm-106; audits batches 81, 82 and 83, Heimdall-first per ruling 107 (2), about $0.007 in all). Both regressions green on the staged merge. The spotlight 3f481f5a is relaunched next.
+- EDITORIAL GATE (law L-ab / ruling 91; batch 83, three cycles):
+  - For a spotlight, a judgment the editorial review gives (the closing line's vo_jobs, the takeaway) stands as before: ruling 90's design, test_spotlight 8/8.
+  - When the review gives NONE (it is inconclusive on one moment, as on the held run), the builder's sealed rows decide, each exactly PASS and live: closing_value / closing_fidelity / closing_context for the line, stands_alone / hook_own (+ the closing rows with a line) for LAW 3.
+  - A medley is unchanged. The render's pinned stage already requires the closing rows (pinned.py:695).
+  - The held run's own EDL and review now give READY_FOR_RENDER.
+  - The first version (sealed rows only) broke test_spotlight on the staged merge. That merge was aborted, the rule refined, and cycle 3 verified it (glm PASS, Grok PASS on qwen27b's misread "critical").
+- THE ALARM (ruling 106 (d); batch 81):
+  - telegram.send_alarm sends one plain line, "PULSE CHECK NEEDS A DECISION: <sentence>. Waiting since <time>.", through _send_bot_api.
+  - At most one per issue and one an hour in total, under a file lock over data/pulse_check/alarms.jsonl. An unknown outcome counts; an explicit refusal does not.
+  - test_alarm 5 (a second alarm inside the hour refused). Integrator call: python3 -c "import sys; sys.path.insert(0, 'pipeline'); import telegram as T; print(T.send_alarm('<issue key>', '<one sentence>', '<HH:MM ET>'))".
+- check_pin_only (batch 82): gate_problems with the builder's required_gates(mp), and pin_seal(pin). The spotlight 3f481f5a is READY; 13949b7c is still refused.
+- CHECKS ON THE STAGED MERGE:
+  - regression_test.sh 26 PASS / 0 FAIL;
+  - pipeline/regression.sh exit 0 (finished 20:33:36), every protected reference reproduced;
+  - 10 suites all pass: test_alarm 5, test_editorial_gate 12, test_spotlight 8, test_telegram_delivery 22, test_window_review 33, test_release_auth 23, test_edl_rules 101, test_fresh 27, test_ruling91_takeaway 2, test_review_drop 19.
+
 ## 20:16 HOLD at stage VALIDATE, row: the editorial law gate, LAW_2_VO_HAS_A_JOB ("intro: non-empty VO requires a job judgment") and LAW_3_CONCRETE_TAKEAWAY ("takeaway judgment is required"). Spotlight 3f481f5a (Blockware, the full clip, ruling 105), run runs/pinned_20261115_011015, launched 20:09:36 ET, ended before cut or render: nothing rendered, nothing delivered.
 - THE FACTS:
   - The stages env, pinned and review ran.

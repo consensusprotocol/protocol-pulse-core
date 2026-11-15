@@ -1,0 +1,24 @@
+diff --git a/scripts/integrator/check_pin_only.py b/scripts/integrator/check_pin_only.py
+index 86c89458..751ff3e2 100644
+--- a/scripts/integrator/check_pin_only.py
++++ b/scripts/integrator/check_pin_only.py
+@@ -21,16 +21,13 @@ def main(path, want=None):
+     spec = importlib.util.spec_from_file_location("pp_pin", "/home/ultron/worktrees/pp-selectid/pipeline/package_pin.py")
+     PP = importlib.util.module_from_spec(spec)
+     spec.loader.exec_module(PP)
+-    problems = PP.gate_problems(mp.get("gates"))
+-    if problems:
++    problems = PP.gate_problems(mp.get("gates"), PP.required_gates(mp))   # the pin's own shape: a spotlight has no
++    if problems:                                                          # r4 / coherence rows (found 2026-11-14)
+         return False, "gates: " + "; ".join(problems)
+     problems = PP.trim_problems(pin["segments"])        # ruling 49 (builder 07:19): scorer_pending on, and only on, a
+     if problems:                                        # trimmed clip; at most one trimmed clip per pin
+         return False, "trim: " + "; ".join(problems)
+-    spot = {"shape": mp["shape"], "first_comment": mp.get("first_comment")} if mp.get("shape") == "spotlight" else {}
+-    seal = PP.seal(pin["segments"], mp["edl_vo"], mp.get("signoff_expected"), mp["title"], mp["caption"], mp["gates"],
+-                   mp.get("btc_screen"), **spot)         # ruling 34 (builder 04:19): in the body only when the pin has it;
+-    #                                                     law L-ab: a spotlight's kind, closing line and first comment too
++    seal = PP.pin_seal(pin)        # the builder's readiness call: every shape, and the fields sealed later (SEALED_LATER)
+     if seal != mp.get("package_sha256"):
+         return False, "seal mismatch: the pin's bytes or gates differ from what was sealed"
+     if want and not seal.startswith(want):
