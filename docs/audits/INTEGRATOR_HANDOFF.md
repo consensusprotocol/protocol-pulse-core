@@ -261,10 +261,11 @@ No session waits on the orchestrator. Standing, for all three sessions:
 3. **The E-FAIL-081 A/B** (DoD 14:06, Nov 13), measured on one window: the decoder is the cause (distil-large-v3 cleans up repeats and function words; large-v3 beam 5 does not).
    - Recommendation on record: the word pass need not switch, because the pre-check supplies the render's own text.
    - Still open: the orchestrator's decision, and if wanted, a wider A/B on GPU1 when its lease is free.
-4. **The 135-case exam:** pp-tests phase 2 (5ca1c4b9: the moments-first exam, 136 real-material cases, harness, blind two-vendor baseline; the 135-case corpus was superseded). It is on the unmerged branch `pp-tests`; merge it after its audit, then run it.
-5. **Merging the parallel branches.** Commits ahead of the release branch: hardening-redteam 1 (law L-l strict schemas), pp-backtest 5 (STATE DONE 383337b4), pp-tests 5, pp-ingest 38, pp-selectid 191 (counted 01:00 Nov 15).
+4. **The moments-first exam:** pp-tests (the wall + phase 2's exam, 5ca1c4b9) is MERGED (d1ccdfc7, 2026-11-14 10:02, audits batch 78 x4). Running the exam is the BUILDER's (DoD 10:02 Nov 14: its R-29-fixed adapter, its own ledger, hard stop $4.00), not the integrator's; read its result with that entry's two caveats (the NUMBER rule and the sign-off; PRICE_NOW's tolerance).
+5. **Merging the parallel branches.** Commits ahead of the release branch (counted 01:30 Nov 15): pp-backtest 4 (STATE DONE 383337b4, Nov 12), pp-ingest 103, pp-selectid 191. hardening-redteam and pp-tests are merged (0 ahead).
    - Each needs its integrator merge audit (two cycles) and both regressions, between runs.
    - pp-ingest and pp-selectid are live sessions: coordinate first.
+   - pp-backtest (pipeline/oracle/, tests/oracle/, tools/backtest_oracle.py; additions only, about 10,500 lines) cannot merge as it stands: (1) `pipeline/oracle/llm.env_key` reads a hard-coded key-file path (the house rule that held pp-tests in batch 78: keys by name through the main tree's relay.get_key); (2) its GPU0 Ollama back-ends are gated only by an environment variable (PP_GPU0_LEASE_HELD), not by gpu0's lease (law L-r), and test_gpu0's TestNoDirectLoaders scans only top-level pipeline/*.py, so it would not see them. Its embedder is CPU-only.
 6. **The GPU1 order ('22:50', Nov 12):** items 1, 2 and 4 are merged (5a95e9c6) and item 3 is done (8278f45a).
    - OPEN: the morning-brief question (addendum '23:00' B, DoD 23:03 Nov 12: nothing disabled, a question for the orchestrator).
    - OPEN: the GPU1 22 GB squat proposal (services/local_watchdog.py HEALTH mode, not applied).
