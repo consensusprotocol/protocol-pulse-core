@@ -67,6 +67,8 @@ class ReplayMiss(Exception):
 
 
 IMAGE_TOKENS_UPPER = 6000            # ruling 70: one image's input tokens, as the spend guard's upper bound
+RATE_MIN_REPORTED = 3                # RULING 107 Q1 (orchestrator 20:40 ET Nov 14): an abandoned call is booked at
+                                     # the model's own reported rate once it has this many reported calls
 
 
 def is_vision(prompt):
@@ -901,8 +903,46 @@ class Router:
             self._save(d)
         return key
 
-    def _settle(self, key, backend=None, usage=None, usd=0.0, role=""):
-        """Release a reservation and account the call that answered (a free one too, when the ledger is readable)."""
+    def reported_rate(self, name):
+        """RULING 107 Q1 (orchestrator 20:40 ET Nov 14): the model's own recorded vendor cost per PROMPT token: its
+        vendor-reported dollars over the prompt tokens of the calls that carried a figure ("in_reported"; a ledger kept
+        before it counts every call's prompt tokens, "in"). None (list price applies) until the model has
+        RATE_MIN_REPORTED reported calls, or with no tokens, no ledger, or an unreadable one."""
+        if not self.spend_path:
+            return None
+        try:
+            with self._lock():
+                rows = self._ledger()["by_backend"]
+            b = rows.get(name) if isinstance(rows, dict) else None
+            n = int(b.get("reported_calls") or 0) if isinstance(b, dict) else 0
+        except (SpendLimit, OSError, TypeError, ValueError):   # anything unreadable: list price, the higher booking
+            return None                                          # (glm, audit 20261114_2043 C1 F1)
+        if not isinstance(b, dict) or not _num(b.get("usd_reported")):
+            return None
+        toks = b.get("in_reported", b.get("in"))
+        if n < RATE_MIN_REPORTED or not _num(toks) or toks <= 0:
+            return None
+        return float(b["usd_reported"]) / float(toks)
+
+    def booking_usd(self, b, prompt, system=None):
+        """What a call abandoned at its deadline is booked at on the cap's basis (ruling 48's unreported estimate):
+        RULING 107 Q1, the model's own reported rate x the prompt sent (counted from above, prompt_tokens_upper: never
+        an under-count of the prompt); before RATE_MIN_REPORTED reported calls, list price (ruling 83 (a),
+        Backend.prompt_usd). -> (usd, "reported_rate" or "list").
+        The rate is read under the ledger lock and the booking written under a second one (_settle): a reported call
+        that lands between them moves the rate by one call. The ledger stays balanced, since a late answer removes the
+        booking as it was stored (on_cap), never a recomputed one (glm, audit 20261114_2043 C1 F3). The rate applies
+        only while the call is abandoned: a late answer with no vendor figure is accounted, as ruling 83 (a) says, at
+        the estimate from its own token counts (list price) in place of the booking (C1 F14)."""
+        rate = self.reported_rate(b.name)
+        if rate is None:
+            return b.prompt_usd(prompt, system), "list"
+        return round(rate * b.prompt_tokens_upper(prompt, system), 8), "reported_rate"
+
+    def _settle(self, key, backend=None, usage=None, usd=0.0, role="", unreported=None):
+        """Release a reservation and account the call that answered (a free one too, when the ledger is readable).
+        `unreported` (an abandoned call's booking, ruling 107 Q1) is what the cap's unreported estimate takes in place
+        of `usd`, which stays the list-price figure of usd_estimate."""
         if not self.spend_path or (key is None and backend is None):
             return
         with self._lock():
@@ -926,11 +966,14 @@ class Router:
                 d.update(calls=d["calls"] + 1, usd_estimate=round(d["usd_estimate"] + usd, 6))
                 if _num(usage.get("usd_reported")):    # the vendor's own figure (xAI ticks, Heimdall usage.cost)
                     rep = float(usage["usd_reported"])
-                    b.update(usd_reported=round(b.get("usd_reported", 0.0) + rep, 8),
-                             reported_calls=b.get("reported_calls", 0) + 1)
+                    n_in = int(usage.get("in", 0))     # ruling 107 Q1: the reported calls' prompt tokens (a ledger
+                    b.update(usd_reported=round(b.get("usd_reported", 0.0) + rep, 8),      # kept before it starts
+                             reported_calls=b.get("reported_calls", 0) + 1,                # from every earlier
+                             in_reported=b.get("in_reported", b["in"] - n_in) + n_in)      # call's)
                     d["usd_reported"] = round(d.get("usd_reported", 0.0) + rep, 8)
                 else:                                  # no vendor figure: the estimate stands for this call
-                    d["usd_unreported_estimate"] = round(d.get("usd_unreported_estimate", 0.0) + usd, 6)
+                    d["usd_unreported_estimate"] = round(d.get("usd_unreported_estimate", 0.0) +
+                                                         (usd if unreported is None else unreported), 6)
             self._save(d)
 
     def _late(self, ab, value, error):
@@ -939,9 +982,11 @@ class Router:
         with none, the estimate from its own token counts. No answer (an error): the booking stands. Either way one
         line goes to the deadline log (item 55). The answer's text is never used or recorded."""
         b, role, booked = ab["backend"], ab["role"], float(ab["usd"])
+        on_cap = float(ab.get("usd_unreported", booked))   # ruling 107 Q1: what the cap's basis was booked at
         rec = {"kind": "late_answer" if error is None else "late_error", "role": role, "model": b.name,
                "vendor": b.vendor, "deadline_s": ab.get("deadline_s"),
-               "seconds": round(time.time() - ab["t0"] + float(ab.get("deadline_s") or 0), 2), "booked_usd": booked}
+               "seconds": round(time.time() - ab["t0"] + float(ab.get("deadline_s") or 0), 2), "booked_usd": on_cap,
+               "booked_basis": ab.get("basis", "list")}
         if error is None:
             try:
                 _text, usage, _secs = value
@@ -960,7 +1005,7 @@ class Router:
                                   tokens=n_out, max_out=cap)
                 if self.spend_path:
                     try:
-                        self._replace_booking(b, role, booked, usage, usd, rep)
+                        self._replace_booking(b, role, booked, usage, usd, rep, on_cap)
                         rec["replaced"] = True
                     except Exception as e:             # noqa: BLE001 (audit 2048 C1: on record; the prompt-token
                         rec.update(replaced=False,     # booking stands, the ledger written whole or not at all)
@@ -969,7 +1014,7 @@ class Router:
             rec["error"] = f"{type(error).__name__}: {str(error)[:200]}"
         self._log_slow(rec)
 
-    def _replace_booking(self, b, role, booked, usage, usd, rep):
+    def _replace_booking(self, b, role, booked, usage, usd, rep, booked_unreported=None):
         """RULING 83 (a): a late answer's accounting in place of its prompt-token booking, in one ledger write: its
         own token counts, its estimate (usd) for the estimate basis, and on the reported basis the vendor's figure
         (rep) or, with none, the estimate. The call was counted when it was booked; it is not counted again."""
@@ -983,10 +1028,13 @@ class Router:
                       **{"in": bb["in"] + int(usage.get("in", 0)), "out": bb["out"] + int(usage.get("out", 0))})
             r["usd_estimate"] = round(r["usd_estimate"] + delta, 6)
             d["usd_estimate"] = round(d["usd_estimate"] + delta, 6)
-            d["usd_unreported_estimate"] = round(d.get("usd_unreported_estimate", 0.0) - booked, 6)
+            d["usd_unreported_estimate"] = round(d.get("usd_unreported_estimate", 0.0) -
+                                                 (booked if booked_unreported is None else booked_unreported), 6)
             if _num(rep):
+                n_in = int(usage.get("in", 0))         # ruling 107 Q1: as _settle counts them
                 bb.update(usd_reported=round(bb.get("usd_reported", 0.0) + float(rep), 8),
-                          reported_calls=bb.get("reported_calls", 0) + 1)
+                          reported_calls=bb.get("reported_calls", 0) + 1,
+                          in_reported=bb.get("in_reported", bb["in"] - n_in) + n_in)
                 d["usd_reported"] = round(d.get("usd_reported", 0.0) + float(rep), 8)
             else:
                 d["usd_unreported_estimate"] = round(d["usd_unreported_estimate"] + usd, 6)
@@ -1270,13 +1318,15 @@ class Router:
                             "THE LOCAL GEMMA3:27B ON GPU0 (THE INTEGRATOR'S JUDGE SERVICE): RULING 87'S LAST RESORT")
 
             def abandon(b=b, key=key, name=name, deadline_s=dl):   # RULING 83 (a): booked at its PROMPT tokens, an
-                booked = b.prompt_usd(prompt, system)  # unreported estimate, until a late answer's figure replaces it
+                listed = b.prompt_usd(prompt, system)  # unreported estimate, until a late answer's figure replaces it;
+                booked, basis = self.booking_usd(b, prompt, system)   # RULING 107 Q1: at the model's own reported rate
                 self._log_slow({"kind": "missed_deadline", "role": role, "model": name, "vendor": b.vendor,
                                 "deadline_s": deadline_s, "seconds": deadline_s,
-                                "prompt_chars": len(prompt_text(prompt)),
-                                "max_tokens": max_tokens, "booked_usd": booked})   # evidence first (audit 2048 C1)
-                self._settle(key, b, {"in": 0, "out": 0}, booked, role)          # an unreadable ledger raises here
-                return {"backend": b, "role": role, "usd": booked, "deadline_s": deadline_s, "t0": time.time(),
+                                "prompt_chars": len(prompt_text(prompt)), "max_tokens": max_tokens,
+                                "booked_usd": booked, "booked_basis": basis})   # evidence first (audit 2048 C1)
+                self._settle(key, b, {"in": 0, "out": 0}, listed, role, unreported=booked)   # an unreadable ledger
+                return {"backend": b, "role": role, "usd": listed, "usd_unreported": booked, "basis": basis,  # raises
+                        "deadline_s": deadline_s, "t0": time.time(),
                         "max_out": b.max_out(max_tokens)}             # ruling 99: a late runaway is measured on it
             try:
                 if dl:                                 # ruling 5 (22:40): fail over instead of waiting
@@ -1287,9 +1337,10 @@ class Router:
             except DeadlineExceeded as e:              # abandoned (the vendor may still bill it): booked and logged by
                 self._note(role, b, False)             # abandon(); ruling 87: not answered inside its deadline
                 self._breaker(role, name, "miss", deadline_s=dl, seconds=dl, max_out=b.max_out(max_tokens))
-                booked = b.prompt_usd(prompt, system)
-                tried.append((name, f"{e} (abandoned at the deadline; booked at its prompt tokens, ${booked:.4f}, "
-                                    "ruling 83 (a))"))
+                booked, basis = self.booking_usd(b, prompt, system)
+                tried.append((name, f"{e} (abandoned at the deadline; booked at its prompt tokens, ${booked:.4f} at "
+                                    f"{'its own reported rate' if basis == 'reported_rate' else 'list price'}, "
+                                    "rulings 83 (a) / 107)"))
                 continue
             except RequestRejected as e:
                 self._settle(key)

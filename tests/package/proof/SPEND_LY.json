@@ -12,7 +12,8 @@
     25
    ],
    "usd_reported": 7.68161975,
-   "reported_calls": 528
+   "reported_calls": 528,
+   "in_reported": 1147337
   },
   "heimdall:deepseek/deepseek-v4.1-flash": {
    "calls": 473,
@@ -24,7 +25,8 @@
     15
    ],
    "usd_reported": 0.55485923,
-   "reported_calls": 460
+   "reported_calls": 460,
+   "in_reported": 888654
   },
   "elevenlabs_stt:scribe_v1": {
    "calls": 294,
@@ -47,7 +49,8 @@
     15
    ],
    "usd_reported": 0.90023469,
-   "reported_calls": 252
+   "reported_calls": 252,
+   "in_reported": 433694
   },
   "xai_vision:grok-4.7": {
    "calls": 19,
@@ -59,7 +62,8 @@
     25
    ],
    "usd_reported": 0.749236,
-   "reported_calls": 19
+   "reported_calls": 19,
+   "in_reported": 54479
   },
   "heimdall:z-ai/glm-5.3-flash": {
    "calls": 402,
@@ -71,7 +75,8 @@
     15
    ],
    "usd_reported": 0.21953939,
-   "reported_calls": 383
+   "reported_calls": 383,
+   "in_reported": 848624
   },
   "heimdall:nvidia/nemotron-3.5-super-vl": {
    "calls": 9,
@@ -83,7 +88,8 @@
     15
    ],
    "usd_reported": 0.00337573,
-   "reported_calls": 9
+   "reported_calls": 9,
+   "in_reported": 13353
   },
   "xai:grok-4.20-0309-non-reasoning": {
    "calls": 30,
@@ -95,7 +101,8 @@
     25
    ],
    "usd_reported": 0.13472215,
-   "reported_calls": 30
+   "reported_calls": 30,
+   "in_reported": 82375
   },
   "google:gemini-2.5-pro": {
    "calls": 1,
@@ -244,6 +251,47 @@
  },
  "reserved": {},
  "usd_reported": 10.24358694,
- "usd_unreported_estimate": 6.502205,
- "late_answers": 131
+ "usd_unreported_estimate": 1.227649,
+ "late_answers": 131,
+ "restated_107": {
+  "ruling": "107 Q1, orchestrator 20:40 ET Nov 14",
+  "at": "2026-11-15T02:12:57+00:00",
+  "method": "RULING 107 Q1 (orchestrator 20:40 ET Nov 14): restate SPEND_LY.json's open abandoned-call bookings at each model's\nown reported rate (its vendor-reported dollars over its prompt tokens) x the prompt sent (prompt_chars + 200, the\ncount from above that ruling 83 (a) books), under the Router's own ledger lock. Every Heimdall call with no vendor\nfigure is an open booking: every recorded Heimdall answer carries usage.cost. A booking the deadline log does not hold\n(it began at item 55) is booked at the model's average prompt. Scribe and Gemini estimates are not abandoned calls and\nstay.",
+  "usd_unreported_estimate_before": 6.502205,
+  "usd_unreported_estimate_after": 1.227649,
+  "kept_estimates": {
+   "elevenlabs_stt:scribe_v1": 1.02704,
+   "google:gemini-2.5-pro": 0.00036
+  },
+  "heimdall": [
+   {
+    "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+    "open_bookings": 13,
+    "in_the_log": 12,
+    "rate_usd_per_1m_prompt": 0.624382,
+    "restated_usd": 0.06717
+   },
+   {
+    "backend": "heimdall:qwen/qwen3.8-27b",
+    "open_bookings": 7,
+    "in_the_log": 5,
+    "rate_usd_per_1m_prompt": 2.075737,
+    "restated_usd": 0.101549
+   },
+   {
+    "backend": "heimdall:z-ai/glm-5.3-flash",
+    "open_bookings": 19,
+    "in_the_log": 17,
+    "rate_usd_per_1m_prompt": 0.2587,
+    "restated_usd": 0.031529
+   }
+  ],
+  "restated_heimdall_by_et_day": {
+   "2026-11-13": 0.139974,
+   "2026-11-14": 0.050777,
+   "before the log": 0.009497
+  },
+  "total_before": 16.745792,
+  "total_after": 11.471236
+ }
 }

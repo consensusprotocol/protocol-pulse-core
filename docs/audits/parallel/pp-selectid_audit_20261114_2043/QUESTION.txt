@@ -1,0 +1,40 @@
+pp-selectid, RULING 107 Q1 (the orchestrator, 20:40 ET Nov 14): "An abandoned call is booked at the model's own
+reported rate (its recorded cost per prompt token x the prompt sent), not list price; if the model has no reported
+rate yet, list price until it has three. The $20 cap is on that basis from now."
+
+THE CHANGE (pipeline/providers.py; tests/providers/test_ruling_107.py is new):
+- Router.reported_rate(name): the model's vendor-reported dollars over "in_reported", the prompt tokens of the calls
+  that carried a vendor figure. A ledger row kept before this change has no in_reported and uses "in". The result is
+  None (list price applies) until the model has RATE_MIN_REPORTED (3) reported calls, and also with no tokens, no
+  ledger, or an unreadable ledger.
+- Router.booking_usd(b, prompt, system): that rate x prompt_tokens_upper (the prompt counted from above, as ruling
+  83 (a) already counts it), or list price (Backend.prompt_usd) when there is no rate. -> (usd, basis).
+- The abandon closure in Router.call (ruling 83 (a)): the cap's unreported estimate takes the reported-rate booking.
+  usd_estimate (the list-price figure, read by the estimate basis) keeps the list booking. The deadline-log line
+  records booked_usd and booked_basis.
+- _settle(..., unreported=None): an abandoned call's booking enters usd_unreported_estimate in place of usd. An answer
+  that carries a vendor figure adds its prompt tokens to in_reported; an older row's count starts from its "in"
+  (b["in"] - n_in, since "in" was updated a line above).
+- _late / _replace_booking(..., booked_unreported=None): a late answer removes exactly the booking made on the cap's
+  basis, and counts its prompt tokens in in_reported the same way.
+
+UNCHANGED GUARDS (you see only the diff):
+- _within (providers.py, "def _within(seconds, fn, on_abandon=None, on_late=None)") calls on_abandon in the CALLER's
+  thread before it raises DeadlineExceeded. The late answer arrives later in the worker thread, through on_late.
+- _lock is fcntl.flock on SPEND.json.lock, released when the returned file object closes (the "with" block).
+- _ledger raises SpendLimit on an unreadable ledger.
+- The "reported" spend basis is usd_reported + usd_unreported_estimate (_basis_total): this is the $20 cap's basis.
+
+PLEASE CHECK:
+(1) Is the rate exactly "recorded cost per prompt token", and used only from 3 reported calls on?
+(2) Can the cap be under-booked by it? The rate is all-in (the reported dollars include output). The prompt is
+    counted from above (characters + 200), never under.
+(3) Locks and threads: reported_rate takes the ledger lock inside the abandon callback, and _settle takes it again
+    right after. Is there any nesting or deadlock? Any race with the late-answer thread's _replace_booking?
+(4) The in_reported carry-over on older rows: is b["in"] - n_in the right starting count, in both places?
+(5) Do the other callers of _settle and _replace_booking still behave the same with the new optional parameters?
+(6) The tests: 9 new, plus the 75 existing provider tests, all pass. 12 of 12 mutations are killed: the rate never
+    used; 2 reported calls enough; the rate over every call's tokens; the cap taking the list booking; a late answer
+    removing the list booking; the in_reported carry-over from 0 (in each of the two places); the prompt's size
+    ignored; the late answer handed the list booking; the log recording the list booking; a zero-token row dividing;
+    an answer without a figure counted as reported tokens.
