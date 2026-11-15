@@ -1,0 +1,27 @@
+{
+ "usd_estimate": 0.083091,
+ "calls": 3,
+ "by_backend": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "calls": 3,
+   "in": 2297,
+   "out": 5080,
+   "usd_estimate": 0.083091,
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "usd_reported": 0.00390805,
+   "reported_calls": 3,
+   "in_reported": 2297
+  }
+ },
+ "by_role": {
+  "coherence_verdict": {
+   "calls": 3,
+   "usd_estimate": 0.083091
+  }
+ },
+ "reserved": {},
+ "usd_reported": 0.00390805
+}

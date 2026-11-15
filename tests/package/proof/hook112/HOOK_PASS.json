@@ -1,0 +1,275 @@
+{
+ "events": 318,
+ "classes": {
+  "0 rows, no model call": 262,
+  "wrote rows, a model called": 43,
+  "0 rows, a model called": 13
+ },
+ "per_channel": {
+  "Altcoin Daily": {
+   "wrote rows, a model called": 3
+  },
+  "Anthony Pompliano": {
+   "wrote rows, a model called": 2
+  },
+  "BTC Sessions": {
+   "wrote rows, a model called": 2
+  },
+  "Bitcoin Magazine": {
+   "wrote rows, a model called": 8
+  },
+  "Blockware Solutions": {
+   "wrote rows, a model called": 1
+  },
+  "Bloomberg Television": {
+   "0 rows, no model call": 117,
+   "wrote rows, a model called": 1,
+   "0 rows, a model called": 5
+  },
+  "CNBC": {
+   "0 rows, no model call": 4
+  },
+  "CNBC Television": {
+   "0 rows, no model call": 39,
+   "wrote rows, a model called": 2,
+   "0 rows, a model called": 2
+  },
+  "Coin Bureau": {
+   "wrote rows, a model called": 3
+  },
+  "CoinDesk": {
+   "0 rows, no model call": 1
+  },
+  "CoinTelegraph": {
+   "wrote rows, a model called": 1
+  },
+  "DataDash": {
+   "0 rows, a model called": 1
+  },
+  "Digital Asset News": {
+   "wrote rows, a model called": 4
+  },
+  "Financial Times": {
+   "0 rows, no model call": 3
+  },
+  "Fox Business": {
+   "0 rows, no model call": 62
+  },
+  "George Gammon": {
+   "0 rows, no model call": 2
+  },
+  "Robert Breedlove": {
+   "wrote rows, a model called": 1
+  },
+  "Scott Melker": {
+   "wrote rows, a model called": 2
+  },
+  "Simply Bitcoin": {
+   "wrote rows, a model called": 5
+  },
+  "Stacker News": {
+   "0 rows, no model call": 1,
+   "0 rows, a model called": 1
+  },
+  "Stephan Livera": {
+   "wrote rows, a model called": 2,
+   "0 rows, a model called": 2
+  },
+  "Strategy (MicroStrategy)": {
+   "wrote rows, a model called": 1,
+   "0 rows, a model called": 1
+  },
+  "TFTC": {
+   "wrote rows, a model called": 2
+  },
+  "TheStreet": {
+   "0 rows, no model call": 2
+  },
+  "Wall Street Journal": {
+   "0 rows, no model call": 2
+  },
+  "Yahoo Finance": {
+   "0 rows, no model call": 29,
+   "wrote rows, a model called": 3,
+   "0 rows, a model called": 1
+  }
+ },
+ "today": [
+  {
+   "at": "2026-11-15T12:54:56.943896+00:00",
+   "video_id": "Uns8CWWtxBI",
+   "channel": "Coin Bureau",
+   "title": "Coinbase Just Became a BANK (Here's What It Means For You)",
+   "moments": 13,
+   "rows": 3,
+   "spotlight_rows": 0,
+   "conversation": true,
+   "max_n": 5,
+   "max_n_spotlight": 2,
+   "windows": 5,
+   "screened": 2,
+   "failed": 0,
+   "failed_hook": 0,
+   "failed_spotlight": 0,
+   "dropped": {
+    "opens on a conjunction (the builder's OPENER rule)": 5,
+    "outside 4-14 s": 1
+   },
+   "spotlight_dropped": {
+    "opens on a conjunction (the builder's OPENER rule)": 2
+   },
+   "spotlight_crash": null,
+   "seconds_hook": 15.6,
+   "seconds_spotlight": 9.6,
+   "cost": 0.0034087073
+  },
+  {
+   "at": "2026-11-15T14:06:00.634700+00:00",
+   "video_id": "vQ3c_lU4NZ4",
+   "channel": "Scott Melker",
+   "title": "Bitcoin's Go-To-Zero Days Are OVER - Charlie Shrem",
+   "moments": 50,
+   "rows": 7,
+   "spotlight_rows": 1,
+   "conversation": true,
+   "max_n": 5,
+   "max_n_spotlight": 2,
+   "windows": 15,
+   "screened": 0,
+   "failed": 0,
+   "failed_hook": 0,
+   "failed_spotlight": 0,
+   "dropped": {
+    "outside 4-14 s": 5,
+    "opens on a pronoun (the builder's OPENER rule)": 12,
+    "opens on a conjunction (the builder's OPENER rule)": 7,
+    "opens on a reply word (the builder's OPENER rule)": 1
+   },
+   "spotlight_dropped": {
+    "opens on a pronoun (the builder's OPENER rule)": 3,
+    "opens on a conjunction (the builder's OPENER rule)": 4,
+    "outside 12-35 s": 1
+   },
+   "spotlight_crash": null,
+   "seconds_hook": 58.5,
+   "seconds_spotlight": 25.2,
+   "cost": 0.013973718100000001
+  },
+  {
+   "at": "2026-11-15T15:05:56.702788+00:00",
+   "video_id": "RsPBmLb6tTY",
+   "channel": "Bitcoin Magazine",
+   "title": "Roberto Rios: The Yen Carry Trade and Bitcoin\u2019s Road to $300k",
+   "moments": 33,
+   "rows": 4,
+   "spotlight_rows": 4,
+   "conversation": true,
+   "max_n": 5,
+   "max_n_spotlight": 2,
+   "windows": 18,
+   "screened": 9,
+   "failed": 0,
+   "failed_hook": 0,
+   "failed_spotlight": 0,
+   "dropped": {
+    "opens on a conjunction (the builder's OPENER rule)": 7,
+    "opens on a reply word (the builder's OPENER rule)": 4,
+    "outside 4-14 s": 3,
+    "opens on a pronoun (the builder's OPENER rule)": 1
+   },
+   "spotlight_dropped": {
+    "opens on a reply word (the builder's OPENER rule)": 2,
+    "opens on a pronoun (the builder's OPENER rule)": 1
+   },
+   "spotlight_crash": null,
+   "seconds_hook": 40.1,
+   "seconds_spotlight": 24.4,
+   "cost": 0.010673910699999997
+  }
+ ],
+ "hook_rows": {
+  "Uns8CWWtxBI": 3,
+  "vQ3c_lU4NZ4": 7,
+  "RsPBmLb6tTY": 4
+ },
+ "hook_rows_rated": {
+  "Uns8CWWtxBI": [],
+  "vQ3c_lU4NZ4": [
+   "d9ac74d5fcc6b55a3280"
+  ],
+  "RsPBmLb6tTY": []
+ },
+ "hook_rows_furthest": {
+  "Uns8CWWtxBI": {
+   "b79e4c94f316ef02c623": {
+    "stage": "in a pool",
+    "why": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "build": "ledger_20261115_151621"
+   },
+   "5a3f3972daf1c377de51": {
+    "stage": "cleared step A",
+    "why": "L-v 2 FAIL",
+    "build": "ledger_20261115_151621"
+   },
+   "2cf8f96e7fc32646bc4a": {
+    "stage": "cleared step A",
+    "why": "not cuttable at an edge (ruling C / 7)",
+    "build": "ledger_20261115_151621"
+   }
+  },
+  "vQ3c_lU4NZ4": {
+   "587cef4b59da79870abc": {
+    "stage": "passed the free screens",
+    "why": "step A: CONDITION_OUTSIDE",
+    "build": "ledger_20261115_151621"
+   },
+   "24ae700111bd259b31cf": {
+    "stage": "passed the free screens",
+    "why": "step A: REFERENT_OUTSIDE; CONDITION_OUTSIDE",
+    "build": "ledger_20261115_151621"
+   },
+   "3dfc7d4922a9075c80fd": {
+    "stage": "cleared step A",
+    "why": "not cuttable at an edge (ruling C / 7)",
+    "build": "ledger_20261115_151621"
+   },
+   "8631aeaebd8222d0e4a5": {
+    "stage": "never in a build's pool",
+    "why": "did not re-anchor: the row's text does not anchor in the word record (sentence_law.anchor, searched 1458-1523 s)"
+   },
+   "e3f30297d927932ac801": {
+    "stage": "never in a build's pool",
+    "why": "did not re-anchor: the row's text does not anchor in the word record (sentence_law.anchor, searched 1703-1768 s)"
+   },
+   "74f81c347d0d4fdc976a": {
+    "stage": "passed the second pass and CUTTABLE",
+    "why": "it cannot open cold: hook eligibility, G17a (50 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)) or the render's hook rule",
+    "build": "ledger_20261115_141207"
+   },
+   "d9ac74d5fcc6b55a3280": {
+    "stage": "rated by the hook job",
+    "why": "rated 2",
+    "build": "ledger_20261115_151621"
+   }
+  },
+  "RsPBmLb6tTY": {
+   "2454cdafb54d7cf22d59": {
+    "stage": "in a pool",
+    "why": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "build": "ledger_20261115_151621"
+   },
+   "fec37b9e508a5904c5b9": {
+    "stage": "never in a build's pool",
+    "why": "refused by the word pass (not sentence-ready; never re-worked)"
+   },
+   "618564547f3facb2460a": {
+    "stage": "never in a build's pool",
+    "why": "refused by the word pass (not sentence-ready; never re-worked)"
+   },
+   "5a017e98d06b292aefaa": {
+    "stage": "never in a build's pool",
+    "why": "a duplicate of 0f32ec3f0cc7c216a994"
+   }
+  }
+ }
+}

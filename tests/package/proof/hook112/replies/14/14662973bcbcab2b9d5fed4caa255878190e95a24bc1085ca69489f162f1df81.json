@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "heimdall:qwen/qwen3.8-27b",
+ "model": "qwen/qwen3.8-27b",
+ "vendor": "heimdall/qwen",
+ "seed": 8,
+ "max_tokens": 1350,
+ "system": null,
+ "prompt": "You judge OPENING clips for 60-second videos made of other channels' own words (each clip is a person's\nown words from a show). Each candidate below would play FIRST, before anything else is said. Judge each one ALONE, as\nthe opener of a video; the candidates are not compared with each other and never play together.\n\nCANDIDATE id=\"ref-preview\" (on screen: DataDash): \"Bitcoin has now seen a 16 % decline from the overall high from $88 ,000, touching down towards about $73 ,400, $500, give or take.\"\nCANDIDATE id=\"ref-37c5b5f5\" (on screen: Saifedean Ammous): \"Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.\"\nCANDIDATE id=\"ref-41f29b1f\" (on screen: Natalie Brunell): \"Bitcoin imposes a global free market for the first time ever.\"\nCANDIDATE id=\"ref-0c68b589\" (on screen: Simply Bitcoin): \"A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies. and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate.\"\nCANDIDATE id=\"ref-13949b7c\" (on screen: Simply Bitcoin): \"Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued.\"\n\nFor EACH candidate: THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:\n   \"scroll\": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)\n   \"alone\": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)\n   \"setup\": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not\n   at all)\nGive \"why\": a few words on the candidate's weakest part.\nReturn ONLY this JSON object: {\"hooks\": {\"ref-preview\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"ref-37c5b5f5\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"ref-41f29b1f\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"ref-0c68b589\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"ref-13949b7c\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}}}",
+ "text": "\n\n{\"hooks\": {\"ref-preview\": {\"scroll\": 2, \"alone\": 4, \"setup\": 2, \"why\": \"price ticker with no narrative tension or question posed\"}, \"ref-37c5b5f5\": {\"scroll\": 2, \"alone\": 4, \"setup\": 3, \"why\": \"abstract defensive framing doesn't stop a thumb in first seconds\"}, \"ref-41f29b1f\": {\"scroll\": 4, \"alone\": 5, \"setup\": 4, \"why\": \"bold claim risks reading as generic crypto hype\"}, \"ref-0c68b589\": {\"scroll\": 4, \"alone\": 5, \"setup\": 4, \"why\": \"self-contained argument doesn't pull viewer toward next clip\"}, \"ref-13949b7c\": {\"scroll\": 3, \"alone\": 4, \"setup\": 4, \"why\": \"academic 'born for political reasons' opening is slow to grab\"}}}",
+ "usage": {
+  "in": 753,
+  "out": 1609,
+  "usd_reported": 0.00118223
+ },
+ "usd": 0.026394,
+ "seconds": 15.87,
+ "recorded_at": "2026-11-15T16:54:55Z"
+}

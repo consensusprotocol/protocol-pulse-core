@@ -1,0 +1,208 @@
+{
+ "top": [
+  {
+   "scroll": 5,
+   "alone": 4,
+   "setup": 5,
+   "why": "finance jargon may lose non-investors",
+   "rating": 4,
+   "rating_recorded": 4,
+   "moment_id": "06d34e155feae654ee56",
+   "rater": "heimdall:qwen/qwen3.8-27b",
+   "text": "On my 20th birthday, I sold every stock in my Roth IRA and put it all into Bitcoin. That ended up being one of the best financial decisions I've ever made, but not for the reason most people think. I'm 26 now, and I still don't use my Roth IRA. I don't have a 401k. I don't own a single share of any index fund, and I'm on pace to be financially independent by 45.",
+   "builds": [
+    "ledger_20261114_172438",
+    "ledger_20261114_174007",
+    "ledger_20261114_183413",
+    "ledger_20261114_192056",
+    "ledger_20261114_230148"
+   ]
+  },
+  {
+   "scroll": 4,
+   "alone": 5,
+   "setup": 5,
+   "why": "delayed Bitcoin mention",
+   "rating": 4,
+   "rating_recorded": 4,
+   "moment_id": "f063cce3e0c86a774f63",
+   "rater": "xai:grok-4.20-0309-reasoning",
+   "text": "AI can copy software, undercut margins, replace employees, help foreign actors to overthrow your CEO. But... They can't print more Bitcoin.",
+   "builds": [
+    "ledger_20261114_003823",
+    "ledger_20261114_011253",
+    "ledger_20261114_021501",
+    "ledger_20261114_023757",
+    "ledger_20261114_025021",
+    "ledger_20261114_031425",
+    "ledger_20261114_041602",
+    "ledger_20261114_045416",
+    "ledger_20261114_051151",
+    "ledger_20261114_060140",
+    "ledger_20261114_064132",
+    "ledger_20261114_104059"
+   ]
+  },
+  {
+   "scroll": 4,
+   "alone": 5,
+   "setup": 5,
+   "why": "slightly dense for instant first seconds",
+   "rating": 4,
+   "rating_recorded": 4,
+   "moment_id": "f29c27fb49bdc3fd050e",
+   "rater": "xai:grok-4.20-0309-reasoning",
+   "text": "A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies. and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate.",
+   "builds": [
+    "ledger_20261113_163106",
+    "ledger_20261113_172217",
+    "ledger_20261113_180515",
+    "ledger_20261113_183302"
+   ]
+  },
+  {
+   "scroll": 4,
+   "alone": 5,
+   "setup": 4,
+   "why": "'Kind of like' hedges the punch of the virus metaphor, softening the hook",
+   "rating": 4,
+   "rating_recorded": 4,
+   "moment_id": "22018cf6e0db2d846def",
+   "rater": "heimdall:qwen/qwen3.8-27b",
+   "text": "Bitcoin is kind of like this sound money virus that is infiltrating the system.",
+   "builds": [
+    "ledger_20261114_170313",
+    "ledger_20261114_172438",
+    "ledger_20261114_174007",
+    "ledger_20261114_183413",
+    "ledger_20261114_192056",
+    "ledger_20261114_230148",
+    "ledger_20261115_032027",
+    "ledger_20261115_040228"
+   ]
+  },
+  {
+   "scroll": 4,
+   "alone": 5,
+   "setup": 4,
+   "why": "The statement is a complete factual summary; the dramatic $6.3B loss grabs attention but the clip resolves itself, slightly reducing the pull toward the next clip.",
+   "rating": 4,
+   "rating_recorded": 4,
+   "moment_id": "704fa6e1af4a86ff1d07",
+   "rater": "heimdall:qwen/qwen3.8-27b",
+   "text": "On the 29th of October, Binance's hot wallets gave up Ethereum, Bitcoin, USDT, USDC, about 233 million XRP, and a long tail of smaller tokens. The total was about $6.3 billion worth.",
+   "builds": [
+    "ledger_20261114_162941",
+    "ledger_20261114_164248",
+    "ledger_20261114_170313",
+    "ledger_20261114_172438",
+    "ledger_20261114_174007",
+    "ledger_20261114_183413",
+    "ledger_20261114_192056",
+    "ledger_20261114_230148"
+   ]
+  },
+  {
+   "scroll": 4,
+   "alone": 5,
+   "setup": 4,
+   "why": "strong fact but limited tease for next",
+   "rating": 4,
+   "rating_recorded": 4,
+   "moment_id": "82473bb0964f115fbdda",
+   "rater": "xai:grok-4.20-0309-reasoning",
+   "text": "Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued.",
+   "builds": [
+    "ledger_20261113_163106",
+    "ledger_20261113_172217",
+    "ledger_20261113_180515",
+    "ledger_20261113_183302",
+    "ledger_20261113_210211",
+    "ledger_20261113_212949",
+    "ledger_20261113_215708"
+   ]
+  },
+  {
+   "scroll": 4,
+   "alone": 4,
+   "setup": 4,
+   "why": "setup is a generic 'today I'm catching up with' podcast intro that lacks tension",
+   "rating": 4,
+   "rating_recorded": 4,
+   "moment_id": "26466d15581a9fdb49bc",
+   "rater": "heimdall:qwen/qwen3.8-27b",
+   "text": "Charlie Shrem once told me that the best thing about going to prison was that he couldn't touch his Bitcoin. That's certainly one way to huddle. Today, I'm catching up with one of Bitcoin's original p",
+   "builds": [
+    "ledger_20261115_141207"
+   ]
+  },
+  {
+   "scroll": 5,
+   "alone": 4,
+   "setup": 3,
+   "why": "sounds like a conclusion",
+   "rating": 4,
+   "rating_recorded": 4,
+   "moment_id": "b9f62d9986a3521426b0",
+   "rater": "xai:grok-4.20-0309-reasoning",
+   "text": "AI can copy software, undercut margins, replace employees, help foreign actors to overthrow your CEO. But... They can't print more Bitcoin. They can't hack Bitcoin. They can talk about quantum all they want.",
+   "builds": [
+    "ledger_20261114_002300"
+   ]
+  },
+  {
+   "scroll": 4,
+   "alone": 4,
+   "setup": 3,
+   "why": "bold but self-contained; little forward tension",
+   "rating": 4,
+   "rating_recorded": 4,
+   "moment_id": "933f9d33a8e345356177",
+   "rater": "heimdall:qwen/qwen3.8-27b",
+   "text": "We're the largest holder of Bitcoin in the world as an institution. If you're a Bitcoin investor, the point I'd make to you is you probably should just hold it because our company will probably buy every Bitcoin mine between now and the year 2140. We'll buy it all, right?",
+   "builds": [
+    "ledger_20261114_172438",
+    "ledger_20261114_172438",
+    "ledger_20261114_174007",
+    "ledger_20261114_174007",
+    "ledger_20261114_183413",
+    "ledger_20261114_183413",
+    "ledger_20261114_192056",
+    "ledger_20261114_192056",
+    "ledger_20261114_230148",
+    "ledger_20261114_230148",
+    "ledger_20261115_030549",
+    "ledger_20261115_032027",
+    "ledger_20261115_040228"
+   ]
+  },
+  {
+   "scroll": 3,
+   "alone": 5,
+   "setup": 4,
+   "why": "first seconds lack punch to stop scroll",
+   "rating": 3,
+   "rating_recorded": 3,
+   "moment_id": "0bc96b99755bbebebb40",
+   "rater": "xai:grok-4.20-0309-reasoning",
+   "text": "Michael Saylor Strategy has officially been removed from the MSCI Index. Is that the reason for the major Bitcoin selloff? I don't think so. We're going to talk about it today on The Daily Wolf. Let's",
+   "builds": [
+    "ledger_20261114_045416",
+    "ledger_20261114_051151"
+   ]
+  }
+ ],
+ "rated_distinct": 48,
+ "ratings": {
+  "1": 1,
+  "2": 21,
+  "3": 17,
+  "4": 9
+ },
+ "threes": 17,
+ "threes_held_back_by": {
+  "scroll": 15,
+  "setup (not in the own-job rating since ruling 61)": 7,
+  "alone": 4
+ }
+}

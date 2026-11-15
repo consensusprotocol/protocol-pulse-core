@@ -1,0 +1,264 @@
+{
+ "refs": [
+  {
+   "moment_id": "ref-preview",
+   "text": "Bitcoin has now seen a 16 % decline from the overall high from $88 ,000, touching down towards about $73 ,400, $500, give or take.",
+   "channel_id": "ref:RXTVaDsN11M",
+   "channel_name": "DataDash",
+   "label": "the protected preview (L-d, PBX 2026-11-11)",
+   "video_id": "RXTVaDsN11M",
+   "seconds": 9.08
+  },
+  {
+   "moment_id": "ref-37c5b5f5",
+   "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+   "channel_id": "ref:vgsSZ4mAHfQ",
+   "channel_name": "Saifedean Ammous",
+   "label": "the protected moments reference 37c5b5f5",
+   "video_id": "vgsSZ4mAHfQ",
+   "seconds": 8.38
+  },
+  {
+   "moment_id": "ref-41f29b1f",
+   "text": "Bitcoin imposes a global free market for the first time ever.",
+   "channel_id": "ref:wdk5JZ9hPzs",
+   "channel_name": "Natalie Brunell",
+   "label": "the protected medley reference 41f29b1f",
+   "video_id": "wdk5JZ9hPzs",
+   "seconds": 3.5
+  },
+  {
+   "moment_id": "ref-0c68b589",
+   "text": "A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies. and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate.",
+   "channel_id": "ref:DcUbBkyeh9M",
+   "channel_name": "Simply Bitcoin",
+   "label": "the published medley 0c68b589",
+   "video_id": "DcUbBkyeh9M",
+   "seconds": 16.62
+  },
+  {
+   "moment_id": "ref-13949b7c",
+   "text": "Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued.",
+   "channel_id": "ref:DcUbBkyeh9M",
+   "channel_name": "Simply Bitcoin",
+   "label": "the last sealed medley 13949b7c (delivered as a pass 17:14 ET Nov 13)",
+   "video_id": "DcUbBkyeh9M",
+   "seconds": 12.62
+  }
+ ],
+ "chain": [
+  "heimdall:qwen/qwen3.8-27b",
+  "heimdall:z-ai/glm-5.3-flash",
+  "heimdall:deepseek/deepseek-v4.1-flash"
+ ],
+ "runs": [
+  {
+   "seed": 7,
+   "ratings": {
+    "ref-preview": {
+     "scroll": 2,
+     "alone": 5,
+     "setup": 2,
+     "rating": 2,
+     "why": "price update lacks tension",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-37c5b5f5": {
+     "scroll": 2,
+     "alone": 5,
+     "setup": 3,
+     "rating": 2,
+     "why": "abstract opening",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-41f29b1f": {
+     "scroll": 4,
+     "alone": 5,
+     "setup": 4,
+     "rating": 4,
+     "why": "complete claim needs follow-up",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-0c68b589": {
+     "scroll": 3,
+     "alone": 4,
+     "setup": 4,
+     "rating": 3,
+     "why": "clunky first line",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-13949b7c": {
+     "scroll": 3,
+     "alone": 5,
+     "setup": 4,
+     "rating": 3,
+     "why": "abstract first line",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    }
+   },
+   "error": null,
+   "writers": [
+    [
+     "openai"
+    ],
+    [
+     "gpt"
+    ]
+   ]
+  },
+  {
+   "seed": 8,
+   "ratings": {
+    "ref-preview": {
+     "scroll": 2,
+     "alone": 4,
+     "setup": 2,
+     "rating": 2,
+     "why": "price ticker with no narrative tension or question posed",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-37c5b5f5": {
+     "scroll": 2,
+     "alone": 4,
+     "setup": 3,
+     "rating": 2,
+     "why": "abstract defensive framing doesn't stop a thumb in first seconds",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-41f29b1f": {
+     "scroll": 4,
+     "alone": 5,
+     "setup": 4,
+     "rating": 4,
+     "why": "bold claim risks reading as generic crypto hype",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-0c68b589": {
+     "scroll": 4,
+     "alone": 5,
+     "setup": 4,
+     "rating": 4,
+     "why": "self-contained argument doesn't pull viewer toward next clip",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-13949b7c": {
+     "scroll": 3,
+     "alone": 4,
+     "setup": 4,
+     "rating": 3,
+     "why": "academic 'born for political reasons' opening is slow to grab",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    }
+   },
+   "error": null,
+   "writers": [
+    [
+     "openai"
+    ],
+    [
+     "gpt"
+    ]
+   ]
+  },
+  {
+   "seed": 9,
+   "ratings": {
+    "ref-preview": {
+     "scroll": 2,
+     "alone": 4,
+     "setup": 2,
+     "rating": 2,
+     "why": "price ticker with no narrative tension or question posed",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-37c5b5f5": {
+     "scroll": 2,
+     "alone": 4,
+     "setup": 3,
+     "rating": 2,
+     "why": "abstract defensive framing doesn't stop a thumb in first seconds",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-41f29b1f": {
+     "scroll": 4,
+     "alone": 5,
+     "setup": 4,
+     "rating": 4,
+     "why": "bold claim risks reading as generic crypto hype",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-0c68b589": {
+     "scroll": 4,
+     "alone": 5,
+     "setup": 4,
+     "rating": 4,
+     "why": "self-contained argument doesn't pull viewer toward next clip",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    },
+    "ref-13949b7c": {
+     "scroll": 3,
+     "alone": 4,
+     "setup": 4,
+     "rating": 3,
+     "why": "academic 'born for political reasons' opening is slow to grab",
+     "backend": "heimdall:qwen/qwen3.8-27b",
+     "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+     "cached": false,
+     "replayed": false
+    }
+   },
+   "error": null,
+   "writers": [
+    [
+     "openai"
+    ],
+    [
+     "gpt"
+    ]
+   ]
+  }
+ ],
+ "spent_usd": 0.003908
+}
