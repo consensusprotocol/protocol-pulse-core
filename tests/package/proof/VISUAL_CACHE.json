@@ -221,6 +221,44 @@
   },
   "version": "visual-2"
  },
+ "22018cf6e0db2d846def:953.801-958.041:visual-3:b2b0bb73d9eff1b4": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [],
+  "flags": [],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_43f2a62ef78d57cd.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_43f2a62ef78d57cd.jpg",
+   "sha256": "43f2a62ef78d57cd9c564b9071610e7ea9066ede8605aa085ae9d3d8fbcaf881",
+   "times": [
+    953.8,
+    954.8,
+    955.8,
+    956.8,
+    957.8,
+    957.99
+   ]
+  },
+  "third_person": {
+   "finding": "Only two live speakers appear in the frames, with no still, photo, or graphic of anyone else, and the words are a metaphor about Bitcoin rather than a negative claim about a person.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2576,
+   "out": 1535,
+   "usd_reported": 0.012634
+  },
+  "version": "visual-3"
+ },
  "30075b155874ab2de3c7:1795.530-1811.450:visual-2:83035f5e841920fb": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [
