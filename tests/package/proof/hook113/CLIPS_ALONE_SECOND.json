@@ -1,0 +1,2021 @@
+{
+ "ruling": "113 (6), report only",
+ "at": "2026-11-15T18:25:29+00:00",
+ "builds": 14,
+ "distinct_failing_lineups": 61,
+ "asked": 34,
+ "passed_on_second_asking": 2,
+ "per_build": {
+  "ledger_20261113_163106": {
+   "failing_lineups": 8,
+   "second_asked": 6,
+   "a_second_asking_passes": []
+  },
+  "ledger_20261113_172217": {
+   "failing_lineups": 7,
+   "second_asked": 5,
+   "a_second_asking_passes": []
+  },
+  "ledger_20261113_180515": {
+   "failing_lineups": 8,
+   "second_asked": 3,
+   "a_second_asking_passes": [
+    [
+     "f29c27fb49bdc3fd050e",
+     "9c14612153405f8983e4",
+     "c7646b4ee91f955cf58f"
+    ]
+   ]
+  },
+  "ledger_20261113_210211": {
+   "failing_lineups": 7,
+   "second_asked": 6,
+   "a_second_asking_passes": []
+  },
+  "ledger_20261113_212949": {
+   "failing_lineups": 15,
+   "second_asked": 10,
+   "a_second_asking_passes": [
+    [
+     "82473bb0964f115fbdda",
+     "c083afe251d0cfd9169a",
+     "c7646b4ee91f955cf58f"
+    ]
+   ]
+  },
+  "ledger_20261114_011253": {
+   "failing_lineups": 2,
+   "second_asked": 1,
+   "a_second_asking_passes": []
+  },
+  "ledger_20261114_021501": {
+   "failing_lineups": 7,
+   "second_asked": 5,
+   "a_second_asking_passes": []
+  },
+  "ledger_20261114_023757": {
+   "failing_lineups": 7,
+   "second_asked": 5,
+   "a_second_asking_passes": []
+  },
+  "ledger_20261114_025021": {
+   "failing_lineups": 7,
+   "second_asked": 5,
+   "a_second_asking_passes": []
+  },
+  "ledger_20261114_031425": {
+   "failing_lineups": 2,
+   "second_asked": 0,
+   "a_second_asking_passes": []
+  },
+  "ledger_20261114_051151": {
+   "failing_lineups": 2,
+   "second_asked": 1,
+   "a_second_asking_passes": []
+  },
+  "ledger_20261114_183413": {
+   "failing_lineups": 6,
+   "second_asked": 2,
+   "a_second_asking_passes": []
+  },
+  "ledger_20261114_192056": {
+   "failing_lineups": 4,
+   "second_asked": 1,
+   "a_second_asking_passes": []
+  },
+  "ledger_20261114_230148": {
+   "failing_lineups": 1,
+   "second_asked": 0,
+   "a_second_asking_passes": []
+  }
+ },
+ "lineups": [
+  {
+   "lineup": [
+    "f29c27fb49bdc3fd050e",
+    "c3be6f1c71c4397b081a",
+    "c083afe251d0cfd9169a",
+    "2e77a0a7af2aab66a3a4"
+   ],
+   "builds": [
+    "ledger_20261113_163106"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 4,
+    "clip_03": 2
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "Bitcoin provides a decentralized alternative to flawed centralized finance, with improving stability as collateral and independent market behavior.",
+   "record": "tests/package/fixtures/replies/5b/5b8e746855c450bdf28aee3fadfe7f02f0968d0edb063ebf95d0fe329f5902fa.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "f29c27fb49bdc3fd050e",
+    "c3be6f1c71c4397b081a",
+    "c8827879545a98fdec4e",
+    "683727517ed0ca888f14"
+   ],
+   "builds": [
+    "ledger_20261113_163106"
+   ],
+   "clips": {
+    "hook": 3,
+    "clip_01": 5,
+    "clip_02": 3,
+    "clip_03": 2
+   },
+   "flagged": [
+    "clip_01 -> clip_02",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "Bitcoin is a decentralized alternative to banks and governments that protects users from mismanagement and serves as a global economic measure.",
+   "record": "tests/package/fixtures/replies/06/069c4a134037b8aa30d513ef8e8ba46e5a6639ff8cfbb7a47e93e7265625dca3.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 5,
+     "clip_02": 3,
+     "clip_03": 2
+    },
+    "flagged": [
+     "clip_02 -> clip_03"
+    ],
+    "through_line": "Bitcoin has several advantages over traditional financial systems and unique properties that make it valuable.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "f29c27fb49bdc3fd050e",
+    "c3be6f1c71c4397b081a",
+    "e70dcc2b04d008c23e9e",
+    "45c3bb5f25833cb1338c"
+   ],
+   "builds": [
+    "ledger_20261113_163106"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 5,
+    "clip_02": 4,
+    "clip_03": 3
+   },
+   "flagged": [
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "Bitcoin offers a decentralized secure alternative to traditional finance along with emerging opportunities in its capital markets.",
+   "record": "tests/package/fixtures/replies/a9/a9926c5e45a1054916d2a3b764c53d5a6d686c7756d7d1e1e9013ce687d06809.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 5,
+     "clip_02": 4,
+     "clip_03": 3
+    },
+    "flagged": [
+     "clip_02 -> clip_03"
+    ],
+    "through_line": "Bitcoin provides a decentralized secure alternative to failing traditional financial systems with emerging opportunities amid current market uncertainty.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "f29c27fb49bdc3fd050e",
+    "c3be6f1c71c4397b081a",
+    "e70dcc2b04d008c23e9e",
+    "5f40984b34d20c7dc69b"
+   ],
+   "builds": [
+    "ledger_20261113_163106"
+   ],
+   "clips": {
+    "hook": 3,
+    "clip_01": 5,
+    "clip_02": 4,
+    "clip_03": 3
+   },
+   "flagged": [
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "Bitcoin's decentralized nature protects against failures of traditional finance and offers new opportunities, but it should not consume all your attention.",
+   "record": "tests/package/fixtures/replies/e9/e981d1a133474016f11a2bd93f68faf8c50ba560c8c9b90e3e97ae33472edc7a.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 4,
+     "clip_02": 3,
+     "clip_03": 4
+    },
+    "flagged": [],
+    "through_line": "Bitcoin is a decentralized alternative to flawed traditional finance that offers security and opportunities but should not dominate one's focus.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "f29c27fb49bdc3fd050e",
+    "c3be6f1c71c4397b081a",
+    "e70dcc2b04d008c23e9e",
+    "7376e34f2c5978c017bc"
+   ],
+   "builds": [
+    "ledger_20261113_163106"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 5,
+    "clip_02": 4,
+    "clip_03": 3
+   },
+   "flagged": [
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "Bitcoin is a decentralized alternative to banks and governments that protects your money and offers new opportunities but requires personal custody.",
+   "record": "tests/package/fixtures/replies/9f/9fc19712c57bb59c55fe1858c8c369bac7a566ab4e4aa9d74eab18f55d3bd2d5.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 5,
+     "clip_02": 4,
+     "clip_03": 3
+    },
+    "flagged": [
+     "clip_02 -> clip_03"
+    ],
+    "through_line": "Bitcoin is a decentralized alternative to traditional banking that protects savings from institutional risks, offers new financial opportunities, and requires personal self-custody.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "f29c27fb49bdc3fd050e",
+    "c3be6f1c71c4397b081a",
+    "e70dcc2b04d008c23e9e",
+    "cbd78db03940b4394d74"
+   ],
+   "builds": [
+    "ledger_20261113_163106"
+   ],
+   "clips": {
+    "hook": 3,
+    "clip_01": 5,
+    "clip_02": 4,
+    "clip_03": 5
+   },
+   "flagged": [
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "Bitcoin protects against mismanagement by central authorities through decentralization, promoting self-custody and DeFi opportunities.",
+   "record": "tests/package/fixtures/replies/3f/3fa8431d72a7c4c643b651b16482aa12fbe5655b82cb020706de965cfaa1aec3.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 5,
+     "clip_02": 2,
+     "clip_03": 4
+    },
+    "flagged": [
+     "clip_02 -> clip_03"
+    ],
+    "through_line": "Bitcoin offers a decentralized, independent alternative to traditional finance that protects users and promotes self-custody over third parties.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "f29c27fb49bdc3fd050e",
+    "8072c7bcdc1dfe503b69~trim",
+    "2e77a0a7af2aab66a3a4"
+   ],
+   "builds": [
+    "ledger_20261113_163106"
+   ],
+   "clips": {
+    "hook": 2,
+    "clip_01": 1,
+    "clip_02": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/0c/0ce3ff2fa2d63fc6f51ea5e1b2f336a86af3e968140d32776c0acd39153892fb.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "f29c27fb49bdc3fd050e",
+    "a5f5a1d5d1e5482718f6",
+    "c3be6f1c71c4397b081a"
+   ],
+   "builds": [
+    "ledger_20261113_163106"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 5
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "Bitcoin is a superior alternative to traditional finance due to its decentralized nature, market resilience, and user ownership.",
+   "record": "tests/package/fixtures/replies/af/af4cef78b34e649b21fd01e2ead71d64643477111f2a6365a7ad6394a2d49039.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 3,
+     "clip_02": 4
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "hook -> clip_01"
+    ],
+    "through_line": "Bitcoin provides a decentralized, resilient, and sovereign alternative to traditional financial systems vulnerable to human error and control.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "a45d26b88cd5b176ae13",
+    "c3be6f1c71c4397b081a",
+    "c8827879545a98fdec4e"
+   ],
+   "builds": [
+    "ledger_20261113_172217"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 5,
+    "clip_03": 3
+   },
+   "flagged": [
+    "hook -> clip_01"
+   ],
+   "through_line": "Bitcoin offers stability and financial freedom as an alternative to traditional banking and currencies while functioning as a global productivity index.",
+   "record": "tests/package/fixtures/replies/c5/c5a82f2d0437c7dc58d1412ee4325b14a36ed5527541019aab24aeb141e0c90e.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 4,
+     "clip_02": 4,
+     "clip_03": 3
+    },
+    "flagged": [],
+    "through_line": "Bitcoin offers economic stability, financial freedom from banks, and serves as a global productivity measure.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "a45d26b88cd5b176ae13",
+    "c3be6f1c71c4397b081a",
+    "95d20143d5e2af5612b1"
+   ],
+   "builds": [
+    "ledger_20261113_172217"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 5,
+    "clip_03": 3
+   },
+   "flagged": [],
+   "through_line": "Bitcoin serves as a stable, non-partisan currency offering financial freedom from traditional banks while inspiring strong convictions among supporters.",
+   "record": "tests/package/fixtures/replies/49/499246bc080ee9631f4d4f572b0eee5fd185a8c862cd1385d56785dc201ccaab.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 4,
+     "clip_02": 5,
+     "clip_03": 3
+    },
+    "flagged": [],
+    "through_line": "Bitcoin is an enduring currency that provides financial freedom from banks and inspires strong conviction.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "a45d26b88cd5b176ae13",
+    "c3be6f1c71c4397b081a",
+    "c7646b4ee91f955cf58f"
+   ],
+   "builds": [
+    "ledger_20261113_172217"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 5,
+    "clip_03": 3
+   },
+   "flagged": [],
+   "through_line": "Bitcoin provides financial freedom and stability as a superior alternative to traditional banks and currencies.",
+   "record": "tests/package/fixtures/replies/54/54f2c133152de1c526cc0dd1c2fb331aa6031ff3ea4baacd7dace6c619987e27.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 4,
+     "clip_02": 5,
+     "clip_03": 3
+    },
+    "flagged": [],
+    "through_line": "Bitcoin offers stability and financial freedom as a secure alternative to traditional banks and currencies, driving adoption across industries.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "a45d26b88cd5b176ae13",
+    "c3be6f1c71c4397b081a",
+    "06f73bef2e37ba14bee4"
+   ],
+   "builds": [
+    "ledger_20261113_172217"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 3,
+    "clip_02": 5,
+    "clip_03": 1
+   },
+   "flagged": [],
+   "through_line": "Bitcoin serves as a stable currency providing financial freedom from traditional banking systems.",
+   "record": "tests/package/fixtures/replies/c3/c36db6b2ba4e347d03359906122e04d11f335596ab8d9ad05155e8fc7453534b.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "a5f5a1d5d1e5482718f6",
+    "c3be6f1c71c4397b081a",
+    "2e77a0a7af2aab66a3a4"
+   ],
+   "builds": [
+    "ledger_20261113_172217"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 5,
+    "clip_03": 2
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "Bitcoin offers resilience and security unlike traditional currencies and banks.",
+   "record": "tests/package/fixtures/replies/7f/7fd8b4370645078174c353153b7eb6b9c522f0d0cb525ead1d30e658eb37b545.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "a5f5a1d5d1e5482718f6",
+    "f5f005b9a91b80840778",
+    "d6a0933722bd9d5a0607"
+   ],
+   "builds": [
+    "ledger_20261113_172217"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 5,
+    "clip_02": 2,
+    "clip_03": 4
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "The video highlights Bitcoin's resilience in market conditions and its conservative approach.",
+   "record": "tests/package/fixtures/replies/1a/1aad3e6e9f732f97b5e0fbb4e50c7cb7194bd3aeefbdf90a7cac9bfe0f60f3cd.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 4,
+     "clip_02": 2,
+     "clip_03": 3
+    },
+    "flagged": [
+     "clip_02 -> clip_03",
+     "hook -> clip_01"
+    ],
+    "through_line": "Bitcoin exhibits economic resilience through its stability, market performance, and conservative practices.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "a5f5a1d5d1e5482718f6",
+    "e70dcc2b04d008c23e9e",
+    "5f40984b34d20c7dc69b"
+   ],
+   "builds": [
+    "ledger_20261113_172217"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 3,
+    "clip_03": 5
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "Bitcoin shows economic resilience and financial opportunities worth considering but without letting any single asset dominate one's thinking.",
+   "record": "tests/package/fixtures/replies/97/9767c93ccfd8a29fefc917afd61e75920c50e3fef0ab956f0ea067834301e491.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 3,
+     "clip_02": 4,
+     "clip_03": 4
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "clip_02 -> clip_03",
+     "hook -> clip_01"
+    ],
+    "through_line": "Bitcoin exhibits economic resilience in volatile markets and offers new financial opportunities, but one should not let any single asset dominate their thinking.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "f29c27fb49bdc3fd050e",
+    "6058ee583d6fb7dce57c",
+    "a45d26b88cd5b176ae13"
+   ],
+   "builds": [
+    "ledger_20261113_180515"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 3,
+    "clip_02": 4
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "Bitcoin provides a decentralized and reliable alternative to traditional financial systems, replacing assets like real estate as a savings vehicle while enabling non-partisan financial freedom.",
+   "record": "tests/package/fixtures/replies/95/95da0e924312dfb6edfdbbed00fbbb2ba28f92aeb69f16b4e4bfee74917a3797.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 3,
+     "clip_02": 4
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "hook -> clip_01"
+    ],
+    "through_line": "Bitcoin offers a decentralized alternative to traditional finance by replacing conventional savings methods and promoting financial freedom worldwide.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "f29c27fb49bdc3fd050e",
+    "95d20143d5e2af5612b1",
+    "a5f5a1d5d1e5482718f6"
+   ],
+   "builds": [
+    "ledger_20261113_180515"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/0c/0ce3ff2fa2d63fc6f51ea5e1b2f336a86af3e968140d32776c0acd39153892fb.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "f29c27fb49bdc3fd050e",
+    "9c14612153405f8983e4",
+    "c7646b4ee91f955cf58f"
+   ],
+   "builds": [
+    "ledger_20261113_180515"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 3
+   },
+   "flagged": [],
+   "through_line": "Bitcoin's decentralized rules with no CEO or central compromise make it a superior asset that outperforms traditional equities and attracts capital flows from companies and industries.",
+   "record": "tests/package/fixtures/replies/93/9329eeb6094a56ed7b971011a26ff79ef1c82d34d96499a4f03cb2797614c773.json",
+   "second": {
+    "asked": true,
+    "passes": true,
+    "clips": {
+     "clip_01": 4,
+     "clip_02": 4
+    },
+    "flagged": [],
+    "through_line": "Bitcoin's decentralized reliability without CEOs or central banks positions it to outperform traditional equities with capital from companies flowing into it.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "f29c27fb49bdc3fd050e",
+    "9c14612153405f8983e4",
+    "06f73bef2e37ba14bee4"
+   ],
+   "builds": [
+    "ledger_20261113_180515"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/0c/0ce3ff2fa2d63fc6f51ea5e1b2f336a86af3e968140d32776c0acd39153892fb.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "f29c27fb49bdc3fd050e",
+    "f5f005b9a91b80840778",
+    "c3be6f1c71c4397b081a"
+   ],
+   "builds": [
+    "ledger_20261113_180515"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 2,
+    "clip_02": 4
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "Bitcoin is preferable to traditional finance as it avoids central control, mismanagement, and ownership risks by banks or governments.",
+   "record": "tests/package/fixtures/replies/75/75829996724962c740f1ecf29e2fa11e160de15449e2f44f8b9fc39ec0f2a2a0.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 1,
+     "clip_02": 4
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "hook -> clip_01"
+    ],
+    "through_line": "Bitcoin is a decentralized alternative to traditional finance that protects users from central authority failures and risks.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "f29c27fb49bdc3fd050e",
+    "da116d5d5a2be8196c96",
+    "c8827879545a98fdec4e"
+   ],
+   "builds": [
+    "ledger_20261113_180515"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/0c/0ce3ff2fa2d63fc6f51ea5e1b2f336a86af3e968140d32776c0acd39153892fb.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "f29c27fb49bdc3fd050e",
+    "afe8101ad97672f4a9ad",
+    "2e77a0a7af2aab66a3a4"
+   ],
+   "builds": [
+    "ledger_20261113_180515"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/0c/0ce3ff2fa2d63fc6f51ea5e1b2f336a86af3e968140d32776c0acd39153892fb.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "f29c27fb49bdc3fd050e",
+    "683727517ed0ca888f14",
+    "d6a0933722bd9d5a0607"
+   ],
+   "builds": [
+    "ledger_20261113_180515"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/0c/0ce3ff2fa2d63fc6f51ea5e1b2f336a86af3e968140d32776c0acd39153892fb.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "a5f5a1d5d1e5482718f6",
+    "2e77a0a7af2aab66a3a4"
+   ],
+   "builds": [
+    "ledger_20261113_210211",
+    "ledger_20261113_212949"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 2
+   },
+   "flagged": [
+    "hook -> clip_01"
+   ],
+   "through_line": "Bitcoin demonstrates economic resilience through stability and independent market behavior.",
+   "record": "tests/package/fixtures/replies/2d/2d330a9e96059a7518ef41f9db6288b2e073331177e1c7f0c69fb20026204b99.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 4,
+     "clip_02": 3
+    },
+    "flagged": [
+     "hook -> clip_01"
+    ],
+    "through_line": "Bitcoin shows economic resilience by withstanding market volatility better than traditional assets while exhibiting unique timing independent of liquidity.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "a5f5a1d5d1e5482718f6",
+    "95d20143d5e2af5612b1"
+   ],
+   "builds": [
+    "ledger_20261113_210211",
+    "ledger_20261113_212949"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/0c/0ce3ff2fa2d63fc6f51ea5e1b2f336a86af3e968140d32776c0acd39153892fb.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "f5f005b9a91b80840778",
+    "6058ee583d6fb7dce57c"
+   ],
+   "builds": [
+    "ledger_20261113_210211",
+    "ledger_20261113_212949"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 2,
+    "clip_02": 4
+   },
+   "flagged": [
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "Bitcoin demonstrates economic resilience despite volatility and may replace traditional assets like real estate as a savings vehicle.",
+   "record": "tests/package/fixtures/replies/53/5390c8c7f2b97d60c2609fb6f3145d142b53b263459731db80a12be1eba241a4.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 2,
+     "clip_02": 4
+    },
+    "flagged": [
+     "clip_01 -> clip_02"
+    ],
+    "through_line": "Bitcoin's economic resilience despite volatility and its potential to replace traditional assets like real estate as a store of value.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "da116d5d5a2be8196c96",
+    "6058ee583d6fb7dce57c"
+   ],
+   "builds": [
+    "ledger_20261113_210211",
+    "ledger_20261113_212949"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 3,
+    "clip_02": 4
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "Bitcoin is a resilient economic alternative increasingly favored as a savings vehicle over assets like tech stocks and real estate.",
+   "record": "tests/package/fixtures/replies/3c/3cb39f3a1e2a71a22a9165a9ca59f6665b1a72b6acf51a270cb7bbe163f672cb.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 3,
+     "clip_02": 4
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "hook -> clip_01"
+    ],
+    "through_line": "Bitcoin's economic resilience is driving greater appreciation and its potential to replace traditional assets like real estate as a store of value.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "afe8101ad97672f4a9ad",
+    "c8827879545a98fdec4e"
+   ],
+   "builds": [
+    "ledger_20261113_210211",
+    "ledger_20261113_212949"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 3
+   },
+   "flagged": [],
+   "through_line": "Bitcoin succeeds economically through its stability, utility in merchant transactions, and role as a global productivity index.",
+   "record": "tests/package/fixtures/replies/96/96eb8b6a0549710d7895e3ebc039a578f8acabddc2e76c7237c57166df7f2461.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 4,
+     "clip_02": 3
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "hook -> clip_01"
+    ],
+    "through_line": "Bitcoin has not failed economically and offers practical benefits in payments while serving as a global productivity index.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "6058ee583d6fb7dce57c",
+    "a5f5a1d5d1e5482718f6",
+    "2e77a0a7af2aab66a3a4"
+   ],
+   "builds": [
+    "ledger_20261113_210211",
+    "ledger_20261113_212949"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 3,
+    "clip_02": 4,
+    "clip_03": 2
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "Bitcoin exhibits superior economic resilience and stability compared to traditional assets like real estate and stocks.",
+   "record": "tests/package/fixtures/replies/d5/d5c89c635c20a05fee33e8129a7227439f3d25651f61993b57f07b91b35ee7b9.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 1,
+     "clip_02": 1,
+     "clip_03": 1
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "hook -> clip_01"
+    ],
+    "through_line": "none",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "95d20143d5e2af5612b1",
+    "c8827879545a98fdec4e",
+    "c7646b4ee91f955cf58f"
+   ],
+   "builds": [
+    "ledger_20261113_210211",
+    "ledger_20261113_212949"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 3,
+    "clip_02": 4,
+    "clip_03": 5
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "The enduring economic strength of Bitcoin and its growing role in finance.",
+   "record": "tests/package/fixtures/replies/6c/6c49a99877a81b368ce265a51b43090836e4906220bb81ec03d63be85b5bc701.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 2,
+     "clip_02": 5,
+     "clip_03": 4
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "hook -> clip_01"
+    ],
+    "through_line": "Experts highlight Bitcoin's economic resilience, strength, and growing role as a dominant global financial asset.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "9c14612153405f8983e4",
+    "f5f005b9a91b80840778",
+    "06f73bef2e37ba14bee4"
+   ],
+   "builds": [
+    "ledger_20261113_212949"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 5,
+    "clip_02": 2,
+    "clip_03": 1
+   },
+   "flagged": [],
+   "through_line": "Examining Bitcoin's economic durability and investment potential.",
+   "record": "tests/package/fixtures/replies/b7/b75965bd612f21feb10efd2762495ae54a661fe2e4328c81da1b75d8e362a066.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "9c14612153405f8983e4",
+    "afe8101ad97672f4a9ad",
+    "c6e96bc659f260a89f34"
+   ],
+   "builds": [
+    "ledger_20261113_212949"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1,
+    "clip_03": 1
+   },
+   "flagged": [
+    "clip_01 -> clip_02",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/3c/3c4c9dca3afbe645e90f8397288d7922d0a2dfafdb6ee0423a2468515d1435b0.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "da116d5d5a2be8196c96",
+    "e70dcc2b04d008c23e9e",
+    "d6a0933722bd9d5a0607"
+   ],
+   "builds": [
+    "ledger_20261113_212949"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1,
+    "clip_03": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/3c/3c4c9dca3afbe645e90f8397288d7922d0a2dfafdb6ee0423a2468515d1435b0.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "683727517ed0ca888f14",
+    "45c3bb5f25833cb1338c",
+    "a693c226f9e5fd697418"
+   ],
+   "builds": [
+    "ledger_20261113_212949"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 3,
+    "clip_02": 4,
+    "clip_03": 4
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "Bitcoin's economic viability from its unchanging nature to usage and price action.",
+   "record": "tests/package/fixtures/replies/5c/5c9a01e1ec1164e77f8796938314363aa17b655aa6fcdd9026b255832fef20d6.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 1,
+     "clip_02": 1,
+     "clip_03": 1
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "clip_02 -> clip_03",
+     "hook -> clip_01"
+    ],
+    "through_line": "none",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "cbd78db03940b4394d74",
+    "c083afe251d0cfd9169a",
+    "a693c226f9e5fd697418"
+   ],
+   "builds": [
+    "ledger_20261113_212949"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 3,
+    "clip_02": 4,
+    "clip_03": 2
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "Bitcoin has succeeded economically by remaining consistent and is improving as a reliable financial asset.",
+   "record": "tests/package/fixtures/replies/12/1224fae0330759cdf99e7bb47f07fe0723b1940408c103ddfa3244a041c31225.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "c083afe251d0cfd9169a",
+    "c7646b4ee91f955cf58f"
+   ],
+   "builds": [
+    "ledger_20261113_212949"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 3
+   },
+   "flagged": [],
+   "through_line": "Bitcoin succeeds economically unlike other currencies by improving stability over time and attracting greater adoption.",
+   "record": "tests/package/fixtures/replies/43/43f60e0c3e047adf6a086c9a9c692722222c9b990ec9cbc24144073cf12ff729.json",
+   "second": {
+    "asked": true,
+    "passes": true,
+    "clips": {
+     "clip_01": 4,
+     "clip_02": 4
+    },
+    "flagged": [],
+    "through_line": "Bitcoin succeeds economically by maintaining stability since 2009 while improving as collateral with lower volatility and attracting industry adoption.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "c083afe251d0cfd9169a",
+    "95d20143d5e2af5612b1"
+   ],
+   "builds": [
+    "ledger_20261113_212949"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 2
+   },
+   "flagged": [
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "Bitcoin continues to strengthen as a reliable economic asset, as evidenced by its history, reduced volatility, and community conviction.",
+   "record": "tests/package/fixtures/replies/62/62370c46d9bd4108696033f1dc276fdf7ef45e2807c5d035cb3d2b7780ee6e42.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 4,
+     "clip_02": 3
+    },
+    "flagged": [
+     "clip_01 -> clip_02"
+    ],
+    "through_line": "Bitcoin exhibits enduring economic stability, improving properties like lower volatility, and inspires strong personal convictions.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "c083afe251d0cfd9169a",
+    "6058ee583d6fb7dce57c"
+   ],
+   "builds": [
+    "ledger_20261113_212949"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 3
+   },
+   "flagged": [],
+   "through_line": "Bitcoin has endured economically without failure and is improving over time as a more stable and superior store of value.",
+   "record": "tests/package/fixtures/replies/c5/c53259553cfbc5b420c15d63ea14fc343d71238e3be66edf0a8f50c0d6b1c66a.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 4,
+     "clip_02": 3
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "hook -> clip_01"
+    ],
+    "through_line": "Bitcoin avoids typical currency economic failures through its unchanged nature, improving stability as collateral, and replacing real estate as a savings vehicle.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "f063cce3e0c86a774f63",
+    "7d8a34d13e1187f7b2f3",
+    "e05b34a672b73f3334ea"
+   ],
+   "builds": [
+    "ledger_20261114_011253"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 3
+   },
+   "flagged": [
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "Bitcoin has unique benefits that protect finances and improve character.",
+   "record": "tests/package/fixtures/replies/f9/f9cf11b03b46622e18ef56d75dec617ae09523428208c20cbb43dee132c0a004.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 4,
+     "clip_02": 3
+    },
+    "flagged": [
+     "clip_01 -> clip_02"
+    ],
+    "through_line": "Bitcoin provides economic protection against various threats and promotes personal improvement beyond financial gains.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "f063cce3e0c86a774f63",
+    "b827182688d32b1d4aed",
+    "e05b34a672b73f3334ea"
+   ],
+   "builds": [
+    "ledger_20261114_011253"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/0c/0ce3ff2fa2d63fc6f51ea5e1b2f336a86af3e968140d32776c0acd39153892fb.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "f063cce3e0c86a774f63",
+    "a5f5a1d5d1e5482718f6",
+    "7004b98d5ef71d120f1a"
+   ],
+   "builds": [
+    "ledger_20261114_021501",
+    "ledger_20261114_023757",
+    "ledger_20261114_025021"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 3
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "Bitcoin remains resilient against AI threats to scarcity, market volatility where it outperforms stocks, and low-risk holders unlikely to sell.",
+   "record": "tests/package/fixtures/replies/32/32029a424b3f9fc9db536c605335c16515a90027a44e5d6e3440ff4ddf82da03.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 4,
+     "clip_02": 3
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "hook -> clip_01"
+    ],
+    "through_line": "Bitcoin remains strong and stable despite AI disruption, market volatility, and selling pressures.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "f063cce3e0c86a774f63",
+    "a5f5a1d5d1e5482718f6",
+    "6058ee583d6fb7dce57c"
+   ],
+   "builds": [
+    "ledger_20261114_021501",
+    "ledger_20261114_023757",
+    "ledger_20261114_025021"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 4
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "Bitcoin is a superior resilient store of value compared to stocks and real estate, and is immune to AI disruption.",
+   "record": "tests/package/fixtures/replies/f4/f4bd6ff25f8250be32970b1ac2a45b52721ac511537603ad6306a01b1ba634ad.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 4,
+     "clip_02": 4
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "hook -> clip_01"
+    ],
+    "through_line": "Bitcoin is a resilient asset that outperforms traditional investments like stocks and real estate while resisting AI-driven disruption.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "f063cce3e0c86a774f63",
+    "6058ee583d6fb7dce57c",
+    "a5f5a1d5d1e5482718f6"
+   ],
+   "builds": [
+    "ledger_20261114_021501",
+    "ledger_20261114_023757",
+    "ledger_20261114_025021"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 3
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "Bitcoin's superiority to traditional assets amid technological and market challenges.",
+   "record": "tests/package/fixtures/replies/11/11e279eabaad7141fcf170689e575597bf268cfee8d99b8937186c43b9071028.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 4,
+     "clip_02": 3
+    },
+    "flagged": [
+     "clip_01 -> clip_02"
+    ],
+    "through_line": "Bitcoin is a superior store of value compared to real estate and stocks, and is protected from AI threats due to its fixed supply.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "f063cce3e0c86a774f63",
+    "6058ee583d6fb7dce57c",
+    "7004b98d5ef71d120f1a",
+    "d6a0933722bd9d5a0607"
+   ],
+   "builds": [
+    "ledger_20261114_021501",
+    "ledger_20261114_023757",
+    "ledger_20261114_025021"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 5,
+    "clip_02": 4,
+    "clip_03": 3
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "Bitcoin is a superior savings vehicle that cannot be inflated, promotes long-term holding, and involves conservative practices.",
+   "record": "tests/package/fixtures/replies/dc/dca038d67d611a76a5369bafee68d177cf5b881d5069bbd2697fe3de902d6361.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 1,
+     "clip_02": 1,
+     "clip_03": 1
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "clip_02 -> clip_03",
+     "hook -> clip_01"
+    ],
+    "through_line": "none",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "f063cce3e0c86a774f63",
+    "6058ee583d6fb7dce57c",
+    "b827182688d32b1d4aed",
+    "a5f5a1d5d1e5482718f6"
+   ],
+   "builds": [
+    "ledger_20261114_021501",
+    "ledger_20261114_023757",
+    "ledger_20261114_025021"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1,
+    "clip_03": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/3c/3c4c9dca3afbe645e90f8397288d7922d0a2dfafdb6ee0423a2468515d1435b0.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "f063cce3e0c86a774f63",
+    "7d8a34d13e1187f7b2f3",
+    "30b3768c0e6304f64560",
+    "9f9457fd2896c66182b7"
+   ],
+   "builds": [
+    "ledger_20261114_021501",
+    "ledger_20261114_023757",
+    "ledger_20261114_025021"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1,
+    "clip_03": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/3c/3c4c9dca3afbe645e90f8397288d7922d0a2dfafdb6ee0423a2468515d1435b0.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "f063cce3e0c86a774f63",
+    "a5f5a1d5d1e5482718f6",
+    "7d8a34d13e1187f7b2f3"
+   ],
+   "builds": [
+    "ledger_20261114_021501",
+    "ledger_20261114_023757",
+    "ledger_20261114_025021"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 3,
+    "clip_02": 4
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "Bitcoin provides stability and protection against risks like AI disruption, market drops, and purchasing power erosion.",
+   "record": "tests/package/fixtures/replies/f9/f9f2e0d23ec272bf3da326269b8f5289fab015bc61d7b9b38bd22408a2a8f71c.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 4,
+     "clip_02": 5
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "hook -> clip_01"
+    ],
+    "through_line": "Bitcoin provides stability and resists value erosion better than traditional assets amid technological and economic pressures.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "f063cce3e0c86a774f63",
+    "7004b98d5ef71d120f1a",
+    "7a033059dd483e36a8db",
+    "9f9457fd2896c66182b7"
+   ],
+   "builds": [
+    "ledger_20261114_031425"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1,
+    "clip_03": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/3c/3c4c9dca3afbe645e90f8397288d7922d0a2dfafdb6ee0423a2468515d1435b0.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "f063cce3e0c86a774f63",
+    "7004b98d5ef71d120f1a",
+    "e05b34a672b73f3334ea"
+   ],
+   "builds": [
+    "ledger_20261114_031425"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/0c/0ce3ff2fa2d63fc6f51ea5e1b2f336a86af3e968140d32776c0acd39153892fb.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "f063cce3e0c86a774f63",
+    "11df638c20ffedd21603",
+    "7004b98d5ef71d120f1a",
+    "1ddf18ce2d9e8287326b"
+   ],
+   "builds": [
+    "ledger_20261114_051151"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1,
+    "clip_03": 1
+   },
+   "flagged": [
+    "clip_01 -> clip_02",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/3c/3c4c9dca3afbe645e90f8397288d7922d0a2dfafdb6ee0423a2468515d1435b0.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "f063cce3e0c86a774f63",
+    "11df638c20ffedd21603",
+    "7004b98d5ef71d120f1a",
+    "7e3e474ca01cd2ff8362"
+   ],
+   "builds": [
+    "ledger_20261114_051151"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 2,
+    "clip_02": 4,
+    "clip_03": 5
+   },
+   "flagged": [
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "Bitcoin's resilience to AI advancements, market pressures, and external forces trying to suppress it.",
+   "record": "tests/package/fixtures/replies/54/54efae2c2b53527704754b797eba640db8efefb940a6f7d6f20697b67c5f5f1d.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 1,
+     "clip_02": 1,
+     "clip_03": 1
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "clip_02 -> clip_03"
+    ],
+    "through_line": "none",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "22018cf6e0db2d846def",
+    "b3ad2b8356e4a8d70dd9",
+    "ec4c0ff49fdb895ef08e",
+    "704fa6e1af4a86ff1d07"
+   ],
+   "builds": [
+    "ledger_20261114_183413",
+    "ledger_20261114_192056"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1,
+    "clip_03": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/3c/3c4c9dca3afbe645e90f8397288d7922d0a2dfafdb6ee0423a2468515d1435b0.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "704fa6e1af4a86ff1d07",
+    "eb402a210905c778432d",
+    "30075b155874ab2de3c7",
+    "cb80340f857a99178919"
+   ],
+   "builds": [
+    "ledger_20261114_183413"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1,
+    "clip_03": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/3c/3c4c9dca3afbe645e90f8397288d7922d0a2dfafdb6ee0423a2468515d1435b0.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "704fa6e1af4a86ff1d07",
+    "b3ad2b8356e4a8d70dd9",
+    "ec4c0ff49fdb895ef08e",
+    "22018cf6e0db2d846def"
+   ],
+   "builds": [
+    "ledger_20261114_183413"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1,
+    "clip_03": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/3c/3c4c9dca3afbe645e90f8397288d7922d0a2dfafdb6ee0423a2468515d1435b0.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "933f9d33a8e345356177",
+    "eb402a210905c778432d",
+    "a49592a93a4a81a8d050"
+   ],
+   "builds": [
+    "ledger_20261114_183413"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 5,
+    "clip_02": 4
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "Bitcoin gains value from its scarcity against AI-driven abundance, making it ideal to accumulate by holding or running mining machines.",
+   "record": "tests/package/fixtures/replies/0d/0dcb8923626f101eebe0762f696e3905d5e44c9049503238396d2131d4569ea2.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 4,
+     "clip_02": 3
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "hook -> clip_01"
+    ],
+    "through_line": "Bitcoin investors should hold and accumulate the asset long-term due to its scarcity and rising value.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "933f9d33a8e345356177",
+    "eb402a210905c778432d",
+    "30075b155874ab2de3c7"
+   ],
+   "builds": [
+    "ledger_20261114_183413"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 3
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "Bitcoin is a scarce asset worth holding and including as a core long-term investment.",
+   "record": "tests/package/fixtures/replies/80/80419d714879c5154ba407d3789e767a24ab141ff0ad13ced3d86e119ff97c76.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 4,
+     "clip_02": 3
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "hook -> clip_01"
+    ],
+    "through_line": "Bitcoin is a scarce and valuable asset worth holding as an investment for the future.",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "933f9d33a8e345356177",
+    "eb402a210905c778432d",
+    "704fa6e1af4a86ff1d07"
+   ],
+   "builds": [
+    "ledger_20261114_183413"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/0c/0ce3ff2fa2d63fc6f51ea5e1b2f336a86af3e968140d32776c0acd39153892fb.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "704fa6e1af4a86ff1d07",
+    "b3ad2b8356e4a8d70dd9",
+    "30075b155874ab2de3c7",
+    "cb80340f857a99178919"
+   ],
+   "builds": [
+    "ledger_20261114_192056"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 4,
+    "clip_02": 3,
+    "clip_03": 5
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02"
+   ],
+   "through_line": "Despite major crypto losses like the Binance incident and a global bear market, Bitcoin represents a key investment opportunity.",
+   "record": "tests/package/fixtures/replies/2d/2dd2a5666536388fbb831daada79790651047729a807751f0ef4531146edc9f2.json",
+   "second": {
+    "asked": true,
+    "passes": false,
+    "clips": {
+     "clip_01": 1,
+     "clip_02": 1,
+     "clip_03": 1
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "clip_02 -> clip_03",
+     "hook -> clip_01"
+    ],
+    "through_line": "none",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  {
+   "lineup": [
+    "704fa6e1af4a86ff1d07",
+    "b3ad2b8356e4a8d70dd9",
+    "ec4c0ff49fdb895ef08e",
+    "cb80340f857a99178919"
+   ],
+   "builds": [
+    "ledger_20261114_192056"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1,
+    "clip_03": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/3c/3c4c9dca3afbe645e90f8397288d7922d0a2dfafdb6ee0423a2468515d1435b0.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "704fa6e1af4a86ff1d07",
+    "eb402a210905c778432d",
+    "5725aeda167432775db9",
+    "a49592a93a4a81a8d050"
+   ],
+   "builds": [
+    "ledger_20261114_192056"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1,
+    "clip_03": 1
+   },
+   "flagged": [
+    "hook -> clip_01",
+    "clip_01 -> clip_02",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/3c/3c4c9dca3afbe645e90f8397288d7922d0a2dfafdb6ee0423a2468515d1435b0.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  },
+  {
+   "lineup": [
+    "22018cf6e0db2d846def",
+    "408ef969709952011d0d",
+    "b3ad2b8356e4a8d70dd9",
+    "ec4c0ff49fdb895ef08e"
+   ],
+   "builds": [
+    "ledger_20261114_230148"
+   ],
+   "clips": {
+    "hook": 4,
+    "clip_01": 1,
+    "clip_02": 1,
+    "clip_03": 1
+   },
+   "flagged": [
+    "clip_01 -> clip_02",
+    "clip_02 -> clip_03"
+   ],
+   "through_line": "none",
+   "record": "tests/package/fixtures/replies/3c/3c4c9dca3afbe645e90f8397288d7922d0a2dfafdb6ee0423a2468515d1435b0.json",
+   "second": {
+    "asked": false,
+    "why": "the cap: $0.2747 spent (stop $0.27)"
+   }
+  }
+ ],
+ "spent_usd": 0.27466
+}
