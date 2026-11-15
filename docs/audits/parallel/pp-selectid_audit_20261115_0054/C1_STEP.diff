@@ -1,0 +1,144 @@
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+index 78ff10f..0c04f2f 100644
+--- a/pipeline/providers.py
++++ b/pipeline/providers.py
+@@ -30,6 +30,7 @@ Router.notices), it never halts (PBX 02:45).
+ Keys are read by name from the env file inside code; never printed or logged.
+ """
+ import hashlib
++import http.client
+ import json
+ import os
+ import time
+@@ -129,7 +130,9 @@ def _http_json(url, body, headers, timeout):
+ def _with_backoff(fn, final_codes=()):
+     """fn() with BACKOFF_S retries on 429 / 5xx / transport; HTTP codes in final_codes, an exhausted account and any
+     other 4xx are final. A refusal of the request itself (PER_REQUEST_CODES) raises RequestRejected; anything else
+-    that cannot answer raises Unavailable, with the reason."""
++    that cannot answer raises Unavailable, with the reason. Transport includes an answer cut mid-body
++    (http.client.IncompleteRead, an HTTPException but no OSError): it escaped as itself until 00:46 ET Nov 15, when
++    Heimdall cut a reply 43,669 bytes in and ended ruling 110's replay of one model."""
+     last = None
+     for wait in BACKOFF_S + (None,):
+         try:
+@@ -150,7 +153,7 @@ def _with_backoff(fn, final_codes=()):
+             if e.code in PER_REQUEST_CODES:
+                 raise RequestRejected(last) from None
+             raise Unavailable(last) from None
+-        except (urllib.error.URLError, TimeoutError, ConnectionError, OSError, ValueError) as e:
++        except (urllib.error.URLError, TimeoutError, ConnectionError, OSError, ValueError, http.client.HTTPException) as e:
+             last = type(e).__name__
+             if wait is not None:
+                 time.sleep(wait)
+diff --git a/tests/package/replay110.py b/tests/package/replay110.py
+index eb740e5..73e53ca 100644
+--- a/tests/package/replay110.py
++++ b/tests/package/replay110.py
+@@ -137,6 +137,10 @@ def replay_one(router, job, cap_s=CAP_S, stop_usd=STOP_USD, sleep=time.sleep):
+         row.update(seconds=round(time.time() - t0, 2), heimdall=None, heimdall_error=f"{type(e).__name__}: "
+                    f"{str(e)[:200]}", outcome="timeout" if "abandoned at the deadline" in str(e) else "error")
+         return row
++    except Exception as e:                            # noqa: BLE001  a call that failed in a way the Router does not
++        row.update(seconds=round(time.time() - t0, 2), heimdall=None,   # name (00:46 ET Nov 15: a reply cut
++                   heimdall_error=f"{type(e).__name__}: {str(e)[:200]}", outcome="error")   # mid-body) is an ERROR
++        return row                                    # row, never the end of the model's run
+     secs = round(rep.seconds or (time.time() - t0), 2)
+     row.update(seconds=secs, cached=bool(rep.cached), usd_reported=(rep.usage or {}).get("usd_reported"),
+                usd_estimate=rep.usd, out_tokens=(rep.usage or {}).get("out"))
+diff --git a/tests/package/test_replay110.py b/tests/package/test_replay110.py
+index 69cc2a3..18b1bb9 100644
+--- a/tests/package/test_replay110.py
++++ b/tests/package/test_replay110.py
+@@ -90,6 +90,14 @@ class TestOneRecord(unittest.TestCase):
+                                             sleep=waited.append))
+             self.assertEqual(waited, [30])
+ 
++    def test_a_call_that_fails_in_a_way_the_router_does_not_name_is_an_error_row(self):
++        import http.client
++        with tempfile.TemporaryDirectory() as d:          # 00:46 ET Nov 15: a reply cut mid-body ended the run
++            cut = Timed(GROK, fail=http.client.IncompleteRead(b"x", 21278))
++            row = RX.replay_one(candidate(d, cut), job(d), cap_s=2.0)
++            self.assertEqual((row["outcome"], row["heimdall"]), ("error", None))
++            self.assertTrue(row["heimdall_error"].startswith("IncompleteRead"))
++
+     def test_at_the_spend_stop_no_call_is_made(self):
+         with tempfile.TemporaryDirectory() as d:
+             b = Timed(GROK)
+diff --git a/tests/providers/test_backoff.py b/tests/providers/test_backoff.py
+new file mode 100644
+index 0000000..064e88e
+--- /dev/null
++++ b/tests/providers/test_backoff.py
+@@ -0,0 +1,72 @@
++#!/usr/bin/env python3
++"""A reply cut mid-body is a transport failure: retried on the backoff, then Unavailable, so the chain fails over as
++for any other transport failure. At 00:46 ET Nov 15 Heimdall cut a reply 43,669 bytes in; http.client.IncompleteRead
++(an HTTPException, not an OSError) escaped providers._with_backoff as itself and ended ruling 110's replay of one
++model. Offline: the real HeimdallBackend and Router; urlopen and the backoff's sleep are stubbed."""
++import http.client
++import json
++import os
++import sys
++import tempfile
++import unittest
++from unittest import mock
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++sys.path.insert(0, HERE)
++import providers as P  # noqa: E402
++from test_providers import Fake, router  # noqa: E402
++
++CUT = http.client.IncompleteRead(b"{" * 10, 21278)
++
++
++class Cut:
++    """An HTTP response whose body ends before its Content-Length: read() raises IncompleteRead."""
++
++    def read(self):
++        raise CUT
++
++
++class TestACutReplyIsATransportFailure(unittest.TestCase):
++
++    def test_a_cut_reply_is_retried_on_the_backoff_and_the_next_try_answers(self):
++        tries, waits = [], []
++
++        def fn():
++            tries.append(1)
++            if len(tries) == 1:
++                raise CUT
++            return {"ok": 1}
++        with mock.patch.object(P.time, "sleep", waits.append):
++            self.assertEqual(P._with_backoff(fn), {"ok": 1})
++        self.assertEqual((len(tries), waits), (2, [P.BACKOFF_S[0]]))
++
++    def test_a_reply_cut_every_time_is_unavailable_and_the_chain_fails_over(self):
++        with tempfile.TemporaryDirectory() as d:
++            h = P.HeimdallBackend("heimdall:deepseek/x", {"vendor": "heimdall", "model": "deepseek/x",
++                                                          "base_url": "http://gateway.invalid/api/v1",
++                                                          "price_usd_per_1m": [3, 15], "family": "deepseek"},
++                                  "/nonexistent")
++            h.key = lambda name: "test-key"
++            nxt = Fake("heimdall:qwen", "heimdall", answer='{"ok": 2}', family="qwen")
++            r = router(d, [h, nxt], {"check": ["heimdall:deepseek/x", "heimdall:qwen"]})
++            r.backends = {h.name: h, nxt.name: nxt}
++            asked, waits = [], []
++
++            def urlopen(req, timeout=None):
++                asked.append(req.full_url)
++                return Cut()
++            with mock.patch.object(P.urllib.request, "urlopen", urlopen), \
++                    mock.patch.object(P.time, "sleep", waits.append):
++                rep = r.call("check", "p", 100, 7)
++            self.assertEqual((rep.text, rep.backend), ('{"ok": 2}', "heimdall:qwen"))
++            tries = [u for u in asked if u.endswith("/chat/completions")]   # (the 90 % tripwire asks /credits)
++            self.assertEqual(len(tries), len(P.BACKOFF_S) + 1)          # every try, then Unavailable
++            self.assertEqual(waits, list(P.BACKOFF_S))
++            self.assertIn("IncompleteRead", rep.tried[0][1])
++            self.assertIn(h.name, r.down)                               # down for the run, as any transport failure
++
++
++if __name__ == "__main__":
++    unittest.main()

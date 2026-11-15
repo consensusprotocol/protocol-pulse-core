@@ -30,6 +30,7 @@ Router.notices), it never halts (PBX 02:45).
 Keys are read by name from the env file inside code; never printed or logged.
 """
 import hashlib
+import http.client
 import json
 import os
 import time
@@ -129,7 +130,11 @@ def _http_json(url, body, headers, timeout):
 def _with_backoff(fn, final_codes=()):
     """fn() with BACKOFF_S retries on 429 / 5xx / transport; HTTP codes in final_codes, an exhausted account and any
     other 4xx are final. A refusal of the request itself (PER_REQUEST_CODES) raises RequestRejected; anything else
-    that cannot answer raises Unavailable, with the reason."""
+    that cannot answer raises Unavailable, with the reason. Transport includes a reply cut mid-body
+    (http.client.IncompleteRead) and a bad status line (a dropped connection): both retried. Any other
+    http.client.HTTPException (InvalidURL, ImproperConnectionState, ...) cannot answer however often it is asked:
+    Unavailable at once. Neither is an OSError: until 00:46 ET Nov 15 they escaped as themselves (Heimdall cut a reply
+    43,669 bytes in and ended ruling 110's replay of one model)."""
     last = None
     for wait in BACKOFF_S + (None,):
         try:
@@ -150,12 +155,15 @@ def _with_backoff(fn, final_codes=()):
             if e.code in PER_REQUEST_CODES:
                 raise RequestRejected(last) from None
             raise Unavailable(last) from None
-        except (urllib.error.URLError, TimeoutError, ConnectionError, OSError, ValueError) as e:
+        except (urllib.error.URLError, TimeoutError, ConnectionError, OSError, ValueError, http.client.IncompleteRead,
+                http.client.BadStatusLine) as e:
             last = type(e).__name__
             if wait is not None:
                 time.sleep(wait)
                 continue
             raise Unavailable(last) from None
+        except http.client.HTTPException as e:         # no retry helps: it cannot answer
+            raise Unavailable(f"{type(e).__name__} (final)") from None
     raise Unavailable(last or "unavailable")
 
 

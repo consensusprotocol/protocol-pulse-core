@@ -1,0 +1,29 @@
+pp-selectid: A REPLY CUT MID-BODY. At 00:46 ET Nov 15, during ruling 110's replay, Heimdall cut a
+deepseek-v4.1-flash-1017-uncensored reply 43,669 bytes in (http.client.IncompleteRead, 21,278 bytes short).
+- IncompleteRead is an http.client.HTTPException, NOT an OSError. providers._with_backoff (base pipeline/providers.py:
+  129-160) retries only urllib.error.URLError / TimeoutError / ConnectionError / OSError / ValueError, so it escaped
+  as itself. Its docstring promises "anything else that cannot answer raises Unavailable".
+- Router.call's `except BaseException: self._settle(key); raise` (UNCHANGED, :1377-1379) let it out of the call: no
+  failover to the next leg.
+- In the replay driver it ended that model's thread pool. Executor.map cancels the queued jobs after an exception, so
+  113 calls never ran. In a build, the same failure would end the call the same way: package.prescreen holds it (its
+  `except Exception`); a caller that catches only ProviderError would see the raw exception.
+
+THE CHANGE:
+1. pipeline/providers.py: `import http.client`; http.client.HTTPException joins _with_backoff's transport errors.
+   A cut reply is now retried on BACKOFF_S (10, 30, 90 s), then raises Unavailable(<the exception's name>). Router.call
+   treats that as any transport failure (UNCHANGED, :1371-1376): reservation released, health noted, the back-end down
+   for this Router's run, failover to the next leg. Heimdall's credits() already catches Exception (UNCHANGED, :428-436).
+2. tests/package/replay110.py (ruling 110's driver, landed 45455462): replay_one turns any other exception from the
+   call into an ERROR row (with its type), never the end of the model's run.
+
+TESTS: tests/providers/test_backoff.py (new; the real HeimdallBackend and Router, urlopen and sleep stubbed): one cut
+reply is retried and the next try answers; a reply cut every time is Unavailable after every backoff and the chain
+fails over (the 90% tripwire's /credits request is not counted). tests/package/test_replay110.py: a call failing with
+IncompleteRead is an error row. 3 of 3 mutations killed (C1 the cut reply escapes, C2 it is Unavailable at once and
+never retried, C3 the replay lets it end the run).
+
+PLEASE CHECK: (1) any HTTPException that must NOT be retried, or that is already handled before this clause;
+(2) spend: a retry is a new request under the same reservation, and a cut reply may still be billed but is not booked
+(the same as a 5xx retry today); (3) whether marking the back-end down for the run after four cut replies is right
+(it is what every other transport failure does); (4) the tests.

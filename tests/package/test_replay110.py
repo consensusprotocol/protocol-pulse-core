@@ -90,6 +90,15 @@ class TestOneRecord(unittest.TestCase):
                                             sleep=waited.append))
             self.assertEqual(waited, [30])
 
+    def test_a_call_that_fails_in_a_way_the_router_does_not_name_is_an_error_row(self):
+        import http.client
+        with tempfile.TemporaryDirectory() as d:          # 00:46 ET Nov 15: a reply cut mid-body ended the run
+            cut = Timed(GROK, fail=http.client.IncompleteRead(b"x", 21278))
+            row = RX.replay_one(candidate(d, cut), job(d), cap_s=2.0)
+            self.assertEqual((row["outcome"], row["heimdall"]), ("error", None))
+            self.assertTrue(row["heimdall_error"].startswith("IncompleteRead"))
+            self.assertIsInstance(row["seconds"], float)
+
     def test_at_the_spend_stop_no_call_is_made(self):
         with tempfile.TemporaryDirectory() as d:
             b = Timed(GROK)

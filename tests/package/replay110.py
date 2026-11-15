@@ -137,6 +137,10 @@ def replay_one(router, job, cap_s=CAP_S, stop_usd=STOP_USD, sleep=time.sleep):
         row.update(seconds=round(time.time() - t0, 2), heimdall=None, heimdall_error=f"{type(e).__name__}: "
                    f"{str(e)[:200]}", outcome="timeout" if "abandoned at the deadline" in str(e) else "error")
         return row
+    except Exception as e:                            # noqa: BLE001  a call that failed in a way the Router does not
+        row.update(seconds=round(time.time() - t0, 2), heimdall=None,   # name (00:46 ET Nov 15: a reply cut
+                   heimdall_error=f"{type(e).__name__}: {str(e)[:200]}", outcome="error")   # mid-body) is an ERROR
+        return row                                    # row, never the end of the model's run
     secs = round(rep.seconds or (time.time() - t0), 2)
     row.update(seconds=secs, cached=bool(rep.cached), usd_reported=(rep.usage or {}).get("usd_reported"),
                usd_estimate=rep.usd, out_tokens=(rep.usage or {}).get("out"))
