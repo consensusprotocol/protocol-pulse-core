@@ -1,0 +1,68 @@
+{
+ "question": "Batch 82 = a defect in the integrator's readiness tool, scripts/integrator/check_pin_only.py, found on the first spotlight pin (3f481f5a, 2026-11-14): it called the builder's package_pin.gate_problems with its medley default and reported \"r4: missing; coherence: missing\" for any spotlight (a spotlight's sealed inventory has no r4 / coherence rows by contract), and recomputed the seal by hand. The fix: gate_problems(gates, PP.required_gates(mp)) (the builder's shape-aware required set) and PP.pin_seal(pin) (the builder's documented readiness call, covering every shape and the fields it seals later). Measured on real pins: the spotlight 3f481f5a is READY; the medley 13949b7c (takeaway with no takeaway_value row) is still refused, now by the builder's required set; a resealed copy with the row is READY with the same seal the old hand call gave.\nFIND: a pin the fixed tool now passes that the render would refuse, or that the old tool rightly refused; a seal it could accept from bytes other than the pin's. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 1.8,
+   "cost": 0.0001407803,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 13.6,
+   "cost": 6.6371e-05,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 3.1,
+   "cost": 0.0001626105,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 5.3,
+   "cost": 5.0251e-05,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "scripts/integrator/check_pin_only.py",
+   "line": 24,
+   "issue": "gate_problems is now called with the pin's own shape-aware required set, so a pin whose gates dict lacks gates the builder requires only via required_gates(mp) would pass the gates check here even if the builder's readiness call would refuse it \u2014 but the subsequent PP.pin_seal(pin) comparison against package_sha256 still catches any such divergence, since the seal covers the gates. No defect observed in the diff; the seal check subsumes the gates check for readiness.",
+   "evidence": "problems = PP.gate_problems(mp.get(\"gates\"), PP.required_gates(mp))   # the pin's own shape: a spotlight has no\n    if problems:                                                          # r4 / coherence rows (found 2026-11-14)\n        return False, \"gates: \" + \"; \".join(problems)\n... seal = PP.pin_seal(pin)        # the builder's readiness call: every shape, and the fields sealed later (SEALED_LATER)\n    if seal != mp.get(\"package_sha256\"):\n        return False, \"seal mismatch: the pin's bytes or gates differ from what was sealed\"",
+   "fix": "None required; the pin_seal comparison already enforces readiness against the builder's own seal, so the gates check is advisory only.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.00042001280000000005,
+ "out_dir": "heimdall"
+}
