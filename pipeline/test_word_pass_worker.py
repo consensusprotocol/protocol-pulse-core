@@ -479,6 +479,18 @@ class TestLeaseBusy(unittest.TestCase):
             with self.assertRaises(gpu0.LeaseMissing):
                 W.cycle()
 
+    def test_a_refusal_at_the_door_other_than_a_busy_lease_still_stops_the_worker(self):
+        import contextlib
+        import gpu0
+
+        @contextlib.contextmanager
+        def refused(owner, wait_s=0.0, poll_s=0.2):
+            raise gpu0.LeaseMissing("no GPU1 on this host")
+            yield
+        with mock.patch.object(gpu0, "lease", refused):
+            with self.assertRaises(gpu0.LeaseMissing):
+                W.cycle()
+
     def test_a_busy_lease_raised_inside_a_held_batch_is_not_read_as_a_turn(self):
         import gpu0
 
