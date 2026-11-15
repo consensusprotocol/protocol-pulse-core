@@ -6,6 +6,16 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 22:37 REVIEW PATH DELIVERED (ruling 106 (b)): SPOTLIGHT 3f481f5a, run pinned_20261115_013448. Its 16:9 alone went to the approval chat as REVIEW ONLY - NOT A PASS - not for publishing: video message 67881, note 67882, sha256 c9166b199c2659dae82c4c9b4b45517072b530dd5838f06aa97afa80d03c5170. The 9:16 was withheld and never sent. The run stays HOLD, with no release authorisation; nothing is published. BATCH 3 integrator spend: $0.0222.
+- **How:** telegram.review_drop(run, withhold={"9x16": ...}, points=[P1, P2]) at 22:37:40 ET, from main at 3877b52e. The record is the run's REVIEW_DROP.json (status complete, withheld, points, texts, message ids).
+- **Every caption and the note carry, under the head:**
+  - OPEN INTEGRITY POINT: "L-s step A refused the moment on re-judgment (Grok, 22:07 ET): CONDITION_OUTSIDE, 'financially independent by 45' rests on ~20% annual returns said after the clip; REFERENT_OUTSIDE, 'now'. The same context drew no objection from Grok at 12:32 ET or deepseek at 13:49 ET."
+  - OPEN INTEGRITY POINT: "The package caption calls the speaker 'a guest'; the builder's new role rule refuses that wording (its fidelity gate), and no re-written caption was sealed."
+  - WITHHELD, NOT SENT: 9:16: "ruling 93 as amended: the 9:16 crop cuts the source's burned captions mid-word ('SOLD MY' reads 'D MY' at 2.0 s)".
+- **The rows:** "Not passing (required): none". The 16:9 cleared all 24 of its rows. The 9:16's V1 split is not judged, because the 9:16 is not sent.
+- **NOT SAID in the drop:** that this is the SPOTLIGHT format's first demonstration (the review texts carry no kind). The builder and the orchestrator know it from this DoD.
+- **Spend:** the drop itself is a Bot API call, $0.
+
 ## 22:37 REVIEW-DROP POINTS LANDED (ruling 106 (b)): telegram.review_drop can now withhold a format with its stated reason and state the open integrity points. Both only ADD lines under the head of every text, are checked for forbidden wording, must fit whole as lines (else STOP) and are recorded in REVIEW_DROP.json. Merge of reviewpoints (3cc900ce + its cap); audits batch 87, two cycles, no defect. BATCH 3 integrator spend: $0.0222.
 - **The change:**
   - withhold {format: reason}: only formats of this run, each reason non-empty and at most 300 characters; withholding every format is a STOP.
