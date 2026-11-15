@@ -509,6 +509,21 @@ then `bash regression_test.sh` (26 PASS, 0 FAIL, 5 WARN).
     its try (tests/package/proof_ledger.py:484): KeyError after its step A was paid. It needs a due candidate on a
     pool that fails one of those rules; none is due while every candidate is over 12 h old (CA.expire closes them
     first). The fix: give those returns a candidate outcome as candidates.outcome reads it; test it; audit it.
+5d. **RULING 112 (11:15 ET Nov 15), THE HOOK SCARCITY DIAGNOSIS: DONE 11:56 ET; ITS RECOMMENDATION AWAITS A RULING.**
+    The driver is tests/package/hook112.py (044ab303 + 52d693de, audit 20261115_1129, 3 cycles). The results are in
+    tests/package/proof/hook112/: REPORT.md, RECOMMENDATION.md and the JSON files.
+    - The finding: RATER DRIFT. The hook job has been rated by qwen since 11:29 ET Nov 14 (Grok before). At production's
+      seed it rates 4 of the 5 PBX-approved hooks below 4: preview 2, 37c5b5f5 2, 0c68b589 3, 13949b7c 3; 41f29b1f 4.
+      Grok had rated 0c68b589's and 13949b7c's hooks 4. Every drop is on scroll.
+    - The recommendation: hold the bar, re-anchor the rater. "Every approved hook rates >= 4" becomes a standing check
+      (`python3 -B tests/package/hook112.py --since <ISO>`, about $0.004 of Heimdall, no cache). Then add the approved
+      hooks as calibration examples in the hook question, or route Grok first. Then a "later start" hook candidate.
+    - Follow-ups recorded in the audit's C2 / C3 consensus, for the driver's next change (labels and tests only; no
+      output changes):
+      - reason_class's dead alternative and its untested order;
+      - the ledger-id fallback test;
+      - spotlight_trace's tie rule;
+      - the end-to-end test's content assertions.
 6. **Ruling 97 is answered** (STATE 01:41): nothing to build unless the orchestrator rules otherwise.
 7. **Done tonight:**
    - rulings 85-88 + 96 (125e7381, audit 0108);
