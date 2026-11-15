@@ -22,7 +22,7 @@ line says PASS path (with the Telegram ids) or HOLD (stage, row, measured facts)
      scratchpad, putting the old file back, and running them.
   3. Run TWO audit cycles and implement the consensus (commands below). Record each cycle in
      `docs/audits/pulse-sentence-law/batchNN_<name>/cycle{1,2}/`: QUESTION.txt, STEP.diff, CONSENSUS.md, heimdall/.
-     The last batch is **92** (the release caption's ruling 115 (2) hook bar line, 2026-11-15; 91 the transcript ingest's Whisper pass under the GPU0 lease; 90 the word-pass worker survives a busy GPU1 lease; 89 the pp-backtest merge; 88 the review texts name the spotlight kind; 85 the format-aware release, 86 the 16:9-only render, 87 the review drop's withhold / points; 81-83 the spotlight gate, alarm and readiness; 84 ruling 105).
+     The last batch is **93** (the release caption's ruling 116 line-up bar line under ruling 115 (2)'s, 2026-11-15; 92 the hook bar line; 91 the transcript ingest's Whisper pass under the GPU0 lease; 90 the word-pass worker survives a busy GPU1 lease; 89 the pp-backtest merge; 88 the review texts name the spotlight kind; 85 the format-aware release, 86 the 16:9-only render, 87 the review drop's withhold / points; 81-83 the spotlight gate, alarm and readiness; 84 ruling 105).
   4. On main, stage it: `git merge --no-commit --no-ff <branch>`.
   5. Run `bash regression_test.sh` (0 FAIL) and `bash pipeline/regression.sh` (exit 0: every protected reference
      reproduced) ON THE STAGED MERGE. Worktrees lack untracked assets, so run them on main.
@@ -105,7 +105,8 @@ No session waits on the orchestrator. Standing, for all three sessions:
   - A third-person or demonstrative opener opens only with the scorer's affirmation.
   - A conjunction or reply word opens only through ruling 33's trim.
   - Carrier: `stand_alone.opener`, `check_edl`.
-- **115 (2)** (2026-11-15 '13:24', relayed by the builder): a package sealed on the calibrated hook bar says so in the Telegram note in one plain line, "hook passed on the calibrated bar"; PBX's approve or reject of it becomes a calibration example (the builder's `hook_bar.add_example`). Carrier: `telegram.hook_bar_line` (the release caption, under the run line; never in a review drop, whose wording law refuses 'passed') and `check_pin_only` (a malformed mark is not ready). Contract: section 5.
+- **115 (2)** (2026-11-15 '13:24', relayed by the builder): a package sealed on the calibrated hook bar says so in the Telegram note in one plain line, "hook passed on the calibrated bar"; PBX's approve or reject of it becomes a calibration example (the builder's `hook_bar.add_example`). Carrier: `telegram.bar_lines` / `BAR_MARKS` (the release caption, under the run line; never in a review drop, whose wording law refuses 'passed') and `check_pin_only` (a malformed mark is not ready). Contract: section 5.
+- **116** (the builder's Q3, applied on ruling 106's default at 15:54 ET Nov 15; the order 15:30 asked the report): the line-up verdicts (clips-alone, coherence) take a calibrated bar the hook's way, clips >= 3 and VO point >= 3 on Grok's own verdicts (every other model keeps 4). It touches no integrity check (vo_fidelity_ok / context_integrity_ok unchanged). A package passing both on it says "line-up passed on the calibrated bar", its own line under the hook's. Carrier: the same as 115 (2) (batch 93).
 - **L-v 3** ('22:40'): a time_sensitive clip older than 24 h on the render clock holds at stage pinned. Carrier: `pinned.recency_problems`.
 
 **Laws since Nov 12, one line each (titles as in PIPELINE_LAWS.md's LAW 26 list):**
@@ -139,12 +140,12 @@ No session waits on the orchestrator. Standing, for all three sessions:
    - It runs the builder's `gate_problems`, `trim_problems` and `seal()` from `/home/ultron/worktrees/pp-selectid/pipeline/package_pin.py`.
    - A spotlight seal passes `shape` and `first_comment`.
    - Then main's `pinned.validate_schema` and `moments_vo`.
-   - Its READY line names the hook bar mark (ruling 115 (2)): "hook passed on the calibrated bar", or "no mark". A malformed mark is not ready.
+   - Its READY line names the calibrated bar marks (rulings 115 (2) / 116): "hook passed on the calibrated bar; line-up passed on the calibrated bar", one of them, or "no mark". A malformed mark is not ready.
 5. **Launch:** `env -u TMUX bash scripts/pulse_check_run.sh --pinned data/moments_pins/<NAME>.json`.
    - It runs in a detached tmux `pipeline_pulse_check_<UTC>`.
    - Log: `logs/pulse_check/run_<stamp>.log`. Run dir: `runs/pinned_<stamp>/`.
 6. **Release the flag:** `rm /tmp/pulse_gpu0.yield` once the render holds the lease.
-7. **Report:** when it ends, the DoD's first line is the PASS path with its ids, or HOLD with the stage, the row and the facts. Commit the DoD only after the run. If the pin carries `caption_fallback: true`, that first line also says CAPTION IS THE FIXED FALLBACK (ruling 65 (b), verbatim: "It is recorded as caption_fallback: true so I tell PBX the caption is a placeholder."; the "I" is the orchestrator; nothing in the kit changes). If the pin carried `moments_package.hook_bar`, the release caption carried "hook passed on the calibrated bar" (ruling 115 (2)); PBX's verdict on it goes to the builder (section 5).
+7. **Report:** when it ends, the DoD's first line is the PASS path with its ids, or HOLD with the stage, the row and the facts. Commit the DoD only after the run. If the pin carries `caption_fallback: true`, that first line also says CAPTION IS THE FIXED FALLBACK (ruling 65 (b), verbatim: "It is recorded as caption_fallback: true so I tell PBX the caption is a placeholder."; the "I" is the orchestrator; nothing in the kit changes). If the pin carried `moments_package.hook_bar` / `lineup_bar`, the release caption carried "hook passed on the calibrated bar" (ruling 115 (2)) / "line-up passed on the calibrated bar" (ruling 116); PBX's verdict on it goes to the builder (section 5).
 
 **Stages** (`pipeline/run_fresh.py`):
 - **env**
@@ -238,10 +239,11 @@ No session waits on the orchestrator. Standing, for all three sessions:
   - first_comment is the WHOLE first comment, printed verbatim with nothing appended.
   - Required sealed rows, exactly PASS and not replayed: spotlight_source, hook_own, stands_alone, step_a_two_families, visual, window_12h, never_delivered, one_per_channel_day, precheck.
   - The seal covers vo.closing, shape and first_comment (builder 8bf5f278). The file is `SPOTLIGHT_PIN.json` in its build dir.
-- **Hook bar mark (ruling 115 (2); builder da7b1160, 14:51 Nov 15):**
+- **Calibrated bar marks (ruling 115 (2), builder da7b1160, 14:51 Nov 15; ruling 116, builder d039f4c0, 16:07 Nov 15):**
   - Every package the builder seals from da7b1160 on carries `moments_package["hook_bar"]` = {note "hook passed on the calibrated bar", bar, floors, calibration_sha256, ruling "115"}, OUTSIDE the seal (`pin_seal` unchanged).
-  - The release caption prints the fixed line under the run line (`telegram.hook_bar_line`, batch 92). It does so only when the mark in the run's PINNED_DECISION.json is the ruling's and its package_sha256 equals the attested EDL's; otherwise the drop STOPs. No hook_bar key: no line.
-  - PBX's verdict on a marked pin reaches you only through the orchestrator. Tell the builder within the hour: "approved" or "rejected: <his reason, verbatim>", with the pin name, seal prefix and run dir. It appends the verdict to `pipeline/hook_calibration.json` (`hook_bar.add_example`).
+  - From d039f4c0, a package whose clips-alone and coherence verdicts both passed on Grok's calibrated line-up bar also carries `moments_package["lineup_bar"]` = {note "line-up passed on the calibrated bar", floors, calibration_sha256, ruling "116"}, outside the seal. A verdict from any other model gives no mark.
+  - The release caption prints each fixed line under the run line, hook first (`telegram.bar_lines` over `BAR_MARKS`, batches 92 / 93). It does so only when each present mark is exactly its ruling's and the record's package_sha256 equals the attested EDL's; otherwise the drop STOPs. An absent key: no line.
+  - PBX's verdict on a marked pin reaches you only through the orchestrator. Tell the builder within the hour: "approved" or "rejected: <his reason, verbatim>", with the pin name, seal prefix, run dir and which marks it carried. It appends the verdict to the bar's calibration file (`pipeline/hook_calibration.json` via `hook_bar.add_example`; the line-up's `pipeline/lineup_calibration.json`).
 - **Pre-check request:** `<request_id>.json` {request_id, segments [{video_id, start, end, role hook|clip, approved_text?, trimmed_leading? + untrimmed_start?}]}.
   - outcome is one of decoded, no_difference, adopted, two_readings, adopt_spoken (seal spoken_text), hold, error.
   - The entry also carries lock, alternatives, as_spoken {differences, classes} and cut.

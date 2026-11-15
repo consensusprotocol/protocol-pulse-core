@@ -1,0 +1,300 @@
+diff --git a/pipeline/telegram.py b/pipeline/telegram.py
+index b20871e6..1ee1323d 100644
+--- a/pipeline/telegram.py
++++ b/pipeline/telegram.py
+@@ -35,10 +35,13 @@ FINALS = {"16x9": "out/segment.mp4", "9x16": "out/segment_vertical.mp4"}
+ SIXTEEN_NINE_ONLY = ("16:9 ONLY: the package sealed formats ['16x9'] (ruling 93 as amended: a 9:16 crop cuts a "
+                      "source's burned captions); no 9:16 is sent")
+ # ruling 115 (2) (orchestrator 13:24 ET Nov 15): "a package sealed on the interim bar says so in its record and in the
+-# Telegram note in one plain line ("hook passed on the calibrated bar")". The pin carries the mark in
+-# moments_package["hook_bar"], outside the seal (pp-selectid da7b1160). A release caption prints THIS line, never the
+-# mark's own words; a review drop never carries it (its wording law refuses 'passed': _review_forbidden).
++# Telegram note in one plain line ("hook passed on the calibrated bar")". Ruling 116 (the builder's Q3, applied on
++# ruling 106's default at 15:54 ET Nov 15): the line-up verdicts' calibrated bar is marked the same way. A pin carries
++# each mark in moments_package[key], outside the seal. A release caption prints THESE lines, in this order, never a
++# mark's own words; a review drop never carries them (its wording law refuses 'passed': _review_forbidden).
+ HOOK_BAR_NOTE = "hook passed on the calibrated bar"
++LINEUP_BAR_NOTE = "line-up passed on the calibrated bar"
++BAR_MARKS = (("hook_bar", HOOK_BAR_NOTE, "ruling 115 (2)"), ("lineup_bar", LINEUP_BAR_NOTE, "ruling 116"))
+ 
+ 
+ def _fit(text, limit):
+@@ -70,37 +73,44 @@ def snapshot(run_dir, att):
+ REGISTRY = os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.json")
+ 
+ 
+-def hook_bar_mark(mp):
+-    """Ruling 115 (2): HOOK_BAR_NOTE when a pin's moments_package carries the calibrated hook bar's mark, None when it
+-    carries none. A mark that is present must be an object whose "note" is exactly HOOK_BAR_NOTE, else ValueError
+-    (never a guess, never the mark's own words). check_pin_only asks this before a render."""
+-    if not isinstance(mp, dict) or "hook_bar" not in mp:
+-        return None
+-    hb = mp["hook_bar"]
+-    if not isinstance(hb, dict) or hb.get("note") != HOOK_BAR_NOTE:
+-        raise ValueError(f"moments_package hook_bar is not ruling 115 (2)'s mark: {str(hb)[:120]!r}")
+-    return HOOK_BAR_NOTE
++def bar_marks(mp):
++    """Rulings 115 (2) / 116: the calibrated-bar lines a pin's moments_package carries, in BAR_MARKS order (the hook's,
++    then the line-up's); [] when it carries none. Each mark is read on its own: an absent key adds nothing, a present
++    one must be an object whose "note" is exactly its line, else ValueError (never a guess, never the mark's own
++    words). check_pin_only asks this before a render."""
++    if not isinstance(mp, dict):
++        return []
++    out = []
++    for key, note, ruling in BAR_MARKS:
++        if key not in mp:
++            continue
++        m = mp[key]
++        if not isinstance(m, dict) or m.get("note") != note:
++            raise ValueError(f"moments_package {key} is not {ruling}'s mark: {str(m)[:120]!r}")
++        out.append(note)
++    return out
+ 
+ 
+-def hook_bar_line(run_dir, edl):
+-    """The release caption's ruling 115 (2) line: hook_bar_mark of the pin this run was built from (PINNED_DECISION.json,
+-    written by pinned.prepare; not an attested file), bound to the attested EDL by the package digest. None for a run
+-    without a pin record (an auto run) or a pin without the mark. STOP (nothing is sent) on an unreadable record, a
+-    mark that is not the ruling's, or a marked package that is not the EDL's."""
++def bar_lines(run_dir, edl):
++    """The release caption's calibrated-bar lines: bar_marks of the pin this run was built from (PINNED_DECISION.json,
++    written by pinned.prepare; not an attested file), bound to the attested EDL by the package digest. [] for a run
++    without a pin record (an auto run) or a pin without a mark. STOP (nothing is sent) on an unreadable record, a mark
++    that is not its ruling's, or a marked package that is not the EDL's."""
+     path = os.path.join(run_dir, "PINNED_DECISION.json")
+     if not os.path.exists(path):
+-        return None
++        return []
+     try:
+         with open(path) as f:
+             mp = json.load(f)["pin"].get("moments_package")
+-        line = hook_bar_mark(mp)
++        lines = bar_marks(mp)
+     except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
+-        raise RuntimeError(f"STOP: ruling 115 (2): the pin record cannot say whether the hook was marked "
+-                           f"({type(e).__name__}: {e})") from None
+-    sha = mp.get("package_sha256") if line else None
+-    if line and not (isinstance(sha, str) and sha and sha == edl.get("moments_package_sha256")):
+-        raise RuntimeError("STOP: ruling 115 (2): the marked package in PINNED_DECISION.json is not the attested EDL's")
+-    return line
++        raise RuntimeError(f"STOP: calibrated bar marks (rulings 115 (2) / 116): the pin record cannot say whether the "
++                           f"package was marked ({type(e).__name__}: {e})") from None
++    sha = mp.get("package_sha256") if lines else None
++    if lines and not (isinstance(sha, str) and sha and sha == edl.get("moments_package_sha256")):
++        raise RuntimeError("STOP: calibrated bar marks (rulings 115 (2) / 116): the marked package in "
++                           "PINNED_DECISION.json is not the attested EDL's")
++    return lines
+ 
+ 
+ def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
+@@ -119,9 +129,8 @@ def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
+              + (f" | {duration:.1f} s" if duration else ""),
+              f"Story: {edl.get('topic', '')}",
+              "Clips: " + ", ".join([edl["hook"].get("channel", "?")] + [c.get("channel", "?") for c in edl.get("clips", [])])]
+-    hb = hook_bar_line(run_dir, edl)         # ruling 115 (2): one plain line, under the run line (never cut by _fit)
+-    if hb:
+-        lines.insert(2, hb)
++    lines[2:2] = bar_lines(run_dir, edl)     # rulings 115 (2) / 116: one plain line per mark, under the run line
++                                             # (never cut by _fit)
+     if mon:                                # claude-fable audit batch 16 #1: never 'all passed' with a failure unsaid
+         lines.insert(1, "Monitoring (reported, not release-deciding): " + "; ".join(f"{k} {v}" for k, v in mon.items()))
+     if release_auth.release_formats(edl) == ("16x9",):
+diff --git a/pipeline/test_review_drop.py b/pipeline/test_review_drop.py
+index 0f3e24b2..2c4a44be 100644
+--- a/pipeline/test_review_drop.py
++++ b/pipeline/test_review_drop.py
+@@ -370,14 +370,16 @@ class TestReviewDrop(unittest.TestCase):
+                       'strategic reserve"', note)
+         self.assertIn("- clip 2 (Natalie Brunell): speaker unknown\n  the source names nobody", note)
+ 
+-    def test_ruling_115_2_a_marked_pin_review_never_carries_the_hook_bar_line(self):
+-        """Ruling 115 (2)'s line ('hook passed on the calibrated bar') belongs to the release caption: a review text
+-        never says 'passed' (_review_forbidden), so a marked pin's review goes out without it, never refused for it."""
++    def test_rulings_115_116_a_marked_pin_review_never_carries_a_bar_line(self):
++        """The calibrated bars' lines ('hook passed on the calibrated bar', ruling 115 (2); 'line-up passed on the
++        calibrated bar', ruling 116) belong to the release caption: a review text never says 'passed'
++        (_review_forbidden), so a marked pin's review goes out without them, never refused for them."""
+         self.edl["moments_package_sha256"] = "ab" * 32
+         self._write("edl.json", self.edl)
+         self._write("PINNED_DECISION.json", {"mode": "pinned", "pin": {"moments_package": {
+             "type": "moments", "package_sha256": "ab" * 32,
+-            "hook_bar": {"note": "hook passed on the calibrated bar", "ruling": "115"}}}})
++            "hook_bar": {"note": "hook passed on the calibrated bar", "ruling": "115"},
++            "lineup_bar": {"note": "line-up passed on the calibrated bar", "ruling": "116"}}}})
+         rec = T.review_drop(self.run, send=self._send)
+         self.assertEqual(rec["status"], "complete")
+         self.assertEqual([s[0] for s in self.sent], ["video", "video", "message"])
+diff --git a/pipeline/test_telegram_delivery.py b/pipeline/test_telegram_delivery.py
+index f6b63814..51e8c190 100644
+--- a/pipeline/test_telegram_delivery.py
++++ b/pipeline/test_telegram_delivery.py
+@@ -142,28 +142,29 @@ class TestAuthorisedDrop(Base):
+ 
+ 
+ NOTE_115 = "hook passed on the calibrated bar"      # ruling 115 (2)'s words, as PBX must read them
++NOTE_116 = "line-up passed on the calibrated bar"   # ruling 116's (the builder's lineup_bar.NOTE)
+ MARK = {"note": NOTE_115, "bar": "BAR-TEXT scroll>=3 alone>=4 setup>=3", "floors": {"scroll": 3, "alone": 4, "setup": 3},
+         "calibration_sha256": "f" * 64, "ruling": "115"}
++LINEUP = {"note": NOTE_116, "bar": "LINEUP-TEXT", "floors": {"clips_alone": {"clips": 3}, "coherence": {
++    "clips": 3, "vo_point": 3}}, "calibration_sha256": "e" * 64, "ruling": "116"}
++BOTH = {"hook_bar": MARK, "lineup_bar": LINEUP}
+ PKG = "ab" * 32
+-NO_MARK = object()
+ 
+ 
+-class TestHookBarLine(Base):
+-    """Ruling 115 (2) (orchestrator 13:24 ET Nov 15): a package sealed on the calibrated hook bar says so in the
+-    Telegram note in one plain line. The pin carries the mark in moments_package["hook_bar"] (outside the seal); the
+-    run's PINNED_DECISION.json (pinned.prepare) holds that pin and is not an attested file, so the mark counts only
+-    for the package the attested EDL was built from."""
++class TestBarLines(Base):
++    """Rulings 115 (2) / 116 (orchestrator 13:24 ET Nov 15; the builder's Q3 on ruling 106's default, 15:54): a package
++    sealed on a calibrated bar (the hook's, the line-up's) says so in the Telegram note, one plain line per mark. The
++    pin carries each mark in moments_package (outside the seal); the run's PINNED_DECISION.json (pinned.prepare) holds
++    that pin and is not an attested file, so a mark counts only for the package the attested EDL was built from."""
+ 
+-    def marked_run(self, mark=MARK, record_sha=PKG, edl_sha=PKG, topic=None, raw=None):
++    def marked_run(self, marks=BOTH, record_sha=PKG, edl_sha=PKG, topic=None, raw=None):
+         edl = json.load(open(os.path.join(make_run(self.tmp, attest=False), "edl.json")))
+         if edl_sha is not None:
+             edl["moments_package_sha256"] = edl_sha
+         if topic:
+             edl["topic"] = topic
+         rd = make_run(self.tmp, edl=edl)
+-        mp = {"type": "moments", "package_sha256": record_sha}
+-        if mark is not NO_MARK:
+-            mp["hook_bar"] = mark
++        mp = dict({"type": "moments", "package_sha256": record_sha}, **marks)
+         with open(os.path.join(rd, "PINNED_DECISION.json"), "w") as f:
+             f.write(raw if raw is not None else json.dumps({"mode": "pinned", "pin": {"moments_package": mp}}))
+         return rd
+@@ -175,51 +176,70 @@ class TestHookBarLine(Base):
+         self.assertEqual(sent, [])                                    # nothing reached the chat
+         self.assertFalse(os.path.exists(os.path.join(rd, "TELEGRAM_DELIVERY.json")))
+ 
+-    def test_a_marked_pin_says_so_in_one_plain_line_under_the_run_line(self):
++    def test_a_marked_pin_says_so_in_one_plain_line_per_mark_under_the_run_line(self):
+         rd = self.marked_run()
+         _, sent = self.deliver(rd)
+         vids = [s for s in sent if s[0] == "video"]
+         self.assertEqual(len(vids), 2)
+         for s in vids:                                                # every video's note, each format
+             lines = s[2]["caption"].split("\n")
+-            self.assertEqual(lines[2], NOTE_115, lines)                # head, run line, then the ruling's line
+-            self.assertEqual(sum(NOTE_115 in l for l in lines), 1)
+-            self.assertNotIn("BAR-TEXT", s[2]["caption"])               # never the mark's own words
++            self.assertEqual(lines[2:4], [NOTE_115, NOTE_116], lines)  # head, run line, the hook's, the line-up's
++            self.assertEqual([l for l in lines if "calibrated bar" in l], [NOTE_115, NOTE_116])
++            for words in ("BAR-TEXT", "LINEUP-TEXT", "clips_alone"):    # never a mark's own words
++                self.assertNotIn(words, s[2]["caption"])
+         for s in sent:
+-            if s[0] != "video":                                        # one line in the note: not the sheets or kit
+-                self.assertNotIn(NOTE_115, json.dumps(s[2]))
++            if s[0] != "video":                                        # lines in the note: not the sheets or kit
++                self.assertNotIn("calibrated bar", json.dumps(s[2]))
+         written = json.load(open(os.path.join(rd, "TELEGRAM_DELIVERY.json")))
+-        self.assertEqual([NOTE_115 in m["caption"] for m in written["messages"] if "format" in m], [True, True])
+-
+-    def test_the_line_survives_a_caption_cut_whole(self):
++        self.assertEqual([[l for l in m["caption"].split("\n") if "calibrated bar" in l]
++                          for m in written["messages"] if "format" in m], [[NOTE_115, NOTE_116]] * 2)
++
++    def test_each_mark_is_read_on_its_own(self):
++        for marks, want in (({"hook_bar": MARK}, [NOTE_115]), ({"lineup_bar": LINEUP}, [NOTE_116])):
++            with self.subTest(marks=sorted(marks)):
++                _, sent = self.deliver(self.marked_run(marks=marks))
++                lines = sent[0][2]["caption"].split("\n")
++                self.assertEqual([l for l in lines if "calibrated bar" in l], want)
++                self.assertEqual(lines[2], want[0])
++                self.assertTrue(lines[3].startswith("Story: "), lines)
++
++    def test_the_lines_survive_a_caption_cut_whole(self):
+         rd = self.marked_run(topic="Bitcoin " * 300)                   # the story alone is past CAPTION_MAX
+         _, sent = self.deliver(rd)
+         cap = sent[0][2]["caption"]
+         self.assertTrue(cap.endswith("...(see GATE_REPORT)"), cap[-40:])
+         self.assertLessEqual(len(cap), TG.CAPTION_MAX)
+-        self.assertIn(NOTE_115, cap.split("\n"))
++        self.assertEqual(cap.split("\n")[2:4], [NOTE_115, NOTE_116])
+ 
+     def test_no_mark_or_no_pin_record_no_line(self):
+-        for rd in (self.marked_run(mark=NO_MARK), make_run(self.tmp)):   # an unmarked pin; an auto run (no record)
++        for rd in (self.marked_run(marks={}), make_run(self.tmp)):     # an unmarked pin; an auto run (no record)
+             _, sent = self.deliver(rd)
+             for s in sent:
+                 self.assertNotIn("calibrated bar", json.dumps(s[2]))
+ 
+-    def test_a_mark_that_is_not_the_rulings_sends_nothing(self):
+-        for mark in ({"note": "hook passed"}, {"note": NOTE_115.upper()}, {"note": NOTE_115 + " (and approved)"},
+-                     {"bar": "x"}, None, NOTE_115, [NOTE_115], {}):
+-            with self.subTest(mark=mark):
+-                self.refused(self.marked_run(mark=mark), r"STOP: ruling 115 \(2\).*not ruling 115 \(2\)'s mark")
++    def test_a_mark_that_is_not_its_rulings_sends_nothing(self):
++        bad = ({"note": "hook passed"}, {"note": NOTE_115.upper()}, {"note": NOTE_115 + " (and approved)"}, {"bar": "x"},
++               None, NOTE_115, [NOTE_115], {}, {"note": "line-up passed"})
++        for key, swapped in (("hook_bar", {"note": NOTE_116}), ("lineup_bar", {"note": NOTE_115})):
++            for mark in bad + (swapped,):                              # the other mark's sentence is not this one's
++                with self.subTest(key=key, mark=mark, alone=False):    # beside a valid other mark
++                    self.refused(self.marked_run(marks=dict(BOTH, **{key: mark})),
++                                 rf"STOP: calibrated bar marks.*{key} is not ruling 11")
++            with self.subTest(key=key, alone=True):                    # a bad mark alone
++                self.refused(self.marked_run(marks={key: None}), rf"STOP: calibrated bar marks.*{key} is not ruling 11")
+ 
+     def test_a_mark_on_another_package_sends_nothing(self):
+-        self.refused(self.marked_run(record_sha="cd" * 32), r"not the attested EDL's")
++        for marks in (BOTH, {"hook_bar": MARK}, {"lineup_bar": LINEUP}):
++            with self.subTest(marks=sorted(marks)):
++                self.refused(self.marked_run(marks=marks, record_sha="cd" * 32), r"not the attested EDL's")
+         self.refused(self.marked_run(record_sha=None, edl_sha=None), r"not the attested EDL's")   # no digest at all
+         self.refused(self.marked_run(record_sha="", edl_sha=""), r"not the attested EDL's")
+ 
+     def test_an_unreadable_pin_record_sends_nothing(self):
+         for raw in ("{not json", '{"mode": "pinned"}', '{"pin": []}', '{"pin": null}', "[]"):
+             with self.subTest(raw=raw):
+-                self.refused(self.marked_run(raw=raw), r"STOP: ruling 115 \(2\): the pin record cannot say")
++                self.refused(self.marked_run(raw=raw),
++                             r"STOP: calibrated bar marks \(rulings 115 \(2\) / 116\): the pin record cannot say")
+ 
+ 
+ class TestNothingIsSentUnlessAuthorised(Base):
+diff --git a/scripts/integrator/check_pin_only.py b/scripts/integrator/check_pin_only.py
+index 88d13dc1..6f7d4a29 100644
+--- a/scripts/integrator/check_pin_only.py
++++ b/scripts/integrator/check_pin_only.py
+@@ -2,8 +2,9 @@
+ readable). Ready = type 'moments'; every required gate of the sealed inventory exactly PASS and not replayed
+ (pp-selectid's gate_problems); THEIR seal() recomputed over the pin's own bytes equals package_sha256 (and, when given,
+ the digest named on the READY line); main's pinned.validate_schema and the strict pinned.moments_vo accept it; and
+-main's edl_rules.takeaway_value (ruling 91's medley half, the live path's own check) passes it before launch; and a
+-calibrated hook bar mark (ruling 115 (2)), when the pin carries one, is the one the drop prints (telegram.hook_bar_mark).
++main's edl_rules.takeaway_value (ruling 91's medley half, the live path's own check) passes it before launch; and
++every calibrated bar mark the pin carries (hook_bar, ruling 115 (2); lineup_bar, ruling 116) is one the drop can print
++(telegram.bar_marks).
+ Usage: python3 check_pin_only.py PIN.json [expected_sha_prefix]  -> exit 0 ready / 1 not (reason printed)"""
+ import importlib.util
+ import json
+@@ -39,11 +40,11 @@ def main(path, want=None):
+         formats = release_auth.package_formats(mp) or list(release_auth.FORMATS)
+     except ValueError as e:
+         return False, f"formats: {e}"
+-    import telegram                                      # ruling 115 (2): the drop prints the calibrated hook bar's
+-    try:                                                 # line from this mark; a mark it could not print is refused
+-        bar = telegram.hook_bar_mark(mp)                 # here, before a render (the drop would STOP after it)
++    import telegram                                      # rulings 115 (2) / 116: the drop prints one line per calibrated
++    try:                                                 # bar mark; a mark it could not print is refused here, before
++        bars = telegram.bar_marks(mp)                    # a render (the drop would STOP after it)
+     except ValueError as e:
+-        return False, f"hook_bar: {e}"
++        return False, f"calibrated bar mark: {e}"
+     segs = pin["segments"]
+     vo = pinned.moments_vo(mp, [{"index": i} for i in range(1, len(segs))], segs)
+     view = {"package_type": mp.get("type"), "clips": [{"index": i} for i in range(1, len(segs))], "vo": vo,
+@@ -55,7 +56,7 @@ def main(path, want=None):
+         return False, why91
+     out = [f"READY (pin only) {seal[:16]} title={mp.get('title')!r} intro={str(vo['intro'])[:80]!r} "
+            f"bridges after {[b['after_clip'] for b in vo['bridges']]} formats={formats}", f"  {why91}",
+-           f"  hook bar (ruling 115 (2)): {bar or 'no mark; the drop prints no hook bar line'}"]
++           f"  calibrated bars (rulings 115 (2) / 116): {'; '.join(bars) or 'no mark; the drop prints no bar line'}"]
+     out += [f"  {s['role']:4} {s['channel']} {s['video_id']} {s['start']:.2f}-{s['end']:.2f} ({s['end'] - s['start']:.2f} s)"
+             for s in segs]
+     return True, "\n".join(out)

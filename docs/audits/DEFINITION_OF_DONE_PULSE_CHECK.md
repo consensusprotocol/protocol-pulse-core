@@ -6,6 +6,30 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 16:12 TELEGRAM NOTE: THE LINE-UP'S CALIBRATED BAR IS MARKED LIKE THE HOOK'S (ruling 116). A pin whose package carries lineup_bar gets "line-up passed on the calibrated bar" as its own plain line in every video caption of its release drop, under "hook passed on the calibrated bar" and right under the run line. Each mark is read on its own and checked as in batch 92. Audits batch 93, two cycles, no finding raised. Both regressions green. BATCH 3 integrator spend: $0.0479.
+- **The order:**
+  - Ruling 116's calibrated line-up bar is the builder's question Q3 (15:34 ET), applied on ruling 106's default at 15:54 ET when the orchestrator did not answer: clips >= 3 and VO point >= 3 on Grok's own verdicts; every other model keeps the standard bar (4).
+  - It is marked "ON THE PIN AND IN THE TELEGRAM NOTE ('line-up passed on the calibrated bar')": moments_package["lineup_bar"], outside the seal, only when both line-up verdicts passed on that bar.
+  - The builder asked for the line under the hook's, with the same checks (15:58).
+  - **Not an integrity gate:** in the builder's audit diff (pp-selectid_audit_20261115_1554), the pin's integrity checks (vo_fidelity_ok, context_integrity_ok) appear only as unchanged context. So the default calibrates the line-up's quality verdicts, which ruling 106 lets a default decide. The new line tells PBX which bar the line-up passed.
+- **The change (pipeline/telegram.py):**
+  - One table, BAR_MARKS, holds (key, sentence, ruling): hook_bar (ruling 115 (2)), then lineup_bar (ruling 116). It replaces batch 92's single mark.
+  - `bar_marks(mp)` reads each mark on its own. An absent key adds nothing. A present one must be an object whose "note" is exactly its own sentence; the other mark's sentence is refused.
+  - `bar_lines(run_dir, edl)` keeps batch 92's binding: a mark counts only when PINNED_DECISION.json's package_sha256 equals the attested EDL's. An unreadable record, a bad mark or another package STOPs the drop before anything is sent.
+  - `build_caption` puts the lines right under the run line, hook first. The contact sheets, the kit and a review drop never carry them.
+  - `hook_bar_mark` / `hook_bar_line` are now `bar_marks` / `bar_lines`. Only check_pin_only called them; I searched every worktree.
+- **The pre-render check (check_pin_only):** a bad mark is not ready ("calibrated bar mark: ..."). The READY line names the marks: "calibrated bars (rulings 115 (2) / 116): hook passed on the calibrated bar; line-up passed on the calibrated bar", or "no mark".
+- **Tests:** TestBarLines (7) plus the review-drop test (both marks). On batch 92's code (c8bf22c7), the line-up's line is missing (both marks, the line-up alone, the cut) and every bad or mismatched lineup_bar is sent; the hook-only cases fail there only on the STOP messages' new wording. After an unmutated control, 16 mutations each fail a test: the line-up mark ignored; the order swapped; either sentence for either mark; any object; a bad mark skipped; only the first mark; the binding only for the hook's mark; no binding; two missing digests matching; an unreadable record read as no mark; a null mark read as no mark; the lines after Clips; a mark's own words; the review texts; the kit; an unmarked package printed as marked.
+- **Pin proof (the real frozen pin SPOTLIGHT_PIN_230148, 3f481f5a):** main's staged check_pin_only gives READY with the matching line for the pin unchanged ("no mark"), with the hook mark only, with both marks, and with the line-up mark only. The seal matched each time, since the marks are outside it. A bad line-up note and swapped notes exit 1.
+- **Checks on the staged merge:** py_compile; regression_test.sh 26 PASS / 0 FAIL / 4 WARN; pipeline/regression.sh exit 0, the PULSE PREVIEW and PULSE MEDLEY references REPRODUCED; test_telegram_delivery, test_review_drop, test_spotlight and test_release_auth: 99 passed, 52 subtests passed under the network guard.
+- **Audits (Heimdall-first, ruling 107 (2); qwen27b + glm, effort none):** cycle 1: qwen27b PASS 0.82 with a full trace of (a)-(d) and no finding (it noted that a MONITORING line puts the bars at caption lines 4-5: batch 92's placement, still ahead of the cut, no change); glm PASS 0.90, bare. Cycle 2: qwen27b PASS 0.95 and glm PASS 0.90, both bare. No finding; Grok not asked. Cost $0.0028735 + $0.0011692 = $0.0040427. BATCH 3 integrator spend $0.0479: $0.0439 plus batch 93's $0.0040.
+- **Not changed:**
+  - the seal;
+  - release_auth and the attested file set;
+  - pinned.py (the decoder sha a4c307f78c94 stands);
+  - the review drop's texts;
+  - a pin with no lineup_bar, whose drop is batch 92's.
+
 ## 15:16 TELEGRAM NOTE: A PIN SEALED ON THE CALIBRATED HOOK BAR NOW SAYS SO IN ONE PLAIN LINE (ruling 115 (2)). When a pin carries the builder's mark, every video caption of its release drop carries "hook passed on the calibrated bar" right under the run line. A malformed mark is refused before the render (check_pin_only) and again at the drop. Audits batch 92, two cycles, no finding raised. Both regressions green. BATCH 3 integrator spend: $0.0439.
 - **The order (orchestrator 13:24 ET Nov 15, ruling 115 (2), as the builder quotes it verbatim):** "MARK IT: a package sealed on the interim bar says so in its record and in the Telegram note in one plain line ("hook passed on the calibrated bar"); PBX's approve or reject of it is appended to the calibration file as a new example (approved = positive, rejected = negative with his reason)."
   - The builder's half is live at da7b1160: every package it seals from now on carries `moments_package["hook_bar"]`, outside the seal.

@@ -1,0 +1,35 @@
+# Heimdall audit
+
+**Question:** Batch 93 = the integrator's audit of a change to pipeline/telegram.py, the ONE path that sends a finished Pulse Check run to PBX's private approval chat on Telegram (nothing is ever published from it), and to scripts/integrator/check_pin_only.py, the integrator's pre-render check of a sealed pin. It extends batch 92 (c8bf22c7, live since 15:16 ET today), which printed ONE line for ruling 115 (2), to TWO lines.
+THE ORDERS: ruling 115 (2) (orchestrator 13:24 ET Nov 15): "a package sealed on the interim bar says so in its record and in the Telegram note in one plain line ("hook passed on the calibrated bar")". Ruling 116 (the builder's question Q3, applied on ruling 106's default at 15:54 ET when the orchestrator did not answer in 20 minutes): the line-up verdicts (clips-alone, coherence) get a calibrated bar the hook's way, "MARKED ON THE PIN AND IN THE TELEGRAM NOTE ('line-up passed on the calibrated bar')". The builder (another session, its own code) writes each mark into the sealed pin, OUTSIDE the pin's seal: moments_package["hook_bar"] = {"note": "hook passed on the calibrated bar", "bar", "floors", "calibration_sha256", "ruling": "115"} on every package it seals; moments_package["lineup_bar"] = {"note": "line-up passed on the calibrated bar", "floors", "calibration_sha256", "ruling": "116"} only when BOTH line-up verdicts passed on the calibrated bar. The builder asked for the line-up's line as its own plain line under the hook's, with the same checks.
+BACKGROUND (unchanged code):
+- deliver_run (telegram.py:275) sends only a run release_auth.authorise passes: ATTESTATION.json verdict ALL_PASS and every BOUND file (release_auth.py:47: the finals, edl.json, manifests, GATE_REPORT.json, VERIFICATION.json, contact sheets) at its attested sha256. It builds EVERY message first (:334, _plan :232, which calls build_caption once per sealed format with the attestation-verified EDL), before the first send and before TELEGRAM_DELIVERY.json is first written (:344). So an exception in build_caption sends nothing.
+- build_caption (:116): head (HOLD_OK ...), the run line ('<run> | 16x9 1920x1080 | 61.0 s'), 'Story: <topic>', 'Clips: <channels>', then optional notes. A MONITORING line, when present, is inserted at index 1 afterwards. _fit (:47) cuts the joined caption to CAPTION_MAX 1024 characters from the END, with a marker.
+- PINNED_DECISION.json is written into the run dir by pinned.prepare (pinned.py:848) at render time: {"pin": <the frozen pin, parsed>, ...}. It is NOT a bound file. pinned.build_edl copies moments_package.package_sha256 into the attested EDL as moments_package_sha256 (pinned.py:716); pinned's schema check requires it to be 64 lowercase hex for a moments pin (pinned.py:792). An auto (non-pinned) run has no PINNED_DECISION.json.
+- The REVIEW drop (review_texts :731, review_drop :801) sends a run that is NOT authorised; every text is refused if it carries 'PASS' / 'PASSED' as a word, 'CANDIDATE FOR APPROVAL' or 'approved' (_review_forbidden :648, checked at :860).
+THE CHANGE (the diff, c8bf22c7..909222fe):
+(1) LINEUP_BAR_NOTE (:43) and one table BAR_MARKS (:44): (key, sentence, ruling) for hook_bar then lineup_bar.
+(2) bar_marks(mp) (:76) replaces batch 92's hook_bar_mark: [] when the moments_package is not an object; for each BAR_MARKS entry in order, an absent key adds nothing; a present value must be an object whose "note" is exactly that entry's sentence (the other mark's sentence is refused), else ValueError; returns the sentences in table order.
+(3) bar_lines(run_dir, edl) (:94) replaces hook_bar_line: [] when the run has no PINNED_DECISION.json; else bar_marks of record["pin"]["moments_package"]. An unreadable record (bad JSON, no "pin", a pin that is not an object) or a ValueError -> RuntimeError "STOP: calibrated bar marks ...". When any line is returned, the record's package_sha256 must be a non-empty string equal to the attested EDL's moments_package_sha256, else STOP.
+(4) build_caption: `lines[2:2] = bar_lines(...)` (:132) puts the lines right under the run line, hook first, so _fit's tail cut never reaches them. Every video caption carries them; the contact sheets, the publishing kit and the review drop never do.
+(5) check_pin_only.py:43-47 calls bar_marks: a bad mark is refused before a render ("calibrated bar mark: ..."); the READY line (:59) names the marks. hook_bar_mark / hook_bar_line had no other caller in any tree.
+TESTS: test_telegram_delivery.TestBarLines (7; real attested runs from make_run, PINNED_DECISION.json written into the run dir) and test_review_drop's marked-pin test (now both marks):
+- Both marks: the two captions carry the hook's then the line-up's line as lines 3 and 4, each once, never a mark's own text. Neither goes in the sheets or the kit, and TELEGRAM_DELIVERY.json records both.
+- Each mark alone gives only its own line, at line 3.
+- Both lines survive a caption cut whole.
+- An unmarked pin and an auto run carry no line.
+- Each key refuses 9 bad marks plus the other key's sentence, beside a valid other mark, and a null mark alone.
+- A mismatched package refuses with both marks and with each mark alone; two missing or two empty digests refuse; 5 unreadable records refuse. Each refusal sends nothing.
+- A marked pin's review drop goes out complete without either line.
+On batch 92's code (c8bf22c7), the line-up's line is missing (both marks, the line-up alone, the cut), and every bad or mismatched lineup_bar is sent; the hook-only cases fail there only on the STOP messages' new wording. After an unmutated control, 16 mutations each fail a test: the line-up mark ignored; the order swapped; either sentence accepted for either mark; any object accepted; a bad mark skipped; only the first mark printed; the binding only for the hook's mark; no binding; two missing digests matching; an unreadable record read as no mark; a null mark read as no mark; the lines appended after Clips; a mark's own words printed; the review texts carrying them; the kit carrying them; an unmarked package printed as marked.
+FIND, verifying only from the diff and the cited unchanged lines: (a) any path by which a drop prints either sentence for a run whose pin did not carry that exact mark, prints one mark's sentence for the other, or prints for a package other than the one the attested EDL was built from; (b) any path by which a pin carrying valid marks is release-dropped without its lines, in another order, cut, or with a mark's own words; (c) any way the change makes an authorised run's release drop, or a review drop, fail or send something different from batch 92 for a pin with no lineup_bar, other than the stated STOP messages' new wording; (d) anything in check_pin_only that changes its verdict on a pin with no mark or with only a valid hook_bar. Reply with the JSON verdict; keep the reasoning short; at most 3 findings, each with file:line and a concrete failure.
+
+**Panel:** qwen27b, glm  |  **Cost:** $0.0029
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none
