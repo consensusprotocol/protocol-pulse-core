@@ -1,0 +1,18 @@
+{
+ "fingerprint": "81a8055530d4b5fc6eece025ea216802daea7f8618479bff22971f5a13f2ad3b",
+ "parts": {
+  "moments": "e3e97560b9ffad1cd3e382e93901bac93dd70ed53d2dab3e43a75cacec297983",
+  "delivered": "63756e8a811fada028028d28149726fcb15a4efc7c259263c2249aeb733c8434",
+  "day_et": "2026-11-15",
+  "code": "94829afe3c4d76693f8f4461d4865981f4cd25b3e2d1ae3dd60b1fefd6cd6e9a",
+  "candidates": "4f917ef03e14dbc25280a470c22d70b6266bb2f9d8d2503a619a38209136fa23",
+  "due": [],
+  "spotlights": "710d9f9fa4d4b706be1e5ca7bfef3a8b6718df17570f4d75ffb197143d6420ae",
+  "directives": "a1caab6e5bbbf60ae9677b272d4fc9c9f7f5a01558b962ead2932db5416f81cd",
+  "precheck_results": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "scorer_verdicts": "7302a601e05b18fcf073c0572e59f47d415e739f0c518cec1b0d04740e044a75",
+  "routing": "heimdall_first"
+ },
+ "same_as": "ledger_20261115_221530",
+ "at": "2026-11-15T22:48:58.565879+00:00"
+}
