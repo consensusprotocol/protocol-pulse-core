@@ -74,6 +74,7 @@ import tail_variant as TV  # noqa: E402
 
 REGISTRY = os.path.join(HERE, "proof", "CANDIDATES.json")     # ruling 66: the candidates, kept
 SPOTLIGHTS = os.path.join(HERE, "proof", "SPOTLIGHTS.json")   # ruling 90: one spotlight per channel per ET day
+DIRECTIVES = os.path.join(HERE, "proof", "RULING_104_DIRECTIVES.json")   # ruling 104: the orchestrator's directives
 STATE_MD = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_STATE.md")   # ruling 87: a switch on line 1
 
 
@@ -132,13 +133,47 @@ def applied(router):
     return applies
 
 
-def with_variants(moments, sources, ctx, inputs, say, results_dir=None):
+def directives(path=None):
+    """RULING 104: the orchestrator's directives ({"directives": [{"parent", "ends", "alternative_to", "by", "why"}]}),
+    written by the builder only on the orchestrator's written yes, quoting it. -> {parent id: directive}; none when the
+    file is absent; an unreadable file or a malformed row is never guessed at: no directive (the rules stand)."""
+    try:
+        with open(path or DIRECTIVES) as f:
+            rows = json.load(f).get("directives") or []
+    except (OSError, ValueError, AttributeError):
+        return {}
+    if not isinstance(rows, list):                       # glm, audit 1835 C1: {"directives": 5} is no directive
+        return {}
+    import re
+    story = re.compile(r"moments-[A-Za-z0-9_]+-[0-9a-f]{8}")         # the pins' own story id form (package_pin.to_pin)
+    return {d["parent"]: d for d in rows if isinstance(d, dict) and isinstance(d.get("parent"), str) and
+            re.fullmatch(r"[0-9a-f]{20}", d["parent"]) and isinstance(d.get("ends"), str) and d["ends"].strip() and
+            isinstance(d.get("alternative_to"), str) and story.fullmatch(d["alternative_to"]) and
+            isinstance(d.get("by"), str) and d["by"].strip()}
+
+
+def spot_place(pk, again, now):
+    """RULING 90 at the pin, read again: the spotlight's channel must have no spotlight on this ET day, unless the
+    package is ruling 104's ALTERNATIVE (the orchestrator's directive) to that day's named story (spotlight.day_taken).
+    again: the spotlights record, None when it cannot be read (then no pin). -> (why it cannot take the place or None,
+    the story it is the alternative to or None)."""
+    alt = ((pk.get("spotlight") or {}).get("derived_from") or {}).get("alternative_to")
+    segs = pk.get("segments") or []
+    if not segs or not isinstance(segs[0], dict):            # cycle 2 (all three): never a crash, never a pin
+        return "ruling 90: a spotlight without its segment has no channel to place", alt
+    if again is None or SPOT.day_taken(again, segs[0].get("channel_id"), SPOT.et_day(now), alt):
+        return "ruling 90: this channel already has a spotlight today, or the record cannot be read", alt
+    return None, alt
+
+
+def with_variants(moments, sources, ctx, inputs, say, results_dir=None, directives_path=None):
     """RULING 104 (14:12 Nov 14): the build's pool with the tail-side variants (tail_variant.for_pool: a current lock
     pre-check hold on the parent's span, a cut the render cannot make, the spotlight's seconds ceiling), so every gate
     judges them from the start, the clip scorer included (its pool is made from these moments). A parent whose current
     hold is final is replaced by its variant; a parent over the ceiling stays beside it. inputs["ruling_104"] records
     them, the replaced parents, and why each parent has a variant or none. -> the new list of moments."""
-    variants, notes, replaced = TV.for_pool(moments, sources, ctx, results_dir or LP.RESULTS, SPOT.SPOT_S[1])
+    variants, notes, replaced = TV.for_pool(moments, sources, ctx, results_dir or LP.RESULTS, SPOT.SPOT_S[1],
+                                            directives=directives(directives_path))
     inputs["ruling_104"] = {"variants": [v["moment_id"] for v in variants], "replaced": sorted(replaced),
                             "notes": notes}
     say(f"  RULING 104 (the tail-side twin): {len(variants)} variant(s) in the pool, {len(replaced)} held parent(s) "
@@ -397,9 +432,9 @@ def main(argv=None):
         try:
             lock = LP.pin_problems(sp["package"]) + package_pin.window_problems(sp["package"]["segments"])
             again = SPOT.load_spotlit(SPOTLIGHTS)        # one per channel per day, read again at the pin
-            if again is None or any(r["channel_id"] == sp["package"]["segments"][0]["channel_id"] and
-                                    r.get("day_et") == SPOT.et_day(now) for r in again):
-                lock.append("ruling 90: this channel already has a spotlight today, or the record cannot be read")
+            why_place, alt = spot_place(sp["package"], again, now)
+            if why_place:
+                lock.append(why_place)
             if lock:
                 raise package_pin.PinRefused("; ".join(lock))
             path, pin = package_pin.write_pin(sp["package"], f"ledger_{now.strftime('%Y%m%d_%H%M%S')}", out_dir,
@@ -414,7 +449,8 @@ def main(argv=None):
             SPOT.record_spotlit(SPOTLIGHTS, {"channel_id": sg["channel_id"], "channel": sg["channel"],
                                              "day_et": SPOT.et_day(now), "story_id": pin["story_id"],
                                              "package_sha256": pin["moments_package"]["package_sha256"],
-                                             "at": now.isoformat(timespec="seconds"), "build": name})
+                                             "at": now.isoformat(timespec="seconds"), "build": name,
+                                             **({"alternative_to": alt} if alt else {})})    # ruling 104
             say(f"SPOTLIGHT PIN {path} ({sg['channel']}, {sg['duration_s']} s, closing line "
                 f"{sp['package']['vo']['closing']!r})")
         except (package_pin.PinRefused, ValueError, OSError) as e:

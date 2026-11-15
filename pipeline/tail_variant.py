@@ -19,7 +19,10 @@ a variant that drops the speaker's own condition or conclusion fails there."
   A parent with a current hold is REPLACED by its variant ("the hold is final and the clip may only be saved by a
   variant that leaves the token out", ruling 103): the two never compete for a line-up or a finalist's place. A parent
   over the ceiling stays beside its variant (the medley may still use it).
-A variant is never snapped outward (spotlight.snap): that would put back the words it leaves out."""
+A variant is never snapped outward (spotlight.snap): that would put back the words it leaves out.
+- directive_variant(): ONLY on the orchestrator's written directive (proof_ledger.DIRECTIVES, written by the builder
+  quoting the ruling), the variant of a NAMED parent ending as the directive says, as the ALTERNATIVE to a named sealed
+  spotlight (ruling 90's one place per channel per day then admits it beside that story, and nothing else)."""
 import attest as AT
 import canon as C
 import eligibility as E
@@ -90,9 +93,27 @@ def held_word(m, src, entry):
     return None
 
 
-def for_pool(moments, sources, ctx, results_dir, ceil_s):
-    """The ruling-104 variants for this build's pool. -> (variants, {parent id: why it has none / which it got},
-    {the ids of the parents a current hold makes final: replaced by their variants})."""
+def directive_variant(m, src, ctx, d):
+    """The orchestrator's directive `d` ({"parent", "ends", "alternative_to", "by", "why"}) on the parent `m`: its variant
+    ending at the longest earlier sentence boundary whose words END as d["ends"] (canon tokens), recorded with the
+    directive and the spotlight it is the alternative to. -> (variant, None) or (None, why there is none)."""
+    k0, k1 = m["sentences"]
+    want = C.canon_tokens(str(d.get("ends") or ""))      # canon drops a leading "..." itself (L-k: one form)
+    if not want:
+        return None, "the directive names no ending"
+    for k in range(k1 - 1, k0 - 1, -1):
+        got = C.canon_tokens(E.spoken(src.tokens[src.sentences[k0][0]:src.sentences[k][1] + 1]))
+        if got[-len(want):] == want:
+            v = variant(m, src, k, ctx, f"the orchestrator's directive ({d.get('by')}): {d.get('why') or ''}".strip())
+            v["derived_from"].update(directive=d.get("by"), alternative_to=d.get("alternative_to"))
+            return v, None
+    return None, f"no earlier sentence boundary of the parent ends {d.get('ends')!r}"
+
+
+def for_pool(moments, sources, ctx, results_dir, ceil_s, directives=None):
+    """The ruling-104 variants for this build's pool. directives: {parent id: the orchestrator's directive} (a parent
+    named there gets the directive's variant, in its place, whatever its pre-check says). -> (variants, {parent id: why
+    it has none / which it got}, {the ids of the parents replaced by their variants})."""
     import context_integrity as CI
     have = {m["moment_id"] for m in moments}
     out, notes, replaced = [], {}, set()
@@ -100,8 +121,29 @@ def for_pool(moments, sources, ctx, results_dir, ceil_s):
         mid = m["moment_id"]
         k0, k1 = m.get("sentences") or (None, None)
         if not (isinstance(k0, int) and isinstance(k1, int) and k1 > k0):
+            if mid in (directives or {}):                # glm, audit 1835 C1: never a silent ignore
+                notes[mid] = "the directive: no variant, the parent is one sentence (no earlier boundary)"
             continue                                     # one sentence: no earlier boundary
         wanted = []
+        if mid in (directives or {}):                    # the orchestrator's directive: this variant, in its place
+            try:
+                src = CI.source_for(m, sources)
+            except KeyError:
+                notes[mid] = "the directive: no variant, its word record is not in this build"
+                continue
+            v, why = directive_variant(m, src, ctx, directives[mid])
+            if v is None:                                # the rules stand: the triggers below still apply to it
+                notes[mid] = f"the directive: no variant, {why}"
+            elif v["moment_id"] in have:
+                notes[mid] = f"the directive: its variant {v['moment_id']} is already in the pool"
+            else:
+                have.add(v["moment_id"])
+                out.append(v)
+                replaced.add(mid)
+                notes[mid] = (f"the directive's variant {v['moment_id']} ({v['duration_s']} s, ends "
+                              f"{v['text'][-60:]!r}), in its place, the alternative to "
+                              f"{v['derived_from'].get('alternative_to')}")
+                continue
         e = holds(m, results_dir)
         try:
             src = CI.source_for(m, sources)
@@ -120,8 +162,9 @@ def for_pool(moments, sources, ctx, results_dir, ceil_s):
                                            f"{src.tokens[i].get('start')} s (the lock pre-check's hold, "
                                            f"{e.get('request_id')})"))
                 else:                                    # no variant can leave the held word out: none at all,
-                    notes[mid] = ("no variant: the held word cannot be placed" if i is None else   # not even the
-                                  "no variant: the held word is in its first sentence")             # ceiling's (qwen,
+                    notes[mid] = (notes[mid] + "; " if mid in notes else "") + (            # not even the
+                        "no variant: the held word cannot be placed" if i is None else          # ceiling's (qwen,
+                        "no variant: the held word is in its first sentence")
                     continue                                                                         # audit 1441 C2)
         if float(m.get("duration_s") or 0) > ceil_s:
             t0 = float(m["start"])
@@ -141,6 +184,7 @@ def for_pool(moments, sources, ctx, results_dir, ceil_s):
             continue
         have.add(v["moment_id"])
         out.append(v)
-        notes[mid] = (f"variant {v['moment_id']} ({v['duration_s']} s, ends {v['text'][-60:]!r})"
+        notes[mid] = (notes[mid] + "; " if mid in notes else "") + (
+                      f"variant {v['moment_id']} ({v['duration_s']} s, ends {v['text'][-60:]!r})"
                       + (", in its place" if mid in replaced else ", beside it"))
     return out, notes, replaced

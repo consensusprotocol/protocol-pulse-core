@@ -260,3 +260,121 @@ class TestTheSpotlight(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+DIRECTIVE = {"parent": None, "ends": "...I still don't use my Roth IRA.", "alternative_to": "moments-x-3f481f5a",
+             "by": "orchestrator 18:4x ET Nov 14", "why": "two of three readings of the token say 401"}
+
+
+class TestTheDirective(unittest.TestCase):
+    """RULING 104 on the orchestrator's written directive: a NAMED parent's variant ending as the directive says, as
+    the ALTERNATIVE to a named sealed spotlight; nothing without a directive."""
+
+    def setUp(self):
+        self.d = tempfile.TemporaryDirectory()
+        self.addCleanup(self.d.cleanup)
+
+    def test_the_directive_names_the_ending_and_the_variant_records_it(self):
+        src, m = blockware()
+        d = dict(DIRECTIVE, parent=m["moment_id"])
+        v, why = TV.directive_variant(m, src, CTX, d)
+        self.assertIsNone(why)
+        self.assertEqual(v["text"], " ".join(SENTENCES[:3]))
+        self.assertEqual((v["derived_from"]["directive"], v["derived_from"]["alternative_to"]),
+                         ("orchestrator 18:4x ET Nov 14", "moments-x-3f481f5a"))
+        self.assertEqual(v["mined"]["derived_from"]["alternative_to"], "moments-x-3f481f5a")   # in its mined record
+        for ends in ("...by 45.", "...I sold every stock", ""):                # the parent's own end; mid-sentence;
+            self.assertIsNone(TV.directive_variant(m, src, CTX, dict(d, ends=ends))[0], ends)   # nothing named
+
+    def test_a_named_parent_is_replaced_whatever_its_pre_check_says(self):
+        src, m = blockware()
+        put(self.d.name, m, [hold(m, outcome="no_difference")])                 # its current answer: a pass
+        vs, notes, replaced = TV.for_pool([m], {"7BqLu-wzbU0": src}, CTX, self.d.name, 35.0,
+                                          directives={m["moment_id"]: dict(DIRECTIVE, parent=m["moment_id"])})
+        self.assertEqual(([v["sentences"] for v in vs], replaced), ([[0, 2]], {m["moment_id"]}))
+        self.assertIn("the alternative to moments-x-3f481f5a", notes[m["moment_id"]])
+        self.assertEqual(TV.for_pool([m], {"7BqLu-wzbU0": src}, CTX, self.d.name, 35.0), ([], {}, set()))   # none
+        one = parent(src, 2, 2)                                                    # a one-sentence parent: noted
+        vs, notes, _ = TV.for_pool([one], {"7BqLu-wzbU0": src}, CTX, self.d.name, 35.0,
+                                   directives={one["moment_id"]: dict(DIRECTIVE, parent=one["moment_id"])})
+        self.assertEqual((vs, notes), ([], {one["moment_id"]: "the directive: no variant, the parent is one sentence "
+                                                             "(no earlier boundary)"}))
+
+    def test_a_directive_that_matches_nothing_leaves_the_rules_standing(self):
+        """grok, audit 1835 C1: a directive whose ending is no boundary changes nothing: the parent stays in the pool,
+        and its own hold still gives the hold's variant."""
+        src, m = blockware()
+        bad = {m["moment_id"]: dict(DIRECTIVE, parent=m["moment_id"], ends="...by 45.")}
+        vs, notes, replaced = TV.for_pool([m], {"7BqLu-wzbU0": src}, CTX, self.d.name, 35.0, directives=bad)
+        self.assertEqual((vs, replaced), ([], set()))
+        self.assertIn("the directive: no variant", notes[m["moment_id"]])
+        out = PLG.with_variants([m], {"7BqLu-wzbU0": src}, CTX, {}, lambda s: None, results_dir=self.d.name)
+        self.assertEqual([x["moment_id"] for x in out], [m["moment_id"]])         # the parent stays
+        put(self.d.name, m, [hold(m)])                                             # and a current hold still works
+        vs, notes, replaced = TV.for_pool([m], {"7BqLu-wzbU0": src}, CTX, self.d.name, 35.0, directives=bad)
+        self.assertEqual(([v["sentences"] for v in vs], replaced), ([[0, 2]], {m["moment_id"]}))
+        self.assertIn("the directive: no variant", notes[m["moment_id"]])
+        self.assertIn("variant", notes[m["moment_id"]].split("; ")[1])
+
+    def test_the_directives_file_is_read_and_never_guessed_at(self):
+        p = os.path.join(self.d.name, "D.json")
+        self.assertEqual(PLG.directives(p), {})                                  # absent: none
+        with open(p, "w") as f:
+            f.write("{ broken")
+        self.assertEqual(PLG.directives(p), {})
+        for odd in ({"directives": 5}, {"directives": None}, [1, 2], None):     # never a crash, never a guess
+            with open(p, "w") as f:
+                json.dump(odd, f)
+            self.assertEqual(PLG.directives(p), {}, odd)
+        good = dict(DIRECTIVE, parent="06d34e155feae654ee56", alternative_to="moments-ledger_x-3f481f5a")
+        with open(p, "w") as f:
+            json.dump({"directives": [good, dict(good, parent="b", by=None), dict(good, parent="c", ends=7), "x",
+                                      dict(good, parent=5), dict(good, parent="d", alternative_to=None),
+                                      dict(good, parent="0" * 20, alternative_to="not-a-story"),   # not a story id
+                                      dict(good, parent="2" * 20, alternative_to="moments-x-3f481f5a\n"),
+                                      dict(good, parent="1" * 20, ends="  "), dict(good, parent="Z" * 20)]}, f)
+        self.assertEqual(PLG.directives(p), {"06d34e155feae654ee56": good})       # malformed rows dropped
+        real = dict(good, alternative_to="moments-ledger_20261114_230148-3f481f5a")   # to_pin's real story id
+        with open(p, "w") as f:
+            json.dump({"directives": [real]}, f)
+        self.assertEqual(PLG.directives(p), {"06d34e155feae654ee56": real})
+        src, m = blockware()
+        with open(p, "w") as f:
+            json.dump({"directives": [dict(DIRECTIVE, parent=m["moment_id"])]}, f)
+        out = PLG.with_variants([m], {"7BqLu-wzbU0": src}, CTX, {}, lambda s: None, results_dir=self.d.name,
+                                directives_path=p)
+        self.assertEqual([x["sentences"] for x in out], [[0, 2]])                # in the parent's place
+
+    def test_the_alternative_takes_the_day_s_place_only_beside_its_named_story(self):
+        ctx = E.Context(NOW, REG)
+        a, b = TS.moment(mid="a", channel="A"), TS.moment(mid="b", channel="B", text=TS.TEXT.replace("money", "asset"))
+        caps = lambda vid: (None, None)
+        day = [{"channel_id": "A", "day_et": SPOT.et_day(NOW), "story_id": "moments-x-3f481f5a"}]
+        alt = dict(a, derived_from={"ruling": 104, "from": "p", "alternative_to": "moments-x-3f481f5a"})
+        got, why = SPOT.pool([alt, b], {}, ctx, spotlit=day, captions_for=caps)
+        self.assertEqual(sorted(m["moment_id"] for m in got), ["a", "b"])        # the alternative is admitted
+        other = dict(a, derived_from={"ruling": 104, "from": "p", "alternative_to": "moments-x-another"})
+        got, why = SPOT.pool([other, b], {}, ctx, spotlit=day, captions_for=caps)
+        self.assertEqual([m["moment_id"] for m in got], ["b"])                   # another story's: refused
+        self.assertIn("already has a spotlight", why["a"])
+        got, why = SPOT.pool([a, b], {}, ctx, spotlit=day, captions_for=caps)
+        self.assertEqual([m["moment_id"] for m in got], ["b"])                   # no directive: refused, as before
+        today = SPOT.et_day(NOW)                                                  # the one rule, as the pin reads it
+        self.assertFalse(SPOT.day_taken(day, "A", today, "moments-x-3f481f5a"))
+        self.assertTrue(SPOT.day_taken(day, "A", today, None))
+        self.assertTrue(SPOT.day_taken(day + [{"channel_id": "A", "day_et": today, "story_id": "moments-alt"}], "A",
+                                       today, "moments-x-3f481f5a"))             # one alternative, not two
+        self.assertFalse(SPOT.day_taken(day, "A", "2026-11-15", None))           # another day
+        pk = {"segments": [{"channel_id": "A"}],
+              "spotlight": {"derived_from": {"ruling": 104, "alternative_to": "moments-x-3f481f5a"}}}
+        self.assertEqual(PLG.spot_place(pk, day, NOW), (None, "moments-x-3f481f5a"))     # at the pin: admitted
+        self.assertTrue(PLG.spot_place({"segments": [{"channel_id": "A"}]}, day, NOW)[0])  # no directive: refused
+        self.assertTrue(PLG.spot_place(pk, None, NOW)[0])                                  # unreadable: refused
+        for bad in (dict(pk, segments=[]), dict(pk, segments=None), dict(pk, segments=["x"])):   # never a crash
+            self.assertIn("without its segment", PLG.spot_place(bad, day, NOW)[0])
+        long_ = dict(alt, duration_s=36.0)                                       # the alternative still faces the
+        got, why = SPOT.pool([long_], {}, ctx, spotlit=day, captions_for=caps)   # 35 s ceiling (usable)
+        self.assertEqual(got, [])
+        no_id = [{"channel_id": "A", "day_et": SPOT.et_day(NOW)}]                 # a record without a story id
+        got, _ = SPOT.pool([a, alt, b], {}, ctx, spotlit=no_id, captions_for=caps)
+        self.assertEqual([m["moment_id"] for m in got], ["b"])                   # admits no one

@@ -189,6 +189,14 @@ def snap(m, sources, ctx, captions_for=None, target=SNAP_TO_S):
     return rec, None
 
 
+def day_taken(spotlit, channel_id, day, alternative_to=None):
+    """RULING 90: the channel already has a spotlight on this ET day. RULING 104 on the orchestrator's directive: a
+    variant that is the ALTERNATIVE to a named sealed spotlight takes that story's place, and only that one (any other
+    record of the channel that day still takes it). One rule for the pool and for the pin. -> bool."""
+    return any(r.get("channel_id") == channel_id and r.get("day_et") == day and
+               not (isinstance(alternative_to, str) and r.get("story_id") == alternative_to) for r in spotlit)
+
+
 def pool(moments, sources, ctx, delivered=(), optout=frozenset(), spotlit=(), captions_for=None):
     """Stage 1, FREE (no vendor call) -> (the moments that may be a spotlight, {moment id: why not}): package.usable
     with ruling 90's 35 s ceiling (inside 12 h on the render clock, never a delivered span or the same speech, no hard
@@ -204,11 +212,11 @@ def pool(moments, sources, ctx, delivered=(), optout=frozenset(), spotlit=(), ca
                                     "record cannot be read)" for m in ms})
         return [], why
     day = et_day(ctx.now)
-    taken = {r["channel_id"] for r in spotlit if r.get("day_et") == day}
+
     out, seen = [], set()
     for m in ms:
         mid = m["moment_id"]
-        if m["channel_id"] in taken:
+        if day_taken(spotlit, m["channel_id"], day, (m.get("derived_from") or {}).get("alternative_to")):
             why[mid] = f"ruling 90: this channel already has a spotlight on {day} (ET)"
             continue
         v, target = m, SNAP_TO_S + (TRIM_MARGIN_S if P.hook_trim(m) else 0.0)

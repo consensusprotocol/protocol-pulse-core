@@ -1,0 +1,329 @@
+diff --git a/pipeline/spotlight.py b/pipeline/spotlight.py
+index 370390e..5f7daa3 100644
+--- a/pipeline/spotlight.py
++++ b/pipeline/spotlight.py
+@@ -189,6 +189,14 @@ def snap(m, sources, ctx, captions_for=None, target=SNAP_TO_S):
+     return rec, None
+ 
+ 
++def day_taken(spotlit, channel_id, day, alternative_to=None):
++    """RULING 90: the channel already has a spotlight on this ET day. RULING 104 on the orchestrator's directive: a
++    variant that is the ALTERNATIVE to a named sealed spotlight takes that story's place, and only that one (any other
++    record of the channel that day still takes it). One rule for the pool and for the pin. -> bool."""
++    return any(r.get("channel_id") == channel_id and r.get("day_et") == day and
++               not (isinstance(alternative_to, str) and r.get("story_id") == alternative_to) for r in spotlit)
++
++
+ def pool(moments, sources, ctx, delivered=(), optout=frozenset(), spotlit=(), captions_for=None):
+     """Stage 1, FREE (no vendor call) -> (the moments that may be a spotlight, {moment id: why not}): package.usable
+     with ruling 90's 35 s ceiling (inside 12 h on the render clock, never a delivered span or the same speech, no hard
+@@ -204,11 +212,11 @@ def pool(moments, sources, ctx, delivered=(), optout=frozenset(), spotlit=(), ca
+                                     "record cannot be read)" for m in ms})
+         return [], why
+     day = et_day(ctx.now)
+-    taken = {r["channel_id"] for r in spotlit if r.get("day_et") == day}
++
+     out, seen = [], set()
+     for m in ms:
+         mid = m["moment_id"]
+-        if m["channel_id"] in taken:
++        if day_taken(spotlit, m["channel_id"], day, (m.get("derived_from") or {}).get("alternative_to")):
+             why[mid] = f"ruling 90: this channel already has a spotlight on {day} (ET)"
+             continue
+         v, target = m, SNAP_TO_S + (TRIM_MARGIN_S if P.hook_trim(m) else 0.0)
+diff --git a/pipeline/tail_variant.py b/pipeline/tail_variant.py
+index ce29936..36973ce 100644
+--- a/pipeline/tail_variant.py
++++ b/pipeline/tail_variant.py
+@@ -19,7 +19,10 @@ a variant that drops the speaker's own condition or conclusion fails there."
+   A parent with a current hold is REPLACED by its variant ("the hold is final and the clip may only be saved by a
+   variant that leaves the token out", ruling 103): the two never compete for a line-up or a finalist's place. A parent
+   over the ceiling stays beside its variant (the medley may still use it).
+-A variant is never snapped outward (spotlight.snap): that would put back the words it leaves out."""
++A variant is never snapped outward (spotlight.snap): that would put back the words it leaves out.
++- directive_variant(): ONLY on the orchestrator's written directive (proof_ledger.DIRECTIVES, written by the builder
++  quoting the ruling), the variant of a NAMED parent ending as the directive says, as the ALTERNATIVE to a named sealed
++  spotlight (ruling 90's one place per channel per day then admits it beside that story, and nothing else)."""
+ import attest as AT
+ import canon as C
+ import eligibility as E
+@@ -90,9 +93,27 @@ def held_word(m, src, entry):
+     return None
+ 
+ 
+-def for_pool(moments, sources, ctx, results_dir, ceil_s):
+-    """The ruling-104 variants for this build's pool. -> (variants, {parent id: why it has none / which it got},
+-    {the ids of the parents a current hold makes final: replaced by their variants})."""
++def directive_variant(m, src, ctx, d):
++    """The orchestrator's directive `d` ({"parent", "ends", "alternative_to", "by", "why"}) on the parent `m`: its variant
++    ending at the longest earlier sentence boundary whose words END as d["ends"] (canon tokens), recorded with the
++    directive and the spotlight it is the alternative to. -> (variant, None) or (None, why there is none)."""
++    k0, k1 = m["sentences"]
++    want = C.canon_tokens(str(d.get("ends") or ""))      # canon drops a leading "..." itself (L-k: one form)
++    if not want:
++        return None, "the directive names no ending"
++    for k in range(k1 - 1, k0 - 1, -1):
++        got = C.canon_tokens(E.spoken(src.tokens[src.sentences[k0][0]:src.sentences[k][1] + 1]))
++        if got[-len(want):] == want:
++            v = variant(m, src, k, ctx, f"the orchestrator's directive ({d.get('by')}): {d.get('why') or ''}".strip())
++            v["derived_from"].update(directive=d.get("by"), alternative_to=d.get("alternative_to"))
++            return v, None
++    return None, f"no earlier sentence boundary of the parent ends {d.get('ends')!r}"
++
++
++def for_pool(moments, sources, ctx, results_dir, ceil_s, directives=None):
++    """The ruling-104 variants for this build's pool. directives: {parent id: the orchestrator's directive} (a parent
++    named there gets the directive's variant, in its place, whatever its pre-check says). -> (variants, {parent id: why
++    it has none / which it got}, {the ids of the parents replaced by their variants})."""
+     import context_integrity as CI
+     have = {m["moment_id"] for m in moments}
+     out, notes, replaced = [], {}, set()
+@@ -100,8 +121,29 @@ def for_pool(moments, sources, ctx, results_dir, ceil_s):
+         mid = m["moment_id"]
+         k0, k1 = m.get("sentences") or (None, None)
+         if not (isinstance(k0, int) and isinstance(k1, int) and k1 > k0):
++            if mid in (directives or {}):                # glm, audit 1835 C1: never a silent ignore
++                notes[mid] = "the directive: no variant, the parent is one sentence (no earlier boundary)"
+             continue                                     # one sentence: no earlier boundary
+         wanted = []
++        if mid in (directives or {}):                    # the orchestrator's directive: this variant, in its place
++            try:
++                src = CI.source_for(m, sources)
++            except KeyError:
++                notes[mid] = "the directive: no variant, its word record is not in this build"
++                continue
++            v, why = directive_variant(m, src, ctx, directives[mid])
++            if v is None:                                # the rules stand: the triggers below still apply to it
++                notes[mid] = f"the directive: no variant, {why}"
++            elif v["moment_id"] in have:
++                notes[mid] = f"the directive: its variant {v['moment_id']} is already in the pool"
++            else:
++                have.add(v["moment_id"])
++                out.append(v)
++                replaced.add(mid)
++                notes[mid] = (f"the directive's variant {v['moment_id']} ({v['duration_s']} s, ends "
++                              f"{v['text'][-60:]!r}), in its place, the alternative to "
++                              f"{v['derived_from'].get('alternative_to')}")
++                continue
+         e = holds(m, results_dir)
+         try:
+             src = CI.source_for(m, sources)
+@@ -120,8 +162,9 @@ def for_pool(moments, sources, ctx, results_dir, ceil_s):
+                                            f"{src.tokens[i].get('start')} s (the lock pre-check's hold, "
+                                            f"{e.get('request_id')})"))
+                 else:                                    # no variant can leave the held word out: none at all,
+-                    notes[mid] = ("no variant: the held word cannot be placed" if i is None else   # not even the
+-                                  "no variant: the held word is in its first sentence")             # ceiling's (qwen,
++                    notes[mid] = (notes[mid] + "; " if mid in notes else "") + (            # not even the
++                        "no variant: the held word cannot be placed" if i is None else          # ceiling's (qwen,
++                        "no variant: the held word is in its first sentence")
+                     continue                                                                         # audit 1441 C2)
+         if float(m.get("duration_s") or 0) > ceil_s:
+             t0 = float(m["start"])
+@@ -141,6 +184,7 @@ def for_pool(moments, sources, ctx, results_dir, ceil_s):
+             continue
+         have.add(v["moment_id"])
+         out.append(v)
+-        notes[mid] = (f"variant {v['moment_id']} ({v['duration_s']} s, ends {v['text'][-60:]!r})"
++        notes[mid] = (notes[mid] + "; " if mid in notes else "") + (
++                      f"variant {v['moment_id']} ({v['duration_s']} s, ends {v['text'][-60:]!r})"
+                       + (", in its place" if mid in replaced else ", beside it"))
+     return out, notes, replaced
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index b646c26..f455c18 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -74,6 +74,7 @@ import tail_variant as TV  # noqa: E402
+ 
+ REGISTRY = os.path.join(HERE, "proof", "CANDIDATES.json")     # ruling 66: the candidates, kept
+ SPOTLIGHTS = os.path.join(HERE, "proof", "SPOTLIGHTS.json")   # ruling 90: one spotlight per channel per ET day
++DIRECTIVES = os.path.join(HERE, "proof", "RULING_104_DIRECTIVES.json")   # ruling 104: the orchestrator's directives
+ STATE_MD = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_STATE.md")   # ruling 87: a switch on line 1
+ 
+ 
+@@ -132,13 +133,44 @@ def applied(router):
+     return applies
+ 
+ 
+-def with_variants(moments, sources, ctx, inputs, say, results_dir=None):
++def directives(path=None):
++    """RULING 104: the orchestrator's directives ({"directives": [{"parent", "ends", "alternative_to", "by", "why"}]}),
++    written by the builder only on the orchestrator's written yes, quoting it. -> {parent id: directive}; none when the
++    file is absent; an unreadable file or a malformed row is never guessed at: no directive (the rules stand)."""
++    try:
++        with open(path or DIRECTIVES) as f:
++            rows = json.load(f).get("directives") or []
++    except (OSError, ValueError, AttributeError):
++        return {}
++    if not isinstance(rows, list):                       # glm, audit 1835 C1: {"directives": 5} is no directive
++        return {}
++    import re
++    story = re.compile(r"^moments-[A-Za-z0-9_]+-[0-9a-f]{8}$")      # the pins' own story id form (package_pin.to_pin)
++    return {d["parent"]: d for d in rows if isinstance(d, dict) and isinstance(d.get("parent"), str) and
++            re.fullmatch(r"[0-9a-f]{20}", d["parent"]) and isinstance(d.get("ends"), str) and d["ends"].strip() and
++            isinstance(d.get("alternative_to"), str) and story.match(d["alternative_to"]) and
++            isinstance(d.get("by"), str) and d["by"].strip()}
++
++
++def spot_place(pk, again, now):
++    """RULING 90 at the pin, read again: the spotlight's channel must have no spotlight on this ET day, unless the
++    package is ruling 104's ALTERNATIVE (the orchestrator's directive) to that day's named story (spotlight.day_taken).
++    again: the spotlights record, None when it cannot be read (then no pin). -> (why it cannot take the place or None,
++    the story it is the alternative to or None)."""
++    alt = ((pk.get("spotlight") or {}).get("derived_from") or {}).get("alternative_to")
++    if again is None or SPOT.day_taken(again, pk["segments"][0]["channel_id"], SPOT.et_day(now), alt):
++        return "ruling 90: this channel already has a spotlight today, or the record cannot be read", alt
++    return None, alt
++
++
++def with_variants(moments, sources, ctx, inputs, say, results_dir=None, directives_path=None):
+     """RULING 104 (14:12 Nov 14): the build's pool with the tail-side variants (tail_variant.for_pool: a current lock
+     pre-check hold on the parent's span, a cut the render cannot make, the spotlight's seconds ceiling), so every gate
+     judges them from the start, the clip scorer included (its pool is made from these moments). A parent whose current
+     hold is final is replaced by its variant; a parent over the ceiling stays beside it. inputs["ruling_104"] records
+     them, the replaced parents, and why each parent has a variant or none. -> the new list of moments."""
+-    variants, notes, replaced = TV.for_pool(moments, sources, ctx, results_dir or LP.RESULTS, SPOT.SPOT_S[1])
++    variants, notes, replaced = TV.for_pool(moments, sources, ctx, results_dir or LP.RESULTS, SPOT.SPOT_S[1],
++                                            directives=directives(directives_path))
+     inputs["ruling_104"] = {"variants": [v["moment_id"] for v in variants], "replaced": sorted(replaced),
+                             "notes": notes}
+     say(f"  RULING 104 (the tail-side twin): {len(variants)} variant(s) in the pool, {len(replaced)} held parent(s) "
+@@ -397,9 +429,9 @@ def main(argv=None):
+         try:
+             lock = LP.pin_problems(sp["package"]) + package_pin.window_problems(sp["package"]["segments"])
+             again = SPOT.load_spotlit(SPOTLIGHTS)        # one per channel per day, read again at the pin
+-            if again is None or any(r["channel_id"] == sp["package"]["segments"][0]["channel_id"] and
+-                                    r.get("day_et") == SPOT.et_day(now) for r in again):
+-                lock.append("ruling 90: this channel already has a spotlight today, or the record cannot be read")
++            why_place, alt = spot_place(sp["package"], again, now)
++            if why_place:
++                lock.append(why_place)
+             if lock:
+                 raise package_pin.PinRefused("; ".join(lock))
+             path, pin = package_pin.write_pin(sp["package"], f"ledger_{now.strftime('%Y%m%d_%H%M%S')}", out_dir,
+@@ -414,7 +446,8 @@ def main(argv=None):
+             SPOT.record_spotlit(SPOTLIGHTS, {"channel_id": sg["channel_id"], "channel": sg["channel"],
+                                              "day_et": SPOT.et_day(now), "story_id": pin["story_id"],
+                                              "package_sha256": pin["moments_package"]["package_sha256"],
+-                                             "at": now.isoformat(timespec="seconds"), "build": name})
++                                             "at": now.isoformat(timespec="seconds"), "build": name,
++                                             **({"alternative_to": alt} if alt else {})})    # ruling 104
+             say(f"SPOTLIGHT PIN {path} ({sg['channel']}, {sg['duration_s']} s, closing line "
+                 f"{sp['package']['vo']['closing']!r})")
+         except (package_pin.PinRefused, ValueError, OSError) as e:
+diff --git a/tests/package/test_ruling_104.py b/tests/package/test_ruling_104.py
+index 728f40a..3626f7b 100644
+--- a/tests/package/test_ruling_104.py
++++ b/tests/package/test_ruling_104.py
+@@ -260,3 +260,111 @@ class TestTheSpotlight(unittest.TestCase):
+ 
+ if __name__ == "__main__":
+     unittest.main()
++
++
++DIRECTIVE = {"parent": None, "ends": "...I still don't use my Roth IRA.", "alternative_to": "moments-x-3f481f5a",
++             "by": "orchestrator 18:4x ET Nov 14", "why": "two of three readings of the token say 401"}
++
++
++class TestTheDirective(unittest.TestCase):
++    """RULING 104 on the orchestrator's written directive: a NAMED parent's variant ending as the directive says, as
++    the ALTERNATIVE to a named sealed spotlight; nothing without a directive."""
++
++    def setUp(self):
++        self.d = tempfile.TemporaryDirectory()
++        self.addCleanup(self.d.cleanup)
++
++    def test_the_directive_names_the_ending_and_the_variant_records_it(self):
++        src, m = blockware()
++        d = dict(DIRECTIVE, parent=m["moment_id"])
++        v, why = TV.directive_variant(m, src, CTX, d)
++        self.assertIsNone(why)
++        self.assertEqual(v["text"], " ".join(SENTENCES[:3]))
++        self.assertEqual((v["derived_from"]["directive"], v["derived_from"]["alternative_to"]),
++                         ("orchestrator 18:4x ET Nov 14", "moments-x-3f481f5a"))
++        self.assertEqual(v["mined"]["derived_from"]["alternative_to"], "moments-x-3f481f5a")   # in its mined record
++        for ends in ("...by 45.", "...I sold every stock", ""):                # the parent's own end; mid-sentence;
++            self.assertIsNone(TV.directive_variant(m, src, CTX, dict(d, ends=ends))[0], ends)   # nothing named
++
++    def test_a_named_parent_is_replaced_whatever_its_pre_check_says(self):
++        src, m = blockware()
++        put(self.d.name, m, [hold(m, outcome="no_difference")])                 # its current answer: a pass
++        vs, notes, replaced = TV.for_pool([m], {"7BqLu-wzbU0": src}, CTX, self.d.name, 35.0,
++                                          directives={m["moment_id"]: dict(DIRECTIVE, parent=m["moment_id"])})
++        self.assertEqual(([v["sentences"] for v in vs], replaced), ([[0, 2]], {m["moment_id"]}))
++        self.assertIn("the alternative to moments-x-3f481f5a", notes[m["moment_id"]])
++        self.assertEqual(TV.for_pool([m], {"7BqLu-wzbU0": src}, CTX, self.d.name, 35.0), ([], {}, set()))   # none
++        one = parent(src, 2, 2)                                                    # a one-sentence parent: noted
++        vs, notes, _ = TV.for_pool([one], {"7BqLu-wzbU0": src}, CTX, self.d.name, 35.0,
++                                   directives={one["moment_id"]: dict(DIRECTIVE, parent=one["moment_id"])})
++        self.assertEqual((vs, notes), ([], {one["moment_id"]: "the directive: no variant, the parent is one sentence "
++                                                             "(no earlier boundary)"}))
++
++    def test_a_directive_that_matches_nothing_leaves_the_rules_standing(self):
++        """grok, audit 1835 C1: a directive whose ending is no boundary changes nothing: the parent stays in the pool,
++        and its own hold still gives the hold's variant."""
++        src, m = blockware()
++        bad = {m["moment_id"]: dict(DIRECTIVE, parent=m["moment_id"], ends="...by 45.")}
++        vs, notes, replaced = TV.for_pool([m], {"7BqLu-wzbU0": src}, CTX, self.d.name, 35.0, directives=bad)
++        self.assertEqual((vs, replaced), ([], set()))
++        self.assertIn("the directive: no variant", notes[m["moment_id"]])
++        out = PLG.with_variants([m], {"7BqLu-wzbU0": src}, CTX, {}, lambda s: None, results_dir=self.d.name)
++        self.assertEqual([x["moment_id"] for x in out], [m["moment_id"]])         # the parent stays
++        put(self.d.name, m, [hold(m)])                                             # and a current hold still works
++        vs, notes, replaced = TV.for_pool([m], {"7BqLu-wzbU0": src}, CTX, self.d.name, 35.0, directives=bad)
++        self.assertEqual(([v["sentences"] for v in vs], replaced), ([[0, 2]], {m["moment_id"]}))
++        self.assertIn("the directive: no variant", notes[m["moment_id"]])
++        self.assertIn("variant", notes[m["moment_id"]].split("; ")[1])
++
++    def test_the_directives_file_is_read_and_never_guessed_at(self):
++        p = os.path.join(self.d.name, "D.json")
++        self.assertEqual(PLG.directives(p), {})                                  # absent: none
++        with open(p, "w") as f:
++            f.write("{ broken")
++        self.assertEqual(PLG.directives(p), {})
++        for odd in ({"directives": 5}, {"directives": None}, [1, 2], None):     # never a crash, never a guess
++            with open(p, "w") as f:
++                json.dump(odd, f)
++            self.assertEqual(PLG.directives(p), {}, odd)
++        good = dict(DIRECTIVE, parent="06d34e155feae654ee56", alternative_to="moments-ledger_x-3f481f5a")
++        with open(p, "w") as f:
++            json.dump({"directives": [good, dict(good, parent="b", by=None), dict(good, parent="c", ends=7), "x",
++                                      dict(good, parent=5), dict(good, parent="d", alternative_to=None),
++                                      dict(good, parent="0" * 20, alternative_to="not-a-story"),   # not a story id
++                                      dict(good, parent="1" * 20, ends="  "), dict(good, parent="Z" * 20)]}, f)
++        self.assertEqual(PLG.directives(p), {"06d34e155feae654ee56": good})       # malformed rows dropped
++        src, m = blockware()
++        with open(p, "w") as f:
++            json.dump({"directives": [dict(DIRECTIVE, parent=m["moment_id"])]}, f)
++        out = PLG.with_variants([m], {"7BqLu-wzbU0": src}, CTX, {}, lambda s: None, results_dir=self.d.name,
++                                directives_path=p)
++        self.assertEqual([x["sentences"] for x in out], [[0, 2]])                # in the parent's place
++
++    def test_the_alternative_takes_the_day_s_place_only_beside_its_named_story(self):
++        ctx = E.Context(NOW, REG)
++        a, b = TS.moment(mid="a", channel="A"), TS.moment(mid="b", channel="B", text=TS.TEXT.replace("money", "asset"))
++        caps = lambda vid: (None, None)
++        day = [{"channel_id": "A", "day_et": SPOT.et_day(NOW), "story_id": "moments-x-3f481f5a"}]
++        alt = dict(a, derived_from={"ruling": 104, "from": "p", "alternative_to": "moments-x-3f481f5a"})
++        got, why = SPOT.pool([alt, b], {}, ctx, spotlit=day, captions_for=caps)
++        self.assertEqual(sorted(m["moment_id"] for m in got), ["a", "b"])        # the alternative is admitted
++        other = dict(a, derived_from={"ruling": 104, "from": "p", "alternative_to": "moments-x-another"})
++        got, why = SPOT.pool([other, b], {}, ctx, spotlit=day, captions_for=caps)
++        self.assertEqual([m["moment_id"] for m in got], ["b"])                   # another story's: refused
++        self.assertIn("already has a spotlight", why["a"])
++        got, why = SPOT.pool([a, b], {}, ctx, spotlit=day, captions_for=caps)
++        self.assertEqual([m["moment_id"] for m in got], ["b"])                   # no directive: refused, as before
++        today = SPOT.et_day(NOW)                                                  # the one rule, as the pin reads it
++        self.assertFalse(SPOT.day_taken(day, "A", today, "moments-x-3f481f5a"))
++        self.assertTrue(SPOT.day_taken(day, "A", today, None))
++        self.assertTrue(SPOT.day_taken(day + [{"channel_id": "A", "day_et": today, "story_id": "moments-alt"}], "A",
++                                       today, "moments-x-3f481f5a"))             # one alternative, not two
++        self.assertFalse(SPOT.day_taken(day, "A", "2026-11-15", None))           # another day
++        pk = {"segments": [{"channel_id": "A"}],
++              "spotlight": {"derived_from": {"ruling": 104, "alternative_to": "moments-x-3f481f5a"}}}
++        self.assertEqual(PLG.spot_place(pk, day, NOW), (None, "moments-x-3f481f5a"))     # at the pin: admitted
++        self.assertTrue(PLG.spot_place({"segments": [{"channel_id": "A"}]}, day, NOW)[0])  # no directive: refused
++        self.assertTrue(PLG.spot_place(pk, None, NOW)[0])                                  # unreadable: refused
++        no_id = [{"channel_id": "A", "day_et": SPOT.et_day(NOW)}]                 # a record without a story id
++        got, _ = SPOT.pool([a, alt, b], {}, ctx, spotlit=no_id, captions_for=caps)
++        self.assertEqual([m["moment_id"] for m in got], ["b"])                   # admits no one

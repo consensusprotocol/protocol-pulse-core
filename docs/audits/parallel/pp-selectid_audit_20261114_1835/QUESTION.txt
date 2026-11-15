@@ -1,0 +1,75 @@
+You are auditing a change on branch pp-selectid (Protocol Pulse's moments-first video builder). Only state what you
+can verify from the diff and the facts below; if uncertain, say so; do not guess. Be specific: file:line and a concrete
+sequence that breaks it.
+
+BACKGROUND (static):
+- RULING 104 (the orchestrator, 14:12 ET Nov 14), already implemented and committed (5aad59b5): "a spotlight (and a
+  medley hook or clip) may be sealed as a variant that ENDS at an earlier sentence boundary of the mined moment, when
+  that is what keeps it lawful (a held word after the boundary, a tail the cut cannot make, the seconds ceiling). It
+  is a new span: it faces every gate again from the start ..., and the variant is recorded as derived from its parent
+  row."
+  - pipeline/tail_variant.py makes such variants at pool time when the parent's CURRENT lock pre-check answer HOLDS
+    (or ruling 73's cut hold, or the 35 s ceiling). A parent with a current hold is REPLACED by its variant.
+- RULING 90: at most one spotlight per channel per ET day (tests/package/proof/SPOTLIGHTS.json records each sealed
+  spotlight: channel_id, day_et, story_id, ...). spotlight.pool refuses a taken channel's moments. The ledger build
+  reads the record again at the pin and refuses there too.
+- THE CASE (now): the spotlight pin 3f481f5a, Blockware Solutions 06d34e15, the FULL 22.94 s clip, sealed at 18:23 ET.
+  - The integrator's pre-check answered "no_difference" (the second recogniser read "401k" this time).
+  - The integrator froze it but has not launched it. Scribe read the token three times today: "401" (13:51, long),
+    "401" (14:16, ruling 103's short re-listen, recorded as final) and "401k" (18:17, long).
+  - It asks the orchestrator whether the full clip may go. It also asks the builder to have the ruling-104 VARIANT
+    (0.000-15.280, ending "...I still don't use my Roth IRA.") ready so the orchestrator can choose before 00:00 ET,
+    when the source expires.
+  - The builder put the question on STATE line 1. Two of the orchestrator's rules stand in the way of that variant:
+    its current pre-check answer is a pass, and ruling 90 gives Blockware's channel to 3f481f5a today. The variant is
+    built ONLY on the orchestrator's written yes.
+
+UNCHANGED CODE THIS CHANGE RELIES ON (not in the diff):
+- tail_variant.variant(m, src, k, ctx, why) builds the variant by moments.record over eligibility.Span(src, k0, k):
+  eligibility judged afresh, its own id, derived_from on the record and in its mined record (the same dict).
+- Every gate (step A both families, CUTTABLE, opener rating, visual, ALONE, exclusion, the lock pre-check, the writes)
+  runs on every pool moment, the variant included. spotlight.snap never snaps a ruling-104 variant outward.
+- package_pin seals segments; pk["spotlight"] (with derived_from) rides on the pin outside the seal.
+
+THE CHANGE (the diff follows): the builder's path for the orchestrator's DIRECTIVE.
+1. tests/package/proof_ledger.py:
+   - DIRECTIVES = tests/package/proof/RULING_104_DIRECTIVES.json, written by the builder ONLY on the orchestrator's
+     written yes, quoting it.
+   - directives(path) reads {"directives": [{"parent", "ends", "alternative_to", "by", "why"}]}. An absent or
+     unreadable file, or a malformed row, gives no directive (the rules stand).
+   - with_variants passes them to for_pool.
+   - spot_place(pk, again, now) is the pin-time ruling-90 check through spotlight.day_taken. It also returns the story
+     the package is the alternative to, which record_spotlit then records.
+2. pipeline/tail_variant.py:
+   - directive_variant(m, src, ctx, d): the variant ending at the longest earlier sentence boundary whose words END as
+     d["ends"] (canon tokens), recorded with derived_from.directive and derived_from.alternative_to.
+   - for_pool(..., directives): a NAMED parent gets the directive's variant, in its place, whatever its pre-check says.
+     No variant when no boundary matches (noted).
+3. pipeline/spotlight.py: day_taken(spotlit, channel_id, day, alternative_to) is the ONE rule for the pool and the pin.
+   A channel's day is taken by any record of it that day, except the one story the moment is the named alternative to.
+   An alternative to another story, a moment with no directive, or a record without a story_id admits no one.
+4. Tests in test_ruling_104.py (+4) and 10 mutations, each killed.
+
+ATTACK:
+(a) Can anything be sealed through this path WITHOUT a directive file the builder wrote (absent, unreadable, malformed,
+    another parent)? Can a directive admit a second spotlight that is NOT the named alternative, or a third one?
+(b) Does the directive's variant still face every gate (nothing skipped or inherited from the full clip)? Can it end
+    mid-sentence, at the parent's own end, or anywhere other than the named ending?
+(c) Can the full clip 3f481f5a and its alternative both reach a render without the orchestrator choosing? (The builder
+    seals; the integrator launches.)
+(d) Any change to ruling 104's hold, cut or ceiling triggers, or to ruling 90 for every moment without a directive?
+(e) Anything else that could seal a wrong pin or spend without a directive.
+
+Answer with findings tagged <critical>, <high>, <medium> (file:line, a concrete sequence), then
+"SHIP: yes / no / yes with conditions".
+
+CHANGED AFTER CYCLE 1 (review the diff as it stands): a directive whose ending matches no boundary now lets the parent's
+own triggers run (no `continue`); the leading-"..." strip is gone (canon drops it); directives() requires a 20-hex parent
+id, a pin story id for alternative_to, non-blank ends and by, and returns none for a non-list value; a directive on a
+one-sentence parent is noted.
+
+CHANGED AFTER CYCLE 2 (cycle 3 reviews only this): spot_place refuses a package without a usable first segment instead
+of indexing it; directives() matches alternative_to with re.fullmatch on the pins' story id form; tests for both and for a
+36 s alternative refused by the pool's 35 s ceiling.
+CYCLE 3 ATTACK: (f) can any path still raise out of the pin's try or the pool? (g) did either change alter a decision for
+a well-formed directive or for any moment without one?
