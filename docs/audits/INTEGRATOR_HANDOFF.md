@@ -245,6 +245,8 @@ No session waits on the orchestrator. Standing, for all three sessions:
 - **Visual flags:**
   - The builder's pin-stage visual check (ruling 70) carries ruling 93's ticker / lower-third question; a ticker or crawl is not eligible.
   - A static lower third is eligible but flagged, and the render's `VERTICAL_LAYOUT.json` records `lower_third` per single shot (`cut: true` where no face-safe crop keeps it whole).
+- **Sealed formats (ruling 93 as amended, agreed 2026-11-14 21:27):** `moments_package["formats"]`, exactly ["16x9"] or ["16x9", "9x16"], inside package_sha256 (`package_pin.seal` adds it only when present); absent = both; a medley takes the intersection over its segments. The render reads it through `release_auth.package_formats` (run_fresh's pinned stage), never through pinned.py (decoder sha).
+- **pipeline/providers.py, when the pp-selectid branch merges (builder 23:05, 7a2ddf91; main has no providers.py today):** (1) `Router(reserve_wait_s=0.0)` by default: a call kept out by spend reservations is refused at once, the old behaviour; only the builder's ledger build passes 600 s (a call that fits alone waits for calls in flight; the limit is never passed). A render passes nothing and sees no change. (2) `Router._settle` takes `unreported=` (ruling 107 Q1, e7f68e11): anything that wraps `_settle` must accept `**kw`, or every abandoned call raises TypeError instead of failing over (the builder's meter did: 5 moments held, 3 glm bookings lost, now booked). Main had no such wrapper on 2026-11-14 (grep: only gpu0.ollama_settle, unrelated).
 
 ## 6. OPEN ITEMS, IN PRIORITY ORDER
 
