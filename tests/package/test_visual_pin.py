@@ -7,6 +7,7 @@ import os
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
@@ -33,9 +34,13 @@ class VFake(Fake):
 
 
 class TestContract(unittest.TestCase):
-    def test_the_stills_are_the_cut_in_one_every_two_seconds_and_the_last(self):
-        self.assertEqual(VP.times(16.62), [0.0, 2.37, 4.73, 7.1, 9.47, 11.84, 14.2, 16.57])   # evenly spaced
-        self.assertEqual(VP.times(5.0), [0.0, 2.0, 4.0, 4.95])
+    def test_the_stills_are_the_cut_in_one_every_second_and_the_last(self):    # 21:10 Nov 14: >= 1 frame a second
+        self.assertEqual(VP.times(5.0), [0.0, 1.0, 2.0, 3.0, 4.0, 4.95])
+        for dur in (5.0, 12.3, 16.62, 22.94, 35.0):                       # every span up to the 35 s ceiling
+            ts = VP.times(dur)
+            self.assertEqual((ts[0], ts[-1]), (0.0, round(dur - 0.05, 2)), dur)
+            self.assertLessEqual(max(b - a for a, b in zip(ts, ts[1:])), 1.0 + 1e-9, dur)
+        self.assertEqual(len(VP.times(22.94)), 24)                        # Blockware: 24 frames, not 8
         self.assertEqual(len(VP.times(60.0)), VP.TILES)
 
     def test_a_reply_in_contract_and_out_of_it(self):
@@ -67,7 +72,7 @@ class TestContract(unittest.TestCase):
     def test_ruling_93_burned_in_text_per_clip(self):
         item = lambda kind, **k: dict({"kind": kind, "text": "BITCOIN 74,512 | ETH 2,410", "whole_in_16x9": True,
                                        "in_9x16": "out", "covers_speaker": False}, **k)
-        rec = lambda *items: dict(VP.check(dict(CLEAN, burned_in=list(items))), measured=True)
+        rec = lambda *items: dict(VP.check(dict(CLEAN, burned_in=list(items))), measured=True, version=VP.VERSION)
         self.assertIsNone(VP.layout_block(rec()))                                       # nothing burned in
         for kind in ("ticker", "crawl"):                                                # a ticker or crawl: never
             self.assertIn(f"a {kind}", VP.layout_block(rec(item(kind))))
@@ -90,8 +95,44 @@ class TestContract(unittest.TestCase):
         many = [dict(strap, text=f"strap {i}", in_9x16="out") for i in range(VP.TEXTS_MAX + 3)] + [item("ticker")]
         v = VP.check(dict(CLEAN, burned_in=many))                                       # the ticker listed last
         self.assertEqual((len(v["burned_in"]), v["burned_in_truncated"]), (VP.TEXTS_MAX, 4))
-        self.assertIn("a ticker", VP.layout_block(dict(v, measured=True)))            # is never cut away
-        self.assertEqual(VP.VERSION, "visual-2")                                        # every clip asked again
+        self.assertIn("a ticker", VP.layout_block(dict(v, measured=True, version=VP.VERSION)))   # never cut away
+        self.assertEqual(VP.VERSION, "visual-3")                                        # every clip asked again
+
+    def test_ruling_93_amended_the_sources_burned_captions(self):
+        """21:10 Nov 14: Blockware's captions ('SOLD MY ROTH IRA', '26 NO ROTH IRA NO 401K') were on the sheet, and
+        visual-2's question told the model to leave subtitles out. A caption never makes a clip ineligible; cut by the
+        9:16 it makes the clip 16:9-ONLY, held until the integrator's render can pass a 16:9-only pin."""
+        q4 = VP.PROMPT.split("4. burned_in:")[1]
+        self.assertNotIn("Not subtitles of the spoken words", q4)            # the cause, gone
+        for words in ("BURNED-IN CAPTIONS", '"caption"', "EVERY frame", "face"):
+            self.assertIn(words, q4)
+        cap = lambda text, cut, at=(16.35, 19.62): {"kind": "caption", "text": text, "whole_in_16x9": True,
+                                                   "in_9x16": cut, "covers_speaker": False, "at": list(at)}
+        rec = lambda *items: dict(VP.check(dict(CLEAN, burned_in=list(items))), measured=True, version=VP.VERSION)
+        blockware = rec(cap("SOLD MY ROTH IRA", "cut", (3.27,)), cap("26 NO ROTH IRA NO 401K", "cut"))
+        self.assertEqual(VP.formats(blockware), ["16x9"])
+        self.assertEqual([f["kind"] for f in VP.flags(blockware)], ["burned_caption", "burned_caption"])
+        self.assertEqual(VP.flags(blockware)[1]["at"], [16.35, 19.62])
+        self.assertIn("16:9-only", VP.layout_block(blockware))               # held while the render cannot pass it
+        self.assertNotIn("ticker", VP.layout_block(blockware))
+        with mock.patch.object(VP, "RENDER_16X9_ONLY", True):
+            self.assertIsNone(VP.layout_block(blockware))                    # then eligible, 16:9 only
+            self.assertEqual(VP.formats(blockware), ["16x9"])
+        whole = rec(cap("FINANCIALLY INDEPENDENT BY 45", "whole"))
+        self.assertIsNone(VP.formats(whole))                                 # a crop shows it whole: both formats
+        self.assertIsNone(VP.layout_block(whole))
+        self.assertIsNone(VP.formats(dict(blockware, measured=False)))
+        self.assertEqual(VP.sealed(dict(blockware, formats=VP.formats(blockware)))["formats"], ["16x9"])
+        for bad in ([dict(cap("x", "cut"), text="")], [dict(cap("x", "cut"), at="16.35")],
+                    [dict(cap("x", "cut"), at=["16.35"])]):
+            with self.assertRaises(ValueError):                             # a caption with no words, or bad times
+                VP.check(dict(CLEAN, burned_in=bad))
+        many = [cap(f"WHOLE CAPTION {i}", "whole") for i in range(VP.TEXTS_MAX + 2)] + [cap("CUT LAST", "cut")]
+        kept = rec(*many)                                                    # audit 2131 C1 (glm): the cut caption
+        self.assertEqual(VP.formats(kept), ["16x9"])                         # listed last survives TEXTS_MAX
+        self.assertEqual(kept["burned_in"][0]["text"], "CUT LAST")
+        old = dict(blockware, version="visual-2")
+        self.assertIn("never asked for the source's burned captions", VP.layout_block(old))
 
     def test_the_cost_is_the_vendors_figure_and_an_estimate_is_labelled(self):
         class R:

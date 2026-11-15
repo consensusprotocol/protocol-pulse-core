@@ -1,0 +1,711 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 28bcc89..967f665 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -943,6 +943,9 @@ RULES (a line that breaks one is rejected):
+ - No price level; no advice to buy, sell or use leverage; no quotes except a clip's exact words; no "destroys",
+   "slams", "exposes", "admits", "confirms", "caught".
+ - A line that names a show, a person or Bitcoin's price cites the clips it comes from.
++- Never give anyone a ROLE the clips' own words do not state: no "guest", "host", "co-host", "analyst", "expert",
++  "economist", "strategist", "interviewer", "presenter", "anchor", "panelist" or "commentator". A role is a claim
++  (law L-v): say "he", "she" or "the speaker", or credit the show.
+ {style}
+ {extra}Return ONLY this JSON object: {{"takeaway": {{"text": "...", "cites": []}}, "bridge": {bridge_shape},
+ "title": {{"text": "...", "cites": []}}, "caption": {{"text": "...", "cites": []}}}}"""
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index bfbed07..1f409cf 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -187,7 +187,18 @@ def window_problems(segments, now=None):
+     return out
+ 
+ 
+-def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None, shape=None, first_comment=None):
++def formats_of(segments):
++    """RULING 93 AMENDED (orchestrator 21:10 ET Nov 14; the integrator's spelling, 21:31): the formats a pin may be
++    rendered in. ["16x9"] when ANY segment's sealed visual record says so (a source caption the 9:16 crop cuts: a
++    medley takes the intersection), else None: absent means both formats, as every pin before it."""
++    for s in segments or []:
++        if ((s or {}).get("visual") or {}).get("formats") == ["16x9"]:
++            return ["16x9"]
++    return None
++
++
++def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None, shape=None, first_comment=None,
++         formats=None):
+     """sha256 over the gated bytes, in a canonical form both sides compute: the segments (video, start, end, the exact
+     words, the transcript sha, and each SEALED_LATER field the segment carries), the VO the renderer will speak (intro,
+     bridges with after_clip), the sign-off, the ONE title and caption (law L-t), and the gate inventory.
+@@ -214,6 +225,8 @@ def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None, shap
+     if shape == "spotlight":                               # ruling 90: the closing line, the kind and the comment,
+         body["vo"]["closing"] = edl_vo.get("closing")      # sealed; keyed on the kind alone, so no medley's body
+         body["shape"], body["first_comment"] = shape, first_comment   # can change (audit 2322 C1, glm)
++    if formats is not None:                                # ruling 93 amended: "formats", only when present, so every
++        body["formats"] = formats                          # pin before it recomputes to its own sha
+     return hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+ 
+ 
+@@ -225,7 +238,8 @@ def pin_seal(pin):
+     shape = mp.get("shape")
+     return seal(pin["segments"], mp["edl_vo"], mp["signoff_expected"], mp["title"], mp["caption"], mp["gates"],
+                 mp.get("btc_screen"), shape="spotlight" if shape == "spotlight" else None,
+-                first_comment=mp.get("first_comment") if shape == "spotlight" else None)
++                first_comment=mp.get("first_comment") if shape == "spotlight" else None,
++                formats=mp.get("formats"))
+ 
+ 
+ def affirmed_verdict(s):
+@@ -451,8 +465,9 @@ def to_pin(pk, run_name):
+     spot = pk.get("shape") == "spotlight"                 # ruling 90: the agreed contract
+     if spot:
+         edl_vo["closing"] = pk["vo"].get("closing")
++    fmts = formats_of(segs)                               # ruling 93 amended: sealed, only when 16:9-only
+     sha = seal(segs, edl_vo, pk["vo"]["signoff"], pk["title"], pk["caption"], pk["gates"], pk.get("btc_screen"),
+-               shape="spotlight" if spot else None, first_comment=pk["first_comment"] if spot else None)
++               shape="spotlight" if spot else None, first_comment=pk["first_comment"] if spot else None, formats=fmts)
+     return {"schema": SCHEMA, "story_id": f"moments-{run_name}-{sha[:8]}",
+             "label": "bitcoin", "headline": pk["title"],
+             "approved_by": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
+@@ -481,6 +496,7 @@ def to_pin(pk, run_name):
+                                    if spot else {}),
+                                 "gates": pk["gates"],
+                                 **({"btc_screen": pk["btc_screen"]} if pk.get("btc_screen") is not None else {}),
++                                **({"formats": fmts} if fmts is not None else {}),   # ruling 93 amended (sealed)
+                                 "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True,
+                                            "derived_from": "gates (every required row exactly PASS, checked above)",
+                                            "models": pk.get("models")},
+diff --git a/pipeline/spotlight.py b/pipeline/spotlight.py
+index 5f7daa3..6011dcf 100644
+--- a/pipeline/spotlight.py
++++ b/pipeline/spotlight.py
+@@ -474,11 +474,12 @@ def layout_for(router, m, vrec, cache_path=None, seed=7, evidence=None):
+ def clean_visual(v):
+     """RULING 90's "visual check clean" with RULING 93: measured, no ruling-70 flag (a third person shown as a still
+     with a negative claim, on-screen text that asserts beyond the words), not blocked as a hook, and eligible on its
+-    own frames (visual_pin.layout_block). A ruling-93 "burned_in" flag (a lower third or bug that sits whole) is
+-    eligible and flagged for the orchestrator, so it does not make the clip unclean."""
++    own frames (visual_pin.layout_block). A ruling-93 "burned_in" flag (a lower third or bug that sits whole) and a
++    "burned_caption" flag (ruling 93 amended, 21:10 Nov 14: the source's own captions never make a clip ineligible)
++    are flagged for the orchestrator, so they do not make the clip unclean."""
+     import visual_pin as VP
+     return (v or {}).get("measured") is True and not VP.hook_block(v) and not VP.layout_block(v) and \
+-        not [f for f in v.get("flags") or [] if f.get("kind") != "burned_in"]
++        not [f for f in v.get("flags") or [] if f.get("kind") not in ("burned_in", "burned_caption")]
+ 
+ 
+ def alone_score(m):
+@@ -531,6 +532,9 @@ RULES (a line that breaks one is rejected):
+ - No price level; no advice to buy, sell or use leverage; no quotes except the clip's exact words; no "destroys",
+   "slams", "exposes", "admits", "confirms", "caught".
+ - A line that names a show, a person or Bitcoin's price cites the clip.
++- Never give anyone a ROLE the clip's own words do not state: no "guest", "host", "co-host", "analyst", "expert",
++  "economist", "strategist", "interviewer", "presenter", "anchor", "panelist" or "commentator". A role is a claim
++  (law L-v): say "he", "she" or "the speaker", or credit the show.
+ {style}
+ {extra}Return ONLY this JSON object: {{"title": {{"text": "...", "cites": []}}, "caption": {{"text": "...", "cites": []}},
+ "comment": {{"text": "...", "cites": []}}, "closing": {{"text": "...", "cites": []}} or null}}"""
+@@ -753,6 +757,8 @@ def inventory(pk, m, fid, dup, rt_ok, style, cx, a_off, a_two, exc, truth, pre,
+                                     bool((src_rec.get("layout") or {}).get("replayed", False)),
+                                     measured=(src_rec.get("layout") or {}).get("measured") is True,
+                                     why=src_rec.get("why"), evidence=src_rec.get("evidence"), layout=src_rec.get("layout"),
++                                    format=str((src_rec.get("layout") or {}).get("layout") or "").upper() or None,  # 21:10
++                                    #   Nov 14: WHICH of CONVERSATION / FIRST_HAND passed, on the pin's sealed row
+                                     rule="ruling 92 amended (09:03 Nov 14): the layout decides (conversation or "
+                                          "first-hand); the captions are evidence, refusing alone only with zero "
+                                          "speaker changes in the 10 minutes around the clip")
+diff --git a/pipeline/tail_variant.py b/pipeline/tail_variant.py
+index 36973ce..88854f8 100644
+--- a/pipeline/tail_variant.py
++++ b/pipeline/tail_variant.py
+@@ -125,6 +125,14 @@ def for_pool(moments, sources, ctx, results_dir, ceil_s, directives=None):
+                 notes[mid] = "the directive: no variant, the parent is one sentence (no earlier boundary)"
+             continue                                     # one sentence: no earlier boundary
+         wanted = []
++        if (directives or {}).get(mid, {}).get("reseal") is True:   # RULING 93 AMENDED + 106 (21:31 Nov 14): the SAME
++            d = directives[mid]                                    # moment sealed again (16:9-only) in the place of
++            out.append(dict(m, derived_from={"ruling": "93 amended", "reseal_of": d["alternative_to"],   # its own
++                                             "alternative_to": d["alternative_to"], "directive": d.get("by"),  # earlier
++                                             "why": d.get("why") or ""}))     # story, never a second spotlight: a
++            replaced.add(mid)                            # marked COPY in its place, the caller's record untouched
++            notes[mid] = f"the directive: re-sealed in the place of {d['alternative_to']}"   # (audit 2131 C1, grok)
++            continue
+         if mid in (directives or {}):                    # the orchestrator's directive: this variant, in its place
+             try:
+                 src = CI.source_for(m, sources)
+diff --git a/pipeline/visual_pin.py b/pipeline/visual_pin.py
+index ef4a557..844a320 100644
+--- a/pipeline/visual_pin.py
++++ b/pipeline/visual_pin.py
+@@ -21,6 +21,11 @@ Per clip (a moment's [start, end]):
+   not wholly in the 16:9, that the 9:16 edge would cut mid-word, or that covers the speaker, makes the clip NOT
+   eligible in any role (per clip, never by channel name); one that sits whole in the 16:9 and wholly in or out of the
+   9:16 is eligible and sealed as a "burned_in" FLAG for the orchestrator.
++- RULING 93 AMENDED (orchestrator 21:10 ET Nov 14), visual-3: the source's own BURNED CAPTIONS of the spoken words are
++  asked for explicitly (question 4's kind "caption", with the frame times each shows in), on a sheet of one frame a
++  second (TILES 36, the 35 s ceiling). Visual-2 asked to leave "subtitles of the spoken words" out, twice, and missed
++  Blockware's. A caption never makes a clip ineligible: one the 9:16 crop cuts mid-word makes it 16:9-ONLY (formats():
++  "formats": ["16x9"], sealed in the visual record), and each caption is flagged ("burned_caption").
+ - hook_block(): why the clip may not be the HOOK, or None. Step A passes only a clip whose view is "own_sincere" (the
+   speaker's own assertion: context_integrity.a_failures), so no step-A verdict confirms a claim as REPORTED fact; a
+   third_person finding therefore blocks the hook (fail closed) until step A is asked that.
+@@ -32,11 +37,18 @@ import os
+ import subprocess
+ import threading
+ 
+-VERSION = "visual-2"                     # RULING 93 (23:58 ET Nov 13): question 4, burned-in text and the 9:16
+-ROLE = "visual_check"
+-TILES, EVERY_S, TILE_W = 8, 2.0, 480
++VERSION = "visual-3"                     # RULING 93 AMENDED (21:10 ET Nov 14): the source's burned captions asked for
++ROLE = "visual_check"                    #   explicitly, one frame a second (visual-2: ruling 93, 23:58 ET Nov 13)
++TILES, EVERY_S, TILE_W, COLS = 40, 1.0, 320, 6   # 21:10 Nov 14: "at least one frame a second across the span" (the
++#   35 s ceiling takes 36; 40 leaves room); 6 x 320 px across keeps the sheet 1920 px wide (visual-2 sampled 8 at 480 px:
++#   one every 3.27 s on Blockware's 22.94 s, and its question excluded the captions it showed)
+ HOW = ("still", "photo", "graphic", "none")
+-BURNED = ("ticker", "crawl", "lower_third", "bug")      # ruling 93: question 4's kinds
++BURNED = ("ticker", "crawl", "lower_third", "bug", "caption")   # ruling 93: question 4's kinds; "caption" (ruling 93
++CAPTION = "caption"                                    # amended): the source's own burned subtitles of the words
++RENDER_16X9_ONLY = False      # the integrator's render cannot yet pass a 16:9-only pin (its message 21:2x Nov 14: its
++#   release_auth needs the 9:16 rows; it builds the format-aware path, audited): until it says so, a clip that is
++#   16:9-only is HELD here (layout_block), and no 16:9-only pin is sealed. Flipped on its word, with the package-level
++#   "formats" (package_pin), in one audited change.
+ RUNNING = ("ticker", "crawl")                          # ruling 93: "a ticker or crawl = not eligible"
+ IN_9X16 = ("whole", "out", "cut")
+ FORMAT = "bv*[height<=480][ext=mp4]/bv*[height<=480]/b[height<=480]"
+@@ -53,25 +65,33 @@ Answer four questions from the frames only:
+    person taking part in the show) while the clip's words make a NEGATIVE claim (a mistake, an accusation, a scandal,
+    a crime, a failure)? Report any NAME the screen shows as TEXT with that person. Never name anyone from a face: only
+    text on the screen names a person.
+-2. on_screen_text: every headline graphic, chyron, banner or title card the SOURCE shows (not subtitles of the spoken
+-   words, not the channel's logo), copied exactly, each with whether it ASSERTS something the clip's words do not.
++2. on_screen_text: every headline graphic, chyron, banner or title card the SOURCE shows (not its captions of the
++   spoken words, which are question 4's; not the channel's logo), copied exactly, each with whether it ASSERTS
++   something the clip's words do not.
+ 3. lower_third: the on-screen name strap (lower third) of the person speaking, copied exactly, or null.
+-4. burned_in: every piece of text or graphic burned into the SOURCE picture that stays on screen: a ticker or a crawl
+-   (text that runs or scrolls across the frame), a lower third (a name or headline strap), or a channel bug (a logo or
+-   watermark). Not subtitles of the spoken words. For each say whether it sits WHOLLY inside the frame, and how the
++4. burned_in: every piece of text or graphic burned into the SOURCE picture: a ticker or a crawl (text that runs or
++   scrolls across the frame), a lower third (a name or headline strap), a channel bug (a logo or watermark), AND THE
++   SOURCE'S OWN BURNED-IN CAPTIONS OR SUBTITLES of the spoken words (kind "caption": styled words that show what is
++   being said, often large and animated, word by word or phrase by phrase). Look at EVERY frame: list each distinct
++   caption text you can read as its own item, copied exactly, with "at": the frame times (seconds) it shows in.
++   For each item say whether it sits WHOLLY inside the frame, and how the
+    VERTICAL 9:16 version would treat it. The 9:16 version shows, for ONE speaker, a full-height strip about one third
+    of the frame's width, centred on the speaker's face; for two or three people, a band around each face, stacked; for
+    a shared screen (a chart, a slide, b-roll), the whole frame. "in_9x16" is "whole" (wholly inside the 9:16 picture),
+-   "out" (wholly outside it) or "cut" (the 9:16 edge would cut through it mid-word). "covers_speaker": does it cover
+-   the speaking person's face or mouth?
++   "out" (wholly outside it) or "cut" (the 9:16 edge would cut through it mid-word). FOR A CAPTION the strip may slide
++   left or right, but only so far that the speaker's WHOLE face stays inside it with a margin (a tenth of the frame's
++   width from either edge): "whole" if ONE such position shows the caption whole, "cut" if every such position cuts it
++   mid-word, "out" if it lies outside every such position. "covers_speaker": does it cover the speaking person's face
++   or mouth? An empty list means you read NO text at all burned into any frame.
+ 
+ Return ONLY this JSON object:
+ {{"third_person": {{"shown": true or false, "how": "still|photo|graphic|none", "words_negative": true or false,
+   "name_on_screen": "<the on-screen text naming them> or null", "finding": "<one sentence>"}},
+  "on_screen_text": [{{"text": "...", "asserts_beyond_words": true or false, "why": "..."}}],
+  "lower_third": {{"name": "<the name on the strap> or null", "text": "<the strap's full text> or null"}},
+- "burned_in": [{{"kind": "ticker|crawl|lower_third|bug", "text": "<its text, copied>", "whole_in_16x9": true or false,
+-   "in_9x16": "whole|out|cut", "covers_speaker": true or false}}]}}"""
++ "burned_in": [{{"kind": "ticker|crawl|lower_third|bug|caption", "text": "<its text, copied>",
++   "whole_in_16x9": true or false, "in_9x16": "whole|out|cut", "covers_speaker": true or false,
++   "at": [<the frame times it shows in, seconds>]}}]}}"""
+ 
+ 
+ def load_cache(path):
+@@ -95,7 +115,7 @@ def save_cache(path, cache):
+ def key(m):
+     """The cache key: the moment and span, VERSION, and a digest of everything else the verdict reads (the clip's
+     words, the prompt, the sheet's parameters; audit 1541 C1). A hit is used only on the same sheet bytes."""
+-    inputs = json.dumps([PROMPT, TILES, EVERY_S, TILE_W, FORMAT, str(m.get("text") or "")])
++    inputs = json.dumps([PROMPT, TILES, EVERY_S, TILE_W, COLS, FORMAT, str(m.get("text") or "")])
+     return (f"{m['moment_id']}:{float(m['start']):.3f}-{float(m['end']):.3f}:{VERSION}:"
+             f"{hashlib.sha256(inputs.encode()).hexdigest()[:16]}")
+ 
+@@ -109,12 +129,12 @@ def _sha_of(path):
+ 
+ 
+ def times(dur, every=EVERY_S, tiles=TILES):
+-    """The stills' offsets in the clip: the cut-in frame, one every `every` seconds, the last frame; at most `tiles`,
+-    the first and the last always kept."""
++    """The stills' offsets in the clip: the cut-in frame, one every `every` seconds, the last frame (so no gap is ever
++    longer than `every`); at most `tiles`, the first and the last always kept."""
+     last = max(0.0, dur - 0.05)
+     ts = [0.0]
+     t = every
+-    while t < last - 0.25:
++    while t < last - 0.01:
+         ts.append(round(t, 2))
+         t += every
+     if last > 0:
+@@ -156,7 +176,7 @@ def sheet(video, start, end, work_dir):
+         with Image.open(out) as im:
+             tiles.append(im.convert("RGB").copy())
+         os.remove(out)
+-    cols = min(4, len(tiles))
++    cols = min(COLS, len(tiles))
+     rows = (len(tiles) + cols - 1) // cols
+     w, h = tiles[0].size
+     canvas = Image.new("RGB", (cols * w, rows * h), (0, 0, 0))
+@@ -196,12 +216,18 @@ def check(v):
+     if not isinstance(bi, list) or any(
+             not isinstance(x, dict) or x.get("kind") not in BURNED or not isinstance(x.get("text"), (str, type(None)))
+             or type(x.get("whole_in_16x9")) is not bool or x.get("in_9x16") not in IN_9X16 or
+-            type(x.get("covers_speaker")) is not bool for x in bi):        # a wordless bug may carry no text
+-        raise ValueError("burned_in out of contract (ruling 93)")
++            type(x.get("covers_speaker")) is not bool or
++            (x["kind"] == CAPTION and not (x.get("text") or "").strip()) or
++            not isinstance(x.get("at", []), list) or
++            any(type(a) not in (int, float) for a in x.get("at") or []) for x in bi):   # a wordless bug may carry
++        raise ValueError("burned_in out of contract (ruling 93)")                          # no text; a caption must
+     items = [{"kind": x["kind"], "text": (x.get("text") or "").strip()[:TEXT_CHARS],
+-              "whole_in_16x9": x["whole_in_16x9"], "in_9x16": x["in_9x16"], "covers_speaker": x["covers_speaker"]}
++              "whole_in_16x9": x["whole_in_16x9"], "in_9x16": x["in_9x16"], "covers_speaker": x["covers_speaker"],
++              **({"at": sorted({round(float(a), 2) for a in x["at"]})[:TILES]} if x.get("at") else {})}
+              for x in bi]
+-    items = sorted(items, key=lambda x: burned_block(x) is None)   # the blocking ones first, so a cut never hides
++    items = sorted(items, key=lambda x: (burned_block(x) is None,              # the blocking ones first, then a
++                                         not (x["kind"] == CAPTION and x["in_9x16"] == "cut")))   # cut caption (audit
++    #   2131 C1, glm: the 16:9-only decision must survive TEXTS_MAX), so a cut never hides
+     #   one (audit 0003 C1, glm: a ticker listed 13th would otherwise pass)
+     if not isinstance(tp, dict) or type(tp.get("shown")) is not bool or tp.get("how") not in HOW or \
+             type(tp.get("words_negative")) is not bool or not isinstance(tp.get("finding"), str):
+@@ -233,14 +259,30 @@ def flags(v):
+     out += [{"kind": "on_screen_text", "text": x["text"], "why": x["why"]} for x in v["on_screen_text"]
+             if x["asserts_beyond_words"]]
+     out += [{"kind": "burned_in", "text": x["text"], "item": x["kind"], "in_9x16": x["in_9x16"]}   # ruling 93: an
+-            for x in v.get("burned_in") or [] if not burned_block(x)]            # eligible lower third or bug,
++            for x in v.get("burned_in") or [] if not burned_block(x) and x["kind"] != CAPTION]   # eligible lower
++    out += [{"kind": "burned_caption", "text": x["text"], "in_9x16": x["in_9x16"],              # third or bug, and
++             **({"at": x["at"]} if x.get("at") else {})}                                          # (ruling 93 amended)
++            for x in v.get("burned_in") or [] if x["kind"] == CAPTION]                            # each burned caption,
+     return out                                                                   # flagged for the orchestrator
+ 
+ 
++def formats(rec):
++    """RULING 93 AMENDED (orchestrator 21:10 ET Nov 14): "source-burned captions that the 9:16 crop cuts mid-word make the
++    clip 16:9-ONLY (sealed as formats: ['16x9'], the integrator renders and delivers that format alone) unless a crop
++    exists that shows them whole; they do not make the clip ineligible." -> ["16x9"] when any burned caption of a
++    measured record is "cut" in the 9:16, else None (both formats, as before)."""
++    if not (rec or {}).get("measured"):
++        return None
++    cut = [x for x in rec.get("burned_in") or [] if x.get("kind") == CAPTION and x.get("in_9x16") == "cut"]
++    return ["16x9"] if cut else None
++
++
+ def burned_block(x):
+     """RULING 93 on one burned-in item -> why it makes the clip NOT eligible, or None (eligible, flagged): a ticker or
+     a crawl; a lower third or bug that is not wholly inside the 16:9, that the 9:16 edge would cut through mid-word, or
+     that covers the speaker."""
++    if x["kind"] == CAPTION:                     # ruling 93 amended: a burned caption never makes a clip ineligible;
++        return None                              # cut by the 9:16 it makes it 16:9-only (formats())
+     if x["kind"] in RUNNING:
+         return f"a {x['kind']} ({x['text'][:80]!r}): not eligible"
+     if not x["whole_in_16x9"]:
+@@ -259,7 +301,12 @@ def layout_block(rec):
+         return "its visual check is not measured (law L-m)"
+     if not isinstance(rec.get("burned_in"), list):
+         return "ruling 93: the burned-in text question was not asked (an earlier visual record)"
++    if rec.get("version") != VERSION:            # 21:10 Nov 14: visual-2 never asked for the source's captions
++        return f"its visual record is {rec.get('version')!r}, which never asked for the source's burned captions"
+     why = [w for w in (burned_block(x) for x in rec["burned_in"]) if w]
++    if formats(rec) and not RENDER_16X9_ONLY:    # ruling 93 amended: 16:9-only, which the render cannot pass yet
++        why.append("16:9-only (a burned caption the 9:16 crop cuts mid-word, ruling 93 amended), and the integrator's "
++                   "render cannot pass a 16:9-only pin until its format-aware release lands: held")
+     return (f"ruling 93 ({len(why)} item(s)): " + "; ".join(why))[:600] if why else None   # (audit 0003 C2)
+ 
+ 
+@@ -280,7 +327,7 @@ def sealed(rec):
+     """The part of a visual record a pin seals (package_pin.SEALED_LATER "visual"): the findings, the flags, the sheet's
+     name, sha256 and times (the sheet itself is copied beside the pin), the back-end. Never a scratch path or a cost."""
+     out = {k: rec[k] for k in ("version", "measured", "flags", "third_person", "on_screen_text", "lower_third",
+-                               "burned_in", "burned_in_truncated", "backend", "replayed", "why") if k in rec}
++                               "burned_in", "burned_in_truncated", "formats", "backend", "replayed", "why") if k in rec}
+     if isinstance(rec.get("sheet"), dict):
+         out["sheet"] = {k: rec["sheet"][k] for k in ("name", "sha256", "times") if k in rec["sheet"]}
+     return out
+@@ -327,6 +374,7 @@ def visual_for(router, m, work_dir, cache, seed=7, log=print):
+             r = router.call(ROLE, prompt, 1500, sd)
+             v = check(_json(r.text))
+             rec = {"version": VERSION, "measured": True, **v, "flags": flags(v),
++                   **({"formats": formats(dict(v, measured=True))} if formats(dict(v, measured=True)) else {}),
+                    "sheet": {"name": os.path.basename(path), "sha256": sha, "times": ts, "path": path},
+                    "backend": r.backend, "replayed": bool(getattr(r, "replayed", False)),
+                    **cost(r),
+diff --git a/pipeline/vo_fidelity.py b/pipeline/vo_fidelity.py
+index 010a13e..968f02a 100644
+--- a/pipeline/vo_fidelity.py
++++ b/pipeline/vo_fidelity.py
+@@ -45,6 +45,9 @@ ATTRIB_VERBS = SPEECH_S                                        # (kept for calle
+ PRONOUN_SUBJECTS = ("he", "she", "they", "his guest", "her guest", "their guest", "the guest", "the host",
+                     "this guest", "this host", "the speaker", "this speaker", "the analyst", "this analyst",
+                     "the author", "experts", "analysts", "critics", "many", "some", "others", "people", "everyone")
++ROLE_RE = re.compile(r"\b((?:co-?)?hosts?|guests?|analysts?|experts?|economists?|strategists?|interviewers?|"
++                     r"presenters?|anchors?|panelists?|commentators?)\b", re.I)   # orchestrator 21:10 Nov 14: a role
++#   ("a guest", "the host", "an analyst") is a claim under L-v; a line may give one only when a cited clip's words do
+ VO_SELF = ("i", "we")                                          # PBX MAX itself: its claims are the verdict's to judge
+ RELATION = re.compile(
+     r"\b(agree[sd]?|agreeing|disagree[sd]?|disagreeing|respond(s|ed|ing)? to|repl(y|ies|ied|ying) to|"
+@@ -477,6 +480,12 @@ def check_deterministic(segments, lines, manifest=None, current_levels=None):
+         if (fact_numbers(without_manifest_date(text, manifest), meta_nums) or names or quotes or atts or times) \
+                 and not cited:                                       # the 10:48 ruling (3): the show date needs none
+             V("NEEDS_SOURCE", "a line with a number, name, quote, attribution or time word cites no segment")
++        roles = sorted({canon.canon_tokens(w)[-1] for w in ROLE_RE.findall(text) if canon.canon_tokens(w)})  # 21:10
++        if roles:                                    # Nov 14 (Blockware's caption: "a guest"); the role noun's canonical
++            shows = {t for n in meta for t in canon.canon_tokens(n)}       # token (L-k), as the cited clip says it; a
++            bad = [w for w in roles if w not in set(pool) and w not in shows]   # show or channel NAMED with it is no
++            if bad:                                                        # claim (audit 2131 C1, glm)
++                V("ROLE", f"gives someone a role the cited clips' own words do not state (law L-v): {bad}")
+         pools = []                                                   # per attribution: the governing segments
+         for subj0, form, _ in atts:
+             subj = _clean_subject(subj0)
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 9eeb541..8e556dd 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -147,8 +147,10 @@ def directives(path=None):
+     import re
+     story = re.compile(r"moments-[A-Za-z0-9_]+-[0-9a-f]{8}")         # the pins' own story id form (package_pin.to_pin)
+     return {d["parent"]: d for d in rows if isinstance(d, dict) and isinstance(d.get("parent"), str) and
+-            re.fullmatch(r"[0-9a-f]{20}", d["parent"]) and isinstance(d.get("ends"), str) and d["ends"].strip() and
+-            isinstance(d.get("alternative_to"), str) and story.fullmatch(d["alternative_to"]) and
++            re.fullmatch(r"[0-9a-f]{20}", d["parent"]) and
++            ((isinstance(d.get("ends"), str) and d["ends"].strip() and "reseal" not in d) or   # a variant, or the SAME
++             (d.get("reseal") is True and "ends" not in d)) and                             # moment re-sealed (93
++            isinstance(d.get("alternative_to"), str) and story.fullmatch(d["alternative_to"]) and   # amended + 106)
+             isinstance(d.get("by"), str) and d["by"].strip()}
+ 
+ 
+diff --git a/tests/package/test_formats.py b/tests/package/test_formats.py
+new file mode 100644
+index 0000000..9cbee31
+--- /dev/null
++++ b/tests/package/test_formats.py
+@@ -0,0 +1,48 @@
++#!/usr/bin/env python3
++"""RULING 93 AMENDED (orchestrator 21:10 ET Nov 14; the integrator's spelling, 21:31): a pin whose clip carries a
++source caption the 9:16 crop cuts is sealed 16:9-ONLY, moments_package["formats"] = ["16x9"], inside the seal; absent
++means both formats, and every pin sealed before it recomputes to its own sha. A medley takes the intersection."""
++import copy
++import json
++import os
++import sys
++import unittest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++for _p in ("pipeline", "tests/package"):
++    sys.path.insert(0, os.path.join(REPO, _p))
++import package_pin as PP  # noqa: E402
++import test_angles as TA  # noqa: E402
++
++
++class TestFormats(unittest.TestCase):
++    def test_a_16x9_only_clip_seals_its_format_and_a_pin_without_one_as_before(self):
++        base = TA.TestPinAndTruth.pk(None)
++        plain = PP.to_pin(copy.deepcopy(base), "r")
++        self.assertNotIn("formats", plain["moments_package"])
++        self.assertEqual(PP.pin_seal(plain), plain["moments_package"]["package_sha256"])
++        only = copy.deepcopy(base)
++        only["segments"][1]["visual"] = dict(only["segments"][1].get("visual") or {}, formats=["16x9"])
++        pin = PP.to_pin(only, "r")                                        # ONE clip of the medley: the intersection
++        mp = pin["moments_package"]
++        self.assertEqual(mp["formats"], ["16x9"])
++        self.assertEqual(PP.pin_seal(pin), mp["package_sha256"])          # the integrator's recompute
++        self.assertNotEqual(mp["package_sha256"], plain["moments_package"]["package_sha256"])
++        dropped = copy.deepcopy(pin)
++        del dropped["moments_package"]["formats"]                         # stripping it breaks the seal
++        self.assertNotEqual(PP.pin_seal(dropped), mp["package_sha256"])
++
++    def test_formats_of(self):
++        self.assertIsNone(PP.formats_of([]))
++        self.assertIsNone(PP.formats_of([{"visual": {"formats": None}}, {}]))
++        self.assertEqual(PP.formats_of([{}, {"visual": {"formats": ["16x9"]}}]), ["16x9"])
++
++    def test_the_spotlight_now_held_still_recomputes(self):
++        p = os.path.join(REPO, "tests", "package", "proof", "ledger_20261114_230148", "SPOTLIGHT_PIN.json")
++        pin = json.load(open(p))
++        self.assertEqual(PP.pin_seal(pin), pin["moments_package"]["package_sha256"])
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 9d8e2ca..af68ac8 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -33,6 +33,7 @@ from test_eligibility import NOW, REG, source  # noqa: E402
+ from test_gates import Canned  # noqa: E402
+ from test_moments import pm  # noqa: E402
+ import house_style as HS  # noqa: E402
++import visual_pin as VP  # noqa: E402
+ 
+ W = lambda n: " ".join(["word"] * n)
+ 
+@@ -648,7 +649,7 @@ class Rig:
+     def visual(self, router, m, work_dir, cache, seed=7, log=print):
+         """visual_pin.visual_for as the build calls it: a measured clean record unless self.visuals says otherwise."""
+         self.visual_calls.append(m["moment_id"])
+-        base = {"version": "visual-2", "measured": True, "flags": [],
++        base = {"version": VP.VERSION, "measured": True, "flags": [],
+                 "third_person": {"shown": False, "how": "none", "words_negative": False, "name_on_screen": None,
+                                  "finding": "no third person"},
+                 "on_screen_text": [], "lower_third": {"name": None, "text": None}, "burned_in": [],   # ruling 93
+diff --git a/tests/package/test_role_claims.py b/tests/package/test_role_claims.py
+new file mode 100644
+index 0000000..c8e491f
+--- /dev/null
++++ b/tests/package/test_role_claims.py
+@@ -0,0 +1,72 @@
++#!/usr/bin/env python3
++"""The orchestrator, 21:10 ET Nov 14: Blockware's spotlight caption called the channel's own presenter "a guest". "A
++caption may not assign a role the evidence does not show: 'a guest', 'the host', 'an analyst' are claims under L-v. Fix
++the writer's instructions and add it to the fidelity gate's checks." Offline."""
++import os
++import sys
++import unittest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++import package as PK  # noqa: E402
++import spotlight as SPOT  # noqa: E402
++import vo_fidelity as VF  # noqa: E402
++
++BLOCKWARE = {"m1": {"show": "Blockware Solutions", "speaker": None, "names": [], "video_id": "7BqLu-wzbU0",
++                    "text": "On my 20th birthday, I sold every stock in my Roth IRA and put it all into Bitcoin."}}
++MAN = {"channels": ["Blockware Solutions"], "date": "2026-11-14"}
++
++
++def rules(text, slot="caption", segs=BLOCKWARE, cites=("m1",)):
++    out = VF.check_deterministic(segs, [{"slot": slot, "text": text, "cites": list(cites)}], MAN)
++    return [x["rule"] for x in out["violations"]]
++
++
++class TestTheFidelityGate(unittest.TestCase):
++    def test_blockwares_caption_fails_and_the_same_line_without_the_role_passes(self):
++        self.assertIn("ROLE", rules("a guest sold his retirement stocks for bitcoin and skipped the usual path."))
++        self.assertNotIn("ROLE", rules("he sold his retirement stocks for bitcoin and skipped the usual path."))
++
++    def test_every_role_word_in_every_slot_needs_the_clips_own_words(self):
++        for line in ("The host sold everything.", "an analyst sold his stocks", "Our guest went all in",
++                     "A Wall Street strategist sold his IRA", "the co-host bought bitcoin", "Two experts disagree"):
++            for slot in ("caption", "title", "comment", "closing"):
++                self.assertIn("ROLE", rules(line, slot), (line, slot))
++
++    def test_a_role_the_clip_states_is_no_claim_of_ours(self):
++        segs = {"m1": {"show": "X", "speaker": None, "names": [], "video_id": "v",
++                       "text": "I'm an analyst at a big bank and I think bitcoin wins."}}
++        self.assertNotIn("ROLE", rules("an analyst thinks bitcoin wins", segs=segs))
++        self.assertIn("ROLE", rules("an analyst thinks bitcoin wins", segs=segs, cites=()))   # not cited: no source
++        self.assertIn("ROLE", rules("a guest thinks bitcoin wins", segs=segs))                # another role
++
++    def test_a_show_or_channel_named_with_a_role_word_is_no_claim(self):     # audit 2131 C1 (glm)
++        segs = {"m1": {"show": "Analyst Answers", "speaker": None, "names": [], "video_id": "v",
++                       "text": "Bitcoin is a bearer asset."}}
++        out = VF.check_deterministic(segs, [{"slot": "caption", "text": "From Analyst Answers: bitcoin as a bearer asset.",
++                                             "cites": ["m1"]}], {"channels": ["Analyst Answers"], "date": "2026-11-14"})
++        self.assertNotIn("ROLE", [x["rule"] for x in out["violations"]])
++        self.assertIn("ROLE", rules("Our guests sold everything."))        # still a claim elsewhere
++
++    def test_the_comparison_is_canonical(self):
++        segs = {"m1": {"show": "X", "speaker": None, "names": [], "video_id": "v",
++                       "text": "Analyst here. I think bitcoin wins."}}            # sentence-initial, capitalised
++        self.assertNotIn("ROLE", rules("an ANALYST thinks bitcoin wins", segs=segs))
++        self.assertIn("ROLE", rules("analysts think bitcoin wins", segs=segs))   # another word: a claim of ours
++
++    def test_words_that_only_contain_a_role_are_not_roles(self):
++        for line in ("He is hosting nothing.", "Ghosts of the old system.", "Anchoring on old prices fails."):
++            self.assertNotIn("ROLE", rules(line), line)
++
++
++class TestTheWriters(unittest.TestCase):
++    def test_both_writers_are_told_never_to_give_a_role(self):
++        for name, prompt in (("spotlight", SPOT.WRITE_SPOT), ("medley", PK.WRITE_LY)):
++            self.assertIn("Never give anyone a ROLE", prompt, name)
++            for word in ('"guest"', '"host"', '"analyst"'):
++                self.assertIn(word, prompt, (name, word))
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/package/test_ruling_104.py b/tests/package/test_ruling_104.py
+index 585955a..88ca6c3 100644
+--- a/tests/package/test_ruling_104.py
++++ b/tests/package/test_ruling_104.py
+@@ -378,3 +378,41 @@ class TestTheDirective(unittest.TestCase):
+         no_id = [{"channel_id": "A", "day_et": SPOT.et_day(NOW)}]                 # a record without a story id
+         got, _ = SPOT.pool([a, alt, b], {}, ctx, spotlit=no_id, captions_for=caps)
+         self.assertEqual([m["moment_id"] for m in got], ["b"])                   # admits no one
++
++
++RESEAL = {"parent": None, "reseal": True, "alternative_to": "moments-ledger_20261114_230148-3f481f5a",
++          "by": "orchestrator default 21:4x ET Nov 14 (ruling 106 (a))", "why": "16:9-only under ruling 93 amended"}
++
++
++class TestTheReseal(unittest.TestCase):
++    """RULING 93 AMENDED with 106 (21:31 Nov 14): the SAME moment sealed again (16:9-only) in the place of its own
++    earlier story, never as a second spotlight of the channel's day, only on a written directive."""
++
++    def setUp(self):
++        self.d = tempfile.TemporaryDirectory()
++        self.addCleanup(self.d.cleanup)
++
++    def test_the_moment_itself_takes_its_earlier_storys_place(self):
++        src, m = blockware()
++        vs, notes, replaced = TV.for_pool([m], {"7BqLu-wzbU0": src}, CTX, self.d.name, 35.0,
++                                          directives={m["moment_id"]: dict(RESEAL, parent=m["moment_id"])})
++        self.assertNotIn("derived_from", m)                                   # the caller's record untouched
++        self.assertEqual(([v["moment_id"] for v in vs], replaced), ([m["moment_id"]], {m["moment_id"]}))  # the SAME
++        m = vs[0]                                                             # moment, marked, in its own place
++        self.assertEqual((m["derived_from"]["reseal_of"], m["derived_from"]["alternative_to"]),
++                         (RESEAL["alternative_to"],) * 2)
++        self.assertEqual(m["text"], blockware()[1]["text"])                   # its words unchanged
++        self.assertIn("re-sealed in the place of", notes[m["moment_id"]])
++        rec = [{"channel_id": "c", "day_et": "2026-11-14", "story_id": RESEAL["alternative_to"]}]
++        self.assertFalse(SPOT.day_taken(rec, "c", "2026-11-14", m["derived_from"]["alternative_to"]))   # its place
++        self.assertTrue(SPOT.day_taken(rec + [{"channel_id": "c", "day_et": "2026-11-14", "story_id": "other"}],
++                                       "c", "2026-11-14", m["derived_from"]["alternative_to"]))   # never a second
++
++    def test_the_reseal_directive_is_read_strictly(self):
++        p = os.path.join(self.d.name, "D.json")
++        good = dict(RESEAL, parent="06d34e155feae654ee56")
++        with open(p, "w") as f:
++            json.dump({"directives": [good, dict(good, parent="1" * 20, reseal="yes"),
++                                      dict(good, parent="2" * 20, ends="...Roth IRA."),      # both: never guessed
++                                      dict(good, parent="3" * 20, alternative_to="not-a-story")]}, f)
++        self.assertEqual(PLG.directives(p), {"06d34e155feae654ee56": good})
+diff --git a/tests/package/test_spotlight.py b/tests/package/test_spotlight.py
+index a678b34..e6b4035 100644
+--- a/tests/package/test_spotlight.py
++++ b/tests/package/test_spotlight.py
+@@ -66,7 +66,7 @@ def moment(text=TEXT, dur=20.0, mid="m1", channel="DataDash", **kw):
+              hook_onset={"pass": True, "measured": True, "lead_ms": 120, "cut_in": 1.0, "why": "quiet"},
+              hook_rating={"scroll": 5, "alone": 4, "setup": 3, "rating": 4, "why": "a complete claim",
+                           "backend": "fake:xai", "replayed": False},
+-             visual={"version": "visual-1", "measured": True, "flags": [], "backend": "fake:vis", "replayed": False,
++             visual={"version": VP.VERSION, "measured": True, "flags": [], "backend": "fake:vis", "replayed": False,
+                      "third_person": {"shown": False, "how": "none", "words_negative": False, "name_on_screen": None,
+                                       "finding": "none"}, "on_screen_text": [],
+                      "lower_third": {"name": None, "text": None}, "burned_in": []},
+@@ -181,7 +181,8 @@ class TestPinContract(unittest.TestCase):
+         self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": [], "closing": GOOD["closing"]["text"]})
+         self.assertEqual(mp["vo_jobs"], {"closing": "closing"})
+         self.assertEqual(mp["first_comment"], pk["first_comment"])
+-        self.assertEqual(PP.pin_seal(pin), mp["package_sha256"])
++        self.assertEqual(mp["gates"]["spotlight_source"]["format"], "CONVERSATION")   # 21:10 Nov 14: WHICH passed,
++        self.assertEqual(PP.pin_seal(pin), mp["package_sha256"])                      # inside the seal
+         integrator = PP.seal(pin["segments"], mp["edl_vo"], mp.get("signoff_expected"), mp["title"], mp["caption"],
+                              mp["gates"], mp.get("btc_screen"),
+                              **({"shape": mp["shape"], "first_comment": mp["first_comment"]}
+@@ -686,7 +687,7 @@ class TestBuild(unittest.TestCase):
+                  (SPOT.P, "truth_for", lambda r, m, w, c: {"ok": True, "edges": {"cuttable": True}}),
+                  (SPOT.P, "hook_onset_for", lambda m, s, w, c: onset or {"pass": True, "measured": True}),
+                  (SPOT.P, "scorer_verdicts", verdicts), (SPOT.P, "render_scorer_sha", lambda *a: "s" * 64),
+-                 (VP, "visual_for", lambda r, m, w, c: dict({"measured": True, "flags": [], "burned_in": [],
++                 (VP, "visual_for", lambda r, m, w, c: dict({"version": VP.VERSION, "measured": True, "flags": [], "burned_in": [],
+                                                               "backend": "fake:vis"}, **(visual or {}))),
+                  (SPOT, "layout_for", lambda r, m, v, c, **k: (calls.setdefault("layout", []).append(
+                      (m["moment_id"], k.get("evidence"))), {"measured": True, "layout": layout, "why": "w"})[1]),
+@@ -773,9 +774,13 @@ class TestBuild(unittest.TestCase):
+         out, calls = self.run_build(ms, {"a": 5}, visual={"burned_in": [strap], "flags": [
+             {"kind": "burned_in", "text": "BILL MILLER IV", "item": "lower_third", "in_9x16": "out"}]})
+         self.assertEqual(calls["package_for"], ["a"])                   # eligible, flagged, still clean
+-        self.assertTrue(SPOT.clean_visual({"measured": True, "burned_in": [strap], "flags": [
++        cap = {"kind": "caption", "text": "SOLD MY ROTH IRA", "whole_in_16x9": True, "in_9x16": "whole",
++               "covers_speaker": False, "at": [3.27]}                       # ruling 93 amended: a source caption is
++        self.assertTrue(SPOT.clean_visual({"version": VP.VERSION, "measured": True, "burned_in": [cap], "flags": [
++            {"kind": "burned_caption", "text": "SOLD MY ROTH IRA", "in_9x16": "whole", "at": [3.27]}]}))   # flagged, clean
++        self.assertTrue(SPOT.clean_visual({"version": VP.VERSION, "measured": True, "burned_in": [strap], "flags": [
+             {"kind": "burned_in", "text": "BILL MILLER IV"}]}))
+-        self.assertFalse(SPOT.clean_visual({"measured": True, "burned_in": [], "flags": [
++        self.assertFalse(SPOT.clean_visual({"version": VP.VERSION, "measured": True, "burned_in": [], "flags": [
+             {"kind": "on_screen_text", "text": "SCANDAL"}]}))           # a ruling-70 flag is not clean
+         self.assertFalse(SPOT.clean_visual({"measured": True, "flags": []}))       # no question 4: never
+ 
+diff --git a/tests/package/test_visual_pin.py b/tests/package/test_visual_pin.py
+index 82c682c..326fb65 100644
+--- a/tests/package/test_visual_pin.py
++++ b/tests/package/test_visual_pin.py
+@@ -7,6 +7,7 @@ import os
+ import sys
+ import tempfile
+ import unittest
++from unittest import mock
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+ REPO = os.path.dirname(os.path.dirname(HERE))
+@@ -33,9 +34,13 @@ class VFake(Fake):
+ 
+ 
+ class TestContract(unittest.TestCase):
+-    def test_the_stills_are_the_cut_in_one_every_two_seconds_and_the_last(self):
+-        self.assertEqual(VP.times(16.62), [0.0, 2.37, 4.73, 7.1, 9.47, 11.84, 14.2, 16.57])   # evenly spaced
+-        self.assertEqual(VP.times(5.0), [0.0, 2.0, 4.0, 4.95])
++    def test_the_stills_are_the_cut_in_one_every_second_and_the_last(self):    # 21:10 Nov 14: >= 1 frame a second
++        self.assertEqual(VP.times(5.0), [0.0, 1.0, 2.0, 3.0, 4.0, 4.95])
++        for dur in (5.0, 12.3, 16.62, 22.94, 35.0):                       # every span up to the 35 s ceiling
++            ts = VP.times(dur)
++            self.assertEqual((ts[0], ts[-1]), (0.0, round(dur - 0.05, 2)), dur)
++            self.assertLessEqual(max(b - a for a, b in zip(ts, ts[1:])), 1.0 + 1e-9, dur)
++        self.assertEqual(len(VP.times(22.94)), 24)                        # Blockware: 24 frames, not 8
+         self.assertEqual(len(VP.times(60.0)), VP.TILES)
+ 
+     def test_a_reply_in_contract_and_out_of_it(self):
+@@ -67,7 +72,7 @@ class TestContract(unittest.TestCase):
+     def test_ruling_93_burned_in_text_per_clip(self):
+         item = lambda kind, **k: dict({"kind": kind, "text": "BITCOIN 74,512 | ETH 2,410", "whole_in_16x9": True,
+                                        "in_9x16": "out", "covers_speaker": False}, **k)
+-        rec = lambda *items: dict(VP.check(dict(CLEAN, burned_in=list(items))), measured=True)
++        rec = lambda *items: dict(VP.check(dict(CLEAN, burned_in=list(items))), measured=True, version=VP.VERSION)
+         self.assertIsNone(VP.layout_block(rec()))                                       # nothing burned in
+         for kind in ("ticker", "crawl"):                                                # a ticker or crawl: never
+             self.assertIn(f"a {kind}", VP.layout_block(rec(item(kind))))
+@@ -90,8 +95,44 @@ class TestContract(unittest.TestCase):
+         many = [dict(strap, text=f"strap {i}", in_9x16="out") for i in range(VP.TEXTS_MAX + 3)] + [item("ticker")]
+         v = VP.check(dict(CLEAN, burned_in=many))                                       # the ticker listed last
+         self.assertEqual((len(v["burned_in"]), v["burned_in_truncated"]), (VP.TEXTS_MAX, 4))
+-        self.assertIn("a ticker", VP.layout_block(dict(v, measured=True)))            # is never cut away
+-        self.assertEqual(VP.VERSION, "visual-2")                                        # every clip asked again
++        self.assertIn("a ticker", VP.layout_block(dict(v, measured=True, version=VP.VERSION)))   # never cut away
++        self.assertEqual(VP.VERSION, "visual-3")                                        # every clip asked again
++
++    def test_ruling_93_amended_the_sources_burned_captions(self):
++        """21:10 Nov 14: Blockware's captions ('SOLD MY ROTH IRA', '26 NO ROTH IRA NO 401K') were on the sheet, and
++        visual-2's question told the model to leave subtitles out. A caption never makes a clip ineligible; cut by the
++        9:16 it makes the clip 16:9-ONLY, held until the integrator's render can pass a 16:9-only pin."""
++        q4 = VP.PROMPT.split("4. burned_in:")[1]
++        self.assertNotIn("Not subtitles of the spoken words", q4)            # the cause, gone
++        for words in ("BURNED-IN CAPTIONS", '"caption"', "EVERY frame", "face"):
++            self.assertIn(words, q4)
++        cap = lambda text, cut, at=(16.35, 19.62): {"kind": "caption", "text": text, "whole_in_16x9": True,
++                                                   "in_9x16": cut, "covers_speaker": False, "at": list(at)}
++        rec = lambda *items: dict(VP.check(dict(CLEAN, burned_in=list(items))), measured=True, version=VP.VERSION)
++        blockware = rec(cap("SOLD MY ROTH IRA", "cut", (3.27,)), cap("26 NO ROTH IRA NO 401K", "cut"))
++        self.assertEqual(VP.formats(blockware), ["16x9"])
++        self.assertEqual([f["kind"] for f in VP.flags(blockware)], ["burned_caption", "burned_caption"])
++        self.assertEqual(VP.flags(blockware)[1]["at"], [16.35, 19.62])
++        self.assertIn("16:9-only", VP.layout_block(blockware))               # held while the render cannot pass it
++        self.assertNotIn("ticker", VP.layout_block(blockware))
++        with mock.patch.object(VP, "RENDER_16X9_ONLY", True):
++            self.assertIsNone(VP.layout_block(blockware))                    # then eligible, 16:9 only
++            self.assertEqual(VP.formats(blockware), ["16x9"])
++        whole = rec(cap("FINANCIALLY INDEPENDENT BY 45", "whole"))
++        self.assertIsNone(VP.formats(whole))                                 # a crop shows it whole: both formats
++        self.assertIsNone(VP.layout_block(whole))
++        self.assertIsNone(VP.formats(dict(blockware, measured=False)))
++        self.assertEqual(VP.sealed(dict(blockware, formats=VP.formats(blockware)))["formats"], ["16x9"])
++        for bad in ([dict(cap("x", "cut"), text="")], [dict(cap("x", "cut"), at="16.35")],
++                    [dict(cap("x", "cut"), at=["16.35"])]):
++            with self.assertRaises(ValueError):                             # a caption with no words, or bad times
++                VP.check(dict(CLEAN, burned_in=bad))
++        many = [cap(f"WHOLE CAPTION {i}", "whole") for i in range(VP.TEXTS_MAX + 2)] + [cap("CUT LAST", "cut")]
++        kept = rec(*many)                                                    # audit 2131 C1 (glm): the cut caption
++        self.assertEqual(VP.formats(kept), ["16x9"])                         # listed last survives TEXTS_MAX
++        self.assertEqual(kept["burned_in"][0]["text"], "CUT LAST")
++        old = dict(blockware, version="visual-2")
++        self.assertIn("never asked for the source's burned captions", VP.layout_block(old))
+ 
+     def test_the_cost_is_the_vendors_figure_and_an_estimate_is_labelled(self):
+         class R:

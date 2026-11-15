@@ -378,3 +378,41 @@ class TestTheDirective(unittest.TestCase):
         no_id = [{"channel_id": "A", "day_et": SPOT.et_day(NOW)}]                 # a record without a story id
         got, _ = SPOT.pool([a, alt, b], {}, ctx, spotlit=no_id, captions_for=caps)
         self.assertEqual([m["moment_id"] for m in got], ["b"])                   # admits no one
+
+
+RESEAL = {"parent": None, "reseal": True, "alternative_to": "moments-ledger_20261114_230148-3f481f5a",
+          "by": "orchestrator default 21:4x ET Nov 14 (ruling 106 (a))", "why": "16:9-only under ruling 93 amended"}
+
+
+class TestTheReseal(unittest.TestCase):
+    """RULING 93 AMENDED with 106 (21:31 Nov 14): the SAME moment sealed again (16:9-only) in the place of its own
+    earlier story, never as a second spotlight of the channel's day, only on a written directive."""
+
+    def setUp(self):
+        self.d = tempfile.TemporaryDirectory()
+        self.addCleanup(self.d.cleanup)
+
+    def test_the_moment_itself_takes_its_earlier_storys_place(self):
+        src, m = blockware()
+        vs, notes, replaced = TV.for_pool([m], {"7BqLu-wzbU0": src}, CTX, self.d.name, 35.0,
+                                          directives={m["moment_id"]: dict(RESEAL, parent=m["moment_id"])})
+        self.assertNotIn("derived_from", m)                                   # the caller's record untouched
+        self.assertEqual(([v["moment_id"] for v in vs], replaced), ([m["moment_id"]], {m["moment_id"]}))  # the SAME
+        m = vs[0]                                                             # moment, marked, in its own place
+        self.assertEqual((m["derived_from"]["reseal_of"], m["derived_from"]["alternative_to"]),
+                         (RESEAL["alternative_to"],) * 2)
+        self.assertEqual(m["text"], blockware()[1]["text"])                   # its words unchanged
+        self.assertIn("re-sealed in the place of", notes[m["moment_id"]])
+        rec = [{"channel_id": "c", "day_et": "2026-11-14", "story_id": RESEAL["alternative_to"]}]
+        self.assertFalse(SPOT.day_taken(rec, "c", "2026-11-14", m["derived_from"]["alternative_to"]))   # its place
+        self.assertTrue(SPOT.day_taken(rec + [{"channel_id": "c", "day_et": "2026-11-14", "story_id": "other"}],
+                                       "c", "2026-11-14", m["derived_from"]["alternative_to"]))   # never a second
+
+    def test_the_reseal_directive_is_read_strictly(self):
+        p = os.path.join(self.d.name, "D.json")
+        good = dict(RESEAL, parent="06d34e155feae654ee56")
+        with open(p, "w") as f:
+            json.dump({"directives": [good, dict(good, parent="1" * 20, reseal="yes"),
+                                      dict(good, parent="2" * 20, ends="...Roth IRA."),      # both: never guessed
+                                      dict(good, parent="3" * 20, alternative_to="not-a-story")]}, f)
+        self.assertEqual(PLG.directives(p), {"06d34e155feae654ee56": good})

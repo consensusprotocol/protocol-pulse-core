@@ -66,7 +66,7 @@ def moment(text=TEXT, dur=20.0, mid="m1", channel="DataDash", **kw):
              hook_onset={"pass": True, "measured": True, "lead_ms": 120, "cut_in": 1.0, "why": "quiet"},
              hook_rating={"scroll": 5, "alone": 4, "setup": 3, "rating": 4, "why": "a complete claim",
                           "backend": "fake:xai", "replayed": False},
-             visual={"version": "visual-1", "measured": True, "flags": [], "backend": "fake:vis", "replayed": False,
+             visual={"version": VP.VERSION, "measured": True, "flags": [], "backend": "fake:vis", "replayed": False,
                      "third_person": {"shown": False, "how": "none", "words_negative": False, "name_on_screen": None,
                                       "finding": "none"}, "on_screen_text": [],
                      "lower_third": {"name": None, "text": None}, "burned_in": []},
@@ -181,7 +181,8 @@ class TestPinContract(unittest.TestCase):
         self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": [], "closing": GOOD["closing"]["text"]})
         self.assertEqual(mp["vo_jobs"], {"closing": "closing"})
         self.assertEqual(mp["first_comment"], pk["first_comment"])
-        self.assertEqual(PP.pin_seal(pin), mp["package_sha256"])
+        self.assertEqual(mp["gates"]["spotlight_source"]["format"], "CONVERSATION")   # 21:10 Nov 14: WHICH passed,
+        self.assertEqual(PP.pin_seal(pin), mp["package_sha256"])                      # inside the seal
         integrator = PP.seal(pin["segments"], mp["edl_vo"], mp.get("signoff_expected"), mp["title"], mp["caption"],
                              mp["gates"], mp.get("btc_screen"),
                              **({"shape": mp["shape"], "first_comment": mp["first_comment"]}
@@ -686,7 +687,7 @@ class TestBuild(unittest.TestCase):
                  (SPOT.P, "truth_for", lambda r, m, w, c: {"ok": True, "edges": {"cuttable": True}}),
                  (SPOT.P, "hook_onset_for", lambda m, s, w, c: onset or {"pass": True, "measured": True}),
                  (SPOT.P, "scorer_verdicts", verdicts), (SPOT.P, "render_scorer_sha", lambda *a: "s" * 64),
-                 (VP, "visual_for", lambda r, m, w, c: dict({"measured": True, "flags": [], "burned_in": [],
+                 (VP, "visual_for", lambda r, m, w, c: dict({"version": VP.VERSION, "measured": True, "flags": [], "burned_in": [],
                                                               "backend": "fake:vis"}, **(visual or {}))),
                  (SPOT, "layout_for", lambda r, m, v, c, **k: (calls.setdefault("layout", []).append(
                      (m["moment_id"], k.get("evidence"))), {"measured": True, "layout": layout, "why": "w"})[1]),
@@ -773,9 +774,13 @@ class TestBuild(unittest.TestCase):
         out, calls = self.run_build(ms, {"a": 5}, visual={"burned_in": [strap], "flags": [
             {"kind": "burned_in", "text": "BILL MILLER IV", "item": "lower_third", "in_9x16": "out"}]})
         self.assertEqual(calls["package_for"], ["a"])                   # eligible, flagged, still clean
-        self.assertTrue(SPOT.clean_visual({"measured": True, "burned_in": [strap], "flags": [
+        cap = {"kind": "caption", "text": "SOLD MY ROTH IRA", "whole_in_16x9": True, "in_9x16": "whole",
+               "covers_speaker": False, "at": [3.27]}                       # ruling 93 amended: a source caption is
+        self.assertTrue(SPOT.clean_visual({"version": VP.VERSION, "measured": True, "burned_in": [cap], "flags": [
+            {"kind": "burned_caption", "text": "SOLD MY ROTH IRA", "in_9x16": "whole", "at": [3.27]}]}))   # flagged, clean
+        self.assertTrue(SPOT.clean_visual({"version": VP.VERSION, "measured": True, "burned_in": [strap], "flags": [
             {"kind": "burned_in", "text": "BILL MILLER IV"}]}))
-        self.assertFalse(SPOT.clean_visual({"measured": True, "burned_in": [], "flags": [
+        self.assertFalse(SPOT.clean_visual({"version": VP.VERSION, "measured": True, "burned_in": [], "flags": [
             {"kind": "on_screen_text", "text": "SCANDAL"}]}))           # a ruling-70 flag is not clean
         self.assertFalse(SPOT.clean_visual({"measured": True, "flags": []}))       # no question 4: never
 

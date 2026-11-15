@@ -21,6 +21,11 @@ Per clip (a moment's [start, end]):
   not wholly in the 16:9, that the 9:16 edge would cut mid-word, or that covers the speaker, makes the clip NOT
   eligible in any role (per clip, never by channel name); one that sits whole in the 16:9 and wholly in or out of the
   9:16 is eligible and sealed as a "burned_in" FLAG for the orchestrator.
+- RULING 93 AMENDED (orchestrator 21:10 ET Nov 14), visual-3: the source's own BURNED CAPTIONS of the spoken words are
+  asked for explicitly (question 4's kind "caption", with the frame times each shows in), on a sheet of one frame a
+  second (TILES 36, the 35 s ceiling). Visual-2 asked to leave "subtitles of the spoken words" out, twice, and missed
+  Blockware's. A caption never makes a clip ineligible: one the 9:16 crop cuts mid-word makes it 16:9-ONLY (formats():
+  "formats": ["16x9"], sealed in the visual record), and each caption is flagged ("burned_caption").
 - hook_block(): why the clip may not be the HOOK, or None. Step A passes only a clip whose view is "own_sincere" (the
   speaker's own assertion: context_integrity.a_failures), so no step-A verdict confirms a claim as REPORTED fact; a
   third_person finding therefore blocks the hook (fail closed) until step A is asked that.
@@ -32,11 +37,18 @@ import os
 import subprocess
 import threading
 
-VERSION = "visual-2"                     # RULING 93 (23:58 ET Nov 13): question 4, burned-in text and the 9:16
-ROLE = "visual_check"
-TILES, EVERY_S, TILE_W = 8, 2.0, 480
+VERSION = "visual-3"                     # RULING 93 AMENDED (21:10 ET Nov 14): the source's burned captions asked for
+ROLE = "visual_check"                    #   explicitly, one frame a second (visual-2: ruling 93, 23:58 ET Nov 13)
+TILES, EVERY_S, TILE_W, COLS = 40, 1.0, 320, 6   # 21:10 Nov 14: "at least one frame a second across the span" (the
+#   35 s ceiling takes 36; 40 leaves room); 6 x 320 px across keeps the sheet 1920 px wide (visual-2 sampled 8 at 480 px:
+#   one every 3.27 s on Blockware's 22.94 s, and its question excluded the captions it showed)
 HOW = ("still", "photo", "graphic", "none")
-BURNED = ("ticker", "crawl", "lower_third", "bug")      # ruling 93: question 4's kinds
+BURNED = ("ticker", "crawl", "lower_third", "bug", "caption")   # ruling 93: question 4's kinds; "caption" (ruling 93
+CAPTION = "caption"                                    # amended): the source's own burned subtitles of the words
+RENDER_16X9_ONLY = False      # the integrator's render cannot yet pass a 16:9-only pin (its message 21:2x Nov 14: its
+#   release_auth needs the 9:16 rows; it builds the format-aware path, audited): until it says so, a clip that is
+#   16:9-only is HELD here (layout_block), and no 16:9-only pin is sealed. Flipped on its word, with the package-level
+#   "formats" (package_pin), in one audited change.
 RUNNING = ("ticker", "crawl")                          # ruling 93: "a ticker or crawl = not eligible"
 IN_9X16 = ("whole", "out", "cut")
 FORMAT = "bv*[height<=480][ext=mp4]/bv*[height<=480]/b[height<=480]"
@@ -53,25 +65,33 @@ Answer four questions from the frames only:
    person taking part in the show) while the clip's words make a NEGATIVE claim (a mistake, an accusation, a scandal,
    a crime, a failure)? Report any NAME the screen shows as TEXT with that person. Never name anyone from a face: only
    text on the screen names a person.
-2. on_screen_text: every headline graphic, chyron, banner or title card the SOURCE shows (not subtitles of the spoken
-   words, not the channel's logo), copied exactly, each with whether it ASSERTS something the clip's words do not.
+2. on_screen_text: every headline graphic, chyron, banner or title card the SOURCE shows (not its captions of the
+   spoken words, which are question 4's; not the channel's logo), copied exactly, each with whether it ASSERTS
+   something the clip's words do not.
 3. lower_third: the on-screen name strap (lower third) of the person speaking, copied exactly, or null.
-4. burned_in: every piece of text or graphic burned into the SOURCE picture that stays on screen: a ticker or a crawl
-   (text that runs or scrolls across the frame), a lower third (a name or headline strap), or a channel bug (a logo or
-   watermark). Not subtitles of the spoken words. For each say whether it sits WHOLLY inside the frame, and how the
+4. burned_in: every piece of text or graphic burned into the SOURCE picture: a ticker or a crawl (text that runs or
+   scrolls across the frame), a lower third (a name or headline strap), a channel bug (a logo or watermark), AND THE
+   SOURCE'S OWN BURNED-IN CAPTIONS OR SUBTITLES of the spoken words (kind "caption": styled words that show what is
+   being said, often large and animated, word by word or phrase by phrase). Look at EVERY frame: list each distinct
+   caption text you can read as its own item, copied exactly, with "at": the frame times (seconds) it shows in.
+   For each item say whether it sits WHOLLY inside the frame, and how the
    VERTICAL 9:16 version would treat it. The 9:16 version shows, for ONE speaker, a full-height strip about one third
    of the frame's width, centred on the speaker's face; for two or three people, a band around each face, stacked; for
    a shared screen (a chart, a slide, b-roll), the whole frame. "in_9x16" is "whole" (wholly inside the 9:16 picture),
-   "out" (wholly outside it) or "cut" (the 9:16 edge would cut through it mid-word). "covers_speaker": does it cover
-   the speaking person's face or mouth?
+   "out" (wholly outside it) or "cut" (the 9:16 edge would cut through it mid-word). FOR A CAPTION the strip may slide
+   left or right, but only so far that the speaker's WHOLE face stays inside it with a margin (a tenth of the frame's
+   width from either edge): "whole" if ONE such position shows the caption whole, "cut" if every such position cuts it
+   mid-word, "out" if it lies outside every such position. "covers_speaker": does it cover the speaking person's face
+   or mouth? An empty list means you read NO text at all burned into any frame.
 
 Return ONLY this JSON object:
 {{"third_person": {{"shown": true or false, "how": "still|photo|graphic|none", "words_negative": true or false,
   "name_on_screen": "<the on-screen text naming them> or null", "finding": "<one sentence>"}},
  "on_screen_text": [{{"text": "...", "asserts_beyond_words": true or false, "why": "..."}}],
  "lower_third": {{"name": "<the name on the strap> or null", "text": "<the strap's full text> or null"}},
- "burned_in": [{{"kind": "ticker|crawl|lower_third|bug", "text": "<its text, copied>", "whole_in_16x9": true or false,
-   "in_9x16": "whole|out|cut", "covers_speaker": true or false}}]}}"""
+ "burned_in": [{{"kind": "ticker|crawl|lower_third|bug|caption", "text": "<its text, copied>",
+   "whole_in_16x9": true or false, "in_9x16": "whole|out|cut", "covers_speaker": true or false,
+   "at": [<the frame times it shows in, seconds>]}}]}}"""
 
 
 def load_cache(path):
@@ -95,7 +115,7 @@ def save_cache(path, cache):
 def key(m):
     """The cache key: the moment and span, VERSION, and a digest of everything else the verdict reads (the clip's
     words, the prompt, the sheet's parameters; audit 1541 C1). A hit is used only on the same sheet bytes."""
-    inputs = json.dumps([PROMPT, TILES, EVERY_S, TILE_W, FORMAT, str(m.get("text") or "")])
+    inputs = json.dumps([PROMPT, TILES, EVERY_S, TILE_W, COLS, FORMAT, str(m.get("text") or "")])
     return (f"{m['moment_id']}:{float(m['start']):.3f}-{float(m['end']):.3f}:{VERSION}:"
             f"{hashlib.sha256(inputs.encode()).hexdigest()[:16]}")
 
@@ -109,12 +129,12 @@ def _sha_of(path):
 
 
 def times(dur, every=EVERY_S, tiles=TILES):
-    """The stills' offsets in the clip: the cut-in frame, one every `every` seconds, the last frame; at most `tiles`,
-    the first and the last always kept."""
+    """The stills' offsets in the clip: the cut-in frame, one every `every` seconds, the last frame (so no gap is ever
+    longer than `every`); at most `tiles`, the first and the last always kept."""
     last = max(0.0, dur - 0.05)
     ts = [0.0]
     t = every
-    while t < last - 0.25:
+    while t < last - 0.01:
         ts.append(round(t, 2))
         t += every
     if last > 0:
@@ -156,7 +176,7 @@ def sheet(video, start, end, work_dir):
         with Image.open(out) as im:
             tiles.append(im.convert("RGB").copy())
         os.remove(out)
-    cols = min(4, len(tiles))
+    cols = min(COLS, len(tiles))
     rows = (len(tiles) + cols - 1) // cols
     w, h = tiles[0].size
     canvas = Image.new("RGB", (cols * w, rows * h), (0, 0, 0))
@@ -196,12 +216,18 @@ def check(v):
     if not isinstance(bi, list) or any(
             not isinstance(x, dict) or x.get("kind") not in BURNED or not isinstance(x.get("text"), (str, type(None)))
             or type(x.get("whole_in_16x9")) is not bool or x.get("in_9x16") not in IN_9X16 or
-            type(x.get("covers_speaker")) is not bool for x in bi):        # a wordless bug may carry no text
-        raise ValueError("burned_in out of contract (ruling 93)")
+            type(x.get("covers_speaker")) is not bool or
+            (x["kind"] == CAPTION and not (x.get("text") or "").strip()) or
+            not isinstance(x.get("at", []), list) or
+            any(type(a) not in (int, float) for a in x.get("at") or []) for x in bi):   # a wordless bug may carry
+        raise ValueError("burned_in out of contract (ruling 93)")                          # no text; a caption must
     items = [{"kind": x["kind"], "text": (x.get("text") or "").strip()[:TEXT_CHARS],
-              "whole_in_16x9": x["whole_in_16x9"], "in_9x16": x["in_9x16"], "covers_speaker": x["covers_speaker"]}
+              "whole_in_16x9": x["whole_in_16x9"], "in_9x16": x["in_9x16"], "covers_speaker": x["covers_speaker"],
+              **({"at": sorted({round(float(a), 2) for a in x["at"]})[:TILES]} if x.get("at") else {})}
              for x in bi]
-    items = sorted(items, key=lambda x: burned_block(x) is None)   # the blocking ones first, so a cut never hides
+    items = sorted(items, key=lambda x: (burned_block(x) is None,              # the blocking ones first, then a
+                                         not (x["kind"] == CAPTION and x["in_9x16"] == "cut")))   # cut caption (audit
+    #   2131 C1, glm: the 16:9-only decision must survive TEXTS_MAX), so a cut never hides
     #   one (audit 0003 C1, glm: a ticker listed 13th would otherwise pass)
     if not isinstance(tp, dict) or type(tp.get("shown")) is not bool or tp.get("how") not in HOW or \
             type(tp.get("words_negative")) is not bool or not isinstance(tp.get("finding"), str):
@@ -233,14 +259,30 @@ def flags(v):
     out += [{"kind": "on_screen_text", "text": x["text"], "why": x["why"]} for x in v["on_screen_text"]
             if x["asserts_beyond_words"]]
     out += [{"kind": "burned_in", "text": x["text"], "item": x["kind"], "in_9x16": x["in_9x16"]}   # ruling 93: an
-            for x in v.get("burned_in") or [] if not burned_block(x)]            # eligible lower third or bug,
+            for x in v.get("burned_in") or [] if not burned_block(x) and x["kind"] != CAPTION]   # eligible lower
+    out += [{"kind": "burned_caption", "text": x["text"], "in_9x16": x["in_9x16"],              # third or bug, and
+             **({"at": x["at"]} if x.get("at") else {})}                                          # (ruling 93 amended)
+            for x in v.get("burned_in") or [] if x["kind"] == CAPTION]                            # each burned caption,
     return out                                                                   # flagged for the orchestrator
+
+
+def formats(rec):
+    """RULING 93 AMENDED (orchestrator 21:10 ET Nov 14): "source-burned captions that the 9:16 crop cuts mid-word make the
+    clip 16:9-ONLY (sealed as formats: ['16x9'], the integrator renders and delivers that format alone) unless a crop
+    exists that shows them whole; they do not make the clip ineligible." -> ["16x9"] when any burned caption of a
+    measured record is "cut" in the 9:16, else None (both formats, as before)."""
+    if not (rec or {}).get("measured"):
+        return None
+    cut = [x for x in rec.get("burned_in") or [] if x.get("kind") == CAPTION and x.get("in_9x16") == "cut"]
+    return ["16x9"] if cut else None
 
 
 def burned_block(x):
     """RULING 93 on one burned-in item -> why it makes the clip NOT eligible, or None (eligible, flagged): a ticker or
     a crawl; a lower third or bug that is not wholly inside the 16:9, that the 9:16 edge would cut through mid-word, or
     that covers the speaker."""
+    if x["kind"] == CAPTION:                     # ruling 93 amended: a burned caption never makes a clip ineligible;
+        return None                              # cut by the 9:16 it makes it 16:9-only (formats())
     if x["kind"] in RUNNING:
         return f"a {x['kind']} ({x['text'][:80]!r}): not eligible"
     if not x["whole_in_16x9"]:
@@ -259,7 +301,12 @@ def layout_block(rec):
         return "its visual check is not measured (law L-m)"
     if not isinstance(rec.get("burned_in"), list):
         return "ruling 93: the burned-in text question was not asked (an earlier visual record)"
+    if rec.get("version") != VERSION:            # 21:10 Nov 14: visual-2 never asked for the source's captions
+        return f"its visual record is {rec.get('version')!r}, which never asked for the source's burned captions"
     why = [w for w in (burned_block(x) for x in rec["burned_in"]) if w]
+    if formats(rec) and not RENDER_16X9_ONLY:    # ruling 93 amended: 16:9-only, which the render cannot pass yet
+        why.append("16:9-only (a burned caption the 9:16 crop cuts mid-word, ruling 93 amended), and the integrator's "
+                   "render cannot pass a 16:9-only pin until its format-aware release lands: held")
     return (f"ruling 93 ({len(why)} item(s)): " + "; ".join(why))[:600] if why else None   # (audit 0003 C2)
 
 
@@ -280,7 +327,7 @@ def sealed(rec):
     """The part of a visual record a pin seals (package_pin.SEALED_LATER "visual"): the findings, the flags, the sheet's
     name, sha256 and times (the sheet itself is copied beside the pin), the back-end. Never a scratch path or a cost."""
     out = {k: rec[k] for k in ("version", "measured", "flags", "third_person", "on_screen_text", "lower_third",
-                               "burned_in", "burned_in_truncated", "backend", "replayed", "why") if k in rec}
+                               "burned_in", "burned_in_truncated", "formats", "backend", "replayed", "why") if k in rec}
     if isinstance(rec.get("sheet"), dict):
         out["sheet"] = {k: rec["sheet"][k] for k in ("name", "sha256", "times") if k in rec["sheet"]}
     return out
@@ -327,6 +374,7 @@ def visual_for(router, m, work_dir, cache, seed=7, log=print):
             r = router.call(ROLE, prompt, 1500, sd)
             v = check(_json(r.text))
             rec = {"version": VERSION, "measured": True, **v, "flags": flags(v),
+                   **({"formats": formats(dict(v, measured=True))} if formats(dict(v, measured=True)) else {}),
                    "sheet": {"name": os.path.basename(path), "sha256": sha, "times": ts, "path": path},
                    "backend": r.backend, "replayed": bool(getattr(r, "replayed", False)),
                    **cost(r),

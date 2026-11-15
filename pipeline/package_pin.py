@@ -187,7 +187,18 @@ def window_problems(segments, now=None):
     return out
 
 
-def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None, shape=None, first_comment=None):
+def formats_of(segments):
+    """RULING 93 AMENDED (orchestrator 21:10 ET Nov 14; the integrator's spelling, 21:31): the formats a pin may be
+    rendered in. ["16x9"] when ANY segment's sealed visual record says so (a source caption the 9:16 crop cuts: a
+    medley takes the intersection), else None: absent means both formats, as every pin before it."""
+    for s in segments or []:
+        if ((s or {}).get("visual") or {}).get("formats") == ["16x9"]:
+            return ["16x9"]
+    return None
+
+
+def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None, shape=None, first_comment=None,
+         formats=None):
     """sha256 over the gated bytes, in a canonical form both sides compute: the segments (video, start, end, the exact
     words, the transcript sha, and each SEALED_LATER field the segment carries), the VO the renderer will speak (intro,
     bridges with after_clip), the sign-off, the ONE title and caption (law L-t), and the gate inventory.
@@ -214,6 +225,8 @@ def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None, shap
     if shape == "spotlight":                               # ruling 90: the closing line, the kind and the comment,
         body["vo"]["closing"] = edl_vo.get("closing")      # sealed; keyed on the kind alone, so no medley's body
         body["shape"], body["first_comment"] = shape, first_comment   # can change (audit 2322 C1, glm)
+    if formats is not None:                                # ruling 93 amended: "formats", only when present, so every
+        body["formats"] = formats                          # pin before it recomputes to its own sha
     return hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
 
@@ -225,7 +238,8 @@ def pin_seal(pin):
     shape = mp.get("shape")
     return seal(pin["segments"], mp["edl_vo"], mp["signoff_expected"], mp["title"], mp["caption"], mp["gates"],
                 mp.get("btc_screen"), shape="spotlight" if shape == "spotlight" else None,
-                first_comment=mp.get("first_comment") if shape == "spotlight" else None)
+                first_comment=mp.get("first_comment") if shape == "spotlight" else None,
+                formats=mp.get("formats"))
 
 
 def affirmed_verdict(s):
@@ -451,8 +465,9 @@ def to_pin(pk, run_name):
     spot = pk.get("shape") == "spotlight"                 # ruling 90: the agreed contract
     if spot:
         edl_vo["closing"] = pk["vo"].get("closing")
+    fmts = formats_of(segs)                               # ruling 93 amended: sealed, only when 16:9-only
     sha = seal(segs, edl_vo, pk["vo"]["signoff"], pk["title"], pk["caption"], pk["gates"], pk.get("btc_screen"),
-               shape="spotlight" if spot else None, first_comment=pk["first_comment"] if spot else None)
+               shape="spotlight" if spot else None, first_comment=pk["first_comment"] if spot else None, formats=fmts)
     return {"schema": SCHEMA, "story_id": f"moments-{run_name}-{sha[:8]}",
             "label": "bitcoin", "headline": pk["title"],
             "approved_by": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
@@ -481,6 +496,7 @@ def to_pin(pk, run_name):
                                    if spot else {}),
                                 "gates": pk["gates"],
                                 **({"btc_screen": pk["btc_screen"]} if pk.get("btc_screen") is not None else {}),
+                                **({"formats": fmts} if fmts is not None else {}),   # ruling 93 amended (sealed)
                                 "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True,
                                            "derived_from": "gates (every required row exactly PASS, checked above)",
                                            "models": pk.get("models")},

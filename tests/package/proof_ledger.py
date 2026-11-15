@@ -147,8 +147,10 @@ def directives(path=None):
     import re
     story = re.compile(r"moments-[A-Za-z0-9_]+-[0-9a-f]{8}")         # the pins' own story id form (package_pin.to_pin)
     return {d["parent"]: d for d in rows if isinstance(d, dict) and isinstance(d.get("parent"), str) and
-            re.fullmatch(r"[0-9a-f]{20}", d["parent"]) and isinstance(d.get("ends"), str) and d["ends"].strip() and
-            isinstance(d.get("alternative_to"), str) and story.fullmatch(d["alternative_to"]) and
+            re.fullmatch(r"[0-9a-f]{20}", d["parent"]) and
+            ((isinstance(d.get("ends"), str) and d["ends"].strip() and "reseal" not in d) or   # a variant, or the SAME
+             (d.get("reseal") is True and "ends" not in d)) and                             # moment re-sealed (93
+            isinstance(d.get("alternative_to"), str) and story.fullmatch(d["alternative_to"]) and   # amended + 106)
             isinstance(d.get("by"), str) and d["by"].strip()}
 
 

@@ -474,11 +474,12 @@ def layout_for(router, m, vrec, cache_path=None, seed=7, evidence=None):
 def clean_visual(v):
     """RULING 90's "visual check clean" with RULING 93: measured, no ruling-70 flag (a third person shown as a still
     with a negative claim, on-screen text that asserts beyond the words), not blocked as a hook, and eligible on its
-    own frames (visual_pin.layout_block). A ruling-93 "burned_in" flag (a lower third or bug that sits whole) is
-    eligible and flagged for the orchestrator, so it does not make the clip unclean."""
+    own frames (visual_pin.layout_block). A ruling-93 "burned_in" flag (a lower third or bug that sits whole) and a
+    "burned_caption" flag (ruling 93 amended, 21:10 Nov 14: the source's own captions never make a clip ineligible)
+    are flagged for the orchestrator, so they do not make the clip unclean."""
     import visual_pin as VP
     return (v or {}).get("measured") is True and not VP.hook_block(v) and not VP.layout_block(v) and \
-        not [f for f in v.get("flags") or [] if f.get("kind") != "burned_in"]
+        not [f for f in v.get("flags") or [] if f.get("kind") not in ("burned_in", "burned_caption")]
 
 
 def alone_score(m):
@@ -531,6 +532,9 @@ RULES (a line that breaks one is rejected):
 - No price level; no advice to buy, sell or use leverage; no quotes except the clip's exact words; no "destroys",
   "slams", "exposes", "admits", "confirms", "caught".
 - A line that names a show, a person or Bitcoin's price cites the clip.
+- Never give anyone a ROLE the clip's own words do not state: no "guest", "host", "co-host", "analyst", "expert",
+  "economist", "strategist", "interviewer", "presenter", "anchor", "panelist" or "commentator". A role is a claim
+  (law L-v): say "he", "she" or "the speaker", or credit the show.
 {style}
 {extra}Return ONLY this JSON object: {{"title": {{"text": "...", "cites": []}}, "caption": {{"text": "...", "cites": []}},
 "comment": {{"text": "...", "cites": []}}, "closing": {{"text": "...", "cites": []}} or null}}"""
@@ -753,6 +757,8 @@ def inventory(pk, m, fid, dup, rt_ok, style, cx, a_off, a_two, exc, truth, pre, 
                                     bool((src_rec.get("layout") or {}).get("replayed", False)),
                                     measured=(src_rec.get("layout") or {}).get("measured") is True,
                                     why=src_rec.get("why"), evidence=src_rec.get("evidence"), layout=src_rec.get("layout"),
+                                    format=str((src_rec.get("layout") or {}).get("layout") or "").upper() or None,  # 21:10
+                                    #   Nov 14: WHICH of CONVERSATION / FIRST_HAND passed, on the pin's sealed row
                                     rule="ruling 92 amended (09:03 Nov 14): the layout decides (conversation or "
                                          "first-hand); the captions are evidence, refusing alone only with zero "
                                          "speaker changes in the 10 minutes around the clip")

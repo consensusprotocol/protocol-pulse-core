@@ -45,6 +45,9 @@ ATTRIB_VERBS = SPEECH_S                                        # (kept for calle
 PRONOUN_SUBJECTS = ("he", "she", "they", "his guest", "her guest", "their guest", "the guest", "the host",
                     "this guest", "this host", "the speaker", "this speaker", "the analyst", "this analyst",
                     "the author", "experts", "analysts", "critics", "many", "some", "others", "people", "everyone")
+ROLE_RE = re.compile(r"\b((?:co-?)?hosts?|guests?|analysts?|experts?|economists?|strategists?|interviewers?|"
+                     r"presenters?|anchors?|panelists?|commentators?)\b", re.I)   # orchestrator 21:10 Nov 14: a role
+#   ("a guest", "the host", "an analyst") is a claim under L-v; a line may give one only when a cited clip's words do
 VO_SELF = ("i", "we")                                          # PBX MAX itself: its claims are the verdict's to judge
 RELATION = re.compile(
     r"\b(agree[sd]?|agreeing|disagree[sd]?|disagreeing|respond(s|ed|ing)? to|repl(y|ies|ied|ying) to|"
@@ -477,6 +480,12 @@ def check_deterministic(segments, lines, manifest=None, current_levels=None):
         if (fact_numbers(without_manifest_date(text, manifest), meta_nums) or names or quotes or atts or times) \
                 and not cited:                                       # the 10:48 ruling (3): the show date needs none
             V("NEEDS_SOURCE", "a line with a number, name, quote, attribution or time word cites no segment")
+        roles = sorted({canon.canon_tokens(w)[-1] for w in ROLE_RE.findall(text) if canon.canon_tokens(w)})  # 21:10
+        if roles:                                    # Nov 14 (Blockware's caption: "a guest"); the role noun's canonical
+            shows = {t for n in meta for t in canon.canon_tokens(n)}       # token (L-k), as the cited clip says it; a
+            bad = [w for w in roles if w not in set(pool) and w not in shows]   # show or channel NAMED with it is no
+            if bad:                                                        # claim (audit 2131 C1, glm)
+                V("ROLE", f"gives someone a role the cited clips' own words do not state (law L-v): {bad}")
         pools = []                                                   # per attribution: the governing segments
         for subj0, form, _ in atts:
             subj = _clean_subject(subj0)

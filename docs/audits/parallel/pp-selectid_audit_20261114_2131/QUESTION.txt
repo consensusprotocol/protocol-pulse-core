@@ -1,0 +1,57 @@
+pp-selectid: THE ORCHESTRATOR'S THREE FIXES OF 21:10 ET Nov 14, plus the sealed "formats" and the re-seal directive.
+
+THE ORCHESTRATOR (21:10): "1. THE VISUAL CHECK MISSED BURNED-IN CAPTIONS ... sample at least one frame a second across
+the span, and ask explicitly for burned-in captions / subtitles. RULING 93 AMENDED: source-burned captions that the 9:16
+crop cuts mid-word make the clip 16:9-ONLY (sealed as formats: ['16x9'], the integrator renders and delivers that format
+alone) unless a crop exists that shows them whole; they do not make the clip ineligible. 2. THE CAPTION SAYS 'a guest'
+... A caption may not assign a role the evidence does not show: 'a guest', 'the host', 'an analyst' are claims under
+L-v. Fix the writer's instructions and add it to the fidelity gate's checks. 3. ... record on the pin WHICH of
+CONVERSATION / FIRST_HAND passed."
+THE INTEGRATOR (21:2x and 21:31):
+- Its render cannot yet pass a 16:9-only pin, so none is sealed until its format-aware release lands.
+- Its crop slides only while the speaker's face stays inside.
+- The spelling: moments_package["formats"] = ["16x9"], inside the seal; absent means both.
+
+ROOT CAUSE of the miss: the sheet's 8 frames DID show Blockware's captions. Visual-2's question told the model, twice,
+to leave out "subtitles of the spoken words", so it reported none.
+
+THE CHANGE:
+- pipeline/visual_pin.py, VERSION "visual-3":
+  - frames: TILES 40, EVERY_S 1.0, 6 columns of 320 px, so no gap exceeds a second (times() also keeps the last
+    frame within a second);
+  - question 4 asks for the source's own burned CAPTIONS (kind "caption", with "at" frame times), with the face-safe
+    crop rule;
+  - burned_block: a caption never makes a clip ineligible;
+  - formats(): ["16x9"] when a caption is "cut";
+  - layout_block: holds a 16:9-only clip while RENDER_16X9_ONLY is False, and holds a record of another VERSION;
+  - flags: "burned_caption"; sealed() carries "formats".
+- pipeline/spotlight.py:
+  - clean_visual ignores "burned_caption" flags;
+  - the spotlight_source gate row carries "format": "CONVERSATION" | "FIRST_HAND" (sealed in the gates);
+  - WRITE_SPOT's RULES gain the role rule.
+- pipeline/package.py: WRITE_LY's RULES gain the role rule.
+- pipeline/vo_fidelity.py: check_deterministic gains rule "ROLE". A line naming a role (guest, host, co-host,
+  analyst, expert, economist, strategist, interviewer, presenter, anchor, panelist, commentator) fails unless a CITED
+  clip's own words state that role.
+- pipeline/package_pin.py:
+  - formats_of(segments) (the intersection);
+  - seal(..., formats=None) puts it in the body only when present;
+  - pin_seal passes it;
+  - to_pin seals moments_package["formats"].
+- pipeline/tail_variant.py + tests/package/proof_ledger.py: a directive {"parent", "reseal": true,
+  "alternative_to", "by", "why"} marks the SAME moment (no variant) as re-sealed in the place of its own earlier
+  story. spotlight.day_taken then lets it take that story's place for the day, and only that one. A row with both
+  "ends" and "reseal", or a reseal that is not exactly true, is dropped.
+- Tests: test_visual_pin, test_spotlight, test_role_claims (new), test_formats (new), test_ruling_104, test_medley
+  (fixture version).
+
+UNCHANGED GUARDS: spotlight.day_taken excludes only the named story's own record. Every other record of the
+channel's day still takes the place. The visual cache key includes VERSION and the sheet's parameters, so visual-2
+verdicts are never reused. check_pin_only (the integrator's) recomputes through pin_seal.
+
+PLEASE CHECK:
+(1) Can a 16:9-only clip be sealed while RENDER_16X9_ONLY is False?
+(2) Can the ROLE rule pass a role no cited clip states, or refuse a sentence with no role word?
+(3) Does "formats" change any existing pin's recompute?
+(4) Can a reseal directive create a second spotlight for a channel's day?
+(5) Do the tests pin each piece? The mutation results are in the consensus file.

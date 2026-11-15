@@ -943,6 +943,9 @@ RULES (a line that breaks one is rejected):
 - No price level; no advice to buy, sell or use leverage; no quotes except a clip's exact words; no "destroys",
   "slams", "exposes", "admits", "confirms", "caught".
 - A line that names a show, a person or Bitcoin's price cites the clips it comes from.
+- Never give anyone a ROLE the clips' own words do not state: no "guest", "host", "co-host", "analyst", "expert",
+  "economist", "strategist", "interviewer", "presenter", "anchor", "panelist" or "commentator". A role is a claim
+  (law L-v): say "he", "she" or "the speaker", or credit the show.
 {style}
 {extra}Return ONLY this JSON object: {{"takeaway": {{"text": "...", "cites": []}}, "bridge": {bridge_shape},
 "title": {{"text": "...", "cites": []}}, "caption": {{"text": "...", "cites": []}}}}"""

@@ -125,6 +125,14 @@ def for_pool(moments, sources, ctx, results_dir, ceil_s, directives=None):
                 notes[mid] = "the directive: no variant, the parent is one sentence (no earlier boundary)"
             continue                                     # one sentence: no earlier boundary
         wanted = []
+        if (directives or {}).get(mid, {}).get("reseal") is True:   # RULING 93 AMENDED + 106 (21:31 Nov 14): the SAME
+            d = directives[mid]                                    # moment sealed again (16:9-only) in the place of
+            out.append(dict(m, derived_from={"ruling": "93 amended", "reseal_of": d["alternative_to"],   # its own
+                                             "alternative_to": d["alternative_to"], "directive": d.get("by"),  # earlier
+                                             "why": d.get("why") or ""}))     # story, never a second spotlight: a
+            replaced.add(mid)                            # marked COPY in its place, the caller's record untouched
+            notes[mid] = f"the directive: re-sealed in the place of {d['alternative_to']}"   # (audit 2131 C1, grok)
+            continue
         if mid in (directives or {}):                    # the orchestrator's directive: this variant, in its place
             try:
                 src = CI.source_for(m, sources)

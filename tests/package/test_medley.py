@@ -33,6 +33,7 @@ from test_eligibility import NOW, REG, source  # noqa: E402
 from test_gates import Canned  # noqa: E402
 from test_moments import pm  # noqa: E402
 import house_style as HS  # noqa: E402
+import visual_pin as VP  # noqa: E402
 
 W = lambda n: " ".join(["word"] * n)
 
@@ -648,7 +649,7 @@ class Rig:
     def visual(self, router, m, work_dir, cache, seed=7, log=print):
         """visual_pin.visual_for as the build calls it: a measured clean record unless self.visuals says otherwise."""
         self.visual_calls.append(m["moment_id"])
-        base = {"version": "visual-2", "measured": True, "flags": [],
+        base = {"version": VP.VERSION, "measured": True, "flags": [],
                 "third_person": {"shown": False, "how": "none", "words_negative": False, "name_on_screen": None,
                                  "finding": "no third person"},
                 "on_screen_text": [], "lower_third": {"name": None, "text": None}, "burned_in": [],   # ruling 93
