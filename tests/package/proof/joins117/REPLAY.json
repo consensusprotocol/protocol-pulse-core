@@ -1,0 +1,420 @@
+{
+ "ruling": "117 (4)",
+ "at": "2026-11-15T21:48:09+00:00",
+ "builds": {
+  "8": {
+   "dir": "ledger_20261115_171913",
+   "cleared": 12,
+   "angles": [
+    {
+     "angle": 1,
+     "hook": "cca27461284b4e2b6569",
+     "writer": [
+      "cca27461284b4e2b6569",
+      "7c2cfccdf5fcf1673b93",
+      "1130ca09a24441488c24",
+      "9a3597d470232a515e09",
+      "e5adf2eca5e7977bb945"
+     ],
+     "moments": [
+      "cca27461284b4e2b6569",
+      "7c2cfccdf5fcf1673b93",
+      "1130ca09a24441488c24",
+      "9a3597d470232a515e09",
+      "e5adf2eca5e7977bb945",
+      "3233deb3f11f3e39d30e",
+      "9cc94b736f4ce0d70b91",
+      "7ef148a1181168cf14a5"
+     ],
+     "table_pairs": 49,
+     "table_flagged": 21,
+     "error": null,
+     "hook_passes_today": false,
+     "candidates": 0,
+     "best": null,
+     "best_flagged": null,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    },
+    {
+     "angle": 2,
+     "hook": "7ef148a1181168cf14a5",
+     "writer": [
+      "7ef148a1181168cf14a5",
+      "682b6c2606dd13b33a98",
+      "9a3597d470232a515e09",
+      "3233deb3f11f3e39d30e",
+      "1130ca09a24441488c24"
+     ],
+     "moments": [
+      "7ef148a1181168cf14a5",
+      "682b6c2606dd13b33a98",
+      "9a3597d470232a515e09",
+      "3233deb3f11f3e39d30e",
+      "1130ca09a24441488c24",
+      "9cc94b736f4ce0d70b91",
+      "cca27461284b4e2b6569",
+      "b6be0c4132fcb2dd8766"
+     ],
+     "table_pairs": 49,
+     "table_flagged": 18,
+     "error": null,
+     "hook_passes_today": true,
+     "candidates": 0,
+     "best": null,
+     "best_flagged": null,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    }
+   ]
+  },
+  "9": {
+   "dir": "ledger_20261115_173403",
+   "cleared": 12,
+   "angles": [
+    {
+     "angle": 1,
+     "hook": "cca27461284b4e2b6569",
+     "writer": [
+      "cca27461284b4e2b6569",
+      "7c2cfccdf5fcf1673b93",
+      "3233deb3f11f3e39d30e",
+      "9a3597d470232a515e09",
+      "932ec723eebc680f7b39"
+     ],
+     "moments": [
+      "cca27461284b4e2b6569",
+      "7c2cfccdf5fcf1673b93",
+      "3233deb3f11f3e39d30e",
+      "9a3597d470232a515e09",
+      "932ec723eebc680f7b39",
+      "9cc94b736f4ce0d70b91",
+      "7ef148a1181168cf14a5",
+      "682b6c2606dd13b33a98"
+     ],
+     "table_pairs": 49,
+     "table_flagged": 31,
+     "error": null,
+     "hook_passes_today": false,
+     "candidates": 0,
+     "best": null,
+     "best_flagged": null,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    },
+    {
+     "angle": 2,
+     "hook": "7ef148a1181168cf14a5",
+     "writer": [
+      "7ef148a1181168cf14a5",
+      "682b6c2606dd13b33a98",
+      "9a3597d470232a515e09",
+      "e5adf2eca5e7977bb945"
+     ],
+     "moments": [
+      "7ef148a1181168cf14a5",
+      "682b6c2606dd13b33a98",
+      "9a3597d470232a515e09",
+      "e5adf2eca5e7977bb945",
+      "932ec723eebc680f7b39",
+      "3233deb3f11f3e39d30e",
+      "9cc94b736f4ce0d70b91",
+      "cca27461284b4e2b6569"
+     ],
+     "table_pairs": 49,
+     "table_flagged": 19,
+     "error": null,
+     "hook_passes_today": true,
+     "candidates": 0,
+     "best": null,
+     "best_flagged": null,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    }
+   ]
+  },
+  "10": {
+   "dir": "ledger_20261115_174656",
+   "cleared": 12,
+   "angles": [
+    {
+     "angle": 1,
+     "hook": "cca27461284b4e2b6569",
+     "writer": [
+      "cca27461284b4e2b6569",
+      "7c2cfccdf5fcf1673b93",
+      "3233deb3f11f3e39d30e",
+      "9a3597d470232a515e09",
+      "932ec723eebc680f7b39"
+     ],
+     "moments": [
+      "cca27461284b4e2b6569",
+      "7c2cfccdf5fcf1673b93",
+      "3233deb3f11f3e39d30e",
+      "9a3597d470232a515e09",
+      "932ec723eebc680f7b39",
+      "9cc94b736f4ce0d70b91",
+      "7ef148a1181168cf14a5",
+      "682b6c2606dd13b33a98"
+     ],
+     "table_pairs": 49,
+     "table_flagged": 31,
+     "error": null,
+     "hook_passes_today": false,
+     "candidates": 0,
+     "best": null,
+     "best_flagged": null,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    },
+    {
+     "angle": 2,
+     "hook": "7ef148a1181168cf14a5",
+     "writer": [
+      "7ef148a1181168cf14a5",
+      "682b6c2606dd13b33a98",
+      "9a3597d470232a515e09",
+      "e5adf2eca5e7977bb945"
+     ],
+     "moments": [
+      "7ef148a1181168cf14a5",
+      "682b6c2606dd13b33a98",
+      "9a3597d470232a515e09",
+      "e5adf2eca5e7977bb945",
+      "932ec723eebc680f7b39",
+      "3233deb3f11f3e39d30e",
+      "9cc94b736f4ce0d70b91",
+      "cca27461284b4e2b6569"
+     ],
+     "table_pairs": 49,
+     "table_flagged": 19,
+     "error": null,
+     "hook_passes_today": true,
+     "candidates": 0,
+     "best": null,
+     "best_flagged": null,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    }
+   ]
+  },
+  "11": {
+   "dir": "ledger_20261115_195152",
+   "cleared": 14,
+   "angles": [
+    {
+     "angle": 1,
+     "hook": "9cc94b736f4ce0d70b91",
+     "writer": [
+      "9cc94b736f4ce0d70b91",
+      "9a3597d470232a515e09",
+      "2bca1130b3eceac83ff8",
+      "6df120f5a0b0f17da0db"
+     ],
+     "moments": [
+      "9cc94b736f4ce0d70b91",
+      "9a3597d470232a515e09",
+      "2bca1130b3eceac83ff8",
+      "6df120f5a0b0f17da0db",
+      "94a613f35c4ed30c9980",
+      "932ec723eebc680f7b39",
+      "3233deb3f11f3e39d30e",
+      "7ef148a1181168cf14a5"
+     ],
+     "table_pairs": 49,
+     "table_flagged": 35,
+     "error": null,
+     "hook_passes_today": true,
+     "candidates": 0,
+     "best": null,
+     "best_flagged": null,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    },
+    {
+     "angle": 2,
+     "hook": "7ef148a1181168cf14a5",
+     "writer": [
+      "7ef148a1181168cf14a5",
+      "3233deb3f11f3e39d30e",
+      "9a3597d470232a515e09",
+      "94a613f35c4ed30c9980"
+     ],
+     "moments": [
+      "7ef148a1181168cf14a5",
+      "3233deb3f11f3e39d30e",
+      "9a3597d470232a515e09",
+      "94a613f35c4ed30c9980",
+      "932ec723eebc680f7b39",
+      "6df120f5a0b0f17da0db",
+      "9cc94b736f4ce0d70b91",
+      "cca27461284b4e2b6569"
+     ],
+     "table_pairs": 49,
+     "table_flagged": 27,
+     "error": null,
+     "hook_passes_today": true,
+     "candidates": 0,
+     "best": null,
+     "best_flagged": null,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    }
+   ]
+  },
+  "12": {
+   "dir": "ledger_20261115_210714",
+   "cleared": 14,
+   "angles": [
+    {
+     "angle": 1,
+     "hook": "9cc94b736f4ce0d70b91",
+     "writer": [
+      "9cc94b736f4ce0d70b91",
+      "9a3597d470232a515e09",
+      "2bca1130b3eceac83ff8",
+      "6df120f5a0b0f17da0db"
+     ],
+     "moments": [
+      "9cc94b736f4ce0d70b91",
+      "9a3597d470232a515e09",
+      "2bca1130b3eceac83ff8",
+      "6df120f5a0b0f17da0db",
+      "94a613f35c4ed30c9980",
+      "932ec723eebc680f7b39",
+      "3233deb3f11f3e39d30e",
+      "7ef148a1181168cf14a5"
+     ],
+     "table_pairs": 49,
+     "table_flagged": 35,
+     "error": null,
+     "hook_passes_today": true,
+     "candidates": 0,
+     "best": null,
+     "best_flagged": null,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    },
+    {
+     "angle": 2,
+     "hook": "7ef148a1181168cf14a5",
+     "writer": [
+      "7ef148a1181168cf14a5",
+      "3233deb3f11f3e39d30e",
+      "9a3597d470232a515e09",
+      "94a613f35c4ed30c9980"
+     ],
+     "moments": [
+      "7ef148a1181168cf14a5",
+      "3233deb3f11f3e39d30e",
+      "9a3597d470232a515e09",
+      "94a613f35c4ed30c9980",
+      "932ec723eebc680f7b39",
+      "6df120f5a0b0f17da0db",
+      "9cc94b736f4ce0d70b91",
+      "cca27461284b4e2b6569"
+     ],
+     "table_pairs": 49,
+     "table_flagged": 27,
+     "error": null,
+     "hook_passes_today": true,
+     "candidates": 0,
+     "best": null,
+     "best_flagged": null,
+     "best_judged_by_the_build": null,
+     "candidates_clear_of_that_builds_verdicts": 0,
+     "first_such": null
+    }
+   ]
+  }
+ },
+ "agreement": {
+  "pairs": 32,
+  "agree": 22,
+  "table_unanswered": 0,
+  "verdict_mixed": 0,
+  "disagree": [
+   {
+    "build": "11",
+    "pair": "9cc94b736f4ce0d70b91 -> 9a3597d470232a515e09",
+    "table": true,
+    "verdict": false,
+    "table_why": "continuous Bitcoin discussion"
+   },
+   {
+    "build": "11",
+    "pair": "3233deb3f11f3e39d30e -> 9a3597d470232a515e09",
+    "table": true,
+    "verdict": false,
+    "table_why": "continuous Bitcoin discussion"
+   },
+   {
+    "build": "11",
+    "pair": "9cc94b736f4ce0d70b91 -> 9a3597d470232a515e09",
+    "table": true,
+    "verdict": false,
+    "table_why": "continuous Bitcoin discussion"
+   },
+   {
+    "build": "11",
+    "pair": "3233deb3f11f3e39d30e -> 9a3597d470232a515e09",
+    "table": true,
+    "verdict": false,
+    "table_why": "continuous Bitcoin discussion"
+   },
+   {
+    "build": "12",
+    "pair": "9cc94b736f4ce0d70b91 -> 9a3597d470232a515e09",
+    "table": true,
+    "verdict": false,
+    "table_why": "continuous Bitcoin discussion"
+   },
+   {
+    "build": "12",
+    "pair": "3233deb3f11f3e39d30e -> 9a3597d470232a515e09",
+    "table": true,
+    "verdict": false,
+    "table_why": "continuous Bitcoin discussion"
+   },
+   {
+    "build": "12",
+    "pair": "3233deb3f11f3e39d30e -> 94a613f35c4ed30c9980",
+    "table": false,
+    "verdict": true,
+    "table_why": "no connection"
+   },
+   {
+    "build": "12",
+    "pair": "9cc94b736f4ce0d70b91 -> 9a3597d470232a515e09",
+    "table": true,
+    "verdict": false,
+    "table_why": "continuous Bitcoin discussion"
+   },
+   {
+    "build": "12",
+    "pair": "3233deb3f11f3e39d30e -> 9a3597d470232a515e09",
+    "table": true,
+    "verdict": false,
+    "table_why": "continuous Bitcoin discussion"
+   },
+   {
+    "build": "12",
+    "pair": "3233deb3f11f3e39d30e -> 94a613f35c4ed30c9980",
+    "table": false,
+    "verdict": true,
+    "table_why": "no connection"
+   }
+  ]
+ },
+ "ruling_113_6_inside_12h": 0,
+ "spent_usd_reported": 0.128479
+}

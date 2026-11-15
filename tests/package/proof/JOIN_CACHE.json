@@ -1,0 +1,975 @@
+{
+ "bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continues self-betterment theme",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:0760c168de28c39220886c3c75187411a36b2613b1ad88bfdba44a7ea8181191:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "both on Bitcoin positives",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "abrupt to ETF buyers",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin asset clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "shifts to generational perspective",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "links benefits to purpose",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "tone shift to bearish",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:0760c168de28c39220886c3c75187411a36b2613b1ad88bfdba44a7ea8181191:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin self improvement to transformative",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "self view to ETF",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "to unchanged Bitcoin properties",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "to kids Bitcoin view",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "acquire more to purchasing power",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "to price broken below 70k",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0760c168de28c39220886c3c75187411a36b2613b1ad88bfdba44a7ea8181191:0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "transformative to self betterment",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0760c168de28c39220886c3c75187411a36b2613b1ad88bfdba44a7ea8181191:eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "Bitcoin hype to ETF buyers",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0760c168de28c39220886c3c75187411a36b2613b1ad88bfdba44a7ea8181191:256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "to Bitcoin as asset",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0760c168de28c39220886c3c75187411a36b2613b1ad88bfdba44a7ea8181191:887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "humanity to always existed",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0760c168de28c39220886c3c75187411a36b2613b1ad88bfdba44a7ea8181191:064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "to expand purchasing power",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0760c168de28c39220886c3c75187411a36b2613b1ad88bfdba44a7ea8181191:11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "to Bitcoin is broken",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "ETF to methodical Bitcoin",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:0760c168de28c39220886c3c75187411a36b2613b1ad88bfdba44a7ea8181191:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "exposure to transformative tech",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "new buyers but asset unchanged",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "ETF to high school kids",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "to purchasing power expansion",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "to fear and bear market",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continuous Bitcoin discussion",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:0760c168de28c39220886c3c75187411a36b2613b1ad88bfdba44a7ea8181191:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continuous Bitcoin discussion",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continuous Bitcoin discussion",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continuous Bitcoin discussion",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continuous Bitcoin discussion",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "abrupt market condition shift",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continuous Bitcoin discussion",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:0760c168de28c39220886c3c75187411a36b2613b1ad88bfdba44a7ea8181191:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continuous Bitcoin discussion",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continuous Bitcoin discussion",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continuous Bitcoin discussion",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continuous Bitcoin discussion",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "abrupt market condition shift",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continuous Bitcoin discussion",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:0760c168de28c39220886c3c75187411a36b2613b1ad88bfdba44a7ea8181191:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continuous Bitcoin discussion",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continuous Bitcoin discussion",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continuous Bitcoin discussion",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continuous Bitcoin discussion",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "abrupt market condition shift",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "abrupt market condition shift",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:0760c168de28c39220886c3c75187411a36b2613b1ad88bfdba44a7ea8181191:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "abrupt market condition shift",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "abrupt market condition shift",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "abrupt market condition shift",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "abrupt market condition shift",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "abrupt market condition shift",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no context for 'One'",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no setup for 'the thing'",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:0760c168de28c39220886c3c75187411a36b2613b1ad88bfdba44a7ea8181191:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no context for 'One'",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no context for 'One'",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0760c168de28c39220886c3c75187411a36b2613b1ad88bfdba44a7ea8181191:289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no context for 'One'",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0760c168de28c39220886c3c75187411a36b2613b1ad88bfdba44a7ea8181191:bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0760c168de28c39220886c3c75187411a36b2613b1ad88bfdba44a7ea8181191:804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no context for 'One'",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no context for 'One'",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no context for 'One'",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no setup for 'the thing'",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "same speaker on Bitcoin",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:0760c168de28c39220886c3c75187411a36b2613b1ad88bfdba44a7ea8181191:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin topic consistent",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin referent clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "subject remains Bitcoin",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "both praise Bitcoin effects",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "self growth to transformative",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "self vs institutions jump",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin significance link",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "ETF specific to general",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "transformative to self improvement",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "transformative to generational",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "hype to ETF buyers",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "transformative to purpose",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "praise to bearish price",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "praise to pushback",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "purchasing power to transformative",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "bearish to praise",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "institutions to self growth",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "pushback to AI contrast",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "pushback to price broken",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "it refers to Bitcoin",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:256b8e046c9b3e5b979cde4dd3c76ec08bdbe36d626ca4d694aad2e67e42f336:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "it refers to Bitcoin",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin subject clear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "purchasing power to culture",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "purchasing power to fundamentals",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "purchasing power to no change",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "ETFs to conferences",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "ETFs to fundamentals",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "ETFs to no change",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "culture to ETFs",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "culture to fundamentals",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "culture to no change",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "culture to AI vs Bitcoin",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "both on Bitcoin adoption",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "culture to price action",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "fundamentals to ETFs",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "fundamentals to culture",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "similar no change statements",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "fundamentals to transformative",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "fundamentals to generational",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "fundamentals to bear market",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no change to ETFs",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no change to culture",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "similar no change statements",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no change to transformative",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no change to generational",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "no change to price drop",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "transformative to culture",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "unclear what 'I don't care' refers to",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "4bd01e890026d645ddb52318c7cd179d307fe611774eaf7b09e63ba3b04d2964:d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no logical connection",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "same speaker on BTC culture",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no connection, unclear referent",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "887e45fff68425d4c8b23b670ee3d81acaf56edad728164d14e95740ce6d1ad8:d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no connection",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "bearish to unrelated culture",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "don't care fits after price/fear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "nothing changed fits after drop",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "links no change to Bitcoin purpose",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no link to self improvement",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "fundamentals tie to core point",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "unrelated personal transformation",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "how it works relates to no change",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "unclear referent after how it works",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ }
+}
