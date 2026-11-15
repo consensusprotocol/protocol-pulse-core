@@ -552,8 +552,9 @@ class Rig:
                  spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None,
                  trim_fail=(), hooks=None, hook_err=None, verdicts=None, follow_up=None, fids=None, lines=None,
                  cached=False, candidate=None, visuals=None, registered=None, lock_check=None, values=None,
-                 real_value=False, caption=None):
+                 real_value=False, caption=None, coherences=None):
         import providers as P
+        self.coherences = list(coherences or [])         # RULING 116: (ok, every clip's rating, the VO point) in order
         self.values, self.value_calls = list(values or []), []   # ruling 91: the value verdicts' answers, in order
         self.real_value = real_value                       # ruling 91: package.takeaway_value itself, on the router
         self.caption = caption or "nobody bends these rules"   # 07:30 (C): a caption that fails its own gates
@@ -630,14 +631,33 @@ class Rig:
                                    "why": f"why {m['moment_id']}", "backend": "xai:grok", "cached": False}
         return out, None
 
+    def coherence(self, router, pk, *a, **k):
+        """As the real coherence() answers: the clips after the hook and the VO point (self.coherences, default all 5
+        and a pass), the hook's slot its own rating, and the line-up bar it was judged on (ruling 116)."""
+        own = PK.hook_own(k.get("hook"))
+        ok, clip, vo = self.coherences.pop(0) if self.coherences else (True, 5, 5)
+        fl, which, csha = PK.lineup_floors("coherence", "xai:grok")
+        segs = pk["segments"]
+        return ok, {"through_line": "Nobody gets to bend the rules.",
+                    "clips": dict({segs[0]["label"]: (own or {}).get("rating")}, **{sg["label"]: clip for sg in segs[1:]}),
+                    "vo_point": vo, "backend": "xai:grok", "measured": True, "replayed": False,
+                    "hook_own": own or {"rating": None}, "floors": fl, "bar": which, "calibration_sha256": csha}
+
     def medley(self, router, segs, ctx_, wv, seed=7, writer_family=None):
+        """As the real medley() answers: the verdict, its flagged joins, the hook's own-job record (ruling 115) and
+        the line-up bar it was judged on (ruling 116: the rigs' rater, so the calibrated floors)."""
         self.medley_calls.append([m["moment_id"] for m in segs])
         self.seeds.append(("medley", seed))
         ok, flagged, ratings, line = self.medleys.pop(0)
         labs = PK.labels(len(segs))
         v = verdict(labs, flagged, ratings, line)
+        own = PK.hook_own(segs[0])
+        if "hook" not in (ratings or {}):                  # the hook's slot holds its own rating, as medley() writes it
+            v["clips"]["hook"] = (own or {}).get("rating")
+        fl, which, csha = PK.lineup_floors("clips_alone", "xai:grok")
         return ok, dict(v, flagged=list(flagged), backend="xai:grok", measured=True, replayed=False,
-                        cached=self.cached)
+                        cached=self.cached, hook_own=own or {"rating": None},
+                        bar=which, floors=fl, calibration_sha256=csha)
 
     def write(self, router, angle_, segs, ctx_, a_by, join=None, extra="", seed=7, avoid_vendor=None, other=()):
         if join is not None and not other and PK.bridge_budget(sum(m["duration_s"] for m in segs)) is None:
@@ -709,10 +729,7 @@ class Rig:
             "hook_onset_for": self.onset,
             "hook_ratings": self.rate_hooks,
             "takeaway_value": self.value,                  # ruling 91 (medley half)
-            "coherence": lambda router, pk, *a, **k: (True, {"through_line": "Nobody gets to bend the rules.",
-                                                             "clips": {sg["label"]: 5 for sg in pk["segments"]},
-                                                             "vo_point": 5, "backend": "xai:grok", "measured": True,
-                                                             "replayed": False}),
+            "coherence": self.coherence,
         }
         if self.real_value:                                # ruling 91: the real verdict, on the fake router
             del stubs["takeaway_value"]
@@ -1581,6 +1598,115 @@ class TestRuling59HookFirst(unittest.TestCase):
         self.assertIn("is not one of THE HOOKS", out["why_none"])           # the first reply, rejected
         self.assertEqual((len(rig.router.rejected), sum(r == "angle_write" for r, _ in rig.prompts)), (1, 2))
         self.assertEqual(rig.medley_calls, [])
+
+
+class TestRuling116LineupBar(unittest.TestCase):
+    """RULING 116 (Q3, ruling 106's default APPLY): the clips-alone and coherence verdicts judged on the calibrated
+    line-up bar (the rigs': every clip after the hook >= 3, the VO point >= 3) when the calibrated rater gave them, on
+    the standard bar (>= 4) otherwise; the hook's slot is its own bar everywhere (ruling 115)."""
+    LABS = ["hook", "clip_01", "clip_02"]
+    SEGS = [dict(pm("h", "A", 12.0), hook_rating={"scroll": 3, "alone": 4, "setup": 3, "backend": "xai:grok"}),
+            pm("x", "B", 14.0), pm("y", "C", 13.0)]
+
+    @staticmethod
+    def router(reply, backend):
+        import providers as P
+        r = Canned(coherence_verdict=[reply])
+        call = r.call
+
+        def as_backend(role, *a, **k):
+            x = call(role, *a, **k)
+            return P.Reply(x.text, backend, backend.split(":")[0])
+        r.call = as_backend
+        return r
+
+    def test_clips_alone_a_clip_at_3_passes_only_on_the_calibrated_raters_verdict(self):
+        rep = reply(self.LABS, ratings={"clip_02": 3})
+        ok, v = PK.medley(self.router(rep, "xai:grok"), self.SEGS, E.Context(NOW, REG), set())
+        self.assertEqual((ok, v["bar"], v["floors"], v["clips"]["hook"]), (True, "calibrated", {"clip": 3}, 3))
+        ok, v = PK.medley(self.router(rep, "google:gemini-2.5-pro"), self.SEGS, E.Context(NOW, REG), set())
+        self.assertEqual((ok, v["bar"], v["floors"]), (False, "standard", {"clip": 4}))     # Plan B: the standard bar
+        ok, v = PK.medley(self.router(reply(self.LABS, ratings={"clip_02": 2}), "xai:grok"), self.SEGS,
+                          E.Context(NOW, REG), set())
+        self.assertFalse(ok)                                                             # under the floor
+        ok, v = PK.medley(self.router(reply(self.LABS, flagged=["hook -> clip_01", "clip_01 -> clip_02"]),
+                                      "xai:grok"), self.SEGS, E.Context(NOW, REG), set())
+        self.assertFalse(ok)                                                             # joins: the law's one
+        ok, v = PK.medley(self.router(reply(self.LABS, line="none"), "xai:grok"), self.SEGS, E.Context(NOW, REG), set())
+        self.assertFalse(ok)                                                             # a through-line, always
+
+    def test_coherence_a_clip_or_vo_point_at_3_passes_only_on_the_calibrated_raters_verdict(self):
+        pk = {"title": "t", "caption": "c", "vo": {"intro": None, "bridges": ["No ruler, just rules."],
+                                                  "bridges_after_clip": [2], "signoff": "S"},
+              "segments": [{"label": lb, "channel": ch, "text": f"Bitcoin {lb}."}
+                           for lb, ch in zip(self.LABS, "ABC")]}
+        rep = {"through_line": "Nobody can change the rules of Bitcoin.", "clips": {"clip_01": 3, "clip_02": 4},
+               "vo_point": 3}
+        ok, v = PK.coherence(self.router(rep, "xai:grok"), pk, set(), hook=self.SEGS[0])
+        self.assertEqual((ok, v["bar"], v["floors"]), (True, "calibrated", {"clip": 3, "vo_point": 3}))
+        ok, v = PK.coherence(self.router(rep, "heimdall:deepseek/deepseek-v4.1-flash"), pk, set(), hook=self.SEGS[0])
+        self.assertEqual((ok, v["bar"]), (False, "standard"))
+        ok, v = PK.coherence(self.router(dict(rep, vo_point=2), "xai:grok"), pk, set(), hook=self.SEGS[0])
+        self.assertFalse(ok)
+
+    def test_ruling_62_reads_the_verdicts_own_floor(self):
+        segs = self.SEGS + [pm("z", "D", 9.0)]
+        med = dict(verdict(PK.labels(4), ratings={"hook": 3, "clip_01": 3, "clip_02": 3, "clip_03": 2}),
+                   measured=True, flagged=[], floors={"clip": 3})
+        self.assertTrue(PK.last_clip_only(segs, med))                                   # only the last under 3
+        self.assertFalse(PK.last_clip_only(segs, dict(med, floors={"clip": 4})))        # the standard bar: all fail
+        self.assertFalse(PK.last_clip_only(segs, {k: x for k, x in med.items() if k != "floors"}))   # no floors: 4
+
+    def test_ruling_63_reorders_a_line_up_whose_hook_sits_at_its_floors(self):
+        """The hook's own rating (3, at its floors) never blocks ruling 63: the clips after it pass and two joins
+        are flagged, so the same clips are reordered (before ruling 115 / 116 the hook's 3 sat in the min)."""
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        from unittest import mock
+        for bar in ("calibrated", "standard"):            # the standard bar's floor 4 is where the hook's 3 blocked
+            with mock.patch.object(PK, "_live_lineup_bar", lambda: (None, "none")) if bar == "standard" else \
+                    mock.patch.object(PK, "COHERENCE_MIN", PK.COHERENCE_MIN):
+                rig = Rig(ms, ["h", "x", "y"], [(False, ["hook -> clip_01", "clip_01 -> clip_02"], None, Rig.LINE),
+                                                (True, [], None, Rig.LINE)], [None], hooks={"h": (3, 4, 3)})
+                out = rig.run()
+            self.assertEqual(rig.medley_calls, [["h", "x", "y"], ["h", "y", "x"]], bar)
+            self.assertIn("ruling 63", out["tried"][0]["why"], bar)
+            self.assertIsNotNone(out["package"], bar)
+
+    def test_the_takeaway_alone_is_rewritten_when_only_its_point_is_weak_with_a_hook_at_its_floors(self):
+        """Coherence fails on the VO point alone (2), the clips pass the calibrated floor and the hook sits at its
+        floors (rating 3): the takeaway is written again (it was the next angle while the hook's 3 sat in the min)."""
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        from unittest import mock
+        for bar, clip in (("calibrated", 3), ("standard", 4)):   # the standard bar's 4: the hook's 3 blocked it
+            with mock.patch.object(PK, "_live_lineup_bar", lambda: (None, "none")) if bar == "standard" else \
+                    mock.patch.object(PK, "COHERENCE_MIN", PK.COHERENCE_MIN):
+                rig = Rig(ms, ["h", "x", "y"], [(True, [], None, Rig.LINE)], [None, None], hooks={"h": (3, 4, 3)},
+                          coherences=[(False, clip, 2), (True, 4, 4)])
+                out = rig.run()
+            self.assertEqual(len(rig.write_calls), 2, bar)                               # the takeaway again
+            self.assertIsNotNone(out["package"], bar)
+
+    def test_after_a_failed_verdict_only_the_clips_under_its_own_floor_are_swapped(self):
+        """A clip at 3 passes the calibrated floor: when the line-up fails on another clip (2), only that one is
+        dropped and swapped, never the clip at 3."""
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        rig = Rig(ms, ["h", "x", "y"], [(False, [], {"clip_01": 3, "clip_02": 2}, Rig.LINE)], [None])
+        out = rig.run()
+        self.assertIn("dropped ['y']", out["tried"][0]["why"])
+
+    def test_the_mark_on_a_package_whose_two_verdicts_passed_on_the_calibrated_bar(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        rig = Rig(ms, ["h", "x", "y"], [(True, [], None, Rig.LINE)], [None])
+        out = rig.run()
+        self.assertEqual((out["package"]["lineup_bar"]["note"], out["package"]["lineup_bar"]["floors"]),
+                         ("line-up passed on the calibrated bar", {"clips_alone": {"clip": 3},
+                                                                   "coherence": {"clip": 3, "vo_point": 3}}))
+        from unittest import mock
+        with mock.patch.object(PK, "_live_lineup_bar", lambda: (None, "no valid line-up calibration")):
+            rig = Rig(ms, ["h", "x", "y"], [(True, [], None, Rig.LINE)], [None])
+            out = rig.run()
+        self.assertIsNotNone(out["package"])
+        self.assertNotIn("lineup_bar", out["package"])                                  # the standard bar: no mark
 
 
 class TestRuling56Scorer(unittest.TestCase):

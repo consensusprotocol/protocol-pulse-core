@@ -452,6 +452,9 @@ def main(argv=None):
     live, live_why = PK.hook_live_bar()          # RULING 115: the bar in every build line, its floors and its sha
     say(f"  RULING 115: {HB.text(live)}; the hook list {router.chain('coherence_verdict', 'hook')}"
         + (f" [{live_why}]" if live_why else ""))
+    import lineup_bar as LNB                     # RULING 116: the line-up bar, named in every build line too
+    lbar, lbar_why = PK._live_lineup_bar()
+    say(f"  RULING 116: {LNB.text(lbar)}" + (f" [{lbar_why}]" if lbar_why else ""))
     say(f"  RULING 100 (deadlines follow the model, table of {(router.deadlines or {}).get('computed_at')}): "
         f"{DT.text(router.deadlines, applies=applied(router)) or 'no row applies: each gateway keeps its number'}")
     spent0 = router.spent()                      # ruling 48: the running total, vendor-reported (+ estimates where none)

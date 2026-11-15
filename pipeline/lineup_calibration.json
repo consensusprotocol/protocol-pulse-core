@@ -1,0 +1,314 @@
+{
+ "approved": {
+  "0c68b589": {
+   "clips_alone": [
+    {
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 4
+     },
+     "flagged": [],
+     "passed_today": true,
+     "seed": 7,
+     "through_line": "Bitcoin provides financial freedom and security as a decentralized alternative to banks and governments that can mismanage or seize funds."
+    },
+    {
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 4
+     },
+     "flagged": [],
+     "passed_today": true,
+     "seed": 8,
+     "through_line": "Bitcoin provides financial freedom and security by removing centralized control from governments, banks, and executives."
+    },
+    {
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 4
+     },
+     "flagged": [],
+     "passed_today": true,
+     "seed": 9,
+     "through_line": "Bitcoin provides financial freedom and security by removing centralized control and risks from banks, governments, and single points of failure."
+    }
+   ],
+   "coherence": [
+    {
+     "clips": {
+      "clip_01": 5,
+      "clip_02": 3
+     },
+     "passed_today": false,
+     "seed": 7,
+     "through_line": "Bitcoin is not a partisan issue because no single owner or CEO controls its rules which are instead enforced by thousands of independent computers, providing financial freedom and liberty.",
+     "vo_point": 3
+    },
+    {
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 3
+     },
+     "passed_today": false,
+     "seed": 8,
+     "through_line": "Bitcoin provides financial freedom and liberty because no single owner controls the network, with rules enforced by thousands of independent computers instead of a CEO, committee, or government.",
+     "vo_point": 3
+    },
+    {
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 3
+     },
+     "passed_today": false,
+     "seed": 9,
+     "through_line": "No single owner controls the bitcoin network, making it a non-partisan provider of financial freedom and liberty unlike centralized banks.",
+     "vo_point": 4
+    }
+   ],
+   "label": "the published medley",
+   "pin": "ledger_20261113_183302/MOMENTS_PIN_ATTESTED.json",
+   "story_id": "moments-ledger_20261113_183302-0c68b589"
+  },
+  "13949b7c": {
+   "clips_alone": [
+    {
+     "clips": {
+      "clip_01": 3,
+      "clip_02": 4
+     },
+     "flagged": [
+      "hook -> clip_01"
+     ],
+     "passed_today": false,
+     "seed": 7,
+     "through_line": "Bitcoin shows economic resilience compared to traditional assets and attracts flowing capital."
+    },
+    {
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 3
+     },
+     "flagged": [
+      "hook -> clip_01"
+     ],
+     "passed_today": false,
+     "seed": 8,
+     "through_line": "Bitcoin shows economic resilience versus traditional assets by holding value better and attracting capital flows."
+    },
+    {
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 4
+     },
+     "flagged": [],
+     "passed_today": true,
+     "seed": 9,
+     "through_line": "Bitcoin demonstrates economic resilience by outperforming traditional assets and attracting capital flows from stocks, treasuries, and industry."
+    }
+   ],
+   "coherence": [
+    {
+     "clips": {
+      "clip_01": 5,
+      "clip_02": 4
+     },
+     "passed_today": true,
+     "seed": 7,
+     "through_line": "Bitcoin is a maturing asset whose durability and resilience in surviving market cycles better than tech stocks earns trust and draws capital flows.",
+     "vo_point": 4
+    },
+    {
+     "clips": {
+      "clip_01": 5,
+      "clip_02": 4
+     },
+     "passed_today": true,
+     "seed": 8,
+     "through_line": "Bitcoin demonstrates maturation as a durable asset by showing greater resilience than tech stocks in market drops while attracting capital flows from treasuries and the industry.",
+     "vo_point": 4
+    },
+    {
+     "clips": {
+      "clip_01": 5,
+      "clip_02": 4
+     },
+     "passed_today": true,
+     "seed": 9,
+     "through_line": "Bitcoin demonstrates maturation as a resilient asset by outlasting tech stock volatility and attracting capital flows from treasuries and industry.",
+     "vo_point": 4
+    }
+   ],
+   "label": "the sealed medley (approved 17:14 ET Nov 13)",
+   "pin": "ledger_20261113_215708/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_215708-13949b7c"
+  },
+  "37c5b5f5": {
+   "clips_alone": [
+    {
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 5
+     },
+     "flagged": [],
+     "passed_today": true,
+     "seed": 7,
+     "through_line": "Bitcoin operates independently of government authorities, enabling a true global free market."
+    },
+    {
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 5
+     },
+     "flagged": [],
+     "passed_today": true,
+     "seed": 8,
+     "through_line": "Bitcoin operates independently of government authority and politics, enabling a true global free market."
+    },
+    {
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 5
+     },
+     "flagged": [],
+     "passed_today": true,
+     "seed": 9,
+     "through_line": "Bitcoin operates independently of government and political authority, enabling a voluntary global free market."
+    }
+   ],
+   "coherence": [
+    {
+     "clips": {
+      "clip_01": 5,
+      "clip_02": 4
+     },
+     "passed_today": true,
+     "seed": 7,
+     "through_line": "Bitcoin has no authority by design rather than flaw, enabling a rulerless global free market with fixed rules that cannot be bent.",
+     "vo_point": 4
+    },
+    {
+     "clips": {
+      "clip_01": 5,
+      "clip_02": 4
+     },
+     "passed_today": true,
+     "seed": 8,
+     "through_line": "Bitcoin has no authority by design rather than as a flaw, enabling a rulerless system with unbending rules and a global free market.",
+     "vo_point": 4
+    },
+    {
+     "clips": {
+      "clip_01": 5,
+      "clip_02": 4
+     },
+     "passed_today": true,
+     "seed": 9,
+     "through_line": "Bitcoin is designed without any central authority or ruler, which is a feature not a flaw as it enables unbending rules and a global free market independent of politicians.",
+     "vo_point": 4
+    }
+   ],
+   "label": "the moments reference",
+   "pin": "fresh_20261112_050611/MOMENTS_PIN.json",
+   "story_id": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  "41f29b1f": {
+   "clips_alone": [
+    {
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 3
+     },
+     "flagged": [],
+     "passed_today": false,
+     "seed": 7,
+     "through_line": "Bitcoin enables a global free market independent of politics and is highly undervalued."
+    },
+    {
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 4
+     },
+     "flagged": [],
+     "passed_today": true,
+     "seed": 8,
+     "through_line": "Bitcoin enables a global free market by operating independently of political control and is significantly undervalued."
+    },
+    {
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 3
+     },
+     "flagged": [],
+     "passed_today": false,
+     "seed": 9,
+     "through_line": "Bitcoin enables a global free market by operating independently of governments and is highly undervalued."
+    }
+   ],
+   "coherence": [
+    {
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 3
+     },
+     "passed_today": false,
+     "seed": 7,
+     "through_line": "Bitcoin's overlooked value comes from creating a free global market that no government owns or can control, making political factors irrelevant and the asset undervalued.",
+     "vo_point": 4
+    },
+    {
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 4
+     },
+     "passed_today": true,
+     "seed": 8,
+     "through_line": "Bitcoin's overlooked value stems from it being a free global market priced by everyone but controlled by no government, making political drama irrelevant and the asset highly undervalued.",
+     "vo_point": 4
+    },
+    {
+     "clips": {
+      "clip_01": 5,
+      "clip_02": 4
+     },
+     "passed_today": true,
+     "seed": 9,
+     "through_line": "Bitcoin's overlooked value comes from creating a free global market that no government owns or can control, making it independent of political drama and significantly undervalued.",
+     "vo_point": 4
+    }
+   ],
+   "label": "the protected medley",
+   "pin": "fresh_20261112_050611/MOMENTS_PIN_LY.json",
+   "story_id": "moments-fresh_20261112_050611-41f29b1f"
+  }
+ },
+ "floors": {
+  "clips_alone": {
+   "clip": 3
+  },
+  "coherence": {
+   "clip": 3,
+   "vo_point": 3
+  }
+ },
+ "floors_below_3": [],
+ "how": "package.medley / package.coherence as production asks them, on the four approved line-ups as sealed in their pins, the hook on its calibrated bar (ruling 115), seeds 7, 8, 9",
+ "joins_note": "at most one flagged join stays (L-y 2: one bridge); no approved line-up had more",
+ "measured_at": "2026-11-15T20:31:20+00:00",
+ "question_versions": {
+  "clips_alone": "0d410578ad75",
+  "coherence": "39e821a734ec"
+ },
+ "rater": "xai:grok-4.20-0309-reasoning",
+ "seeds": [
+  7,
+  8,
+  9
+ ],
+ "sha256": "02440fd4e0c570fdd539938e141ec1cb0ef6549c9d37efbb8cb673387123fa11",
+ "source": [
+  "tests/package/proof/clips116/CALIBRATION.json",
+  "tests/package/proof/clips116/COHERENCE.json"
+ ],
+ "valid_h": null,
+ "valid_h_note": "ruling 116 (Q3, applied the hook's way, ruling 115): the floors come from ONE fixed source, tests/package/proof/clips116/ (CALIBRATION.json, COHERENCE.json), so they do not expire"
+}

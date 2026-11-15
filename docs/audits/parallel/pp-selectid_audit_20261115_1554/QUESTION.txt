@@ -1,0 +1,61 @@
+pp-selectid: RULING 116 (orchestrator 15:30 ET Nov 15) (4), STATE Q3 (15:34 ET; ruling 106's default APPLY at 15:54):
+THE LINE-UP VERDICTS ON A CALIBRATED BAR. New: pipeline/lineup_bar.py, pipeline/lineup_calibration.json,
+tests/package/test_lineup_bar.py. Changed: pipeline/package.py, pipeline/package_pin.py, tests/package/proof_ledger.py,
+tests/package/conftest.py, tests/package/test_medley.py.
+
+THE ORDER (ruling 116 (4)), verbatim: "IF (1) shows approved line-ups failing: propose the calibrated floors the same
+way as ruling 115 (each part at least the lowest value across PBX's approved line-ups under the same asking), and put
+the question to me with DEFAULT IN 20 MIN: APPLY the calibrated floors, audit-first, marked in the pin and in the
+Telegram note in one plain line like the hook's, then rebuild."
+(1) showed it (tests/package/proof/clips116/REPORT.md, committed 7a5c0362): today's clips-alone verdict fails the
+protected 41f29b1f at seeds 7 and 9 and the sealed 13949b7c at 7 and 8; today's coherence verdict fails the PUBLISHED
+0c68b589 at all three seeds and 41f29b1f at 7; every failure is one rating of 3; no approved line-up had more than one
+flagged join; every asking stated a through-line.
+
+THE CHANGE:
+- lineup_bar.floors_from: each verdict's parts (clips-alone: the lowest clip after the hook; coherence: the lowest clip
+  after the hook and the VO point) at their lowest across the approved runs, never under 3 (ruling 115's rule). The
+  flagged-join allowance is NOT calibrated: it stays the law's one bridge (L-y 2; LY_MAX_BRIDGES), and no approved
+  line-up needed more. The through-line stays required.
+- lineup_calibration.json: rater Grok; the two prompts' versions (package.MEDLEY_VERSION / COHERENCE_VERSION: sha256
+  of MEDLEY_PROMPT / COHERENCE_PROMPT); the approved runs as measured (pins, seeds, ratings, flagged joins,
+  through-lines); floors clips-alone clip 3, coherence clip 3 and VO point 3; valid_h null (one fixed source, like
+  the hook's); sealed with hook_bar's seal (hook_bar.write / load).
+- lineup_bar.bar(versions): valid only sealed, naming a rater, for exactly these two versions, measured_at with a
+  timezone and not in the future, its own valid_h, no floor under 3; else (None, why).
+- lineup_bar.floors_for(verdict, backend, live, standard): the calibrated floors ONLY for a verdict the calibrated
+  rater gave; every other back-end (Plan B's Gemini for clips-alone, deepseek / glm for coherence) and every verdict
+  while the file is invalid gets the STANDARD bar (package.STANDARD_LINEUP: COHERENCE_MIN 4), which is stricter.
+- package.medley / coherence: ok uses that verdict's floors (the clips after the hook; the VO point); the hook's slot is
+  its own bar (ruling 115), unchanged; each verdict records "bar", "floors" and "calibration_sha256".
+- Every place that judges those ratings reads the VERDICT'S OWN floors and leaves the hook's slot to its bar:
+  last_clip_only (ruling 62); build()'s ruling-63 reorder (it read min(cl.values()) with the hook's own rating inside:
+  a hook at its floors, rating 3, blocked a reorder: the ruling-115 site I missed); the weak clips swapped after a
+  failed verdict; the takeaway-only rewrite after a failed coherence verdict (it read min(coh["clips"].values()) with
+  the hook's 3 inside: the second missed site) and the weak clips there.
+- The mark: lineup_bar_mark(med, coh) -> {"note": "line-up passed on the calibrated bar", "floors",
+  "calibration_sha256", "ruling": "116"} ONLY when both verdicts of the package were judged on the calibrated bar (from
+  what each verdict recorded when it was judged), set on the built package; package_pin.to_pin carries it OUTSIDE the
+  seal, like hook_bar.
+- proof_ledger names the line-up bar in every build line.
+
+UNCHANGED GUARDS: hook_bar.load / write (the seal, pipeline/hook_bar.py:51-58, 120-129); hook_own (the hook's own
+bar, pipeline/package.py); providers.Router.chain (the clips-alone list heimdall_first is Grok -> Gemini; coherence's
+Grok -> deepseek -> glm: model_providers.json routing.heimdall_first, unchanged); package_pin.seal's arguments
+(package_pin.py:200: the mark is not among them).
+
+TESTS: test_lineup_bar (7): floors (lowest, stopped at 3, a run without ratings refused); the file (sealed, versions,
+rater, valid_h, future, a hand edit); floors_for (the rater's verdict only); the mark (both verdicts, or none) and the
+pin (outside the seal); the LIVE file's floors derived from proof/clips116 and live for production's versions, its
+rater the first of both verdicts' production lists. test_medley TestRuling116LineupBar (7): clips-alone and coherence
+on the calibrated rater's verdict vs another back-end's; ruling 62 on the verdict's own floor; ruling 63 reorders a
+line-up whose hook sits at its floors (on BOTH bars: the standard bar's 4 is where the hook's 3 used to block); the
+takeaway-only rewrite with such a hook (both bars); after a failed verdict only the clips under its floor are
+swapped; the mark on a calibrated package and none on a standard one. The rig now answers as production does (the
+hook's slot its own rating; the bar and floors in each verdict; coherence results configurable). All 40 suite files
+pass (796 tests before the last test, 797 with it). Mutations after a control run: 13 of 13 killed.
+
+PLEASE CHECK: (1) that the floors apply only to the calibrated rater's own verdicts and that everything else stays on
+the stricter standard bar; (2) that no site still judges a line-up on COHERENCE_MIN with the hook's own rating inside;
+(3) that the floors in the file are the source's minimums and the joins allowance the law's; (4) the mark: both
+verdicts calibrated, outside the seal; (5) the tests.

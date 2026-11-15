@@ -1011,6 +1011,11 @@ rated here, its own job was judged on its own).
 3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;
    1 = no point, or a point the clips do not support).
 Return ONLY this JSON object: {{"through_line": "...", "clips": {{{clip_keys}}}, "vo_point": 1}}"""
+MEDLEY_VERSION = hashlib.sha256(MEDLEY_PROMPT.encode()).hexdigest()[:12]         # RULING 116: the line-up bar is
+COHERENCE_VERSION = hashlib.sha256(COHERENCE_PROMPT.encode()).hexdigest()[:12]   # valid for exactly these questions
+STANDARD_LINEUP = {"clips_alone": {"clip": COHERENCE_MIN}, "coherence": {"clip": COHERENCE_MIN,
+                                                                         "vo_point": COHERENCE_MIN}}
+#   the standard bar: every verdict not given by the calibrated rater, and every verdict while the file is invalid
 
 
 def current_levels(sources, ctx, hours=24.0):
@@ -1439,6 +1444,43 @@ def _live_bar():
     return _LIVE[k]
 
 
+_LIVE_LINEUP = {}
+
+
+def _live_lineup_bar():
+    """RULING 116: the calibrated line-up bar (lineup_bar.bar for this build's two prompt versions), read once per state
+    of its file and per minute, like the hook's."""
+    import lineup_bar as LB
+    try:
+        k = (os.stat(LB.PATH).st_mtime_ns, int(time.time() // 60))
+    except OSError:
+        k = (None, int(time.time() // 60))
+    if k not in _LIVE_LINEUP:
+        _LIVE_LINEUP.clear()
+        _LIVE_LINEUP[k] = LB.bar({"clips_alone": MEDLEY_VERSION, "coherence": COHERENCE_VERSION})
+    return _LIVE_LINEUP[k]
+
+
+def lineup_floors(verdict, backend):
+    """RULING 116: (floors, which bar, the calibration's sha or None) for one line-up verdict given by `backend`: the
+    calibrated floors only when the calibrated rater gave it; else the standard bar (STANDARD_LINEUP)."""
+    import lineup_bar as LB
+    live, _ = _live_lineup_bar()
+    fl, which = LB.floors_for(verdict, backend, live, STANDARD_LINEUP)
+    return fl, which, (live or {}).get("sha256") if which == "calibrated" else None
+
+
+def lineup_bar_mark(med, coh):
+    """RULING 116 (Q3): what a package whose clips-alone AND coherence verdicts both passed on the calibrated bar carries
+    in its record and pin (outside the seal): the plain line, each verdict's floors and the calibration's sha, as they
+    were when it was judged. None when either verdict was judged on the standard bar."""
+    import lineup_bar as LB
+    if (med or {}).get("bar") != "calibrated" or (coh or {}).get("bar") != "calibrated":
+        return None
+    return {"note": LB.NOTE, "floors": {"clips_alone": med.get("floors"), "coherence": coh.get("floors")},
+            "calibration_sha256": med.get("calibration_sha256"), "ruling": "116"}
+
+
 def hook_bar_mark(live=None):
     """RULING 115 (2): what a package sealed on the calibrated bar carries in its record (and its pin, outside the seal):
     the plain line for the Telegram note, the floors and the calibration's sha. `live`: the bar the build judged its
@@ -1764,10 +1806,12 @@ def coherence(router, pk, writer_vendor, seed=7, writer_family=None, hook=None):
     v = dict(v, clips={**({labs[0]: own["rating"]} if own else {}), **v["clips"]},
              hook_own=own or {"rating": None, "why": "the hook carries no cached own-job rating (ruling 61): "
                                                      "fail closed"})
+    fl, which, csha = lineup_floors("coherence", r.backend)    # RULING 116: the calibrated rater's floors, or standard
     ok = own is not None and own["passes"] and _line_ok(v["through_line"]) and \
-        min([x for lb, x in v["clips"].items() if lb != labs[0]] + [v["vo_point"]]) >= COHERENCE_MIN   # ruling 115:
-    #   the hook's slot is its calibrated bar, every clip after it and the VO point COHERENCE_MIN, as before
-    return ok, dict(v, backend=r.backend, measured=True, replayed=bool(getattr(r, "replayed", False)))
+        min(x for lb, x in v["clips"].items() if lb != labs[0]) >= fl["clip"] and v["vo_point"] >= fl["vo_point"]
+    #   ruling 115: the hook's slot is its calibrated bar; the clips after it and the VO point the line-up bar's
+    return ok, dict(v, backend=r.backend, measured=True, bar=which, floors=fl, calibration_sha256=csha,
+                    replayed=bool(getattr(r, "replayed", False)))
 
 
 def _lineup_block(segs, ctx, a_by):
@@ -1826,11 +1870,13 @@ def medley(router, segs, ctx, writer_vendor, seed=7, writer_family=None):
              hook_own=own or {"rating": None, "why": "the hook carries no cached own-job rating (ruling 61): "
                                                      "fail closed"})
     flagged = [j for j in js if v["joins"][j]["followable"] is False]
+    fl, which, csha = lineup_floors("clips_alone", r.backend)   # RULING 116: the calibrated rater's floors, or standard
     ok = own is not None and own["passes"] and _line_ok(v["through_line"]) and \
-        min(x for lb, x in v["clips"].items() if lb != labs[0]) >= COHERENCE_MIN and len(flagged) <= LY_MAX_BRIDGES
-    #   ruling 115: the hook's slot is its calibrated bar; every clip after it COHERENCE_MIN, as before
-    return ok, dict(v, flagged=flagged, backend=r.backend, measured=True,
-                    replayed=bool(getattr(r, "replayed", False)), cached=bool(getattr(r, "cached", False)))
+        min(x for lb, x in v["clips"].items() if lb != labs[0]) >= fl["clip"] and len(flagged) <= LY_MAX_BRIDGES
+    #   ruling 115: the hook's slot is its calibrated bar; every clip after it the line-up bar's floor (ruling 116)
+    return ok, dict(v, flagged=flagged, backend=r.backend, measured=True, bar=which, floors=fl,
+                    calibration_sha256=csha, replayed=bool(getattr(r, "replayed", False)),
+                    cached=bool(getattr(r, "cached", False)))
 
 
 def last_clip_only(segs, med):
@@ -1844,7 +1890,8 @@ def last_clip_only(segs, med):
         return False
     rest = [j for j in med.get("flagged") or [] if j != joins(labs)[-1]]
     own = hook_own(segs[0])                              # ruling 115: the hook passes by its calibrated bar
-    return own is not None and own["passes"] and [lb for lb, x in cl.items() if lb != labs[0] and x < COHERENCE_MIN] \
+    floor = (med.get("floors") or STANDARD_LINEUP["clips_alone"])["clip"]   # ruling 116: the verdict's own bar
+    return own is not None and own["passes"] and [lb for lb, x in cl.items() if lb != labs[0] and x < floor] \
         == [labs[-1]] and len(rest) <= LY_MAX_BRIDGES
 
 
@@ -3167,8 +3214,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                         rec["why"] = (f"ruling 62: only the last clip fails ({cl.get(labs[-1])}): retried without it, "
                                       f"the seconds floor still met, before any swap")
                         continue
+                    floor = (med.get("floors") or STANDARD_LINEUP["clips_alone"])["clip"]   # ruling 116
                     if med.get("measured") and _line_ok(med.get("through_line")) and labs[0] in cl and \
-                            min(cl.values()) >= COHERENCE_MIN and len(med.get("flagged") or []) > LY_MAX_BRIDGES:
+                            (med.get("hook_own") or {}).get("passes") is True and \
+                            min(x for lb, x in cl.items() if lb != labs[0]) >= floor and \
+                            len(med.get("flagged") or []) > LY_MAX_BRIDGES:   # ruling 115: the hook's slot is its bar
                         order = reorder(segs, bad_pairs, judged, repeat_ok=exception is not None)
                         if order is not None:                 # RULING 63: joins before swaps
                             swapped = order
@@ -3176,10 +3226,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                           f"flagged: the same clips reordered, before any swap")
                             continue
                     weak = {by_lab[lb]["moment_id"] for lb, x in cl.items()
-                            if lb in by_lab and x < COHERENCE_MIN}      # ruling 61: the hook's is its cached rating
+                            if lb in by_lab and x < floor}      # ruling 116: the verdict's own floor
                     if len(med.get("flagged") or []) > LY_MAX_BRIDGES:
                         weak |= {by_lab[j.split(" -> ")[1]]["moment_id"] for j in med["flagged"][1:]}
-                    hook_weak = segs[0]["moment_id"] in weak
+                    hook_weak = (med.get("hook_own") or {}).get("passes") is not True   # ruling 115: its own bar
                     weak.discard(segs[0]["moment_id"])    # ruling 59 (c): the line-up is built AROUND its hook
                     if not med.get("measured") or not weak:
                         rec["why"] = ("the hook carries no own-job rating at the bar (ruling 61); the angle is written "
@@ -3480,9 +3530,12 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                             last_resort=pin_last_resort(pk))      # RULING 102: on the pin
                     if not ok_c:
                         tl = coh.get("through_line") if isinstance(coh.get("through_line"), str) else ""
+                        cfl = coh.get("floors") or STANDARD_LINEUP["coherence"]   # ruling 116: its own bar
                         if coh.get("measured") and type(coh.get("vo_point")) is int and \
-                                coh["vo_point"] < COHERENCE_MIN and min(coh["clips"].values()) >= COHERENCE_MIN and \
-                                len(tl.split()) >= 4 and not NO_LINE.search(tl):
+                                coh["vo_point"] < cfl["vo_point"] and (coh.get("hook_own") or {}).get("passes") is True \
+                                and min(x for lb, x in coh["clips"].items() if lb != pk["segments"][0]["label"]) >= \
+                                cfl["clip"] and \
+                                len(tl.split()) >= 4 and not NO_LINE.search(tl):   # ruling 115: the hook's slot
                             take_failed += 1                  # the takeaway's point failed its coherence gate
                             extra = _redo([{"slot": "takeaway", "rule": "COHERENCE", "detail":
                                             f"a blind viewer rated the takeaway's point {coh['vo_point']} of 5 for "
@@ -3493,7 +3546,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                             t_alone, last_fid, last_rw65 = True, fid, bool(att.get("rewrite"))
                             continue                          # the clips hold; only the takeaway's point is weak
                         weak = {sg["moment_id"] for sg in pk["segments"][1:]
-                                if (coh.get("clips") or {}).get(sg["label"], COHERENCE_MIN) < COHERENCE_MIN}
+                                if (coh.get("clips") or {}).get(sg["label"], cfl["clip"]) < cfl["clip"]}
                         dropped |= weak
                         relined = bool(weak)
                         rec["why"] = ("coherence with the takeaway below 4 or no through-line: " +
@@ -3546,6 +3599,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     out["package"] = out["packages"][0] if out["packages"] else None
     if out["package"]:                                   # RULING 115 (2): a package sealed on the calibrated bar says so
         out["package"]["hook_bar"] = hook_bar_mark(live)   # the bar its hooks were judged on (the hook stage's)
+        lm = lineup_bar_mark(*(lambda c: (c.get("medley"), c.get("coherence")))(out["package"].get("checks") or {}))
+        if lm:                                           # RULING 116 (Q3): and its line-up, when both verdicts were
+            out["package"]["lineup_bar"] = lm            # judged on the calibrated line-up bar
     if candidate is not None:                             # RULING 66: what became of the candidate
         t_ = next((t for t in out["tried"] if t.get("candidate") is not None), {})
         out["candidate"]["result"] = t_.get("result") or t_.get("why") or out.get("why_none") or "not tried"
