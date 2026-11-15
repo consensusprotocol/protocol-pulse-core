@@ -1,0 +1,62 @@
+{
+ "at": "2026-11-15T15:16:09-0500",
+ "records": 30,
+ "calls": 60,
+ "usd_reported": 0.009383,
+ "with": {
+  "calls": 30,
+  "errors": 0,
+  "unclosed": 15,
+  "shapes": {
+   "closed JSON": 15,
+   "truncated": 15
+  },
+  "finish_reason_unclosed": {
+   "stop": 14,
+   "length": 1
+  },
+  "finish_reason_all": {
+   "stop": 29,
+   "length": 1
+  },
+  "response_models": {
+   "deepseek/deepseek-v4-flash-0731-abliterated": 30
+  },
+  "out_tokens_median": 251.5,
+  "out_tokens_median_unclosed": 291
+ },
+ "without": {
+  "calls": 30,
+  "errors": 0,
+  "unclosed": 17,
+  "shapes": {
+   "truncated": 17,
+   "closed JSON": 13
+  },
+  "finish_reason_unclosed": {
+   "stop": 17
+  },
+  "finish_reason_all": {
+   "stop": 30
+  },
+  "response_models": {
+   "deepseek/deepseek-v4-flash-0731-abliterated": 30
+  },
+  "out_tokens_median": 191.0,
+  "out_tokens_median_unclosed": 366
+ },
+ "headers_differing_within_a_pair": {
+  "x-request-id": 30,
+  "x-generation-id": 30,
+  "content-length": 30,
+  "date": 30,
+  "x-ratelimit-remaining": 27,
+  "x-ratelimit-reset": 24,
+  "vary": 5
+ },
+ "x_bf_response_headers": {
+  "with": {},
+  "without": {}
+ },
+ "retried_calls": 0
+}

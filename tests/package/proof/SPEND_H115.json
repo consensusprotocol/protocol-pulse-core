@@ -1,0 +1,40 @@
+{
+ "usd_estimate": 1.09636,
+ "calls": 40,
+ "by_backend": {
+  "xai:grok-4.20-0309-reasoning": {
+   "calls": 20,
+   "in": 21465,
+   "out": 29359,
+   "usd_estimate": 0.8413,
+   "price_usd_per_1m": [
+    5,
+    25
+   ],
+   "usd_reported": 0.09525595,
+   "reported_calls": 20,
+   "in_reported": 21465
+  },
+  "heimdall:qwen/qwen3.8-27b": {
+   "calls": 20,
+   "in": 18980,
+   "out": 13208,
+   "usd_estimate": 0.25506,
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "usd_reported": 0.01092576,
+   "reported_calls": 20,
+   "in_reported": 18980
+  }
+ },
+ "by_role": {
+  "coherence_verdict": {
+   "calls": 40,
+   "usd_estimate": 1.09636
+  }
+ },
+ "reserved": {},
+ "usd_reported": 0.10618171
+}
