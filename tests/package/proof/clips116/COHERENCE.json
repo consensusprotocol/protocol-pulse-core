@@ -1,0 +1,210 @@
+{
+ "ruling": "116 (1), the coherence verdict, report first",
+ "at": "2026-11-15T20:31:20+00:00",
+ "model": "xai:grok-4.20-0309-reasoning",
+ "seeds": [
+  7,
+  8,
+  9
+ ],
+ "rule": "the hook passes its bar; a through-line stated; every clip after the hook and the VO point >= 4",
+ "packages": {
+  "41f29b1f": {
+   "label": "the protected medley",
+   "pin": "fresh_20261112_050611/MOMENTS_PIN_LY.json",
+   "package_view_title": "Bitcoin's overlooked value comes from a market no government owns",
+   "sealed_gate": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "runs": [
+    {
+     "seed": 7,
+     "pass": false,
+     "through_line": "Bitcoin's overlooked value comes from creating a free global market that no government owns or can control, making political factors irrelevant and the asset undervalued.",
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 3
+     },
+     "vo_point": 4,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "error": null
+    },
+    {
+     "seed": 8,
+     "pass": true,
+     "through_line": "Bitcoin's overlooked value stems from it being a free global market priced by everyone but controlled by no government, making political drama irrelevant and the asset highly undervalued.",
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 4
+     },
+     "vo_point": 4,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "error": null
+    },
+    {
+     "seed": 9,
+     "pass": true,
+     "through_line": "Bitcoin's overlooked value comes from creating a free global market that no government owns or can control, making it independent of political drama and significantly undervalued.",
+     "clips": {
+      "clip_01": 5,
+      "clip_02": 4
+     },
+     "vo_point": 4,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "error": null
+    }
+   ]
+  },
+  "0c68b589": {
+   "label": "the published medley",
+   "pin": "ledger_20261113_183302/MOMENTS_PIN_ATTESTED.json",
+   "package_view_title": "No single owner controls the bitcoin network",
+   "sealed_gate": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "runs": [
+    {
+     "seed": 7,
+     "pass": false,
+     "through_line": "Bitcoin is not a partisan issue because no single owner or CEO controls its rules which are instead enforced by thousands of independent computers, providing financial freedom and liberty.",
+     "clips": {
+      "clip_01": 5,
+      "clip_02": 3
+     },
+     "vo_point": 3,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "error": null
+    },
+    {
+     "seed": 8,
+     "pass": false,
+     "through_line": "Bitcoin provides financial freedom and liberty because no single owner controls the network, with rules enforced by thousands of independent computers instead of a CEO, committee, or government.",
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 3
+     },
+     "vo_point": 3,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "error": null
+    },
+    {
+     "seed": 9,
+     "pass": false,
+     "through_line": "No single owner controls the bitcoin network, making it a non-partisan provider of financial freedom and liberty unlike centralized banks.",
+     "clips": {
+      "clip_01": 4,
+      "clip_02": 3
+     },
+     "vo_point": 4,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "error": null
+    }
+   ]
+  },
+  "13949b7c": {
+   "label": "the sealed medley (approved 17:14 ET Nov 13)",
+   "pin": "ledger_20261113_215708/MOMENTS_PIN_LEDGER.json",
+   "package_view_title": "A maturing asset outlasts the tech trade",
+   "sealed_gate": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "runs": [
+    {
+     "seed": 7,
+     "pass": true,
+     "through_line": "Bitcoin is a maturing asset whose durability and resilience in surviving market cycles better than tech stocks earns trust and draws capital flows.",
+     "clips": {
+      "clip_01": 5,
+      "clip_02": 4
+     },
+     "vo_point": 4,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "error": null
+    },
+    {
+     "seed": 8,
+     "pass": true,
+     "through_line": "Bitcoin demonstrates maturation as a durable asset by showing greater resilience than tech stocks in market drops while attracting capital flows from treasuries and the industry.",
+     "clips": {
+      "clip_01": 5,
+      "clip_02": 4
+     },
+     "vo_point": 4,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "error": null
+    },
+    {
+     "seed": 9,
+     "pass": true,
+     "through_line": "Bitcoin demonstrates maturation as a resilient asset by outlasting tech stock volatility and attracting capital flows from treasuries and industry.",
+     "clips": {
+      "clip_01": 5,
+      "clip_02": 4
+     },
+     "vo_point": 4,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "error": null
+    }
+   ]
+  },
+  "37c5b5f5": {
+   "label": "the moments reference",
+   "pin": "fresh_20261112_050611/MOMENTS_PIN.json",
+   "package_view_title": "No authority. That's the design.",
+   "sealed_gate": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "runs": [
+    {
+     "seed": 7,
+     "pass": true,
+     "through_line": "Bitcoin has no authority by design rather than flaw, enabling a rulerless global free market with fixed rules that cannot be bent.",
+     "clips": {
+      "clip_01": 5,
+      "clip_02": 4
+     },
+     "vo_point": 4,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "error": null
+    },
+    {
+     "seed": 8,
+     "pass": true,
+     "through_line": "Bitcoin has no authority by design rather than as a flaw, enabling a rulerless system with unbending rules and a global free market.",
+     "clips": {
+      "clip_01": 5,
+      "clip_02": 4
+     },
+     "vo_point": 4,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "error": null
+    },
+    {
+     "seed": 9,
+     "pass": true,
+     "through_line": "Bitcoin is designed without any central authority or ruler, which is a feature not a flaw as it enables unbending rules and a global free market independent of politicians.",
+     "clips": {
+      "clip_01": 5,
+      "clip_02": 4
+     },
+     "vo_point": 4,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "error": null
+    }
+   ]
+  }
+ },
+ "spent_usd_reported_ledger_total": 0.136562
+}
