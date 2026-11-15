@@ -22,7 +22,7 @@ line says PASS path (with the Telegram ids) or HOLD (stage, row, measured facts)
      scratchpad, putting the old file back, and running them.
   3. Run TWO audit cycles and implement the consensus (commands below). Record each cycle in
      `docs/audits/pulse-sentence-law/batchNN_<name>/cycle{1,2}/`: QUESTION.txt, STEP.diff, CONSENSUS.md, heimdall/.
-     The last batch is **89** (the pp-backtest merge, 2026-11-15; 88 the review texts name the spotlight kind; 85 the format-aware release, 86 the 16:9-only render, 87 the review drop's withhold / points; 81-83 the spotlight gate, alarm and readiness; 84 ruling 105).
+     The last batch is **90** (the word-pass worker survives a busy GPU1 lease, 2026-11-15; 89 the pp-backtest merge; 88 the review texts name the spotlight kind; 85 the format-aware release, 86 the 16:9-only render, 87 the review drop's withhold / points; 81-83 the spotlight gate, alarm and readiness; 84 ruling 105).
   4. On main, stage it: `git merge --no-commit --no-ff <branch>`.
   5. Run `bash regression_test.sh` (0 FAIL) and `bash pipeline/regression.sh` (exit 0: every protected reference
      reproduced) ON THE STAGED MERGE. Worktrees lack untracked assets, so run them on main.
@@ -211,6 +211,8 @@ No session waits on the orchestrator. Standing, for all three sessions:
   `cd /home/ultron/protocol_pulse && CUDA_VISIBLE_DEVICES=1 python3 pipeline/word_pass_worker.py 2>&1 | tee -a logs/word_pass_worker.log`
   - Tiers: the last 6 h, then 6-12 h.
   - YouTube pacing: a cycle that picks nothing sleeps 900 s. A refused download probes the control video wdk5JZ9hPzs; if YouTube refuses that too, the worker sleeps instead of burning the pool.
+  - A GPU1 lease another owner keeps past 1800 s ends the cycle "blocked" (holder named, no row, the moments picked again) and the worker sleeps (batch 90). Before that fix, gpu0.LeaseBusy killed it at 19:00:52 Nov 14 and it stayed down 14 h: after a restart, confirm a "cycle:" line in the log.
+  - If the tmux pane does not echo what you type, its terminal is in raw mode (`stty -a -F <pane tty>` shows -icanon -echo): the shell buffers the command and never runs it. Close that idle pane and start the worker in a new window (Nov 15 09:05).
 - **GPU leases** (`pipeline/gpu0.py`, law L-r):
   - Each GPU has an exclusive flock lease: `/tmp/pulse_gpu0.lease`, `/tmp/pulse_gpu1.lease`.
   - `swap_to()` proves free memory and waits out a foreign user (L-r 4, up to 600 s, then a Gpu0Stop). Nothing is ever killed.
@@ -281,6 +283,8 @@ No session waits on the orchestrator. Standing, for all three sessions:
 9. **Deferred proposals:**
    - the layout stage reusing prepare's classify plan (about 35 s per clip);
    - ruling 49 (b): telling the builder when the first trimmed clip is affirmed at validate.
+
+10. **The transcript-ingest cron's Whisper step** (`pipeline/transcript_ingest.py`, cron */30, unchanged since 2026-11-06) never takes the GPU0 lease, so every run that needs Whisper dies on `LeaseMissing` (since 11:30 Nov 12; 5 videos waiting on Nov 15). Captions still work. A fix must check the render yield flag before each video and take the lease with `wait_s=0` (`pulse_check_run.sh` exits 75 on a held lease), unload before leaving it, and never hold GPU0 against a render. Raised by the builder Nov 15 09:01; queued behind the pins.
 
 ## 7. KNOWN TRAPS (one line each)
 

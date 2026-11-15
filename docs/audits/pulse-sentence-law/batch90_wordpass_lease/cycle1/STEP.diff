@@ -1,0 +1,182 @@
+diff --git a/pipeline/test_word_pass_worker.py b/pipeline/test_word_pass_worker.py
+index 4fcad079..06509163 100644
+--- a/pipeline/test_word_pass_worker.py
++++ b/pipeline/test_word_pass_worker.py
+@@ -409,6 +409,98 @@ class TestPlatformBlock(unittest.TestCase):
+         self.assertEqual(sleeps, [7.0])
+ 
+ 
++HOLDER = """import fcntl, json, os, sys
++f = open(sys.argv[1], "a+")
++fcntl.flock(f, fcntl.LOCK_EX)
++f.seek(0); f.truncate(); json.dump({"pid": os.getpid(), "owner": "stage_broadcast_service", "since": 0}, f); f.flush()
++print("held", flush=True)
++sys.stdin.read()
++"""
++
++
++class TestLeaseBusy(unittest.TestCase):
++    """2026-11-14 19:00:52 ET: the 18:30 cycle waited LEASE_WAIT_S for the GPU1 lease (the watchdog's 18:00 run, then
++    the stage broadcast held it), gpu0.LeaseBusy left main() and the worker stayed down 14 h. Another owner's turn is
++    no failure: the cycle ends blocked, naming the holder, no row is written and the moments come back. The lease is
++    real (the test's private file) and held by ANOTHER process, as the broadcast holds it."""
++
++    def setUp(self):
++        TestCycle.setUp(self)
++        self.lease_wait = mock.patch.object(W, "LEASE_WAIT_S", 0.5)
++        self.lease_wait.start()
++        self.addCleanup(self.lease_wait.stop)
++
++    def hold(self):
++        p = subprocess.Popen([sys.executable, "-c", HOLDER, os.environ["PP_GPU1_LEASE"]],
++                             stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
++        self.addCleanup(p.wait, 10)
++        self.addCleanup(p.stdout.close)
++        self.addCleanup(p.stdin.close)                                     # EOF: the holder leaves
++        self.assertEqual(p.stdout.readline().strip(), "held")
++        return p
++
++    def rows_written(self):
++        return TestCycle.rows_written(self) if os.path.exists(W.ROWS_FILE) else []
++
++    def test_a_busy_lease_ends_the_cycle_blocked_naming_its_holder_and_writes_no_row(self):
++        self.hold()
++        made = []
++        real_mkdtemp = W.tempfile.mkdtemp
++        with mock.patch.object(W.tempfile, "mkdtemp", lambda *a, **k: made.append(real_mkdtemp(*a, **k)) or made[-1]):
++            rep = W.cycle()
++        self.assertEqual(self.rows_written(), [])                             # nothing burned: picked again
++        self.assertIn("held by stage_broadcast_service", rep["blocked"])
++        self.assertEqual((rep["picked"], rep["written"], rep["failed"], rep["blocked_rows"], rep["batches"]),
++                         (3, 0, 0, 3, 0))
++        self.assertGreaterEqual(rep["lease_wait_s"], 0.5)                     # the wait is reported, not lost
++        with open(W.CYCLES_FILE) as f:
++            self.assertEqual(json.loads(f.readlines()[-1])["blocked"], rep["blocked"])
++        self.assertTrue(made and not any(os.path.exists(d) for d in made))     # the cut windows are gone
++
++    def test_the_worker_lives_through_a_busy_lease(self):
++        self.hold()
++        self.assertEqual(W.main(["--once"]), 0)                               # before: gpu0.LeaseBusy left main()
++
++    def test_when_the_holder_leaves_the_next_cycle_works_the_same_moments(self):
++        p = self.hold()
++        W.cycle()
++        p.stdin.close()
++        p.wait(10)
++        rep = W.cycle()
++        self.assertEqual((rep["picked"], rep["written"], rep["failed"], rep["blocked"]), (3, 2, 1, None))
++        self.assertEqual({r["moment_id"] for r in self.rows_written()}, {"m001", "m002", "m003"})
++
++    def test_a_law_breach_inside_the_batch_still_stops_the_worker(self):
++        import gpu0                                                           # only a busy lease is waited out
++
++        def breach(wavs):
++            raise gpu0.LeaseMissing("a GPU1 load without the GPU1 lease")
++        with mock.patch.object(W, "decode_batch", breach):
++            with self.assertRaises(gpu0.LeaseMissing):
++                W.cycle()
++
++    def test_a_refusal_at_the_door_other_than_a_busy_lease_still_stops_the_worker(self):
++        import contextlib
++        import gpu0
++
++        @contextlib.contextmanager
++        def refused(owner, wait_s=0.0, poll_s=0.2):
++            raise gpu0.LeaseMissing("no GPU1 on this host")
++            yield
++        with mock.patch.object(gpu0, "lease", refused):
++            with self.assertRaises(gpu0.LeaseMissing):
++                W.cycle()
++
++    def test_a_busy_lease_raised_inside_a_held_batch_is_not_read_as_a_turn(self):
++        import gpu0
++
++        def inner(wavs):
++            raise gpu0.LeaseBusy("another call of this process has held GPU1 for longer than 0.5s")
++        with mock.patch.object(W, "decode_batch", inner):
++            with self.assertRaises(gpu0.LeaseBusy):
++                W.cycle()
++
++
+ class TestGpu1Only(unittest.TestCase):
+     def test_the_worker_refuses_any_gpu_but_gpu1(self):
+         for v in ("0", "", "0,1"):
+diff --git a/pipeline/word_pass_worker.py b/pipeline/word_pass_worker.py
+index fdb1f78c..788b9e21 100644
+--- a/pipeline/word_pass_worker.py
++++ b/pipeline/word_pass_worker.py
+@@ -16,6 +16,10 @@ One cycle:
+    store's own word pass: the verbatim decode (transcript_store.WHISPER_MODEL, word timestamps) and the punctuation
+    reference decode (punctuation.ensure with transcript_store.REFERENCE_MODEL, case=True). The models are unloaded
+    and the lease is left after every batch, so the watchdog, the stage broadcast and the site's fallback get turns.
++   A lease another owner keeps past LEASE_WAIT_S is that owner's lawful turn, not the moments' failure (2026-11-14
++   18:30-19:00 ET: the watchdog's 18:00 run, then the stage broadcast; gpu0.LeaseBusy killed the worker and nothing
++   restarted it for 14 h): the cycle ends "blocked", naming the holder, no row is written for a moment not decoded
++   (it is picked again), the fetches not yet started are cancelled and the worker sleeps.
+ 6. The record is written once, as STORE/transcripts/<vid>/windows/<w0>-<w1>.whisper_words_punct.json. Its words are on
+    the YouTube clock, with window = {start_s, end_s, clock: "youtube", offset_s}, and words_sha256 covers [word,
+    start, end]: the segments sha does not. A row goes to STORE/moments/word_pass.jsonl:
+@@ -357,22 +361,31 @@ def cycle(now=None, limit=PER_CYCLE):
+     tmp = tempfile.mkdtemp(prefix="word_pass_")
+ 
+     def gpu_batch(batch):
+-        tw = time.time()
+-        with gpu0.lease(OWNER, wait_s=LEASE_WAIT_S):
+-            tg, ev0 = time.time(), len(gpu0.events())
+-            report["lease_wait_s"] += tg - tw
+-            try:
+-                todo = [j for j in batch if not os.path.exists(record_path(j[0]["video_id"], j[3], j[4])[1])]
+-                res = dict(zip((j[0]["moment_id"] for j in todo), decode_batch([j[5] for j in todo])))
+-                for j in batch:
+-                    _one(*j, report, res.get(j[0]["moment_id"]))
+-                report["peak_gpu1_mib"] = max(report["peak_gpu1_mib"], gpu1_used() or 0)
+-            finally:
+-                ts.release_whisper()
+-                report["gpu_s"] += time.time() - tg
+-                report["foreign_wait_s"] += sum(e.get("waited_s", 0) for e in gpu0.events()[ev0:]
+-                                                if e.get("key") == "foreign_wait")
+-                report["batches"] += 1
++        """-> None when the batch was worked; else why the GPU1 lease was not had within LEASE_WAIT_S (another
++        owner's turn): nothing decoded, no row written."""
++        tw, tg = time.time(), None
++        try:
++            with gpu0.lease(OWNER, wait_s=LEASE_WAIT_S):
++                tg, ev0 = time.time(), len(gpu0.events())
++                report["lease_wait_s"] += tg - tw
++                try:
++                    todo = [j for j in batch if not os.path.exists(record_path(j[0]["video_id"], j[3], j[4])[1])]
++                    res = dict(zip((j[0]["moment_id"] for j in todo), decode_batch([j[5] for j in todo])))
++                    for j in batch:
++                        _one(*j, report, res.get(j[0]["moment_id"]))
++                    report["peak_gpu1_mib"] = max(report["peak_gpu1_mib"], gpu1_used() or 0)
++                finally:
++                    ts.release_whisper()
++                    report["gpu_s"] += time.time() - tg
++                    report["foreign_wait_s"] += sum(e.get("waited_s", 0) for e in gpu0.events()[ev0:]
++                                                    if e.get("key") == "foreign_wait")
++                    report["batches"] += 1
++        except gpu0.LeaseBusy as e:
++            if tg is not None:                    # raised inside a held batch: not a busy lease at the door
++                raise
++            report["lease_wait_s"] += time.time() - tw
++            return str(e)
++        return None
+     try:
+         with ThreadPoolExecutor(FETCH_WORKERS) as ex:                     # order '02:46': fetched ahead, in parallel
+             of, hold = {}, threading.Event()                              # future -> its video's rows
+@@ -412,7 +425,14 @@ def cycle(now=None, limit=PER_CYCLE):
+                         else:
+                             report["blocked_rows"] += 1                   # the platform's: no row, retried later
+                 if len(ready) >= BATCH or (ready and not pending):
+-                    gpu_batch(ready[:BATCH])                              # the lease per batch, left after it
++                    busy = gpu_batch(ready[:BATCH])                       # the lease per batch, left after it
++                    if busy:                                              # another owner's turn: no row, retried
++                        report["blocked"] = f"the GPU1 lease was not free within {LEASE_WAIT_S} s: {busy}"
++                        report["blocked_rows"] += len(ready) + sum(len(of[f]) for f in pending)
++                        log(f"  lease busy, the cycle stops: {report['blocked']}")
++                        for p in pending:
++                            p.cancel()                                    # only fetches not yet started stop
++                        break
+                     ready = ready[BATCH:]
+                 elif pending:
+                     wait(pending, timeout=5, return_when=FIRST_COMPLETED)

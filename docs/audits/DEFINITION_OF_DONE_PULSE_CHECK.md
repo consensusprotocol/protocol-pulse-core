@@ -6,6 +6,38 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 09:34 WORD-PASS WORKER: A BUSY GPU1 LEASE NO LONGER KILLS IT (Nov 15; the worker was down 14 h). A cycle that cannot get the GPU1 lease within LEASE_WAIT_S now ends "blocked", naming the holder. No row is written, so the moments are picked again, and the worker sleeps and retries. Audits batch 90, two cycles, no consensus finding. Both regressions green. BATCH 3 integrator spend: $0.0395.
+- **The incident:**
+  - 2026-11-14 18:30 ET: the cycle picked 20 moments and waited the full 1800 s for the GPU1 lease. local_watchdog's 18:00 run (every 6 h) still held it at 18:54, then stage_broadcast_service took it.
+  - gpu0.LeaseBusy is a BaseException (Gpu0Stop). It left gpu_batch, cycle() and main() (which catches only RuntimeError), and the worker died at 19:00:52. Nothing restarted it.
+  - The builder raised it at 09:01 ET: 14 Coin Bureau moments (Uns8CWWtxBI) were waiting and expire at 19:45 ET.
+- **Restored at 09:05:47 ET, before the fix:**
+  - The integrator restarted its own worker in tmux pipeline_pp_wordpass, window "wordpass", with the handoff's command.
+  - The old pane's terminal had been left in raw mode (-icanon -echo), so its shell buffered the command and never ran it. A later newline would have started a second worker, so that idle pane (ours) was closed first.
+  - First cycle 09:05:47-09:10:19: 56 picked from 2 channels, 56 written, 52 sentence-ready, 0 failed. All 14 builder moments have sentence-ready rows (09:07:44). The next cycle wrote 7 more (7 ready).
+  - The builder's batch 3 build 4 started at 09:12:07 on them.
+- **The fix (word_pass_worker.py, cycle and gpu_batch):**
+  - gpu_batch returns the LeaseBusy text when the lease was not had at the door; the wait still counts in lease_wait_s.
+  - A LeaseBusy raised inside a held batch is re-raised. Every other refusal (LeaseMissing, GpuOOM, a missing GPU) still stops the worker.
+  - On a busy lease the loop sets blocked (naming the holder) and counts blocked_rows (the unworked batch, the jobs behind it, every pending fetch's rows). It cancels the fetches not yet started and breaks.
+  - The executor waits for running fetches, the cut windows are deleted, and the cycle report is still written. main() sleeps because blocked is set (unchanged).
+- **Tests (pipeline/test_word_pass_worker.py, TestLeaseBusy, 6 new; the real lease on a private file, held by another process):**
+  - On the old code, three fail because LeaseBusy escapes cycle(): a busy lease ends the cycle blocked with no row; main(--once) lives; the next cycle works the same moments once the holder leaves.
+  - Guards: a LeaseMissing inside the batch, a LeaseMissing at the door and a LeaseBusy inside a held batch each still raise.
+  - Four mutations each fail a test: dropping the inner re-raise; dropping the blocked_rows count; writing failure rows for the unworked batch; widening the catch to every gpu0 refusal. The last one passed the first five tests, so the door-refusal test was added for it.
+- **Checks on the staged merge:**
+  - py_compile.
+  - regression_test.sh: 26 PASS / 0 FAIL / 4 WARN.
+  - pipeline/regression.sh: exit 0, PULSE PREVIEW and PULSE MEDLEY references REPRODUCED.
+  - test_word_pass_worker 33 and test_gpu0 45: 78 passed under the network guard.
+- **Audits (Heimdall-first, ruling 107 (2); Grok not asked: no reviewer reports a defect):**
+  - Cycle 1: qwen27b PASS 0.95, no findings. glm PASS 0.90, one low note, not agreed and not a defect: it read the busy batch as "just worked". A busy return means the lease was never had, and a worked batch is sliced off before the next pass. A comment now says so (27705f31).
+  - Cycle 2: qwen27b PASS 0.95, no findings. glm PASS 0.90, one low note (it took a record on disk for a row), agreed only by glm itself and disagreed by qwen27b. It is not a defect: passed_ids reads rows, so such a moment is retried and its record reused.
+  - Cost $0.000474 + $0.001716 = $0.002191.
+- **Not changed:** gpu0.py (the decoder sha a4c307f78c94 stands), the lease's wait (1800 s) and poll, main(), the platform-block path, cron.
+- **Still open, noted:** the transcript-ingest cron's Whisper step (pipeline/transcript_ingest.py, unchanged since 2026-11-06) never takes the GPU0 lease. It has failed on LeaseMissing since 11:30 Nov 12; 5 videos are waiting on Whisper now. A fix must check the render yield flag and take the lease with no wait, so a render is never refused (pulse_check_run exits 75 on a held lease). It is queued behind the builder's pin.
+- **BATCH 3 integrator spend $0.0395:** the earlier $0.0373 plus batch 90's $0.0022.
+
 ## 01:50 PP-BACKTEST MERGED (handoff item 5, Nov 15): the editorial supply backtest (pipeline/oracle, tests/oracle, tools/backtest_oracle.py, its report and records; additions only, 74 files) lands with the integrator's two merge fixes. Audits batch 89, two cycles: cycle 1 one consensus finding (low, fixed), cycle 2 none. Both regressions green. BATCH 3 integrator spend: $0.0373.
 - **Why it could not merge as it stood (both fixed in 50ee2f49):**
   - Keys: llm.env_key parsed a hard-coded key-file path, the house rule that held pp-tests in batch 78. Now every key is read by name through the main tree's relay.get_key, loaded by file path (sys.path untouched, no bytecode written).

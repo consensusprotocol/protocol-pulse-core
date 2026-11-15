@@ -16,6 +16,10 @@ One cycle:
    store's own word pass: the verbatim decode (transcript_store.WHISPER_MODEL, word timestamps) and the punctuation
    reference decode (punctuation.ensure with transcript_store.REFERENCE_MODEL, case=True). The models are unloaded
    and the lease is left after every batch, so the watchdog, the stage broadcast and the site's fallback get turns.
+   A lease another owner keeps past LEASE_WAIT_S is that owner's lawful turn, not the moments' failure (2026-11-14
+   18:30-19:00 ET: the watchdog's 18:00 run, then the stage broadcast; gpu0.LeaseBusy killed the worker and nothing
+   restarted it for 14 h): the cycle ends "blocked", naming the holder, no row is written for a moment not decoded
+   (it is picked again), the fetches not yet started are cancelled and the worker sleeps.
 6. The record is written once, as STORE/transcripts/<vid>/windows/<w0>-<w1>.whisper_words_punct.json. Its words are on
    the YouTube clock, with window = {start_s, end_s, clock: "youtube", offset_s}, and words_sha256 covers [word,
    start, end]: the segments sha does not. A row goes to STORE/moments/word_pass.jsonl:
@@ -357,22 +361,31 @@ def cycle(now=None, limit=PER_CYCLE):
     tmp = tempfile.mkdtemp(prefix="word_pass_")
 
     def gpu_batch(batch):
-        tw = time.time()
-        with gpu0.lease(OWNER, wait_s=LEASE_WAIT_S):
-            tg, ev0 = time.time(), len(gpu0.events())
-            report["lease_wait_s"] += tg - tw
-            try:
-                todo = [j for j in batch if not os.path.exists(record_path(j[0]["video_id"], j[3], j[4])[1])]
-                res = dict(zip((j[0]["moment_id"] for j in todo), decode_batch([j[5] for j in todo])))
-                for j in batch:
-                    _one(*j, report, res.get(j[0]["moment_id"]))
-                report["peak_gpu1_mib"] = max(report["peak_gpu1_mib"], gpu1_used() or 0)
-            finally:
-                ts.release_whisper()
-                report["gpu_s"] += time.time() - tg
-                report["foreign_wait_s"] += sum(e.get("waited_s", 0) for e in gpu0.events()[ev0:]
-                                                if e.get("key") == "foreign_wait")
-                report["batches"] += 1
+        """-> None when the batch was worked; else why the GPU1 lease was not had within LEASE_WAIT_S (another
+        owner's turn): nothing decoded, no row written."""
+        tw, tg = time.time(), None
+        try:
+            with gpu0.lease(OWNER, wait_s=LEASE_WAIT_S):
+                tg, ev0 = time.time(), len(gpu0.events())
+                report["lease_wait_s"] += tg - tw
+                try:
+                    todo = [j for j in batch if not os.path.exists(record_path(j[0]["video_id"], j[3], j[4])[1])]
+                    res = dict(zip((j[0]["moment_id"] for j in todo), decode_batch([j[5] for j in todo])))
+                    for j in batch:
+                        _one(*j, report, res.get(j[0]["moment_id"]))
+                    report["peak_gpu1_mib"] = max(report["peak_gpu1_mib"], gpu1_used() or 0)
+                finally:
+                    ts.release_whisper()
+                    report["gpu_s"] += time.time() - tg
+                    report["foreign_wait_s"] += sum(e.get("waited_s", 0) for e in gpu0.events()[ev0:]
+                                                    if e.get("key") == "foreign_wait")
+                    report["batches"] += 1
+        except gpu0.LeaseBusy as e:
+            if tg is not None:                    # raised inside a held batch: not a busy lease at the door
+                raise
+            report["lease_wait_s"] += time.time() - tw
+            return str(e)
+        return None
     try:
         with ThreadPoolExecutor(FETCH_WORKERS) as ex:                     # order '02:46': fetched ahead, in parallel
             of, hold = {}, threading.Event()                              # future -> its video's rows
@@ -412,7 +425,15 @@ def cycle(now=None, limit=PER_CYCLE):
                         else:
                             report["blocked_rows"] += 1                   # the platform's: no row, retried later
                 if len(ready) >= BATCH or (ready and not pending):
-                    gpu_batch(ready[:BATCH])                              # the lease per batch, left after it
+                    busy = gpu_batch(ready[:BATCH])                       # the lease per batch, left after it
+                    if busy:                                              # another owner's turn: no row, retried
+                        report["blocked"] = f"the GPU1 lease was not free within {LEASE_WAIT_S} s: {busy}"
+                        # ready holds this unworked batch and the jobs behind it (a worked batch is sliced off below)
+                        report["blocked_rows"] += len(ready) + sum(len(of[f]) for f in pending)
+                        log(f"  lease busy, the cycle stops: {report['blocked']}")
+                        for p in pending:
+                            p.cancel()                                    # only fetches not yet started stop
+                        break
                     ready = ready[BATCH:]
                 elif pending:
                     wait(pending, timeout=5, return_when=FIRST_COMPLETED)

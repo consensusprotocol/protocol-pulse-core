@@ -409,6 +409,98 @@ class TestPlatformBlock(unittest.TestCase):
         self.assertEqual(sleeps, [7.0])
 
 
+HOLDER = """import fcntl, json, os, sys
+f = open(sys.argv[1], "a+")
+fcntl.flock(f, fcntl.LOCK_EX)
+f.seek(0); f.truncate(); json.dump({"pid": os.getpid(), "owner": "stage_broadcast_service", "since": 0}, f); f.flush()
+print("held", flush=True)
+sys.stdin.read()
+"""
+
+
+class TestLeaseBusy(unittest.TestCase):
+    """2026-11-14 19:00:52 ET: the 18:30 cycle waited LEASE_WAIT_S for the GPU1 lease (the watchdog's 18:00 run, then
+    the stage broadcast held it), gpu0.LeaseBusy left main() and the worker stayed down 14 h. Another owner's turn is
+    no failure: the cycle ends blocked, naming the holder, no row is written and the moments come back. The lease is
+    real (the test's private file) and held by ANOTHER process, as the broadcast holds it."""
+
+    def setUp(self):
+        TestCycle.setUp(self)
+        self.lease_wait = mock.patch.object(W, "LEASE_WAIT_S", 0.5)
+        self.lease_wait.start()
+        self.addCleanup(self.lease_wait.stop)
+
+    def hold(self):
+        p = subprocess.Popen([sys.executable, "-c", HOLDER, os.environ["PP_GPU1_LEASE"]],
+                             stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+        self.addCleanup(p.wait, 10)
+        self.addCleanup(p.stdout.close)
+        self.addCleanup(p.stdin.close)                                     # EOF: the holder leaves
+        self.assertEqual(p.stdout.readline().strip(), "held")
+        return p
+
+    def rows_written(self):
+        return TestCycle.rows_written(self) if os.path.exists(W.ROWS_FILE) else []
+
+    def test_a_busy_lease_ends_the_cycle_blocked_naming_its_holder_and_writes_no_row(self):
+        self.hold()
+        made = []
+        real_mkdtemp = W.tempfile.mkdtemp
+        with mock.patch.object(W.tempfile, "mkdtemp", lambda *a, **k: made.append(real_mkdtemp(*a, **k)) or made[-1]):
+            rep = W.cycle()
+        self.assertEqual(self.rows_written(), [])                             # nothing burned: picked again
+        self.assertIn("held by stage_broadcast_service", rep["blocked"])
+        self.assertEqual((rep["picked"], rep["written"], rep["failed"], rep["blocked_rows"], rep["batches"]),
+                         (3, 0, 0, 3, 0))
+        self.assertGreaterEqual(rep["lease_wait_s"], 0.5)                     # the wait is reported, not lost
+        with open(W.CYCLES_FILE) as f:
+            self.assertEqual(json.loads(f.readlines()[-1])["blocked"], rep["blocked"])
+        self.assertTrue(made and not any(os.path.exists(d) for d in made))     # the cut windows are gone
+
+    def test_the_worker_lives_through_a_busy_lease(self):
+        self.hold()
+        self.assertEqual(W.main(["--once"]), 0)                               # before: gpu0.LeaseBusy left main()
+
+    def test_when_the_holder_leaves_the_next_cycle_works_the_same_moments(self):
+        p = self.hold()
+        W.cycle()
+        p.stdin.close()
+        p.wait(10)
+        rep = W.cycle()
+        self.assertEqual((rep["picked"], rep["written"], rep["failed"], rep["blocked"]), (3, 2, 1, None))
+        self.assertEqual({r["moment_id"] for r in self.rows_written()}, {"m001", "m002", "m003"})
+
+    def test_a_law_breach_inside_the_batch_still_stops_the_worker(self):
+        import gpu0                                                           # only a busy lease is waited out
+
+        def breach(wavs):
+            raise gpu0.LeaseMissing("a GPU1 load without the GPU1 lease")
+        with mock.patch.object(W, "decode_batch", breach):
+            with self.assertRaises(gpu0.LeaseMissing):
+                W.cycle()
+
+    def test_a_refusal_at_the_door_other_than_a_busy_lease_still_stops_the_worker(self):
+        import contextlib
+        import gpu0
+
+        @contextlib.contextmanager
+        def refused(owner, wait_s=0.0, poll_s=0.2):
+            raise gpu0.LeaseMissing("no GPU1 on this host")
+            yield
+        with mock.patch.object(gpu0, "lease", refused):
+            with self.assertRaises(gpu0.LeaseMissing):
+                W.cycle()
+
+    def test_a_busy_lease_raised_inside_a_held_batch_is_not_read_as_a_turn(self):
+        import gpu0
+
+        def inner(wavs):
+            raise gpu0.LeaseBusy("another call of this process has held GPU1 for longer than 0.5s")
+        with mock.patch.object(W, "decode_batch", inner):
+            with self.assertRaises(gpu0.LeaseBusy):
+                W.cycle()
+
+
 class TestGpu1Only(unittest.TestCase):
     def test_the_worker_refuses_any_gpu_but_gpu1(self):
         for v in ("0", "", "0,1"):
