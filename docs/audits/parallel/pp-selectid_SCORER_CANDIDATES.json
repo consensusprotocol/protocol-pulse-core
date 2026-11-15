@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-14T23:02:09+00:00",
- "build": "ledger_20261114_230148",
+ "generated_at": "2026-11-15T03:06:00+00:00",
+ "build": "ledger_20261115_030549",
  "kind": "moments",
  "candidates": [
   {
@@ -13,39 +13,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "4bb48df1195c808a37da",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 13.9,
-   "text": "So on the age -based component, we're like 80%, 75%, this is like bottom of bare market type stuff, early bull market type stuff, 80 to 75 to 80 % of the total wealth in the Bitcoin system is long -term holder -based.",
-   "text_sha256": "3cd87eea6e6813c843c232f60c0af0a58df3eb444cd7722d29dd1bf584435ee2",
-   "trimmed_leading": null
-  },
-  {
    "pid": "ae2418d859c27c2bc1a5",
    "video_id": "SJXZ5GycchU",
    "channel": "Strategy (MicroStrategy)",
    "duration": 13.33,
    "text": "And that's why when JP Morgan announces that they think Bitcoin is going to appreciate 10 % a year, that's profound because they've legitimized the asset. Anything that legitimizes the asset, accelerates bank adoption.",
    "text_sha256": "266480a20388c38c482fbed8abbbd179fb231aeb7a84219f9809005d871c7268",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "21f404bc8bb37da5352a",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 5.6,
-   "text": "And I mean, to me, Bitcoin's one of the few things that has a very, very defensible moat across a number of levels.",
-   "text_sha256": "0bf314d8b141e4692688dafce7d7aee6110e687c757d25a780a91381a4ea2b80",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "aaf0c78b19cace153444",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 11.26,
-   "text": "And he said, what was very interesting is that they were still getting a lot of deposits, even while the hack was going on, because people were rushing to put assets on the platform to buy the dip because Bitcoin had started to sell off.",
-   "text_sha256": "fe2d6ce832188f061f2df0984c1e457978b9c55c311aa9ab8ead28b0d0883d23",
    "trimmed_leading": null
   },
   {
@@ -85,39 +58,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "da0ff8d5b2a224b380fa",
-   "video_id": "jeKD85EPlAc",
-   "channel": "Coin Bureau",
-   "duration": 10.95,
-   "text": "But where is the money right now? Well, as I make this video, estimates have about $3.3 billion still in addresses controlled by the thieves, mostly Bitcoin and Ether. with the rest spread across other assets.",
-   "text_sha256": "254dc32af8fc2a00f4ae537e2821847c1fcb86c2e2356f8b7b40689255d30180",
-   "trimmed_leading": null
-  },
-  {
    "pid": "2e21c7dc76f2cffa169f",
    "video_id": "SJXZ5GycchU",
    "channel": "Strategy (MicroStrategy)",
    "duration": 14.8,
    "text": "And in April of 2008, there will only be 225 Bitcoin a day available for sale. So what you'll see is a migration of capital, which will be... you'll see enormous wealth created by these AIs. It's got to go somewhere.",
    "text_sha256": "ee89ca379ca9aa9d23a176b4400478834107e0ffce64ac63b3cd1eb0fd348502",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "74f1205843a6d0ef2487",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 10.6,
-   "text": "And going back to the AI agentic thing, what I do think is very interesting is that AI understands the difference. If you go and ask an AI why crypto, why Bitcoin, it does actually understand.",
-   "text_sha256": "ca6ab7c3058a2ec9892e473dd10e7e333f2a2735b9949ce22ee1b690720af565",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "7b3dd6f526aadefbe7d7",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 13.24,
-   "text": "So they're capitulating in large volumes at the point where if you just closed your eyes and came into Bitcoin for your very first buy, you'd look at it and be like, wow, I'm buying it in the bottom quarter of the distribution. What a great time to enter. These people are scared and selling.",
-   "text_sha256": "4a8deba8078b8ac8657ccf470640f44a645b6f90fad0ad5c288e2d6d5b07cd99",
    "trimmed_leading": null
   },
   {
@@ -145,15 +91,6 @@
    "duration": 5.52,
    "text": "So Bitcoin's core purpose hasn't changed. It's being adopted by institutions who recognize it as digital gold.",
    "text_sha256": "e50422c87545e47106d8e75eadccacf8aafb2463a13dc95c9625e7f268edf296",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "5982b3f6c768d0dd64c8",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 6.68,
-   "text": "And Bitcoin is going to be so normalized and ingrained in younger people, where else would you save your capital?",
-   "text_sha256": "4d0ed95ff8e7c80cd10c6a732b3491e5e701c8a22d3959297309f694fbf2f834",
    "trimmed_leading": null
   },
   {
@@ -202,15 +139,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "c6d0463e5d4eccafe587",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 5.8,
-   "text": "So Bitcoin will benefit, but it needs to have the inflation headwind start to lessen.",
-   "text_sha256": "1efdc1d04c4430a705e1f36a59f5748303117e4b1a081d25a88511bc8d6c1137",
-   "trimmed_leading": null
-  },
-  {
    "pid": "f614d5e1d1753295af03",
    "video_id": "PJxv8XB6Sms",
    "channel": "Digital Asset News",
@@ -238,15 +166,6 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "4bb48df1195c808a37da~trim",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 13.84,
-   "text": "on the age -based component, we're like 80%, 75%, this is like bottom of bare market type stuff, early bull market type stuff, 80 to 75 to 80 % of the total wealth in the Bitcoin system is long -term holder -based.",
-   "text_sha256": "322201d03971373ee2eb95d21f6d5e40a393f4a587bf1b759079b064f0d544a4",
-   "trimmed_leading": "So"
-  },
-  {
    "pid": "ae2418d859c27c2bc1a5~trim",
    "video_id": "SJXZ5GycchU",
    "channel": "Strategy (MicroStrategy)",
@@ -254,42 +173,6 @@
    "text": "that's why when JP Morgan announces that they think Bitcoin is going to appreciate 10 % a year, that's profound because they've legitimized the asset. Anything that legitimizes the asset, accelerates bank adoption.",
    "text_sha256": "3def549ffe602574150901e2f7ccecb9dc9f31186bf1821fc214716a96f1e68d",
    "trimmed_leading": "And"
-  },
-  {
-   "pid": "c3d02145771fb936d4f9~trim",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 15.47,
-   "text": "again, it relies on fusion and we need quantum to kill Bitcoin. So there's all these like left of field, asteroid mining. But there's all these things where you look around and go, which assets over the long arc of time? can actually be there on the other side and reliably so.",
-   "text_sha256": "dc4ac23ad61fbd921031b71d451fa1b223f4f79815c12fc59b724d0e96f2e570",
-   "trimmed_leading": "Now"
-  },
-  {
-   "pid": "21f404bc8bb37da5352a~trim",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 5.56,
-   "text": "I mean, to me, Bitcoin's one of the few things that has a very, very defensible moat across a number of levels.",
-   "text_sha256": "ada60b291d05b60f0716a6d464b8306ef1f9b0659a71b0337ea0b45c8a85eb09",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "aaf0c78b19cace153444~trim",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 10.86,
-   "text": "he said, what was very interesting is that they were still getting a lot of deposits, even while the hack was going on, because people were rushing to put assets on the platform to buy the dip because Bitcoin had started to sell off.",
-   "text_sha256": "697915c3762f9a3a36ca037c7dc4fa2124e98f1f9bfb5b07f00f48c0ef92a177",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "ec4c0ff49fdb895ef08e~trim",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 12.73,
-   "text": "the reason I mentioned that AI had an impact last week, I think of Bitcoin as being two separate parts. One is the innovation side, and the other one is the liquidity side. So it has a gold type thing.",
-   "text_sha256": "ecb8f8a3fae49d1e9df85f6792d6bdf5a7470a2b0d4938e085ef34b8ba54a066",
-   "trimmed_leading": "Now"
   },
   {
    "pid": "879fa6d224b9cc309933~trim",
@@ -310,24 +193,6 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "da0ff8d5b2a224b380fa~trim",
-   "video_id": "jeKD85EPlAc",
-   "channel": "Coin Bureau",
-   "duration": 10.85,
-   "text": "where is the money right now? Well, as I make this video, estimates have about $3.3 billion still in addresses controlled by the thieves, mostly Bitcoin and Ether. with the rest spread across other assets.",
-   "text_sha256": "4837f58466f89f40888c18ceec8f62041fc78e6da9a1c5ef6cfb41b50e2a0d3b",
-   "trimmed_leading": "But"
-  },
-  {
-   "pid": "efb097a26dc705eb5dfa~trim",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 6.08,
-   "text": "it's significantly better than fiat money. But Bitcoin has no ability to produce more of it.",
-   "text_sha256": "2b0703d94793a4afaa2ca489a3ac8de1bcc5e1b684f8c7ffe03f31dfbfec59ec",
-   "trimmed_leading": "Now"
-  },
-  {
    "pid": "2e21c7dc76f2cffa169f~trim",
    "video_id": "SJXZ5GycchU",
    "channel": "Strategy (MicroStrategy)",
@@ -335,24 +200,6 @@
    "text": "in April of 2008, there will only be 225 Bitcoin a day available for sale. So what you'll see is a migration of capital, which will be... you'll see enormous wealth created by these AIs. It's got to go somewhere.",
    "text_sha256": "81849146bd80690c1d8674f957a9ec68ce01d4f43da35df67ab1365e15cc1361",
    "trimmed_leading": "And"
-  },
-  {
-   "pid": "74f1205843a6d0ef2487~trim",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 10.54,
-   "text": "going back to the AI agentic thing, what I do think is very interesting is that AI understands the difference. If you go and ask an AI why crypto, why Bitcoin, it does actually understand.",
-   "text_sha256": "5bae01f471fa01a7cee3c74e19a20a407016e291815edba92e6fca6cbac4f851",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "7b3dd6f526aadefbe7d7~trim",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 13.1,
-   "text": "they're capitulating in large volumes at the point where if you just closed your eyes and came into Bitcoin for your very first buy, you'd look at it and be like, wow, I'm buying it in the bottom quarter of the distribution. What a great time to enter. These people are scared and selling.",
-   "text_sha256": "6497c6344f6a74f5ef07d060584db7afcef46957d3d655012f678727305863bb",
-   "trimmed_leading": "So"
   },
   {
    "pid": "902fb9c0b9b1ac6335d7~trim",
@@ -371,15 +218,6 @@
    "text": "Bitcoin's core purpose hasn't changed. It's being adopted by institutions who recognize it as digital gold.",
    "text_sha256": "3a09518ca8ee3e2a524be0d37b69066ab1d21bda475aa2e98370ac964f16949b",
    "trimmed_leading": "So"
-  },
-  {
-   "pid": "5982b3f6c768d0dd64c8~trim",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 6.64,
-   "text": "Bitcoin is going to be so normalized and ingrained in younger people, where else would you save your capital?",
-   "text_sha256": "203e18daf3a625fb9a1e1c095c5b571ed43e75d6129ab9d6b40736fbfe9c5143",
-   "trimmed_leading": "And"
   },
   {
    "pid": "6ec656243a73becb3298~trim",
@@ -416,15 +254,6 @@
    "text": "for me, that represented, you know, a digital goal that I knew, you know, Satoshi puts it in the first paragraph after the white paper was published. He says, It's all about solving the problem of trust in the financial system.",
    "text_sha256": "8dcebd940b0e9ddf98ebccd37e72255a9822c6df9c9ebaa7c6436e06a73836ee",
    "trimmed_leading": "And"
-  },
-  {
-   "pid": "c6d0463e5d4eccafe587~trim",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 5.72,
-   "text": "Bitcoin will benefit, but it needs to have the inflation headwind start to lessen.",
-   "text_sha256": "cf1f638e8e64e41931f745cc8d23514e1c3cd5d6890cde617c11502e6337c92e",
-   "trimmed_leading": "So"
   },
   {
    "pid": "f614d5e1d1753295af03~trim",
@@ -481,33 +310,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "06d34e155feae654ee56",
-   "video_id": "7BqLu-wzbU0",
-   "channel": "Blockware Solutions",
-   "duration": 22.94,
-   "text": "On my 20th birthday, I sold every stock in my Roth IRA and put it all into Bitcoin. That ended up being one of the best financial decisions I've ever made, but not for the reason most people think. I'm 26 now, and I still don't use my Roth IRA. I don't have a 401k. I don't own a single share of any index fund, and I'm on pace to be financially independent by 45.",
-   "text_sha256": "ca5de3fcb61ede08803257a4f4807737e22f2969d1db6f600593a861fc0342af",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "d6a80171491e2b5395b9~trim",
-   "video_id": "7BqLu-wzbU0",
-   "channel": "Blockware Solutions",
-   "duration": 19.25,
-   "text": "theoretically, you could take this one step. The biggest risk with Bitcoin is you. It's not price action or volatility. It's making a mistake with your self -custody setup, falling for a fishing attack, or trusting the wrong custodian. You need to learn how to secure your Bitcoin properly so you can actually hold it for decades.",
-   "text_sha256": "93e6381b0226a12257d28daa66ff2eee09e8af38c7e495e355d58d6131e225b4",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "eade93c11a2a492ea763",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 14.08,
-   "text": "Would you rather Bitcoin existed or not, right? You get pulled out of your Western American self and you get dropped in and suddenly you're in Venezuela or you're in Iran or you're somewhere like that. Would it be? Better that Bitcoin existed or not?",
-   "text_sha256": "db18ac4aa1cc418d85f1ff762895ae402cae0665e764e2e30a0e49407fc933e0",
-   "trimmed_leading": null
-  },
-  {
    "pid": "30075b155874ab2de3c7",
    "video_id": "L_AJ0jO-AG0",
    "channel": "Altcoin Daily",
@@ -526,30 +328,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "7c0121c6c14b8b930a2a",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 19.51,
-   "text": "Once you start moving things on chain, Bitcoin is the collateral backing of the digital system. It just is. It's been chosen. So we need to get there. I'm hopeful that we'll get through this little AI kind of puking that happened on the hedge fund side.",
-   "text_sha256": "22030beb008a3ffcd9fb69eec612b354a7c85de68b7ed5b7e6f06fb3f77c2de8",
-   "trimmed_leading": null
-  },
-  {
    "pid": "b04337f6fdffa0029f2d",
    "video_id": "SJXZ5GycchU",
    "channel": "Strategy (MicroStrategy)",
    "duration": 29.56,
    "text": "On the other hand, Bitcoin is not. Bitcoin is an appreciating asset. All of the robots and all of the AIs in the world can't figure out how to create more than 450 Bitcoin per day. They can create infinite movies, infinite books, infinite music, infinite entertainment, infinite education, infinite ideas to optimize infinite drugs, infinite medical advice, infinite legal advice, infinite accounting, infinite software.",
    "text_sha256": "13276e717308b27428a3d8d8969a169e8e7646e0652a5aa5c353fa4d57bb98f6",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "2e3622d2282ef2692994",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 18.74,
-   "text": "Bitcoin absolutely can be, should be, and probably will be used as a medium exchange in some way, shape or form. But we are so far away from that that I don't think it's something that we should be stressing about if it's not happening. You know what I mean? I think that you have to go through, and this goes back to the original point, things just take a long time to happen.",
-   "text_sha256": "8430b762a254b65f570a468593f720803f1be5731f987df8d7fcd6b1e22734ab",
    "trimmed_leading": null
   },
   {
@@ -580,48 +364,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "f51962672170ebaac719",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 15.66,
-   "text": "A lot of ink has been spilled about how AI has eaten Bitcoin's lunch. Yeah, during Bitcoin's idiosyncratic bear market, yes, of course. If you cherry pick from the top of the Bitcoin bull market, and then go, look, here's the explosive part of the AI trade.",
-   "text_sha256": "041f0ab07a3e6659edb3ffa1903905efa1e6aba9923ae62817f395ff8e6adcce",
-   "trimmed_leading": null
-  },
-  {
    "pid": "0e20031e46ad9ad30c91",
    "video_id": "L_AJ0jO-AG0",
    "channel": "Altcoin Daily",
    "duration": 17.6,
    "text": "Bitcoin is kind of like this sound money virus that is infiltrating the system. That's a great thing. The more embedded Bitcoin gets into everything, the more connected it gets, the more politicians own it and bankers own it, the more it becomes a network effect of individuals that are incentivized to fight for it.",
    "text_sha256": "4ac734e439768f66a49120b313493e277ef17112a9c09ca55ae61bb1af8706d3",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "3868d86dcb0cc7df9f6c",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 21.08,
-   "text": "Wouldn't it be better for this thing to exist so that you can in fact take your money? You could in fact flee the country if you needed to. You could in fact hide money from an abusive partner. There's all these things that like there's There's these beautiful components to Bitcoin that is, I mean, frankly, the great irony is that left -wing politics seems to hate it. And it's like the most left -wing thing ever. It's just like pure freedom.",
-   "text_sha256": "dba227d958351fce2d8776cc253620b931218a0f6b7552c1201c62c9e0e4a77f",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "ea1fc684ee2a95f0473a~trim",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 20.9,
-   "text": "on the age -based component, we're like 80%, 75%, this is like bottom of bare market type stuff, early bull market type stuff, 80 to 75 to 80 % of the total wealth in the Bitcoin system is long -term holder -based. Now, that long -term holder group is mixed into really two groups, people from previous cycles and lower prices, people who bought the top.",
-   "text_sha256": "bd323584ab9238a687276b95b0e75844ba3945cf17ed30370ff365f2093ef568",
-   "trimmed_leading": "So"
-  },
-  {
-   "pid": "ece4072374c42a4331ef",
-   "video_id": "7BqLu-wzbU0",
-   "channel": "Blockware Solutions",
-   "duration": 20.06,
-   "text": "That same strategy, monthly DCA, but into Bitcoin, your returns are 69 % with a kegger of 21%. I'm going to repeat that. The S &P 500... 51 % total returns versus Bitcoin, 69 % return. Same strategy, same time frame, but the starting and ending destination are wildly different.",
-   "text_sha256": "44cefc2a6b3c46bb685c681b591f166b805a9511f9963ce0d5d3daade6aff1fb",
    "trimmed_leading": null
   },
   {
@@ -661,30 +409,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "e959d5ade74f877900c0",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 15.1,
-   "text": "I think one of the best starting points is January 1st, 2023. The bottom of the 22 bear market, which wasn't a Bitcoin bear market. It was a global bear market. Bonds lost 50 % of their value. TLT went down 50%. Half fastest rate hiking cycle in history.",
-   "text_sha256": "1e08e5d1d5a6bdee5104e5e61e9dea4d83682b763f23b900951db89342f71ea6",
-   "trimmed_leading": null
-  },
-  {
    "pid": "888cf86d36258b87c0fa",
    "video_id": "SJXZ5GycchU",
    "channel": "Strategy (MicroStrategy)",
    "duration": 15.33,
    "text": "This is not a surprise. Have you been following me? I expect Bitcoin to be $100 trillion asset. And who will we compete against? Private credit, junk bonds, you know, garbage. you know, credit securities.",
    "text_sha256": "b118a7ea980cf5c64271a7489d62b3efd52ecf4956ab40d6d774452cdb345730",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "98f8c426a874add381bf",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 15.77,
-   "text": "Anytime micro strategy isn't doing well, it has issues for Bitcoin and for no other reason that people view them the same. Again, you've been involved in this for a long time, and I've got to know the community, For the most part, the community is already long Bitcoin.",
-   "text_sha256": "589c83137a72fbc61b73a86ad3c28173c88f350994ffea5d0c47072e2898302c",
    "trimmed_leading": null
   },
   {
@@ -733,15 +463,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "e202d5ec74a53c22a5ff~trim",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 20.56,
-   "text": "you know, just commodity elements are going to be super, super profitable in the way that they have been in recent months regarding the AI trade. Probably not as many. So this idea of like what can stand the test of time, it really is quite a small basket. And I mean, to me, Bitcoin's one of the few things that has a very, very defensible moat across a number of levels.",
-   "text_sha256": "af565605aacc395e59737c1fda281920a4e487ad63b44fbb778f18b3d5fa24ed",
-   "trimmed_leading": "And"
-  },
-  {
    "pid": "6b33291720bfc3eab9fe",
    "video_id": "SJXZ5GycchU",
    "channel": "Strategy (MicroStrategy)",
@@ -751,24 +472,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "7c5844550969e471cd1f",
-   "video_id": "7BqLu-wzbU0",
-   "channel": "Blockware Solutions",
-   "duration": 15.9,
-   "text": "Time and volatility are your friends. I've been consistently accumulating Bitcoin, and my favorite way to do that is by running Bitcoin mining machines. I can depreciate the costs of machines, lowering my taxable income so I can save five figures every year by just owning these Bitcoin mining machines.",
-   "text_sha256": "bc43eb3720b95b55c50bb70299f96388feb5dcc4c63be9c65c60bc11a5327b2b",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "5b159ce6a40b1251f0fe~trim",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 15.76,
-   "text": "he said, what was very interesting is that they were still getting a lot of deposits, even while the hack was going on, because people were rushing to put assets on the platform to buy the dip because Bitcoin had started to sell off. And I thought that was fascinating psychology of there's a hack going on.",
-   "text_sha256": "4c35e186636c68ff6930411d33de4ba8e34bc05cdc2732dfb7e4fb0c7d0fd124",
-   "trimmed_leading": "And"
-  },
-  {
    "pid": "f8fa70776de5b2d2e4ac",
    "video_id": "SJXZ5GycchU",
    "channel": "Strategy (MicroStrategy)",
@@ -776,15 +479,6 @@
    "text": "People don't understand Bitcoin is capital. They don't understand his digital credit, is mispriced, but that being the case, it's just an opportunity. And for us, We don't mind because the high dividend will attract more capital to a new space, and so it's a way to attract people that are willing to get into the digital economy.",
    "text_sha256": "a937a89d0ab8c07be475df682c67c9a415071f1480799e8680e07323d6655e27",
    "trimmed_leading": null
-  },
-  {
-   "pid": "a7ed3a348a7136992e88~trim",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 17.77,
-   "text": "the reason I mentioned that AI had an impact last week, I think of Bitcoin as being two separate parts. One is the innovation side, and the other one is the liquidity side. So it has a gold type thing. So if gold is trading down because there's worries that interest rates are going higher than Bitcoin usually trades with that.",
-   "text_sha256": "913bcf31b6084fbe9e4c328e00230deb9e4a7d22277c537e68a9ff1d2b2edfd9",
-   "trimmed_leading": "Now"
   },
   {
    "pid": "42dc41d2e53264a70420",
@@ -814,15 +508,6 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "64f28f858f21b75dd1fa",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 18.48,
-   "text": "If you wind back to clock two months at 87. Everyone's going, oh, man, I really wish I bought more in the 70s and the 60s. I love the pullback. Here's the pullback, guys. What do you do with it? Is Bitcoin going to die? If it's not, then hit the green button. James Check, it's been too long, sir.",
-   "text_sha256": "0a67df7fc358ff978da4e544169642f34d0bcd0c57f3e1e818ed1893b716a1f8",
-   "trimmed_leading": null
-  },
-  {
    "pid": "3f20de5b328db9e489dd~trim",
    "video_id": "cj2kAwBlcOA",
    "channel": "Strategy (MicroStrategy)",
@@ -830,15 +515,6 @@
    "text": "we see this has a profound network effect because with things like ETFs, let's take IBIT. If Bitcoin flows into an ETF iBit and if your bank, JP Morgan or Morgan Stanley or Schwab will extend credit against the iBit, you will tend to want to hold that asset.",
    "text_sha256": "8dfa9fccc9b931a150abf18a9bbd540c13e85f4607663d338a7f59dd422c1a51",
    "trimmed_leading": "And"
-  },
-  {
-   "pid": "8976434fa074337ce69d",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 17.88,
-   "text": "Things like Bitcoin is going to be second nature to them. The same way that Excel was like my thing, it's going to be their thing. And Bitcoin is going to be so normalized and ingrained in younger people. Where else would you save your capital? It's such a... The fundamental core property still make Bitcoin just sing.",
-   "text_sha256": "1bfefd47cab57ebb86600fe78fcb4295c52653f0514e6e1b602d0e099ca962df",
-   "trimmed_leading": null
   },
   {
    "pid": "1306d03f2a72fd0af4d0",
@@ -877,42 +553,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "4d9418596b2fdd0a0a88~trim",
-   "video_id": "jeKD85EPlAc",
-   "channel": "Coin Bureau",
-   "duration": 17.09,
-   "text": "where is the money right now? Well, as I make this video, estimates have about $3.3 billion still in addresses controlled by the thieves, mostly Bitcoin and Ether. with the rest spread across other assets. The FBI's alert names 608 Ethereum addresses, 19 Bitcoin addresses and 1 Solana address.",
-   "text_sha256": "94c3a129052826d25dbfe13e5e794792228693b541525d04f1c028c0ae0f7d0b",
-   "trimmed_leading": "But"
-  },
-  {
-   "pid": "c0849ea02c9857cf9ebb~trim",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 16.82,
-   "text": "it's significantly better than fiat money. But Bitcoin has no ability to produce more of it. In fact, one of the metrics got my block lock behind me, right? First be that damn company, but I still love the bloody piece of hardware. One of the things I've got on there is the circulating supply.",
-   "text_sha256": "6cb53807c44597c7c1e9d9ceb9d204ce9cfc39d5a03f7646ac68c404c32e102c",
-   "trimmed_leading": "Now"
-  },
-  {
-   "pid": "23caa285d4cbeb43e51c~trim",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 26.04,
-   "text": "micro strategy has a trading impact, but if we're going to get Bitcoin up to the levels that we think it's going to go to, there needs to be the fiat money that's coming into it. And the only way that's going to happen is for people to believe fundamentally that tokenization is going to change the world. I believe tokenization is the most important um theme for what we've always talked about, which is, hey, there's 900 trillion dollars over here in this uh in this fiat system.",
-   "text_sha256": "256b53f6894af6d7f058a6efc38549f5e7e632a0ab49b43817fa1b9b3b2ce115",
-   "trimmed_leading": "So"
-  },
-  {
-   "pid": "4f8d42ac7d400d93b0d2",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 20.4,
-   "text": "There is a point in every bull cycle where you look back and go, oh shit, it feels expensive now. Like I don't know if I can buy anymore. You know what I get that Bitcoin feels expensive again. Once we approach 100K, there will be a collective feeling that that is true. And that is where we start the acceleration. I think once you start approaching 100K, it's just going to be off to the races.",
-   "text_sha256": "54aa44af7b88398240d175e287f88796e38e7f47c05f727ae9ad4b24d1703af1",
-   "trimmed_leading": null
-  },
-  {
    "pid": "0c36a4488b906f2e4eaf",
    "video_id": "L_AJ0jO-AG0",
    "channel": "Altcoin Daily",
@@ -920,15 +560,6 @@
    "text": "With Bitcoin, I spent years obsessing over it where I'm like, look, if people just spent and did the homework here, they're probably going to come to the same conclusion I did. That's the same thing with SpaceX, where I'm like, These almost seemed obvious to me after I spent the time to understand it. And by the way, I'm going to miss out on millions of investment opportunities.",
    "text_sha256": "e45553278ab2508c0730dfdb228e177d167da4351f5cc2fc83dc9c31f11c859a",
    "trimmed_leading": null
-  },
-  {
-   "pid": "a56b39c9c2c9ea896e29~trim",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 19.86,
-   "text": "I think, you know, there was this whole... If you wind back the clock, what, three months ago, not even, the primary debate was that Bitcoin core is crooked and corrupt. And then I just look at it as like, Well, those crooked and corrupt folks have written some of the most amazing code ever. So let's give them some props there.",
-   "text_sha256": "729f7bde2660f8c424d7cf88e9098866b0232fdcde978f998b469ee589f54c4c",
-   "trimmed_leading": "And"
   },
   {
    "pid": "7ba59050e5ee6fcd14bb",
@@ -949,48 +580,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "422219f06d09c5aeebf4",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 15.87,
-   "text": "Do you think there, I mean, this is one thing I've been pondering. Like, do you think Bitcoin needs a narrative refresher? You think it's going to need that? It probably the narrative will come after the price goes up. Yes. It doesn't seem much.",
-   "text_sha256": "1cd5584ccbfba37225a0b901b277e64d858b1f1527e0cb17e2139cae950a38d9",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "e68cc1564197965e962f~trim",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 16.99,
-   "text": "going back to the AI agentic thing, what I do think is very interesting is that AI understands the difference. If you go and ask an AI why crypto, why Bitcoin, it does actually understand. And whether that's just because Bitcoin has have memed enough on the internet could be. But certainly there is this like underlying.",
-   "text_sha256": "2d907b4ae9931d75c5ed046e0775ddaf252fd81a487bcef8d80c0343f15b2552",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "98dac99f884b77763b5f~trim",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 15.1,
-   "text": "they're capitulating in large volumes at the point where if you just closed your eyes and came into Bitcoin for your very first buy, you'd look at it and be like, wow, I'm buying it in the bottom quarter of the distribution. What a great time to enter. These people are scared and selling. Like, guys, wrong decision.",
-   "text_sha256": "3514b8b98cd5b1ce566d33faa30a3463cbe34e48c29d6e1fac2168ee117cf074",
-   "trimmed_leading": "So"
-  },
-  {
    "pid": "7db867b846e84a4ab586",
    "video_id": "SJXZ5GycchU",
    "channel": "Strategy (MicroStrategy)",
    "duration": 26.0,
    "text": "We also show the floor. And so what you can see is that if Bitcoin falls below $3,600 a coin, STRF would be under collateralized. So it's fairly easy to assess this risk, and then you can assess the price and whether the price makes any sense, because here you see the market credit spreads against the risk, and you can see there's a massive premium that you can capture of your credit investor.",
    "text_sha256": "588d1f3d29d6a1f54916309e07fa601264e25e7f793ca17c99985749740bc6e9",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "93fca317d9fe229b4001",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 14.54,
-   "text": "You and I have spent a lot of time talking about as AI becomes more popular, Bitcoin should gain more value. And I think that the general idea there is like, hey, there's this world of abundance and then Bitcoin is scarce. But one of the things that he said to me that I found a unique way of looking at it.",
-   "text_sha256": "5857bdd48a86aca0a2913f88233edd785fda4be4982d58a4f05384a2f3a99d32",
    "trimmed_leading": null
   },
   {
@@ -1039,33 +634,6 @@
    "trimmed_leading": "So"
   },
   {
-   "pid": "9e63b39a556c9ed33ed7",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 21.85,
-   "text": "He's like, if you just look at a couple of these companies, he's like, there's literally not enough money in the system to go and buy all of this equity. And therefore, the government is going to have to print money over time so that you can kind of balance out how much equity value there is versus the money in the system. And therefore, if they're printing money, then Bitcoin becomes more valuable.",
-   "text_sha256": "f7f12866daef58ae4d332eb65c5266585de40caaa2f14909ddf0b40e394038be",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "c931a4f668731b60de7f~trim",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 25.94,
-   "text": "I just know for this to work every time I say that tokenization is inevitable and that agenda commerce is inevitable. That's the only thing I care about when it comes to Bitcoin. I need to have the people that I know at pension funds and at insurance companies and at hedge funds and at mutual funds and everywhere else that start to get interested in the fundamentals behind moving things on chain and the transactions on chain.",
-   "text_sha256": "6feaf3cc5108cfab74fa1fa416363164c366866be29b6962a4b56447801168da",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "2de8e757031888803e1e",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 18.48,
-   "text": "We just had the largest rise in two -year yields in a week, 35 basis points since 2022. So that's why Bitcoin is down. It's down. It's following gold. we need the liquidity side to turn around. Now, the reason I mentioned that AI had an impact last week, I think of Bitcoin as being two separate parts.",
-   "text_sha256": "7b0c7d663227e0ca0dd33863250e23d12e603fa39e21f96912b012b38d6a12f2",
-   "trimmed_leading": null
-  },
-  {
    "pid": "e961be05baa6f473fd66",
    "video_id": "SJXZ5GycchU",
    "channel": "Strategy (MicroStrategy)",
@@ -1090,42 +658,6 @@
    "duration": 17.1,
    "text": "They're a treasury company for stocks as a treasury company for Bitcoin or a treasury company. So I think, you know, it might cause a $2.8 billion in selling, I think JPMorgan sort of, that was their estimate, but that's not even a day of volume on strategy of stock.",
    "text_sha256": "bb71b0a000ace25b353da662bde6a033fe64368e0b7819f61212b12652ce835a",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "3fc97f3afec6a4386667",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 14.14,
-   "text": "Micro strategy is being removed from some of the indexes. It feels like they were eligible. There was a kind of active decision or discretionary decision to put them in. Now they're being removed. Does that cause issues for Bitcoin?",
-   "text_sha256": "bf92b20ab3b24e97dc2c0e8f65122ae4b5f1327648f3ca02fc83710ab5aae2f5",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "b3847c05e85387dc96b1",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 14.62,
-   "text": "UTXOs is just like the most obvious thing to save his capital in. So I think that this like, as people get, like Bitcoin's going to be like the internet for young people. I remember when I was in, as a civil engineer, I was the dude they'd come to when they got like a big data problem.",
-   "text_sha256": "8986a8ed51f210bbd25820981d4d71a8105e8d71548fad622051c1d9c797b1de",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "79eb86c1b0670fe1e579~trim",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 16.23,
-   "text": "Bitcoin is going to be so normalized and ingrained in younger people, where else would you save your capital? It's such, the fundamental core property still make Bitcoin just sing. And that's why I have no issue with just like when I don't know what to do, I buy gold and Bitcoin.",
-   "text_sha256": "85f36d91dfc99c6c732adfa5f5cae68367b3d4bafdf378ce6c4e1cb39f26cf6f",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "da859ee356c68c74ce2f",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 18.8,
-   "text": "I've shown this in my videos, but gold is at the lows. And Bitcoin and gold have been moving together since March. And the reason they've moved together is because of the liquidity headwinds that have been there. We've had... inflation go higher on the back of the Iran war.",
-   "text_sha256": "4658d029fb97167982dc861cdaa97179fbda636dc8827a39ac5f6ba7a18477a7",
    "trimmed_leading": null
   },
   {
@@ -1165,48 +697,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "cbf391e7523ac232206a",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 15.26,
-   "text": "How much of the war and conflict do you think is playing into inflation and that's then leading to Bitcoin? And so actually, there's like a much tighter correlation there. Or it is just... everything combined in U.S. and the war may be a little small piece of it, but that's not actually the driver.",
-   "text_sha256": "2c21da4f9a62fc6978f961b594c3ed44f19bb9f504bea2217ce998678e9bbfff",
-   "trimmed_leading": null
-  },
-  {
    "pid": "0c15358fb84ecdeca26f",
    "video_id": "PJxv8XB6Sms",
    "channel": "Digital Asset News",
    "duration": 18.36,
    "text": "I remember, Jesus, I remember in 2018 just thinking to myself, I can't believe I bought Bitcoin at 18,500. I said, I can't believe I bought Bitcoin at 8,500. And now here it is below 5,000.",
    "text_sha256": "c9a63b96b89340beb861a1dfae7ee064ef65c08db4f192fbd5288f1719ded901",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "df978d34fe61f7830a1d~trim",
-   "video_id": "7BqLu-wzbU0",
-   "channel": "Blockware Solutions",
-   "duration": 15.4,
-   "text": "if you just cherry pick date to date over the last five years, the S &P 500 is up 72%, but Bitcoin is only up 28%. So the naive critic would say, look, you should just buy the S &P 500. Why are you buying Bitcoin? You got outperformed and you had all this volatility.",
-   "text_sha256": "0bbee71c1e3fe27af0745927a7a82cdd94506e24f0c4d55f9fd34a64e2654a6a",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "7d9a721942de505c5d4f",
-   "video_id": "7BqLu-wzbU0",
-   "channel": "Blockware Solutions",
-   "duration": 14.53,
-   "text": "If you take both of these guys, for the traditional investor, Bitcoin would be the absolute most risky thing he owns. He would say you shouldn't have more than 2 to 5 % in Bitcoin. And if you do, you're an idiot. But he still has 2 to 5%.",
-   "text_sha256": "2a07bfa67d10147bfa317a3ace3f6d8ed953a6d69f420d9249e397b27b536ba1",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "b36fbc2652b71924a361",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 26.74,
-   "text": "It's like, yeah, but no, you don't because from the moment that that fork happens, your UTXO set is differing from consensus. So you don't have the same UTXO set from the point when you forked. So unless you can attract the whole system, in which case you are Bitcoin. So the important part about Bitcoin is the UTXO set in the history. That cannot be replicated. It's that network effect that is just impossible to, you know, that's why Bitcoin's a $1.5 trillion versus everything else, which is not even close to a trillion.",
-   "text_sha256": "e595233ea8367f9d2fc9c06019c1c672bf78b27fd3be3dee575c4e593106641f",
    "trimmed_leading": null
   },
   {
@@ -1217,24 +713,6 @@
    "text": "If Bitcoin appreciates more than 10%, then the excess spread over the cost of the credit is captured by the equity investor. So the equity should outperform Bitcoin if we get a 15 % or 20 % Bitcoin performance.",
    "text_sha256": "d1e3d48dcdb6d4dc0b7fca1501251c9f2083bc1fbfce7b4ee6d4dad266c0ae22",
    "trimmed_leading": null
-  },
-  {
-   "pid": "a3bd7b1f28874036fe53",
-   "video_id": "7BqLu-wzbU0",
-   "channel": "Blockware Solutions",
-   "duration": 18.9,
-   "text": "Bitcoin is dead. It's boomer coin. It's not volatile enough. There's not enough upside there. So it's too safe for that guy and it's too risky for the traditional investor. And so it's right in this sweet spot where those who know a lot about it and have been around it, it's not volatile enough for them versus those who are newer to the scene.",
-   "text_sha256": "b75589d8437254872060f78d9064c59e64dcf0e1a2ec4b425faf623e25637a8d",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "0d39ef4732c8c206ffae~trim",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 29.02,
-   "text": "if you have bought coins from below 50K, you are going to be in profit and meaningfully so, right? So everyone who's in a meaningful amount of profit is from a previous cycle and you can argue. fairly tenured. So on the age -based component, where like 80%, 75%, this is like bottom of bare market type stuff, early bull market type stuff, 80 to 75 to 80 % of the total wealth in the Bitcoin system is long -term holder based.",
-   "text_sha256": "d9d1208eba671eac97fdbdcc6d49ee001b5f8bfb400442e663c5a96a275cb0ed",
-   "trimmed_leading": "So"
   },
   {
    "pid": "023cca5f86cc39618300~trim",
@@ -1255,15 +733,6 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "ccdb0097bea1f57a6348",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 16.82,
-   "text": "The S &P 500 as of yesterday was about 2.5 % below the all -time highs. So despite everything that's gone on, the Jensen stuff, the Fed raising rates, we're still sitting near the all -time highs in stock. So Bitcoin will benefit, but it needs to have the inflation headwind start to lessen.",
-   "text_sha256": "f7202045873806dca6ce605a068d64e90f10954ea05a1cc06ce0a9e01c4a6c4b",
-   "trimmed_leading": null
-  },
-  {
    "pid": "c7a3e8d31e80d7f4ac66~trim",
    "video_id": "PJxv8XB6Sms",
    "channel": "Digital Asset News",
@@ -1282,30 +751,21 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "206e061739f6b989809a",
-   "video_id": "wbztAutsf-E",
-   "channel": "TFTC",
-   "duration": 17.33,
-   "text": "I think this narrative that like AI bots are going to be using SATs, I think it's fairly, the bot will use what you ask it to use. So if you ask it to use Bitcoin, I'll use Bitcoin. Yeah, so I'm not, you know. there's that whole debate around medium of exchange versus store of value.",
-   "text_sha256": "43f989a51f07e896e68340b1ef35a37c1e3b61201787654f1441a14b2773a471",
+   "pid": "06d34e155feae654ee56",
+   "video_id": "7BqLu-wzbU0",
+   "channel": "Blockware Solutions",
+   "duration": 22.94,
+   "text": "On my 20th birthday, I sold every stock in my Roth IRA and put it all into Bitcoin. That ended up being one of the best financial decisions I've ever made, but not for the reason most people think. I'm 26 now, and I still don't use my Roth IRA. I don't have a 401k. I don't own a single share of any index fund, and I'm on pace to be financially independent by 45.",
+   "text_sha256": "ca5de3fcb61ede08803257a4f4807737e22f2969d1db6f600593a861fc0342af",
    "trimmed_leading": null
   },
   {
-   "pid": "9a2febf853f2761ea0f6",
-   "video_id": "wLJ_jy3wyN8",
-   "channel": "Anthony Pompliano",
-   "duration": 13.8,
-   "text": "We're at $69,000. Nice. And as we see the asset continue to fall, we're watching all the collateral damage in the AI industry. Are these two things connected? Is that what's applying so much pressure to Bitcoin? Not right now.",
-   "text_sha256": "d01a1016ac6995eff688a6375a9a7e95a186a6d5fe804bdcdb80ee3b235b8f15",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "d0adae88e4f7b5354a72",
-   "video_id": "jeKD85EPlAc",
-   "channel": "Coin Bureau",
-   "duration": 17.83,
-   "text": "On the 29th of October, Binance's hot wallets gave up Ethereum, Bitcoin, USDT, USDC, about 233 million XRP, and a long tail of smaller tokens. The total was about $6.3 billion worth. The speed came from an Ethereum feature called EIP -7702.",
-   "text_sha256": "42f969f068e9f87dbf88faef24247151f8f95b486732fa71da68e42672eaf000",
+   "pid": "61e9cbdd68a1a62819f9",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 33.56,
+   "text": "The more embedded Bitcoin gets into everything, the more connected it gets, the more politicians own it and bankers own it, the more it becomes a network effect of individuals that are incentivized to fight for it. So through that, Bitcoin also has not only game theoretic protection from the protocol itself, but a social, political protection from everyone who believes in it. It becomes much harder to root out and destroy. We were actually quite concerned about this in 2013. in the early days. I mean, we honestly thought, I thought we were going to get our doors kicked in. And they were going to come in and be like, you have this illegal money.",
+   "text_sha256": "530ed9f11ac98dec70dd49b1dce8d02561f775f33e6133e73ed58c994f4d30fa",
    "trimmed_leading": null
   }
  ]

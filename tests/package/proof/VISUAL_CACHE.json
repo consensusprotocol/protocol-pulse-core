@@ -107,6 +107,57 @@
   },
   "version": "visual-2"
  },
+ "0e20031e46ad9ad30c91:953.801-971.401:visual-3:87b67b49bd39f5a0": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [],
+  "flags": [],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_0b70db1651d50fde.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_0b70db1651d50fde.jpg",
+   "sha256": "0b70db1651d50fde412d78d12560fb80727095ca9e54bcd21e2beb715a36b280",
+   "times": [
+    953.8,
+    954.8,
+    955.8,
+    956.8,
+    957.8,
+    958.8,
+    959.8,
+    960.8,
+    961.8,
+    962.8,
+    963.8,
+    964.8,
+    965.8,
+    966.8,
+    967.8,
+    968.8,
+    969.8,
+    970.8,
+    971.35
+   ]
+  },
+  "third_person": {
+   "finding": "Only two live interview participants are shown, with no still, photo, or graphic of another person.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 3643,
+   "out": 267,
+   "usd_reported": 0.00716
+  },
+  "version": "visual-3"
+ },
  "22018cf6e0db2d846def:953.801-958.041:visual-2:3aec9e3d59da50da": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [
@@ -541,6 +592,108 @@
    "usd_reported": 0.098696
   },
   "version": "visual-2"
+ },
+ "933f9d33a8e345356177:1706.226-1725.606:visual-3:761e08189a68b05c": {
+  "backend": "heimdall:qwen/qwen3.8-27b",
+  "burned_in": [
+   {
+    "at": [
+     1706.0,
+     1707.0,
+     1708.0,
+     1709.0,
+     1710.0,
+     1711.0,
+     1712.0,
+     1713.0,
+     1714.0,
+     1715.0,
+     1716.0,
+     1717.0,
+     1718.0,
+     1719.0,
+     1720.0,
+     1721.0,
+     1722.0,
+     1723.0,
+     1724.0,
+     1725.0,
+     1725.56
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "Strategy",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "kind": "on_screen_text",
+    "text": "Strategy is the Largest Institutional Holder of BTC",
+    "why": "This chart headline names the company 'Strategy' explicitly, whereas the spoken words only say 'we' / 'our company', adding a specific identity beyond what is said."
+   },
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "Strategy"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "Strategy is the Largest Institutional Holder of BTC",
+    "why": "This chart headline names the company 'Strategy' explicitly, whereas the spoken words only say 'we' / 'our company', adding a specific identity beyond what is said."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_8a675876a31a2560.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_8a675876a31a2560.jpg",
+   "sha256": "8a675876a31a25607f6b349952f71ea7a3240c2809801cf0d78d4719b97c1dd4",
+   "times": [
+    1706.23,
+    1707.23,
+    1708.23,
+    1709.23,
+    1710.23,
+    1711.23,
+    1712.23,
+    1713.23,
+    1714.23,
+    1715.23,
+    1716.23,
+    1717.23,
+    1718.23,
+    1719.23,
+    1720.23,
+    1721.23,
+    1722.23,
+    1723.23,
+    1724.23,
+    1725.23,
+    1725.56
+   ]
+  },
+  "third_person": {
+   "finding": "The only person visible is the live speaker in the left inset, and the spoken words are boastful/positive rather than a negative claim, so no third person is shown as a still, photo or graphic.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2300,
+   "out": 1993,
+   "usd_reported": 0.00152796
+  },
+  "version": "visual-3"
  },
  "9c14612153405f8983e4:1339.080-1355.470:visual-1:502915c2d8927a3f": {
   "backend": "xai_vision:grok-4.7",

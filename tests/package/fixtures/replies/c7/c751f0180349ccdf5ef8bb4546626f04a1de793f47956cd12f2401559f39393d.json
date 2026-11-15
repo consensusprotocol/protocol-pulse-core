@@ -1,0 +1,500 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "f6c3fc0fe2838e51a92bebf36aa52f64d1ab7b8d2e13908f9203fccae6200f37",
+ "result": {
+  "text": "cost of doing anything with it is, uh, is falling. On the other hand, Bitcoin is not. Bitcoin is an appreciating asset. Um, all of the robots and all of the AIs in the world can't figure out how to create more than 450 Bitcoin per day. They can create infinite movies, infinite books, infinite music, infinite entertainment, infinite education, infinite ideas to optimize, infinite drugs, infinite medical advice, infinite legal advice, infinite accounting, infinite software. They cannot cr-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 35.04,
+    "text": "cost of doing anything with it is, uh, is falling. On the other hand, Bitcoin is not. Bitcoin is an appreciating asset. Um, all of the robots and all of the AIs in the world can't figure out how to create more than 450 Bitcoin per day. They can create infinite movies, infinite books, infinite music, infinite entertainment, infinite education, infinite ideas to optimize, infinite drugs, infinite medical advice, infinite legal advice, infinite accounting, infinite software. They cannot cr-"
+   }
+  ],
+  "words": [
+   {
+    "text": "cost",
+    "start": 0.0,
+    "end": 0.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 0.44,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "doing",
+    "start": 0.6,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "anything",
+    "start": 0.92,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 1.42,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 1.62,
+    "end": 1.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is,",
+    "start": 2.46,
+    "end": 2.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 2.78,
+    "end": 2.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 3.14,
+    "end": 3.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "falling.",
+    "start": 3.34,
+    "end": 3.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "On",
+    "start": 4.3,
+    "end": 4.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.4,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "other",
+    "start": 4.54,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hand,",
+    "start": 4.74,
+    "end": 4.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.0,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.46,
+    "end": 5.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not.",
+    "start": 5.66,
+    "end": 5.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.1,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 6.46,
+    "end": 6.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 6.58,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "appreciating",
+    "start": 6.7,
+    "end": 7.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset.",
+    "start": 7.48,
+    "end": 8.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 8.64,
+    "end": 8.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 9.24,
+    "end": 9.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 9.6,
+    "end": 9.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.76,
+    "end": 9.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "robots",
+    "start": 9.94,
+    "end": 10.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 10.58,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 10.92,
+    "end": 11.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 11.3,
+    "end": 11.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.48,
+    "end": 11.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AIs",
+    "start": 11.74,
+    "end": 12.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 12.28,
+    "end": 12.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.4,
+    "end": 12.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world",
+    "start": 12.54,
+    "end": 12.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can't",
+    "start": 12.9,
+    "end": 13.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "figure",
+    "start": 13.2,
+    "end": 13.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 13.5,
+    "end": 13.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 13.62,
+    "end": 13.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 13.74,
+    "end": 13.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "create",
+    "start": 13.86,
+    "end": 14.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 14.14,
+    "end": 14.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 14.34,
+    "end": 14.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "450",
+    "start": 14.72,
+    "end": 15.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 15.5,
+    "end": 16.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "per",
+    "start": 16.1,
+    "end": 16.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "day.",
+    "start": 16.34,
+    "end": 16.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "They",
+    "start": 17.98,
+    "end": 18.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 18.14,
+    "end": 18.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "create",
+    "start": 18.36,
+    "end": 18.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "infinite",
+    "start": 18.72,
+    "end": 19.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "movies,",
+    "start": 19.18,
+    "end": 19.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "infinite",
+    "start": 19.78,
+    "end": 20.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "books,",
+    "start": 20.28,
+    "end": 20.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "infinite",
+    "start": 20.86,
+    "end": 21.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "music,",
+    "start": 21.3,
+    "end": 21.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "infinite",
+    "start": 21.9,
+    "end": 22.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "entertainment,",
+    "start": 22.32,
+    "end": 22.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "infinite",
+    "start": 23.12,
+    "end": 23.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "education,",
+    "start": 23.66,
+    "end": 24.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "infinite",
+    "start": 24.94,
+    "end": 25.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ideas",
+    "start": 25.56,
+    "end": 26.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 26.24,
+    "end": 26.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "optimize,",
+    "start": 26.48,
+    "end": 27.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "infinite",
+    "start": 27.14,
+    "end": 27.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "drugs,",
+    "start": 27.66,
+    "end": 28.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "infinite",
+    "start": 28.36,
+    "end": 28.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "medical",
+    "start": 28.84,
+    "end": 29.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "advice,",
+    "start": 29.24,
+    "end": 29.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "infinite",
+    "start": 29.78,
+    "end": 30.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "legal",
+    "start": 30.28,
+    "end": 30.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "advice,",
+    "start": 30.64,
+    "end": 31.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "infinite",
+    "start": 31.52,
+    "end": 31.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "accounting,",
+    "start": 31.96,
+    "end": 32.479,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "infinite",
+    "start": 32.659,
+    "end": 33.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "software.",
+    "start": 33.12,
+    "end": 33.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "They",
+    "start": 34.58,
+    "end": 34.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cannot",
+    "start": 34.72,
+    "end": 35.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cr-",
+    "start": 35.04,
+    "end": 35.04,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 35.06
+ },
+ "usd": 0.007012,
+ "seconds": 1.08,
+ "recorded_at": "2026-11-15T03:08:34Z"
+}

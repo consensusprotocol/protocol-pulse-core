@@ -65,7 +65,8 @@
   "tests/package/proof/ledger_20261114_174007",
   "tests/package/proof/ledger_20261114_183413",
   "tests/package/proof/ledger_20261114_192056",
-  "tests/package/proof/ledger_20261114_230148"
+  "tests/package/proof/ledger_20261114_230148",
+  "tests/package/proof/ledger_20261115_030549"
  ],
  "candidates": {
   "35b7b52533b4220b2672+5307d23dced4f444919a+f03d79cf73eb188924ee": {
@@ -329,10 +330,18 @@
    "source": "tests/package/proof/ledger_20261114_230148",
    "index": 2,
    "found_at": "2026-11-14T23:01:48.598884+00:00",
-   "state": "open",
+   "state": "closed",
    "until": null,
    "fresh_used": false,
-   "history": []
+   "history": [
+    {
+     "build": "ruling 76",
+     "at": "2026-11-15T03:05:49.030405+00:00",
+     "class": "expired",
+     "fresh": false,
+     "why": "over 12 h on the render clock: 704fa6e1af4a86ff1d07: 13.1 h [publish times from tests/package/proof/ledger_20261114_230148/inputs.json]"
+    }
+   ]
   }
  }
 }
