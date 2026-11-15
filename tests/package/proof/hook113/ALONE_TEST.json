@@ -1,0 +1,134 @@
+{
+ "ruling": "113 Q1, the alone-test",
+ "at": "2026-11-15T18:07:52+00:00",
+ "seed": 7,
+ "models": {
+  "xai:grok-4.20-0309-reasoning": {
+   "ref-preview": {
+    "scroll": 3,
+    "alone": 4,
+    "setup": 3,
+    "rating": 3,
+    "why": "lacks dramatic punch in first seconds",
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": false,
+    "replayed": false
+   },
+   "ref-37c5b5f5": {
+    "scroll": 3,
+    "alone": 5,
+    "setup": 4,
+    "rating": 3,
+    "why": "first 2-3s lack punch to stop scroll",
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": false,
+    "replayed": false
+   },
+   "ref-41f29b1f": {
+    "scroll": 3,
+    "alone": 5,
+    "setup": 4,
+    "rating": 3,
+    "why": "first seconds lack strong grab to halt scroll",
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": false,
+    "replayed": false
+   },
+   "ref-0c68b589": {
+    "error": "ProviderError: coherence_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same model as the generator: skipped')]; answers out of contract: [('xai:grok-4.20-0309-reasoning', 'JSONDecodeError: "
+   },
+   "ref-13949b7c": {
+    "error": "ProviderError: coherence_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same model as the generator: skipped')]; answers out of contract: [('xai:grok-4.20-0309-reasoning', 'JSONDecodeError: "
+   }
+  },
+  "heimdall:qwen/qwen3.8-27b": {
+   "ref-preview": {
+    "scroll": 3,
+    "alone": 4,
+    "setup": 2,
+    "rating": 3,
+    "why": "Flat factual report with no tension or question to pull the viewer forward",
+    "backend": "heimdall:qwen/qwen3.8-27b",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": false,
+    "replayed": false
+   },
+   "ref-37c5b5f5": {
+    "scroll": 4,
+    "alone": 5,
+    "setup": 3,
+    "rating": 4,
+    "why": "setup is weakest; it states a conclusion without a clear question or tension pulling to the next clip",
+    "backend": "heimdall:qwen/qwen3.8-27b",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": false,
+    "replayed": false
+   },
+   "ref-41f29b1f": {
+    "scroll": 3,
+    "alone": 5,
+    "setup": 3,
+    "rating": 3,
+    "why": "declarative claim lacks curiosity gap",
+    "backend": "heimdall:qwen/qwen3.8-27b",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": false,
+    "replayed": false
+   },
+   "ref-0c68b589": {
+    "scroll": 2,
+    "alone": 4,
+    "setup": 2,
+    "rating": 2,
+    "why": "Complete self-contained argument; no forward tension or curiosity for what follows.",
+    "backend": "heimdall:qwen/qwen3.8-27b",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": false,
+    "replayed": false
+   },
+   "ref-13949b7c": {
+    "scroll": 3,
+    "alone": 5,
+    "setup": 3,
+    "rating": 3,
+    "why": "abstract opening, low tension",
+    "backend": "heimdall:qwen/qwen3.8-27b",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": false,
+    "replayed": false
+   }
+  }
+ },
+ "spent_after_xai": 0.055125,
+ "spent_after_heimdall": 0.057366,
+ "retries": {
+  "ref-0c68b589": {
+   "scroll": 3,
+   "alone": 5,
+   "setup": 4,
+   "rating": 3,
+   "why": "first seconds too dry to halt scrolls",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+   "cached": false,
+   "replayed": false,
+   "note": "asked once more, alone, seed 7, unrecorded (the first answer was out of contract)"
+  },
+  "ref-13949b7c": {
+   "scroll": 3,
+   "alone": 5,
+   "setup": 4,
+   "rating": 3,
+   "why": "dry academic opener lacks scroll-stopping punch",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+   "cached": false,
+   "replayed": false,
+   "note": "asked once more, alone, seed 7, unrecorded (the first answer was out of contract)"
+  }
+ },
+ "spent_after_retries": 0.064218
+}
