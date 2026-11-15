@@ -100,6 +100,8 @@ for why, n in (rep.get("no_word_record_why") or {}).items():
     s0 += [(f"SUPPLY: no word record yet ({why})", None)] * int(n)
 s0 += [("SUPPLY: waits for its OWN window record (the word-pass worker has not reached the row)", None)] * \
     int(rep.get("window_waiting") or 0)
+s0 += [("refused by the word pass (its row is not sentence-ready or failed; never re-worked)", None)] * \
+    int(rep.get("window_refused") or 0)
 s0 += [("its window record failed a check", None)] * int(rep.get("window_failed") or 0)
 na = rep.get("not_anchored") or {}
 ws_rows = {}

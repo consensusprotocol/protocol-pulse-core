@@ -538,6 +538,17 @@ class TestRuling94And95(unittest.TestCase):
         self.assertIn("ruling 94 (a): the trimmed cut is not clean: it bleeds", out["moments"]["a~trim"]["out"])
         self.assertNotIn("package_for", calls)
 
+    def test_ruling_95_a_moment_the_word_pass_refused_is_not_waiting(self):
+        rows = [{"video_id": "mid", "channel_name": "Panel", "published_at": "2026-11-13T20:00:00+00:00",
+                 "moment_id": m, "episode": {"turns_per_min": 1.5}, "mined": {"pass": "moment",
+                                                                             "prompt_version": "mine/2"}}
+                for m in ("m1", "m2", "m3")]
+        c = SPOT.next_attempt(rows, {"m1": {"sentence_ready": True}}, NOW, refused=["m2", "zz"])["conversation"]
+        self.assertEqual((c["rows"], c["word_pass_ready"], c["word_pass_refused"], c["word_pass_waiting"]),
+                         (3, 1, 1, 1))                                       # zz is no row of this upload
+        c = SPOT.next_attempt(rows, {"m1": {"sentence_ready": True}}, NOW)["conversation"]   # none named: as before
+        self.assertEqual((c["word_pass_refused"], c["word_pass_waiting"]), (0, 2))
+
     def test_ruling_95_the_newest_conversation_upload_and_its_mining_state(self):
         rows = [{"video_id": "old", "channel_name": "Talk", "published_at": "2026-11-13T18:00:00+00:00",
                  "moment_id": "o1", "episode": {"turns_per_min": 2.0}, "mined": {"pass": "hook",

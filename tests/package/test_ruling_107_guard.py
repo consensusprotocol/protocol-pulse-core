@@ -161,7 +161,8 @@ class TestTheDriverAsksNoModel(Paths):
     PIN_PATHS = [os.path.join(HERE, "proof", "fresh_20261112_050611", n) for n in ("MOMENTS_PIN.json",
                                                                                   "MOMENTS_PIN_LY.json")]
 
-    def run_driver(self, left):
+    def run_driver(self, left, wp_rep=None, seen=None):
+        """wp_rep: the word pass's report the stubbed index gives; seen: filled with build_inputs' keyword arguments."""
         proof = os.path.join(self.tmp.name, "drv", "proof")
         os.makedirs(proof)
         delivered, last, pins = PLG.delivered_pins(self.PIN_PATHS)
@@ -177,12 +178,16 @@ class TestTheDriverAsksNoModel(Paths):
 
         def no_router(*a, **k):
             raise Built("a router was built")
+
+        def inputs(*a, **k):
+            (seen if seen is not None else {}).update(k)
+            return copy.deepcopy(POOL), {}, {}
         stubs = [mock.patch.object(PLG, "HERE", os.path.join(self.tmp.name, "drv")),
                  mock.patch.object(PLG, "REGISTRY", os.path.join(proof, "CANDIDATES.json")),
                  mock.patch.object(PLG.PS, "ledger_entries", lambda *a, **k: []),
                  mock.patch.object(PLG.LB, "rows", lambda *a, **k: ([], {"excluded": {}})),
-                 mock.patch.object(PLG.LB, "word_pass_index", lambda *a, **k: ({}, {"rows": 0})),
-                 mock.patch.object(PLG.LB, "build_inputs", lambda *a, **k: (copy.deepcopy(POOL), {}, {})),
+                 mock.patch.object(PLG.LB, "word_pass_index", lambda *a, **k: ({}, dict(wp_rep or {"rows": 0}))),
+                 mock.patch.object(PLG.LB, "build_inputs", inputs),
                  mock.patch.object(PLG, "with_variants", lambda moments, *a, **k: moments),
                  mock.patch.object(PLG, "build_router", no_router),
                  mock.patch("sys.stdout", new=io.StringIO())]
@@ -207,6 +212,16 @@ class TestTheDriverAsksNoModel(Paths):
         self.assertEqual(rec["same_as"], "ledger_20000101_000000")
         self.assertIn("NOTHING NEW (ruling 107 (1))", open(os.path.join(runs[0], "package.log")).read())
         self.assertFalse(os.path.exists(os.path.join(runs[0], PLG.FINGERPRINT)))   # a skip never stands for a build
+
+    def test_the_word_pass_refused_reach_the_inputs_and_the_log_gives_their_count(self):
+        seen = {}
+        rc, runs = self.run_driver(left=0, wp_rep={"rows": 2, "ready": 0, "refused": ["Xa1", "Yb2"]}, seen=seen)
+        self.assertEqual((rc, seen.get("word_pass_refused")), (0, ["Xa1", "Yb2"]))
+        log = open(os.path.join(runs[0], "package.log")).read()
+        self.assertIn('"refused": 2', log)                                   # the count; the ids stay in inputs.json
+        self.assertNotIn("Xa1", log)
+        self.assertEqual(json.load(open(os.path.join(runs[0], "inputs.json")))["inputs"]["word_pass"]["refused"],
+                         ["Xa1", "Yb2"])
 
     def test_work_left_undone_goes_on_to_the_router(self):
         rc, runs = self.run_driver(left=1)

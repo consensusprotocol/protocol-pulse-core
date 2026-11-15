@@ -403,9 +403,11 @@ def main(argv=None):
     rows, rep = LB.rows(since, now, horizon_h=a.hours)
     say(f"  adapter: {len(rows)} rows ({json.dumps(rep.get('excluded'))})")
     wp, wp_rep = LB.word_pass_index(a.word_pass)
-    say(f"  word pass: {json.dumps(wp_rep)}")
+    refused = wp_rep.get("refused") or []                # final: the worker never re-works them (the inputs keep ids)
+    say(f"  word pass: {json.dumps(dict(wp_rep, refused=len(refused)))}")
     moments, sources, inputs = LB.build_inputs(rows, ctx, log=say, word_pass=wp,
-                                               ledger_store=os.path.join(LB.INGEST_ROOT, "data", "editorial"))
+                                               ledger_store=os.path.join(LB.INGEST_ROOT, "data", "editorial"),
+                                               word_pass_refused=refused)
     inputs["word_pass"] = wp_rep
     moments = with_variants(moments, sources, ctx, inputs, say)   # RULING 104: beside their parents, every gate again
     with open(os.path.join(out_dir, "inputs.json"), "w") as f:
@@ -505,7 +507,7 @@ def main(argv=None):
     res["spotlight"] = {k: sp.get(k) for k in ("package", "why_none", "finalists", "near", "moments", "pool",
                                                 "scorer_waited_s", "lock_stop", "scorer")}
     try:                                                 # RULING 95: when the next qualifying episode could arrive
-        res["next_attempt"] = SPOT.next_attempt(rows, wp, now)
+        res["next_attempt"] = SPOT.next_attempt(rows, wp, now, refused=refused)
     except Exception as e:                               # noqa: BLE001  a report, never the build
         res["next_attempt"] = {"error": f"{type(e).__name__}: {str(e)[:200]}"}
     res.update(seconds=round(time.time() - t0, 1), usd_estimate=round(own["est"], 4), usd_best_known=round(own["best"], 4),
@@ -569,7 +571,8 @@ def main(argv=None):
         say(f"  RULING 95: the newest conversation upload: {na.get('channel')} {na.get('video_id')} published "
             f"{na.get('published_at')} (expires {na.get('expires_at')}), {na.get('turns_per_min')} turns a minute, "
             f"rows {na.get('passes')}, word pass {na.get('word_pass_ready')} ready / {na.get('word_pass_waiting')} "
-            f"waiting" if na else "  RULING 95: no conversation upload in the window")
+            f"waiting / {na.get('word_pass_refused')} refused (never re-worked)" if na else
+            "  RULING 95: no conversation upload in the window")
         say(f"no spotlight ({sp.get('why_none')})" + "".join(
             f"; nearest {x['moment_id']} {x.get('channel')} {x.get('seconds')} s (hook {x.get('hook_own')}, alone "
             f"{x.get('alone')}): {x.get('out')}" for x in sp.get("near") or []))

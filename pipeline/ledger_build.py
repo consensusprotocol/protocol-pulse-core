@@ -34,6 +34,7 @@ FRESH medley. Read-only on the ledger and on the stores; no GPU; no model call h
 import hashlib
 import json
 import os
+import re
 import sys
 
 import eligibility as E
@@ -157,12 +158,32 @@ def _num(x):
     return v if v == v and v not in (float("inf"), float("-inf")) else None
 
 
+WORKER_BLOCK = re.compile(r"Sign in to confirm|--cookies for the authentication", re.I)
+# the word-pass worker's own BLOCK (the integrator's pipeline/word_pass_worker.py:68, release branch b22a5e56):
+# YouTube's sign-in wording. It is mirrored, not imported: the worker loads the main tree's transcript_store, which
+# this process may not (rows()'s store guard).
+
+
+def worked_by_worker(row):
+    """True when the word-pass worker counts this row as its moment WORKED, so it never picks the moment again: its
+    passed_ids (the integrator's pipeline/word_pass_worker.py:121-133, b22a5e56) counts every row (ready, not ready or
+    failed) except an acquisition failure in YouTube's sign-in wording without control_ok, which is the platform's, not
+    the moment's (that moment is picked again)."""
+    why = row.get("error")
+    blocked = isinstance(why, str) and why.startswith("acquisition:") and bool(WORKER_BLOCK.search(why))
+    return not (blocked and not row.get("control_ok"))
+
+
 def word_pass_index(path=WORD_PASS):
     """The word-pass worker's rows -> ({moment_id: the LAST row of that moment, when it is sentence_ready with a
-    window_record and a record_sha256}, report). A failed moment's row has neither, and the worker never retries it.
-    No file yet = no window record yet: ({}, report). A file that exists but cannot be read raises: it is never read
-    as an empty word pass (law L-j)."""
-    rep = {"rows": 0, "unreadable": 0, "ready": 0, "not_ready": 0, "failed": 0, "file": path}
+    window_record and a record_sha256}, report). A failed moment's row has neither.
+    report["refused"], sorted: every moment the worker has WORKED (worked_by_worker) and no usable window record came
+    of: it is final, never "waiting", because the worker never works a moment again (the integrator, 09:37 ET Nov 15).
+    A moment whose only rows are retried block failures is not refused: the worker picks it again. No file yet = no
+    window record yet: ({}, report). A file that exists but cannot be read raises: it is never read as an empty word
+    pass (law L-j)."""
+    rep = {"rows": 0, "unreadable": 0, "ready": 0, "not_ready": 0, "failed": 0, "file": path, "refused": []}
+    worked = set()
     try:
         f = open(path)
     except FileNotFoundError:
@@ -182,6 +203,8 @@ def word_pass_index(path=WORD_PASS):
                 rep["unreadable"] += 1
                 continue
             last[r["moment_id"]] = r
+            if worked_by_worker(r):
+                worked.add(r["moment_id"])
     out = {}
     for mid, r in last.items():
         if r.get("error") or r.get("window_record") is None:
@@ -193,6 +216,7 @@ def word_pass_index(path=WORD_PASS):
             rep["ready"] += 1
         else:
             rep["unreadable"] += 1
+    rep["refused"] = sorted(worked - set(out))
     return out, rep
 
 
@@ -420,9 +444,13 @@ def reanchor(row, src, cap=None):
     return sp, info
 
 
-def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store=None):
+def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store=None, word_pass_refused=()):
     """Ledger rows -> (moments in the packager's form, {key: Source}, report). word_pass: word_pass_index()'s
-    {moment_id: row} (None = no window records).
+    {moment_id: row} (None = no window records). word_pass_refused: the "refused" ids of the SAME word_pass_index()
+    call's report (the two are disjoint by construction). A row with neither a sentence-ready window record nor a
+    full-video record is counted as REFUSED when the word pass refused it (final: never re-worked), else as waiting (no
+    row yet): report "window_refused" (and per video, "window_refused_videos") apart from "window_waiting" and
+    "no_word_record".
     - A video with a sentence-ready full-video word record: every row re-anchors in it (key: the video id).
     - Otherwise ONE WINDOW PER MOMENT, the word-pass worker writing one around each moment. A row with its own
       sentence-ready window record re-anchors in THAT window, and its moment carries source_key =
@@ -434,9 +462,10 @@ def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store
     Rows with no word record, rows that do not re-anchor on whole sentences, and duplicates are dropped, each counted
     with why. report: "videos" counts the videos that gave moments and "sources" their records (one per window
     moment); window_records is {video: [records]} (audit 0208 C2, glm N2 / N4)."""
-    word_pass = word_pass or {}
+    word_pass, refused = word_pass or {}, set(word_pass_refused or ())
     report = {"rows": len(rows), "no_word_record": 0, "no_word_record_why": {}, "no_word_record_videos": {},
-              "window_records": {}, "window_waiting": 0, "window_failed": 0, "window_passed_over": {},
+              "window_records": {}, "window_waiting": 0, "window_refused": 0, "window_refused_videos": {},
+              "window_failed": 0, "window_passed_over": {},
               "no_caption_context": {},
               "fallbacks": {},
               "channel_conflict": {}, "not_anchored": {}, "malformed": {}, "duplicates": 0, "duplicates_of": {},
@@ -502,10 +531,14 @@ def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store
                 sources[vid] = src
             continue
         caps, why_w, waiting, windows, kept = {}, [], 0, 0, []     # kept: (start, end, moment id) of window moments
+        n_ref = 0                                    # rows the word pass refused: final, never waiting
         for i, r in irs:                             # ONE WINDOW PER MOMENT
             wp = word_pass.get(r["moment_id"])
             if wp is None:
-                waiting += 1
+                if r["moment_id"] in refused:
+                    n_ref += 1
+                else:
+                    waiting += 1
                 continue
             wsrc, wpath, why = window_source(r, wp, ctx, store)
             if wsrc is None:
@@ -539,19 +572,23 @@ def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store
             sources[key] = wsrc
         if why_w:
             report["window_passed_over"][vid] = why_w
-        if not windows:
+        report["window_refused"] += n_ref            # this video's refused rows (counted in its loop above), whether
+        if n_ref:                                    # or not it has windows; never in the waiting counts below
+            report["window_refused_videos"][vid] = n_ref
+        if not windows and len(rs) > n_ref:          # rows that still wait (a video the word pass refused whole: none)
             why = "; ".join(passed_over + (["its window records were passed over"] if why_w else
                                            ["no sentence-ready window record"]))
-            report["no_word_record"] += len(rs)
-            report["no_word_record_why"][why] = report["no_word_record_why"].get(why, 0) + len(rs)
-            report["no_word_record_videos"][vid] = {"rows": len(rs), "why": why}     # which videos (glm C3 P2-2)
-        else:
+            report["no_word_record"] += len(rs) - n_ref
+            report["no_word_record_why"][why] = report["no_word_record_why"].get(why, 0) + len(rs) - n_ref
+            report["no_word_record_videos"][vid] = {"rows": len(rs) - n_ref, "why": why}   # which (glm C3 P2-2)
+        elif windows:
             report["window_waiting"] += waiting      # rows of a window video with no window record of their own
     report["moments"], report["sources"] = len(moments), len(sources)
     report["videos"] = len({m["video_id"] for m in moments})
     log(f"  ledger rows {report['rows']}: {report['moments']} moments on {report['videos']} videos "
         f"({report['sources']} word records); {report['no_word_record']} rows wait for a word record, "
-        f"{report['window_waiting']} wait for their own window, {len(report['not_anchored'])} do not re-anchor, "
+        f"{report['window_waiting']} wait for their own window, {report['window_refused']} refused by the word pass "
+        f"(not sentence-ready or failed: never re-worked), {len(report['not_anchored'])} do not re-anchor, "
         f"{len(report['malformed'])} malformed, {report['duplicates']} duplicates; "
         f"{len(report['channel_conflict'])} video(s) name more than one channel, "
         f"{len(report['fallbacks'])} read from a fallback record; "

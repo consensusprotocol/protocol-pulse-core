@@ -462,6 +462,49 @@ class TestWindowRecords(unittest.TestCase):
             self.assertEqual(idx["C"]["record_sha256"], "s2")                       # the last row of a moment wins
             self.assertEqual((rep["failed"], rep["not_ready"], rep["ready"], rep["unreadable"]), (1, 1, 1, 1))
 
+    def test_the_refused_are_the_moments_the_worker_worked_with_no_window_from_it(self):
+        """The integrator, 09:37 ET Nov 15: the worker never works a moment again once a row counts as worked (its
+        passed_ids, pipeline/word_pass_worker.py:121-133): every row but an acquisition failure in YouTube's sign-in
+        wording without control_ok. A worked moment with no usable window record is refused, never waiting."""
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "word_pass.jsonl")
+            self.assertEqual(LB.word_pass_index(p)[1]["refused"], [])               # no file yet: none refused
+            ok = {"window_record": "x", "record_sha256": "s", "sentence_ready": True}
+            boom = {"window_record": None, "record_sha256": None, "sentence_ready": False, "error": "boom"}
+            signin = dict(boom, error="acquisition: ERROR: [youtube] abc: Sign in to confirm you're not a bot")
+            rows = [dict(ok, moment_id="R"), dict(boom, moment_id="F"),
+                    dict(ok, moment_id="N", sentence_ready=False), dict(ok, moment_id="U", record_sha256=None),
+                    dict(boom, moment_id="L"), dict(ok, moment_id="L"),                # the last row wins, both ways
+                    dict(ok, moment_id="T"), dict(ok, moment_id="T", sentence_ready=False),
+                    dict(signin, moment_id="B"),                     # the platform's block: picked again, it waits
+                    dict(signin, moment_id="C", control_ok=True),    # the control downloaded: the video's, refused
+                    dict(ok, moment_id="E", sentence_ready=False), dict(signin, moment_id="E")]   # worked before
+            with open(p, "w") as f:
+                f.write("\n".join(json.dumps(r) for r in rows) + "\n")
+            idx, rep = LB.word_pass_index(p)
+            self.assertEqual((sorted(idx), rep["refused"]), (["L", "R"], ["C", "E", "F", "N", "T", "U"]))
+
+    def test_a_row_the_word_pass_refused_is_counted_apart_from_the_waiting(self):
+        ctx = E.Context(NOW, REG)
+        with tempfile.TemporaryDirectory() as d:
+            rel, wp, r, words = window_fixture(d)
+            mk = lambda mid, vid, t: dict(row("Bitcoin started as a quiet experiment.", start=t, end=t + 4.0, mid=mid,
+                                              vid=vid), transcript_sha256=r["transcript_sha256"])
+            rows = [r, mk("W2", "vidW", 100.0), mk("W3", "vidW", 200.0),      # vidW: W1 ready, W2 refused, W3 waits
+                    mk("X1", "vidX", 10.0), mk("X2", "vidX", 20.0),           # vidX: every row refused
+                    mk("Y1", "vidY", 10.0),                                    # vidY: no row yet
+                    mk("Z1", "vidZ", 10.0), mk("Z2", "vidZ", 20.0)]           # vidZ: no window; Z1 refused, Z2 waits
+            go = lambda **k: LB.build_inputs(rows, ctx, d, log=lambda s: None, word_pass={"W1": wp}, **k)
+            ms, _, rep = go(word_pass_refused=["W2", "X1", "X2", "Z1"])
+            self.assertEqual([m["mined"]["ledger_moment_id"] for m in ms], ["W1"])
+            self.assertEqual((rep["window_waiting"], rep["window_refused"], rep["no_word_record"]), (1, 4, 2))
+            self.assertEqual({v: x["rows"] for v, x in rep["no_word_record_videos"].items()},
+                             {"vidY": 1, "vidZ": 1})                             # vidX waits for nothing
+            self.assertEqual(rep["window_refused_videos"], {"vidW": 1, "vidX": 2, "vidZ": 1})   # named per video
+            self.assertEqual(sum(rep["no_word_record_why"].values()), 2)         # the why counts agree
+            _, _, old = go()                                                     # no refused ids given: as before
+            self.assertEqual((old["window_waiting"], old["window_refused"], old["no_word_record"]), (2, 0, 5))
+
     def test_a_window_record_is_used_only_when_every_claim_checks_out(self):
         ctx = E.Context(NOW, REG)
         with tempfile.TemporaryDirectory() as d:

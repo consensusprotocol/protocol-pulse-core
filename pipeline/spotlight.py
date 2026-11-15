@@ -342,16 +342,18 @@ def source_test(evidence, layout):
     return True, f"layout '{lay}'; the captions' evidence: {evidence_text(evidence)}"
 
 
-def next_attempt(rows, word_pass, now, captions_for=None):
+def next_attempt(rows, word_pass, now, captions_for=None, refused=()):
     """RULING 95 (00:40 ET Nov 14): when a build ends with no medley and no spotlight, when the next qualifying episode
     could arrive. The NEWEST upload among the adapter's rows whose captions do not refuse it (RULING 92 AMENDED, 09:03
     Nov 14: unmarked, or marked with at least one speaker change; the layout decides per clip), its caption turns from
     pp-ingest's `episode` (mine-hook/2 rows), else episode_turns(): an episode marked with zero turns is the one
-    excluded. Each upload's mining state: its rows by pass and prompt version, and its word-pass windows ready or still
-    waiting (word_pass: ledger_build.word_pass_index's {moment_id: row}). -> {"conversation": {...} or None,
+    excluded. Each upload's mining state: its rows by pass and prompt version, and its word-pass windows ready, refused
+    (refused: word_pass_index's report["refused"], final: the worker never re-works them) or still waiting (no row yet)
+    (word_pass: ledger_build.word_pass_index's {moment_id: row}). -> {"conversation": {...} or None,
     "newest_upload": {...} or None}."""
     from datetime import datetime, timedelta, timezone
     import package_pin as PPN
+    refused = set(refused or ())
     by_vid = {}
     for r in rows or ():
         if isinstance(r, dict) and r.get("video_id"):
@@ -370,13 +372,14 @@ def next_attempt(rows, word_pass, now, captions_for=None):
             k = f"{(r.get('mined') or {}).get('pass')}/{(r.get('mined') or {}).get('prompt_version')}"
             passes[k] = passes.get(k, 0) + 1
         ready = sum(1 for r in rs if (word_pass.get(r.get("moment_id")) or {}).get("sentence_ready"))
+        n_ref = sum(1 for r in rs if r.get("moment_id") in refused and r.get("moment_id") not in word_pass)
         exp = (datetime.strptime(pub, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc) +
                timedelta(hours=PPN.WINDOW_H)).strftime("%Y-%m-%dT%H:%M:%SZ") if pub else None
         age = E.age_hours(rs[0].get("published_at"), now)
         return {"video_id": vid, "channel": rs[0].get("channel_name"), "published_at": pub, "expires_at": exp,
                 "age_h": round(age, 1) if age is not None else None,
                 "turns_per_min": tpm, "unmarked": unmarked, "turns_from": frm, "rows": len(rs), "passes": passes,
-                "word_pass_ready": ready, "word_pass_waiting": len(rs) - ready}
+                "word_pass_ready": ready, "word_pass_refused": n_ref, "word_pass_waiting": len(rs) - ready - n_ref}
     sts = sorted((state(v, rs) for v, rs in by_vid.items()), key=lambda x: x["published_at"] or "", reverse=True)
     conv = [x for x in sts if x["unmarked"] or not (isinstance(x["turns_per_min"], (int, float)) and
                                                     x["turns_per_min"] <= 0)]       # only MARKED with zero turns is out

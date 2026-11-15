@@ -1,0 +1,359 @@
+diff --git a/pipeline/ledger_build.py b/pipeline/ledger_build.py
+index 88a255b..185ba4c 100644
+--- a/pipeline/ledger_build.py
++++ b/pipeline/ledger_build.py
+@@ -34,6 +34,7 @@ FRESH medley. Read-only on the ledger and on the stores; no GPU; no model call h
+ import hashlib
+ import json
+ import os
++import re
+ import sys
+ 
+ import eligibility as E
+@@ -157,12 +158,32 @@ def _num(x):
+     return v if v == v and v not in (float("inf"), float("-inf")) else None
+ 
+ 
++WORKER_BLOCK = re.compile(r"Sign in to confirm|--cookies for the authentication", re.I)
++# the word-pass worker's own BLOCK (the integrator's pipeline/word_pass_worker.py:68, release branch b22a5e56):
++# YouTube's sign-in wording. It is mirrored, not imported: the worker loads the main tree's transcript_store, which
++# this process may not (rows()'s store guard).
++
++
++def worked_by_worker(row):
++    """True when the word-pass worker counts this row as its moment WORKED, so it never picks the moment again: its
++    passed_ids (the integrator's pipeline/word_pass_worker.py:121-133, b22a5e56) counts every row (ready, not ready or
++    failed) except an acquisition failure in YouTube's sign-in wording without control_ok, which is the platform's, not
++    the moment's (that moment is picked again)."""
++    why = row.get("error")
++    blocked = isinstance(why, str) and why.startswith("acquisition:") and bool(WORKER_BLOCK.search(why))
++    return not (blocked and not row.get("control_ok"))
++
++
+ def word_pass_index(path=WORD_PASS):
+     """The word-pass worker's rows -> ({moment_id: the LAST row of that moment, when it is sentence_ready with a
+-    window_record and a record_sha256}, report). A failed moment's row has neither, and the worker never retries it.
+-    No file yet = no window record yet: ({}, report). A file that exists but cannot be read raises: it is never read
+-    as an empty word pass (law L-j)."""
+-    rep = {"rows": 0, "unreadable": 0, "ready": 0, "not_ready": 0, "failed": 0, "file": path}
++    window_record and a record_sha256}, report). A failed moment's row has neither.
++    report["refused"], sorted: every moment the worker has WORKED (worked_by_worker) and no usable window record came
++    of: it is final, never "waiting", because the worker never works a moment again (the integrator, 09:37 ET Nov 15).
++    A moment whose only rows are retried block failures is not refused: the worker picks it again. No file yet = no
++    window record yet: ({}, report). A file that exists but cannot be read raises: it is never read as an empty word
++    pass (law L-j)."""
++    rep = {"rows": 0, "unreadable": 0, "ready": 0, "not_ready": 0, "failed": 0, "file": path, "refused": []}
++    worked = set()
+     try:
+         f = open(path)
+     except FileNotFoundError:
+@@ -182,6 +203,8 @@ def word_pass_index(path=WORD_PASS):
+                 rep["unreadable"] += 1
+                 continue
+             last[r["moment_id"]] = r
++            if worked_by_worker(r):
++                worked.add(r["moment_id"])
+     out = {}
+     for mid, r in last.items():
+         if r.get("error") or r.get("window_record") is None:
+@@ -193,6 +216,7 @@ def word_pass_index(path=WORD_PASS):
+             rep["ready"] += 1
+         else:
+             rep["unreadable"] += 1
++    rep["refused"] = sorted(worked - set(out))
+     return out, rep
+ 
+ 
+@@ -420,9 +444,13 @@ def reanchor(row, src, cap=None):
+     return sp, info
+ 
+ 
+-def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store=None):
++def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store=None, word_pass_refused=()):
+     """Ledger rows -> (moments in the packager's form, {key: Source}, report). word_pass: word_pass_index()'s
+-    {moment_id: row} (None = no window records).
++    {moment_id: row} (None = no window records). word_pass_refused: the "refused" ids of the SAME word_pass_index()
++    call's report (the two are disjoint by construction). A row with neither a sentence-ready window record nor a
++    full-video record is counted as REFUSED when the word pass refused it (final: never re-worked), else as waiting (no
++    row yet): report "window_refused" (and per video, "window_refused_videos") apart from "window_waiting" and
++    "no_word_record".
+     - A video with a sentence-ready full-video word record: every row re-anchors in it (key: the video id).
+     - Otherwise ONE WINDOW PER MOMENT, the word-pass worker writing one around each moment. A row with its own
+       sentence-ready window record re-anchors in THAT window, and its moment carries source_key =
+@@ -434,9 +462,10 @@ def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store
+     Rows with no word record, rows that do not re-anchor on whole sentences, and duplicates are dropped, each counted
+     with why. report: "videos" counts the videos that gave moments and "sources" their records (one per window
+     moment); window_records is {video: [records]} (audit 0208 C2, glm N2 / N4)."""
+-    word_pass = word_pass or {}
++    word_pass, refused = word_pass or {}, set(word_pass_refused or ())
+     report = {"rows": len(rows), "no_word_record": 0, "no_word_record_why": {}, "no_word_record_videos": {},
+-              "window_records": {}, "window_waiting": 0, "window_failed": 0, "window_passed_over": {},
++              "window_records": {}, "window_waiting": 0, "window_refused": 0, "window_refused_videos": {},
++              "window_failed": 0, "window_passed_over": {},
+               "no_caption_context": {},
+               "fallbacks": {},
+               "channel_conflict": {}, "not_anchored": {}, "malformed": {}, "duplicates": 0, "duplicates_of": {},
+@@ -502,10 +531,14 @@ def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store
+                 sources[vid] = src
+             continue
+         caps, why_w, waiting, windows, kept = {}, [], 0, 0, []     # kept: (start, end, moment id) of window moments
++        n_ref = 0                                    # rows the word pass refused: final, never waiting
+         for i, r in irs:                             # ONE WINDOW PER MOMENT
+             wp = word_pass.get(r["moment_id"])
+             if wp is None:
+-                waiting += 1
++                if r["moment_id"] in refused:
++                    n_ref += 1
++                else:
++                    waiting += 1
+                 continue
+             wsrc, wpath, why = window_source(r, wp, ctx, store)
+             if wsrc is None:
+@@ -539,19 +572,23 @@ def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store
+             sources[key] = wsrc
+         if why_w:
+             report["window_passed_over"][vid] = why_w
+-        if not windows:
++        report["window_refused"] += n_ref            # this video's refused rows (counted in its loop above), whether
++        if n_ref:                                    # or not it has windows; never in the waiting counts below
++            report["window_refused_videos"][vid] = n_ref
++        if not windows and len(rs) > n_ref:          # rows that still wait (a video the word pass refused whole: none)
+             why = "; ".join(passed_over + (["its window records were passed over"] if why_w else
+                                            ["no sentence-ready window record"]))
+-            report["no_word_record"] += len(rs)
+-            report["no_word_record_why"][why] = report["no_word_record_why"].get(why, 0) + len(rs)
+-            report["no_word_record_videos"][vid] = {"rows": len(rs), "why": why}     # which videos (glm C3 P2-2)
+-        else:
++            report["no_word_record"] += len(rs) - n_ref
++            report["no_word_record_why"][why] = report["no_word_record_why"].get(why, 0) + len(rs) - n_ref
++            report["no_word_record_videos"][vid] = {"rows": len(rs) - n_ref, "why": why}   # which (glm C3 P2-2)
++        elif windows:
+             report["window_waiting"] += waiting      # rows of a window video with no window record of their own
+     report["moments"], report["sources"] = len(moments), len(sources)
+     report["videos"] = len({m["video_id"] for m in moments})
+     log(f"  ledger rows {report['rows']}: {report['moments']} moments on {report['videos']} videos "
+         f"({report['sources']} word records); {report['no_word_record']} rows wait for a word record, "
+-        f"{report['window_waiting']} wait for their own window, {len(report['not_anchored'])} do not re-anchor, "
++        f"{report['window_waiting']} wait for their own window, {report['window_refused']} refused by the word pass "
++        f"(not sentence-ready or failed: never re-worked), {len(report['not_anchored'])} do not re-anchor, "
+         f"{len(report['malformed'])} malformed, {report['duplicates']} duplicates; "
+         f"{len(report['channel_conflict'])} video(s) name more than one channel, "
+         f"{len(report['fallbacks'])} read from a fallback record; "
+diff --git a/pipeline/spotlight.py b/pipeline/spotlight.py
+index f2290d0..c945ced 100644
+--- a/pipeline/spotlight.py
++++ b/pipeline/spotlight.py
+@@ -342,16 +342,18 @@ def source_test(evidence, layout):
+     return True, f"layout '{lay}'; the captions' evidence: {evidence_text(evidence)}"
+ 
+ 
+-def next_attempt(rows, word_pass, now, captions_for=None):
++def next_attempt(rows, word_pass, now, captions_for=None, refused=()):
+     """RULING 95 (00:40 ET Nov 14): when a build ends with no medley and no spotlight, when the next qualifying episode
+     could arrive. The NEWEST upload among the adapter's rows whose captions do not refuse it (RULING 92 AMENDED, 09:03
+     Nov 14: unmarked, or marked with at least one speaker change; the layout decides per clip), its caption turns from
+     pp-ingest's `episode` (mine-hook/2 rows), else episode_turns(): an episode marked with zero turns is the one
+-    excluded. Each upload's mining state: its rows by pass and prompt version, and its word-pass windows ready or still
+-    waiting (word_pass: ledger_build.word_pass_index's {moment_id: row}). -> {"conversation": {...} or None,
++    excluded. Each upload's mining state: its rows by pass and prompt version, and its word-pass windows ready, refused
++    (refused: word_pass_index's report["refused"], final: the worker never re-works them) or still waiting (no row yet)
++    (word_pass: ledger_build.word_pass_index's {moment_id: row}). -> {"conversation": {...} or None,
+     "newest_upload": {...} or None}."""
+     from datetime import datetime, timedelta, timezone
+     import package_pin as PPN
++    refused = set(refused or ())
+     by_vid = {}
+     for r in rows or ():
+         if isinstance(r, dict) and r.get("video_id"):
+@@ -370,13 +372,14 @@ def next_attempt(rows, word_pass, now, captions_for=None):
+             k = f"{(r.get('mined') or {}).get('pass')}/{(r.get('mined') or {}).get('prompt_version')}"
+             passes[k] = passes.get(k, 0) + 1
+         ready = sum(1 for r in rs if (word_pass.get(r.get("moment_id")) or {}).get("sentence_ready"))
++        n_ref = sum(1 for r in rs if r.get("moment_id") in refused and r.get("moment_id") not in word_pass)
+         exp = (datetime.strptime(pub, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc) +
+                timedelta(hours=PPN.WINDOW_H)).strftime("%Y-%m-%dT%H:%M:%SZ") if pub else None
+         age = E.age_hours(rs[0].get("published_at"), now)
+         return {"video_id": vid, "channel": rs[0].get("channel_name"), "published_at": pub, "expires_at": exp,
+                 "age_h": round(age, 1) if age is not None else None,
+                 "turns_per_min": tpm, "unmarked": unmarked, "turns_from": frm, "rows": len(rs), "passes": passes,
+-                "word_pass_ready": ready, "word_pass_waiting": len(rs) - ready}
++                "word_pass_ready": ready, "word_pass_refused": n_ref, "word_pass_waiting": len(rs) - ready - n_ref}
+     sts = sorted((state(v, rs) for v, rs in by_vid.items()), key=lambda x: x["published_at"] or "", reverse=True)
+     conv = [x for x in sts if x["unmarked"] or not (isinstance(x["turns_per_min"], (int, float)) and
+                                                     x["turns_per_min"] <= 0)]       # only MARKED with zero turns is out
+diff --git a/tests/package/funnel.py b/tests/package/funnel.py
+index 044385c..71d7f95 100644
+--- a/tests/package/funnel.py
++++ b/tests/package/funnel.py
+@@ -100,6 +100,8 @@ for why, n in (rep.get("no_word_record_why") or {}).items():
+     s0 += [(f"SUPPLY: no word record yet ({why})", None)] * int(n)
+ s0 += [("SUPPLY: waits for its OWN window record (the word-pass worker has not reached the row)", None)] * \
+     int(rep.get("window_waiting") or 0)
++s0 += [("refused by the word pass (its row is not sentence-ready or failed; never re-worked)", None)] * \
++    int(rep.get("window_refused") or 0)
+ s0 += [("its window record failed a check", None)] * int(rep.get("window_failed") or 0)
+ na = rep.get("not_anchored") or {}
+ ws_rows = {}
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 0e36ebd..63860a3 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -403,9 +403,11 @@ def main(argv=None):
+     rows, rep = LB.rows(since, now, horizon_h=a.hours)
+     say(f"  adapter: {len(rows)} rows ({json.dumps(rep.get('excluded'))})")
+     wp, wp_rep = LB.word_pass_index(a.word_pass)
+-    say(f"  word pass: {json.dumps(wp_rep)}")
++    refused = wp_rep.get("refused") or []                # final: the worker never re-works them (the inputs keep ids)
++    say(f"  word pass: {json.dumps(dict(wp_rep, refused=len(refused)))}")
+     moments, sources, inputs = LB.build_inputs(rows, ctx, log=say, word_pass=wp,
+-                                               ledger_store=os.path.join(LB.INGEST_ROOT, "data", "editorial"))
++                                               ledger_store=os.path.join(LB.INGEST_ROOT, "data", "editorial"),
++                                               word_pass_refused=refused)
+     inputs["word_pass"] = wp_rep
+     moments = with_variants(moments, sources, ctx, inputs, say)   # RULING 104: beside their parents, every gate again
+     with open(os.path.join(out_dir, "inputs.json"), "w") as f:
+@@ -505,7 +507,7 @@ def main(argv=None):
+     res["spotlight"] = {k: sp.get(k) for k in ("package", "why_none", "finalists", "near", "moments", "pool",
+                                                 "scorer_waited_s", "lock_stop", "scorer")}
+     try:                                                 # RULING 95: when the next qualifying episode could arrive
+-        res["next_attempt"] = SPOT.next_attempt(rows, wp, now)
++        res["next_attempt"] = SPOT.next_attempt(rows, wp, now, refused=refused)
+     except Exception as e:                               # noqa: BLE001  a report, never the build
+         res["next_attempt"] = {"error": f"{type(e).__name__}: {str(e)[:200]}"}
+     res.update(seconds=round(time.time() - t0, 1), usd_estimate=round(own["est"], 4), usd_best_known=round(own["best"], 4),
+@@ -569,7 +571,8 @@ def main(argv=None):
+         say(f"  RULING 95: the newest conversation upload: {na.get('channel')} {na.get('video_id')} published "
+             f"{na.get('published_at')} (expires {na.get('expires_at')}), {na.get('turns_per_min')} turns a minute, "
+             f"rows {na.get('passes')}, word pass {na.get('word_pass_ready')} ready / {na.get('word_pass_waiting')} "
+-            f"waiting" if na else "  RULING 95: no conversation upload in the window")
++            f"waiting / {na.get('word_pass_refused')} refused (never re-worked)" if na else
++            "  RULING 95: no conversation upload in the window")
+         say(f"no spotlight ({sp.get('why_none')})" + "".join(
+             f"; nearest {x['moment_id']} {x.get('channel')} {x.get('seconds')} s (hook {x.get('hook_own')}, alone "
+             f"{x.get('alone')}): {x.get('out')}" for x in sp.get("near") or []))
+diff --git a/tests/package/test_ledger_build.py b/tests/package/test_ledger_build.py
+index cc9b1e8..5a109eb 100644
+--- a/tests/package/test_ledger_build.py
++++ b/tests/package/test_ledger_build.py
+@@ -462,6 +462,49 @@ class TestWindowRecords(unittest.TestCase):
+             self.assertEqual(idx["C"]["record_sha256"], "s2")                       # the last row of a moment wins
+             self.assertEqual((rep["failed"], rep["not_ready"], rep["ready"], rep["unreadable"]), (1, 1, 1, 1))
+ 
++    def test_the_refused_are_the_moments_the_worker_worked_with_no_window_from_it(self):
++        """The integrator, 09:37 ET Nov 15: the worker never works a moment again once a row counts as worked (its
++        passed_ids, pipeline/word_pass_worker.py:121-133): every row but an acquisition failure in YouTube's sign-in
++        wording without control_ok. A worked moment with no usable window record is refused, never waiting."""
++        with tempfile.TemporaryDirectory() as d:
++            p = os.path.join(d, "word_pass.jsonl")
++            self.assertEqual(LB.word_pass_index(p)[1]["refused"], [])               # no file yet: none refused
++            ok = {"window_record": "x", "record_sha256": "s", "sentence_ready": True}
++            boom = {"window_record": None, "record_sha256": None, "sentence_ready": False, "error": "boom"}
++            signin = dict(boom, error="acquisition: ERROR: [youtube] abc: Sign in to confirm you're not a bot")
++            rows = [dict(ok, moment_id="R"), dict(boom, moment_id="F"),
++                    dict(ok, moment_id="N", sentence_ready=False), dict(ok, moment_id="U", record_sha256=None),
++                    dict(boom, moment_id="L"), dict(ok, moment_id="L"),                # the last row wins, both ways
++                    dict(ok, moment_id="T"), dict(ok, moment_id="T", sentence_ready=False),
++                    dict(signin, moment_id="B"),                     # the platform's block: picked again, it waits
++                    dict(signin, moment_id="C", control_ok=True),    # the control downloaded: the video's, refused
++                    dict(ok, moment_id="E", sentence_ready=False), dict(signin, moment_id="E")]   # worked before
++            with open(p, "w") as f:
++                f.write("\n".join(json.dumps(r) for r in rows) + "\n")
++            idx, rep = LB.word_pass_index(p)
++            self.assertEqual((sorted(idx), rep["refused"]), (["L", "R"], ["C", "E", "F", "N", "T", "U"]))
++
++    def test_a_row_the_word_pass_refused_is_counted_apart_from_the_waiting(self):
++        ctx = E.Context(NOW, REG)
++        with tempfile.TemporaryDirectory() as d:
++            rel, wp, r, words = window_fixture(d)
++            mk = lambda mid, vid, t: dict(row("Bitcoin started as a quiet experiment.", start=t, end=t + 4.0, mid=mid,
++                                              vid=vid), transcript_sha256=r["transcript_sha256"])
++            rows = [r, mk("W2", "vidW", 100.0), mk("W3", "vidW", 200.0),      # vidW: W1 ready, W2 refused, W3 waits
++                    mk("X1", "vidX", 10.0), mk("X2", "vidX", 20.0),           # vidX: every row refused
++                    mk("Y1", "vidY", 10.0),                                    # vidY: no row yet
++                    mk("Z1", "vidZ", 10.0), mk("Z2", "vidZ", 20.0)]           # vidZ: no window; Z1 refused, Z2 waits
++            go = lambda **k: LB.build_inputs(rows, ctx, d, log=lambda s: None, word_pass={"W1": wp}, **k)
++            ms, _, rep = go(word_pass_refused=["W2", "X1", "X2", "Z1"])
++            self.assertEqual([m["mined"]["ledger_moment_id"] for m in ms], ["W1"])
++            self.assertEqual((rep["window_waiting"], rep["window_refused"], rep["no_word_record"]), (1, 4, 2))
++            self.assertEqual({v: x["rows"] for v, x in rep["no_word_record_videos"].items()},
++                             {"vidY": 1, "vidZ": 1})                             # vidX waits for nothing
++            self.assertEqual(rep["window_refused_videos"], {"vidW": 1, "vidX": 2, "vidZ": 1})   # named per video
++            self.assertEqual(sum(rep["no_word_record_why"].values()), 2)         # the why counts agree
++            _, _, old = go()                                                     # no refused ids given: as before
++            self.assertEqual((old["window_waiting"], old["window_refused"], old["no_word_record"]), (2, 0, 5))
++
+     def test_a_window_record_is_used_only_when_every_claim_checks_out(self):
+         ctx = E.Context(NOW, REG)
+         with tempfile.TemporaryDirectory() as d:
+diff --git a/tests/package/test_ruling_107_guard.py b/tests/package/test_ruling_107_guard.py
+index ce0eade..c1b3e31 100644
+--- a/tests/package/test_ruling_107_guard.py
++++ b/tests/package/test_ruling_107_guard.py
+@@ -161,7 +161,8 @@ class TestTheDriverAsksNoModel(Paths):
+     PIN_PATHS = [os.path.join(HERE, "proof", "fresh_20261112_050611", n) for n in ("MOMENTS_PIN.json",
+                                                                                   "MOMENTS_PIN_LY.json")]
+ 
+-    def run_driver(self, left):
++    def run_driver(self, left, wp_rep=None, seen=None):
++        """wp_rep: the word pass's report the stubbed index gives; seen: filled with build_inputs' keyword arguments."""
+         proof = os.path.join(self.tmp.name, "drv", "proof")
+         os.makedirs(proof)
+         delivered, last, pins = PLG.delivered_pins(self.PIN_PATHS)
+@@ -177,12 +178,16 @@ class TestTheDriverAsksNoModel(Paths):
+ 
+         def no_router(*a, **k):
+             raise Built("a router was built")
++
++        def inputs(*a, **k):
++            (seen if seen is not None else {}).update(k)
++            return copy.deepcopy(POOL), {}, {}
+         stubs = [mock.patch.object(PLG, "HERE", os.path.join(self.tmp.name, "drv")),
+                  mock.patch.object(PLG, "REGISTRY", os.path.join(proof, "CANDIDATES.json")),
+                  mock.patch.object(PLG.PS, "ledger_entries", lambda *a, **k: []),
+                  mock.patch.object(PLG.LB, "rows", lambda *a, **k: ([], {"excluded": {}})),
+-                 mock.patch.object(PLG.LB, "word_pass_index", lambda *a, **k: ({}, {"rows": 0})),
+-                 mock.patch.object(PLG.LB, "build_inputs", lambda *a, **k: (copy.deepcopy(POOL), {}, {})),
++                 mock.patch.object(PLG.LB, "word_pass_index", lambda *a, **k: ({}, dict(wp_rep or {"rows": 0}))),
++                 mock.patch.object(PLG.LB, "build_inputs", inputs),
+                  mock.patch.object(PLG, "with_variants", lambda moments, *a, **k: moments),
+                  mock.patch.object(PLG, "build_router", no_router),
+                  mock.patch("sys.stdout", new=io.StringIO())]
+@@ -208,6 +213,16 @@ class TestTheDriverAsksNoModel(Paths):
+         self.assertIn("NOTHING NEW (ruling 107 (1))", open(os.path.join(runs[0], "package.log")).read())
+         self.assertFalse(os.path.exists(os.path.join(runs[0], PLG.FINGERPRINT)))   # a skip never stands for a build
+ 
++    def test_the_word_pass_refused_reach_the_inputs_and_the_log_gives_their_count(self):
++        seen = {}
++        rc, runs = self.run_driver(left=0, wp_rep={"rows": 2, "ready": 0, "refused": ["Xa1", "Yb2"]}, seen=seen)
++        self.assertEqual((rc, seen.get("word_pass_refused")), (0, ["Xa1", "Yb2"]))
++        log = open(os.path.join(runs[0], "package.log")).read()
++        self.assertIn('"refused": 2', log)                                   # the count; the ids stay in inputs.json
++        self.assertNotIn("Xa1", log)
++        self.assertEqual(json.load(open(os.path.join(runs[0], "inputs.json")))["inputs"]["word_pass"]["refused"],
++                         ["Xa1", "Yb2"])
++
+     def test_work_left_undone_goes_on_to_the_router(self):
+         rc, runs = self.run_driver(left=1)
+         self.assertEqual(rc, "router")
+diff --git a/tests/package/test_spotlight.py b/tests/package/test_spotlight.py
+index c99d420..64517b8 100644
+--- a/tests/package/test_spotlight.py
++++ b/tests/package/test_spotlight.py
+@@ -538,6 +538,17 @@ class TestRuling94And95(unittest.TestCase):
+         self.assertIn("ruling 94 (a): the trimmed cut is not clean: it bleeds", out["moments"]["a~trim"]["out"])
+         self.assertNotIn("package_for", calls)
+ 
++    def test_ruling_95_a_moment_the_word_pass_refused_is_not_waiting(self):
++        rows = [{"video_id": "mid", "channel_name": "Panel", "published_at": "2026-11-13T20:00:00+00:00",
++                 "moment_id": m, "episode": {"turns_per_min": 1.5}, "mined": {"pass": "moment",
++                                                                             "prompt_version": "mine/2"}}
++                for m in ("m1", "m2", "m3")]
++        c = SPOT.next_attempt(rows, {"m1": {"sentence_ready": True}}, NOW, refused=["m2", "zz"])["conversation"]
++        self.assertEqual((c["rows"], c["word_pass_ready"], c["word_pass_refused"], c["word_pass_waiting"]),
++                         (3, 1, 1, 1))                                       # zz is no row of this upload
++        c = SPOT.next_attempt(rows, {"m1": {"sentence_ready": True}}, NOW)["conversation"]   # none named: as before
++        self.assertEqual((c["word_pass_refused"], c["word_pass_waiting"]), (0, 2))
++
+     def test_ruling_95_the_newest_conversation_upload_and_its_mining_state(self):
+         rows = [{"video_id": "old", "channel_name": "Talk", "published_at": "2026-11-13T18:00:00+00:00",
+                  "moment_id": "o1", "episode": {"turns_per_min": 2.0}, "mined": {"pass": "hook",

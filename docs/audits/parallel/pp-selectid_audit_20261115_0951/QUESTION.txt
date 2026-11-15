@@ -1,0 +1,44 @@
+pp-selectid: THE WORD PASS'S REFUSED MOMENTS, COUNTED APART FROM THE WAITING. Reporting only: no gate, verdict or
+selection changes; no moment enters or leaves a build because of this change.
+
+THE FINDING (the integrator, 09:37 ET Nov 15). The word-pass worker never works a moment again once it has a row
+(ready, not ready or failed: its passed_ids). ledger_build.word_pass_index returns only the sentence-ready rows, so
+build_inputs counted a moment whose row is NOT sentence-ready the same as a moment with no row yet: "N wait for their
+own window" (pipeline/ledger_build.py:504-509 and :549 in the base). This morning two builds said "4 wait for their own
+window" for 4 Scott Melker moments the word pass had refused at 09:05, and my STATE line said the watcher would build
+"when they land": they never will. spotlight.next_attempt (ruling 95, pipeline/spotlight.py:345) counted them "waiting"
+the same way.
+
+THE CHANGE:
+1. word_pass_index: report["refused"] = the sorted moment ids whose LAST row gives no window record (failed, not
+   sentence-ready, or unreadable): set(last) - set(out). Its index and its other counts are unchanged. A line that is
+   not JSON or has no moment_id is attributable to no moment, so it refuses none (as before, it is counted unreadable).
+2. build_inputs(..., word_pass_refused=()): a row with no sentence-ready window record of its own is counted
+   "window_refused" when its moment is in word_pass_refused, else exactly as before: "window_waiting" in a video that
+   has windows, "no_word_record" (with its why and per-video rows) in a video that has none. A video whose rows are ALL
+   refused gets no no_word_record entry: it waits for nothing. The log line gives the refused count. With no refused
+   ids given, every count is as before (tested).
+3. spotlight.next_attempt(..., refused=()): "word_pass_refused" apart; "word_pass_waiting" = rows - ready - refused.
+4. tests/package/proof_ledger.py: passes the report's refused ids to build_inputs and to next_attempt; logs the
+   word-pass report with the refused COUNT (the ids stay in inputs.json); ruling 95's line reads
+   "ready / waiting / refused".
+5. tests/package/funnel.py (a report script over a build's inputs.json): one supply line for the refused.
+
+TESTS:
+- test_ledger_build: the index's refused set (the last row decides, both ways), and build_inputs' counts over four
+  videos (windows with one refused and one waiting row; all rows refused; no row yet; no window with one refused and
+  one waiting row), then the same rows with no refused ids: as before.
+- test_spotlight: ruling 95's counts.
+- test_ruling_107_guard: the driver passes the ids to build_inputs and logs only their count. Its harness gains two
+  optional arguments; the existing tests call it as before.
+MUTATIONS: 12 of 14 killed, after a control run (the unmutated copy passes all 93 tests). The 2 that survive:
+- the driver's ruling-95 call without refused=: no test reaches the driver past its router (the existing harness stops
+  there);
+- the funnel script's line: no test runs funnel.py.
+SUITES: tests/package, moments, select_by_id and providers: 684 pass.
+
+PLEASE CHECK: (1) that the refused set is exactly what the worker will never re-work (the last row decides, as
+word_pass_index's own classification does); (2) that no row can be counted twice (refused and waiting, or refused and
+ready), and that every count is as before when no ids are given; (3) the no-window branch: no_word_record, its why
+counts and its per-video rows; (4) the driver's wiring, and that the log carries counts, not ids; (5) whether either
+surviving mutation matters.
