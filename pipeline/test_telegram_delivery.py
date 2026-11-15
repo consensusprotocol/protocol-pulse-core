@@ -141,6 +141,87 @@ class TestAuthorisedDrop(Base):
         self.assertNotIn("SUGGESTED TITLE: bitcoin", kit)
 
 
+NOTE_115 = "hook passed on the calibrated bar"      # ruling 115 (2)'s words, as PBX must read them
+MARK = {"note": NOTE_115, "bar": "BAR-TEXT scroll>=3 alone>=4 setup>=3", "floors": {"scroll": 3, "alone": 4, "setup": 3},
+        "calibration_sha256": "f" * 64, "ruling": "115"}
+PKG = "ab" * 32
+NO_MARK = object()
+
+
+class TestHookBarLine(Base):
+    """Ruling 115 (2) (orchestrator 13:24 ET Nov 15): a package sealed on the calibrated hook bar says so in the
+    Telegram note in one plain line. The pin carries the mark in moments_package["hook_bar"] (outside the seal); the
+    run's PINNED_DECISION.json (pinned.prepare) holds that pin and is not an attested file, so the mark counts only
+    for the package the attested EDL was built from."""
+
+    def marked_run(self, mark=MARK, record_sha=PKG, edl_sha=PKG, topic=None, raw=None):
+        edl = json.load(open(os.path.join(make_run(self.tmp, attest=False), "edl.json")))
+        if edl_sha is not None:
+            edl["moments_package_sha256"] = edl_sha
+        if topic:
+            edl["topic"] = topic
+        rd = make_run(self.tmp, edl=edl)
+        mp = {"type": "moments", "package_sha256": record_sha}
+        if mark is not NO_MARK:
+            mp["hook_bar"] = mark
+        with open(os.path.join(rd, "PINNED_DECISION.json"), "w") as f:
+            f.write(raw if raw is not None else json.dumps({"mode": "pinned", "pin": {"moments_package": mp}}))
+        return rd
+
+    def refused(self, rd, needle):
+        sent = []
+        with self.assertRaisesRegex(RuntimeError, needle):
+            TG.deliver_run(rd, send=lambda kind, path, fields, data=None: sent.append(kind) or len(sent))
+        self.assertEqual(sent, [])                                    # nothing reached the chat
+        self.assertFalse(os.path.exists(os.path.join(rd, "TELEGRAM_DELIVERY.json")))
+
+    def test_a_marked_pin_says_so_in_one_plain_line_under_the_run_line(self):
+        rd = self.marked_run()
+        _, sent = self.deliver(rd)
+        vids = [s for s in sent if s[0] == "video"]
+        self.assertEqual(len(vids), 2)
+        for s in vids:                                                # every video's note, each format
+            lines = s[2]["caption"].split("\n")
+            self.assertEqual(lines[2], NOTE_115, lines)                # head, run line, then the ruling's line
+            self.assertEqual(sum(NOTE_115 in l for l in lines), 1)
+            self.assertNotIn("BAR-TEXT", s[2]["caption"])               # never the mark's own words
+        for s in sent:
+            if s[0] != "video":                                        # one line in the note: not the sheets or kit
+                self.assertNotIn(NOTE_115, json.dumps(s[2]))
+        written = json.load(open(os.path.join(rd, "TELEGRAM_DELIVERY.json")))
+        self.assertEqual([NOTE_115 in m["caption"] for m in written["messages"] if "format" in m], [True, True])
+
+    def test_the_line_survives_a_caption_cut_whole(self):
+        rd = self.marked_run(topic="Bitcoin " * 300)                   # the story alone is past CAPTION_MAX
+        _, sent = self.deliver(rd)
+        cap = sent[0][2]["caption"]
+        self.assertTrue(cap.endswith("...(see GATE_REPORT)"), cap[-40:])
+        self.assertLessEqual(len(cap), TG.CAPTION_MAX)
+        self.assertIn(NOTE_115, cap.split("\n"))
+
+    def test_no_mark_or_no_pin_record_no_line(self):
+        for rd in (self.marked_run(mark=NO_MARK), make_run(self.tmp)):   # an unmarked pin; an auto run (no record)
+            _, sent = self.deliver(rd)
+            for s in sent:
+                self.assertNotIn("calibrated bar", json.dumps(s[2]))
+
+    def test_a_mark_that_is_not_the_rulings_sends_nothing(self):
+        for mark in ({"note": "hook passed"}, {"note": NOTE_115.upper()}, {"note": NOTE_115 + " (and approved)"},
+                     {"bar": "x"}, None, NOTE_115, [NOTE_115], {}):
+            with self.subTest(mark=mark):
+                self.refused(self.marked_run(mark=mark), r"STOP: ruling 115 \(2\).*not ruling 115 \(2\)'s mark")
+
+    def test_a_mark_on_another_package_sends_nothing(self):
+        self.refused(self.marked_run(record_sha="cd" * 32), r"not the attested EDL's")
+        self.refused(self.marked_run(record_sha=None, edl_sha=None), r"not the attested EDL's")   # no digest at all
+        self.refused(self.marked_run(record_sha="", edl_sha=""), r"not the attested EDL's")
+
+    def test_an_unreadable_pin_record_sends_nothing(self):
+        for raw in ("{not json", '{"mode": "pinned"}', '{"pin": []}', '{"pin": null}', "[]"):
+            with self.subTest(raw=raw):
+                self.refused(self.marked_run(raw=raw), r"STOP: ruling 115 \(2\): the pin record cannot say")
+
+
 class TestNothingIsSentUnlessAuthorised(Base):
     def refused(self, rd, label, needle):
         """Nothing sent, for THIS reason (cycle 2 F8: any RuntimeError is not enough)."""

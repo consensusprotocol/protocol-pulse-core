@@ -34,6 +34,11 @@ FINALS = {"16x9": "out/segment.mp4", "9x16": "out/segment_vertical.mp4"}
 # ruling 93 as amended (orchestrator 2026-11-14 '21:10'): a run sends the formats its package sealed, nothing else
 SIXTEEN_NINE_ONLY = ("16:9 ONLY: the package sealed formats ['16x9'] (ruling 93 as amended: a 9:16 crop cuts a "
                      "source's burned captions); no 9:16 is sent")
+# ruling 115 (2) (orchestrator 13:24 ET Nov 15): "a package sealed on the interim bar says so in its record and in the
+# Telegram note in one plain line ("hook passed on the calibrated bar")". The pin carries the mark in
+# moments_package["hook_bar"], outside the seal (pp-selectid da7b1160). A release caption prints THIS line, never the
+# mark's own words; a review drop never carries it (its wording law refuses 'passed': _review_forbidden).
+HOOK_BAR_NOTE = "hook passed on the calibrated bar"
 
 
 def _fit(text, limit):
@@ -65,6 +70,39 @@ def snapshot(run_dir, att):
 REGISTRY = os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.json")
 
 
+def hook_bar_mark(mp):
+    """Ruling 115 (2): HOOK_BAR_NOTE when a pin's moments_package carries the calibrated hook bar's mark, None when it
+    carries none. A mark that is present must be an object whose "note" is exactly HOOK_BAR_NOTE, else ValueError
+    (never a guess, never the mark's own words). check_pin_only asks this before a render."""
+    if not isinstance(mp, dict) or "hook_bar" not in mp:
+        return None
+    hb = mp["hook_bar"]
+    if not isinstance(hb, dict) or hb.get("note") != HOOK_BAR_NOTE:
+        raise ValueError(f"moments_package hook_bar is not ruling 115 (2)'s mark: {str(hb)[:120]!r}")
+    return HOOK_BAR_NOTE
+
+
+def hook_bar_line(run_dir, edl):
+    """The release caption's ruling 115 (2) line: hook_bar_mark of the pin this run was built from (PINNED_DECISION.json,
+    written by pinned.prepare; not an attested file), bound to the attested EDL by the package digest. None for a run
+    without a pin record (an auto run) or a pin without the mark. STOP (nothing is sent) on an unreadable record, a
+    mark that is not the ruling's, or a marked package that is not the EDL's."""
+    path = os.path.join(run_dir, "PINNED_DECISION.json")
+    if not os.path.exists(path):
+        return None
+    try:
+        with open(path) as f:
+            mp = json.load(f)["pin"].get("moments_package")
+        line = hook_bar_mark(mp)
+    except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
+        raise RuntimeError(f"STOP: ruling 115 (2): the pin record cannot say whether the hook was marked "
+                           f"({type(e).__name__}: {e})") from None
+    sha = mp.get("package_sha256") if line else None
+    if line and not (isinstance(sha, str) and sha and sha == edl.get("moments_package_sha256")):
+        raise RuntimeError("STOP: ruling 115 (2): the marked package in PINNED_DECISION.json is not the attested EDL's")
+    return line
+
+
 def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
     """The caption of an AUTHORISED run: verdict line first; the MONITORING rows that did not pass are listed as
     reported, not release-deciding (addendum '22:15' item 4). snap: the verified snapshot (deliver_run)."""
@@ -81,7 +119,10 @@ def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
              + (f" | {duration:.1f} s" if duration else ""),
              f"Story: {edl.get('topic', '')}",
              "Clips: " + ", ".join([edl["hook"].get("channel", "?")] + [c.get("channel", "?") for c in edl.get("clips", [])])]
-    if mon:                                  # claude-fable audit batch 16 #1: never 'all passed' with a failure unsaid
+    hb = hook_bar_line(run_dir, edl)         # ruling 115 (2): one plain line, under the run line (never cut by _fit)
+    if hb:
+        lines.insert(2, hb)
+    if mon:                                # claude-fable audit batch 16 #1: never 'all passed' with a failure unsaid
         lines.insert(1, "Monitoring (reported, not release-deciding): " + "; ".join(f"{k} {v}" for k, v in mon.items()))
     if release_auth.release_formats(edl) == ("16x9",):
         lines.append(SIXTEEN_NINE_ONLY)
