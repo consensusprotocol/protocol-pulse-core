@@ -1,0 +1,3617 @@
+{
+ "since": "2026-11-13T03:01:09+00:00",
+ "publish_window_h": 12.0,
+ "delivered_pins": [
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json",
+   "story_id": "moments-fresh_20261112_050611-37c5b5f5",
+   "approved_at": "2026-11-12T13:43:40+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
+   "story_id": "moments-fresh_20261112_050611-41f29b1f",
+   "approved_at": "2026-11-13T03:01:09+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json",
+   "story_id": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "approved_at": "2026-11-13T05:20:11+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_073738/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_073738-d2657bbe",
+   "approved_at": "2026-11-13T07:53:42+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_183302/MOMENTS_PIN_ATTESTED.json",
+   "story_id": "moments-ledger_20261113_183302-0c68b589",
+   "approved_at": "2026-11-13T19:12:56+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_215708/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_215708-13949b7c",
+   "approved_at": "2026-11-13T22:14:05+00:00",
+   "clips": 3
+  }
+ ],
+ "adapter_report": {
+  "lines": 3837,
+  "bad_lines": 0,
+  "bad": [],
+  "excluded": {
+   "expired (rulings 76 + 77: 12 h after its video's publish time)": 1585,
+   "hard exclusion flag (L-u)": 2,
+   "speaker change inside (caption marker)": 2,
+   "altcoin or not about Bitcoin": 4
+  },
+  "drift_checked": 0,
+  "expiry_h": 12,
+  "released_by_the_second_model": 0,
+  "returned": 38
+ },
+ "inputs": {
+  "rows": 38,
+  "no_word_record": 0,
+  "no_word_record_why": {},
+  "no_word_record_videos": {},
+  "window_records": {
+   "Vu0XZSz-aj4": [
+    "transcripts/Vu0XZSz-aj4/windows/1884.077-1991.959.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/3561.960-3661.710.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/2636.920-2734.599.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/1934.200-2048.745.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/2547.472-2654.938.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/3619.618-3722.070.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/2636.920-2741.515.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/3091.640-3187.652.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/1934.200-2038.054.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/1884.077-1983.169.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/2322.049-2430.190.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/2509.905-2621.790.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/2194.786-2292.910.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/2204.172-2299.470.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/3545.480-3664.271.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/2385.720-2481.710.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/3656.200-3758.812.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/807.729-914.670.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/2399.240-2509.012.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/3594.680-3699.470.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/764.357-869.356.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/2243.079-2348.288.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/831.880-939.433.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/3091.640-3189.430.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/2277.720-2374.692.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/2385.720-2489.230.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/3005.748-3115.166.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/2531.800-2631.149.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/842.210-939.433.whisper_words_punct.json",
+    "transcripts/Vu0XZSz-aj4/windows/3073.248-3174.561.whisper_words_punct.json"
+   ],
+   "lcYYuefFMQA": [
+    "transcripts/lcYYuefFMQA/windows/0.000-51.000.whisper_words_punct.json",
+    "transcripts/lcYYuefFMQA/windows/0.000-51.000.whisper_words_punct.json"
+   ],
+   "DO6iIRbccIg": [
+    "transcripts/DO6iIRbccIg/windows/0.000-66.886.whisper_words_punct.json",
+    "transcripts/DO6iIRbccIg/windows/0.000-87.579.whisper_words_punct.json",
+    "transcripts/DO6iIRbccIg/windows/0.000-53.891.whisper_words_punct.json",
+    "transcripts/DO6iIRbccIg/windows/30.305-125.500.whisper_words_punct.json",
+    "transcripts/DO6iIRbccIg/windows/90.140-186.952.whisper_words_punct.json"
+   ],
+   "M6_MGnSvoAY": [
+    "transcripts/M6_MGnSvoAY/windows/4352.659-4445.796.whisper_words_punct.json"
+   ]
+  },
+  "window_waiting": 0,
+  "window_refused": 0,
+  "window_refused_videos": {},
+  "window_failed": 0,
+  "window_passed_over": {},
+  "no_caption_context": {},
+  "fallbacks": {},
+  "channel_conflict": {},
+  "not_anchored": {
+   "300c2b0f366ebc1a6577": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2525-2607 s)",
+   "f22a3759242056f5475f": "the row's text does not anchor in the word record (sentence_law.anchor, searched 3088-3160 s)"
+  },
+  "malformed": {},
+  "duplicates": 8,
+  "duplicates_of": {
+   "f0a27da5aa330ad25b04": "55284bfa95243d19733b",
+   "2a307a3d4a5fe4a6583f": "9fa040125522b6a26bb6",
+   "7314d0b231674570d9d3": "21cabf519dd782aeb181",
+   "874f5c8bc3e15198c9fd": "706049581ad1db82880c",
+   "d6fb1a7b3f250de7f97c": "f92d899cf6b97dafc601",
+   "f23d911df136a9168dbb": "a2765bc97ac5b974b503",
+   "321b4c8b2cbfa257a44f": "b9c8212b9060367e449e",
+   "66e576fa65808a820a39": "c2c67d219240abd93dab"
+  },
+  "moments": 28,
+  "videos": 4,
+  "sources": 28,
+  "word_records": {},
+  "word_pass": {
+   "rows": 2527,
+   "unreadable": 0,
+   "ready": 1948,
+   "not_ready": 249,
+   "failed": 0,
+   "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl",
+   "refused": [
+    "00601fe81bcbe8b6bdf8",
+    "0102d1f81a005ffd1860",
+    "025b3828d214c7c2ce4b",
+    "05173845dea924fc0c07",
+    "05f06153c42d43c43ed7",
+    "05ff016beac936e4e409",
+    "076730439cae2cfa8c7e",
+    "08ccabe3e2c427838e15",
+    "0988da65e6ad9ba87459",
+    "0b1ed433879e3d7f844a",
+    "0ccade189163405b089b",
+    "0fad832055924851251d",
+    "0fd686f1fe79b631e91c",
+    "10d73f6379c4f91815c0",
+    "12bf31ff9e5404d7b5d9",
+    "13ad88ccef6e718fbb28",
+    "13b85894cf59bd96ddba",
+    "14f13f65d2f2458ea1ac",
+    "1525a9e1dd8dc5ac4a9e",
+    "16f275eb3464b67dfa9b",
+    "18ced5f9e7202e133319",
+    "19fc961efb1e8fbd0575",
+    "1a880c6d462d151ebe70",
+    "1ab9ae718a7e550e9ce1",
+    "1b9902d0b3f9690e9ddb",
+    "1c63a7925cf2c33b54ac",
+    "1d1556daed04fce39e7d",
+    "1d822675be04768944b1",
+    "1d828f294728facf05fd",
+    "1e9d5cb149e2d113459d",
+    "1f3444cb0463741133cd",
+    "1f3f2c2ea653f69353d5",
+    "20002de2ec0f6b521fce",
+    "2167cf6bfe8911d08707",
+    "217bd00fcf8c0665e0f6",
+    "23703f34fbd40d943e41",
+    "23fceca7029b9948e3f9",
+    "24a6dc284d02a3aeae08",
+    "24f1856c6fcf1b6c1d95",
+    "2550f3c54cec7cd95c48",
+    "25f101de6a018fb2f202",
+    "2887f8f9b00e38e79cb3",
+    "2c6b2f1bcfc96f70f39e",
+    "2c884616bf8c91a24180",
+    "2d89ae77d3305643e7eb",
+    "2db14eabaf98defccba0",
+    "2e5c3ff4488c946c1320",
+    "32a44ea8013cb6d85366",
+    "33cf7bbd673f26f307cb",
+    "33d2a783068012cbff56",
+    "33ec88880d3a99e3d97c",
+    "340ea3f3cede49ef6bbe",
+    "347495ce7e4a78ef23c5",
+    "34fd75ac6e40d43c9f5b",
+    "351d555f7879d8c870e9",
+    "3548c352a9e67f331437",
+    "375fb72bed43ccc47f6a",
+    "3798191e55603311683a",
+    "394e144a00767241b093",
+    "3c52354fdf5fdb75de2e",
+    "3e2d15a2a7244d9b7e6e",
+    "3e5706beb5c33dfb0691",
+    "3e6697e0b45a89ec82e5",
+    "3ecea4247f7da8cf3d83",
+    "4055cbb4c51cd6d6bcbd",
+    "424f1e6bbc6e801dd72d",
+    "4347359c0c00f6d49fa3",
+    "43be163f3e361a815a24",
+    "474b8ee37037650dc1ef",
+    "483155d278ba97157e1a",
+    "48643efcbfe1be04f46a",
+    "492cf0bcaa2d7db42345",
+    "49b321f0093d9204857e",
+    "4a0ae7b99a7bfc3f04ab",
+    "4a0cafc02654a834b273",
+    "4a15ecc759a9b332f3cc",
+    "4a54d7ff96a229541048",
+    "4a5ca4087ab6da856227",
+    "4ab2659efc97def0153c",
+    "4d66c09fb18c0f0d1a7f",
+    "4dbb2318181aa9d907d5",
+    "4f33bb61466a820e74b6",
+    "51c7a41fd9d5fecb71ee",
+    "51deefb0c40e66f737f0",
+    "52630ce456af6791baa3",
+    "52bf579156a21ee08c0c",
+    "5416d89f219e62bd06ad",
+    "55e3ff1057a3eba68b18",
+    "568275feb72658a6dbdb",
+    "56ee676b2e04cecd2ff9",
+    "59c3b29a851601177cc6",
+    "59e200f0478f93b88c29",
+    "5b6c5854d2d3c20f45ce",
+    "5bbb7f44bfcf00fb9e66",
+    "5dd3b1ef91e32e45a17c",
+    "5f55d9b82c8e0209b446",
+    "5fbf59f5bf383722159a",
+    "5fc35947f63b3c736dff",
+    "604c84ac1786fa09f5d7",
+    "60690bc4745487e92f5e",
+    "6083abea1edc39efdcb1",
+    "614addd0ad90b6162f0e",
+    "614ba58f79c05cd204ec",
+    "618564547f3facb2460a",
+    "62ebbfe9d62024b9bc7f",
+    "62fe58051dd488ff3c69",
+    "63b87cce3ff62655d3e2",
+    "65e288d993ba8c2bbb68",
+    "6b42533b239f3c5764aa",
+    "6ba21c8bd8cf2f43a2f8",
+    "6ba5399a3722dc217b76",
+    "6be836e0073e86498c88",
+    "6beb95b22a1035ea18c3",
+    "6c546e56ac6c8220787b",
+    "6e56cd660d5f1f13efa2",
+    "70722b0dc2fba88c0cf6",
+    "71187b79f44762f56b8a",
+    "75c9da24ec3764b3e8d1",
+    "7a19e7f67f89e5b6977c",
+    "7c67f93575aef43039cf",
+    "7e3ab76a058f8f65f601",
+    "7f326d4b6532a01fcf63",
+    "8000945a3e7cd613ea17",
+    "8051a1eaf06f56d3702b",
+    "81b26a23dd6326fcbd60",
+    "83775cd2df98be73a317",
+    "84033134a0eeaa1b2ae6",
+    "840a7091d2afea2c41e1",
+    "87a1ba949cd37f8e8301",
+    "8900aa8b374479a90cab",
+    "893a999def3edc8f1a0a",
+    "8972dfeff70fc8c02f48",
+    "8b99d7511f8b842627ab",
+    "8d244d9fdae458f0471c",
+    "8e9b32533086f2f179f4",
+    "90f44621c4eafaf5c278",
+    "90fc17206ee1f99ec636",
+    "951bf612e52c9073d22a",
+    "954c0a2d3b0133d2341d",
+    "95d38b3585c61b1d9906",
+    "96b4f9b83647bbc4ec73",
+    "96c79a7fc62a364b2b9a",
+    "96ff2e079cd464fd5308",
+    "9d3796742a2e1cd10eb8",
+    "9e6ca1765f0a032267b5",
+    "9f0450933b685f1974eb",
+    "9f8c5369f904e81221cb",
+    "9f8d835236860966db8f",
+    "9fd5a65c0dadc2ec40eb",
+    "a024ead246198d7e98ad",
+    "a045e6e7ddf843c49b28",
+    "a102673e5fad3240111e",
+    "a1e2d91d323a57b5de29",
+    "a1ff1a32efaf79f786b8",
+    "a2541ef0353d99d8a040",
+    "a47b2466e5199dce299c",
+    "a6998dd7b0cece708bb9",
+    "a8336e318c7d6b48b22b",
+    "a89f2c1bb0017a6a9d45",
+    "a8be7f45901ddd76b721",
+    "aa32080462e3581166d3",
+    "aa743024037fa80ee16b",
+    "aaffb41344d5775216f1",
+    "ae1a0d498d46de7a3ea8",
+    "af5ae28633a247b27017",
+    "affa796d1b415771a447",
+    "b30efa3bedc93432e865",
+    "b41f33c81cfdfc1ddf59",
+    "b4272eb53d7c0a4e5dd6",
+    "b507e421f01aac805570",
+    "b5112fbb7db1bddc16d9",
+    "b55b68c8fc8d7bbbfd23",
+    "b58692089a253d8fe05c",
+    "b6b983e3b060dbe5a29e",
+    "b7f4483d2f3aaf3cb9e1",
+    "b880544703c2731ecb51",
+    "ba635975783d3d2cccc3",
+    "bbb99781ef3bb1f4119c",
+    "bbe1c4f976e02940651c",
+    "bc33ae9592be1432d8f1",
+    "bc342d3ceb4f22890afa",
+    "c07c030254c41853ceef",
+    "c0c0c53384f0d42c6d3a",
+    "c11c107bdf8c481cfde9",
+    "c125e2f11616d0ece0d3",
+    "c1753585f3e4300cc38a",
+    "c41c5ce4ef32380f9fe6",
+    "c63aa04ace7972db02d9",
+    "c6a876566239b5e90c63",
+    "ceb401a3658c6d72104f",
+    "cf2df82365c0b1cc3b87",
+    "cf56a1e9574e37a923fc",
+    "d137488a51fd37dc4e30",
+    "d19be57ae98c95784c75",
+    "d1c40fb727b12f45f07a",
+    "d2cbf97818fa6b900d1c",
+    "d40f19707e018d112efa",
+    "d4400d9e9b121b0c38b3",
+    "d483ad20dd7164946a89",
+    "d4ac91c659a2cfd44ffa",
+    "d50c7e7e34316aa22ddf",
+    "d58081ef87666169be84",
+    "d611baa9cb2e0237830b",
+    "d65cdae0a25fff048477",
+    "d65e75a63edb95f20157",
+    "d762e966d9b000f208b0",
+    "d9c9f9a1e2a98585f836",
+    "d9cd6f055c0ce1e3a954",
+    "dc14cda54677c7703b85",
+    "e0faec048bfe07884bd5",
+    "e1fca5069eabf32cc1d9",
+    "e2350d63aa410df8d4a4",
+    "e24fbbc008e1b75a71a5",
+    "e477b6abee4efcc885bb",
+    "e4f23b741554d2f75182",
+    "e684c05c6759c7ce19fc",
+    "e73c4378bd39706ac9eb",
+    "e9057888919f0ced99f5",
+    "e90858606fe880415f2d",
+    "e93988462be9ca35931c",
+    "e940cc0756c91c1d3eab",
+    "eb403f27837f7d6121e9",
+    "eb63da2bad4ab3252029",
+    "ec2516f742ea4a7cf287",
+    "ec3d6c6fa7a55a606078",
+    "ed15b77cac098816caf1",
+    "edb6b66b2514b8a51c40",
+    "ee81a9e19a1236ca0eaf",
+    "ef232abc83b6a03a07f0",
+    "efaa1de614ba40dcaca1",
+    "f062336925d0fefceb61",
+    "f283bea1f8f73753a357",
+    "f344b4ca2374e60f2284",
+    "f37cdb7db1fac89efb59",
+    "f3e0ccd86b68bc09837f",
+    "f4cdef024a8b3540ffac",
+    "f4d24ba4d1c01b6172af",
+    "f7eba33e0bff81d90982",
+    "f818c3c5eac812d106da",
+    "f845c0ade832c6bb7046",
+    "f8b2905fba0cd6c54c66",
+    "fa02300c7bfb103ac427",
+    "fc24287ab36375755e5a",
+    "fc5cf0e771409a0be3de",
+    "fcd25f21dbe83b487fcc",
+    "fd3848405eb0cc660232",
+    "fe06ce187a75eb4413d4",
+    "fec37b9e508a5904c5b9",
+    "ffda700352ff151971c9"
+   ]
+  },
+  "ruling_104": {
+   "variants": [],
+   "replaced": [],
+   "notes": {}
+  }
+ },
+ "delivered": [
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 5144.99,
+   "end": 5153.37,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5",
+   "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that."
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2412.85,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5",
+   "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S."
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5",
+   "text": "Bitcoin imposes a global free market for the first time ever."
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-41f29b1f",
+   "text": "Bitcoin imposes a global free market for the first time ever."
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2422.07,
+   "pin": "moments-fresh_20261112_050611-41f29b1f",
+   "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well."
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 1826.54,
+   "end": 1843.48,
+   "pin": "moments-fresh_20261112_050611-41f29b1f",
+   "text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued."
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 3090.75,
+   "end": 3109.87,
+   "pin": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "text": "When Bitcoin and an asset is going up and the bull market is super hot, everyone loves it. When the bear market is happening and Bitcoin is going down, everyone hates it. And like, that's why the price got high and that's why the price got low, because everyone loved it at the top and everyone wanted exposure and everyone hated it and didn't want exposure at the bottom."
+  },
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 4664.57,
+   "end": 4673.21,
+   "pin": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "text": "Bitcoin shows you that you can just increase the purchasing power. So the value of Bitcoin goes up without the supply of Bitcoin going up. So the people who hold Bitcoin don't get robbed."
+  },
+  {
+   "video_id": "UJFQBaMh3yg",
+   "start": 191.38,
+   "end": 203.06,
+   "pin": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "text": "Now, higher rates make cash more attractive and borrowed money more expensive, which is very much the wrong combo for anything risky, and the market definitely sees Bitcoin as risky."
+  },
+  {
+   "video_id": "BS0XC_tixa8",
+   "start": 994.329,
+   "end": 1005.909,
+   "pin": "moments-ledger_20261113_073738-d2657bbe",
+   "text": "Bitcoin is the one piece of open source technology that can't be shut down, silenced or removed. If Bitcoin wins, open source wins. And every stat you hold is a vote against the digital prison being built around all of us."
+  },
+  {
+   "video_id": "WTCwyxW-lHk",
+   "start": 1685.968,
+   "end": 1695.698,
+   "pin": "moments-ledger_20261113_073738-d2657bbe",
+   "text": "But we have very rarely in Bitcoin's history seen six negative weeks back to back to back to back to back. to back. I think that was six."
+  },
+  {
+   "video_id": "mJviDNOhIyw",
+   "start": 1614.601,
+   "end": 1630.831,
+   "pin": "moments-ledger_20261113_073738-d2657bbe",
+   "text": "But then if someone doesn't understand Bitcoin and you drop... 25 % of their portfolio in Bitcoin and Bitcoin goes down 50%. You get fired and they sell their Bitcoin. And so that is, I think, why you've seen people like BlackRock, I think, logically walk that back to one, five percent allocation."
+  },
+  {
+   "video_id": "DcUbBkyeh9M",
+   "start": 236.688,
+   "end": 253.308,
+   "pin": "moments-ledger_20261113_183302-0c68b589",
+   "text": "A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies. and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate."
+  },
+  {
+   "video_id": "GXWj2JO9bz8",
+   "start": 124.157,
+   "end": 138.097,
+   "pin": "moments-ledger_20261113_183302-0c68b589",
+   "text": "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world."
+  },
+  {
+   "video_id": "mKNAcOFMYD4",
+   "start": 755.454,
+   "end": 764.214,
+   "pin": "moments-ledger_20261113_183302-0c68b589",
+   "text": "My biggest fear is that I go to the bank and I punch in my code and the money's not there because the bank owns the money and they could just take it from me. And that's why that's why we Bitcoin."
+  },
+  {
+   "video_id": "DcUbBkyeh9M",
+   "start": 216.054,
+   "end": 228.674,
+   "pin": "moments-ledger_20261113_215708-13949b7c",
+   "text": "Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued."
+  },
+  {
+   "video_id": "MqVqfEDXgLo",
+   "start": 937.971,
+   "end": 957.291,
+   "pin": "moments-ledger_20261113_215708-13949b7c",
+   "text": "I think, well, what we've seen in the market is on Thursday, Friday, there was actually a much bigger drop in traditional stock prices, especially tech stock. There's like 10, 20%, like Intel dropped 29%. Whereas Bitcoin only dropped like five, six percent."
+  },
+  {
+   "video_id": "HWuMai_mAug",
+   "start": 1691.139,
+   "end": 1698.069,
+   "pin": "moments-ledger_20261113_215708-13949b7c",
+   "text": "I think treasury companies will also bleed to Bitcoin. I mean, basically, everything in the industry eventually bleeds to Bitcoin."
+  }
+ ],
+ "moments": [
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "907303817bac55286943",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "6e1f01ba06eaf2499de41e0d815d0770754912dc274ea2e31d859954f8a44f31",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    144,
+    210
+   ],
+   "sentences": [
+    12,
+    14
+   ],
+   "text": "In terms of it being mixed, I do think it's mixed, but I'll tell you something that you're not going to be expecting. I think the big Democratic victory was a lot better than a narrow one. You have a lot of moderates, a lot of young, a lot of non -white moderates that are coming into the Senate that don't have a stake in these fights.",
+   "start": 1928.847,
+   "end": 1946.467,
+   "duration_s": 17.62,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 5,
+    "stands_alone": 4,
+    "surprising_fact": 4
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "A contrarian claim that a larger Democratic victory is better for crypto due to the influx of younger, less entrenched senators.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "17.62 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:38:52.525004+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "spotlight",
+    "prompt_sha256": "845ee5cb01a56e788d774b890590b6b7603e78372276a7a45148293a5e0f6512",
+    "prompt_version": "mine-spot/1",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "a5111a54f43cb1ac70b5982069e2c38feb61888dab2bc2ada313ea34f2bb8a63",
+    "window": {
+     "start_s": 1884.077,
+     "end_s": 1991.959,
+     "record": "transcripts/Vu0XZSz-aj4/windows/1884.077-1991.959.whisper_words_punct.json",
+     "words_sha256": "9e906bbd2ae303937f01a811786938595cd04f3794eaa8a39764cbc5aa9c0d5b",
+     "record_sha256": "c984508d3484f59e0205370cf9bea14ae0ce9cc06bcf5409856bcb9e749c2af1",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "21cabf519dd782aeb181",
+    "reanchored": {
+     "anchor_ratio": 0.992,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      12,
+      14
+     ],
+     "offset_s": [
+      -0.23,
+      -0.49
+     ]
+    },
+    "ledger_text": "In terms of it being mixed, I do think it's mixed, but I'll tell you something that you're not going to be expecting. I think the big Democratic victory was a lot better than narrow one. You have a lot of moderates, a lot of young, a lot of non-white moderates that are coming into the Senate that don't have a stake in these fights."
+   },
+   "rank_score": 25,
+   "source_key": "Vu0XZSz-aj4@1884.077-1991.959"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "47e6c5675d43b3bc592c",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "cc61a080e28c57b904b5644e525c400ead6167fbb57b3c1e44cc380dd5f27000",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    132,
+    153
+   ],
+   "sentences": [
+    7,
+    7
+   ],
+   "text": "Ironically, the biggest problem for crypto was it was the first thing to show up in finance after 2008 that was new.",
+   "start": 3607.07,
+   "end": 3614.91,
+   "duration_s": 7.84,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 4
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Strong counter-intuitive claim linking crypto's regulatory struggle to its post-2008 timing.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "7.84 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.84 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:38:52.525004+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "b61a53b242c362351d225b294f3a0e01d6df87afad70ae6169cb366315a78d8e",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "221efd90ae2d447b7e7162dd28135eee6c7d13d1d94ec68c56bac40e51186e48",
+    "window": {
+     "start_s": 3561.96,
+     "end_s": 3661.71,
+     "record": "transcripts/Vu0XZSz-aj4/windows/3561.960-3661.710.whisper_words_punct.json",
+     "words_sha256": "18056a36e7a2087a98fec8b6eb1840ccee2670698c5cf09ed21faef811c6984f",
+     "record_sha256": "b02681329c4999bea9e3983dc7d186631cde4ee00967a2ba54337981ba206e1e",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "706049581ad1db82880c",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      7,
+      7
+     ],
+     "offset_s": [
+      0.11,
+      -1.8
+     ]
+    },
+    "ledger_text": "Ironically, the biggest problem for crypto was it was the first thing to show up in finance after 2008 that was new."
+   },
+   "rank_score": 24,
+   "source_key": "Vu0XZSz-aj4@3561.960-3661.710"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "782d5724fdb30336a652",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "d8f4c857b0afc4f035b9ac4e0ad48115db3436f58d66743ebb8e6445937ee1f8",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    113,
+    123
+   ],
+   "sentences": [
+    9,
+    9
+   ],
+   "text": "A line I've kicked around, only Democrats can talk to Democrats.",
+   "start": 2681.99,
+   "end": 2687.85,
+   "duration_s": 5.86,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 5,
+    "stakes": 3,
+    "stance": 4,
+    "stands_alone": 5,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Punchy, quotable line about political strategy that stands alone well.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "5.86 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5.86 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:38:52.525004+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "1ce4af2d468b9de3ed7b7484a93c090142d5bc98c858867c80890ebc5bfaa9f7",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "213255cf3637f9a3785a27fc0466ed97a90495b074a98ac671430174abf277d7",
+    "window": {
+     "start_s": 2636.92,
+     "end_s": 2734.599,
+     "record": "transcripts/Vu0XZSz-aj4/windows/2636.920-2734.599.whisper_words_punct.json",
+     "words_sha256": "756e3d63382a635e66b5b4080f1ccaed1b1db469fa7790b68a976a860ac9523a",
+     "record_sha256": "a7fdb414ed94c4cc434c8d6ab8c6a2af6fa10e8674666844717bf18218cf224d",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "55284bfa95243d19733b",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      9
+     ],
+     "offset_s": [
+      0.07,
+      -1.75
+     ]
+    },
+    "ledger_text": "A line I've kicked around Only Democrats can talk to Democrats."
+   },
+   "rank_score": 23,
+   "source_key": "Vu0XZSz-aj4@2636.920-2734.599"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "c800974b45030c070910",
+   "video_id": "lcYYuefFMQA",
+   "channel_id": "UCd6VYGFkZ3mFLPAyJwwTjMg",
+   "channel_name": "Strategy (MicroStrategy)",
+   "published_at": "2026-11-16T14:46:16+00:00",
+   "title": "Digital Credit is an alloy of Bitcoin and dollars",
+   "transcript_sha256": "f4c3420ed4410d17181814e9746d0bd91f0685a122742645fb2e16ecb70767e3",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    40,
+    112
+   ],
+   "sentences": [
+    4,
+    8
+   ],
+   "text": "So what we learn with credit is it's an alloy of Bitcoin and dollars. And if the alloy is 98 % Bitcoin, $2, it tends to buckle. And if the alloy becomes 25, 30, 40 percent dollars, it's like stainless steel. It's very strong. And so the real trick to creating digital credit is blending in the right amount of dollars along with the Bitcoin in order to create something which is strong.",
+   "start": 17.68,
+   "end": 44.98,
+   "duration_s": 27.3,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 5,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Defines digital credit as a Bitcoin-dollar alloy, explaining the optimal mix for strength. Clear stance and high relevance to BTC holders.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "5 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "27.3 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "5 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "27.3 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T15:53:58.766133+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1553Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "f52ea86014813af443d074225997fd5864020f17e7e8caab249d2fb0180f7d4f",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "94b8cff2e02d56788a6c6ae2cb4ab5040579ffcdacb962c7c9bff14d2044a433",
+    "window": {
+     "start_s": 0.0,
+     "end_s": 51.0,
+     "record": "transcripts/lcYYuefFMQA/windows/0.000-51.000.whisper_words_punct.json",
+     "words_sha256": "922be7eaabe31d8dce94a02a264c261e3e628208189bdb6e0570a8eb437ec7f2",
+     "record_sha256": "120ef9e333e891ac456d28d5797715f85a955f822139ae2fc0107524419af904",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "c2c67d219240abd93dab",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      4,
+      8
+     ],
+     "offset_s": [
+      -0.02,
+      -0.54
+     ]
+    },
+    "ledger_text": "So what we learn with credit is it's an alloy of Bitcoin and dollars. And if the alloy is 98% Bitcoin, $2, it tends to buckle. And if the alloy becomes 25, 30, 40 percent dollars, it's like stainless steel. It's very strong. And so the real trick to creating digital credit is blending in the right amount of dollars along with the Bitcoin in order to create something which is strong."
+   },
+   "rank_score": 23,
+   "source_key": "lcYYuefFMQA@0.000-51.000"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "fc9189362ea785086ee2",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "e6ba4b744db9ef7fa573d8d2672535f461c3cb75517d976110015208032bba45",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    124,
+    197
+   ],
+   "sentences": [
+    6,
+    10
+   ],
+   "text": "The good news also is that the consistent thing I continue to see, and I saw it so many times this year, is that the divide on whether or not you like crypto continues to be age. If you are under I used to say 40. Now I say 45. The odds are very good. That you know people in crypto, that you own crypto, that you understand it just part of the world.",
+   "start": 1979.11,
+   "end": 2003.42,
+   "duration_s": 24.31,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 5,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Identifies age as the primary driver of crypto adoption, a clear stance with high stakes for the future of the industry.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "5 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "24.31 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "24.31 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:38:52.525004+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "spotlight",
+    "prompt_sha256": "845ee5cb01a56e788d774b890590b6b7603e78372276a7a45148293a5e0f6512",
+    "prompt_version": "mine-spot/1",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "a5111a54f43cb1ac70b5982069e2c38feb61888dab2bc2ada313ea34f2bb8a63",
+    "window": {
+     "start_s": 1934.2,
+     "end_s": 2048.745,
+     "record": "transcripts/Vu0XZSz-aj4/windows/1934.200-2048.745.whisper_words_punct.json",
+     "words_sha256": "3db046dc77b9101a77d1ad2c18b29e72d1e4dc5469693dfb889d16792617f238",
+     "record_sha256": "171f42798faca034ec6eeefc87a549d5a20f4264c15a458ead42eeb3283f85b4",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "9fa040125522b6a26bb6",
+    "reanchored": {
+     "anchor_ratio": 0.993,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      6,
+      10
+     ],
+     "offset_s": [
+      -0.09,
+      -0.32
+     ]
+    },
+    "ledger_text": "The good news also is that the consistent thing I can continue to see and I saw it so many times this year is that the divide on whether or not you like crypto continues to be age. If you are under I used to say 40 now I say 45. The odds are very good that you know people in crypto that you own crypto that you understand it just part of the world."
+   },
+   "rank_score": 23,
+   "source_key": "Vu0XZSz-aj4@1934.200-2048.745"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "8bd115e78a0b60a41a95",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "744a2c6173e94f5de6e06e561f94e9517cd8ba3b123592b4a1d797964ca34907",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    127,
+    164
+   ],
+   "sentences": [
+    9,
+    13
+   ],
+   "text": "The South Seas bubble happened once. The tulip bubble happened once. Multiple bubbles happen in railroads and canals. When something survives its second bubble, that means it's persistent. It will probably persist whether you like it or not.",
+   "start": 3664.778,
+   "end": 3676.538,
+   "duration_s": 11.76,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 5,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Strong historical argument that Bitcoin's survival of multiple cycles proves its persistence, unlike one-off bubbles.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "5 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "11.76 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:37:54.190747+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "fae6b3e1c7998318eb69a444919f6e5080634fac8e60c8b621239d4e67dd87af",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "3043435c0a77770e38df9a39287207b4c11f55edbb569b0d68cdddba75b3b318",
+    "window": {
+     "start_s": 3619.618,
+     "end_s": 3722.07,
+     "record": "transcripts/Vu0XZSz-aj4/windows/3619.618-3722.070.whisper_words_punct.json",
+     "words_sha256": "ea71f62ccc7bb4a122f50794a45b4efba75167369e422aa567024f51d35dee9a",
+     "record_sha256": "ceba75f269bfc4f35b7677b31c4c3ff6bfdbe7a07d7e5d8f3cf04dd64ef13405",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "a62c7b35e65cc30e79ad",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      13
+     ],
+     "offset_s": [
+      0.16,
+      -0.53
+     ]
+    },
+    "ledger_text": "The South Seas bubble happened once. The tulip bubble happened once. Multiple bubbles happen in railroads and canals. When something survives its second bubble, that means it's persistent. It will probably persist whether you like it or not."
+   },
+   "rank_score": 22,
+   "source_key": "Vu0XZSz-aj4@3619.618-3722.070"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "c03abcbc802eca8b13ff",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "7f40c1b924751999a2a181dd60963c4d77611687801dc72b9f8230ac6ce28683",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    138,
+    166
+   ],
+   "sentences": [
+    11,
+    12
+   ],
+   "text": "Sometimes they call me. And it's so funny how many of the ones who were under 40 would tell me they used to mine Bitcoin in their dorm room.",
+   "start": 3136.68,
+   "end": 3142.62,
+   "duration_s": 5.94,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "stakes": 3,
+    "stance": 2,
+    "stands_alone": 4,
+    "surprising_fact": 5
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Reveals that many young Democratic candidates used to mine Bitcoin in their dorm rooms, a surprising fact about political demographics.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5.94 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5.94 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:38:52.525004+00:00",
+    "attempt": 2,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "6589664525d950e7495f2e00a511c56d1cf390ba2daf47794a05ca8625da71ec",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "f3e63c38a935a894d80d0e387568f489daaffa4839faa251d716dcf139edf8e5",
+    "window": {
+     "start_s": 3091.64,
+     "end_s": 3187.652,
+     "record": "transcripts/Vu0XZSz-aj4/windows/3091.640-3187.652.whisper_words_punct.json",
+     "words_sha256": "547d50e0323cd9325c7ea05340f0d8bd8903c5dd0afb2a1173e731832e6d1ea1",
+     "record_sha256": "f1272fd555cd95e490b6a75702999597814e32593901f9522e1e54a0d3044da5",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "f92d899cf6b97dafc601",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      11,
+      12
+     ],
+     "offset_s": [
+      0.04,
+      -0.03
+     ]
+    },
+    "ledger_text": "Sometimes they call me and it's so funny how many of the ones who were under 40 would tell me they used to mine Bitcoin in their dorm room."
+   },
+   "rank_score": 22,
+   "source_key": "Vu0XZSz-aj4@3091.640-3187.652"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "d5c1b665cec3425aa515",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "1c5cc9a99e286af8d80700225fe3c8d31bde59201e70138535608e8472971bae",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    124,
+    175
+   ],
+   "sentences": [
+    10,
+    12
+   ],
+   "text": "You can imagine a world where people say, well, hyperlip, that's not crypto. That is a chain that has some amount of permission technology invalidators, but that's not crypto. This would be the ghettoization of crypto where we win the argument, except that the word crypto continues to be seen as toxic.",
+   "start": 2592.762,
+   "end": 2609.612,
+   "duration_s": 16.85,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 5,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Strong stance on the risk of 'ghettoization' where crypto wins but the label remains toxic. Quotable and high stakes for industry identity.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "16.85 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:37:54.190747+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "a548bfa585edadfc598cf6591c00bad8a49d0e5c2681d2145f3f492814a9f350",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "abc1d3be149b946f5e3e2d0efc162b435019694c772427733a4fca39efdb348c",
+    "window": {
+     "start_s": 2547.472,
+     "end_s": 2654.938,
+     "record": "transcripts/Vu0XZSz-aj4/windows/2547.472-2654.938.whisper_words_punct.json",
+     "words_sha256": "de8363f8711eca33e4af4d0f29fae818d0d93ad40d9c6210fedfd35b91f70872",
+     "record_sha256": "577e87dea21f991fb63140c29be5fb98269585b67dfb41378a20d68bafcf41dd",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "85ebf545ef35480fd08f",
+    "reanchored": {
+     "anchor_ratio": 0.943,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      12
+     ],
+     "offset_s": [
+      0.29,
+      -0.33
+     ]
+    },
+    "ledger_text": "You can imagine a world where people say, \"Well, hyper liberty, that's not crypto. That is a chain that has some amount of permission technology and validators, but that's not crypto.\" This would be the ghettoization of crypto where we win the argument except that the word crypto continues to be seen as toxic."
+   },
+   "rank_score": 22,
+   "source_key": "Vu0XZSz-aj4@2547.472-2654.938"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "0eb523691e9a0624776e",
+   "video_id": "DO6iIRbccIg",
+   "channel_id": "UCCXoCcu9Rp7NPbTzIvogpZg",
+   "channel_name": "Fox Business",
+   "published_at": "2026-11-16T13:30:31+00:00",
+   "title": "'VERY HOSTILE': Crypto prepares for 'SWEEPING INVESTIGATIONS'",
+   "transcript_sha256": "c901bdeec2afd422a07594acb0d005f22a240283e1e9032f8c338e16fa101235",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    42,
+    62
+   ],
+   "sentences": [
+    2,
+    2
+   ],
+   "text": "The industry is preparing for sweeping investigations into crypto companies with ties to the president rather than getting the bill passed.",
+   "start": 15.04,
+   "end": 21.52,
+   "duration_s": 6.48,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Specific threat of investigations into crypto firms with presidential ties.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "6.48 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "6.48 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T15:54:42.039439+00:00",
+    "attempt": 2,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1553Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "1f9ddfe94ecffe9c8d55ad7ebf313c0b1473c251ca2b5b305798abe52d405a18",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "1fa850337b270d3361e1842cb3977c908b02f721b4a07457571230ad96fdf208",
+    "window": {
+     "start_s": 0.0,
+     "end_s": 66.886,
+     "record": "transcripts/DO6iIRbccIg/windows/0.000-66.886.whisper_words_punct.json",
+     "words_sha256": "90decaf09b7ed94733ce1b469fd761f0ad3a77832aa48f3f65a56ed7defd39cc",
+     "record_sha256": "2929aa366e565945ea474dbf6108e0feaf0cd8dcc98ee33fa905a50d98e80b2f",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "0b7964f8ffa3cbc0ebb2",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      2,
+      2
+     ],
+     "offset_s": [
+      1.08,
+      -0.37
+     ]
+    },
+    "ledger_text": "The industry is preparing for sweeping investigations into crypto companies with ties to the president rather than getting the bill passed."
+   },
+   "rank_score": 21,
+   "source_key": "DO6iIRbccIg@0.000-66.886"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "d3490c985f2f6dbbdc15",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "1290cf4d27d42cd9b346ffc331f123f85f6b52e7eb70cc4076fb6b9e5408947b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    123,
+    186
+   ],
+   "sentences": [
+    10,
+    14
+   ],
+   "text": "You know, the line I've often used is there are some bad actors in crypto, but there are minority. That's, you know, most people are good and trying to do the right thing. You know, I think that is the hardest thing for people to get over the line. But once you admit there's some use, it's hard to then. be dogmatically against it.",
+   "start": 2367.199,
+   "end": 2385.099,
+   "duration_s": 17.9,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 5,
+    "stands_alone": 4,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Strong stance on the 'bad actor' minority argument, directly addressing the core political debate about crypto legitimacy.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "5 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "17.9 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:37:54.190747+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "666d79d30b9d5fba6f19b3764b7180a820e08ac1135068177763cfc4e5e82407",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "48491210499b73dc6f686d3be6e4e1737628707a2ac934ee9a7ed93971aa86cf",
+    "window": {
+     "start_s": 2322.049,
+     "end_s": 2430.19,
+     "record": "transcripts/Vu0XZSz-aj4/windows/2322.049-2430.190.whisper_words_punct.json",
+     "words_sha256": "1156b31e978463bc27b86b94193b155694764c03fb20be5e638a0a9dfe9b7455",
+     "record_sha256": "1f11e19cef63c7684d0968119de9927cdb46c6f34fd749ade3c48c0095f4890c",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "c4499f06821b398779f0",
+    "reanchored": {
+     "anchor_ratio": 0.969,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      14
+     ],
+     "offset_s": [
+      0.15,
+      -0.09
+     ]
+    },
+    "ledger_text": "You know, the line I've often used is there are some bad actors in crypto, but they're a minority. That's, you know, most people are good and trying to do the right thing. You know, I think that is the hardest thing for people to get over the line, but once you admit there's some use, it's hard to then be dogmatically against it."
+   },
+   "rank_score": 21,
+   "source_key": "Vu0XZSz-aj4@2322.049-2430.190"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "2e9bbcc9f5bf419f9b7f",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "3fc0d97c52925fcb429b7fe27c07ad49d1b6d9dd6870eb95b35cb322ea881d32",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    153,
+    174
+   ],
+   "sentences": [
+    8,
+    8
+   ],
+   "text": "People like to deny the utility because they don't have to deal with the hard problems of how to deal with it.",
+   "start": 2430.71,
+   "end": 2435.11,
+   "duration_s": 4.4,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 1,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Sharp insight into the political psychology behind anti-crypto sentiment.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "4.4 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.4 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:38:52.525004+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "3362469d77b81db7b5c922ffbe07c80191dc3b507b9efa574d1315f720c8c28f",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "e8bc1666eb269007c14d6cb1e08fa1aabd127139f4712ea411ae3b5837a43881",
+    "window": {
+     "start_s": 2385.72,
+     "end_s": 2481.71,
+     "record": "transcripts/Vu0XZSz-aj4/windows/2385.720-2481.710.whisper_words_punct.json",
+     "words_sha256": "7647b96371ac23d6f3b72b21b4ad739d2f69abf8a22750fadd5f5fb3073b7ef8",
+     "record_sha256": "be0a6f19fe394520eb5b2b6d19d0879fb41ced9695f2173d7d8841c58d1c2929",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "a2765bc97ac5b974b503",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      8
+     ],
+     "offset_s": [
+      -0.01,
+      -1.6
+     ]
+    },
+    "ledger_text": "People like to deny the utility because they don't have to deal with the hard problems of how to deal with it."
+   },
+   "rank_score": 19,
+   "source_key": "Vu0XZSz-aj4@2385.720-2481.710"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "2fac82ee361acbc4aa67",
+   "video_id": "DO6iIRbccIg",
+   "channel_id": "UCCXoCcu9Rp7NPbTzIvogpZg",
+   "channel_name": "Fox Business",
+   "published_at": "2026-11-16T13:30:31+00:00",
+   "title": "'VERY HOSTILE': Crypto prepares for 'SWEEPING INVESTIGATIONS'",
+   "transcript_sha256": "6b9319ec22593ec282c3219876df881cd8af04eb79741758104aa99ab7d694c4",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    0,
+    25
+   ],
+   "sentences": [
+    0,
+    0
+   ],
+   "text": "Bitcoin taking a hit over the past week, reaching its lowest level since July as investors face a growing list of setbacks, one being political uncertainty.",
+   "start": 0.0,
+   "end": 9.76,
+   "duration_s": 9.76,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 2,
+    "stakes": 4,
+    "stance": 2,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Concrete price drop and political context; strong scroll stopper for BTC holders.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "9.76 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T15:54:42.039439+00:00",
+    "attempt": 2,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1553Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "1f9ddfe94ecffe9c8d55ad7ebf313c0b1473c251ca2b5b305798abe52d405a18",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "1fa850337b270d3361e1842cb3977c908b02f721b4a07457571230ad96fdf208",
+    "window": {
+     "start_s": 0.0,
+     "end_s": 53.891,
+     "record": "transcripts/DO6iIRbccIg/windows/0.000-53.891.whisper_words_punct.json",
+     "words_sha256": "1ef9840e7d77af21f0f279c405a4101d35e3c90421755d8a16434fdd6f136935",
+     "record_sha256": "fac184dae3955a4ccbb3d7ecee6b3e70fd8e38ae26fbb9ba08c2cd658a8f5c18",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "917df8e9fc9c46634a8f",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      0,
+      0
+     ],
+     "offset_s": [
+      0.0,
+      0.87
+     ]
+    },
+    "ledger_text": "Bitcoin taking a hit over the past week, reaching its lowest level since July as investors face a growing list of setbacks, one being political uncertainty."
+   },
+   "rank_score": 19,
+   "source_key": "DO6iIRbccIg@0.000-53.891"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "6e270efff668b4e40274",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "17a16e56ce0773d5e1ca9d53876638c897200ed42b91a102bcdb1c0ab790edb6",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    130,
+    163
+   ],
+   "sentences": [
+    9,
+    11
+   ],
+   "text": "I'll just tell you, as someone who does polling, people don't like paternalism, especially not in this country. They want to have the option choice to do things. They want to do it fairly.",
+   "start": 2239.846,
+   "end": 2247.946,
+   "duration_s": 8.1,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Clear argument against paternalistic regulation, appealing to viewer autonomy and political sentiment.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "8.1 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:37:54.190747+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "666d79d30b9d5fba6f19b3764b7180a820e08ac1135068177763cfc4e5e82407",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "48491210499b73dc6f686d3be6e4e1737628707a2ac934ee9a7ed93971aa86cf",
+    "window": {
+     "start_s": 2194.786,
+     "end_s": 2292.91,
+     "record": "transcripts/Vu0XZSz-aj4/windows/2194.786-2292.910.whisper_words_punct.json",
+     "words_sha256": "f13594c8d2f29506771cc2acf8b97f564cb633dd152ac16e43f0efb539587d5d",
+     "record_sha256": "17b84435e8e70c041f3c4f77e8e7d45ee581505d0fe86d41e5a41fc613d89110",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "08d37aa2ee739128c72e",
+    "reanchored": {
+     "anchor_ratio": 0.971,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      11
+     ],
+     "offset_s": [
+      0.06,
+      0.04
+     ]
+    },
+    "ledger_text": "I'll just tell you, as someone who does polling, people don't like paternalism, especially not in this country. Like, they want to have the option and choice to do things. They want to do it fairly."
+   },
+   "rank_score": 19,
+   "source_key": "Vu0XZSz-aj4@2194.786-2292.910"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "ba4b4783bae73f6cde21",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "1beea1d85e07141c67b75388cdb72a8d737c6b6893dce41566404be56b119183",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    133,
+    179
+   ],
+   "sentences": [
+    8,
+    13
+   ],
+   "text": "There might be some. At the end of the day, I say this to everybody. If you're thinking about crypto as a moral problem, you've lost the entire concept. Crypto is a technology. At this point, it's been around for 18 years. I guess in January functionally.",
+   "start": 852.619,
+   "end": 869.959,
+   "duration_s": 17.34,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 1,
+    "hook_first_2s": 3,
+    "quotable": 5,
+    "stakes": 4,
+    "stance": 5,
+    "stands_alone": 4,
+    "surprising_fact": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Strong stance that crypto is a technology, not a moral issue. Quotable and clear.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener",
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "6 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "17.34 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "6 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:37:54.190747+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "eff63fa507917ab8c267e4b5c6e280ff1a689feb4aa4c0f721d2068368c8bdef",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "bb987676dade0bd8bf77e8fb0f8275165d7cda4b5c88bf0285c6d604d6da3c23",
+    "window": {
+     "start_s": 807.729,
+     "end_s": 914.67,
+     "record": "transcripts/Vu0XZSz-aj4/windows/807.729-914.670.whisper_words_punct.json",
+     "words_sha256": "44f774232761ae7fd30fdd7742a533109fa75187f32b7a414b0390147273c5dd",
+     "record_sha256": "92d6b69235b1fb034201145d37829aa387085f2de56428f08df52e4356e45380",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "d143d851db4dac02dfb9",
+    "reanchored": {
+     "anchor_ratio": 0.979,
+     "snapped_words": [
+      0,
+      1
+     ],
+     "sentences": [
+      8,
+      13
+     ],
+     "added": {
+      "before": "",
+      "after": "functionally."
+     },
+     "offset_s": [
+      -0.11,
+      -0.23
+     ]
+    },
+    "ledger_text": "There might be some, but at the end of the day, and I say this to everybody, if you're thinking about crypto as a moral problem, you've lost the entire concept. Crypto is a technology at this point. It's been around for 18 years, I guess, in January."
+   },
+   "rank_score": 19,
+   "source_key": "Vu0XZSz-aj4@807.729-914.670"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "c2744f24dc9c5bafac14",
+   "video_id": "DO6iIRbccIg",
+   "channel_id": "UCCXoCcu9Rp7NPbTzIvogpZg",
+   "channel_name": "Fox Business",
+   "published_at": "2026-11-16T13:30:31+00:00",
+   "title": "'VERY HOSTILE': Crypto prepares for 'SWEEPING INVESTIGATIONS'",
+   "transcript_sha256": "af42eb641bea2885ea52b5f309da4c454a68cd74ea5522d4c90a5add088d6d87",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    120,
+    132
+   ],
+   "sentences": [
+    9,
+    11
+   ],
+   "text": "No secret. They don't love this industry. It's going to be very hostile.",
+   "start": 39.24,
+   "end": 42.14,
+   "duration_s": 2.9,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 5,
+    "stands_alone": 4,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [
+    "doom"
+   ],
+   "topics": [],
+   "reason": "Strong, concise prediction of a hostile regulatory environment for crypto, directly addressing the stakes for industry participants.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener",
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "2.9 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "2.9 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T15:54:12.229606+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1553Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "97b4d102193d93afdc8969299c6cc93a59ec2ea9588d24fe4a385f6bfd4056f3",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "99c5102ac8ea19be9df8fffc86b4676b7ba56302ae874b0a755f3b1b22739cf9",
+    "window": {
+     "start_s": 0.0,
+     "end_s": 87.579,
+     "record": "transcripts/DO6iIRbccIg/windows/0.000-87.579.whisper_words_punct.json",
+     "words_sha256": "ca207288ed7143d96e4d46f2c04550221c76cedb3cca579beafa73f8ab5fe222",
+     "record_sha256": "dca3420daf2d8830315d0a191fc11e23f83b3b8419a5a7a4cea1c4c3be66e511",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "119a99dbc73699773245",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      11
+     ],
+     "offset_s": [
+      -0.01,
+      -0.44
+     ]
+    },
+    "ledger_text": "No secret. They don't love this industry. It's going to be very hostile."
+   },
+   "rank_score": 19,
+   "source_key": "DO6iIRbccIg@0.000-87.579"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "f372327625f456e53314",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "efcadaeadfa278ece38e67243a2a706bfcec9f9f46067a545ddaafb4bed16ad6",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    130,
+    165
+   ],
+   "sentences": [
+    13,
+    15
+   ],
+   "text": "There's just this group of people in financial regulation that are just so deathly afraid of something going wrong again. The easiest thing is just to try to stop it. The problem is that never works.",
+   "start": 3700.9,
+   "end": 3713.62,
+   "duration_s": 12.72,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Identifies the root cause of regulatory hostility as fear of 2008, explaining why regulators try to stop crypto.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener",
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "12.72 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:37:54.190747+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "fae6b3e1c7998318eb69a444919f6e5080634fac8e60c8b621239d4e67dd87af",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "3043435c0a77770e38df9a39287207b4c11f55edbb569b0d68cdddba75b3b318",
+    "window": {
+     "start_s": 3656.2,
+     "end_s": 3758.812,
+     "record": "transcripts/Vu0XZSz-aj4/windows/3656.200-3758.812.whisper_words_punct.json",
+     "words_sha256": "639a33ed33841c590e4c91805ff6743264330280a74239083c8d16c0e1081366",
+     "record_sha256": "a244e8c70c7b62160453494c8cbfb3dd0b663d4938a4c69a688198457ae48808",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "a59605fdd9a2a11b92c8",
+    "reanchored": {
+     "anchor_ratio": 0.932,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      13,
+      15
+     ],
+     "offset_s": [
+      -0.3,
+      -0.19
+     ]
+    },
+    "ledger_text": "There's just this group of people in particular in financial regulations are just so deathly afraid of something going wrong again. The easiest thing is just to try to stop it. The problem is that never works."
+   },
+   "rank_score": 19,
+   "source_key": "Vu0XZSz-aj4@3656.200-3758.812"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "fbd6996062e49d92a923",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "171d8afc19b3869f574b687cc2dba80b69ac1f9727d6d426285ba02bc6146ba0",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    151,
+    171
+   ],
+   "sentences": [
+    10,
+    10
+   ],
+   "text": "But if you're fighting with them about how they're choosing to spend their money in time, you're probably losing that battle.",
+   "start": 2249.312,
+   "end": 2253.412,
+   "duration_s": 4.1,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 1,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Strong contrarian take on the political battle over financial freedom.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "4.1 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "4.1 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:38:52.525004+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "d4e1514289cee8e23fbbc4acb2f06dbb6b4454ab01089880edbcd0d9b713bcbd",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "66c74d2ea3b573cf94cd3dd126855bdac078e0983a0575948747c14f92e13d74",
+    "window": {
+     "start_s": 2204.172,
+     "end_s": 2299.47,
+     "record": "transcripts/Vu0XZSz-aj4/windows/2204.172-2299.470.whisper_words_punct.json",
+     "words_sha256": "cd1cff6ffa5a87a31604b4159c3587d702a8e9705481e90ed25bcc5d2fb60177",
+     "record_sha256": "403c196dcf29e605eb0785af386bfd5dbb64a4b2e1d3fb3a6a29fa7443cffd0e",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "779f8455192c14a7bbd6",
+    "reanchored": {
+     "anchor_ratio": 0.95,
+     "snapped_words": [
+      1,
+      0
+     ],
+     "sentences": [
+      10,
+      10
+     ],
+     "added": {
+      "before": "But",
+      "after": ""
+     },
+     "offset_s": [
+      0.16,
+      -1.06
+     ]
+    },
+    "ledger_text": "If you're fighting with them about how they're choosing to spend their money and time, you're probably losing that battle."
+   },
+   "rank_score": 19,
+   "source_key": "Vu0XZSz-aj4@2204.172-2299.470"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "0c8b148b130272219457",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "b7a52545d0168cf0e37b442544585ea4da9e51601e452d9bcfd13232132f6144",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    140,
+    200
+   ],
+   "sentences": [
+    6,
+    7
+   ],
+   "text": "I just don't think you can look at this and see all the innovations in stable coins, in the hard money of Bitcoin provides, in defy, and say this is all useless. I've been surprised at how people can say that, but I realize a lot of it is because it's all... fundamentally, we're really good at changing the tech stack.",
+   "start": 2444.35,
+   "end": 2463.69,
+   "duration_s": 19.34,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 3,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Directly mentions Bitcoin's hard money role and stablecoins, refuting the 'useless' claim.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "19.34 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:37:54.190747+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "7f645a6f976c7a3b006053cf8a6c619b011bea4a152c8a6a2d700f1dc1b13820",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "90e0bdb45be9ce92e6afb115564fc33e1c809deec64deed6a7e14cef61611c70",
+    "window": {
+     "start_s": 2399.24,
+     "end_s": 2509.012,
+     "record": "transcripts/Vu0XZSz-aj4/windows/2399.240-2509.012.whisper_words_punct.json",
+     "words_sha256": "09ab3e8e25f8c8d81b3b7b699c0f2ab22f9cd5494c278b3df6c47f890c06e179",
+     "record_sha256": "9c4fd10a85bf9c50bac253fe96d745952c1dd01d50078ae14a5aeb6d879b1475",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "482ba2d326d945ef7bee",
+    "reanchored": {
+     "anchor_ratio": 0.944,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      6,
+      7
+     ],
+     "offset_s": [
+      0.11,
+      -0.32
+     ]
+    },
+    "ledger_text": "I just don't look think you can look at this and see all the innovations in stable coins in the hard money that Bitcoin provides in DeFi and say this is all useless. I I I've been surprised at how people can say that, but I realize a lot of it is because it's all fundamentally we're really good at changing the tech stack."
+   },
+   "rank_score": 17,
+   "source_key": "Vu0XZSz-aj4@2399.240-2509.012"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "8e31adf2cbfb10547db5",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "929a2a3022941822105a1aecd3c93be26b09c116754dfe406cd920f7c7aea38b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    118,
+    169
+   ],
+   "sentences": [
+    7,
+    8
+   ],
+   "text": "Also, if you talk to people, I've always said this, the number of people who really like crypto, it's not massive, but it's significant. You know, the percentage of crypto single issue voters in 24 was something like, you know, 2 % of independence, 5 % of voters overall in my data.",
+   "start": 808.967,
+   "end": 824.127,
+   "duration_s": 15.16,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 4
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Provides specific data on crypto voters (2% independents, 5% overall).",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'also'",
+      "15.16 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'also'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:37:54.190747+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "eff63fa507917ab8c267e4b5c6e280ff1a689feb4aa4c0f721d2068368c8bdef",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "bb987676dade0bd8bf77e8fb0f8275165d7cda4b5c88bf0285c6d604d6da3c23",
+    "window": {
+     "start_s": 764.357,
+     "end_s": 869.356,
+     "record": "transcripts/Vu0XZSz-aj4/windows/764.357-869.356.whisper_words_punct.json",
+     "words_sha256": "b5d868e311ba5eeeba6167d22d7aab9f25f03029a6097648228edfcf73c6e580",
+     "record_sha256": "7f49be193620ad18799dbe052e2b0ecc399893aaf560850e36c2a93db9f4793d",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "8b03e38340632c558498",
+    "reanchored": {
+     "anchor_ratio": 0.981,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      7,
+      8
+     ],
+     "offset_s": [
+      -0.39,
+      -0.23
+     ]
+    },
+    "ledger_text": "Also, if you talk to people, I've always said this, the number of people who really like crypto, it's not massive, but it's significant. you know, the percentage of crypto single issue voters in 24 was something like, you know, 2% of independents, 5% of voters overall in my data."
+   },
+   "rank_score": 17,
+   "source_key": "Vu0XZSz-aj4@764.357-869.356"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "e161cd4a92a86fbb5204",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "d42a797b6c47203fef721186e39d179417c69451b99c23628ffba188987057c0",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    114,
+    156
+   ],
+   "sentences": [
+    9,
+    10
+   ],
+   "text": "A lot of dim Finrag staffers, including some who were senior at the SEC, described their entire existence, their reason to Etra as fighting for people who lost their homes after 2008. And they look at this and see all those downsides too.",
+   "start": 3639.67,
+   "end": 3653.87,
+   "duration_s": 14.2,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Claims SEC staffers view their role as protecting people who lost homes in 2008, framing crypto as a threat to that mission.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "14.2 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:37:54.190747+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "fae6b3e1c7998318eb69a444919f6e5080634fac8e60c8b621239d4e67dd87af",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "3043435c0a77770e38df9a39287207b4c11f55edbb569b0d68cdddba75b3b318",
+    "window": {
+     "start_s": 3594.68,
+     "end_s": 3699.47,
+     "record": "transcripts/Vu0XZSz-aj4/windows/3594.680-3699.470.whisper_words_punct.json",
+     "words_sha256": "ccef059d1a05778fbede1a6728ec9f44a512a3f25524ad49eaa443db32eb6c12",
+     "record_sha256": "a7357e212a9a1c1526d46a9a3ef7d64aaee212bd1754b0da4f8888001abc17fc",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "73427a3c4719f8b916a9",
+    "reanchored": {
+     "anchor_ratio": 0.952,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      10
+     ],
+     "offset_s": [
+      -0.01,
+      -0.6
+     ]
+    },
+    "ledger_text": "A lot of dim finreg staffers, including some who were senior at the SEC, described their entire existence, their reason as fighting for people who lost their homes after 2008. And they look at this and see all those downsides, too."
+   },
+   "rank_score": 17,
+   "source_key": "Vu0XZSz-aj4@3594.680-3699.470"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "1018678560cde9b978cf",
+   "video_id": "DO6iIRbccIg",
+   "channel_id": "UCCXoCcu9Rp7NPbTzIvogpZg",
+   "channel_name": "Fox Business",
+   "published_at": "2026-11-16T13:30:31+00:00",
+   "title": "'VERY HOSTILE': Crypto prepares for 'SWEEPING INVESTIGATIONS'",
+   "transcript_sha256": "585428fd8289000a7f6733a40544e689da20fba411ad366db59fa85b9b35778f",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    165,
+    186
+   ],
+   "sentences": [
+    16,
+    18
+   ],
+   "text": "A lot of them are young. A lot of them are tech forward. They have told us that they are crypto -curious.",
+   "start": 74.655,
+   "end": 78.815,
+   "duration_s": 4.16,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Highlights a demographic shift in Congress with 'tech forward' and 'crypto-curious' Democrats, offering a hopeful counter-narrative.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "4.16 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.16 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T15:54:12.229606+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1553Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "97b4d102193d93afdc8969299c6cc93a59ec2ea9588d24fe4a385f6bfd4056f3",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "99c5102ac8ea19be9df8fffc86b4676b7ba56302ae874b0a755f3b1b22739cf9",
+    "window": {
+     "start_s": 30.305,
+     "end_s": 125.5,
+     "record": "transcripts/DO6iIRbccIg/windows/30.305-125.500.whisper_words_punct.json",
+     "words_sha256": "e6d34d1f867fd6b6bd95c81093c8bd020f1a0cbb81fcf8d16efb8664c613447a",
+     "record_sha256": "23151d43792ac154acb868807579f7670ddd9da5c2b4b560d9ae4762f4d15c76",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "e7a8542bfb77095618ea",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      16,
+      18
+     ],
+     "offset_s": [
+      -0.65,
+      -1.69
+     ]
+    },
+    "ledger_text": "A lot of them are young, a lot of them are tech forward. They have told us that they are crypto-curious."
+   },
+   "rank_score": 16,
+   "source_key": "DO6iIRbccIg@30.305-125.500"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "7da6d1b86374a42e5f2e",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "fac278b5348b193718529acaaa61a70aacf0af002dc454ac2c96a310d1c37af9",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    112,
+    153
+   ],
+   "sentences": [
+    10,
+    11
+   ],
+   "text": "It's persisted through many bubbles, through an arduous amount of regulatory attack, through many legislative processes abroad, through the passage of genius. If you're still fighting about how to contain this or stop it or destroy it, you're living in the past.",
+   "start": 876.58,
+   "end": 894.28,
+   "duration_s": 17.7,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Highlights crypto's resilience through 18 years of regulatory attacks.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener",
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "17.7 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:37:54.190747+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "eff63fa507917ab8c267e4b5c6e280ff1a689feb4aa4c0f721d2068368c8bdef",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "bb987676dade0bd8bf77e8fb0f8275165d7cda4b5c88bf0285c6d604d6da3c23",
+    "window": {
+     "start_s": 831.88,
+     "end_s": 939.433,
+     "record": "transcripts/Vu0XZSz-aj4/windows/831.880-939.433.whisper_words_punct.json",
+     "words_sha256": "d77ce2166b68883ae61129d7da8d8d17076494b40f25294ef73785953bdcf8ee",
+     "record_sha256": "390a38a06f8a910d13bd29d7d504fd8ba6c46b0dba0b7718cfd2c82c92ce22de",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "b9c8212b9060367e449e",
+    "reanchored": {
+     "anchor_ratio": 0.976,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      11
+     ],
+     "offset_s": [
+      -0.3,
+      -0.15
+     ]
+    },
+    "ledger_text": "It's persisted through many bubbles, through an arduous amount of regulatory attack, through many legislative processes abroad, through the passage of genius. If you're still fighting about how to contain this or stop it or destroy it, you're you're living the past."
+   },
+   "rank_score": 16,
+   "source_key": "Vu0XZSz-aj4@831.880-939.433"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "b24d03f229c7d855a011",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "b5c370b9ffb9bbfea6cbba84ba2e407b9ac34b87d2f07e07487214fc60f4795f",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    135,
+    165
+   ],
+   "sentences": [
+    7,
+    7
+   ],
+   "text": "Someone was telling me who's not a crypto fan, I'm telling a lot of stories today, that until crypto cleans up its act, it can't get regulation, I was like, what?",
+   "start": 2322.78,
+   "end": 2330.34,
+   "duration_s": 7.56,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 3,
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "stakes": 5,
+    "stance": 5,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [
+    "doom"
+   ],
+   "topics": [],
+   "reason": "Direct quote of a hostile political stance against crypto regulation, high stakes for holders.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "7.56 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "not_statement"
+     ],
+     "targets_missed": [
+      "7.56 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:38:52.525004+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "d4e1514289cee8e23fbbc4acb2f06dbb6b4454ab01089880edbcd0d9b713bcbd",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "66c74d2ea3b573cf94cd3dd126855bdac078e0983a0575948747c14f92e13d74",
+    "window": {
+     "start_s": 2277.72,
+     "end_s": 2374.692,
+     "record": "transcripts/Vu0XZSz-aj4/windows/2277.720-2374.692.whisper_words_punct.json",
+     "words_sha256": "c35b0062b8883cac79d300b2efee953108ad76b4f0b8e01ac3bf185fc469b92f",
+     "record_sha256": "45294dd75830e3eb976fac70b0ad6f3b4e643d5def658f6857f544778a0ad75c",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "e940e2482c53c1b5b56c",
+    "reanchored": {
+     "anchor_ratio": 0.906,
+     "snapped_words": [
+      0,
+      4
+     ],
+     "sentences": [
+      7,
+      7
+     ],
+     "added": {
+      "before": "",
+      "after": "I was like, what?"
+     },
+     "offset_s": [
+      0.06,
+      -0.15
+     ]
+    },
+    "ledger_text": "Someone was telling me who's not a crypto fan, I'm telling you all stories today that until crypto cleans up its act, it can't get regulation."
+   },
+   "rank_score": 16,
+   "source_key": "Vu0XZSz-aj4@2277.720-2374.692"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "fc08a5169c4ccb70532b",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "14390c23922c0149e45189d87cb828dbf520f607ff7312a7aab35c21baf66499",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    144,
+    189
+   ],
+   "sentences": [
+    10,
+    13
+   ],
+   "text": "And ironically, that helps crypto too. It helps pure crypto because it's a bridge. Like the nature of most things in politics, and this is something that I think the Ginsler SEC struggled with, but sometimes crypto struggles with too. is most things are a spectrum.",
+   "start": 2288.059,
+   "end": 2302.929,
+   "duration_s": 14.87,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Explains the strategic benefit of non-Bitcoin blockchain tech for the broader crypto ecosystem.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "4 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "14.87 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "4 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:37:54.190747+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "666d79d30b9d5fba6f19b3764b7180a820e08ac1135068177763cfc4e5e82407",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "48491210499b73dc6f686d3be6e4e1737628707a2ac934ee9a7ed93971aa86cf",
+    "window": {
+     "start_s": 2243.079,
+     "end_s": 2348.288,
+     "record": "transcripts/Vu0XZSz-aj4/windows/2243.079-2348.288.whisper_words_punct.json",
+     "words_sha256": "67872376b5ea21585963b72aab36cdaf3e15b7e8196c8686ed534d52bed9954a",
+     "record_sha256": "ad682f021d37ab9c3f275335c62cf15be144f3920f634280ff2298db24538fa1",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "395e38914d3861a053af",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      13
+     ],
+     "offset_s": [
+      -0.02,
+      -0.36
+     ]
+    },
+    "ledger_text": ">> And ironically, that helps crypto too. It helps pure crypto because it's a bridge like The nature of most things in politics and this is something that I think the Ginsler SEC struggled with but sometimes crypto struggles with too is most things are a spectrum."
+   },
+   "rank_score": 16,
+   "source_key": "Vu0XZSz-aj4@2243.079-2348.288"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "3a16b60b6d82a35cff8a",
+   "video_id": "DO6iIRbccIg",
+   "channel_id": "UCCXoCcu9Rp7NPbTzIvogpZg",
+   "channel_name": "Fox Business",
+   "published_at": "2026-11-16T13:30:31+00:00",
+   "title": "'VERY HOSTILE': Crypto prepares for 'SWEEPING INVESTIGATIONS'",
+   "transcript_sha256": "f258989570f3b5dbc8b1b024ddb7ce0ce90f668f66cba6308423432ac922e5e8",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    163,
+    186
+   ],
+   "sentences": [
+    11,
+    12
+   ],
+   "text": "You know, the American people spoke out in the November election. They have a right to be skeptical, but moratoriums are not the answer.",
+   "start": 135.43,
+   "end": 141.15,
+   "duration_s": 5.72,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 3,
+    "stance": 4,
+    "stands_alone": 3,
+    "surprising_fact": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Clear stance against moratoriums on data centers, linking infrastructure to economic recovery in depressed districts.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "5.72 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5.72 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T15:54:12.229606+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1553Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "97b4d102193d93afdc8969299c6cc93a59ec2ea9588d24fe4a385f6bfd4056f3",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "99c5102ac8ea19be9df8fffc86b4676b7ba56302ae874b0a755f3b1b22739cf9",
+    "window": {
+     "start_s": 90.14,
+     "end_s": 186.952,
+     "record": "transcripts/DO6iIRbccIg/windows/90.140-186.952.whisper_words_punct.json",
+     "words_sha256": "ae114ddd465e712230c710607ed2dbad81a43fb8dbb1e0de9173971d3454d76f",
+     "record_sha256": "885dc735708f6973402fdf2582d65cfd54fbce0330c1253aa1a91aa5bb7bd3fe",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "05ea601084a39eda25fc",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      11,
+      12
+     ],
+     "offset_s": [
+      0.29,
+      -0.8
+     ]
+    },
+    "ledger_text": "You know, the American people spoke out in the November election. They have a right to be skeptical, but moratoriums are not the answer."
+   },
+   "rank_score": 15,
+   "source_key": "DO6iIRbccIg@90.140-186.952"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "5857eea70389c3630fed",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "012c2be583039315ad072acbb5441a4d59e5775a51a880b16878c22011abec7a",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    133,
+    188
+   ],
+   "sentences": [
+    11,
+    16
+   ],
+   "text": "It would surprise you, I think. But I expect the next Democratic presidential nominee will look at what happened under Biden is a huge error. They're not going to be, you know, what are you doing anything you want. You know, everybody needs rules. But they're not going to treat it as some. definitional holy war.",
+   "start": 3050.688,
+   "end": 3069.788,
+   "duration_s": 19.1,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [
+    "politics_non_btc"
+   ],
+   "topics": [],
+   "reason": "Predicts a policy shift in the next administration, framing current hostility as a mistake. Strong stance on regulatory future.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener",
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "6 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "19.1 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "6 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:37:54.190747+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "90c3dc77233529883badc1cb788a8c1410168c02f4d30101cb8e8ecf77031541",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "086341d47d584b48498182ce301372055175f6539180371302d2c04f1990895f",
+    "window": {
+     "start_s": 3005.748,
+     "end_s": 3115.166,
+     "record": "transcripts/Vu0XZSz-aj4/windows/3005.748-3115.166.whisper_words_punct.json",
+     "words_sha256": "3841abc1a34eeca6d03187dd5941a0b47f372443fce572b7aaf2a38df6883542",
+     "record_sha256": "2d3a4e5fc78d3b8f4b9bbd75186443d888324600eb0d311134395d9e9a82c65e",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "3f152a923a3472de1f4d",
+    "reanchored": {
+     "anchor_ratio": 0.92,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      11,
+      16
+     ],
+     "offset_s": [
+      -0.06,
+      -0.38
+     ]
+    },
+    "ledger_text": "It would surprise you, I think, but um I expect the next Democratic presidential nominee will look at what happened under Biden as a huge error. They're not going to be, you know, I let you do anything you want. You know, everybody needs rules, but they're not going to treat it as some definitional holy war."
+   },
+   "rank_score": 15,
+   "source_key": "Vu0XZSz-aj4@3005.748-3115.166"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "f05f09aee18bd9419351",
+   "video_id": "Vu0XZSz-aj4",
+   "channel_id": "UCAl9Ld79qaZxp9JzEOwd3aA",
+   "channel_name": "Bankless",
+   "published_at": "2026-11-16T11:30:07+00:00",
+   "title": "Democrats Are Back. Is Crypto in Trouble?",
+   "transcript_sha256": "58e75f77a4ad24961e19c9d8dbec0ae7932f01f53c02b3d426609affdd923a7e",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    123,
+    150
+   ],
+   "sentences": [
+    6,
+    7
+   ],
+   "text": "My nightmare is that what happens is that people do that most wonderful Washington move of saying, well, that's not crypto. Sometimes you see that with stable coins.",
+   "start": 2576.9,
+   "end": 2586.07,
+   "duration_s": 9.17,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 3,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [
+    "doom"
+   ],
+   "topics": [],
+   "reason": "Describes a specific political nightmare scenario regarding stablecoins. Good hook with 'My nightmare'.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "9.17 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T11:37:54.190747+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1136Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 2,
+    "pass": "moment",
+    "prompt_sha256": "7f645a6f976c7a3b006053cf8a6c619b011bea4a152c8a6a2d700f1dc1b13820",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "90e0bdb45be9ce92e6afb115564fc33e1c809deec64deed6a7e14cef61611c70",
+    "window": {
+     "start_s": 2531.8,
+     "end_s": 2631.149,
+     "record": "transcripts/Vu0XZSz-aj4/windows/2531.800-2631.149.whisper_words_punct.json",
+     "words_sha256": "692a23d3c6cb806fc2aa4a7c2b9e4b5973f15b4f1d9f60480b7d0fd99985c274",
+     "record_sha256": "805daa46a7d0d85ec3bd184b68bb2a312c70bbcfab727c0f9edf65d6fd85dc3f",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "e83a2e7fde9511a0f647",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      6,
+      7
+     ],
+     "offset_s": [
+      0.1,
+      -0.08
+     ]
+    },
+    "ledger_text": "My nightmare is that what happens is that people do that most wonderful Washington move of saying,\"Well, that's not crypto.\" Sometimes you see that with stable coins."
+   },
+   "rank_score": 15,
+   "source_key": "Vu0XZSz-aj4@2531.800-2631.149"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "f6cd42cbf9c6b48a2d72",
+   "video_id": "M6_MGnSvoAY",
+   "channel_id": "UCIALMKvObZNtJ6AmdCLP7Lg",
+   "channel_name": "Bloomberg Television",
+   "published_at": "2026-11-16T10:00:03+00:00",
+   "title": "Nvidia Fallout Puts ASEAN's Tech Boom in Focus",
+   "transcript_sha256": "b1408e3090db214c4716b82846f81416de9bb9dd52fb1ec0b1d1503e21bdbfec",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    124,
+    134
+   ],
+   "sentences": [
+    9,
+    9
+   ],
+   "text": "We did see Bitcoin fall off a cliff in the weekend.",
+   "start": 4397.009,
+   "end": 4399.409,
+   "duration_s": 2.4,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 1,
+    "quotable": 0,
+    "stakes": 1,
+    "stance": 0,
+    "stands_alone": 1,
+    "surprising_fact": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Mentions Bitcoin price action but is a fragment of a larger market report; lacks standalone context and strong hook.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "2.4 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "2.4 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T10:08:16.490245+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1006Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "4f8cf33302f0df053d3954709ac0647f56cdf518a3909ac6a4b70f7da8172d17",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "af5e117fc2a6af6807fddfff826187c835780494f7fd4d6168c264f3ceb25913",
+    "window": {
+     "start_s": 4352.659,
+     "end_s": 4445.796,
+     "record": "transcripts/M6_MGnSvoAY/windows/4352.659-4445.796.whisper_words_punct.json",
+     "words_sha256": "2d66e4c63724e634ac61e7a0bc41cc48feb527054bd7fb5159cba8d27c62fe6d",
+     "record_sha256": "b2581ea6bb3e1bb7751c872ea92b777739253264e09c235a00e5c35087c50323",
+     "context_record": "yt_manual:en"
+    },
+    "ledger_moment_id": "533ed7f7feb11c29a769",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      9
+     ],
+     "offset_s": [
+      -0.65,
+      -1.39
+     ]
+    },
+    "ledger_text": "WE DID SEE BITCOIN FALL OFF A CLIFF IN THE WEEKEND."
+   },
+   "rank_score": 3,
+   "source_key": "M6_MGnSvoAY@4352.659-4445.796"
+  }
+ ],
+ "next_attempt": {
+  "conversation": {
+   "video_id": "lcYYuefFMQA",
+   "channel": "Strategy (MicroStrategy)",
+   "published_at": "2026-11-16T14:46:16Z",
+   "expires_at": "2026-11-17T02:46:16Z",
+   "age_h": 1.8,
+   "turns_per_min": 0.0,
+   "unmarked": true,
+   "turns_from": "pp-ingest episode",
+   "rows": 2,
+   "passes": {
+    "moment/mine/2": 2
+   },
+   "word_pass_ready": 2,
+   "word_pass_refused": 0,
+   "word_pass_waiting": 0
+  },
+  "newest_upload": {
+   "video_id": "lcYYuefFMQA",
+   "channel": "Strategy (MicroStrategy)",
+   "published_at": "2026-11-16T14:46:16Z",
+   "expires_at": "2026-11-17T02:46:16Z",
+   "age_h": 1.8,
+   "turns_per_min": 0.0,
+   "unmarked": true,
+   "turns_from": "pp-ingest episode",
+   "rows": 2,
+   "passes": {
+    "moment/mine/2": 2
+   },
+   "word_pass_ready": 2,
+   "word_pass_refused": 0,
+   "word_pass_waiting": 0
+  },
+  "rule": "the newest upload whose captions do not refuse it (unmarked, or marked with a speaker change; ruling 92 amended: the layout decides per clip) (ruling 95)"
+ }
+}
