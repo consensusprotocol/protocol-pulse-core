@@ -321,10 +321,14 @@ class TestYouTubeGateAgeGate:
 
 
 class TestCaptionsRespectTheBreaker:
-    """Freeze audit c1 (glm C37): caption downloads held a yt-dlp slot but ignored the breaker, and a throttled
-    caption answer never tripped it."""
+    """Freeze audit c1 (glm C37): caption downloads held a yt-dlp slot but ignored the breaker. The 10:50 ET order of
+    Nov 16 (1): a throttled caption answer no longer trips it: from 07:47 ET that day YouTube refused every caption
+    download (HTTP 429) while it still answered every probe and listing, and each refusal shut the whole gate for 10 to
+    60 minutes, so the probes stopped too and nothing reached the miner for three hours. A 429 stops the captions alone
+    (transcript_store's own 30-minute breaker); the gate is tripped only by a probe or a listing that is refused."""
 
-    def test_no_caption_download_while_the_breaker_is_open_and_throttled_trips_it(self, q, monkeypatch):
+    def test_no_caption_download_while_the_breaker_is_open_and_a_throttled_caption_never_trips_it(self, q,
+                                                                                                    monkeypatch):
         ts = config.ts()
         v = H.vid("c")
         q.add_video(v, H.CHAN["channel_id"], "Bitcoin t", "playlist", listing_ts=NOW - 600)
@@ -343,7 +347,11 @@ class TestCaptionsRespectTheBreaker:
                 self.until = 1.0
         g = Gate(probes={v: H.probe_json(v, timestamp=NOW - 600)})
         st = fetch.process(q, g, q.video(v), H.CHAN, set(), now_ts=NOW)
-        assert st == Q.CAPTIONS_PENDING and fetched == [1] and trips == ["captions: throttled"]
+        assert st == Q.CAPTIONS_PENDING and fetched == [1] and trips == []           # the gate stays closed
+        row = q.video(v)
+        assert row["next_at"] == NOW + fetch.CAPTION_THROTTLED_RETRY_S == NOW + 600
+        assert row["reason"].startswith("captions throttled")
+        g.trip("a probe was refused")                    # a probe's or a listing's 429 opens it (watch.YouTubeGate)
         q.x("UPDATE videos SET next_at=0")
         st = fetch.process(q, g, q.video(v), H.CHAN, set(), now_ts=NOW)
         assert st == Q.CAPTIONS_PENDING and fetched == [1]           # breaker open: no second download

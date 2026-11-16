@@ -157,13 +157,18 @@ def test_option_b_is_simulated_on_a_copy_and_the_ledger_is_never_written(tmp_pat
     assert sorted(x.name for x in tmp_path.iterdir()) == ["moment_ledger.jsonl"]        # the copy is removed
 
 
-def test_the_role_is_in_the_provider_config_with_two_unfrozen_back_ends_none_of_them_the_miner():
+def test_the_role_is_in_the_provider_config_with_two_unfrozen_back_ends_none_of_them_the_first_miner():
+    """Ruling 118 (10:50 ET Nov 16) puts six Heimdall families in the mine chain, and ruling 119 (3) takes glm out of
+    every chain: a second checker beside muse is a family of the mine chain, never its first (the model that mines
+    nearly every row); ruling 40's per-row rule (checkers(): never the miner of the row's video, by back-end and by
+    model) keeps it off any video it mined (test_the_checker_is_never_a_model_or_back_end_that_mined_the_video)."""
     cfg = providers.load_config()
     chain = cfg["roles"][FC.ROLE]["chain"]
     fz = providers.frozen_vendors(cfg)
     assert len(chain) >= 2 and not [b for b in chain if cfg["backends"][b]["vendor"] in fz]
-    miners = {cfg["backends"][b]["model"] for b in cfg["roles"]["mine"]["chain"]}
-    assert not [b for b in chain if cfg["backends"][b]["model"] in miners]
+    first = cfg["backends"][cfg["roles"]["mine"]["chain"][0]]["model"]
+    assert not [b for b in chain if cfg["backends"][b]["model"] == first]
+    assert len({cfg["backends"][b]["model"] for b in chain}) == len(chain)
 
 
 def test_the_calibration_set_is_balanced_and_counted_per_back_end():

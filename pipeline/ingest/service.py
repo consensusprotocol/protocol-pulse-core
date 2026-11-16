@@ -50,8 +50,8 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 
-from . import batch, config, coverage, cycles, downsignal, fetch, flagcheck, ledger, mine, providers, purge, spend, stats, \
-    watch
+from . import batch, config, coverage, cycles, downsignal, fetch, flagcheck, ledger, mine, providers, purge, spend, \
+    stall, stats, watch
 from . import queue as Q
 from .contract import ContractUnavailable
 
@@ -143,6 +143,7 @@ class Service:
         self.check_recal_s = CHECK_RECALIBRATE_S        # the wait before the next calibration (set by each one)
         self.cycles_error = None                         # the cycles line's last failure (logged once per cause)
         self.batch_error = None                          # ruling 108: the batch line's last failure (logged once)
+        self.stall_error = None                          # the 10:50 order (4): the stall line's last failure (once)
         self._reuse_tried = False                       # the start's one look at the stored live calibration
         self.stop = threading.Event()
         self.rss_mode, self.rss_checked = False, 0.0
@@ -752,6 +753,7 @@ class Service:
         self._outage_notice(now)
         self._cycles_notice(now)
         self._batch_notice(now)
+        self._stall_notice(now)
         day = config.iso()[:10]
         hour = datetime.now(timezone.utc).hour
         if force_coverage or (hour >= COVERAGE_HOUR_UTC and self.q.kv_get("coverage_day") != day and
@@ -801,6 +803,43 @@ class Service:
             if why != self.batch_error:
                 self.log(f"ruling 108: the batch line could not be written: {why}")
             self.batch_error = why
+
+    def _stall_notice(self, now):
+        """The orchestrator's 10:50 ET order of Nov 16 (4), the self-check (stall.py): videos waiting and nothing mined
+        for stall.STALL_S: said at the front of STATE line 1 and acted on (the waiting videos made due now) when found
+        and every STALL_S while it lasts; removed when it ends. A failure is logged once per cause and never stops the
+        health loop."""
+        try:
+            chk = stall.check(self.q, now)
+            if chk["stalled"]:
+                if self.q.kv_get("stall_since") != repr(chk["since"]):
+                    self.q.kv_set("stall_since", repr(chk["since"]))
+                    self.q.kv_set("stall_acted", "")
+                    self.q.event("stall", None, None, since=chk["since"], waiting=len(chk["waiting"]))
+                try:                                       # the last act of this stall: (when, how many)
+                    acted_at, acted_n = float(self.q.kv_get("stall_acted")), int(self.q.kv_get("stall_acted_n"))
+                except (TypeError, ValueError):            # none yet (or unreadable): act now (audit r118 c1, P1)
+                    acted_at, acted_n = None, 0
+                if acted_at is None or now - acted_at >= stall.STALL_S:
+                    acted_n, acted_at = stall.act(self.q, chk, now), now
+                    self.q.kv_set("stall_acted", repr(acted_at))
+                    self.q.kv_set("stall_acted_n", str(acted_n))
+                    self.q.event("stall_act", None, None, waiting=len(chk["waiting"]), made_due=acted_n)
+                    self.log(f"the 10:50 order (4): {len(chk['waiting'])} video(s) waiting and nothing mined since "
+                             f"{chk['since']:.0f}: {acted_n} made due now")
+                spend.write_stall_notice(stall.line(chk, now, acted_at, acted_n), notify_path=self.p["notify"])
+            else:
+                if self.q.kv_get("stall_since"):
+                    self.q.event("stall_over", None, None, since=self.q.kv_get("stall_since"))
+                    self.log("the 10:50 order (4): the stall is over (mined again, or nothing waits)")
+                spend.write_stall_notice(None, notify_path=self.p["notify"])   # STATE first, then the record (a
+                self.q.kv_set("stall_since", "")                              # file not written is tried again)
+            self.stall_error = None
+        except Exception as e:                       # noqa: BLE001 (a report line never stops the watcher)
+            why = f"{type(e).__name__}: {str(e)[:200]}"
+            if why != self.stall_error:
+                self.log(f"the 10:50 order (4): the stall line could not be written: {why}")
+            self.stall_error = why
 
     def _purge_blocked(self, why):
         """A purge that cannot run safely: once it has lasted PURGE_NOTICE_S, a line at the top of STATE (audit r77

@@ -2,13 +2,26 @@
 
 Captions go into the staging store through transcript_store's own writer (fetch_captions -> _make_record -> _store,
 attempts via _log_attempt), so the record format is the pipeline's by construction. meta.json is written once, ONLY
-when the video is a VOD with English captions listed (INGEST-FAIL-01: a meta written while live froze 46 videos);
-meta_record() has every key transcript_store.ensure_meta writes (tests/ingest/test_fetch.py checks parity) and dates a
-livestream VOD by its stream start (INGEST-FAIL-03). No Whisper, no GPU.
+when the video is a VOD with English captions listed or with the pipeline's own transcript (INGEST-FAIL-01: a meta
+written while live froze 46 videos); meta_record() has every key transcript_store.ensure_meta writes
+(tests/ingest/test_fetch.py checks parity) and dates a livestream VOD by its stream start (INGEST-FAIL-03). No Whisper,
+no GPU.
+
+THE PIPELINE'S OWN TRANSCRIPT (the orchestrator's 10:50 ET order of Nov 16, (1)): from 07:47 ET that day YouTube
+answered HTTP 429 to every caption download from this machine, so no video reached the miner for three hours, while
+the main tree's own transcript ingest (cron, every 30 min: captions, else Whisper on its GPU) had already transcribed
+most of them. Before any caption download, and when a VOD lists no English captions, the video's record in the
+pipeline's store (config.MAIN_STORE, READ ONLY) is taken when one passes every check (it names this video and this
+channel; its segments hash to its transcript_sha256): copied byte for byte into this store, write-once, the copy
+checked again. A caption 429 stops the captions only (transcript_store's own 30-minute caption breaker): the probe and
+the listing, which YouTube still answered, go on, and a throttled video is tried again in CAPTION_THROTTLED_RETRY_S,
+the pipeline's store looked at first each time.
 """
+import glob
 import hashlib
 import json
 import os
+import shutil
 from datetime import datetime, timezone
 
 from . import config
@@ -21,6 +34,30 @@ UNAVAILABLE_MARKS = ("Private video", "Video unavailable", "This video has been 
 UNAVAILABLE_RETRY_S = 6 * 3600
 UNAVAILABLE_MAX_TRIES = 4
 PROBE_RETRY_S = (300, 900, 1800, 3600)
+CAPTION_THROTTLED_RETRY_S = 600     # a caption 429: tried again this soon (the pipeline's store is looked at first)
+PIPELINE_RECHECK_S = 1800           # a VOD without English captions inside its moments' life: looked at this often
+                                    # (the pipeline's transcript ingest runs every 30 min)
+PIPELINE_STORE = os.path.join(config.MAIN_STORE, "transcripts")     # the pipeline's own transcripts: READ ONLY
+PIPELINE_CIRCUIT = os.path.join(config.MAIN_STORE, "state", "caption_circuit.json")   # its caption 429 breaker: read
+                                    # only (both ingests download captions from this one machine)
+
+
+def pipeline_captions_refused(now_ts):
+    """True while the pipeline's own caption breaker is open (its ingest was answered HTTP 429 in the last 30 min):
+    YouTube refuses this machine, so no caption download is tried here either. The pipeline writes that file only when
+    it is refused, in place (transcript_store._open_circuit): a file that cannot be parsed and was written inside the
+    breaker's own span is one being written now, so open (audit r118 c1, P0); an older unparsable one, or none, is
+    not (a broken file never stops the captions for good)."""
+    try:
+        with open(PIPELINE_CIRCUIT) as f:
+            return float(json.load(f).get("open_until", 0)) > now_ts
+    except FileNotFoundError:
+        return False
+    except (OSError, ValueError, TypeError, AttributeError):
+        try:
+            return now_ts - os.path.getmtime(PIPELINE_CIRCUIT) < config.ts().CIRCUIT_MINUTES * 60
+        except OSError:
+            return False
 
 
 def _dt(epoch):
@@ -112,9 +149,74 @@ def _retry_at(now_ts, tries):
 
 
 def _caption_retry_at(now_ts, published_ts, tries):
-    if tries < len(config.CAPTION_RETRY_S):
-        return now_ts + config.CAPTION_RETRY_S[tries]
-    return now_ts + 7200
+    """+10, +20, +40, +80 min, then every 2 h; inside the video's moments' life (config.EXPIRY_H) at most
+    PIPELINE_RECHECK_S apart, so the pipeline's own transcript is taken within one run of its ingest."""
+    d = config.CAPTION_RETRY_S[tries] if tries < len(config.CAPTION_RETRY_S) else 7200
+    if published_ts is not None and now_ts - published_ts < config.EXPIRY_H * 3600:
+        d = min(d, PIPELINE_RECHECK_S)
+    return now_ts + d
+
+
+def pipeline_transcript(vid, channel_id, root=None):
+    """The video's best record in the pipeline's own transcript store (READ ONLY; transcript_store's rank: Whisper over
+    manual over automatic captions) that names this video and this channel, is filed under its own method and whose
+    segments hash to its transcript_sha256: (path, record), or None. A record failing any check is never taken."""
+    ts = config.ts()
+    ts._vdir(vid)                                     # the id's own check (ValueError): no path outside the store
+    best = None
+    for p in sorted(glob.glob(os.path.join(root or PIPELINE_STORE, vid, "transcript.*.json"))):
+        try:
+            with open(p) as f:
+                rec = json.load(f)
+            method = rec.get("transcript_method") if isinstance(rec, dict) else None
+            ok = (isinstance(method, str) and os.path.basename(p) == f"transcript.{method.split(':')[0]}.json"
+                  and rec.get("video_id") == vid and rec.get("channel_id") == channel_id
+                  and isinstance(rec.get("segments"), list) and len(rec["segments"]) > 0
+                  and ts.segments_sha256(rec["segments"]) == rec.get("transcript_sha256"))
+        except (OSError, ValueError, KeyError, TypeError, AttributeError):
+            ok = False
+        if ok:
+            rank = ts.METHOD_RANK.get(method.split(":")[0], 0)
+            if best is None or rank > best[0]:
+                best = (rank, p, rec)
+    return (best[1], best[2]) if best else None
+
+
+def take_pipeline_transcript(q, vid, channel_id, root=None):
+    """The pipeline's own transcript (pipeline_transcript) copied into this store byte for byte, write-once, the copy
+    checked again before it is linked in: True when this store holds it (a record of that method already here is
+    kept, never replaced). Said in the video's attempts log and as a queue event."""
+    found = pipeline_transcript(vid, channel_id, root)
+    if found is None:
+        return False
+    src, rec = found
+    ts = config.ts()
+    dst = os.path.join(ts._vdir(vid), os.path.basename(src))
+    if os.path.exists(dst):
+        return True
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    tmp = f"{dst}.{os.getpid()}.tmp"
+    try:
+        shutil.copyfile(src, tmp)
+        with open(tmp) as f:
+            got = json.load(f)
+        if got.get("transcript_sha256") != rec["transcript_sha256"] or \
+                ts.segments_sha256(got["segments"]) != rec["transcript_sha256"]:
+            ts._log_attempt(vid, step="transcript", status="pipeline_store_copy_refused", source=src,
+                            writer="pipeline.ingest")
+            return False                              # the bytes copied are not the record checked: not taken
+        try:
+            os.link(tmp, dst)
+        except FileExistsError:
+            return True
+    finally:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+    ts._log_attempt(vid, step="transcript", status="taken_from_pipeline_store", source=src,
+                    method=rec["transcript_method"], transcript_sha256=rec["transcript_sha256"], writer="pipeline.ingest")
+    q.event("pipeline_transcript", vid, channel_id, source=src, method=rec["transcript_method"],
+            transcript_sha256=rec["transcript_sha256"])
+    return True
 
 
 def process(q, gate, v, chan, optout, now_ts=None):
@@ -189,6 +291,8 @@ def process(q, gate, v, chan, optout, now_ts=None):
         q.set_state(vid, Q.DUPLICATE, next_at=now_ts + 10 ** 9, duplicate_of=dup, title_canon=tc,
                     reason=f"re-upload of {dup}: {why}", **common)
         return Q.DUPLICATE
+    if take_pipeline_transcript(q, vid, chan["channel_id"]):    # the pipeline's own transcript: no caption download
+        return _store_captions(q, gate, v, chan, j, common, tc, now_ts, tries)
     manual, auto = captions_listed(j)
     if not (any(k.startswith("en") for k in manual) or auto):
         if now_ts - pub_ts > config.CAPTION_DEADLINE_H * 3600:
@@ -222,15 +326,21 @@ def _store_captions(q, gate, v, chan, j, common, tc, now_ts, tries):
             q.set_state(vid, Q.CAPTIONS_PENDING, next_at=now_ts + wait + 60, title_canon=tc,
                         reason=f"captions: the yt-dlp breaker is open for {wait:.0f} s", **common)
             return Q.CAPTIONS_PENDING
-        with gate.sem:
-            status, rec = ts.fetch_captions(meta, os.path.join(paths["work"], "captions_tmp"))
-        ts._log_attempt(vid, step="captions", status=status, writer="pipeline.ingest")
-        if status == "throttled" and getattr(gate, "trip", None):
-            gate.trip("captions: throttled")       # a caption download's rate limit stops every yt-dlp call
-        if status != "ok":
-            nxt = now_ts + 1800 if status == "throttled" else _caption_retry_at(now_ts, common["published_ts"], tries)
+        if pipeline_captions_refused(now_ts):      # the pipeline's ingest was just refused: no request from here
+            status, rec = "throttled", None
+            ts._log_attempt(vid, step="captions", status=status, writer="pipeline.ingest",
+                            why="the pipeline's own caption breaker is open (HTTP 429): no download tried")
+        else:
+            with gate.sem:
+                status, rec = ts.fetch_captions(meta, os.path.join(paths["work"], "captions_tmp"))
+            ts._log_attempt(vid, step="captions", status=status, writer="pipeline.ingest")
+        if status != "ok":                         # a 429 stops the captions alone (transcript_store's own breaker):
+            throttled = status == "throttled"      # never the probe's and the listing's gate (the 10:50 order (1))
+            nxt = now_ts + CAPTION_THROTTLED_RETRY_S if throttled else \
+                _caption_retry_at(now_ts, common["published_ts"], tries)
             q.set_state(vid, Q.CAPTIONS_PENDING, next_at=nxt, tries=tries + 1, title_canon=tc,
-                        reason=f"captions {status}", **common)
+                        reason="captions throttled (HTTP 429; the pipeline's own transcript is looked for at each "
+                               "retry)" if throttled else f"captions {status}", **common)
             return Q.CAPTIONS_PENDING
         if not os.path.exists(mpath):
             ts._write_once(mpath, meta)

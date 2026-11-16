@@ -39,3 +39,15 @@ def _batch_in_tmp(tmp_path_factory, monkeypatch):
                              "share_usd": 1000.0, "share_of": "mining and checks"}))
     monkeypatch.setattr(batch, "SPEC", str(p))
     return p
+
+
+@pytest.fixture(autouse=True)
+def _pipeline_store_in_tmp(tmp_path_factory, monkeypatch):
+    """The 10:50 order (1) of Nov 16: the fetch step reads the pipeline's own transcript store and caption breaker (the
+    main tree's, READ ONLY). Every test reads its own empty ones, never the main tree's (a real video id there would
+    decide a test by the day it runs); a test that needs a record writes it here (fetch.PIPELINE_STORE)."""
+    from pipeline.ingest import fetch
+    d = tmp_path_factory.mktemp("pipeline_store")
+    monkeypatch.setattr(fetch, "PIPELINE_STORE", str(d / "transcripts"))
+    monkeypatch.setattr(fetch, "PIPELINE_CIRCUIT", str(d / "state" / "caption_circuit.json"))
+    return d

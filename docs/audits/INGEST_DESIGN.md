@@ -540,12 +540,50 @@ Bitcoin." And ruling 107 (2) for the audits: Heimdall-first (qwen + glm), diff-s
   own pace (about $0.28 a day on Nov 14) ever neared it, the session asks on line 1 with its default (ruling 108).
 - The audit driver (tests/ingest/xllm_audit.py, ruling 107 (2)): the package is the laws, the change's own context and
   its diff (pipeline/ingest, tools/ingest_watch.py, tests/ingest; a new file needs `git add -N`), never the whole
-  files; qwen + glm review it (a third family by --only, when the two disagree on a P0 / P1 or one is down; the paid
+  files; qwen + muse review it (glm out of every chain, ruling 119 (3); a third family, mimo, by --only, when the two disagree on a P0 / P1 or one is down; the paid
   frontier reviewers stay out under pp-ingest's freeze); the cap ($0.30 under 60 changed lines, else $1.00, both
   cycles) is checked against the next cycle's worst case (each prompt and the whole reply budget at list price, with
   half again) BEFORE any call; every review is booked to COST.json in the audit folder (written whole; a re-run of a
   leg is kept beside the first) and to the ledger above, a review abandoned or cut off after 30 s in flight at the
   model's own rate over this audit history, on its own prompt at the measured tokens per character.
+
+## 19. The stalled miner (the orchestrator's 10:50 ET order of Nov 16; rulings 118 and 119 (3)): r118
+
+THE CAUSE. From 07:47 ET Nov 16 YouTube answered HTTP 429 to every caption download from this machine (the main tree's
+transcript ingest too), while it still answered every probe and listing. The watcher had no transcript path but
+captions, and each caption refusal tripped its whole yt-dlp gate (10 to 60 min), even a refusal transcript_store's own
+30-minute caption breaker made with no request: the probes stopped too, and nothing reached the miner for three hours.
+Meanwhile the main tree's transcript ingest (cron every 30 min: captions, else Whisper on GPU0) had transcribed most of
+the same videos.
+- THE PIPELINE'S OWN TRANSCRIPT (fetch.pipeline_transcript / take_pipeline_transcript). After the probe's checks
+  (channel, Short, upcoming, live, age, length, duplicate) and before any caption download, and when a VOD lists no
+  English captions: the video's best record in the main tree's store (READ ONLY; transcript_store's rank: Whisper over
+  manual over automatic captions) that names this video and this channel, is filed under its own method and hashes to
+  its transcript_sha256 is copied byte for byte into this store (write-once; the copy re-checked before os.link), with
+  an attempts line and a queue event (`pipeline_transcript`); the video is transcribed with no YouTube caption request.
+  The miner is unchanged (a Whisper record has segment timing, like a caption record: `timing` stays `segment`).
+- A CAPTION 429 STOPS THE CAPTIONS ALONE: the gate is tripped only by a probe's or a listing's own refusal; a throttled
+  video is tried again in 10 min (the pipeline's store looked at first); while the PIPELINE's caption breaker is open
+  (its file read only: written only when its ingest is refused, so an unparsable file younger than the breaker's 30
+  min is one being written: open) no download is tried here either; inside its 12 h a VOD without English captions is
+  looked at at least every 30 min (the pipeline's period).
+- THE OUTAGE CLOCK IS THE WATCHER'S OWN (ruling 87 as amended by the order's (3)): the builder's module runs on
+  config.paths()["signal_state"] (data/editorial/ingest/down_signal_state.json), never the shared file: only this
+  watcher's calls are noted, only its probes claim slots (no `families`: no other prober shares the file), only its
+  own switches reach line 1. Any answered call or probe resets it (the module). The probe asks one back-end per family
+  the watcher calls (qwen, deepseek, minimax, gemma, gpt-oss, mimo, muse).
+- RULING 118: the mine, hook and spotlight chains are qwen, then deepseek 4.1, minimax, gemma, gpt-oss, mimo (all on
+  the Heimdall gateway), then the local model (only while this process holds the GPU lease; it does not take one):
+  no paid route (paid_route and mine_paid removed), never glm or muse. Measured on Nov 16 (the watcher's own question):
+  minimax 2/2, mimo 2/2, gpt-oss 3 of 4, gemma 2/2 at effort none (empty at its default); deepseek gave no answer in
+  time (its deadline 90 s, so it costs a window at most 4 x 90 s once before its breaker opens). RULING 119 (3): glm
+  in no chain (its back-ends disabled); the flag check is muse then gemma; the audit driver's pair is qwen + muse.
+- THE SELF-CHECK (the order's (4), stall.py): a video inside its 12 h that leads to mining (discovered, probing,
+  probe_retry, captions_pending, transcribed, mining, mine_waiting; never upcoming or live) is waiting; when something
+  waits and nothing was mined for 30 min, line 1 carries "MINING STALLED SINCE HH:MM ET: n VIDEO(S) WAITING ...: what
+  each waits on; ACTED HH:MM ET: m MADE DUE NOW ..." (after the batch spend and an alarm, before the switch line) and
+  the watcher acts: every waiting video in a retry state is made due now, when found and every 30 min while it lasts.
+  The line goes when mining resumes or nothing waits.
 
 ## 11. Assumptions (most defensible reading; the integrator may overrule)
 

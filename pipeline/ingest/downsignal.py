@@ -1,6 +1,15 @@
-"""pipeline/ingest/downsignal.py: RULING 87 (orchestrator 21:18 Nov 13), this watcher's side of the ONE shared
-'Heimdall down' signal (pp-selectid pipeline/heimdall_health.py, the builder's module, used through its API only; its
-state file under its own flock).
+"""pipeline/ingest/downsignal.py: RULING 87 (orchestrator 21:18 Nov 13), this watcher's 'Heimdall down' signal: the
+builder's module (pp-selectid pipeline/heimdall_health.py, used through its API only, its state file under its own
+flock) run on THIS WATCHER'S OWN state file.
+
+OWN   RULING 87 AS AMENDED BY THE ORCHESTRATOR'S 10:50 ET ORDER OF NOV 16 (3): "the outage clock is fed only by YOUR
+      OWN mining and probe calls, never by another session's deadline misses, and any answered call or probe resets
+      it". Until then the watcher and the builder shared one state file, and the builder's own deadline misses
+      started the watcher's clock (the false outages of Nov 14 09:16 and 10:12 ET). The state file is now the
+      watcher's own (config.paths()["signal_state"]; a test may pass another): only its own calls are noted there,
+      only its own probes claim a slot, and only the switches made on it go to STATE line 1. Its probe claims every
+      slot it is due (no `families`: no other prober shares the file to leave a slot to). The miner's Plan B is
+      ruling 118's: the mine chain as it is (the next model of the chain), else the videos wait; no paid route.
 
 NOTE  every real call of this watcher to a back-end of the signal's vendor (providers.json down_signal) is one outcome:
       answered (ok, invalid: the gateway answered inside the back-end's deadline) or not (any other kind of a real call:
@@ -51,8 +60,9 @@ ANSWERED = frozenset({"ok", "invalid"})              # the gateway answered insi
 NO_CALL = frozenset({"cache", "disabled"})           # nothing was asked of the gateway
 ET = ZoneInfo("America/New_York")
 DOWN = "plan_b"                                      # the module's down mode; its other mode is the up one (MODES)
-MINER_PLAN_B = ("queue and wait: the 05:30 Nov 12 spend freeze binds the miner until the orchestrator answers the "
-                "Plan B question (the mine chain as it is, else the videos wait)")
+MINER_PLAN_B = ("ruling 118 (orchestrator 10:50 ET Nov 16): no paid route; the mine chain as it is (the next model "
+                "of the chain; the local model only under the GPU lease), else the videos wait")
+PLAN_B_TAIL = "; THE MINER'S PLAN B (RULING 118): THE NEXT MODEL OF ITS CHAIN, ELSE THE VIDEOS WAIT"
 
 
 def load_module(path):
@@ -92,7 +102,7 @@ def _any_text(c):
     return c
 
 
-def head(rec, seen_ts, up, plan_b_tail="; THE MINER'S PLAN B: QUEUE AND WAIT (SPEND FREEZE)"):
+def head(rec, seen_ts, up, plan_b_tail=PLAN_B_TAIL):
     """STATE line 1's head for one switch record {"utc", "to", "why", "by"} (the module's words: "SWITCHED TO PLAN B",
     "BACK TO <UP MODE>", plus who made it and what the miner does), IN CAPITALS, one physical line. None: not a switch
     between the module's two modes (up: the mode that is not DOWN)."""
@@ -125,7 +135,7 @@ class DownSignal:
         pr = self.paid
         self.plan_b_tail = (f"; THE MINER'S PLAN B (RULING 98): NEW UPLOADS ON {pr['label']} AFTER "
                             f"{int(pr['after_down_s'] // 60)} MINUTES DOWN, CAPPED" if pr else
-                            "; THE MINER'S PLAN B: QUEUE AND WAIT (SPEND FREEZE)")
+                            PLAN_B_TAIL)
         self.miner_plan_b = (f"ruling 98: after {int(pr['after_down_s'] // 60)} minutes down, new uploads (the last "
                              f"{int(pr['new_within_s'] // 3600)} h, conversations first) on {pr['role']} "
                              f"({pr['label']}), capped at ${float(self.roles[pr['role']]['daily_cap_usd']):.2f} a "
@@ -143,7 +153,8 @@ class DownSignal:
         self.probe_kw, self.note_family = {}, False
         try:
             self.hh = load_module(self.module_path)
-            self.state_path = state_path or self.hh.STATE
+            self.state_path = state_path or paths["signal_state"]    # the watcher's own (the 10:50 order (3)),
+                                                                     # never the module's shared STATE
             self.up = next(m for m in self.hh.MODES if m != DOWN)
             try:                                     # the builder's probe_due CLAIMS its slot and names the claimer
                 takes_who = "who" in inspect.signature(self.hh.probe_due).parameters   # (pp-selectid 11ed255f,
@@ -152,9 +163,8 @@ class DownSignal:
             # probe_kw: the name this watcher's claims carry (the state's last_probe_by names whoever won the latest
             # slot). Without it the fallback is said once (audit r87claim c2, its condition), never silent.
             self.probe_kw = {"who": WHO + " probe"} if takes_who else {}
-            fams = sorted({f for f in map(self._family, self.router.chain(self.probe_role)) if f})
-            if fams and _takes(self.hh.probe_due, "families"):   # RULING 87 AMENDED (pp-selectid audit 1008): the
-                self.probe_kw["families"] = fams                  # families this watcher's probe asks
+            # no `families` (pp-selectid audit 1008 kept a slot for the prober that could ask a failed family): the
+            # state file is this watcher's own, so no other prober would take a slot left to it (the 10:50 order (3))
             self.note_family = _takes(self.hh.note, "family")    # each failure noted with its family
             if not takes_who:
                 self.log("RULING 87: the shared module's probe_due takes no `who`: this watcher's probes are not "

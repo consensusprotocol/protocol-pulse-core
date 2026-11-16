@@ -21,7 +21,7 @@ SPEND FREEZE (orchestrator 05:30 ET Nov 12): a reviewer whose vendor is in provi
 
 RULING 107 (2) (orchestrator 20:20 ET Nov 14; in force for batch 3 by ruling 108, 21:22): the package is the DIFF (git
 diff --base of the watcher's code and its tests; a new file needs `git add -N`), the laws and the change's own context
-(--context), never the whole files; the reviewers are two Heimdall families, qwen + glm (DEFAULT); a third family
+(--context), never the whole files; the reviewers are two Heimdall families, qwen + muse (DEFAULT; glm is out of every chain, ruling 119 (3)); a third family
 (THIRD, by --only) only when the two disagree on a P0 / P1 or one of them is down (the paid frontier reviewers stay
 out under pp-ingest's freeze). The audit is capped, vendor-reported, both cycles together: $0.30 for a change under 60
 changed lines, else $1.00; a cycle that could pass the cap is refused before any call. Each review's cost goes to
@@ -64,13 +64,16 @@ REVIEWERS = {
     "heimdall_muse": dict(HEIMDALL, model="meta-models/muse-spark-open-816b-a42b", timeout_s=1800,
                           extra_body={"reasoning": {"effort": "none"}}),
     "heimdall_minimax": dict(HEIMDALL, model="minimax/minimax-m3.1-flash", extra_body={"reasoning": {"effort": "none"}}),
+    "heimdall_mimo": dict(HEIMDALL, model="xiaomi/mimo-v2.6-flash-rl", extra_body={"reasoning": {"effort": "low"}},
+                          max_tokens_floor=24000),   # r118: the third family once glm is out (ruling 119 (3))
 }  # Heimdall qwen at effort none. deepseek-v4.1-flash dropped after c1: empty content twice (effort low, then none; its
    # hidden reasoning took the whole budget on the 64k-token package); the abliterated deepseek and ling-3.0-flash are
    # excluded by the order (incoherent on long prompts / always 429)
 
 
-DEFAULT = ("heimdall_qwen", "heimdall_glm")       # ruling 107 (2): two Heimdall families
-THIRD = "heimdall_muse"                           # the third family: a P0 / P1 disagreement, or one of the two down
+DEFAULT = ("heimdall_qwen", "heimdall_muse")      # ruling 107 (2): two Heimdall families (glm out: ruling 119 (3))
+THIRD = "heimdall_mimo"                           # the third family: a P0 / P1 disagreement, or one of the two down
+EXCLUDED = {"heimdall_glm": "ruling 119 (3) (orchestrator 10:50 ET Nov 16): glm is out of every chain"}
 DIFF_PATHS = ["pipeline/ingest", "tools/ingest_watch.py", "tests/ingest"]
 SMALL_LINES, SMALL_CAP, BIG_CAP = 60, 0.30, 1.00  # ruling 107 (2): per audit, both cycles, vendor-reported
 MIN_REPORTED = 3                                  # ruling 107: list price until a model has 3 reported reviews
@@ -285,6 +288,7 @@ def chosen(only=None):
     fz = frozen()
     skipped = {rid: f"spend freeze: vendor {REVIEWERS[rid]['vendor']!r}" for rid in want
                if rid in REVIEWERS and REVIEWERS[rid]["vendor"] in fz}
+    skipped.update({rid: why for rid, why in EXCLUDED.items() if rid in want})
     unknown = sorted(want - set(REVIEWERS))
     if unknown:
         raise SystemExit(f"unknown reviewer(s) {unknown}")

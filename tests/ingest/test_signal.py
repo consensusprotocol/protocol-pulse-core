@@ -286,8 +286,8 @@ def test_fifteen_minutes_with_no_answer_of_any_kind_switch_to_plan_b_and_three_p
     hs.tick(wait=True)
     st = state(tmp)
     assert st["mode"] == "plan_b" and st["switches"][-1]["by"] == "pp-ingest" and hs.mode == "plan_b"
-    switched = " ".join(f"02:15 ET: SWITCHED TO PLAN B ({st['switches'][-1]['why']}; BY PP-INGEST); THE MINER'S "
-                        "PLAN B: QUEUE AND WAIT (SPEND FREEZE) |".upper().split())
+    switched = " ".join(f"02:15 ET: SWITCHED TO PLAN B ({st['switches'][-1]['why']}; BY PP-INGEST)"
+                        f"{downsignal.PLAN_B_TAIL} |".upper().split())     # ruling 118's Plan B, no paid route
     assert "2026-11-14T07:00:00Z" in switched and doc.read_text() == switched + "\n# STATE\nbody\n"
     t[0] += 5
     hs.tick(wait=True)                                                # seen once: no second head
@@ -702,14 +702,14 @@ def fake_module(tmp, amended=True):
 FAMS = {"hv1": "fam_a", "hv2": "fam_b", "hv_p1": "fam_a", "hv_p2": "fam_b"}
 
 
-def test_each_family_that_failed_is_noted_once_at_its_first_failure_and_the_probe_names_its_families(sig):
-    """The amended module records the failed families (note(False, family=)) so a slot whose failed families a prober
-    cannot ask goes to the prober that can (probe_due(families=)): each family once, at its first failure after the
-    latest answer, in time order; the families this watcher's probe asks (its probe back-ends') on probe_due."""
+def test_each_family_that_failed_is_noted_once_at_its_first_failure_and_the_probe_names_no_family(sig):
+    """The amended module records the failed families (note(False, family=)): each family once, at its first failure
+    after the latest answer, in time order. The 10:50 order (3) of Nov 16: the state file is this watcher's own, so
+    its probe names no families (probe_due(families=) left a slot to another prober, and none shares the file)."""
     make, t, doc, tmp, msgs = sig
     s, b = make(module=fake_module(tmp), families=FAMS)
     hs = s.hsig
-    assert hs.note_family is True and hs.probe_kw == {"who": "pp-ingest probe", "families": ["fam_a", "fam_b"]}
+    assert hs.note_family is True and hs.probe_kw == {"who": "pp-ingest probe"}
     hs.noted(rec(kind="ok"))                                          # an answer, then failures after it
     t[0] += 1
     hs.noted(rec(backend="hv2", kind="timeout"))
@@ -720,8 +720,8 @@ def test_each_family_that_failed_is_noted_once_at_its_first_failure_and_the_prob
     hs.tick(wait=True)
     notes = [c for c in hs.hh.CALLS if c[0] == "note"]
     assert notes == [("note", True, T0, None), ("note", False, T0 + 1, "fam_b"), ("note", False, T0 + 2, "fam_a")]
-    assert ("probe_due", "pp-ingest probe", ["fam_a", "fam_b"]) in hs.hh.CALLS
-    assert hs.n["failures_noted"] == 2 and hs.snapshot()["probe_families"] == ["fam_a", "fam_b"]
+    assert ("probe_due", "pp-ingest probe", None) in hs.hh.CALLS        # the slot claimed with no families named
+    assert hs.n["failures_noted"] == 2 and hs.snapshot()["probe_families"] is None
 
 
 def test_a_first_failure_without_a_family_still_starts_the_clock(sig):
@@ -820,26 +820,21 @@ def test_a_family_whose_probe_thread_dies_is_not_counted_and_breaks_nothing(sig)
         hs.last_probe["why"] and hs.n["probes"] == 1
 
 
-def test_with_the_builders_module_a_slot_goes_to_the_prober_that_can_ask_a_failed_family(sig):
-    """Audit r87a c1 (muse P1): the family path against the builder's real amended module and its file lock. A failure
-    of a family this watcher's probe cannot ask (fam_x) is in failing_families and the watcher leaves the slot; once a
-    family it can ask (fam_a) fails too, it claims, asks, and the answer clears the clock and the families."""
+def test_on_its_own_file_a_failure_its_probe_cannot_ask_is_probed_at_once_and_answered(sig):
+    """The 10:50 order (3) of Nov 16, against the builder's real amended module and its file lock: on the watcher's
+    own state file no other prober exists, so a failure of a family its probe does not ask (fam_x) is probed in the
+    same slot (families= would have left the slot to a prober that never comes, and the clock would have run to 15
+    minutes: a false outage); any family's answer clears the clock and the families."""
     make, t, doc, tmp, msgs = sig
     s, b = make(families={"hv1": "fam_x", "hv2": "fam_a", "hv_p1": "fam_a", "hv_p2": "fam_b"})
     hs = s.hsig
     if not amended(hs):
         pytest.skip("the module at the builder's path predates ruling 87 amended")
-    assert hs.note_family is True and hs.probe_kw["families"] == ["fam_a", "fam_b"]
+    assert hs.note_family is True and "families" not in hs.probe_kw
     hs.noted(rec(kind="timeout"))
     hs.tick(wait=True)
     st = state(tmp)
-    assert st["failing_families"] == ["fam_x"] and st["failing_since_utc"] == iso(T0)
-    assert b["hv_p1"].calls == [] and b["hv_p2"].calls == []           # the slot left to a prober that can ask fam_x
-    t[0] += 31
-    hs.noted(rec(backend="hv2", kind="timeout"))
-    hs.tick(wait=True)
-    st = state(tmp)
-    assert len(b["hv_p1"].calls) == 1 and len(b["hv_p2"].calls) == 1
+    assert len(b["hv_p1"].calls) == 1 and len(b["hv_p2"].calls) == 1    # probed at once, though fam_x is not asked
     assert st["failing_since_utc"] is None and st["failing_families"] == [] and st["probe_streak"] == 1
 
 

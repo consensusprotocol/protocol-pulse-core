@@ -286,14 +286,25 @@ def test_the_real_config_under_the_spend_freeze():
     fz = providers.frozen_vendors(cfg)
     assert {"openai", "anthropic", "xai"} <= fz
     mine_chain = cfg["roles"]["mine"]["chain"]
-    assert [cfg["backends"][b]["kind"] for b in mine_chain] == ["openai_compat", "ollama_local"]
+    # ruling 118 (orchestrator 10:50 ET Nov 16): the next Heimdall model (qwen, then deepseek 4.1, minimax, gemma,
+    # gpt-oss, mimo; never glm or muse), then the local model under the lease; no paid route (ruling 98's is closed)
+    assert [cfg["backends"][b].get("family") for b in mine_chain[:-1]] == \
+        ["qwen", "deepseek", "minimax", "gemma", "gpt-oss", "mimo"]
+    assert [cfg["backends"][b]["kind"] for b in mine_chain] == ["openai_compat"] * 6 + ["ollama_local"]
+    assert {cfg["backends"][b]["vendor"] for b in mine_chain[:-1]} == {cfg["down_signal"]["vendor"]}
+    for role in ("mine", "hook", "spotlight"):
+        assert cfg["roles"][role]["chain"] == mine_chain, role
+    assert "paid_route" not in cfg and "mine_paid" not in cfg["roles"]
+    assert not [(r, b) for r, rc in cfg["roles"].items() for b in rc["chain"]       # ruling 119 (3): glm in no chain
+                if cfg["backends"][b].get("family") == "glm"]
+    assert not [b for b in mine_chain if cfg["backends"][b].get("family") in ("glm", "muse")]
     assert cfg["backends"][mine_chain[0]].get("spend_meter") is True
     assert not [b for b in mine_chain if cfg["backends"][b]["vendor"] in fz]
     r = providers.Router(cfg, keyring=providers.Keyring("/nonexistent"))
     for bid in cfg["backends"]:
         if cfg["backends"][bid]["vendor"] in fz:
             assert r.frozen(bid) and r.available(bid)[0] is False
-    assert r.effective("mine") == [mine_chain[0]]          # this session: no GPU0 lease, so the gateway alone
+    assert r.effective("mine") == mine_chain[:-1]          # this session: no GPU0 lease, so the gateway's six
 
 
 def test_a_frozen_vendor_is_never_called_whatever_the_chain_only_or_enabled_say(tmp_path):

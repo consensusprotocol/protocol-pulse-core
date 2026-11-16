@@ -5,7 +5,7 @@
   "spend_freeze": {
     "vendors": ["openai", "anthropic", "xai", "google"],
     "since": "2026-11-12T05:30:00-05:00",
-    "order": "orchestrator 05:30 ET Nov 12: SPEND FREEZE on paid frontier vendors (OpenAI, Anthropic, xAI) until told otherwise; the watcher's chain is Heimdall then the local interface only; if both are down the videos queue and are mined later, never on a paid frontier model. Google (Gemini) is frozen as a paid frontier vendor too (STATE assumption A10). A frozen vendor's back-end is never called by any role (providers.Router); a stored validated reply costs nothing and may be reused. Lift: remove the vendor here and restart the watcher."
+    "order": "orchestrator 05:30 ET Nov 12: SPEND FREEZE on paid frontier vendors (OpenAI, Anthropic, xAI) until told otherwise; the watcher's chain is Heimdall then the local interface only; if both are down the videos queue and are mined later, never on a paid frontier model. Google (Gemini) is frozen as a paid frontier vendor too (STATE assumption A10). A frozen vendor's back-end is never called by any role (providers.Router); a stored validated reply costs nothing and may be reused. Lift: remove the vendor here and restart the watcher. Ruling 118 (orchestrator 10:50 ET Nov 16, from PBX 05:25 ET): outside vendors are capped at $1.00 a day for the whole pipeline, so ruling 98's paid route for the miner (Grok, then Gemini) is CLOSED: removed from this file (paid_route, the mine_paid role)."
   },
   "env_file": "/home/ultron/protocol_pulse/.env",
   "backends": {
@@ -26,7 +26,8 @@
       "price": {"in_per_mtok": 0.0465, "out_per_mtok": 0.713, "basis": "GET /models pricing 2026-11-12"}
     },
     "heimdall_glm53flash": {
-      "kind": "openai_compat", "vendor": "heimdall", "family": "glm", "enabled": true,
+      "kind": "openai_compat", "vendor": "heimdall", "family": "glm", "enabled": false,
+      "disabled_by": "ruling 119 (3) (orchestrator 10:50 ET Nov 16): glm is out of every chain",
       "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
       "model": "z-ai/glm-5.3-flash", "key_env_prefix": "HEIMDALL_API_KEY",
       "note": "a model family other than the miner's, for checks of the miner's labels (ruling 40, 2026-11-13); short prompts only. Its default reasoning: 24/24 on the flag-check calibration quotes (about 300 reply tokens, median 26 s); at effort none 21/24 (a yes to a speaker's own purchase, a historical fact and a prediction), at effort low 22/24 (2026-11-13). On a 111k-token review package its default reasoning used a whole 16k reply budget (freeze audit c1: empty content). Timeout 300 s: at 8 in flight its replies took p50 5 s but p90 74 s, and a quarter of the first 110 questions ran past 120 s (a timed-out request restarts from zero and, at temperature 0, reasons the same way again).",
@@ -45,13 +46,54 @@
       "price": {"in_per_mtok": 0.186, "out_per_mtok": 0.744, "basis": "GET /models pricing 2026-11-13"}
     },
     "heimdall_deepseek": {
-      "kind": "openai_compat", "vendor": "heimdall", "family": "deepseek", "enabled": false,
+      "kind": "openai_compat", "vendor": "heimdall", "family": "deepseek", "enabled": true,
       "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
       "model": "deepseek/deepseek-v4.1-flash", "key_env_prefix": "HEIMDALL_API_KEY",
       "extra_body": {"reasoning": {"effort": "low"}},
-      "json_schema": false, "max_inflight": 6, "timeout_s": 300,
+      "note": "ruling 118 (orchestrator 10:50 ET Nov 16): the miner's Plan B is the next Heimdall model of the chain (qwen, then deepseek 4.1, minimax, gemma, gpt-oss, mimo; never glm or muse), then the local model under the lease: the chain's second model. Measured 11:00-11:50 ET Nov 16 on the watcher's own mining question (1 window each of Vu0XZSz-aj4 and DO6iIRbccIg, no stored replies): at effort low empty (finish_reason length: its reasoning took the whole 4,000-token budget) after 515 s with the transport retries; at effort none no answer in 4 min. Its deadline is 90 s so that, while it gives no answer, a qwen outage costs a window at most 4 x 90 s once, before its breaker (5 failures) sends the windows on to minimax",
+      "json_schema": true, "max_inflight": 6, "timeout_s": 90,
       "cost_from_usage": true, "spend_meter": true,
-      "price": {"in_per_mtok": 0.3, "out_per_mtok": 1.2, "basis": "estimate"}
+      "price": {"in_per_mtok": 0.062, "out_per_mtok": 0.186, "basis": "GET /models pricing 2026-11-15 (pp-selectid replay110 GATEWAY_MODELS.json)"}
+    },
+    "heimdall_minimax": {
+      "kind": "openai_compat", "vendor": "heimdall", "family": "minimax", "enabled": true,
+      "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
+      "model": "minimax/minimax-m3.1-flash", "key_env_prefix": "HEIMDALL_API_KEY",
+      "extra_body": {"reasoning": {"effort": "low"}},
+      "note": "ruling 118 (orchestrator 10:50 ET Nov 16): the miner's Plan B is the next Heimdall model of the chain (qwen, then deepseek 4.1, minimax, gemma, gpt-oss, mimo; never glm or muse), then the local model under the lease: the chain's third model. Measured 11:00-11:50 ET Nov 16 on the watcher's own mining question (1 window each of Vu0XZSz-aj4 and DO6iIRbccIg, no stored replies): at effort low 2/2 valid, 56-57 s",
+      "json_schema": true, "max_inflight": 6, "timeout_s": 300,
+      "cost_from_usage": true, "spend_meter": true,
+      "price": {"in_per_mtok": 0.0465, "out_per_mtok": 0.186, "basis": "GET /models pricing 2026-11-15 (pp-selectid replay110 GATEWAY_MODELS.json)"}
+    },
+    "heimdall_gemma": {
+      "kind": "openai_compat", "vendor": "heimdall", "family": "gemma", "enabled": true,
+      "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
+      "model": "google/gemma-4-31b-it", "key_env_prefix": "HEIMDALL_API_KEY",
+      "extra_body": {"reasoning": {"effort": "none"}},
+      "note": "ruling 118 (orchestrator 10:50 ET Nov 16): the miner's Plan B is the next Heimdall model of the chain (qwen, then deepseek 4.1, minimax, gemma, gpt-oss, mimo; never glm or muse), then the local model under the lease: the chain's fourth model (served by Heimdall: not a frozen vendor). Measured 11:00-11:50 ET Nov 16 on the watcher's own mining question (1 window each of Vu0XZSz-aj4 and DO6iIRbccIg, no stored replies): at its default reasoning empty (finish_reason length) after 739 s; at effort none 2/2 valid, 21-24 s",
+      "json_schema": true, "max_inflight": 6, "timeout_s": 240,
+      "cost_from_usage": true, "spend_meter": true,
+      "price": {"in_per_mtok": 0.031, "out_per_mtok": 0.124, "basis": "GET /models pricing 2026-11-15 (pp-selectid replay110 GATEWAY_MODELS.json)"}
+    },
+    "heimdall_gptoss": {
+      "kind": "openai_compat", "vendor": "heimdall", "family": "gpt-oss", "enabled": true,
+      "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
+      "model": "openai/gpt-oss-20b", "key_env_prefix": "HEIMDALL_API_KEY",
+      "extra_body": {"reasoning": {"effort": "low"}},
+      "note": "ruling 118 (orchestrator 10:50 ET Nov 16): the miner's Plan B is the next Heimdall model of the chain (qwen, then deepseek 4.1, minimax, gemma, gpt-oss, mimo; never glm or muse), then the local model under the lease: the chain's fifth model (served by Heimdall: not a frozen vendor). Measured 11:00-11:50 ET Nov 16 on the watcher's own mining question (1 window each of Vu0XZSz-aj4 and DO6iIRbccIg, no stored replies): at effort low 3 of 4 valid, 4-6 s (one reason over 160 characters: invalid, asked again)",
+      "json_schema": true, "max_inflight": 6, "timeout_s": 240,
+      "cost_from_usage": true, "spend_meter": true,
+      "price": {"in_per_mtok": 0.031, "out_per_mtok": 0.124, "basis": "GET /models pricing 2026-11-15 (pp-selectid replay110 GATEWAY_MODELS.json)"}
+    },
+    "heimdall_mimo": {
+      "kind": "openai_compat", "vendor": "heimdall", "family": "mimo", "enabled": true,
+      "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
+      "model": "xiaomi/mimo-v2.6-flash-rl", "key_env_prefix": "HEIMDALL_API_KEY",
+      "extra_body": {"reasoning": {"effort": "low"}},
+      "note": "ruling 118 (orchestrator 10:50 ET Nov 16): the miner's Plan B is the next Heimdall model of the chain (qwen, then deepseek 4.1, minimax, gemma, gpt-oss, mimo; never glm or muse), then the local model under the lease: the chain's sixth model. Measured 11:00-11:50 ET Nov 16 on the watcher's own mining question (1 window each of Vu0XZSz-aj4 and DO6iIRbccIg, no stored replies): at effort low 2/2 valid, 25 s",
+      "json_schema": true, "max_inflight": 6, "timeout_s": 300,
+      "cost_from_usage": true, "spend_meter": true,
+      "price": {"in_per_mtok": 0.0434, "out_per_mtok": 0.0868, "basis": "GET /models pricing 2026-11-15 (pp-selectid replay110 GATEWAY_MODELS.json)"}
     },
     "anthropic_frontier": {
       "kind": "anthropic", "vendor": "anthropic", "enabled": true, "model": "claude-opus-5-5", "key_env": "ANTHROPIC_API_KEY",
@@ -84,8 +126,54 @@
       "max_inflight": 1, "timeout_s": 60, "cost_from_usage": true, "spend_meter": true,
       "price": {"in_per_mtok": 0.0465, "out_per_mtok": 0.713, "basis": "GET /models pricing 2026-11-12"}
     },
+    "heimdall_deepseek_probe": {
+      "kind": "openai_compat", "vendor": "heimdall", "family": "deepseek", "enabled": true,
+      "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
+      "model": "deepseek/deepseek-v4.1-flash", "key_env_prefix": "HEIMDALL_API_KEY",
+      "extra_body": {"reasoning": {"effort": "low"}},
+      "note": "ruling 87's probe only (the probe role): the mine chain's second family (ruling 118), 60 s deadline, one in flight",
+      "max_inflight": 1, "timeout_s": 60, "cost_from_usage": true, "spend_meter": true,
+      "price": {"in_per_mtok": 0.062, "out_per_mtok": 0.186, "basis": "GET /models pricing 2026-11-15 (pp-selectid replay110 GATEWAY_MODELS.json)"}
+    },
+    "heimdall_minimax_probe": {
+      "kind": "openai_compat", "vendor": "heimdall", "family": "minimax", "enabled": true,
+      "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
+      "model": "minimax/minimax-m3.1-flash", "key_env_prefix": "HEIMDALL_API_KEY",
+      "extra_body": {"reasoning": {"effort": "low"}},
+      "note": "ruling 87's probe only (the probe role asks one back-end per family this watcher calls): a family of the mine chain (ruling 118), 60 s deadline, one in flight",
+      "max_inflight": 1, "timeout_s": 60, "cost_from_usage": true, "spend_meter": true,
+      "price": {"in_per_mtok": 0.0465, "out_per_mtok": 0.186, "basis": "GET /models pricing 2026-11-15 (pp-selectid replay110 GATEWAY_MODELS.json)"}
+    },
+    "heimdall_gemma_probe": {
+      "kind": "openai_compat", "vendor": "heimdall", "family": "gemma", "enabled": true,
+      "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
+      "model": "google/gemma-4-31b-it", "key_env_prefix": "HEIMDALL_API_KEY",
+      "extra_body": {"reasoning": {"effort": "none"}},
+      "note": "ruling 87's probe only (the probe role asks one back-end per family this watcher calls): a family of the mine chain (ruling 118), 60 s deadline, one in flight",
+      "max_inflight": 1, "timeout_s": 60, "cost_from_usage": true, "spend_meter": true,
+      "price": {"in_per_mtok": 0.031, "out_per_mtok": 0.124, "basis": "GET /models pricing 2026-11-15 (pp-selectid replay110 GATEWAY_MODELS.json)"}
+    },
+    "heimdall_gptoss_probe": {
+      "kind": "openai_compat", "vendor": "heimdall", "family": "gpt-oss", "enabled": true,
+      "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
+      "model": "openai/gpt-oss-20b", "key_env_prefix": "HEIMDALL_API_KEY",
+      "extra_body": {"reasoning": {"effort": "low"}},
+      "note": "ruling 87's probe only (the probe role asks one back-end per family this watcher calls): a family of the mine chain (ruling 118), 60 s deadline, one in flight",
+      "max_inflight": 1, "timeout_s": 60, "cost_from_usage": true, "spend_meter": true,
+      "price": {"in_per_mtok": 0.031, "out_per_mtok": 0.124, "basis": "GET /models pricing 2026-11-15 (pp-selectid replay110 GATEWAY_MODELS.json)"}
+    },
+    "heimdall_mimo_probe": {
+      "kind": "openai_compat", "vendor": "heimdall", "family": "mimo", "enabled": true,
+      "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
+      "model": "xiaomi/mimo-v2.6-flash-rl", "key_env_prefix": "HEIMDALL_API_KEY",
+      "extra_body": {"reasoning": {"effort": "low"}},
+      "note": "ruling 87's probe only (the probe role asks one back-end per family this watcher calls): a family of the mine chain (ruling 118), 60 s deadline, one in flight",
+      "max_inflight": 1, "timeout_s": 60, "cost_from_usage": true, "spend_meter": true,
+      "price": {"in_per_mtok": 0.0434, "out_per_mtok": 0.0868, "basis": "GET /models pricing 2026-11-15 (pp-selectid replay110 GATEWAY_MODELS.json)"}
+    },
     "heimdall_glm53flash_probe": {
-      "kind": "openai_compat", "vendor": "heimdall", "family": "glm", "enabled": true,
+      "kind": "openai_compat", "vendor": "heimdall", "family": "glm", "enabled": false,
+      "disabled_by": "ruling 119 (3) (orchestrator 10:50 ET Nov 16): glm is out of every chain",
       "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
       "model": "z-ai/glm-5.3-flash", "key_env_prefix": "HEIMDALL_API_KEY",
       "note": "ruling 87's probe only (the probe role): a second Heimdall family, 60 s deadline, one in flight",
@@ -102,31 +190,24 @@
       "price": {"in_per_mtok": 0.186, "out_per_mtok": 0.744, "basis": "GET /models pricing 2026-11-13"}
     }
   },
-  "paid_route": {
-    "role": "mine_paid", "after_down_s": 1200, "new_within_s": 21600, "recheck_within_s": 43200,
-    "conversation_tpm": 1.0, "label": "GROK, THEN GEMINI",
-    "note": "ruling 98 (orchestrator 06:13 ET Nov 14, PBX's fail-safe of 21:08 Nov 13 'if [Heimdall] ever fails to respond for more than perhaps 10 to 20 minutes ... use Groc mainly or whatever other AI tokens we have'): when the shared signal (down_signal) says plan_b AND no family of its vendor has answered for after_down_s (20 min) running, the miner mines NEW uploads only (published in the last new_within_s, 6 h; conversations first (caption turns per minute >= conversation_tpm), then newest; no backfill; no hook pass) on the role above, until the signal is back (3 good probes). Every row carries miner_route (the role that mined it). When the signal is back, a video mined on the paid route and published within recheck_within_s (12 h, its moments' life) is mined again on the mine role, and every moment both found carries the flags of both (ledger.carry_forward)."
-  },
   "down_signal": {
     "vendor": "heimdall", "probe_role": "probe", "label": "HEIMDALL",
     "module": "/home/ultron/worktrees/pp-selectid/pipeline/heimdall_health.py",
-    "note": "ruling 87 (orchestrator 21:18 Nov 13): ONE shared 'Heimdall down' signal for the builder and this watcher (pp-selectid pipeline/heimdall_health.py, its state file under an flock). Every call of this watcher to a back-end of this vendor is noted there (answered: ok or invalid; not answered: every other outcome of a real call; a stored reply, a missing key or a probe call is no note; a back-end under a runtime base_url override is a drill: drill=True, never counted). The probe role is asked while the shared state says a probe is due (any answer counts). The miner's Plan B under the 05:30 Nov 12 spend freeze: queue and wait (the mine chain as it is)."
+    "note": "ruling 87 as amended by the orchestrator's 10:50 ET order of Nov 16 (3): the outage clock is fed only by this watcher's OWN mining and probe calls, never by another session's deadline misses, and any answered call or probe resets it: the builder's module (pp-selectid pipeline/heimdall_health.py, its API only) runs on this watcher's own state file (config.paths()['signal_state'], under the module's flock), no longer the one file shared with the builder (ruling 87 of 21:18 Nov 13). Every call of this watcher to a back-end of this vendor is noted there (answered: ok or invalid; not answered: every other outcome of a real call; a stored reply, a missing key or a probe call is no note; a back-end under a runtime base_url override is a drill: drill=True, never counted). The probe role is asked while its state says a probe is due (any answer counts). The miner's Plan B (ruling 118): the mine chain as it is (the next Heimdall model, then the local model under the lease), else the videos wait; no paid route."
   },
   "roles": {
-    "mine": {"chain": ["heimdall_qwen27b", "local_gemma"],
-             "attempts": 3, "max_tokens": 4000},
+    "mine": {"chain": ["heimdall_qwen27b", "heimdall_deepseek", "heimdall_minimax", "heimdall_gemma", "heimdall_gptoss", "heimdall_mimo", "local_gemma"],
+             "attempts": 3, "max_tokens": 4000,
+             "note": "ruling 118 (orchestrator 10:50 ET Nov 16): outside vendors are capped at $1.00 a day for the whole pipeline, so the miner's paid route is closed; its Plan B is the next Heimdall model (qwen, then deepseek 4.1, minimax, gemma, gpt-oss, mimo; never glm or muse), then the local model on a free card under the lease (local_gemma: only while this process holds the GPU lease)"},
     "judge": {"chain": ["xai_frontier", "gemini_frontier", "anthropic_frontier"], "attempts": 2, "max_tokens": 8000},
-    "hook": {"chain": ["heimdall_qwen27b", "local_gemma"], "attempts": 3, "max_tokens": 3000,
+    "hook": {"chain": ["heimdall_qwen27b", "heimdall_deepseek", "heimdall_minimax", "heimdall_gemma", "heimdall_gptoss", "heimdall_mimo", "local_gemma"], "attempts": 3, "max_tokens": 3000,
              "note": "ruling 80 (2026-11-13 18:42 ET): the hook pass, a second mining question over the same windows (mine.HOOK_PROMPT); the mine role's chain under the spend freeze"},
-    "spotlight": {"chain": ["heimdall_qwen27b", "local_gemma"], "attempts": 3, "max_tokens": 3000,
+    "spotlight": {"chain": ["heimdall_qwen27b", "heimdall_deepseek", "heimdall_minimax", "heimdall_gemma", "heimdall_gptoss", "heimdall_mimo", "local_gemma"], "attempts": 3, "max_tokens": 3000,
                   "note": "the orchestrator's 08:15 ruling 2 (2026-11-14; ruling 92 (c)): the spotlight question (mine.SPOT_PROMPT), asked in the hook pass of conversation episodes only; the hook role's chain"},
-    "flagcheck": {"chain": ["heimdall_glm53flash", "heimdall_muse"], "attempts": 2, "max_tokens": 4000,
+    "flagcheck": {"chain": ["heimdall_muse", "heimdall_gemma"], "attempts": 2, "max_tokens": 4000,
+                  "ruling_119": "glm out of every chain (ruling 119 (3), 10:50 ET Nov 16): muse first (calibrated), gemma second (the mine chain's fourth model, so it rarely mined a row; deepseek gave no answer in time on Nov 16); either answers only once the watcher's live calibration passes it",
                   "note": "ruling 40 (2026-11-13): a second model, never one that mined the row's video, answers one narrow question per hard flag (pipeline/ingest/flagcheck.py). A measurement: the adapter's exclusions do not read it."},
-    "mine_paid": {"chain": ["xai_frontier", "gemini_frontier"], "attempts": 2, "max_tokens": 4000,
-                  "freeze_lifted": "ruling 98 (orchestrator 06:13 ET Nov 14): the miner's Plan B; the Nov 12 spend freeze is lifted for this one route and this cap only",
-                  "daily_cap_usd": 2.0, "cap_reserve_usd": 0.25,
-                  "note": "ruling 98: Grok first, then the Gemini key (fenced to this pipeline: allowed); others only if a probe shows credit (none wired). Used only while paid_route is open. The cap is per ET day across both back-ends, counted from each call's recorded cost (xAI's own usage.cost_in_usd_ticks; Gemini reports none: its price-table estimate counts), with cap_reserve_usd held for every call in flight so the calls never start past it; then the videos queue and wait."},
-    "probe": {"chain": ["heimdall_qwen27b_probe", "heimdall_glm53flash_probe", "heimdall_muse_probe"], "attempts": 1,
+    "probe": {"chain": ["heimdall_qwen27b_probe", "heimdall_deepseek_probe", "heimdall_minimax_probe", "heimdall_gemma_probe", "heimdall_gptoss_probe", "heimdall_mimo_probe", "heimdall_muse_probe"], "attempts": 1,
               "max_tokens": 512, "transport_retries": 0, "breaker": false,
               "note": "ruling 87, amended by the orchestrator at 10:05 ET Nov 14 (a probe is a real model call on the family that failed and one other, never a ping; any answered probe resets the clock): the cheap probe while Heimdall calls fail (and in Plan B): EVERY back-end here (one per family this watcher calls) is asked at once, one call each, any answer is the probe's answer, and an answered probe is noted as an answer; never from a stored reply (use_cache False), never held back by a breaker (breaker false: it is the breaker's evidence, not its patient), no transport retry (each back-end's 60 s deadline is the probe's). 512 tokens: room for the second family's default reasoning."}
   },
