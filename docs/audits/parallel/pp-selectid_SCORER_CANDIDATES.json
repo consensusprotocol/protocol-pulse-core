@@ -1,71 +1,8 @@
 {
- "generated_at": "2026-11-16T12:29:18+00:00",
- "build": "ledger_20261116_122913",
+ "generated_at": "2026-11-16T13:44:16+00:00",
+ "build": "ledger_20261116_134412",
  "kind": "moments",
  "candidates": [
-  {
-   "pid": "f6a3e905900af38fe2e8",
-   "video_id": "5LXk2SLH4fI",
-   "channel": "Natalie Brunell",
-   "duration": 14.12,
-   "text": "But obviously, it's not fun to ride these drawdowns, especially if you bought much higher or your cost basis is higher than the current price. Selling Bitcoin to cover a big expense is the move most holders end up regretting. And it isn't your only option.",
-   "text_sha256": "852f043d4e7d1a21a4b57cd02b3292ea9033b9e857e8debafffc775fd62ffafb",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "7b106fda94a4c0dd7562",
-   "video_id": "5LXk2SLH4fI",
-   "channel": "Natalie Brunell",
-   "duration": 8.06,
-   "text": "And one of the biggest public miners, Mara, disclosed that it sold about 40 % of its Bitcoin in recent weeks, more than a billion dollars worth.",
-   "text_sha256": "b44879cf4e032d85028855b556b49e0a2b5a5f9269bd2de724dbc3a469ca149c",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "c2417f60d989426e6a0e~trim",
-   "video_id": "5LXk2SLH4fI",
-   "channel": "Natalie Brunell",
-   "duration": 5.0,
-   "text": "what isn't in dispute is that nobody who simply owns their Bitcoin was forced to sell last week.",
-   "text_sha256": "713b517691be20d20e978f352a59b43ccc8b00529c7b5422c40597bc557bd17e",
-   "trimmed_leading": "Now"
-  },
-  {
-   "pid": "f6a3e905900af38fe2e8~trim",
-   "video_id": "5LXk2SLH4fI",
-   "channel": "Natalie Brunell",
-   "duration": 14.06,
-   "text": "obviously, it's not fun to ride these drawdowns, especially if you bought much higher or your cost basis is higher than the current price. Selling Bitcoin to cover a big expense is the move most holders end up regretting. And it isn't your only option.",
-   "text_sha256": "feb44144c9a238f37ac2873997482ada821353c81038b558db2cacb078ad285a",
-   "trimmed_leading": "But"
-  },
-  {
-   "pid": "7b106fda94a4c0dd7562~trim",
-   "video_id": "5LXk2SLH4fI",
-   "channel": "Natalie Brunell",
-   "duration": 7.58,
-   "text": "one of the biggest public miners, Mara, disclosed that it sold about 40 % of its Bitcoin in recent weeks, more than a billion dollars worth.",
-   "text_sha256": "ee2eafa0fb3b3cfd6b60aa9e1413a41818e18149206f1e239fd145c6347d2098",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "dd2982b07b76360a4300~trim",
-   "video_id": "5LXk2SLH4fI",
-   "channel": "Natalie Brunell",
-   "duration": 12.19,
-   "text": "the floor he talks about is the 200 week moving average, which is basically Bitcoin's average price over the past four years. It was sitting near 68,000, but... As you know, Bitcoin has just dropped below it.",
-   "text_sha256": "3ed0b61b2335908af58bd1f90a89e0510d65432a9b7fb86e109165a58850a56b",
-   "trimmed_leading": "Now"
-  },
-  {
-   "pid": "c0b1406eac275405e82a",
-   "video_id": "5LXk2SLH4fI",
-   "channel": "Natalie Brunell",
-   "duration": 15.51,
-   "text": "That's 10 to one leverage. So if Bitcoin goes up 10%, you make $7,000 before fees and other costs, doubling your starting money. But if the price falls, the exchange can close your bet before it's even down 10%, and you can lose most or all of that 7K.",
-   "text_sha256": "1ad4cd68976f8169111b388677bcf704219e87271024a9fcf2670d6b21a52f60",
-   "trimmed_leading": null
-  },
   {
    "pid": "eacfb10e73d264548fdb",
    "video_id": "Vu0XZSz-aj4",
@@ -76,39 +13,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "33631775a48a4dcd3c38",
-   "video_id": "5LXk2SLH4fI",
-   "channel": "Natalie Brunell",
-   "duration": 14.93,
-   "text": "In just one day, about $2 billion in leveraged positions. Those are bets made with borrowed money were wiped out, affecting more than 300,000 traders. And Bitcoin may be the canary in the coal mine here because it's often the first thing investors sell when they get nervous.",
-   "text_sha256": "2c9fadfe240994587ad0c2317fe2d380d73e8aa9dc77c5a95542257a86134307",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "c20224a84a5800a89038~trim",
-   "video_id": "5LXk2SLH4fI",
-   "channel": "Natalie Brunell",
-   "duration": 17.89,
-   "text": "what isn't in dispute is that nobody who simply owns their Bitcoin was forced to sell last week. But obviously, it's not fun to ride these drawdowns, especially if you bought much higher or your cost basis is higher than the current price. Selling Bitcoin to cover a big expense is the move most holders end up regretting.",
-   "text_sha256": "cdc59a45fda7f010fee952a0e0da787648fcfa42182dc1d36a767ebecb5c2666",
-   "trimmed_leading": "Now"
-  },
-  {
    "pid": "3d62c51a3fa62c41559a",
    "video_id": "Vu0XZSz-aj4",
    "channel": "Bankless",
    "duration": 17.0,
    "text": "I get to have, you know, they donate Democrat candidates. Sometimes they call me. And it's so funny how many of the ones who were under 40 would tell me they used to mine Bitcoin in their dorm room. I'm like, I love it. Can you say that? Like, well, should I say that? I'm like, why would you not say that? No one. No one cares if you say that.",
    "text_sha256": "fc8465b0235c7df2708779d3fe17327e88f6c164d2c700cd6d219a77627cc615",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "68b7d3931b237a2d5aa9",
-   "video_id": "5LXk2SLH4fI",
-   "channel": "Natalie Brunell",
-   "duration": 23.02,
-   "text": "Adam Back says he has a bet on Bitcoin reaching $1 million by 2028, but the price just fell through the line he calls its floor. Now for those who don't know, Adam Back runs Blockstream and he's one of the few people cited in the original Bitcoin white paper. He shared his bet on CNBC last week and said his reasoning is that at least 95 % of the institutional money that will eventually own Bitcoin hasn't even arrived yet.",
-   "text_sha256": "c70c44c77a434c1da750d482337b5618a4bbbb8ea8f17e87c317534aa485db70",
    "trimmed_leading": null
   },
   {
@@ -121,57 +31,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "de8375a4adfde93df202~trim",
-   "video_id": "5LXk2SLH4fI",
-   "channel": "Natalie Brunell",
-   "duration": 21.08,
-   "text": "obviously, it's not fun to ride these drawdowns, especially if you bought much higher or your cost basis is higher than the current price. Selling Bitcoin to cover a big expense is the move most holders end up regretting. And it isn't your only option. Letton offers custody loans, never lent out for interest with a track record of protecting billions in client assets.",
-   "text_sha256": "fcf708928af4f2b46abde7319549af1bcff2b3c0c018a6fb07a93906e8c5e065",
-   "trimmed_leading": "But"
-  },
-  {
-   "pid": "43bdcb6ce7ab62f391d4~trim",
-   "video_id": "5LXk2SLH4fI",
-   "channel": "Natalie Brunell",
-   "duration": 21.36,
-   "text": "one of the biggest public miners, Mara, disclosed that it sold about 40 % of its Bitcoin in recent weeks, more than a billion dollars worth. The last time difficulty adjustment fell this much was a few weeks before Bitcoin hit its low for the entire year. So there could be more pain ahead because another wave of levered positions could get liquidated if the Bitcoin price falls to around 60K.",
-   "text_sha256": "cd1c4953889043d32edbfd58687287da66a0a660d1d27c39208f30b758ed4b29",
-   "trimmed_leading": "And"
-  },
-  {
    "pid": "0c8b148b130272219457",
    "video_id": "Vu0XZSz-aj4",
    "channel": "Bankless",
    "duration": 19.34,
    "text": "I just don't think you can look at this and see all the innovations in stable coins, in the hard money of Bitcoin provides, in defy, and say this is all useless. I've been surprised at how people can say that, but I realize a lot of it is because it's all... fundamentally, we're really good at changing the tech stack.",
    "text_sha256": "540a36473af02790f2bbcbba67e16a036abde58c42529dad070e73b9405a2d0b",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "0029560c3835b21c1ca3",
-   "video_id": "5LXk2SLH4fI",
-   "channel": "Natalie Brunell",
-   "duration": 18.28,
-   "text": "The last time difficulty adjustment fell this much was a few weeks before Bitcoin hit its low for the entire year. So there could be more pain ahead because another wave of levered positions could get liquidated if the Bitcoin price falls to around 60K. But some analysts say the bottom already happened this summer when Bitcoin hit around $59,000.",
-   "text_sha256": "564eec37c415e0532d59a48cd1096ee640d46bbeb27c98695386aec41142daba",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "ea5ab1782696628d6384~trim",
-   "video_id": "5LXk2SLH4fI",
-   "channel": "Natalie Brunell",
-   "duration": 17.45,
-   "text": "the floor he talks about is the 200 week moving average, which is basically Bitcoin's average price over the past four years. It was sitting near 68,000, but... As you know, Bitcoin has just dropped below it. This has happened before, including in 2020 and 22, and of course, it's recovered each time.",
-   "text_sha256": "1559fa75b1a9c8ba3384cf94ec83479dda51b6c12259de04fa15e12c01e8c542",
-   "trimmed_leading": "Now"
-  },
-  {
-   "pid": "40b6800323cfe71654fd",
-   "video_id": "5LXk2SLH4fI",
-   "channel": "Natalie Brunell",
-   "duration": 16.93,
-   "text": "Bitcoin's mining difficulty just fell more than 9%. That's the biggest cut since June, which is what happens when miners turn off machines that are no longer profitable. And one of the biggest public miners, Mara. disclosed that it sold about 40 % of its Bitcoin in recent weeks, more than a billion dollars worth.",
-   "text_sha256": "461797557d0ba5e6b573dc16ea483d306a3e416f1f91f98f523d48ab36193ff3",
    "trimmed_leading": null
   },
   {
