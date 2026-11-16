@@ -172,3 +172,10 @@ CUDA_VISIBLE_DEVICES=1 under law L-r). Until then pp-ingest takes each Whisper r
    ingest's own priority order. pp-ingest asks no cron change: the ingest orders by tier (Melker is tier 2, the other
    deferred are mostly tier 3), so the 14:30 run takes it early; each run's budget (about 8 h of audio an hour) is well
    above the day's upload volume; the watcher mines it within a minute of its record (r119).
+   CORRECTION (14:5x ET): pp-ingest expected the 14:30 run to take Melker "early (tier 2 before tier 3)"; wrong: the
+   pipeline's priority key is (approved layout first, then tier, then age), and Melker's layout is pending, so the
+   14:30 budget went to Bitcoin Magazine (approved, tier 1, 29 min), Simply Bitcoin (approved, tier 2, 86 min) and
+   CoinDesk (approved, 125 min). The integrator (14:5x ET): Melker is now second for the 15:00 run, behind TFTC
+   ZtnhDQODni8 (83.5 min), 2.41 h cumulative inside the 4 h budget; 15 more videos (11.83 h of audio) after it. No cron
+   change asked: the approved-layout channels are the ones the builder can cut first; the watcher takes Melker's record
+   within a minute of it landing (r119's sweep covers captions_pending).
