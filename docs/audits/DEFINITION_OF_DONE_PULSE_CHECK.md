@@ -6,6 +6,25 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 08:45 CORRECTION TO THE 08:35 ENTRY, AND FOR THE ORCHESTRATOR BEFORE THE BUILDER'S 08:57 DEFAULT (ruling 119 (1)'s 3.0 floor). The render's validate does NOT ask all of a video's clips together. stand_alone.check_edl asks its scorer only about these, and puts only these in its asking:
+- a clip after the hook that opens on a conjunction or reply fragment;
+- a trimmed clip;
+- a hook that opens on a third-person pronoun.
+
+On the six approved EDLs it asked about none of the 17 clips. The 08:35 entry's "(the shape of a pin request and of the render's validate)" was wrong. The all-clips asking is a measurement. Validate's real asking usually holds one clip, which is the alone shape.
+- **What this means for the floor:**
+  - The builder's package_pin requires a sealed scorer affirmation for exactly the clips validate asks again (scorer_problems: conjunction / reply-fragment openers; trim_problems: trimmed clips).
+  - Validate applies 3.5 to its own asking (stand_alone.affirmed(moments=True), unchanged). It never reads the pin's scorer_verdict or a stand_alone_bar.
+  - So a clip admitted on the 3.0 floor at the pin stage is asked again at validate and refused.
+- **Shown** with production check_edl and a canned 3.0 rating (no model), on the 0c68b589 EDL with clip_02 made to open on "But":
+  - validate asks for clip_02 alone, and returns ok False: "clip opens on 'but'; the clip scorer does not affirm it stands alone (3.0, fault starts_mid_thought)";
+  - run_fresh then raises Hold at validate.
+  - The scorer repeats itself (34 of 34 in the 08:35 run). For a clip_01, validate's prompt can be byte-identical to the builder's candidate prompt, and is then answered from the production cache.
+- **Told the builder just before this entry.** Recommended: the floor at both ends or not at all.
+  - The render half is mine: check_edl affirms exactly the pin's stand_alone_bar segments at >= 3.0, only under the same scorer_sha, and telegram.BAR_MARKS gains the ruling 119 line.
+  - Audit-first, two cycles; started when ruled.
+  - If the floor lands pin-side only, every pin carrying stand_alone_bar is still rendered as ordered. Before rendering it, the DoD will say it is expected to HOLD at validate.
+
 ## 08:35 RULING 119 (1): THE STAND-ALONE SCORER ON PBX'S APPROVED CLIPS, THREE ASKINGS EACH. The scorer is unchanged production code, run on GPU0 08:28:12-08:33:41 ET at the builder's request. It repeats itself: every clip got the same score and fault in all three askings. The way the clips are asked decides the verdict.
 - **All of a video's clips in one asking** (the shape of a pin request and of the render's validate): 16 of 17 affirmed. The lowest score is 3.0, on 13949b7c clip_02.
 - **Each clip in its own asking** (the candidates path, which the builder's selection reads): 11 of 17 affirmed. The lowest score is 2.0. Refused:
