@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T18:21:54+00:00",
- "build": "ledger_20261116_182137",
+ "generated_at": "2026-11-16T18:40:42+00:00",
+ "build": "ledger_20261116_184025",
  "kind": "moments",
  "candidates": [
   {
@@ -292,6 +292,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "3aa9e8dd2f267b844619",
+   "video_id": "stg5ui9sPos",
+   "channel": "Yahoo Finance",
+   "duration": 12.98,
+   "text": "They hold 850,849 Bitcoin and 4.9 billion of USD assets. Once again, they basically diluted MSTR shareholders, sold off MSTR to buy a lot more Bitcoin and to buy STRC.",
+   "text_sha256": "c6b770e29e130b6bcc543e49ce8a0be47504c71044dda694c27bc67afc247c9c",
+   "trimmed_leading": null
+  },
+  {
    "pid": "eeda95c7f0164d87f9f3",
    "video_id": "uAvmynMSVhM",
    "channel": "Bitcoin Magazine",
@@ -361,6 +370,15 @@
    "duration": 19.3,
    "text": "They buy Bitcoin when it feels easy when they're confident it's going to do well. And if you do that, you drastically underperform DCA. And that's interesting because it kind of is what the average person is doing almost all the time. They just buy whenever they feel like it's easy to buy, right? Watching how fearful people are, despite the fact that Bitcoin still up like 20 % off the lows is really fricking, in my opinion.",
    "text_sha256": "40b2acd51423a30b5d68eeeda72fee8c9134635263946e0455a088ff9722e322",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "f4d5673319d70ee66c6b",
+   "video_id": "stg5ui9sPos",
+   "channel": "Yahoo Finance",
+   "duration": 15.31,
+   "text": "Basically, the miners got the electricity bill for it, but the hacker got the direct deposit. And from where newly mined Bitcoin gets paid to help banks move existing dollars, JP Morgan and DBS, Have a new cross -border connection.",
+   "text_sha256": "3afb34bef1b5f0f0cb0ef3038207c9fb096d6d106adf3ff5d8f819e1216b8d4c",
    "trimmed_leading": null
   },
   {
@@ -454,6 +472,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "d21e343f509a3ddbcdc2",
+   "video_id": "stg5ui9sPos",
+   "channel": "Yahoo Finance",
+   "duration": 14.67,
+   "text": "I'm the guy who buys Bitcoin when there's blood in the streets and I can tell you all the famous things traders have said, buy blood in the streets even if it's your own. The market can stay irrational longer than you can remain solvent. I've got quotes for days. But I believe in them. I believe in them.",
+   "text_sha256": "734ffb1b5cbfe8e153de54abdab662b759ebe7b176673c15f607461b0148343f",
+   "trimmed_leading": null
+  },
+  {
    "pid": "f89acd3a61d03fa8d2a4",
    "video_id": "4pAa6COklAY",
    "channel": "DataDash",
@@ -505,6 +532,15 @@
    "duration": 18.57,
    "text": "You know, I've been in Bitcoin since 2016, and every bare market sentiment gets bad. But this one's been particularly interesting to me in that it's not just... It's not just people getting angry, fighting on Twitter, in fighting, which we always have. It's people kind of giving up on Bitcoin a little bit, which I've not really seen before.",
    "text_sha256": "b123fefd967c22f24ab4ca98c7844b02cd73d87a1f94eabce08adfefc3f552ce",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "6c9ed378532d665651ae",
+   "video_id": "stg5ui9sPos",
+   "channel": "Yahoo Finance",
+   "duration": 16.37,
+   "text": "SpaceX raised $75 billion when it went public on June 12th. In the 50 days before it listed, Bitcoin dropped 19%. Anthropic plans to raise up to 64. I've seen 84, up to 84. When it lists next week and Bitcoin's down 18 % over the same stretch, Overlay the two and they look almost exactly the same.",
+   "text_sha256": "68b620abfe6cbcd9aacbb9d92fa6fd73e0f893aab0cb18c7e94adc5525e54018",
    "trimmed_leading": null
   },
   {
@@ -598,6 +634,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "dda8208ff70446e83977~trim",
+   "video_id": "stg5ui9sPos",
+   "channel": "Yahoo Finance",
+   "duration": 22.28,
+   "text": "the fact that we're heading down right now should definitely raise some eyebrows. I mean, we've effectively almost gone back to the recent lows. Will this anthropic theory pan out? I guess we'll have to wait a couple months and see. Now, we've got another crazy, strange, hijack, weird AI -related story in the Bitcoin mining space right here.",
+   "text_sha256": "0b9322bd6838bd412777eca9cf5cd1b5650486863e82b7eff587d1d0a0d7bc87",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "8fe4ff5d084bbba5a88c",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -634,6 +679,15 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "074b27549d84c0d27a22",
+   "video_id": "stg5ui9sPos",
+   "channel": "Yahoo Finance",
+   "duration": 15.72,
+   "text": "They hold 850,849 Bitcoin and 4.9 billion of USD assets. Once again, they basically diluted MSTR shareholders, sold off MSTR to buy a lot more Bitcoin and to buy STRC. Strive also bought Bitcoin.",
+   "text_sha256": "45aecc33850cc73273c31b2eb28baa1015546abda23905fab4469a2e18ea37be",
+   "trimmed_leading": null
+  },
+  {
    "pid": "8567c05fc6149c28181e~trim",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -641,6 +695,24 @@
    "text": "I do think it's also the kind of thing that you would expect during this phase of the market. We've had a lot of negative news previously and we've climbed the wall to worry. And until that doesn't happen, I'm going to continue to think that's the position we're in presently. Yeah, that makes sense. I'm always bullish on Bitcoin.",
    "text_sha256": "0951d3a8bc56b36a04b06938b324d1b33636599dad37a70e5eeb072e02bc5285",
    "trimmed_leading": "But"
+  },
+  {
+   "pid": "2a9819a6775e340c54be",
+   "video_id": "stg5ui9sPos",
+   "channel": "Yahoo Finance",
+   "duration": 14.04,
+   "text": "Bitcoin fell 19 % into the biggest IPO ever. Now it's down to 18 % heading into the second biggest. So you put some numbers on it. SpaceX raised $75 billion when it went public on June 12th. In the 50 days before it listed, Bitcoin dropped 90%.",
+   "text_sha256": "75247e6152990117a3b63bb51ea35d7ba90415d9fd1ad05698f3d4cbe7815bfd",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a3e8721c54788123097a",
+   "video_id": "stg5ui9sPos",
+   "channel": "Yahoo Finance",
+   "duration": 14.94,
+   "text": "Billions of dollars in liquidations, as always, I believe $2 billion on Bitcoin alone just Saturday and Sunday. And further proof that sometimes when market sentiment is generally bad, Bitcoin can really take it on the chin because it's open 24 -7, 365.",
+   "text_sha256": "e248eb63ad6f2f35bc43c6faadec1889c19b16d7d5708c2713f0c5dac386a71c",
+   "trimmed_leading": null
   },
   {
    "pid": "eda2ebc9bef18c3887eb",
@@ -697,6 +769,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "8beea4d087cf570d6fe0",
+   "video_id": "jKtW40YaZLQ",
+   "channel": "TheStreet",
+   "duration": 13.98,
+   "text": "Bitcoin below 70K. Buying opportunity or more downside ahead? More downside ahead. This is not the area I like to invest in. Year -end market. Santa Rally or more volatility?",
+   "text_sha256": "fd21afc1670d7383bcf3d5ec9cb5487e7be39d3fa445ab0faba8b30bff54690a",
+   "trimmed_leading": null
+  },
+  {
    "pid": "cb416c10eba95c22e4de",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -713,6 +794,15 @@
    "text": "I had all this inspiration for Bitcoin. I was like, all right, I'm going to dedicate a chunk of my life here to writing a story about Bitcoin. And that's what it is. Essentially, like, a really thrilling, like, intertwined story kind of thing where Bitcoin's the main thing, following an on -chain analysis guy who sort of goes through and does, like, forensic stuff around Bitcoin and takes you all over the place across the U.S. is the bad guys are.",
    "text_sha256": "48e9e8668ed8343c3ea8cf1a41b60601237c1a153487f1dfcb60e567382949fa",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "089621c9137a82331e49",
+   "video_id": "stg5ui9sPos",
+   "channel": "Yahoo Finance",
+   "duration": 14.32,
+   "text": "We got up to 88,000. Seeing it dump back this massively is a big warning sign for Bitcoin. It has broken the higher highs and higher lows. It's broken all the key levels on technical analysis. It's below the 50 and the 200 MAs on almost every time frame.",
+   "text_sha256": "7d97b9a05e3cb1d092684d401bc4f799d4d31f880b46bb27b6fd8a9deb0634f8",
+   "trimmed_leading": null
   },
   {
    "pid": "78d7bf828ec74bd85cb8",
@@ -857,6 +947,15 @@
    "text": "over the last few days, Bitcoin has broke down below some key support here after the recent run to about $88,000. And I want to break down the significance of this. I want to kind of touch on a little bit of the four -year cycle idea, the fact that we will more than likely not see a major bull run out of Bitcoin right now.",
    "text_sha256": "48621c4edf64096cd110a34607e92e10d855cfb927e0da17388f2b2b911a0e69",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "3dcb11d181f767307493",
+   "video_id": "stg5ui9sPos",
+   "channel": "Yahoo Finance",
+   "duration": 15.53,
+   "text": "Do I care if Bitcoin goes to 55 or 45 or if I buy it at 75 or 65? No, because I happen to believe that it's going into the well into the hundreds of thousands and I buy Bitcoin for more reasons than just the monetary appreciation. I buy it as a hedge as an opt -out of the system.",
+   "text_sha256": "5237717df9d61f010d458585903b9a7b6eebcce536d46e3605906613ad8bd6bd",
+   "trimmed_leading": null
   },
   {
    "pid": "988a604d8b75de7ca216",
