@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T05:11:14+00:00",
- "build": "ledger_20261116_051110",
+ "generated_at": "2026-11-16T05:41:57+00:00",
+ "build": "ledger_20261116_054153",
  "kind": "moments",
  "candidates": [
   {
@@ -94,15 +94,6 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "4f8d376ff65bc36673b8",
-   "video_id": "e0dJ1_ClzVo",
-   "channel": "Strategy (MicroStrategy)",
-   "duration": 4.56,
-   "text": "This year we raised nearly $22 billion. This is a bad year.",
-   "text_sha256": "284961cd81d2fc02fab395a9cad0fe898e4c3bfb5637fcb20b4446aedbefad57",
-   "trimmed_leading": null
-  },
-  {
    "pid": "c0b1406eac275405e82a",
    "video_id": "5LXk2SLH4fI",
    "channel": "Natalie Brunell",
@@ -164,24 +155,6 @@
    "text": "all of the hackers in the world have been trying to steal trillions of dollars in value. And now they're saying that quantum computing is trying to steal trillions of dollars in Bitcoin, but somehow they can't crack it. And in the code, they also put the ability to not print more. There can only be 21 million.",
    "text_sha256": "6ebe86e591fe4955b89fa97f7a55c8ea73e552463b5169649b102e6ffac5c612",
    "trimmed_leading": "So"
-  },
-  {
-   "pid": "91a77d3fa0ec11aa33ab",
-   "video_id": "e0dJ1_ClzVo",
-   "channel": "Strategy (MicroStrategy)",
-   "duration": 17.06,
-   "text": "We own about 4.05 % of all the Bitcoin that will ever exist. It's about a $55 billion market cap company. This year we raised nearly $22 billion. This is a bad year. You know, we're in a crypto winner, but we've raised nearly $22 billion.",
-   "text_sha256": "b866a8a4ccb569cc964b349837487d2f9569cab7824313dde93d7eaa7d9fd629",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "4d58c0c33c08c1133d9a",
-   "video_id": "e0dJ1_ClzVo",
-   "channel": "Strategy (MicroStrategy)",
-   "duration": 14.26,
-   "text": "We're kind of like the central bank of the crypto economy. That's the way, Bank of Bitcoin, Bank of England. We own about 4.05 % of all the Bitcoin that will ever exist. It's about a $55 billion market cap company.",
-   "text_sha256": "b91b3f573d018e89c2a5e6d9d99a6ff69808315803a44ae1ff9facb1b76e2537",
-   "trimmed_leading": null
   },
   {
    "pid": "68b7d3931b237a2d5aa9",
@@ -253,15 +226,6 @@
    "duration": 16.93,
    "text": "Bitcoin's mining difficulty just fell more than 9%. That's the biggest cut since June, which is what happens when miners turn off machines that are no longer profitable. And one of the biggest public miners, Mara. disclosed that it sold about 40 % of its Bitcoin in recent weeks, more than a billion dollars worth.",
    "text_sha256": "461797557d0ba5e6b573dc16ea483d306a3e416f1f91f98f523d48ab36193ff3",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "e6877b65bfc277d63194",
-   "video_id": "e0dJ1_ClzVo",
-   "channel": "Strategy (MicroStrategy)",
-   "duration": 20.79,
-   "text": "This year we raised nearly $22 billion. This is a bad year. You know, we're in a crypto winner, but we've raised nearly $22 billion. Why does the company have value? Well, I mean, the company has value primarily because, A, it holds about $65, $70 billion a capital, but B, it can create credit.",
-   "text_sha256": "a6de97029cd639f3268d34d5692adcb139d7457831daf2c2452aa5ac07e27f62",
    "trimmed_leading": null
   }
  ]
