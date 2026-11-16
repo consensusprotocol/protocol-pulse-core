@@ -26,7 +26,6 @@ PROTECTED_SESSIONS = [
 
 ZOMBIE_PROCS = [
     'channel_daemon',
-    'imap_idle_daemon',
     'daily_run.py',
     'x_spaces_scraper',
 ]
