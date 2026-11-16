@@ -596,6 +596,10 @@ the same videos.
   (Queue.due / hook_due `first`, config.BITCOIN_TIER_MAX).
 - THE MEASURE: every mined video's `transcript_lag_s` (its transcript record's own acquired_at to its rows) on its row,
   in the log, and on the cycles line ("N s transcript -> rows", "(LATE)" past 10 minutes).
+- r120 (found by this measure: Yahoo Finance kh3U_15pFZc, 3,205 s, LATE): a stream that is over but still processing
+  (live_status post_live) whose record the pipeline has goes on through every other probe check and takes it, like a
+  VOD (its length, when the probe has none yet, the one the pipeline recorded); without a record it waits as before
+  (no caption download, no meta); a stream still live is never taken. The sweep and the self-check cover it.
 - The second caption source (designed, not built) and what the 429s correlate with:
   docs/audits/parallel/pp-ingest_CAPTION_SOURCE_DESIGN.md.
 

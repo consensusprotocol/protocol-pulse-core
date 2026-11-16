@@ -3,7 +3,8 @@ waiting and nothing has been mined for 30 minutes, write it on line 1 and act; d
 
 WAITING  a video inside its moments' life (config.EXPIRY_H from its publish, or from its discovery while the publish
          time is not measured yet) in a state that leads to mining: discovered, probing, probe_retry, captions_pending,
-         transcribed, mining, mine_waiting. An upcoming or live stream is not waiting (nothing to mine before its VOD);
+         transcribed, mining, mine_waiting; and (r120) a stream that is over but still processing (live_waiting with
+         live_status post_live). An upcoming stream or one still live is not waiting (nothing to mine before it ends);
          a Short, a duplicate or any other terminal state never is.
 STALLED  something waits and nothing was mined for STALL_S: the later of the newest mined video's time and the oldest
          waiting video's discovery is at least STALL_S old (a video that came in a minute ago is no stall).
@@ -24,7 +25,8 @@ from .spend import STALL_PREFIX
 
 STALL_S = 1800
 WAITING = (Q.DISCOVERED, Q.PROBING, Q.PROBE_RETRY, Q.CAPTIONS_PENDING, Q.TRANSCRIBED, Q.MINING, Q.MINE_WAIT)
-RETRYABLE = (Q.DISCOVERED, Q.PROBE_RETRY, Q.CAPTIONS_PENDING, Q.MINE_WAIT)   # never one in flight (probing, mining)
+RETRYABLE = (Q.DISCOVERED, Q.PROBE_RETRY, Q.CAPTIONS_PENDING, Q.MINE_WAIT, Q.LIVE)   # never one in flight; LIVE
+                                                                                   # rows here are post_live ones only
 ET = ZoneInfo("America/New_York")
 
 
@@ -47,6 +49,8 @@ def why(state, reason):
         return "TRANSCRIBED, BEING MINED"
     if state == Q.MINE_WAIT:
         return "NO MODEL OF THE CHAIN ANSWERED" if r.startswith("OUTAGE") else "MINING TO RETRY"
+    if state == Q.LIVE:
+        return "STREAM OVER, ITS VIDEO STILL PROCESSING"
     return state.upper()
 
 
@@ -54,8 +58,9 @@ def check(q, now, expiry_h=None, stall_s=STALL_S):
     """{'stalled', 'waiting' (rows), 'since' (when the stall clock started; None when nothing waits), 'last_mined'}."""
     horizon = now - float(config.EXPIRY_H if expiry_h is None else expiry_h) * 3600
     marks = ",".join("?" * len(WAITING))
-    rows = q.rows(f"SELECT video_id, state, reason, next_at, discovered_ts FROM videos WHERE state IN ({marks}) AND "
-                  "COALESCE(published_ts, discovered_ts) >= ?", tuple(WAITING) + (horizon,))
+    rows = q.rows(f"SELECT video_id, state, reason, next_at, discovered_ts FROM videos WHERE (state IN ({marks}) OR "
+                  "(state = ? AND live_status = ?)) AND COALESCE(published_ts, discovered_ts) >= ?",
+                  tuple(WAITING) + (Q.LIVE, "post_live", horizon))
     last = q.rows("SELECT MAX(mined_ts) AS t FROM videos WHERE state IN (?, ?)", (Q.MINED, Q.MINED_PARTIAL))[0]["t"]
     if not rows:
         return {"stalled": False, "waiting": [], "since": None, "last_mined": last}

@@ -184,11 +184,12 @@ def pipeline_transcript(vid, channel_id, root=None):
     return (best[1], best[2]) if best else None
 
 
-def take_pipeline_transcript(q, vid, channel_id, root=None):
-    """The pipeline's own transcript (pipeline_transcript) copied into this store byte for byte, write-once, the copy
-    checked again before it is linked in: True when this store holds it (a record of that method already here is
-    kept, never replaced). Said in the video's attempts log and as a queue event."""
-    found = pipeline_transcript(vid, channel_id, root)
+def take_pipeline_transcript(q, vid, channel_id, root=None, found=None):
+    """The pipeline's own transcript (pipeline_transcript, or `found`: what the caller's own call returned) copied into
+    this store byte for byte, write-once, the copy checked again before it is linked in: True when this store holds it
+    (a record of that method already here is kept, never replaced). Said in the video's attempts log and as a queue
+    event."""
+    found = found or pipeline_transcript(vid, channel_id, root)
     if found is None:
         return False
     src, rec = found
@@ -224,13 +225,14 @@ def take_pipeline_transcript(q, vid, channel_id, root=None):
 
 def pipeline_sweep(q, now_ts):
     """The orchestrator's 13:05 ruling of Nov 16 ("mine each video within 10 minutes of its transcript"): every video
-    waiting on a transcript (probe_retry, captions_pending) inside its moments' life (config.EXPIRY_H) whose next try
-    is later and whose record is in the pipeline's store (pipeline_transcript: every check) is made due now, whatever
-    its own retry time; the fetch step then probes it and takes the record. No YouTube request here (one glob, and a
+    waiting on a transcript (probe_retry, captions_pending, and r120: a stream over, live_waiting with live_status
+    post_live) inside its moments' life (config.EXPIRY_H) whose next try is later and whose record is in the
+    pipeline's store (pipeline_transcript: every check) is made due now, whatever its own retry time; the fetch step
+    then probes it and takes the record (a stream still live never: fetch.process). No YouTube request here (one glob, and a
     read of a record that is there). Returns the ids made due; each is a queue event."""
-    rows = q.rows("SELECT video_id, channel_id FROM videos WHERE state IN (?, ?) AND next_at > ? AND "
-                  "COALESCE(published_ts, discovered_ts) >= ?",
-                  (Q.PROBE_RETRY, Q.CAPTIONS_PENDING, now_ts, now_ts - config.EXPIRY_H * 3600))
+    rows = q.rows("SELECT video_id, channel_id FROM videos WHERE (state IN (?, ?) OR (state = ? AND live_status = ?)) "
+                  "AND next_at > ? AND COALESCE(published_ts, discovered_ts) >= ?",
+                  (Q.PROBE_RETRY, Q.CAPTIONS_PENDING, Q.LIVE, "post_live", now_ts, now_ts - config.EXPIRY_H * 3600))
     due = []
     for r in rows:
         try:
@@ -239,8 +241,8 @@ def pipeline_sweep(q, now_ts):
         except ValueError:                            # an id transcript_store refuses: never a path, never due here
             continue
     if due:
-        q.x(f"UPDATE videos SET next_at=? WHERE next_at > ? AND state IN (?, ?) AND video_id IN "
-            f"({','.join('?' * len(due))})", (now_ts, now_ts, Q.PROBE_RETRY, Q.CAPTIONS_PENDING) + tuple(due))
+        q.x(f"UPDATE videos SET next_at=? WHERE next_at > ? AND state IN (?, ?, ?) AND video_id IN "
+            f"({','.join('?' * len(due))})", (now_ts, now_ts, Q.PROBE_RETRY, Q.CAPTIONS_PENDING, Q.LIVE) + tuple(due))
         for vid in due:
             q.event("pipeline_transcript_due", vid, None)
     return due
@@ -291,10 +293,11 @@ def process(q, gate, v, chan, optout, now_ts=None):
         nxt = max(float(start) + 900, now_ts + 600) if isinstance(start, (int, float)) else now_ts + config.UPCOMING_REPROBE_S
         q.set_state(vid, Q.UPCOMING, next_at=nxt, tries=tries + 1, reason=f"upcoming (scheduled {pub})", **common)
         return Q.UPCOMING
-    if live in ("is_live", "post_live"):
-        q.set_state(vid, Q.LIVE, next_at=now_ts + config.LIVE_REPROBE_S, tries=tries + 1,
+    found = pipeline_transcript(vid, chan["channel_id"]) if live == "post_live" else None   # read once (audit r120 c1)
+    if live == "is_live" or (live == "post_live" and found is None):
+        q.set_state(vid, Q.LIVE, next_at=now_ts + config.LIVE_REPROBE_S, tries=tries + 1,      # r120: a stream over
                     reason=f"{live}: re-probed every {config.LIVE_REPROBE_S // 60} min (meta.json not written)", **common)
-        return Q.LIVE
+        return Q.LIVE                    # (post_live) whose record the pipeline has goes on, through every check below
     if pub_ts is None:
         q.set_state(vid, Q.PROBE_RETRY, next_at=_retry_at(now_ts, tries), tries=tries + 1,
                     reason="no publish time measured", **common)
@@ -304,6 +307,9 @@ def process(q, gate, v, chan, optout, now_ts=None):
                     reason=f"published {pub}: older than the {BACKFILL_H} h window", **common)
         return Q.SEEN_OLD
     dur = j.get("duration")
+    if live == "post_live" and not (isinstance(dur, (int, float)) and dur > 0):    # r120: a stream over, its VOD
+        dur = common["duration"] = found[1].get("duration")                          # still processing: its length
+                                                                                       # as the pipeline recorded it
     if not isinstance(dur, (int, float)) or dur <= 0:
         q.set_state(vid, Q.PROBE_RETRY, next_at=_retry_at(now_ts, tries), tries=tries + 1,
                     reason="no duration measured", **common)
@@ -318,8 +324,13 @@ def process(q, gate, v, chan, optout, now_ts=None):
         q.set_state(vid, Q.DUPLICATE, next_at=now_ts + 10 ** 9, duplicate_of=dup, title_canon=tc,
                     reason=f"re-upload of {dup}: {why}", **common)
         return Q.DUPLICATE
-    if take_pipeline_transcript(q, vid, chan["channel_id"]):    # the pipeline's own transcript: no caption download
+    if take_pipeline_transcript(q, vid, chan["channel_id"], found=found):   # the pipeline's own transcript: no caption
         return _store_captions(q, gate, v, chan, j, common, tc, now_ts, tries)
+    if live == "post_live":                  # r120: its record was not taken (the copy differed): wait for the VOD
+        q.set_state(vid, Q.LIVE, next_at=now_ts + config.LIVE_REPROBE_S, tries=tries + 1, title_canon=tc,
+                    reason=f"post_live: re-probed every {config.LIVE_REPROBE_S // 60} min (meta.json not written)",
+                    **common)
+        return Q.LIVE
     manual, auto = captions_listed(j)
     if not (any(k.startswith("en") for k in manual) or auto):
         if now_ts - pub_ts > config.CAPTION_DEADLINE_H * 3600:
