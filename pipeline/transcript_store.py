@@ -119,8 +119,14 @@ def _ytdlp(args, timeout=120):
 
 
 def _fetch_meta(video_id, rss=None, channel=None, step="meta"):
-    """A metadata snapshot read from YouTube now (yt-dlp -J). AcquisitionError (logged) when it cannot be read."""
-    r = _ytdlp(["-J", "--skip-download", canonical_url(video_id)])
+    """A metadata snapshot read from YouTube now (yt-dlp -J). AcquisitionError (logged) when it cannot be read: a
+    hung or missing yt-dlp too (Heimdall batch 98 C1, qwen: a TimeoutExpired is not an AcquisitionError, and the
+    Whisper pass does not catch it)."""
+    try:
+        r = _ytdlp(["-J", "--skip-download", canonical_url(video_id)])
+    except (subprocess.TimeoutExpired, OSError) as e:
+        _log_attempt(video_id, step=step, status="unavailable", error=f"{type(e).__name__}: {e}"[-300:])
+        raise AcquisitionError(f"metadata unavailable for {video_id}: {type(e).__name__}: {e}") from None
     try:
         j = json.loads(r.stdout)
     except Exception:
@@ -146,11 +152,21 @@ def _fetch_meta(video_id, rss=None, channel=None, step="meta"):
     }
 
 
+def _fetched_at(meta):
+    """When a snapshot was read (seconds), or None when it does not say."""
+    try:
+        return datetime.fromisoformat(meta.get("metadata_fetched_at")).timestamp()
+    except (TypeError, ValueError, AttributeError):
+        return None
+
+
 def _newest_meta(video_id):
-    """meta.json, or the last whole snapshot of this video in meta_history.jsonl (a torn or foreign line is
-    skipped)."""
+    """The snapshot READ most recently: meta.json or a whole snapshot of this video in meta_history.jsonl. A torn or
+    foreign line is skipped; among snapshots that say when they were read, the latest wins, a later line on a tie
+    (Heimdall batch 98 C2, gpt-oss: two re-reads at once can append the older one last)."""
     with open(os.path.join(_vdir(video_id), "meta.json")) as f:
         meta = json.load(f)
+    best = _fetched_at(meta)
     hist = os.path.join(_vdir(video_id), "meta_history.jsonl")
     if os.path.exists(hist):
         with open(hist) as f:
@@ -159,8 +175,11 @@ def _newest_meta(video_id):
                     snap = json.loads(line)
                 except ValueError:
                     continue
-                if isinstance(snap, dict) and snap.get("video_id") == video_id:
-                    meta = snap
+                if not (isinstance(snap, dict) and snap.get("video_id") == video_id):
+                    continue
+                at = _fetched_at(snap)
+                if at is not None and (best is None or at >= best):
+                    meta, best = snap, at
     return meta
 
 
@@ -184,10 +203,7 @@ def refresh_meta(video_id, rss=None, channel=None, now=None):
     At most one read per META_RECHECK_S per video: a snapshot read more recently is returned as it is. A failed
     read raises AcquisitionError (logged as step "meta_refresh") and appends nothing."""
     cur = _newest_meta(video_id)
-    try:
-        last = datetime.fromisoformat(cur.get("metadata_fetched_at")).timestamp()
-    except (TypeError, ValueError):
-        last = None
+    last = _fetched_at(cur)
     if last is not None and (time.time() if now is None else now) - last < META_RECHECK_S:
         return cur
     fresh = _fetch_meta(video_id, rss=rss, channel=channel, step="meta_refresh")

@@ -166,6 +166,42 @@ class TestStaleLive(Base):
         m = ts.ensure_meta(VID)
         self.assertEqual((m["live_status"], m["duration"]), ("was_live", 3679))
 
+    def test_a_hung_or_missing_yt_dlp_on_a_re_read_is_a_logged_failure_never_a_crash(self):
+        """Heimdall batch 98 C1 (qwen): the old code never ran yt-dlp for a stored video; a re-read may hang
+        (TimeoutExpired) or find no yt-dlp (OSError), and acquire must still return its status."""
+        for exc in (ts.subprocess.TimeoutExpired(["yt-dlp"], 120), FileNotFoundError("yt-dlp")):
+            with self.subTest(exc=type(exc).__name__):
+                shutil.rmtree(os.path.join(self.root, "transcripts"), ignore_errors=True)
+                self.stored_live()
+                self.age(4 * 3600)
+                with mock.patch.object(ts, "_ytdlp", mock.Mock(side_effect=exc)):
+                    self.assertEqual(self.acquire()[1], "skipped_live")            # the stored state stands
+                with open(os.path.join(ts._vdir(VID), "attempts.jsonl")) as f:
+                    last = json.loads(f.readlines()[-2])                           # the refresh's line, then the skip
+                self.assertEqual((last.get("step"), last.get("status")), ("meta_refresh", "unavailable"))
+                self.assertIn(type(exc).__name__, last.get("error", ""))
+                self.assertFalse(os.path.exists(os.path.join(ts._vdir(VID), "meta_history.jsonl")))
+        with mock.patch.object(ts, "_ytdlp", mock.Mock(side_effect=ts.subprocess.TimeoutExpired(["yt-dlp"], 120))):
+            with self.assertRaises(ts.AcquisitionError):                            # a new video: the same error
+                ts.ensure_meta("NEWVIDEO123")
+
+    def test_the_newest_snapshot_is_the_latest_read_not_the_last_line(self):
+        """Heimdall batch 98 C2 (gpt-oss): two re-reads at once can append the older one last."""
+        self.stored_live()
+        self.age(4 * 3600)                                                               # meta.json: the first read
+        now = time.time()
+        stamp = lambda s: ts.datetime.fromtimestamp(now - s, ts.timezone.utc).isoformat()
+        finished = dict(yt("was_live", 3679), video_id=VID, metadata_fetched_at=stamp(60))
+        still_live = dict(yt("is_live"), video_id=VID, metadata_fetched_at=stamp(300))   # read earlier, written last
+        with open(os.path.join(ts._vdir(VID), "meta_history.jsonl"), "w") as f:
+            f.write(json.dumps(finished) + "\n" + json.dumps(still_live) + "\n")
+        m = ts.ensure_meta(VID)
+        self.assertEqual((m["live_status"], m["duration"]), ("was_live", 3679))
+        undated = dict(yt("is_live"), video_id=VID)                                      # says nothing: never wins
+        with open(os.path.join(ts._vdir(VID), "meta_history.jsonl"), "a") as f:
+            f.write(json.dumps(undated) + "\n")
+        self.assertEqual(ts.ensure_meta(VID)["live_status"], "was_live")
+
     def test_a_snapshot_for_another_video_in_the_history_is_ignored(self):
         self.stored_live()
         os.makedirs(ts._vdir(VID), exist_ok=True)
