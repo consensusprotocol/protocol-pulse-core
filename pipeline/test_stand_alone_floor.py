@@ -220,7 +220,7 @@ class TestTheFloor(Base):
                 with self.assertRaisesRegex(ValueError, "not the EDL's"):
                     self.check(e, 3.0, record=False)
         for raw in ("{not json", '{"mode": "pinned"}', '{"pin": []}', '{"pin": null}', "[]",
-                    '{"pin": {"moments_package": {}}}'):
+                    json.dumps({"pin": {"moments_package": {"stand_alone_bar": good([2])}, "segments": None}})):
             with self.subTest(raw=raw):
                 write_record(self.d, edl_with(clip2=BUT), raw=raw)
                 with self.assertRaisesRegex(ValueError, "cannot say"):
@@ -235,6 +235,14 @@ class TestTheFloor(Base):
         write_record(self.d, e)                                          # a record, no mark
         self.assertEqual(SF.apply(copy.deepcopy(before), e, self.d, scorer_sha=lambda: CODE,
                                   digest=lambda: WEIGHTS), before)
+        for pin in ({"moments_package": {"type": "moments"}}, {"segments": "x"}, {}):   # no mark: nothing else read
+            with self.subTest(pin=pin):
+                write_record(self.d, e, raw=json.dumps({"mode": "pinned", "pin": pin}))
+                self.assertEqual(SF.apply(copy.deepcopy(before), e, self.d, scorer_sha=lambda: CODE,
+                                          digest=lambda: WEIGHTS), before)
+        write_record(self.d, e, raw=json.dumps({"pin": {"moments_package": {"stand_alone_bar": good([2])}}}))
+        with self.assertRaisesRegex(ValueError, "cannot say"):          # marked, but no segments to place it in
+            SF.apply(copy.deepcopy(before), e, self.d, scorer_sha=lambda: CODE, digest=lambda: WEIGHTS)
 
     def test_the_medley_must_still_name_bitcoin(self):
         e = edl_with(hook=lambda t: "The halving cut new issuance in half again this year, and miners felt it.",

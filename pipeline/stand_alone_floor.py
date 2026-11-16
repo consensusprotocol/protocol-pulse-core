@@ -87,7 +87,8 @@ def apply(sa, edl, run_dir, scorer_sha=None, digest=None):
     try:
         with open(path) as f:
             pin = json.load(f)["pin"]
-        mp, n = pin.get("moments_package"), len(pin["segments"])
+        mp = pin.get("moments_package")
+        n = len(pin["segments"]) if isinstance(mp, dict) and KEY in mp else 0     # read only for a marked pin
     except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
         raise ValueError(f"{KEY}: the pin record cannot say whether the package was marked "
                          f"({type(e).__name__}: {e})") from None
