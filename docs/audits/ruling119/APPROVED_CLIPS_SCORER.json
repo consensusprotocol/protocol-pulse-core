@@ -1,0 +1,2076 @@
+{
+ "schema": "pp.ruling119_scorer/1",
+ "what": "ruling 119 (1): the stand-alone clip scorer, exactly as production runs it, on every clip of PBX's approved and published videos, three askings each (see 'scorer', 'departure', 'shapes')",
+ "requested": "the builder pp-selectid at about 08:20 ET Nov 16, quoting the orchestrator's ruling 119 (1) (its STATE line of 08:27 ET: 'the scorer's calibration on PBX's six approved videos (three askings each) is asked of the integrator, whose service holds GPU0'); run by the integrator on GPU0",
+ "scorer": {
+  "code": "main tree 7f2133c83dee6e5c1e2666228d53e74f2b5b7212 (release branch combo-letterbox-quoteonly-v2)",
+  "scorer_sha": "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53",
+  "entry": "stand_alone.clip_scorer(None, llm=..., moments=True)(passages)",
+  "prompt": "story_semantics.ALONE_PROMPT via story_semantics.rate_alone (ruling 60)",
+  "model": "gemma3:27b",
+  "host": "127.0.0.1:11434",
+  "temperature": 0,
+  "seed": "7 on the first attempt, 8 and 9 on a retry (chat_json)",
+  "num_ctx": 16384,
+  "max_tokens": 1200,
+  "attempts": 3,
+  "threshold": 3.5,
+  "rule": "stand_alone.affirmed(score, fault, moments=True): score >= 3.5, the fault not read",
+  "text_cut": "rate_alone quotes each text to its first 700 characters",
+  "digest": "a418f5838eaf7fe2cfe0a3046c8384b68ba43a4435542c942f9db00a5f342203",
+  "digest_at_start": "a418f5838eaf7fe2cfe0a3046c8384b68ba43a4435542c942f9db00a5f342203"
+ },
+ "departure": "production caches a validated reply by its exact prompt, so it never asks the same prompt twice; here the cache was off (the LocalLLM's digest unset after start), so each asking reached the model. 'cached' is the reply the production cache held for the same prompt when the run began (null: none).",
+ "shapes": {
+  "pin": "every clip of the video in one asking, pid hook / clip_NN by position (a pin request to the scorer service; the render's validate when every clip needs a verdict)",
+  "alone": "each clip in its own asking, pid clip_01 (the scorer service's candidates path, whose verdicts the builder's selection reads)"
+ },
+ "videos": [
+  {
+   "video": "preview",
+   "note": "the protected preview of 2026-11-11 (law L-d, PBX-approved); a story-path video, judged here with the moments scorer like the others",
+   "pin_file": "references/pulse_preview_2026-11-11/PIN.json",
+   "pin_file_sha256": "3cbfcaa1aaabe7331017d0d68c8e4949cd6166e424520e6172a4a0f048700d86",
+   "seal": null,
+   "edl_file": "references/pulse_preview_2026-11-11/edl.json",
+   "edl_file_sha256": "ec90141991ecec35d6f45b1e2b87f415eb24721b511a526c10e7e6fe83e02072",
+   "approved_by_in_pin": "orchestrator DEC-10e lineup (hook DataDash, Natalie, Yahoo) + Bitcoin Magazine clip added by the CC session for G5 (>= 60 s); Natalie's window cut to its first 3 sentences (sentence-count law 1-3)",
+   "clips": [
+    {
+     "video": "preview",
+     "role": "hook",
+     "pid_pin": "hook",
+     "pid_alone": "clip_01",
+     "channel": "DataDash",
+     "duration": 9.08,
+     "text": "Bitcoin has now seen a 16 % decline from the overall high from $88 ,000, touching down towards about $73 ,400, $500, give or take.",
+     "text_sha256": "33e992a2ffc6e6d5a86df964ad28009b1b91d2fea40b2d1ed5f1fe584d1b6bcd",
+     "text_chars": 130,
+     "text_cut_in_prompt": false,
+     "edl_text_same": true,
+     "source": {
+      "video_id": "RXTVaDsN11M",
+      "start": 0.0,
+      "end": 9.08
+     },
+     "askings": {
+      "pin": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:28:43-05:00",
+        "seconds": 30.6,
+        "model_calls": 1,
+        "prompt_sha256": "ee5526bc3f901338b6a833a5a3247e849e437075011fe49b792943d888c771c9",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete claim about Bitcoin's price decline.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:30:24-05:00",
+        "seconds": 8.0,
+        "model_calls": 1,
+        "prompt_sha256": "ee5526bc3f901338b6a833a5a3247e849e437075011fe49b792943d888c771c9",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Clear statement of Bitcoin's price decline.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:04-05:00",
+        "seconds": 8.0,
+        "model_calls": 1,
+        "prompt_sha256": "ee5526bc3f901338b6a833a5a3247e849e437075011fe49b792943d888c771c9",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Clear statement of Bitcoin's price decline.",
+        "affirmed": true
+       }
+      ],
+      "alone": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:15-05:00",
+        "seconds": 3.4,
+        "model_calls": 1,
+        "prompt_sha256": "d85bf2f40a42f7aa5d0a0a7c21e7a5cf21b8a73ce022cbe228708acf6086ed55",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete statement about Bitcoin's price decline.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:30:56-05:00",
+        "seconds": 3.5,
+        "model_calls": 1,
+        "prompt_sha256": "d85bf2f40a42f7aa5d0a0a7c21e7a5cf21b8a73ce022cbe228708acf6086ed55",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete statement about Bitcoin's price decline.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:36-05:00",
+        "seconds": 3.7,
+        "model_calls": 1,
+        "prompt_sha256": "d85bf2f40a42f7aa5d0a0a7c21e7a5cf21b8a73ce022cbe228708acf6086ed55",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete statement about Bitcoin's price decline.",
+        "affirmed": true
+       }
+      ]
+     },
+     "cached": {
+      "pin": null,
+      "alone": null
+     },
+     "prompt_sha256": {
+      "pin": "ee5526bc3f901338b6a833a5a3247e849e437075011fe49b792943d888c771c9",
+      "alone": "d85bf2f40a42f7aa5d0a0a7c21e7a5cf21b8a73ce022cbe228708acf6086ed55"
+     },
+     "earlier_production_verdicts": []
+    },
+    {
+     "video": "preview",
+     "role": "clip_01",
+     "pid_pin": "clip_01",
+     "pid_alone": "clip_01",
+     "channel": "Natalie Brunell",
+     "duration": 12.34,
+     "text": "It went from above $81 ,000 after the election to below $75 ,000 by the weekend. U .S. Bitcoin ETFs had about $1 .3 billion in net outflows just last week. And Bitcoin really hasn't participated in the Monday rally.",
+     "text_sha256": "df5eb7baf855cdfbd5c071f4028d2eaf9accc085a78493b7b198002fd4918e13",
+     "text_chars": 215,
+     "text_cut_in_prompt": false,
+     "edl_text_same": true,
+     "source": {
+      "video_id": "lusJ1m-J0Mc",
+      "start": 68.44,
+      "end": 80.78
+     },
+     "askings": {
+      "pin": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:28:43-05:00",
+        "seconds": 30.6,
+        "model_calls": 1,
+        "prompt_sha256": "ee5526bc3f901338b6a833a5a3247e849e437075011fe49b792943d888c771c9",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete claim about Bitcoin's price and ETF outflows.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:30:24-05:00",
+        "seconds": 8.0,
+        "model_calls": 1,
+        "prompt_sha256": "ee5526bc3f901338b6a833a5a3247e849e437075011fe49b792943d888c771c9",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete statement about Bitcoin's price movement and ETF outflows.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:04-05:00",
+        "seconds": 8.0,
+        "model_calls": 1,
+        "prompt_sha256": "ee5526bc3f901338b6a833a5a3247e849e437075011fe49b792943d888c771c9",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete statement about Bitcoin's price movement and ETF outflows.",
+        "affirmed": true
+       }
+      ],
+      "alone": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:19-05:00",
+        "seconds": 3.9,
+        "model_calls": 1,
+        "prompt_sha256": "224721c52d78638abe32b771e93cfbdf59ac0c0fe7dbeaa43baf91ebe5b737ba",
+        "score": 2.0,
+        "fault": "starts_mid_thought",
+        "reason": "\u201cIt\u201d refers to something previously mentioned; the context of \u201cthe election\u201d is missing.",
+        "affirmed": false
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:31:00-05:00",
+        "seconds": 3.9,
+        "model_calls": 1,
+        "prompt_sha256": "224721c52d78638abe32b771e93cfbdf59ac0c0fe7dbeaa43baf91ebe5b737ba",
+        "score": 2.0,
+        "fault": "starts_mid_thought",
+        "reason": "\u201cIt\u201d refers to something previously mentioned; the context of \u201cthe election\u201d is missing.",
+        "affirmed": false
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:40-05:00",
+        "seconds": 3.9,
+        "model_calls": 1,
+        "prompt_sha256": "224721c52d78638abe32b771e93cfbdf59ac0c0fe7dbeaa43baf91ebe5b737ba",
+        "score": 2.0,
+        "fault": "starts_mid_thought",
+        "reason": "\u201cIt\u201d refers to something previously mentioned; the context of \u201cthe election\u201d is missing.",
+        "affirmed": false
+       }
+      ]
+     },
+     "cached": {
+      "pin": null,
+      "alone": null
+     },
+     "prompt_sha256": {
+      "pin": "ee5526bc3f901338b6a833a5a3247e849e437075011fe49b792943d888c771c9",
+      "alone": "224721c52d78638abe32b771e93cfbdf59ac0c0fe7dbeaa43baf91ebe5b737ba"
+     },
+     "earlier_production_verdicts": []
+    },
+    {
+     "video": "preview",
+     "role": "clip_02",
+     "pid_pin": "clip_02",
+     "pid_alone": "clip_01",
+     "channel": "Yahoo Finance",
+     "duration": 18.7,
+     "text": "Of course, Bitcoin dropped pretty massively over the weekend alongside the tech sell -off that we saw, the Democrat blue wave, the Binance hack. But I don't check it on an hourly basis. It seemed to have bounced very nicely at a very key level around $74 ,000, around the 50 -weekly MA, which we've talked about many times.",
+     "text_sha256": "570c0ef367d1b4fafd4d1c8fdfa16dc0777f0297c5f0ed32e573772eda6b50be",
+     "text_chars": 323,
+     "text_cut_in_prompt": false,
+     "edl_text_same": true,
+     "source": {
+      "video_id": "36HPi9UZPOc",
+      "start": 38.2,
+      "end": 56.9
+     },
+     "askings": {
+      "pin": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:28:43-05:00",
+        "seconds": 30.6,
+        "model_calls": 1,
+        "prompt_sha256": "ee5526bc3f901338b6a833a5a3247e849e437075011fe49b792943d888c771c9",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "References a 'tech sell-off' and 'Binance hack' without context.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:30:24-05:00",
+        "seconds": 8.0,
+        "model_calls": 1,
+        "prompt_sha256": "ee5526bc3f901338b6a833a5a3247e849e437075011fe49b792943d888c771c9",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'Of course', implying a previous statement or context.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:04-05:00",
+        "seconds": 8.0,
+        "model_calls": 1,
+        "prompt_sha256": "ee5526bc3f901338b6a833a5a3247e849e437075011fe49b792943d888c771c9",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'Of course', implying a previous statement or context.",
+        "affirmed": true
+       }
+      ],
+      "alone": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:23-05:00",
+        "seconds": 4.4,
+        "model_calls": 1,
+        "prompt_sha256": "2df63107249651ca285448dc172d018d3327b7601271bd790e87bff08cfef2e5",
+        "score": 2.0,
+        "fault": "starts_mid_thought",
+        "reason": "References 'Bitcoin dropped', 'tech sell-off', 'Democrat blue wave', 'Binance hack' and 'we've talked about many times' without context.",
+        "affirmed": false
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:31:04-05:00",
+        "seconds": 4.1,
+        "model_calls": 1,
+        "prompt_sha256": "2df63107249651ca285448dc172d018d3327b7601271bd790e87bff08cfef2e5",
+        "score": 2.0,
+        "fault": "starts_mid_thought",
+        "reason": "References 'Bitcoin dropped', 'tech sell-off', 'Democrat blue wave', 'Binance hack' and 'we've talked about many times' without context.",
+        "affirmed": false
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:44-05:00",
+        "seconds": 4.3,
+        "model_calls": 1,
+        "prompt_sha256": "2df63107249651ca285448dc172d018d3327b7601271bd790e87bff08cfef2e5",
+        "score": 2.0,
+        "fault": "starts_mid_thought",
+        "reason": "References 'Bitcoin dropped', 'tech sell-off', 'Democrat blue wave', 'Binance hack' and 'we've talked about many times' without context.",
+        "affirmed": false
+       }
+      ]
+     },
+     "cached": {
+      "pin": null,
+      "alone": null
+     },
+     "prompt_sha256": {
+      "pin": "ee5526bc3f901338b6a833a5a3247e849e437075011fe49b792943d888c771c9",
+      "alone": "2df63107249651ca285448dc172d018d3327b7601271bd790e87bff08cfef2e5"
+     },
+     "earlier_production_verdicts": []
+    },
+    {
+     "video": "preview",
+     "role": "clip_03",
+     "pid_pin": "clip_03",
+     "pid_alone": "clip_01",
+     "channel": "Bitcoin Magazine",
+     "duration": 16.66,
+     "text": "Last night was Bitcoin's first weekly close below the 50 -week moving average since September. The 50 -week was around $75 ,500, and Bitcoin closed around $74 ,700, just 1 % below the line. But one percent is still a miss.",
+     "text_sha256": "a62619b745b9386d421dc302d230379d240045ad7de15de8832b7494cb3e44ac",
+     "text_chars": 222,
+     "text_cut_in_prompt": false,
+     "edl_text_same": true,
+     "source": {
+      "video_id": "jbDqdLytkNM",
+      "start": 14.68,
+      "end": 31.34
+     },
+     "askings": {
+      "pin": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:28:43-05:00",
+        "seconds": 30.6,
+        "model_calls": 1,
+        "prompt_sha256": "ee5526bc3f901338b6a833a5a3247e849e437075011fe49b792943d888c771c9",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "References a '50-week moving average' previously discussed.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:30:24-05:00",
+        "seconds": 8.0,
+        "model_calls": 1,
+        "prompt_sha256": "ee5526bc3f901338b6a833a5a3247e849e437075011fe49b792943d888c771c9",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'Last night', implying a previous discussion of time or events.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:04-05:00",
+        "seconds": 8.0,
+        "model_calls": 1,
+        "prompt_sha256": "ee5526bc3f901338b6a833a5a3247e849e437075011fe49b792943d888c771c9",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'Last night', implying a previous discussion of time or events.",
+        "affirmed": true
+       }
+      ],
+      "alone": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:27-05:00",
+        "seconds": 3.8,
+        "model_calls": 1,
+        "prompt_sha256": "c12a83eead5062cf83a0f9503d5fee23bc1823dab692ffd8909e199b18355ac6",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "The clip refers to 'last night' and 'Bitcoin's' performance without establishing context.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:31:08-05:00",
+        "seconds": 3.6,
+        "model_calls": 1,
+        "prompt_sha256": "c12a83eead5062cf83a0f9503d5fee23bc1823dab692ffd8909e199b18355ac6",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "The clip refers to 'last night' and 'Bitcoin's' performance without establishing context.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:48-05:00",
+        "seconds": 3.9,
+        "model_calls": 1,
+        "prompt_sha256": "c12a83eead5062cf83a0f9503d5fee23bc1823dab692ffd8909e199b18355ac6",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "The clip refers to 'last night' and 'Bitcoin's' performance without establishing context.",
+        "affirmed": true
+       }
+      ]
+     },
+     "cached": {
+      "pin": null,
+      "alone": null
+     },
+     "prompt_sha256": {
+      "pin": "ee5526bc3f901338b6a833a5a3247e849e437075011fe49b792943d888c771c9",
+      "alone": "c12a83eead5062cf83a0f9503d5fee23bc1823dab692ffd8909e199b18355ac6"
+     },
+     "earlier_production_verdicts": []
+    }
+   ]
+  },
+  {
+   "video": "37c5b5f5",
+   "note": "reference pulse_moments_2026-11-12",
+   "pin_file": "references/pulse_moments_2026-11-12/PIN.json",
+   "pin_file_sha256": "fe29a10f5312ee5bbe93d98ea52886985813ff89d0e2aa7f994b0bf506cd4f3d",
+   "seal": "37c5b5f598e97f12a4afd62eccd57f93b946b6f6d7ef087ef1047c1c06bc086f",
+   "edl_file": "references/pulse_moments_2026-11-12/edl.json",
+   "edl_file_sha256": "3f431846c1ae6f7530f6d4093a9b2edae77e5fa05869f165dbbd4d3b21d3517f",
+   "approved_by_in_pin": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
+   "clips": [
+    {
+     "video": "37c5b5f5",
+     "role": "hook",
+     "pid_pin": "hook",
+     "pid_alone": "clip_01",
+     "channel": "Saifedean Ammous",
+     "duration": 8.54,
+     "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+     "text_sha256": "a52480c1a60b20059e5d43eda865aee5895a0dc7a0da96d4c4c081eed0e7043e",
+     "text_chars": 163,
+     "text_cut_in_prompt": false,
+     "edl_text_same": true,
+     "source": {
+      "video_id": "vgsSZ4mAHfQ",
+      "start": 5144.99,
+      "end": 5153.37
+     },
+     "askings": {
+      "pin": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:28:49-05:00",
+        "seconds": 5.8,
+        "model_calls": 1,
+        "prompt_sha256": "3e47b4067a98d1d57bc62efc5dd09f663a68844dbfdbb0b389706b1d1683a5bd",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought; clearly explains a core Bitcoin principle.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:30:30-05:00",
+        "seconds": 5.6,
+        "model_calls": 1,
+        "prompt_sha256": "3e47b4067a98d1d57bc62efc5dd09f663a68844dbfdbb0b389706b1d1683a5bd",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought; clearly explains a core Bitcoin principle.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:10-05:00",
+        "seconds": 5.6,
+        "model_calls": 1,
+        "prompt_sha256": "3e47b4067a98d1d57bc62efc5dd09f663a68844dbfdbb0b389706b1d1683a5bd",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought; clearly explains a core Bitcoin principle.",
+        "affirmed": true
+       }
+      ],
+      "alone": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:31-05:00",
+        "seconds": 3.7,
+        "model_calls": 1,
+        "prompt_sha256": "7ba3b2d71db09158b9125db3b41c74e65e10b5118909dd2e1915d46bc2515b20",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought; explains Bitcoin's security feature and wealth distribution.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:31:11-05:00",
+        "seconds": 3.4,
+        "model_calls": 1,
+        "prompt_sha256": "7ba3b2d71db09158b9125db3b41c74e65e10b5118909dd2e1915d46bc2515b20",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought; explains Bitcoin's security feature and wealth distribution.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:51-05:00",
+        "seconds": 3.5,
+        "model_calls": 1,
+        "prompt_sha256": "7ba3b2d71db09158b9125db3b41c74e65e10b5118909dd2e1915d46bc2515b20",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought; explains Bitcoin's security feature and wealth distribution.",
+        "affirmed": true
+       }
+      ]
+     },
+     "cached": {
+      "pin": null,
+      "alone": null
+     },
+     "prompt_sha256": {
+      "pin": "3e47b4067a98d1d57bc62efc5dd09f663a68844dbfdbb0b389706b1d1683a5bd",
+      "alone": "7ba3b2d71db09158b9125db3b41c74e65e10b5118909dd2e1915d46bc2515b20"
+     },
+     "earlier_production_verdicts": [
+      {
+       "file": "delivered_37c5b5f5_hook.a52480c1a60b2005.f19aab6cc5cc.json",
+       "kind": "story",
+       "prompt": "the story prompt, with the video's event (not this bar)",
+       "event": "Pinned: No authority. That's the design.",
+       "duration": 8.54,
+       "score": 5.0,
+       "fault": "none",
+       "affirmed": true,
+       "scorer_sha": "f19aab6cc5cc",
+       "at_utc": "2026-11-13T15:58:07Z"
+      }
+     ]
+    },
+    {
+     "video": "37c5b5f5",
+     "role": "clip_01",
+     "pid_pin": "clip_01",
+     "pid_alone": "clip_01",
+     "channel": "What Bitcoin Did",
+     "duration": 10.34,
+     "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S.",
+     "text_sha256": "cef3b9399b8432fcd4b71df488a0e8aae05b6f4a1e19ae8da12798db905322a9",
+     "text_chars": 193,
+     "text_cut_in_prompt": false,
+     "edl_text_same": true,
+     "source": {
+      "video_id": "c1JGheQBPH4",
+      "start": 2403.23,
+      "end": 2412.85
+     },
+     "askings": {
+      "pin": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:28:49-05:00",
+        "seconds": 5.8,
+        "model_calls": 1,
+        "prompt_sha256": "3e47b4067a98d1d57bc62efc5dd09f663a68844dbfdbb0b389706b1d1683a5bd",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I mean', implying a response to a previous statement.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:30:30-05:00",
+        "seconds": 5.6,
+        "model_calls": 1,
+        "prompt_sha256": "3e47b4067a98d1d57bc62efc5dd09f663a68844dbfdbb0b389706b1d1683a5bd",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I mean', implying a response to a previous statement.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:10-05:00",
+        "seconds": 5.6,
+        "model_calls": 1,
+        "prompt_sha256": "3e47b4067a98d1d57bc62efc5dd09f663a68844dbfdbb0b389706b1d1683a5bd",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I mean', implying a response to a previous statement.",
+        "affirmed": true
+       }
+      ],
+      "alone": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:34-05:00",
+        "seconds": 3.8,
+        "model_calls": 1,
+        "prompt_sha256": "9f09f2453c4d5a6e8b55c423cdbf5d3bd8225e70f6c22def03fb2eb0fedeb0d4",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I mean', implying a response to a previous statement.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:31:15-05:00",
+        "seconds": 3.9,
+        "model_calls": 1,
+        "prompt_sha256": "9f09f2453c4d5a6e8b55c423cdbf5d3bd8225e70f6c22def03fb2eb0fedeb0d4",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I mean', implying a response to a previous statement.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:55-05:00",
+        "seconds": 3.7,
+        "model_calls": 1,
+        "prompt_sha256": "9f09f2453c4d5a6e8b55c423cdbf5d3bd8225e70f6c22def03fb2eb0fedeb0d4",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I mean', implying a response to a previous statement.",
+        "affirmed": true
+       }
+      ]
+     },
+     "cached": {
+      "pin": null,
+      "alone": null
+     },
+     "prompt_sha256": {
+      "pin": "3e47b4067a98d1d57bc62efc5dd09f663a68844dbfdbb0b389706b1d1683a5bd",
+      "alone": "9f09f2453c4d5a6e8b55c423cdbf5d3bd8225e70f6c22def03fb2eb0fedeb0d4"
+     },
+     "earlier_production_verdicts": [
+      {
+       "file": "delivered_37c5b5f5_clip_01.cef3b9399b8432fc.f19aab6cc5cc.json",
+       "kind": "story",
+       "prompt": "the story prompt, with the video's event (not this bar)",
+       "event": "Pinned: No authority. That's the design.",
+       "duration": 10.34,
+       "score": 3.0,
+       "fault": "other",
+       "affirmed": false,
+       "scorer_sha": "f19aab6cc5cc",
+       "at_utc": "2026-11-13T15:58:07Z"
+      }
+     ]
+    },
+    {
+     "video": "37c5b5f5",
+     "role": "clip_02",
+     "pid_pin": "clip_02",
+     "pid_alone": "clip_01",
+     "channel": "Natalie Brunell",
+     "duration": 3.64,
+     "text": "Bitcoin imposes a global free market for the first time ever.",
+     "text_sha256": "cf083b72416efc27e811aaeccb9c0694e71fccdae957562d07830dab19873b11",
+     "text_chars": 61,
+     "text_cut_in_prompt": false,
+     "edl_text_same": true,
+     "source": {
+      "video_id": "wdk5JZ9hPzs",
+      "start": 3218.14,
+      "end": 3221.64
+     },
+     "askings": {
+      "pin": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:28:49-05:00",
+        "seconds": 5.8,
+        "model_calls": 1,
+        "prompt_sha256": "3e47b4067a98d1d57bc62efc5dd09f663a68844dbfdbb0b389706b1d1683a5bd",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Clear, concise statement about Bitcoin's impact.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:30:30-05:00",
+        "seconds": 5.6,
+        "model_calls": 1,
+        "prompt_sha256": "3e47b4067a98d1d57bc62efc5dd09f663a68844dbfdbb0b389706b1d1683a5bd",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Clear, concise statement about Bitcoin's impact.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:10-05:00",
+        "seconds": 5.6,
+        "model_calls": 1,
+        "prompt_sha256": "3e47b4067a98d1d57bc62efc5dd09f663a68844dbfdbb0b389706b1d1683a5bd",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Clear, concise statement about Bitcoin's impact.",
+        "affirmed": true
+       }
+      ],
+      "alone": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:38-05:00",
+        "seconds": 3.4,
+        "model_calls": 1,
+        "prompt_sha256": "01b448ac17643eaed96fe7c92afc410e0a111b794d23dd67cf4e4b10b1d0a308",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought, clearly stated claim.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:31:18-05:00",
+        "seconds": 3.2,
+        "model_calls": 1,
+        "prompt_sha256": "01b448ac17643eaed96fe7c92afc410e0a111b794d23dd67cf4e4b10b1d0a308",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought, clearly stated claim.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:59-05:00",
+        "seconds": 4.1,
+        "model_calls": 1,
+        "prompt_sha256": "01b448ac17643eaed96fe7c92afc410e0a111b794d23dd67cf4e4b10b1d0a308",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought, clearly stated claim.",
+        "affirmed": true
+       }
+      ]
+     },
+     "cached": {
+      "pin": null,
+      "alone": null
+     },
+     "prompt_sha256": {
+      "pin": "3e47b4067a98d1d57bc62efc5dd09f663a68844dbfdbb0b389706b1d1683a5bd",
+      "alone": "01b448ac17643eaed96fe7c92afc410e0a111b794d23dd67cf4e4b10b1d0a308"
+     },
+     "earlier_production_verdicts": [
+      {
+       "file": "delivered_37c5b5f5_clip_02.cf083b72416efc27.f19aab6cc5cc.json",
+       "kind": "story",
+       "prompt": "the story prompt, with the video's event (not this bar)",
+       "event": "Pinned: No authority. That's the design.",
+       "duration": 3.64,
+       "score": 3.0,
+       "fault": "other",
+       "affirmed": false,
+       "scorer_sha": "f19aab6cc5cc",
+       "at_utc": "2026-11-13T15:58:07Z"
+      },
+      {
+       "file": "delivered_41f29b1f_hook.cf083b72416efc27.f19aab6cc5cc.json",
+       "kind": "story",
+       "prompt": "the story prompt, with the video's event (not this bar)",
+       "event": "Pinned: Bitcoin's overlooked value comes from a market no government owns",
+       "duration": 3.64,
+       "score": 3.0,
+       "fault": "other",
+       "affirmed": false,
+       "scorer_sha": "f19aab6cc5cc",
+       "at_utc": "2026-11-13T15:58:14Z"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "video": "41f29b1f",
+   "note": "reference pulse_medley_2026-11-12",
+   "pin_file": "references/pulse_medley_2026-11-12/PIN.json",
+   "pin_file_sha256": "bbd09ab07dd09286515b1ad00bf46d73c62bf2e9a00874147559d22763d31be5",
+   "seal": "41f29b1fee5730fd2eb850ce888f1d22b80fe7b6c368a3dbe31c90d2a75bbc70",
+   "edl_file": "references/pulse_medley_2026-11-12/edl.json",
+   "edl_file_sha256": "635f67098cd3c56aaf23aa293fc38a9df76b76acac045e9c9b9bb721ccc06acd",
+   "approved_by_in_pin": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
+   "clips": [
+    {
+     "video": "41f29b1f",
+     "role": "hook",
+     "pid_pin": "hook",
+     "pid_alone": "clip_01",
+     "channel": "Natalie Brunell",
+     "duration": 3.64,
+     "text": "Bitcoin imposes a global free market for the first time ever.",
+     "text_sha256": "cf083b72416efc27e811aaeccb9c0694e71fccdae957562d07830dab19873b11",
+     "text_chars": 61,
+     "text_cut_in_prompt": false,
+     "edl_text_same": true,
+     "source": {
+      "video_id": "wdk5JZ9hPzs",
+      "start": 3218.14,
+      "end": 3221.64
+     },
+     "askings": {
+      "pin": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:28:55-05:00",
+        "seconds": 6.3,
+        "model_calls": 1,
+        "prompt_sha256": "d6dd810c5e874a89ebf618c7981fd4803ace1cfc9e399ebc983427ce9c4223b4",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Clear, self-contained claim.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:30:36-05:00",
+        "seconds": 5.9,
+        "model_calls": 1,
+        "prompt_sha256": "d6dd810c5e874a89ebf618c7981fd4803ace1cfc9e399ebc983427ce9c4223b4",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Clear, self-contained claim.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:16-05:00",
+        "seconds": 6.3,
+        "model_calls": 1,
+        "prompt_sha256": "d6dd810c5e874a89ebf618c7981fd4803ace1cfc9e399ebc983427ce9c4223b4",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Clear, self-contained claim.",
+        "affirmed": true
+       }
+      ],
+      "alone": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:41-05:00",
+        "seconds": 3.6,
+        "model_calls": 1,
+        "prompt_sha256": "01b448ac17643eaed96fe7c92afc410e0a111b794d23dd67cf4e4b10b1d0a308",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought, clearly stated claim.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:31:22-05:00",
+        "seconds": 3.4,
+        "model_calls": 1,
+        "prompt_sha256": "01b448ac17643eaed96fe7c92afc410e0a111b794d23dd67cf4e4b10b1d0a308",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought, clearly stated claim.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:33:03-05:00",
+        "seconds": 3.9,
+        "model_calls": 1,
+        "prompt_sha256": "01b448ac17643eaed96fe7c92afc410e0a111b794d23dd67cf4e4b10b1d0a308",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought, clearly stated claim.",
+        "affirmed": true
+       }
+      ]
+     },
+     "cached": {
+      "pin": null,
+      "alone": null
+     },
+     "prompt_sha256": {
+      "pin": "d6dd810c5e874a89ebf618c7981fd4803ace1cfc9e399ebc983427ce9c4223b4",
+      "alone": "01b448ac17643eaed96fe7c92afc410e0a111b794d23dd67cf4e4b10b1d0a308"
+     },
+     "earlier_production_verdicts": [
+      {
+       "file": "delivered_37c5b5f5_clip_02.cf083b72416efc27.f19aab6cc5cc.json",
+       "kind": "story",
+       "prompt": "the story prompt, with the video's event (not this bar)",
+       "event": "Pinned: No authority. That's the design.",
+       "duration": 3.64,
+       "score": 3.0,
+       "fault": "other",
+       "affirmed": false,
+       "scorer_sha": "f19aab6cc5cc",
+       "at_utc": "2026-11-13T15:58:07Z"
+      },
+      {
+       "file": "delivered_41f29b1f_hook.cf083b72416efc27.f19aab6cc5cc.json",
+       "kind": "story",
+       "prompt": "the story prompt, with the video's event (not this bar)",
+       "event": "Pinned: Bitcoin's overlooked value comes from a market no government owns",
+       "duration": 3.64,
+       "score": 3.0,
+       "fault": "other",
+       "affirmed": false,
+       "scorer_sha": "f19aab6cc5cc",
+       "at_utc": "2026-11-13T15:58:14Z"
+      }
+     ]
+    },
+    {
+     "video": "41f29b1f",
+     "role": "clip_01",
+     "pid_pin": "clip_01",
+     "pid_alone": "clip_01",
+     "channel": "What Bitcoin Did",
+     "duration": 19.5,
+     "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+     "text_sha256": "1f3cd3c203e63b1c9e9bbbe5a2da39681d729b93d64e5977039edf57d0ec95b3",
+     "text_chars": 330,
+     "text_cut_in_prompt": false,
+     "edl_text_same": true,
+     "source": {
+      "video_id": "c1JGheQBPH4",
+      "start": 2403.23,
+      "end": 2422.07
+     },
+     "askings": {
+      "pin": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:28:55-05:00",
+        "seconds": 6.3,
+        "model_calls": 1,
+        "prompt_sha256": "d6dd810c5e874a89ebf618c7981fd4803ace1cfc9e399ebc983427ce9c4223b4",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I mean', implying a response to a previous statement.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:30:36-05:00",
+        "seconds": 5.9,
+        "model_calls": 1,
+        "prompt_sha256": "d6dd810c5e874a89ebf618c7981fd4803ace1cfc9e399ebc983427ce9c4223b4",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I mean', implying a response to a previous statement.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:16-05:00",
+        "seconds": 6.3,
+        "model_calls": 1,
+        "prompt_sha256": "d6dd810c5e874a89ebf618c7981fd4803ace1cfc9e399ebc983427ce9c4223b4",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I mean', implying a response to a previous statement.",
+        "affirmed": true
+       }
+      ],
+      "alone": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:45-05:00",
+        "seconds": 4.1,
+        "model_calls": 1,
+        "prompt_sha256": "eb2e1af179e342a1b56ad3fb7a360c640b3a4d3c7aa3e074e0f2301e529f41d4",
+        "score": 3.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I mean', implying a response to a previous statement. 'It' refers to Bitcoin, but the full thought isn't self-contained.",
+        "affirmed": false
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:31:26-05:00",
+        "seconds": 4.1,
+        "model_calls": 1,
+        "prompt_sha256": "eb2e1af179e342a1b56ad3fb7a360c640b3a4d3c7aa3e074e0f2301e529f41d4",
+        "score": 3.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I mean', implying a response to a previous statement. 'It' refers to Bitcoin, but the full thought isn't self-contained.",
+        "affirmed": false
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:33:08-05:00",
+        "seconds": 4.3,
+        "model_calls": 1,
+        "prompt_sha256": "eb2e1af179e342a1b56ad3fb7a360c640b3a4d3c7aa3e074e0f2301e529f41d4",
+        "score": 3.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I mean', implying a response to a previous statement. 'It' refers to Bitcoin, but the full thought isn't self-contained.",
+        "affirmed": false
+       }
+      ]
+     },
+     "cached": {
+      "pin": null,
+      "alone": null
+     },
+     "prompt_sha256": {
+      "pin": "d6dd810c5e874a89ebf618c7981fd4803ace1cfc9e399ebc983427ce9c4223b4",
+      "alone": "eb2e1af179e342a1b56ad3fb7a360c640b3a4d3c7aa3e074e0f2301e529f41d4"
+     },
+     "earlier_production_verdicts": [
+      {
+       "file": "delivered_41f29b1f_clip_01.1f3cd3c203e63b1c.f19aab6cc5cc.json",
+       "kind": "story",
+       "prompt": "the story prompt, with the video's event (not this bar)",
+       "event": "Pinned: Bitcoin's overlooked value comes from a market no government owns",
+       "duration": 19.5,
+       "score": 3.0,
+       "fault": "other",
+       "affirmed": false,
+       "scorer_sha": "f19aab6cc5cc",
+       "at_utc": "2026-11-13T15:58:14Z"
+      }
+     ]
+    },
+    {
+     "video": "41f29b1f",
+     "role": "clip_02",
+     "pid_pin": "clip_02",
+     "pid_alone": "clip_01",
+     "channel": "Stephan Livera",
+     "duration": 17.34,
+     "text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
+     "text_sha256": "6cddd76ba5a7921d14159823a2c2359484aa6bd87fc31f531bbd6e16aa26acc0",
+     "text_chars": 240,
+     "text_cut_in_prompt": false,
+     "edl_text_same": true,
+     "source": {
+      "video_id": "Sjb6lUiL0m4",
+      "start": 1826.54,
+      "end": 1843.48
+     },
+     "askings": {
+      "pin": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:28:55-05:00",
+        "seconds": 6.3,
+        "model_calls": 1,
+        "prompt_sha256": "d6dd810c5e874a89ebf618c7981fd4803ace1cfc9e399ebc983427ce9c4223b4",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'However', indicating a response to a prior point.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:30:36-05:00",
+        "seconds": 5.9,
+        "model_calls": 1,
+        "prompt_sha256": "d6dd810c5e874a89ebf618c7981fd4803ace1cfc9e399ebc983427ce9c4223b4",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'However', indicating a response to a prior point.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:16-05:00",
+        "seconds": 6.3,
+        "model_calls": 1,
+        "prompt_sha256": "d6dd810c5e874a89ebf618c7981fd4803ace1cfc9e399ebc983427ce9c4223b4",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'However', indicating a response to a prior point.",
+        "affirmed": true
+       }
+      ],
+      "alone": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:49-05:00",
+        "seconds": 3.8,
+        "model_calls": 1,
+        "prompt_sha256": "027d2ad3119dadac83ad24cb9ce04a5af993c5506c1377860a069b0e0f07b1a6",
+        "score": 3.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'However', implying a previous statement or question it's responding to.",
+        "affirmed": false
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:31:30-05:00",
+        "seconds": 4.1,
+        "model_calls": 1,
+        "prompt_sha256": "027d2ad3119dadac83ad24cb9ce04a5af993c5506c1377860a069b0e0f07b1a6",
+        "score": 3.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'However', implying a previous statement or question it's responding to.",
+        "affirmed": false
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:33:11-05:00",
+        "seconds": 3.6,
+        "model_calls": 1,
+        "prompt_sha256": "027d2ad3119dadac83ad24cb9ce04a5af993c5506c1377860a069b0e0f07b1a6",
+        "score": 3.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'However', implying a previous statement or question it's responding to.",
+        "affirmed": false
+       }
+      ]
+     },
+     "cached": {
+      "pin": null,
+      "alone": null
+     },
+     "prompt_sha256": {
+      "pin": "d6dd810c5e874a89ebf618c7981fd4803ace1cfc9e399ebc983427ce9c4223b4",
+      "alone": "027d2ad3119dadac83ad24cb9ce04a5af993c5506c1377860a069b0e0f07b1a6"
+     },
+     "earlier_production_verdicts": [
+      {
+       "file": "delivered_41f29b1f_clip_02.6cddd76ba5a7921d.f19aab6cc5cc.json",
+       "kind": "story",
+       "prompt": "the story prompt, with the video's event (not this bar)",
+       "event": "Pinned: Bitcoin's overlooked value comes from a market no government owns",
+       "duration": 17.34,
+       "score": 4.0,
+       "fault": "other",
+       "affirmed": true,
+       "scorer_sha": "f19aab6cc5cc",
+       "at_utc": "2026-11-13T15:58:14Z"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "video": "0c68b589",
+   "note": "reference pulse_fresh_2026-11-13 = run pinned_20261113_211048, published 18:10 ET Nov 13 as a YouTube Short",
+   "pin_file": "references/pulse_fresh_2026-11-13/PIN.json",
+   "pin_file_sha256": "5dfcbe8ffa661f6769cad80455e8f82a0cb3c825df6a5e1aeae1bbbd0ff8c25b",
+   "seal": "0c68b589371297c066f4ad16576592e8ee0a125383b58b5713db6e654d05769d",
+   "edl_file": "references/pulse_fresh_2026-11-13/edl.json",
+   "edl_file_sha256": "75d47f93154ffd4591e13d9ee59717be18ddb6b010a8f03a576aa04411738319",
+   "approved_by_in_pin": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
+   "clips": [
+    {
+     "video": "0c68b589",
+     "role": "hook",
+     "pid_pin": "hook",
+     "pid_alone": "clip_01",
+     "channel": "Simply Bitcoin",
+     "duration": 16.68,
+     "text": "A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies. and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate.",
+     "text_sha256": "73173a5554f43e7e8492c00e64f8152ca4e0a17484271fe447724c361c3a8642",
+     "text_chars": 312,
+     "text_cut_in_prompt": false,
+     "edl_text_same": true,
+     "source": {
+      "video_id": "DcUbBkyeh9M",
+      "start": 236.688,
+      "end": 253.308
+     },
+     "askings": {
+      "pin": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:01-05:00",
+        "seconds": 6.2,
+        "model_calls": 1,
+        "prompt_sha256": "f73ae52ff726f6ae64865615f5f79bdb5e81e409422bcf32ce5ab76ac9b99b42",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought; explains Bitcoin's governance.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:30:42-05:00",
+        "seconds": 6.1,
+        "model_calls": 1,
+        "prompt_sha256": "f73ae52ff726f6ae64865615f5f79bdb5e81e409422bcf32ce5ab76ac9b99b42",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought; explains Bitcoin's governance.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:22-05:00",
+        "seconds": 5.9,
+        "model_calls": 1,
+        "prompt_sha256": "f73ae52ff726f6ae64865615f5f79bdb5e81e409422bcf32ce5ab76ac9b99b42",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought; explains Bitcoin's governance.",
+        "affirmed": true
+       }
+      ],
+      "alone": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:53-05:00",
+        "seconds": 3.6,
+        "model_calls": 1,
+        "prompt_sha256": "4cbb155044017015bd5fd800b229b62779c7d27fb6fa6f10ea69b60cb282ef4d",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'A CEO...' implying a previous statement set up this example.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:31:33-05:00",
+        "seconds": 3.4,
+        "model_calls": 1,
+        "prompt_sha256": "4cbb155044017015bd5fd800b229b62779c7d27fb6fa6f10ea69b60cb282ef4d",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'A CEO...' implying a previous statement set up this example.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:33:15-05:00",
+        "seconds": 4.2,
+        "model_calls": 1,
+        "prompt_sha256": "4cbb155044017015bd5fd800b229b62779c7d27fb6fa6f10ea69b60cb282ef4d",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'A CEO...' implying a previous statement set up this example.",
+        "affirmed": true
+       }
+      ]
+     },
+     "cached": {
+      "pin": null,
+      "alone": null
+     },
+     "prompt_sha256": {
+      "pin": "f73ae52ff726f6ae64865615f5f79bdb5e81e409422bcf32ce5ab76ac9b99b42",
+      "alone": "4cbb155044017015bd5fd800b229b62779c7d27fb6fa6f10ea69b60cb282ef4d"
+     },
+     "earlier_production_verdicts": []
+    },
+    {
+     "video": "0c68b589",
+     "role": "clip_01",
+     "pid_pin": "clip_01",
+     "pid_alone": "clip_01",
+     "channel": "CNBC Television",
+     "duration": 13.76,
+     "text": "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world.",
+     "text_sha256": "6bff6fbaf3e56f7f10695689ead0de177fa07a58a3b545d8fd5cb422b931a404",
+     "text_chars": 237,
+     "text_cut_in_prompt": false,
+     "edl_text_same": true,
+     "source": {
+      "video_id": "GXWj2JO9bz8",
+      "start": 124.157,
+      "end": 138.097
+     },
+     "askings": {
+      "pin": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:01-05:00",
+        "seconds": 6.2,
+        "model_calls": 1,
+        "prompt_sha256": "f73ae52ff726f6ae64865615f5f79bdb5e81e409422bcf32ce5ab76ac9b99b42",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I don't really think...', implying a response to a prior question.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:30:42-05:00",
+        "seconds": 6.1,
+        "model_calls": 1,
+        "prompt_sha256": "f73ae52ff726f6ae64865615f5f79bdb5e81e409422bcf32ce5ab76ac9b99b42",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I don't really think...', implying a response to a prior question.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:22-05:00",
+        "seconds": 5.9,
+        "model_calls": 1,
+        "prompt_sha256": "f73ae52ff726f6ae64865615f5f79bdb5e81e409422bcf32ce5ab76ac9b99b42",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I don't really think...', implying a response to a prior question.",
+        "affirmed": true
+       }
+      ],
+      "alone": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:56-05:00",
+        "seconds": 3.5,
+        "model_calls": 1,
+        "prompt_sha256": "b9082b846294876e2a82d77b3cd551ed68394001e5ea65c3ee814750245c0dc9",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "The claim about financial freedom feels like a response to an earlier statement or question.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:31:37-05:00",
+        "seconds": 3.9,
+        "model_calls": 1,
+        "prompt_sha256": "b9082b846294876e2a82d77b3cd551ed68394001e5ea65c3ee814750245c0dc9",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "The claim about financial freedom feels like a response to an earlier statement or question.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:33:19-05:00",
+        "seconds": 3.7,
+        "model_calls": 1,
+        "prompt_sha256": "b9082b846294876e2a82d77b3cd551ed68394001e5ea65c3ee814750245c0dc9",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "The claim about financial freedom feels like a response to an earlier statement or question.",
+        "affirmed": true
+       }
+      ]
+     },
+     "cached": {
+      "pin": null,
+      "alone": null
+     },
+     "prompt_sha256": {
+      "pin": "f73ae52ff726f6ae64865615f5f79bdb5e81e409422bcf32ce5ab76ac9b99b42",
+      "alone": "b9082b846294876e2a82d77b3cd551ed68394001e5ea65c3ee814750245c0dc9"
+     },
+     "earlier_production_verdicts": []
+    },
+    {
+     "video": "0c68b589",
+     "role": "clip_02",
+     "pid_pin": "clip_02",
+     "pid_alone": "clip_01",
+     "channel": "Scott Melker",
+     "duration": 8.8,
+     "text": "My biggest fear is that I go to the bank and I punch in my code and the money's not there because the bank owns the money and they could just take it from me. And that's why that's why we Bitcoin.",
+     "text_sha256": "8b3e31e4b0bb9db5d6827efcae418bb4d775391c3535868ae4983c80cd5fc9c0",
+     "text_chars": 196,
+     "text_cut_in_prompt": false,
+     "edl_text_same": true,
+     "source": {
+      "video_id": "mKNAcOFMYD4",
+      "start": 755.454,
+      "end": 764.214
+     },
+     "askings": {
+      "pin": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:01-05:00",
+        "seconds": 6.2,
+        "model_calls": 1,
+        "prompt_sha256": "f73ae52ff726f6ae64865615f5f79bdb5e81e409422bcf32ce5ab76ac9b99b42",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought; explains a fear and the solution (Bitcoin).",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:30:42-05:00",
+        "seconds": 6.1,
+        "model_calls": 1,
+        "prompt_sha256": "f73ae52ff726f6ae64865615f5f79bdb5e81e409422bcf32ce5ab76ac9b99b42",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought; explains a personal fear and the solution (Bitcoin).",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:22-05:00",
+        "seconds": 5.9,
+        "model_calls": 1,
+        "prompt_sha256": "f73ae52ff726f6ae64865615f5f79bdb5e81e409422bcf32ce5ab76ac9b99b42",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought; explains a personal fear and the solution (Bitcoin).",
+        "affirmed": true
+       }
+      ],
+      "alone": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:30:00-05:00",
+        "seconds": 3.6,
+        "model_calls": 1,
+        "prompt_sha256": "c0648dd338da9f97201b6b8e01a4c9cd844af94ca3dc5ad599d6663b3c1a5ac4",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "The initial 'My biggest fear is that...' implies a prior discussion of risks or concerns.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:31:41-05:00",
+        "seconds": 3.9,
+        "model_calls": 1,
+        "prompt_sha256": "c0648dd338da9f97201b6b8e01a4c9cd844af94ca3dc5ad599d6663b3c1a5ac4",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "The initial 'My biggest fear is that...' implies a prior discussion of risks or concerns.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:33:23-05:00",
+        "seconds": 3.9,
+        "model_calls": 1,
+        "prompt_sha256": "c0648dd338da9f97201b6b8e01a4c9cd844af94ca3dc5ad599d6663b3c1a5ac4",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "The initial 'My biggest fear is that...' implies a prior discussion of risks or concerns.",
+        "affirmed": true
+       }
+      ]
+     },
+     "cached": {
+      "pin": null,
+      "alone": null
+     },
+     "prompt_sha256": {
+      "pin": "f73ae52ff726f6ae64865615f5f79bdb5e81e409422bcf32ce5ab76ac9b99b42",
+      "alone": "c0648dd338da9f97201b6b8e01a4c9cd844af94ca3dc5ad599d6663b3c1a5ac4"
+     },
+     "earlier_production_verdicts": []
+    }
+   ]
+  },
+  {
+   "video": "13949b7c",
+   "note": "frozen pin MOMENTS_PIN_LEDGER_215708; its only run, pinned_20261113_221758, held at prepare (17:24 ET Nov 13) and ruling 76 withdrew the pin: the EDL is that run's",
+   "pin_file": "data/moments_pins/MOMENTS_PIN_LEDGER_215708.json",
+   "pin_file_sha256": "594b1176232042ce73473dd9c348e901e63690722efbdca6da2963c469b6bdf6",
+   "seal": "13949b7c2779021ca787065fb7e22cfb62d13c2d2f4d8e1dcbeb7018a87e7d37",
+   "edl_file": "runs/pinned_20261113_221758/edl.json",
+   "edl_file_sha256": "a8a5e35c8f4b466ac1be8b149d4677da2fd6e066d7de8f1bbe24aa40bcdc2c2b",
+   "approved_by_in_pin": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
+   "clips": [
+    {
+     "video": "13949b7c",
+     "role": "hook",
+     "pid_pin": "hook",
+     "pid_alone": "clip_01",
+     "channel": "Simply Bitcoin",
+     "duration": 12.7,
+     "text": "Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued.",
+     "text_sha256": "501b49fc5f45660d67647451b7a0190ab332d2fbf728483e706da82d50f1d25a",
+     "text_chars": 223,
+     "text_cut_in_prompt": false,
+     "edl_text_same": true,
+     "source": {
+      "video_id": "DcUbBkyeh9M",
+      "start": 216.054,
+      "end": 228.674
+     },
+     "askings": {
+      "pin": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:08-05:00",
+        "seconds": 6.6,
+        "model_calls": 1,
+        "prompt_sha256": "8d1b0483b149ac945a64432b7b22df29d6ba7e03a3df2aca324156e56b336894",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought; establishes a contrast between traditional currencies and Bitcoin.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:30:49-05:00",
+        "seconds": 6.4,
+        "model_calls": 1,
+        "prompt_sha256": "8d1b0483b149ac945a64432b7b22df29d6ba7e03a3df2aca324156e56b336894",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought; establishes a contrast between traditional currencies and Bitcoin.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:28-05:00",
+        "seconds": 6.0,
+        "model_calls": 1,
+        "prompt_sha256": "8d1b0483b149ac945a64432b7b22df29d6ba7e03a3df2aca324156e56b336894",
+        "score": 5.0,
+        "fault": "none",
+        "reason": "Complete thought; establishes a contrast between traditional currencies and Bitcoin.",
+        "affirmed": true
+       }
+      ],
+      "alone": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:30:04-05:00",
+        "seconds": 4.3,
+        "model_calls": 1,
+        "prompt_sha256": "73dda0f28350bcf6853ca0a54ccbfbeefd75ed050e8b4a3889b48204568673f4",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "The opening statement implies a prior discussion of currencies, making the first sentence dependent on context.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:31:45-05:00",
+        "seconds": 3.6,
+        "model_calls": 1,
+        "prompt_sha256": "73dda0f28350bcf6853ca0a54ccbfbeefd75ed050e8b4a3889b48204568673f4",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "The opening statement implies a prior discussion of currencies, making the first sentence dependent on context.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:33:27-05:00",
+        "seconds": 3.7,
+        "model_calls": 1,
+        "prompt_sha256": "73dda0f28350bcf6853ca0a54ccbfbeefd75ed050e8b4a3889b48204568673f4",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "The opening statement implies a prior discussion of currencies, making the first sentence dependent on context.",
+        "affirmed": true
+       }
+      ]
+     },
+     "cached": {
+      "pin": null,
+      "alone": null
+     },
+     "prompt_sha256": {
+      "pin": "8d1b0483b149ac945a64432b7b22df29d6ba7e03a3df2aca324156e56b336894",
+      "alone": "73dda0f28350bcf6853ca0a54ccbfbeefd75ed050e8b4a3889b48204568673f4"
+     },
+     "earlier_production_verdicts": []
+    },
+    {
+     "video": "13949b7c",
+     "role": "clip_01",
+     "pid_pin": "clip_01",
+     "pid_alone": "clip_01",
+     "channel": "Yahoo Finance",
+     "duration": 19.64,
+     "text": "I think, well, what we've seen in the market is on Thursday, Friday, there was actually a much bigger drop in traditional stock prices, especially tech stock. There's like 10, 20%, like Intel dropped 29%. Whereas Bitcoin only dropped like five, six percent.",
+     "text_sha256": "c292d05722dd1e2d9cc7784def17bbffd42fdfc3a0e61d117a9cd5ecfba700e3",
+     "text_chars": 257,
+     "text_cut_in_prompt": false,
+     "edl_text_same": true,
+     "source": {
+      "video_id": "MqVqfEDXgLo",
+      "start": 937.971,
+      "end": 957.291
+     },
+     "askings": {
+      "pin": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:08-05:00",
+        "seconds": 6.6,
+        "model_calls": 1,
+        "prompt_sha256": "8d1b0483b149ac945a64432b7b22df29d6ba7e03a3df2aca324156e56b336894",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I think, well...' implying a response to a previous question or statement about market performance.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:30:49-05:00",
+        "seconds": 6.4,
+        "model_calls": 1,
+        "prompt_sha256": "8d1b0483b149ac945a64432b7b22df29d6ba7e03a3df2aca324156e56b336894",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I think, well...', referencing a prior discussion about market performance.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:28-05:00",
+        "seconds": 6.0,
+        "model_calls": 1,
+        "prompt_sha256": "8d1b0483b149ac945a64432b7b22df29d6ba7e03a3df2aca324156e56b336894",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I think, well...', referencing a prior discussion about market performance.",
+        "affirmed": true
+       }
+      ],
+      "alone": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:30:08-05:00",
+        "seconds": 3.9,
+        "model_calls": 1,
+        "prompt_sha256": "f56dd43c77f4c0caba20acfef0d2d18b968bcb76edde73b67172f0079d585c2a",
+        "score": 2.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts referencing 'what we've seen' and 'on Thursday, Friday' without context.",
+        "affirmed": false
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:31:49-05:00",
+        "seconds": 3.7,
+        "model_calls": 1,
+        "prompt_sha256": "f56dd43c77f4c0caba20acfef0d2d18b968bcb76edde73b67172f0079d585c2a",
+        "score": 2.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts referencing 'what we've seen' and 'on Thursday, Friday' without context.",
+        "affirmed": false
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:33:30-05:00",
+        "seconds": 3.6,
+        "model_calls": 1,
+        "prompt_sha256": "f56dd43c77f4c0caba20acfef0d2d18b968bcb76edde73b67172f0079d585c2a",
+        "score": 2.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts referencing 'what we've seen' and 'on Thursday, Friday' without context.",
+        "affirmed": false
+       }
+      ]
+     },
+     "cached": {
+      "pin": null,
+      "alone": null
+     },
+     "prompt_sha256": {
+      "pin": "8d1b0483b149ac945a64432b7b22df29d6ba7e03a3df2aca324156e56b336894",
+      "alone": "f56dd43c77f4c0caba20acfef0d2d18b968bcb76edde73b67172f0079d585c2a"
+     },
+     "earlier_production_verdicts": []
+    },
+    {
+     "video": "13949b7c",
+     "role": "clip_02",
+     "pid_pin": "clip_02",
+     "pid_alone": "clip_01",
+     "channel": "Altcoin Daily",
+     "duration": 6.92,
+     "text": "I think treasury companies will also bleed to Bitcoin. I mean, basically, everything in the industry eventually bleeds to Bitcoin.",
+     "text_sha256": "8e86f22620e72f7a9d9d83c125758935b071ae9e23a35d2d916dcac7dce79ae4",
+     "text_chars": 130,
+     "text_cut_in_prompt": false,
+     "edl_text_same": true,
+     "source": {
+      "video_id": "HWuMai_mAug",
+      "start": 1691.139,
+      "end": 1698.069
+     },
+     "askings": {
+      "pin": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:08-05:00",
+        "seconds": 6.6,
+        "model_calls": 1,
+        "prompt_sha256": "8d1b0483b149ac945a64432b7b22df29d6ba7e03a3df2aca324156e56b336894",
+        "score": 3.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I think...' and refers to 'treasury companies' without context.",
+        "affirmed": false
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:30:49-05:00",
+        "seconds": 6.4,
+        "model_calls": 1,
+        "prompt_sha256": "8d1b0483b149ac945a64432b7b22df29d6ba7e03a3df2aca324156e56b336894",
+        "score": 3.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I think...', implying a previous statement or question about where money will flow.",
+        "affirmed": false
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:28-05:00",
+        "seconds": 6.0,
+        "model_calls": 1,
+        "prompt_sha256": "8d1b0483b149ac945a64432b7b22df29d6ba7e03a3df2aca324156e56b336894",
+        "score": 3.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'I think...', implying a previous statement or question about where money will flow.",
+        "affirmed": false
+       }
+      ],
+      "alone": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:30:12-05:00",
+        "seconds": 4.0,
+        "model_calls": 1,
+        "prompt_sha256": "9492e326c701ea4598c39b904880e95345b59ac10dbc51db5ad8999569c7e7ac",
+        "score": 2.0,
+        "fault": "starts_mid_thought",
+        "reason": "\u201cTreasury companies\u201d is introduced without context; the claim depends on knowing what 'bleed to Bitcoin' means in this context.",
+        "affirmed": false
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:31:53-05:00",
+        "seconds": 4.0,
+        "model_calls": 1,
+        "prompt_sha256": "9492e326c701ea4598c39b904880e95345b59ac10dbc51db5ad8999569c7e7ac",
+        "score": 2.0,
+        "fault": "starts_mid_thought",
+        "reason": "\u201cTreasury companies\u201d is introduced without context; the claim depends on knowing what 'bleed to Bitcoin' means in this context.",
+        "affirmed": false
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:33:34-05:00",
+        "seconds": 3.8,
+        "model_calls": 1,
+        "prompt_sha256": "9492e326c701ea4598c39b904880e95345b59ac10dbc51db5ad8999569c7e7ac",
+        "score": 2.0,
+        "fault": "starts_mid_thought",
+        "reason": "\u201cTreasury companies\u201d is introduced without context; the claim depends on knowing what 'bleed to Bitcoin' means in this context.",
+        "affirmed": false
+       }
+      ]
+     },
+     "cached": {
+      "pin": null,
+      "alone": null
+     },
+     "prompt_sha256": {
+      "pin": "8d1b0483b149ac945a64432b7b22df29d6ba7e03a3df2aca324156e56b336894",
+      "alone": "9492e326c701ea4598c39b904880e95345b59ac10dbc51db5ad8999569c7e7ac"
+     },
+     "earlier_production_verdicts": []
+    }
+   ]
+  },
+  {
+   "video": "3f481f5a",
+   "note": "the Blockware spotlight, frozen pin SPOTLIGHT_PIN_230148, run pinned_20261115_013448 (posted by PBX)",
+   "pin_file": "data/moments_pins/SPOTLIGHT_PIN_230148.json",
+   "pin_file_sha256": "b4ddd6da34388b1ab70b71e99e99347a9ee7301233c75dba08071bf86d468c27",
+   "seal": "3f481f5a6514157f7e3f1faa130d577edfe2e95d5c1bad7cc2882b8ef9bb5adc",
+   "edl_file": "runs/pinned_20261115_013448/edl.json",
+   "edl_file_sha256": "dc20f34837ca285ac2785f8b8eaa6f50270ee6c910e3c545982fec79490c3920",
+   "approved_by_in_pin": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
+   "clips": [
+    {
+     "video": "3f481f5a",
+     "role": "spotlight",
+     "pid_pin": "hook",
+     "pid_alone": "clip_01",
+     "channel": "Blockware Solutions",
+     "duration": 22.82,
+     "text": "On my 20th birthday, I sold every stock in my Roth IRA and put it all into Bitcoin. That ended up being one of the best financial decisions I've ever made, but not for the reason most people think. I'm 26 now, and I still don't use my Roth IRA. I don't have a 401k. I don't own a single share of any index fund, and I'm on pace to be financially independent by 45.",
+     "text_sha256": "ca5de3fcb61ede08803257a4f4807737e22f2969d1db6f600593a861fc0342af",
+     "text_chars": 364,
+     "text_cut_in_prompt": false,
+     "edl_text_same": true,
+     "source": {
+      "video_id": "7BqLu-wzbU0",
+      "start": 0.0,
+      "end": 22.94
+     },
+     "askings": {
+      "pin": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:29:11-05:00",
+        "seconds": 3.6,
+        "model_calls": 1,
+        "prompt_sha256": "10e92e43390c0b94d382bb4f364e177679534a05d059ccd356bc23b19f80751f",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'On my 20th birthday...' implying a prior context or story.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:30:53-05:00",
+        "seconds": 4.1,
+        "model_calls": 1,
+        "prompt_sha256": "10e92e43390c0b94d382bb4f364e177679534a05d059ccd356bc23b19f80751f",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'On my 20th birthday...' implying a prior context or story.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:32:32-05:00",
+        "seconds": 3.9,
+        "model_calls": 1,
+        "prompt_sha256": "10e92e43390c0b94d382bb4f364e177679534a05d059ccd356bc23b19f80751f",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'On my 20th birthday...' implying a prior context or story.",
+        "affirmed": true
+       }
+      ],
+      "alone": [
+       {
+        "round": 1,
+        "at": "2026-11-16T08:30:16-05:00",
+        "seconds": 4.2,
+        "model_calls": 1,
+        "prompt_sha256": "8faee7eaa44e90d169ac6bb8023e56e338b971a92ab9924b4ef93075670bcc83",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'On my 20th birthday...' implying a prior context of discussing financial decisions or life events.",
+        "affirmed": true
+       },
+       {
+        "round": 2,
+        "at": "2026-11-16T08:31:56-05:00",
+        "seconds": 3.6,
+        "model_calls": 1,
+        "prompt_sha256": "8faee7eaa44e90d169ac6bb8023e56e338b971a92ab9924b4ef93075670bcc83",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'On my 20th birthday...' implying a prior context of discussing financial decisions or life events.",
+        "affirmed": true
+       },
+       {
+        "round": 3,
+        "at": "2026-11-16T08:33:38-05:00",
+        "seconds": 3.9,
+        "model_calls": 1,
+        "prompt_sha256": "8faee7eaa44e90d169ac6bb8023e56e338b971a92ab9924b4ef93075670bcc83",
+        "score": 4.0,
+        "fault": "starts_mid_thought",
+        "reason": "Starts with 'On my 20th birthday...' implying a prior context of discussing financial decisions or life events.",
+        "affirmed": true
+       }
+      ]
+     },
+     "cached": {
+      "pin": null,
+      "alone": {
+       "score": 4.0,
+       "fault": "starts_mid_thought",
+       "reason": "Starts with 'On my 20th birthday...' implying a prior context of discussing financial decisions or life events.",
+       "affirmed": true
+      }
+     },
+     "prompt_sha256": {
+      "pin": "10e92e43390c0b94d382bb4f364e177679534a05d059ccd356bc23b19f80751f",
+      "alone": "8faee7eaa44e90d169ac6bb8023e56e338b971a92ab9924b4ef93075670bcc83"
+     },
+     "earlier_production_verdicts": [
+      {
+       "file": "06d34e155feae654ee56.ca5de3fcb61ede08.edd54964a5ab.json",
+       "kind": "moments",
+       "prompt": "ALONE_PROMPT (this bar)",
+       "event": null,
+       "duration": 22.94,
+       "score": 4.0,
+       "fault": "starts_mid_thought",
+       "affirmed": true,
+       "scorer_sha": "edd54964a5ab",
+       "at_utc": "2026-11-14T17:25:31Z"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "rounds_order": "round 1: every video in the pin shape, then every clip alone; rounds 2 and 3 the same",
+ "started": "2026-11-16T08:28:12-05:00",
+ "finished": "2026-11-16T08:33:41-05:00",
+ "summary": {
+  "pin": {
+   "clips": 17,
+   "affirmed_in_every_asking": 16,
+   "refused_in_some_asking": [
+    {
+     "video": "13949b7c",
+     "role": "clip_02",
+     "scores": [
+      3.0,
+      3.0,
+      3.0
+     ],
+     "faults": [
+      "starts_mid_thought",
+      "starts_mid_thought",
+      "starts_mid_thought"
+     ],
+     "affirmed": [
+      false,
+      false,
+      false
+     ],
+     "errors": 0,
+     "repeats": true
+    }
+   ],
+   "split_verdicts": [],
+   "same_score_and_fault_in_all_three": 17,
+   "lowest_score_of_an_approved_clip": 3.0
+  },
+  "alone": {
+   "clips": 17,
+   "affirmed_in_every_asking": 11,
+   "refused_in_some_asking": [
+    {
+     "video": "preview",
+     "role": "clip_01",
+     "scores": [
+      2.0,
+      2.0,
+      2.0
+     ],
+     "faults": [
+      "starts_mid_thought",
+      "starts_mid_thought",
+      "starts_mid_thought"
+     ],
+     "affirmed": [
+      false,
+      false,
+      false
+     ],
+     "errors": 0,
+     "repeats": true
+    },
+    {
+     "video": "preview",
+     "role": "clip_02",
+     "scores": [
+      2.0,
+      2.0,
+      2.0
+     ],
+     "faults": [
+      "starts_mid_thought",
+      "starts_mid_thought",
+      "starts_mid_thought"
+     ],
+     "affirmed": [
+      false,
+      false,
+      false
+     ],
+     "errors": 0,
+     "repeats": true
+    },
+    {
+     "video": "41f29b1f",
+     "role": "clip_01",
+     "scores": [
+      3.0,
+      3.0,
+      3.0
+     ],
+     "faults": [
+      "starts_mid_thought",
+      "starts_mid_thought",
+      "starts_mid_thought"
+     ],
+     "affirmed": [
+      false,
+      false,
+      false
+     ],
+     "errors": 0,
+     "repeats": true
+    },
+    {
+     "video": "41f29b1f",
+     "role": "clip_02",
+     "scores": [
+      3.0,
+      3.0,
+      3.0
+     ],
+     "faults": [
+      "starts_mid_thought",
+      "starts_mid_thought",
+      "starts_mid_thought"
+     ],
+     "affirmed": [
+      false,
+      false,
+      false
+     ],
+     "errors": 0,
+     "repeats": true
+    },
+    {
+     "video": "13949b7c",
+     "role": "clip_01",
+     "scores": [
+      2.0,
+      2.0,
+      2.0
+     ],
+     "faults": [
+      "starts_mid_thought",
+      "starts_mid_thought",
+      "starts_mid_thought"
+     ],
+     "affirmed": [
+      false,
+      false,
+      false
+     ],
+     "errors": 0,
+     "repeats": true
+    },
+    {
+     "video": "13949b7c",
+     "role": "clip_02",
+     "scores": [
+      2.0,
+      2.0,
+      2.0
+     ],
+     "faults": [
+      "starts_mid_thought",
+      "starts_mid_thought",
+      "starts_mid_thought"
+     ],
+     "affirmed": [
+      false,
+      false,
+      false
+     ],
+     "errors": 0,
+     "repeats": true
+    }
+   ],
+   "split_verdicts": [],
+   "same_score_and_fault_in_all_three": 17,
+   "lowest_score_of_an_approved_clip": 2.0
+  }
+ },
+ "earlier_production_verdicts_note": "from data/stand_alone_scorer/results, matched by the text's sha256: kind 'story' entries were asked the story prompt with the video's event (scorer f19aab6cc5cc, Nov 13) and are not this bar; kind 'moments' entries are"
+}

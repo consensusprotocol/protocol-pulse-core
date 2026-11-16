@@ -6,6 +6,57 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 08:35 RULING 119 (1): THE STAND-ALONE SCORER ON PBX'S APPROVED CLIPS, THREE ASKINGS EACH. The scorer is unchanged production code, run on GPU0 08:28:12-08:33:41 ET at the builder's request. It repeats itself: every clip got the same score and fault in all three askings. The way the clips are asked decides the verdict.
+- **All of a video's clips in one asking** (the shape of a pin request and of the render's validate): 16 of 17 affirmed. The lowest score is 3.0, on 13949b7c clip_02.
+- **Each clip in its own asking** (the candidates path, which the builder's selection reads): 11 of 17 affirmed. The lowest score is 2.0. Refused:
+  - the protected preview's clip_01 and clip_02 (2.0);
+  - 41f29b1f clip_01 and clip_02 (3.0);
+  - 13949b7c clip_01 and clip_02 (2.0).
+
+No money (local model). Record: docs/audits/ruling119/APPROVED_CLIPS_SCORER.json.
+
+- **The request:** the builder pp-selectid asked at about 08:20 ET, quoting ruling 119 (1). Its STATE line of 08:27 says "the scorer's calibration on PBX's six approved videos (three askings each) is asked of the integrator, whose service holds GPU0". The six videos: the protected preview, 37c5b5f5, 41f29b1f, 0c68b589, 13949b7c, and the Blockware spotlight 3f481f5a.
+- **The scorer:**
+  - Code: main tree 7f2133c8, scorer_sha edd54964a5ab. `stand_alone.clip_scorer(None, llm=..., moments=True)` calls rate_alone (ALONE_PROMPT).
+  - Model: gemma3:27b, digest a418f5838eaf; temperature 0, seed 7, num_ctx 16384, max_tokens 1200.
+  - Affirmed = `stand_alone.affirmed(moments=True)`: the score is at least 3.5 (the fault is not read).
+  - GPU0 was taken under the lease, with the render's yield flag checked before every asking. Afterwards gemma3:27b was unloaded and GPU0 was back to 18 MiB.
+- **One departure from production:** the reply cache was off (the LocalLLM's digest unset after start). Otherwise askings 2 and 3 would have been answered from asking 1 without reaching the model.
+  - All 69 askings reached the model, one call each, with no retry.
+  - The cache held an earlier reply for one of the 34 prompts: the spotlight asked alone, 4.0, from the builder's candidate on Nov 14. The fresh askings gave the same.
+- **Inputs:**
+  - Text: each pin's approved_text. All 17 equal the approved run's EDL text, and none is longer than the prompt's 700-character cut.
+  - Channel: the pin's. Duration: the run's EDL span.
+  - The pins: the references' PIN.json for the preview, 37c5b5f5, 41f29b1f and 0c68b589; the frozen MOMENTS_PIN_LEDGER_215708 for 13949b7c and SPOTLIGHT_PIN_230148 for 3f481f5a. Each seal was checked against its EDL's moments_package_sha256.
+- **Per clip, all clips in one asking / each clip alone** (the same in all three askings; ✗ = refused):
+  - preview: hook 5 / 5; clip_01 5 / 2 ✗; clip_02 4 / 2 ✗; clip_03 4 / 4.
+  - 37c5b5f5: hook 5 / 5; clip_01 4 / 4; clip_02 5 / 5.
+  - 41f29b1f: hook 5 / 5; clip_01 4 / 3 ✗; clip_02 4 / 3 ✗.
+  - 0c68b589: hook 5 / 4; clip_01 4 / 4; clip_02 5 / 4.
+  - 13949b7c: hook 5 / 4; clip_01 4 / 2 ✗; clip_02 3 ✗ / 2 ✗.
+  - 3f481f5a: spotlight 4 / 4.
+- **Repeats:**
+  - Score and fault were identical in all three askings for all 34 clip-and-way combinations.
+  - The reason's wording changed in 7 answers, all from the all-clips asking, between asking 1 and askings 2-3. The scores and faults did not change.
+  - The same 61-character text (Natalie Brunell, 37c5b5f5 clip_02 and 41f29b1f's hook) scored 5.0 with fault none in both videos, asked both ways.
+- **What the gap looks like:** the preview's clip_01 opens "It went from above $81,000 ...".
+  - Alone, it scored 2.0: "'It' refers to something previously mentioned".
+  - Beside the hook that names Bitcoin, it scored 5.0.
+  - In 2 of the 6 refusals (41f29b1f clip_01 and clip_02, 3.0), the reason given is the opening word ("Starts with 'I mean'", "Starts with 'However'"). ALONE_PROMPT says an opening word alone is never a dependence.
+- **Not judged here:**
+  - Whether a floor should change. The builder proposes that with its DEFAULT IN 20 MIN.
+  - The preview is a story-path video: its own render asked the story prompt, with an event. Here it got the moments prompt, like the others.
+  - 13949b7c: my records hold no finished render and no PBX approval of it. Its only run held at prepare at 17:24 ET Nov 13, and ruling 76 withdrew the pin. The builder counts it among PBX's approved line-ups, so it was scored as the ruling lists it, and I told the builder.
+- **Earlier production verdicts on the same texts** (the scorer service's results store) are listed per clip in the record:
+  - 6 verdicts from the old STORY scorer (f19aab6cc5cc, Nov 13, with each video's event), on the delivered spans of 37c5b5f5 and 41f29b1f. That is a different prompt, not this bar.
+  - 1 moments entry: the spotlight, 4.0.
+- **Files** in docs/audits/ruling119/:
+  - APPROVED_CLIPS_SCORER.json: the record.
+  - ruling119_scorer.py: the run.
+  - ruling119_finish.py: adds the earlier verdicts and prints the table.
+  - run_log.txt.
+- **BATCH 4 integrator spend:** unchanged at $0.0176. This run cost $0 (local model).
+
 ## 06:33 CORRECTION to the 06:28 entry: the $0.5629 the restarted watchdog read was the builder's day-keeper error, not new spend. The day's outside dollars are $0.560616. The builder rewrote DAY118_LEDGER.json at 06:31:54 ET, and the watchdog's pass 6 (06:33:30 ET) read $0.5606. No change on our side. BATCH 4 integrator spend: $0.0176 (Heimdall, not capped).
 - **The builder's account (06:3x ET):** its keeper counted the unreported estimate of a Heimdall-only ledger (the panel replay's abandoned Heimdall call) as outside. A Heimdall-only ledger's estimate is now Heimdall's; the build ledger, which mixes vendors, still counts whole as outside, as its guard does.
 - **The watchdog read the record correctly both times:** $0.5629 at 06:28, $0.5606 at 06:33. The 06:28 entry's figure stands as what the record said then, not as the day's spend. The builder records our $0.0176 under heimdall_free.others.integrator.

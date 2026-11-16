@@ -1,0 +1,238 @@
+2026-11-16T08:28:12-05:00 GPU0 lease held
+2026-11-16T08:28:43-05:00 r1 pin   preview   30.6s calls 1: hook 5.0 none; clip_01 5.0 none; clip_02 4.0 starts_mid_thought; clip_03 4.0 starts_mid_thought
+2026-11-16T08:28:49-05:00 r1 pin   37c5b5f5   5.8s calls 1: hook 5.0 none; clip_01 4.0 starts_mid_thought; clip_02 5.0 none
+2026-11-16T08:28:55-05:00 r1 pin   41f29b1f   6.3s calls 1: hook 5.0 none; clip_01 4.0 starts_mid_thought; clip_02 4.0 starts_mid_thought
+2026-11-16T08:29:01-05:00 r1 pin   0c68b589   6.2s calls 1: hook 5.0 none; clip_01 4.0 starts_mid_thought; clip_02 5.0 none
+2026-11-16T08:29:08-05:00 r1 pin   13949b7c   6.6s calls 1: hook 5.0 none; clip_01 4.0 starts_mid_thought; clip_02 3.0 starts_mid_thought
+2026-11-16T08:29:11-05:00 r1 pin   3f481f5a   3.6s calls 1: spotlight 4.0 starts_mid_thought
+2026-11-16T08:29:15-05:00 r1 alone preview    3.4s calls 1: hook 5.0 none
+2026-11-16T08:29:19-05:00 r1 alone preview    3.9s calls 1: clip_01 2.0 starts_mid_thought
+2026-11-16T08:29:23-05:00 r1 alone preview    4.4s calls 1: clip_02 2.0 starts_mid_thought
+2026-11-16T08:29:27-05:00 r1 alone preview    3.8s calls 1: clip_03 4.0 starts_mid_thought
+2026-11-16T08:29:31-05:00 r1 alone 37c5b5f5   3.7s calls 1: hook 5.0 none
+2026-11-16T08:29:34-05:00 r1 alone 37c5b5f5   3.8s calls 1: clip_01 4.0 starts_mid_thought
+2026-11-16T08:29:38-05:00 r1 alone 37c5b5f5   3.4s calls 1: clip_02 5.0 none
+2026-11-16T08:29:41-05:00 r1 alone 41f29b1f   3.6s calls 1: hook 5.0 none
+2026-11-16T08:29:45-05:00 r1 alone 41f29b1f   4.1s calls 1: clip_01 3.0 starts_mid_thought
+2026-11-16T08:29:49-05:00 r1 alone 41f29b1f   3.8s calls 1: clip_02 3.0 starts_mid_thought
+2026-11-16T08:29:53-05:00 r1 alone 0c68b589   3.6s calls 1: hook 4.0 starts_mid_thought
+2026-11-16T08:29:56-05:00 r1 alone 0c68b589   3.5s calls 1: clip_01 4.0 starts_mid_thought
+2026-11-16T08:30:00-05:00 r1 alone 0c68b589   3.6s calls 1: clip_02 4.0 starts_mid_thought
+2026-11-16T08:30:04-05:00 r1 alone 13949b7c   4.3s calls 1: hook 4.0 starts_mid_thought
+2026-11-16T08:30:08-05:00 r1 alone 13949b7c   3.9s calls 1: clip_01 2.0 starts_mid_thought
+2026-11-16T08:30:12-05:00 r1 alone 13949b7c   4.0s calls 1: clip_02 2.0 starts_mid_thought
+2026-11-16T08:30:16-05:00 r1 alone 3f481f5a   4.2s calls 1: spotlight 4.0 starts_mid_thought
+2026-11-16T08:30:24-05:00 r2 pin   preview    8.0s calls 1: hook 5.0 none; clip_01 5.0 none; clip_02 4.0 starts_mid_thought; clip_03 4.0 starts_mid_thought
+2026-11-16T08:30:30-05:00 r2 pin   37c5b5f5   5.6s calls 1: hook 5.0 none; clip_01 4.0 starts_mid_thought; clip_02 5.0 none
+2026-11-16T08:30:36-05:00 r2 pin   41f29b1f   5.9s calls 1: hook 5.0 none; clip_01 4.0 starts_mid_thought; clip_02 4.0 starts_mid_thought
+2026-11-16T08:30:42-05:00 r2 pin   0c68b589   6.1s calls 1: hook 5.0 none; clip_01 4.0 starts_mid_thought; clip_02 5.0 none
+2026-11-16T08:30:49-05:00 r2 pin   13949b7c   6.4s calls 1: hook 5.0 none; clip_01 4.0 starts_mid_thought; clip_02 3.0 starts_mid_thought
+2026-11-16T08:30:53-05:00 r2 pin   3f481f5a   4.1s calls 1: spotlight 4.0 starts_mid_thought
+2026-11-16T08:30:56-05:00 r2 alone preview    3.5s calls 1: hook 5.0 none
+2026-11-16T08:31:00-05:00 r2 alone preview    3.9s calls 1: clip_01 2.0 starts_mid_thought
+2026-11-16T08:31:04-05:00 r2 alone preview    4.1s calls 1: clip_02 2.0 starts_mid_thought
+2026-11-16T08:31:08-05:00 r2 alone preview    3.6s calls 1: clip_03 4.0 starts_mid_thought
+2026-11-16T08:31:11-05:00 r2 alone 37c5b5f5   3.4s calls 1: hook 5.0 none
+2026-11-16T08:31:15-05:00 r2 alone 37c5b5f5   3.9s calls 1: clip_01 4.0 starts_mid_thought
+2026-11-16T08:31:18-05:00 r2 alone 37c5b5f5   3.2s calls 1: clip_02 5.0 none
+2026-11-16T08:31:22-05:00 r2 alone 41f29b1f   3.4s calls 1: hook 5.0 none
+2026-11-16T08:31:26-05:00 r2 alone 41f29b1f   4.1s calls 1: clip_01 3.0 starts_mid_thought
+2026-11-16T08:31:30-05:00 r2 alone 41f29b1f   4.1s calls 1: clip_02 3.0 starts_mid_thought
+2026-11-16T08:31:33-05:00 r2 alone 0c68b589   3.4s calls 1: hook 4.0 starts_mid_thought
+2026-11-16T08:31:37-05:00 r2 alone 0c68b589   3.9s calls 1: clip_01 4.0 starts_mid_thought
+2026-11-16T08:31:41-05:00 r2 alone 0c68b589   3.9s calls 1: clip_02 4.0 starts_mid_thought
+2026-11-16T08:31:45-05:00 r2 alone 13949b7c   3.6s calls 1: hook 4.0 starts_mid_thought
+2026-11-16T08:31:49-05:00 r2 alone 13949b7c   3.7s calls 1: clip_01 2.0 starts_mid_thought
+2026-11-16T08:31:53-05:00 r2 alone 13949b7c   4.0s calls 1: clip_02 2.0 starts_mid_thought
+2026-11-16T08:31:56-05:00 r2 alone 3f481f5a   3.6s calls 1: spotlight 4.0 starts_mid_thought
+2026-11-16T08:32:04-05:00 r3 pin   preview    8.0s calls 1: hook 5.0 none; clip_01 5.0 none; clip_02 4.0 starts_mid_thought; clip_03 4.0 starts_mid_thought
+2026-11-16T08:32:10-05:00 r3 pin   37c5b5f5   5.6s calls 1: hook 5.0 none; clip_01 4.0 starts_mid_thought; clip_02 5.0 none
+2026-11-16T08:32:16-05:00 r3 pin   41f29b1f   6.3s calls 1: hook 5.0 none; clip_01 4.0 starts_mid_thought; clip_02 4.0 starts_mid_thought
+2026-11-16T08:32:22-05:00 r3 pin   0c68b589   5.9s calls 1: hook 5.0 none; clip_01 4.0 starts_mid_thought; clip_02 5.0 none
+2026-11-16T08:32:28-05:00 r3 pin   13949b7c   6.0s calls 1: hook 5.0 none; clip_01 4.0 starts_mid_thought; clip_02 3.0 starts_mid_thought
+2026-11-16T08:32:32-05:00 r3 pin   3f481f5a   3.9s calls 1: spotlight 4.0 starts_mid_thought
+2026-11-16T08:32:36-05:00 r3 alone preview    3.7s calls 1: hook 5.0 none
+2026-11-16T08:32:40-05:00 r3 alone preview    3.9s calls 1: clip_01 2.0 starts_mid_thought
+2026-11-16T08:32:44-05:00 r3 alone preview    4.3s calls 1: clip_02 2.0 starts_mid_thought
+2026-11-16T08:32:48-05:00 r3 alone preview    3.9s calls 1: clip_03 4.0 starts_mid_thought
+2026-11-16T08:32:51-05:00 r3 alone 37c5b5f5   3.5s calls 1: hook 5.0 none
+2026-11-16T08:32:55-05:00 r3 alone 37c5b5f5   3.7s calls 1: clip_01 4.0 starts_mid_thought
+2026-11-16T08:32:59-05:00 r3 alone 37c5b5f5   4.1s calls 1: clip_02 5.0 none
+2026-11-16T08:33:03-05:00 r3 alone 41f29b1f   3.9s calls 1: hook 5.0 none
+2026-11-16T08:33:08-05:00 r3 alone 41f29b1f   4.3s calls 1: clip_01 3.0 starts_mid_thought
+2026-11-16T08:33:11-05:00 r3 alone 41f29b1f   3.6s calls 1: clip_02 3.0 starts_mid_thought
+2026-11-16T08:33:15-05:00 r3 alone 0c68b589   4.2s calls 1: hook 4.0 starts_mid_thought
+2026-11-16T08:33:19-05:00 r3 alone 0c68b589   3.7s calls 1: clip_01 4.0 starts_mid_thought
+2026-11-16T08:33:23-05:00 r3 alone 0c68b589   3.9s calls 1: clip_02 4.0 starts_mid_thought
+2026-11-16T08:33:27-05:00 r3 alone 13949b7c   3.7s calls 1: hook 4.0 starts_mid_thought
+2026-11-16T08:33:30-05:00 r3 alone 13949b7c   3.6s calls 1: clip_01 2.0 starts_mid_thought
+2026-11-16T08:33:34-05:00 r3 alone 13949b7c   3.8s calls 1: clip_02 2.0 starts_mid_thought
+2026-11-16T08:33:38-05:00 r3 alone 3f481f5a   3.9s calls 1: spotlight 4.0 starts_mid_thought
+2026-11-16T08:33:41-05:00 GPU0 released: unloaded ['ollama:gemma3:27b']
+{
+ "pin": {
+  "clips": 17,
+  "affirmed_in_every_asking": 16,
+  "refused_in_some_asking": [
+   {
+    "video": "13949b7c",
+    "role": "clip_02",
+    "scores": [
+     3.0,
+     3.0,
+     3.0
+    ],
+    "faults": [
+     "starts_mid_thought",
+     "starts_mid_thought",
+     "starts_mid_thought"
+    ],
+    "affirmed": [
+     false,
+     false,
+     false
+    ],
+    "errors": 0,
+    "repeats": true
+   }
+  ],
+  "split_verdicts": [],
+  "same_score_and_fault_in_all_three": 17,
+  "lowest_score_of_an_approved_clip": 3.0
+ },
+ "alone": {
+  "clips": 17,
+  "affirmed_in_every_asking": 11,
+  "refused_in_some_asking": [
+   {
+    "video": "preview",
+    "role": "clip_01",
+    "scores": [
+     2.0,
+     2.0,
+     2.0
+    ],
+    "faults": [
+     "starts_mid_thought",
+     "starts_mid_thought",
+     "starts_mid_thought"
+    ],
+    "affirmed": [
+     false,
+     false,
+     false
+    ],
+    "errors": 0,
+    "repeats": true
+   },
+   {
+    "video": "preview",
+    "role": "clip_02",
+    "scores": [
+     2.0,
+     2.0,
+     2.0
+    ],
+    "faults": [
+     "starts_mid_thought",
+     "starts_mid_thought",
+     "starts_mid_thought"
+    ],
+    "affirmed": [
+     false,
+     false,
+     false
+    ],
+    "errors": 0,
+    "repeats": true
+   },
+   {
+    "video": "41f29b1f",
+    "role": "clip_01",
+    "scores": [
+     3.0,
+     3.0,
+     3.0
+    ],
+    "faults": [
+     "starts_mid_thought",
+     "starts_mid_thought",
+     "starts_mid_thought"
+    ],
+    "affirmed": [
+     false,
+     false,
+     false
+    ],
+    "errors": 0,
+    "repeats": true
+   },
+   {
+    "video": "41f29b1f",
+    "role": "clip_02",
+    "scores": [
+     3.0,
+     3.0,
+     3.0
+    ],
+    "faults": [
+     "starts_mid_thought",
+     "starts_mid_thought",
+     "starts_mid_thought"
+    ],
+    "affirmed": [
+     false,
+     false,
+     false
+    ],
+    "errors": 0,
+    "repeats": true
+   },
+   {
+    "video": "13949b7c",
+    "role": "clip_01",
+    "scores": [
+     2.0,
+     2.0,
+     2.0
+    ],
+    "faults": [
+     "starts_mid_thought",
+     "starts_mid_thought",
+     "starts_mid_thought"
+    ],
+    "affirmed": [
+     false,
+     false,
+     false
+    ],
+    "errors": 0,
+    "repeats": true
+   },
+   {
+    "video": "13949b7c",
+    "role": "clip_02",
+    "scores": [
+     2.0,
+     2.0,
+     2.0
+    ],
+    "faults": [
+     "starts_mid_thought",
+     "starts_mid_thought",
+     "starts_mid_thought"
+    ],
+    "affirmed": [
+     false,
+     false,
+     false
+    ],
+    "errors": 0,
+    "repeats": true
+   }
+  ],
+  "split_verdicts": [],
+  "same_score_and_fault_in_all_three": 17,
+  "lowest_score_of_an_approved_clip": 2.0
+ }
+}
