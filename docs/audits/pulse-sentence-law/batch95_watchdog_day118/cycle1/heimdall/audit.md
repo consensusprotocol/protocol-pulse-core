@@ -1,0 +1,21 @@
+# Heimdall audit
+
+**Question:** Batch 95 = the integrator's audit of a change to tools/session_watchdog.py (the read-only session watchdog live since 06:08 ET Nov 16, orchestrator order 05:55 ET) and its tests: check (6) SPEND now reads the right record.
+THE ORDER, (6): "SPEND: outside-vendor dollars today (read the builder's own spend record, read-only) at 80 % and at 100 % of the $1.00 day cap of ruling 118."
+THE DEFECT: the watchdog read the builder's batch ledger BATCH4_LEDGER.json field all_in. The builder (pp-selectid, 06:2x ET) stopped keeping that figure at ruling 118; it stays at $0.5606 whatever is spent, so (6) could never fire. The builder named its ruling 118 day record instead: tests/package/proof/DAY118_LEDGER.json, {"ruling": "118, orchestrator 05:40 ET Nov 16", "day": ["2026-11-15T21:10:00-05:00", "2026-11-16T21:10:00-05:00"], "ledger": "SPEND_B4.json", "cap": 1.0, "outside": 0.560616, "parts_outside": {...}, "heimdall_free": {...}}. "outside" is the day's all-in outside-vendor dollars, the figure its day-cap guard enforces. The builder's keeper rewrites the record after every build; between 21:10 ET and the builder's first line of a new day the file still holds the OLD day, so a reader must check that "day" holds now before it reads "outside".
+THE CHANGE (the diff): _aware(s) parses an ISO time and refuses one without a UTC offset (never read as local time). day_spend(path, now) reads the record and returns ((usd, window), None) only when "day" is two offset times whose window holds now and spans at most a day (+60 s) and "outside" is an int or float (not a bool), finite; otherwise (None, why), and the status says why. PATHS["spend"] points at DAY118_LEDGER.json. spend_findings, dispatch and the once-per-level-per-window rule are unchanged (spend_findings keys its memory on the window string, which now names the day record and its day). The docstring says the batch ledger is never read.
+TESTS (pipeline/test_session_watchdog.py, TestSpend rewritten on the day record): 80 % then 100 %, each said once in the window; straight to 100 % says 100 % only; a frozen BATCH4_LEDGER.json at $5.00 is never read; an old day, a 3-day window, times without offset, a null day, a missing "outside", "0.9" as a string, true, NaN, a missing file: no figure, readable false, the reason in the status. On the merged reader (77081ec1) 12 of these tests and subtests fail. Four mutations each fail a test after a passing control (the holds-now check removed; the one-day limit removed; a time without offset accepted; a non-number accepted).
+FIND, verifying only from the diff and the facts above: (a) any path by which (6) reports a figure that is not the builder's "outside" for the day holding now (an old day's figure, a misread time, a non-number); (b) any way the change makes the watchdog's pass fail, stop writing its status, or say a SPEND level twice in one day window; (c) anything else the diff changes. Reply with the JSON verdict; keep the reasoning short; at most 3 findings, each with file:line and a concrete failure.
+
+**Panel:** qwen27b, glm  |  **Cost:** $0.0035
+## Consensus findings (majority of panel agrees)
+- **[low] tools/session_watchdog.py:391** The 'day' window's end is exclusive and the start inclusive, so at exactly 21:10:00 ET the old day's record stops holding and the new day's figure is only available after the builder's first line of the new day; between those two moments (6) reports no figure. This is the documented, intended behavior ('Between 21:10 and the builder's first line of a new day the record still holds the old day: then today has no figure'), not a defect, but it is the one path where (6) reports no figure at all.
+  - evidence: `if not t0 <= now < t1:`
+  - fix: None needed; behavior is documented and the status says why.
+  - raised by glm:F1; agree: qwen27b, glm
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none

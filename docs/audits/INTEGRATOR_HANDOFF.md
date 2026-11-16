@@ -22,7 +22,7 @@ line says PASS path (with the Telegram ids) or HOLD (stage, row, measured facts)
      scratchpad, putting the old file back, and running them.
   3. Run TWO audit cycles and implement the consensus (commands below). Record each cycle in
      `docs/audits/pulse-sentence-law/batchNN_<name>/cycle{1,2}/`: QUESTION.txt, STEP.diff, CONSENSUS.md, heimdall/.
-     The last batch is **94** (the session watchdog, tools/session_watchdog.py, orchestrator order 05:55 ET Nov 16; 93 the release caption's ruling 116 line-up bar line under ruling 115 (2)'s, 2026-11-15; 92 the hook bar line; 91 the transcript ingest's Whisper pass under the GPU0 lease; 90 the word-pass worker survives a busy GPU1 lease; 89 the pp-backtest merge; 88 the review texts name the spotlight kind; 85 the format-aware release, 86 the 16:9-only render, 87 the review drop's withhold / points; 81-83 the spotlight gate, alarm and readiness; 84 ruling 105).
+     The last batch is **95** (the watchdog's SPEND reads the builder's DAY118_LEDGER.json, Nov 16; 94 the session watchdog, tools/session_watchdog.py, orchestrator order 05:55 ET Nov 16; 93 the release caption's ruling 116 line-up bar line under ruling 115 (2)'s, 2026-11-15; 92 the hook bar line; 91 the transcript ingest's Whisper pass under the GPU0 lease; 90 the word-pass worker survives a busy GPU1 lease; 89 the pp-backtest merge; 88 the review texts name the spotlight kind; 85 the format-aware release, 86 the 16:9-only render, 87 the review drop's withhold / points; 81-83 the spotlight gate, alarm and readiness; 84 ruling 105).
   4. On main, stage it: `git merge --no-commit --no-ff <branch>`.
   5. Run `bash regression_test.sh` (0 FAIL) and `bash pipeline/regression.sh` (exit 0: every protected reference
      reproduced) ON THE STAGED MERGE. Worktrees lack untracked assets, so run them on main.
@@ -201,7 +201,7 @@ No session waits on the orchestrator. Standing, for all three sessions:
   - Every 5 min it writes `/tmp/session_watchdog_status.json` (what the orchestrator reads) and `logs/session_watchdog.log` (one line per finding, a pass line). Its tracking is in `/tmp/session_watchdog_state.json`.
   - Its Telegram lines ('WATCHDOG <session>: ...') go only through `telegram.send_watchdog`: one per session per hour; 00:00-07:00 ET only IDLE_WITH_WORK and SPEND. They are logged in `data/pulse_check/watchdog_lines.jsonl`.
   - A claude pane keeps no tmux scrollback (alternate screen), so the watchdog sees each pane's visible 50 lines per pass and gathers a turn pass by pass. A pane with no input box on screen is not judged, and the pass line names it.
-  - SPEND reads the builder's `tests/package/proof/BATCH*_LEDGER.json` (`all_in`, the window holding now, at most a day). When the builder's day-cap guard (ruling 118) writes its own day record, point `day_spend` at it.
+  - SPEND reads the builder's ruling 118 day record `tests/package/proof/DAY118_LEDGER.json`, field `outside` (the figure its day-cap guard enforces), only while its `day` window [start, end] holds now (batch 95; the batch ledger's `all_in` stopped at ruling 118 and is never read). From 21:10 ET until the builder's first STATE line of a new day there is no figure, and the status says why. If the builder moves the day (midnight to midnight is asked), nothing changes here: the record carries its window.
 
 - **Pre-check** (ruling 68 + 72 + 73 + 84), tmux `pipeline_pp_lockcheck`.
   - It runs as a ONCE-LOOP, so no CUDA context stays resident (E-FAIL-084):

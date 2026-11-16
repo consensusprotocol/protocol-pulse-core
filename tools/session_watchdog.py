@@ -29,9 +29,10 @@ status and the pass line name it (input_box false), so a UI change cannot blind 
       build of the builder (a tests/package/proof/ledger_* dir) followed;
     - pipeline_pp_wordpass or pipeline_pp_ingest_watch missing;
     - the word pass: its log silent for 30 min (no cycle) with rows waiting (what its own pick() would take now).
-(6) SPEND: the builder's own outside-vendor dollars for the day that holds now (its BATCH*_LEDGER.json 'all_in', capped
-    'outside vendors', a window of at most a day; read only) at 80 % and at 100 % of ruling 118's $1.00 day cap: one
-    line per level per day.
+(6) SPEND: the builder's own outside-vendor dollars today: its ruling 118 day record, tests/package/proof/
+    DAY118_LEDGER.json, field "outside" (the figure its day-cap guard enforces), for its "day" window [start, end]
+    when that holds now (read only; the builder, 06:2x ET Nov 16), at 80 % and at 100 % of ruling 118's $1.00 day cap:
+    one line per level per day. Its batch ledger's 'all_in' is no longer kept since ruling 118 and is never read.
 Each finding: one line in logs/session_watchdog.log; every pass's view and findings in /tmp/session_watchdog_status.json;
 ONE Telegram line per session per hour, headed 'WATCHDOG' (telegram.send_watchdog holds the hour and the night,
 00:00-07:00 ET, when only (4) and (6) go). A missing session, a failing read or any error of its own is logged and
@@ -41,6 +42,7 @@ import datetime as dt
 import glob
 import hashlib
 import json
+import math
 import os
 import re
 import subprocess
@@ -76,7 +78,7 @@ PATHS = {
     "state": "/tmp/session_watchdog_state.json",
     "moment_ledger": os.path.join(INGEST_ROOT, "data", "editorial", "moments", "moment_ledger.jsonl"),
     "builds": os.path.join(BUILDER_ROOT, "tests", "package", "proof", "ledger_*"),
-    "spend": os.path.join(BUILDER_ROOT, "tests", "package", "proof", "BATCH*_LEDGER.json"),
+    "spend": os.path.join(BUILDER_ROOT, "tests", "package", "proof", "DAY118_LEDGER.json"),
     "wordpass_log": os.path.join(REPO, "logs", "word_pass_worker.log"),
 }
 
@@ -374,37 +376,34 @@ def idle_with_work(sessions, panes, state, now, paths, waiting=rows_waiting):
     return out
 
 
-def _et_stamp(s):
-    """'2026-11-15T21:10 ET' -> epoch."""
-    s = str(s).strip()
-    if not s.endswith(" ET"):
-        raise ValueError(f"not an ET time: {s!r}")
-    return dt.datetime.fromisoformat(s[:-3]).replace(tzinfo=ET).timestamp()
+def _aware(s):
+    """An ISO time WITH its offset -> epoch (a time without one is refused: never read as local)."""
+    t = dt.datetime.fromisoformat(str(s))
+    if t.tzinfo is None:
+        raise ValueError(f"no UTC offset in {s!r}")
+    return t.timestamp()
 
 
-def day_spend(pattern, now):
-    """((usd, window), None) from the builder's batch ledger whose window holds now, spans at most a day and caps
-    outside vendors; else (None, why)."""
-    found, seen = None, []
-    for path in sorted(glob.glob(pattern)):
-        try:
-            with open(path) as f:
-                d = json.load(f)
-            t0, t1, usd = _et_stamp(d["from"]), _et_stamp(d["to"]), float(d["all_in"])
-        except (OSError, ValueError, KeyError, TypeError) as e:
-            seen.append(f"{os.path.basename(path)}: {type(e).__name__}")
-            continue
-        if "outside" not in str(d.get("capped", "")).lower():
-            seen.append(f"{os.path.basename(path)}: not an outside-vendor ledger")
-        elif not t0 <= now < t1:
-            seen.append(f"{os.path.basename(path)}: its window does not hold now")
-        elif t1 - t0 > 86400 + 60:
-            seen.append(f"{os.path.basename(path)}: its window is longer than a day")
-        else:
-            found = (usd, f"{os.path.basename(path)} {d['from']} to {d['to']}")
-    if found:
-        return found, None
-    return None, "no batch ledger of the builder gives today's outside dollars" + (f" ({'; '.join(seen)})" if seen else "")
+def day_spend(path, now):
+    """((usd, window), None) from the builder's ruling 118 day record (read only): "outside", the day's all-in
+    outside-vendor dollars (the figure its guard enforces), for its "day" [start, end] when that window holds now and
+    spans at most a day; else (None, why). Between 21:10 and the builder's first STATE line of a new day the record
+    still holds the old day: then today has no figure (said in the status), never the old day's."""
+    try:
+        with open(path) as f:
+            d = json.load(f)
+        t0, t1 = (_aware(x) for x in d["day"])
+        usd = d["outside"]
+        if isinstance(usd, bool) or not isinstance(usd, (int, float)) or not math.isfinite(usd):
+            raise TypeError(f"outside is {usd!r}, not a number of dollars")
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        return None, f"the builder's day record {os.path.basename(path)} is unreadable ({type(e).__name__}: {e})"
+    window = f"{os.path.basename(path)} {d['day'][0]} to {d['day'][1]}"
+    if not t0 <= now < t1:
+        return None, f"the builder's day record holds {window}, not now (its first line of a new day rewrites it)"
+    if t1 - t0 > 86400 + 60:
+        return None, f"the builder's day record spans more than a day ({window})"
+    return (float(usd), window), None
 
 
 def spend_findings(state, now, paths):
