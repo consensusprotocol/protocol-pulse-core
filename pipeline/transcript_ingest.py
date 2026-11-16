@@ -59,7 +59,9 @@ def editorial_channels():
 
 
 def universe(hours, channels=None):
-    """Recent non-Short uploads from every editorial channel: list of dicts with rss + channel."""
+    """Recent non-Short uploads from every editorial channel: list of dicts with rss + channel. An entry older than
+    the window by its RSS time stays in when the store holds it as a stream that aired inside the window
+    (transcript_store.stream_start; pp-ingest R14, INGEST-FAIL-03); its age_h is then the stream's."""
     channels = channels or editorial_channels()
     now = datetime.now(timezone.utc)
 
@@ -70,6 +72,10 @@ def universe(hours, channels=None):
             if p is None or "/shorts/" in v.get("url", ""):
                 continue
             age = (now - p).total_seconds() / 3600
+            if age > hours:                              # pp-ingest R14: a stream is dated by when it aired; its RSS
+                start = ts.stream_start(v["video_id"])   # time is when it was scheduled, days before
+                if start is not None:
+                    age = (now - start).total_seconds() / 3600
             if 0 <= age <= hours:
                 out.append({"video_id": v["video_id"], "rss": {"title": v["title"],
                             "published": v["published"]}, "channel": c, "age_h": round(age, 1)})

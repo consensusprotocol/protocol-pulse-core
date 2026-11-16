@@ -118,6 +118,16 @@ def _ytdlp(args, timeout=120):
     return subprocess.run(cmd + args, capture_output=True, text=True, timeout=timeout)
 
 
+def _release_iso(x):
+    """yt-dlp's release_timestamp (epoch seconds: when a stream or premiere starts) as ISO UTC, else None."""
+    if isinstance(x, bool) or not isinstance(x, (int, float)):
+        return None
+    try:
+        return datetime.fromtimestamp(x, timezone.utc).isoformat()
+    except (OverflowError, OSError, ValueError):
+        return None
+
+
 def _fetch_meta(video_id, rss=None, channel=None, step="meta"):
     """A metadata snapshot read from YouTube now (yt-dlp -J). AcquisitionError (logged) when it cannot be read: a
     hung or missing yt-dlp too (Heimdall batch 98 C1, qwen: a TimeoutExpired is not an AcquisitionError, and the
@@ -145,6 +155,7 @@ def _fetch_meta(video_id, rss=None, channel=None, step="meta"):
             datetime.fromtimestamp(j["timestamp"], timezone.utc).isoformat() if j.get("timestamp") else None),
         "published_at_source": "youtube_rss" if (rss or {}).get("published") else "yt-dlp timestamp",
         "duration": j.get("duration"), "live_status": j.get("live_status"),
+        "release_timestamp": _release_iso(j.get("release_timestamp")),       # a stream's start (pp-ingest R14)
         "description": (j.get("description") or "")[:4000],
         "captions_manual": sorted((j.get("subtitles") or {}).keys()),
         "captions_auto_en": sorted(k for k in (j.get("automatic_captions") or {}) if k in ("en", "en-orig")),
@@ -181,6 +192,28 @@ def _newest_meta(video_id):
                 if at is not None and (best is None or at >= best):
                     meta, best = snap, at
     return meta
+
+
+def stream_start(video_id):
+    """When a stored stream AIRED, or None (no record, not a stream, or no time known). pp-ingest R14
+    (INGEST-FAIL-03): a scheduled stream's RSS time is when it was SCHEDULED, days before it airs, so a window on
+    the RSS time drops it as it airs.
+    - The newest snapshot's release_timestamp (the stream's start) when it names one and its live_status says stream.
+    - A snapshot read while the stream was not yet finished (is_live / is_upcoming / post_live) that names no start
+      (one read before the field was kept): the time of that read.
+    - Anything unreadable gives None, never an error: the caller's own date stands."""
+    try:
+        m = _newest_meta(video_id)
+    except (OSError, ValueError, TypeError):
+        return None
+    if not isinstance(m, dict) or m.get("live_status") not in LIVE_STATES + ("was_live",):
+        return None
+    for field in ("release_timestamp",) + (("metadata_fetched_at",) if m.get("live_status") in LIVE_STATES else ()):
+        try:
+            return datetime.fromisoformat(m.get(field))
+        except (TypeError, ValueError):
+            continue
+    return None
 
 
 def ensure_meta(video_id, rss=None, channel=None):
