@@ -6,6 +6,31 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 06:28 SESSION WATCHDOG: (6) SPEND NOW READS THE FIGURE THE BUILDER'S GUARD ENFORCES (batch 95, 836ef4fb). The live watchdog read the builder's batch ledger all_in. The builder stopped keeping that figure at ruling 118, and it stays at $0.5606 whatever is spent, so (6) could never have fired. The watchdog now reads DAY118_LEDGER.json's "outside" for the day that holds now; restarted at 06:28 ET, its pass 5 read $0.5629 of $1.00. Audits batch 95, two cycles, one documented point, no change. Both regressions green. BATCH 4 integrator spend: $0.0176 (Heimdall, not capped).
+- **The source:** named by the builder at 06:2x ET: tests/package/proof/DAY118_LEDGER.json, rewritten after every build.
+  - "outside" is the day's all-in outside-vendor dollars, the figure its day-cap guard enforces.
+  - "day" is [start, end] with UTC offsets, 21:10 ET to 21:10 ET.
+- **The reader (day_spend):**
+  - It takes "outside" only when "day" is two times with offsets, its window holds now and spans at most a day, and "outside" is a finite number (not a bool or a string).
+  - Otherwise there is no figure, and the status says why. Between 21:10 ET and the builder's first STATE line of a new day the record still holds the old day, so there is no figure then: an old day's dollars are never read as today's.
+  - The batch ledger is never read.
+- **Tests:**
+  - TestSpend is rewritten on the day record. A frozen BATCH4_LEDGER.json at $5.00 is ignored. An old day, a 3-day window, times without offset, a null day, a missing "outside", "0.9", true, NaN and a missing file all give no figure.
+  - 12 tests and subtests fail on the merged reader (77081ec1).
+  - 4 mutations each fail a test after a passing control: the holds-now check removed; the one-day limit removed; a time without offset accepted; a non-number accepted.
+- **Audits (qwen27b + glm, effort none, Heimdall only):** both cycles PASS (qwen27b 0.72 after a full trace, glm 0.90).
+  - One consensus point (low): the no-figure gap after 21:10, which is intended and documented. Both reviewers wrote "None needed".
+  - Cost $0.0035 + $0.0028 = $0.0063.
+- **Checks on the staged merge:**
+  - py_compile.
+  - regression_test.sh: 26 PASS / 0 FAIL / 4 WARN.
+  - pipeline/regression.sh: exit 0, the references REPRODUCED.
+  - test_session_watchdog and test_alarm: 47 passed, 16 subtests passed.
+- **The restart:** our own tmux session pipeline_pp_sessionwatch was stopped and started again at 06:28 ET on the merged code.
+  - Pass 5 (the count carries over in its state file): 13 sessions, 0 findings, 0 errors.
+  - spend {"usd": 0.5629, "window": "DAY118_LEDGER.json 2026-11-15T21:10:00-05:00 to 2026-11-16T21:10:00-05:00"}.
+- **BATCH 4 integrator spend $0.0176:** batch 94's $0.0113 plus batch 95's $0.0063 (Heimdall, not capped).
+
 ## 06:09 SESSION WATCHDOG LIVE (orchestrator order 05:55 ET Nov 16): tools/session_watchdog.py runs in tmux pipeline_pp_sessionwatch (no cron) since 06:08:43 ET, read only, a pass every 5 min. Its first real pass read 13 pipeline_ sessions: 0 findings, 0 errors, no Telegram line. Audits batch 94 (Heimdall only, two cycles): cycle 1's consensus point and a cross-examination point were fixed. Both regressions green. BATCH 4 integrator spend: $0.0113 (Heimdall, not capped).
 - **The first real pass (06:08:43 ET, /tmp/session_watchdog_status.json):**
   - Claude panes (7), each with its input box found, so each judged:
