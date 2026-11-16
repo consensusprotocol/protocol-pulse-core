@@ -29341,6 +29341,29 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "44a6d503ed11992f6f8e",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I",
+     "refers_to": "the speaker (Michael Sullivan, the guest)",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "People try to manipulate you emotionally to make you sell your Bitcoin, and fear and anger cloud your judgment.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "I saw you sort of crop up. Like this is your thing, right?",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
   }
  },
  "468651df800ad2c09e32:f4b47d48454f61069c8d72fea2f5ec15a68c54be5a512ebdc35fb31934b343ab:eaa75c4223741eebb067aa85bb4548ee74bb4b121bac5431b3ff69bb01cc5dfd:9d43580c729b": {
@@ -29438,6 +29461,62 @@
    "speaker_is": "host",
    "speaker_evidence": "like I didn't really see anyone doing this in a professional way until I saw you sort of crop up. Like this is your thing, right?",
    "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "17e5a9235d68c10d79b2",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "buying Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it's",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "buying Bitcoin when it feels easy and you're confident",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that's",
+     "refers_to": "the fact that doing that underperforms DCA",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "buying Bitcoin when it feels easy and confident",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "when it feels easy when they're confident it's going to do well",
+     "inside": true
+    },
+    {
+     "text": "if you do that",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "People buy Bitcoin when it feels easy and they are confident, but doing so underperforms DCA, which is what the average person does almost all the time.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "I saw you sort of crop up. Like this is your thing, right?",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
    "replayed": false,
    "speaker_verified": false
   }
@@ -29754,6 +29833,46 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "d6adeb54ad64062081c5",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I",
+     "refers_to": "the speaker (Michael Sullivan, the guest)",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that period of time",
+     "refers_to": "the 2023 bull market",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "that period of time / the 2023 bull market",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "during that period of time",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker recently made pieces on the 2023 bull market, where there was massive fear while Bitcoin trended up.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "So now, what do you think happens next? What moves first? Does price lead sentiment or does sentiment lead price?",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
   }
  },
  "04ddf6869c30c1f2c0de:e9205ade56bb87781c8c1f2e85efd64ba766ad24133be32881fa5be991c0abdf:f7ad6290fe2e4457622fcbe1abedd1989156fc62bdee387c6d0ece8724a669ba:9d43580c729b": {
@@ -29775,6 +29894,40 @@
    "speaker_is": "guest",
    "speaker_evidence": "until I saw you sort of crop up. Like this is your thing, right? It very much is now",
    "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "04ddf6869c30c1f2c0de",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "the lows",
+     "refers_to": "Bitcoin's recent lows",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "my",
+     "refers_to": "the speaker (Michael Sullivan, the guest)",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "despite the fact that Bitcoin still up like 20% off the lows",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker finds it striking that people are fearful even though Bitcoin is still up about 20% from its lows.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "I saw you sort of crop up. Like this is your thing, right?",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
    "replayed": false,
    "speaker_verified": false
   }
@@ -29871,6 +30024,68 @@
    "speaker_is": "host",
    "speaker_evidence": "That's interesting because like when you look at those groups, OGs and plebs, you'd imagine these are people just buying Bitcoin, DCA and holding for a very long time. And so like when it comes to, you know, trying to get an edge on the market, maybe don't care as much because they're just in",
    "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "c411d1f7f5019c7c8b29",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it's",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it's",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it's",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this point",
+     "refers_to": "the current market moment",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "there",
+     "refers_to": "among traders",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it's",
+     "refers_to": "conviction",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "at this point where Bitcoin's relatively low compared to where it's been",
+     "inside": true
+    },
+    {
+     "text": "probably going to have a breakout at some point relatively soon",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Traders' conviction is at its lowest even though Bitcoin is relatively low and may break out soon, contrary to the expectation that conviction would grow.",
+   "certainty": "likely",
+   "speaker_is": "host",
+   "speaker_evidence": "Do you think that is, again, the AI trade just taking all the excitement or the enthusiasm away from Bitcoin?",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
    "replayed": false,
    "speaker_verified": false
   }
@@ -30023,6 +30238,40 @@
    "speaker_is": "host",
    "speaker_evidence": "I am your host, Scott Melker, also known as the Wolf of All Streets.",
    "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "a3e8721c54788123097a",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I",
+     "refers_to": "Scott Melker, the host",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "sometimes when market sentiment is generally bad",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "There were billions in liquidations, about $2 billion on Bitcoin over the weekend, which is further proof that when sentiment is bad, Bitcoin can suffer because it trades 24/7.",
+   "certainty": "likely",
+   "speaker_is": "host",
+   "speaker_evidence": "I am your host, Scott Melker, also known as the Wolf of All Streets.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
    "replayed": false,
    "speaker_verified": false
   }

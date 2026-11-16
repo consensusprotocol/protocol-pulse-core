@@ -1,6 +1,6 @@
 {
- "usd_estimate": 7.368067,
- "calls": 103,
+ "usd_estimate": 7.55053,
+ "calls": 104,
  "by_backend": {
   "xai:grok-4.20-0309-reasoning": {
    "calls": 40,
@@ -42,17 +42,17 @@
    "in_reported": 5365
   },
   "heimdall:deepseek/deepseek-v4.1-flash": {
-   "calls": 13,
-   "in": 14195,
-   "out": 44677,
-   "usd_estimate": 0.76845,
+   "calls": 14,
+   "in": 18576,
+   "out": 55965,
+   "usd_estimate": 0.950913,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.00917453,
-   "reported_calls": 12,
-   "in_reported": 14195
+   "usd_reported": 0.01154572,
+   "reported_calls": 13,
+   "in_reported": 18576
   },
   "elevenlabs_stt:scribe_v1": {
    "calls": 24,
@@ -81,8 +81,8 @@
  },
  "by_role": {
   "context_verdict": {
-   "calls": 35,
-   "usd_estimate": 3.852871
+   "calls": 36,
+   "usd_estimate": 4.035334
   },
   "probe87:heimdall:qwen/qwen3.8-27b": {
    "calls": 5,
@@ -134,7 +134,7 @@
   }
  },
  "reserved": {},
- "usd_reported": 0.8624557,
+ "usd_reported": 0.86482689,
  "usd_unreported_estimate": 0.111591,
  "late_answers": 2
 }

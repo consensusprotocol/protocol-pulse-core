@@ -14,9 +14,9 @@
   "others": {}
  },
  "heimdall_free": {
-  "builds": 0.017736,
+  "builds": 0.020107,
   "audits": 0.164199,
-  "checks": 5.241578,
+  "checks": 5.249666,
   "others": {
    "integrator": 0.0176
   }
