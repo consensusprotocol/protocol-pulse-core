@@ -1300,6 +1300,7 @@ def scorer_verdicts(path, code_sha):
     without a numeric score, with an error, or whose "affirmed" disagrees with the render's own moments rule
     (stand_alone.affirmed(score, fault, moments=True): the score alone) is no verdict."""
     import stand_alone as SA
+    import package_pin as PPN
     num = lambda x: isinstance(x, (int, float)) and not isinstance(x, bool)
     stage, sc = "open", None
     try:
@@ -1332,7 +1333,15 @@ def scorer_verdicts(path, code_sha):
         if (v.get("affirmed") is True) != rule:
             disagree.append(pid)
             continue
-        out[str(pid)] = {"score": v["score"], "reason": v.get("reason"), "fault": v.get("fault"), "affirmed": rule,
+        floor = not rule and sc["scorer_sha"] == PPN.STAND_ALONE_FLOOR_SCORER and \
+            v.get("digest") == PPN.STAND_ALONE_FLOOR_DIGEST and \
+            v["score"] >= PPN.STAND_ALONE_FLOOR          # RULING 119 (1): the candidates path's calibrated floor, on
+        #   the scorer code AND the model weights it was measured on, both exact: the VERDICT's own full digest (right
+        #   even if a file mixed weights; the integrator's contract, 08:52 ET Nov 16); none on the verdict: no floor
+        out[str(pid)] = {"score": v["score"], "reason": v.get("reason"), "fault": v.get("fault"),
+                         "affirmed": rule or floor, "affirmed_render": rule,
+                         **({"bar": "calibrated", "floor": PPN.STAND_ALONE_FLOOR, "digest": v.get("digest")}
+                            if floor else {}),
                          "text_sha256": v["text_sha256"], "prompt_sha256": v.get("prompt_sha256"),
                          "model": sc.get("model"), "kind": sc["kind"], "event": None, "rubric": sc.get("rubric"),
                          "rule": sc.get("rule"), "scorer_sha": sc["scorer_sha"], "threshold": sc["threshold"],
@@ -1341,6 +1350,7 @@ def scorer_verdicts(path, code_sha):
                  "candidates_generated_at": d.get("candidates_generated_at"), "model": sc.get("model"),
                  "kind": sc["kind"], "rubric": sc.get("rubric"), "scorer_sha": sc["scorer_sha"],
                  "threshold": sc["threshold"], "verdicts": len(out), "affirmed": sum(v["affirmed"] for v in out.values()),
+                 "affirmed_on_the_floor": sum(v.get("bar") == "calibrated" for v in out.values()),
                  "disagree_with_the_rule": disagree}
 
 
@@ -1498,6 +1508,18 @@ def lineup_bar_mark(med, coh):
         return None
     return {"note": LB.NOTE, "floors": {"clips_alone": med.get("floors"), "coherence": coh.get("floors")},
             "calibration_sha256": med.get("calibration_sha256"), "ruling": "116"}
+
+
+def stand_alone_mark(segments):
+    """RULING 119 (1): what a package carries in its record and pin (outside the seal) when the clip scorer affirmed one
+    of its segments ONLY on the candidates path's calibrated floor: the plain line for the Telegram note, the floor, the
+    scorer it was measured on and those segments' places. None when every affirmation met the render's own bar."""
+    import package_pin as PPN
+    on = [i for i, s in enumerate(segments) if (s.get("scorer_verdict") or {}).get("bar") == "calibrated"]
+    if not on:
+        return None
+    return {"note": PPN.STAND_ALONE_NOTE, "floor": PPN.STAND_ALONE_FLOOR, "scorer_sha": PPN.STAND_ALONE_FLOOR_SCORER,
+            "segments": on, "ruling": "119"}
 
 
 def hook_bar_mark(live=None):
@@ -3808,6 +3830,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         lm = lineup_bar_mark(*(lambda c: (c.get("medley"), c.get("coherence")))(out["package"].get("checks") or {}))
         if lm:                                           # RULING 116 (Q3): and its line-up, when both verdicts were
             out["package"]["lineup_bar"] = lm            # judged on the calibrated line-up bar
+        sm = stand_alone_mark(out["package"].get("segments") or [])
+        if sm:                                           # RULING 119 (1): a clip the scorer affirmed only on the
+            out["package"]["stand_alone_bar"] = sm       # calibrated floor
     if candidate is not None:                             # RULING 66: what became of the candidate
         t_ = next((t for t in out["tried"] if t.get("candidate") is not None), {})
         out["candidate"]["result"] = t_.get("result") or t_.get("why") or out.get("why_none") or "not tried"

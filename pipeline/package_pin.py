@@ -155,6 +155,17 @@ TRIMMED_PER_PIN_MAX = 1                                    # ruling 49 (b): pack
                                                            # must never pull package.py into that process
 TRIM_WORDS = ("but", "and", "so", "well", "now", "yeah")   # ruling 33: the ONE leading word a cut may trim
 SCORER_MIN = 3.5                                           # = stand_alone.CLIP_MIN_SCORE (a test holds them equal)
+STAND_ALONE_FLOOR = 3.0                # RULING 119 (1) (orchestrator 08:25 ET Nov 16): the candidates path's calibrated
+#   floor, rulings 115/116's way: the lowest score an approved clip takes asked ALONE (2.0), never under 3. Measured (the
+#   integrator's run, docs/audits/ruling119/APPROVED_CLIPS_SCORER.json, 9216cdb9) on ONE scorer code and ONE set of
+#   weights, both compared exactly: under any other the floor is the render's own SCORER_MIN.
+STAND_ALONE_FLOOR_SCORER = "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53"   # its scorer_sha
+STAND_ALONE_FLOOR_DIGEST = "a418f5838eaf7fe2cfe0a3046c8384b68ba43a4435542c942f9db00a5f342203"   # gemma3:27b's digest
+STAND_ALONE_NOTE = "a clip passed stand-alone on the calibrated bar"   # RULING 120: the mark, the Telegram note's line
+#   The render's validate (stand_alone.check_edl) re-asks the scorer ALONE, at 3.5, only for the clips that need asking
+#   (a clip after the hook opening on a conjunction or reply fragment, a trimmed clip) and never reads this side's
+#   verdict: the floor holds there only through the integrator's half (validate affirms exactly the marked segments),
+#   landed together with this one on the orchestrator's yes.
 
 
 WINDOW_H = 12.0          # RULING 76 (orchestrator 18:08 Nov 13): a clip only while its source is <= 12 h old on the
@@ -250,10 +261,14 @@ def affirmed_verdict(s):
     v = s.get("scorer_verdict")
     num = lambda x: isinstance(x, (int, float)) and not isinstance(x, bool)
     text = s["approved_text"] if "approved_text" in s else s.get("text")
-    return isinstance(v, dict) and v.get("affirmed") is True and v.get("kind") == "moments" and "event" in v and \
-        v["event"] is None and num(v.get("score")) and v.get("threshold") == SCORER_MIN and v["score"] >= SCORER_MIN \
-        and bool(v.get("scorer_sha")) and isinstance(text, str) and \
-        v.get("text_sha256") == hashlib.sha256(text.encode("utf-8")).hexdigest()
+    if not (isinstance(v, dict) and num(v.get("score"))):
+        return False
+    on_floor = v.get("bar") == "calibrated" and v.get("floor") == STAND_ALONE_FLOOR and \
+        v["score"] >= STAND_ALONE_FLOOR and v.get("scorer_sha") == STAND_ALONE_FLOOR_SCORER and \
+        v.get("digest") == STAND_ALONE_FLOOR_DIGEST
+    return v.get("affirmed") is True and v.get("kind") == "moments" and "event" in v and v["event"] is None and \
+        v.get("threshold") == SCORER_MIN and (v["score"] >= SCORER_MIN or on_floor) and bool(v.get("scorer_sha")) \
+        and isinstance(text, str) and v.get("text_sha256") == hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 def scorer_problems(segments):
@@ -499,6 +514,8 @@ def to_pin(pk, run_name):
                                 #   calibrated hook bar's plain line for the Telegram note, floors and sha (outside the seal)
                                 **({"lineup_bar": pk["lineup_bar"]} if pk.get("lineup_bar") else {}),   # ruling 116 (Q3):
                                 #   the line-up's, when both its verdicts passed on the calibrated bar (outside the seal)
+                                **({"stand_alone_bar": pk["stand_alone_bar"]} if pk.get("stand_alone_bar") else {}),
+                                #   ruling 119 (1): a clip affirmed only on the calibrated floor (outside the seal)
                                 **({"btc_screen": pk["btc_screen"]} if pk.get("btc_screen") is not None else {}),
                                 **({"formats": fmts} if fmts is not None else {}),   # ruling 93 amended (sealed)
                                 "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True,

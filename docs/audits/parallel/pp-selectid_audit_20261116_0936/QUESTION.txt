@@ -1,0 +1,22 @@
+pp-selectid: the DELTA of the stand-alone floor (audit 20261116_0842, cleared) that RULING 120 makes. Files:
+pipeline/package_pin.py (one constant), tests/package/test_medley.py (two expected strings).
+
+RULING 120 (orchestrator 09:40 ET Nov 16), verbatim: "YES. The stand-alone floor of 3.0 lands, BOTH HALVES TOGETHER, when
+both audits have cleared, exactly as you and the integrator describe: only on the measured scorer code and weights, only on
+the marked segments, marked on the pin and in the Telegram note in one plain line ('a clip passed stand-alone on the
+calibrated bar'). Reason: it is PBX's own approved clips (41f29b1f) that sit at 3.0; PBX reviews every video before it
+publishes; the preview's two clips at 2.0 are NOT admitted and the floor never goes under 3."
+
+THE CHANGE: the pin's mark (moments_package.stand_alone_bar, outside the seal) carries its note, and the integrator's
+Telegram note prints that note as one plain line (telegram.BAR_MARKS; its exact-shape check of the mark reads the same text
+from its own constant telegram.STAND_ALONE_BAR_NOTE, so the two cannot differ; changed in its own audited delta). The note
+was "stand-alone affirmed on the calibrated floor (3.0)"; it is now exactly the ruling's words, "a clip passed stand-alone
+on the calibrated bar" (no capital, no full stop, as quoted; agreed with the integrator after ruling 120). Nothing else changes:
+the floor (3.0), the exact scorer code and weights digest, affirmed_verdict, scorer_verdicts, stand_alone_mark's other
+fields (floor, the full scorer_sha, segments, ruling "119") and the seal are as audited in 20261116_0842 (unchanged guards:
+package_pin.affirmed_verdict, package.scorer_verdicts, package.stand_alone_mark, package_pin.to_pin; not in this diff).
+
+TESTS: test_medley TestRuling119StandAloneFloor and Ruling56: 11 pass; mutations F1-F10 after a control run (262 passed):
+10 of 10 killed.
+
+PLEASE CHECK: (1) the note is exactly the ruling's words; (2) nothing else changed; (3) the tests pin it.

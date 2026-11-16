@@ -1,0 +1,33 @@
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index 9514e96..3c5ca7d 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -161,7 +161,7 @@ STAND_ALONE_FLOOR = 3.0                # RULING 119 (1) (orchestrator 08:25 ET N
+ #   weights, both compared exactly: under any other the floor is the render's own SCORER_MIN.
+ STAND_ALONE_FLOOR_SCORER = "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53"   # its scorer_sha
+ STAND_ALONE_FLOOR_DIGEST = "a418f5838eaf7fe2cfe0a3046c8384b68ba43a4435542c942f9db00a5f342203"   # gemma3:27b's digest
+-STAND_ALONE_NOTE = "stand-alone affirmed on the calibrated floor (3.0)"   # the pin's mark, one plain line in the note
++STAND_ALONE_NOTE = "a clip passed stand-alone on the calibrated bar"   # RULING 120: the mark, the Telegram note's line
+ #   The render's validate (stand_alone.check_edl) re-asks the scorer ALONE, at 3.5, only for the clips that need asking
+ #   (a clip after the hook opening on a conjunction or reply fragment, a trimmed clip) and never reads this side's
+ #   verdict: the floor holds there only through the integrator's half (validate affirms exactly the marked segments),
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 93403e8..44b611a 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -1773,13 +1773,13 @@ class TestRuling119StandAloneFloor(unittest.TestCase):
+         segs = [{"text": "Bitcoin d.", "scorer_verdict": idx["d"]}, {"text": self.OPENER, "scorer_verdict": idx["a"]}]
+         m = PK.stand_alone_mark(segs)
+         self.assertEqual((m["note"], m["floor"], m["segments"], m["ruling"]),
+-                         ("stand-alone affirmed on the calibrated floor (3.0)", 3.0, [1], "119"))
++                         ("a clip passed stand-alone on the calibrated bar", 3.0, [1], "119"))
+         self.assertIsNone(PK.stand_alone_mark(segs[:1]))                # every affirmation on the render's own bar
+         base = TA.TestPinAndTruth.pk(None)
+         plain = package_pin.to_pin(copy.deepcopy(base), "r")["moments_package"]
+         marked = package_pin.to_pin(dict(copy.deepcopy(base), stand_alone_bar=m), "r")["moments_package"]
+         self.assertNotIn("stand_alone_bar", plain)
+-        self.assertEqual(marked["stand_alone_bar"]["note"], "stand-alone affirmed on the calibrated floor (3.0)")
++        self.assertEqual(marked["stand_alone_bar"]["note"], "a clip passed stand-alone on the calibrated bar")
+         self.assertEqual(marked["package_sha256"], plain["package_sha256"])        # outside the seal
+ 
+ 

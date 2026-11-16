@@ -1725,6 +1725,64 @@ class TestRuling116LineupBar(unittest.TestCase):
         self.assertNotIn("lineup_bar", out["package"])                                  # the standard bar: no mark
 
 
+class TestRuling119StandAloneFloor(unittest.TestCase):
+    """RULING 119 (1) (orchestrator 08:25 ET Nov 16): the clip scorer asked ALONE (the candidates path) refused four of
+    PBX's approved clips (the integrator's run: 2.0 and 3.0); the candidates path's calibrated floor is the lowest an
+    approved clip takes, never under 3: 3.0, for the scorer code it was measured on only. A clip affirmed only on that
+    floor marks the package and its pin, outside the seal; the render's own validate (3.5) is unchanged."""
+
+    SHA, DIGEST = "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53", "a418f5838eaf7fe2cfe0a3046c8384b68ba43a4435542c942f9db00a5f342203"
+    OPENER = "And Bitcoin is the hardest money ever made, which is why it wins."       # TestRuling56Scorer's opener
+
+    def file(self, verdicts, sha, digest=DIGEST):
+        """The integrator's file with each verdict's own weights digest (their 08:52 contract): None names none."""
+        vs = {k: dict(v, **({"digest": digest} if digest else {})) for k, v in verdicts.items()}
+        return TestRuling56Scorer.file(self, vs, scorer_sha=sha, digest=digest)
+
+    def test_the_floor_affirms_from_3_only_on_the_scorer_it_was_measured_on(self):
+        vs = {"a": fv(self.OPENER, 3.0), "b": fv("Bitcoin b.", 3.4), "c": fv("Bitcoin c.", 2.9), "d": fv("Bitcoin d.", 4.0)}
+        idx, rec = PK.scorer_verdicts(self.file(vs, self.SHA), self.SHA)
+        self.assertEqual({k: idx[k]["affirmed"] for k in "abcd"}, {"a": True, "b": True, "c": False, "d": True})
+        self.assertEqual({k: idx[k].get("bar") for k in "abcd"}, {"a": "calibrated", "b": "calibrated", "c": None,
+                                                                  "d": None})
+        self.assertEqual((idx["a"]["affirmed_render"], idx["a"]["floor"], idx["d"]["affirmed_render"]), (False, 3.0, True))
+        self.assertEqual((rec["affirmed"], rec["affirmed_on_the_floor"]), (3, 2))
+        other = "s" * 64                                                 # other scorer code: the render's own 3.5
+        idx, rec = PK.scorer_verdicts(self.file(vs, other), other)
+        self.assertEqual({k: idx[k]["affirmed"] for k in "abcd"}, {"a": False, "b": False, "c": False, "d": True})
+        self.assertEqual(rec["affirmed_on_the_floor"], 0)
+        for digest in (None, "f" * 64, "a418f5838eaf"):                  # other weights, a bare prefix, none: 3.5 only
+            idx, rec = PK.scorer_verdicts(self.file(vs, self.SHA, digest), self.SHA)
+            self.assertEqual((idx["a"]["affirmed"], idx["b"]["affirmed"], rec["affirmed_on_the_floor"]), (False, False, 0))
+
+    def test_the_pin_check_accepts_a_floor_affirmation_only_whole(self):
+        idx, _ = PK.scorer_verdicts(self.file({"a": fv(self.OPENER, 3.0)}, self.SHA), self.SHA)
+        seg = {"text": self.OPENER, "scorer_verdict": idx["a"]}
+        self.assertTrue(package_pin.affirmed_verdict(seg))
+        self.assertEqual(package_pin.scorer_problems([{"text": "Bitcoin."}, seg]), [])
+        for k, val in (("bar", None), ("floor", 2.5), ("score", 2.9), ("scorer_sha", "s" * 64), ("threshold", 3.0),
+                       ("digest", None), ("digest", "f" * 64), ("digest", "a418f5838eaf")):
+            v = dict(idx["a"], **{k: val}) if val is not None else {x: y for x, y in idx["a"].items() if x != k}
+            self.assertFalse(package_pin.affirmed_verdict(dict(seg, scorer_verdict=v)), k)
+
+    def test_a_clip_affirmed_on_the_floor_marks_the_package_and_the_pin_outside_the_seal(self):
+        import copy
+        import test_angles as TA
+        idx, _ = PK.scorer_verdicts(self.file({"a": fv(self.OPENER, 3.0), "d": fv("Bitcoin d.", 4.0)}, self.SHA),
+                                    self.SHA)
+        segs = [{"text": "Bitcoin d.", "scorer_verdict": idx["d"]}, {"text": self.OPENER, "scorer_verdict": idx["a"]}]
+        m = PK.stand_alone_mark(segs)
+        self.assertEqual((m["note"], m["floor"], m["segments"], m["ruling"]),
+                         ("a clip passed stand-alone on the calibrated bar", 3.0, [1], "119"))
+        self.assertIsNone(PK.stand_alone_mark(segs[:1]))                # every affirmation on the render's own bar
+        base = TA.TestPinAndTruth.pk(None)
+        plain = package_pin.to_pin(copy.deepcopy(base), "r")["moments_package"]
+        marked = package_pin.to_pin(dict(copy.deepcopy(base), stand_alone_bar=m), "r")["moments_package"]
+        self.assertNotIn("stand_alone_bar", plain)
+        self.assertEqual(marked["stand_alone_bar"]["note"], "a clip passed stand-alone on the calibrated bar")
+        self.assertEqual(marked["package_sha256"], plain["package_sha256"])        # outside the seal
+
+
 class TestRuling117JoinSearch(unittest.TestCase):
     """RULING 117 (orchestrator 16:24 ET Nov 15), SEARCH, DO NOT LOOSEN: the join table (the clips-alone verdict's own
     join question once per ordered pair of an angle's moments, Grok, cached) and the line-ups chosen BY SEARCH over it
