@@ -274,6 +274,35 @@ class TestGpu0(unittest.TestCase):
         self.assertEqual(SS.serve_once(log=lambda *a: None), 2)
         self.assertEqual(len(self.released), 2)
 
+    def test_order_1305_the_scorer_wants_gpu0_while_work_waits_and_is_done_when_its_queue_is_empty(self):
+        """Orchestrator order '13:05' (R13): builds keep priority over Whisper. While requests wait (here behind the
+        ingest's Whisper pass, which holds the lease) the scorer's want is up, so Whisper gives GPU0 back at its next
+        file boundary; once the queue is empty the want is gone, so Whisper may take the card."""
+        import gpu0_want as W
+        with mock.patch.object(W, "DIR", os.path.join(self.root, "want")):
+            busy = mock.Mock(side_effect=self.gpu0.LeaseBusy("the GPU0 lease is held by transcript_ingest (pid 1)"))
+            with mock.patch.object(self.gpu0, "lease", busy):
+                self.assertEqual(SS.serve_once(log=lambda *a: None), 0)       # Whisper holds GPU0: nothing answered
+            self.assertEqual(W.wanted(), ["stand_alone_scorer"])
+            self.assertEqual(SS.serve_once(log=lambda *a: None), 8)           # the card back: a batch answered
+            self.assertEqual(W.wanted(), ["stand_alone_scorer"])              # two still waiting
+            self.assertEqual(SS.serve_once(log=lambda *a: None), 2)
+            self.assertEqual(W.wanted(), [])                                  # the queue is empty: done
+            self.assertEqual(SS.serve_once(log=lambda *a: None), 0)
+            self.assertEqual(W.wanted(), [])
+
+    def test_order_1305_a_queue_emptied_elsewhere_clears_the_scorers_want_on_its_next_pass(self):
+        import gpu0_want as W
+        with mock.patch.object(W, "DIR", os.path.join(self.root, "want")):
+            busy = mock.Mock(side_effect=self.gpu0.LeaseBusy("held by transcript_ingest (pid 1)"))
+            with mock.patch.object(self.gpu0, "lease", busy):
+                self.assertEqual(SS.serve_once(log=lambda *a: None), 0)
+            self.assertEqual(W.wanted(), ["stand_alone_scorer"])
+            for p in SS.pending():                                            # the requests withdrawn
+                os.remove(p)
+            self.assertEqual(SS.serve_once(log=lambda *a: None), 0)
+            self.assertEqual(W.wanted(), [])                                  # nothing waits: Whisper may go on
+
     def test_a_render_asking_gets_gpu0_first(self):
         open(self.flag, "w").close()
         self.assertEqual(SS.serve_once(log=lambda *a: None), 0)       # not even the lease

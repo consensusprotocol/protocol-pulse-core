@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """transcript_ingest's Whisper pass under law L-r (no lease, no load), without network, GPU or a model.
 
-The pass loads only while this process holds the GPU0 lease: taken once, never waited for, and left after Whisper is
-unloaded. A render's yield flag, or a lease another owner holds, defers the remaining videos to the next run. main()
-sets the PCI bus order. From Nov 12 to Nov 15, every cron run that needed Whisper died on gpu0.LeaseMissing (the pass
-never took the lease).
+The pass loads only while this process holds the GPU0 lease, and leaves it after Whisper is unloaded. A render's yield
+flag stops the pass: the remaining videos wait for the next run. Orchestrator order '13:05' ET Nov 16 (pp-ingest's
+request R13): a lease another owner holds, or a build's GPU0 service that wants the card (gpu0_want), is WAITED for.
+The pass polls, holds nothing while it waits, and waits at most LEASE_WAIT_S in all; each attempt is non-blocking. A
+build that wants GPU0 mid-pass gets it at the next file boundary, and Whisper goes on after it. Before the order, one
+busy moment at the cron's start deferred every video for 30 minutes. main() sets the PCI bus order. From Nov 12 to
+Nov 15, every cron run that needed Whisper died on gpu0.LeaseMissing (the pass never took the lease).
 
 Each load in these tests runs the real gpu0.require, the store's own check before any Whisper load. The lease is
 real, on the test's private file; a busy lease is held by ANOTHER process, the way the scorer or a render holds it."""
@@ -14,6 +17,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import unittest
 from unittest import mock
@@ -21,6 +25,7 @@ from unittest import mock
 PIPELINE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, PIPELINE)
 import gpu0  # noqa: E402
+import gpu0_want as W  # noqa: E402
 import local_judge as LJ  # noqa: E402
 import transcript_ingest as TI  # noqa: E402
 
@@ -66,6 +71,9 @@ class TestWhisperPass(unittest.TestCase):
                   mock.patch.object(TI.ts, "release_whisper", release),
                   mock.patch.object(TI.ts, "STATE_DIR", self.tmp),
                   mock.patch.object(LJ, "YIELD_FLAG", self.flag),
+                  mock.patch.object(W, "DIR", os.path.join(self.tmp, "want")),
+                  mock.patch.object(TI, "LEASE_WAIT_S", 0.5, create=True),     # the tests' own short wait
+                  mock.patch.object(TI, "LEASE_POLL_S", 0.05, create=True),
                   mock.patch.dict(os.environ, env)):
             p.start()
             self.addCleanup(p.stop)
@@ -99,21 +107,93 @@ class TestWhisperPass(unittest.TestCase):
         with open(os.path.join(self.tmp, "ingest_runs.jsonl")) as f:
             self.assertEqual(json.loads(f.readlines()[-1])["counts"], {"whisper": 3})
 
-    def test_the_lease_is_taken_once_for_the_pass_and_never_waited_for(self):
+    def test_an_uncontended_pass_takes_the_lease_once_and_never_blocks_on_it(self):
         taken, spy = self.lease_spy()
         with spy:
             self.run_ingest()
         self.assertEqual(len(taken), 1)
         self.assertEqual(taken[0][1].get("wait_s"), 0)
 
-    def test_a_lease_another_owner_holds_defers_every_video_at_once(self):
+    def test_a_lease_held_past_the_wait_defers_every_video(self):
         self.hold()
         t0 = time.time()
         s = self.run_ingest()
-        self.assertLess(time.time() - t0, 5)                           # never waits: a render is never kept out
+        self.assertLess(time.time() - t0, 5)                           # the wait is bounded (LEASE_WAIT_S)
         self.assertEqual(self.loads, [])
         self.assertEqual(self.statuses(s), ["deferred_gpu0_busy"] * 3)
         self.assertEqual(self.unloads, [])                             # nothing taken, nothing to leave
+
+    def release_later(self, holder, after=0.4):
+        threading.Timer(after, holder.stdin.close).start()           # EOF: the other owner leaves
+
+    def test_order_1305_a_lease_freed_while_waiting_lets_whisper_run(self):
+        self.release_later(self.hold())
+        with mock.patch.object(TI, "LEASE_WAIT_S", 10.0, create=True):
+            s = self.run_ingest()
+        self.assertEqual(self.statuses(s), ["whisper"] * 3)
+        self.assertEqual(self.loads, list(VIDS))
+        self.assertIsNone(gpu0.holder())
+
+    def test_order_1305_a_build_wanting_gpu0_keeps_whisper_off_the_lease_until_done(self):
+        W.want("stand_alone_scorer")
+        cleared, attempts, real = [], [], gpu0.lease
+
+        def done():
+            cleared.append(time.time())
+            W.done("stand_alone_scorer")
+        threading.Timer(0.4, done).start()
+        with mock.patch.object(TI, "LEASE_WAIT_S", 10.0, create=True), \
+                mock.patch.object(gpu0, "lease", lambda *a, **k: attempts.append(time.time()) or real(*a, **k)):
+            s = self.run_ingest()
+        self.assertEqual(self.statuses(s), ["whisper"] * 3)
+        self.assertTrue(attempts and cleared and min(attempts) >= cleared[0], (attempts, cleared))   # builds first
+
+    def test_order_1305_a_build_wanting_gpu0_mid_pass_gets_it_at_the_next_file_boundary(self):
+        inner, seen = TI.ts.acquire, []
+
+        def acquire(video_id, **k):
+            r = inner(video_id, **k)
+            if k.get("allow_whisper") and video_id == "v1":            # the scorer's burst arrives during v1
+                W.want("stand_alone_scorer")
+                threading.Timer(0.2, lambda: seen.append((gpu0.held(), gpu0.holder()))).start()
+                threading.Timer(0.4, W.done, ("stand_alone_scorer",)).start()
+            return r
+        taken, spy = self.lease_spy()
+        with spy, mock.patch.object(TI.ts, "acquire", acquire), mock.patch.object(TI, "LEASE_WAIT_S", 10.0, create=True):
+            s = self.run_ingest()
+        self.assertEqual(self.statuses(s), ["whisper"] * 3)            # Whisper went on after the build
+        self.assertEqual(self.unloads, [True, True])                   # unloaded at the boundary and at the end
+        self.assertEqual(len(taken), 2)
+        self.assertEqual(seen, [(False, None)])                        # during the build's turn GPU0 was free
+        self.assertIsNone(gpu0.holder())
+
+    def test_order_1305_a_build_wanting_gpu0_past_the_wait_defers_the_rest(self):
+        W.want("stand_alone_scorer")                                    # fresh for FRESH_S, past the 0.5 s wait
+        taken, spy = self.lease_spy()
+        with spy:
+            s = self.run_ingest()
+        self.assertEqual(self.statuses(s), ["deferred_gpu0_busy"] * 3)
+        self.assertEqual((self.loads, taken), ([], []))                # never even asked for the lease
+
+    def test_order_1305_a_stale_want_does_not_hold_whisper_back(self):
+        W.want("stand_alone_scorer")                                    # a scorer that died long ago
+        old = time.time() - W.FRESH_S - 5
+        os.utime(os.path.join(W.DIR, "stand_alone_scorer.json"), (old, old))
+        taken, spy = self.lease_spy()
+        with spy:
+            s = self.run_ingest()
+        self.assertEqual(self.statuses(s), ["whisper"] * 3)
+        self.assertEqual(len(taken), 1)
+
+    def test_order_1305_a_render_asking_while_whisper_waits_stops_the_pass_without_the_lease(self):
+        self.hold()
+        threading.Timer(0.3, lambda: open(self.flag, "w").close()).start()
+        t0 = time.time()
+        with mock.patch.object(TI, "LEASE_WAIT_S", 10.0, create=True):
+            s = self.run_ingest()
+        self.assertLess(time.time() - t0, 5)                           # it stops at once, not at the wait's end
+        self.assertEqual(self.statuses(s), ["deferred_render_wants_gpu0"] * 3)
+        self.assertEqual((self.loads, self.unloads), ([], []))
 
     def test_the_render_yield_flag_defers_the_pass_before_the_lease_is_taken(self):
         open(self.flag, "w").close()

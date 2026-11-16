@@ -45,6 +45,7 @@ import stand_alone as SA  # noqa: E402
 
 ROOT = os.environ.get("PP_SCORER_DIR", os.path.join(REPO, "data", "stand_alone_scorer"))
 OWNER = "pin-stage clip scorer (integrator, GPU0)"
+WANT = "stand_alone_scorer"           # its gpu0_want name (order '13:05': builds before Whisper)
 BATCH = 8
 SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
 KINDS = ("moments", "story")          # ruling 60: a moments pin is judged stand-alone only, with no event
@@ -165,11 +166,18 @@ def pending():
 
 def serve_once(log=print):
     """Answer up to BATCH pending requests under one GPU0 lease. -> how many were answered (0: none pending, a render
-    asked, or the lease is held)."""
+    asked, or the lease is held). Order '13:05' (R13), builds before Whisper: while requests wait, the scorer's
+    gpu0_want is up (touched every pass and before every call), so the transcript ingest's Whisper gives GPU0 back
+    at its next file boundary; once the queue is empty it is done, so Whisper may take the card."""
     import gpu0
+    import gpu0_want
     import story_semantics as sm
     todo = pending()
-    if not todo or LJ.render_wants_gpu0():
+    if not todo:
+        gpu0_want.done(WANT)
+        return 0
+    gpu0_want.want(WANT)
+    if LJ.render_wants_gpu0():
         return 0
     sha, n = scorer_sha(), 0
     try:
@@ -181,12 +189,15 @@ def serve_once(log=print):
                 for path in todo[:BATCH]:
                     if LJ.render_wants_gpu0():
                         break
+                    gpu0_want.want(WANT)                         # kept fresh through the batch
                     answer(path, llm, sha, log=log)
                     n += 1
             finally:
                 gpu0.release_all()                               # GPU0 left as found before the lease goes
     except gpu0.LeaseBusy as e:
         log(f"  GPU0 lease busy ({e})")
+    if not pending():
+        gpu0_want.done(WANT)                                     # the queue is empty: Whisper may have GPU0
     return n
 
 

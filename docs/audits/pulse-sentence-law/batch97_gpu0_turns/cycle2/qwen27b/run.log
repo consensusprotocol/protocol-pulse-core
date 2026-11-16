@@ -1,0 +1,30 @@
+# Heimdall audit
+
+**Question:** Try to BREAK this diff: orchestrator order '13:05' ET Nov 16 (R13). The transcript ingest's Whisper waits for the GPU0 lease, and builds and renders keep priority (a render's yield flag; a build's gpu0_want). For each attempt, give the exact sequence of events (processes, flags, files, timing) and the code path it takes. Report ONLY the attempts that succeed, quoting the lines that let them through. If none succeeds, answer PASS with no findings.
+
+GOALS (any one is a finding):
+B1. Make a render launch find the lease held by the ingest. The launcher raises its yield flag, waits for a free lease, then launches.
+B2. Make Whisper keep GPU0 while a build's service waits for longer than the file in hand.
+B3. Make the ingest wait forever, or longer than LEASE_WAIT_S in all, or block inside a lease attempt.
+B4. Leave Whisper loaded, or the lease held, after the pass ends: normally, on a stop, or on an exception.
+B5. Make a stale want (older than FRESH_S), a missing want directory, or a stray file hold Whisper back, or make a want from an invalid name count.
+B6. Make the scorer or the pre-check keep a want up while it has no GPU work, or drop it while work still waits for GPU0.
+
+FACTS (unchanged code, not in the diff):
+- gpu0.lease(owner, wait_s=0) is an exclusive flock lease, re-entrant within one process. It raises gpu0.LeaseBusy when another process holds it.
+- local_judge.render_wants_gpu0() reads the yield flag.
+- ts.release_whisper() unloads Whisper.
+- The scorer and the pre-check poll every 5-10 s, and take the lease only around their GPU work.
+
+**Panel:** qwen27b  |  **Cost:** $0.0167
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none
+
+
+saved: heimdall

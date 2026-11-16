@@ -1,0 +1,20 @@
+CONTROL (unmutated): exit 0 | 83 passed, 26 subtests passed in 11.52s
+T1 the ingest never waits (defers at the first busy): KILLED | 1 failed, 8 passed, 6 subtests passed in 1.25s
+T2 a build's want ignored while waiting: KILLED | 1 failed, 8 passed, 6 subtests passed in 1.86s
+T3 no yield to a build at the file boundary: KILLED | 1 failed, 9 passed, 6 subtests passed in 2.35s
+T4 a render ignored while waiting: KILLED | 1 failed, 3 passed, 6 subtests passed in 1.17s
+T5 Whisper not given back at the boundary: KILLED | 1 failed, 3 passed, 6 subtests passed in 1.18s
+T6 Whisper's unload not registered with the lease: KILLED | 1 failed, 3 passed, 6 subtests passed in 1.12s
+T7 a lease attempt that blocks: KILLED | timed out (300 s)
+S1 the scorer raises no want while work waits: KILLED | 1 failed, 30 passed, 14 subtests passed in 4.62s
+S2 the scorer not done when a batch empties its queue: KILLED | 1 failed, 31 passed, 14 subtests passed in 4.60s
+S3 the scorer not done on an empty queue: KILLED | 1 failed, 30 passed, 14 subtests passed in 4.72s
+P1 the pre-check raises no want while a decode waits: KILLED | 1 failed, 46 passed, 14 subtests passed in 11.25s
+P2 the pre-check not done after its decodes: KILLED | 1 failed, 47 passed, 14 subtests passed in 11.23s
+P3 the pre-check not done on an empty queue: KILLED | 1 failed, 46 passed, 14 subtests passed in 11.30s
+G1 a stale want still counts: KILLED | 1 failed in 0.99s
+G2 done() leaves the want: KILLED | 1 failed, 1 passed in 1.07s
+G3 any name accepted: KILLED | 7 failed, 2 passed in 1.15s
+G4 strays counted as wants: KILLED | 1 failed, 2 passed, 6 subtests passed in 1.26s
+17 of 17 killed
+AFTER (restored): exit 0 | 83 passed, 26 subtests passed in 12.43s
