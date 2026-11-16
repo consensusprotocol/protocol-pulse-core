@@ -1,17 +1,8 @@
 {
- "generated_at": "2026-11-16T11:57:18+00:00",
- "build": "ledger_20261116_115702",
+ "generated_at": "2026-11-16T12:29:18+00:00",
+ "build": "ledger_20261116_122913",
  "kind": "moments",
  "candidates": [
-  {
-   "pid": "e06b5180d77964e8c23a",
-   "video_id": "Dky_8mOTl0Y",
-   "channel": "Simply Bitcoin",
-   "duration": 14.05,
-   "text": "So all of the hackers in the world have been trying to steal trillions of dollars in value. And now they're saying that quantum computing is trying to steal trillions of dollars in Bitcoin, but somehow they can't crack it. And in the code, they also put the ability to not print more.",
-   "text_sha256": "512117b10830381c9cabf62f2fe6cc9237e6ebcb3ad4bc1665a483ebce16d7b2",
-   "trimmed_leading": null
-  },
   {
    "pid": "f6a3e905900af38fe2e8",
    "video_id": "5LXk2SLH4fI",
@@ -38,15 +29,6 @@
    "text": "what isn't in dispute is that nobody who simply owns their Bitcoin was forced to sell last week.",
    "text_sha256": "713b517691be20d20e978f352a59b43ccc8b00529c7b5422c40597bc557bd17e",
    "trimmed_leading": "Now"
-  },
-  {
-   "pid": "e06b5180d77964e8c23a~trim",
-   "video_id": "Dky_8mOTl0Y",
-   "channel": "Simply Bitcoin",
-   "duration": 13.87,
-   "text": "all of the hackers in the world have been trying to steal trillions of dollars in value. And now they're saying that quantum computing is trying to steal trillions of dollars in Bitcoin, but somehow they can't crack it. And in the code, they also put the ability to not print more.",
-   "text_sha256": "655c4ee825308820f95835625cbb3865fcb1e129be2ab810533e2127431d57be",
-   "trimmed_leading": "So"
   },
   {
    "pid": "f6a3e905900af38fe2e8~trim",
@@ -103,15 +85,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "852da61da08ef2aa45ef",
-   "video_id": "Dky_8mOTl0Y",
-   "channel": "Simply Bitcoin",
-   "duration": 14.38,
-   "text": "Bitcoin is money that lives on nodes, thousands of computers running all across the world, thousands of computers that have a ledger, a blockchain, a time chain of the truth, of all of the transactions that have ever happened on the network, who owns what, how much do people own?",
-   "text_sha256": "3cf57474d26c75e69571f12af79d020acfa404d7ccedc9c45f3502f093066b21",
-   "trimmed_leading": null
-  },
-  {
    "pid": "c20224a84a5800a89038~trim",
    "video_id": "5LXk2SLH4fI",
    "channel": "Natalie Brunell",
@@ -121,15 +94,6 @@
    "trimmed_leading": "Now"
   },
   {
-   "pid": "c8c24d46a5f89079db25",
-   "video_id": "Dky_8mOTl0Y",
-   "channel": "Simply Bitcoin",
-   "duration": 14.98,
-   "text": "In my mind, Mr. Burns would have been smart enough to buy Bitcoin, and that's why I stack. It's because it's the one asset that actually survives in all of these different episodes that we watched. I dollar cost average every single day into Bitcoin. None of this is financial vice.",
-   "text_sha256": "7d4efc298f4431362e8b0639603d8f5e0beb02f85ce1d53d3ef4e89c8ac08e10",
-   "trimmed_leading": null
-  },
-  {
    "pid": "3d62c51a3fa62c41559a",
    "video_id": "Vu0XZSz-aj4",
    "channel": "Bankless",
@@ -137,15 +101,6 @@
    "text": "I get to have, you know, they donate Democrat candidates. Sometimes they call me. And it's so funny how many of the ones who were under 40 would tell me they used to mine Bitcoin in their dorm room. I'm like, I love it. Can you say that? Like, well, should I say that? I'm like, why would you not say that? No one. No one cares if you say that.",
    "text_sha256": "fc8465b0235c7df2708779d3fe17327e88f6c164d2c700cd6d219a77627cc615",
    "trimmed_leading": null
-  },
-  {
-   "pid": "7b757b8c46e2738662bc~trim",
-   "video_id": "Dky_8mOTl0Y",
-   "channel": "Simply Bitcoin",
-   "duration": 15.61,
-   "text": "all of the hackers in the world have been trying to steal trillions of dollars in value. And now they're saying that quantum computing is trying to steal trillions of dollars in Bitcoin, but somehow they can't crack it. And in the code, they also put the ability to not print more. There can only be 21 million.",
-   "text_sha256": "6ebe86e591fe4955b89fa97f7a55c8ea73e552463b5169649b102e6ffac5c612",
-   "trimmed_leading": "So"
   },
   {
    "pid": "68b7d3931b237a2d5aa9",
@@ -163,15 +118,6 @@
    "duration": 23.81,
    "text": "People like to deny the utility because they don't have to deal with the hard problems of how to deal with it. If I just say this is all useless, I can just keep it away, then it's very, you don't have to go to those second order questions. I just don't think you can look at this and see all the innovations in stable coins, in the hard money of Bitcoin provides in Defi and say this is all useless.",
    "text_sha256": "ba86a961707db7e23d8dba15f7066b6eb29d05b78f148e4d917e877e756b8c17",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "3489bcbd954ec184744a",
-   "video_id": "Dky_8mOTl0Y",
-   "channel": "Simply Bitcoin",
-   "duration": 14.27,
-   "text": "If Bitcoin is the one thing that I know that they can't print, then how much do I need? How much do I need to retire from? In this next episode, we go through Jeff Booth's math on the equation. Jeff Booth wrote The Price of Tomorrow, trying to help us rethink about how Bitcoin reprises everything in the system.",
-   "text_sha256": "ce010e009db4f72fcc998f4c8f095310c17a1dd7133d85d9d318fd0eb5ae585b",
    "trimmed_leading": null
   },
   {
@@ -208,15 +154,6 @@
    "duration": 18.28,
    "text": "The last time difficulty adjustment fell this much was a few weeks before Bitcoin hit its low for the entire year. So there could be more pain ahead because another wave of levered positions could get liquidated if the Bitcoin price falls to around 60K. But some analysts say the bottom already happened this summer when Bitcoin hit around $59,000.",
    "text_sha256": "564eec37c415e0532d59a48cd1096ee640d46bbeb27c98695386aec41142daba",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "96ce2f1977b8329c3e97",
-   "video_id": "Dky_8mOTl0Y",
-   "channel": "Simply Bitcoin",
-   "duration": 21.98,
-   "text": "That's every other crypto coin out there right now. Somebody made it, somebody controls it, and somebody's got a button and a magic equation to wipe it all out. And this brings us to our sponsors. leaden the leader in bitcoin back loans. They allow you to borrow against your Bitcoin, like Michael Saylor talked about, without selling your Bitcoin, using collateral that you have to get productive assets on the other side.",
-   "text_sha256": "0ff716902618b969d285350e2b9ffec87ad79e0c0416653ca787c5524b17bbb7",
    "trimmed_leading": null
   },
   {
