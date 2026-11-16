@@ -1,0 +1,18 @@
+{
+ "fingerprint": "df418fe1858c8763477064b608ea8c988ff1d0697bdd121bd8da20afdaa56a48",
+ "parts": {
+  "moments": "f083928a0d85e48d8e84d373be65b8b2e2d18ddf27508b24ce23ea302c037c50",
+  "delivered": "63756e8a811fada028028d28149726fcb15a4efc7c259263c2249aeb733c8434",
+  "day_et": "2026-11-16",
+  "code": "78f5370ce6d83c9c484b06c4e1af80f5942fca16a9849c3dce0ddcfb59a23c11",
+  "candidates": "1e46cd03be4fae1a3bd73364704703c0094156b01d6a8ecc479e8dec36aaed46",
+  "due": [],
+  "spotlights": "710d9f9fa4d4b706be1e5ca7bfef3a8b6718df17570f4d75ffb197143d6420ae",
+  "directives": "a1caab6e5bbbf60ae9677b272d4fc9c9f7f5a01558b962ead2932db5416f81cd",
+  "precheck_results": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "scorer_verdicts": "82a2419b435a0207585177d2203a7e53f16f5d1a03942c414c75ab036ac382a8",
+  "routing": "heimdall_first"
+ },
+ "open_work": 1,
+ "build": "tests/package/proof/ledger_20261116_130106"
+}

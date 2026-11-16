@@ -1,6 +1,6 @@
 {
- "usd_estimate": 4.641064,
- "calls": 67,
+ "usd_estimate": 4.660807,
+ "calls": 69,
  "by_backend": {
   "xai:grok-4.20-0309-reasoning": {
    "calls": 24,
@@ -16,10 +16,10 @@
    "in_reported": 33906
   },
   "heimdall:z-ai/glm-5.3-flash": {
-   "calls": 10,
+   "calls": 11,
    "in": 12347,
    "out": 23052,
-   "usd_estimate": 0.419184,
+   "usd_estimate": 0.438276,
    "price_usd_per_1m": [
     3,
     15
@@ -29,17 +29,17 @@
    "in_reported": 12347
   },
   "heimdall:qwen/qwen3.8-27b": {
-   "calls": 7,
-   "in": 4500,
-   "out": 5449,
-   "usd_estimate": 0.095235,
+   "calls": 8,
+   "in": 4567,
+   "out": 5479,
+   "usd_estimate": 0.095886,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.00416127,
-   "reported_calls": 7,
-   "in_reported": 4500
+   "usd_reported": 0.00419304,
+   "reported_calls": 8,
+   "in_reported": 4567
   },
   "heimdall:deepseek/deepseek-v4.1-flash": {
    "calls": 12,
@@ -81,12 +81,12 @@
  },
  "by_role": {
   "context_verdict": {
-   "calls": 19,
-   "usd_estimate": 1.571689
+   "calls": 20,
+   "usd_estimate": 1.590781
   },
   "probe87:heimdall:qwen/qwen3.8-27b": {
-   "calls": 3,
-   "usd_estimate": 0.003039
+   "calls": 4,
+   "usd_estimate": 0.00369
   },
   "probe87:heimdall:deepseek/deepseek-v4.1-flash": {
    "calls": 2,
@@ -134,7 +134,7 @@
   }
  },
  "reserved": {},
- "usd_reported": 0.5413201,
- "usd_unreported_estimate": 0.057052,
+ "usd_reported": 0.54135187,
+ "usd_unreported_estimate": 0.058723,
  "late_answers": 2
 }
