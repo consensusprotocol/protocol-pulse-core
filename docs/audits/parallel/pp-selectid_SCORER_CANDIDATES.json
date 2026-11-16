@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T19:55:30+00:00",
- "build": "ledger_20261116_195504",
+ "generated_at": "2026-11-16T19:56:55+00:00",
+ "build": "ledger_20261116_195631",
  "kind": "moments",
  "candidates": [
   {
@@ -28,6 +28,33 @@
    "duration": 11.56,
    "text": "And so, again, this just points to the fact that every company is going to become a Bitcoin company in some way, shape, or form. Right now, we just happen to be. sort of at this juncture where everyone's trying to figure out what that actually means and what it means for them specifically.",
    "text_sha256": "d3577c5c43f788bfa51f40cdacaa970df22de212c8d12b68af40aa17a799e45c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "4cfa773e70ab6741866f",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 10.12,
+   "text": "And if we can't even get permissionless system on the mining level. Again, that sets a very dangerous precedent. I don't want Bitcoin to head in that direction.",
+   "text_sha256": "fbb2faa2ba442a9c484e9153474d00b6d8c288e40f1609f5d6f5f1731896403e",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "876754933e193c36a63c",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 16.97,
+   "text": "And it seems counterintuitive and almost seems a little bit painful because Bitcoin could dim a little bit further. But... Remember, guys, volatility is life, right? If Bitcoin weren't volatile, you wouldn't have these price swings upward.",
+   "text_sha256": "f045fe2015516a29ea5bbabd8972a3bf4395abcb0807ebf24ffcb960bf46e66d",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d23765103781f51ffbd3",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 14.38,
+   "text": "So from a risk adjusted return basis, buying Bitcoin today is not like buying Bitcoin in 2017. Like you're not going to get these crazy price movements. I remember when you would have these crazy price movements in a day.",
+   "text_sha256": "b1767dc2840b06feca01e7b0f9b0c1c1b51556de80c8c302b83bf9bd22734393",
    "trimmed_leading": null
   },
   {
@@ -191,6 +218,33 @@
    "text": "from where newly mined Bitcoin gets paid to help banks move existing dollars, JP Morgan and DBS, have a new cross -border connection.",
    "text_sha256": "615530b52bc4ec2fd5fa53a0570632dc790fb6d42b8b5959f4da8131db510fc9",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "4cfa773e70ab6741866f~trim",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 10.02,
+   "text": "if we can't even get permissionless system on the mining level. Again, that sets a very dangerous precedent. I don't want Bitcoin to head in that direction.",
+   "text_sha256": "bb23b3af3de2999f69b38ab835d90348da297d9c5ba12afce3e877c9bedcdb08",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "876754933e193c36a63c~trim",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 16.57,
+   "text": "it seems counterintuitive and almost seems a little bit painful because Bitcoin could dim a little bit further. But... Remember, guys, volatility is life, right? If Bitcoin weren't volatile, you wouldn't have these price swings upward.",
+   "text_sha256": "989beea2744d3ae8d20ec1c31da4761c04235f3df93c9d1fe1b68d4f415f378e",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "d23765103781f51ffbd3~trim",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 14.34,
+   "text": "from a risk adjusted return basis, buying Bitcoin today is not like buying Bitcoin in 2017. Like you're not going to get these crazy price movements. I remember when you would have these crazy price movements in a day.",
+   "text_sha256": "84529d4ac46dea813eb9b07193466d4dab48596c2b5f0625d70de7bacbb905b9",
+   "trimmed_leading": "So"
   },
   {
    "pid": "3363fd67aed30e5f3797~trim",
@@ -589,6 +643,24 @@
    "trimmed_leading": null
   },
   {
+   "pid": "32d1aa1d712226cfbedb",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 23.7,
+   "text": "The 2021 all -time high was at 69,000. And you did not have this amount of institutional interest in Bitcoin. You didn't have BlackRock dropping a report, literally saying the 6040 portfolio is not good enough anymore. You need Bitcoin in your portfolio. We're recommending one to three. percent.",
+   "text_sha256": "603f3c16c16194bf420f28ff11c3f13d81e1e21921c1e27ba0082594dce71797",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "be50da8dcf44dd53326b",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 19.0,
+   "text": "Bitcoiners are giving you the option. It's not an easy option. It requires low time preference. It requires discipline. But we're giving the option saying, hey, guys, it doesn't matter who gets elected into office. You opt out and you put your purchasing power, your savings into Bitcoin.",
+   "text_sha256": "ff83f2b2a77f61d0b234d89650c853ac285b90c27d5b03ded38e38bdb06a62ba",
+   "trimmed_leading": null
+  },
+  {
    "pid": "7f4d5b59afdef8fe208e",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -670,6 +742,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "6ae2a656bd6de9bb4024~trim",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 15.94,
+   "text": "if we can't even get permissionless system on the mining level. Again, that sets a very dangerous precedent. I don't want Bitcoin to head in that direction. So, Bob, it was an honor to have you on today's show. Always enjoy our conversations.",
+   "text_sha256": "074c85fe50bf29a02e429a739410bdaa654807ac56c1c7c5056a37ee90f51d28",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "d21e343f509a3ddbcdc2",
    "video_id": "stg5ui9sPos",
    "channel": "Yahoo Finance",
@@ -677,6 +758,33 @@
    "text": "I'm the guy who buys Bitcoin when there's blood in the streets and I can tell you all the famous things traders have said, buy blood in the streets even if it's your own. The market can stay irrational longer than you can remain solvent. I've got quotes for days. But I believe in them. I believe in them.",
    "text_sha256": "734ffb1b5cbfe8e153de54abdab662b759ebe7b176673c15f607461b0148343f",
    "trimmed_leading": null
+  },
+  {
+   "pid": "519890919fca3e0a1516",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 13.87,
+   "text": "When you have the mainstream commentators all saying the same exact thing, historically speaking, these are when legends are made. This is when conviction is tested. Are you really in Bitcoin?",
+   "text_sha256": "2b8a521a9c3c9876f18a7d9234086b49c542b533ed6f5e6b3f8945fea93145e7",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "6f45e4a4b618e16820b3~trim",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 19.42,
+   "text": "from a risk adjusted return basis, buying Bitcoin today is not like buying Bitcoin in 2017. Like you're not going to get these crazy price movements. I remember when you would have these crazy price movements in a day. Like, I remember when like the volatility of Bitcoin, like Bitcoin would drop 50 % in a day.",
+   "text_sha256": "505ea6a6d60f1315603b1ca355f619925a91aeb7d602b4c8cdcd6079eb338c3a",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "f3837f53d32a0d72a9bd~trim",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 32.42,
+   "text": "again, this mission has never been as important because there is no other mining pool that is permissionless, right? And that, again, directly aligns with... the Bitcoin ethos. So, and if you're going down that train of thought, right, this is not just about the current event that just happened. Yeah. This is about preserving the freedom and sovereignty of individuals and generations to come.",
+   "text_sha256": "2c8b94637b673064d0cbe36bd0faae6861bf27fb5ecc854a0f17484f49367972",
+   "trimmed_leading": "And"
   },
   {
    "pid": "f89acd3a61d03fa8d2a4",
@@ -1297,6 +1405,15 @@
    "duration": 16.72,
    "text": "We did see Bitcoin fall off a cliff in the weekend. Now we see Asian markets really weak here, especially Taiwan. Taiwan's having a spectacularly big move for a market that is pretty quiet. Volatility in Taiwan has been on the way up, but nothing like what we're seeing here versus the rest of the region.",
    "text_sha256": "eab12b44fc99b9a265b49e7753343b85cd7adba7ef3f96d4038155c467cf4097",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "6696c4a3229e81e462e7",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 31.17,
+   "text": "We have had over the last year a reversal, though, where those large miners have shifted to AI. In fact, if you go to, you know, there's several of them like Clean Spark and Iron and... those sort of places that have said we're not even going to participate in Bitcoin anymore. And that trend is pretty much pervasive across all the large ones. If you go to the websites of those organizations, I would challenge you to find the word Bitcoin.",
+   "text_sha256": "7597673117efb30195e67012de58fe9ca183ba4f3f32bdc39d46c5a08f514dbc",
    "trimmed_leading": null
   },
   {
