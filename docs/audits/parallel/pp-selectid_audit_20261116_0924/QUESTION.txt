@@ -1,0 +1,51 @@
+pp-selectid: RULING 118 (4) (orchestrator 05:40 ET Nov 16), STORY-FIRST LINE-UPS. Files: pipeline/package.py (read_stories,
+story_angles, story_pool, story_writers, angle_source; build(); load_candidate), pipeline/candidates.py (seed),
+tests/package/proof_ledger.py (the builds pass the stories file), tests/package/test_medley.py, tests/package/test_candidates.py.
+
+THE ORDER, verbatim: "(4) STORY-FIRST LINE-UPS (the supply fix that costs nothing): what killed every line-up yesterday was
+joins and no through-line, because angles were assembled from moments that only share a topic word. The receipts session
+(pipeline_pi_receipts, /home/ultron/pulse_intel) now reads every moment into claims and groups the day's claims across
+channels into STORIES. It will write, read-only for you, /home/ultron/pulse_intel/stories/latest.json: stories with their
+moment_ids, channels and one-line headline, refreshed as moments arrive. Add an angle source that builds a line-up INSIDE
+ONE STORY (hook and clips all from the same story, 3 channels), ahead of the angle writer; every gate unchanged. Until that
+file exists, build as now."
+THE FILE (its writer's docstring, /home/ultron/pulse_intel/stories.py): {"generated_at", "grouped_at", "window", "prompt_version",
+"models": {"group": [two model ids]}, "counts", "note", "stories": [{"story_id", "headline", "channels", "n_claims",
+"moments": [{"moment_id", "video_id", "channel_name", "published_at", "claims": [...]}]}]}; replaced in one step (temp file
++ rename); a moment sits in at most one story; a story is written only with claims from >= 2 channels; every 15 minutes.
+
+THE CHANGE:
+- read_stories(path): the file in that shape or not at all (no file / unreadable / any story out of shape: no stories, the
+  record says why; the build goes on as before). Each story -> {story_id, headline (whitespace normalised), moment_ids}.
+- story_angles(stories, cleared, passing hooks, k=MAX_ANGLES): per story (file order), its best PASSING hook among its
+  cleared moments; moments = that hook, then the story's other cleared moments, a new channel first, then by rank (<= 8);
+  sentence = the headline; it must pass the writer's own angle contract (check_angles, package.py:1058: 3-8 distinct
+  moments, >= 3 channels, the hook one of them and a passing hook) or the story gives no angle (recorded). At most k.
+- build(): only when there is no candidate (ruling 66) and a stories path: the story angles go AHEAD of the writer's angles
+  (each list sorted by ruling 59/57's key as before). The writer is still asked exactly as before (its follow-up only for
+  its own angles); when it gives no angle the build stops as before (the writes stay on the writer's gateway, ruling 85:
+  package.py:3207). In the per-angle loop, sel = story_pool(angle, cleared, ...): a story angle's join table
+  (join_moments), its fill (pool_fill) and both swaps (swap_lineup: a weak clip; a clip failing its re-screen) take
+  moments ONLY from its story's cleared moments; any other angle the whole pool as before. lineup_for (package.py:1730)
+  and search_lineups (package.py:2143) choose only among the angle's own moments / its join table's moments, so the story
+  holds there by construction (unchanged).
+- Law L-x: story_writers(): the router back-ends running the file's grouping models give their vendors and families to
+  the writers' sets every verdict avoids (with the angle writer's, as before).
+- angle_source(): a story angle's package records "story <id> (the stories file)" as its angle's maker (models.angle).
+- A story angle's line-up is never a ruling-66 candidate (candidates.seed skips it; load_candidate refuses it and its
+  first pick skips it): its angle has no writer back-end for L-x; a later build reads the story again.
+- proof_ledger passes stories_path=PK.STORIES to the builds (a candidate's build ignores it).
+
+UNCHANGED GUARDS (not in the diff): every verdict and gate after the line-up (clips-alone, coherence, fidelity, step A
+re-screens, the hook bar, the render's STAND_ALONE at the pin stage package.py:1085); the loop stops at the first package
+that passes every gate; the candidate loop takes angles[0] only on a candidate's build (package.py:3410).
+
+TESTS (test_medley TestRuling118StoryFirst, 11; test_candidates, 1): the reader (shape or nothing); the angles (best
+passing hook, new channels first, 2 channels refused, no passing hook, k); story_pool; the build: the story angle first and
+its line-ups inside its story; a story too short is never filled from outside it; its join table asked only of its story;
+both swaps inside it, and its package names the story; L-x; no file / no 3-channel story / no writer: as before; a
+candidate's build reads no stories; never a candidate. Mutations S1-S18 after a control run: 18 of 18 killed.
+
+PLEASE CHECK: (1) that a story angle can never take a hook or clip from outside its story, in any path of the loop;
+(2) that nothing changes when there is no file, no story of 3 channels, or a candidate; (3) that every gate is unchanged;
+(4) L-x; (5) the tests.

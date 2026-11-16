@@ -481,6 +481,7 @@ def main(argv=None):
               join_cache=os.path.join(HERE, "proof", "JOIN_CACHE.json"),          # ruling 117: cached
               scorer_verdicts_path=PK.SCORER_VERDICTS,                            # ruling 56 / 60: read only
               scorer_candidates_path=PK.SCORER_CANDIDATES, build_name=os.path.basename(out_dir),
+              stories_path=PK.STORIES,                                             # ruling 118 (4): read only
               visual_cache=os.path.join(HERE, "proof", "VISUAL_CACHE.json"),       # ruling 70
               lock_check=lambda segs, n=iter(range(1, 10 ** 6)): LP.check(       # rulings 68 / 72: before any write
                   segs, f"pp-selectid.{os.path.basename(out_dir)}.{next(n)}", log=say))

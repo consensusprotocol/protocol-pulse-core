@@ -62,16 +62,22 @@ def seed(reg, record, source):
     """Seed the registry from one build record, once per record (reg["records"]). Every tried line-up that passed the
     clips-alone verdict and is not itself a candidate's try becomes a candidate (one per line-up, the earliest record
     that passed it). A line-up the record packaged is closed. A record written before the registry existed applies
-    the outcome of the candidate it tried (its out["candidate"]). -> the keys added."""
+    the outcome of the candidate it tried (its out["candidate"]). A story angle's line-up (ruling 118 (4)) is never
+    a candidate: its angle has no writer back-end (law L-x), and a later build reads the story again. -> the keys
+    added."""
     if source in reg["records"]:
         return []
     reg["records"].append(source)
     added, at = [], record.get("now")
     pk = record.get("package") or {}
     packaged = [s.get("moment_id") for s in pk.get("segments") or []]
+    angles = record.get("angles") or []
+    story = lambda t: type(t.get("angle")) is int and 0 < t["angle"] <= len(angles) and \
+        bool((angles[t["angle"] - 1] or {}).get("story"))                 # RULING 118 (4)
     for i, t in enumerate(record.get("tried") or []):
         lu = t.get("lineup")
-        if t.get("medley_ok") is not True or not isinstance(lu, list) or not lu or t.get("candidate") is not None:
+        if t.get("medley_ok") is not True or not isinstance(lu, list) or not lu or t.get("candidate") is not None \
+                or story(t):
             continue
         k = key(lu)
         if k not in reg["candidates"]:

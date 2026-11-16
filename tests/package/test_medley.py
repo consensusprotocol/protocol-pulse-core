@@ -754,6 +754,8 @@ class Rig:
             kw["registered"] = self.registered
         if self.lock_check is not None:
             kw["lock_check"] = self.lock_check
+        if getattr(self, "stories_path", None):            # RULING 118 (4): the stories file (default: none read)
+            kw["stories_path"] = self.stories_path
         if self.verdicts is not None:                      # ruling 56: the integrator's file, read by the real reader
             import tempfile
             fd, path = tempfile.mkstemp(suffix=".json")
@@ -4457,6 +4459,180 @@ class TestRuling109Channels(unittest.TestCase):
         out = rig.run()
         self.assertEqual(rig.screens, [("xai:grok", self.ALL)])           # screened as before this gate
         self.assertNotIn("ruling_109", out)
+
+
+class TestRuling118StoryFirst(unittest.TestCase):
+    """RULING 118 (4) (orchestrator 05:40 ET Nov 16), STORY-FIRST LINE-UPS: an angle source that builds a line-up INSIDE
+    ONE STORY (the hook and every clip from the same story, 3 channels), ahead of the angle writer, every gate unchanged;
+    the receipts session's stories file is read only; no file: the build as before."""
+    GROUP = {"group": ["deepseek/deepseek-v4.1-flash", "minimax/minimax-m3.1-flash"]}
+    MS = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0), pm("q", "E", 13.0)]
+    STORY = [("S-1", "Bitcoin's own story", ["h", "x", "y", "gone"])]
+
+    def file(self, stories, models=GROUP):
+        d = tempfile.mkdtemp()
+        self.addCleanup(lambda: [os.remove(os.path.join(d, f)) for f in os.listdir(d)] and None or os.rmdir(d))
+        p = os.path.join(d, "latest.json")
+        with open(p, "w") as f:
+            json.dump({"generated_at": "2026-11-16T13:43:27Z", "prompt_version": "st1-x", "models": models,
+                       "stories": [{"story_id": sid, "headline": hl, "channels": 3, "n_claims": 6,
+                                    "moments": [{"moment_id": m, "video_id": "v" + m, "channel_name": "c",
+                                                 "published_at": "2026-11-16T10:00:00Z", "claims": []} for m in ms]}
+                                   for sid, hl, ms in stories]}, f)
+        return p
+
+    def rig(self, ms, writer, stories, **kw):
+        rig = Rig(ms, writer, [(False, [], None, "none")] * 20, [], **kw)
+        rig.stories_path = self.file(stories) if stories is not None else "/nonexistent/stories/latest.json"
+        return rig
+
+    def test_every_swap_of_a_story_line_up_stays_inside_its_story(self):
+        ms = self.MS + [pm("w", "F", 13.0, rank=5.0)]                     # in the story, ranked under the pool's z, q
+        story = [("S-1", "Bitcoin's own story", ["h", "x", "y", "w"])]
+        rig = self.rig(ms, ["h", "x", "y", "z", "q"], story)               # a weak clip: swapped inside the story
+        rig.medleys = [(False, [], {"clip_02": 2}, Rig.LINE)] + [(False, [], None, "none")] * 6
+        out = rig.run()
+        mine = [lu for r in out["tried"] if r["angle"] == 1 for lu in [r["lineup"]] if lu]
+        self.assertEqual(mine[:2], [["h", "x", "y"], ["h", "x", "w"]], out["tried"])
+        rig = self.rig(ms, ["h", "x", "y", "z", "q"], story, angle_from=("xai:grok", "xai", "grok"),
+                       a_fail={("openai", "y"): ["REFERENT_OUTSIDE"]})    # a clip failing its re-screen: the same
+        rig.medleys, rig.writes = [(True, [], None, Rig.LINE)] * 2, [None, None]
+        out = rig.run()
+        self.assertEqual(rig.medley_calls, [["h", "x", "y"], ["h", "x", "w"]])
+        self.assertIn("swapped {'y': 'w'}", out["tried"][0]["why"])
+        self.assertEqual(out["package"]["models"]["angle"], "story S-1 (the stories file)")   # who made its angle
+
+    def test_a_candidates_build_reads_no_stories(self):
+        med = {"through_line": "Nobody controls the rules.", "clips": {"hook": 4, "clip_01": 4, "clip_02": 4},
+               "flagged": [], "measured": True, "replayed": False, "backend": "xai:grok"}
+        c = PK.load_candidate({"tried": [{"angle": 1, "text": "W", "lineup": ["h", "z", "q"], "supply_exception": None,
+                                          "medley": med, "medley_ok": True}],
+                               "angles": [{"angle": "W", "moments": ["h", "x", "y", "z", "q"], "hook": "h"}],
+                               "angle_backend": "heimdall:deepseek", "angle_tried": []}, source="proof/ledger_x")
+        rig = self.rig(self.MS, ["h", "x", "y", "z", "q"], self.STORY, candidate=c)
+        out = rig.run()
+        self.assertNotIn("stories", out)
+        self.assertEqual((rig.medley_calls[0], out["tried"][0]["text"]), (["h", "z", "q"], "W"))   # its own, as judged
+
+    def test_the_file_is_read_in_its_writers_shape_or_not_at_all(self):
+        self.assertEqual(PK.read_stories(None), ([], {"path": None, "read": False, "why": "no stories file named"}))
+        st, rec = PK.read_stories("/nonexistent/stories/latest.json")
+        self.assertEqual((st, rec["read"], rec["why"]), ([], False, "no file"))
+        p = self.file([("S-1", "  Bitcoin   falls ", ["a", "b", "a"])])
+        st, rec = PK.read_stories(p)
+        self.assertEqual(st, [{"story_id": "S-1", "headline": "Bitcoin falls", "moment_ids": ["a", "b"]}])
+        self.assertEqual((rec["read"], rec["generated_at"], rec["models"], rec["stories"]),
+                         (True, "2026-11-16T13:43:27Z", self.GROUP, 1))
+        for bad in ([], {"stories": {}}, {"stories": [{"story_id": "S-1", "headline": "h", "moments": "a"}]},
+                    {"stories": [{"story_id": "S-1", "headline": " ", "moments": []}]},
+                    {"stories": [{"story_id": "", "headline": "h", "moments": []}]},
+                    {"stories": [{"story_id": "S-1", "headline": "h", "moments": [{"moment_id": 3}]}]},
+                    {"stories": [{"story_id": "S-1", "headline": "h", "moments": []}, "S-2"]}):
+            with open(p, "w") as f:
+                json.dump(bad, f)
+            st, rec = PK.read_stories(p)
+            self.assertEqual((st, rec["read"]), ([], False), bad)          # the whole file, never part of it
+        with open(p, "w") as f:
+            f.write("{")
+        self.assertEqual(PK.read_stories(p)[1]["why"], "unreadable (JSONDecodeError)")
+
+    def test_one_angle_a_story_on_its_best_passing_hook_new_channels_first_and_the_angle_contract(self):
+        pool = {m["moment_id"]: m for m in [pm("h", "A", 12.0), pm("x", "B", 14.0, rank=5.0), pm("y", "C", 13.0, rank=6.0),
+                                            pm("w", "A", 11.0, rank=9.0), pm("z", "D", 13.0)]}
+        st = [{"story_id": "S-1", "headline": "One", "moment_ids": ["h", "w", "x", "y", "gone"]},
+              {"story_id": "S-2", "headline": "Two", "moment_ids": ["h", "w", "z"]},          # two channels
+              {"story_id": "S-3", "headline": "Three", "moment_ids": ["y", "w", "z"]},        # no passing hook
+              {"story_id": "S-6", "headline": "Six", "moment_ids": ["x", "z", "gone"]},       # two cleared moments
+              {"story_id": "S-4", "headline": "Four", "moment_ids": ["h", "y", "z"]},
+              {"story_id": "S-5", "headline": "Five", "moment_ids": ["h", "y", "z"]}]         # over k
+        angles, rec = PK.story_angles(st, pool, [pool["x"], pool["h"]], k=2)               # the passing hooks, best first
+        self.assertEqual(angles, [{"angle": "One", "moments": ["x", "h", "y", "w"], "hook": "x", "story": "S-1"},
+                                  {"angle": "Four", "moments": ["h", "z", "y"], "hook": "h", "story": "S-4"}])
+        self.assertEqual((rec[0]["cleared"], rec[0]["channels"]), (4, 3))                  # "gone" is not in the pool
+        self.assertTrue(rec[1]["why"].startswith("not an angle: angle 1: >= 3 channels"), rec[1])
+        self.assertEqual(rec[2]["why"], "no passing hook among its cleared moments")
+        self.assertEqual(rec[3]["why"], "not an angle: angle 1: 3-8 distinct offered ids")     # the contract's 3
+        self.assertEqual(rec[5]["why"], "2 story angle(s) already")
+        for a in angles:                                                                  # the writer's own contract
+            PK.check_angles({"angles": [{"angle": a["angle"], "moments": a["moments"], "hook": a["hook"],
+                                         "support": {m: "s" for m in a["moments"]}}]}, pool, 1, hooks={"x", "h"})
+
+    def test_a_story_angle_chooses_only_inside_its_story(self):
+        pool = {m["moment_id"]: m for m in self.MS}
+        by = {"S-1": ["h", "x", "gone"]}
+        self.assertEqual(set(PK.story_pool({"story": "S-1"}, pool, by)), {"h", "x"})
+        self.assertEqual(PK.story_pool({"story": "S-9"}, pool, by), {})                  # a story it does not hold
+        self.assertIs(PK.story_pool({"angle": "w", "hook": "h"}, pool, by), pool)         # the writer's: as before
+
+    def test_the_story_angle_is_tried_first_and_its_line_ups_stay_inside_its_story(self):
+        rig = self.rig(self.MS, ["h", "x", "y", "z", "q"], self.STORY)
+        out = rig.run()
+        self.assertEqual(out["angles"][0], {"angle": "Bitcoin's own story", "moments": ["h", "x", "y"], "hook": "h",
+                                            "story": "S-1"})
+        self.assertNotIn("story", out["angles"][1])                                      # the writer's, after it
+        self.assertEqual((out["stories"]["read"], out["stories"]["angles"][0]["angle"]), (True, 1))
+        self.assertEqual(out["tried"][0]["angle"], 1)
+        mine = [r["lineup"] for r in out["tried"] if r["angle"] == 1 and r["lineup"]]
+        self.assertTrue(mine and all(set(lu) <= {"h", "x", "y"} for lu in mine), out["tried"])
+        self.assertEqual(rig.medley_calls[0], mine[0])                                    # judged first, as any line-up
+
+    def test_a_story_too_short_for_a_line_up_is_never_filled_from_outside_it(self):
+        ms = [pm("h", "A", 10.0), pm("x", "B", 9.0), pm("y", "C", 9.0), pm("z", "D", 13.0), pm("q", "E", 13.0)]
+        out = self.rig(ms, ["h", "z", "q", "x"], [("S-1", "A short story", ["h", "x", "y"])]).run()
+        self.assertEqual(out["angles"][0]["story"], "S-1")
+        mine = [r for r in out["tried"] if r["angle"] == 1]
+        self.assertTrue(mine)
+        for r in mine:                                    # 28 s of its own clips: no line-up, never the pool's z or q
+            self.assertIsNone(r["lineup"], r)
+            self.assertNotIn("pool_filled", r)
+
+    def test_the_join_table_of_a_story_angle_is_asked_only_of_its_story(self):
+        ids = [m["moment_id"] for m in self.MS]
+        rig = self.rig(self.MS, ["h", "x", "y", "z", "q"], self.STORY,
+                       joins={(a, b): True for a in ids for b in ids if a != b})
+        out = rig.run()
+        self.assertEqual(rig.join_calls[0], ["h", "x", "y"])                             # the story angle's: its story
+        self.assertEqual(set(rig.join_calls[1]), set(ids))                               # the writer's: the pool
+        self.assertTrue(all(set(r["lineup"]) <= {"h", "x", "y"} for r in out["tried"] if r["angle"] == 1 and r["lineup"]))
+
+    def test_the_stories_grouping_models_never_judge_its_line_ups(self):
+        rig = self.rig(self.MS, ["h", "x", "y", "z", "q"], self.STORY)
+        rig.router.backends["heimdall:qwen"].model = "minimax/minimax-m3.1-flash"        # a back-end running one of them
+        seen, jt = [], rig.join_table
+        rig.join_table = lambda router, ms_, c, wv, wf=None, **k: (seen.append((set(wv), set(wf or ()))),
+                                                                   jt(router, ms_, c, wv, wf, **k))[1]
+        out = rig.run()
+        self.assertEqual(out["stories"]["writers"], {"vendors": ["heimdall"], "families": ["qwen"]})
+        self.assertTrue(seen and all("heimdall" in wv and "qwen" in wf for wv, wf in seen), seen)
+
+    def test_no_file_no_story_of_three_channels_or_no_writer_builds_as_before(self):
+        out = self.rig(self.MS, ["h", "x", "y", "z", "q"], None).run()
+        self.assertEqual((out["stories"]["read"], out["stories"]["why"]), (False, "no file"))
+        self.assertTrue(all("story" not in a for a in out["angles"]))
+        ms = self.MS + [pm("w", "A", 11.0)]
+        out = self.rig(ms, ["h", "x", "y", "z", "q"], [("S-2", "Two channels", ["h", "w", "x"])]).run()
+        self.assertTrue(out["stories"]["angles"][0]["why"].startswith("not an angle"))
+        self.assertTrue(all("story" not in a for a in out["angles"]))
+        self.assertNotIn("stories", Rig(self.MS, ["h", "x", "y", "z", "q"], [(False, [], None, "none")] * 4, []).run())
+        rig = self.rig(self.MS, ["h", "x", "y", "z", "q"], self.STORY)
+        rig.router.answers["angle_write"] = ["{", "{"]                               # the writer gives no angle:
+        out = rig.run()                                                              # the build stops, as before
+        self.assertTrue(out["why_none"].startswith("no readable angles"))
+        self.assertEqual((out["angles"], rig.medley_calls), ([], []))
+
+    def test_a_story_angles_line_up_is_never_kept_as_a_candidate(self):
+        med = {"measured": True, "replayed": False}
+        rec = {"angle_backend": "heimdall:deepseek",
+               "angles": [{"angle": "S", "moments": ["h", "x", "y"], "hook": "h", "story": "S-1"},
+                          {"angle": "W", "moments": ["h", "x", "y", "z"], "hook": "h"}],
+               "tried": [{"angle": 1, "text": "S", "lineup": ["h", "x", "y"], "medley_ok": True, "medley": med},
+                         {"angle": 2, "text": "W", "lineup": ["h", "x", "z"], "medley_ok": True, "medley": med}]}
+        self.assertEqual(PK.load_candidate(rec)["index"], 1)                             # the writer's line-up
+        with self.assertRaisesRegex(ValueError, "story 'S-1'"):
+            PK.load_candidate(rec, 0)
+        rec["angles"][1]["story"] = "S-2"
+        with self.assertRaisesRegex(ValueError, "no line-up in this record passed"):
+            PK.load_candidate(rec)
 
 
 if __name__ == "__main__":

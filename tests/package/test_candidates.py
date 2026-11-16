@@ -173,5 +173,13 @@ class TestRegistry(unittest.TestCase):
         self.assertTrue(reg["candidates"]["a+b+c"]["history"][-1]["fresh"])
 
 
+    def test_a_story_angles_line_up_is_never_a_candidate(self):
+        """RULING 118 (4): its angle has no writer back-end (law L-x); a later build reads the story again."""
+        rec = record(T0, [dict(t(["a", "b", "c"]), angle=1), dict(t(["a", "b", "d"]), angle=2)])
+        rec["angles"] = [{"angle": "S", "moments": ["a", "b", "c"], "hook": "a", "story": "S-1"},
+                         {"angle": "W", "moments": ["a", "b", "d"], "hook": "a"}]
+        self.assertEqual(CA.seed(CA.new_registry(), rec, "r1"), ["a+b+d"])
+
+
 if __name__ == "__main__":
     unittest.main()

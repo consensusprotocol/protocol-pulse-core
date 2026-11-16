@@ -103,6 +103,8 @@ TRIM_WORDS = ("but", "and", "so", "well", "now", "yeah")   # ruling 33 part 2: t
 # only with the scorer's affirmation of its trimmed text, and package_pin refuses scorer_pending. RULING 60 (11:01): for
 # a moments pin the scorer judges stand-alone only, and the affirmation is the score alone (stand_alone.affirmed with
 # moments=True), as the render's validate reads it.
+STORIES = "/home/ultron/pulse_intel/stories/latest.json"   # RULING 118 (4): the receipts session's stories
+#   (pipeline_pi_receipts; read only), refreshed every 15 minutes: the story-first angles (read_stories)
 SCORER_VERDICTS = "/home/ultron/protocol_pulse/data/stand_alone_scorer/verdicts/latest.json"   # ruling 56: the
 SCORER_KIND = "moments"            # integrator's verdicts (read only); ruling 60: kind "moments", no event
 RENDER_SCORER_CODE = tuple(f"/home/ultron/protocol_pulse/pipeline/{f}" for f in ("stand_alone.py", "story_semantics.py"))
@@ -1982,6 +1984,101 @@ def join_moments(angle, cleared, doomed=frozenset()):
     return ([h] + own + first + then)[:JOIN_MOMENTS_MAX]
 
 
+def read_stories(path):
+    """RULING 118 (4): the receipts session's stories file (pipeline_pi_receipts, /home/ultron/pulse_intel; read only), in
+    its writer's documented shape (stories.py): {"generated_at", ..., "models", "stories": [{"story_id", "headline",
+    "channels", "n_claims", "moments": [{"moment_id", "video_id", "channel_name", "published_at", "claims"}]}]}.
+    -> (stories, record): each story {"story_id", "headline", "moment_ids"}, in the file's order (the most claims
+    first). No path, no file, or a file out of that shape: no stories (the build goes on as before) and the record says
+    why. Its age is recorded, not judged: only the moments this build's own pool still holds can be used."""
+    rec = {"path": path, "read": False}
+    if not path:
+        return [], dict(rec, why="no stories file named")
+    try:
+        with open(path) as f:
+            d = json.load(f)
+    except FileNotFoundError:
+        return [], dict(rec, why="no file")
+    except (OSError, ValueError) as e:
+        return [], dict(rec, why=f"unreadable ({type(e).__name__})")
+    st = d.get("stories") if isinstance(d, dict) else None
+    if not isinstance(st, list):
+        return [], dict(rec, why="no 'stories' list")
+    out = []
+    for i, s in enumerate(st):
+        ms = s.get("moments") if isinstance(s, dict) else None
+        if not (isinstance(ms, list) and isinstance(s.get("story_id"), str) and s["story_id"] and
+                isinstance(s.get("headline"), str) and s["headline"].strip() and
+                all(isinstance(m, dict) and isinstance(m.get("moment_id"), str) for m in ms)):
+            return [], dict(rec, why=f"story {i + 1} is out of the file's shape")
+        out.append({"story_id": s["story_id"], "headline": " ".join(s["headline"].split()),
+                    "moment_ids": list(dict.fromkeys(m["moment_id"] for m in ms))})
+    return out, dict(rec, read=True, generated_at=d.get("generated_at"), prompt_version=d.get("prompt_version"),
+                     models=d.get("models"), stories=len(out))
+
+
+def story_angles(stories, cleared, hooks, k=MAX_ANGLES):
+    """RULING 118 (4), STORY-FIRST LINE-UPS: angles built INSIDE ONE STORY (its hook and every clip from the same story),
+    tried ahead of the angle writer's; every gate unchanged. For each story in the file's order, the best of `hooks`
+    (the build's passing hooks, best first) among the story's cleared moments; the angle's moments are that hook, then
+    the story's other cleared moments, one of each channel not yet in first, then by rank score (at most 8); its
+    sentence is the story's headline. It must hold the angle contract (check_angles: 3-8 distinct moments from >= 3
+    channels, the hook one of them and a passing hook) or the story gives no angle. At most k angles.
+    -> (angles, record): each angle {"angle", "moments", "hook", "story": story_id}; the record, one row a story."""
+    hook_ids = [m["moment_id"] for m in hooks]
+    angles, rec = [], []
+    for s in stories:
+        ids = [x for x in s["moment_ids"] if x in cleared]
+        row = {"story_id": s["story_id"], "cleared": len(ids),
+               "channels": len({cleared[x]["channel_id"] for x in ids})}
+        rec.append(row)
+        if len(angles) >= k:
+            row["why"] = f"{k} story angle(s) already"
+            continue
+        h = next((x for x in hook_ids if x in ids), None)
+        if h is None:
+            row["why"] = "no passing hook among its cleared moments"
+            continue
+        chans, first, then = {cleared[h]["channel_id"]}, [], []
+        for x in sorted((x for x in ids if x != h), key=lambda x: (-cleared[x].get("rank_score", 0), x)):
+            (then if cleared[x]["channel_id"] in chans else first).append(x)
+            chans.add(cleared[x]["channel_id"])
+        ms = ([h] + first + then)[:8]
+        a = {"angle": s["headline"], "moments": ms, "hook": h, "support": {x: s["story_id"] for x in ms}}
+        try:
+            check_angles({"angles": [a]}, cleared, 1, hooks=set(hook_ids))
+        except ValueError as e:
+            row["why"] = f"not an angle: {e}"
+            continue
+        angles.append({"angle": a["angle"], "moments": ms, "hook": h, "story": s["story_id"]})
+        row.update(angle=len(angles), hook=h, moments=ms)
+    return angles, rec
+
+
+def story_pool(angle, cleared, by_story):
+    """RULING 118 (4): the pool a line-up for `angle` takes moments from beyond its own (its join table, the fill, every swap):
+    a story's angle ONLY its story's cleared moments (`by_story`: story id -> moment ids; a story it does not hold gives
+    none); any other angle the whole cleared pool, as before."""
+    if angle.get("story") is None:
+        return cleared
+    return {x: cleared[x] for x in by_story.get(angle["story"]) or () if x in cleared}
+
+
+def story_writers(router, models):
+    """Law L-x for the story angles: the stories file's grouping models chose each story's moments (one of them wrote its
+    headline), so the back-ends of the router that run those models give their vendors and families to the writers'
+    sets the verdicts avoid. A model no back-end runs can judge nothing here. -> (vendors, families)."""
+    ms = {m for m in ((models or {}).get("group") or []) if isinstance(m, str)} if isinstance(models, dict) else set()
+    bs = [b for b in router.backends.values() if getattr(b, "model", None) in ms]
+    return {b.vendor for b in bs}, {b.family for b in bs}
+
+
+def angle_source(angle, reply):
+    """The package's record of who made its angle: the angle writer's back-end, or for a story angle (ruling 118 (4))
+    the story of the receipts session's stories file it was built inside."""
+    return f"story {angle['story']} (the stories file)" if angle.get("story") else reply.backend
+
+
 def join_table(router, ms, ctx, writer_vendor, writer_family=None, cache=None, seed=7):
     """RULING 117 (2): the JOIN TABLE. The clips-alone verdict's own join question (JOIN_QUESTION) asked ONCE per ordered
     pair of `ms` (the angle's hook first, then its other moments; at most JOIN_MOMENTS_MAX; the hook is never B), one
@@ -2690,8 +2787,11 @@ def load_candidate(record, index=None, source=""):
     tried = record.get("tried") or []
     ids_ok = lambda t: isinstance(t.get("lineup"), list) and bool(t["lineup"]) and \
         all(isinstance(x, str) for x in t["lineup"]) and type(t.get("angle")) is int    # audit 1330 C2: the shape
-    if index is None:
-        index = next((i for i, t in enumerate(tried) if t.get("medley_ok") is True and ids_ok(t)), None)
+    story = lambda t: 0 < t["angle"] <= len(record.get("angles") or []) and \
+        bool(((record.get("angles") or [])[t["angle"] - 1] or {}).get("story"))   # RULING 118 (4)
+    if index is None:                                  # (a story angle's line-up is never kept: see below)
+        index = next((i for i, t in enumerate(tried) if t.get("medley_ok") is True and ids_ok(t) and not story(t)),
+                     None)
         if index is None:
             raise ValueError("no line-up in this record passed the clips-alone verdict")
     if not 0 <= index < len(tried):
@@ -2705,6 +2805,9 @@ def load_candidate(record, index=None, source=""):
     ai, angles = int(t["angle"]) - 1, record.get("angles") or []
     if not 0 <= ai < len(angles) or angles[ai].get("angle") != t.get("text"):
         raise ValueError(f"tried[{index}]'s angle is not the record's angle {ai + 1}")
+    if angles[ai].get("story"):                       # RULING 118 (4): its moments were chosen by the stories file's
+        raise ValueError(f"tried[{index}] is story {angles[ai]['story']!r}'s line-up (ruling 118 (4)): not kept, "
+                         f"its angle has no writer back-end for law L-x; a later build reads the story again")
     a = {k: angles[ai][k] for k in ("angle", "moments", "hook")}
     if a["hook"] != t["lineup"][0]:
         raise ValueError(f"tried[{index}] does not open on its angle's hook (ruling 59 c)")
@@ -2743,7 +2846,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
           writes=WRITES, work_dir=None, store=None, spend=None, lineups=LINEUPS_PER_BUILD, step_a_cache=None,
           hook_cache=None, scorer_verdicts_path=None, scorer_candidates_path=None, build_name="", candidate=None,
           join_cache=None,
-          visual_cache=None, registered=None, lock_check=None, scorer_extra=()):
+          visual_cache=None, registered=None, lock_check=None, scorer_extra=(), stories_path=None):
     """L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
     written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
@@ -3024,6 +3127,15 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     lo, hi = medley_content_range()
     angles, angle_reply, errs = None, None, []
     cand_segs = None
+    stories, s_angles, s_writers = [], [], (set(), set())
+    if candidate is None and stories_path:           # RULING 118 (4): STORY-FIRST LINE-UPS, ahead of the angle writer
+        stories, out["stories"] = read_stories(stories_path)
+        s_angles, out["stories"]["angles"] = story_angles(stories, cleared, passing, max_angles)
+        if s_angles:                                  # law L-x: the grouping models chose the story's moments
+            s_writers = story_writers(router, out["stories"].get("models"))
+        log(f"  RULING 118 (4): {len(stories)} story(ies) read, {len(s_angles)} story angle(s)"
+            + ("" if out["stories"]["read"] else f" (no stories: {out['stories']['why']})"))
+    by_story = {s["story_id"]: s["moment_ids"] for s in stories}
     if candidate is not None:                         # RULING 66 (13:18): A PASSED LINE-UP IS KEPT: its own angle and
         cand_segs, why_c = candidate_lineup(router, candidate, cleared, ctx.now)   # line-up; no angle is asked for
         out["candidate"] = {"source": candidate.get("source"), "index": candidate.get("index"),
@@ -3057,8 +3169,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                 router.reject(r)
             errs.append(f"{type(e).__name__}: {str(e)[:200]}")       # every reason, the first one too
             out["why_none"] = "no readable angles: " + "; then ".join(errs)
-    if not angles:
-        return out
+    if not angles:                                    # RULING 118 (4): the story angles go with the writer's only:
+        return out                                    # its back-end keeps every write on its gateway (ruling 85)
     out.pop("why_none", None)
     missing = [m for m in offered if m["moment_id"] not in {a["hook"] for a in angles}] if candidate is None else []
     if missing and len(angles) < max_angles:            # RULING 64: a passing hook left without an angle is asked
@@ -3083,11 +3195,17 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         return bool(segs) and fresh_key(segs, ctx.now)[0]                                              # old go first
     hrank = {m["moment_id"]: (-hook_own(m)["rating"], -sum(m["hook_rating"].get(k) or 0 for k in HOOK_PARTS))
              for m in passing}                            # ruling 59 (c): the best hook first, then ruling 57's
-    angles = sorted(angles, key=lambda a: (hrank[a["hook"]], not first_fresh(a)))   # freshness; stable: the writer's
+    order = lambda a: (hrank[a["hook"]], not first_fresh(a))
+    angles = sorted(s_angles, key=order) + sorted(angles, key=order)   # RULING 118 (4): the story angles first; then
+    # ruling 57's freshness; stable: the writer's
     # order within each
-    out["angles"] = [{"angle": a["angle"], "moments": a["moments"], "hook": a["hook"]} for a in angles]
+    out["angles"] = [{"angle": a["angle"], "moments": a["moments"], "hook": a["hook"],
+                      **({"story": a["story"]} if a.get("story") else {})} for a in angles]
     out["angle_backend"], out["angle_tried"] = angle_reply.backend, [list(x) for x in angle_reply.tried]   # ruling 5
-    writers_v, writers_f = {angle_reply.vendor}, {angle_reply.family}
+    writers_v = {angle_reply.vendor} | s_writers[0]   # RULING 118 (4): and the stories file's grouping models (L-x)
+    writers_f = {angle_reply.family} | s_writers[1]
+    if s_angles:
+        out["stories"]["writers"] = {"vendors": sorted(s_writers[0]), "families": sorted(s_writers[1])}
 
     def pin_last_resort(pk):
         """RULING 102: the pin's record of the local judge's step-A verdicts on its clips (either screen's), by label."""
@@ -3111,7 +3229,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     writer_avoid = {P.gateway(router.backends[n]) for n in router.chain("angle_write") if n in router.backends} - \
         {P.gateway(ab) if ab is not None else angle_reply.vendor}   # heimdall_first a family is its own maker, and
     # a write may still fail over deepseek -> qwen as today); the verdicts avoid every writer's maker and family
-    log(f"  {len(angles)} angles from {angle_reply.backend} ({time.time() - t0:.0f} s)" if candidate is None else
+    log(f"  {len(angles)} angles from {angle_reply.backend}"
+        + (f", the first {len(s_angles)} from the stories file (ruling 118 (4))" if s_angles else "")
+        + f" ({time.time() - t0:.0f} s)" if candidate is None else
         f"  ruling 66: the candidate {candidate.get('source')} tried[{candidate.get('index')}] (angle "
         f"{candidate['ai'] + 1} line-up {candidate['n_lineup']}), as judged: its angle from {angle_reply.backend}, "
         f"no angle asked ({time.time() - t0:.0f} s)")
@@ -3286,7 +3406,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         if problems:
             note["why_not"] = f"a required gate is not exactly PASS: {problems}"
             return None
-        pk["models"] = {"angle": angle_reply.backend,
+        pk["models"] = {"angle": angle_source(angle, angle_reply),
                         "writer": "the latest write's title and caption" if fixed is None else
                                   "the latest write's title; the caption is code's fixed line (07:30 (C), ruling 65 b)",
                         "medley": nv_med.get("backend"), "fidelity_verdict": fid.get("backend"),
@@ -3311,9 +3431,12 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     with ThreadPoolExecutor(max_workers=8) as pool:
         for ai, angle in (enumerate(angles) if candidate is None else [(candidate["ai"], angles[0])]):
             dropped, n_lineup, swapped, filled = set(), 0, None, None
+            sel = story_pool(angle, cleared, by_story)    # RULING 118 (4): a story's angle chooses inside its story
+            #   (its join table, the fill, every swap; lineup_for and the search choose only among the angle's own and
+            #   its join table's moments, so the story holds there by construction)
             jt, a_ratings, ext = {}, {}, angle            # RULING 117: this angle's join table; its clips' ratings
             if candidate is None and angle["hook"] in cleared and angle["hook"] not in doomed:
-                jids = join_moments(angle, cleared, doomed)  # the moments that CAN be in its line-up
+                jids = join_moments(angle, sel, doomed)  # the moments that CAN be in its line-up
                 ext = dict(angle, moments=jids)           # the search's angle: the writer's order first
                 jms = [cleared[x] for x in jids]
                 jt, jt_err = join_table(router, jms, ctx, writers_v, writers_f, cache=join_cache)
@@ -3354,7 +3477,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                             exception = supply_exception(segs, ctx)
                     filled = None
                     if segs is None and n_lineup == 0:    # PROPOSAL 1: the angle's own moments form not even its
-                        segs, filled = pool_fill(angle, cleared, frozenset(dropped | doomed), ctx.now,
+                        segs, filled = pool_fill(angle, sel, frozenset(dropped | doomed), ctx.now,
                                                  hook_only=True)   # FIRST: the
                         # pool completes it. A re-line after a drop moves on to the next angle, as before
                         exception = supply_exception(segs, ctx) if segs is not None else None
@@ -3465,7 +3588,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                       "the clips alone have no through-line a viewer can state (or it was not measured)")
                         break
                     dropped |= weak
-                    swapped, swaps = swap_lineup(segs, weak, cleared, frozenset(dropped | doomed), keep_hook=True)
+                    swapped, swaps = swap_lineup(segs, weak, sel, frozenset(dropped | doomed), keep_hook=True)
                     rec["why"] = (f"the clips alone fail (ratings / joins): swapped {swaps}, re-judged (ruling 41)"
                                   if swapped is not None else
                                   f"the clips alone fail (ratings / joins): dropped {sorted(weak)}, no swap fits the "
@@ -3594,7 +3717,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                             dropped |= set(bad)                # with their reason; the next-best cuttable clip takes
                             doomed |= set(bad)                 # each place (ruling 41's swap); the clips-alone verdict
                             out["prescreen"].setdefault("rescreen_failed", {}).update(bad)     # re-judges the line-up
-                            swapped, swaps = swap_lineup(segs, set(bad), cleared, frozenset(dropped | doomed),
+                            swapped, swaps = swap_lineup(segs, set(bad), sel, frozenset(dropped | doomed),
                                                          keep_hook=True)
                             held = sorted(k for k, v in bad.items() if is_held(v))    # ruling 102: no answer
                             rec["why"] = (f"step A, re-screened off the writer's vendor, fails "
@@ -3786,7 +3909,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                         rec["why"] = f"a required gate is not exactly PASS: {problems}: next angle"
                         w_used = writes
                         break
-                    pk["models"] = {"angle": angle_reply.backend, "writer": wr.backend, "medley": med.get("backend"),
+                    pk["models"] = {"angle": angle_source(angle, angle_reply), "writer": wr.backend, "medley": med.get("backend"),
                                     "fidelity_verdict": fid.get("backend"), "context": cx.get("backends"),
                                     "coherence": coh.get("backend"), "value": val.get("backend")}
                     pk["checks"] = {"fidelity": fid, "context": cx, "coherence": coh, "medley": med, "value": val}
