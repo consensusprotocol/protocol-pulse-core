@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T20:25:59+00:00",
- "build": "ledger_20261116_202528",
+ "generated_at": "2026-11-16T20:44:21+00:00",
+ "build": "ledger_20261116_204348",
  "kind": "moments",
  "candidates": [
   {
@@ -841,6 +841,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "60be61eb5849ac4d5a71",
+   "video_id": "f-ugdpPGtf8",
+   "channel": "BTC Sessions",
+   "duration": 18.12,
+   "text": "What Bitcoin cares about is that the Fed is no longer hiking. And so until that happens, and I believe that that will happen beginning around March, Bitcoin will sort of be in this awkward in between chopping around phase, right? It's very funny. This reminds me a lot of the summer of 2024, although there are much more violent swings.",
+   "text_sha256": "7521bec7777128466e70c96678c5ff5e12db495287c9d221aea23c88924d8695",
+   "trimmed_leading": null
+  },
+  {
    "pid": "2a24443d6b1ebdc690cd",
    "video_id": "OubcRgk3D-w",
    "channel": "Simply Bitcoin",
@@ -1003,6 +1012,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "2b6dfb8157f2b8f2a43b",
+   "video_id": "f-ugdpPGtf8",
+   "channel": "BTC Sessions",
+   "duration": 23.7,
+   "text": "The good news is this doesn't really matter for Bitcoin, all things considered, even if they do wind up hiking some more. Here is a chart of Bitcoin and the Fed funds rate. We go over the last five years. So we could see the last cycle as well. When the Fed was on hold, actually, and this is another strange coincidence in addition to the coincidence that happened earlier with this officially, if we make a new low, this officially being the longest Bitcoin bear market by one day as we record this.",
+   "text_sha256": "cc9446624ff434535cbe6e9151233f8f773a1509d7ac12ccc788161a52c984e5",
+   "trimmed_leading": null
+  },
+  {
    "pid": "f87764c10acdaf364ae9",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -1091,6 +1109,15 @@
    "text": "from a risk adjusted return basis, buying Bitcoin today is not like buying Bitcoin in 2017. Like you're not going to get these crazy price movements. I remember when you would have these crazy price movements in a day. Like, I remember when like the volatility of Bitcoin, like Bitcoin would drop 50 % in a day.",
    "text_sha256": "505ea6a6d60f1315603b1ca355f619925a91aeb7d602b4c8cdcd6079eb338c3a",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "e5efff4c0ced74fa472b",
+   "video_id": "f-ugdpPGtf8",
+   "channel": "BTC Sessions",
+   "duration": 14.1,
+   "text": "Once energy decelerates, the Fed stops hiking, you see Bitcoin take off like a rocket chip, even with rates at where are they going to land? 4.5%, 4.75%. It's nothing Bitcoin hasn't been able to kick off a bull market with before.",
+   "text_sha256": "cd8eade90367e330900e2f2c39ea0c8444ef278518d56e9adbf882399100d3a8",
+   "trimmed_leading": null
   },
   {
    "pid": "f3837f53d32a0d72a9bd~trim",
@@ -1306,6 +1333,15 @@
    "duration": 22.47,
    "text": "When people get super, super excited, I did an analysis recently where I compared DCA to bulk buying Bitcoin when the crowd was excited, had high desire, or had high conviction, and kind of like saw how that compared, because that's exactly what the average person does. They buy Bitcoin when it feels easy when they're confident it's going to do well. And if you do that, you drastically underperform DCA.",
    "text_sha256": "2be8ddee60f27d7699cee934e3e583f750f867b98826e54169ad4ba14250910d",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e79e8fd1f5a223c0e29a",
+   "video_id": "f-ugdpPGtf8",
+   "channel": "BTC Sessions",
+   "duration": 15.32,
+   "text": "Once the Fed was on hold, there were no more rate hikes, Bitcoin took off like a rocket chip. And that's because... Risk assets, Bitcoin particularly because it's so sensitive, it doesn't really care about the path of race as much as it does, or the level of race, as much it does the path of rates. And this is because the economy always adjusts.",
+   "text_sha256": "3d73c7e71985901715a0a411f45b104e1ad4a0152e0791f91d85d4ccec14f3eb",
    "trimmed_leading": null
   },
   {
