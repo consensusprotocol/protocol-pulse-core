@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T22:05:48+00:00",
- "build": "ledger_20261116_220502",
+ "generated_at": "2026-11-16T22:54:28+00:00",
+ "build": "ledger_20261116_225334",
  "kind": "moments",
  "candidates": [
   {
@@ -112,6 +112,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "25fe662cfe62e26434f7",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 12.26,
+   "text": "Then on Saturday, about $2 billion of leveraged bets got wiped out, and Bitcoin whicked all the way down to $62,000. That's about half of its all -time high, and it's a race the entire rally we've been celebrating since August.",
+   "text_sha256": "f930e95787b36b71cde8765dfe49f20193d49bfe5101fb0e30f807b6967b77c2",
+   "trimmed_leading": null
+  },
+  {
    "pid": "2800c5390c507d4f0ee2",
    "video_id": "9EE3F91J1vo",
    "channel": "Bitcoin Magazine",
@@ -181,6 +190,15 @@
    "duration": 12.82,
    "text": "And so the thesis behind Bitcoin buying, the pieces behind gold central bank buying is undeterred, unstopped. And that... matters because that tells you a lot about where demand comes from.",
    "text_sha256": "5b392ec47e9c2c42c550d7aaed836c37ae67fc36b6a1bb0e15981ef77540c208",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d1153db17db663ebd0ea",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 5.82,
+   "text": "So maybe gold and Bitcoin are the canary in the coal mine here. Maybe they're the smoke alarm going off before a much bigger fire.",
+   "text_sha256": "36cfff939dcbaa3899fb1d9b5c7de9adff2b270698641f72747a309b3a2302ed",
    "trimmed_leading": null
   },
   {
@@ -337,6 +355,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "9f045e3a88c9ef780e33",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 5.3,
+   "text": "Then when almost nobody believed it, Bitcoin ripped to 87,000 in one of the biggest short squeezes in its history.",
+   "text_sha256": "1964e80712fbd07d3211e7807c4fd992cd069eb21fa8db55bf643890ae4c0d34",
+   "trimmed_leading": null
+  },
+  {
    "pid": "d7af65197a305399a6c9",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -442,6 +469,15 @@
    "duration": 19.56,
    "text": "So maybe then we'll get a chance for people like to see maybe i'll revert and say, yeah, bitcoin didn't go to 10 000, but i saved a lot of stupid people from buying it above 100 000 and we bought it at 40. Maybe i'll be able to say that, but i'm pointing out this is not this is just getting started. we're overdue for we're overdue for normal 20 % correction in the stock market, and it's only 3 % so far.",
    "text_sha256": "25e1e6c6d705c84f2e1fd3a4dba8316c2c651ac3ad213cf43b669b5e9c15cd43",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "4ab779a74eb4cfa3857f",
+   "video_id": "9lVSYriKja4",
+   "channel": "Anthony Pompliano",
+   "duration": 8.54,
+   "text": "But then Morgan Stanley launched an ETF a couple months ago, and it became the cheapest spot Bitcoin ETF on the market. What is the expense ratio of that ETF?",
+   "text_sha256": "91dea562e9b88f55d7ea72ecce95a44bef20249e1aef408386b375848f4531ff",
    "trimmed_leading": null
   },
   {
@@ -632,6 +668,15 @@
    "text": "you are of the view that Bitcoin is not going to zero, then you use these opportunities, right?",
    "text_sha256": "6971fe5eeb14e17e6ec7f47607c159a1f823a1a4909d47114e7d0b48f56e3cf3",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "d1153db17db663ebd0ea~trim",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 5.76,
+   "text": "maybe gold and Bitcoin are the canary in the coal mine here. Maybe they're the smoke alarm going off before a much bigger fire.",
+   "text_sha256": "9c07d15093f0b2a09463b8339517c2d13b5fb85e39a842a2a3beb697ba950eb5",
+   "trimmed_leading": "So"
   },
   {
    "pid": "fc47defb766a773cfe25~trim",
@@ -904,6 +949,24 @@
    "trimmed_leading": null
   },
   {
+   "pid": "b0d1512d0303425a1c26",
+   "video_id": "9lVSYriKja4",
+   "channel": "Anthony Pompliano",
+   "duration": 10.14,
+   "text": "It was the greatest launch ever by all metrics. DRAM, actually, the memory ETF came close, broke a couple of first to $5 billion. It challenged IBIT a couple times.",
+   "text_sha256": "54ff1b36c01659e04160379b474cddbdf0bb244705b3a6ce5b0605748a1dc95e",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "6d78b27ee41fd140b74c",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 7.52,
+   "text": "This weekend sorted people by why they own Bitcoin. The ones who owned a price sold. And the ones who owned the reason didn't move.",
+   "text_sha256": "8025b838f83e90a35f5df454b102667ec3f0cca1b5e363cc44d261d6c2792e4a",
+   "trimmed_leading": null
+  },
+  {
    "pid": "fc6e81902c8c8bb540e8",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -1048,6 +1111,33 @@
    "trimmed_leading": null
   },
   {
+   "pid": "79c5f9a5c5e3a6a8e443",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 23.3,
+   "text": "In March of 2020, Bitcoin lost about half its value in two days. Then the Fed cut rates to zero and started printing without a limit. And from that low, under 4,000, Bitcoin ran all the way to 69,000 in about 20 months. That's roughly 18x coming out of the scariest market crash in a generation. When a crisis hits a system carrying this much debt, the answer is always more money.",
+   "text_sha256": "872ca3338681d4518d7626aa26b78a581bd224c424569d1ecd06e2bd2205f762",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "1eff6e75d00b8de8cf95",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 19.01,
+   "text": "Bitcoin was never riding on a president. The strategic Bitcoin Reserve still hasn't bought a single coin. And Bitcoin grew into a trillion dollar asset under governments that ignored it or outright fought against it. The thesis is centered around money. A government that owes $40 trillion has to keep making its money worth less, no matter who wins an election.",
+   "text_sha256": "8ddc35eda2a4b8edc653f9bc6505c08a671771634b36094b1832e353c308d684",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "85712c5e3c3de1aca714",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 17.07,
+   "text": "A government that owes $40 trillion has to keep making its money worth less, no matter who wins an election. And Bitcoin is the one form of money that nobody can make more of. That was true at $126,000, and it's true at $62,000. Nothing about the Bitcoin thesis changed this weekend.",
+   "text_sha256": "d2dddd4d6904e5ed225cf075e30ca524c9bdc3b5ba788eda13a1d432da8916bb",
+   "trimmed_leading": null
+  },
+  {
    "pid": "34d231d8fa3bbd8b8fc7",
    "video_id": "uAvmynMSVhM",
    "channel": "Bitcoin Magazine",
@@ -1117,6 +1207,15 @@
    "duration": 15.39,
    "text": "Ironically, the biggest problem for crypto was it was the first thing to show up in finance after 2008 that was new. If we'd showed up, we couldn't, right? Satoshi himself was an expression of 2008, but to humor me.",
    "text_sha256": "3abd2695f79b90d6ae5d315b27de9c23635cbc04fab32e63c401094755efb018",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "bd53eedbad4aad55c201",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 14.78,
+   "text": "Bitcoin puked all the way back to $62,000 over the weekend, and a lot of people are asking if they should just sell now before it gets worse. So who's actually dumping here? Is it Binance clawing back billions after the hack? Is it Wall Street raising cash for the Anthropic IPO?",
+   "text_sha256": "2b08455aebeed17af0b731090c37365181fdca94aa45ae2c83574b1f47f18fa5",
    "trimmed_leading": null
   },
   {
@@ -1192,6 +1291,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "9eea0015b3c4bbc806f3",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 18.17,
+   "text": "Every time the crowd got sure about a direction, this market did the opposite. The bears who were sure we would hit 45 got squeezed. And the bulls who were sure of 100 just got flushed. That's what Max Payne looks like. The market moves in whatever way hurts the most people, and Bitcoin bear markets have always worked like that.",
+   "text_sha256": "217984497eef60290478089e63cf074aab6c3741773ff76b8acc1b4af37bf6bb",
+   "trimmed_leading": null
+  },
+  {
    "pid": "2a24443d6b1ebdc690cd",
    "video_id": "OubcRgk3D-w",
    "channel": "Simply Bitcoin",
@@ -1219,6 +1327,24 @@
    "trimmed_leading": "But"
   },
   {
+   "pid": "8f1d1701b2969bb3bc98",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 14.32,
+   "text": "In October alone, the government paid $103 billion in interest on its debt. The Treasury Secretary keeps going on TV to tell the Fed to ease off on interest rate hikes. So the same high rates that are crushing gold and Bitcoin today are rates this government can't afford much longer.",
+   "text_sha256": "eb071ad42a323383fed5c22faa577e442820d12d8aa7e37e2bef96051d157e95",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "0ffd53079df584936961",
+   "video_id": "9lVSYriKja4",
+   "channel": "Anthony Pompliano",
+   "duration": 15.18,
+   "text": "It was the greatest launch ever by all metrics. DRAM, actually, the memory ETF came close, broke a couple of first to $5 billion. It challenged IBIT a couple times. But mostly, Ibit, and the rest of the Bitcoin ETFs, have records that will probably never be broken.",
+   "text_sha256": "58ce82f08eddf243df708fafa4fdfb17de68c9814b5d7dccaef014e3ddef1b2e",
+   "trimmed_leading": null
+  },
+  {
    "pid": "c800974b45030c070910~trim",
    "video_id": "lcYYuefFMQA",
    "channel": "Strategy (MicroStrategy)",
@@ -1234,6 +1360,15 @@
    "duration": 26.76,
    "text": "When there's blood on the streets, when Bitcoin is going down, when everyone is disillusioned, when everyone is looking at the latest and greatest AI IPO. Yes, these are the most opportune times, historically speaking, where you'll look back and you'll think to yourself, wow, do you remember when I could have bought Bitcoin, not financial advice, at $64,897?",
    "text_sha256": "467cb420a68a5a409f6f6511c19672d23ee58e4f5d2e18056529b82f3c5af452",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "822962ba7833ae22db59",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 13.73,
+   "text": "Bitcoin is living up to its reputation. It keeps producing a block every 10 minutes like it has for 17 years. And it keeps charging the same price of admission, which is Max Payne. So if this is your first ride on the roller coaster, welcome to the suck.",
+   "text_sha256": "ae049c1b3652913a5d352f1180903e371200643e7f2e8fb30182ce1d4039549e",
    "trimmed_leading": null
   },
   {
@@ -1372,6 +1507,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "7e6362b95140044c5259",
+   "video_id": "9lVSYriKja4",
+   "channel": "Anthony Pompliano",
+   "duration": 29.76,
+   "text": "Ibit and the rest of the Bitcoin ETFs have records that will probably never be broken. And they have made it. They're completely established. In this sell -off, 50 % drawdown and only about 10 % of the assets left. That's a really good sign. My favorite thing that you tweet... Is some bullish metric almost daily about how the ETF industry is growing, inflows are magnitudes larger, volumes are increasing, everyone who hated on ETFs are losers and suckers and ETFs are winning.",
+   "text_sha256": "ca2f5e2b7ac94c26760e3f3a25811a4ca1d31431bfc90af13a77e8694c4ab7c2",
+   "trimmed_leading": null
+  },
+  {
    "pid": "3d62c51a3fa62c41559a",
    "video_id": "Vu0XZSz-aj4",
    "channel": "Bankless",
@@ -1495,6 +1639,15 @@
    "duration": 20.8,
    "text": "In blue, the spot Bitcoin ETFs have lost more than $2.3 billion over the past two weeks. Yet the third quarter filings are showing, you know, Morgan Stanley. McQuare, I believe, as well, together added about 400 million or so in Bitcoin ETFs throughout September.",
    "text_sha256": "bd3df4e49c00e0c2674a8992dbbfc9703f78443960cb09d01befc32e31ac4fb5",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "dd8828db0abc1ff34b64",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 16.34,
+   "text": "This weekend sorted people by why they own Bitcoin. The ones who owned a price sold. And the ones who owned the reason didn't move. And if a bigger crash comes next, it'll sort all of us again. Bitcoin can protect your savings. but your piece has to come from somewhere deeper than a price.",
+   "text_sha256": "6b4cede7a6b919f7e813733ba28f4d7c0e566bf519bba194260545c6d54c80d3",
    "trimmed_leading": null
   },
   {
@@ -1696,6 +1849,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "7f99d87e8315256b6a58",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 23.76,
+   "text": "The market moves in whatever way hurts the most people, and Bitcoin bear markets have always worked like that. This one has reiterated what I found out in my first cycle. This market is basically impossible to predict. So if I had to guess at the cruelest path from here, it would be one more sweep of the lows to shake out the last of the longs, and then a violent move back up towards $90,000 that wipes out everyone betting against it.",
+   "text_sha256": "d8c9db7c5ef53b13bc22370510b118488dffafa45d02e9cec90a4cd8f28097f7",
+   "trimmed_leading": null
+  },
+  {
    "pid": "6c9ed378532d665651ae",
    "video_id": "stg5ui9sPos",
    "channel": "Yahoo Finance",
@@ -1739,6 +1901,15 @@
    "text": "Bitcoin has... A really unique way of like messing with your psychology. People have asked me if I can apply this methodology to other stocks and stuff. And like the truth is I absolutely can do that. But Bitcoin is so unique in the sense where there is this like nebulous new idea that the world doesn't understand that people don't rock that like your average boomer thinks is just a complete hallucination and like AI is going to break tomorrow. It just it has.",
    "text_sha256": "ed214cddb3ffbc1426529a8685f84ed955af266addbea4b6b0c843adb55d6f3c",
    "trimmed_leading": "But"
+  },
+  {
+   "pid": "b3c584fd8b05732f0247~trim",
+   "video_id": "9lVSYriKja4",
+   "channel": "Anthony Pompliano",
+   "duration": 25.26,
+   "text": "the three most important things, if you're trying to sell an ETF, if you want big boy flows, is low cost, brand name and liquidity. All surveys will tell you, those are the three most important things for advisors and traders picking an ETF. And the Bitcoin ETFs had all three on day one, not to mention an 11 -year pent -up demand for these. And so when they launched, I wasn't surprised they were popular. I was just surprised how popular they got.",
+   "text_sha256": "a6d2eb06b89ae9cc6fabc82dd4549ec1c58091a93d10d402c4b9a670a9e6c352",
+   "trimmed_leading": "And"
   },
   {
    "pid": "33e058597d9a86e8b14e~trim",
@@ -1993,6 +2164,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "fc91b07b17e432ae1d39",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 14.95,
+   "text": "Bitcoin just came back down to retest its lows and its 50 -month average, after closing above its 10 -month average. That setup has shown up one other time in Bitcoin's entire history. That was in 2015. And it came right before one of the biggest bull markets ever.",
+   "text_sha256": "3165dd33e37d95cc2f5bebf32d15e8113e0fc7ace708f31d7f2fa420e3e4af38",
+   "trimmed_leading": null
+  },
+  {
    "pid": "fde1189bcd2f15f53aa1~trim",
    "video_id": "uAvmynMSVhM",
    "channel": "Bitcoin Magazine",
@@ -2018,6 +2198,15 @@
    "text": "Following Bitcoin, to me, this is just a matter of time we continue lower. Now, you know some of the levels I put out in Bitcoin and just normal reversion. I couldn't break through 509 to 60 pretty soon. Remember, triple bottom now. Triple bottoms are made to be broken. But it's a great leading indicator.",
    "text_sha256": "189b8921eea9bbebbbf3790577e988e4a86b68872438e1d577f765f77746116b",
    "trimmed_leading": null
+  },
+  {
+   "pid": "a228d3697ee0c260e8ad~trim",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 14.69,
+   "text": "if this is your first ride on the roller coaster, welcome to the suck. Don't panic sell now when we're so close to the end. So tell me in the comments. Is the big crash everyone's calling for actually coming? And what would it take for you to sell your Bitcoin?",
+   "text_sha256": "671ec6df268330b0d6eebc180acc9b8a26fdcbec392ba32e099c00396c4753dd",
+   "trimmed_leading": "So"
   },
   {
    "pid": "c7205fcd9f163b7d8459",
@@ -2053,6 +2242,24 @@
    "duration": 15.72,
    "text": "They hold 850,849 Bitcoin and 4.9 billion of USD assets. Once again, they basically diluted MSTR shareholders, sold off MSTR to buy a lot more Bitcoin and to buy STRC. Strive also bought Bitcoin.",
    "text_sha256": "45aecc33850cc73273c31b2eb28baa1015546abda23905fab4469a2e18ea37be",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "7e33423977bc7719c72f",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 17.45,
+   "text": "James Lavish summed up the mood in one post. We are currently in the Everything is Bad for Bitcoin stage of the cycle. So who's doing this selling? There are three theories going around. The first is Binance. A few weeks ago, Binance lost more than $6 billion in the biggest exchange hack in history.",
+   "text_sha256": "6f7b2b75a68b5203d4803adc5360076777b4bb17de90f01f117c477aea37ec3b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a0812a9de1e61f05da79",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 13.78,
+   "text": "You can't explain Bitcoin to someone who doesn't understand money in the first place. A lot of people bought Bitcoin because the price was going up, and nobody ever told them why it exists. So when the price falls, they've got nothing to hold on to. So let's answer my friend properly.",
+   "text_sha256": "e303efb59c9b5a0099a27a7b59b9d3e43cb54f6a33fd9dc9cbdc9db1423ce8b7",
    "trimmed_leading": null
   },
   {
@@ -2146,6 +2353,24 @@
    "trimmed_leading": null
   },
   {
+   "pid": "e5ac653ed2824dc0eb62",
+   "video_id": "9lVSYriKja4",
+   "channel": "Anthony Pompliano",
+   "duration": 14.9,
+   "text": "The Terodome really came into take with the Bitcoin ETFs when they were about to launch, about three days before launch. This was January 8th, 2024. They went into a fee war. Remember that? It was like, Invesco's going to 50. It's like, no, Fidelity's going to 30.",
+   "text_sha256": "0c72a170b1e52b0a839b5911c6daf42342e7a16f65f2ec83b15a75c8751b6a59",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "ead6f78176b93e811cce~trim",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 17.72,
+   "text": "maybe gold and Bitcoin are the canary in the coal mine here. Maybe they're the smoke alarm going off before a much bigger fire. Groman was asked last week, why gold keeps falling if the system is really in that much trouble. So gold fell around 25 % from its March peak during a war, an oil shock, and a Fed hike.",
+   "text_sha256": "8fd537bac3a4a4dff17c23d5678d6123de02d52176de9cd34c620ada56ef5a7e",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "eda2ebc9bef18c3887eb",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -2216,6 +2441,15 @@
    "text": "when I see this on top of the dynamic, I'm like, yeah, I probably should double up. Now, that is for Bitcoin. Altcoins are a different story. I have stopped. My buying vault coins, I've had a couple of different indicators flash mostly would be Wes's smart money bot or smart money tracking.",
    "text_sha256": "8c657f40cc70d239bcdf1b3fbe2a6f966dc41cd2ebbfa40e01f90e71455e3dd6",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "60be7a4ef8f533c0cbce",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 16.52,
+   "text": "On Friday, it fell through its 200 week moving average down around $68,000. That's the line that has marked the floor of Bitcoin's bare markets. And this time it barely slowed things down. Then on Saturday, about $2 billion of leverage bets got wiped out and Bitcoin whicked all the way down to $62,000.",
+   "text_sha256": "750ba329b432c21c5c5bbe11528b5fd0181df0e08dac1bc638065b8fc8eebe12",
+   "trimmed_leading": null
   },
   {
    "pid": "4fbe1da5bc6c99534da1",
@@ -2416,6 +2650,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "59b1e5991bf2b7dbee21",
+   "video_id": "9lVSYriKja4",
+   "channel": "Anthony Pompliano",
+   "duration": 17.79,
+   "text": "The Bitcoiners went to Wall Street, entered the terror dome, got to the top of the mountain, planted their flag. and conquered. Talk about the Bitcoin ETF launch. They did. So this, I had so much fun covering this and I really enjoyed it, got to meet a lot of the coiners.",
+   "text_sha256": "11402f3c2edf8d92a0648977e73ab3df894614f90dd500c6cc9e6a359a0d2f58",
+   "trimmed_leading": null
+  },
+  {
    "pid": "ae73e164daedac564eae",
    "video_id": "KRvh4AcSofA",
    "channel": "Bitcoin Magazine",
@@ -2459,6 +2702,15 @@
    "text": "I'm watching Bitcoin through Thursday into this and through the end of the week, frankly, into the weekly close post this anthropic IPO. I think it'll be really telling to see how well it performs, also how sharply Bitcoin may sell off to kind of get some signal for where investors are right now in the market, both in terms of Bitcoin and on the AI inequities front.",
    "text_sha256": "66ec01aac570f3ef198a26495875a15c5133d9e965f349bbbb7d570482cfbaaf",
    "trimmed_leading": null
+  },
+  {
+   "pid": "952be973eca19ff3e54d~trim",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 17.18,
+   "text": "I'm sure a lot of the people who sold this weekend didn't want to. They were over leveraged, or a bill came due at the worst possible moment, and they ended up selling the scarcest asset on earth at a loss. Well, you don't have to do that. That's where Lennon comes in. Lennon lets you borrow dollars against your Bitcoin without selling it.",
+   "text_sha256": "ed2ef49afdcd111e5927822158f2a7794f81990bb6ca553232ed5188165961d8",
+   "trimmed_leading": "And"
   },
   {
    "pid": "1e28a1c264d3ba687659~trim",
@@ -2578,12 +2830,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "7e62a625d1d587a335d7",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 14.15,
+   "text": "We opened the year near 88,000. By February, we were at 60. In the summer, we hit 58 and then went dead and flat for 2 months while everyone waited for 45. Then when almost nobody believed it, Bitcoin ripped to 87,000 in one of the biggest short squeezes in its history.",
+   "text_sha256": "70e2b67bd6086540043cd8af4af1523f877cc06760e40c69ccf1cf1465033a4b",
+   "trimmed_leading": null
+  },
+  {
    "pid": "d6dcd46e52498852147c",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
    "duration": 17.02,
    "text": "I wrapped that up maybe a little over a year ago now, and kind of wasn't sure I was going to do with my life after that, to be honest with you, I feel like that was a three -year process. It was like all I was doing for a few years there and still felt this desire to do more for Bitcoin, and then this kind of thing just came up and I had to pursue it farther.",
    "text_sha256": "708b4ee96d1a49d5812853dc0640629fe46a978b82733217e58aa3e124d030d7",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "75f5d6bc14148043d785",
+   "video_id": "9lVSYriKja4",
+   "channel": "Anthony Pompliano",
+   "duration": 15.11,
+   "text": "I think what Bitcoin did is it kind of reminded everybody of gold when gold launched 20 years ago. People are like, you can put gold in an ETF? They keep saying that. They're like, you can put bonds in an ETF, and ETFs keep, like, showing their robustness. So I think the Bitcoin ETF reminded the issuers that you can package a lot of stuff in there.",
+   "text_sha256": "c4274f0dd6888a3c9447ee86588c27aec831afa824b5bd8e8021771186064a3d",
    "trimmed_leading": null
   },
   {
@@ -2864,6 +3134,15 @@
    "text": "Bitcoin's funding rate is sitting at about plus 4.6 annualized, aggregated across exchanges. So, you know, it's come down, but it's not severely elevated. An open interest across major exchanges sits around 200,000 Bitcoin, which is at current rates, about 12.9, let's call it, $13 billion.",
    "text_sha256": "9f12153d1e660867c8e8c3aacfe40c1437e70517325fadb53337269e170b1f92",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "1e7d691695ce2efa9e4f",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 17.56,
+   "text": "Gold, bonds, and Bitcoin are all selling off together. And today, the head of the Fed said out loud that the AI boom could disappoint and take stocks down with it. So is Bitcoin and gold front -running a COVID -style crash? Or is this the same setup Bitcoin has only shown once before, right before one of the biggest bull runs in history?",
+   "text_sha256": "b26f10b88d6faffcc684018f54dd52678cac4bedbd8ca3c671ca6ae9d348a0b2",
+   "trimmed_leading": null
   },
   {
    "pid": "84816ef42cd1aedfad80",
