@@ -1,0 +1,428 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "85c3115ab3d13d4c1f6084d9b0a41d89b2a30ef2f1696bcaefc56f44e413e964",
+ "result": {
+  "text": "Treasury company stuff or finding other more financialized tools. Like the, the really builder folks seem to be building in the financialization as opposed to a-actually like freedom money sort of things, which is I don't feel great about, to be honest with you. I mean, the freedom money thing is one of the reasons I got into Bitcoin in the first place. Um, but it is",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 16.94,
+    "text": "Treasury company stuff or finding other more financialized tools. Like the, the really builder folks seem to be building in the financialization as opposed to a-actually like freedom money sort of things, which is I don't feel great about, to be honest with you. I mean, the freedom money thing is one of the reasons I got into Bitcoin in the first place. Um, but it is"
+   }
+  ],
+  "words": [
+   {
+    "text": "Treasury",
+    "start": 0.0,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "company",
+    "start": 0.36,
+    "end": 0.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stuff",
+    "start": 0.78,
+    "end": 1.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 1.48,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "finding",
+    "start": 1.62,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "other",
+    "start": 1.84,
+    "end": 1.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 2.0,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "financialized",
+    "start": 2.2,
+    "end": 2.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tools.",
+    "start": 2.9,
+    "end": 3.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like",
+    "start": 4.0,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the,",
+    "start": 4.16,
+    "end": 4.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.34,
+    "end": 4.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 4.44,
+    "end": 4.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "builder",
+    "start": 4.72,
+    "end": 5.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "folks",
+    "start": 5.1,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seem",
+    "start": 5.3,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.44,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 5.52,
+    "end": 5.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "building",
+    "start": 5.66,
+    "end": 5.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 6.0,
+    "end": 6.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.12,
+    "end": 6.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "financialization",
+    "start": 6.58,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 7.4,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "opposed",
+    "start": 7.52,
+    "end": 7.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 7.82,
+    "end": 7.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a-actually",
+    "start": 8.16,
+    "end": 8.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 8.66,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "freedom",
+    "start": 8.98,
+    "end": 9.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 9.26,
+    "end": 9.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sort",
+    "start": 9.54,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 9.7,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "things,",
+    "start": 9.84,
+    "end": 10.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "which",
+    "start": 10.08,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 10.26,
+    "end": 10.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 11.16,
+    "end": 11.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 11.2,
+    "end": 11.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "feel",
+    "start": 11.36,
+    "end": 11.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "great",
+    "start": 11.54,
+    "end": 11.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about,",
+    "start": 11.72,
+    "end": 11.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 12.02,
+    "end": 12.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 12.1,
+    "end": 12.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "honest",
+    "start": 12.18,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 12.36,
+    "end": 12.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you.",
+    "start": 12.46,
+    "end": 12.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 12.54,
+    "end": 12.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 12.58,
+    "end": 12.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.72,
+    "end": 12.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "freedom",
+    "start": 12.82,
+    "end": 13.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 13.06,
+    "end": 13.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing",
+    "start": 13.28,
+    "end": 13.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 13.66,
+    "end": 13.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 13.8,
+    "end": 13.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 13.88,
+    "end": 13.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.9,
+    "end": 13.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reasons",
+    "start": 13.96,
+    "end": 14.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 14.28,
+    "end": 14.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "got",
+    "start": 14.34,
+    "end": 14.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 14.44,
+    "end": 14.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 14.56,
+    "end": 14.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 14.82,
+    "end": 14.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.86,
+    "end": 14.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "first",
+    "start": 14.96,
+    "end": 15.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "place.",
+    "start": 15.16,
+    "end": 15.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 16.04,
+    "end": 16.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 16.64,
+    "end": 16.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 16.8,
+    "end": 16.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 16.86,
+    "end": 16.94,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 16.96
+ },
+ "usd": 0.003392,
+ "seconds": 1.28,
+ "recorded_at": "2026-11-16T19:22:03Z"
+}

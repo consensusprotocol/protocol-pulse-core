@@ -779,5 +779,16 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "a3e8721c54788123097a:e248eb63ad6f2f35bc43c6faadec1889c19b16d7d5708c2713f0c5dac386a71c:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 2,
+   "setup": 3,
+   "rating": 2,
+   "why": "sounds like mid-topic with 'further proof' and 'as always'",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

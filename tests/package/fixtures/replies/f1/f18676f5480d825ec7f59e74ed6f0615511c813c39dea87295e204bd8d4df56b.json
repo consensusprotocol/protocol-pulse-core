@@ -1,0 +1,392 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "22ea456c67cce735e8309e6f27dc88579cdd2154b7525824923b1acc0d35b94a",
+ "result": {
+  "text": "has a really unique way of, like, messing with your psychology. They buy Bitcoin when it feels easy, when they're confident it's gonna do well, and if you do that, you drastically underperform DCA. Uh, and that's interesting because it kind of is what the average person's doing almost all the time. They just buy whenever they feel like it's easy",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.04,
+    "end": 15.92,
+    "text": "has a really unique way of, like, messing with your psychology. They buy Bitcoin when it feels easy, when they're confident it's gonna do well, and if you do that, you drastically underperform DCA. Uh, and that's interesting because it kind of is what the average person's doing almost all the time. They just buy whenever they feel like it's easy"
+   }
+  ],
+  "words": [
+   {
+    "text": "has",
+    "start": 0.04,
+    "end": 0.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 0.44,
+    "end": 0.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 0.56,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "unique",
+    "start": 0.9,
+    "end": 1.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 1.58,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of,",
+    "start": 2.2,
+    "end": 2.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 2.36,
+    "end": 2.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "messing",
+    "start": 2.68,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 3.04,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 3.18,
+    "end": 3.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "psychology.",
+    "start": 3.3,
+    "end": 3.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "They",
+    "start": 3.92,
+    "end": 4.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buy",
+    "start": 4.04,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.24,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 4.5,
+    "end": 4.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 4.6,
+    "end": 4.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "feels",
+    "start": 4.72,
+    "end": 4.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "easy,",
+    "start": 4.98,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 5.2,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they're",
+    "start": 5.3,
+    "end": 5.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "confident",
+    "start": 5.5,
+    "end": 5.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 5.8,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 5.92,
+    "end": 6.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 6.12,
+    "end": 6.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "well,",
+    "start": 6.28,
+    "end": 6.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 7.14,
+    "end": 7.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 7.24,
+    "end": 7.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 7.32,
+    "end": 7.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 7.46,
+    "end": 7.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that,",
+    "start": 7.64,
+    "end": 7.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 8.26,
+    "end": 8.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "drastically",
+    "start": 8.54,
+    "end": 9.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "underperform",
+    "start": 9.22,
+    "end": 9.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "DCA.",
+    "start": 9.76,
+    "end": 10.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Uh,",
+    "start": 10.66,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 10.82,
+    "end": 10.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 10.92,
+    "end": 11.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "interesting",
+    "start": 11.28,
+    "end": 11.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 11.7,
+    "end": 11.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 11.9,
+    "end": 11.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 12.02,
+    "end": 12.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 12.16,
+    "end": 12.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 12.24,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 12.52,
+    "end": 12.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.84,
+    "end": 12.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "average",
+    "start": 13.0,
+    "end": 13.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "person's",
+    "start": 13.26,
+    "end": 13.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "doing",
+    "start": 13.6,
+    "end": 13.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "almost",
+    "start": 13.82,
+    "end": 14.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 14.08,
+    "end": 14.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.18,
+    "end": 14.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time.",
+    "start": 14.28,
+    "end": 14.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "They",
+    "start": 14.46,
+    "end": 14.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 14.54,
+    "end": 14.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buy",
+    "start": 14.74,
+    "end": 14.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whenever",
+    "start": 14.96,
+    "end": 15.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 15.18,
+    "end": 15.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "feel",
+    "start": 15.34,
+    "end": 15.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 15.58,
+    "end": 15.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 15.7,
+    "end": 15.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "easy",
+    "start": 15.84,
+    "end": 15.92,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.94
+ },
+ "usd": 0.003188,
+ "seconds": 1.11,
+ "recorded_at": "2026-11-16T19:21:58Z"
+}

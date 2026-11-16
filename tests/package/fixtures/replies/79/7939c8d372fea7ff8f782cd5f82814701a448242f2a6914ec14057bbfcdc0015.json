@@ -1,0 +1,314 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "b1508974ff1c7d8a416e71bdf7671f8bce16dc39d78b3161876fa7be94b59c14",
+ "result": {
+  "text": "The blow-off top earlier this year coming right into our yearly average right now. Um, so essentially, what I'm bringing up here is that we have gold, silver, indices, and potentially Bitcoin all have put in major highs around the last 12 months. So taking out that four-year",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 16.46,
+    "text": "The blow-off top earlier this year coming right into our yearly average right now. Um, so essentially, what I'm bringing up here is that we have gold, silver, indices, and potentially Bitcoin all have put in major highs around the last 12 months. So taking out that four-year"
+   }
+  ],
+  "words": [
+   {
+    "text": "The",
+    "start": 0.0,
+    "end": 0.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "blow-off",
+    "start": 0.08,
+    "end": 0.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "top",
+    "start": 0.46,
+    "end": 0.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "earlier",
+    "start": 0.7,
+    "end": 0.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 0.98,
+    "end": 1.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year",
+    "start": 1.12,
+    "end": 1.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "coming",
+    "start": 1.3,
+    "end": 1.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right",
+    "start": 1.5,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 1.64,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "our",
+    "start": 1.8,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yearly",
+    "start": 1.98,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "average",
+    "start": 2.34,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right",
+    "start": 2.6,
+    "end": 2.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now.",
+    "start": 2.78,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 3.52,
+    "end": 3.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 3.92,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "essentially,",
+    "start": 4.019,
+    "end": 4.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 5.3,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 5.44,
+    "end": 5.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bringing",
+    "start": 5.7,
+    "end": 5.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 6.02,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here",
+    "start": 6.16,
+    "end": 6.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 6.34,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 6.48,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 7.22,
+    "end": 7.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 7.42,
+    "end": 7.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold,",
+    "start": 8.0,
+    "end": 8.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "silver,",
+    "start": 8.58,
+    "end": 8.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "indices,",
+    "start": 9.16,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 9.78,
+    "end": 9.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "potentially",
+    "start": 9.9,
+    "end": 10.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 10.32,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 10.82,
+    "end": 10.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 11.02,
+    "end": 11.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "put",
+    "start": 11.6,
+    "end": 11.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 11.78,
+    "end": 12.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "major",
+    "start": 12.12,
+    "end": 12.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "highs",
+    "start": 12.5,
+    "end": 12.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "around",
+    "start": 12.98,
+    "end": 13.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.26,
+    "end": 13.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "last",
+    "start": 13.4,
+    "end": 13.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "12",
+    "start": 14.3,
+    "end": 14.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "months.",
+    "start": 14.7,
+    "end": 14.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 15.46,
+    "end": 15.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "taking",
+    "start": 15.6,
+    "end": 15.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 15.86,
+    "end": 15.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 16.0,
+    "end": 16.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "four-year",
+    "start": 16.2,
+    "end": 16.46,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 16.49
+ },
+ "usd": 0.003298,
+ "seconds": 0.95,
+ "recorded_at": "2026-11-16T19:21:53Z"
+}
