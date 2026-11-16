@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T19:58:20+00:00",
- "build": "ledger_20261116_195753",
+ "generated_at": "2026-11-16T20:04:46+00:00",
+ "build": "ledger_20261116_200419",
  "kind": "moments",
  "candidates": [
   {
@@ -130,6 +130,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "35a998f0743b2193929d",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 17.0,
+   "text": "And I'm not talking about like tech news or crypto news. This chart includes like mainstream commentators like Megan Kelly or Tucker Carlson or Dinesh D'Souza. And we're literally in the top 100 as a Bitcoin -only show.",
+   "text_sha256": "99f3db84f5b31bd3d33d7f81448b52492a90be1ebba8cc86170a91fcca6b577d",
+   "trimmed_leading": null
+  },
+  {
    "pid": "40b470a314403cdc3247",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -220,12 +229,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "8fb8b6a91e065ed96dfd",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 9.78,
+   "text": "So the current Bitcoin price is $64,870. Man, gosh, that hurts. Anyways, we are at a 48.6 % discount from all time high.",
+   "text_sha256": "991f023172e37f4fd669bbbfac784b420aea0ae1aa34764646a7d9af282bc2b3",
+   "trimmed_leading": null
+  },
+  {
    "pid": "51f09ae164733cbf6411",
    "video_id": "4pAa6COklAY",
    "channel": "DataDash",
    "duration": 11.2,
    "text": "And over the last few days, Bitcoin has broke down below some key support here after the recent run to about $88,000. And I want to break down the significance of this.",
    "text_sha256": "7045fa1fd92d1250c0def2a995dce0b47078e23b1df01e44f0389efb9115b4e4",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "52825fc1a60b481b8c0a",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 17.42,
+   "text": "But we did get a couple of interesting little tidbits coming out of it. So actually, before I go further, if you are sitting here wondering whether you should be selling or buying Bitcoin, well, as the kind of classic meme goes, as the classic rhetoric goes, follow the smart money.",
+   "text_sha256": "de385152462992eaf96e10a5ac563dd3382d9e94e9df05d217581a0f1a97611d",
    "trimmed_leading": null
   },
   {
@@ -337,6 +364,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "35a998f0743b2193929d~trim",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 16.36,
+   "text": "I'm not talking about like tech news or crypto news. This chart includes like mainstream commentators like Megan Kelly or Tucker Carlson or Dinesh D'Souza. And we're literally in the top 100 as a Bitcoin -only show.",
+   "text_sha256": "12da33e19743fe0eacc45b232ef5a7c3f402b44d66921bff819515be9c4168dc",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "7f8de3564c0b6b440222~trim",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -418,6 +454,15 @@
    "trimmed_leading": "But"
   },
   {
+   "pid": "8fb8b6a91e065ed96dfd~trim",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 9.76,
+   "text": "the current Bitcoin price is $64,870. Man, gosh, that hurts. Anyways, we are at a 48.6 % discount from all time high.",
+   "text_sha256": "a11bf152a37d51c03cae79674c19b42773c40c902c7ea67d7541882818cc4650",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "51f09ae164733cbf6411~trim",
    "video_id": "4pAa6COklAY",
    "channel": "DataDash",
@@ -425,6 +470,15 @@
    "text": "over the last few days, Bitcoin has broke down below some key support here after the recent run to about $88,000. And I want to break down the significance of this.",
    "text_sha256": "9c6608128d7888d6b6d331d1703c3b3597467e0b9dda119034ec27dd97821bd4",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "52825fc1a60b481b8c0a~trim",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 17.32,
+   "text": "we did get a couple of interesting little tidbits coming out of it. So actually, before I go further, if you are sitting here wondering whether you should be selling or buying Bitcoin, well, as the kind of classic meme goes, as the classic rhetoric goes, follow the smart money.",
+   "text_sha256": "7e1d01548e101a1c2380b6193b05c505ceb927a53f2b5e820cd10221f98fbadf",
+   "trimmed_leading": "But"
   },
   {
    "pid": "17e5a9235d68c10d79b2",
@@ -1264,6 +1318,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "d4307bfa4edac6c0c0a8",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 14.29,
+   "text": "Like literally, like you are, you are, you have the opportunity to buy Bitcoin at a lower price right now than if you bought the top in 2021. And I totally bought the top in 2021.",
+   "text_sha256": "11f42beb59e75b28be7f974bbd272a77330f5e57fb4fc51a36da640b0df25cad",
+   "trimmed_leading": null
+  },
+  {
    "pid": "e2359dc209cc070a92d7~trim",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -1417,6 +1480,15 @@
    "trimmed_leading": "But"
   },
   {
+   "pid": "cc2ecb9fb2f46a750780~trim",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 15.8,
+   "text": "the current Bitcoin price is $64,870. Man, gosh, that hurts. Anyways, we are at a 48.6 % discount from all time high. The market cap back to $1.3 trillion. Brutow, dude, the last two weeks.",
+   "text_sha256": "5587710fcf663fa6efdaa2f7835cf47693f7122dfb788fcfb0f46a6a3ed5e9a3",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "b8242b9c44bbcefb5e43",
    "video_id": "m7ygyYMe3mg",
    "channel": "Bitcoin Magazine",
@@ -1441,6 +1513,15 @@
    "duration": 18.6,
    "text": "Essentially, like, a really thrilling, like, intertwined story kind of thing where Bitcoin's the main thing, following an on -chain analysis guy who sort of goes through and does, like, forensic stuff around Bitcoin and takes you all over the place across the U.S. is the bad guys are. kind of murdering folks politically and doing all sorts of other crazy stuff.",
    "text_sha256": "5ad70265be6197c6a82ee3685c1c61ea511c425af8bda269cab8f5cb087c0f57",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "305aea349244dc511ae1",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 21.48,
+   "text": "These particular miners appear to have mined in probably our worst luck in six months. And so when you read stats about them getting like 0.66 Bitcoin or something like that, it turns out it's going to be more like, half of that or maybe a little less than that.",
+   "text_sha256": "f621508285520dfd15c97382d85a200d09c8e16a538e6f83c75a31550360a39d",
    "trimmed_leading": null
   },
   {
@@ -1498,6 +1579,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "1467203a7c17c896d6c7",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 18.28,
+   "text": "Brutero, dude, the last two weeks, remember guys I've been covering? It's like, hey, we're holding on at one and a half trillion. Okay, now we're at 140.1.4 trillion. Okay, now we're at 1.3 trillion, brutal. Anyways, the current blockhead is 976,165 to the real Bitcoin.",
+   "text_sha256": "0da1b2c77455b4d7f7ad9ed1b0e67556ffaf8ac714636a862b045d0c778a0e5d",
+   "trimmed_leading": null
+  },
+  {
    "pid": "62ab1532a50813a91b09",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -1516,12 +1606,30 @@
    "trimmed_leading": "But"
   },
   {
+   "pid": "0821a7879b8c58c981bc",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 15.15,
+   "text": "Look, guys, like, our goal here at Simply is our mission is to move the cultural needle towards worldwide Bitcoin adoption. And that was always the dream since the beginning. And we wouldn't be here without you guys.",
+   "text_sha256": "76a6430e62e511ee1dee0bd2e3645b220c2a753f8960fab277c5f3bbf32a9d15",
+   "trimmed_leading": null
+  },
+  {
    "pid": "5d1df22b1e5c0577810e",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
    "duration": 15.34,
    "text": "I'm kind of expecting to see a little bit more of this where we just don't see full crowd buy in until we probably pass through like the 100K range or something like that. And it's like it's cool. You know, one of the things that I like about this is when everyone comes into Bitcoin, like, okay, what can I do in Bitcoin?",
    "text_sha256": "665ca939a195fd7d176fa0758f038b0c54b04c7869dc50f8194d694d267d4c1b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "eb9fc709f0f5d28eb156",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 19.82,
+   "text": "For future reference, price of Bitcoin hit a low of $62,000 today. So, you know, starting here. Does this make you feel any better, guys? Are you so, so feeling, you know, warm and cuddly, warm and fuzzy right now because CZ isn't dumping on us?",
+   "text_sha256": "83aa8fa97bad434bf40f52dd5c0c7da421f2f2683b57301105948635164fb6f5",
    "trimmed_leading": null
   },
   {
@@ -1549,6 +1657,15 @@
    "duration": 30.03,
    "text": "It's funny, like I was speaking to Justin Moon recently, who he's been in Bitcoin a long time, a developer, and he ran the bit devs in Austin for a very long time. And so they recently closed down that bit devs because the guys who were running it, I think it was Justin and Ben the Carmen, I think we're doing it. Like they basically just have both got super interest in AI, didn't want to spend the time doing the Bitcoin thing. And the interesting thing is, What Justin was saying is, like, every couple of years, they were getting new people come into these Bitcoin meetups.",
    "text_sha256": "98b531456c938d61b9d297fd8ee15d6204980cb28bac727619a7a2285528370f",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "954e2f430934859c3934",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 18.75,
+   "text": "The third thing is we're a non -custodial pool. So other pools, when a payment is made, what's essentially happening is you are. leasing your hash rate to the pool. The pool is keeping track of the work.",
+   "text_sha256": "0d5d5b4a98384ccfdc5db35c38dba96b5908796f2e663a07ab3ee975100bd5c6",
    "trimmed_leading": null
   }
  ]
