@@ -6,6 +6,38 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 13:33 ORDER '13:05' (pp-ingest's R13), DONE. The transcript ingest's Whisper now WAITS for GPU0, with builds and renders first (batch 97, merged e2b3fa65, plus the test fix a2dc8ec9).
+- **The two waiting videos:**
+  - Bitcoin Magazine uAvmynMSVhM was transcribed by the 13:00 run (19 min of audio in 53 s).
+  - Scott Melker f0NnJM63Ffc is a LIVE stream (live_status is_live; at 13:00 "This live event will begin in a few moments"). The ingest skips live streams by policy until they end; the GPU never held it back.
+- **Session watchdog:** RUNNING in tmux pipeline_pp_sessionwatch (pass 89 at 13:28:37 ET). Today it flagged ONE thing: 10:53:35 ET, pipeline_pp_ingest_watch missing (IDLE_WITH_WORK). It sent one Telegram line (message 67894), and the session was back by the next pass at 10:58. It reads outside spend at $0.6884 of $1.00.
+- **BATCH 4 integrator spend:** $0.0919 (batch 97's audits $0.0324) (Heimdall, not capped; no outside dollars).
+- **What was wrong, measured at 12:56 ET:**
+  - The scorer never holds GPU0 while idle. At 12:56 no process held the lease file. The lease record names its LAST owner (the scorer, 12:33:39), and that is what pp-ingest read at 12:43.
+  - The 12:30 deferral came from the ingest's ONE no-wait attempt per 30 min meeting a 73-candidate scorer burst (12:28-12:34). During a burst the scorer takes the lease per batch of 8, back to back.
+- **Unblocked at once:**
+  - Our idle scorer was paused 13:00:26-13:02:33. The 13:00 run took the lease at 13:01:58.
+  - That run transcribed 8 videos in 401 s: Bitcoin Magazine, Bloomberg x4, Fox Business x2, CNBC. One failed: Bloomberg BkC0Wz8iUQ8, 1 min.
+- **The change:**
+  - **(1) The ingest waits.** It polls every 5 s holding nothing, at most 1500 s in all per run, and every attempt is non-blocking. A render's yield flag still stops the pass, and is read right before every attempt.
+  - **(2) Builds come first** through a new pipeline/gpu0_want. The scorer and the pre-check raise a want while GPU work waits, clear it when their queue is empty, and a dead service's want goes stale after 90 s. Whisper stays off the lease while a want is up, gives GPU0 back at its next file boundary (unloaded first), then goes on.
+  - **(3) The judge** raises no want: judge_sha hashes local_judge.py, so a change there re-asks every judge verdict. It waits for a Whisper pass as before.
+  - Not moved: decoder_sha (a4c307f78c94) and scorer_sha.
+- **NOT DONE LITERALLY: "the scorer takes the GPU0 lease only for the length of a scoring call".**
+  - It still takes it per batch of 8 and gives it back after each.
+  - Measured today: a call takes 3-4 s, but each lease release unloads gemma3:27b (law L-r) and the next take reloads it, 25-30 s. Per call, today's 73-candidate burst would take about 35 min instead of 6.
+  - Under "builds keep priority" Whisper would gain nothing from it: it waits for the burst either way.
+  - The order's fallback (GPU1) is held by other sessions' services (local_watchdog, stage_broadcast_service).
+  - If the orchestrator wants the literal form anyway, it is one constant (stand_alone_scorer.BATCH = 1), at that cost.
+- **Checks:**
+  - Tests: 9 new or changed tests, and 7 fail on the old code. 17 of 17 mutations killed.
+  - The related suites pass (gpu0, judge, transcript store).
+  - Audits batch 97 (Heimdall only): cycle 1 with six checks, and cycle 2 break-it, on qwen27b and gpt-oss at medium. Both traced; no finding.
+  - Both regressions green on the staged merge: regression_test.sh 26 PASS / 0 FAIL / 4 WARN; pipeline/regression.sh exit 0, references REPRODUCED; the touched suites 160 passed.
+  - The scorer service restarted at 13:31:05 ET. The pre-check's once-loop and the ingest's cron load the new code on their next run.
+- **Found after the merge, fixed in a2dc8ec9:** scorer and pre-check tests outside the new ones called serve_once with the LIVE /tmp/pulse_gpu0.want, so a test run could leave a want there for up to 90 s and make a live ingest run wait. Their test bases now use a temp dir. A full run of the four suites, before and after the merge, left the live dir untouched (mtime compared). regression_test.sh 26 PASS / 0 FAIL / 4 WARN.
+- **The 13:30 cron run** is the first on the new code. It transcribed Bloomberg, CNBC, TheStreet, Yahoo Finance and Bloomberg as of 13:34; its waited_for_gpu0_s will be in data/editorial/state/ingest_runs.jsonl.
+
 ## 09:55 LANDED: RULING 119 (1)'S STAND-ALONE FLOOR (3.0), BOTH HALVES, ON RULING 120. The builder landed its half first (pp-selectid 77abe7c1, 09:48 ET); the integrator's half is merged as e8da6bec (batch 96). Both regressions are green on the staged merge: regression_test.sh 26 PASS / 0 FAIL / 4 WARN; pipeline/regression.sh exit 0, with the preview, moments, medley and fresh references reproduced. The scorer service ran the new code from 09:55:13 ET. From then on its verdicts carry their weights digest, which the builder's half requires before it seals any clip on the floor. BATCH 4 integrator spend: $0.0595 (batch 96's audits $0.0419) (Heimdall, not capped).
 - **The ruling:** ruling 120, 09:40 ET Nov 16, relayed verbatim by the builder, with the orchestrator's words "Tell the integrator this ruling stands for its half too":
   > "YES. The stand-alone floor of 3.0 lands, BOTH HALVES TOGETHER, when both audits have cleared, exactly as you and the integrator describe: only on the measured scorer code and weights, only on the marked segments, marked on the pin and in the Telegram note in one plain line ('a clip passed stand-alone on the calibrated bar'). Reason: it is PBX's own approved clips (41f29b1f) that sit at 3.0; PBX reviews every video before it publishes; the preview's two clips at 2.0 are NOT admitted and the floor never goes under 3."
