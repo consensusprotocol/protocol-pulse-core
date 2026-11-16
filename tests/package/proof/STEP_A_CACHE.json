@@ -29253,5 +29253,76 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "c03abcbc802eca8b13ff:4ee4823dc305d891914939c4da0bbfd1f7bd17742a8008a848a37726cab27a2e:760138ee849c86b79d321f449244d88816e2ad1cefb8e60d12febfd096ebde2e:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "c03abcbc802eca8b13ff",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "they",
+     "refers_to": "Democratic candidates",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "the ones",
+     "refers_to": "Democratic candidates",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "the ones who were under 40",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Many of the Democratic candidates under 40 who call the speaker tell him that they used to mine Bitcoin in their dorm rooms, which the speaker finds funny.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "2fac82ee361acbc4aa67:3c741aab4e6b943658cfd57e31a8f21e4b53ff5b9415af5be71cd3007936dcce:219612fa2b34e8803c8e665b89da2a201f0f1daed4643074c5fb743b548d4983:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "2fac82ee361acbc4aa67",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "its",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "over the past week",
+     "inside": true
+    },
+    {
+     "text": "since July",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin has taken a hit over the past week, reaching its lowest level since July as investors face a growing list of setbacks including political uncertainty.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Let's bring in the Digital Chamber CEO Cody Carbone. Cody, good to see you this morning.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

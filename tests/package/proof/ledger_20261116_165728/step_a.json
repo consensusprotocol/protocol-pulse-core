@@ -1,0 +1,136 @@
+{
+ "0c8b148b130272219457:9d43580c729b": {
+  "label": "0c8b148b130272219457",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "crypto and its innovations (stablecoins, Bitcoin's hard money, DeFi)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "all of crypto / those innovations",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the claim that crypto is all useless",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "people's ability to say crypto is useless / their denial",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "none; the assertion is unconditional, though he adds the explanation that it's because 'we're really good at changing the tech stack'",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Crypto's innovations in stablecoins, Bitcoin's hard money, and DeFi show it is not useless, even though many people deny its utility because crypto's value lies in changing the tech stack rather than in policy-world goals.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a I don't talk to Senator Warren. Um, \u203a\u203a has anyone talked to Elizabeth Warren? No, but I would tell I would tell somebody that",
+  "backend": "heimdall:z-ai/glm-5.3-flash",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f6cd42cbf9c6b48a2d72:9d43580c729b": {
+  "label": "f6cd42cbf9c6b48a2d72",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "in the weekend",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin fell off a cliff during the weekend.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "LET'S BRING IN MARKETS REPORT THE -- REPORTER ANTHONY STEPHENS FOR MORE.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c03abcbc802eca8b13ff:9d43580c729b": {
+  "label": "c03abcbc802eca8b13ff",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "Democratic candidates",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "the ones",
+    "refers_to": "Democratic candidates",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "the ones who were under 40",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Many of the Democratic candidates under 40 who call the speaker tell him that they used to mine Bitcoin in their dorm rooms, which the speaker finds funny.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2fac82ee361acbc4aa67:9d43580c729b": {
+  "label": "2fac82ee361acbc4aa67",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "its",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the past week",
+    "inside": true
+   },
+   {
+    "text": "since July",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has taken a hit over the past week, reaching its lowest level since July as investors face a growing list of setbacks including political uncertainty.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Let's bring in the Digital Chamber CEO Cody Carbone. Cody, good to see you this morning.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}
