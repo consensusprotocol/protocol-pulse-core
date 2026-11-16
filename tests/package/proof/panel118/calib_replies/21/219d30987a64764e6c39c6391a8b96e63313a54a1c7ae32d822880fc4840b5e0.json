@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "heimdall:minimax/minimax-m3.1-flash",
+ "model": "minimax/minimax-m3.1-flash",
+ "vendor": "heimdall/minimax",
+ "seed": 8,
+ "max_tokens": 1200,
+ "system": "Answer with the JSON object only: no code fences and no text before or after it.",
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation. The first clip (label \"hook\")\nopens the video. The hook is shown for context only: it is NOT rated here (its own job was judged on its own).\n\nCLIP label=\"hook\" (on screen: Saifedean Ammous): \"Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.\"\nCLIP label=\"clip_01\" (on screen: What Bitcoin Did): \"I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S.\"\nCLIP label=\"clip_02\" (on screen: Natalie Brunell): \"Bitcoin imposes a global free market for the first time ever.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips, the hook's own join included (does the hook set up the clip after\n   it?): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming\n   from the previous clip's ending? Answer true or false, and why in a few words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"clip_01\": 1, \"clip_02\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"through_line\": \"Bitcoin is free of state authority and political control, functioning as a global free market whose success depends on individual choice rather than governments.\", \"clips\": {\"clip_01\": 5, \"clip_02\": 4}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"Hook's 'no authority' claim leads directly to Bitcoin's independence from White House/Senate control.\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"Both continue the theme of Bitcoin operating outside state power; 'global free market' extends the anti-political-dependence point.\"}}}",
+ "usage": {
+  "in": 654,
+  "out": 297,
+  "usd_reported": 6.661e-05
+ },
+ "usd": 0.006417,
+ "seconds": 10.37,
+ "recorded_at": "2026-11-16T11:27:50Z"
+}

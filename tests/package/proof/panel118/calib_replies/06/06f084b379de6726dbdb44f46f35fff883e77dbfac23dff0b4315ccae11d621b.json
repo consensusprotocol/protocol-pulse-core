@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "heimdall:google/gemma-4-31b-it",
+ "model": "google/gemma-4-31b-it",
+ "vendor": "heimdall/gemma",
+ "seed": 8,
+ "max_tokens": 1200,
+ "system": "Answer with the JSON object only: no code fences and no text before or after it.",
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words; the first clip, label \"hook\", opens the video and is shown for context only: it is NOT\nrated here, its own job was judged on its own).\n\nTITLE: No authority. That's the design.\nCAPTION: no authority. that's the design. three clips, links below.\nCLIP label=\"hook\" (on screen: Saifedean Ammous): \"Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.\"\nVOICE-OVER: Bitcoin does not have any authority. That's not a flaw. That's the design.\nCLIP label=\"clip_01\" (on screen: What Bitcoin Did): \"I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S.\"\nVOICE-OVER: Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?\nCLIP label=\"clip_02\" (on screen: Natalie Brunell): \"Bitcoin imposes a global free market for the first time ever.\"\nVOICE-OVER: No ruler. Just rules nobody gets to bend. That's the idea, and it's the part most people still miss when they look at Bitcoin.\nVOICE-OVER: Clips today from Saifedean Ammous, What Bitcoin Did, and Natalie Brunell. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"clip_01\": 1, \"clip_02\": 1}, \"vo_point\": 1}",
+ "text": "{\"through_line\": \"Bitcoin's lack of central authority is a deliberate design feature that ensures independence from political control and enables a global free market.\", \"clips\": {\"clip_01\": 5, \"clip_02\": 5}, \"vo_point\": 5}",
+ "usage": {
+  "in": 564,
+  "out": 580,
+  "usd_reported": 8.891e-05
+ },
+ "usd": 0.010392,
+ "seconds": 47.05,
+ "recorded_at": "2026-11-16T11:22:04Z"
+}

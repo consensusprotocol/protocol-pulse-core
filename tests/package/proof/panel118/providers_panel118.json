@@ -1,0 +1,547 @@
+{
+ "schema": "pp.providers/1",
+ "law": "L-x NO SINGLE MODEL, ULTRON FIRST (orchestrator 2026-11-12 02:45): every role names >= 2 interchangeable back-ends; the local model on Ultron is first wherever it meets the quality bar; a frontier model or Heimdall is used only where a measured blind A/B (tests/providers/ab_roles.py) shows local is not good enough, and the comparison is re-run so roles migrate to local. Verdict roles never run on the writer's vendor (law L-s; Router.call avoid_vendor). No role's code names a vendor or a model: only this file does. Each back-end names its model family: a verdict avoids the vendors AND families of the text it judges (Router.call avoid_vendor / avoid_family). Prices are upper bounds (USD per 1M tokens; per minute of audio for transcription); each paid call reserves its upper bound before it runs.",
+ "decided": "2026-11-12 02:44 ET by pipeline_pp_selectid: an INITIAL order, not yet measured. Mining, story selection and the check verdict put local first (law L-w 1: local gemma mines and scores by id). Angle and writing put a frontier model first (law L-w 1 and PBX 02:35: frontier spend approved for writing and checking) until the A/B shows local meets the bar. Verdicts run on a vendor other than the writer's.",
+ "backends": {
+  "local:gemma3:27b": {
+   "vendor": "local",
+   "model": "gemma3:27b",
+   "price_usd_per_1m": [
+    0,
+    0
+   ],
+   "family": "gemma"
+  },
+  "openai:gpt-6.1-sol": {
+   "vendor": "openai",
+   "model": "gpt-6.1-sol",
+   "price_usd_per_1m": [
+    15,
+    120
+   ],
+   "reasoning_effort": "medium",
+   "min_out": 4000,
+   "family": "gpt"
+  },
+  "anthropic:claude-fable-5-2": {
+   "vendor": "anthropic",
+   "model": "claude-fable-5-2",
+   "price_usd_per_1m": [
+    8,
+    40
+   ],
+   "effort": "medium",
+   "min_out": 16000,
+   "family": "claude"
+  },
+  "anthropic:claude-opus-5-5": {
+   "vendor": "anthropic",
+   "model": "claude-opus-5-5",
+   "price_usd_per_1m": [
+    4,
+    20
+   ],
+   "effort": "medium",
+   "min_out": 16000,
+   "family": "claude"
+  },
+  "xai:grok-4.20-0309-reasoning": {
+   "vendor": "xai",
+   "model": "grok-4.20-0309-reasoning",
+   "price_usd_per_1m": [
+    5,
+    25
+   ],
+   "temperature": 0,
+   "key_name": "XAI_API_KEY_MEDLEY",
+   "family": "grok"
+  },
+  "heimdall:qwen/qwen3.8-27b": {
+   "vendor": "heimdall",
+   "model": "qwen/qwen3.8-27b",
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "temperature": 0,
+   "min_out": 16000,
+   "family": "qwen",
+   "base_url": "https://api-staging.heimdallm.com/api/v1"
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "vendor": "heimdall",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "temperature": 0,
+   "min_out": 16000,
+   "family": "deepseek",
+   "base_url": "https://api-staging.heimdallm.com/api/v1"
+  },
+  "heimdall:google/gemma-4-31b-it": {
+   "vendor": "heimdall",
+   "model": "google/gemma-4-31b-it",
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "temperature": 0,
+   "min_out": 16000,
+   "family": "gemma",
+   "base_url": "https://api-staging.heimdallm.com/api/v1"
+  },
+  "xai_search:grok-4.7": {
+   "vendor": "xai_search",
+   "model": "grok-4.7",
+   "price_usd_per_1m": [
+    5,
+    25
+   ],
+   "key_name": "XAI_API_KEY_MEDLEY",
+   "tools": [
+    "x_search",
+    "web_search"
+   ],
+   "family": "grok"
+  },
+  "xai_vision:grok-4.7": {
+   "vendor": "xai_vision",
+   "model": "grok-4.7",
+   "price_usd_per_1m": [
+    5,
+    25
+   ],
+   "temperature": 0,
+   "key_name": "XAI_API_KEY_MEDLEY",
+   "family": "grok"
+  },
+  "heimdall:nvidia/nemotron-3.5-super-vl": {
+   "vendor": "heimdall",
+   "model": "nvidia/nemotron-3.5-super-vl",
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "temperature": 0,
+   "min_out": 16000,
+   "family": "nemotron",
+   "base_url": "https://api-staging.heimdallm.com/api/v1"
+  },
+  "openai_stt:gpt-4o-transcribe-diarize": {
+   "vendor": "openai_stt",
+   "model": "gpt-4o-transcribe-diarize",
+   "family": "gpt",
+   "diarize": true,
+   "price_usd_per_min": 0.012,
+   "timeout_s": 300
+  },
+  "elevenlabs_stt:scribe_v1": {
+   "vendor": "elevenlabs_stt",
+   "model": "scribe_v1",
+   "family": "scribe",
+   "price_usd_per_min": 0.012,
+   "timeout_s": 300
+  },
+  "heimdall:z-ai/glm-5.3-flash": {
+   "vendor": "heimdall",
+   "model": "z-ai/glm-5.3-flash",
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "temperature": 0,
+   "min_out": 16000,
+   "family": "glm",
+   "base_url": "https://api-staging.heimdallm.com/api/v1",
+   "measured": "ruling 82 (orchestrator 20:02 Nov 13): pp-ingest measured it 24/24 on calibration (default reasoning)"
+  },
+  "google:gemini-2.5-pro": {
+   "vendor": "google",
+   "model": "gemini-2.5-pro",
+   "family": "gemini",
+   "key_name": "GEMINI_API_KEY_MEDLEY",
+   "price_usd_per_1m": [
+    1.25,
+    10
+   ],
+   "min_out": 8000,
+   "timeout_s": 300,
+   "what": "RULING 87 (21:18 Nov 13): PLAN B only. The GEMINI_API_KEY_MEDLEY key is fenced to this pipeline. Gemini reports no cost: the price-table estimate (list price, thinking counted as output) is booked, labelled. RULING 102 (13:02 Nov 14): also step A's second family after Heimdall's deepseek and glm, reached without declaring Heimdall down (probed 12:5x ET Nov 14: answered in 2.2 s)."
+  },
+  "local_judge:gemma3:27b": {
+   "vendor": "local_judge",
+   "model": "gemma3:27b",
+   "family": "gemma",
+   "deadline_floor_s": 2400,
+   "what": "RULING 87 (21:18 Nov 13): PLAN B ONLY, step A's verdict when one outside family answers: the integrator's GPU0 judge service (request files in tests/package/proof/judge_requests, answers in /home/ultron/protocol_pulse/data/local_judge/results). Free. A render comes first: up to 40 min. RULING 102 (13:02 Nov 14): also the LAST leg of step A's second family (ruling 87's last resort), reached without declaring Heimdall down; recorded as such on the pin and on STATE line 1."
+  },
+  "heimdall:minimax/minimax-m3.1-flash": {
+   "vendor": "heimdall",
+   "model": "minimax/minimax-m3.1-flash",
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "temperature": 0,
+   "min_out": 16000,
+   "family": "minimax",
+   "base_url": "https://api-staging.heimdallm.com/api/v1"
+  },
+  "heimdall:openai/gpt-oss-20b": {
+   "vendor": "heimdall",
+   "model": "openai/gpt-oss-20b",
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "temperature": 0,
+   "min_out": 16000,
+   "family": "gpt-oss",
+   "base_url": "https://api-staging.heimdallm.com/api/v1"
+  },
+  "heimdall:xiaomi/mimo-v2.6-flash-rl": {
+   "vendor": "heimdall",
+   "model": "xiaomi/mimo-v2.6-flash-rl",
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "temperature": 0,
+   "min_out": 16000,
+   "family": "mimo",
+   "base_url": "https://api-staging.heimdallm.com/api/v1"
+  }
+ },
+ "roles": {
+  "mine": {
+   "chain": [
+    "local:gemma3:27b",
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-fable-5-2",
+    "heimdall:qwen/qwen3.8-27b"
+   ],
+   "what": "moments.py: whole-sentence ranges by id with engagement scores, risk flags, topics",
+   "measured": "blind A/B 2026-11-12 03:40 ET on fresh_20261112_050611 (tests/providers/ab/mine_fresh_20261112_050611.json, judge claude-opus-5-5): gpt-6.1-sol better than heimdall qwen3.8-27b; qwen 2067 s vs 300.5 s, 1 of 6 calls rejected by the strict contract. Local gemma3:27b: the integrator's leg (GPU0 lease)."
+  },
+  "angle_write": {
+   "chain": [
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-fable-5-2",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "local:gemma3:27b"
+   ],
+   "what": "package.py: the angle, the order, the PBX MAX VO intro / bridges, ONE title, ONE caption"
+  },
+  "fidelity_verdict": {
+   "chain": [
+    "xai:grok-4.20-0309-reasoning",
+    "anthropic:claude-opus-5-5",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:qwen/qwen3.8-27b",
+    "local:gemma3:27b"
+   ],
+   "what": "vo_fidelity.py: the blind claim-by-claim verdict on VO, title and caption; never the writer's vendor"
+  },
+  "context_verdict": {
+   "chain": [
+    "xai:grok-4.20-0309-reasoning",
+    "anthropic:claude-opus-5-5",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:qwen/qwen3.8-27b",
+    "local:gemma3:27b"
+   ],
+   "what": "context_integrity.py step A (source context only) and step C (entailment); never the writer's vendor",
+   "ruling_82": "orchestrator 20:02 Nov 13: the second-vendor step A has a failover chain, deepseek -> glm-5.3-flash -> qwen3.8-27b, 120 s per call"
+  },
+  "viewer_takeaway": {
+   "chain": [
+    "anthropic:claude-opus-5-5",
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:qwen/qwen3.8-27b",
+    "local:gemma3:27b"
+   ],
+   "what": "context_integrity.py step B (the finished package only); never the writer's vendor"
+  },
+  "trend_brief": {
+   "chain": [
+    "xai_search:grok-4.7"
+   ],
+   "fallback": "trend_brief.local_baseline (topic frequency across partner channels, last 24 h): free, always available",
+   "what": "trend_brief.py: one live-search call per cycle; SHADOW weight 0 (law L-w 4)"
+  },
+  "story": {
+   "chain": [
+    "local:gemma3:27b",
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-fable-5-2",
+    "heimdall:qwen/qwen3.8-27b"
+   ],
+   "what": "select_by_id story + line-up calls (story-first type; REQUESTS R6 item 7)"
+  },
+  "check": {
+   "chain": [
+    "local:gemma3:27b",
+    "xai:grok-4.20-0309-reasoning",
+    "anthropic:claude-opus-5-5",
+    "heimdall:deepseek/deepseek-v4.1-flash"
+   ],
+   "what": "select_by_id.ModelChecks; called with avoid_model = the story's model"
+  },
+  "exclusion_verdict": {
+   "chain": [
+    "local:gemma3:27b",
+    "xai:grok-4.20-0309-reasoning",
+    "anthropic:claude-opus-5-5",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:qwen/qwen3.8-27b"
+   ],
+   "what": "moments.exclusion_verdict: the hard exclusions of law L-u on one moment in its context"
+  },
+  "coherence_verdict": {
+   "chain": [
+    "anthropic:claude-opus-5-5",
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:qwen/qwen3.8-27b",
+    "local:gemma3:27b"
+   ],
+   "what": "package.coherence: the blind QUALITY verdict (through-line, ratings); never the writer's vendor"
+  },
+  "speaker_verdict": {
+   "chain": [
+    "xai:grok-4.20-0309-reasoning",
+    "anthropic:claude-opus-5-5",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:qwen/qwen3.8-27b",
+    "local:gemma3:27b"
+   ],
+   "what": "speakers.attribute: who speaks one pin segment, from the source's own title / channel / description and the transcript around the clip (orchestrator 00:05 ET Nov 13 item 3); code keeps only what the text shows"
+  },
+  "visual_check": {
+   "chain": [
+    "xai_vision:grok-4.7",
+    "heimdall:qwen/qwen3.8-27b",
+    "heimdall:nvidia/nemotron-3.5-super-vl"
+   ],
+   "what": "RULING 70 (orchestrator 15:29 Nov 13): visual_pin.visual_for, one contact sheet per clip: a third person shown as a still while the words make a negative claim, the source's on-screen text that asserts more than the words, the lower third; xAI first, the Heimdall image models (pipeline/visual_check.py's) as failover; fail closed"
+  },
+  "transcribe": {
+   "chain": [
+    "openai_stt:gpt-4o-transcribe-diarize",
+    "elevenlabs_stt:scribe_v1"
+   ],
+   "what": "transcript_truth.py: law L-v 2's second, independent recognition pass with speaker turns on the selected segment's source audio (CPU fetch; no GPU, no Whisper)"
+  },
+  "panel118_qwen": {
+   "chain": [
+    "heimdall:qwen/qwen3.8-27b"
+   ]
+  },
+  "panel118_deepseek": {
+   "chain": [
+    "heimdall:deepseek/deepseek-v4.1-flash"
+   ]
+  },
+  "panel118_minimax": {
+   "chain": [
+    "heimdall:minimax/minimax-m3.1-flash"
+   ]
+  },
+  "panel118_gptoss": {
+   "chain": [
+    "heimdall:openai/gpt-oss-20b"
+   ]
+  },
+  "panel118_gemma": {
+   "chain": [
+    "heimdall:google/gemma-4-31b-it"
+   ]
+  },
+  "panel118_mimo": {
+   "chain": [
+    "heimdall:xiaomi/mimo-v2.6-flash-rl"
+   ]
+  }
+ },
+ "routing": {
+  "ruling": "RULING 85 (orchestrator 21:15 Nov 13, locked 21:18): HEIMDALL FIRST FOR EVERY VERDICT, GROK LAST, behind this switch. mode 'today': the chains under roles (with the 20:33 order: ruling 82's Heimdall chain after Grok on every verdict role). mode 'heimdall_first': the lists below; each Heimdall family is its own maker for every vendor rule, so the two-family rule is kept inside Heimdall (providers.Router). The per-type order is ruled from the replay (tests/package/replay85.py); until then each list is ruling 82's order (deepseek, glm, qwen), Grok last. A build names its routing (proof_ledger --routing).",
+  "mode": "today",
+  "verdict_roles": [
+   "context_verdict",
+   "coherence_verdict",
+   "fidelity_verdict",
+   "exclusion_verdict",
+   "speaker_verdict",
+   "viewer_takeaway"
+  ],
+  "verdict_deadline_s": {
+   "heimdall": 120
+  },
+  "heimdall_first": {
+   "context_verdict": [
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "xai:grok-4.20-0309-reasoning"
+   ],
+   "coherence_verdict": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash"
+   ],
+   "fidelity_verdict": [
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:qwen/qwen3.8-27b",
+    "xai:grok-4.20-0309-reasoning"
+   ],
+   "exclusion_verdict": [
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "xai:grok-4.20-0309-reasoning"
+   ],
+   "speaker_verdict": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:qwen/qwen3.8-27b"
+   ],
+   "viewer_takeaway": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:qwen/qwen3.8-27b"
+   ],
+   "context_verdict:step_a_first": [
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "xai:grok-4.20-0309-reasoning"
+   ],
+   "context_verdict:step_a_second": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash",
+    "google:gemini-2.5-pro",
+    "local_judge:gemma3:27b"
+   ],
+   "context_verdict:step_c": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:deepseek/deepseek-v4.1-flash"
+   ],
+   "coherence_verdict:hook": [
+    "xai:grok-4.20-0309-reasoning"
+   ],
+   "coherence_verdict:joins": [
+    "xai:grok-4.20-0309-reasoning"
+   ],
+   "coherence_verdict:clips_alone": [
+    "xai:grok-4.20-0309-reasoning",
+    "google:gemini-2.5-pro"
+   ],
+   "coherence_verdict:coherence": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash"
+   ]
+  },
+  "plan_b": {
+   "context_verdict": [
+    "xai:grok-4.20-0309-reasoning",
+    "google:gemini-2.5-pro",
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-opus-5-5",
+    "local_judge:gemma3:27b"
+   ],
+   "coherence_verdict:hook": [
+    "xai:grok-4.20-0309-reasoning"
+   ],
+   "coherence_verdict:joins": [
+    "xai:grok-4.20-0309-reasoning"
+   ],
+   "coherence_verdict": [
+    "xai:grok-4.20-0309-reasoning",
+    "google:gemini-2.5-pro",
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-opus-5-5"
+   ],
+   "fidelity_verdict": [
+    "xai:grok-4.20-0309-reasoning",
+    "google:gemini-2.5-pro",
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-opus-5-5"
+   ],
+   "exclusion_verdict": [
+    "xai:grok-4.20-0309-reasoning",
+    "google:gemini-2.5-pro",
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-opus-5-5"
+   ],
+   "speaker_verdict": [
+    "xai:grok-4.20-0309-reasoning",
+    "google:gemini-2.5-pro",
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-opus-5-5"
+   ],
+   "viewer_takeaway": [
+    "xai:grok-4.20-0309-reasoning",
+    "google:gemini-2.5-pro",
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-opus-5-5"
+   ],
+   "angle_write": [
+    "xai:grok-4.20-0309-reasoning",
+    "google:gemini-2.5-pro",
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-opus-5-5"
+   ],
+   "visual_check": [
+    "xai_vision:grok-4.7"
+   ]
+  },
+  "plan_b_note": "RULING 87: while pipeline/heimdall_health.py says Heimdall is down (no family answered a verdict or writer call inside its deadline for 15 minutes running), these roles run on these chains: Grok mainly, then any other outside key that answers (Gemini's fenced key; OpenAI and Anthropic only when a call shows they have credit: they are tried, never assumed). Back to the mode's chains when the probe has answered 3 times in a row.",
+  "shadow": {
+   "*": "xai:grok-4.20-0309-reasoning",
+   "visual_check": "xai_vision:grok-4.7"
+  },
+  "shadow_until_clean_pins": 3,
+  "shadow_note": "RULING 86: a heimdall_first build asks these back-ends the same prompt of every verdict Heimdall decided (recorded, never deciding) until 3 pins in a row show no decision-changing difference.",
+  "today_unbounded": [
+   "context_verdict"
+  ],
+  "today": {
+   "coherence_verdict:coherence": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash"
+   ],
+   "coherence_verdict:clips_alone": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:qwen/qwen3.8-27b"
+   ],
+   "context_verdict:step_c": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash"
+   ],
+   "coherence_verdict:hook": [
+    "xai:grok-4.20-0309-reasoning"
+   ],
+   "coherence_verdict:joins": [
+    "xai:grok-4.20-0309-reasoning"
+   ]
+  },
+  "ruling_88": "RULING 88 (orchestrator 22:15 Nov 13), from the replay's interim, the full table to confirm: (a) fidelity and exclusion on Heimdall now (two families, Grok last); (b) step C and the hook rating move when the full table holds the interim's 98-100 % (Grok first until then); (c) step A: Heimdall FIRST, a clip Heimdall refuses is refused and Grok is never asked, a clip Heimdall passes goes to Grok to confirm; (d) clips-alone and coherence keep Grok, glm out of both; (e) qwen never decides coherence or step C. THE FULL TABLE (01:06 ET Nov 14, 884 rows): (b) holds for the hook rating (qwen 100 % of 15 units, glm 100 % of 11, deepseek 96 %): it moved, qwen -> glm -> deepseek -> Grok; it does not hold for step C (glm 97 %, deepseek 96 %; qwen 98 % but barred by (e)): Grok first.",
+  "ruling_117": "RULING 117 (orchestrator 16:24 ET Nov 15): the JOIN TABLE (package.join_table: the clips-alone verdict's join question once per ordered pair of an angle's moments) is asked of GROK alone, the calibrated rater, in every routing (no other model fills it; a pair with no answer counts as flagged in the search).",
+  "ruling_115": "RULING 115 (orchestrator 13:24 ET Nov 15), amending 85 / 88 / 96 for the HOOK only: the hook job is asked ALONE (one candidate a call) at production's seed by GROK, and Grok alone, in every routing (heimdall_first, today, plan_b): the calibrated floors (pipeline/hook_calibration.json, hook_bar.py) are Grok's, so no other model may decide a hook while Grok is out (no rating = no hook, law L-m). qwen answers every hook in SHADOW (recorded, never deciding; proof_ledger: shadow 'coherence_verdict:hook'). A hook passes when each of scroll / alone / setup is at least its floor.",
+  "ruling_96": "RULING 96 (orchestrator 01:40 ET Nov 14), FINAL until re-measured: HOOK qwen -> glm -> deepseek -> Grok; FIDELITY glm -> qwen -> Grok; EXCLUSION glm -> deepseek -> Grok; STEP A the Heimdall verdict first as the filter (glm first for speed: 45 s median against deepseek's 277 s; deepseek second; qwen third as failover, before Grok), Grok confirms what passes; STEP C, CLIPS-ALONE, COHERENCE, STEP B, SPEAKER, VISION: Grok first. qwen is never first where it failed an anchor. Re-run the replay monthly or when a Heimdall model changes; a type goes back to Grok first if its agreement falls under Grok's own self-agreement.",
+  "ruling_0612": "ORCHESTRATOR RULINGS 06:12 ET Nov 14 (the builder's two routing questions): (1) THE COHERENCE GAP: glm is coherence's LAST fallback, after Grok and after ruling 96's deepseek, which stays second (glm agreed with Grok on 94 % of the replay's coherence decisions, with one anchor failure in the whole table); an out-of-contract glm answer is no verdict (providers.call_parsed moves on, and after glm the chain is spent: fail closed). CLIPS-ALONE has NO Heimdall fallback (52-62 % on the replay): with Grok down it goes to Plan B's other outside family (Gemini's fenced key; OpenAI and Anthropic are frozen legs here; in Plan B mode the router already reads Plan B's coherence list, Grok -> Gemini -> OpenAI -> Anthropic), else it fails closed. (2) QWEN IS STRUCK FROM STEP A (mostly errors; 9 of 43 refusals let through): the first screen glm -> deepseek -> Grok, Grok's confirmation Grok -> glm -> deepseek, and the role's default list (no live caller: every step-A call names its kind) as the first screen. NOT CHANGED: the coherence role's default list (Grok -> deepseek), which the spotlight's closing-line and the medley's takeaway value verdicts use: the replay has no data for them (the orchestrator is asked, STATE 06:14, question B). Every other list is ruling 96's, unchanged.",
+  "ruling_102": "RULING 102 (orchestrator 13:02 ET Nov 14): STEP_A_UNAVAILABLE MUST NEVER END A CLIP. Step A's second family, in order: Heimdall deepseek (its own deadline, ruling 100) -> Heimdall glm -> GEMINI through the fenced key -> the local gemma3:27b on GPU0 through the integrator's judge service (ruling 87's last resort, recorded as such on the pin and on STATE line 1). Grok stays first (ruling 88 (c): Grok confirms a Heimdall pass); the second verdict is still off the first verdict's vendor and family. The first leg that ANSWERS gives the second verdict; an unavailable leg moves on at once, it is never a refusal and never cached. Only if no leg answers is the clip held for THIS build (STEP_A_HELD, not refused), and retried next build."
+ }
+}
