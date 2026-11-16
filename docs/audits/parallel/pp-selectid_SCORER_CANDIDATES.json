@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T20:11:12+00:00",
- "build": "ledger_20261116_201045",
+ "generated_at": "2026-11-16T20:17:39+00:00",
+ "build": "ledger_20261116_201711",
  "kind": "moments",
  "candidates": [
   {
@@ -172,6 +172,15 @@
    "duration": 6.14,
    "text": "And I had all this inspiration for Bitcoin. I was like, all right, I'm going to dedicate a chunk of my life here to writing a story about Bitcoin. And that's what it is.",
    "text_sha256": "eae8237fe5365e831352bf8cf5863f62a6afc28d737175dcaef1dffb7e74c2c9",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "0d2e0c5d71c3c7d4d23a",
+   "video_id": "H5bi8hBMDTw",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.08,
+   "text": "And last week, when the Nvidia scandal started unfolding, we saw AI stocks sell off and Bitcoin fell right alongside it. So what do you make of this correlation between Bitcoin and AI or tech?",
+   "text_sha256": "fd77145c7303226aaa512e34b9573e132cffe643cb815434f12b17489ae3d1e5",
    "trimmed_leading": null
   },
   {
@@ -400,6 +409,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "0d2e0c5d71c3c7d4d23a~trim",
+   "video_id": "H5bi8hBMDTw",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.08,
+   "text": "last week, when the Nvidia scandal started unfolding, we saw AI stocks sell off and Bitcoin fell right alongside it. So what do you make of this correlation between Bitcoin and AI or tech?",
+   "text_sha256": "6cb57a02baf5a617de813b8da85b21634ce895b314a61947f5cf6db28a0866fd",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "44a96df05142bc356898~trim",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -613,6 +631,15 @@
    "duration": 21.84,
    "text": "However, I think that there's like, I don't know that AI is like this amazing short -term narrative for Bitcoin, but this technology that allows everybody to build things more quickly, allows like insane amounts of deflation, allows us to do everything humans have ever wanted more quickly potentially, is super bullish for the most scarce asset that's ever existed, right? If everything's becoming more abundant, scarcity becomes more valuable.",
    "text_sha256": "5c57de190492172d5fa2968fb5577cf89a0d872fe654140652a815c9c0aa0877",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "198ca47275317287adfd",
+   "video_id": "H5bi8hBMDTw",
+   "channel": "Bitcoin Magazine",
+   "duration": 20.35,
+   "text": "We also sort of have the still the persistent geopolitical uncertainty in energy markets frequently. Bitcoin and digital assets are not beneficiaries when the rest of the market is in a play to quality. So I think that markets overall are incredibly skittish right now.",
+   "text_sha256": "4d05daad9c1b5f51d8e7f9b85515833761261c380233e7474bd78247416e9e68",
    "trimmed_leading": null
   },
   {
@@ -866,6 +893,15 @@
    "text": "if we can't even get permissionless system on the mining level. Again, that sets a very dangerous precedent. I don't want Bitcoin to head in that direction. So, Bob, it was an honor to have you on today's show. Always enjoy our conversations.",
    "text_sha256": "074c85fe50bf29a02e429a739410bdaa654807ac56c1c7c5056a37ee90f51d28",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "d50052ed32d40644201f",
+   "video_id": "H5bi8hBMDTw",
+   "channel": "Bitcoin Magazine",
+   "duration": 20.8,
+   "text": "In blue, the spot Bitcoin ETFs have lost more than $2.3 billion over the past two weeks. Yet the third quarter filings are showing, you know, Morgan Stanley. McQuare, I believe, as well, together added about 400 million or so in Bitcoin ETFs throughout September.",
+   "text_sha256": "bd3df4e49c00e0c2674a8992dbbfc9703f78443960cb09d01befc32e31ac4fb5",
+   "trimmed_leading": null
   },
   {
    "pid": "d21e343f509a3ddbcdc2",
@@ -1165,6 +1201,15 @@
    "trimmed_leading": "Now"
   },
   {
+   "pid": "0050388e1e805af79a6e",
+   "video_id": "H5bi8hBMDTw",
+   "channel": "Bitcoin Magazine",
+   "duration": 25.58,
+   "text": "Those are economies and countries that... very much embraced the idea and we're willing to understand quite early the idea of Bitcoin and the idea of a non -governmental hedge on money. And I think that there will continue to be traction there. And those markets have been much more open to the idea that perhaps the government doesn't have the solution or the willpower for a lot of the fiscal difficulties.",
+   "text_sha256": "a80431e7cb0a55421ff2b61ff7c1ddea3c2883298ea246781e293241faccaa93",
+   "trimmed_leading": null
+  },
+  {
    "pid": "c7205fcd9f163b7d8459",
    "video_id": "uAvmynMSVhM",
    "channel": "Bitcoin Magazine",
@@ -1181,6 +1226,15 @@
    "text": "what this is measuring is how often different price levels in Bitcoin are talked about over time. You can really see here like the very stark, obvious one through the middle at 100K. If I were to scroll way up to the top, it's way out of view here, but you'll see like there's this crazy dense red line at a million where people are very constantly talking about this price level.",
    "text_sha256": "32292746445eb98f12e9e11fa868a1b6e7ea16abeef40814cdfbb5caf802b3e4",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "31e6b21bd0a53b2fed1d",
+   "video_id": "H5bi8hBMDTw",
+   "channel": "Bitcoin Magazine",
+   "duration": 32.04,
+   "text": "On the upside, I see... sort of some stabilization and that process in broader markets, allowing people to sort of step back and take a look at fundamentals and recognize that there's a lot of value across crypto right now, whether it's on, you know, talking about the debasement trade and Bitcoin, whether it's looking at the developments in tokenization. I think New York Stock Exchange, right, has picked a public blockchain to run their tokenized trading on. you know, and the market just kind of blows right past it.",
+   "text_sha256": "b2c82f85a4ef968b6624796b2f147e49cc0bc2b2a6275bda06050b5daafb288d",
+   "trimmed_leading": null
   },
   {
    "pid": "074b27549d84c0d27a22",
@@ -1417,6 +1471,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "8e6e9aa698848c0f3a13",
+   "video_id": "H5bi8hBMDTw",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.7,
+   "text": "In blue, it seems like broadly right now for the Bitcoin market, there's just sort of this apathy, right? People have been beaten over the head for months now. We've seen a lot of force selling come and go. And there doesn't really seem to be a coherent narrative right now that is shared across the space.",
+   "text_sha256": "f0686ea13dece47800eaf7aa8789c998b17da3d9838ed9666c6e4eda013be8fe",
+   "trimmed_leading": null
+  },
+  {
    "pid": "93864e801cbf9755c7e1",
    "video_id": "uAvmynMSVhM",
    "channel": "Bitcoin Magazine",
@@ -1594,6 +1657,15 @@
    "duration": 15.53,
    "text": "Do I care if Bitcoin goes to 55 or 45 or if I buy it at 75 or 65? No, because I happen to believe that it's going into the well into the hundreds of thousands and I buy Bitcoin for more reasons than just the monetary appreciation. I buy it as a hedge as an opt -out of the system.",
    "text_sha256": "5237717df9d61f010d458585903b9a7b6eebcce536d46e3605906613ad8bd6bd",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "59ebf4a64f5bbbf5dd5a",
+   "video_id": "H5bi8hBMDTw",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.93,
+   "text": "The CME Fed Watch tool has 92 % chance now for a hike in December, 67 % chance for another one in January. What does a Fed that's still raising rates mean for Bitcoin? And how are you positioning for it? Yeah, I think it affects the entire market.",
+   "text_sha256": "a2e8532373e0a44f1c46732a5d2fce6bcfd4ad81317fc5e64907452f709aa521",
    "trimmed_leading": null
   },
   {
