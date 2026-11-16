@@ -179,3 +179,13 @@ CUDA_VISIBLE_DEVICES=1 under law L-r). Until then pp-ingest takes each Whisper r
    ZtnhDQODni8 (83.5 min), 2.41 h cumulative inside the 4 h budget; 15 more videos (11.83 h of audio) after it. No cron
    change asked: the approved-layout channels are the ones the builder can cut first; the watcher takes Melker's record
    within a minute of it landing (r119's sweep covers captions_pending).
+
+## R14 A scheduled stream ages out of the pipeline's 72 h universe as it airs (the integrator's; Nov 16 15:12 ET)
+Bitcoin Magazine KRvh4AcSofA ("Binance Breach, AI Bitcoin Security", tier 1, approved layout; a 2 h 1 min stream that
+aired today) has had no attempt in the pipeline's store since 17:00Z (12:00 ET): its last lines are "skip: live_status
+is_live"; there is no meta_history.jsonl, so batch 98's re-read never reached it. Its stored meta.json carries
+published_at 2026-11-13T17:19:33Z, the RSS time the stream was SCHEDULED, so the ingest's 72 h universe dropped it at
+17:19Z Nov 16 (12:19 ET), just as it aired. This watcher dates a stream's video by its stream start
+(fetch.publish_time: release_timestamp, INGEST-FAIL-03) and holds it as post_live, waiting for a transcript; with
+YouTube refusing captions, the pipeline's Whisper is its only path. Proposed (the integrator's call): the universe dates
+a live / upcoming / was_live / post_live video by its release_timestamp (the stream start), as INGEST-FAIL-03 does here.
