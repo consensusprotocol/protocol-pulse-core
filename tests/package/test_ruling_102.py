@@ -306,11 +306,12 @@ class TestOnThePinAndOnState(unittest.TestCase):
 
     def test_no_build_starts_at_the_stop_and_one_starts_below(self):
         """The orchestrator 13:02 Nov 14: at the stop no build starts, and STATE line 1 says so in capitals. RULING 108
-        (21:20 Nov 14): batch 3's builds stop at $4.00 of their $4.50 share."""
+        (21:20 Nov 14): batch 3's builds stop at $4.00 of their $4.50 share; batch 4 (19:40 Nov 15) on the same terms."""
         self.assertEqual((PLG.PL.LY_STOP_USD, PLG.PL.LY_LIMIT_USD), (4.00, 4.50))
         self.assertEqual(PLG.PL.LY_LIMIT_BASIS, "reported")               # vendor-reported (audit 2114 C1, glm)
         self.assertGreaterEqual(PLG.PL.LY_LIMIT_USD - PLG.PL.LY_STOP_USD, 0.50)   # one build's headroom (C1, glm)
-        self.assertTrue(PLG.PL.SPEND.endswith("SPEND_B3.json"))          # never the closed $20 ledger again
+        self.assertEqual(os.path.basename(PLG.PL.SPEND), "SPEND_B4.json")   # batch 4's own; never a closed ledger
+        self.assertNotIn(os.path.basename(PLG.PL.SPEND), ("SPEND_LY.json", "SPEND_B3.json"))
         self.assertIsNone(PLG.start_refused(3.99))
         why = PLG.start_refused(4.0)
         self.assertIn("at or over the $4.00 stop: no build starts", why)

@@ -1,0 +1,23 @@
+pp-selectid: BATCH 4's own build ledger (orchestrator 19:40 ET Nov 15). Files: tests/package/proof_ly.py (SPEND and
+its comments), tests/package/test_ruling_102.py.
+
+THE ORDER, verbatim: "batch 3 closes at 21:10 ET ... BATCH 4 starts 21:10 ET Nov 15 and runs to 21:10 ET Nov 16 on
+the same terms: all-in cap $8.00 (tell at $6, alarm at $7.50), every ruling to 117 in force, the calibrated bars, the
+join search, the 30-minute fallback poll."
+
+THE CHANGE: proof_ly.SPEND, the ledger the ledger build's router charges (tests/package/proof_ledger.py:221,
+spend_path=PL.SPEND, the only code that reads it), moves from SPEND_B3.json to SPEND_B4.json, exactly as ruling 108
+moved it from SPEND_LY.json to SPEND_B3.json for batch 3 (audit 20261114_2114). LY_LIMIT_USD 4.50, LY_STOP_USD 4.00,
+LY_LIMIT_BASIS "reported" and RESERVE_WAIT_S are unchanged ("the same terms"). It LANDS AT 21:10 ET, when batch 3
+closes, so no build that starts before then charges batch 4. A missing SPEND_B4.json starts at $0 (the Router's own
+ledger creation, unchanged). The batch-4 STATE figure is kept outside this code, as batch 3's was.
+
+UNCHANGED GUARDS (not in the diff): proof_ledger.start_refused (no build starts at or over LY_STOP_USD); the Router's
+limit (limit_usd=PL.LY_LIMIT_USD, limit_basis=PL.LY_LIMIT_BASIS, tests/package/proof_ledger.py:221-227); ruling 41's
+per-build cap; ruling 107 (1)'s fingerprint.
+
+TESTS: test_ruling_102 test_no_build_starts_at_the_stop_and_one_starts_below: the ledger is SPEND_B4.json and never a
+closed one (SPEND_LY.json, SPEND_B3.json); the stop, the limit and its basis unchanged. All suite files pass.
+
+PLEASE CHECK: (1) that nothing but the ledger's file name moves; (2) that no other code path still writes
+SPEND_B3.json; (3) the test.

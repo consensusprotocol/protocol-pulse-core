@@ -17,8 +17,8 @@ is out too. What is left:
 - the second recogniser is ElevenLabs scribe_v1.
 CPU and network only. The inputs are read-only: the saved runs and the main store's transcripts.
 
-SPEND: a ledger of this order's own (tests/package/proof/SPEND_B3.json since ruling 108; SPEND_LY.json is the closed
-$20 order's) holds the price-table estimate beside the
+SPEND: a ledger of this order's own (tests/package/proof/SPEND_B4.json for BATCH 4, the orchestrator's 19:40 ET Nov 15
+order; SPEND_B3.json is batch 3's and SPEND_LY.json the $20 order's, both closed) holds the price-table estimate beside the
 vendors' own figures (xAI cost_in_usd_ticks, Heimdall usage.cost; providers.py). RULING 48 (orchestrator 07:02 Nov 13):
 its guard is LY_LIMIT_USD on VENDOR-REPORTED dollars, the estimate counted only for a call whose vendor reports none
 (Router limit_basis="reported"); at LY_STOP_USD no new build starts (proof_ledger) and the orchestrator is told.
@@ -47,9 +47,10 @@ import speakers as SP  # noqa: E402
 
 REPLIES = os.path.join(HERE, "fixtures", "replies")
 OUT = os.path.join(HERE, "proof")
-SPEND = os.path.join(OUT, "SPEND_B3.json")   # RULING 108 (orchestrator 21:20 ET Nov 14): BATCH 3 (to 21:10 ET Nov 15)
-#   keeps its own ledger. The $20 order's SPEND_LY.json is CLOSED at $11.47 (restated on ruling 107 Q1's basis, e7f68e11).
-LY_LIMIT_USD = 4.50                # RULING 108: builds + sealing's share of batch 3's $8.00 ALL-IN cap (audits $2.50,
+SPEND = os.path.join(OUT, "SPEND_B4.json")   # BATCH 4 (orchestrator 19:40 ET Nov 15: 21:10 ET Nov 15 to 21:10 ET Nov
+#   16, batch 3's terms) keeps its own ledger, as batch 3 did (ruling 108). CLOSED: batch 3's SPEND_B3.json at 21:10 ET
+#   Nov 15; the $20 order's SPEND_LY.json at $11.47 (restated on ruling 107 Q1's basis, e7f68e11).
+LY_LIMIT_USD = 4.50                # RULING 108, batch 4 on its terms: builds + sealing's share of the $8.00 cap (audits $2.50,
 LY_LIMIT_BASIS = "reported"        # mining and checks $1.00), VENDOR-REPORTED; an abandoned call at the model's own
 LY_STOP_USD = 4.00                 # rate (ruling 107 Q1). No build starts at or over $4.00 (a build runs $0.15-0.50, so
                                    # none ends over $4.50: each paid call still RESERVES its upper bound while in
