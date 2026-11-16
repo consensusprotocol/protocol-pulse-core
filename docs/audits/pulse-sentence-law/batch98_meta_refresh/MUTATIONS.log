@@ -1,0 +1,14 @@
+CONTROL (unmutated): exit 0 | 23 passed, 9 subtests passed in 4.01s
+R1 no re-read of a stored live record: KILLED | 1 failed in 0.76s
+R2 the re-read interval ignored: KILLED | 1 failed, 6 passed, 5 subtests passed in 0.81s
+R3 ensure_meta returns meta.json, not the newest snapshot: KILLED | 1 failed, 4 passed, 5 subtests passed in 0.79s
+R4 the snapshot not appended to the history: KILLED | 1 failed, 4 passed, 5 subtests passed in 0.88s
+R5 a torn history line breaks the read: KILLED | 1 failed, 5 passed, 5 subtests passed in 0.91s
+R6 another video's snapshot accepted: KILLED | 1 failed, 3 passed, 5 subtests passed in 0.80s
+R7 a failed re-read crashes the acquisition: KILLED | 1 failed in 0.85s
+R8 post_live now skipped: KILLED | 1 failed, 9 passed, 8 subtests passed in 0.83s
+R9 only is_live read again: KILLED | 4 failed, 9 passed, 5 subtests passed in 0.90s
+R10 a hung yt-dlp not turned into an AcquisitionError: KILLED | 3 failed, 2 passed, 3 subtests passed in 1.68s
+R11 the last line wins, not the latest read: KILLED | 1 failed, 7 passed, 5 subtests passed in 0.84s
+11 of 11 killed
+AFTER (restored): exit 0 | 23 passed, 9 subtests passed in 3.94s

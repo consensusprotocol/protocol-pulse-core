@@ -1,0 +1,26 @@
+{
+ "question": "Try to BREAK this diff to pipeline/transcript_store.py: a stored live record (is_live / is_upcoming / post_live) is read again before the video is skipped, the snapshot is appended to meta_history.jsonl, and ensure_meta returns the newest snapshot. For each attempt, give the exact sequence (files, timestamps, yt-dlp replies) and the code path it takes. Report ONLY the attempts that succeed, quoting the lines that let them through. If none succeeds, answer PASS with no findings.\n\nGOALS (any one is a finding):\nX1. Keep a video frozen as live after its stream has ended, across runs.\nX2. Make YouTube be asked more than once per META_RECHECK_S per video, or on every call.\nX3. Change or overwrite meta.json, or make ensure_meta return another video's or a torn snapshot.\nX4. Make acquire raise where it used to return a status: a yt-dlp failure, a bad metadata_fetched_at, an unreadable history.\nX5. Make a finished video (was_live, not_live, none) be read again, or a post_live video now be skipped.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 88.5,
+   "cost": 0.005949923,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.005949923,
+ "out_dir": "heimdall"
+}

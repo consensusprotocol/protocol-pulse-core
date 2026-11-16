@@ -1,0 +1,23 @@
+# Heimdall audit
+
+**Question:** Try to BREAK this diff to pipeline/transcript_store.py: a stored live record (is_live / is_upcoming / post_live) is read again before the video is skipped, the snapshot is appended to meta_history.jsonl, and ensure_meta returns the newest snapshot. For each attempt, give the exact sequence (files, timestamps, yt-dlp replies) and the code path it takes. Report ONLY the attempts that succeed, quoting the lines that let them through. If none succeeds, answer PASS with no findings.
+
+GOALS (any one is a finding):
+X1. Keep a video frozen as live after its stream has ended, across runs.
+X2. Make YouTube be asked more than once per META_RECHECK_S per video, or on every call.
+X3. Change or overwrite meta.json, or make ensure_meta return another video's or a torn snapshot.
+X4. Make acquire raise where it used to return a status: a yt-dlp failure, a bad metadata_fetched_at, an unreadable history.
+X5. Make a finished video (was_live, not_live, none) be read again, or a post_live video now be skipped.
+
+**Panel:** qwen27b  |  **Cost:** $0.0059
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none
+
+
+saved: heimdall

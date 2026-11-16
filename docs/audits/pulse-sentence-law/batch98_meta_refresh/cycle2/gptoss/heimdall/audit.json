@@ -1,0 +1,46 @@
+{
+ "question": "Try to BREAK this diff to pipeline/transcript_store.py: a stored live record (is_live / is_upcoming / post_live) is read again before the video is skipped, the snapshot is appended to meta_history.jsonl, and ensure_meta returns the newest snapshot. For each attempt, give the exact sequence (files, timestamps, yt-dlp replies) and the code path it takes. Report ONLY the attempts that succeed, quoting the lines that let them through. If none succeeds, answer PASS with no findings.\n\nGOALS (any one is a finding):\nX1. Keep a video frozen as live after its stream has ended, across runs.\nX2. Make YouTube be asked more than once per META_RECHECK_S per video, or on every call.\nX3. Change or overwrite meta.json, or make ensure_meta return another video's or a torn snapshot.\nX4. Make acquire raise where it used to return a status: a yt-dlp failure, a bad metadata_fetched_at, an unreadable history.\nX5. Make a finished video (was_live, not_live, none) be read again, or a post_live video now be skipped.",
+ "files": [],
+ "panel": {
+  "gptoss": "openai/gpt-oss-20b"
+ },
+ "cycle1": [
+  {
+   "name": "gptoss",
+   "model": "openai/gpt-oss-20b",
+   "status": 200,
+   "latency_s": 11.9,
+   "cost": 0.000324291,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "gptoss",
+   "status": 200,
+   "latency_s": 7.6,
+   "cost": 0.000230392,
+   "parse_ok": false
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "gptoss:F1",
+   "severity": "high",
+   "file": "pipeline/transcript_store.py",
+   "line": 145,
+   "issue": "_newest_meta overrides meta.json with the last matching line in meta_history.jsonl without checking timestamps, allowing an older live snapshot to replace a finished snapshot and keep a video frozen as live after its stream has ended.",
+   "evidence": "    with open(os.path.join(_vdir(video_id), \"meta.json\")) as f:\n        meta = json.load(f)\n    hist = os.path.join(_vdir(video_id), \"meta_history.jsonl\")\n    if os.path.exists(hist):\n        with open(hist) as f:\n            for line in f:\n                try:\n                    snap = json.loads(line)\n                except ValueError:\n                    continue\n                if isinstance(snap, dict) and snap.get(\"video_id\") == video_id:\n                    meta = snap",
+   "fix": "Modify _newest_meta to select the snapshot with the most recent \"metadata_fetched_at\" timestamp (or the last line in the file if timestamps are equal). For example:\n\n    latest = meta\n    latest_ts = datetime.fromisoformat(meta.get(\"metadata_fetched_at\", \"\")).timestamp() if meta.get(\"metadata_fetched_at\") else 0\n    if os.path.exists(hist):\n        with open(hist) as f:\n            for line in f:\n                try:\n                    snap = json.loads(line)\n                except ValueError:\n                    continue\n                if isinstance(snap, dict) and snap.get(\"video_id\") == video_id:\n                    ts = datetime.fromisoformat(snap.get(\"metadata_fetched_at\", \"\")).timestamp() if snap.get(\"metadata_fetched_at\") else 0\n                    if ts > latest_ts:\n                        latest = snap\n                        latest_ts = ts\n    return latest",
+   "agree": [],
+   "disagree": []
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.000554683,
+ "out_dir": "heimdall"
+}

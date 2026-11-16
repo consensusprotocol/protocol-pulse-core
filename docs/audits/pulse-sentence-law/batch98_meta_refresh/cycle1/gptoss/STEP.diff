@@ -1,0 +1,129 @@
+diff --git a/pipeline/transcript_store.py b/pipeline/transcript_store.py
+index 2feb420e..f751023f 100644
+--- a/pipeline/transcript_store.py
++++ b/pipeline/transcript_store.py
+@@ -6,7 +6,8 @@ Every transcript and every derived chunk carries immutable attribution to its so
+ 
+ Layout (data/editorial/transcripts/<video_id>/):
+   meta.json                         video metadata (RSS + yt-dlp), written once, refreshed only
+-                                    by appending to meta_history
++                                    by appending to meta_history.jsonl (one whole snapshot a line);
++                                    ensure_meta returns the newest snapshot
+   transcript.<method>.json          IMMUTABLE transcript record, one per acquisition method
+                                     (never overwritten; a better method adds a new file)
+   attempts.jsonl                    acquisition attempt log (caption 429s, failures, skips)
+@@ -47,6 +48,9 @@ WHISPER_BATCH = 16
+ REFERENCE_MODEL = "large-v3"                # punctuation reference (punctuate): distil + prompt left Altcoin
+                                             # Daily's 373-word stretch unpunctuated; large-v3 batched restored it
+ MAX_DURATION_S = 3 * 3600                   # same VOD ceiling as scan.py
++LIVE_STATES = ("is_live", "is_upcoming", "post_live")   # stored while not yet a finished video: read again
++SKIP_LIVE = ("is_live", "is_upcoming")                   # still not a finished video on the newest read: skipped
++META_RECHECK_S = 20 * 60                    # at most one re-read per video in this long (the cron runs every 30 min)
+ CAPTION_BACKOFF_S = (0, 8, 20)
+ CIRCUIT_MINUTES = 30
+ CHUNK_MIN_S, CHUNK_MAX_S = 30.0, 60.0
+@@ -114,22 +118,17 @@ def _ytdlp(args, timeout=120):
+     return subprocess.run(cmd + args, capture_output=True, text=True, timeout=timeout)
+ 
+ 
+-def ensure_meta(video_id, rss=None, channel=None):
+-    """Video identity. rss = {'title','published'} from the channel feed (exact title and
+-    publish timestamp); channel = registry entry. Returns meta dict."""
+-    path = os.path.join(_vdir(video_id), "meta.json")
+-    if os.path.exists(path):
+-        with open(path) as f:
+-            return json.load(f)
++def _fetch_meta(video_id, rss=None, channel=None, step="meta"):
++    """A metadata snapshot read from YouTube now (yt-dlp -J). AcquisitionError (logged) when it cannot be read."""
+     r = _ytdlp(["-J", "--skip-download", canonical_url(video_id)])
+     try:
+         j = json.loads(r.stdout)
+     except Exception:
+         j = None
+     if not isinstance(j, dict):
+-        _log_attempt(video_id, step="meta", status="unavailable", error=(r.stderr or "")[-300:])
++        _log_attempt(video_id, step=step, status="unavailable", error=(r.stderr or "")[-300:])
+         raise AcquisitionError(f"metadata unavailable for {video_id}: {(r.stderr or '')[-300:]}")
+-    meta = {
++    return {
+         "schema": SCHEMA, "video_id": video_id, "canonical_url": canonical_url(video_id),
+         "channel_id": j.get("channel_id") or (channel or {}).get("channel_id"),
+         "channel_name": (channel or {}).get("display_name") or j.get("channel"),
+@@ -145,11 +144,60 @@ def ensure_meta(video_id, rss=None, channel=None):
+         "captions_auto_en": sorted(k for k in (j.get("automatic_captions") or {}) if k in ("en", "en-orig")),
+         "metadata_fetched_at": now_iso(), "metadata_tool": "yt-dlp -J",
+     }
++
++
++def _newest_meta(video_id):
++    """meta.json, or the last whole snapshot of this video in meta_history.jsonl (a torn or foreign line is
++    skipped)."""
++    with open(os.path.join(_vdir(video_id), "meta.json")) as f:
++        meta = json.load(f)
++    hist = os.path.join(_vdir(video_id), "meta_history.jsonl")
++    if os.path.exists(hist):
++        with open(hist) as f:
++            for line in f:
++                try:
++                    snap = json.loads(line)
++                except ValueError:
++                    continue
++                if isinstance(snap, dict) and snap.get("video_id") == video_id:
++                    meta = snap
++    return meta
++
++
++def ensure_meta(video_id, rss=None, channel=None):
++    """Video identity. rss = {'title','published'} from the channel feed (exact title and
++    publish timestamp); channel = registry entry. Returns the NEWEST meta snapshot: meta.json (written once)
++    or the last one refresh_meta appended to meta_history.jsonl."""
++    path = os.path.join(_vdir(video_id), "meta.json")
++    if os.path.exists(path):
++        return _newest_meta(video_id)
++    meta = _fetch_meta(video_id, rss=rss, channel=channel)
+     os.makedirs(_vdir(video_id), exist_ok=True)
+     _write_once(path, meta)
+     return meta
+ 
+ 
++def refresh_meta(video_id, rss=None, channel=None, now=None):
++    """Read a video's metadata again and append the snapshot to meta_history.jsonl (meta.json stays write-once)
++    -> the newest snapshot. pp-ingest 2026-11-16 (INGEST-FAIL-01's pattern): Scott Melker f0NnJM63Ffc's meta.json
++    was written while its stream was live, and every run skipped it on that record long after the stream ended.
++    At most one read per META_RECHECK_S per video: a snapshot read more recently is returned as it is. A failed
++    read raises AcquisitionError (logged as step "meta_refresh") and appends nothing."""
++    cur = _newest_meta(video_id)
++    try:
++        last = datetime.fromisoformat(cur.get("metadata_fetched_at")).timestamp()
++    except (TypeError, ValueError):
++        last = None
++    if last is not None and (time.time() if now is None else now) - last < META_RECHECK_S:
++        return cur
++    fresh = _fetch_meta(video_id, rss=rss, channel=channel, step="meta_refresh")
++    with open(os.path.join(_vdir(video_id), "meta_history.jsonl"), "a") as f:
++        f.write(json.dumps(fresh, ensure_ascii=False) + "\n")
++    _log_attempt(video_id, step="meta_refresh", live_status=fresh.get("live_status"),
++                 was=cur.get("live_status"))
++    return fresh
++
++
+ # ── transcript records ──
+ 
+ def transcript_records(video_id):
+@@ -449,10 +497,15 @@ def acquire(video_id, rss=None, channel=None, allow_whisper=True, prefer_words=F
+         return rec, "cached"
+     prefer_whisper = prefer_words
+     meta = ensure_meta(video_id, rss=rss, channel=channel)
++    if meta.get("live_status") in LIVE_STATES:         # taken while not yet a finished video: read it again
++        try:
++            meta = refresh_meta(video_id, rss=rss, channel=channel)
++        except AcquisitionError:
++            pass                                       # logged; the stored state stands for this run
+     if meta.get("duration") and meta["duration"] > MAX_DURATION_S:
+         _log_attempt(video_id, step="skip", reason=f"duration {meta['duration']}s > {MAX_DURATION_S}s")
+         return rec, "skipped_too_long"
+-    if meta.get("live_status") in ("is_live", "is_upcoming"):
++    if meta.get("live_status") in SKIP_LIVE:
+         _log_attempt(video_id, step="skip", reason=f"live_status {meta['live_status']}")
+         return rec, "skipped_live"
+     if not rec and not prefer_whisper and try_captions:

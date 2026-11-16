@@ -1,0 +1,9 @@
+_ TestStaleLive.test_a_failed_re_read_appends_nothing_and_the_next_run_tries_again _
+self = <pipeline.test_transcript_store_live.TestStaleLive testMethod=test_a_failed_re_read_appends_nothing_and_the_next_run_tries_again>
+    def test_a_failed_re_read_appends_nothing_and_the_next_run_tries_again(self):
+>       self.assertIn("meta_refresh", steps)                            # the failed read is logged
+FAILED pipeline/test_transcript_store_live.py::TestStaleLive::test_a_failed_re_read_appends_nothing_and_the_next_run_tries_again
+FAILED pipeline/test_transcript_store_live.py::TestStaleLive::test_a_stream_that_ended_since_its_meta_was_written_is_read_again_and_goes_on
+FAILED pipeline/test_transcript_store_live.py::TestStaleLive::test_a_torn_history_line_is_skipped_and_the_last_whole_snapshot_wins
+FAILED pipeline/test_transcript_store_live.py::TestStaleLive::test_still_live_it_is_skipped_and_read_again_only_after_the_recheck_interval
+8 failed, 3 passed, 3 subtests passed in 0.85s

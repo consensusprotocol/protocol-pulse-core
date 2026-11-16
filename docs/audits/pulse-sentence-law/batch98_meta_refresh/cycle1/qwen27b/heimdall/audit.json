@@ -1,0 +1,48 @@
+{
+ "question": "Review this diff to pipeline/transcript_store.py (pp-ingest's finding, Nov 16).\n- The problem it fixes: a video's meta.json, written once while its stream was live, froze the video. acquire() skipped it on that stored live_status for ever, long after the stream ended.\n- The fix:\n  - A stored live_status of is_live, is_upcoming or post_live is read again (yt-dlp -J), at most once per META_RECHECK_S per video.\n  - The fresh snapshot is appended to meta_history.jsonl; meta.json stays write-once.\n  - ensure_meta returns the newest snapshot.\n  - The skip set is unchanged: is_live and is_upcoming.\n\nReport ONLY defects you can prove by quoting the diff's code. Keep each \"issue\" under 60 words. If every check holds, answer PASS with no findings.\n\nFACTS (unchanged code, not in the diff):\n- _write_once(path, obj) refuses to overwrite: an existing path raises FileExistsError.\n- _log_attempt appends a line to attempts.jsonl.\n- acquire() first returns a cached transcript if one exists. Then it checks duration, then live_status, then tries captions, then Whisper (allow_whisper).\n- The cron ingest calls acquire twice per video in one run: a caption pass, then a Whisper pass. ensure_meta is also called by transcript_ingest (duration), editorial_select (duration) and word_pass_worker.\n\nCHECKS:\nM1. Is a stored live record read again only when its newest snapshot is older than META_RECHECK_S? Does a recent snapshot ever cause a second YouTube call within one run?\nM2. Does meta.json stay write-once? Is every fresh read appended, whole, to meta_history.jsonl?\nM3. Does ensure_meta return the last whole snapshot of THIS video? Are a torn line and another video's line skipped?\nM4. On a failed re-read: is nothing appended, is the failure logged, does the stored state stand for that run, and does the next run try again?\nM5. Is the skip set unchanged (is_live, is_upcoming)? Is a video whose newest snapshot is finished never read again?\nM6. Can any path now raise where the old code did not, for the callers listed above? Can it loop, or call YouTube without bound?",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 122.8,
+   "cost": 0.0083172845,
+   "provider": "ImpCC",
+   "verdict": "FAIL",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 37.2,
+   "cost": 0.002623034,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "medium",
+   "file": "pipeline/transcript_store.py",
+   "line": 500,
+   "issue": "refresh_meta calls _fetch_meta \u2192 _ytdlp \u2192 subprocess.run(timeout=120). A subprocess.TimeoutExpired (or OSError) is not an AcquisitionError, so the except clause in acquire does not catch it. The old code never invoked subprocess for an existing meta.json; the new code does, introducing an unhandled-exception path for live/post_live videos.",
+   "evidence": "try:\n    meta = refresh_meta(video_id, rss=rss, channel=channel)\nexcept AcquisitionError:\n    pass",
+   "fix": "Either catch subprocess.TimeoutExpired (and OSError) in _fetch_meta and re-raise as AcquisitionError, or broaden the except in acquire to except (AcquisitionError, subprocess.TimeoutExpired, OSError).",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.010940318499999999,
+ "out_dir": "heimdall"
+}
