@@ -318,6 +318,19 @@ class TestDiscipline(Base):
             self.assertEqual(LP.serve_once(log=self.log), 0)                  # nothing pending
             self.assertEqual(W.wanted(), [])
 
+    def test_order_1305_a_queue_emptied_elsewhere_clears_the_pre_checks_want_on_its_next_pass(self):
+        import gpu0_want as W
+        with mock.patch.object(W, "DIR", os.path.join(self.root, "want")):
+            self.request("r1")
+            busy = mock.Mock(side_effect=gpu0.LeaseBusy("held by transcript_ingest (pid 1)"))
+            with mock.patch.object(gpu0, "lease", busy):
+                self.assertEqual(LP.serve_once(log=self.log), 0)
+            self.assertEqual(W.wanted(), ["lock_precheck"])
+            for p in LP.pending():                                            # the request withdrawn
+                os.remove(p)
+            self.assertEqual(LP.serve_once(log=self.log), 0)
+            self.assertEqual(W.wanted(), [])
+
     def test_a_failed_download_is_an_error_never_a_pass(self):
         self.fail_download = True
         self.request(approved_text=ATTESTED)
