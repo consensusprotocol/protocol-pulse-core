@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T22:54:28+00:00",
- "build": "ledger_20261116_225334",
+ "generated_at": "2026-11-16T23:25:22+00:00",
+ "build": "ledger_20261116_232428",
  "kind": "moments",
  "candidates": [
   {
@@ -100,6 +100,15 @@
    "duration": 8.02,
    "text": "But think about the thing that secures Bitcoin in the first place. All of that computational power.",
    "text_sha256": "496ba2d377030e8387eaf3058a05686f3ad895a5fa42b43c438a2ef427ccda32",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "bcc3d2284e2f5a192be3",
+   "video_id": "2oY7TU6CPok",
+   "channel": "BTC Sessions",
+   "duration": 15.25,
+   "text": "And if you look at the number of Bitcoin companies attending that conference compared to the number of Bitcoin companies saying they're going to boycott it, there's a clear gap there. all of a sudden. There's a lot more people willing to boycott it publicly. This is companies and Bitcoiners. Then there are people willing to attend.",
+   "text_sha256": "18a3159d54d6e34ce1a046aa9dd1fd0ef0dabd9d8976584038249505bb1fe7d4",
    "trimmed_leading": null
   },
   {
@@ -616,6 +625,15 @@
    "trimmed_leading": "But"
   },
   {
+   "pid": "bcc3d2284e2f5a192be3~trim",
+   "video_id": "2oY7TU6CPok",
+   "channel": "BTC Sessions",
+   "duration": 15.05,
+   "text": "if you look at the number of Bitcoin companies attending that conference compared to the number of Bitcoin companies saying they're going to boycott it, there's a clear gap there. all of a sudden. There's a lot more people willing to boycott it publicly. This is companies and Bitcoiners. Then there are people willing to attend.",
+   "text_sha256": "ce0a31661b24d11cb90c146a33fe84eb3cba63181874a1a3441eb3402f99c403",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "c5a9ef2bcd4e3fdb8c10~trim",
    "video_id": "m7ygyYMe3mg",
    "channel": "Bitcoin Magazine",
@@ -976,6 +994,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "fe3aa755e649d6551c68",
+   "video_id": "2oY7TU6CPok",
+   "channel": "BTC Sessions",
+   "duration": 3.78,
+   "text": "It's exactly a utopia. With Bitcoin, no one can take it from you.",
+   "text_sha256": "cce742a781ae4dec6da9ea5b0048b122c5130338f758176b11ac1b16e35256c6",
+   "trimmed_leading": null
+  },
+  {
    "pid": "5d4aba1d1ac3c059a9dc",
    "video_id": "OubcRgk3D-w",
    "channel": "Simply Bitcoin",
@@ -1018,6 +1045,15 @@
    "duration": 11.99,
    "text": "They have all of these different tools at their disposal and levers to pull before they ever have to become a true forced seller or even a net seller of Bitcoin. So nothing existential happening here.",
    "text_sha256": "85f2e94bbe0db9408366cd3dbab617cfb1d4dec1eb947dcce5766c7243f81526",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b565c3c16cbe5ca32196",
+   "video_id": "2oY7TU6CPok",
+   "channel": "BTC Sessions",
+   "duration": 15.37,
+   "text": "There's also a lot of like stupid people and there's a lot of like, and when Bitcoin inevitably does start pumping again, like people just assume that anybody who, especially like, you know, if you're a Bitcoin podcaster out there, you should be careful because people assume you have way more Bitcoin than you do. Yeah, they do. Podcasts, you must be an OG.",
+   "text_sha256": "ecf7d722d7a2a8e7664945d1aed0490a219a15071ddcbc26b5f1ecdbba148bc2",
    "trimmed_leading": null
   },
   {
@@ -1660,6 +1696,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "b084525ec408fdeabb4e",
+   "video_id": "2oY7TU6CPok",
+   "channel": "BTC Sessions",
+   "duration": 15.7,
+   "text": "Meanwhile, Bitcoin had a terrible weekend. We went all the way down to 62K, $2 billion in leverage wiped out, $645 million in just 30 minutes. We were just a stone throw away from the 58K gang there, so eat your heart out. And of course, it's putting pressure on everybody. Strategy and metaplan are both making moves while they're down.",
+   "text_sha256": "06b26699cc8b7acd1a485b218e2353b04e969ebecdd504a29d2fa660a443ba11",
+   "trimmed_leading": null
+  },
+  {
    "pid": "d21e343f509a3ddbcdc2",
    "video_id": "stg5ui9sPos",
    "channel": "Yahoo Finance",
@@ -1747,6 +1792,15 @@
    "duration": 15.24,
    "text": "Like, for example, overall across all the Treasury companies, there's higher levels of conviction through the entirety of the bear market. So Bitcoin Treasury investors, MSTR shareholders, Metaplanet, et cetera, have generally had higher levels of conviction the entire duration of the bear. That is just recent.",
    "text_sha256": "9938d629d085cd4babb184cb86143a399fecd26f5f41798fa0c248080d7cdb56",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "f4e6070c851854ca1d7f",
+   "video_id": "2oY7TU6CPok",
+   "channel": "BTC Sessions",
+   "duration": 20.3,
+   "text": "It's exactly a utopia. With Bitcoin, no one can take it from you. All right, boys, let's get right into it. So breaking, major U.S. banks are facing reports of widespread service disruptions with some Chase Bank of America, Wells Fargo, customers unable to access their accounts.",
+   "text_sha256": "58ff45dad1a79c370258a52c43d2fa960fe8094da99d21af49224da27c8d7e38",
    "trimmed_leading": null
   },
   {
@@ -2071,6 +2125,15 @@
    "duration": 28.31,
    "text": "This is how Bitcoin mining initially worked, right? So we're just going back to the roots of how Bitcoin mining worked. Correct. to take on this very, very important mission. And with that important mission, you're going to have these types of situations where it is not convenient. It requires sacrifice.",
    "text_sha256": "cbb88fca8e14c41fe87dd005c32e80a5f5884fe2433e4423417a867a729be226",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e3d645e81a3d6afeeaa2",
+   "video_id": "2oY7TU6CPok",
+   "channel": "BTC Sessions",
+   "duration": 15.96,
+   "text": "What stands out to me is to have all these things at least seemingly start to pile up after Bitcoin was getting hit relentlessly. Like, do I believe there's that, what you just say? It's like there's a lack of knowledge transfer and a whole bunch of leftover tech bloat from idiot decisions and just like, you say, declining quality over the years because of fiat conditions and idiots coming into positions of power.",
+   "text_sha256": "b474df831ce875e43e6a500b76149de09af49e7fd69a7520e42e26b5ccd3493c",
    "trimmed_leading": null
   },
   {
@@ -2470,6 +2533,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "764759aa8556af05ad7f",
+   "video_id": "2oY7TU6CPok",
+   "channel": "BTC Sessions",
+   "duration": 28.51,
+   "text": "I would assume that people came to him, Bitcoiners came to him. He's told me that that's happened before because they had security incidents, but they did not want to report them to police because they don't want to draw more attention to it. Because then it's like, you know, especially people who end up giving Bitcoin to attackers often end up, if there wasn't like, if they didn't have to go to the ER with a gunshot wound to the knee or a missing finger, they'll just kind of like, just like not say anything because it's like, I don't want people to know that they can come to my house and get Bitcoin, right?",
+   "text_sha256": "524eec4056e17b8a2fa579fa7a0db04d91094fa00f3729dfe6e33a23b574fb4f",
+   "trimmed_leading": null
+  },
+  {
    "pid": "86718e3715e37c03ff85",
    "video_id": "KRvh4AcSofA",
    "channel": "Bitcoin Magazine",
@@ -2530,6 +2602,15 @@
    "duration": 25.58,
    "text": "People that were like an OG to Bitcoin have a tendency to be earlier adopters of technology, right? That's the core reason you were probably an OG in the first place because you've been around it longer, right? You adopted technology earlier. So it makes sense to me that those folks would be the exact same ones who adopted AI earlier. I feel as though because this totally foundational technological change has been happening, a lot of folks in that group have kind of had some of their energy that was all like funneled towards Bitcoin and moved it over to like AI.",
    "text_sha256": "cf7ace987c0fcc7be233780ac01a48c4134dd614dfee1e7be0570ac253bbaeab",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e14b23db3230f7f300e1",
+   "video_id": "2oY7TU6CPok",
+   "channel": "BTC Sessions",
+   "duration": 15.5,
+   "text": "MSTR has... Does it even really give a shit if they have a shitcoin companies there in terms of people invests in NACA? I don't know if you're buying Bitcoin Treasury companies, you don't really give a fuck. I think you could make the case that people have soured a little bit on Sailor on the digital credit side.",
+   "text_sha256": "6d9fee5731bc3d6fdcbf89c0de6f06abc2459eab7d032fb8530cc7ea5263aa59",
    "trimmed_leading": null
   },
   {
@@ -2650,6 +2731,24 @@
    "trimmed_leading": null
   },
   {
+   "pid": "26d409d179f9ca98c5bf",
+   "video_id": "2oY7TU6CPok",
+   "channel": "BTC Sessions",
+   "duration": 13.74,
+   "text": "Unless for some reason you think they're about to stop printing and stop borrowing, you know exactly where Bitcoin is going. And whether your stack is already at the size, where you know you should do something about it, or it's headed there, it's time your security caught up. That's why you need CASA premium. Your Bitcoin secured across five keys.",
+   "text_sha256": "7b6a52fee3ff3dbac05f197536c13d6edd3f018040aa4ca8ffe0fc76af051101",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "33d1a155d63e24a9ac21",
+   "video_id": "2oY7TU6CPok",
+   "channel": "BTC Sessions",
+   "duration": 17.21,
+   "text": "Like it seemed like every single day there was another hack in the Bitcoin space and the infrastructure on the system is built on top of it in different services. BTC pay, core lightning. We had... Get Albi we had like, it was just hit after hit after hit, seemingly climaxing with Binance.",
+   "text_sha256": "b2933e0b98af5153374f624e72780788e4693e1cfca92ca3fbe48e8ad7ebc4f0",
+   "trimmed_leading": null
+  },
+  {
    "pid": "59b1e5991bf2b7dbee21",
    "video_id": "9lVSYriKja4",
    "channel": "Anthony Pompliano",
@@ -2665,6 +2764,15 @@
    "duration": 19.75,
    "text": "If you think Bitcoin's going to zero, I don't want to listen to you. You haven't done work. It's noise. If you think that AI is a scam and you don't believe in the demand and, you know, and then and there are a lot of folks that go on to major media establishments and talk about that, you ignore them.",
    "text_sha256": "89e11f9c3a77bc7f7545193562e860661698fc0614d5b21f13877be4a5057dff",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "db157f9cbf7273d4e91e",
+   "video_id": "2oY7TU6CPok",
+   "channel": "BTC Sessions",
+   "duration": 19.86,
+   "text": "Getting the full post, the company purchased Bitcoin an average price of roughly $118,000. Cracken has agreed to extend $60 million in repayments to December of 2027, with the remaining $105 million due June of 27. Nakamoto holds 4,208BTC with 330 BTC pledged as collateral against the loan, currently worth roughly $208 million.",
+   "text_sha256": "319bfac3f321e10ae50d047c2f26e9c36411b91d1001b38bd756eee9b535be04",
    "trimmed_leading": null
   },
   {
@@ -2857,6 +2965,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "9710a71b0f85083134a3~trim",
+   "video_id": "2oY7TU6CPok",
+   "channel": "BTC Sessions",
+   "duration": 16.65,
+   "text": "people, I mean, the unfortunate part is we're so far. gone in a way, like we've been boiled so much as the frogs. Like the average person doesn't even believe that the money is theirs. I mean, that's why it's like it's frustrating at times of Bitcoin are like yelling into the wind because you're like the average person just looks at you're like, oh, the money's not really ours, buddy, like, you should probably shut up.",
+   "text_sha256": "1bd08d85527fa9e898a93fa4b9b83225e9762183e56d6b49e82ea40d1cc78122",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "b20accc6dceedf88d6bb",
    "video_id": "r5uhv8AM5MM",
    "channel": "Bloomberg Television",
@@ -2989,6 +3106,15 @@
    "duration": 17.93,
    "text": "The CME Fed Watch tool has 92 % chance now for a hike in December, 67 % chance for another one in January. What does a Fed that's still raising rates mean for Bitcoin? And how are you positioning for it? Yeah, I think it affects the entire market.",
    "text_sha256": "a2e8532373e0a44f1c46732a5d2fce6bcfd4ad81317fc5e64907452f709aa521",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "71fc4220e80ca17a564f",
+   "video_id": "2oY7TU6CPok",
+   "channel": "BTC Sessions",
+   "duration": 15.13,
+   "text": "Taking a quick peek at Bitcoin. I actually did a little bit better than we were this weekend. We're below that 200 week moving average, which isn't necessarily great to see. We'll see when it goes and retest it, but currently sitting at 65,000. But yeah, we came down to like 62 and change just on Saturday there.",
+   "text_sha256": "da70a1eb2393b151a06cc5639a7d990b71adb8915e7bb9b1045b238fdce2f364",
    "trimmed_leading": null
   },
   {
@@ -3154,6 +3280,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "b714f69087ee60903cb2",
+   "video_id": "2oY7TU6CPok",
+   "channel": "BTC Sessions",
+   "duration": 14.49,
+   "text": "I don't, man, all the bullshit we've been taking for the last two weeks about the price of Bitcoin. The Bitcoin moment is over. Bitcoin is just high beta, Nvidia. And now, you know, buddy with the leather jacket can't keep his dick in his pants.",
+   "text_sha256": "26ca6db5ab61fb5ce408282829685b7e690b9dc2dda9d8e2d8628c4312867bbe",
+   "trimmed_leading": null
+  },
+  {
    "pid": "144ab39bebb3d4630186~trim",
    "video_id": "KRvh4AcSofA",
    "channel": "Bitcoin Magazine",
@@ -3178,6 +3313,15 @@
    "duration": 19.82,
    "text": "For future reference, price of Bitcoin hit a low of $62,000 today. So, you know, starting here. Does this make you feel any better, guys? Are you so, so feeling, you know, warm and cuddly, warm and fuzzy right now because CZ isn't dumping on us?",
    "text_sha256": "83aa8fa97bad434bf40f52dd5c0c7da421f2f2683b57301105948635164fb6f5",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "ccbd477d5560a396cd87",
+   "video_id": "2oY7TU6CPok",
+   "channel": "BTC Sessions",
+   "duration": 14.77,
+   "text": "Again, huge Bitcoin holder, right? 30,000 plus Bitcoin in this company. We have Palmer Lucky. We have all these people out that are doing the micro sailors that are doing these things, doing heavy lifting over time. The Trump family. I mean, look at the Trump family. I know they just lend it against 73 % of their Bitcoin, which, you know, hey, maybe they're a little afraid they want to get their cash out.",
+   "text_sha256": "576ca38142f8a4d6659ad3562da30d82902efdba6b44e464bd7f4089ebf6b7c7",
    "trimmed_leading": null
   },
   {
