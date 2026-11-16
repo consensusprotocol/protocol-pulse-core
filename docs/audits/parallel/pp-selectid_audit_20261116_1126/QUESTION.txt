@@ -1,0 +1,35 @@
+pp-selectid: RULING 121 (1) (orchestrator 11:25 ET Nov 16), THE SPEND GUARD'S RESERVE, and the xAI output cap.
+Files: pipeline/providers.py (Backend.prompt_tokens_reserve, Backend.upper_usd, XAIBackend.max_out, the _reserve
+docstring), pipeline/model_providers.json (one key), tests/providers/test_providers.py.
+
+THE ORDER, verbatim: "(1) THE RESERVE: counting every prompt CHARACTER as a token reserves about four times what a call
+can cost. Reserve on a token estimate instead: characters / 3 for the prompt (a deliberate over-count; English runs near
+4), the call's real max output, list price, times 1.25. Check it against the 438 recorded Grok step-A calls: the reserve
+must be at or above the reported cost of EVERY one of them (report the tightest margin); if any call beats it, raise the
+divisor's safety until none does." The daily outside cap stays $1.00 (ruling 118: outside vendors only; Heimdall never
+reserved).
+WHAT THE MEASURE SHOWED (STATE 11:21): the xAI back-end sends Grok 8 x the nominal max_tokens (XAIBackend.max_out:
+max(min_out 8000, 8 x max_tokens)), so step A (nominal 4,000) is sent 32,000 and the guard reserved $0.80 of output at
+list for every step-A call. With the call's real max output, ruling 121's reserve passes the check on all 438 recorded
+calls (tightest margin +$0.1075) but reserves $1.02 for a ~7,800-character step A: never inside a $1.00 day. Grok's
+recorded step-A outputs ran over 12,000 tokens in 4 of 438 (one Nov 12, three Nov 13; none since; since Nov 15 the
+largest was 8,871). So the cap: "max_out_cap": 12000 on the xAI reasoning back-end (only step A is sent more than that
+today: the hook rating, join table, clips-alone and coherence calls are sent 8,000-9,600). A reply cut at the cap is out
+of contract: no verdict, held (law L-m, ruling 102), never a verdict made from part of a reply (unchanged guards:
+providers.call_parsed and context_integrity.step_a's parsing; Router.call records finish/length on the breaker).
+
+THE CHANGE: upper_usd (the reserve every paid call takes under the ledger lock, Router.call -> _reserve) = 1.25 x list
+price of {in: ceil(characters / 3) + 200 (+ 6,000 per image of a vision prompt), out: max_out(max_tokens)}.
+prompt_tokens_upper (characters as tokens) is unchanged and still books an abandoned call (prompt_usd, ruling 83 (a))
+and the reported-rate estimate (ruling 107 Q1). The reservation is still taken, settled and released as before
+(_reserve, unchanged but for its docstring); Heimdall stays unreserved (ruling 118's `uncapped`).
+
+TESTS (TestRuling121Reserve): the reserve's arithmetic (characters / 3 rounded up, the real cap, x 1.25, images); the
+body sent to xAI carries max_tokens 12,000; THE RULING'S CHECK on every recorded Grok step-A call in the fixtures (the
+reserve with the cap each call was really sent then is >= its reported cost; tightest margin >= $0.10; under the 12,000
+cap, every call that stayed inside it is within the new reserve; the 4 longer ones dated); the guard's behaviour with
+$0.5835 spent of $1.00: a ~7,800-character step A reserves $0.39 and runs; at 32,000 it is refused. Three older guard
+tests re-sized to the new reserve (same assertions). Mutations R1-R7 after a control run.
+
+PLEASE CHECK: (1) the reserve's arithmetic and that every paid call still reserves before it runs; (2) that nothing else
+reads upper_usd as a strict bound; (3) the cap: sent to xAI, and on the breaker's runaway measure; (4) the tests.

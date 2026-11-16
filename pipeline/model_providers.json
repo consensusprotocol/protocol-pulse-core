@@ -54,7 +54,8 @@
    ],
    "temperature": 0,
    "key_name": "XAI_API_KEY_MEDLEY",
-   "family": "grok"
+   "family": "grok",
+   "max_out_cap": 12000
   },
   "heimdall:qwen/qwen3.8-27b": {
    "vendor": "heimdall",

@@ -20,7 +20,8 @@ sys.path.insert(0, HERE)
 import providers as P  # noqa: E402
 from test_providers import Fake, router  # noqa: E402
 
-U = (1 + 200) * 10 / 1e6 + 1000 * 100 / 1e6     # Fake's upper bound for prompt "p" and max_tokens 1000: $0.10201
+U = Fake("openai:u", "openai").upper_usd("p", 1000)   # Fake's reserve for prompt "p" and max_tokens 1000: since
+#   ruling 121 (1) 1.25 x $0.10201 = $0.12751 (it was the bare $0.10201)
 
 
 class Gate(Fake):

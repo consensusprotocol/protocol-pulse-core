@@ -368,8 +368,8 @@ class TestRouter(unittest.TestCase):
                        "usd_reported": 3.46, "usd_unreported_estimate": 1.81}, open(led, "w"))
             a = Fake("openai:x", "openai", answer="{}", usage={"in": 1000, "out": 100})        # no vendor figure
             rep = Fake("openai:y", "openai", answer="{}", usage={"in": 1000, "out": 100, "usd_reported": 0.001})
-            p = "p" * 50_000
-            with self.assertRaises(P.SpendLimit):                   # the old basis: 39.5 + the upper bound > 40
+            p = "p" * 150_000                                       # ruling 121's reserve: 1.25 x (50,200 x $10/M +
+            with self.assertRaises(P.SpendLimit):                   # 2,000 x $100/M) = $0.88; old basis: 39.5 + it > 40
                 router(d, [a], {"write": ["openai:x"]}, spend_path=led, limit_usd=40).call("write", p)
             r = router(d, [a, rep], {"write": ["openai:x"], "judge": ["openai:y"]}, spend_path=led, limit_usd=12,
                        limit_basis="reported")
@@ -410,9 +410,9 @@ class TestRouter(unittest.TestCase):
             self.assertAlmostEqual(led_["by_backend"]["heimdall:q"]["usd_reported"], 4.5, places=6)   # recorded
             self.assertAlmostEqual(r.spent(), 0.95, places=6)                                        # never counted
             with self.assertRaises(P.SpendLimit):
-                r.call("judge", "p")                                   # 0.95 + its upper bound ($0.20) > $1.00
+                r.call("judge", "p")                    # 0.95 + its reserve ($0.25: ruling 121's x 1.25) > $1.00
             self.assertEqual((h.calls, x.calls, json.load(open(led))["reserved"]), (1, 0, {}))
-            r.limit_usd = 1.20
+            r.limit_usd = 1.25
             r.call("judge", "p")                                       # it fits under a higher cap: counted
             self.assertAlmostEqual(r.spent(), 0.96, places=6)
             every = router(d, [h, x], {"write": ["heimdall:q"]}, **kw)          # no `uncapped`: all counted, as before
@@ -428,11 +428,12 @@ class TestRouter(unittest.TestCase):
             led = os.path.join(d, "SPEND.json")
             a = Fake("openai:x", "openai", answer="{}", usage={"in": 400_000, "out": 0})        # $4.00 a call
             r = router(d, [a], {"write": ["openai:x"]}, spend_path=led, limit_usd=10)
-            p = "p" * 400_000                                     # upper bound ~ $4.00 in + $0.20 out
+            p = "p" * 1_200_000             # ruling 121's reserve: 1.25 x (400,200 x $10/M + 2,000 x $100/M) = $5.25
+            #   (its characters / 3 as tokens: this prompt bills 400,000, three characters a token)
             r.call("write", p)
             r.call("write", p)
             with self.assertRaises(P.SpendLimit):
-                r.call("write", p)                                # 8.00 + 4.20 > 10: refused BEFORE it runs
+                r.call("write", p)                                # 8.00 + 5.25 > 10: refused BEFORE it runs
             d_ = json.load(open(led))
             self.assertEqual((d_["calls"], a.calls, d_["reserved"]), (2, 2, {}))
             self.assertLessEqual(d_["usd_estimate"], 10)
@@ -729,6 +730,93 @@ class TestRuling86Shadow(TestRuling85Routing):
             self.assertEqual((r.chain("shadow86:coherence_verdict:hook"), r.chain("shadow86:coherence_verdict")),
                              (["heimdall:qwen"], ["xai:grok"]))
             self.assertEqual((r.backends["heimdall:qwen"].calls, r.backends["xai:grok"].calls), (1, 2))
+
+class TestRuling121Reserve(unittest.TestCase):
+    """RULING 121 (1) (orchestrator 11:25 ET Nov 16): the spend guard reserves a call at its prompt's characters / 3 as
+    tokens, the output cap it is really sent, list price, times 1.25; and the xAI back-end is sent at most 12,000 output
+    tokens (step A's 4,000 x 8 was 32,000: $0.80 of Grok output at list, more than the day's $1.00 had left)."""
+    REPLIES = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "package", "fixtures", "replies")
+
+    def xai(self, cap=True, answer='{"ok": true}'):
+        spec = dict(json.load(open(os.path.join(os.path.dirname(P.__file__), "model_providers.json")))["backends"][
+            "xai:grok-4.20-0309-reasoning"])
+        if not cap:
+            spec.pop("max_out_cap", None)
+        b = P.XAIBackend("xai:grok-4.20-0309-reasoning", spec, "/nonexistent")
+        b.sent = []
+        b.key = lambda name: "k"
+        return b
+
+    def test_the_reserve_is_characters_over_3_the_real_cap_list_price_x_1_25(self):
+        b = self.xai()
+        self.assertEqual((b.max_out(4000), b.max_out(1200), b.max_out(750)), (12000, 9600, 8000))
+        self.assertEqual(self.xai(cap=False).max_out(4000), 32000)
+        self.assertAlmostEqual(b.upper_usd("p" * 7800, 4000), 1.25 * ((2600 + 200) * 5e-6 + 12000 * 25e-6), places=6)
+        self.assertAlmostEqual(b.upper_usd("p" * 7801, 4000, system="s"),             # 7,802 characters / 3 =
+                               1.25 * ((2601 + 200) * 5e-6 + 12000 * 25e-6), places=6)    # 2,600.7: rounded up
+        v = {"text": "t" * 30, "images": ["i", "i"]}
+        self.assertEqual(P.Backend.prompt_tokens_reserve(v), 10 + 200 + 2 * P.IMAGE_TOKENS_UPPER)
+
+    def test_grok_is_sent_the_capped_output(self):
+        b = self.xai()
+        seen = []
+        saved = P._http_json
+        P._http_json = lambda url, body, headers, timeout: (seen.append(body) or {
+            "choices": [{"message": {"content": "{}"}, "finish_reason": "stop"}], "usage": {}})
+        try:
+            try:
+                b.complete("p", 4000, 7)
+            except Exception:                          # the reply's own handling is not under test: only what was sent
+                pass
+        finally:
+            P._http_json = saved
+        self.assertEqual(seen[0]["max_tokens"], 12000)
+
+    def recorded(self):
+        out = []
+        for root, _, files in os.walk(self.REPLIES):
+            for f in files:
+                if not f.endswith(".json"):
+                    continue
+                d = json.load(open(os.path.join(root, f)))
+                if str(d.get("backend")).startswith("xai:grok") and "context_verdict" in str(d.get("role")):
+                    out.append(d)
+        return out
+
+    def test_no_recorded_grok_step_a_call_cost_more_than_its_reserve(self):
+        """The ruling's check: on every recorded Grok step-A call, the reserve (with the cap it was really sent then,
+        8 x its max_tokens) is at or above its reported cost; under the 12,000 cap, every call that stayed inside it."""
+        calls, old, new = self.recorded(), self.xai(cap=False), self.xai()
+        self.assertGreaterEqual(len(calls), 438)
+        usd = lambda d: d["usage"].get("usd_reported", d.get("usd"))
+        margin, cut = min((old.upper_usd(d["prompt"], d["max_tokens"], d.get("system")) - usd(d), i)
+                          for i, d in enumerate(calls)), [d for d in calls if d["usage"]["out"] > 12000]
+        self.assertGreaterEqual(margin[0], 0.10)                         # the tightest: +$0.1075 (the $0.40 of Nov 12)
+        for d in calls:
+            if d["usage"]["out"] <= 12000:
+                self.assertLessEqual(usd(d), new.upper_usd(d["prompt"], d["max_tokens"], d.get("system")))
+        self.assertEqual(len(cut), 4)                    # one Nov 12, three Nov 13, none since: under the cap they would
+        self.assertTrue(all(str(d["recorded_at"]) < "2026-11-14" for d in cut))   # have been cut at 12,000 (out of
+        #   contract: no verdict, held), never billed past the reserve
+
+    def test_a_step_a_call_fits_what_the_day_has_left(self):
+        """The Fox step A of 11:03 ET: two excerpts, about 7,800 characters, max_tokens 4,000; $0.5835 spent of the
+        $1.00 day. Capped, it reserves $0.39 and runs; with Grok's old 32,000 cap it reserves $1.02 and is refused."""
+        with tempfile.TemporaryDirectory() as d:
+            led = os.path.join(d, "SPEND.json")
+            json.dump({"usd_estimate": 0.5835, "calls": 1, "by_backend": {"xai:grok-4.20-0309-reasoning": {
+                "calls": 1, "in": 0, "out": 0, "usd_estimate": 0.5835, "usd_reported": 0.5835}},
+                "by_role": {}, "reserved": {}, "usd_reported": 0.5835, "usd_unreported_estimate": 0.0}, open(led, "w"))
+            for cap, fits in ((True, True), (False, False)):
+                b = self.xai(cap=cap)
+                b.complete = lambda prompt, max_tokens, seed, system=None: ('{"ok": true}', {"in": 2000, "out": 3000}, 0.02)
+                r = router(d, [b], {"context_verdict": [b.name]}, spend_path=led, limit_usd=1.0, limit_basis="reported")
+                if fits:
+                    self.assertEqual(r.call("context_verdict", "p" * 7800, 4000).text, '{"ok": true}')
+                else:
+                    with self.assertRaises(P.SpendLimit):
+                        r.call("context_verdict", "p" * 7800, 4000)
+
 
 if __name__ == "__main__":
     unittest.main()

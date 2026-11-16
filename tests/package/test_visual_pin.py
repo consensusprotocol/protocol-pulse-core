@@ -231,7 +231,9 @@ class TestVisionPrompt(unittest.TestCase):
     def test_the_upper_bound_counts_each_image(self):
         b = Fake("x:y", "openai", price=(1e6, 0))                             # $1 per input token
         one = b.upper_usd({"text": "t", "images": ["a"]}, 0)
-        self.assertEqual(one - b.upper_usd("t", 0), P.IMAGE_TOKENS_UPPER)
+        self.assertEqual(one - b.upper_usd("t", 0), P.RESERVE_MARGIN * P.IMAGE_TOKENS_UPPER)   # ruling 121: x 1.25
+        self.assertEqual(P.Backend.prompt_tokens_reserve({"text": "t", "images": ["a"]}) -
+                         P.Backend.prompt_tokens_reserve("t"), P.IMAGE_TOKENS_UPPER)         # each image: 6,000 tokens
 
     def test_the_heimdall_and_xai_vision_bodies(self):
         sent = []

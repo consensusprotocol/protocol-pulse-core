@@ -68,6 +68,10 @@ class ReplayMiss(Exception):
 
 
 IMAGE_TOKENS_UPPER = 6000            # ruling 70: one image's input tokens, as the spend guard's upper bound
+RESERVE_CHARS_PER_TOKEN = 3          # RULING 121 (1) (orchestrator 11:25 ET Nov 16): the reserve counts a prompt's tokens
+RESERVE_MARGIN = 1.25                # as its characters / 3 (a deliberate over-count; English runs near 4), at list
+#   price, with the output cap the call is really sent (max_out), times 1.25; checked against every recorded Grok step-A
+#   call: no reported cost beats it (tests/providers TestRuling121Reserve)
 RATE_MIN_REPORTED = 3                # RULING 107 Q1 (orchestrator 20:40 ET Nov 14): an abandoned call is booked at
                                      # the model's own reported rate once it has this many reported calls
 RESERVE_POLL_S = 1.0                 # BATCH 3 (Nov 14): how often a call waiting for room under the limit re-reads
@@ -197,9 +201,18 @@ class Backend:
         n_img, text = (len(prompt["images"]), prompt["text"]) if is_vision(prompt) else (0, prompt)
         return len(text) + len(system or "") + 200 + IMAGE_TOKENS_UPPER * n_img
 
+    @staticmethod
+    def prompt_tokens_reserve(prompt, system=None):
+        """RULING 121 (1): a prompt's input tokens for the spend guard's reserve: its characters / RESERVE_CHARS_PER_TOKEN,
+        rounded up, + 200 for the message frame, IMAGE_TOKENS_UPPER per image of a vision prompt."""
+        n_img, text = (len(prompt["images"]), prompt["text"]) if is_vision(prompt) else (0, prompt)
+        return -(-(len(text) + len(system or "")) // RESERVE_CHARS_PER_TOKEN) + 200 + IMAGE_TOKENS_UPPER * n_img
+
     def upper_usd(self, prompt, max_tokens, system=None):
-        """The call's spend upper bound: its prompt tokens (prompt_tokens_upper) + the output cap."""
-        return self.usd({"in": self.prompt_tokens_upper(prompt, system), "out": self.max_out(max_tokens)})
+        """The spend guard's reserve for one call (RULING 121 (1)): its prompt tokens (prompt_tokens_reserve) and the
+        output cap it is really sent (max_out), at list price, times RESERVE_MARGIN."""
+        return round(RESERVE_MARGIN * self.usd({"in": self.prompt_tokens_reserve(prompt, system),
+                                                "out": self.max_out(max_tokens)}), 6)
 
     def prompt_usd(self, prompt, system=None):
         """RULING 83 (a) (orchestrator 20:33 Nov 13): what a call abandoned at its deadline is booked at: its PROMPT
@@ -453,7 +466,9 @@ class XAIBackend(Backend):
     SYSTEM = "You have no tools and no internet access. Answer in ONE message containing only the JSON object asked for."
 
     def max_out(self, max_tokens):
-        return max(int(self.spec.get("min_out", 8000)), max_tokens * 8)       # a reasoning model thinks inside it
+        n = max(int(self.spec.get("min_out", 8000)), max_tokens * 8)          # a reasoning model thinks inside it
+        cap = self.spec.get("max_out_cap")    # RULING 121: the most output it is sent, whatever the role asks (12,000:
+        return min(n, int(cap)) if cap else n  # step A's 4,000 x 8 was 32,000 and reserved $0.80 of Grok output alone)
 
     def complete(self, prompt, max_tokens, seed, system=None):
         key = self.key(self.spec.get("key_name", "XAI_API_KEY_MEDLEY"))
@@ -914,7 +929,9 @@ class Router:
     def _reserve(self, b, upper):
         """Reserve a paid call's upper bound -> a reservation key (None for a free back-end or no ledger); raises
         SpendLimit when spent (on the limit basis) + reserved + this call's upper bound would pass the limit. The
-        reservations stay price-table upper bounds whatever the basis: the guard can only stop early, never late.
+        reservations stay at list price whatever the basis; since RULING 121 (1) each is the call's reserve
+        (upper_usd: characters / 3 as its prompt tokens, its real output cap, x 1.25), checked against every recorded
+        Grok step-A call rather than counted from above.
         With reserve_wait_s > 0 (a batch build's opt-in; the default 0 keeps the refusal at once that every other
         caller, the render's among them, relies on): when spent + this call's upper bound fits and only the reservations
         of calls IN FLIGHT stand in the way, the call waits for them to settle (each ends in an answer, an error or an

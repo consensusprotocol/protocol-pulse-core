@@ -1,0 +1,222 @@
+diff --git a/pipeline/model_providers.json b/pipeline/model_providers.json
+index 061a9f0..980c289 100644
+--- a/pipeline/model_providers.json
++++ b/pipeline/model_providers.json
+@@ -54,7 +54,8 @@
+    ],
+    "temperature": 0,
+    "key_name": "XAI_API_KEY_MEDLEY",
+-   "family": "grok"
++   "family": "grok",
++   "max_out_cap": 12000
+   },
+   "heimdall:qwen/qwen3.8-27b": {
+    "vendor": "heimdall",
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+index 2e84551..a70cdb5 100644
+--- a/pipeline/providers.py
++++ b/pipeline/providers.py
+@@ -68,6 +68,10 @@ class ReplayMiss(Exception):
+ 
+ 
+ IMAGE_TOKENS_UPPER = 6000            # ruling 70: one image's input tokens, as the spend guard's upper bound
++RESERVE_CHARS_PER_TOKEN = 3          # RULING 121 (1) (orchestrator 11:25 ET Nov 16): the reserve counts a prompt's tokens
++RESERVE_MARGIN = 1.25                # as its characters / 3 (a deliberate over-count; English runs near 4), at list
++#   price, with the output cap the call is really sent (max_out), times 1.25; checked against every recorded Grok step-A
++#   call: no reported cost beats it (tests/providers TestRuling121Reserve)
+ RATE_MIN_REPORTED = 3                # RULING 107 Q1 (orchestrator 20:40 ET Nov 14): an abandoned call is booked at
+                                      # the model's own reported rate once it has this many reported calls
+ RESERVE_POLL_S = 1.0                 # BATCH 3 (Nov 14): how often a call waiting for room under the limit re-reads
+@@ -197,9 +201,18 @@ class Backend:
+         n_img, text = (len(prompt["images"]), prompt["text"]) if is_vision(prompt) else (0, prompt)
+         return len(text) + len(system or "") + 200 + IMAGE_TOKENS_UPPER * n_img
+ 
++    @staticmethod
++    def prompt_tokens_reserve(prompt, system=None):
++        """RULING 121 (1): a prompt's input tokens for the spend guard's reserve: its characters / RESERVE_CHARS_PER_TOKEN,
++        rounded up, + 200 for the message frame, IMAGE_TOKENS_UPPER per image of a vision prompt."""
++        n_img, text = (len(prompt["images"]), prompt["text"]) if is_vision(prompt) else (0, prompt)
++        return -(-(len(text) + len(system or "")) // RESERVE_CHARS_PER_TOKEN) + 200 + IMAGE_TOKENS_UPPER * n_img
++
+     def upper_usd(self, prompt, max_tokens, system=None):
+-        """The call's spend upper bound: its prompt tokens (prompt_tokens_upper) + the output cap."""
+-        return self.usd({"in": self.prompt_tokens_upper(prompt, system), "out": self.max_out(max_tokens)})
++        """The spend guard's reserve for one call (RULING 121 (1)): its prompt tokens (prompt_tokens_reserve) and the
++        output cap it is really sent (max_out), at list price, times RESERVE_MARGIN."""
++        return round(RESERVE_MARGIN * self.usd({"in": self.prompt_tokens_reserve(prompt, system),
++                                                "out": self.max_out(max_tokens)}), 6)
+ 
+     def prompt_usd(self, prompt, system=None):
+         """RULING 83 (a) (orchestrator 20:33 Nov 13): what a call abandoned at its deadline is booked at: its PROMPT
+@@ -453,7 +466,9 @@ class XAIBackend(Backend):
+     SYSTEM = "You have no tools and no internet access. Answer in ONE message containing only the JSON object asked for."
+ 
+     def max_out(self, max_tokens):
+-        return max(int(self.spec.get("min_out", 8000)), max_tokens * 8)       # a reasoning model thinks inside it
++        n = max(int(self.spec.get("min_out", 8000)), max_tokens * 8)          # a reasoning model thinks inside it
++        cap = self.spec.get("max_out_cap")    # RULING 121: the most output it is sent, whatever the role asks (12,000:
++        return min(n, int(cap)) if cap else n  # step A's 4,000 x 8 was 32,000 and reserved $0.80 of Grok output alone)
+ 
+     def complete(self, prompt, max_tokens, seed, system=None):
+         key = self.key(self.spec.get("key_name", "XAI_API_KEY_MEDLEY"))
+@@ -914,7 +929,9 @@ class Router:
+     def _reserve(self, b, upper):
+         """Reserve a paid call's upper bound -> a reservation key (None for a free back-end or no ledger); raises
+         SpendLimit when spent (on the limit basis) + reserved + this call's upper bound would pass the limit. The
+-        reservations stay price-table upper bounds whatever the basis: the guard can only stop early, never late.
++        reservations stay at list price whatever the basis; since RULING 121 (1) each is the call's reserve
++        (upper_usd: characters / 3 as its prompt tokens, its real output cap, x 1.25), checked against every recorded
++        Grok step-A call rather than counted from above.
+         With reserve_wait_s > 0 (a batch build's opt-in; the default 0 keeps the refusal at once that every other
+         caller, the render's among them, relies on): when spent + this call's upper bound fits and only the reservations
+         of calls IN FLIGHT stand in the way, the call waits for them to settle (each ends in an answer, an error or an
+diff --git a/tests/package/test_visual_pin.py b/tests/package/test_visual_pin.py
+index 708919f..721f175 100644
+--- a/tests/package/test_visual_pin.py
++++ b/tests/package/test_visual_pin.py
+@@ -231,7 +231,9 @@ class TestVisionPrompt(unittest.TestCase):
+     def test_the_upper_bound_counts_each_image(self):
+         b = Fake("x:y", "openai", price=(1e6, 0))                             # $1 per input token
+         one = b.upper_usd({"text": "t", "images": ["a"]}, 0)
+-        self.assertEqual(one - b.upper_usd("t", 0), P.IMAGE_TOKENS_UPPER)
++        self.assertEqual(one - b.upper_usd("t", 0), P.RESERVE_MARGIN * P.IMAGE_TOKENS_UPPER)   # ruling 121: x 1.25
++        self.assertEqual(P.Backend.prompt_tokens_reserve({"text": "t", "images": ["a"]}) -
++                         P.Backend.prompt_tokens_reserve("t"), P.IMAGE_TOKENS_UPPER)         # each image: 6,000 tokens
+ 
+     def test_the_heimdall_and_xai_vision_bodies(self):
+         sent = []
+diff --git a/tests/providers/test_providers.py b/tests/providers/test_providers.py
+index 8eef714..b41e97b 100644
+--- a/tests/providers/test_providers.py
++++ b/tests/providers/test_providers.py
+@@ -368,8 +368,8 @@ class TestRouter(unittest.TestCase):
+                        "usd_reported": 3.46, "usd_unreported_estimate": 1.81}, open(led, "w"))
+             a = Fake("openai:x", "openai", answer="{}", usage={"in": 1000, "out": 100})        # no vendor figure
+             rep = Fake("openai:y", "openai", answer="{}", usage={"in": 1000, "out": 100, "usd_reported": 0.001})
+-            p = "p" * 50_000
+-            with self.assertRaises(P.SpendLimit):                   # the old basis: 39.5 + the upper bound > 40
++            p = "p" * 150_000                                       # ruling 121's reserve: 1.25 x (50,200 x $10/M +
++            with self.assertRaises(P.SpendLimit):                   # 2,000 x $100/M) = $0.88; old basis: 39.5 + it > 40
+                 router(d, [a], {"write": ["openai:x"]}, spend_path=led, limit_usd=40).call("write", p)
+             r = router(d, [a, rep], {"write": ["openai:x"], "judge": ["openai:y"]}, spend_path=led, limit_usd=12,
+                        limit_basis="reported")
+@@ -410,9 +410,9 @@ class TestRouter(unittest.TestCase):
+             self.assertAlmostEqual(led_["by_backend"]["heimdall:q"]["usd_reported"], 4.5, places=6)   # recorded
+             self.assertAlmostEqual(r.spent(), 0.95, places=6)                                        # never counted
+             with self.assertRaises(P.SpendLimit):
+-                r.call("judge", "p")                                   # 0.95 + its upper bound ($0.20) > $1.00
++                r.call("judge", "p")                    # 0.95 + its reserve ($0.25: ruling 121's x 1.25) > $1.00
+             self.assertEqual((h.calls, x.calls, json.load(open(led))["reserved"]), (1, 0, {}))
+-            r.limit_usd = 1.20
++            r.limit_usd = 1.25
+             r.call("judge", "p")                                       # it fits under a higher cap: counted
+             self.assertAlmostEqual(r.spent(), 0.96, places=6)
+             every = router(d, [h, x], {"write": ["heimdall:q"]}, **kw)          # no `uncapped`: all counted, as before
+@@ -428,11 +428,12 @@ class TestRouter(unittest.TestCase):
+             led = os.path.join(d, "SPEND.json")
+             a = Fake("openai:x", "openai", answer="{}", usage={"in": 400_000, "out": 0})        # $4.00 a call
+             r = router(d, [a], {"write": ["openai:x"]}, spend_path=led, limit_usd=10)
+-            p = "p" * 400_000                                     # upper bound ~ $4.00 in + $0.20 out
++            p = "p" * 1_200_000             # ruling 121's reserve: 1.25 x (400,200 x $10/M + 2,000 x $100/M) = $5.25
++            #   (its characters / 3 as tokens: this prompt bills 400,000, three characters a token)
+             r.call("write", p)
+             r.call("write", p)
+             with self.assertRaises(P.SpendLimit):
+-                r.call("write", p)                                # 8.00 + 4.20 > 10: refused BEFORE it runs
++                r.call("write", p)                                # 8.00 + 5.25 > 10: refused BEFORE it runs
+             d_ = json.load(open(led))
+             self.assertEqual((d_["calls"], a.calls, d_["reserved"]), (2, 2, {}))
+             self.assertLessEqual(d_["usd_estimate"], 10)
+@@ -730,5 +731,92 @@ class TestRuling86Shadow(TestRuling85Routing):
+                              (["heimdall:qwen"], ["xai:grok"]))
+             self.assertEqual((r.backends["heimdall:qwen"].calls, r.backends["xai:grok"].calls), (1, 2))
+ 
++class TestRuling121Reserve(unittest.TestCase):
++    """RULING 121 (1) (orchestrator 11:25 ET Nov 16): the spend guard reserves a call at its prompt's characters / 3 as
++    tokens, the output cap it is really sent, list price, times 1.25; and the xAI back-end is sent at most 12,000 output
++    tokens (step A's 4,000 x 8 was 32,000: $0.80 of Grok output at list, more than the day's $1.00 had left)."""
++    REPLIES = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "package", "fixtures", "replies")
++
++    def xai(self, cap=True, answer='{"ok": true}'):
++        spec = dict(json.load(open(os.path.join(os.path.dirname(P.__file__), "model_providers.json")))["backends"][
++            "xai:grok-4.20-0309-reasoning"])
++        if not cap:
++            spec.pop("max_out_cap", None)
++        b = P.XAIBackend("xai:grok-4.20-0309-reasoning", spec, "/nonexistent")
++        b.sent = []
++        b.key = lambda name: "k"
++        return b
++
++    def test_the_reserve_is_characters_over_3_the_real_cap_list_price_x_1_25(self):
++        b = self.xai()
++        self.assertEqual((b.max_out(4000), b.max_out(1200), b.max_out(750)), (12000, 9600, 8000))
++        self.assertEqual(self.xai(cap=False).max_out(4000), 32000)
++        self.assertAlmostEqual(b.upper_usd("p" * 7800, 4000), 1.25 * ((2600 + 200) * 5e-6 + 12000 * 25e-6), places=6)
++        self.assertAlmostEqual(b.upper_usd("p" * 7801, 4000, system="s"),             # 7,802 characters / 3 =
++                               1.25 * ((2601 + 200) * 5e-6 + 12000 * 25e-6), places=6)    # 2,600.7: rounded up
++        v = {"text": "t" * 30, "images": ["i", "i"]}
++        self.assertEqual(P.Backend.prompt_tokens_reserve(v), 10 + 200 + 2 * P.IMAGE_TOKENS_UPPER)
++
++    def test_grok_is_sent_the_capped_output(self):
++        b = self.xai()
++        seen = []
++        saved = P._http_json
++        P._http_json = lambda url, body, headers, timeout: (seen.append(body) or {
++            "choices": [{"message": {"content": "{}"}, "finish_reason": "stop"}], "usage": {}})
++        try:
++            try:
++                b.complete("p", 4000, 7)
++            except Exception:                          # the reply's own handling is not under test: only what was sent
++                pass
++        finally:
++            P._http_json = saved
++        self.assertEqual(seen[0]["max_tokens"], 12000)
++
++    def recorded(self):
++        out = []
++        for root, _, files in os.walk(self.REPLIES):
++            for f in files:
++                if not f.endswith(".json"):
++                    continue
++                d = json.load(open(os.path.join(root, f)))
++                if str(d.get("backend")).startswith("xai:grok") and "context_verdict" in str(d.get("role")):
++                    out.append(d)
++        return out
++
++    def test_no_recorded_grok_step_a_call_cost_more_than_its_reserve(self):
++        """The ruling's check: on every recorded Grok step-A call, the reserve (with the cap it was really sent then,
++        8 x its max_tokens) is at or above its reported cost; under the 12,000 cap, every call that stayed inside it."""
++        calls, old, new = self.recorded(), self.xai(cap=False), self.xai()
++        self.assertGreaterEqual(len(calls), 438)
++        usd = lambda d: d["usage"].get("usd_reported", d.get("usd"))
++        margin, cut = min((old.upper_usd(d["prompt"], d["max_tokens"], d.get("system")) - usd(d), i)
++                          for i, d in enumerate(calls)), [d for d in calls if d["usage"]["out"] > 12000]
++        self.assertGreaterEqual(margin[0], 0.10)                         # the tightest: +$0.1075 (the $0.40 of Nov 12)
++        for d in calls:
++            if d["usage"]["out"] <= 12000:
++                self.assertLessEqual(usd(d), new.upper_usd(d["prompt"], d["max_tokens"], d.get("system")))
++        self.assertEqual(len(cut), 4)                    # one Nov 12, three Nov 13, none since: under the cap they would
++        self.assertTrue(all(str(d["recorded_at"]) < "2026-11-14" for d in cut))   # have been cut at 12,000 (out of
++        #   contract: no verdict, held), never billed past the reserve
++
++    def test_a_step_a_call_fits_what_the_day_has_left(self):
++        """The Fox step A of 11:03 ET: two excerpts, about 7,800 characters, max_tokens 4,000; $0.5835 spent of the
++        $1.00 day. Capped, it reserves $0.39 and runs; with Grok's old 32,000 cap it reserves $1.02 and is refused."""
++        with tempfile.TemporaryDirectory() as d:
++            led = os.path.join(d, "SPEND.json")
++            json.dump({"usd_estimate": 0.5835, "calls": 1, "by_backend": {"xai:grok-4.20-0309-reasoning": {
++                "calls": 1, "in": 0, "out": 0, "usd_estimate": 0.5835, "usd_reported": 0.5835}},
++                "by_role": {}, "reserved": {}, "usd_reported": 0.5835, "usd_unreported_estimate": 0.0}, open(led, "w"))
++            for cap, fits in ((True, True), (False, False)):
++                b = self.xai(cap=cap)
++                b.complete = lambda prompt, max_tokens, seed, system=None: ('{"ok": true}', {"in": 2000, "out": 3000}, 0.02)
++                r = router(d, [b], {"context_verdict": [b.name]}, spend_path=led, limit_usd=1.0, limit_basis="reported")
++                if fits:
++                    self.assertEqual(r.call("context_verdict", "p" * 7800, 4000).text, '{"ok": true}')
++                else:
++                    with self.assertRaises(P.SpendLimit):
++                        r.call("context_verdict", "p" * 7800, 4000)
++
++
+ if __name__ == "__main__":
+     unittest.main()
