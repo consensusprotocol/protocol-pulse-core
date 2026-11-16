@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T17:21:43+00:00",
- "build": "ledger_20261116_172134",
+ "generated_at": "2026-11-16T17:27:07+00:00",
+ "build": "ledger_20261116_172654",
  "kind": "moments",
  "candidates": [
   {
@@ -10,6 +10,60 @@
    "duration": 13.33,
    "text": "And I think that kind of is at the core of something all of us are probably feeling where it does feel like Bitcoin's at an inflection point right now. We're kind of devoid of any strong narrative. That's kind of another. sign of a bottom, right?",
    "text_sha256": "aadcbd6fb951e07b2ee196a6e1f844d21af317b16a2b37354667d7ec6fc1ea8c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "1dc0d8cafe8fe3d3947c",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 9.38,
+   "text": "So what this is measuring is how often different price levels in Bitcoin are talked about over time. You can really see here like the very stark, obvious one through the middle at 100K.",
+   "text_sha256": "3769ee3b211927453b7ca2011b184dcc24b2f52a91d7e2514c08e8ab021dea80",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "40b470a314403cdc3247",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 7.0,
+   "text": "Because I completely understand that AI agents might use Bitcoin as money. If you ask them to use Bitcoin as money, they will.",
+   "text_sha256": "0690190a137667e07a42a8e3c6ab58cf02be0069bb2046639191e876241c4700",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "7f8de3564c0b6b440222",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 19.2,
+   "text": "And I think that's one of the reasons that like, I think technical analysis in general has had a lot of... pain recently because the market has chopped around and really challenged a lot of perspectives levels and lines that people thought were guaranteed to hold heaven held a lot of the stories that they use about just like how bitcoin has to trade have come under attention too yeah, it's very cool.",
+   "text_sha256": "ab2bb5f774c560cf693340c5773faa6e4e3a8d609739d5decd3c8f322cac0b4b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d8cba7771876e9ece103",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 6.14,
+   "text": "And I had all this inspiration for Bitcoin. I was like, all right, I'm going to dedicate a chunk of my life here to writing a story about Bitcoin. And that's what it is.",
+   "text_sha256": "eae8237fe5365e831352bf8cf5863f62a6afc28d737175dcaef1dffb7e74c2c9",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "44a96df05142bc356898",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 15.32,
+   "text": "And this kind of thing happens on an individual level, but it's also kind of happening at the crowd level where like a good example this a while back was when Saylor sold 32 Bitcoin, everybody was freaking out about it. Like that's the exact kind of narrative that you would see people overreact to when people are angry. and they're bored, you know.",
+   "text_sha256": "21539eb0397db19e121e56ac96a3c242006f3b4a32bc6a72285588d5d8d91759",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d7af65197a305399a6c9",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 14.97,
+   "text": "So like, for example, looking at people that have been in Bitcoin longer is one of the cohorts I like to look at. And a new cohort that I've been really fascinated on is like traders. People making really short -term price predictions around Bitcoin. Because those two groups talk about wildly different things, right? Like people are focused here and now on the price.",
+   "text_sha256": "a487b03b038f7cf0a207fd08fbc30b1fa9a8093d23cf14f3ef37394e521c7df3",
    "trimmed_leading": null
   },
   {
@@ -31,6 +85,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "83985fd9ff653baec4c2",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 7.5,
+   "text": "But as Bitcoin has positive price action in the face of those things, it's like one of the more bullish signals potentially. So you kind of watch how the crowd responds to that.",
+   "text_sha256": "ac76b509cd4b691056df7cc5dc93f9d627f74e4d969d0750dcc6f3c4be63054b",
+   "trimmed_leading": null
+  },
+  {
    "pid": "39fff8c907c1e5de0689~trim",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -38,6 +101,51 @@
    "text": "I think that kind of is at the core of something all of us are probably feeling where it does feel like Bitcoin's at an inflection point right now. We're kind of devoid of any strong narrative. That's kind of another. sign of a bottom, right?",
    "text_sha256": "af23fb6f11ce4f9c924d53bad435ced91ee8ea979a224d9d98d807004a65e74a",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "1dc0d8cafe8fe3d3947c~trim",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 9.22,
+   "text": "what this is measuring is how often different price levels in Bitcoin are talked about over time. You can really see here like the very stark, obvious one through the middle at 100K.",
+   "text_sha256": "ad7ed069c3654c09fdaf4b3e8012351f1675b0c0ca0cd15bff938ae911838058",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "7f8de3564c0b6b440222~trim",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 19.16,
+   "text": "I think that's one of the reasons that like, I think technical analysis in general has had a lot of... pain recently because the market has chopped around and really challenged a lot of perspectives levels and lines that people thought were guaranteed to hold heaven held a lot of the stories that they use about just like how bitcoin has to trade have come under attention too yeah, it's very cool.",
+   "text_sha256": "0bc800244584a2c856942eb29e6f62484221038e694f077d85b23c566370f9ee",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "d8cba7771876e9ece103~trim",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 5.74,
+   "text": "I had all this inspiration for Bitcoin. I was like, all right, I'm going to dedicate a chunk of my life here to writing a story about Bitcoin. And that's what it is.",
+   "text_sha256": "941fd4176db56f245259503ad5d17a2040daee7e4204a2986e235dbf335428b7",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "44a96df05142bc356898~trim",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 15.24,
+   "text": "this kind of thing happens on an individual level, but it's also kind of happening at the crowd level where like a good example this a while back was when Saylor sold 32 Bitcoin, everybody was freaking out about it. Like that's the exact kind of narrative that you would see people overreact to when people are angry. and they're bored, you know.",
+   "text_sha256": "1681b75072d3f8cb59aabfea945b3c533abeb64cf35f9a9c61ce3e0e0e1be4ef",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "d7af65197a305399a6c9~trim",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 14.97,
+   "text": "like, for example, looking at people that have been in Bitcoin longer is one of the cohorts I like to look at. And a new cohort that I've been really fascinated on is like traders. People making really short -term price predictions around Bitcoin. Because those two groups talk about wildly different things, right? Like people are focused here and now on the price.",
+   "text_sha256": "26deb13d89e5f7a970bc80852b89f7cc22dc5d0cd9f50e80fa6719cc81ce247c",
+   "trimmed_leading": "So"
   },
   {
    "pid": "1e52e4cbe87678152999~trim",
@@ -58,6 +166,15 @@
    "trimmed_leading": "But"
   },
   {
+   "pid": "83985fd9ff653baec4c2~trim",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 7.14,
+   "text": "as Bitcoin has positive price action in the face of those things, it's like one of the more bullish signals potentially. So you kind of watch how the crowd responds to that.",
+   "text_sha256": "8e94b05130c5433d525b4afefdc31e8ab69cbc52e987869f0bc80cefae0bad46",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "17e5a9235d68c10d79b2",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -73,6 +190,15 @@
    "duration": 13.98,
    "text": "It was really a brutal time for Bitcoin, myself included. We're seeing more fear now than we were back then. even though the price is 20 % higher, even though we're not seeing any of those negative events, quite in the same way we haven't had AI hacks and the whole Binance thing, the election result in all those sorts of things.",
    "text_sha256": "b4013dca2d5d0dde8e82e368a7539c3835c03f775c5d891a98c0fc71623658f3",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d2ad3c36a2fc2f1767a2",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 17.18,
+   "text": "There could be some wild news item that drops like next week. And like we go way down or whatever, right? But it gives you a pulse because like people kind of are locked on to Bitcoin in their own psychological way and sort of your like subconscious kind of. seeps out a little bit in the language you're using, and you can actually measure that.",
+   "text_sha256": "4e42a78e3bb27cdfb6ee6d2c4f5daa3eb8bd6f1363378d6a1f23cc668439b850",
    "trimmed_leading": null
   },
   {
@@ -265,6 +391,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "a0468c4a2a543bffdc3c",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 16.28,
+   "text": "Watching how fearful people are, despite the fact that Bitcoin still up like 20 % off the lows is really fricking, in my opinion. It's like the crowd is overreacting, even though we're actually seeing positive price momentum. And those are the kind of voids and deviations that I think have the most signal around this data.",
+   "text_sha256": "82634e5e39c502c89fbf818bf1cf10265d6fdd645e09a8ee7b0770010b02fbf1",
+   "trimmed_leading": null
+  },
+  {
    "pid": "41fececdeafb656fb29b",
    "video_id": "Vu0XZSz-aj4",
    "channel": "Bankless",
@@ -283,12 +418,102 @@
    "trimmed_leading": null
   },
   {
+   "pid": "3516539e3ea56496bd53",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 22.47,
+   "text": "When people get super, super excited, I did an analysis recently where I compared DCA to bulk buying Bitcoin when the crowd was excited, had high desire, or had high conviction, and kind of like saw how that compared, because that's exactly what the average person does. They buy Bitcoin when it feels easy when they're confident it's going to do well. And if you do that, you drastically underperform DCA.",
+   "text_sha256": "2be8ddee60f27d7699cee934e3e583f750f867b98826e54169ad4ba14250910d",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "8fe4ff5d084bbba5a88c",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 18.8,
+   "text": "Traders are the ones that you expect at this point where Bitcoin's relatively low compared to where it's been, looking like it's pretty good, probably going to have a breakout at some point relatively soon. You'd expect the conviction there to be growing, but it's actually at the lowest you've ever seen it. Do you think that is, again, the AI trade just taking all the excitement or the enthusiasm away from Bitcoin?",
+   "text_sha256": "e8d6200808c93831b683346c1360db25c5f1cda782eea9612ec077f869312fcf",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "92d08f921c2fad8272e7~trim",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 18.74,
+   "text": "what this is measuring is how often different price levels in Bitcoin are talked about over time. You can really see here like the very stark, obvious one through the middle at 100K. If I were to scroll way up to the top, it's way out of view here, but you'll see like there's this crazy dense red line at a million where people are very constantly talking about this price level.",
+   "text_sha256": "32292746445eb98f12e9e11fa868a1b6e7ea16abeef40814cdfbb5caf802b3e4",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "8567c05fc6149c28181e~trim",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 17.01,
+   "text": "I do think it's also the kind of thing that you would expect during this phase of the market. We've had a lot of negative news previously and we've climbed the wall to worry. And until that doesn't happen, I'm going to continue to think that's the position we're in presently. Yeah, that makes sense. I'm always bullish on Bitcoin.",
+   "text_sha256": "0951d3a8bc56b36a04b06938b324d1b33636599dad37a70e5eeb072e02bc5285",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "eda2ebc9bef18c3887eb",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 16.84,
+   "text": "Usually when people first get into Bitcoin, their sentiment is very volatile. You're super euphoric. I experienced this myself. And the long you've been around, there's a little less volatility in their emotions. That happens on an individual level, and it also seems to happen in the crowd generally. Like, we're very muted comparatively to where Bitcoin was even in like 2022.",
+   "text_sha256": "b98045537a0b254e7ed99a6b304ae4e1e12a70c7fe2dfaab817d86955d94b301",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "0af28ebfab92409abf0a",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 23.46,
+   "text": "By far the most interesting thing is Bitcoin broadly. I still just love to see how this entire asset class is thinking and moving and changing. But one thing I think we'll definitely talk about here is just how many subgroups of Bitcoiners there are, how kind of fractured folks have been during this bear market. Different groups are doing wildly different things. You have all the Treasury company folks who are talking about some narratives. You have people that want to like transact with Bitcoin out in a jungle somewhere who talk about totally different things.",
+   "text_sha256": "ba91cc85eccab78d2db86785892e9057cc0213c562cf0f9510c6d09cf2811fe1",
+   "trimmed_leading": null
+  },
+  {
    "pid": "0c8b148b130272219457",
    "video_id": "Vu0XZSz-aj4",
    "channel": "Bankless",
    "duration": 19.34,
    "text": "I just don't think you can look at this and see all the innovations in stable coins, in the hard money of Bitcoin provides, in defy, and say this is all useless. I've been surprised at how people can say that, but I realize a lot of it is because it's all... fundamentally, we're really good at changing the tech stack.",
    "text_sha256": "540a36473af02790f2bbcbba67e16a036abde58c42529dad070e73b9405a2d0b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "36ff34121ce1c6ade3d3",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 15.88,
+   "text": "One of the things that I feel like makes this one really unique is the AI trade happening right now. Something that I've seen a lot in the data that has been kind of a unique thing to the OG data set that I track is how much people that have been in Bitcoin longer. are more focused on AI, which I found just completely fascinating.",
+   "text_sha256": "323b331d22292c8470e445bc8b51baf3c82ee2b6c9d368b7e4a9bf7692180f5a",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "cb416c10eba95c22e4de",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 25.58,
+   "text": "People that were like an OG to Bitcoin have a tendency to be earlier adopters of technology, right? That's the core reason you were probably an OG in the first place because you've been around it longer, right? You adopted technology earlier. So it makes sense to me that those folks would be the exact same ones who adopted AI earlier. I feel as though because this totally foundational technological change has been happening, a lot of folks in that group have kind of had some of their energy that was all like funneled towards Bitcoin and moved it over to like AI.",
+   "text_sha256": "cf7ace987c0fcc7be233780ac01a48c4134dd614dfee1e7be0570ac253bbaeab",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e2359dc209cc070a92d7~trim",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 21.07,
+   "text": "I had all this inspiration for Bitcoin. I was like, all right, I'm going to dedicate a chunk of my life here to writing a story about Bitcoin. And that's what it is. Essentially, like, a really thrilling, like, intertwined story kind of thing where Bitcoin's the main thing, following an on -chain analysis guy who sort of goes through and does, like, forensic stuff around Bitcoin and takes you all over the place across the U.S. is the bad guys are.",
+   "text_sha256": "48e9e8668ed8343c3ea8cf1a41b60601237c1a153487f1dfcb60e567382949fa",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "86826c8685b0b1d1a32d",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 19.9,
+   "text": "Another thing kind of relating to this, one of the cohorts I track is like the Bitcoin plebs, smaller accounts, more retail focused accounts, like sat stackers who have generally been around like a cycle OS is kind of the informalish definition I have for them. And they are insanely angry right now compared to the other groups. The OGs in particular are pretty chill. They're bored for sure, but they're relatively more chill.",
+   "text_sha256": "132df141fb85a9297db9422476c9edc761e01c93a3a3625523dda1518a954f42",
    "trimmed_leading": null
   },
   {
@@ -310,12 +535,66 @@
    "trimmed_leading": "But"
   },
   {
+   "pid": "a57e6d32846332287c76",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 14.73,
+   "text": "The really builder folks seem to be building in the financialization as opposed to actually, like, free to money sort of things, which is I don't feel great about, to be honest with you. I mean, the free to money thing is one of the reasons I got into Bitcoin in the first place. But it is the thing. It's definitely happening right now.",
+   "text_sha256": "b35c811fcabb4e780c3fd40e7a0ef9fdda9aa1cec4719c57df2bfec44772a881",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "25236e1cc946f6ecc45c",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 16.01,
+   "text": "Like the very fundamentalist Bitcoiners have had a way worse bear market. than those in the treasury companies. Even though the treasury companies are down more, their story for viewing the world hasn't changed. That has happened for fundamentalist Bitcoiners. Your view of what Bitcoin is is how to shift and evolve over these last six months or so.",
+   "text_sha256": "8cbab23421036acab5bd878dea7632b1b7a3401e6f9b8e0bfb7e80d275b64af8",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e93a6d289c1b1ca4e68f~trim",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 20.7,
+   "text": "as Bitcoin has positive price action in the face of those things, it's like one of the more bullish signals potentially. So you kind of watch how the crowd responds to that. They have a more angry or more fearful response to this negative news compared to the last time. Again, to kind of give you one of the things we're seeing right now, like we had a lot of fear out there during a cold card incident, BIP 110, all this period of time.",
+   "text_sha256": "767ac8c2ef0b61778fd6ef9e3219c9f72140f23fd8fa0b10609386628c338458",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "d6dcd46e52498852147c",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 17.02,
+   "text": "I wrapped that up maybe a little over a year ago now, and kind of wasn't sure I was going to do with my life after that, to be honest with you, I feel like that was a three -year process. It was like all I was doing for a few years there and still felt this desire to do more for Bitcoin, and then this kind of thing just came up and I had to pursue it farther.",
+   "text_sha256": "708b4ee96d1a49d5812853dc0640629fe46a978b82733217e58aa3e124d030d7",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "447f7e0e95db3085c7fb~trim",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 23.16,
+   "text": "the thing that really stood out to me more than anything, though, was I feel like compared to when, say, the first came out and started doing this, like compare that to today, I think there's been a real split. Between the treasury company people and the bitcoin people, i almost feel like there's not like the vent diagram has has widened and the like group that's in the middle has got much smaller, i think. that sort of straddle both.",
+   "text_sha256": "e45179bc8e95f94a2fc034e1a05f6cdd9e196cc17f24cd1bb4356d50a2997f47",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "330c00b9ae946963608c",
    "video_id": "M6_MGnSvoAY",
    "channel": "Bloomberg Television",
    "duration": 16.72,
    "text": "We did see Bitcoin fall off a cliff in the weekend. Now we see Asian markets really weak here, especially Taiwan. Taiwan's having a spectacularly big move for a market that is pretty quiet. Volatility in Taiwan has been on the way up, but nothing like what we're seeing here versus the rest of the region.",
    "text_sha256": "eab12b44fc99b9a265b49e7753343b85cd7adba7ef3f96d4038155c467cf4097",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "32f00a9f60828131abd5",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 30.03,
+   "text": "It's funny, like I was speaking to Justin Moon recently, who he's been in Bitcoin a long time, a developer, and he ran the bit devs in Austin for a very long time. And so they recently closed down that bit devs because the guys who were running it, I think it was Justin and Ben the Carmen, I think we're doing it. Like they basically just have both got super interest in AI, didn't want to spend the time doing the Bitcoin thing. And the interesting thing is, What Justin was saying is, like, every couple of years, they were getting new people come into these Bitcoin meetups.",
+   "text_sha256": "98b531456c938d61b9d297fd8ee15d6204980cb28bac727619a7a2285528370f",
    "trimmed_leading": null
   }
  ]
