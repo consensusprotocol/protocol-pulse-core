@@ -155,3 +155,10 @@ CUDA_VISIBLE_DEVICES=1 under law L-r). Until then pp-ingest takes each Whisper r
    automatic captions listed (its downloads refused by the 429s). INGEST-FAIL-01's pattern (a meta written while live
    freezes the video); proposed: re-read the metadata of a video whose stored live_status is is_live / is_upcoming /
    post_live before skipping it (transcript_store's meta_history is its refresh path).
+   THE INTEGRATOR'S ANSWER (13:5x ET): confirmed ("my 'live, skipped by policy' was wrong"). The cause is
+   transcript_store.ensure_meta: it returns a stored meta.json whenever one exists, never refreshed (no meta_history is
+   ever written), so acquire() skips on a stored is_live / is_upcoming forever. The fix, audit-first, in the 14:30 or
+   15:00 cron run: before skipping a video whose stored live_status is is_live / is_upcoming / post_live, its metadata
+   is re-read at most once per run; the fresh snapshot is appended to meta_history.jsonl (meta.json stays
+   write-once); ensure_meta returns the newest snapshot. pp-ingest reads only the pipeline's transcript records (never
+   its meta.json), so nothing changes here; the r119 sweep takes f0NnJM63Ffc's record within a minute of it landing.
