@@ -92,7 +92,9 @@ class Base(unittest.TestCase):
         self.wants = mock.Mock(return_value=False)
         self.cut = {"pause_in": None, "pause_out": None, "cut_in": 15.2, "cut_out": 24.4, "cut_duration": 9.2,
                     "lead_in_pad_s": 0.0, "verified": True}               # ruling 73 (c): the render's cut, stubbed
+        import gpu0_want                                               # never the live /tmp/pulse_gpu0.want
         for p in (mock.patch.object(LP, "ROOT", self.root),
+                  mock.patch.object(gpu0_want, "DIR", os.path.join(self.root, "want")),
                   mock.patch.object(LP.sentence_law, "lock_cut", lambda src, words, lock, label: dict(self.cut)),
                   mock.patch.object(LP, "EXTRA", os.path.join(self.root, "extra")),    # never the builder's real dir
                   mock.patch.object(select_passages, "_download_window", download),

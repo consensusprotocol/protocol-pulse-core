@@ -258,7 +258,9 @@ class TestGpu0(unittest.TestCase):
         self.gpu0, self.released, self.loaded = gpu0, [], []
         llm = FakeLLM({"clip_01": (4.0, "none"), "clip_02": (4.0, "none")})
         llm.start = lambda: llm
+        import gpu0_want                                               # never the live /tmp/pulse_gpu0.want
         for x in [mock.patch.object(SS, "ROOT", self.root), mock.patch.object(SS.LJ, "YIELD_FLAG", self.flag),
+                  mock.patch.object(gpu0_want, "DIR", os.path.join(self.root, "want")),
                   mock.patch.object(gpu0, "lease", mock.MagicMock()),
                   mock.patch.object(gpu0, "release_all", lambda: self.released.append(1)),
                   mock.patch("story_semantics.LocalLLM", lambda: self.loaded.append(1) or llm)]:
