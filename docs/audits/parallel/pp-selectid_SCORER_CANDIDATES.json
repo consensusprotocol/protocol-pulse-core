@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T20:17:39+00:00",
- "build": "ledger_20261116_201711",
+ "generated_at": "2026-11-16T20:24:11+00:00",
+ "build": "ledger_20261116_202339",
  "kind": "moments",
  "candidates": [
   {
@@ -10,6 +10,15 @@
    "duration": 9.15,
    "text": "And from where newly mined Bitcoin gets paid to help banks move existing dollars, JP Morgan and DBS, have a new cross -border connection.",
    "text_sha256": "2532e7edadfea0a2eafe41acd6314c0269105af00e5a16882b68075477dc55c3",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "02427a1f15f695ebfe44",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 9.02,
+   "text": "But I can't dismiss a massive six -week sell -off in Bitcoin as just because Anthropics IPOing this Thursday.",
+   "text_sha256": "64425acbbfc7de010e850e812feb85321bb4c62a14b93dd6ddd367d9d087db4f",
    "trimmed_leading": null
   },
   {
@@ -28,6 +37,15 @@
    "duration": 11.56,
    "text": "And so, again, this just points to the fact that every company is going to become a Bitcoin company in some way, shape, or form. Right now, we just happen to be. sort of at this juncture where everyone's trying to figure out what that actually means and what it means for them specifically.",
    "text_sha256": "d3577c5c43f788bfa51f40cdacaa970df22de212c8d12b68af40aa17a799e45c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "29bb1b1e5f52c26645fd",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 14.11,
+   "text": "So if you compare Bitcoin euphoria, the biggest single thing is we saw massive euphoria. in the Korean stocks, the same way we saw that massive euphoria, not in 2025. 126 was not euphoria. No, it's 2021 when we went to 69.",
+   "text_sha256": "d3253a3bb457407934aac4b2680b383c837f62ba8eef8c71834f7acbc51dc0b7",
    "trimmed_leading": null
   },
   {
@@ -272,6 +290,24 @@
    "text": "from where newly mined Bitcoin gets paid to help banks move existing dollars, JP Morgan and DBS, have a new cross -border connection.",
    "text_sha256": "615530b52bc4ec2fd5fa53a0570632dc790fb6d42b8b5959f4da8131db510fc9",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "02427a1f15f695ebfe44~trim",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 8.96,
+   "text": "I can't dismiss a massive six -week sell -off in Bitcoin as just because Anthropics IPOing this Thursday.",
+   "text_sha256": "b203a8409e616b8d0511e1805f089671fcee3fd17aeb50b41b29883d4e907d66",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "29bb1b1e5f52c26645fd~trim",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 14.01,
+   "text": "if you compare Bitcoin euphoria, the biggest single thing is we saw massive euphoria. in the Korean stocks, the same way we saw that massive euphoria, not in 2025. 126 was not euphoria. No, it's 2021 when we went to 69.",
+   "text_sha256": "0d4b41751b7d14a7989afdb8a571e063c76089410d60d97a2748d7d61deb5916",
+   "trimmed_leading": "So"
   },
   {
    "pid": "4cfa773e70ab6741866f~trim",
@@ -697,6 +733,15 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "20d868cbc8fd133660bd~trim",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 15.36,
+   "text": "I can't dismiss a massive six -week sell -off in Bitcoin as just because Anthropics IPOing this Thursday. So let's point out, I'll make some predictions about the future. It's my job. There's no risk in that.",
+   "text_sha256": "cdc127b21ff0596ec6b9557775706caaf09411128c4df7c472b1134577eed2a9",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "cc97d357dea3bc0b3178",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -778,12 +823,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "169a2627bf92e33c5b55",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 25.7,
+   "text": "Consider that we had, as far as Bitcoin is concerned, with a totally different macro environment, totally different news environment, we had a tradable low in February. We then had almost the exact same tradable low in June. Now, the tradable low in June was literally timed almost exactly before the SpaceX IPO, which took a ton of money out of it. We now have the Anthropic APO, and here we are back almost at the same level, not quite there yet.",
+   "text_sha256": "1c817b85b59b23799dcf1a57fa9b4be540773c256d5767601ac905a7e22c2f48",
+   "trimmed_leading": null
+  },
+  {
    "pid": "6f8de0f2f401f4aa5e48",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
    "duration": 14.87,
    "text": "I think people just feel as though they were owed a lot and it's going to take longer. And I think as Bitcoin's climbing and it's still not having like the euphoria that they desire, they kind of lash out or angry about stuff. To go back to the AI thing, again, I think some of these hacks are on AI genuinely do cause reason for fear.",
    "text_sha256": "d7fdd0534fc3bcc73c8863cfcfb1033cc69f4396e6599505c2afd57f906056db",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "83a2b4a4bcf6800e00c5",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 14.5,
+   "text": "Unless, of course, Bitcoin fails completely. But absent a failure, Bitcoin and gold will both do well in the long run, and they will suffer, and they've been suffering in the short run. We've seen that story before, and I just want that to be very, very clear.",
+   "text_sha256": "21d90436fa0fd709d937d2fa8bd5942d03c53ed2eff35194ac5b42b404b82dd1",
    "trimmed_leading": null
   },
   {
@@ -859,6 +922,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "04bb1e615e4125f8d521",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 17.79,
+   "text": "Bitcoin has not gotten that hot ball of money, even with all the rallies that we've seen and the whatever. There really has not been any significant speculation on Bitcoin. It was there. but it wasn't anything close to what we saw in the silver and gold markets, just a much, much, much smaller market, you know, in terms of just size, just pure size.",
+   "text_sha256": "89b32037e4905fdb4b365190ad980b70d6b49434751986baf60c6c7d2d7dcb75",
+   "trimmed_leading": null
+  },
+  {
    "pid": "f87764c10acdaf364ae9",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -866,6 +938,15 @@
    "text": "Like right now, we're going to talk more about short -term stuff probably in the near future here, but like watching how fearful people are despite the fact that Bitcoin still up like 20 % off the lows. is really fricking bullish, in my opinion. It's like the crowd is overreacting, even though we're actually seeing positive price momentum.",
    "text_sha256": "8ca14ca20971c70510b5b70bad1f3f64372aadd71ea7a00519dc23ceeafaf4ca",
    "trimmed_leading": null
+  },
+  {
+   "pid": "b9c99a16de37e5c3ff96~trim",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 17.35,
+   "text": "if you compare Bitcoin euphoria, the biggest single thing is we saw massive euphoria. in the Korean stocks, the same way we saw that massive euphoria, not in 2025. 126 was not euphoria. No, it's 2021 when we went to 69. 69 at a network that was one -sixth of the strength.",
+   "text_sha256": "d28e803d8bdafd0d1a9d621b811841a6d6d34af2698cfbbf7c888e94b2f8e792",
+   "trimmed_leading": "So"
   },
   {
    "pid": "364740ab4776e2024556",
@@ -883,6 +964,15 @@
    "duration": 23.98,
    "text": "Bitcoin is only generational wealth if it can be passed down. So make sure your family can access tomorrow what you've built today. Anchorwatch is your custody your way. So visit anchorwatch.com to get started. That's anchor watch.com. Okay, so if, like, peak bear market is disbelief, boredom, apathy, and bull market is like euphoria, everyone's getting too excited.",
    "text_sha256": "3763f0e5a4f58c210f3cd9f85494912691b44a6d1d390b6badd51b46fbcaf058",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "42548d71dfbf24deef09",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 18.83,
+   "text": "Bitcoin peaked October 6, 2025. Gold peaked in January. Silver, same thing. The stock market this year peaked October 6th, October 6th. The market's front running and rolling over, and part of that is... $40 trillion of debt, yes, it's unstoppable.",
+   "text_sha256": "dd27e06f1dfcf0ae229470dc8ca65497a3ae341c5d798574b4531f928caf61b9",
    "trimmed_leading": null
   },
   {
@@ -1090,6 +1180,15 @@
    "duration": 14.78,
    "text": "I have been recently done a budget pieces on the 2023 bull market, like climbing a wall of worry. There was massive amounts of fear during that period of time. Bitcoin was actually trending up into the right, and fear was also trending up into the right during that.",
    "text_sha256": "8e6ae65436256fcb93f3901a0c91648fb07f6fdc5798d8adbcde6760342ffcda",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "ea7d443d50a22d9acfad",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 14.42,
+   "text": "Bitcoin's recent collapse is about to meet a $64 billion AI IPO in the form of Anthropic, and now a 95 % chance that the Fed is going to hike rates at the next meeting.",
+   "text_sha256": "1e3c3e51acc55f017d021c607e4b08a45e1c81d863e7157caf5c35c741567d85",
    "trimmed_leading": null
   },
   {
