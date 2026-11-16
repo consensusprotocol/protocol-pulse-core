@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T21:22:47+00:00",
- "build": "ledger_20261116_212200",
+ "generated_at": "2026-11-16T21:24:42+00:00",
+ "build": "ledger_20261116_212356",
  "kind": "moments",
  "candidates": [
   {
@@ -112,12 +112,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "1f6d00d7ba2fd41fc538",
-   "video_id": "KRvh4AcSofA",
+   "pid": "2800c5390c507d4f0ee2",
+   "video_id": "9EE3F91J1vo",
    "channel": "Bitcoin Magazine",
-   "duration": 11.18,
-   "text": "And the sell -up has been painful for traders using borrowed money. More than $1.2 billion in Bitcoin positions were liquidated over the past week with the biggest wave coming on November 12th.",
-   "text_sha256": "6241440be6d96b325f5547be9c9b904140ae9ad3b38d4bfb96183f143e913210",
+   "duration": 13.14,
+   "text": "But the value proposition of Bitcoin is still there. I think we still see, you know, government deficits, inability to kind of pay our own obligations, the devaluing of currency, all of these things that brought me into Bitcoin over a decade ago, all of those are still very well at play.",
+   "text_sha256": "2080fb7e11b6381a47260ebe76ea3341b32cf2ea8ecc1499e0658267368cbaa6",
    "trimmed_leading": null
   },
   {
@@ -265,6 +265,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "0109bdab5cbd89a0ec3b",
+   "video_id": "9EE3F91J1vo",
+   "channel": "Bitcoin Magazine",
+   "duration": 18.92,
+   "text": "And just sort of narrowing it back down to your expertise is the leader frontrunner of the Bitcoin red teaming that we've been seeing happen. You know, we've seen OpenAI, for example, come out and they said they found, you know, 948 flaws in Linux, for example, something very fundamental that a lot of things are then built on top of.",
+   "text_sha256": "d6df35bfb580c4f247b82883b4aa031307aafffb4085820bac312e79ecc251ea",
+   "trimmed_leading": null
+  },
+  {
    "pid": "0d2e0c5d71c3c7d4d23a",
    "video_id": "H5bi8hBMDTw",
    "channel": "Bitcoin Magazine",
@@ -310,6 +319,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "702dc0a8eaaec267ce97",
+   "video_id": "9EE3F91J1vo",
+   "channel": "Bitcoin Magazine",
+   "duration": 16.4,
+   "text": "And so when I think about the risks coming into the future, there's definitely some risk as it relates to over the next five, six years of... quantum computers and kind of Bitcoin cryptography. But I see, especially in Amsterdam, talking to a lot of the cryptographers in Bitcoin, that we're kind of sprinting to me to these challenges.",
+   "text_sha256": "af6d30c3555d5cbc1713b29d8bc8e8dc27a5507d9ed48910411a4cdc7f0be7ce",
+   "trimmed_leading": null
+  },
+  {
    "pid": "7ffdc0d857bfc8bac293",
    "video_id": "uAvmynMSVhM",
    "channel": "Bitcoin Magazine",
@@ -343,6 +361,15 @@
    "duration": 7.36,
    "text": "But we're seeing Bitcoin weakness come in. We've also got the S &P 500 at incredible, incredible expansion point.",
    "text_sha256": "e157b9983a8717e44bee652de756e91a2333e184f5a55d9b0704d18f92a49d6a",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "4802ab0d03877faa16bb",
+   "video_id": "9EE3F91J1vo",
+   "channel": "Bitcoin Magazine",
+   "duration": 19.98,
+   "text": "So this is... Bitcoin Lean was an attempt to just taking a crack at all of Bitcoin's code. Only some of it actually deals with the consensus rules, the actual rules of the road for how Bitcoin operates. And so I had a lot of freely available compute, and I wanted to take through all of the entire code base and start listing out all of the different consensus rules.",
+   "text_sha256": "78878ce4ac19bec280d6b49c37ace548bc31bea352ace9a0bb52ca98b2d6c398",
    "trimmed_leading": null
   },
   {
@@ -481,6 +508,15 @@
    "trimmed_leading": "But"
   },
   {
+   "pid": "01e89e2b5794fe06d564~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 10.24,
+   "text": "to relate the AI demand to Bitcoin here, we've seen AI token prices have fallen about 60 % in a year while the usage has grown 40 -fold.",
+   "text_sha256": "9c0d943eafbcdf27729b0118048b8e0683bc4ad4be8cf121f8addccc289cf658",
+   "trimmed_leading": "Now"
+  },
+  {
    "pid": "29bb1b1e5f52c26645fd~trim",
    "video_id": "f0NnJM63Ffc",
    "channel": "Scott Melker",
@@ -553,13 +589,13 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "1f6d00d7ba2fd41fc538~trim",
-   "video_id": "KRvh4AcSofA",
+   "pid": "2800c5390c507d4f0ee2~trim",
+   "video_id": "9EE3F91J1vo",
    "channel": "Bitcoin Magazine",
-   "duration": 11.16,
-   "text": "the sell -up has been painful for traders using borrowed money. More than $1.2 billion in Bitcoin positions were liquidated over the past week with the biggest wave coming on November 12th.",
-   "text_sha256": "669d0ba01d0ae1838831f6b6d4a4d69912473f171b61d3f3d13411528a87c548",
-   "trimmed_leading": "And"
+   "duration": 12.98,
+   "text": "the value proposition of Bitcoin is still there. I think we still see, you know, government deficits, inability to kind of pay our own obligations, the devaluing of currency, all of these things that brought me into Bitcoin over a decade ago, all of those are still very well at play.",
+   "text_sha256": "6746ec7d4c3fe71a493270eadff4393443aa806cee5509a3b6f58f7d56a6f630",
+   "trimmed_leading": "But"
   },
   {
    "pid": "ba641503ebd446b81e27~trim",
@@ -587,15 +623,6 @@
    "text": "what this is measuring is how often different price levels in Bitcoin are talked about over time. You can really see here like the very stark, obvious one through the middle at 100K.",
    "text_sha256": "ad7ed069c3654c09fdaf4b3e8012351f1675b0c0ca0cd15bff938ae911838058",
    "trimmed_leading": "So"
-  },
-  {
-   "pid": "4578d3f731e3b1ca94ae~trim",
-   "video_id": "KRvh4AcSofA",
-   "channel": "Bitcoin Magazine",
-   "duration": 13.7,
-   "text": "to relate the AI demand to Bitcoin here, we've seen AI token prices have fallen about 60 % in a year while the usage has grown 40 -fold. So a case of cheaper compute creating more demand.",
-   "text_sha256": "c48cd61e5b4ea477fa642849465249923f5b7996d44d88e86b2e00059409eebd",
-   "trimmed_leading": "Now"
   },
   {
    "pid": "683ffdfc054b1d129771~trim",
@@ -679,6 +706,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "0109bdab5cbd89a0ec3b~trim",
+   "video_id": "9EE3F91J1vo",
+   "channel": "Bitcoin Magazine",
+   "duration": 18.48,
+   "text": "just sort of narrowing it back down to your expertise is the leader frontrunner of the Bitcoin red teaming that we've been seeing happen. You know, we've seen OpenAI, for example, come out and they said they found, you know, 948 flaws in Linux, for example, something very fundamental that a lot of things are then built on top of.",
+   "text_sha256": "0c831f3e8ed801d5033e4cc48741c734b1b8652d97121e4dd9f32522e23e4392",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "0d2e0c5d71c3c7d4d23a~trim",
    "video_id": "H5bi8hBMDTw",
    "channel": "Bitcoin Magazine",
@@ -731,6 +767,15 @@
    "text": "we're seeing Bitcoin weakness come in. We've also got the S &P 500 at incredible, incredible expansion point.",
    "text_sha256": "86851d10ec7b6759d68c133cb5df2b2bd2f5f3077aac8908aaa525f09d74f7b0",
    "trimmed_leading": "But"
+  },
+  {
+   "pid": "4802ab0d03877faa16bb~trim",
+   "video_id": "9EE3F91J1vo",
+   "channel": "Bitcoin Magazine",
+   "duration": 19.98,
+   "text": "this is... Bitcoin Lean was an attempt to just taking a crack at all of Bitcoin's code. Only some of it actually deals with the consensus rules, the actual rules of the road for how Bitcoin operates. And so I had a lot of freely available compute, and I wanted to take through all of the entire code base and start listing out all of the different consensus rules.",
+   "text_sha256": "ce6a6141c18995746483301661aec5f4a0c691c1a8744febe58041d96f5e4326",
+   "trimmed_leading": "So"
   },
   {
    "pid": "83985fd9ff653baec4c2~trim",
@@ -1192,6 +1237,24 @@
    "trimmed_leading": null
   },
   {
+   "pid": "77d8d01b625ef2dd1968~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.92,
+   "text": "to relate the AI demand to Bitcoin here, we've seen AI token prices have fallen about 60 % in a year while the usage has grown 40 -fold. So a case of cheaper compute creating more demand. But at the same time, an AI agent making a payment isn't automatically demand.",
+   "text_sha256": "a381b8c8b203358b651f9a1c3d0ab078d2f0dc776e28bf2fb754a91976f6f349",
+   "trimmed_leading": "Now"
+  },
+  {
+   "pid": "e83a4d6dcc4dbe49d23e",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 18.21,
+   "text": "Frequently, Bitcoin and digital assets are not beneficiaries when the rest of the market is in a plate to quality, right? So I think that markets overall are incredibly skittish right now. And then I think we've had a couple different dynamics in sort of crypto markets, Bitcoin itself.",
+   "text_sha256": "36fad0116e7c11ef3eea7d9991f34a6bbe2f56c7aaf97f40d189b1b21d0cdb3d",
+   "trimmed_leading": null
+  },
+  {
    "pid": "0b25f2fb01c410d2d8a8",
    "video_id": "uAvmynMSVhM",
    "channel": "Bitcoin Magazine",
@@ -1246,6 +1309,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "ce36a6699a60a845f77b",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.79,
+   "text": "Harvard and Dartmouth didn't sell any of their shares of Black Rock's spot Bitcoin ETF in the third quarter, according to new SEC filings, as Harvard's stake rose 42 % in value to $144 million. Harvard also grew its gold ETF stake nearly 20 -fold to 442 million.",
+   "text_sha256": "8fca9ffa04f90022c0f29d8e8b91fcfa18ed083b465243bcb627cbb629336676",
+   "trimmed_leading": null
+  },
+  {
    "pid": "be50da8dcf44dd53326b",
    "video_id": "OubcRgk3D-w",
    "channel": "Simply Bitcoin",
@@ -1273,6 +1345,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "9375a9dc2389d1d28348",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.26,
+   "text": "In an SEC filing this morning, Strategy says it bought 485 Bitcoin between November 9th and November 15th, about $33 million worth of Bitcoin. Strive added 251 Bitcoin, taking it to more than $43,000 on its balance sheet.",
+   "text_sha256": "215cc4b1aaa708a8696a84554d9038e8c2c93806a9eaa3c9bbdd129942259a48",
+   "trimmed_leading": null
+  },
+  {
    "pid": "b8aa24469734651f1106",
    "video_id": "m7ygyYMe3mg",
    "channel": "Bitcoin Magazine",
@@ -1282,12 +1363,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "40ddce52f296daa80ebc",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 16.94,
+   "text": "You know, and at today's price, covering the whole dividend bill with Bitcoin is roughly... 3 % of the stack a year. So in like the worst, worst, worst case scenario, maybe they burn 3 % off in a year. But then, you know, they would presumably rapidly add that back when conditions improve.",
+   "text_sha256": "ae27ca53c983f580e7a1c331390cf89eb010ad2fd67a078d81fbcdbdb926f279",
+   "trimmed_leading": null
+  },
+  {
    "pid": "3d62c51a3fa62c41559a",
    "video_id": "Vu0XZSz-aj4",
    "channel": "Bankless",
    "duration": 17.0,
    "text": "I get to have, you know, they donate Democrat candidates. Sometimes they call me. And it's so funny how many of the ones who were under 40 would tell me they used to mine Bitcoin in their dorm room. I'm like, I love it. Can you say that? Like, well, should I say that? I'm like, why would you not say that? No one. No one cares if you say that.",
    "text_sha256": "fc8465b0235c7df2708779d3fe17327e88f6c164d2c700cd6d219a77627cc615",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5eeee190f40427d57aa4",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 20.44,
+   "text": "In blue, the spot Bitcoin ETFs have lost more than $2.3 billion over the past two weeks. Yet the third quarter filings are showing, you know, Morgan Stanley. McQuare, I believe, as well, together added about 400 million or so in Bitcoin ETFs throughout September.",
+   "text_sha256": "bd3df4e49c00e0c2674a8992dbbfc9703f78443960cb09d01befc32e31ac4fb5",
    "trimmed_leading": null
   },
   {
@@ -1333,6 +1432,15 @@
    "duration": 15.51,
    "text": "Like right now, we're going to talk more about short -term stuff probably in the near future here, but like watching how fearful people are despite the fact that Bitcoin still up like 20 % off the lows. is really fricking bullish, in my opinion. It's like the crowd is overreacting, even though we're actually seeing positive price momentum.",
    "text_sha256": "8ca14ca20971c70510b5b70bad1f3f64372aadd71ea7a00519dc23ceeafaf4ca",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "1669c81b41381a11b46c",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.96,
+   "text": "The CME Fed Watch tool has 92 % chance now for a hike in December, 67 % chance for another one in January. What does a Fed that's still raising rates mean for Bitcoin? And how are you positioning for it? Yeah, I think it... I think it affects the entire market.",
+   "text_sha256": "62626d9c29a738d92675f0ba7c9467edb9216618ca2cb06cf2c02832face2915",
    "trimmed_leading": null
   },
   {
@@ -1390,6 +1498,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "1b3267aba285d2e3a05d",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 14.89,
+   "text": "Look, I mean, I was watching the market this weekend and somebody came in and just absolutely crashed the Bitcoin market, you know, in the weekend, but there's no liquidity. You know, why would somebody do that?",
+   "text_sha256": "db4c3944e44341f32a8a5b36b14995c036a266cfa3c39305fac8d5263751996c",
+   "trimmed_leading": null
+  },
+  {
    "pid": "d21e343f509a3ddbcdc2",
    "video_id": "stg5ui9sPos",
    "channel": "Yahoo Finance",
@@ -1444,6 +1561,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "e9060aff152bf91e52a3",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 18.8,
+   "text": "Morgan Stanley, BlackRock, and Vanguard all added to their Bitcoin bets in the third quarter, according to new SEC filings. Morgan Stanley grew its stake in BlackRock spot Bitcoin ETF 18 % to $924 million. Vanguard and BlackRock each added shares of strategy, the largest corporate corporate holder of Bitcoin.",
+   "text_sha256": "766ff84aee46ac2b2755084ab3597e413a052ab9ae9ddee47f2ed26caa35e77e",
+   "trimmed_leading": null
+  },
+  {
    "pid": "f3837f53d32a0d72a9bd~trim",
    "video_id": "OubcRgk3D-w",
    "channel": "Simply Bitcoin",
@@ -1468,6 +1594,24 @@
    "duration": 15.24,
    "text": "Like, for example, overall across all the Treasury companies, there's higher levels of conviction through the entirety of the bear market. So Bitcoin Treasury investors, MSTR shareholders, Metaplanet, et cetera, have generally had higher levels of conviction the entire duration of the bear. That is just recent.",
    "text_sha256": "9938d629d085cd4babb184cb86143a399fecd26f5f41798fa0c248080d7cdb56",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "1c84195676e41da79499",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 18.1,
+   "text": "More than $1.2 billion in Bitcoin positions were liquidated over the past week with the biggest wave coming on November 12th. So sentiment is about as bad as it can get. But let's see what traders are actually doing with their money. So, Sean, with the mood this dark, where are you seeing traders positioned across the exchanges right now?",
+   "text_sha256": "d646f20cc738574bcbb9a93ad2b8739750cf648972061ac2ac84bdd0a4e023e9",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "075177b9c5212ae2132f",
+   "video_id": "9EE3F91J1vo",
+   "channel": "Bitcoin Magazine",
+   "duration": 14.15,
+   "text": "We just had Google come out and say, their Project Zero team say that the 90 -day window is now too slow in the AI era. How should wallet makers and Bitcoin developers handle disclosure and patching?",
+   "text_sha256": "4264e81abd983bcbe6264b3a746a71ccb449ecc746b6fdf3abcbf77fdd4e7789",
    "trimmed_leading": null
   },
   {
@@ -1561,15 +1705,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "7c9e729eb552644f9867",
-   "video_id": "KRvh4AcSofA",
-   "channel": "Bitcoin Magazine",
-   "duration": 20.44,
-   "text": "In blue, the spot Bitcoin ETFs have lost more than $2.3 billion over the past two weeks. Yet the third quarter filings are showing, you know, Morgan Stanley. McQuare, I believe, as well, together added about 400 million or so in Bitcoin ETFs throughout September.",
-   "text_sha256": "bd3df4e49c00e0c2674a8992dbbfc9703f78443960cb09d01befc32e31ac4fb5",
-   "trimmed_leading": null
-  },
-  {
    "pid": "f80b85be2929047fe8c7",
    "video_id": "uAvmynMSVhM",
    "channel": "Bitcoin Magazine",
@@ -1660,6 +1795,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "986d2d136e773dfcda29",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.7,
+   "text": "In blue, it seems like broadly right now for the Bitcoin market, there's just sort of this apathy, right? People have been beaten over the head for months now. We've seen a lot of force selling come and go. And there doesn't really seem to be a coherent narrative right now that is shared across the space.",
+   "text_sha256": "f0686ea13dece47800eaf7aa8789c998b17da3d9838ed9666c6e4eda013be8fe",
+   "trimmed_leading": null
+  },
+  {
    "pid": "002be8d98dcbdcaaa0a6~trim",
    "video_id": "KRvh4AcSofA",
    "channel": "Bitcoin Magazine",
@@ -1687,22 +1831,13 @@
    "trimmed_leading": null
   },
   {
-   "pid": "6ad38afaad9b0a8ed938~trim",
-   "video_id": "KRvh4AcSofA",
+   "pid": "84921daec42455ffb49d~trim",
+   "video_id": "9EE3F91J1vo",
    "channel": "Bitcoin Magazine",
-   "duration": 17.06,
-   "text": "the sell -up has been painful for traders using borrowed money. More than $1.2 billion in Bitcoin positions were liquidated over the past week with the biggest wave coming on November 12th. So sentiment is about as bad as it can get. But let's see what traders are actually doing with their money.",
-   "text_sha256": "e7652143958d6ae582fcb7d1293de63052e9ab627613d54690de774ca0c28216",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "e0466403d2d801501a9a",
-   "video_id": "KRvh4AcSofA",
-   "channel": "Bitcoin Magazine",
-   "duration": 16.94,
-   "text": "You know, and at today's price, covering the whole dividend bill with Bitcoin is roughly... 3 % of the stack a year. So in like the worst, worst, worst case scenario, maybe they burn 3 % off in a year. But then, you know, they would presumably rapidly add that back when conditions improve.",
-   "text_sha256": "ae27ca53c983f580e7a1c331390cf89eb010ad2fd67a078d81fbcdbdb926f279",
-   "trimmed_leading": null
+   "duration": 22.99,
+   "text": "the value proposition of Bitcoin is still there. I think we still see, you know, government deficits, inability to kind of pay our own obligations, the devaluing of currency, all of these things that brought me into Bitcoin over a decade ago, all of those are still very well at play. And so when I think about the risks coming into the future, there's definitely some risk as it relates to over the next five, six years of... quantum computers and kind of Bitcoin cryptography.",
+   "text_sha256": "3a90a0ca2a5d0a5945a2cf13933d7ad30ff0983b32350d06a77d08d8ad7407d1",
+   "trimmed_leading": "But"
   },
   {
    "pid": "41fececdeafb656fb29b",
@@ -1795,15 +1930,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "ef00ef6e49c55a3a81b6",
-   "video_id": "KRvh4AcSofA",
-   "channel": "Bitcoin Magazine",
-   "duration": 17.96,
-   "text": "The CME Fed Watch tool has 92 % chance now for a hike in December, 67 % chance for another one in January. What does a Fed that's still raising rates mean for Bitcoin? And how are you positioning for it? Yeah, I think it... I think it affects the entire market.",
-   "text_sha256": "62626d9c29a738d92675f0ba7c9467edb9216618ca2cb06cf2c02832face2915",
-   "trimmed_leading": null
-  },
-  {
    "pid": "8fe4ff5d084bbba5a88c",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -1828,6 +1954,15 @@
    "duration": 15.91,
    "text": "I view Bitcoin as the kernel, the kernel of the on -chain global financial system. And I look at it as a, and this is just me, okay?",
    "text_sha256": "1c5dc376572b8413afd75995465f30f48b6d16409776ecefbce1b3b440703d3b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "db97bf791a9ea51a261d",
+   "video_id": "9EE3F91J1vo",
+   "channel": "Bitcoin Magazine",
+   "duration": 18.63,
+   "text": "While it's really, AI is really good at kind of finding these gaps and attacking things, it's allowing... Bitcoin security researchers and cryptographers to further accelerate and quicker get to known answers of the security properties of a future upgrade in Bitcoin, which may have taken years, that may collapse down to a couple months. So the speeding up can happen on both the attacker side and the defender side.",
+   "text_sha256": "2844233f331e0618fa88f052d2374e86f09d973760103ecf6d3c241d3eefd28a",
    "trimmed_leading": null
   },
   {
@@ -1856,15 +1991,6 @@
    "text": "they're up to 850,000 Bitcoin on their balance sheet, several copycats. But it's important to understand what strategy has accomplished, what some of the big two or three Bitcoin treasury companies have accomplished. is going to be, I think, in my opinion, is going to be a handful of winners in that specific strategy.",
    "text_sha256": "d7e9438241aee044d4e01c969b49eb97ad4481033f8a0eea64ffe42ee6e8d138",
    "trimmed_leading": "Now"
-  },
-  {
-   "pid": "ff67bb25e33fde38f943",
-   "video_id": "KRvh4AcSofA",
-   "channel": "Bitcoin Magazine",
-   "duration": 17.79,
-   "text": "Harvard and Dartmouth didn't sell any of their shares of Black Rock's spot Bitcoin ETF in the third quarter, according to new SEC filings, as Harvard's stake rose 42 % in value to $144 million. Harvard also grew its gold ETF stake nearly 20 -fold to 442 million.",
-   "text_sha256": "8fca9ffa04f90022c0f29d8e8b91fcfa18ed083b465243bcb627cbb629336676",
-   "trimmed_leading": null
   },
   {
    "pid": "0050388e1e805af79a6e",
@@ -1948,15 +2074,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "b7fec05f2100ba2a4ad1~trim",
-   "video_id": "KRvh4AcSofA",
-   "channel": "Bitcoin Magazine",
-   "duration": 19.01,
-   "text": "to relate the AI demand to Bitcoin here, we've seen AI token prices have fallen about 60 % in a year while the usage has grown 40 -fold. So a case of cheaper compute creating more demand. But at the same time, an AI agent making a payment isn't automatically demand for Bitcoin.",
-   "text_sha256": "f2eeb8b933d92972ba0b8882ac89b8ce81607216497191f06af1353fab75b185",
-   "trimmed_leading": "Now"
-  },
-  {
    "pid": "e8abcc9031ea856d6137~trim",
    "video_id": "m7ygyYMe3mg",
    "channel": "Bitcoin Magazine",
@@ -2020,15 +2137,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "8bb5cf89afd95f2c8282",
-   "video_id": "KRvh4AcSofA",
-   "channel": "Bitcoin Magazine",
-   "duration": 18.8,
-   "text": "Morgan Stanley, BlackRock, and Vanguard all added to their Bitcoin bets in the third quarter, according to new SEC filings. Morgan Stanley grew its stake in BlackRock spot Bitcoin ETF 18 % to $924 million. Vanguard and BlackRock each added shares of strategy, the largest corporate corporate holder of Bitcoin.",
-   "text_sha256": "766ff84aee46ac2b2755084ab3597e413a052ab9ae9ddee47f2ed26caa35e77e",
-   "trimmed_leading": null
-  },
-  {
    "pid": "eda2ebc9bef18c3887eb",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -2045,15 +2153,6 @@
    "text": "it's very telling that right now Bitcoin is that asset of choice to clearly have been sold down. presumably to source liquidity heading into these two major, major IPOs. Yeah, we'll do a deeper dive on the Bitcoin market in just a couple minutes. But first, on Thursday, President Trump meeting with China and Russia to discuss the trade or trade in nuclear arms.",
    "text_sha256": "c013e9520f9729b95bb25c8f7f1c81a57315cc7f87c31293b81e977e30fb5167",
    "trimmed_leading": "But"
-  },
-  {
-   "pid": "ff575112bb486f87a074",
-   "video_id": "KRvh4AcSofA",
-   "channel": "Bitcoin Magazine",
-   "duration": 17.7,
-   "text": "In blue, it seems like broadly right now for the Bitcoin market, there's just sort of this apathy, right? People have been beaten over the head for months now. We've seen a lot of force selling come and go. And there doesn't really seem to be a coherent narrative right now that is shared across the space.",
-   "text_sha256": "f0686ea13dece47800eaf7aa8789c998b17da3d9838ed9666c6e4eda013be8fe",
-   "trimmed_leading": null
   },
   {
    "pid": "0af28ebfab92409abf0a",
@@ -2125,6 +2224,15 @@
    "duration": 16.27,
    "text": "Our complaint isn't even about Bitcoin. It's about whether or not these rules can be verified. That's our challenge. And we asked this in one question to MSCI. We say, does this framework reliably distinguish an operating company? rubble a passive investment vehicle, you know, why is it that a real estate trust can stay in and a uranium holder is out?",
    "text_sha256": "eb4a732a72c0c32fe264a94975aafb204c5c151f81f2f2f51683f996436e89d3",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "86718e3715e37c03ff85",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.71,
+   "text": "An open interest across major exchanges sits around 200,000 Bitcoin, which is at current rates about 12. point nine, let's call it $13 billion. So, you know, that's down from last week's peak, but still above its three -month average in Bitcoin terms.",
+   "text_sha256": "65e7bda23fea2ebc248189dac7b33e6cdbf269b6db7e425a1978a83aad9fe78d",
    "trimmed_leading": null
   },
   {
@@ -2380,6 +2488,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "67005ede8fa712782569~trim",
+   "video_id": "9EE3F91J1vo",
+   "channel": "Bitcoin Magazine",
+   "duration": 21.38,
+   "text": "this has been really helpful for some engineers I've been talking with in the Bitcoin ecosystem of verifying the security properties of Bitcoin and being able to make sure that our understanding of all the consensus rules are correct, that there aren't any gaps in our understanding of it. And it's been something that's been a fun little side project, but it's been very illustrative for how quickly we can leverage these AI tools to further even harden the defenses of the Bitcoin ecosystem.",
+   "text_sha256": "1bafa3b4dd176275f051959483c404c2ea46bea473528e47dd7863fca9c74e4a",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "eb2906e8fe1367ffbbcc",
    "video_id": "uAvmynMSVhM",
    "channel": "Bitcoin Magazine",
@@ -2459,6 +2576,15 @@
    "text": "I wrapped that up maybe a little over a year ago now, and kind of wasn't sure I was going to do with my life after that, to be honest with you, I feel like that was a three -year process. It was like all I was doing for a few years there and still felt this desire to do more for Bitcoin, and then this kind of thing just came up and I had to pursue it farther.",
    "text_sha256": "708b4ee96d1a49d5812853dc0640629fe46a978b82733217e58aa3e124d030d7",
    "trimmed_leading": null
+  },
+  {
+   "pid": "b946bcab146bd4b09ae3~trim",
+   "video_id": "9EE3F91J1vo",
+   "channel": "Bitcoin Magazine",
+   "duration": 16.12,
+   "text": "I see, especially in Amsterdam, talking to a lot of the cryptographers in Bitcoin, that we're kind of sprinting to meet to these challenges. And in the long run, I'm bullish. And the short to medium term, there would probably be some more chop. It wouldn't surprise me. All right. Great stuff. As always, Rob, you're the best. Thanks for joining us. Thanks for having me, guys.",
+   "text_sha256": "a5399a05f9619dd6d6b5cebe9a32abee35f366829675447410d30f9cfe9af811",
+   "trimmed_leading": "But"
   },
   {
    "pid": "1bb15f8ef41ec6bd8a38",
@@ -2675,15 +2801,6 @@
    "text": "Bitcoin's latest sell -off has it trading near historically cheap levels, taking a look at the live price provided by Cash App. It's around $64,175 today. That's down eight -tenths of a percentage point. But is this a retest of June's bottom or is there more pain ahead?",
    "text_sha256": "eb7a4e744d8d92aeef9b1a7b9bacd0f5283b27717c490275287e60077ac78533",
    "trimmed_leading": "But"
-  },
-  {
-   "pid": "e2726ed47051b64b1f3c",
-   "video_id": "KRvh4AcSofA",
-   "channel": "Bitcoin Magazine",
-   "duration": 15.71,
-   "text": "An open interest across major exchanges sits around 200,000 Bitcoin, which is at current rates about 12. point nine, let's call it $13 billion. So, you know, that's down from last week's peak, but still above its three -month average in Bitcoin terms.",
-   "text_sha256": "65e7bda23fea2ebc248189dac7b33e6cdbf269b6db7e425a1978a83aad9fe78d",
-   "trimmed_leading": null
   },
   {
    "pid": "e4aab5949b93a65aee23",
