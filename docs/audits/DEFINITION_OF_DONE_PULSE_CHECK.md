@@ -6,6 +6,26 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 14:12 BATCH 98 LANDED (pp-ingest's finding, INGEST-FAIL-01's pattern): the transcript store reads a stored live record again before skipping a video (merged 8f8bccf1, 13:55 ET, pushed). The 14:00 cron run, the first on it, read again all 14 records stored as is_live: 9 now was_live, 3 post_live (finished, still processing; never a skip), 2 still live (skipped_live 14 -> 2). Scott Melker f0NnJM63Ffc was read again at 14:01:46 ET: was_live, 3,679 s. Its captions were throttled (429), so it is now due for Whisper. This run's 4 h audio budget (the cron line's --max-whisper-hours 4; cron unchanged) went first, in the ingest's priority order, to Bitcoin Magazine oqB8dx7VgOQ (111 min), BTC Sessions nvEftLDdab4 (76) and Digital Asset News Sps9le2Z5RI (48), 3.91 h in 733 s. Melker and 13 others are deferred_budget: a following run takes them, about 4 h of audio each. BATCH 4 integrator spend: $0.1178 (batch 98's audits $0.0259) (Heimdall, not capped).
+- **The fault:** transcript_store.ensure_meta returned the stored meta.json whenever one existed and never refreshed it, so acquire() skipped any video whose record was taken while live, for ever. Scott Melker f0NnJM63Ffc's record was taken at 09:30 ET while the stream was live, and the stream ended around 10:30.
+- **The fix:**
+  - A stored live_status of is_live, is_upcoming or post_live is read again (yt-dlp -J), at most once per 20 min per video.
+  - The snapshot is appended to meta_history.jsonl; meta.json stays write-once.
+  - ensure_meta returns the snapshot READ last (by metadata_fetched_at; torn and foreign lines are skipped).
+  - A failed re-read is logged and appends nothing; the stored state stands for that run, and the next run tries again.
+  - The skip set is unchanged (is_live, is_upcoming).
+- **Audits** (batch 98, Heimdall only, qwen27b + gpt-oss at medium, all traced):
+  - Two cycles on the change gave two single-seat findings. Both were checked against the code and are REAL, and both are fixed in d8b0b9b0:
+    - a hung or missing yt-dlp (TimeoutExpired / OSError) was not an AcquisitionError, so the Whisper pass would not have caught it;
+    - "newest" meant the last line, not the latest read.
+  - Two cycles on the fix delta gave one single-seat finding, judged NOT a defect: CalledProcessError cannot occur, because _ytdlp has no check=True.
+- **Tests:**
+  - Every behaviour test of the first seven fails on the old code; the two finding tests fail before their fixes.
+  - 11 of 11 mutations killed, after a foreign-line test was given a read time (R6).
+  - The store's dependent suites: 112 passed.
+  - Both regressions green on the staged merge (26 PASS / 0 FAIL / 4 WARN; exit 0, references REPRODUCED).
+- **No service to restart:** the ingest is cron-run, and the word-pass worker's old code reads meta as before. editorial_select and the word pass now see the newest snapshot's duration.
+
 ## 13:35 CORRECTION TO THE 13:33 ENTRY: Scott Melker f0NnJM63Ffc is NOT waiting on a live stream. The stream ended (pp-ingest's yt-dlp probe at 13:25 ET: live_status was_live, 3,679 s, English automatic captions listed). The integrator's transcript ingest skips it on a STALE record.
 - The video's meta.json was written at 09:30 ET while it was live: live_status is_live, duration none.
 - transcript_store.ensure_meta returns a stored meta.json whenever one exists and never refreshes it. The module's docstring says meta.json is refreshed by appending to meta_history, but no meta_history is ever written.
