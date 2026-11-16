@@ -158,6 +158,90 @@
   },
   "version": "visual-3"
  },
+ "21d8769b73dd20f4894b:79.926-88.546:visual-3:0fc9d21dd9ed97a3": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     79.93,
+     80.93,
+     81.93,
+     82.93,
+     83.93,
+     84.93,
+     85.93,
+     86.93,
+     87.93
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "bug",
+    "text": "NATALIE BRUNELL",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "kind": "on_screen_text",
+    "text": "Slower blocks triggered the year's third-largest difficulty cut, lifting expected revenue per unit of computing power as Bitcoin's price slide squeezed miners.",
+    "why": "The narration never says the cut was the year's third-largest, that slower blocks triggered it, that expected revenue per unit of computing power rose, or that a Bitcoin price slide squeezed miners."
+   },
+   {
+    "in_9x16": "whole",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "NATALIE BRUNELL"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "Slower blocks triggered the year's third-largest difficulty cut, lifting expected revenue per unit of computing power as Bitcoin's price slide squeezed miners.",
+    "why": "The narration never says the cut was the year's third-largest, that slower blocks triggered it, that expected revenue per unit of computing power rose, or that a Bitcoin price slide squeezed miners."
+   },
+   {
+    "asserts_beyond_words": false,
+    "text": "Bitcoin Mining Difficulty Falls 9.1%, Most Since June",
+    "why": "It restates the narration: difficulty fell by more than 9% (the screen gives the exact 9.1%) and it is the biggest cut since June."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_1763d62104892d75.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_1763d62104892d75.jpg",
+   "sha256": "1763d62104892d75caa1606c04f6d5ef27cf8985518415813fb94b9ccd0a80e5",
+   "times": [
+    79.93,
+    80.93,
+    81.93,
+    82.93,
+    83.93,
+    84.93,
+    85.93,
+    86.93,
+    87.93,
+    88.5
+   ]
+  },
+  "third_person": {
+   "finding": "No person other than the speaker is shown; the frames contain only a news-article graphic and mining-facility b-roll, with no still, photo, or graphic of anyone.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2953,
+   "out": 12519,
+   "usd_reported": 0.079292
+  },
+  "version": "visual-3"
+ },
  "22018cf6e0db2d846def:953.801-958.041:visual-2:3aec9e3d59da50da": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [
@@ -1061,6 +1145,185 @@
    "in": 2300,
    "out": 1993,
    "usd_reported": 0.00152796
+  },
+  "version": "visual-3"
+ },
+ "94a613f35c4ed30c9980:113.874-119.674:visual-3:70cd91f3e5a32f5d": {
+  "backend": "heimdall:qwen/qwen3.8-27b",
+  "burned_in": [
+   {
+    "at": [
+     1187.0,
+     11487.0,
+     11587.0,
+     11687.0,
+     11787.0,
+     11887.0,
+     11982.0
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "lower_third",
+    "text": "100% SCAMS @deadmiler249 Apparently you're not brainish enough",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     1187.0,
+     11487.0,
+     11587.0,
+     11687.0,
+     11787.0,
+     11887.0,
+     11982.0
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "bug",
+    "text": "KRAKEN $25 SIGN UP BONUS. ESTABLISHED 2011",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "kind": "on_screen_text",
+    "text": "100% SCAMS @deadmiler249 Apparently you're not brainish enough",
+    "why": "It labels a person a scammer, an accusation the spoken words about Bitcoin do not make."
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "100% SCAMS @deadmiler249 Apparently you're not brainish enough",
+    "why": "It labels a person a scammer, an accusation the spoken words about Bitcoin do not make."
+   },
+   {
+    "asserts_beyond_words": false,
+    "text": "KRAKEN $25 SIGN UP BONUS. ESTABLISHED 2011",
+    "why": "A promotional sponsor banner unrelated to the spoken content."
+   },
+   {
+    "asserts_beyond_words": false,
+    "text": "CRYPTO IRA",
+    "why": "A chart title, not a claim beyond the words."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_094a0e63d529f325.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_094a0e63d529f325.jpg",
+   "sha256": "094a0e63d529f325b5e3a0856fcca3c65108550c768690c8d2d7f4f79a9eb5fa",
+   "times": [
+    113.87,
+    114.87,
+    115.87,
+    116.87,
+    117.87,
+    118.87,
+    119.62
+   ]
+  },
+  "third_person": {
+   "finding": "The spoken words make no negative claim, so the on-screen '100% SCAMS' graphic does not qualify as a third-person negative claim tied to the clip's words.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 1590,
+   "out": 2976,
+   "usd_reported": 0.00219582
+  },
+  "version": "visual-3"
+ },
+ "9a3597d470232a515e09:3164.658-3181.158:visual-3:345c92b2c606dd3c": {
+  "backend": "heimdall:qwen/qwen3.8-27b",
+  "burned_in": [
+   {
+    "at": [
+     3164.66,
+     3165.66,
+     3166.66,
+     3167.66,
+     3168.66,
+     3169.66,
+     3170.66,
+     3171.66,
+     3172.66,
+     3173.66,
+     3174.66,
+     3175.66,
+     3176.66,
+     3177.66,
+     3178.66,
+     3179.66,
+     3180.66,
+     3181.11
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "#PODCAST",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "#PODCAST"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_d6f564a625766452.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_d6f564a625766452.jpg",
+   "sha256": "d6f564a625766452290876d39093e0d6f76f83161165898e4439a38fb03f1303",
+   "times": [
+    3164.66,
+    3165.66,
+    3166.66,
+    3167.66,
+    3168.66,
+    3169.66,
+    3170.66,
+    3171.66,
+    3172.66,
+    3173.66,
+    3174.66,
+    3175.66,
+    3176.66,
+    3177.66,
+    3178.66,
+    3179.66,
+    3180.66,
+    3181.11
+   ]
+  },
+  "third_person": {
+   "finding": "The opening two-person shot is live video of both participants, not a still, photo, or graphic, and the spoken words make no negative claim about any person.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2006,
+   "out": 1198,
+   "usd_reported": 0.00094745
   },
   "version": "visual-3"
  },

@@ -1,17 +1,8 @@
 {
- "generated_at": "2026-11-16T01:19:15+00:00",
- "build": "ledger_20261116_011900",
+ "generated_at": "2026-11-16T02:11:19+00:00",
+ "build": "ledger_20261116_021107",
  "kind": "moments",
  "candidates": [
-  {
-   "pid": "31c900e6fb02e673c739",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 6.22,
-   "text": "But there's only 21 million Bitcoin that will ever be. There aren't enough millionaires in America for every millionaire to own one Bitcoin.",
-   "text_sha256": "0f02e3d9c54aa2dc0825126c02fcff33d882e95c311d365f2fa6bf575a7a7769",
-   "trimmed_leading": null
-  },
   {
    "pid": "9b7d3f818bb0063f8db3",
    "video_id": "Sps9le2Z5RI",
@@ -19,15 +10,6 @@
    "duration": 5.86,
    "text": "So the halving sets the clock. Liquidity sets the size of how big things become.",
    "text_sha256": "04ab9f036360eefbd70cec972f72d5509c25715aea12e867d0e4f0ba2a26ac36",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "1e7201cf2ce31682f4e1",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 14.28,
-   "text": "But it just creates like a cycle effect because when you sell Bitcoin to someone, they're now buying it at that price at $100,000. So their cost basis is $100,000. It's their floor. So you almost don't want these people to hold Bitcoin. It's a risk.",
-   "text_sha256": "40b39b85cedf5fd8b8dc3e7dc2c164485c188f47f1b2eb3758926460ce950bb4",
    "trimmed_leading": null
   },
   {
@@ -58,15 +40,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "04fa36486ce7765890fb",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 14.01,
-   "text": "And AI and Quantum are both topics that very soon, instead of being seen as threats, they'll both be seen as mega opportunities for Bitcoin. And when that happens, kind of coupled with the having, that'll usher in the next epic bull market.",
-   "text_sha256": "4ac44fa3971db282cfc4840aafa024825a1a4a502466392f86d4e156f8f86872",
-   "trimmed_leading": null
-  },
-  {
    "pid": "be6019c9d240f698d3d7",
    "video_id": "4eEZCJVl83w",
    "channel": "Simply Bitcoin",
@@ -85,15 +58,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "9ca89be49185085e080c",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 16.57,
-   "text": "So just like very simply, Bitcoin is very modular by design. We can upgrade Bitcoin very quickly. There are dozens and dozens of really good proposals by really good companies phenomenally securing all of our Bitcoin from the quantum's threat.",
-   "text_sha256": "27eaf27285b2bbb87b9ccb65b4b078917e8a81ea2eabcdd830cae0c85baa8a57",
-   "trimmed_leading": null
-  },
-  {
    "pid": "c7ade4f8e692957b5e04",
    "video_id": "4eEZCJVl83w",
    "channel": "Simply Bitcoin",
@@ -103,30 +67,21 @@
    "trimmed_leading": null
   },
   {
-   "pid": "e755ae519354c2c0f803",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 7.08,
-   "text": "And in the world today, there isn't anything that's not owned by anyone. Bitcoin is owned by the world. We all own a piece of it.",
-   "text_sha256": "047e440f9415bda092f02edbb2c20ba7d346c22c4374dc7a46aa191096be044b",
+   "pid": "f6a3e905900af38fe2e8",
+   "video_id": "5LXk2SLH4fI",
+   "channel": "Natalie Brunell",
+   "duration": 14.12,
+   "text": "But obviously, it's not fun to ride these drawdowns, especially if you bought much higher or your cost basis is higher than the current price. Selling Bitcoin to cover a big expense is the move most holders end up regretting. And it isn't your only option.",
+   "text_sha256": "852f043d4e7d1a21a4b57cd02b3292ea9033b9e857e8debafffc775fd62ffafb",
    "trimmed_leading": null
   },
   {
-   "pid": "5f5c6b01bcdfdc2dc107",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 14.06,
-   "text": "So now we're going into late 2011, that we were 30 % of all the Bitcoin transaction volume on the Bitcoin blockchain at any given time. Which is not just like... purchases and sales, this is like all Bitcoin blockchain, you know, transaction volume.",
-   "text_sha256": "21345c10f90ce25dd30266167253fdb4ed99129c58b24920174c465f7638dc0b",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "aecbae39a35ca381ffb6",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 12.83,
-   "text": "But then FinCin comes out and says, oh, we think Bitcoin is considered money, and anyone buying and selling Bitcoin is considered a money transmitter. This was... And my lawyers called us up immediately, said, you have to shut down bit instant.",
-   "text_sha256": "9e246cc0e8f0163fd1e3684156c97b97622e1254619f1401d7faf105ef708381",
+   "pid": "7b106fda94a4c0dd7562",
+   "video_id": "5LXk2SLH4fI",
+   "channel": "Natalie Brunell",
+   "duration": 8.06,
+   "text": "And one of the biggest public miners, Mara, disclosed that it sold about 40 % of its Bitcoin in recent weeks, more than a billion dollars worth.",
+   "text_sha256": "b44879cf4e032d85028855b556b49e0a2b5a5f9269bd2de724dbc3a469ca149c",
    "trimmed_leading": null
   },
   {
@@ -145,15 +100,6 @@
    "duration": 9.97,
    "text": "So my investment thesis for Bitcoin at 80 is the same as it is for Bitcoin at 62. Yeah, it's just that you're getting it cheaper.",
    "text_sha256": "518d8c2a7cd40370025042f63ebcd2c3655d4dbcf7e55a4d1d75ca149049b3cc",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "03b64c9ceb3fbe7b05a4",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 11.17,
-   "text": "But once I found out about Bitcoin, just... Fell in love with it. Realized immediately it was something that was going to be the future. And it was a community of people that we all knew.",
-   "text_sha256": "ee9b24021afeafbe97ed0abb8e903fc7aa86f7a965f832e7c56c0e59fad75685",
    "trimmed_leading": null
   },
   {
@@ -202,15 +148,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "31c900e6fb02e673c739~trim",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 6.2,
-   "text": "there's only 21 million Bitcoin that will ever be. There aren't enough millionaires in America for every millionaire to own one Bitcoin.",
-   "text_sha256": "95ae8934799b4d9b7dacc26f245cbf8f0030f2de4bef4745b8f92390402f33e3",
-   "trimmed_leading": "But"
-  },
-  {
    "pid": "9b7d3f818bb0063f8db3~trim",
    "video_id": "Sps9le2Z5RI",
    "channel": "Digital Asset News",
@@ -220,13 +157,13 @@
    "trimmed_leading": "So"
   },
   {
-   "pid": "1e7201cf2ce31682f4e1~trim",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 14.14,
-   "text": "it just creates like a cycle effect because when you sell Bitcoin to someone, they're now buying it at that price at $100,000. So their cost basis is $100,000. It's their floor. So you almost don't want these people to hold Bitcoin. It's a risk.",
-   "text_sha256": "c5fa6adf5aaf381ad3467bf9bf372f90a6757b6d9c39f3bcc32d681c0383ef3d",
-   "trimmed_leading": "But"
+   "pid": "c2417f60d989426e6a0e~trim",
+   "video_id": "5LXk2SLH4fI",
+   "channel": "Natalie Brunell",
+   "duration": 5.0,
+   "text": "what isn't in dispute is that nobody who simply owns their Bitcoin was forced to sell last week.",
+   "text_sha256": "713b517691be20d20e978f352a59b43ccc8b00529c7b5422c40597bc557bd17e",
+   "trimmed_leading": "Now"
   },
   {
    "pid": "2da2e90db17b23c6df77~trim",
@@ -256,15 +193,6 @@
    "trimmed_leading": "So"
   },
   {
-   "pid": "04fa36486ce7765890fb~trim",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 13.97,
-   "text": "AI and Quantum are both topics that very soon, instead of being seen as threats, they'll both be seen as mega opportunities for Bitcoin. And when that happens, kind of coupled with the having, that'll usher in the next epic bull market.",
-   "text_sha256": "f15b31656e628d9a401e5943097f8064798f26e3af50d443946c96ce52408da5",
-   "trimmed_leading": "And"
-  },
-  {
    "pid": "506d5bb242d6885c9139~trim",
    "video_id": "4eEZCJVl83w",
    "channel": "Simply Bitcoin",
@@ -272,15 +200,6 @@
    "text": "like I saw this check on chain piece this morning talking about how a lot of the selling is coming from people who bought, you know, basically were chasing as it was getting close to 80K, like thinking that it was the bottom. And now they're panic selling at a loss. I'm just like, How can you be such a terrible trader that you're going to just panic sell at a loss at a 200 week moving average for Bitcoin?",
    "text_sha256": "ce4d5ccc66d7ea654aef9f3b15cbe3c072dce644002c0c19883dbf2a5715f52b",
    "trimmed_leading": "But"
-  },
-  {
-   "pid": "9ca89be49185085e080c~trim",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 16.51,
-   "text": "just like very simply, Bitcoin is very modular by design. We can upgrade Bitcoin very quickly. There are dozens and dozens of really good proposals by really good companies phenomenally securing all of our Bitcoin from the quantum's threat.",
-   "text_sha256": "477f3f4a17faf42d2429d68ddc1cac263179900d3221cd82ad6d4637c6b1a8fa",
-   "trimmed_leading": "So"
   },
   {
    "pid": "c7ade4f8e692957b5e04~trim",
@@ -292,22 +211,22 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "e755ae519354c2c0f803~trim",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 6.98,
-   "text": "in the world today, there isn't anything that's not owned by anyone. Bitcoin is owned by the world. We all own a piece of it.",
-   "text_sha256": "0aaa3ebec639655eae6a10c0330095015b839762e2ef9f08d7a867a473e1b75f",
-   "trimmed_leading": "And"
+   "pid": "f6a3e905900af38fe2e8~trim",
+   "video_id": "5LXk2SLH4fI",
+   "channel": "Natalie Brunell",
+   "duration": 14.06,
+   "text": "obviously, it's not fun to ride these drawdowns, especially if you bought much higher or your cost basis is higher than the current price. Selling Bitcoin to cover a big expense is the move most holders end up regretting. And it isn't your only option.",
+   "text_sha256": "feb44144c9a238f37ac2873997482ada821353c81038b558db2cacb078ad285a",
+   "trimmed_leading": "But"
   },
   {
-   "pid": "5f5c6b01bcdfdc2dc107~trim",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 14.06,
-   "text": "now we're going into late 2011, that we were 30 % of all the Bitcoin transaction volume on the Bitcoin blockchain at any given time. Which is not just like... purchases and sales, this is like all Bitcoin blockchain, you know, transaction volume.",
-   "text_sha256": "f1658718ae775db4689dbab099ef76b339e06c19b37ed93a9139491774c206ad",
-   "trimmed_leading": "So"
+   "pid": "7b106fda94a4c0dd7562~trim",
+   "video_id": "5LXk2SLH4fI",
+   "channel": "Natalie Brunell",
+   "duration": 7.58,
+   "text": "one of the biggest public miners, Mara, disclosed that it sold about 40 % of its Bitcoin in recent weeks, more than a billion dollars worth.",
+   "text_sha256": "ee2eafa0fb3b3cfd6b60aa9e1413a41818e18149206f1e239fd145c6347d2098",
+   "trimmed_leading": "And"
   },
   {
    "pid": "9655dbc9f24373efbe78~trim",
@@ -319,13 +238,13 @@
    "trimmed_leading": "So"
   },
   {
-   "pid": "03b64c9ceb3fbe7b05a4~trim",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 10.77,
-   "text": "once I found out about Bitcoin, just... Fell in love with it. Realized immediately it was something that was going to be the future. And it was a community of people that we all knew.",
-   "text_sha256": "ac5d6451adf0f0de1bc32aeb93e9e45f3fc2258edc312ad77a06220ff89ad21d",
-   "trimmed_leading": "But"
+   "pid": "dd2982b07b76360a4300~trim",
+   "video_id": "5LXk2SLH4fI",
+   "channel": "Natalie Brunell",
+   "duration": 12.19,
+   "text": "the floor he talks about is the 200 week moving average, which is basically Bitcoin's average price over the past four years. It was sitting near 68,000, but... As you know, Bitcoin has just dropped below it.",
+   "text_sha256": "3ed0b61b2335908af58bd1f90a89e0510d65432a9b7fb86e109165a58850a56b",
+   "trimmed_leading": "Now"
   },
   {
    "pid": "fa23a16d63ed86805356~trim",
@@ -353,15 +272,6 @@
    "text": "this, in my mind, it doesn't explain the price action we're seeing in Bitcoin right now, but it's just a brutal week.",
    "text_sha256": "7efc35b92cf6d4e58cdb84c8654611df92fef2e33fcfbee3d5311b865356ba4a",
    "trimmed_leading": "But"
-  },
-  {
-   "pid": "e9adac176a461f12aa6a",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 14.08,
-   "text": "This is Hal Finney. These are cryptographers. How Finney was hanging around. He was messaging me, like, these were brilliant, brilliant people that were saying that Bitcoin has all of the ingredients for fully decentralized money.",
-   "text_sha256": "6203e11b50f5e14f7189fccd81dfa1a7ba079233c7f9c31925e0064393cbcd90",
-   "trimmed_leading": null
   },
   {
    "pid": "b8abe1a37706c77584b8",
@@ -409,12 +319,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "9828eed5df8effcc4bdd",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 9.12,
-   "text": "It's, unfortunately, as you saw the bull and bear market since then, it's been hard to hold your Bitcoin over the last couple of years. But now we're going to go through an epic bull market coming up.",
-   "text_sha256": "7c97fd663522c4a5f029f947b6d394e7e2b524209893585c2948cd88f7a31c97",
+   "pid": "c0b1406eac275405e82a",
+   "video_id": "5LXk2SLH4fI",
+   "channel": "Natalie Brunell",
+   "duration": 15.51,
+   "text": "That's 10 to one leverage. So if Bitcoin goes up 10%, you make $7,000 before fees and other costs, doubling your starting money. But if the price falls, the exchange can close your bet before it's even down 10%, and you can lose most or all of that 7K.",
+   "text_sha256": "1ad4cd68976f8169111b388677bcf704219e87271024a9fcf2670d6b21a52f60",
    "trimmed_leading": null
   },
   {
@@ -427,30 +337,21 @@
    "trimmed_leading": null
   },
   {
-   "pid": "08fa8168c86b553ac4b5~trim",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 16.87,
-   "text": "that's going to take another 150 years. I feel like I'm selling Bitcoin again. This is fun. I miss this. I miss this passion, right? I love. I feel it. But there's only 21 million Bitcoin that will ever be. There aren't enough millionaires in America for every millionaire to own one Bitcoin. I love one.",
-   "text_sha256": "b8ec78b2106e2c45466cd17eb019bd87733aed707329eb65a3c74424acf0dd8a",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "31aa81983a1e768ed062",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 14.16,
-   "text": "If you have all these whales holding millions and millions of Bitcoin from the early days, that to me is a huge risk. I don't want them holding it anymore. Rinse, recycle, repeat, just keep rolling it through. Let that price go up by people buying and selling from each other.",
-   "text_sha256": "be11c5b3faa27758b55f78568c3b0c0037cc9858cab11ada73ac016dfe5ef1d9",
-   "trimmed_leading": null
-  },
-  {
    "pid": "b5307a9f2f5b27d4183c",
    "video_id": "Sps9le2Z5RI",
    "channel": "Digital Asset News",
    "duration": 14.6,
    "text": "Truth is I don't care because the fundamentals of Bitcoin didn't change at all. So my investment thesis for Bitcoin at 80 is the same as it is for Bitcoin at 62. Yeah, it's just that you're getting it cheaper.",
    "text_sha256": "b29823cc30264138d4b5e0ea6b874f0aed8a90d1f9de893bb40080932f5db636",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "33631775a48a4dcd3c38",
+   "video_id": "5LXk2SLH4fI",
+   "channel": "Natalie Brunell",
+   "duration": 14.93,
+   "text": "In just one day, about $2 billion in leveraged positions. Those are bets made with borrowed money were wiped out, affecting more than 300,000 traders. And Bitcoin may be the canary in the coal mine here because it's often the first thing investors sell when they get nervous.",
+   "text_sha256": "2c9fadfe240994587ad0c2317fe2d380d73e8aa9dc77c5a95542257a86134307",
    "trimmed_leading": null
   },
   {
@@ -472,13 +373,13 @@
    "trimmed_leading": null
   },
   {
-   "pid": "57651588aff5b7db7b48~trim",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 20.22,
-   "text": "it just creates like a cycle effect because when you sell Bitcoin to someone, they're now buying it at that price at $100,000. So their cost basis is $100,000. It's their floor. So you almost don't want these people to hold Bitcoin. It's a risk. If you have all these whales holding millions and millions of Bitcoin from the early days, that to me is a huge risk.",
-   "text_sha256": "feab128d5fda523cd3be76fc9ea5d7933c78e58fdc304078edc1c9870ce7ab40",
-   "trimmed_leading": "But"
+   "pid": "c20224a84a5800a89038~trim",
+   "video_id": "5LXk2SLH4fI",
+   "channel": "Natalie Brunell",
+   "duration": 17.89,
+   "text": "what isn't in dispute is that nobody who simply owns their Bitcoin was forced to sell last week. But obviously, it's not fun to ride these drawdowns, especially if you bought much higher or your cost basis is higher than the current price. Selling Bitcoin to cover a big expense is the move most holders end up regretting.",
+   "text_sha256": "cdc59a45fda7f010fee952a0e0da787648fcfa42182dc1d36a767ebecb5c2666",
+   "trimmed_leading": "Now"
   },
   {
    "pid": "4601bbae9d203f3b0f5e~trim",
@@ -488,15 +389,6 @@
    "text": "even in a high interest rate regime, as long as there's QE and some sort of fiscal stimulus, either on the treasury side or on the Fed side, I think it's massively bullish for Bitcoin. And I actually have reason to believe that this cycle, we're going to go to $300,000 just because this bull market started so much earlier than should have been predicted by all of the models.",
    "text_sha256": "5b2ceef7a759e5bed7763501f732969e3f1ac0b69a0231a59d4f4df979001c7b",
    "trimmed_leading": "But"
-  },
-  {
-   "pid": "d706ad66082c4e92090c",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 14.36,
-   "text": "You have kids in high school now that have never lived without Bitcoin. Bitcoin has always existed. To them, Bitcoin is like, God, it has always existed. It doesn't matter. So you're going to continuously see that. Bitcoin has been successful.",
-   "text_sha256": "664a28ff64f13fc77c29fe0628d8ab5236522d4ac00a5caf0cad50c7a1c1faa1",
-   "trimmed_leading": null
   },
   {
    "pid": "c8c24d46a5f89079db25",
@@ -524,15 +416,6 @@
    "text": "all of the hackers in the world have been trying to steal trillions of dollars in value. And now they're saying that quantum computing is trying to steal trillions of dollars in Bitcoin, but somehow they can't crack it. And in the code, they also put the ability to not print more. There can only be 21 million.",
    "text_sha256": "6ebe86e591fe4955b89fa97f7a55c8ea73e552463b5169649b102e6ffac5c612",
    "trimmed_leading": "So"
-  },
-  {
-   "pid": "979dc349cb8ed43d29ae~trim",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 15.51,
-   "text": "AI and Quantum are both topics that very soon, instead of being seen as threats, they'll both be seen as mega opportunities for Bitcoin. And when that happens, kind of coupled with the having, that'll usher in the next epic bull market. Explain how you mean that.",
-   "text_sha256": "95a18ad1e225c36c1232a53ef1d1c77364169df4e8410fa1ad0a53e445104291",
-   "trimmed_leading": "And"
   },
   {
    "pid": "91a77d3fa0ec11aa33ab",
@@ -589,12 +472,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "cf18ef7d885beb491a4c",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 24.09,
-   "text": "I think the term buying with physical dollars is maybe not the way to look at it. People like myself who have been around forever will always just want to work in the industry and build things that earn them Bitcoin. So instead of like buying Bitcoin, which is one way to grow the price, you can create a business, create jobs, and stick around, reinvest your money like you've been doing.",
-   "text_sha256": "3aedbe0bf04de56ab2aa94b2ba21c6295e7a08d82ccb3f854d00fc50bbce76e8",
+   "pid": "68b7d3931b237a2d5aa9",
+   "video_id": "5LXk2SLH4fI",
+   "channel": "Natalie Brunell",
+   "duration": 23.02,
+   "text": "Adam Back says he has a bet on Bitcoin reaching $1 million by 2028, but the price just fell through the line he calls its floor. Now for those who don't know, Adam Back runs Blockstream and he's one of the few people cited in the original Bitcoin white paper. He shared his bet on CNBC last week and said his reasoning is that at least 95 % of the institutional money that will eventually own Bitcoin hasn't even arrived yet.",
+   "text_sha256": "c70c44c77a434c1da750d482337b5618a4bbbb8ea8f17e87c317534aa485db70",
    "trimmed_leading": null
   },
   {
@@ -622,15 +505,6 @@
    "duration": 14.28,
    "text": "Bitcoin is broken below $70,000. It's bounced off the 200 -week moving average as the fear returns to the bare market bottom levels. And here's the strange part on the very same day. Jensen's weighing walked out of Nvidia. After 33 years?",
    "text_sha256": "f9dfeb3b7f351c9524c002d380370303e8fcd26c6b0af02c34528a336491ab81",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "ac29105236679caae204",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 14.58,
-   "text": "Bitcoin gave us that. The idea of like, instantly sending money from someone else to another person, and then data, Satoshi Dice. The first, no one remember is that in 2011, we had MPEX, go look it up.",
-   "text_sha256": "5d706fe9c8eca55a9b8c4580664ac9f5669095bd5f3e274595217a3714bfec64",
    "trimmed_leading": null
   },
   {
@@ -706,13 +580,13 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "43ee168a53c6c5e8c4cb~trim",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 20.56,
-   "text": "in the world today, there isn't anything that's not owned by anyone. Bitcoin is owned by the world. We all own a piece of it. The network is out there. You have millions of, I checked this morning, there's 20,000 plus nodes that we know about, but there's tens of thousands of more, tens of thousands of decentralized miners.",
-   "text_sha256": "236c8497dd7c669e4b290a0f9fb03a7dd45777c76367ea9f0f419f42db0d53de",
-   "trimmed_leading": "And"
+   "pid": "de8375a4adfde93df202~trim",
+   "video_id": "5LXk2SLH4fI",
+   "channel": "Natalie Brunell",
+   "duration": 21.08,
+   "text": "obviously, it's not fun to ride these drawdowns, especially if you bought much higher or your cost basis is higher than the current price. Selling Bitcoin to cover a big expense is the move most holders end up regretting. And it isn't your only option. Letton offers custody loans, never lent out for interest with a track record of protecting billions in client assets.",
+   "text_sha256": "fcf708928af4f2b46abde7319549af1bcff2b3c0c018a6fb07a93906e8c5e065",
+   "trimmed_leading": "But"
   },
   {
    "pid": "33f2b375e803649afe60",
@@ -724,22 +598,13 @@
    "trimmed_leading": null
   },
   {
-   "pid": "26466d15581a9fdb49bc",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 15.34,
-   "text": "Charlie Shrem once told me that the best thing about going to prison was that he couldn't touch his Bitcoin. That's certainly one way to huddle. Today, I'm catching up with one of Bitcoin's original pioneers and someone who helped me get started in this industry. We get into the wild early days of Bitcoin.",
-   "text_sha256": "02a7eaee32cbaf7568484d613103b5f041dcb65fc901b502a91f14742f4d1976",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "c7af5c88f73401f45a2b~trim",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 17.5,
-   "text": "now we're going into late 2011, that we were 30 % of all the Bitcoin transaction volume on the Bitcoin blockchain at any given time. Which is not just like... purchases and sales, this is like all Bitcoin blockchain, you know, transaction volume. And so things were really heating up, getting crazy.",
-   "text_sha256": "58b69b86f94e4a05171a964ea409e06cc77c9a868cee17f197922415bfd49f16",
-   "trimmed_leading": "So"
+   "pid": "43bdcb6ce7ab62f391d4~trim",
+   "video_id": "5LXk2SLH4fI",
+   "channel": "Natalie Brunell",
+   "duration": 21.36,
+   "text": "one of the biggest public miners, Mara, disclosed that it sold about 40 % of its Bitcoin in recent weeks, more than a billion dollars worth. The last time difficulty adjustment fell this much was a few weeks before Bitcoin hit its low for the entire year. So there could be more pain ahead because another wave of levered positions could get liquidated if the Bitcoin price falls to around 60K.",
+   "text_sha256": "cd1c4953889043d32edbfd58687287da66a0a660d1d27c39208f30b758ed4b29",
+   "trimmed_leading": "And"
   },
   {
    "pid": "c56fe2be4831156da626",
@@ -757,6 +622,15 @@
    "duration": 19.13,
    "text": "This was always the endgame for them, but Bitcoin was that wrench in the system. It threw itself upon the gears and upon the levers and it said, go fuck yourself. I feel like, offi, this goes back like, Bitcoin is already won, and we're just watching the movie play out.",
    "text_sha256": "0e01fc12c1b85450196c3464fd1e068729a3899b361de1c00cb3c45247402b71",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "0029560c3835b21c1ca3",
+   "video_id": "5LXk2SLH4fI",
+   "channel": "Natalie Brunell",
+   "duration": 18.28,
+   "text": "The last time difficulty adjustment fell this much was a few weeks before Bitcoin hit its low for the entire year. So there could be more pain ahead because another wave of levered positions could get liquidated if the Bitcoin price falls to around 60K. But some analysts say the bottom already happened this summer when Bitcoin hit around $59,000.",
+   "text_sha256": "564eec37c415e0532d59a48cd1096ee640d46bbeb27c98695386aec41142daba",
    "trimmed_leading": null
   },
   {
@@ -787,42 +661,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "3419fb21890d4d876735",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 14.77,
-   "text": "Crossing over, Silicon Valley at the time was very anti -Bitcoin. No one really liked it. There was a Silicon Valley Bitcoin meetup list still around. Guys like Ben Davenport, the founder of BitGo, was actually working at He was a founder of the Facebook Messenger.",
-   "text_sha256": "d81c2a5af9e8bac8a363afa76d79078a768ae48c15c31cc5377c883f1bedb564",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "d9212882f9a761106f87",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 19.25,
-   "text": "Bitcoin, I've noticed, has become this, because it's this honeypot where people are trying to hack it every single day. figure it out, I don't need to tell you. But because of that, it's become this testbed for all socioeconomic experiments, how people act and react with money.",
-   "text_sha256": "c1fb905d6579f36f4967d5fd154a633872d6ecc8b13c78d8f9457fbc337f67f3",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "eb5810dcbbb6fcecc5fa~trim",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 17.07,
-   "text": "once I found out about Bitcoin, just... Fell in love with it. Realized immediately it was something that was going to be the future. And it was a community of people that we all knew. And when you're early to something and you have time to go through it, there's a really passion.",
-   "text_sha256": "a256966d38b0881aabac5d8fd5e45ed39349af374b77e26029e10105ef77517f",
-   "trimmed_leading": "But"
-  },
-  {
-   "pid": "d6fa1390934d5c1aa62a~trim",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 22.82,
-   "text": "you see these like, but then the bull market, I forget which one it was, it was 2017 before China really did ban Bitcoin. China became the biggest Bitcoin market. CZ himself worked at OKCoin before starting Binance. And then we got Binance. We got the craziest stuff from Asia. So all the threats.",
-   "text_sha256": "86670dedbab3586faef8867f3e0167baa4c84e2f4f44f3dba26ef7d682ea3a93",
-   "trimmed_leading": "So"
-  },
-  {
    "pid": "41879eab4f358e22d94d",
    "video_id": "4eEZCJVl83w",
    "channel": "Simply Bitcoin",
@@ -850,39 +688,21 @@
    "trimmed_leading": null
   },
   {
-   "pid": "adf6d9c528a27963f790",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 15.3,
-   "text": "You know, it's still an asset that you can buy. It's still an asset. Nothing's changed about the properties of Bitcoin. You can buy it now. Send it to anyone anywhere in the world. It's irreversible. It's not counterfeitable. 21 million Bitcoin will always be.",
-   "text_sha256": "8d6346f309b3d4434df733e02a43827eef9103bb9dd57603d78d1f1eb892a8eb",
-   "trimmed_leading": null
+   "pid": "ea5ab1782696628d6384~trim",
+   "video_id": "5LXk2SLH4fI",
+   "channel": "Natalie Brunell",
+   "duration": 17.45,
+   "text": "the floor he talks about is the 200 week moving average, which is basically Bitcoin's average price over the past four years. It was sitting near 68,000, but... As you know, Bitcoin has just dropped below it. This has happened before, including in 2020 and 22, and of course, it's recovered each time.",
+   "text_sha256": "1559fa75b1a9c8ba3384cf94ec83479dda51b6c12259de04fa15e12c01e8c542",
+   "trimmed_leading": "Now"
   },
   {
-   "pid": "f18aa860791b845c37ce",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 33.03,
-   "text": "WikiLeaks started accepting Bitcoin, and all of a sudden everyone, there were some news articles, there was a slash dot article that really got a lot of attention. And so we kind of like brought it all together. But the only way to buy Bitcoin was on Mount Gox. which was in Japan, and you have to wire money to Mark Carpellis' personal bank account. There was no industry. There was no API to have the demon send Bitcoin from one person to another. You'd have to write all your command line interfaces. Everything you had to do on your own, there was no AI or vibe coding yet, so people had to do it for you.",
-   "text_sha256": "200a266475e1e2a4f222035691a2b86b614d8e7e2ccdc4dc0a5526693e30420a",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "d0d20a7ddb03d30b2a40",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 27.69,
-   "text": "I mean, Saylor sold some Bitcoin, right? Isn't that the bottom of every bear market? Add around the same price. Do you think now... that the four -year cycle remains intact, or do you think that's something else that's been a catalyst this time? I was one of those, like, four -year cycle has done people, obviously, and then at Bitcoin topped almost to the day that the four -year cycle would have predicted last October, and we've had a, you know, sustained, I guess, bare market, and things are ramping up within, you know, two to three months of when you anticipate.",
-   "text_sha256": "5ac8e621aaf03673615d2a493494e094a8a0756318f703f975a53ba498d4b76d",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "b87dd33b31c996f4be18",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 17.37,
-   "text": "Coinbase, every bank looks like Coinbase, but Coinbase did it first. So like Bitcoin has become, and that's one of the values that we're seeing in the future and why you'll see bull markets continue to happen, is that they'll always need to be innovation. And in the world today, there isn't anything that's not owned by anyone.",
-   "text_sha256": "9f453a712620c5253935aff23ed56e5d2c3463029e7a0b69529b989d8725219b",
+   "pid": "40b6800323cfe71654fd",
+   "video_id": "5LXk2SLH4fI",
+   "channel": "Natalie Brunell",
+   "duration": 16.93,
+   "text": "Bitcoin's mining difficulty just fell more than 9%. That's the biggest cut since June, which is what happens when miners turn off machines that are no longer profitable. And one of the biggest public miners, Mara. disclosed that it sold about 40 % of its Bitcoin in recent weeks, more than a billion dollars worth.",
+   "text_sha256": "461797557d0ba5e6b573dc16ea483d306a3e416f1f91f98f523d48ab36193ff3",
    "trimmed_leading": null
   },
   {
@@ -904,15 +724,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "e5d530258d940a6cd085",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 22.32,
-   "text": "The supply, I mean, the total amount of Bitcoin on exchanges, if you look at that chart, has just been kind of going down over the years. And so the price just tightens and tightens. The next question you could ask me is, like, will we see crazy bull markets? I don't know, like, going now from 80K to a million seems very doable, but then going from a million to 10 million, 10 million to 100.",
-   "text_sha256": "98cee972a20b1eecbd5ccbfa0078928f6b80e3a1dcb2bba70a5ff364c69fc847",
-   "trimmed_leading": null
-  },
-  {
    "pid": "8ca2ffb3e73b9c43ff7f~trim",
    "video_id": "4eEZCJVl83w",
    "channel": "Simply Bitcoin",
@@ -928,15 +739,6 @@
    "duration": 18.06,
    "text": "In Bitcoin, it's completely different. It's like, look, you want to do stuff to get ahead. But there's also a certain moral aspect of this that you kind of realize, okay, I can't do everything possible to get more sets. Because one, especially since it's such a small community, like your reputation goes a long way.",
    "text_sha256": "7f1e0e620bec3727ed15ecfea3b8bed7d270929d90aa723d90acfa5136db675b",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "2bca1130b3eceac83ff8",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 13.9,
-   "text": "We joked that we knew Bitcoin was going to make it when there wouldn't be just fun culture of Bitcoin conferences anymore. And the conferences that we first met, like those were so fun. But we used to have having parties. And people still do them.",
-   "text_sha256": "c9f301a58dc45195a20a86c768874b100e09117831d6fef89f061117c4a982b5",
    "trimmed_leading": null
   },
   {
@@ -958,15 +760,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "b3c0a2c3e892f7b9af5b",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 15.61,
-   "text": "I spoke to some guy this morning who basically has three hedge funds based off of him and his brother and two other guys trading Bitcoin out of, like, college five or six years ago. So it became an industry, but you were kind of that first wave. Was it like 20? That was probably 2018 or 19.",
-   "text_sha256": "51af302ccb6fd910a4848350a3e9346c7bc6111cbdafcdbcd2b7cae211e24193",
-   "trimmed_leading": null
-  },
-  {
    "pid": "9b2583bb42a0e280d14d",
    "video_id": "4eEZCJVl83w",
    "channel": "Simply Bitcoin",
@@ -976,39 +769,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "01799835c4fa32b54df0",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 15.22,
-   "text": "I remember, but you were part of that first wave of people that were looking at Bitcoin and trading as a professional career. And because back then, like, Bitcoin was very speculative. It wasn't something that people were really like, you can make a career off of it.",
-   "text_sha256": "9b7099af2cfa91a293af69485a8dd4e8aa9a67c56fb99f1a22ac289097a3b729",
-   "trimmed_leading": null
-  },
-  {
    "pid": "c3399dde374a7467831c",
    "video_id": "RsPBmLb6tTY",
    "channel": "Bitcoin Magazine",
    "duration": 16.86,
    "text": "They didn't go all the way back to zero, which is what they did during COVID. But they changed it from, I believe, 3 % for GSIbs down to 1%. So they cut it by 66%. So if they wanted to go further with self -QE, they could lower it to zero. So there's so many variables at play here.",
    "text_sha256": "18025a0ba2b215d192d1e057edcdb969a0f9ad42bb3a24e2ecbfeeb6d9970aa0",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "644a392e098fcfc7cfcc",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 17.48,
-   "text": "We used to do, I remember Brock Pierce put together a halving and a Bitcoin pizza party and he had people dressed up as slices of pizza. So I mean like you have like, you're walking around and it's like mom. We created an industry where we have people dresses up as slices of pizza.",
-   "text_sha256": "88e4b4bdf102ce723ddfb29f3e97eb8bff4840ea652ac475bdb5907d287d2307",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "b048bfd463b74fd15178",
-   "video_id": "vQ3c_lU4NZ4",
-   "channel": "Scott Melker",
-   "duration": 14.17,
-   "text": "It's, unfortunately, as you saw the bull and bear market since then, it's been hard to hold your Bitcoin over the last couple of years. But now we're going to go through an epic bull market coming up. I agree. All right, let's talk about the early days, though. You talk about making an industry of people trading.",
-   "text_sha256": "68aa1ec21ce15921170c6979f49c4f971e2be1db8d79888a9578e6fb253c4baa",
    "trimmed_leading": null
   }
  ]

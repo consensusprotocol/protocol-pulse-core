@@ -1,0 +1,236 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "c123b2f3bcc3a2abb161b9f9cba32ea83801576499718bff06f6c15e435d6945",
+ "result": {
+  "text": "How intense the FUD may be, Binance will remain standing. Now, what isn't in dispute is that nobody who simply owns their Bitcoin was forced to sell last week. But obviously it's not fun to",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 10.74,
+    "text": "How intense the FUD may be, Binance will remain standing. Now, what isn't in dispute is that nobody who simply owns their Bitcoin was forced to sell last week. But obviously it's not fun to"
+   }
+  ],
+  "words": [
+   {
+    "text": "How",
+    "start": 0.0,
+    "end": 0.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "intense",
+    "start": 0.08,
+    "end": 0.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.54,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "FUD",
+    "start": 0.7,
+    "end": 0.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "may",
+    "start": 0.94,
+    "end": 1.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be,",
+    "start": 1.16,
+    "end": 1.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Binance",
+    "start": 1.78,
+    "end": 2.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 2.36,
+    "end": 2.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "remain",
+    "start": 2.58,
+    "end": 2.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "standing.",
+    "start": 3.2,
+    "end": 3.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Now,",
+    "start": 4.08,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 4.22,
+    "end": 4.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "isn't",
+    "start": 4.38,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 4.62,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dispute",
+    "start": 4.74,
+    "end": 5.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.14,
+    "end": 5.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 5.28,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nobody",
+    "start": 5.56,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who",
+    "start": 6.04,
+    "end": 6.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "simply",
+    "start": 6.22,
+    "end": 6.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "owns",
+    "start": 6.58,
+    "end": 6.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 6.84,
+    "end": 7.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 7.04,
+    "end": 7.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 7.86,
+    "end": 8.039,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "forced",
+    "start": 8.08,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 8.38,
+    "end": 8.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sell",
+    "start": 8.54,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "last",
+    "start": 8.74,
+    "end": 8.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "week.",
+    "start": 9.04,
+    "end": 9.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 9.34,
+    "end": 9.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "obviously",
+    "start": 9.62,
+    "end": 10.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 10.06,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 10.24,
+    "end": 10.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fun",
+    "start": 10.5,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 10.7,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 10.76
+ },
+ "usd": 0.002152,
+ "seconds": 0.76,
+ "recorded_at": "2026-11-16T02:13:18Z"
+}

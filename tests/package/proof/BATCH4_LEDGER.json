@@ -1,0 +1,27 @@
+{
+ "order": "orchestrator 19:40 ET Nov 15",
+ "batch": 4,
+ "from": "2026-11-15T21:10 ET",
+ "to": "2026-11-16T21:10 ET",
+ "cap": 8.0,
+ "capped": "outside vendors (Heimdall not capped)",
+ "shares": {
+  "builds": 4.5,
+  "audits": 2.5,
+  "mining": 1.0
+ },
+ "builds": 0.453656,
+ "audits": 0.0,
+ "audit_rows": {},
+ "mining": 0.0,
+ "checks": 0.0,
+ "others": {},
+ "all_in": 0.453656,
+ "heimdall_not_capped": {
+  "builds": 0.010983,
+  "audits": 0.0,
+  "checks": 0.0,
+  "total": 0.010983
+ },
+ "videos_sealed": 0
+}

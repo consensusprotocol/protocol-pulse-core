@@ -1,0 +1,308 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "387fef9e7b522ce61b82a80d11a96de1790722f7c920ff6a7f213154d36e5aad",
+ "result": {
+  "text": "Going, but it's a good indicator. And miners are feeling the pain too. Bitcoin's mining difficulty just fell more than 9%. That's the biggest cut since June, which is what happens when miners turn off machines that are no longer profitable. And one of the biggest pu-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 14.1,
+    "text": "Going, but it's a good indicator. And miners are feeling the pain too. Bitcoin's mining difficulty just fell more than 9%. That's the biggest cut since June, which is what happens when miners turn off machines that are no longer profitable. And one of the biggest pu-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Going,",
+    "start": 0.0,
+    "end": 0.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 0.32,
+    "end": 0.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 0.52,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 0.64,
+    "end": 0.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "good",
+    "start": 0.78,
+    "end": 1.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "indicator.",
+    "start": 1.1,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 1.9,
+    "end": 2.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "miners",
+    "start": 2.12,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 2.66,
+    "end": 2.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "feeling",
+    "start": 2.86,
+    "end": 3.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.14,
+    "end": 3.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pain",
+    "start": 3.28,
+    "end": 3.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "too.",
+    "start": 3.58,
+    "end": 3.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 3.86,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mining",
+    "start": 4.3,
+    "end": 4.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "difficulty",
+    "start": 4.66,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 5.32,
+    "end": 5.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fell",
+    "start": 5.54,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 5.76,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 5.92,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "9%.",
+    "start": 6.4,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's",
+    "start": 6.96,
+    "end": 7.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.16,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "biggest",
+    "start": 7.4,
+    "end": 7.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cut",
+    "start": 7.8,
+    "end": 8.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "since",
+    "start": 8.039,
+    "end": 8.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "June,",
+    "start": 8.38,
+    "end": 8.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "which",
+    "start": 9.02,
+    "end": 9.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 9.16,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 9.26,
+    "end": 9.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "happens",
+    "start": 9.42,
+    "end": 9.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 9.84,
+    "end": 9.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "miners",
+    "start": 10.0,
+    "end": 10.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "turn",
+    "start": 10.44,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "off",
+    "start": 10.7,
+    "end": 10.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "machines",
+    "start": 10.88,
+    "end": 11.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 11.38,
+    "end": 11.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 11.48,
+    "end": 11.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 11.6,
+    "end": 11.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "longer",
+    "start": 11.76,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "profitable.",
+    "start": 12.14,
+    "end": 12.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 13.26,
+    "end": 13.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 13.4,
+    "end": 13.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 13.52,
+    "end": 13.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.62,
+    "end": 13.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "biggest",
+    "start": 13.7,
+    "end": 14.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pu-",
+    "start": 14.04,
+    "end": 14.1,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.12
+ },
+ "usd": 0.002824,
+ "seconds": 0.75,
+ "recorded_at": "2026-11-16T02:13:19Z"
+}

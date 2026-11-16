@@ -1,0 +1,19 @@
+{
+ "role": "shadow86:exclusion_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 800,
+ "system": null,
+ "prompt": "You screen ONE moment (the sentences inside <moment>) from a Bitcoin video before it can be clipped\ninto a short video. The text around it is context only.\n\n<before>opportunity. \u203a\u203a Well, I mean, you are 100% correct on that. Joey Blogs put out there that Bitcoin's at 67.7K at the moment. I don't think that's what we Let me refresh this. Maybe things just, you know, popped up as we were talking. And now, unfortunately, Joey, it's uh it's still 647. Maybe that was 67, but whatever it is, this is what we're at. And over uh last 24 hours or so, we see that Bitcoin dropped pretty magnificently. What is that? 62K. And it was on its way to 61. But the bulls step in and buy a little bit. They said, \"No, no, not on our watch.\" But, uh, maybe maybe we see a uh more of a of a price going down over the week because there's some there's some big news coming up this week. And before we get into uh talk about all this stuff, Jerry, what's your what's your thoughts on this recent down downtrodden effect of of Bitcoin and altcoins which are getting just demolished? There are generally anytime a market is responding and a price of something is going up or going down it has a tremendous amount to do with the actual thing. So did the did the company create a new product or in the case of of Nvidia did the CEO sleep with a ch a supposed Chinese spy? you know, a lot of things like that.</before>\n<moment>With Bitcoin, I find it really interesting that nothing about Bitcoin changed.</moment>\n<after>Its code didn't change. \u203a\u203a It's its validation process didn't change. All its its scarcity rule didn't change. So, what that tells me is its sentiment has changed. This to me, I think, is the most important thing. if you hold Bitcoin to understand that Bitcoin itself hadn't changed. Market conditions are changing. Big differentiator there. So that's what I'm taking away from I don't know all the ins and outs of what brought the price down. Truth is I don't care because the fundamentals of Bitcoin didn't change at all. So my in my investment thesis for Bitcoin at 80 is the same as it is for Bitcoin at 62. Yeah, it's just that you're getting it cheaper. And then I think that people were thinking about themselves is like, well, how much farther can it go? And there was this post by Coin Bureau, \u203a\u203a which was actually correct.</after>\n\nAnswer:\n- \"risks\": every one that applies to the MOMENT: \"accusation\" (crime, fraud, insolvency or dishonesty alleged against a\n  named person or company), \"partner_attack\" (one Bitcoin channel or host attacking another), \"imperative\" (telling\n  the viewer to buy, sell or use leverage), \"guaranteed_return\", \"single_source_breaking\" (a breaking factual claim\n  resting on one unnamed source or rumour), \"ad_read\" (a sponsor, ad or affiliate pitch), \"third_party_media\" (someone\n  else's clip, song or broadcast being played); an empty list if none\n- \"about_bitcoin\": \"yes\" if the moment is about Bitcoin, \"no\" if it is about another coin or no crypto at all,\n  \"uncertain\"\n- \"why\": one short line\nCriticising a policy is not an accusation; a prediction framed as the speaker's own view is not an imperative;\nnaming a company neutrally is not an accusation.\nReturn ONLY this JSON object: {\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"...\"}",
+ "text": "{\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"Speaker observes Bitcoin's fundamentals unchanged despite price drop.\"}",
+ "usage": {
+  "in": 982,
+  "out": 568,
+  "usd_reported": 0.0025131
+ },
+ "usd": 0.01911,
+ "seconds": 3.29,
+ "recorded_at": "2026-11-16T02:22:11Z"
+}

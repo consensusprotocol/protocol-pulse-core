@@ -1,0 +1,19 @@
+{
+ "role": "shadow86:exclusion_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 800,
+ "system": null,
+ "prompt": "You screen ONE moment (the sentences inside <moment>) from a Bitcoin video before it can be clipped\ninto a short video. The text around it is context only.\n\n<before></before>\n<moment>Bitcoin is broken below $70,000. It's bounced off the 200 -week moving average as the fear returns to the bare market bottom levels.</moment>\n<after>And here is the strange part. On the very same day, Jensen's weighing walked out of Nvidia after 33 years. Really, 33? And Nvidia stock closed down just 4%. So stocks got the dip by and Bitcoin didn't. So, who's actually selling? Because $1.4 $4 billion has left the Bitcoin ETFs in 5 days. And MSCI just announced it's kicking Strategy out of its indexes. But is the real culprit Binance driving the price down to recoup all its losses from the hack? Meanwhile, Weimar vibes intensify. Gold is dropping, too. And the 10-year Treasury just hit 5%. What the hell's going on? When gold and Bitcoin are both falling while yields climb, something in the system is under real stress. when big print. \u203a\u203a So, is this the final flush or the first crack in something much bigger? We're going to get into who's selling, who wanted Jensen hang, and whether the power law floor holds. This is simply Bitcoin after hours. Let's get into it.</after>\n\nAnswer:\n- \"risks\": every one that applies to the MOMENT: \"accusation\" (crime, fraud, insolvency or dishonesty alleged against a\n  named person or company), \"partner_attack\" (one Bitcoin channel or host attacking another), \"imperative\" (telling\n  the viewer to buy, sell or use leverage), \"guaranteed_return\", \"single_source_breaking\" (a breaking factual claim\n  resting on one unnamed source or rumour), \"ad_read\" (a sponsor, ad or affiliate pitch), \"third_party_media\" (someone\n  else's clip, song or broadcast being played); an empty list if none\n- \"about_bitcoin\": \"yes\" if the moment is about Bitcoin, \"no\" if it is about another coin or no crypto at all,\n  \"uncertain\"\n- \"why\": one short line\nCriticising a policy is not an accusation; a prediction framed as the speaker's own view is not an imperative;\nnaming a company neutrally is not an accusation.\nReturn ONLY this JSON object: {\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"...\"}",
+ "text": "{\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"Describes BTC price action, moving average, and fear levels with no flagged risks.\"}",
+ "usage": {
+  "in": 736,
+  "out": 780,
+  "usd_reported": 0.0027356
+ },
+ "usd": 0.02318,
+ "seconds": 4.19,
+ "recorded_at": "2026-11-16T02:22:10Z"
+}

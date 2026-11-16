@@ -1,0 +1,392 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "f9a7e94efefde808c201ebece3fb760063c82aa261533c9cf219cf55a6c8d86e",
+ "result": {
+  "text": "It lost almost 25% of its value in under two weeks. In just one day, about 2 billion in leveraged positions, those are bets made with borrowed money, were wiped out, affecting more than 300,000 traders. And Bitcoin may be the canary in the coal mine here because it's often the first thing investors sell when they get nervous. And, Nvidia",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 20.34,
+    "text": "It lost almost 25% of its value in under two weeks. In just one day, about 2 billion in leveraged positions, those are bets made with borrowed money, were wiped out, affecting more than 300,000 traders. And Bitcoin may be the canary in the coal mine here because it's often the first thing investors sell when they get nervous. And, Nvidia"
+   }
+  ],
+  "words": [
+   {
+    "text": "It",
+    "start": 0.0,
+    "end": 0.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lost",
+    "start": 0.08,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "almost",
+    "start": 0.36,
+    "end": 0.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "25%",
+    "start": 0.94,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 1.62,
+    "end": 1.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 1.7,
+    "end": 1.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "value",
+    "start": 1.88,
+    "end": 2.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 2.4,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "under",
+    "start": 2.54,
+    "end": 2.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "two",
+    "start": 2.9,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "weeks.",
+    "start": 3.14,
+    "end": 3.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "In",
+    "start": 3.98,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 4.1,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 4.36,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "day,",
+    "start": 4.52,
+    "end": 4.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 4.86,
+    "end": 5.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2",
+    "start": 5.28,
+    "end": 5.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 5.54,
+    "end": 6.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 6.06,
+    "end": 6.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "leveraged",
+    "start": 6.3,
+    "end": 6.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "positions,",
+    "start": 6.8,
+    "end": 7.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "those",
+    "start": 7.46,
+    "end": 7.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 7.62,
+    "end": 7.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bets",
+    "start": 7.8,
+    "end": 8.039,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "made",
+    "start": 8.08,
+    "end": 8.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 8.3,
+    "end": 8.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "borrowed",
+    "start": 8.52,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money,",
+    "start": 8.88,
+    "end": 9.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "were",
+    "start": 9.48,
+    "end": 9.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wiped",
+    "start": 9.72,
+    "end": 10.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out,",
+    "start": 10.12,
+    "end": 10.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "affecting",
+    "start": 10.36,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 10.76,
+    "end": 10.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 10.92,
+    "end": 11.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "300,000",
+    "start": 11.16,
+    "end": 12.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "traders.",
+    "start": 12.18,
+    "end": 12.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 13.02,
+    "end": 13.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 13.18,
+    "end": 13.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "may",
+    "start": 13.64,
+    "end": 13.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 13.88,
+    "end": 14.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.04,
+    "end": 14.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "canary",
+    "start": 14.16,
+    "end": 14.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 14.52,
+    "end": 14.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.62,
+    "end": 14.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "coal",
+    "start": 14.74,
+    "end": 14.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mine",
+    "start": 14.98,
+    "end": 15.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here",
+    "start": 15.24,
+    "end": 15.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 15.7,
+    "end": 15.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 15.94,
+    "end": 16.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "often",
+    "start": 16.12,
+    "end": 16.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 16.379,
+    "end": 16.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "first",
+    "start": 16.52,
+    "end": 16.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing",
+    "start": 16.8,
+    "end": 17.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "investors",
+    "start": 17.06,
+    "end": 17.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sell",
+    "start": 17.58,
+    "end": 17.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 17.9,
+    "end": 18.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 18.04,
+    "end": 18.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 18.14,
+    "end": 18.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nervous.",
+    "start": 18.4,
+    "end": 18.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And,",
+    "start": 19.44,
+    "end": 19.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Nvidia",
+    "start": 19.8,
+    "end": 20.34,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 20.43
+ },
+ "usd": 0.004086,
+ "seconds": 1.01,
+ "recorded_at": "2026-11-16T02:25:31Z"
+}

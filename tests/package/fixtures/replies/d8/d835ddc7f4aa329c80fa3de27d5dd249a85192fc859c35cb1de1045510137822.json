@@ -1,0 +1,302 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "9677855cb84caefb1d329c6a61512b19e8119b36dabbaf394f397da21a2ce3b8",
+ "result": {
+  "text": "Nvidia reports earnings on Tuesday, so we'll be following all of it. Adam Back says he has a bet on Bitcoin reaching 1 million by 2028, but the price just fell through the line he calls its floor. Now, for those who don't know, Adam Back-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.12,
+    "end": 13.14,
+    "text": "Nvidia reports earnings on Tuesday, so we'll be following all of it. Adam Back says he has a bet on Bitcoin reaching 1 million by 2028, but the price just fell through the line he calls its floor. Now, for those who don't know, Adam Back-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Nvidia",
+    "start": 0.12,
+    "end": 0.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reports",
+    "start": 0.54,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "earnings",
+    "start": 1.08,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 1.54,
+    "end": 1.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Tuesday,",
+    "start": 1.76,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 2.24,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we'll",
+    "start": 2.36,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 2.5,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "following",
+    "start": 2.66,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 3.22,
+    "end": 3.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 3.36,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 3.48,
+    "end": 3.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Adam",
+    "start": 4.0,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Back",
+    "start": 4.28,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "says",
+    "start": 4.56,
+    "end": 4.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "he",
+    "start": 4.78,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 4.86,
+    "end": 4.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 5.02,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bet",
+    "start": 5.18,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 5.46,
+    "end": 5.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.64,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reaching",
+    "start": 6.02,
+    "end": 6.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "1",
+    "start": 6.6,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "million",
+    "start": 6.7,
+    "end": 7.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 7.3,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2028,",
+    "start": 7.7,
+    "end": 8.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 8.68,
+    "end": 8.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.82,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 8.96,
+    "end": 9.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 9.4,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fell",
+    "start": 9.62,
+    "end": 9.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "through",
+    "start": 9.84,
+    "end": 10.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.02,
+    "end": 10.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "line",
+    "start": 10.16,
+    "end": 10.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "he",
+    "start": 10.52,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "calls",
+    "start": 10.68,
+    "end": 11.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 11.08,
+    "end": 11.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "floor.",
+    "start": 11.32,
+    "end": 11.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Now,",
+    "start": 11.96,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 12.08,
+    "end": 12.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "those",
+    "start": 12.2,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who",
+    "start": 12.36,
+    "end": 12.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 12.46,
+    "end": 12.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 12.64,
+    "end": 12.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Adam",
+    "start": 12.92,
+    "end": 13.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Back-",
+    "start": 13.12,
+    "end": 13.14,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 13.16
+ },
+ "usd": 0.002632,
+ "seconds": 1.07,
+ "recorded_at": "2026-11-16T02:13:18Z"
+}

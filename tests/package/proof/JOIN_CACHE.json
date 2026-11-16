@@ -1132,5 +1132,96 @@
    "why": "hacking to price unclear",
    "backend": "xai:grok-4.20-0309-reasoning"
   }
+ },
+ "3cf57474d26c75e69571f12af79d020acfa404d7ccedc9c45f3502f093066b21:7ac190ecc22e3bfa1104545ce23733fe40487ec7c4c26faf7d72901ed2b87fa2:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "definition to unrelated news",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:7ac190ecc22e3bfa1104545ce23733fe40487ec7c4c26faf7d72901ed2b87fa2:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "ETFs unrelated to mining",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "7ac190ecc22e3bfa1104545ce23733fe40487ec7c4c26faf7d72901ed2b87fa2:eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "mining to unrelated ETFs",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "7ac190ecc22e3bfa1104545ce23733fe40487ec7c4c26faf7d72901ed2b87fa2:d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "news to no change comment",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "7ac190ecc22e3bfa1104545ce23733fe40487ec7c4c26faf7d72901ed2b87fa2:ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "news to I don't care response",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "7ac190ecc22e3bfa1104545ce23733fe40487ec7c4c26faf7d72901ed2b87fa2:064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "news to purchasing power",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "7ac190ecc22e3bfa1104545ce23733fe40487ec7c4c26faf7d72901ed2b87fa2:11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "links to bear market",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "7ac190ecc22e3bfa1104545ce23733fe40487ec7c4c26faf7d72901ed2b87fa2:bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "news to sobriety claim",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:7ac190ecc22e3bfa1104545ce23733fe40487ec7c4c26faf7d72901ed2b87fa2:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no change to reporting change",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:7ac190ecc22e3bfa1104545ce23733fe40487ec7c4c26faf7d72901ed2b87fa2:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no care to reporting event",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:7ac190ecc22e3bfa1104545ce23733fe40487ec7c4c26faf7d72901ed2b87fa2:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "philosophy to mining news",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:7ac190ecc22e3bfa1104545ce23733fe40487ec7c4c26faf7d72901ed2b87fa2:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "bottom levels to difficulty cut",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:7ac190ecc22e3bfa1104545ce23733fe40487ec7c4c26faf7d72901ed2b87fa2:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "sobriety to mining news",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
  }
 }

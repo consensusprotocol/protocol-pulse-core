@@ -81,7 +81,8 @@
   "tests/package/proof/ledger_20261115_221530",
   "tests/package/proof/ledger_20261115_234339",
   "tests/package/proof/ledger_20261116_001825",
-  "tests/package/proof/ledger_20261116_011900"
+  "tests/package/proof/ledger_20261116_011900",
+  "tests/package/proof/ledger_20261116_021107"
  ],
  "candidates": {
   "35b7b52533b4220b2672+5307d23dced4f444919a+f03d79cf73eb188924ee": {
@@ -357,6 +358,21 @@
      "why": "over 12 h on the render clock: 704fa6e1af4a86ff1d07: 13.1 h [publish times from tests/package/proof/ledger_20261114_230148/inputs.json]"
     }
    ]
+  },
+  "7ef148a1181168cf14a5+21d8769b73dd20f4894b+9a3597d470232a515e09+94a613f35c4ed30c9980": {
+   "lineup": [
+    "7ef148a1181168cf14a5",
+    "21d8769b73dd20f4894b",
+    "9a3597d470232a515e09",
+    "94a613f35c4ed30c9980"
+   ],
+   "source": "tests/package/proof/ledger_20261116_021107",
+   "index": 4,
+   "found_at": "2026-11-16T02:11:07.303069+00:00",
+   "state": "open",
+   "until": null,
+   "fresh_used": false,
+   "history": []
   }
  }
 }
