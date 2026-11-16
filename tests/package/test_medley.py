@@ -4473,13 +4473,19 @@ class TestRuling109Channels(unittest.TestCase):
         self.assertNotIn("ruling_109", out)
 
 
+def ledgered(*ms):
+    """The pool's moments as ledger_build makes them: each with its own id and the LEDGER's id kept as
+    mined.ledger_moment_id ("L" + its id here), the id the stories file names (ruling 118 (4))."""
+    return [dict(m, mined={"ledger_moment_id": "L" + m["moment_id"]}) for m in ms]
+
+
 class TestRuling118StoryFirst(unittest.TestCase):
     """RULING 118 (4) (orchestrator 05:40 ET Nov 16), STORY-FIRST LINE-UPS: an angle source that builds a line-up INSIDE
     ONE STORY (the hook and every clip from the same story, 3 channels), ahead of the angle writer, every gate unchanged;
     the receipts session's stories file is read only; no file: the build as before."""
     GROUP = {"group": ["deepseek/deepseek-v4.1-flash", "minimax/minimax-m3.1-flash"]}
-    MS = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0), pm("q", "E", 13.0)]
-    STORY = [("S-1", "Bitcoin's own story", ["h", "x", "y", "gone"])]
+    MS = ledgered(pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0), pm("q", "E", 13.0))
+    STORY = [("S-1", "Bitcoin's own story", ["Lh", "Lx", "Ly", "Lgone"])]     # the file names LEDGER ids
 
     def file(self, stories, models=GROUP):
         d = tempfile.mkdtemp()
@@ -4499,8 +4505,8 @@ class TestRuling118StoryFirst(unittest.TestCase):
         return rig
 
     def test_every_swap_of_a_story_line_up_stays_inside_its_story(self):
-        ms = self.MS + [pm("w", "F", 13.0, rank=5.0)]                     # in the story, ranked under the pool's z, q
-        story = [("S-1", "Bitcoin's own story", ["h", "x", "y", "w"])]
+        ms = self.MS + ledgered(pm("w", "F", 13.0, rank=5.0))             # in the story, ranked under the pool's z, q
+        story = [("S-1", "Bitcoin's own story", ["Lh", "Lx", "Ly", "Lw"])]
         rig = self.rig(ms, ["h", "x", "y", "z", "q"], story)               # a weak clip: swapped inside the story
         rig.medleys = [(False, [], {"clip_02": 2}, Rig.LINE)] + [(False, [], None, "none")] * 6
         out = rig.run()
@@ -4525,6 +4531,25 @@ class TestRuling118StoryFirst(unittest.TestCase):
         out = rig.run()
         self.assertNotIn("stories", out)
         self.assertEqual((rig.medley_calls[0], out["tried"][0]["text"]), (["h", "z", "q"], "W"))   # its own, as judged
+
+    def test_the_files_ledger_ids_become_this_builds_ids(self):
+        """The receipts session names the LEDGER's ids; this build's moments carry them as mined.ledger_moment_id (a
+        trimmed variant its parent's), and a ledger row dropped as a duplicate of a kept one stands for the kept one.
+        Builds 41-57 compared the two kinds of id directly and matched nothing."""
+        pool = {"b1": {"mined": {"ledger_moment_id": "L1"}}, "b1~trim": {"mined": {"ledger_moment_id": "L1"}},
+                "b2": {"mined": {"ledger_moment_id": "L2"}}, "b4": {}}
+        st = PK.in_pool_ids([{"story_id": "S", "headline": "h", "moment_ids": ["L3", "Ldup", "L1", "L2"]}], pool,
+                            {"Ldup": "L2"})
+        self.assertEqual(st, [{"story_id": "S", "headline": "h", "moment_ids": ["b2", "b1", "b1~trim"],
+                               "ledger_ids": ["L3", "Ldup", "L1", "L2"]}])
+        out = self.rig(self.MS, ["h", "x", "y", "z", "q"], [("S-1", "By build ids", ["h", "x", "y"])]).run()
+        self.assertEqual(out["stories"]["matched"], [{"story_id": "S-1", "ledger_ids": 3, "in_pool": 0, "cleared": 0}])
+        self.assertTrue(all("story" not in a for a in out["angles"]))          # build ids are not the file's ids
+        self.assertIn("NO ID OF THE STORIES FILE NAMES A MOMENT OF THIS BUILD'S POOL", out["stories"]["warning"])
+        self.assertEqual(out["stories"]["aliases"], "not supplied")              # the rig passes no ledger_aliases
+        out = self.rig(self.MS, ["h", "x", "y", "z", "q"], self.STORY).run()     # the file's ledger ids: matched,
+        self.assertEqual(out["stories"]["matched"], [{"story_id": "S-1", "ledger_ids": 4, "in_pool": 3, "cleared": 3}])
+        self.assertNotIn("warning", out["stories"])                               # no warning
 
     def test_the_file_is_read_in_its_writers_shape_or_not_at_all(self):
         self.assertEqual(PK.read_stories(None), ([], {"path": None, "read": False, "why": "no stories file named"}))
@@ -4589,8 +4614,8 @@ class TestRuling118StoryFirst(unittest.TestCase):
         self.assertEqual(rig.medley_calls[0], mine[0])                                    # judged first, as any line-up
 
     def test_a_story_too_short_for_a_line_up_is_never_filled_from_outside_it(self):
-        ms = [pm("h", "A", 10.0), pm("x", "B", 9.0), pm("y", "C", 9.0), pm("z", "D", 13.0), pm("q", "E", 13.0)]
-        out = self.rig(ms, ["h", "z", "q", "x"], [("S-1", "A short story", ["h", "x", "y"])]).run()
+        ms = ledgered(pm("h", "A", 10.0), pm("x", "B", 9.0), pm("y", "C", 9.0), pm("z", "D", 13.0), pm("q", "E", 13.0))
+        out = self.rig(ms, ["h", "z", "q", "x"], [("S-1", "A short story", ["Lh", "Lx", "Ly"])]).run()
         self.assertEqual(out["angles"][0]["story"], "S-1")
         mine = [r for r in out["tried"] if r["angle"] == 1]
         self.assertTrue(mine)
@@ -4621,8 +4646,8 @@ class TestRuling118StoryFirst(unittest.TestCase):
         out = self.rig(self.MS, ["h", "x", "y", "z", "q"], None).run()
         self.assertEqual((out["stories"]["read"], out["stories"]["why"]), (False, "no file"))
         self.assertTrue(all("story" not in a for a in out["angles"]))
-        ms = self.MS + [pm("w", "A", 11.0)]
-        out = self.rig(ms, ["h", "x", "y", "z", "q"], [("S-2", "Two channels", ["h", "w", "x"])]).run()
+        ms = self.MS + ledgered(pm("w", "A", 11.0))
+        out = self.rig(ms, ["h", "x", "y", "z", "q"], [("S-2", "Two channels", ["Lh", "Lw", "Lx"])]).run()
         self.assertTrue(out["stories"]["angles"][0]["why"].startswith("not an angle"))
         self.assertTrue(all("story" not in a for a in out["angles"]))
         self.assertNotIn("stories", Rig(self.MS, ["h", "x", "y", "z", "q"], [(False, [], None, "none")] * 4, []).run())

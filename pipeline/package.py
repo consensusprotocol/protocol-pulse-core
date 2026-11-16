@@ -2017,6 +2017,29 @@ def read_stories(path):
                      models=d.get("models"), stories=len(out))
 
 
+def in_pool_ids(stories, pool, aliases=None):
+    """RULING 118 (4), the ids: the stories file names each moment by the LEDGER's id (the receipts session reads the
+    ledger), and this build's moments carry that id as mined.ledger_moment_id (ledger_build: each moment gets its own
+    id; a trimmed variant keeps its parent's ledger id). A ledger row the ledger build dropped as the same speech as
+    another (ledger_build's duplicates_of: its id -> the kept row's id, `aliases`) stands for the kept one. -> the
+    stories with moment_ids in this build's own ids (every match, in the file's order, each once) and the file's own
+    ids kept as ledger_ids. Builds 41-57 matched nothing: they compared the two kinds of id directly."""
+    idx = {}
+    for mid, m in pool.items():
+        lid = (m.get("mined") or {}).get("ledger_moment_id")
+        if lid:
+            idx.setdefault(lid, []).append(mid)
+    out = []
+    for s in stories:
+        ids = []
+        for lid in s["moment_ids"]:
+            for mid in idx.get(lid) or idx.get((aliases or {}).get(lid)) or []:
+                if mid not in ids:
+                    ids.append(mid)
+        out.append(dict(s, moment_ids=ids, ledger_ids=list(s["moment_ids"])))
+    return out
+
+
 def story_angles(stories, cleared, hooks, k=MAX_ANGLES):
     """RULING 118 (4), STORY-FIRST LINE-UPS: angles built INSIDE ONE STORY (its hook and every clip from the same story),
     tried ahead of the angle writer's; every gate unchanged. For each story in the file's order, the best of `hooks`
@@ -2846,7 +2869,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
           writes=WRITES, work_dir=None, store=None, spend=None, lineups=LINEUPS_PER_BUILD, step_a_cache=None,
           hook_cache=None, scorer_verdicts_path=None, scorer_candidates_path=None, build_name="", candidate=None,
           join_cache=None,
-          visual_cache=None, registered=None, lock_check=None, scorer_extra=(), stories_path=None):
+          visual_cache=None, registered=None, lock_check=None, scorer_extra=(), stories_path=None,
+          ledger_aliases=None):
     """L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
     written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
@@ -3137,6 +3161,18 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     stories, s_angles, s_writers = [], [], (set(), set())
     if candidate is None and stories_path:           # RULING 118 (4): STORY-FIRST LINE-UPS, ahead of the angle writer
         stories, out["stories"] = read_stories(stories_path)
+        stories = in_pool_ids(stories, cleared, ledger_aliases)   # the file's ledger ids -> this build's ids
+        pool_lids = {(m.get("mined") or {}).get("ledger_moment_id") for m in moments} - {None}
+        alias = ledger_aliases or {}
+        out["stories"]["matched"] = [{"story_id": s["story_id"], "ledger_ids": len(s["ledger_ids"]),
+                                      "in_pool": sum(1 for x in s["ledger_ids"] if x in pool_lids or
+                                                     alias.get(x) in pool_lids),
+                                      "cleared": len(s["moment_ids"])} for s in stories]
+        out["stories"]["aliases"] = len(alias) if ledger_aliases is not None else "not supplied"
+        if stories and not any(r["in_pool"] for r in out["stories"]["matched"]):     # audit 1325 C1 (mimo): never
+            out["stories"]["warning"] = ("NO ID OF THE STORIES FILE NAMES A MOMENT OF THIS BUILD'S POOL: an id "  # silent
+                                         "mismatch? story-first cannot fire")
+            log(f"  RULING 118 (4): {out['stories']['warning']}")
         s_angles, out["stories"]["angles"] = story_angles(stories, cleared, passing, max_angles)
         if s_angles:                                  # law L-x: the grouping models chose the story's moments
             s_writers = story_writers(router, out["stories"].get("models"))

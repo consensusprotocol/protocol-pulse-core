@@ -1,0 +1,26 @@
+pp-selectid: A DEFECT IN RULING 118 (4)'S STORY-FIRST SOURCE (live since 1571b7b9, 09:59 ET Nov 16), found at 13:25 ET when
+the first 3-channel story appeared. Files: pipeline/package.py (in_pool_ids; build() translates the file's ids;
+build()'s new kwarg ledger_aliases), tests/package/proof_ledger.py (passes the ledger build's duplicates_of),
+tests/package/test_medley.py.
+
+THE DEFECT: the receipts session's stories file (/home/ultron/pulse_intel/stories/latest.json) names each moment by the
+LEDGER's id; this build's moments have their OWN ids (ledger_build.build_inputs: make() gives each re-anchored moment a
+new moment_id and keeps the ledger's as mined.ledger_moment_id, pipeline/ledger_build.py:483; a row dropped as the same
+speech as a kept row is named in the report's duplicates_of: its ledger id -> the kept row's ledger id,
+ledger_build.py:524 and :563). story_angles matched the file's ids against cleared[moment_id] directly: never a match,
+so no story angle could ever be built. Seen on build 57's record: the story S-533ed7f7 (3 channels) names ledger ids
+533ed7f7..., 917df8e9..., 74f60d1a...: no build moment has them as moment_id; moments[134] carries 533ed7f7 as
+mined.ledger_moment_id. The tests had used one id for both.
+
+THE FIX: in_pool_ids(stories, pool, aliases): an index ledger id -> every build id carrying it (mined.ledger_moment_id; a
+trimmed variant keeps its parent's), a dropped duplicate's ledger id standing for the kept one (aliases =
+duplicates_of); each story's moment_ids become this build's ids (file order, each once), its own kept as ledger_ids.
+build() applies it to the stories read, right after read_stories, on `cleared`; the record gains stories.matched (per
+story: the file's ids, how many are cleared here). story_angles, story_pool and every gate are unchanged.
+proof_ledger passes ledger_aliases=inputs["duplicates_of"] (the report build_inputs returns).
+
+TESTS: in_pool_ids (variants, duplicates, unknown ids, order); every story-first build test now gives its moments
+ledger ids distinct from their own and names the ledger ids in the stories file; a file naming build ids matches
+nothing. Mutations T1-T3 (no translation; aliases ignored; one build id a ledger id) beside S1-S18, after a control run.
+
+PLEASE CHECK: (1) the mapping (variants, duplicates, ids not in the pool); (2) that nothing else changed; (3) the tests.
