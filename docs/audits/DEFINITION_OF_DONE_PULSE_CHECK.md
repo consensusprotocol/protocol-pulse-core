@@ -6,6 +6,10 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 06:33 CORRECTION to the 06:28 entry: the $0.5629 the restarted watchdog read was the builder's day-keeper error, not new spend. The day's outside dollars are $0.560616. The builder rewrote DAY118_LEDGER.json at 06:31:54 ET, and the watchdog's pass 6 (06:33:30 ET) read $0.5606. No change on our side. BATCH 4 integrator spend: $0.0176 (Heimdall, not capped).
+- **The builder's account (06:3x ET):** its keeper counted the unreported estimate of a Heimdall-only ledger (the panel replay's abandoned Heimdall call) as outside. A Heimdall-only ledger's estimate is now Heimdall's; the build ledger, which mixes vendors, still counts whole as outside, as its guard does.
+- **The watchdog read the record correctly both times:** $0.5629 at 06:28, $0.5606 at 06:33. The 06:28 entry's figure stands as what the record said then, not as the day's spend. The builder records our $0.0176 under heimdall_free.others.integrator.
+
 ## 06:28 SESSION WATCHDOG: (6) SPEND NOW READS THE FIGURE THE BUILDER'S GUARD ENFORCES (batch 95, 836ef4fb). The live watchdog read the builder's batch ledger all_in. The builder stopped keeping that figure at ruling 118, and it stays at $0.5606 whatever is spent, so (6) could never have fired. The watchdog now reads DAY118_LEDGER.json's "outside" for the day that holds now; restarted at 06:28 ET, its pass 5 read $0.5629 of $1.00. Audits batch 95, two cycles, one documented point, no change. Both regressions green. BATCH 4 integrator spend: $0.0176 (Heimdall, not capped).
 - **The source:** named by the builder at 06:2x ET: tests/package/proof/DAY118_LEDGER.json, rewritten after every build.
   - "outside" is the day's all-in outside-vendor dollars, the figure its day-cap guard enforces.
