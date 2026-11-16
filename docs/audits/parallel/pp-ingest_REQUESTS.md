@@ -127,3 +127,14 @@ the worker at the end of each cycle) are also covered by the watcher's purge whe
    02:57 ET restart (pp-ingest 4f805fcf, audited 2 cycles in pp-ingest_audit/r87claim/): its probes claim as
    "pp-ingest probe".
 
+
+## R13 The pipeline's Whisper waits on an idle GPU0 lease (the integrator's; non-blocking; Nov 16 12:43 ET)
+Since 07:47 ET Nov 16 YouTube refuses caption downloads from this machine (HTTP 429), so the only transcript path for a
+new upload is the main tree's `pipeline/transcript_ingest.py` (cron */30, Whisper on GPU0), whose records pp-ingest
+now takes (r118). Its 12:30 ET run deferred every Whisper: "GPU0 lease busy ... held by pin-stage clip scorer
+(integrator, GPU0) (pid 136857)". That process is `pipeline/stand_alone_scorer.py serve` (up since ~10:00 ET, 0.1 %
+CPU); at 12:43 ET GPU0 showed 18 MiB used and 0 % utilization. GPU1's lease was held by `local_watchdog`. So 5 uploads
+waited with no transcript, 2 of them Bitcoin (Bitcoin Magazine uAvmynMSVhM, 19 min; Scott Melker f0NnJM63Ffc, 61 min).
+Proposed (the integrator's call): the scorer server takes GPU0's lease only around its GPU work, or the transcript
+ingest's Whisper uses GPU1 under its lease when GPU0's is held (transcript_store.whisper accepts
+CUDA_VISIBLE_DEVICES=1 under law L-r). Until then pp-ingest takes each Whisper record within 10 minutes of it landing.
