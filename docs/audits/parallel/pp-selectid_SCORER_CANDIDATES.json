@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T20:52:40+00:00",
- "build": "ledger_20261116_205205",
+ "generated_at": "2026-11-16T20:59:11+00:00",
+ "build": "ledger_20261116_205836",
  "kind": "moments",
  "candidates": [
   {
@@ -940,6 +940,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "0f0d82f01966dd25ae3a~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 25.5,
+   "text": "you want to invest and be patient where there is a high degree of informational uncertainty. That's where the money is made. That's why Bitcoin. look so interesting if you're willing to do the work and recognize that the majority of people that are in buying and selling have no clue of what they're buying and selling.",
+   "text_sha256": "81de1e3c44d14aab54509761ddb53361013dd60f3743c1dae7182b02a78c39f6",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "169a2627bf92e33c5b55",
    "video_id": "f0NnJM63Ffc",
    "channel": "Scott Melker",
@@ -1156,6 +1165,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "4f6796b5882644dbfb5b",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 21.48,
+   "text": "I mean, what is pristine collateral? That would be Bitcoin, right? It's transparent. You know what it is. You know the counterparty. I would argue anybody to go into one of these financial institutions and give me a quick expose and what their book is and how transparent their book is.",
+   "text_sha256": "520c79016a6fb77b0fcee7b59b60b4eb6b1f25eaddd548de6691cbeb80ef27fa",
+   "trimmed_leading": null
+  },
+  {
    "pid": "f3837f53d32a0d72a9bd~trim",
    "video_id": "OubcRgk3D-w",
    "channel": "Simply Bitcoin",
@@ -1226,6 +1244,15 @@
    "text": "I think that kind of is at the core of something all of us are probably feeling where it does feel like Bitcoin's at an inflection point right now. We're kind of devoid of any strong narrative. That's kind of another. sign of a bottom, right? Like, there's nothing to latch onto to tell a story about why Bitcoin's going to go up.",
    "text_sha256": "a9b9d45ed57bd0b93c700927f54e0994fad667784800e717baceaee6a21a96ab",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "5b354cd44b3d737392e6",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 13.79,
+   "text": "You believe in Bitcoin. So why would you ever sell it? Life happens. An emergency expense. A new home purchase or a great business opportunity. With Salt, you can access the power of your Bitcoin without selling.",
+   "text_sha256": "90cdfcda41b26b663ee55ab9b435df807a06b74e6972a1907bbdc1597441c7ad",
+   "trimmed_leading": null
   },
   {
    "pid": "c711b9e7be6b10e76ed5",
