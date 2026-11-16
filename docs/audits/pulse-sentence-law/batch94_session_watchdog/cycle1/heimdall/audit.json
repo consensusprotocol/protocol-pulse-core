@@ -1,0 +1,109 @@
+{
+ "question": "Batch 94 = the integrator's audit of a NEW read-only session watchdog, tools/session_watchdog.py, with a new sender in pipeline/telegram.py (send_watchdog) and their tests (pipeline/test_session_watchdog.py, pipeline/test_alarm.py's TestWatchdogLine).\nTHE ORDER (orchestrator 05:55 ET Nov 16, verbatim in its parts): \"Build tools/session_watchdog.py and run it in its own tmux session pipeline_pp_sessionwatch (NO cron). Every 5 minutes, for each tmux session whose name starts with pipeline_ (read-only: tmux capture-pane; it NEVER sends keys, kills, restarts or signals anything): (1) STUCK: the pane shows a turn in progress ('esc to interrupt') and the same shell command or the same last 15 lines for 45 minutes. (2) LOOP: the same command line, or the same error line, appears 5 or more times in the last 300 pane lines of one turn. (3) LONG TURN: one turn over 150 minutes by the pane's own timer. (4) IDLE WITH WORK: pipeline_pp_selectid idle at its prompt while the moments ledger changed more than 40 minutes ago and no build line followed; pipeline_pp_wordpass or pipeline_pp_ingest_watch missing, or the word pass with rows waiting and no cycle for 30 minutes. (5) CONTEXT: a pane showing 'until auto-compact' at 3 % or less, or 'Context low'. (6) SPEND: outside-vendor dollars today (read the builder's own spend record, read-only) at 80 % and at 100 % of the $1.00 day cap of ruling 118. For each finding: one line to logs/session_watchdog.log, and ONE plain Telegram line to PBX's approval chat headed 'WATCHDOG' (session, what, since when), at most one per session per hour and none between 00:00 and 07:00 ET except for (4) and (6). Also write the current findings to /tmp/session_watchdog_status.json every pass ... Tests with canned pane texts; the watchdog must survive a missing session and its own errors (log and carry on).\" Plain code: no model, no money.\nMEASURED FACTS THE DESIGN RESTS ON (Nov 16, 05:30-05:50 ET):\n- Each pipeline_ session has one active pane. A Claude Code pane has pane_current_command 'claude', runs in the ALTERNATE SCREEN, and keeps no tmux scrollback (history_size 0), so capture-pane returns only its visible 50 lines; other panes (python3, sh) keep scrollback.\n- A claude pane's bottom: while a turn runs, a spinner line '\u273d Bunning\u2026 (13m 6s \u00b7 \u2193 60.8k tokens \u00b7 thinking)' (sometimes a tip line under it); then an update notice; then the input box, a '\u276f' line between two '\u2500\u2500\u2500\u2500' rules; then the footer, which contains 'esc to interrupt' only while a turn runs. A finished turn shows '\u273b Baked for 18s \u00b7 done 11:11 PM'. A user's message shows as a '\u276f ...' line in the conversation. Actions show as '\u25cf <description>' lines with '\u23bf' result lines; a running shell command as '\u23bf  $ <command>' (+ wrapped continuation lines).\n- The conversation can QUOTE every marker (this order, pasted into a pane, does).\n- tmux: a missing target makes capture-pane exit 1 but display-message exit 0 with empty fields (so sessions come from one list-panes call).\n- The moments ledger is pp-ingest's data/editorial/moments/moment_ledger.jsonl; each builder build writes a tests/package/proof/ledger_<UTC> dir; the word-pass worker (pipeline/word_pass_worker.py, unchanged) logs every cycle to logs/word_pass_worker.log and picks rows with its own pick(ledger_rows(now), passed_ids()).\n- The builder's spend record tests/package/proof/BATCH4_LEDGER.json: {\"from\": \"2026-11-15T21:10 ET\", \"to\": \"2026-11-16T21:10 ET\", \"capped\": \"outside vendors (Heimdall not capped)\", \"all_in\": 0.560616, ...}; the builder counts ruling 118's day as that window.\n- pipeline/telegram.py's send_alarm (:909, unchanged) is the pattern: a file lock over an append-only log, an unknown outcome counts, an explicit Telegram refusal (SendRejected) does not; _send_bot_api (unchanged) is the one send path.\nTHE CHANGE (the diff, 75c4fd53..dad3f9ff, 4 files, 1144 lines added, nothing removed):\n- tools/session_watchdog.py: tmux() (:101) runs only list-panes / capture-pane and raises PermissionError for anything else before running; list_sessions (:112), capture (:123, '=session:' exact target). parse_pane (:130): the input box found from the bottom; footer = after it; in_turn from the footer only; the spinner (searched only when in_turn, at most 12 lines above the box) gives timer_s and ends the content; bottom (for CONTEXT) = the box, the footer and the 2 lines above the box; turn = content after the last '\u276f' line. signature (:174) masks timers / token counts over the last 15 non-empty content lines. blocks/commands/loops (:180-223): LOOP = the same command ('$' line + up to 4 continuation lines, or 'Bash(' line, or a tool block's header) or the same error line in >= 5 SEPARATE '\u25cf' blocks; the generic 'Error: Exit code N' header alone is not an error line. last_command (:226): the latest command's block header + first line, for the STUCK command rule. join (:240): a turn gathered across passes by overlap (>= 3 matching lines; none = the new screen alone). claude_findings (:277): STUCK (signature unchanged 45 min, or the same latest command block 45 min, in a turn), LOOP, LONG TURN (timer > 150 min), CONTEXT ('until auto-compact' <= 3 % or 'Context low' in bottom only). idle_with_work (:349): the two required sessions; the builder idle with the ledger's mtime > 40 min old and no build dir newer; the word pass's log silent > 30 min and rows_waiting (:336, the worker's own ledger_rows + pick, 60 s timeout) > 0 or unknown. day_spend / spend_findings (:384, :409): the one batch ledger whose window holds now, spans <= 1 day and caps outside vendors; one finding, the highest level reached, never said twice in a window. dispatch (:440): one line per key per pass, at night only (4) and (6); SPEND is marked said when sent or unknown. run_pass (:481): every session, check and write guarded; status JSON each pass; main (:535) loops with its own errors caught (Exception).\n- pipeline/telegram.py send_watchdog (:966): refuses a malformed line, an unknown kind, 00:00-07:00 ET unless every kind is IDLE_WITH_WORK / SPEND, or a line for the same key inside an hour; 'WATCHDOG ' head; cut at 600 characters; its own log data/pulse_check/watchdog_lines.jsonl.\nTESTS: 35 watchdog tests on canned panes (including a pane quoting every marker, an output repeating one error, heredocs sharing a first line, a loop split over two screens, a vanished session, a dead tmux, a failing check, send-keys / kill refused before subprocess runs) and 6 sender tests. 23 mutations each fail a test after a passing control (in_turn or CONTEXT read from the conversation; LOOP per line; the exit-code header counted; LOOP at 4; screens joined without overlap; timers not masked; the command identity taking its output; the timer's hours dropped; a later build ignored; the ledger read with a live log; a spend level said twice; a multi-day window taken as today; no night filter; a held line counted as said; send-keys allowed; the (4) checks unguarded; a vanished session ending the pass; tmux unknown read as all missing; the sender's night, hour-per-session, kind check and head).\nFIND, verifying only from the diff and the facts above: (a) any path by which the watchdog runs a tmux command other than list-panes / capture-pane, sends keys, kills, signals, writes into another session's files, calls a model or spends money, or sends a Telegram line other than through send_watchdog; (b) any false finding from conversation text or from a re-drawn or scrolled screen (a double count across passes); (c) any way a line goes out more than once per session per hour, at 00:00-07:00 ET for a kind other than (4) / (6), or a SPEND level is said twice in one day window; (d) any way the loop dies or stops writing its status (a missing session, a failing tmux, an unreadable file, a failing ledger adapter, a bad state file); (e) any change to send_alarm, deliver_run or review_drop. Reply with the JSON verdict; keep the reasoning short; at most 3 findings, each with file:line and a concrete failure.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 13.5,
+   "cost": 0.001015684,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 42.3,
+   "cost": 0.000717805,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 3,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 20.3,
+   "cost": 0.0014026725,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 22.9,
+   "cost": 0.000699701,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F3",
+   "severity": "low",
+   "file": "tools/session_watchdog.py",
+   "line": 481,
+   "issue": "run_pass writes the status JSON only at the end; if list_sessions raises, sessions=None, the loop still writes status \u2014 but if save_json's os.replace fails with something other than OSError (e.g. the /tmp target is a directory), the exception escapes run_pass; main catches it, so the loop survives but the status is stale; also the pass counter increments before the guarded sections, so a crash between... the concrete failure: a failing dispatch (send raising BaseException like KeyboardInterrupt) escapes the per-key try (it catches Exception, not BaseException) and aborts the pass before the status write",
+   "evidence": "out.append({\"key\": key, \"sent\": send(key, [f[\"kind\"] for f in fs], line, now), \"line\": line})",
+   "fix": "Wrap the dispatch loop's send in the same BaseException guard, or move the status write before dispatch; as written, a BaseException from send (or from log_line's print) skips the /tmp/session_watchdog_status.json write for that pass.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "tools/session_watchdog.py",
+   "line": 174,
+   "issue": "STUCK's 15-line signature includes the running command's own output, so a stuck command that keeps printing (e.g. a progress bar) never reads as stuck; the order's 'same last 15 lines' rule is met only when output is silent, and the intended command-identity fallback is unreachable because the elif requires the signature to be unchanged too... actually the elif fires when the signature changed, so a streaming command is caught only if its block is last; a command whose block is followed by a spinner-only redraw (latest=False) is never reported",
+   "evidence": "if now - st[\"sig_since\"] >= STUCK_S: ... elif cmd and latest and now - st[\"cmd_since\"] >= STUCK_S:",
+   "fix": "Report STUCK when either the signature or the command identity is 45 min old (or, if the elif is kept, drop the `latest` requirement).",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "medium",
+   "file": "tools/session_watchdog.py",
+   "line": 409,
+   "issue": "A SPEND finding is only marked said in dispatch when the send outcome is known; a held (night/hour) line leaves said unset, so after the night window the same level is re-sent \u2014 but worse, spend_findings returns [] once said >= level, so if the 80% line is held at night... the 80% finding stops being produced and the 100% finding can never be marked said at 0.8, so at 100% the 80% level is re-said... actually the highest-level rule makes this benign; the real defect: spend_findings returns [] when said >= level, so a held 80% line during the night (SPEND is a night kind, so it is sent) \u2014 the concrete failure is that a WatchdogRefused (hour-per-key) at 80% means said stays 0, and the next pass re-finds 80% and re-tries every 5 min for the hour, which is correct; the defect is only that a SendRejected 80% line is retried every pass for the rest of the day window, since said is never set on refusal",
+   "evidence": "except Exception as e: ... counted = how == \"unknown\"",
+   "fix": "Mark the level said (or record the refusal) on SendRejected too, or cap retries; otherwise a permanently rejected 80% line (e.g. 400 Bad Request) makes the watchdog retry it every 5 minutes all day, and once usd reaches 1.00 the 100% finding masks it, so the 80% news is lost for the day.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "tools/session_watchdog.py",
+   "line": 130,
+   "issue": "parse_pane's box search scans from len(lines)-2 down to 1, requiring BORDER above and below the '\u276f' line; a claude pane whose footer's second rule is the last line (no trailing blanks) still matches, but a pane where the box is the very first lines (i<1) is missed and the 6-line fallback treats the footer as bottom, so CONTEXT could read the footer's 'esc to interrupt' text \u2014 benign, but the fallback also sets footer=bottom, so in_turn can come from conversation-quoted 'esc to interrupt' when the box is missing",
+   "evidence": "if box is None: end = max(0, len(lines) - 6); bottom, footer = lines[end:], lines[end:]",
+   "fix": "In the no-box fallback, keep the footer search to the last 3 lines only, so quoted markers in the conversation above cannot set in_turn."
+  }
+ ],
+ "total_cost": 0.0038358625,
+ "out_dir": "heimdall"
+}

@@ -1,0 +1,1174 @@
+diff --git a/pipeline/telegram.py b/pipeline/telegram.py
+index 1ee1323d..6c81b7c6 100644
+--- a/pipeline/telegram.py
++++ b/pipeline/telegram.py
+@@ -941,3 +941,67 @@ def send_alarm(issue, sentence, waiting_since, send=None, now=None, log_path=Non
+         f.write(json.dumps(rec) + "\n")
+         f.flush()
+     return rec["message_id"]
++
++
++# ==============================================================
++# THE SESSION WATCHDOG'S LINE (orchestrator order 05:55 ET Nov 16; PBX: guard against loops and wasted tokens): ONE
++# plain text line to the approval chat headed 'WATCHDOG' (session, what, since when), from tools/session_watchdog.py.
++# At most one per session (key) an hour, and none 00:00-07:00 ET except IDLE WITH WORK and SPEND, enforced HERE (a
++# file lock over an append-only log). No media; it never touches a run, a release or the alarm's log.
++# ==============================================================
++
++WATCHDOG_HEAD = "WATCHDOG "
++WATCHDOG_GAP_S = 3600
++WATCHDOG_KINDS = ("STUCK", "LOOP", "LONG_TURN", "IDLE_WITH_WORK", "CONTEXT", "SPEND")
++WATCHDOG_NIGHT_KINDS = ("IDLE_WITH_WORK", "SPEND")      # the order's (4) and (6): the only lines sent 00:00-07:00 ET
++WATCHDOG_MAX = 600
++WATCHDOG_LOG = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "pulse_check",
++                            "watchdog_lines.jsonl")
++
++
++class WatchdogRefused(RuntimeError):
++    """The watchdog's line was NOT sent: the hour, the night, or a malformed line (order 05:55 ET Nov 16)."""
++
++
++def send_watchdog(key, kinds, line, send=None, now=None, log_path=None):
++    """One watchdog line -> its Telegram message id. key: what the hour is counted for (a session, or 'spend:<level>');
++    kinds: the findings the line carries (WATCHDOG_KINDS); line: '<session>: <what> (since <time>)', headed here.
++    Refused, with nothing sent: an empty or multi-line key or line; no kind or an unknown one; 00:00-07:00 ET unless
++    every kind is in WATCHDOG_NIGHT_KINDS; a line for the same key inside WATCHDOG_GAP_S. A send whose outcome is
++    unknown still counts (it is never resent); only an explicit Telegram refusal (SendRejected) does not."""
++    import fcntl
++    import time
++    from datetime import datetime
++    from zoneinfo import ZoneInfo
++    key, line, kinds = str(key).strip(), str(line).strip(), tuple(kinds or ())
++    if not key or not line or any(c in key + line for c in "\r\n"):
++        raise WatchdogRefused("a watchdog line needs a one-line key and line")
++    if not kinds or any(k not in WATCHDOG_KINDS for k in kinds):
++        raise WatchdogRefused(f"unknown finding kind(s): {list(kinds)}")
++    t = time.time() if now is None else now
++    if datetime.fromtimestamp(t, ZoneInfo("America/New_York")).hour < 7 and not set(kinds) <= set(WATCHDOG_NIGHT_KINDS):
++        raise WatchdogRefused("00:00-07:00 ET: only IDLE_WITH_WORK and SPEND lines are sent")
++    text = WATCHDOG_HEAD + line
++    if len(text) > WATCHDOG_MAX:
++        text = text[:WATCHDOG_MAX - 3].rstrip() + "..."
++    send = send or (lambda s: _send_bot_api("message", None, {"text": s}))
++    path = log_path or WATCHDOG_LOG
++    os.makedirs(os.path.dirname(path), exist_ok=True)
++    with open(path, "a+") as f:
++        fcntl.flock(f, fcntl.LOCK_EX)                    # one sender at a time, across processes
++        f.seek(0)
++        past = [json.loads(x) for x in f if x.strip()]
++        if any(p.get("key") == key and t - p["at"] < WATCHDOG_GAP_S for p in past):
++            raise WatchdogRefused(f"a watchdog line about {key!r} was sent within the hour")
++        rec = {"at": t, "key": key, "kinds": list(kinds), "text": text, "message_id": None, "outcome": "unknown"}
++        try:
++            rec["message_id"], rec["outcome"] = send(text), "sent"
++        except SendRejected:
++            raise                                       # a definite non-send: not recorded, may be retried
++        except BaseException:
++            f.write(json.dumps(rec) + "\n")             # the outcome is unknown: it counts, never resent
++            f.flush()
++            raise
++        f.write(json.dumps(rec) + "\n")
++        f.flush()
++    return rec["message_id"]
+diff --git a/pipeline/test_alarm.py b/pipeline/test_alarm.py
+index 33e440f6..d9ed247d 100644
+--- a/pipeline/test_alarm.py
++++ b/pipeline/test_alarm.py
+@@ -67,5 +67,78 @@ class TestAlarm(unittest.TestCase):
+         self.assertEqual(self.sent, [])
+ 
+ 
++
++class TestWatchdogLine(unittest.TestCase):
++    """The session watchdog's line (orchestrator order 05:55 ET Nov 16): 'WATCHDOG <session>: <what> (since <time>)',
++    at most one per session an hour, none 00:00-07:00 ET except IDLE_WITH_WORK and SPEND, enforced in telegram.py.
++    A fake sender and a temporary log: nothing reaches the network."""
++
++    from datetime import datetime as _dt
++    from zoneinfo import ZoneInfo as _Z
++    DAY = _dt(2026, 11, 16, 10, 0, tzinfo=_Z("America/New_York")).timestamp()
++    NIGHT = _dt(2026, 11, 16, 3, 0, tzinfo=_Z("America/New_York")).timestamp()
++    SEVEN = _dt(2026, 11, 16, 7, 0, tzinfo=_Z("America/New_York")).timestamp()
++
++    def setUp(self):
++        self.log = os.path.join(tempfile.mkdtemp(prefix="watchdog_line_"), "watchdog_lines.jsonl")
++        self.sent = []
++
++    def send(self, text):
++        self.sent.append(text)
++        return 2000 + len(self.sent)
++
++    def line(self, key, now, kinds=("LOOP",), text=None, send=None):
++        return T.send_watchdog(key, kinds, text or f"{key}: LOOP: the same command 5 times (since 09:50 ET)",
++                               send=send or self.send, now=now, log_path=self.log)
++
++    def test_one_plain_line_headed_watchdog(self):
++        self.assertEqual(self.line("pipeline_a", self.DAY), 2001)
++        self.assertEqual(self.sent, ["WATCHDOG pipeline_a: LOOP: the same command 5 times (since 09:50 ET)"])
++
++    def test_one_line_per_session_an_hour_other_sessions_free(self):
++        self.line("pipeline_a", self.DAY)
++        with self.assertRaises(T.WatchdogRefused):
++            self.line("pipeline_a", self.DAY + T.WATCHDOG_GAP_S - 1)   # 59:59 later: held, nothing sent
++        self.line("pipeline_b", self.DAY + 60)                          # another session is not held
++        self.line("pipeline_a", self.DAY + T.WATCHDOG_GAP_S)            # an hour later it may go
++        self.assertEqual(len(self.sent), 3)
++
++    def test_the_night_carries_only_idle_with_work_and_spend(self):
++        for kinds in (("LOOP",), ("STUCK",), ("LONG_TURN",), ("CONTEXT",), ("IDLE_WITH_WORK", "LOOP")):
++            with self.assertRaises(T.WatchdogRefused):
++                self.line(f"pipeline_{len(kinds)}{kinds[-1]}", self.NIGHT, kinds=kinds)
++        self.line("pipeline_pp_wordpass", self.NIGHT, kinds=("IDLE_WITH_WORK",))
++        self.line("spend:80%", self.NIGHT, kinds=("SPEND",))
++        self.line("pipeline_c", self.SEVEN, kinds=("LOOP",))            # 07:00 ET: day again
++        self.assertEqual(len(self.sent), 3)
++
++    def test_malformed_lines_and_unknown_kinds_are_refused(self):
++        for key, kinds, text in (("", ("LOOP",), "x"), ("k", ("LOOP",), "a\nb"), ("k\nx", ("LOOP",), "x"),
++                                 ("k", (), "x"), ("k", ("WHATEVER",), "x"), ("k", ("LOOP",), "  ")):
++            with self.assertRaises(T.WatchdogRefused):
++                T.send_watchdog(key, kinds, text, send=self.send, now=self.DAY, log_path=self.log)
++        self.assertEqual(self.sent, [])
++
++    def test_an_unknown_outcome_counts_and_a_refusal_does_not(self):
++        def rejected(text):
++            raise T.SendRejected("STOP: Telegram sendMessage refused: 400 Bad Request")
++
++        def unknown(text):
++            raise RuntimeError("STOP: Telegram sendMessage: outcome unknown (Timeout)")
++        with self.assertRaises(T.SendRejected):
++            self.line("pipeline_a", self.DAY, send=rejected)            # not sent: not recorded
++        self.line("pipeline_a", self.DAY + 1)                           # so it may go at once
++        with self.assertRaises(RuntimeError):
++            self.line("pipeline_b", self.DAY + 2, send=unknown)
++        with self.assertRaises(T.WatchdogRefused):
++            self.line("pipeline_b", self.DAY + 60)                      # an unknown outcome counts
++        self.assertEqual([json.loads(x)["outcome"] for x in open(self.log)], ["sent", "unknown"])
++
++    def test_a_long_line_is_cut_and_marked(self):
++        self.line("pipeline_a", self.DAY, text="x" * 2000)
++        self.assertEqual(len(self.sent[0]), T.WATCHDOG_MAX)
++        self.assertTrue(self.sent[0].startswith("WATCHDOG x") and self.sent[0].endswith("..."))
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/pipeline/test_session_watchdog.py b/pipeline/test_session_watchdog.py
+new file mode 100644
+index 00000000..f6a4cd68
+--- /dev/null
++++ b/pipeline/test_session_watchdog.py
+@@ -0,0 +1,444 @@
++#!/usr/bin/env python3
++"""The session watchdog (orchestrator order 05:55 ET Nov 16) on CANNED pane texts, shaped as the claude panes read on
++Nov 16 (spinner '✽ Bunning… (13m 6s · ↓ 60.8k tokens · thinking)', the input box between two rules, the footer
++'... · esc to interrupt · ↓ to manage'). No tmux, no network, no model: tmux and Telegram are stubbed.
++Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_session_watchdog.py"""
++import json
++import os
++import shutil
++import subprocess
++import sys
++import tempfile
++import time
++import unittest
++from datetime import datetime
++from unittest import mock
++from zoneinfo import ZoneInfo
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, os.path.join(os.path.dirname(HERE), "tools"))     # the tool lives in tools/, its tests here
++import session_watchdog as W  # noqa: E402
++
++ET = ZoneInfo("America/New_York")
++RULE = "─" * 120
++BUSY = "✽ Bunning… (13m 6s · ↓ 60.8k tokens · thinking)"
++DAY = datetime(2026, 11, 16, 10, 0, tzinfo=ET).timestamp()        # 10:00 ET: lines may go
++NIGHT = datetime(2026, 11, 16, 3, 0, tzinfo=ET).timestamp()       # 03:00 ET: only (4) and (6)
++
++
++def pane(content, spinner=None, busy=None, notice=True, below=()):
++    """A claude pane as capture-pane prints it: content, the spinner (+ a tip) while a turn runs, the update notice,
++    the input box, the footer (busy = 'esc to interrupt' in it), trailing blank lines."""
++    busy = bool(spinner) if busy is None else busy
++    lines = list(content) + [""]
++    if spinner:
++        lines += [spinner, "  ⎿  Tip: Running multiple Claude sessions? Press ← on an empty prompt to see them all"]
++    if notice:
++        lines.append(" " * 90 + "✔ Update installed")
++    lines += [RULE, "❯ ", RULE, "  ⏵⏵ bypass permissions on · gh auth login for PR status · 4 shells"
++              + (" · esc to interrupt · ↓ to manage" if busy else "")] + list(below)
++    return lines + ["", "", ""]
++
++
++def block(head, cmd=None, out=("done",), result=True):
++    b = [f"● {head}"]
++    if cmd is not None:
++        b.append(f"  ⎿  $ {cmd}")
++        b += [f"     {x}" for x in out]
++    elif result:
++        b.append(f"  ⎿  {out[0]}")
++    return b + [""]
++
++
++def turn(*blocks_, prompt="❯ do the work"):
++    lines = [prompt] if prompt else []
++    for b in blocks_:
++        lines += b
++    return lines
++
++
++class TestParse(unittest.TestCase):
++    def test_a_turn_in_progress_and_its_own_timer(self):
++        p = W.parse_pane(pane(turn(block("Reading the log", "tail -n 5 x.log")), spinner=BUSY))
++        self.assertTrue(p["in_turn"])
++        self.assertEqual(p["timer_s"], 13 * 60 + 6)
++        self.assertEqual(p["turn"][0], "● Reading the log")
++        self.assertNotIn(BUSY, p["content"])                          # the spinner is never content
++        self.assertFalse(any("Update installed" in x or "Tip:" in x for x in p["content"]))
++
++    def test_timer_forms(self):
++        for spin, want in (("✢ Coalescing… (1m 12s · ↓ 6.5k tokens · thought for 5s)", 72),
++                           ("✶ Warping… (2h 31m 5s · ↓ 44.0k tokens · thinking some more)", 2 * 3600 + 31 * 60 + 5),
++                           ("· Thinking… (45s · esc to interrupt)", 45), ("✻ Brewing… (1h 2m · ↓ 3k tokens)", 3720)):
++            with self.subTest(spin=spin):
++                self.assertEqual(W.parse_pane(pane(["❯ go"], spinner=spin))["timer_s"], want)
++
++    def test_an_idle_pane(self):
++        p = W.parse_pane(pane(turn(block("Done", result=False)) + ["✻ Baked for 18s · done 11:11 PM"]))
++        self.assertFalse(p["in_turn"])
++        self.assertIsNone(p["timer_s"])
++
++    def test_words_quoted_in_the_conversation_are_never_read_as_the_pane_state(self):
++        # the order itself, pasted into a pane: its text names every marker
++        quoted = ["❯ ORCHESTRATOR ORDER: (1) STUCK: the pane shows a turn in progress ('esc to interrupt') ...",
++                  "  (5) CONTEXT: a pane showing 'until auto-compact' at 3 % or less, or 'Context low'.",
++                  "  Context left until auto-compact: 1%", "  Context low (2% remaining)",
++                  "✽ Bunning… (3h 1m 6s · ↓ 1k tokens · thinking)"]
++        p = W.parse_pane(pane(quoted + block("Read it", result=False)))
++        self.assertFalse(p["in_turn"])
++        self.assertIsNone(p["timer_s"])                               # an idle pane has no spinner
++        f, _ = W.claude_findings("pipeline_x", pane(quoted + block("Read it", result=False)), {}, DAY)
++        self.assertEqual(f, [])
++
++    def test_no_input_box_falls_back_to_the_last_lines(self):
++        p = W.parse_pane(["some output", "more", "  ⏵⏵ bypass permissions on · esc to interrupt"])
++        self.assertTrue(p["in_turn"])
++
++
++class TestLoop(unittest.TestCase):
++    def find(self, lines, st=None):
++        f, _ = W.claude_findings("pipeline_x", pane(lines, spinner=BUSY), st if st is not None else {}, DAY)
++        return [x for x in f if x["kind"] == "LOOP"]
++
++    def test_the_same_command_in_five_blocks_is_a_loop_four_is_not(self):
++        five = turn(*[block("Checking the status", "git status", out=("On branch main",)) for _ in range(5)])
++        four = turn(*[block("Checking the status", "git status", out=("On branch main",)) for _ in range(4)])
++        got = self.find(five)
++        self.assertEqual(len(got), 1)
++        self.assertIn("the same command 5 times in this turn: 'git status On branch main'", got[0]["what"])
++        self.assertEqual(self.find(four), [])
++
++    def test_the_same_error_line_in_five_blocks_is_a_loop(self):
++        bs = [block(f"Try {i}", f"python3 run.py --try {i}", out=("ModuleNotFoundError: No module named 'x'",))
++              for i in range(5)]
++        got = self.find(turn(*bs))
++        self.assertEqual([x["what"] for x in got],
++                         ["the same error line 5 times in this turn: 'ModuleNotFoundError: No module named 'x''"])
++
++    def test_one_output_repeating_an_error_counts_once(self):
++        bs = [block("Tail the log", "tail -n 6 x.log", out=["RuntimeError: the lease is held by y"] * 6)]
++        self.assertEqual(self.find(turn(*bs)), [])
++
++    def test_the_generic_exit_code_header_is_not_an_error_line(self):
++        bs = [[f"● Grep {i}", "  ⎿  Error: Exit code 1", ""] for i in range(6)]
++        self.assertEqual(self.find(turn(*bs)), [])
++
++    def test_two_heredocs_sharing_a_first_line_are_different_commands(self):
++        bs = [[f"● Script {i}", "  ⎿  $ python3 - <<'EOF'", f"     print({i})", "     EOF", ""] for i in range(6)]
++        self.assertEqual(self.find(turn(*bs)), [])
++
++    def test_a_repeated_tool_action_line_is_a_loop(self):
++        bs = [block("Reading the backfill helper", result=True, out=("Read 47 lines",)) for _ in range(5)]
++        self.assertEqual(len(self.find(turn(*bs))), 1)
++
++    def test_an_idle_pane_has_no_loop(self):
++        five = turn(*[block("Checking", "git status") for _ in range(5)])
++        f, _ = W.claude_findings("pipeline_x", pane(five), {}, DAY)
++        self.assertEqual(f, [])
++
++
++class TestTurnAcrossPasses(unittest.TestCase):
++    """A claude pane keeps no scrollback: the turn is gathered pass by pass."""
++
++    def test_a_loop_split_over_two_screens_is_found_and_an_unchanged_screen_counts_once(self):
++        st = {}
++        reps = [block(f"Checking {i}", "git status", out=()) for i in range(5)]
++        first = turn(*reps[:3])                                       # the prompt and 3 repetitions
++        second = [x for b in reps[1:] for x in b]                     # scrolled: the prompt is off screen
++        f1, _ = W.claude_findings("s", pane(first, spinner=BUSY), st, DAY)
++        f1b, _ = W.claude_findings("s", pane(first, spinner=BUSY), st, DAY + 300)    # the same screen again
++        self.assertEqual([x for x in f1 + f1b if x["kind"] == "LOOP"], [])
++        self.assertEqual(sum("$ git status" in x for x in st["turn"]["lines"]), 3)  # never counted twice
++        f2, _ = W.claude_findings("s", pane(second, spinner=BUSY), st, DAY + 600)
++        self.assertEqual([x["what"] for x in f2 if x["kind"] == "LOOP"], ["the same command 5 times in this turn: 'git status'"])
++
++    def test_no_overlap_starts_over_and_an_idle_pane_clears_the_turn(self):
++        self.assertEqual(W.join(["a", "b", "c", "d"], ["x", "y", "z"]), ["x", "y", "z"])
++        self.assertEqual(W.join(["a", "b", "c", "d"], []), ["a", "b", "c", "d"])
++        self.assertEqual(W.join(["a", "b", "c", "d"], ["b", "c", "d", "e"]), ["a", "b", "c", "d", "e"])
++        self.assertEqual(W.join(["a", "b", "c", "OLD"], ["a", "b", "c", "NEW", "e"]), ["a", "b", "c", "NEW", "e"])
++        st = {}
++        W.claude_findings("s", pane(turn(block("x", "ls")), spinner=BUSY), st, DAY)
++        self.assertIn("turn", st)
++        W.claude_findings("s", pane(turn(block("x", "ls"))), st, DAY + 300)
++        self.assertNotIn("turn", st)
++
++    def test_a_new_prompt_is_a_new_turn(self):
++        st = {}
++        W.claude_findings("s", pane(turn(*[block("c", "git status")] * 3), spinner=BUSY), st, DAY)
++        W.claude_findings("s", pane(turn(*[block("c", "git status")] * 3, prompt="❯ next"), spinner=BUSY), st, DAY + 300)
++        self.assertEqual(sum("$ git status" in x for x in st["turn"]["lines"]), 3)
++
++
++class TestStuckLongContext(unittest.TestCase):
++    def test_stuck_after_45_minutes_unchanged_in_a_turn(self):
++        st, screen = {}, pane(turn(block("Waiting", "sleep 9999", out=("Running…",))), spinner=BUSY)
++        for dt_s, want in ((0, 0), (44 * 60, 0), (45 * 60, 1)):
++            f, _ = W.claude_findings("s", screen, st, DAY + dt_s)
++            self.assertEqual(len([x for x in f if x["kind"] == "STUCK"]), want, dt_s)
++        self.assertEqual([x["since"] for x in f if x["kind"] == "STUCK"], [DAY])
++
++    def test_the_timer_and_token_count_moving_is_not_progress(self):
++        st = {}
++        W.claude_findings("s", pane(turn(block("W", "make")), spinner="✽ Bunning… (1m 2s · ↓ 1.0k tokens)"), st, DAY)
++        f, _ = W.claude_findings("s", pane(turn(block("W", "make")), spinner="✽ Bunning… (46m 2s · ↓ 9.9k tokens)"),
++                                 st, DAY + 45 * 60)
++        self.assertEqual([x["kind"] for x in f], ["STUCK"])
++
++    def test_a_running_timer_inside_the_conversation_is_not_progress(self):
++        st = {}                                                        # no shell command: only the 15 lines decide
++        for k, (t, tok) in enumerate((("1m 2s", "1.0k"), ("23m 40s", "5.5k"), ("46m 2s", "9.9k"))):
++            body = turn(["● Waiting for the build", f"  ⎿  Running… ({t} · ↓ {tok} tokens)", ""])
++            f, _ = W.claude_findings("s", pane(body, spinner=BUSY), st, DAY + k * 23 * 60)
++        self.assertEqual([x["kind"] for x in f], ["STUCK"])
++
++    def test_a_changing_screen_or_an_idle_pane_is_not_stuck(self):
++        st = {}
++        W.claude_findings("s", pane(turn(block("A", "ls")), spinner=BUSY), st, DAY)
++        f, _ = W.claude_findings("s", pane(turn(block("A", "ls"), block("B", "pwd")), spinner=BUSY), st, DAY + 46 * 60)
++        self.assertEqual(f, [])
++        st = {}
++        W.claude_findings("s", pane(turn(block("A", "ls"))), st, DAY)
++        f, _ = W.claude_findings("s", pane(turn(block("A", "ls"))), st, DAY + 3 * 3600)
++        self.assertEqual(f, [])
++
++    def test_the_same_shell_command_still_the_latest_action_for_45_minutes(self):
++        st = {}
++        for k in range(10):                                            # its output grows: the screen changes
++            out = tuple(f"line {i}" for i in range(k + 1))[-3:]
++            f, _ = W.claude_findings("s", pane(turn(block("Build", "make all", out=out)), spinner=BUSY), st,
++                                     DAY + k * 300)
++        self.assertEqual([x["kind"] for x in f], ["STUCK"])
++        self.assertIn("the same shell command for 45 min: 'make all", f[0]["what"])
++
++    def test_a_long_turn_by_its_own_timer(self):
++        for spin, n in (("✶ Warping… (2h 30m 1s · ↓ 4k tokens)", 1), ("✶ Warping… (2h 29m 59s · ↓ 4k tokens)", 0)):
++            f, _ = W.claude_findings("s", pane(["❯ go", "● working"], spinner=spin), {}, DAY)
++            self.assertEqual(len([x for x in f if x["kind"] == "LONG_TURN"]), n, spin)
++        f, _ = W.claude_findings("s", pane(["❯ go"], spinner="✶ Warping… (2h 31m 5s · ↓ 4k tokens)"), {}, DAY)
++        self.assertEqual(f[0]["what"], "one turn at 2 h 31 min by its own timer")
++        self.assertEqual(f[0]["since"], round(DAY - (2 * 3600 + 31 * 60 + 5), 1))
++
++    def test_context_low_shown_by_the_pane(self):
++        cases = ((["  Context left until auto-compact: 3%"], 1), (["  Context left until auto-compact: 4%"], 0),
++                 (["  Context low (8% remaining) · Run /compact to compact & continue"], 1), ((), 0))
++        for below, n in cases:
++            f, _ = W.claude_findings("s", pane(["❯ go"], below=below), {}, DAY)
++            self.assertEqual(len([x for x in f if x["kind"] == "CONTEXT"]), n, below)
++
++
++class Paths(unittest.TestCase):
++    def setUp(self):
++        self.d = tempfile.mkdtemp(prefix="watchdog_")
++        self.addCleanup(shutil.rmtree, self.d, True)
++        self.paths = {"log": os.path.join(self.d, "logs", "session_watchdog.log"),
++                      "status": os.path.join(self.d, "status.json"), "state": os.path.join(self.d, "state.json"),
++                      "moment_ledger": os.path.join(self.d, "moment_ledger.jsonl"),
++                      "builds": os.path.join(self.d, "proof", "ledger_*"),
++                      "spend": os.path.join(self.d, "proof", "BATCH*_LEDGER.json"),
++                      "wordpass_log": os.path.join(self.d, "word_pass_worker.log")}
++        os.makedirs(os.path.join(self.d, "proof"))
++
++    def touch(self, path, t):
++        if not os.path.exists(path):
++            os.makedirs(path) if path.endswith(("_1", "_2")) else open(path, "w").close()
++        os.utime(path, (t, t))
++
++    def batch(self, usd, frm="2026-11-15T21:10 ET", to="2026-11-16T21:10 ET", capped="outside vendors (Heimdall not "
++              "capped)", name="BATCH4_LEDGER.json"):
++        with open(os.path.join(self.d, "proof", name), "w") as f:
++            json.dump({"from": frm, "to": to, "all_in": usd, "capped": capped, "cap": 8.0}, f)
++
++
++class TestIdleWithWork(Paths):
++    def all_present(self):
++        return {"pipeline_pp_wordpass", "pipeline_pp_ingest_watch", "pipeline_pp_selectid"}
++
++    def test_a_missing_word_pass_or_ingest_watcher(self):
++        self.touch(self.paths["wordpass_log"], DAY)
++        st = {}
++        f = W.idle_with_work({"pipeline_pp_selectid"}, {}, st, DAY, self.paths, waiting=lambda now: (0, None))
++        self.assertEqual(sorted(x["session"] for x in f), ["pipeline_pp_ingest_watch", "pipeline_pp_wordpass"])
++        f = W.idle_with_work(self.all_present(), {}, st, DAY + 300, self.paths, waiting=lambda now: (0, None))
++        self.assertEqual(f, [])
++
++    def test_the_builder_idle_on_a_ledger_changed_41_min_ago_with_no_build_after(self):
++        self.touch(self.paths["wordpass_log"], DAY)
++        idle = {"in_turn": False}
++        self.touch(self.paths["moment_ledger"], DAY - 41 * 60)
++        self.touch(os.path.join(self.d, "proof", "ledger_1"), DAY - 50 * 60)       # the last build: before it
++        f = W.idle_with_work(self.all_present(), {"pipeline_pp_selectid": idle}, {}, DAY, self.paths,
++                             waiting=lambda now: (0, None))
++        self.assertEqual([(x["session"], x["kind"]) for x in f], [("pipeline_pp_selectid", "IDLE_WITH_WORK")])
++        self.assertIn("idle at its prompt; the moments ledger changed at", f[0]["what"])
++        for builds_at, ledger_at, pane_ in ((DAY - 30 * 60, DAY - 41 * 60, idle),        # a build followed
++                                            (DAY - 50 * 60, DAY - 39 * 60, idle),        # changed 39 min ago
++                                            (DAY - 50 * 60, DAY - 41 * 60, {"in_turn": True})):   # at work
++            self.touch(os.path.join(self.d, "proof", "ledger_1"), builds_at)
++            self.touch(self.paths["moment_ledger"], ledger_at)
++            f = W.idle_with_work(self.all_present(), {"pipeline_pp_selectid": pane_}, {}, DAY, self.paths,
++                                 waiting=lambda now: (0, None))
++            self.assertEqual(f, [], (builds_at, ledger_at, pane_))
++
++    def test_the_word_pass_silent_30_min_with_rows_waiting(self):
++        asked = []
++
++        def waiting(n):
++            def f(now):
++                asked.append(now)
++                return n
++            return f
++        self.touch(self.paths["wordpass_log"], DAY - 29 * 60)
++        self.assertEqual(W.idle_with_work(self.all_present(), {}, {}, DAY, self.paths, waiting((3, None))), [])
++        self.assertEqual(asked, [])                                   # a live log: the ledger is not even read
++        self.touch(self.paths["wordpass_log"], DAY - 31 * 60)
++        f = W.idle_with_work(self.all_present(), {}, {}, DAY, self.paths, waiting((3, None)))
++        self.assertEqual([x["what"] for x in f], ["3 rows waiting, no word-pass cycle since 09:29 ET"])
++        self.assertEqual(W.idle_with_work(self.all_present(), {}, {}, DAY, self.paths, waiting((0, None))), [])
++        f = W.idle_with_work(self.all_present(), {}, {}, DAY, self.paths, waiting((None, "RuntimeError: x")))
++        self.assertIn("rows waiting unknown (RuntimeError: x)", f[0]["what"])
++
++
++class TestSpend(Paths):
++    def test_80_and_100_percent_once_each_per_day_window(self):
++        st, send = {}, mock.Mock(return_value=7)
++        self.batch(0.79)
++        self.assertEqual(W.spend_findings(st, DAY, self.paths)[0], [])
++        self.batch(0.80)
++        f, view = W.spend_findings(st, DAY, self.paths)
++        self.assertEqual([(x["key"], x["level"]) for x in f], [("spend:80%", 0.8)])
++        self.assertEqual(view["usd"], 0.8)
++        W.dispatch(f, st, DAY, send)
++        self.assertEqual(W.spend_findings(st, DAY + 300, self.paths)[0], [])        # said once
++        self.batch(1.02)
++        f, _ = W.spend_findings(st, DAY + 600, self.paths)
++        self.assertEqual([x["key"] for x in f], ["spend:100%"])
++        self.assertIn("$1.02, at 100% of ruling 118's $1.00 day cap", f[0]["what"])
++        W.dispatch(f, st, DAY + 600, send)
++        self.assertEqual(W.spend_findings(st, DAY + 900, self.paths)[0], [])
++        self.assertEqual(send.call_count, 2)
++
++    def test_straight_to_100_says_100_only(self):
++        self.batch(1.30)
++        f, _ = W.spend_findings({}, DAY, self.paths)
++        self.assertEqual([x["level"] for x in f], [1.0])
++
++    def test_only_a_one_day_outside_vendor_window_that_holds_now(self):
++        for kw in ({"frm": "2026-11-14T21:10 ET", "to": "2026-11-15T21:10 ET"},       # yesterday's window
++                   {"frm": "2026-11-15T21:10 ET", "to": "2026-11-18T21:10 ET"},       # a three-day batch
++                   {"capped": "everything"},                                         # not an outside-vendor cap
++                   {"frm": "2026-11-15 21:10"}):                                     # not an ET stamp
++            with self.subTest(kw=kw):
++                self.batch(5.0, **kw)
++                f, view = W.spend_findings({}, DAY, self.paths)
++                self.assertEqual(f, [])
++                self.assertFalse(view["readable"])
++                self.assertIn("no batch ledger", view["why"])
++
++
++class TestDispatch(unittest.TestCase):
++    def f(self, session, kind, key=None, **kw):
++        return W.finding(session, kind, f"{kind.lower()} detail", DAY - 600, key=key, **kw)
++
++    def test_one_line_per_session_by_day_only_4_and_6_at_night(self):
++        sent = []
++
++        def send(key, kinds, line, now):
++            sent.append((key, kinds, line))
++            return len(sent)
++        fs = [self.f("pipeline_a", "LOOP"), self.f("pipeline_a", "LONG_TURN"), self.f("pipeline_b", "CONTEXT"),
++              self.f("pipeline_pp_wordpass", "IDLE_WITH_WORK"),
++              self.f("pipeline_pp_selectid", "SPEND", key="spend:80%", level=0.8)]
++        st = {}
++        out = W.dispatch(fs, st, DAY, send)
++        self.assertEqual([k for k, _, _ in sent], ["pipeline_a", "pipeline_b", "pipeline_pp_wordpass", "spend:80%"])
++        self.assertEqual(sent[0][2], "pipeline_a: LOOP: loop detail (since 09:50 ET); LONG TURN: long_turn detail "
++                                     "(since 09:50 ET)")
++        self.assertEqual(st["spend"]["said"], 0.8)
++        self.assertEqual(len(out), 4)
++        sent.clear()
++        W.dispatch(fs, {}, NIGHT, send)
++        self.assertEqual([k for k, _, _ in sent], ["pipeline_pp_wordpass", "spend:80%"])
++
++    def test_a_held_or_refused_line_is_not_said_an_unknown_one_is(self):
++        sys.path.insert(0, HERE)
++        import telegram as T
++        fs = [self.f("pipeline_pp_selectid", "SPEND", key="spend:80%", level=0.8)]
++        for exc, how, said in ((T.WatchdogRefused("hour"), "held", None), (T.SendRejected("400"), "refused", None),
++                               (RuntimeError("timeout"), "unknown", 0.8)):
++            st = {}
++            out = W.dispatch(fs, st, DAY, mock.Mock(side_effect=exc))
++            self.assertIn(how, out[0])
++            self.assertEqual(st.get("spend", {}).get("said"), said)
++
++
++class TestPass(Paths):
++    """A whole pass: read only, a missing session survived, every finding logged, the status written."""
++
++    def run_with(self, sessions, screens, now=DAY, send=None, capture_fail=()):
++        def capture(name):
++            if name in capture_fail:
++                raise LookupError(f"can't find session: {name}")
++            return screens[name]
++        st = {}
++        with mock.patch.object(W, "list_sessions", return_value=sessions), mock.patch.object(W, "capture", capture):
++            status = W.run_pass(st, now=now, paths=self.paths, send=send or mock.Mock(return_value=1),
++                                waiting=lambda n: (0, None))
++        return st, status
++
++    def test_a_pass_reads_finds_logs_and_writes_its_status(self):
++        self.touch(self.paths["wordpass_log"], DAY)
++        loop = pane(turn(*[block("Checking", "git status") for _ in range(5)]), spinner=BUSY)
++        sessions = {"pipeline_pp_selectid": "claude", "pipeline_pp_wordpass": "python3", "pipeline_gone": "claude",
++                    "pipeline_pp_ingest_watch": "sh"}
++        send = mock.Mock(return_value=41)
++        st, status = self.run_with(sessions, {"pipeline_pp_selectid": loop}, send=send, capture_fail=("pipeline_gone",))
++        self.assertEqual([(f["session"], f["kind"]) for f in status["findings"]], [("pipeline_pp_selectid", "LOOP")])
++        self.assertEqual(status["errors"], ["pipeline_gone: LookupError: can't find session: pipeline_gone"])
++        self.assertEqual(send.call_args[0][0], "pipeline_pp_selectid")
++        self.assertEqual(status["telegram"][0]["sent"], 41)
++        on_disk = json.load(open(self.paths["status"]))
++        self.assertEqual(on_disk["findings"][0]["kind"], "LOOP")
++        self.assertTrue(on_disk["sessions"]["pipeline_pp_selectid"]["in_turn"])
++        log = open(self.paths["log"]).read()
++        self.assertIn("pipeline_pp_selectid LOOP: the same command 5 times in this turn", log)
++        self.assertIn("ERROR pipeline_gone: LookupError", log)
++        self.assertIn("pass 1: 4 sessions, 1 findings, 1 lines sent", log)
++
++    def test_a_failing_check_and_a_dead_tmux_are_survived(self):
++        with mock.patch.object(W, "list_sessions", side_effect=FileNotFoundError("tmux")):
++            status = W.run_pass({}, now=DAY, paths=self.paths, send=mock.Mock(), waiting=lambda n: (0, None))
++        self.assertEqual(status["errors"][0], "tmux list-panes: FileNotFoundError: tmux")
++        self.assertEqual(status["findings"], [])                      # tmux unknown: nobody is called missing
++        with mock.patch.object(W, "list_sessions", return_value={}), \
++                mock.patch.object(W, "idle_with_work", side_effect=ZeroDivisionError("bug")):
++            status = W.run_pass({}, now=DAY, paths=self.paths, send=mock.Mock(), waiting=lambda n: (0, None))
++        self.assertEqual(status["errors"], ["idle with work: ZeroDivisionError: bug"])
++        self.assertTrue(os.path.exists(self.paths["status"]))
++
++    def test_tmux_runs_only_list_panes_and_capture_pane(self):
++        for args in (("send-keys", "-t", "x", "q"), ("kill-session", "-t", "x"), ("kill-server",), ()):
++            with mock.patch.object(subprocess, "run") as run, self.assertRaises(PermissionError):
++                W.tmux(*args)
++            run.assert_not_called()
++        calls = []
++
++        def fake_run(argv, **kw):
++            calls.append(argv[1])
++            out = ("pipeline_a\t1\t1\tclaude\npipeline_b\t1\t1\tpython3\nother\t1\t1\tclaude\n"
++                   if argv[1] == "list-panes" else "\n".join(pane(["❯ go"])))
++            return subprocess.CompletedProcess(argv, 0, out, "")
++        with mock.patch.object(subprocess, "run", fake_run):
++            status = W.run_pass({}, now=DAY, paths=self.paths, send=mock.Mock(), waiting=lambda n: (0, None))
++        self.assertEqual(sorted(set(calls)), ["capture-pane", "list-panes"])
++        self.assertEqual(sorted(status["sessions"]), ["pipeline_a", "pipeline_b"])
++
++    def test_main_once_survives_its_own_error(self):
++        with mock.patch.dict(W.PATHS, self.paths), mock.patch.object(W, "run_pass", side_effect=KeyError("boom")):
++            self.assertEqual(W.main(["--once", "--dry-run"]), 0)
++        self.assertIn("ERROR pass: KeyError", open(self.paths["log"]).read())
++        self.assertTrue(os.path.exists(self.paths["state"]))
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tools/session_watchdog.py b/tools/session_watchdog.py
+new file mode 100644
+index 00000000..a7cc10f7
+--- /dev/null
++++ b/tools/session_watchdog.py
+@@ -0,0 +1,563 @@
++#!/usr/bin/env python3
++"""tools/session_watchdog.py: the SESSION WATCHDOG (orchestrator order 05:55 ET Nov 16; PBX: guard against loops and
++wasted tokens). Plain code: no model, no money. Run in its own tmux session, pipeline_pp_sessionwatch (no cron):
++    python3 tools/session_watchdog.py            # a pass every PASS_S (300 s), for ever
++    python3 tools/session_watchdog.py --once     # one pass ( --dry-run: no Telegram line)
++It reads ITS OWN tree's logs/ and word-pass worker (store and rows): run it from the main tree, ~/protocol_pulse. From a
++worktree it would read that worktree's empty store (measured: 34 rows 'waiting' where the live worker picks 0).
++
++READ ONLY: the only tmux commands it ever runs are list-panes and capture-pane (tmux() refuses any other before it
++runs). It never sends keys, kills, restarts or signals anything.
++
++Every pass, for each tmux session whose name starts with 'pipeline_', its active pane is read. A Claude Code pane (its
++command is 'claude') is read in parts: the input box (between its two rules) and the footer under it; the spinner
++line above the box while a turn runs ('<glyph> <Verb>… (13m 6s · ...'), whose timer is the turn's own; and the
++CONTENT above those. Claude Code runs in the alternate screen, which keeps no scrollback (measured 05:40 ET Nov 16:
++history_size 0 on every claude pane), so a pass sees the visible screen only; the current turn's lines are therefore
++gathered pass by pass (joined on their overlap, at most HISTORY lines).
++(1) STUCK: a turn in progress (the footer says 'esc to interrupt') whose last 15 content lines (timers and token
++    counts masked) have not changed for 45 min, or whose latest action is the same shell command for 45 min.
++(2) LOOP: in the current turn, the same shell command (or tool action line), or the same error line, in 5 or more
++    separate blocks ('●' entries). The generic 'Error: Exit code N' header is not an error line by itself.
++(3) LONG TURN: the spinner's timer over 150 min.
++(5) CONTEXT: the input box's surroundings show 'until auto-compact' at 3 % or less, or 'Context low'. The
++    conversation above is never read for these words (it can quote them).
++(4) IDLE WITH WORK:
++    - pipeline_pp_selectid idle at its prompt while pp-ingest's moments ledger changed more than 40 min ago and no
++      build of the builder (a tests/package/proof/ledger_* dir) followed;
++    - pipeline_pp_wordpass or pipeline_pp_ingest_watch missing;
++    - the word pass: its log silent for 30 min (no cycle) with rows waiting (what its own pick() would take now).
++(6) SPEND: the builder's own outside-vendor dollars for the day that holds now (its BATCH*_LEDGER.json 'all_in', capped
++    'outside vendors', a window of at most a day; read only) at 80 % and at 100 % of ruling 118's $1.00 day cap: one
++    line per level per day.
++Each finding: one line in logs/session_watchdog.log; every pass's view and findings in /tmp/session_watchdog_status.json;
++ONE Telegram line per session per hour, headed 'WATCHDOG' (telegram.send_watchdog holds the hour and the night,
++00:00-07:00 ET, when only (4) and (6) go). A missing session, a failing read or any error of its own is logged and
++the watchdog carries on."""
++import argparse
++import datetime as dt
++import glob
++import hashlib
++import json
++import os
++import re
++import subprocess
++import sys
++import time
++from difflib import SequenceMatcher
++from zoneinfo import ZoneInfo
++
++REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
++PIPELINE = os.path.join(REPO, "pipeline")
++ET = ZoneInfo("America/New_York")
++
++PREFIX = "pipeline_"
++PASS_S = 300
++HISTORY = 300                          # the order's window: the last 300 pane lines (of the turn)
++STUCK_S, STUCK_LINES = 45 * 60, 15
++LOOP_N = 5
++LONG_S = 150 * 60
++CONTEXT_PCT = 3
++LEDGER_IDLE_S = 40 * 60
++WORDPASS_IDLE_S = 30 * 60
++DAY_CAP_USD, SPEND_LEVELS = 1.00, (1.0, 0.8)           # ruling 118; the highest level reached is the one said
++NIGHT_KINDS = ("IDLE_WITH_WORK", "SPEND")              # the order: the only lines sent 00:00-07:00 ET
++BUILDER_SESSION, WORDPASS_SESSION = "pipeline_pp_selectid", "pipeline_pp_wordpass"
++REQUIRED = (WORDPASS_SESSION, "pipeline_pp_ingest_watch")
++READ_ONLY = ("list-panes", "capture-pane")             # the ONLY tmux subcommands this file runs
++
++INGEST_ROOT = os.environ.get("PP_INGEST_ROOT", "/home/ultron/worktrees/pp-ingest")
++BUILDER_ROOT = os.environ.get("PP_SELECTID_ROOT", "/home/ultron/worktrees/pp-selectid")
++PATHS = {
++    "log": os.path.join(REPO, "logs", "session_watchdog.log"),
++    "status": "/tmp/session_watchdog_status.json",
++    "state": "/tmp/session_watchdog_state.json",
++    "moment_ledger": os.path.join(INGEST_ROOT, "data", "editorial", "moments", "moment_ledger.jsonl"),
++    "builds": os.path.join(BUILDER_ROOT, "tests", "package", "proof", "ledger_*"),
++    "spend": os.path.join(BUILDER_ROOT, "tests", "package", "proof", "BATCH*_LEDGER.json"),
++    "wordpass_log": os.path.join(REPO, "logs", "word_pass_worker.log"),
++}
++
++BORDER = re.compile(r"^\s*─{8,}")
++PROMPT = re.compile(r"^\s*❯(?:\s|$)")
++SPINNER = re.compile(r"^\s*[^\w\s]\s+\S.*…\s*\(")
++TIMER = re.compile(r"…\s*\((?:(\d+)h\s*)?(?:(\d+)m\s*)?(?:(\d+)s)?\s*(?=[·)])")
++NOTICE = re.compile(r"^\s*(?:✔\s|⎿\s+Tip:)")
++BLOCK = re.compile(r"^\s*●\s")
++RESULT = re.compile(r"^\s*⎿")
++SHELL = re.compile(r"^\s*⎿\s+\$\s+(\S.*)$")
++BASH = re.compile(r"^\s*●\s+Bash\((.*?)\)?\s*$")
++ERROR = re.compile(r"\b[A-Z][A-Za-z]*(?:Error|Exception)\b|\bTraceback \(most recent call last\)|^\s*(?:⎿\s+)?[Ee]rror:"
++                   r"|\bFAILED\b|\bfatal:")
++EXIT_ONLY = re.compile(r"^\s*(?:⎿\s+)?Error:\s*Exit code \d+\s*$")
++COMPACT = re.compile(r"until auto-compact:?\s*(\d+)\s*%")
++CONTEXT_LOW = re.compile(r"\bContext low\b")
++VOLATILE = ((re.compile(r"\b\d+h\s*\d+m\s*\d+s\b|\b\d+m\s*\d+s\b|\b\d+(?:\.\d+)?s\b"), "<t>"),
++            (re.compile(r"[↓↑]\s*[\d.,]+k?\s*tokens"), "<n> tokens"))
++
++
++# ── tmux, read only ──
++
++def tmux(*args, timeout=15):
++    """A READ-ONLY tmux call: anything but list-panes / capture-pane is refused before it runs. -> stdout; LookupError
++    when tmux refuses (a session that is gone)."""
++    if not args or args[0] not in READ_ONLY:
++        raise PermissionError(f"the watchdog runs only {READ_ONLY}, never {args[:1]}")
++    r = subprocess.run(["tmux", *args], capture_output=True, text=True, timeout=timeout)
++    if r.returncode != 0:
++        raise LookupError((r.stderr or "").strip()[:200] or f"tmux {args[0]} exit {r.returncode}")
++    return r.stdout
++
++
++def list_sessions():
++    """{session: its active pane's command} for every pipeline_ session (one tmux call)."""
++    out = {}
++    for line in tmux("list-panes", "-a", "-F",
++                     "#{session_name}\t#{window_active}\t#{pane_active}\t#{pane_current_command}").splitlines():
++        p = line.split("\t")
++        if len(p) == 4 and p[0].startswith(PREFIX) and p[1] == "1" and p[2] == "1":
++            out[p[0]] = p[3]
++    return out
++
++
++def capture(session):
++    """The active pane's lines: its screen plus up to HISTORY lines of scrollback (a claude pane has none)."""
++    return tmux("capture-pane", "-p", "-t", f"={session}:", "-S", f"-{HISTORY}").splitlines()
++
++
++# ── reading a Claude Code pane ──
++
++def parse_pane(lines):
++    """{"in_turn", "timer_s", "bottom", "content", "turn", "turn_key"} of a Claude Code pane. bottom: the input box,
++    the footer under it and the two lines above it (never the conversation); content: everything above the spinner
++    (or the box); turn: the content after the last user prompt on screen (all of it when the prompt is off screen)."""
++    lines = [x.rstrip() for x in lines]
++    while lines and not lines[-1].strip():
++        lines.pop()
++    box = None
++    for i in range(len(lines) - 2, 0, -1):
++        if PROMPT.match(lines[i]) and BORDER.match(lines[i - 1]) and BORDER.match(lines[i + 1]):
++            box = i - 1
++            break
++    if box is None:                              # no input box found: the last 6 lines stand for it
++        end = max(0, len(lines) - 6)
++        bottom, footer = lines[end:], lines[end:]
++    else:
++        end = box
++        bottom, footer = lines[max(0, box - 2):], lines[box + 3:]
++    in_turn = any("esc to interrupt" in x for x in footer)
++    timer_s = None
++    for j in (range(end - 1, max(-1, end - 13), -1) if in_turn else ()):     # an idle pane has no spinner
++        if SPINNER.match(lines[j]):
++            m = TIMER.search(lines[j])
++            if m and any(m.groups()):
++                h, mi, s = (int(g or 0) for g in m.groups())
++                timer_s = h * 3600 + mi * 60 + s
++            end = j
++            break
++    content = lines[:end]
++    while content and (not content[-1].strip() or NOTICE.match(content[-1])):
++        content.pop()
++    start = max((k for k, x in enumerate(content) if PROMPT.match(x)), default=None)
++    turn = content[start + 1:] if start is not None else list(content)
++    key = hashlib.sha1(content[start].encode()).hexdigest()[:12] if start is not None else None
++    return {"in_turn": in_turn, "timer_s": timer_s, "bottom": bottom, "content": content, "turn": turn,
++            "turn_key": key}
++
++
++def _norm(s):
++    for rx, sub in VOLATILE:
++        s = rx.sub(sub, s)
++    return re.sub(r"\s+", " ", s.strip())
++
++
++def signature(content):
++    """The last STUCK_LINES non-empty content lines, timers and token counts masked, as one digest."""
++    keep = [_norm(x) for x in content if x.strip()][-STUCK_LINES:]
++    return hashlib.sha1("\n".join(keep).encode()).hexdigest()
++
++
++def blocks(lines):
++    """The lines cut into '●' entries (an action, a reply, a notification), each with what follows it."""
++    out, cur = [], []
++    for x in lines:
++        if BLOCK.match(x) and cur:
++            out.append(cur)
++            cur = []
++        cur.append(x)
++    if cur:
++        out.append(cur)
++    return out
++
++
++def commands(block):
++    """The shell commands of one block: a '⎿ $ ...' line with up to 4 continuation lines (so two heredocs sharing a
++    first line differ), or an older 'Bash(...)' line; and the block's header when the block is a tool action (it has a
++    '⎿' result line) and shows no command."""
++    out = []
++    for i, x in enumerate(block):
++        m = SHELL.match(x) or BASH.match(x)
++        if m:
++            cont = []
++            for y in block[i + 1:i + 5]:
++                if not y.strip() or RESULT.match(y) or BLOCK.match(y):
++                    break
++                cont.append(y.strip())
++            out.append(_norm(" ".join([m.group(1)] + cont)))
++    if not out and len(block) > 1 and any(RESULT.match(y) for y in block[1:]):
++        out.append(_norm(block[0].lstrip().lstrip("●")))
++    return out
++
++
++def loops(turn):
++    """[(kind, text, n)]: a command, or an error line, in LOOP_N or more SEPARATE blocks of the turn (a line repeated
++    inside one block's output counts once)."""
++    cmds, errs = {}, {}
++    for b in blocks(turn):
++        for c in set(commands(b)):
++            cmds[c] = cmds.get(c, 0) + 1
++        for e in {_norm(x.lstrip().lstrip("⎿")) for x in b if ERROR.search(x) and not EXIT_ONLY.match(x)}:
++            errs[e] = errs.get(e, 0) + 1
++    out = [("command", c, n) for c, n in cmds.items() if n >= LOOP_N] + \
++          [("error line", e, n) for e, n in errs.items() if n >= LOOP_N]
++    return sorted(out, key=lambda x: (-x[2], x[1]))
++
++
++def last_command(turn):
++    """(identity, command, latest) of the turn's latest shell command: its block's header with the command's FIRST
++    line (output streaming under a running command never changes it), the command, and whether its block is the last
++    on screen; (None, None, False) when the screen shows none."""
++    bs = blocks(turn)
++    for k in range(len(bs) - 1, -1, -1):
++        for x in reversed(bs[k]):
++            m = SHELL.match(x) or BASH.match(x)
++            if m:
++                cmd = _norm(m.group(1))
++                return f"{_norm(bs[k][0])} | {cmd}", cmd, k == len(bs) - 1
++    return None, None, False
++
++
++def join(acc, new):
++    """The turn so far: acc, then the lines of new past their overlap (new wins where the screen re-drew a line). No
++    overlap of at least 3 lines: new alone, so nothing is ever counted twice."""
++    if not new:
++        return list(acc)
++    if not acc:
++        return list(new)
++    tail = acc[-(len(new) + 40):]
++    found = [b for b in SequenceMatcher(None, tail, new, autojunk=False).get_matching_blocks() if b.size >= 3]
++    if not found:
++        return list(new)
++    b = found[-1]
++    return acc[:len(acc) - len(tail) + b.a + b.size] + new[b.b + b.size:]
++
++
++def context(bottom):
++    """The context warning shown around the input box, or None."""
++    text = "\n".join(bottom)
++    m = COMPACT.search(text)
++    if m and int(m.group(1)) <= CONTEXT_PCT:
++        return f"{m.group(1)} % of context left until auto-compact"
++    if CONTEXT_LOW.search(text):
++        return "'Context low' shown"
++    return None
++
++
++# ── findings ──
++
++def hm(t):
++    return dt.datetime.fromtimestamp(t, ET).strftime("%H:%M ET")
++
++
++def finding(session, kind, what, since, key=None, **extra):
++    return {"session": session, "key": key or session, "kind": kind, "what": what, "since": round(since, 1),
++            "since_et": hm(since), **extra}
++
++
++def claude_findings(name, lines, st, now):
++    """(findings, parsed pane) for one Claude Code pane; st: this session's tracking, updated in place."""
++    p = parse_pane(lines)
++    out = []
++    sig = signature(p["content"])
++    if st.get("sig") != sig:
++        st["sig"], st["sig_since"] = sig, now
++    ident, cmd, latest = last_command(p["turn"])
++    if st.get("cmd") != ident:
++        st["cmd"], st["cmd_since"] = ident, now
++    if p["in_turn"]:                                                    # (1)
++        if now - st["sig_since"] >= STUCK_S:
++            out.append(finding(name, "STUCK", f"a turn in progress, its last {STUCK_LINES} lines unchanged for "
++                                              f"{int((now - st['sig_since']) // 60)} min", st["sig_since"]))
++        elif cmd and latest and now - st["cmd_since"] >= STUCK_S:
++            out.append(finding(name, "STUCK", f"the same shell command for {int((now - st['cmd_since']) // 60)} min: "
++                                              f"'{cmd[:120]}'", st["cmd_since"]))
++    turn = track_turn(st, p)                                            # (2)
++    if p["in_turn"]:
++        since = st.setdefault("loop_since", {})
++        for kind, text, n in loops(turn)[:3]:
++            out.append(finding(name, "LOOP", f"the same {kind} {n} times in this turn: '{text[:120]}'",
++                               since.setdefault(text, now)))
++    if p["in_turn"] and p["timer_s"] is not None and p["timer_s"] > LONG_S:   # (3)
++        h, m = divmod(p["timer_s"] // 60, 60)
++        out.append(finding(name, "LONG_TURN", f"one turn at {h} h {m:02d} min by its own timer", now - p["timer_s"]))
++    ctx = context(p["bottom"])                                          # (5)
++    if ctx:
++        out.append(finding(name, "CONTEXT", ctx, st.setdefault("context_since", now)))
++    else:
++        st.pop("context_since", None)
++    return out, p
++
++
++def track_turn(st, p):
++    """The current turn's lines seen so far (at most HISTORY), kept across passes; reset by an idle pane or a new
++    prompt."""
++    if not p["in_turn"]:
++        st.pop("turn", None)
++        st.pop("loop_since", None)
++        return p["turn"]
++    t = st.get("turn")
++    if not t or (p["turn_key"] is not None and t.get("key") != p["turn_key"]):
++        t = {"key": p["turn_key"], "lines": list(p["turn"])}
++        st.pop("loop_since", None)
++    else:
++        t["lines"] = join(t["lines"], p["turn"])
++    t["lines"] = t["lines"][-HISTORY:]
++    st["turn"] = t
++    return t["lines"]
++
++
++def mtime(path):
++    try:
++        return os.path.getmtime(path)
++    except OSError:
++        return None
++
++
++def rows_waiting(now):
++    """(the rows the word pass's own pick() would take now, None) or (None, why): read only, no GPU, no model."""
++    try:
++        if PIPELINE not in sys.path:
++            sys.path.insert(0, PIPELINE)
++        import word_pass_worker as W
++        utc = dt.datetime.fromtimestamp(now, dt.timezone.utc)
++        rows, _ = W.ledger_rows(utc, timeout=60)
++        return len(W.pick(rows, W.passed_ids(), now=utc)[0]), None
++    except Exception as e:
++        return None, f"{type(e).__name__}: {str(e)[:120]}"
++
++
++def idle_with_work(sessions, panes, state, now, paths, waiting=rows_waiting):
++    """(4): the required sessions present; the builder not idle on a changed ledger; the word pass not silent on work."""
++    out, miss = [], state.setdefault("missing", {})
++    for name in REQUIRED:
++        if name in sessions:
++            miss.pop(name, None)
++        else:
++            out.append(finding(name, "IDLE_WITH_WORK", "the session is missing", miss.setdefault(name, now)))
++    p = panes.get(BUILDER_SESSION)
++    if p is not None and not p["in_turn"]:
++        changed = mtime(paths["moment_ledger"])
++        built = max((t for t in (mtime(d) for d in glob.glob(paths["builds"])) if t is not None), default=None)
++        if changed is not None and now - changed > LEDGER_IDLE_S and (built is None or built < changed):
++            out.append(finding(BUILDER_SESSION, "IDLE_WITH_WORK",
++                               f"idle at its prompt; the moments ledger changed at {hm(changed)} and no build followed",
++                               changed))
++    last = mtime(paths["wordpass_log"])
++    if last is None or now - last > WORDPASS_IDLE_S:
++        n, why = waiting(now)
++        if n is None or n > 0:
++            rows = f"{n} rows waiting" if n is not None else f"rows waiting unknown ({why})"
++            out.append(finding(WORDPASS_SESSION, "IDLE_WITH_WORK",
++                               f"{rows}, no word-pass cycle since {hm(last) if last else 'its log began'}",
++                               last if last is not None else now))
++    return out
++
++
++def _et_stamp(s):
++    """'2026-11-15T21:10 ET' -> epoch."""
++    s = str(s).strip()
++    if not s.endswith(" ET"):
++        raise ValueError(f"not an ET time: {s!r}")
++    return dt.datetime.fromisoformat(s[:-3]).replace(tzinfo=ET).timestamp()
++
++
++def day_spend(pattern, now):
++    """((usd, window), None) from the builder's batch ledger whose window holds now, spans at most a day and caps
++    outside vendors; else (None, why)."""
++    found, seen = None, []
++    for path in sorted(glob.glob(pattern)):
++        try:
++            with open(path) as f:
++                d = json.load(f)
++            t0, t1, usd = _et_stamp(d["from"]), _et_stamp(d["to"]), float(d["all_in"])
++        except (OSError, ValueError, KeyError, TypeError) as e:
++            seen.append(f"{os.path.basename(path)}: {type(e).__name__}")
++            continue
++        if "outside" not in str(d.get("capped", "")).lower():
++            seen.append(f"{os.path.basename(path)}: not an outside-vendor ledger")
++        elif not t0 <= now < t1:
++            seen.append(f"{os.path.basename(path)}: its window does not hold now")
++        elif t1 - t0 > 86400 + 60:
++            seen.append(f"{os.path.basename(path)}: its window is longer than a day")
++        else:
++            found = (usd, f"{os.path.basename(path)} {d['from']} to {d['to']}")
++    if found:
++        return found, None
++    return None, "no batch ledger of the builder gives today's outside dollars" + (f" ({'; '.join(seen)})" if seen else "")
++
++
++def spend_findings(state, now, paths):
++    """(6): one finding, the highest level reached, never said twice in one day window."""
++    rec, why = day_spend(paths["spend"], now)
++    if rec is None:
++        return [], {"readable": False, "why": why}
++    usd, window = rec
++    sp = state.setdefault("spend", {})
++    if sp.get("window") != window:
++        sp.clear()
++        sp["window"] = window
++    view = {"readable": True, "usd": round(usd, 4), "cap_usd": DAY_CAP_USD, "window": window}
++    for level in SPEND_LEVELS:
++        if usd >= level * DAY_CAP_USD - 1e-9:
++            if sp.get("said", 0) >= level:
++                return [], view
++            since = sp.setdefault(f"since_{level}", now)
++            return [finding(BUILDER_SESSION, "SPEND", f"the builder's outside-vendor dollars today ${usd:.2f}, at "
++                            f"{level:.0%} of ruling 118's ${DAY_CAP_USD:.2f} day cap", since, key=f"spend:{level:.0%}",
++                            level=level)], view
++    return [], view
++
++
++# ── a pass ──
++
++def default_send(key, kinds, line, now):
++    if PIPELINE not in sys.path:
++        sys.path.insert(0, PIPELINE)
++    import telegram
++    return telegram.send_watchdog(key, kinds, line, now=now)
++
++
++def dispatch(findings, state, now, send):
++    """ONE line per key per pass: its findings joined ('<session>: <KIND>: <what> (since <time>); ...'); at night only
++    (4) and (6). The hour and the night are held again by telegram.send_watchdog. -> what happened to each line."""
++    by, out = {}, []
++    night = dt.datetime.fromtimestamp(now, ET).hour < 7
++    for f in findings:
++        if not night or f["kind"] in NIGHT_KINDS:
++            by.setdefault(f["key"], []).append(f)
++    for key, fs in sorted(by.items()):
++        line = f"{fs[0]['session']}: " + "; ".join(f"{f['kind'].replace('_', ' ')}: {f['what']} (since {f['since_et']})"
++                                                   for f in fs)
++        try:
++            out.append({"key": key, "sent": send(key, [f["kind"] for f in fs], line, now), "line": line})
++            counted = True
++        except Exception as e:
++            how = {"WatchdogRefused": "held", "SendRejected": "refused"}.get(type(e).__name__, "unknown")
++            out.append({"key": key, how: f"{type(e).__name__}: {str(e)[:160]}", "line": line})
++            counted = how == "unknown"             # an unknown outcome counts as said (never repeated)
++        for f in fs:
++            if f["kind"] == "SPEND" and counted:
++                sp = state.setdefault("spend", {})
++                sp["said"] = max(sp.get("said", 0), f["level"])
++    return out
++
++
++def log_line(path, text):
++    try:
++        os.makedirs(os.path.dirname(path), exist_ok=True)
++        with open(path, "a") as f:
++            f.write(f"{dt.datetime.now(ET).strftime('%Y-%m-%d %H:%M:%S ET')} {text}\n")
++    except OSError as e:
++        print(f"session_watchdog: cannot write {path}: {e}", file=sys.stderr)
++
++
++def save_json(path, obj):
++    tmp = f"{path}.tmp{os.getpid()}"
++    with open(tmp, "w") as f:
++        json.dump(obj, f, indent=1, default=str)
++    os.replace(tmp, path)
++
++
++def run_pass(state, now=None, paths=None, send=default_send, waiting=rows_waiting, dry_run=False):
++    """One pass: read, find, log, tell, write the status. Every session and check is guarded: an error is recorded
++    and the pass goes on. -> the status written."""
++    paths, now = paths or PATHS, time.time() if now is None else now
++    state["pass"] = state.get("pass", 0) + 1
++    status = {"at": dt.datetime.fromtimestamp(now, ET).isoformat(timespec="seconds"), "pass": state["pass"],
++              "sessions": {}, "findings": [], "telegram": [], "errors": []}
++    findings, panes, ss = [], {}, state.setdefault("sessions", {})
++    try:
++        sessions = list_sessions()
++    except Exception as e:
++        sessions = None
++        status["errors"].append(f"tmux list-panes: {type(e).__name__}: {e}")
++    for name, cmd in sorted((sessions or {}).items()):
++        view = {"command": cmd}
++        if cmd == "claude":
++            try:
++                f, p = claude_findings(name, capture(name), ss.setdefault(name, {}), now)
++                panes[name] = p
++                findings += f
++                view.update(in_turn=p["in_turn"], turn_timer_s=p["timer_s"],
++                            turn_lines_seen=len((ss[name].get("turn") or {}).get("lines") or []))
++            except Exception as e:
++                status["errors"].append(f"{name}: {type(e).__name__}: {e}")
++        status["sessions"][name] = view
++    if sessions is not None:
++        for name in [n for n in ss if n not in sessions]:
++            ss.pop(name)                           # a session that is gone takes its tracking with it
++        try:
++            findings += idle_with_work(set(sessions), panes, state, now, paths, waiting)
++        except Exception as e:
++            status["errors"].append(f"idle with work: {type(e).__name__}: {e}")
++    try:
++        f, status["spend"] = spend_findings(state, now, paths)
++        findings += f
++    except Exception as e:
++        status["errors"].append(f"spend: {type(e).__name__}: {e}")
++    status["findings"] = findings
++    for f in findings:
++        log_line(paths["log"], f"{f['session']} {f['kind']}: {f['what']} (since {f['since_et']})")
++    if findings and not dry_run:
++        status["telegram"] = dispatch(findings, state, now, send)
++    for e in status["errors"]:
++        log_line(paths["log"], f"ERROR {e}")
++    log_line(paths["log"], f"pass {state['pass']}: {len(status['sessions'])} sessions, {len(findings)} findings, "
++                           f"{sum('sent' in t for t in status['telegram'])} lines sent"
++                           + (" (dry run)" if dry_run else ""))
++    try:
++        save_json(paths["status"], status)
++    except OSError as e:
++        log_line(paths["log"], f"ERROR status: {e}")
++    return status
++
++
++def main(argv=None):
++    a = argparse.ArgumentParser(description=__doc__.split("\n")[0])
++    a.add_argument("--once", action="store_true")
++    a.add_argument("--dry-run", action="store_true", help="no Telegram line")
++    a.add_argument("--interval", type=float, default=PASS_S)
++    a = a.parse_args(argv)
++    try:
++        with open(PATHS["state"]) as f:
++            state = json.load(f)
++        state = state if isinstance(state, dict) else {}
++    except (OSError, ValueError):
++        state = {}
++    while True:
++        t0 = time.time()
++        try:
++            run_pass(state, now=t0, dry_run=a.dry_run)
++        except Exception as e:                     # its own error: logged, and the next pass comes
++            log_line(PATHS["log"], f"ERROR pass: {type(e).__name__}: {e}")
++        try:
++            save_json(PATHS["state"], state)
++        except OSError as e:
++            log_line(PATHS["log"], f"ERROR state: {e}")
++        if a.once:
++            return 0
++        time.sleep(max(1.0, a.interval - (time.time() - t0)))
++
++
++if __name__ == "__main__":
++    sys.exit(main())
