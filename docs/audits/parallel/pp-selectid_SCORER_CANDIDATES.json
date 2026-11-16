@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T20:44:21+00:00",
- "build": "ledger_20261116_204348",
+ "generated_at": "2026-11-16T20:52:40+00:00",
+ "build": "ledger_20261116_205205",
  "kind": "moments",
  "candidates": [
   {
@@ -166,6 +166,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "3abb3227c608fa365df3",
+   "video_id": "oks1ThfeXKM",
+   "channel": "Digital Asset News",
+   "duration": 5.72,
+   "text": "So when I see this on top of the dynamic, I'm like, yeah, I probably should double up. Now, that is for Bitcoin.",
+   "text_sha256": "1414a50c52ca55b12fc4c0683f0806794b26d89aeeeddc4609f40f8dc13219b9",
+   "trimmed_leading": null
+  },
+  {
    "pid": "40b470a314403cdc3247",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -190,6 +199,15 @@
    "duration": 1.68,
    "text": "And the best leading indicator for that is Bitcoin.",
    "text_sha256": "14e2ed9e325ba472a03f8d0f3ef2f940d6f1197528b5cf6a3afb7a337ed5b483",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "cb876edc634879b42f61",
+   "video_id": "oks1ThfeXKM",
+   "channel": "Digital Asset News",
+   "duration": 4.92,
+   "text": "And of course, we went flat because everybody had sold off. And then everybody got disillusioned and they started to buy back Bitcoin again.",
+   "text_sha256": "d876bfdeea59cb03c162880496bfe75a3d80fbabec39aaf3dff7903150016f24",
    "trimmed_leading": null
   },
   {
@@ -463,6 +481,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "3abb3227c608fa365df3~trim",
+   "video_id": "oks1ThfeXKM",
+   "channel": "Digital Asset News",
+   "duration": 5.64,
+   "text": "when I see this on top of the dynamic, I'm like, yeah, I probably should double up. Now, that is for Bitcoin.",
+   "text_sha256": "7def7ee4143a48a4f08a55a5badf788dd2d648f54474709c51f5f85ebf054a1a",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "7f8de3564c0b6b440222~trim",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -478,6 +505,15 @@
    "duration": 1.62,
    "text": "the best leading indicator for that is Bitcoin.",
    "text_sha256": "2a6440ad65d6605f3d22f154471730081159584aee5599f875a22724579ec3eb",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "cb876edc634879b42f61~trim",
+   "video_id": "oks1ThfeXKM",
+   "channel": "Digital Asset News",
+   "duration": 4.56,
+   "text": "of course, we went flat because everybody had sold off. And then everybody got disillusioned and they started to buy back Bitcoin again.",
+   "text_sha256": "1b392e6cc19d0bb761dfa39c3a0eb5612c8dc7b9122193cb26ad5ccb2ff19995",
    "trimmed_leading": "And"
   },
   {
@@ -1579,6 +1615,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "705d18e1093ce01b1c29~trim",
+   "video_id": "oks1ThfeXKM",
+   "channel": "Digital Asset News",
+   "duration": 17.22,
+   "text": "when I see this on top of the dynamic, I'm like, yeah, I probably should double up. Now, that is for Bitcoin. Altcoins are a different story. I have stopped. My buying vault coins, I've had a couple of different indicators flash mostly would be Wes's smart money bot or smart money tracking.",
+   "text_sha256": "8c657f40cc70d239bcdf1b3fbe2a6f966dc41cd2ebbfa40e01f90e71455e3dd6",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "5435ac403fa801c2ba6f",
    "video_id": "uAvmynMSVhM",
    "channel": "Bitcoin Magazine",
@@ -1595,6 +1640,15 @@
    "text": "Where do you think Bitcoin is going to be? I think it's going to be below 50. That's at how far it breaks down. But yeah, Dave, we can. I would love to respond. But David has really got 10 minutes, I think, left. So I just want to talk about, you know, this is the SpaceX Anthropic and then you can respond.",
    "text_sha256": "25cfd4302eed2f7103ca12629ac24f23f17fb27bf9fad5978b2850b93efd5d28",
    "trimmed_leading": null
+  },
+  {
+   "pid": "84eab9c33cf06a2ee100~trim",
+   "video_id": "oks1ThfeXKM",
+   "channel": "Digital Asset News",
+   "duration": 21.46,
+   "text": "you take a look at this and you think yourself, what's going to happen with Bitcoin? Well, if you just saw what I just showed you, as everything are pulling people out as far as liquidity, you're going to see the same thing happen again, I believe, and we could just keep going down. However, there is some good news as far as the chips that will power AI revolution.",
+   "text_sha256": "e7585ec28feb218503217339447bb646a459859a08a2bbf8912a9e7f0030839e",
+   "trimmed_leading": "So"
   },
   {
    "pid": "8e31c51b9a376b0c72c4~trim",
@@ -1622,6 +1676,15 @@
    "text": "People that were like an OG to Bitcoin have a tendency to be earlier adopters of technology, right? That's the core reason you were probably an OG in the first place because you've been around it longer, right? You adopted technology earlier. So it makes sense to me that those folks would be the exact same ones who adopted AI earlier. I feel as though because this totally foundational technological change has been happening, a lot of folks in that group have kind of had some of their energy that was all like funneled towards Bitcoin and moved it over to like AI.",
    "text_sha256": "cf7ace987c0fcc7be233780ac01a48c4134dd614dfee1e7be0570ac253bbaeab",
    "trimmed_leading": null
+  },
+  {
+   "pid": "c64667db4a27eeb40e2f~trim",
+   "video_id": "oks1ThfeXKM",
+   "channel": "Digital Asset News",
+   "duration": 15.86,
+   "text": "of course, we went flat because everybody had sold off. And then everybody got disillusioned and they started to buy back Bitcoin again. Now here we are. And if you want to take a look at that a little bit differently, let's just shift things a little bit. So this was a pretty good one. You got the Bitcoin in blue around the SpaceX IPO.",
+   "text_sha256": "1277c31df61723f6fe15ceb5908f8eaf6dc1fe47a31755171268fdc3e1170fb2",
+   "trimmed_leading": "And"
   },
   {
    "pid": "d4307bfa4edac6c0c0a8",
@@ -1783,6 +1846,15 @@
    "duration": 16.01,
    "text": "Like the very fundamentalist Bitcoiners have had a way worse bear market. than those in the treasury companies. Even though the treasury companies are down more, their story for viewing the world hasn't changed. That has happened for fundamentalist Bitcoiners. Your view of what Bitcoin is is how to shift and evolve over these last six months or so.",
    "text_sha256": "8cbab23421036acab5bd878dea7632b1b7a3401e6f9b8e0bfb7e80d275b64af8",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "25fdccbfafac5735e699",
+   "video_id": "oks1ThfeXKM",
+   "channel": "Digital Asset News",
+   "duration": 14.12,
+   "text": "If you bought Bitcoin at $10,000, you're laughing at me right now, but that's okay. I got in 2017. I was buying Bitcoin, $8,500, 9,500, 135, and then I... bought after that in the crash, but I wish I would have bought more. And I wish I would have had this tool, and I just didn't.",
+   "text_sha256": "74bf6cb91b78d76bac3fd7ca732fa87799d408e1ed5e95f13228d0168126373e",
    "trimmed_leading": null
   },
   {
