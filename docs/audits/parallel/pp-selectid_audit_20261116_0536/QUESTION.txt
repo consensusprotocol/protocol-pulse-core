@@ -1,0 +1,38 @@
+pp-selectid: RULING 118 (orchestrator 05:40 ET Nov 16), THE DAY CAP: the guard before the free panel. Files:
+pipeline/providers.py (Router: `uncapped`), tests/package/proof_ly.py (the $1.00 day cap, the day ledger, UNCAPPED),
+tests/package/proof_ledger.py (the build's router; the shadow), and their tests.
+
+THE ORDER, verbatim: "(a) OUTSIDE VENDORS (xAI, Gemini, any paid API): HARD CAP $1.00 A DAY all-in (builds, audits,
+tests together; batch 4 has spent $0.52, so $0.48 is left today), and the target is UNDER $1.00 PER SEALED VIDEO.
+Reaching the cap stops outside calls, not the work. (b) HEIMDALL AND THE TWO 4090s ARE FREE: use them for all they are
+worth; capacity and politeness are the only limits." Audits from now: Heimdall seats only.
+
+THE CHANGE:
+- providers.Router(uncapped=()): a back-end whose name's vendor part (before ':', as the ledger keys it) is in
+  `uncapped` is recorded in the ledger exactly as before, but _reserve takes NO reservation for it and _basis_total
+  leaves its dollars OUT of the total limit_usd is checked against. Reported basis: the capped back-ends' usd_reported
+  plus the WHOLE usd_unreported_estimate (it keeps no vendor split, so all of it counts: the stricter reading);
+  estimate basis: the capped back-ends' usd_estimate. Default (): every back-end counts, as before, for every other
+  caller of the Router.
+- proof_ly: LY_LIMIT_USD = LY_STOP_USD = 1.00 (were 4.50 / 4.00); UNCAPPED = ("heimdall",); SPEND = day_ledger(): a
+  day runs 21:10 ET to 21:10 ET and is named by its start date; the day that starts 21:10 ET Nov 15 keeps batch 4's
+  SPEND_B4.json (the ruling counts batch 4's $0.52 in it). SPEND is read once when a build starts: a build charges the
+  day it started in. Audits and tests are Heimdall-only from now, so the builds' outside dollars are the day's.
+- proof_ledger.build_router passes uncapped=PL.UNCAPPED; build_shadow keeps only uncapped (Heimdall) shadow entries:
+  ruling 86's Grok shadow ($0.25 of build 19's $0.46) is dropped; ruling 115's qwen hook shadow stays.
+
+UNCHANGED GUARDS (not in the diff): _reserve's refusal, pipeline/providers.py (def _reserve): spent + reserved + this
+call's upper bound > limit_usd raises SpendLimit, at once when spend alone is over; _basis_total's first lines: a ledger
+with calls and no reported figures raises SpendLimit (fail closed); proof_ledger.start_refused (no build starts at or
+over LY_STOP_USD); every capped paid call reserves its price-table upper bound while in flight.
+
+TESTS: test_providers test_ruling_118_heimdall_is_recorded_but_never_capped (reported and estimate bases; a $4 Heimdall
+call neither reserved nor refused, recorded; an outside call refused at the cap; no `uncapped`: all counted);
+test_ledger_router TestRuling118TheBuildsRouterCapsOnlyOutsideVendors (through the build's own router, every state file
+in a temp folder: a Heimdall call whose upper bound alone passes $1.00 runs, an outside call at $0.95 spent is refused);
+test_ruling_102 (the $1.00 stop; the day ledger at the 21:10 boundary, today's = SPEND_B4.json); test_ledger_build
+(the Grok shadow dropped, a Heimdall shadow kept). Mutations G1-G9 after a control run. All suite files pass.
+
+PLEASE CHECK: (1) that an outside call can never pass the day's $1.00; (2) that a Heimdall call is never refused by
+the cap and is still recorded; (3) that every other Router caller is unchanged; (4) the day ledger's boundary and the
+first day's file; (5) the tests.

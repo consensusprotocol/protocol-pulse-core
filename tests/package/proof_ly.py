@@ -32,6 +32,8 @@ import os
 import subprocess
 import sys
 import time
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
@@ -47,14 +49,31 @@ import speakers as SP  # noqa: E402
 
 REPLIES = os.path.join(HERE, "fixtures", "replies")
 OUT = os.path.join(HERE, "proof")
-SPEND = os.path.join(OUT, "SPEND_B4.json")   # BATCH 4 (orchestrator 19:40 ET Nov 15: 21:10 ET Nov 15 to 21:10 ET Nov
-#   16, batch 3's terms) keeps its own ledger, as batch 3 did (ruling 108). CLOSED: batch 3's SPEND_B3.json at 21:10 ET
-#   Nov 15; the $20 order's SPEND_LY.json at $11.47 (restated on ruling 107 Q1's basis, e7f68e11).
-LY_LIMIT_USD = 4.50                # RULING 108, batch 4 on its terms: builds + sealing's share of the $8.00 cap (audits $2.50,
-LY_LIMIT_BASIS = "reported"        # mining and checks $1.00), VENDOR-REPORTED; an abandoned call at the model's own
-LY_STOP_USD = 4.00                 # rate (ruling 107 Q1). No build starts at or over $4.00 (a build runs $0.15-0.50, so
-                                   # none ends over $4.50: each paid call still RESERVES its upper bound while in
-                                   # flight, and none passes the limit); STATE line 1 says so in capitals.
+DAY_ET = ZoneInfo("America/New_York")
+DAY_START = (21, 10)               # RULING 118: a day's dollar runs 21:10 ET to 21:10 ET (the batches' boundary; the
+FIRST_DAY = "SPEND_B4.json"        # ruling counts batch 4's $0.52 in Nov 16's dollar, so that day's ledger is batch 4's)
+
+
+def day_ledger(now=None):
+    """RULING 118 (orchestrator 05:40 ET Nov 16): the ledger of the day `now` falls in (default: this moment). A day
+    starts at DAY_START ET and is named by the date it starts on; the day that starts 21:10 ET Nov 15 is batch 4's,
+    whose ledger it keeps (FIRST_DAY). -> the ledger's path."""
+    t = (now or datetime.now(timezone.utc)).astimezone(DAY_ET)
+    start = t.replace(hour=DAY_START[0], minute=DAY_START[1], second=0, microsecond=0)
+    if t < start:
+        start -= timedelta(days=1)
+    return os.path.join(OUT, FIRST_DAY if start.strftime("%Y%m%d") == "20261115" else
+                        f"SPEND_D{start:%Y%m%d}.json")
+
+
+SPEND = day_ledger()               # RULING 118: today's ledger, read once when a build starts (a build charges the day
+#   it started in). CLOSED: batch 3's SPEND_B3.json at 21:10 ET Nov 15; the $20 order's SPEND_LY.json at $11.47.
+LY_LIMIT_USD = 1.00                # RULING 118 (a): the OUTSIDE vendors' HARD cap, $1.00 a day all-in (builds, audits,
+LY_LIMIT_BASIS = "reported"        # tests: the audits and tests are Heimdall-only, so the builds' outside dollars are
+LY_STOP_USD = 1.00                 # the day's), VENDOR-REPORTED, an abandoned call at the model's own rate (ruling 107
+#   Q1). Each paid call RESERVES its upper bound (Router._reserve), so none passes the cap. At the cap no build starts
+#   (the verdicts are outside calls until the free panel takes them; STATE line 1 says so in capitals).
+UNCAPPED = ("heimdall",)           # RULING 118 (b): Heimdall is free: recorded in the ledger, never reserved or capped
 RESERVE_WAIT_S = 600.0             # BATCH 3 (Nov 14): the ledger build's router waits up to this long for calls in
                                    # flight to settle before refusing a call that fits under the limit by itself
                                    # (Router reserve_wait_s): step A's six workers reserve about $0.85 each, so under

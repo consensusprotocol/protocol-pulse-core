@@ -732,7 +732,7 @@ class Router:
     def __init__(self, config=CONFIG, env_path=None, record_dir=None, replay=False, spend_path=None, limit_usd=40.0,
                  local_llm=None, chains=None, limit_basis="estimate", deadline_log=None, slow_log_s=240.0,
                  routing=None, shadow=None, shadow_log=None, health=None, plan_b_chains=None, state_md=None,
-                 breakers=None, deadlines=None, reserve_wait_s=0.0):
+                 breakers=None, deadlines=None, reserve_wait_s=0.0, uncapped=()):
         with open(config) as f:
             self.config = json.load(f)
         rt = self.config.get("routing") or {}
@@ -744,6 +744,7 @@ class Router:
         if limit_basis not in ("estimate", "reported"):
             raise ValueError(f"limit_basis must be 'estimate' or 'reported', not {limit_basis!r}")
         self.limit_basis = limit_basis            # what limit_usd counts: _basis_total
+        self.uncapped = tuple(uncapped)           # RULING 118 (b): vendors recorded in the ledger but never capped
         self.reserve_wait_s = float(reserve_wait_s)   # _reserve: 0 (the default) refuses at once, as every caller had
         self.reserve_poll_s = RESERVE_POLL_S          # it; a batch build that may wait for calls in flight opts in
         import threading
@@ -878,6 +879,12 @@ class Router:
         except OSError as e:
             self.notices.append(f"the deadline log could not be written: {type(e).__name__}: {e}")
 
+    def _capped(self, name):
+        """RULING 118 (orchestrator 05:40 ET Nov 16): (a) the OUTSIDE vendors' dollars are capped; (b) Heimdall's are
+        free: a back-end of an `uncapped` vendor (the name's part before ':', as the ledger keys it) is recorded in the
+        ledger like any other, but never reserved and never counted toward limit_usd. No `uncapped`: every back-end."""
+        return name.split(":", 1)[0] not in self.uncapped
+
     def _basis_total(self, d):
         """The ledger total limit_usd is checked against. "estimate": the price-table estimate of every call (an upper
         bound). "reported" (ruling 48, orchestrator 2026-11-13 07:02): the vendors' own reported dollars, plus the
@@ -887,7 +894,14 @@ class Router:
             if d.get("calls", 0) and "usd_reported" not in d and "usd_unreported_estimate" not in d:
                 raise SpendLimit("the ledger has calls but keeps no vendor-reported figures: the reported basis "
                                  "cannot be read (fail closed; audit 0707 C1, glm P1-2)")
+            if self.uncapped:                    # RULING 118: the capped vendors' own figures; the unreported estimate
+                return sum(float(v.get("usd_reported", 0.0) or 0.0)     # keeps no vendor split, so all of it
+                           for k, v in (d.get("by_backend") or {}).items()     # counts (the stricter reading)
+                           if self._capped(k)) + float(d.get("usd_unreported_estimate", 0.0))
             return float(d.get("usd_reported", 0.0)) + float(d.get("usd_unreported_estimate", 0.0))
+        if self.uncapped:
+            return sum(float(v.get("usd_estimate", 0.0) or 0.0)
+                       for k, v in (d.get("by_backend") or {}).items() if self._capped(k))
         return float(d["usd_estimate"])
 
     def spent(self):
@@ -911,7 +925,7 @@ class Router:
         65 moments at step A, medley and spotlight (90 holds in all), without this wait: six step-A workers, each
         reserving about $0.85, under a $4.50 limit with $0.27 spent; four fit, and the other workers were refused batch
         after batch while those four ran."""
-        if not self.spend_path or b.free():
+        if not self.spend_path or b.free() or not self._capped(b.name):     # ruling 118 (b): Heimdall is free
             return None
         t_end, waited = time.time() + max(0.0, float(self.reserve_wait_s)), False
         while True:

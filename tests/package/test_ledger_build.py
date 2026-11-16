@@ -910,8 +910,12 @@ class TestRuling85NoXai(unittest.TestCase):
         X, Q = "xai:grok-4.20-0309-reasoning", "heimdall:qwen/qwen3.8-27b"
         rt = {"shadow": {"*": X}, "shadow_until_clean_pins": 3}
         hook = {"coherence_verdict:hook": Q}
-        self.assertEqual(PLG.build_shadow("heimdall_first", rt, lambda: 0), {"*": X, **hook})
+        self.assertEqual(PLG.build_shadow("heimdall_first", rt, lambda: 0), hook)   # RULING 118: no outside shadow
         self.assertEqual(PLG.build_shadow("heimdall_first", rt, lambda: 3), hook)
+        H = "heimdall:deepseek/deepseek-v4.1-flash"                     # a Heimdall shadow stays (it is free)
+        rt_h = {"shadow": {"*": X, "visual_check": "xai_vision:grok-4.7", "context_verdict": H},
+                "shadow_until_clean_pins": 3}
+        self.assertEqual(PLG.build_shadow("heimdall_first", rt_h, lambda: 0), {"context_verdict": H, **hook})
 
         def never():
             raise AssertionError("the streak is read under heimdall_first only")
@@ -919,7 +923,7 @@ class TestRuling85NoXai(unittest.TestCase):
         r = self.pl().P.Router(env_path="/nonexistent", routing="heimdall_first",
                                shadow=PLG.build_shadow("heimdall_first", rt, lambda: 0))
         self.assertEqual((r._shadow_of("coherence_verdict", "hook"), r._shadow_of("coherence_verdict", "coherence")),
-                         (Q, X))                                       # the router reads them as ruled
+                         (Q, None))                                    # the router reads them as ruled
 
     def test_ruling_96s_lists_and_xai_answering_nothing(self):
         """RULING 96 (01:40 ET Nov 14), final until re-measured, on ruling 88's structure, as the orchestrator's 06:12

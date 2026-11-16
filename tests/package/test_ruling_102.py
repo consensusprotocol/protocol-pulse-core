@@ -305,17 +305,30 @@ class TestOnThePinAndOnState(unittest.TestCase):
         self.assertIn("THE LOCAL JUDGE (RULING 87'S LAST RESORT) GAVE 2 STEP-A VERDICT(S): ['c', 'e']", line)
 
     def test_no_build_starts_at_the_stop_and_one_starts_below(self):
-        """The orchestrator 13:02 Nov 14: at the stop no build starts, and STATE line 1 says so in capitals. RULING 108
-        (21:20 Nov 14): batch 3's builds stop at $4.00 of their $4.50 share; batch 4 (19:40 Nov 15) on the same terms."""
-        self.assertEqual((PLG.PL.LY_STOP_USD, PLG.PL.LY_LIMIT_USD), (4.00, 4.50))
+        """The orchestrator 13:02 Nov 14: at the stop no build starts, and STATE line 1 says so in capitals. RULING 118
+        (05:40 Nov 16): the outside vendors' HARD cap is $1.00 a day, Heimdall uncapped; each paid call reserves its
+        upper bound, so the cap itself is never passed (ruling 108's headroom between the stop and the limit is gone)."""
+        self.assertEqual((PLG.PL.LY_STOP_USD, PLG.PL.LY_LIMIT_USD), (1.00, 1.00))
         self.assertEqual(PLG.PL.LY_LIMIT_BASIS, "reported")               # vendor-reported (audit 2114 C1, glm)
-        self.assertGreaterEqual(PLG.PL.LY_LIMIT_USD - PLG.PL.LY_STOP_USD, 0.50)   # one build's headroom (C1, glm)
-        self.assertEqual(os.path.basename(PLG.PL.SPEND), "SPEND_B4.json")   # batch 4's own; never a closed ledger
-        self.assertNotIn(os.path.basename(PLG.PL.SPEND), ("SPEND_LY.json", "SPEND_B3.json"))
-        self.assertIsNone(PLG.start_refused(3.99))
-        why = PLG.start_refused(4.0)
-        self.assertIn("at or over the $4.00 stop: no build starts", why)
+        self.assertEqual(PLG.PL.UNCAPPED, ("heimdall",))
+        self.assertIsNone(PLG.start_refused(0.99))
+        why = PLG.start_refused(1.0)
+        self.assertIn("at or over the $1.00 stop: no build starts", why)
         self.assertIn("SAY IT ON STATE LINE 1 IN CAPITALS", why)
+
+    def test_ruling_118_each_day_keeps_its_own_ledger_from_21_10_et(self):
+        """RULING 118: $1.00 a day; a day runs 21:10 ET to 21:10 ET, and the one that starts 21:10 ET Nov 15 is batch 4's
+        (the ruling counts batch 4's $0.52 in it), so it keeps SPEND_B4.json; a build charges the day it started in."""
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        et, dl = ZoneInfo("America/New_York"), PLG.PL.day_ledger
+        name = lambda *a: os.path.basename(dl(datetime(*a, tzinfo=et)))
+        self.assertEqual([name(2026, 11, 15, 21, 10), name(2026, 11, 16, 5, 40), name(2026, 11, 16, 21, 9)],
+                         ["SPEND_B4.json"] * 3)
+        self.assertEqual([name(2026, 11, 16, 21, 10), name(2026, 11, 17, 3, 0), name(2026, 11, 17, 21, 10)],
+                         ["SPEND_D20261116.json", "SPEND_D20261116.json", "SPEND_D20261117.json"])
+        self.assertEqual(PLG.PL.SPEND, dl())                               # the build's ledger is today's
+        self.assertNotIn(os.path.basename(PLG.PL.SPEND), ("SPEND_LY.json", "SPEND_B3.json"))   # never a closed one
 
 
 class TestTheConfirmAheadIsGrokOnly(unittest.TestCase):

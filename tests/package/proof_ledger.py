@@ -160,13 +160,16 @@ HOOK_SHADOW = {"coherence_verdict:hook": "heimdall:qwen/qwen3.8-27b"}   # RULING
 
 
 def build_shadow(routing, rt, streak):
-    """The build's shadow back-ends: RULING 86, Grok (routing.shadow) on the first heimdall_first pins, until
-    `shadow_until_clean_pins` clean pins in a row (`streak`: a callable, read only under heimdall_first); RULING 115,
-    qwen on every hook, in every build. Recorded, never deciding."""
+    """The build's shadow back-ends: RULING 86, routing.shadow on the first heimdall_first pins, until
+    `shadow_until_clean_pins` clean pins in a row (`streak`: a callable, read only under heimdall_first), but since
+    RULING 118 only its uncapped (Heimdall) entries: ruling 86's Grok shadow is dropped; RULING 115, qwen on every hook,
+    in every build. Recorded, never deciding."""
     shadow = None
     if routing == "heimdall_first" and streak() < int(rt.get("shadow_until_clean_pins") or 3):
         shadow = rt.get("shadow") or None
-    return dict(shadow or {}, **HOOK_SHADOW)
+    shadow = {k: v for k, v in (shadow or {}).items()          # RULING 118 (a): an outside vendor's dollars are kept for
+              if str(v).split(":", 1)[0] in PL.UNCAPPED}       # the seal: no outside shadow; a Heimdall one stays
+    return dict(shadow, **HOOK_SHADOW)
 
 
 def nothing_new(proof_dir, out_dir, fp):
@@ -224,7 +227,8 @@ def build_router(routing, shadow, shadow_log):
                     health=HH.STATE, plan_b_chains=PL.plan_b_chains(), state_md=STATE_MD,      # ruling 87
                     breakers=CB.STATE,                                                         # ruling 99
                     deadlines=DT.load(DT.STATE, PL.REPLIES),                                   # ruling 100
-                    reserve_wait_s=PL.RESERVE_WAIT_S)          # batch 3: a call that fits waits for calls in flight
+                    reserve_wait_s=PL.RESERVE_WAIT_S,          # batch 3: a call that fits waits for calls in flight
+                    uncapped=PL.UNCAPPED)                      # ruling 118 (b): Heimdall recorded, never capped
 
 
 def applied(router):

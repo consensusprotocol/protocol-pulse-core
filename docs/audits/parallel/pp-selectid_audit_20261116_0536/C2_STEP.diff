@@ -1,0 +1,313 @@
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+index 5e2c2cb..2e84551 100644
+--- a/pipeline/providers.py
++++ b/pipeline/providers.py
+@@ -732,7 +732,7 @@ class Router:
+     def __init__(self, config=CONFIG, env_path=None, record_dir=None, replay=False, spend_path=None, limit_usd=40.0,
+                  local_llm=None, chains=None, limit_basis="estimate", deadline_log=None, slow_log_s=240.0,
+                  routing=None, shadow=None, shadow_log=None, health=None, plan_b_chains=None, state_md=None,
+-                 breakers=None, deadlines=None, reserve_wait_s=0.0):
++                 breakers=None, deadlines=None, reserve_wait_s=0.0, uncapped=()):
+         with open(config) as f:
+             self.config = json.load(f)
+         rt = self.config.get("routing") or {}
+@@ -744,6 +744,7 @@ class Router:
+         if limit_basis not in ("estimate", "reported"):
+             raise ValueError(f"limit_basis must be 'estimate' or 'reported', not {limit_basis!r}")
+         self.limit_basis = limit_basis            # what limit_usd counts: _basis_total
++        self.uncapped = tuple(uncapped)           # RULING 118 (b): vendors recorded in the ledger but never capped
+         self.reserve_wait_s = float(reserve_wait_s)   # _reserve: 0 (the default) refuses at once, as every caller had
+         self.reserve_poll_s = RESERVE_POLL_S          # it; a batch build that may wait for calls in flight opts in
+         import threading
+@@ -878,6 +879,12 @@ class Router:
+         except OSError as e:
+             self.notices.append(f"the deadline log could not be written: {type(e).__name__}: {e}")
+ 
++    def _capped(self, name):
++        """RULING 118 (orchestrator 05:40 ET Nov 16): (a) the OUTSIDE vendors' dollars are capped; (b) Heimdall's are
++        free: a back-end of an `uncapped` vendor (the name's part before ':', as the ledger keys it) is recorded in the
++        ledger like any other, but never reserved and never counted toward limit_usd. No `uncapped`: every back-end."""
++        return name.split(":", 1)[0] not in self.uncapped
++
+     def _basis_total(self, d):
+         """The ledger total limit_usd is checked against. "estimate": the price-table estimate of every call (an upper
+         bound). "reported" (ruling 48, orchestrator 2026-11-13 07:02): the vendors' own reported dollars, plus the
+@@ -887,7 +894,14 @@ class Router:
+             if d.get("calls", 0) and "usd_reported" not in d and "usd_unreported_estimate" not in d:
+                 raise SpendLimit("the ledger has calls but keeps no vendor-reported figures: the reported basis "
+                                  "cannot be read (fail closed; audit 0707 C1, glm P1-2)")
++            if self.uncapped:                    # RULING 118: the capped vendors' own figures; the unreported estimate
++                return sum(float(v.get("usd_reported", 0.0) or 0.0)     # keeps no vendor split, so all of it
++                           for k, v in (d.get("by_backend") or {}).items()     # counts (the stricter reading)
++                           if self._capped(k)) + float(d.get("usd_unreported_estimate", 0.0))
+             return float(d.get("usd_reported", 0.0)) + float(d.get("usd_unreported_estimate", 0.0))
++        if self.uncapped:
++            return sum(float(v.get("usd_estimate", 0.0) or 0.0)
++                       for k, v in (d.get("by_backend") or {}).items() if self._capped(k))
+         return float(d["usd_estimate"])
+ 
+     def spent(self):
+@@ -911,7 +925,7 @@ class Router:
+         65 moments at step A, medley and spotlight (90 holds in all), without this wait: six step-A workers, each
+         reserving about $0.85, under a $4.50 limit with $0.27 spent; four fit, and the other workers were refused batch
+         after batch while those four ran."""
+-        if not self.spend_path or b.free():
++        if not self.spend_path or b.free() or not self._capped(b.name):     # ruling 118 (b): Heimdall is free
+             return None
+         t_end, waited = time.time() + max(0.0, float(self.reserve_wait_s)), False
+         while True:
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 7f683f5..a5cae35 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -160,13 +160,16 @@ HOOK_SHADOW = {"coherence_verdict:hook": "heimdall:qwen/qwen3.8-27b"}   # RULING
+ 
+ 
+ def build_shadow(routing, rt, streak):
+-    """The build's shadow back-ends: RULING 86, Grok (routing.shadow) on the first heimdall_first pins, until
+-    `shadow_until_clean_pins` clean pins in a row (`streak`: a callable, read only under heimdall_first); RULING 115,
+-    qwen on every hook, in every build. Recorded, never deciding."""
++    """The build's shadow back-ends: RULING 86, routing.shadow on the first heimdall_first pins, until
++    `shadow_until_clean_pins` clean pins in a row (`streak`: a callable, read only under heimdall_first), but since
++    RULING 118 only its uncapped (Heimdall) entries: ruling 86's Grok shadow is dropped; RULING 115, qwen on every hook,
++    in every build. Recorded, never deciding."""
+     shadow = None
+     if routing == "heimdall_first" and streak() < int(rt.get("shadow_until_clean_pins") or 3):
+         shadow = rt.get("shadow") or None
+-    return dict(shadow or {}, **HOOK_SHADOW)
++    shadow = {k: v for k, v in (shadow or {}).items()          # RULING 118 (a): an outside vendor's dollars are kept for
++              if str(v).split(":", 1)[0] in PL.UNCAPPED}       # the seal: no outside shadow; a Heimdall one stays
++    return dict(shadow, **HOOK_SHADOW)
+ 
+ 
+ def nothing_new(proof_dir, out_dir, fp):
+@@ -224,7 +227,8 @@ def build_router(routing, shadow, shadow_log):
+                     health=HH.STATE, plan_b_chains=PL.plan_b_chains(), state_md=STATE_MD,      # ruling 87
+                     breakers=CB.STATE,                                                         # ruling 99
+                     deadlines=DT.load(DT.STATE, PL.REPLIES),                                   # ruling 100
+-                    reserve_wait_s=PL.RESERVE_WAIT_S)          # batch 3: a call that fits waits for calls in flight
++                    reserve_wait_s=PL.RESERVE_WAIT_S,          # batch 3: a call that fits waits for calls in flight
++                    uncapped=PL.UNCAPPED)                      # ruling 118 (b): Heimdall recorded, never capped
+ 
+ 
+ def applied(router):
+diff --git a/tests/package/proof_ly.py b/tests/package/proof_ly.py
+index 138301d..90de567 100644
+--- a/tests/package/proof_ly.py
++++ b/tests/package/proof_ly.py
+@@ -32,6 +32,8 @@ import os
+ import subprocess
+ import sys
+ import time
++from datetime import datetime, timedelta, timezone
++from zoneinfo import ZoneInfo
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+ REPO = os.path.dirname(os.path.dirname(HERE))
+@@ -47,14 +49,31 @@ import speakers as SP  # noqa: E402
+ 
+ REPLIES = os.path.join(HERE, "fixtures", "replies")
+ OUT = os.path.join(HERE, "proof")
+-SPEND = os.path.join(OUT, "SPEND_B4.json")   # BATCH 4 (orchestrator 19:40 ET Nov 15: 21:10 ET Nov 15 to 21:10 ET Nov
+-#   16, batch 3's terms) keeps its own ledger, as batch 3 did (ruling 108). CLOSED: batch 3's SPEND_B3.json at 21:10 ET
+-#   Nov 15; the $20 order's SPEND_LY.json at $11.47 (restated on ruling 107 Q1's basis, e7f68e11).
+-LY_LIMIT_USD = 4.50                # RULING 108, batch 4 on its terms: builds + sealing's share of the $8.00 cap (audits $2.50,
+-LY_LIMIT_BASIS = "reported"        # mining and checks $1.00), VENDOR-REPORTED; an abandoned call at the model's own
+-LY_STOP_USD = 4.00                 # rate (ruling 107 Q1). No build starts at or over $4.00 (a build runs $0.15-0.50, so
+-                                   # none ends over $4.50: each paid call still RESERVES its upper bound while in
+-                                   # flight, and none passes the limit); STATE line 1 says so in capitals.
++DAY_ET = ZoneInfo("America/New_York")
++DAY_START = (21, 10)               # RULING 118: a day's dollar runs 21:10 ET to 21:10 ET (the batches' boundary; the
++FIRST_DAY = "SPEND_B4.json"        # ruling counts batch 4's $0.52 in Nov 16's dollar, so that day's ledger is batch 4's)
++
++
++def day_ledger(now=None):
++    """RULING 118 (orchestrator 05:40 ET Nov 16): the ledger of the day `now` falls in (default: this moment). A day
++    starts at DAY_START ET and is named by the date it starts on; the day that starts 21:10 ET Nov 15 is batch 4's,
++    whose ledger it keeps (FIRST_DAY). -> the ledger's path."""
++    t = (now or datetime.now(timezone.utc)).astimezone(DAY_ET)
++    start = t.replace(hour=DAY_START[0], minute=DAY_START[1], second=0, microsecond=0)
++    if t < start:
++        start -= timedelta(days=1)
++    return os.path.join(OUT, FIRST_DAY if start.strftime("%Y%m%d") == "20261115" else
++                        f"SPEND_D{start:%Y%m%d}.json")
++
++
++SPEND = day_ledger()               # RULING 118: today's ledger, read once when a build starts (a build charges the day
++#   it started in). CLOSED: batch 3's SPEND_B3.json at 21:10 ET Nov 15; the $20 order's SPEND_LY.json at $11.47.
++LY_LIMIT_USD = 1.00                # RULING 118 (a): the OUTSIDE vendors' HARD cap, $1.00 a day all-in (builds, audits,
++LY_LIMIT_BASIS = "reported"        # tests: the audits and tests are Heimdall-only, so the builds' outside dollars are
++LY_STOP_USD = 1.00                 # the day's), VENDOR-REPORTED, an abandoned call at the model's own rate (ruling 107
++#   Q1). Each paid call RESERVES its upper bound (Router._reserve), so none passes the cap. At the cap no build starts
++#   (the verdicts are outside calls until the free panel takes them; STATE line 1 says so in capitals).
++UNCAPPED = ("heimdall",)           # RULING 118 (b): Heimdall is free: recorded in the ledger, never reserved or capped
+ RESERVE_WAIT_S = 600.0             # BATCH 3 (Nov 14): the ledger build's router waits up to this long for calls in
+                                    # flight to settle before refusing a call that fits under the limit by itself
+                                    # (Router reserve_wait_s): step A's six workers reserve about $0.85 each, so under
+diff --git a/tests/package/test_ledger_build.py b/tests/package/test_ledger_build.py
+index 2a117a7..091079d 100644
+--- a/tests/package/test_ledger_build.py
++++ b/tests/package/test_ledger_build.py
+@@ -910,8 +910,12 @@ class TestRuling85NoXai(unittest.TestCase):
+         X, Q = "xai:grok-4.20-0309-reasoning", "heimdall:qwen/qwen3.8-27b"
+         rt = {"shadow": {"*": X}, "shadow_until_clean_pins": 3}
+         hook = {"coherence_verdict:hook": Q}
+-        self.assertEqual(PLG.build_shadow("heimdall_first", rt, lambda: 0), {"*": X, **hook})
++        self.assertEqual(PLG.build_shadow("heimdall_first", rt, lambda: 0), hook)   # RULING 118: no outside shadow
+         self.assertEqual(PLG.build_shadow("heimdall_first", rt, lambda: 3), hook)
++        H = "heimdall:deepseek/deepseek-v4.1-flash"                     # a Heimdall shadow stays (it is free)
++        rt_h = {"shadow": {"*": X, "visual_check": "xai_vision:grok-4.7", "context_verdict": H},
++                "shadow_until_clean_pins": 3}
++        self.assertEqual(PLG.build_shadow("heimdall_first", rt_h, lambda: 0), {"context_verdict": H, **hook})
+ 
+         def never():
+             raise AssertionError("the streak is read under heimdall_first only")
+@@ -919,7 +923,7 @@ class TestRuling85NoXai(unittest.TestCase):
+         r = self.pl().P.Router(env_path="/nonexistent", routing="heimdall_first",
+                                shadow=PLG.build_shadow("heimdall_first", rt, lambda: 0))
+         self.assertEqual((r._shadow_of("coherence_verdict", "hook"), r._shadow_of("coherence_verdict", "coherence")),
+-                         (Q, X))                                       # the router reads them as ruled
++                         (Q, None))                                    # the router reads them as ruled
+ 
+     def test_ruling_96s_lists_and_xai_answering_nothing(self):
+         """RULING 96 (01:40 ET Nov 14), final until re-measured, on ruling 88's structure, as the orchestrator's 06:12
+diff --git a/tests/package/test_ledger_router.py b/tests/package/test_ledger_router.py
+index c7edae2..45b760c 100644
+--- a/tests/package/test_ledger_router.py
++++ b/tests/package/test_ledger_router.py
+@@ -25,6 +25,7 @@ import deadline_table as DT  # noqa: E402
+ import heimdall_health as HH  # noqa: E402
+ import proof_ledger as PLG  # noqa: E402
+ import proof_ly as PL  # noqa: E402
++import providers as P  # noqa: E402
+ from test_providers import Fake, SlowFail, router, wait_for  # noqa: E402
+ from test_reserve_wait import U, gate, run, seed, until  # noqa: E402
+ from test_ruling_107 import LIST, TOKENS, seed as seed107  # noqa: E402
+@@ -71,6 +72,38 @@ class TestTheMeterNeverStandsBetweenACallAndItsBooking(unittest.TestCase):
+             self.assertAlmostEqual(own["est"], LIST + QWEN_LIST, places=9)                   # est stays list price
+ 
+ 
++class TestRuling118TheBuildsRouterCapsOnlyOutsideVendors(unittest.TestCase):
++    """RULING 118 (05:40 ET Nov 16): the build's router caps the outside vendors at the day's $1.00 and records
++    Heimdall, never capping it: reaching the cap stops outside calls, not the free work."""
++
++    def test_heimdall_runs_past_the_cap_and_an_outside_call_is_refused_at_it(self):
++        with tempfile.TemporaryDirectory() as d:          # every file the build's router reads or writes is d's
++            led = os.path.join(d, "SPEND.json")
++            json.dump({"usd_estimate": 0.0, "calls": 2, "by_backend": {
++                "xai:g": {"calls": 1, "in": 0, "out": 0, "usd_estimate": 0.0, "usd_reported": 0.95},
++                "heimdall:q": {"calls": 1, "in": 0, "out": 0, "usd_estimate": 0.0, "usd_reported": 3.0}},
++                "by_role": {}, "reserved": {}, "usd_reported": 3.95, "usd_unreported_estimate": 0.0}, open(led, "w"))
++            with contextlib.ExitStack() as st:
++                for mod, name, val in ((PL, "SPEND", led), (PL, "REPLIES", os.path.join(d, "rec")),
++                                       (PL, "DEADLINE_LOG", os.path.join(d, "DL.jsonl")),
++                                       (HH, "STATE", os.path.join(d, "HEALTH.json")),
++                                       (CB, "STATE", os.path.join(d, "BREAKERS.json")),
++                                       (DT, "STATE", os.path.join(d, "DEADLINE_TABLE.json")),
++                                       (PLG, "STATE_MD", os.path.join(d, "STATE.md"))):
++                    st.enter_context(mock.patch.object(mod, name, val))
++                r = PLG.build_router("heimdall_first", None, os.path.join(d, "SHADOW86.jsonl"))
++            h = Fake("heimdall:q", "heimdall", answer="{}", usage={"in": 1000, "out": 100, "usd_reported": 0.5})
++            x = Fake("xai:g", "xai", answer="{}", usage={"in": 1000, "out": 100, "usd_reported": 0.01})
++            r.backends, r.chains["check"], r.chains["judge"] = {"heimdall:q": h, "xai:g": x}, ["heimdall:q"], ["xai:g"]
++            self.assertAlmostEqual(r.spent(), 0.95, places=6)      # the day's outside dollars only
++            self.assertIsNone(PLG.start_refused(r.spent()))        # under the $1.00 stop: a build may start
++            self.assertEqual(r.call("check", "p" * 100_000).backend, "heimdall:q")   # its upper bound alone > $1.00
++            with self.assertRaises(P.SpendLimit):
++                r.call("judge", "p")                               # 0.95 + its upper bound > $1.00: refused at once
++            self.assertEqual((h.calls, x.calls), (1, 0))
++            self.assertAlmostEqual(json.load(open(led))["by_backend"]["heimdall:q"]["usd_reported"], 3.5, places=6)
++
++
+ class TestTheLedgerBuildsRouterWaitsForCallsInFlight(unittest.TestCase):
+ 
+     def test_a_call_kept_out_only_by_a_call_in_flight_waits_and_answers(self):
+diff --git a/tests/package/test_ruling_102.py b/tests/package/test_ruling_102.py
+index 0889c09..08e48db 100644
+--- a/tests/package/test_ruling_102.py
++++ b/tests/package/test_ruling_102.py
+@@ -305,18 +305,31 @@ class TestOnThePinAndOnState(unittest.TestCase):
+         self.assertIn("THE LOCAL JUDGE (RULING 87'S LAST RESORT) GAVE 2 STEP-A VERDICT(S): ['c', 'e']", line)
+ 
+     def test_no_build_starts_at_the_stop_and_one_starts_below(self):
+-        """The orchestrator 13:02 Nov 14: at the stop no build starts, and STATE line 1 says so in capitals. RULING 108
+-        (21:20 Nov 14): batch 3's builds stop at $4.00 of their $4.50 share; batch 4 (19:40 Nov 15) on the same terms."""
+-        self.assertEqual((PLG.PL.LY_STOP_USD, PLG.PL.LY_LIMIT_USD), (4.00, 4.50))
++        """The orchestrator 13:02 Nov 14: at the stop no build starts, and STATE line 1 says so in capitals. RULING 118
++        (05:40 Nov 16): the outside vendors' HARD cap is $1.00 a day, Heimdall uncapped; each paid call reserves its
++        upper bound, so the cap itself is never passed (ruling 108's headroom between the stop and the limit is gone)."""
++        self.assertEqual((PLG.PL.LY_STOP_USD, PLG.PL.LY_LIMIT_USD), (1.00, 1.00))
+         self.assertEqual(PLG.PL.LY_LIMIT_BASIS, "reported")               # vendor-reported (audit 2114 C1, glm)
+-        self.assertGreaterEqual(PLG.PL.LY_LIMIT_USD - PLG.PL.LY_STOP_USD, 0.50)   # one build's headroom (C1, glm)
+-        self.assertEqual(os.path.basename(PLG.PL.SPEND), "SPEND_B4.json")   # batch 4's own; never a closed ledger
+-        self.assertNotIn(os.path.basename(PLG.PL.SPEND), ("SPEND_LY.json", "SPEND_B3.json"))
+-        self.assertIsNone(PLG.start_refused(3.99))
+-        why = PLG.start_refused(4.0)
+-        self.assertIn("at or over the $4.00 stop: no build starts", why)
++        self.assertEqual(PLG.PL.UNCAPPED, ("heimdall",))
++        self.assertIsNone(PLG.start_refused(0.99))
++        why = PLG.start_refused(1.0)
++        self.assertIn("at or over the $1.00 stop: no build starts", why)
+         self.assertIn("SAY IT ON STATE LINE 1 IN CAPITALS", why)
+ 
++    def test_ruling_118_each_day_keeps_its_own_ledger_from_21_10_et(self):
++        """RULING 118: $1.00 a day; a day runs 21:10 ET to 21:10 ET, and the one that starts 21:10 ET Nov 15 is batch 4's
++        (the ruling counts batch 4's $0.52 in it), so it keeps SPEND_B4.json; a build charges the day it started in."""
++        from datetime import datetime
++        from zoneinfo import ZoneInfo
++        et, dl = ZoneInfo("America/New_York"), PLG.PL.day_ledger
++        name = lambda *a: os.path.basename(dl(datetime(*a, tzinfo=et)))
++        self.assertEqual([name(2026, 11, 15, 21, 10), name(2026, 11, 16, 5, 40), name(2026, 11, 16, 21, 9)],
++                         ["SPEND_B4.json"] * 3)
++        self.assertEqual([name(2026, 11, 16, 21, 10), name(2026, 11, 17, 3, 0), name(2026, 11, 17, 21, 10)],
++                         ["SPEND_D20261116.json", "SPEND_D20261116.json", "SPEND_D20261117.json"])
++        self.assertEqual(PLG.PL.SPEND, dl())                               # the build's ledger is today's
++        self.assertNotIn(os.path.basename(PLG.PL.SPEND), ("SPEND_LY.json", "SPEND_B3.json"))   # never a closed one
++
+ 
+ class TestTheConfirmAheadIsGrokOnly(unittest.TestCase):
+     """RULING 101 beside 102: Grok's confirm-ahead never asks Gemini or the local judge (the second family's
+diff --git a/tests/providers/test_providers.py b/tests/providers/test_providers.py
+index d27acc2..8eef714 100644
+--- a/tests/providers/test_providers.py
++++ b/tests/providers/test_providers.py
+@@ -390,6 +390,39 @@ class TestRouter(unittest.TestCase):
+             with self.assertRaises(P.SpendLimit):
+                 r.spent()
+ 
++    def test_ruling_118_heimdall_is_recorded_but_never_capped(self):
++        """RULING 118 (05:40 ET Nov 16): the outside vendors' dollars are capped; Heimdall's are recorded in the same
++        ledger but never reserved and never counted toward the limit (uncapped=("heimdall",)); the unreported
++        estimate keeps no vendor split and counts whole; with no `uncapped` every back-end counts, as before."""
++        with tempfile.TemporaryDirectory() as d:
++            led = os.path.join(d, "SPEND.json")
++            json.dump({"usd_estimate": 6.0, "calls": 10, "by_backend": {
++                "heimdall:q": {"calls": 9, "in": 0, "out": 0, "usd_estimate": 5.0, "usd_reported": 4.0},
++                "xai:g": {"calls": 1, "in": 0, "out": 0, "usd_estimate": 1.0, "usd_reported": 0.9}},
++                "by_role": {}, "reserved": {}, "usd_reported": 4.9, "usd_unreported_estimate": 0.05}, open(led, "w"))
++            h = Fake("heimdall:q", "heimdall", answer="{}", usage={"in": 1000, "out": 100, "usd_reported": 0.5})
++            x = Fake("xai:g", "xai", answer="{}", usage={"in": 1000, "out": 100, "usd_reported": 0.01})
++            kw = dict(spend_path=led, limit_usd=1.0, limit_basis="reported")
++            r = router(d, [h, x], {"write": ["heimdall:q"], "judge": ["xai:g"]}, uncapped=("heimdall",), **kw)
++            self.assertAlmostEqual(r.spent(), 0.95, places=6)          # the outside figure plus the whole unreported
++            r.call("write", "p" * 400_000)                             # an upper bound over $4: neither reserved nor
++            led_ = json.load(open(led))                                # refused
++            self.assertAlmostEqual(led_["by_backend"]["heimdall:q"]["usd_reported"], 4.5, places=6)   # recorded
++            self.assertAlmostEqual(r.spent(), 0.95, places=6)                                        # never counted
++            with self.assertRaises(P.SpendLimit):
++                r.call("judge", "p")                                   # 0.95 + its upper bound ($0.20) > $1.00
++            self.assertEqual((h.calls, x.calls, json.load(open(led))["reserved"]), (1, 0, {}))
++            r.limit_usd = 1.20
++            r.call("judge", "p")                                       # it fits under a higher cap: counted
++            self.assertAlmostEqual(r.spent(), 0.96, places=6)
++            every = router(d, [h, x], {"write": ["heimdall:q"]}, **kw)          # no `uncapped`: all counted, as before
++            self.assertAlmostEqual(every.spent(), 4.9 + 0.5 + 0.01 + 0.05, places=6)
++            with self.assertRaises(P.SpendLimit):
++                every.call("write", "p")
++            est = router(d, [h, x], {"write": ["heimdall:q"]}, spend_path=led, limit_usd=1.0, uncapped=("heimdall",))
++            self.assertAlmostEqual(est.spent(), json.load(open(led))["by_backend"]["xai:g"]["usd_estimate"],
++                                   places=6)                           # the estimate basis: the capped vendors' own
++
+     def test_the_spend_guard_reserves_the_upper_bound_and_never_passes_the_limit(self):
+         with tempfile.TemporaryDirectory() as d:
+             led = os.path.join(d, "SPEND.json")

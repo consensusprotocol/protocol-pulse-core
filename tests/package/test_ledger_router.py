@@ -25,6 +25,7 @@ import deadline_table as DT  # noqa: E402
 import heimdall_health as HH  # noqa: E402
 import proof_ledger as PLG  # noqa: E402
 import proof_ly as PL  # noqa: E402
+import providers as P  # noqa: E402
 from test_providers import Fake, SlowFail, router, wait_for  # noqa: E402
 from test_reserve_wait import U, gate, run, seed, until  # noqa: E402
 from test_ruling_107 import LIST, TOKENS, seed as seed107  # noqa: E402
@@ -69,6 +70,38 @@ class TestTheMeterNeverStandsBetweenACallAndItsBooking(unittest.TestCase):
             self.assertAlmostEqual(led["usd_unreported_estimate"], booked, places=9)
             self.assertAlmostEqual(own["best"], booked + 0.002, places=9)                    # as the cap reads it
             self.assertAlmostEqual(own["est"], LIST + QWEN_LIST, places=9)                   # est stays list price
+
+
+class TestRuling118TheBuildsRouterCapsOnlyOutsideVendors(unittest.TestCase):
+    """RULING 118 (05:40 ET Nov 16): the build's router caps the outside vendors at the day's $1.00 and records
+    Heimdall, never capping it: reaching the cap stops outside calls, not the free work."""
+
+    def test_heimdall_runs_past_the_cap_and_an_outside_call_is_refused_at_it(self):
+        with tempfile.TemporaryDirectory() as d:          # every file the build's router reads or writes is d's
+            led = os.path.join(d, "SPEND.json")
+            json.dump({"usd_estimate": 0.0, "calls": 2, "by_backend": {
+                "xai:g": {"calls": 1, "in": 0, "out": 0, "usd_estimate": 0.0, "usd_reported": 0.95},
+                "heimdall:q": {"calls": 1, "in": 0, "out": 0, "usd_estimate": 0.0, "usd_reported": 3.0}},
+                "by_role": {}, "reserved": {}, "usd_reported": 3.95, "usd_unreported_estimate": 0.0}, open(led, "w"))
+            with contextlib.ExitStack() as st:
+                for mod, name, val in ((PL, "SPEND", led), (PL, "REPLIES", os.path.join(d, "rec")),
+                                       (PL, "DEADLINE_LOG", os.path.join(d, "DL.jsonl")),
+                                       (HH, "STATE", os.path.join(d, "HEALTH.json")),
+                                       (CB, "STATE", os.path.join(d, "BREAKERS.json")),
+                                       (DT, "STATE", os.path.join(d, "DEADLINE_TABLE.json")),
+                                       (PLG, "STATE_MD", os.path.join(d, "STATE.md"))):
+                    st.enter_context(mock.patch.object(mod, name, val))
+                r = PLG.build_router("heimdall_first", None, os.path.join(d, "SHADOW86.jsonl"))
+            h = Fake("heimdall:q", "heimdall", answer="{}", usage={"in": 1000, "out": 100, "usd_reported": 0.5})
+            x = Fake("xai:g", "xai", answer="{}", usage={"in": 1000, "out": 100, "usd_reported": 0.01})
+            r.backends, r.chains["check"], r.chains["judge"] = {"heimdall:q": h, "xai:g": x}, ["heimdall:q"], ["xai:g"]
+            self.assertAlmostEqual(r.spent(), 0.95, places=6)      # the day's outside dollars only
+            self.assertIsNone(PLG.start_refused(r.spent()))        # under the $1.00 stop: a build may start
+            self.assertEqual(r.call("check", "p" * 100_000).backend, "heimdall:q")   # its upper bound alone > $1.00
+            with self.assertRaises(P.SpendLimit):
+                r.call("judge", "p")                               # 0.95 + its upper bound > $1.00: refused at once
+            self.assertEqual((h.calls, x.calls), (1, 0))
+            self.assertAlmostEqual(json.load(open(led))["by_backend"]["heimdall:q"]["usd_reported"], 3.5, places=6)
 
 
 class TestTheLedgerBuildsRouterWaitsForCallsInFlight(unittest.TestCase):

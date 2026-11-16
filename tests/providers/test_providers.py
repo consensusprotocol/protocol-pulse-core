@@ -390,6 +390,39 @@ class TestRouter(unittest.TestCase):
             with self.assertRaises(P.SpendLimit):
                 r.spent()
 
+    def test_ruling_118_heimdall_is_recorded_but_never_capped(self):
+        """RULING 118 (05:40 ET Nov 16): the outside vendors' dollars are capped; Heimdall's are recorded in the same
+        ledger but never reserved and never counted toward the limit (uncapped=("heimdall",)); the unreported
+        estimate keeps no vendor split and counts whole; with no `uncapped` every back-end counts, as before."""
+        with tempfile.TemporaryDirectory() as d:
+            led = os.path.join(d, "SPEND.json")
+            json.dump({"usd_estimate": 6.0, "calls": 10, "by_backend": {
+                "heimdall:q": {"calls": 9, "in": 0, "out": 0, "usd_estimate": 5.0, "usd_reported": 4.0},
+                "xai:g": {"calls": 1, "in": 0, "out": 0, "usd_estimate": 1.0, "usd_reported": 0.9}},
+                "by_role": {}, "reserved": {}, "usd_reported": 4.9, "usd_unreported_estimate": 0.05}, open(led, "w"))
+            h = Fake("heimdall:q", "heimdall", answer="{}", usage={"in": 1000, "out": 100, "usd_reported": 0.5})
+            x = Fake("xai:g", "xai", answer="{}", usage={"in": 1000, "out": 100, "usd_reported": 0.01})
+            kw = dict(spend_path=led, limit_usd=1.0, limit_basis="reported")
+            r = router(d, [h, x], {"write": ["heimdall:q"], "judge": ["xai:g"]}, uncapped=("heimdall",), **kw)
+            self.assertAlmostEqual(r.spent(), 0.95, places=6)          # the outside figure plus the whole unreported
+            r.call("write", "p" * 400_000)                             # an upper bound over $4: neither reserved nor
+            led_ = json.load(open(led))                                # refused
+            self.assertAlmostEqual(led_["by_backend"]["heimdall:q"]["usd_reported"], 4.5, places=6)   # recorded
+            self.assertAlmostEqual(r.spent(), 0.95, places=6)                                        # never counted
+            with self.assertRaises(P.SpendLimit):
+                r.call("judge", "p")                                   # 0.95 + its upper bound ($0.20) > $1.00
+            self.assertEqual((h.calls, x.calls, json.load(open(led))["reserved"]), (1, 0, {}))
+            r.limit_usd = 1.20
+            r.call("judge", "p")                                       # it fits under a higher cap: counted
+            self.assertAlmostEqual(r.spent(), 0.96, places=6)
+            every = router(d, [h, x], {"write": ["heimdall:q"]}, **kw)          # no `uncapped`: all counted, as before
+            self.assertAlmostEqual(every.spent(), 4.9 + 0.5 + 0.01 + 0.05, places=6)
+            with self.assertRaises(P.SpendLimit):
+                every.call("write", "p")
+            est = router(d, [h, x], {"write": ["heimdall:q"]}, spend_path=led, limit_usd=1.0, uncapped=("heimdall",))
+            self.assertAlmostEqual(est.spent(), json.load(open(led))["by_backend"]["xai:g"]["usd_estimate"],
+                                   places=6)                           # the estimate basis: the capped vendors' own
+
     def test_the_spend_guard_reserves_the_upper_bound_and_never_passes_the_limit(self):
         with tempfile.TemporaryDirectory() as d:
             led = os.path.join(d, "SPEND.json")
