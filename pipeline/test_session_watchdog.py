@@ -185,6 +185,13 @@ class TestStuckLongContext(unittest.TestCase):
                                  st, DAY + 45 * 60)
         self.assertEqual([x["kind"] for x in f], ["STUCK"])
 
+    def test_a_running_timer_inside_the_conversation_is_not_progress(self):
+        st = {}                                                        # no shell command: only the 15 lines decide
+        for k, (t, tok) in enumerate((("1m 2s", "1.0k"), ("23m 40s", "5.5k"), ("46m 2s", "9.9k"))):
+            body = turn(["● Waiting for the build", f"  ⎿  Running… ({t} · ↓ {tok} tokens)", ""])
+            f, _ = W.claude_findings("s", pane(body, spinner=BUSY), st, DAY + k * 23 * 60)
+        self.assertEqual([x["kind"] for x in f], ["STUCK"])
+
     def test_a_changing_screen_or_an_idle_pane_is_not_stuck(self):
         st = {}
         W.claude_findings("s", pane(turn(block("A", "ls")), spinner=BUSY), st, DAY)
