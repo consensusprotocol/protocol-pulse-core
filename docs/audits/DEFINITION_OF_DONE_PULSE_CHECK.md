@@ -6,6 +6,14 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 13:35 CORRECTION TO THE 13:33 ENTRY: Scott Melker f0NnJM63Ffc is NOT waiting on a live stream. The stream ended (pp-ingest's yt-dlp probe at 13:25 ET: live_status was_live, 3,679 s, English automatic captions listed). The integrator's transcript ingest skips it on a STALE record.
+- The video's meta.json was written at 09:30 ET while it was live: live_status is_live, duration none.
+- transcript_store.ensure_meta returns a stored meta.json whenever one exists and never refreshes it. The module's docstring says meta.json is refreshed by appending to meta_history, but no meta_history is ever written.
+- acquire() therefore skips the video on that stored live_status forever. Its attempts log shows "skip: live_status is_live" at 12:00, 12:30, 13:01 and 13:30 ET.
+- This is INGEST-FAIL-01's pattern, a meta written while live freezing the video.
+- The 13:33 entry's "This live event will begin in a few moments" at 13:00 was a misread: those log lines came from runs BEFORE the stream started.
+- The fix is under way, audit-first: before skipping a video stored as is_live, is_upcoming or post_live, re-read its metadata (at most once per run per video), append the fresh snapshot to meta_history.jsonl (meta.json stays write-once), and make ensure_meta return the newest snapshot. The next cron run after it lands transcribes the video.
+
 ## 13:33 ORDER '13:05' (pp-ingest's R13), DONE. The transcript ingest's Whisper now WAITS for GPU0, with builds and renders first (batch 97, merged e2b3fa65, plus the test fix a2dc8ec9).
 - **The two waiting videos:**
   - Bitcoin Magazine uAvmynMSVhM was transcribed by the 13:00 run (19 min of audio in 53 s).
