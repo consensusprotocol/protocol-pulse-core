@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T21:09:06+00:00",
- "build": "ledger_20261116_210824",
+ "generated_at": "2026-11-16T21:10:51+00:00",
+ "build": "ledger_20261116_211007",
  "kind": "moments",
  "candidates": [
   {
@@ -373,12 +373,84 @@
    "trimmed_leading": null
   },
   {
+   "pid": "942bcccc33c9dafca1d7",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 7.06,
+   "text": "And just sort of narrowing it back down to your expertise is the leader frontrunner of the Bitcoin red teaming that we've been seeing happen.",
+   "text_sha256": "a9adb3b724c1c09fd79703b95fd1140786100c80320aaef3e1073f2bd2239297",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d7753c1c3d89107b3e0c",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 8.92,
+   "text": "And obviously the Fed's forecast to tightening is going to be hampering equities as well as Bitcoin. So looking to see some easement there.",
+   "text_sha256": "5c7d83b6ed1a1ca1cdeb6332e41742f3905f538a9dbdeee3db6cd56697ad7f6f",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e9e7995009886462b922",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.1,
+   "text": "And last week when the Nvidia scandal started unfolding, we saw AI stocks sell off and Bitcoin fell right alongside it. So what do you make of this correlation between Bitcoin and AI or tech?",
+   "text_sha256": "ca0040f6f83be15684a5ce22ca037588d3061dc9421f5cc7fd97b8010f9224e8",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "0f1a79fb59cabfdb38f2",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 9.22,
+   "text": "So let's start with Bitcoin here, trading around 6464K after falling to its lowest level since July. What's your read on the market right now?",
+   "text_sha256": "b0500d417b9366414778516e645ffb7c271a93ee469323fd11cc9cd3e3e9ab80",
+   "trimmed_leading": null
+  },
+  {
    "pid": "2887aab6f9435b386da1",
    "video_id": "f0NnJM63Ffc",
    "channel": "Scott Melker",
    "duration": 19.56,
    "text": "So maybe then we'll get a chance for people like to see maybe i'll revert and say, yeah, bitcoin didn't go to 10 000, but i saved a lot of stupid people from buying it above 100 000 and we bought it at 40. Maybe i'll be able to say that, but i'm pointing out this is not this is just getting started. we're overdue for we're overdue for normal 20 % correction in the stock market, and it's only 3 % so far.",
    "text_sha256": "25e1e6c6d705c84f2e1fd3a4dba8316c2c651ac3ad213cf43b669b5e9c15cd43",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "70f919e7019a053ea178",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 14.08,
+   "text": "And Strategy bought 485 Bitcoin last week for $33.4 million, bringing its total to $850,849 Bitcoin, while also buying back $228 million of its stretched preferred shares.",
+   "text_sha256": "87699038fa69edf8ed7d8b2323a2c5a5cb222427e96e92ddea04804473f3424c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a930314e381f0579e4bf",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 10.8,
+   "text": "But Bitcoin's latest sell -off has it trading near historically cheap levels, taking a look at the live price provided by Cash App. It's around $64,175 today.",
+   "text_sha256": "999588d78e73fab12e05f81b4f1f60cb670d652f3b5ac8f4310bc16e9d515070",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b830acf5ecef3c25a9cc",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 8.7,
+   "text": "And Bitcoin's funding rate is sitting at about plus 4.6 annualized, aggregated across exchanges. So, you know, it's come down, but it's not severely elevated.",
+   "text_sha256": "6534583f586bbf76e24ccaf4b0ee13a1ab768c85a591456a19ae6ee99a745825",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "dfd4b164f95af6593a13",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 12.36,
+   "text": "And I know this is something that Ben Cowen has talked about in his videos as well, where, you know, if Bitcoin can't gain some relative strength here between now and when. Open AI decides to inevitably IPO, what is that going to do to the price as well?",
+   "text_sha256": "277cf7c1d4600c4d1c192a0bd7d39ecbe2a0f5ab2e0070930bf73fd7141c0fb1",
    "trimmed_leading": null
   },
   {
@@ -688,6 +760,42 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "942bcccc33c9dafca1d7~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 6.66,
+   "text": "just sort of narrowing it back down to your expertise is the leader frontrunner of the Bitcoin red teaming that we've been seeing happen.",
+   "text_sha256": "7b41a9aa72aae660f507bea813465f43a7d5981c4b201473cd32ac7d463c7551",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "d7753c1c3d89107b3e0c~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 8.92,
+   "text": "obviously the Fed's forecast to tightening is going to be hampering equities as well as Bitcoin. So looking to see some easement there.",
+   "text_sha256": "3ea8a3d71d10c2a06b2f30b79343c12ff8c2d4f29068257d50e756efbb750165",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "e9e7995009886462b922~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.1,
+   "text": "last week when the Nvidia scandal started unfolding, we saw AI stocks sell off and Bitcoin fell right alongside it. So what do you make of this correlation between Bitcoin and AI or tech?",
+   "text_sha256": "e08e86b1a7f59bc9e809a8ef708e3073d2b04d8bf92b0aa85cbf9ad4a222e087",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "0f1a79fb59cabfdb38f2~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 9.22,
+   "text": "let's start with Bitcoin here, trading around 6464K after falling to its lowest level since July. What's your read on the market right now?",
+   "text_sha256": "e32e510fdd7b69c0fb66f24adb708a2022cd61d71310f8e9cd30b0e703e627b0",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "2887aab6f9435b386da1~trim",
    "video_id": "f0NnJM63Ffc",
    "channel": "Scott Melker",
@@ -695,6 +803,42 @@
    "text": "maybe then we'll get a chance for people like to see maybe i'll revert and say, yeah, bitcoin didn't go to 10 000, but i saved a lot of stupid people from buying it above 100 000 and we bought it at 40. Maybe i'll be able to say that, but i'm pointing out this is not this is just getting started. we're overdue for we're overdue for normal 20 % correction in the stock market, and it's only 3 % so far.",
    "text_sha256": "d3b1cae239afef67a81eef62aae57505b3606f57743391964b6ae613ffd087b3",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "70f919e7019a053ea178~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 13.6,
+   "text": "Strategy bought 485 Bitcoin last week for $33.4 million, bringing its total to $850,849 Bitcoin, while also buying back $228 million of its stretched preferred shares.",
+   "text_sha256": "49ee50bd0fa66613a7ecc628a2bd90945c75a64a20255e3674c9f4833dda3375",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "a930314e381f0579e4bf~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 10.74,
+   "text": "Bitcoin's latest sell -off has it trading near historically cheap levels, taking a look at the live price provided by Cash App. It's around $64,175 today.",
+   "text_sha256": "2708604e809702059dddecf73bbee8ddeae67f87826b0594b0b73153ee8c9cba",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "b830acf5ecef3c25a9cc~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 8.64,
+   "text": "Bitcoin's funding rate is sitting at about plus 4.6 annualized, aggregated across exchanges. So, you know, it's come down, but it's not severely elevated.",
+   "text_sha256": "a69f033be2457cb5e2c547e0e57dbe16488b7170e18334d29ef65bc70e4f7e83",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "dfd4b164f95af6593a13~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 12.28,
+   "text": "I know this is something that Ben Cowen has talked about in his videos as well, where, you know, if Bitcoin can't gain some relative strength here between now and when. Open AI decides to inevitably IPO, what is that going to do to the price as well?",
+   "text_sha256": "67cba50b1952818d8768518357d296ffea6ea516264bbd6044a476d89aeb587f",
+   "trimmed_leading": "And"
   },
   {
    "pid": "52825fc1a60b481b8c0a~trim",
@@ -805,6 +949,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "2f4900b21a169c63e4be",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 14.49,
+   "text": "Those are economies and countries that... very much embraced the idea and we're willing to understand quite early the idea of Bitcoin and the idea of a non -governmental hedge on money. And I think that there will continue to be traction there.",
+   "text_sha256": "55414d47ef574ca69fbe94e670d03c02a6c79bab5b18a7158d406db1d40598e8",
+   "trimmed_leading": null
+  },
+  {
    "pid": "4e34823edd1e27148ffc",
    "video_id": "m7ygyYMe3mg",
    "channel": "Bitcoin Magazine",
@@ -829,6 +982,15 @@
    "duration": 14.75,
    "text": "That's why Bitcoin looks so interesting if you're willing to do the work and recognize that the majority of people that are in buying and selling have no clue of what they're buying and selling.",
    "text_sha256": "f071a68a8a857d8c9bb136e7412ccd7177fd04374a1714229a9ca7faaf7fa858",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "30c8265a7146a8a7649c",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 9.84,
+   "text": "It was my first time actually going to Europe for a Bitcoin conference. And I would say going across the pond and seeing how everyone is working. with Bitcoin over there, it was great to see.",
+   "text_sha256": "cc8b70306306bbc13aa9080c316f2eb71d2da721c2ef9ca8f1fab046841ed46c",
    "trimmed_leading": null
   },
   {
@@ -1325,6 +1487,15 @@
    "text": "I think that kind of is at the core of something all of us are probably feeling where it does feel like Bitcoin's at an inflection point right now. We're kind of devoid of any strong narrative. That's kind of another. sign of a bottom, right? Like, there's nothing to latch onto to tell a story about why Bitcoin's going to go up.",
    "text_sha256": "a9b9d45ed57bd0b93c700927f54e0994fad667784800e717baceaee6a21a96ab",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "5f25b7f16ed7330fa7d5",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.08,
+   "text": "With Bitcoin still near its lowest level since July, a strong dollar and more Fed hikes on the table. How are the big asset managers playing this market? We turn now to a familiar face here on the show. Joining us now is Blue Machilari, head of digital asset strategy at T -Rowe Price.",
+   "text_sha256": "b9ba97bf9de58abba19863029252fbecad96a734e29e268f0a4c0d5393985bad",
+   "trimmed_leading": null
   },
   {
    "pid": "5b354cd44b3d737392e6",
@@ -2083,6 +2254,24 @@
    "trimmed_leading": null
   },
   {
+   "pid": "fbad7665d1cec8d525e0",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 25.56,
+   "text": "One of the problems with economics is that it's based on math, right? So if you are increasing the rate at which you borrow, even if you're tackling inflation, our debt becomes increasingly unsustainable. And so it's a tradeoff on how the market begins to absorb that, recognizing, okay, they're fighting inflation constraints around monetary policy, less liquidity historically bad for Bitcoin.",
+   "text_sha256": "325e704213f032c9895c0409c026f6ef5f358a6642e627b557150a0b1c5d4149",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "ae73e164daedac564eae",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 19.75,
+   "text": "If you think Bitcoin's going to zero, I don't want to listen to you. You haven't done work. It's noise. If you think that AI is a scam and you don't believe in the demand and, you know, and then and there are a lot of folks that go on to major media establishments and talk about that, you ignore them.",
+   "text_sha256": "89e11f9c3a77bc7f7545193562e860661698fc0614d5b21f13877be4a5057dff",
+   "trimmed_leading": null
+  },
+  {
    "pid": "6dcb34add7cadb32c9af",
    "video_id": "uAvmynMSVhM",
    "channel": "Bitcoin Magazine",
@@ -2110,6 +2299,15 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "2a170634b2d5c439e219",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 18.58,
+   "text": "I'm watching Bitcoin through Thursday into this and through the end of the week, frankly, into the weekly close post this anthropic IPO. I think it'll be really telling to see how well it performs, also how sharply Bitcoin may sell off to kind of get some signal for where investors are right now in the market, both in terms of Bitcoin and on the AI inequities front.",
+   "text_sha256": "66ec01aac570f3ef198a26495875a15c5133d9e965f349bbbb7d570482cfbaaf",
+   "trimmed_leading": null
+  },
+  {
    "pid": "1e28a1c264d3ba687659~trim",
    "video_id": "4pAa6COklAY",
    "channel": "DataDash",
@@ -2117,6 +2315,24 @@
    "text": "we're seeing Bitcoin weakness come in. We've also got the S &P 500 at incredible, incredible expansion point. Okay. When we broke the high right here in 2024, my target has been and remained at 74 to 7,700. We have spent the better part of six months in this region.",
    "text_sha256": "dfcc5235eec4346a57170cce640dfe6d87ecc948a31f2098fb7f83b98c91b24b",
    "trimmed_leading": "But"
+  },
+  {
+   "pid": "592984d4eb1cc910b541",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 27.69,
+   "text": "I think interestingly, you know, MSTR seems to, you know, not be able to really execute much buying at all if Bitcoin's below its... its cost basis, but that's by virtue of its impact on, on other items, right? So when they're underwater, they've been retiring convertible bonds and repurchasing STRC, which are other maneuvers they can do outside of Bitcoin that can actually accrue value to not only the shareholders, but also strengthen their balance sheet.",
+   "text_sha256": "d085d734720a1b4b436fa919ef2ae555dee59cdd7033c85e179025acef293dee",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5ae9c967e858a36a429e~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 21.4,
+   "text": "this has been really helpful for some engineers I've been talking with in the Bitcoin ecosystem of verifying the security properties of Bitcoin and being able to make sure that our understanding of all the consensus rules are correct, that there aren't any gaps in our understanding of it. And it's been something that's been a fun little side project, but it's been very illustrative for how quickly we can leverage these AI tools to further even harden the defenses of the Bitcoin ecosystem.",
+   "text_sha256": "1bafa3b4dd176275f051959483c404c2ea46bea473528e47dd7863fca9c74e4a",
+   "trimmed_leading": "And"
   },
   {
    "pid": "a57e6d32846332287c76",
@@ -2254,6 +2470,24 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "93c5506e9629c34875ad",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 16.48,
+   "text": "You know, the SpaceX IPO took place. Bitcoin recovered. Now we're seeing a similar drawdown from perhaps a higher starting point for Anthropic. And so that sort of raises the question of, you know, will we see a similar rotation later on?",
+   "text_sha256": "e4aec956488fee486ad4b7b1712607e3f31934e13e79aa23288ee9898fce79a2",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "6298917505fa2ceb87f3",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.51,
+   "text": "Bitcoin starting the week under a lot of pressure, trading around $65,000 this morning. That's up about half a percentage point. And that's after falling about 13 % over the last... week now sitting at its lowest level since the summer.",
+   "text_sha256": "f326446006c3e2f8115a1495ad5f07fb1de673fa6347a260e8fea72e0939f329",
+   "trimmed_leading": null
+  },
+  {
    "pid": "4d1b5eb6b35e8a4ab96a",
    "video_id": "m7ygyYMe3mg",
    "channel": "Bitcoin Magazine",
@@ -2270,6 +2504,24 @@
    "text": "over the last few days, Bitcoin has broke down below some key support here after the recent run to about $88,000. And I want to break down the significance of this. I want to kind of touch on a little bit of the four -year cycle idea, the fact that we will more than likely not see a major bull run out of Bitcoin right now.",
    "text_sha256": "48621c4edf64096cd110a34607e92e10d855cfb927e0da17388f2b2b911a0e69",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "c61fe5f6abab7bcb3b70~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 26.01,
+   "text": "you know, it didn't go through 57. We've got a beautiful head and shoulders bottom. We've got the fundamentals are getting stronger. We're going on chain. You know, you've got the, you know, the exchange that had the hack, what happens every time we have a hack, the, you know, people pull money out of stable coins, which pulls money out of Bitcoin.",
+   "text_sha256": "1bb18659078712ab52e9a30f563fc659288234bcab921c2ac8096c56409c03a0",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "67139c3f59f1508a393c",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 28.8,
+   "text": "I would push back on there's any emergent immediate problem and probably something that would overline nicely with... with the quantum computer discussions and maybe quantum computers may eventually break Bitcoin's cryptography. If we're in a world where maybe in a couple years, maybe some of the classical mathematical expressions of elliptic curve photography start breaking down, that gives us all the more reason to be able to work towards an upgrade in a future for Bitcoin using a new signing algorithm, whether it's hash -based or anything else.",
+   "text_sha256": "60a6204d12aacd9f023abeaa1c87872f2cf88d5f9456252a6e7b37dbdfcc8704",
+   "trimmed_leading": null
   },
   {
    "pid": "3dcb11d181f767307493",
@@ -2290,6 +2542,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "f2764fdabd75e17a07b7~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 18.48,
+   "text": "just sort of narrowing it back down to your expertise is the leader frontrunner of the Bitcoin red teaming that we've been seeing happen. You know, we've seen OpenAI, for example, come out and they said they found, you know, 948 flaws in Linux, for example, something very fundamental that a lot of things are then built on top of.",
+   "text_sha256": "0c831f3e8ed801d5033e4cc48741c734b1b8652d97121e4dd9f32522e23e4392",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "988a604d8b75de7ca216",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -2299,12 +2560,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "794cfadb56c64e30eb8a~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.44,
+   "text": "obviously the Fed's forecast to tightening is going to be hampering equities as well as Bitcoin. So looking to see some easement there. Hopefully we can start to see that tenure, start to come down if energy prices continue to trend the way that they're trending.",
+   "text_sha256": "e26705b236ba8b20360672641ec8fc9d7fca187168a291ab4d147467f0c30082",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "1467203a7c17c896d6c7",
    "video_id": "OubcRgk3D-w",
    "channel": "Simply Bitcoin",
    "duration": 18.28,
    "text": "Brutero, dude, the last two weeks, remember guys I've been covering? It's like, hey, we're holding on at one and a half trillion. Okay, now we're at 140.1.4 trillion. Okay, now we're at 1.3 trillion, brutal. Anyways, the current blockhead is 976,165 to the real Bitcoin.",
    "text_sha256": "0da1b2c77455b4d7f7ad9ed1b0e67556ffaf8ac714636a862b045d0c778a0e5d",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "0b6349512ccdfadf3250",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 19.84,
+   "text": "Life happens. An emergency expense. A new home purchase or a great business opportunity. With Salt, you can access the power of your Bitcoin without selling. Now with rates starting at 7.5%. The original Bitcoin backlender, no collateral losses, no rehypification since 2016.",
+   "text_sha256": "4e601a2cc5f83aec6744ab4b2f6777ffec1065458a43d49a3df9bac3e87432eb",
    "trimmed_leading": null
   },
   {
@@ -2326,6 +2605,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "893a9a8fa036cfc2bf15~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.52,
+   "text": "let's start with Bitcoin here, trading around 6464K after falling to its lowest level since July. What's your read on the market right now? And what do you think drove the sell -off, first of all? And also, how are you weighing things in your fund?",
+   "text_sha256": "3fefe25460d12f833a0e4dc7bb10c55cb936531b2023e0a19cbee888f4a0ee95",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "02ecbde2a00bcacbfebb~trim",
    "video_id": "m7ygyYMe3mg",
    "channel": "Bitcoin Magazine",
@@ -2333,6 +2621,51 @@
    "text": "when you look at the chart, it's just putting in, they're doing a head and shoulders bottom as long as the stage of about 57K. were okay. um look, i mean, i was watching the market this weekend, and somebody came in and just absolutely crashed the bitcoin market you know uh in the weekend when no there's no liquidity.",
    "text_sha256": "ceff9d7e95eef0f85df529858a4a3c0ff8ee917397dd1cf35712a7a11d8e3029",
    "trimmed_leading": "But"
+  },
+  {
+   "pid": "4e9184dda1b4a719b844~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 23.5,
+   "text": "Strategy bought 485 Bitcoin last week for $33.4 million, bringing its total to $850,849 Bitcoin, while also buying back $228 million of its stretched preferred shares. Bitcoin Strategy Company Strive also added $251 Bitcoin for about $17.5 million, raising its holdings to $43,404 Bitcoin.",
+   "text_sha256": "e32ae532d1403361ff07bb1d24878245fac577c79def96a7c5bc6480ec536ded",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "d6cebf9331415a5a360e~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.72,
+   "text": "Bitcoin's latest sell -off has it trading near historically cheap levels, taking a look at the live price provided by Cash App. It's around $64,175 today. That's down eight -tenths of a percentage point. But is this a retest of June's bottom or is there more pain ahead?",
+   "text_sha256": "eb7a4e744d8d92aeef9b1a7b9bacd0f5283b27717c490275287e60077ac78533",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "e2726ed47051b64b1f3c",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.71,
+   "text": "An open interest across major exchanges sits around 200,000 Bitcoin, which is at current rates about 12. point nine, let's call it $13 billion. So, you know, that's down from last week's peak, but still above its three -month average in Bitcoin terms.",
+   "text_sha256": "65e7bda23fea2ebc248189dac7b33e6cdbf269b6db7e425a1978a83aad9fe78d",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e4aab5949b93a65aee23",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.68,
+   "text": "I think the government would like the ability to generate some new kind of seniorage. In other words, they would like to borrow some of the credibility that's been established by Bitcoin. But that doesn't undo. the math that's behind the demise of the purchasing power of the U.S. dollar.",
+   "text_sha256": "fb1ad7ee9a97cd237aa0384e7a74b732de91e138caebe859f892847beae08a99",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "f473dcac668506c50136",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 14.72,
+   "text": "You know, you've got the, you know, the exchange that had the hack. What happens every time we have a hack. The, you know, people pull money out of stable coins, which pulls money out of Bitcoin. It's rinse and repeat.",
+   "text_sha256": "c8911e2cd370057946eb04ca56d4d2fed09cd8f2e4765eead1e54662854be669",
+   "trimmed_leading": null
   },
   {
    "pid": "0821a7879b8c58c981bc",
@@ -2350,6 +2683,42 @@
    "duration": 15.34,
    "text": "I'm kind of expecting to see a little bit more of this where we just don't see full crowd buy in until we probably pass through like the 100K range or something like that. And it's like it's cool. You know, one of the things that I like about this is when everyone comes into Bitcoin, like, okay, what can I do in Bitcoin?",
    "text_sha256": "665ca939a195fd7d176fa0758f038b0c54b04c7869dc50f8194d694d267d4c1b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b3e605781c52c86d7b97~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 19.0,
+   "text": "Bitcoin's funding rate is sitting at about plus 4.6 annualized, aggregated across exchanges. So, you know, it's come down, but it's not severely elevated. An open interest across major exchanges sits around 200,000 Bitcoin, which is at current rates, about 12.9, let's call it, $13 billion.",
+   "text_sha256": "9f12153d1e660867c8e8c3aacfe40c1437e70517325fadb53337269e170b1f92",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "84816ef42cd1aedfad80",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 22.52,
+   "text": "It was my first time actually going to Europe for a Bitcoin conference. And I would say going across the pond and seeing how everyone is working. with Bitcoin over there, it was great to see. Good people and exciting conversations, a lot of it around AI and security, a good amount of conversations around treasury companies, and also just understanding kind of like what's up next for Bitcoin over the coming year.",
+   "text_sha256": "538c5e15d32581357fd789f9af64155985e9a0f7bd112917930033d78d72d20a",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "144ab39bebb3d4630186~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 19.06,
+   "text": "I know this is something that Ben Cowen has talked about in his videos as well, where, you know, if Bitcoin can't gain some relative strength here between now and when. Open AI decides to inevitably IPO, what is that going to do to the price as well? And maybe we'll be in a different place in the market to see a behavioral change where other assets are being chosen to be sold off instead of Bitcoin.",
+   "text_sha256": "940f0229fd424fab3114569ee9622631811a7bd1cde6d973f3e880e1581c5d37",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "51891a6b3ba30c65caa9",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 18.68,
+   "text": "All right, coming up next, AI is changing the game for Bitcoin security. Anchor Watch, co -founder and CEO Rob Hamilton, joins us next in studio to break down what that means for keeping your Bitcoin safe. We'll be right back. You're watching BMTV. Jessica, Brad has made his decision, and he chooses you.",
+   "text_sha256": "8da85a6173c7d9d5c4f2257950bd01b92aa28f6ba0244f1b9bdc230a39d82453",
    "trimmed_leading": null
   },
   {
