@@ -1,0 +1,37 @@
+pp-selectid: RULING 119 (1) (orchestrator 08:25 ET Nov 16), the stand-alone scorer's calibrated floor on the CANDIDATES
+path. Files: pipeline/package.py (scorer_verdicts, stand_alone_mark, the mark in build()), pipeline/package_pin.py
+(affirmed_verdict; the floor's constants; the mark carried outside the seal), tests/package/test_medley.py.
+
+THE ORDER, verbatim: "If any approved clip is refused, say so plainly and propose the calibrated floor the same way as
+rulings 115/116 (the lowest score an approved clip takes under the same asking, never under 3), with DEFAULT IN 20 MIN:
+APPLY, audit-first, marked on the pin and in the Telegram note in one plain line."
+THE MEASURE (the integrator's run on GPU0, production's scorer code unchanged, scorer_sha edd54964a5ab, three askings per
+clip, docs/audits/ruling119/APPROVED_CLIPS_SCORER.json in the main tree): asked ALONE (each clip in its own asking: the
+candidates path the builds read), four approved clips are refused: the preview's clip_01 and clip_02 (2.0) and 41f29b1f's
+clip_01 and clip_02 (3.0); all clips together (the render's validate) every approved clip is affirmed (lowest 4.0). The
+lowest an approved clip takes alone is 2.0; never under 3: THE FLOOR IS 3.0 (from the render's 3.5).
+
+THE CHANGE:
+- package_pin: STAND_ALONE_FLOOR = 3.0, STAND_ALONE_FLOOR_SCORER = "edd54964a5ab" (the measured scorer code),
+  STAND_ALONE_NOTE (the plain line). affirmed_verdict accepts a verdict at the render's own SCORER_MIN (3.5) as before, OR
+  one marked bar "calibrated" with floor == 3.0, score >= 3.0 and a scorer_sha of the measured code; every other check
+  (affirmed true, kind "moments", event null, threshold == SCORER_MIN, the text's sha) is unchanged.
+- package.scorer_verdicts: the integrator's "affirmed" must still agree with the render's own rule (3.5) or the verdict is
+  no verdict (unchanged); a verdict is affirmed on the floor when the render's rule refuses it, its scorer_sha is the
+  measured code and its score >= 3.0: "affirmed" true, "affirmed_render" false, bar "calibrated", floor 3.0; the record
+  counts affirmed_on_the_floor. Under any other scorer_sha the floor is never applied.
+- package.stand_alone_mark(segments) and build(): a sealed package with a segment affirmed only on the floor carries
+  moments_package.stand_alone_bar {note, floor, scorer_sha, segments, ruling}; package_pin.to_pin carries it OUTSIDE the
+  seal (package_sha256 unchanged). The integrator's Telegram note prints its note (their side, told separately).
+
+UNCHANGED GUARDS (not in the diff): the render's validate (stand_alone.check_edl, all clips together, 3.5) still checks
+every pin at render; scorer_verdicts' file checks (kind moments, no event, scorer_sha == the render's code now, threshold ==
+CLIP_MIN_SCORE); package_pin.scorer_problems (an opener needs an affirmation); trim_refused (a trimmed text needs one).
+
+TESTS (test_medley TestRuling119StandAloneFloor, 3): the floor affirms 3.0-3.5 only on the measured scorer (2.9 refused;
+another scorer_sha: 3.5 only); the pin check accepts a floor affirmation only whole (no bar, another floor, 2.9, another
+sha, another threshold: refused); the mark on a package with a floor-affirmed segment, none without, and the pin carries it
+outside the seal. Mutations F1-F6 after a control run: 6 of 6 killed. All suite files.
+
+PLEASE CHECK: (1) that nothing under 3.0 and nothing from another scorer code is ever affirmed; (2) that the render's own
+bar and checks are untouched; (3) that the mark is outside the seal; (4) the tests.
