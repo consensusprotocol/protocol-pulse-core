@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T19:54:06+00:00",
- "build": "ledger_20261116_195345",
+ "generated_at": "2026-11-16T19:55:30+00:00",
+ "build": "ledger_20261116_195504",
  "kind": "moments",
  "candidates": [
   {
@@ -508,12 +508,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "c42ee35cb6775bfd699d",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 20.08,
+   "text": "Bitcoin has seen one of its largest liquidation events over the weekend, which has now slapped Bitcoin into a 25 % pullback. And when we ended the show on Friday afternoon, Bitcoin's price was around 70K, was around, sorry, sorry, my guest for the day is messing with my soundboard.",
+   "text_sha256": "95646a3262a200a2606505e15e983a07cfedaf3836bd3be6be98fad6b79ddc20",
+   "trimmed_leading": null
+  },
+  {
    "pid": "f4d5673319d70ee66c6b",
    "video_id": "stg5ui9sPos",
    "channel": "Yahoo Finance",
    "duration": 15.31,
    "text": "Basically, the miners got the electricity bill for it, but the hacker got the direct deposit. And from where newly mined Bitcoin gets paid to help banks move existing dollars, JP Morgan and DBS, Have a new cross -border connection.",
    "text_sha256": "3afb34bef1b5f0f0cb0ef3038207c9fb096d6d106adf3ff5d8f819e1216b8d4c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "2a24443d6b1ebdc690cd",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 29.45,
+   "text": "That is so against what Bitcoin fundamentally represents that, like, I'm hearing that. And I'm like, guys, you have to understand. Most pools right now, especially the big ones. You have to ask permission in order to use them. Do you understand how big of a problem that is for Bitcoin? Bitcoin wins if it stays decentralized and secure.",
+   "text_sha256": "5e7da75b65dc13c4743606382936bca53ce1d272df3a4c3d37e4bbf2dea42d39",
    "trimmed_leading": null
   },
   {
@@ -526,6 +544,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "7e1a34769e9def7e8f2a~trim",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 20.98,
+   "text": "the question that I have for you guys is, what type of world do you want your children to live in? And if we don't have permissionless systems on the Bitcoin mining level, I would say that we're in trouble. What would you think of that statement?",
+   "text_sha256": "fc543cca2ad1c6bec396b629d92d04cf2bcb35f52f401b3714260e01981927f4",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "c800974b45030c070910~trim",
    "video_id": "lcYYuefFMQA",
    "channel": "Strategy (MicroStrategy)",
@@ -533,6 +560,15 @@
    "text": "what we learn with credit is it's an alloy of Bitcoin and dollars. And if the alloy is 98 % Bitcoin, $2, it tends to buckle. And if the alloy becomes 25, 30, 40 percent dollars, it's like stainless steel. It's very strong. And so the real trick to creating digital credit is blending in the right amount of dollars along with the Bitcoin in order to create something which is strong.",
    "text_sha256": "0b32ef4ef1d25df5deb02bbd11dc8352e9a7174c41dbef65c9a3aabc23238d66",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "db728d54b395bf1a6725",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 26.76,
+   "text": "When there's blood on the streets, when Bitcoin is going down, when everyone is disillusioned, when everyone is looking at the latest and greatest AI IPO. Yes, these are the most opportune times, historically speaking, where you'll look back and you'll think to yourself, wow, do you remember when I could have bought Bitcoin, not financial advice, at $64,897?",
+   "text_sha256": "467cb420a68a5a409f6f6511c19672d23ee58e4f5d2e18056529b82f3c5af452",
+   "trimmed_leading": null
   },
   {
    "pid": "0b25f2fb01c410d2d8a8",
@@ -562,6 +598,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "70ce712eb4abf6cc8952",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 16.08,
+   "text": "Like I remember when like the volatility of Bitcoin, like Bitcoin would drop 50 % in a day. And it would hurt to your core. But hey, it was a lot more fun. That's for sure. So. You want the volatility because without the volatility, you're not going to get the upside, right?",
+   "text_sha256": "25cafdc4098654f6ae840c29f51bcd1928c5f81d438685413c32a8a943d0f76b",
+   "trimmed_leading": null
+  },
+  {
    "pid": "b8aa24469734651f1106",
    "video_id": "m7ygyYMe3mg",
    "channel": "Bitcoin Magazine",
@@ -577,6 +622,15 @@
    "duration": 17.0,
    "text": "I get to have, you know, they donate Democrat candidates. Sometimes they call me. And it's so funny how many of the ones who were under 40 would tell me they used to mine Bitcoin in their dorm room. I'm like, I love it. Can you say that? Like, well, should I say that? I'm like, why would you not say that? No one. No one cares if you say that.",
    "text_sha256": "fc8465b0235c7df2708779d3fe17327e88f6c164d2c700cd6d219a77627cc615",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d25cb2e1af9d301c4527",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 20.75,
+   "text": "It reminds me of the time where the Mount Gox hack happened. And after the Mount Gox hack happened, You had a ton of disillusionment in the Bitcoin community. This was the only exchange where you can buy Bitcoin at the time. And people are like, look, Bitcoin's over. It's done.",
+   "text_sha256": "23a1a49add0943e52b8a3d794b73a30ab7030377cd25018003d9cdea91389904",
    "trimmed_leading": null
   },
   {
