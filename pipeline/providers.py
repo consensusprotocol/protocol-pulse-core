@@ -999,6 +999,18 @@ class Router:
             return b.prompt_usd(prompt, system), "list"
         return round(rate * b.prompt_tokens_upper(prompt, system), 8), "reported_rate"
 
+    def _reserve_fraction(self, b):
+        """RULING 123 (1) (orchestrator 14:05 ET Nov 16): a back-end whose spec names reserve_list_fraction (Grok: 0.25)
+        is reserved at that fraction of its list-price reserve, until a call of it bills above that fraction of the list
+        price of what it used: then the day's ledger records the trip (reserve_tripped) and it is reserved at list for
+        the rest of that ledger's day (proof_ly.day_ledger: a ledger a day). -> the fraction, or None (list)."""
+        f = b.spec.get("reserve_list_fraction")
+        if not _num(f) or not self.spend_path:
+            return None
+        with self._lock():
+            d = self._ledger()
+        return None if (d.get("reserve_tripped") or {}).get(b.name) else float(f)
+
     def _settle(self, key, backend=None, usage=None, usd=0.0, role="", unreported=None):
         """Release a reservation and account the call that answered (a free one too, when the ledger is readable).
         `unreported` (an abandoned call's booking, ruling 107 Q1) is what the cap's unreported estimate takes in place
@@ -1012,9 +1024,20 @@ class Router:
                 if key is None:
                     return                             # a free call: nothing to guard, nothing to write
                 raise
-            d["reserved"].pop(key, None)
+            held = d["reserved"].pop(key, None)
             if backend is not None:
                 usage = usage or {}
+                f = backend.spec.get("reserve_list_fraction")      # RULING 123 (1): the tripwire, after every call
+                if _num(f) and _num(usage.get("usd_reported")) and float(usage["usd_reported"]) > float(f) * usd and \
+                        not (d.get("reserve_tripped") or {}).get(backend.name):
+                    trip = {"at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "role": role,
+                            "billed": round(float(usage["usd_reported"]), 6), "list": round(usd, 6),
+                            "fraction": float(f), "reserved": held,
+                            "why": f"billed above {float(f):.0%} of list: reserved at list for the rest of the day "
+                                   f"(ruling 123 (1))"}
+                    d.setdefault("reserve_tripped", {})[backend.name] = trip
+                    self.notices.append(f"RESERVE BACK TO LIST: {backend.name} {trip['why']}: billed "
+                                        f"${trip['billed']:.4f}, list ${trip['list']:.4f}")
                 b = d["by_backend"].setdefault(backend.name, {"calls": 0, "in": 0, "out": 0, "usd_estimate": 0.0,
                                                               "price_usd_per_1m": list(backend.price)})
                 b.update(calls=b["calls"] + 1, usd_estimate=round(b["usd_estimate"] + usd, 6),
@@ -1364,7 +1387,8 @@ class Router:
                 tried.append((name, bwhy))
                 continue
             upper = b.upper_usd(prompt, max_tokens, system)
-            key = self._reserve(b, upper)
+            frac = self._reserve_fraction(b)          # RULING 123 (1): Grok at 25 % of list until a call bills over it
+            key = self._reserve(b, round(upper * frac, 6) if frac is not None else upper)
             if isinstance(b, HeimdallBackend):
                 n = self.heimdall_tripwire()
                 if n:

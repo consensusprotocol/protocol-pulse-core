@@ -737,11 +737,13 @@ class TestRuling121Reserve(unittest.TestCase):
     tokens (step A's 4,000 x 8 was 32,000: $0.80 of Grok output at list, more than the day's $1.00 had left)."""
     REPLIES = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "package", "fixtures", "replies")
 
-    def xai(self, cap=True, answer='{"ok": true}'):
+    def xai(self, cap=True, answer='{"ok": true}', frac=True):
         spec = dict(json.load(open(os.path.join(os.path.dirname(P.__file__), "model_providers.json")))["backends"][
             "xai:grok-4.20-0309-reasoning"])
         if not cap:
             spec.pop("max_out_cap", None)
+        if not frac:                                  # at list (ruling 123 (1) then reserves Grok at 25 % of it)
+            spec.pop("reserve_list_fraction", None)
         b = P.XAIBackend("xai:grok-4.20-0309-reasoning", spec, "/nonexistent")
         b.sent = []
         b.key = lambda name: "k"
@@ -808,7 +810,7 @@ class TestRuling121Reserve(unittest.TestCase):
                 "calls": 1, "in": 0, "out": 0, "usd_estimate": 0.5835, "usd_reported": 0.5835}},
                 "by_role": {}, "reserved": {}, "usd_reported": 0.5835, "usd_unreported_estimate": 0.0}, open(led, "w"))
             for cap, fits in ((True, True), (False, False)):
-                b = self.xai(cap=cap)
+                b = self.xai(cap=cap, frac=False)     # ruling 121's check is at list
                 b.complete = lambda prompt, max_tokens, seed, system=None: ('{"ok": true}', {"in": 2000, "out": 3000}, 0.02)
                 r = router(d, [b], {"context_verdict": [b.name]}, spend_path=led, limit_usd=1.0, limit_basis="reported")
                 if fits:
@@ -816,6 +818,55 @@ class TestRuling121Reserve(unittest.TestCase):
                 else:
                     with self.assertRaises(P.SpendLimit):
                         r.call("context_verdict", "p" * 7800, 4000)
+
+
+class TestRuling123Reserve(unittest.TestCase):
+    """RULING 123 (1) (orchestrator 14:05 ET Nov 16): Grok's reserve at 25 % of list (x 1.25 kept), with a tripwire: the
+    first call that bills above 25 % of the list price of what it used puts the reserve back to list for the rest of the
+    day (the day's ledger), written in that ledger and announced."""
+
+    def ledger(self, d, spent, name="led.json"):
+        led = os.path.join(d, name)
+        json.dump({"usd_estimate": spent, "calls": 1, "by_backend": {}, "by_role": {}, "reserved": {},
+                   "usd_reported": spent, "usd_unreported_estimate": 0.0}, open(led, "w"))
+        return led
+
+    def grok(self, usd_reported):
+        g = Fake("xai:g", "xai", answer="{}", price=(5, 25), usage={"in": 1000, "out": 2000, "usd_reported": usd_reported})
+        g.spec["reserve_list_fraction"] = 0.25
+        return g
+
+    def test_a_quarter_of_list_until_a_call_bills_above_it_then_list_for_the_day(self):
+        with tempfile.TemporaryDirectory() as d:
+            led = self.ledger(d, 0.69)
+            g = self.grok(0.01)                       # its usage at list: 1,000 x $5/M + 2,000 x $25/M = $0.055
+            r = router(d, [g], {"judge": ["xai:g"]}, spend_path=led, limit_usd=1.0, limit_basis="reported")
+            p = "p" * 3000                            # the reserve at list: 1.25 x (1,200 x $5/M + 12,000 x $25/M) = $0.38
+            self.assertAlmostEqual(g.upper_usd(p, 12000), 0.3825, places=6)
+            r.call("judge", p, 12000)                 # 0.69 + 0.38 > 1.00 at list; at 25 %: 0.69 + 0.096: it runs
+            r.call("judge", p, 12000)                 # billed $0.01 <= 25 % of $0.055: still 25 %
+            self.assertEqual((g.calls, json.load(open(led)).get("reserve_tripped")), (2, None))
+            g._usage = {"in": 1000, "out": 2000, "usd_reported": 0.02}     # billed above 25 % of list ($0.01375)
+            r.call("judge", p, 12000)
+            trip = json.load(open(led))["reserve_tripped"]["xai:g"]
+            self.assertEqual((trip["billed"], trip["list"], trip["fraction"], trip["reserved"]),
+                             (0.02, 0.055, 0.25, round(0.3825 * 0.25, 6)))
+            self.assertTrue(any(n.startswith("RESERVE BACK TO LIST: xai:g") for n in r.notices), r.notices)
+            with self.assertRaises(P.SpendLimit):     # 0.73 + the list reserve 0.38 > 1.00: refused, for the day
+                r.call("judge", p, 12000)
+            self.assertEqual(g.calls, 3)
+            day2 = router(d, [g], {"judge": ["xai:g"]}, spend_path=self.ledger(d, 0.69, "day2.json"), limit_usd=1.0,
+                          limit_basis="reported")
+            day2.call("judge", p, 12000)              # a new day's ledger: 25 % again
+            self.assertEqual(g.calls, 4)
+
+    def test_only_a_back_end_that_names_the_fraction_is_reserved_below_list(self):
+        with tempfile.TemporaryDirectory() as d:
+            led = self.ledger(d, 0.69)
+            o = Fake("openai:o", "openai", answer="{}", price=(5, 25), usage={"in": 10, "out": 10, "usd_reported": 0.0})
+            r = router(d, [o], {"judge": ["openai:o"]}, spend_path=led, limit_usd=1.0, limit_basis="reported")
+            with self.assertRaises(P.SpendLimit):
+                r.call("judge", "p" * 3000, 12000)    # list: 0.69 + 0.38 > 1.00
 
 
 if __name__ == "__main__":

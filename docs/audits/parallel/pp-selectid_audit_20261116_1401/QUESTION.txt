@@ -1,0 +1,28 @@
+pp-selectid: RULING 123 (1) (orchestrator 14:05 ET Nov 16), GROK'S RESERVE AT 25 % OF LIST, WITH A TRIPWIRE. Files:
+pipeline/providers.py (Router._reserve_fraction; Router.call takes the reserve through it; Router._settle's tripwire),
+pipeline/model_providers.json (one key on the xAI reasoning back-end), tests/providers/test_providers.py.
+
+THE ORDER, verbatim: "(1) THE RESERVE: YES. Price Grok's reserve at 25 % of list (x 1.25 kept), on your evidence: all 127
+calls since Nov 15 billed 9-12 % of list, the dearest $0.029. WITH A TRIPWIRE: after every outside call compare what was
+billed with what was reserved; the first call that bills above 25 % of list puts the reserve back to list at once, for the
+rest of the day, and writes it on line 1. The worst case is one call's overshoot (about $0.25) on a day xAI changes its
+billing; PBX's dollar is a target he asked me to hold without lowering quality or losing the day, and I accept that tail
+for a video today. Audit-first on Heimdall."
+
+THE CHANGE: a back-end whose spec names reserve_list_fraction (the xAI reasoning back-end: 0.25) is reserved at that
+fraction of its reserve (upper_usd: ruling 121's characters / 3, its real cap, list, x 1.25), unless the day's ledger
+records a trip for it (reserve_tripped[name]). After every call of it that reports a cost, _settle compares the billed
+figure with that fraction of the LIST price of what the call used (b.usd(usage)); the first call above it writes
+reserve_tripped[name] = {at, role, billed, list, fraction, reserved, why} into the ledger (under the ledger lock, as every
+ledger write) and a "RESERVE BACK TO LIST" notice; from then that back-end is reserved at list until the ledger changes
+(proof_ly.day_ledger: one ledger a day, 21:10 ET to 21:10 ET). The builder writes the trip on STATE line 1 (its day
+keeper reads the ledger). Every other back-end, the cap ($1.00 a day, outside vendors only) and the reservation's
+take-settle-release cycle are unchanged (unchanged guards: Router._reserve, the ledger lock, Heimdall uncapped).
+
+TESTS (TestRuling123Reserve): with $0.69 spent of $1.00, a call whose list reserve ($0.38) does not fit runs at 25 %; two
+calls billing under 25 % of list keep it; the first billing above it trips (recorded with billed, list, fraction,
+reserved; announced); the next call is reserved at list and refused; a new day's ledger is at 25 % again; a back-end
+without the key stays at list. Ruling 121's fit test now runs at list (its own check). Mutations Q1-Q4 after a control.
+
+PLEASE CHECK: (1) the tripwire's comparison and that it cannot be missed; (2) that the trip holds for the day; (3) that
+nothing but the named back-end changes; (4) the tests.
