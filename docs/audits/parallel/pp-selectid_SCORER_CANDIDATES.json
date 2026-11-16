@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T11:52:12+00:00",
- "build": "ledger_20261116_115156",
+ "generated_at": "2026-11-16T11:57:18+00:00",
+ "build": "ledger_20261116_115702",
  "kind": "moments",
  "candidates": [
   {
@@ -85,6 +85,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "eacfb10e73d264548fdb",
+   "video_id": "Vu0XZSz-aj4",
+   "channel": "Bankless",
+   "duration": 15.39,
+   "text": "Ironically, the biggest problem for crypto was it was the first thing to show up in finance after 2008 that was new. If we'd showed up, we couldn't, right? Satoshi himself was an expression of 2008, but to humor me.",
+   "text_sha256": "3abd2695f79b90d6ae5d315b27de9c23635cbc04fab32e63c401094755efb018",
+   "trimmed_leading": null
+  },
+  {
    "pid": "33631775a48a4dcd3c38",
    "video_id": "5LXk2SLH4fI",
    "channel": "Natalie Brunell",
@@ -121,6 +130,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "3d62c51a3fa62c41559a",
+   "video_id": "Vu0XZSz-aj4",
+   "channel": "Bankless",
+   "duration": 17.0,
+   "text": "I get to have, you know, they donate Democrat candidates. Sometimes they call me. And it's so funny how many of the ones who were under 40 would tell me they used to mine Bitcoin in their dorm room. I'm like, I love it. Can you say that? Like, well, should I say that? I'm like, why would you not say that? No one. No one cares if you say that.",
+   "text_sha256": "fc8465b0235c7df2708779d3fe17327e88f6c164d2c700cd6d219a77627cc615",
+   "trimmed_leading": null
+  },
+  {
    "pid": "7b757b8c46e2738662bc~trim",
    "video_id": "Dky_8mOTl0Y",
    "channel": "Simply Bitcoin",
@@ -136,6 +154,15 @@
    "duration": 23.02,
    "text": "Adam Back says he has a bet on Bitcoin reaching $1 million by 2028, but the price just fell through the line he calls its floor. Now for those who don't know, Adam Back runs Blockstream and he's one of the few people cited in the original Bitcoin white paper. He shared his bet on CNBC last week and said his reasoning is that at least 95 % of the institutional money that will eventually own Bitcoin hasn't even arrived yet.",
    "text_sha256": "c70c44c77a434c1da750d482337b5618a4bbbb8ea8f17e87c317534aa485db70",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "41fececdeafb656fb29b",
+   "video_id": "Vu0XZSz-aj4",
+   "channel": "Bankless",
+   "duration": 23.81,
+   "text": "People like to deny the utility because they don't have to deal with the hard problems of how to deal with it. If I just say this is all useless, I can just keep it away, then it's very, you don't have to go to those second order questions. I just don't think you can look at this and see all the innovations in stable coins, in the hard money of Bitcoin provides in Defi and say this is all useless.",
+   "text_sha256": "ba86a961707db7e23d8dba15f7066b6eb29d05b78f148e4d917e877e756b8c17",
    "trimmed_leading": null
   },
   {
@@ -193,15 +220,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "34740e20eceb1d777488",
-   "video_id": "Vu0XZSz-aj4",
-   "channel": "Bankless",
-   "duration": 23.81,
-   "text": "People like to deny the utility because they don't have to deal with the hard problems of how to deal with it. If I just say this is all useless, I can just keep it away, then it's very, you don't have to go to those second order questions. I just don't think you can look at this and see all the innovations in stable coins, in the hard money of Bitcoin provides in Defi and say this is all useless.",
-   "text_sha256": "ba86a961707db7e23d8dba15f7066b6eb29d05b78f148e4d917e877e756b8c17",
-   "trimmed_leading": null
-  },
-  {
    "pid": "ea5ab1782696628d6384~trim",
    "video_id": "5LXk2SLH4fI",
    "channel": "Natalie Brunell",
@@ -209,15 +227,6 @@
    "text": "the floor he talks about is the 200 week moving average, which is basically Bitcoin's average price over the past four years. It was sitting near 68,000, but... As you know, Bitcoin has just dropped below it. This has happened before, including in 2020 and 22, and of course, it's recovered each time.",
    "text_sha256": "1559fa75b1a9c8ba3384cf94ec83479dda51b6c12259de04fa15e12c01e8c542",
    "trimmed_leading": "Now"
-  },
-  {
-   "pid": "0e8a90a0e685d74b90c8",
-   "video_id": "Vu0XZSz-aj4",
-   "channel": "Bankless",
-   "duration": 17.0,
-   "text": "I get to have, you know, they donate Democrat candidates. Sometimes they call me. And it's so funny how many of the ones who were under 40 would tell me they used to mine Bitcoin in their dorm room. I'm like, I love it. Can you say that? Like, well, should I say that? I'm like, why would you not say that? No one. No one cares if you say that.",
-   "text_sha256": "fc8465b0235c7df2708779d3fe17327e88f6c164d2c700cd6d219a77627cc615",
-   "trimmed_leading": null
   },
   {
    "pid": "40b6800323cfe71654fd",

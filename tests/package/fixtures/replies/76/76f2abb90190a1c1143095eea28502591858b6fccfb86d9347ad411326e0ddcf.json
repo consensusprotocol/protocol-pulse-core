@@ -1,0 +1,338 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "e6974e859e87302cfd9e2bd679e951f23bfb7a4067e188cd38b81fd8c3171bef",
+ "result": {
+  "text": "creepy slope down back to fiscal Armageddon. Ironically, the biggest problem for crypto was it was the first thing to show up in finance after 2008 that was new. If we'd showed up, and we, we couldn't, right? Satoshi himself was an expression of 2008, but humor me. Imagine Satoshi shows up-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 20.84,
+    "text": "creepy slope down back to fiscal Armageddon. Ironically, the biggest problem for crypto was it was the first thing to show up in finance after 2008 that was new. If we'd showed up, and we, we couldn't, right? Satoshi himself was an expression of 2008, but humor me. Imagine Satoshi shows up-"
+   }
+  ],
+  "words": [
+   {
+    "text": "creepy",
+    "start": 0.0,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "slope",
+    "start": 0.26,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down",
+    "start": 0.6,
+    "end": 0.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "back",
+    "start": 0.88,
+    "end": 1.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 1.1,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fiscal",
+    "start": 1.24,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Armageddon.",
+    "start": 1.56,
+    "end": 2.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Ironically,",
+    "start": 3.9,
+    "end": 4.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.14,
+    "end": 6.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "biggest",
+    "start": 6.32,
+    "end": 6.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "problem",
+    "start": 7.2,
+    "end": 7.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 7.62,
+    "end": 7.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crypto",
+    "start": 7.76,
+    "end": 8.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 8.16,
+    "end": 8.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 8.28,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 8.38,
+    "end": 8.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.52,
+    "end": 8.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "first",
+    "start": 8.76,
+    "end": 9.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing",
+    "start": 9.08,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 9.28,
+    "end": 9.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "show",
+    "start": 9.42,
+    "end": 9.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 9.66,
+    "end": 9.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 9.78,
+    "end": 9.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "finance",
+    "start": 9.94,
+    "end": 10.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "after",
+    "start": 10.54,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2008",
+    "start": 10.92,
+    "end": 11.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 11.42,
+    "end": 11.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 11.52,
+    "end": 11.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "new.",
+    "start": 11.68,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "If",
+    "start": 13.74,
+    "end": 13.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we'd",
+    "start": 13.88,
+    "end": 14.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "showed",
+    "start": 14.1,
+    "end": 14.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up,",
+    "start": 14.4,
+    "end": 14.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 14.9,
+    "end": 14.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we,",
+    "start": 14.98,
+    "end": 15.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 15.4,
+    "end": 15.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "couldn't,",
+    "start": 15.54,
+    "end": 15.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 15.84,
+    "end": 16.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Satoshi",
+    "start": 16.3,
+    "end": 16.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "himself",
+    "start": 16.82,
+    "end": 17.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 17.32,
+    "end": 17.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 17.42,
+    "end": 17.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "expression",
+    "start": 17.5,
+    "end": 18.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 18.06,
+    "end": 18.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2008,",
+    "start": 18.3,
+    "end": 18.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 18.82,
+    "end": 18.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "humor",
+    "start": 19.02,
+    "end": 19.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me.",
+    "start": 19.28,
+    "end": 19.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Imagine",
+    "start": 19.86,
+    "end": 20.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Satoshi",
+    "start": 20.22,
+    "end": 20.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shows",
+    "start": 20.62,
+    "end": 20.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up-",
+    "start": 20.8,
+    "end": 20.84,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 20.89
+ },
+ "usd": 0.004178,
+ "seconds": 1.37,
+ "recorded_at": "2026-11-16T11:58:20Z"
+}
