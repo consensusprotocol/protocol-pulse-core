@@ -1,0 +1,12 @@
+CONTROL (unmutated): exit 0 | 32 passed, 12 subtests passed in 4.16s
+W1 the universe ignores the stream start: KILLED | 1 failed, 6 passed in 0.84s
+W2 the release_timestamp not read: KILLED | 1 failed, 1 passed in 0.81s
+W3 the read time used for a finished stream too: KILLED | 1 failed in 0.81s
+W4 any record taken as a stream: KILLED | 1 failed, 3 passed in 0.84s
+W5 meta.json, not the newest snapshot: KILLED | 1 failed, 7 passed in 0.86s
+W6 the release_timestamp not stored: KILLED | 1 failed, 8 passed in 0.87s
+W7 any release_timestamp value accepted: KILLED | 2 failed, 9 passed, 1 subtests passed in 0.93s
+W8 a future start counted: KILLED | 1 failed, 1 passed in 0.82s
+W9 an unreadable record breaks the universe: KILLED | 1 failed, 3 passed in 0.96s
+9 of 9 killed
+AFTER (restored): exit 0 | 32 passed, 12 subtests passed in 4.27s

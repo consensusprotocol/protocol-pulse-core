@@ -1,0 +1,26 @@
+{
+ "question": "Try to BREAK this diff (pp-ingest R14): the transcript ingest's 72 h universe re-dates an RSS entry outside the window by the stored stream's start (transcript_store.stream_start: the newest snapshot's release_timestamp, or the time of a read made while the stream was not yet finished). Each snapshot now stores release_timestamp. For each attempt, give the exact stored record, RSS entry and code path. Report ONLY the attempts that succeed, quoting the lines that let them through. If none succeeds, answer PASS with no findings.\n\nGOALS:\nZ1. Keep in the window a video that should be out: an ordinary old upload, a stream that aired more than 72 h ago, an upcoming stream that has not aired.\nZ2. Drop a stream that aired inside the window.\nZ3. Make universe() or ensure_meta raise on a malformed record or release_timestamp.\nZ4. Make a stream's age come from the wrong snapshot: meta.json over a newer history snapshot, or a foreign or torn line.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 176.4,
+   "cost": 0.0057828299,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0057828299,
+ "out_dir": "heimdall"
+}

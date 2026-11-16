@@ -1,0 +1,19 @@
+# Heimdall audit
+
+**Question:** Try to BREAK this diff (pp-ingest R14): the transcript ingest's 72 h universe re-dates an RSS entry outside the window by the stored stream's start (transcript_store.stream_start: the newest snapshot's release_timestamp, or the time of a read made while the stream was not yet finished). Each snapshot now stores release_timestamp. For each attempt, give the exact stored record, RSS entry and code path. Report ONLY the attempts that succeed, quoting the lines that let them through. If none succeeds, answer PASS with no findings.
+
+GOALS:
+Z1. Keep in the window a video that should be out: an ordinary old upload, a stream that aired more than 72 h ago, an upcoming stream that has not aired.
+Z2. Drop a stream that aired inside the window.
+Z3. Make universe() or ensure_meta raise on a malformed record or release_timestamp.
+Z4. Make a stream's age come from the wrong snapshot: meta.json over a newer history snapshot, or a foreign or torn line.
+
+**Panel:** qwen27b  |  **Cost:** $0.0058
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none

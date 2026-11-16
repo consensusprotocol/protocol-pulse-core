@@ -1,0 +1,26 @@
+{
+ "question": "Review this diff (pp-ingest R14, INGEST-FAIL-03).\n- The problem it fixes: the transcript ingest's universe() keeps only YouTube RSS entries whose RSS \"published\" time is within the window (72 h). For a scheduled live stream, that time is when it was SCHEDULED, days before it airs, so the stream dropped out of the window just as it aired. Bitcoin Magazine KRvh4AcSofA was scheduled Nov 13 and aired Nov 16.\n- The fix:\n  - Each metadata snapshot now keeps yt-dlp's release_timestamp, the stream's start.\n  - transcript_store.stream_start(video_id) gives when a stored stream aired.\n  - universe() re-dates an entry outside the window by that start.\n\nReport ONLY defects you can prove by quoting the diff's code. Keep each \"issue\" under 60 words. If every check holds, answer PASS with no findings.\n\nFACTS (unchanged code, not in the diff):\n- _newest_meta(video_id) returns the newest snapshot dict. It raises OSError / ValueError when meta.json is missing or unreadable, and ValueError from _vdir for an invalid id.\n- LIVE_STATES = (\"is_live\", \"is_upcoming\", \"post_live\").\n- universe() runs one() per channel in a ThreadPoolExecutor and collects every list; an exception in one() propagates.\n- Inside the window the RSS time is used, as before.\n\nCHECKS:\nS1. Is only an entry OUTSIDE the window by its RSS time re-dated? Is it re-dated only when the store holds it as a stream (is_live / is_upcoming / post_live / was_live)? Does an ordinary upload keep its RSS time?\nS2. Does stream_start use release_timestamp, and the time of the read only for a snapshot read while not yet finished that names no start? Does a finished stream with no start keep its RSS time?\nS3. Can a missing, unreadable or odd record (bad JSON, a bad time string, an invalid id, a bool or string release_timestamp) raise out of universe() or acquire()?\nS4. Is a start in the future, or older than the window, still outside it?\nS5. Does anything else change?",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 38.2,
+   "cost": 0.00228687,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.00228687,
+ "out_dir": "heimdall"
+}
