@@ -259,6 +259,7 @@ No session waits on the orchestrator. Standing, for all three sessions:
   - Exactly these five fields, or check_pin_only refuses the pin and validate HOLDs. Place p is validate's `hook` (p = 0) or `clip_{p:02d}`.
   - At validate it lifts only an opener the scorer refused for its score alone (3.0 <= score < 3.5; the unchanged opener passes at the bar). PROVENANCE `stand_alone.calibrated_floor` records {segments, applied, scorer_sha, digest[, not_applied]}.
   - The release caption prints its line after the hook's and the line-up's. PBX's verdict on such a pin is relayed to the builder like the others.
+- **Story-first line-ups (ruling 118 (4), builder 1571b7b9, 2026-11-16):** a package built from a story angle (the builds read /home/ultron/pulse_intel/stories/latest.json; a story with clips from 3 channels) has `moments_package.models.angle` = "story S-... (the stories file)" in place of a back-end name. Nothing else in the pin or the seal changes, and the render never reads `models` (pinned, check_pin_only, validate, release_auth and telegram checked 2026-11-16). Such a line-up is never a ruling-66 candidate.
 - **Pre-check request:** `<request_id>.json` {request_id, segments [{video_id, start, end, role hook|clip, approved_text?, trimmed_leading? + untrimmed_start?}]}.
   - outcome is one of decoded, no_difference, adopted, two_readings, adopt_spoken (seal spoken_text), hold, error.
   - The entry also carries lock, alternatives, as_spoken {differences, classes} and cut.
