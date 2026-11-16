@@ -89,7 +89,8 @@ class TestStreamStart(Base):
 
     def test_an_ordinary_video_past_the_window_is_dropped_as_before(self):
         self.rss = [entry("PLAINVIDEO1", 80), entry("NOSTORE0001", 80)]
-        self.store("PLAINVIDEO1", "not_live", 79)                       # an upload, not a stream: RSS time stands
+        self.store("PLAINVIDEO1", "not_live", 79, release_hours_ago=2)  # an upload, not a stream: RSS time stands,
+                                                                        # whatever release time it names
         self.assertEqual(self.ids(), {})
 
     def test_inside_the_window_the_rss_time_stands(self):
