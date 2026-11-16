@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T21:07:26+00:00",
- "build": "ledger_20261116_210640",
+ "generated_at": "2026-11-16T21:09:06+00:00",
+ "build": "ledger_20261116_210824",
  "kind": "moments",
  "candidates": [
   {
@@ -139,6 +139,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "239c9391cd5c1b6f6104",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.04,
+   "text": "And so, you know, the first real stress test is going to be some of their converts that are going to be, you know, kind of coming up in September of 2027. And in a worst case there, you know, that's under 2 % of their Bitcoin stack to make good on those.",
+   "text_sha256": "545ee6830958760f30c658088f7b674fe0bc195e58899a0954601694de10d19d",
+   "trimmed_leading": null
+  },
+  {
    "pid": "5b18691d98d867654372",
    "video_id": "uAvmynMSVhM",
    "channel": "Bitcoin Magazine",
@@ -157,12 +166,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "7c8a86af8b0c4da1c9d5",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 16.37,
+   "text": "And so when I think about the risks coming into the future, there's definitely some risk as it relates to over the next five, six years of... quantum computers and kind of Bitcoin cryptography. But I see, especially in Amsterdam, talking to a lot of the cryptographers in Bitcoin, that we're kind of sprinting to meet to these challenges.",
+   "text_sha256": "9163028f36eb19a6ad0c709ea21ed70ecfa90be9bc8a8f1737a31a9ab49c99ae",
+   "trimmed_leading": null
+  },
+  {
    "pid": "bbd96c352a4dd00262d2",
    "video_id": "f0NnJM63Ffc",
    "channel": "Scott Melker",
    "duration": 12.82,
    "text": "And so the thesis behind Bitcoin buying, the pieces behind gold central bank buying is undeterred, unstopped. And that... matters because that tells you a lot about where demand comes from.",
    "text_sha256": "5b392ec47e9c2c42c550d7aaed836c37ae67fc36b6a1bb0e15981ef77540c208",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "fc47defb766a773cfe25",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 9.68,
+   "text": "But it's very telling that right now Bitcoin is that asset of choice to clearly have been sold down. presumably to source liquidity heading into these two major, major IPOs.",
+   "text_sha256": "2ab99d6c0576920fc3cc7e8f6ac8ad2a460f9bccbadc0ff88cedd3b605e82a10",
    "trimmed_leading": null
   },
   {
@@ -244,6 +271,15 @@
    "duration": 15.08,
    "text": "And last week, when the Nvidia scandal started unfolding, we saw AI stocks sell off and Bitcoin fell right alongside it. So what do you make of this correlation between Bitcoin and AI or tech?",
    "text_sha256": "fd77145c7303226aaa512e34b9573e132cffe643cb815434f12b17489ae3d1e5",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "0de01ec8a40f4814c851",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 9.26,
+   "text": "And then secondly, you know, they would just spin down the reserve. which currently lasts them about three years, which is longer than Bitcoin bear markets usually last. And that's not touching any of the Bitcoin.",
+   "text_sha256": "19bb6c2e5f92b86c1549d4f5ff31a35f7cde1715e3bde3aaab82908ccd61a11f",
    "trimmed_leading": null
   },
   {
@@ -481,6 +517,15 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "4578d3f731e3b1ca94ae~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 13.7,
+   "text": "to relate the AI demand to Bitcoin here, we've seen AI token prices have fallen about 60 % in a year while the usage has grown 40 -fold. So a case of cheaper compute creating more demand.",
+   "text_sha256": "c48cd61e5b4ea477fa642849465249923f5b7996d44d88e86b2e00059409eebd",
+   "trimmed_leading": "Now"
+  },
+  {
    "pid": "683ffdfc054b1d129771~trim",
    "video_id": "m7ygyYMe3mg",
    "channel": "Bitcoin Magazine",
@@ -488,6 +533,15 @@
    "text": "you are of the view that Bitcoin is not going to zero, then you use these opportunities, right?",
    "text_sha256": "6971fe5eeb14e17e6ec7f47607c159a1f823a1a4909d47114e7d0b48f56e3cf3",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "fc47defb766a773cfe25~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 9.62,
+   "text": "it's very telling that right now Bitcoin is that asset of choice to clearly have been sold down. presumably to source liquidity heading into these two major, major IPOs.",
+   "text_sha256": "af168181f1a4443a0052d3d083eb352e1382cfe33b19313cb26bef4dc3e1a95a",
+   "trimmed_leading": "But"
   },
   {
    "pid": "35a998f0743b2193929d~trim",
@@ -703,6 +757,15 @@
    "duration": 12.98,
    "text": "They hold 850,849 Bitcoin and 4.9 billion of USD assets. Once again, they basically diluted MSTR shareholders, sold off MSTR to buy a lot more Bitcoin and to buy STRC.",
    "text_sha256": "c6b770e29e130b6bcc543e49ce8a0be47504c71044dda694c27bc67afc247c9c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "97f5d94fa0c8be92a7eb",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 11.99,
+   "text": "They have all of these different tools at their disposal and levers to pull before they ever have to become a true forced seller or even a net seller of Bitcoin. So nothing existential happening here.",
+   "text_sha256": "85f2e94bbe0db9408366cd3dbab617cfb1d4dec1eb947dcce5766c7243f81526",
    "trimmed_leading": null
   },
   {
@@ -1399,12 +1462,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "002be8d98dcbdcaaa0a6~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 23.42,
+   "text": "that's that, look, if you just compare Bitcoin's price action leading up to this anthropic IPO with Bitcoin's price action leading up to the SpaceX IPO, and also notably a couple days after that IPO, there was the sell -off, right? When people want to go buy something in the market, they have to source the funds from somewhere. Bitcoin has obviously suffered from that here during IPO season for these, you know, frontier labs.",
+   "text_sha256": "0326bd4d5f9bf1c932b74b7c80cb0370015abf8c61785fc61176b7c00d26c722",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "a0468c4a2a543bffdc3c",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
    "duration": 16.28,
    "text": "Watching how fearful people are, despite the fact that Bitcoin still up like 20 % off the lows is really fricking, in my opinion. It's like the crowd is overreacting, even though we're actually seeing positive price momentum. And those are the kind of voids and deviations that I think have the most signal around this data.",
    "text_sha256": "82634e5e39c502c89fbf818bf1cf10265d6fdd645e09a8ee7b0770010b02fbf1",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "05c4f52cf7637ac49a68",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 20.74,
+   "text": "I think we still see, you know, government deficits, inability to kind of pay our own obligations, the devaluing of currency, all of these things that brought me into Bitcoin over a decade ago, all of those are still very well at play. And so when I think about the risks coming into the future, there's definitely some risk as it relates to over the next five, six years of quantum computers and kind of Bitcoin cryptography.",
+   "text_sha256": "b37e61f51d94313e87ab4f72811237ce62e5b4c8531ecc28cd7547670c82971a",
    "trimmed_leading": null
   },
   {
@@ -1498,12 +1579,30 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "f593bb8475f7735af1b2",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 13.84,
+   "text": "You believe in Bitcoin. So why would you ever sell it? Life happens. An emergency expense. A new home purchase or a great business opportunity. With Salt, you can access the power of your Bitcoin without selling.",
+   "text_sha256": "90cdfcda41b26b663ee55ab9b435df807a06b74e6972a1907bbdc1597441c7ad",
+   "trimmed_leading": null
+  },
+  {
    "pid": "846f5227358d9e0dff73",
    "video_id": "KRvh4AcSofA",
    "channel": "Bitcoin Magazine",
    "duration": 18.63,
    "text": "While it's really, AI is really good at kind of finding these gaps and attacking things, it's allowing... Bitcoin security researchers and cryptographers to further accelerate and quicker get to. known answers of the security properties of a future upgrade in Bitcoin, which may have taken years, that may collapse down to a couple months. So the speeding up can happen on both the attacker side and the defender side.",
    "text_sha256": "9d3391ceed4cf4649a8d4b2b028a01e3ce48d3881141df02aec89212bc9a533b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "ef00ef6e49c55a3a81b6",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.96,
+   "text": "The CME Fed Watch tool has 92 % chance now for a hike in December, 67 % chance for another one in January. What does a Fed that's still raising rates mean for Bitcoin? And how are you positioning for it? Yeah, I think it... I think it affects the entire market.",
+   "text_sha256": "62626d9c29a738d92675f0ba7c9467edb9216618ca2cb06cf2c02832face2915",
    "trimmed_leading": null
   },
   {
@@ -1525,12 +1624,30 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "4a2bf527c8b9a7682b13",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.91,
+   "text": "I view Bitcoin as the kernel, the kernel of the on -chain global financial system. And I look at it as a, and this is just me, okay?",
+   "text_sha256": "1c5dc376572b8413afd75995465f30f48b6d16409776ecefbce1b3b440703d3b",
+   "trimmed_leading": null
+  },
+  {
    "pid": "d1936a67dca50298eeb1",
    "video_id": "OubcRgk3D-w",
    "channel": "Simply Bitcoin",
    "duration": 15.4,
    "text": "Not that many people in the Bitcoin community appreciate it because they don't see the infrastructure behind the protocol that they, you know, use on a daily basis. You know, again, it's a very noble goal, and i think it's you know important.",
    "text_sha256": "f9840c096636e324748a30fe6cf6c7608ceb760c21626c2e8721a9bc807a0056",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "fc8081733356f1c0bf41",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.18,
+   "text": "Like the AI trade, this is part of Bitcoin maturing where It's no longer like the fun, like brand new thing on the block. The AI trade and what it can kind of revolutionize and access, it's kind of pulling liquidity as like a black hole, everything into that.",
+   "text_sha256": "a875aa7ab42db93721209851383f241ee1dc467b59490b16689db280fdb90ddb",
    "trimmed_leading": null
   },
   {
@@ -1541,6 +1658,15 @@
    "text": "they're up to 850,000 Bitcoin on their balance sheet, several copycats. But it's important to understand what strategy has accomplished, what some of the big two or three Bitcoin treasury companies have accomplished. is going to be, I think, in my opinion, is going to be a handful of winners in that specific strategy.",
    "text_sha256": "d7e9438241aee044d4e01c969b49eb97ad4481033f8a0eea64ffe42ee6e8d138",
    "trimmed_leading": "Now"
+  },
+  {
+   "pid": "ff67bb25e33fde38f943",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.79,
+   "text": "Harvard and Dartmouth didn't sell any of their shares of Black Rock's spot Bitcoin ETF in the third quarter, according to new SEC filings, as Harvard's stake rose 42 % in value to $144 million. Harvard also grew its gold ETF stake nearly 20 -fold to 442 million.",
+   "text_sha256": "8fca9ffa04f90022c0f29d8e8b91fcfa18ed083b465243bcb627cbb629336676",
+   "trimmed_leading": null
   },
   {
    "pid": "0050388e1e805af79a6e",
@@ -1615,6 +1741,24 @@
    "trimmed_leading": null
   },
   {
+   "pid": "4112930d5aca63128ed3",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 28.03,
+   "text": "I'm just giving you a basic little roadmap that says if the low holds, which I think it will, and we get cooler heads prevail, and the Fed actually looks at the data. and sees that the oil shock is working its way through and there is no need for aggressive rate hikes, then the narrative for Bitcoin flips from being bearish to bullish.",
+   "text_sha256": "d75bc6351166f76a4ad83f47fe7235e7f14b18cbfbc4f568d223cef77541ac18",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b7fec05f2100ba2a4ad1~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 19.01,
+   "text": "to relate the AI demand to Bitcoin here, we've seen AI token prices have fallen about 60 % in a year while the usage has grown 40 -fold. So a case of cheaper compute creating more demand. But at the same time, an AI agent making a payment isn't automatically demand for Bitcoin.",
+   "text_sha256": "f2eeb8b933d92972ba0b8882ac89b8ce81607216497191f06af1353fab75b185",
+   "trimmed_leading": "Now"
+  },
+  {
    "pid": "e8abcc9031ea856d6137~trim",
    "video_id": "m7ygyYMe3mg",
    "channel": "Bitcoin Magazine",
@@ -1624,12 +1768,30 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "6e2a18ea06059af41d7a",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 34.01,
+   "text": "This is normal in Bitcoin, NAI, because there is a very famous article. He won the Nobel, George Ackeloff is an economist. He won the Nobel Prize for this article called Market for Lemons. where he attacked the efficient market hypothesis, where, you know, the efficient market hypothesis, you and I know what the true value of Bitcoin is. We know that it's where it's going to be in 20 years and all that. Well, he attacked it using the market for limits.",
+   "text_sha256": "4ff10dbe5bf0a97d798f259cbac44e447ede6360d0540fa750460705d920f4db",
+   "trimmed_leading": null
+  },
+  {
    "pid": "2a9819a6775e340c54be",
    "video_id": "stg5ui9sPos",
    "channel": "Yahoo Finance",
    "duration": 14.04,
    "text": "Bitcoin fell 19 % into the biggest IPO ever. Now it's down to 18 % heading into the second biggest. So you put some numbers on it. SpaceX raised $75 billion when it went public on June 12th. In the 50 days before it listed, Bitcoin dropped 90%.",
    "text_sha256": "75247e6152990117a3b63bb51ea35d7ba90415d9fd1ad05698f3d4cbe7815bfd",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "9d7fe89c31cd30e227df",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.27,
+   "text": "They have all of these different tools at their disposal and levers to pull before they ever have to become a true forced seller or even a net seller of Bitcoin. So nothing existential happening here. It just seems hysteria, as you mentioned, kind of comes with the territory.",
+   "text_sha256": "0725d440b46b154049c7a8825589cca77f92ce8f6daaa5164a22abbc53ed08dd",
    "trimmed_leading": null
   },
   {
@@ -1660,12 +1822,39 @@
    "trimmed_leading": null
   },
   {
+   "pid": "8bb5cf89afd95f2c8282",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 18.8,
+   "text": "Morgan Stanley, BlackRock, and Vanguard all added to their Bitcoin bets in the third quarter, according to new SEC filings. Morgan Stanley grew its stake in BlackRock spot Bitcoin ETF 18 % to $924 million. Vanguard and BlackRock each added shares of strategy, the largest corporate corporate holder of Bitcoin.",
+   "text_sha256": "766ff84aee46ac2b2755084ab3597e413a052ab9ae9ddee47f2ed26caa35e77e",
+   "trimmed_leading": null
+  },
+  {
    "pid": "eda2ebc9bef18c3887eb",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
    "duration": 16.84,
    "text": "Usually when people first get into Bitcoin, their sentiment is very volatile. You're super euphoric. I experienced this myself. And the long you've been around, there's a little less volatility in their emotions. That happens on an individual level, and it also seems to happen in the crowd generally. Like, we're very muted comparatively to where Bitcoin was even in like 2022.",
    "text_sha256": "b98045537a0b254e7ed99a6b304ae4e1e12a70c7fe2dfaab817d86955d94b301",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5d621b3d8addf96f3d1e~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 19.9,
+   "text": "it's very telling that right now Bitcoin is that asset of choice to clearly have been sold down. presumably to source liquidity heading into these two major, major IPOs. Yeah, we'll do a deeper dive on the Bitcoin market in just a couple minutes. But first, on Thursday, President Trump meeting with China and Russia to discuss the trade or trade in nuclear arms.",
+   "text_sha256": "c013e9520f9729b95bb25c8f7f1c81a57315cc7f87c31293b81e977e30fb5167",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "ff575112bb486f87a074",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.7,
+   "text": "In blue, it seems like broadly right now for the Bitcoin market, there's just sort of this apathy, right? People have been beaten over the head for months now. We've seen a lot of force selling come and go. And there doesn't really seem to be a coherent narrative right now that is shared across the space.",
+   "text_sha256": "f0686ea13dece47800eaf7aa8789c998b17da3d9838ed9666c6e4eda013be8fe",
    "trimmed_leading": null
   },
   {
@@ -1721,6 +1910,15 @@
    "text": "when I see this on top of the dynamic, I'm like, yeah, I probably should double up. Now, that is for Bitcoin. Altcoins are a different story. I have stopped. My buying vault coins, I've had a couple of different indicators flash mostly would be Wes's smart money bot or smart money tracking.",
    "text_sha256": "8c657f40cc70d239bcdf1b3fbe2a6f966dc41cd2ebbfa40e01f90e71455e3dd6",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "4fbe1da5bc6c99534da1",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.66,
+   "text": "I think that it is a liquidity suck. And I think that throughout Bitcoin's history, it's always been this, you know, first, you know, asset of first resort for either gaining or, you know, using liquidity in various ways, especially on weekends before, you know, things were largely tokenized and whatnot. And so.",
+   "text_sha256": "90988eb323668000cee6129a2ac1786e808533c78e0c96f51f6c2f9f3950aff6",
+   "trimmed_leading": null
   },
   {
    "pid": "5435ac403fa801c2ba6f",
