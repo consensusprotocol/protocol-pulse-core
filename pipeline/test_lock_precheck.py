@@ -302,6 +302,22 @@ class TestDiscipline(Base):
         self.assertEqual(LP.serve_once(log=self.log), 1)            # asked again once GPU0 is back
         self.assertEqual(LP.latest(VID, 700.0, 710.0, role="hook")["outcome"], "decoded")
 
+    def test_order_1305_the_pre_check_wants_gpu0_while_a_decode_waits_and_is_done_after(self):
+        """Orchestrator order '13:05' (R13): builds keep priority over Whisper. A decode waiting behind the ingest's
+        Whisper pass raises the pre-check's want (Whisper gives GPU0 back at its next file boundary); answered, the
+        want is gone."""
+        import gpu0_want as W
+        with mock.patch.object(W, "DIR", os.path.join(self.root, "want")):
+            self.request("r1")
+            busy = mock.Mock(side_effect=gpu0.LeaseBusy("the GPU0 lease is held by transcript_ingest (pid 1)"))
+            with mock.patch.object(gpu0, "lease", busy):
+                self.assertEqual(LP.serve_once(log=self.log), 0)
+            self.assertEqual(W.wanted(), ["lock_precheck"])
+            self.assertEqual(LP.serve_once(log=self.log), 1)                  # GPU0 back: decoded and answered
+            self.assertEqual(W.wanted(), [])
+            self.assertEqual(LP.serve_once(log=self.log), 0)                  # nothing pending
+            self.assertEqual(W.wanted(), [])
+
     def test_a_failed_download_is_an_error_never_a_pass(self):
         self.fail_download = True
         self.request(approved_text=ATTESTED)

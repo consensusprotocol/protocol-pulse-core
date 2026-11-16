@@ -73,6 +73,7 @@ import sentence_law  # noqa: E402  (ruling 73 (c): the render's own cut placemen
 
 ROOT = os.environ.get("PP_LOCK_PRECHECK_DIR", os.path.join(REPO, "data", "lock_precheck"))
 OWNER = "pin-stage lock pre-check (integrator, GPU0)"
+WANT = "lock_precheck"                     # its gpu0_want name (order '13:05': builds before Whisper)
 BATCH = 4
 SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
 VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
@@ -593,10 +594,16 @@ def pending():
 
 def serve_once(log=print):
     """Answer up to BATCH pending requests: downloads first, the decodes under ONE GPU0 lease, the locks after it.
-    -> how many were answered (0: none pending, a render asked, the lease is held, or a GPU0 stop)."""
+    -> how many were answered (0: none pending, a render asked, the lease is held, or a GPU0 stop). Order '13:05'
+    (R13), builds before Whisper: while a decode waits, the pre-check's gpu0_want is up, so the transcript ingest's
+    Whisper gives GPU0 back at its next file boundary; with nothing left to decode it is done."""
     import gpu0
+    import gpu0_want
     todo = pending()[:BATCH]
-    if not todo or LJ.render_wants_gpu0():
+    if not todo:
+        gpu0_want.done(WANT)
+        return 0
+    if LJ.render_wants_gpu0():
         return 0
     sha, ready, n = decoder_sha(), [], 0
     for path in todo:
@@ -615,6 +622,8 @@ def serve_once(log=print):
         else:
             ready.append((path, r, prefetch(r, sha), dg))
     decoded = {}
+    if ready:
+        gpu0_want.want(WANT)                     # a decode waits for GPU0
     if ready and not LJ.render_wants_gpu0():
         try:
             with gpu0.lease(OWNER, wait_s=0):
@@ -634,6 +643,8 @@ def serve_once(log=print):
         if path in decoded:
             answer(path, r, dl, decoded[path], sha, dg, log=log)
             n += 1
+    if not ready or len(decoded) == len(ready):
+        gpu0_want.done(WANT)                     # nothing of this batch waits for GPU0 any more
     return n
 
 

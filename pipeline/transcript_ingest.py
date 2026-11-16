@@ -10,12 +10,20 @@ Safety:
   - single instance (flock on data/editorial/state/ingest.lock)
   - GPU0 only (CUDA_VISIBLE_DEVICES=0, CUDA_DEVICE_ORDER=PCI_BUS_ID set by main()); Whisper is skipped
     (captions-only pass) while a production render/orchestrator is running, unless --allow-during-run
-  - law L-r (no lease, no load): Whisper loads only while this process holds the GPU0 lease. It is taken
-    once, with no wait, for the rest of the pass, and Whisper is unloaded before it is left. A render
-    comes first: while its yield flag is up (local_judge.YIELD_FLAG) or another owner holds the lease,
-    the remaining videos are deferred to the next run (the flag is checked before every video, so the pass
-    stops after the one in hand). Before this (Nov 12-15) every run that needed Whisper died on
-    gpu0.LeaseMissing.
+  - law L-r (no lease, no load): Whisper loads only while this process holds the GPU0 lease, and is unloaded
+    before it is left. Before this (Nov 12-15) every run that needed Whisper died on gpu0.LeaseMissing.
+  - who comes first (orchestrator order '13:05' ET Nov 16, pp-ingest's request R13; "builds and renders keep
+    priority over Whisper; Whisper runs between calls"):
+      * A render comes first. While its yield flag is up (local_judge.YIELD_FLAG) the pass stops, and the
+        remaining videos wait for the next run. The flag is checked before every video, so the pass stops
+        after the one in hand.
+      * A build's GPU0 service that wants the card (gpu0_want.wanted(): the scorer, the pre-check) comes
+        first too, and so does another owner of the lease. The pass WAITS, polling every LEASE_POLL_S and
+        holding nothing, at most LEASE_WAIT_S in all per run. Each attempt is non-blocking.
+      * A build that wants GPU0 mid-pass gets it at the next file boundary: Whisper is unloaded, the lease
+        goes, and the pass waits again and goes on.
+    Before the order the lease was tried once at no wait, so one scorer burst at the cron's start deferred
+    every video for 30 minutes.
   - bounded: --hours window and --max-whisper-hours audio budget per invocation
 
 Usage:
@@ -41,6 +49,8 @@ from scan import fetch_rss, parse_iso_datetime  # noqa: E402
 CHANNELS_PATH = os.path.join(PIPELINE_DIR, "channels.json")
 PRODUCTION_PATTERNS = ("run_isolated.py", "run_fresh.py", "render16", "render_vertical")
 OWNER = "transcript_ingest Whisper pass (cron, GPU0)"
+LEASE_WAIT_S = 1500.0       # order '13:05': the most one run waits for GPU0 in all (cron */30, one instance at a time)
+LEASE_POLL_S = 5.0
 
 
 def editorial_channels():
@@ -73,23 +83,39 @@ def production_running():
     return any(p in out for p in PRODUCTION_PATTERNS)
 
 
-def gpu0_turn(gpu, held, log=print):
-    """-> None when this process may load Whisper on GPU0 now, else why not (the deferred videos' status).
-    A render being launched (its yield flag) comes first. The lease is taken with no wait (pulse_check_run exits 75
-    on a held lease, so a render must never find this pass starting) and `gpu` (an ExitStack) keeps it for the rest
-    of the pass; Whisper is unloaded on leaving, before the lease goes (GPU0 left as found)."""
+def gpu0_turn(hold, waited, log=print):
+    """-> (None, waited) when this process now holds GPU0 for Whisper. The lease is entered into `hold`, an ExitStack,
+    and Whisper's unload is registered to run first when `hold` closes, while the lease is still held (GPU0 left as
+    found). Otherwise -> (why not, waited), the deferred videos' status.
+
+    Order '13:05' (R13):
+    - A render being launched (its yield flag) comes first: the pass stops at once. pulse_check_run exits 75 on a
+      held lease, so a render must never find this pass starting; the flag is read right before every attempt.
+    - A build's GPU0 service that wants the card comes first too (gpu0_want.wanted()), and so does any other owner of
+      the lease: wait, polling every LEASE_POLL_S and holding nothing, until neither is true. Each attempt is
+      non-blocking (wait_s=0).
+    - `waited` is this run's waiting so far; past LEASE_WAIT_S the remaining videos wait for the next run."""
     import gpu0
+    import gpu0_want
     import local_judge as LJ
-    if LJ.render_wants_gpu0():
-        return "deferred_render_wants_gpu0"
-    if not held:
-        try:
-            gpu.enter_context(gpu0.lease(OWNER, wait_s=0))
-        except gpu0.LeaseBusy as e:
-            log(f"  GPU0 lease busy, the Whisper pass is deferred: {e}")
-            return "deferred_gpu0_busy"
-        gpu.callback(ts.release_whisper)            # LIFO: runs first on leaving, while the lease is still held
-    return None
+    while True:
+        if LJ.render_wants_gpu0():
+            return "deferred_render_wants_gpu0", waited
+        builds = gpu0_want.wanted()
+        if builds:
+            busy = f"wanted by {', '.join(builds)}"
+        else:
+            try:
+                hold.enter_context(gpu0.lease(OWNER, wait_s=0))
+                hold.callback(ts.release_whisper)        # LIFO: runs first on leaving, while the lease is still held
+                return None, waited
+            except gpu0.LeaseBusy as e:
+                busy = str(e)
+        if waited >= LEASE_WAIT_S:
+            log(f"  GPU0 not free for Whisper after {waited:.0f} s of waiting ({busy}): the rest wait for the next run")
+            return "deferred_gpu0_busy", waited
+        time.sleep(LEASE_POLL_S)
+        waited += LEASE_POLL_S
 
 
 def priority(v):
@@ -119,8 +145,10 @@ def ingest(hours=72, max_whisper_hours=10.0, allow_during_run=False, log=print):
     whisper_ok = allow_during_run or not production_running()
     budget = max_whisper_hours * 3600
     used = 0.0
-    with contextlib.ExitStack() as gpu:                  # law L-r: the GPU0 lease for the Whisper pass
-        held = False
+    import gpu0_want
+    import local_judge as LJ
+    hold, waited = None, 0.0                             # law L-r: the GPU0 lease for Whisper, while held
+    try:
         for i, v in enumerate(pending):
             meta = ts.ensure_meta(v["video_id"], rss=v["rss"], channel=v["channel"])
             dur = meta.get("duration") or 0
@@ -130,13 +158,20 @@ def ingest(hours=72, max_whisper_hours=10.0, allow_during_run=False, log=print):
             if used + dur > budget:
                 summary["status"][v["video_id"]] = "deferred_budget"
                 continue
-            why = gpu0_turn(gpu, held, log)
-            if why:                                      # this video and every one after it: the next run
-                for w in pending[i:]:
-                    summary["status"][w["video_id"]] = why
-                log(f"  Whisper pass stops: {why} ({len(pending) - i} video(s) deferred)")
-                break
-            held = True
+            if hold is not None and (LJ.render_wants_gpu0() or gpu0_want.wanted()):
+                hold.close()                             # this file boundary: Whisper unloaded, then the lease goes
+                hold = None
+                log("  Whisper gives GPU0 back at this file boundary (a render or a build asked)")
+            if hold is None:
+                hold = contextlib.ExitStack()
+                why, waited = gpu0_turn(hold, waited, log)
+                if why:                                  # this video and every one after it: the next run
+                    hold.close()
+                    hold = None
+                    for w in pending[i:]:
+                        summary["status"][w["video_id"]] = why
+                    log(f"  Whisper pass stops: {why} ({len(pending) - i} video(s) deferred)")
+                    break
             t1 = time.time()
             rec, st = ts.acquire(v["video_id"], rss=v["rss"], channel=v["channel"],
                                  allow_whisper=True, try_captions=False)
@@ -144,6 +179,10 @@ def ingest(hours=72, max_whisper_hours=10.0, allow_during_run=False, log=print):
             summary["status"][v["video_id"]] = st
             log(f"  whisper {v['video_id']} {v['channel']['display_name']}: {st} "
                 f"({dur / 60:.0f} min audio in {time.time() - t1:.0f}s)")
+    finally:
+        if hold is not None:
+            hold.close()                                 # Whisper unloaded, then the lease goes (also on an error)
+    summary.update(waited_for_gpu0_s=round(waited))
     summary.update(ended=ts.now_iso(), seconds=round(time.time() - t0),
                    whisper_audio_hours=round(used / 3600, 2))
     counts = {}
