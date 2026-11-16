@@ -189,3 +189,10 @@ published_at 2026-11-13T17:19:33Z, the RSS time the stream was SCHEDULED, so the
 (fetch.publish_time: release_timestamp, INGEST-FAIL-03) and holds it as post_live, waiting for a transcript; with
 YouTube refusing captions, the pipeline's Whisper is its only path. Proposed (the integrator's call): the universe dates
 a live / upcoming / was_live / post_live video by its release_timestamp (the stream start), as INGEST-FAIL-03 does here.
+   FIXED BY THE INTEGRATOR (batch 99, main tree a2597836, 15:23 ET): the ingest's 72 h window dates a stream by when it
+   aired (transcript_store.stream_start(): release_timestamp, or for a snapshot read before the end that names none,
+   that read's time); every snapshot keeps release_timestamp; universe() re-dates an RSS entry outside the window by
+   that start (ordinary uploads, and finished streams naming no start, keep their RSS time). Not fixed: an entry pushed
+   out of the channel's RSS feed (its 15 newest) is not seen. KRvh4AcSofA was still in Bitcoin Magazine's feed at
+   15:2x ET (one read by this watcher: position 5 of 15), so the next run on the new code (15:30, or 16:00 if the
+   15:00 run still holds the ingest's lock) re-reads it and Whispers it; the watcher takes it within a minute (r120).
