@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T00:18:40+00:00",
- "build": "ledger_20261116_001825",
+ "generated_at": "2026-11-16T01:19:15+00:00",
+ "build": "ledger_20261116_011900",
  "kind": "moments",
  "candidates": [
   {
@@ -454,15 +454,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "5fc8ff476f13e13d694b",
-   "video_id": "Uns8CWWtxBI",
-   "channel": "Coin Bureau",
-   "duration": 17.13,
-   "text": "In fact, more than 80 % of all the money invested in u.s spot bitcoin ets is held in funds that name coinbase as one of their custodians. So that first yes in New York, a license to hold other people's crypto, grew into the business holding the Bitcoin behind most of America's ETF market.",
-   "text_sha256": "b939c8320fd8245f2da0f42ad5f485912922e693cf3003de8854a22e2e10b1bc",
-   "trimmed_leading": null
-  },
-  {
    "pid": "852da61da08ef2aa45ef",
    "video_id": "Dky_8mOTl0Y",
    "channel": "Simply Bitcoin",
@@ -613,15 +604,6 @@
    "duration": 15.18,
    "text": "If the number does not go up, then Bitcoin will fail. So clearly that's, you know, no, we're not sitting here being like, you know, a number doesn't, you know, I don't care about number go up. We only care about the morality of not, you know. of a money that can't be debased or whatever. No, but we do need number go up.",
    "text_sha256": "e427a80328e291d46aabac8b141735fe80954b5649b1fffb7054aa8ce051ba62",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "fc6bab26df373930b2ae",
-   "video_id": "Uns8CWWtxBI",
-   "channel": "Coin Bureau",
-   "duration": 18.29,
-   "text": "A license that New York granted in 2018 ended up holding the Bitcoin behind most of America's ETFs. Over the next three years, that business moves under the same federal regulator that charters the country's national banks. And that's a crazy turnaround for a company that was fighting US regulators just a few years ago.",
-   "text_sha256": "11cd13c6f3b0067902e4127dbdfece1e3d32268e19e5cfe9ed0dec9fd3811c4c",
    "trimmed_leading": null
   },
   {
