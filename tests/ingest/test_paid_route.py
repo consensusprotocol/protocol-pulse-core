@@ -175,7 +175,7 @@ def test_the_paid_route_mines_new_uploads_only_conversations_first(paid, monkeyp
     rows = [{"video_id": "solo1h", "published_ts": now - 3600}, {"video_id": "conv2h", "published_ts": now - 7200},
             {"video_id": "old8h", "published_ts": now - 8 * 3600},
             {"video_id": "conv5h", "published_ts": now - 5 * 3600}]
-    monkeypatch.setattr(s.q, "due", lambda states, limit=50: rows[:limit])
+    monkeypatch.setattr(s.q, "due", lambda states, limit=50, first=(): rows[:limit])
 
     class TS:
         @staticmethod

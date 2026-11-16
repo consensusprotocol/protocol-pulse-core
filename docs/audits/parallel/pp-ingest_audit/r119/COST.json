@@ -1,0 +1,34 @@
+{
+ "cap_usd": 1.0,
+ "changed_lines": 253,
+ "cycles": {
+  "c1": {
+   "reviews": {
+    "heimdall_qwen": {
+     "usd": 0.0038358625,
+     "basis": "reported"
+    },
+    "heimdall_muse": {
+     "usd": 0.005465796,
+     "basis": "reported"
+    }
+   },
+   "usd": 0.009302
+  },
+  "c2": {
+   "reviews": {
+    "heimdall_qwen": {
+     "usd": 0.001796915,
+     "basis": "reported"
+    },
+    "heimdall_muse": {
+     "usd": 0.002844684,
+     "basis": "reported"
+    }
+   },
+   "usd": 0.004642
+  }
+ },
+ "total_usd": 0.013944,
+ "updated_utc": "2026-11-16T18:18:24Z"
+}

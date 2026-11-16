@@ -105,6 +105,11 @@ orchestrator's checks arrive late, and a session that stops at a question cost a
 - If YouTube's 429s last and a video is not in the pipeline's store either: it waits for the pipeline's next Whisper
   run (every 30 min, its channels are the same registry); a clip with no English captions and no pipeline transcript
   waits to its 48 h `no_captions`.
+- r119 (the 13:05 ruling): every minute the fetch round looks in the pipeline's store for each waiting video and takes
+  a record as soon as it lands; Bitcoin channels (registry tiers 1-2) are fetched, mined and hook-passed first; each
+  mined video says its seconds from transcript to rows (log, cycles line, `transcript_lag_s`), LATE past 10 minutes.
+  R13 (the GPU0 lease) is the integrator's. The second caption source is designed, not built:
+  docs/audits/parallel/pp-ingest_CAPTION_SOURCE_DESIGN.md.
 
 ## 3. The watcher (keep it running; it survives your restart)
 - tmux `pipeline_pp_ingest_watch`, command `python3 tools/ingest_watch.py run` in ~/worktrees/pp-ingest. Log:

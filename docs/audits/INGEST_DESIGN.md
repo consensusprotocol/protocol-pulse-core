@@ -585,6 +585,20 @@ the same videos.
   the watcher acts: every waiting video in a retry state is made due now, when found and every 30 min while it lasts.
   The line goes when mining resumes or nothing waits.
 
+## 20. Within 10 minutes of its transcript, Bitcoin channels first (the orchestrator's 13:05 ET ruling, Nov 16): r119
+
+- THE SWEEP (fetch.pipeline_sweep, each fetch round at most every 60 s, never while the yt-dlp gate is open): every
+  video waiting on a transcript (probe_retry, captions_pending) inside its 12 h whose record has landed in the
+  pipeline's store (every r118 check) is due at once, whatever its own retry time; the fetch step probes it (the
+  checks) and takes the record; the miner takes it within seconds. No YouTube request in the sweep.
+- BITCOIN CHANNELS FIRST: the registry's tiers 1-2 (Bitcoin-native; Bitcoin and crypto companies, media, podcasts) are
+  fetched, mined and hook-passed before tier 3 (mainstream finance and news), newest first in each
+  (Queue.due / hook_due `first`, config.BITCOIN_TIER_MAX).
+- THE MEASURE: every mined video's `transcript_lag_s` (its transcript record's own acquired_at to its rows) on its row,
+  in the log, and on the cycles line ("N s transcript -> rows", "(LATE)" past 10 minutes).
+- The second caption source (designed, not built) and what the 429s correlate with:
+  docs/audits/parallel/pp-ingest_CAPTION_SOURCE_DESIGN.md.
+
 ## 11. Assumptions (most defensible reading; the integrator may overrule)
 
 - A1 Registry: the selector's universe = `pipeline/channels.json` enabled with a channel id (64 channels at c1451047,

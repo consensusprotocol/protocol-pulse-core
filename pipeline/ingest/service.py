@@ -84,6 +84,19 @@ class ServiceBusy(RuntimeError):
     """Another pp-ingest service holds this store."""
 
 
+TRANSCRIPT_LAG_S = 600         # the 13:05 ruling (Nov 16): "mine each video within 10 minutes of its transcript"
+
+
+def transcript_lag(acquired, now):
+    """Seconds from a transcript record's own time (its acquired_at: when its captions were stored or the pipeline's
+    Whisper finished) to now; None when the record carries no readable time with its zone."""
+    try:
+        d = datetime.fromisoformat(str(acquired).replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return None
+    return max(0.0, now - d.timestamp()) if d.tzinfo is not None else None
+
+
 def check_roles(cfg):
     """Every mining question (mine.KINDS) and the second-model check (flagcheck.ROLE) need their role in the provider
     config; a missing one stops the start (the 08:15 ruling 2 added the spotlight question: asked without its role,
@@ -144,6 +157,8 @@ class Service:
         self.cycles_error = None                         # the cycles line's last failure (logged once per cause)
         self.batch_error = None                          # ruling 108: the batch line's last failure (logged once)
         self.stall_error = None                          # the 10:50 order (4): the stall line's last failure (once)
+        self._first_ids, self._first_at = frozenset(), None   # the 13:05 ruling: the Bitcoin channels (registry tiers)
+        self._last_sweep = None                          # the 13:05 ruling: the last look in the pipeline's store
         self._reuse_tried = False                       # the start's one look at the stored live calibration
         self.stop = threading.Event()
         self.rss_mode, self.rss_checked = False, 0.0
@@ -250,6 +265,14 @@ class Service:
             return 0
         reg, chans = watch.registry()
         by = {c["channel_id"]: c for c in chans}
+        first = self._first(chans)
+        now = self.clock()
+        if (self._last_sweep is None or now - self._last_sweep >= fetch.PIPELINE_SWEEP_S) and not self.gate.open_for():
+            self._last_sweep = now                       # (with the gate open no probe can run: looked at once it shuts)
+            made = fetch.pipeline_sweep(self.q, now)
+            if made:
+                self.log(f"fetch: {len(made)} waiting video(s) with a transcript in the pipeline's store made due: "
+                         f"{', '.join(made)}")
 
         def one(v):
             try:
@@ -267,7 +290,7 @@ class Service:
             if st in (Q.TRANSCRIBED, Q.SHORT, Q.LIVE, Q.NO_CAPTIONS, Q.DUPLICATE, Q.TOO_LONG):
                 self.log(f"fetch {v['video_id']} ({by.get(v['channel_id'], {}).get('display_name')}): {st}")
             return st
-        claimed = [v for v in self.q.due(Q.FETCH_DUE, limit)
+        claimed = [v for v in self.q.due(Q.FETCH_DUE, limit, first=first)
                    if not self.stop.is_set() and self.q.claim(v["video_id"], (v["state"],), Q.PROBING)]
         with ThreadPoolExecutor(max_workers=config.YTDLP_CONCURRENCY, thread_name_prefix="fetch") as ex:
             list(ex.map(one, claimed))           # the yt-dlp gate bounds YouTube at YTDLP_CONCURRENCY processes
@@ -298,7 +321,7 @@ class Service:
                                          datetime.now(timezone.utc), self.cycle, extra_source=src, role=route)
             cost = self.q.rows("SELECT SUM(COALESCE(cost_usd,0)) AS usd FROM calls WHERE video_id=? AND "
                                "COALESCE(role, 'mine')=?", (vid, route))[0]["usd"]
-            self._settle(v, chan, lines, rep, cost, t0, route=route)
+            self._settle(v, chan, lines, rep, cost, t0, route=route, acquired=rec.get("acquired_at"))
         except ContractUnavailable as e:
             self.q.set_state(vid, Q.MINE_WAIT, next_at=self.clock() + MINE_RETRY_S, reason=f"contract unavailable: {e}")
             self.log(f"mine {vid}: contract unavailable: {e}")
@@ -334,9 +357,12 @@ class Service:
         since = datetime.fromtimestamp(float(v.get("discovered_ts") or self.clock()) - 86400, timezone.utc)
         return len(ledger.video_moment_ids(self.p["ledger"], v["video_id"], since))
 
-    def _settle(self, v, chan, lines, rep, cost, t0, route="mine"):
-        """The video's state after one mining pass (see the module docstring); route: the role that mined it."""
+    def _settle(self, v, chan, lines, rep, cost, t0, route="mine", acquired=None):
+        """The video's state after one mining pass (see the module docstring); route: the role that mined it;
+        acquired: its transcript record's own time (the 13:05 ruling of Nov 16: "within 10 minutes of its transcript",
+        said with every video mined and kept on its row; past TRANSCRIPT_LAG_S, LATE)."""
         vid, now = v["video_id"], self.clock()
+        lag = transcript_lag(acquired, now)
         failed = rep["failed"]
         rejected = [f for f in failed if not f["outage"]]
         passes = int(v.get("mine_tries") or 0) + (1 if rejected else 0)
@@ -349,6 +375,10 @@ class Service:
         what = (f"{len(lines)} moments, windows {rep['windows']} (screened {rep['screened']}, failed {len(failed)}: "
                 f"{len(rejected)} rejected, {len(failed) - len(rejected)} outage), miners {rep['miners']}, "
                 f"${(cost or 0):.4f}, {now - t0:.0f} s")
+        if lag is not None:
+            common["transcript_lag_s"] = round(lag, 1)
+            what += f", {lag:.0f} s from its transcript" + (" (LATE: past the 13:05 ruling's 10 minutes)"
+                                                            if lag > TRANSCRIPT_LAG_S else "")
         if not failed:
             self._append(v, lines)                        # a partial video's earlier lines appear again: the latest
                                                           # wins, carrying every earlier flag (ruling 80)
@@ -483,7 +513,7 @@ class Service:
             free = HOOK_VIDEOS - len(self.hook_inflight)
         if free <= 0:
             return 0
-        for v in self.q.hook_due(HOOK_HORIZON_S, HOOK_VIDEOS * 2):
+        for v in self.q.hook_due(HOOK_HORIZON_S, HOOK_VIDEOS * 2, first=self._first()):
             with self.hlock:
                 if v["video_id"] in self.hook_inflight or len(self.hook_inflight) >= HOOK_VIDEOS:
                     continue
@@ -690,7 +720,7 @@ class Service:
                 self.router.release()                     # idle: the local model (if any) leaves GPU0 (B3)
             return 0
         self._last_mining = self.clock()
-        for v in (self._paid_due(pr, free) if paid else self.q.due(Q.MINE_DUE, free)):
+        for v in (self._paid_due(pr, free) if paid else self.q.due(Q.MINE_DUE, free, first=self._first())):
             if not self.q.claim(v["video_id"], Q.MINE_DUE, Q.MINING):
                 continue
             with self.ilock:
@@ -803,6 +833,23 @@ class Service:
             if why != self.batch_error:
                 self.log(f"ruling 108: the batch line could not be written: {why}")
             self.batch_error = why
+
+    def _first(self, chans=None):
+        """The orchestrator's 13:05 ruling of Nov 16, "Bitcoin channels first": the channel ids of the registry's tiers
+        up to config.BITCOIN_TIER_MAX, taken from `chans` (the fetch step's own read) or the registry at most once a
+        minute; a registry that cannot be read keeps the last set (the order, never the work, depends on it)."""
+        now = self.clock()
+        if chans is None and self._first_at is not None and now - self._first_at < 60:
+            return self._first_ids
+        try:
+            if chans is None:
+                chans = watch.registry()[1]
+            ids = frozenset(c["channel_id"] for c in chans
+                            if isinstance(c.get("tier"), int) and c["tier"] <= config.BITCOIN_TIER_MAX)
+        except Exception:                            # noqa: BLE001 (an order hint never stops a loop)
+            return self._first_ids
+        self._first_ids, self._first_at = ids, now
+        return ids
 
     def _stall_notice(self, now):
         """The orchestrator's 10:50 ET order of Nov 16 (4), the self-check (stall.py): videos waiting and nothing mined

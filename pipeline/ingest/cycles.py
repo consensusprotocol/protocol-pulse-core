@@ -14,6 +14,7 @@ from . import queue as Q
 
 ET = ZoneInfo("America/New_York")
 WINDOW_H = 3.0
+TRANSCRIPT_LAG_S = 600       # the 13:05 ruling of Nov 16: "mine each video within 10 minutes of its transcript"
 MAX_CHARS = 12000             # the line's ceiling: the window's oldest cycles beyond it are counted, not listed
 TITLE_CHARS = 40              # a video's title, shortened (a video id alone is not something a reader recognizes)
 WAITING = (Q.DISCOVERED, Q.PROBE_RETRY, Q.PROBING, Q.UPCOMING, Q.LIVE, Q.CAPTIONS_PENDING, Q.TRANSCRIBED, Q.MINING,
@@ -67,6 +68,9 @@ def video_entry(v, name, via):
     lag = (f"seen {seen - pub:.0f} s after publish via {via or v['discovered_via']}, mined {mined - seen:.0f} s after"
            if pub and seen and mined else "publish time not measured")
     to = f"{mined - pub:.0f} s publish -> " if pub and mined else ""
+    tlag = v["transcript_lag_s"] if "transcript_lag_s" in v.keys() else None   # the 13:05 ruling (Nov 16)
+    if tlag is not None:
+        to += f"{tlag:.0f} s transcript{' (LATE)' if tlag > TRANSCRIPT_LAG_S else ''} -> "
     partial = " (partial)" if st == Q.MINED_PARTIAL else ""
     if v["moments"]:
         text = f"{head}: mined yes{partial} {at}, {v['moments']} moments, {hooks}, {to}rows ({lag})"

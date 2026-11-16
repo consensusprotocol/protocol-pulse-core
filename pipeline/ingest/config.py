@@ -36,6 +36,9 @@ PLAYLIST_FIRST = True        # list the uploads playlist first, RSS the fallback
 VOD_MAX_S = 6 * 3600         # captions cost nothing to fetch; the selector keeps its own 3 h ceiling
 CAPTION_DEADLINE_H = 48      # no English captions 48 h after publish: no_captions (the pipeline's Whisper can do it)
 CAPTION_RETRY_S = (600, 1200, 2400, 4800)    # then every 2 h
+BITCOIN_TIER_MAX = 2         # the orchestrator's 13:05 ruling of Nov 16, "Bitcoin channels first": the registry's own
+                             # tiers (1 Bitcoin-native; 2 Bitcoin and crypto companies, media, podcasts; 3 mainstream
+                             # finance and news) up to this one are fetched, mined and hook-passed before the rest
 LIVE_REPROBE_S = 1200
 UPCOMING_REPROBE_S = 1800
 DUP_DURATION_TOL_S = 2.0

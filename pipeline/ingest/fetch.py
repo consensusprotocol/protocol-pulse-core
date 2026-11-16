@@ -37,6 +37,8 @@ PROBE_RETRY_S = (300, 900, 1800, 3600)
 CAPTION_THROTTLED_RETRY_S = 600     # a caption 429: tried again this soon (the pipeline's store is looked at first)
 PIPELINE_RECHECK_S = 1800           # a VOD without English captions inside its moments' life: looked at this often
                                     # (the pipeline's transcript ingest runs every 30 min)
+PIPELINE_SWEEP_S = 60               # the 13:05 ruling (Nov 16): each waiting video's record in the pipeline's store is
+                                    # looked for this often, whatever its next try (pipeline_sweep)
 PIPELINE_STORE = os.path.join(config.MAIN_STORE, "transcripts")     # the pipeline's own transcripts: READ ONLY
 PIPELINE_CIRCUIT = os.path.join(config.MAIN_STORE, "state", "caption_circuit.json")   # its caption 429 breaker: read
                                     # only (both ingests download captions from this one machine)
@@ -213,10 +215,35 @@ def take_pipeline_transcript(q, vid, channel_id, root=None):
         if os.path.exists(tmp):
             os.unlink(tmp)
     ts._log_attempt(vid, step="transcript", status="taken_from_pipeline_store", source=src,
-                    method=rec["transcript_method"], transcript_sha256=rec["transcript_sha256"], writer="pipeline.ingest")
+                    method=rec["transcript_method"], transcript_sha256=rec["transcript_sha256"],
+                    acquired_at=rec.get("acquired_at"), writer="pipeline.ingest")
     q.event("pipeline_transcript", vid, channel_id, source=src, method=rec["transcript_method"],
-            transcript_sha256=rec["transcript_sha256"])
+            transcript_sha256=rec["transcript_sha256"], acquired_at=rec.get("acquired_at"))
     return True
+
+
+def pipeline_sweep(q, now_ts):
+    """The orchestrator's 13:05 ruling of Nov 16 ("mine each video within 10 minutes of its transcript"): every video
+    waiting on a transcript (probe_retry, captions_pending) inside its moments' life (config.EXPIRY_H) whose next try
+    is later and whose record is in the pipeline's store (pipeline_transcript: every check) is made due now, whatever
+    its own retry time; the fetch step then probes it and takes the record. No YouTube request here (one glob, and a
+    read of a record that is there). Returns the ids made due; each is a queue event."""
+    rows = q.rows("SELECT video_id, channel_id FROM videos WHERE state IN (?, ?) AND next_at > ? AND "
+                  "COALESCE(published_ts, discovered_ts) >= ?",
+                  (Q.PROBE_RETRY, Q.CAPTIONS_PENDING, now_ts, now_ts - config.EXPIRY_H * 3600))
+    due = []
+    for r in rows:
+        try:
+            if pipeline_transcript(r["video_id"], r["channel_id"]) is not None:
+                due.append(r["video_id"])
+        except ValueError:                            # an id transcript_store refuses: never a path, never due here
+            continue
+    if due:
+        q.x(f"UPDATE videos SET next_at=? WHERE next_at > ? AND state IN (?, ?) AND video_id IN "
+            f"({','.join('?' * len(due))})", (now_ts, now_ts, Q.PROBE_RETRY, Q.CAPTIONS_PENDING) + tuple(due))
+        for vid in due:
+            q.event("pipeline_transcript_due", vid, None)
+    return due
 
 
 def process(q, gate, v, chan, optout, now_ts=None):
