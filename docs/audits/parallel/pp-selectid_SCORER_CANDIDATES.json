@@ -1,8 +1,35 @@
 {
- "generated_at": "2026-11-16T17:33:30+00:00",
- "build": "ledger_20261116_173316",
+ "generated_at": "2026-11-16T18:21:54+00:00",
+ "build": "ledger_20261116_182137",
  "kind": "moments",
  "candidates": [
+  {
+   "pid": "0b0a97bb35e864f45638",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 13.6,
+   "text": "Because 2,000 institutions have recently reported that they're holding Bitcoin ETFs. And, you know, the biggest banks in the world are included on that list. Wells Fargo's on there. Morgan Stanley's on there. So they're saying one thing.",
+   "text_sha256": "ecdfc3cebe916ea7a9d886f223e44fc5b80343012d2be26fc392ae1c9b044d92",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d21a87dde11cccdc4c07",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 11.56,
+   "text": "And so, again, this just points to the fact that every company is going to become a Bitcoin company in some way, shape, or form. Right now, we just happen to be. sort of at this juncture where everyone's trying to figure out what that actually means and what it means for them specifically.",
+   "text_sha256": "d3577c5c43f788bfa51f40cdacaa970df22de212c8d12b68af40aa17a799e45c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "3363fd67aed30e5f3797",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 12.52,
+   "text": "But look, I mean, and I posted this yesterday, actually, sentiment changes by the week. Bitcoin will be understood in the fullness of time. And what I mean by that is that it's easy to kind of get caught up in the emotions of the week to week, what's going on with the price and all that.",
+   "text_sha256": "ad98e711972185a4c2b5e8f9ae39718466f65dd2046d71df794d4fdf3f35ebb5",
+   "trimmed_leading": null
+  },
   {
    "pid": "39fff8c907c1e5de0689",
    "video_id": "WdiF0i925rs",
@@ -19,6 +46,15 @@
    "duration": 9.38,
    "text": "So what this is measuring is how often different price levels in Bitcoin are talked about over time. You can really see here like the very stark, obvious one through the middle at 100K.",
    "text_sha256": "3769ee3b211927453b7ca2011b184dcc24b2f52a91d7e2514c08e8ab021dea80",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5b18691d98d867654372",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 7.72,
+   "text": "And so people look at that and they say, well, look, SmarterWeb got in. Yellow Cake is out. Microstrategies out. Metaplanets out. But it's not about Bitcoin.",
+   "text_sha256": "4128e9897714015c652d442dd17c0448d86f876b30757ae7e4f958e9b3f60563",
    "trimmed_leading": null
   },
   {
@@ -55,6 +91,15 @@
    "duration": 15.32,
    "text": "And this kind of thing happens on an individual level, but it's also kind of happening at the crowd level where like a good example this a while back was when Saylor sold 32 Bitcoin, everybody was freaking out about it. Like that's the exact kind of narrative that you would see people overreact to when people are angry. and they're bored, you know.",
    "text_sha256": "21539eb0397db19e121e56ac96a3c242006f3b4a32bc6a72285588d5d8d91759",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "7ffdc0d857bfc8bac293",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.38,
+   "text": "And I think that's another thing about sentiment is, you know, the sentiment in the retail kind of Bitcoin world right now, compared to the sentiment in these boardrooms is very different. You know, they're looking at what's happening right now. And they're just thankful that they found it when they did because they still feel early.",
+   "text_sha256": "eb6f3fc575bbd8e5c1970311e8e71515002b50078bd5be729d8392e53bd70141",
    "trimmed_leading": null
   },
   {
@@ -103,6 +148,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "3363fd67aed30e5f3797~trim",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 12.44,
+   "text": "look, I mean, and I posted this yesterday, actually, sentiment changes by the week. Bitcoin will be understood in the fullness of time. And what I mean by that is that it's easy to kind of get caught up in the emotions of the week to week, what's going on with the price and all that.",
+   "text_sha256": "1ff1e7b3f287d13ca7a2c3f11efdce2971828cb210feed365bd7c19b39bb9bfb",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "39fff8c907c1e5de0689~trim",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -145,6 +199,15 @@
    "duration": 15.24,
    "text": "this kind of thing happens on an individual level, but it's also kind of happening at the crowd level where like a good example this a while back was when Saylor sold 32 Bitcoin, everybody was freaking out about it. Like that's the exact kind of narrative that you would see people overreact to when people are angry. and they're bored, you know.",
    "text_sha256": "1681b75072d3f8cb59aabfea945b3c533abeb64cf35f9a9c61ce3e0e0e1be4ef",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "7ffdc0d857bfc8bac293~trim",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.38,
+   "text": "I think that's another thing about sentiment is, you know, the sentiment in the retail kind of Bitcoin world right now, compared to the sentiment in these boardrooms is very different. You know, they're looking at what's happening right now. And they're just thankful that they found it when they did because they still feel early.",
+   "text_sha256": "db0dc02607396a1cab25f940e313588ffecb6ac630f50953c3cab7172b08b51e",
    "trimmed_leading": "And"
   },
   {
@@ -211,12 +274,48 @@
    "trimmed_leading": null
   },
   {
+   "pid": "8c8c7e590cc0d1a0c6e6",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 13.19,
+   "text": "They go quietly, sort of, they get missed. They're under the radar a little bit because retail is not paying attention to, you know, the fact that charter banks can now custody Bitcoin. But institutions are like, wow, this is a game changer.",
+   "text_sha256": "fe00516a9b7d194a8225a0562a55307dac6582dd1c706a36f573e1df5cd4e670",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a32a1464ef072f8bfb9a",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 9.24,
+   "text": "There is a company out of London called Yellowcake that holds physical uranium. They hold no Bitcoin. Six companies in total are out as a result of this.",
+   "text_sha256": "8bda57e94df2a34290ec86be499ab08e132a4240f3a676e7db56741ca08ed211",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "eeda95c7f0164d87f9f3",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 6.84,
+   "text": "It's below 70K for the first time since August. Sentiment numbers we haven't seen since the FTX collapse in 2022.",
+   "text_sha256": "aebfab88f973984ae2f49dd22ef2691e37cc5064c542bfc26cdb882c082cd4e4",
+   "trimmed_leading": null
+  },
+  {
    "pid": "d2ad3c36a2fc2f1767a2",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
    "duration": 17.18,
    "text": "There could be some wild news item that drops like next week. And like we go way down or whatever, right? But it gives you a pulse because like people kind of are locked on to Bitcoin in their own psychological way and sort of your like subconscious kind of. seeps out a little bit in the language you're using, and you can actually measure that.",
    "text_sha256": "4e42a78e3bb27cdfb6ee6d2c4f5daa3eb8bd6f1363378d6a1f23cc668439b850",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "34d231d8fa3bbd8b8fc7",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 14.1,
+   "text": "Every company is going to become a Bitcoin company in some way, shape, or form. as we've continued to march throughout history. Like, that's my thesis. That's why I'm here. We want to get ahead of that. We want to let companies know, like, this is happening. You should have done it a while ago.",
+   "text_sha256": "eafbb184c599541f63eeb0a960f9213f7cb20223afa004ad35ab536b096cdbbf",
    "trimmed_leading": null
   },
   {
@@ -281,6 +380,15 @@
    "text": "what we learn with credit is it's an alloy of Bitcoin and dollars. And if the alloy is 98 % Bitcoin, $2, it tends to buckle. And if the alloy becomes 25, 30, 40 percent dollars, it's like stainless steel. It's very strong. And so the real trick to creating digital credit is blending in the right amount of dollars along with the Bitcoin in order to create something which is strong.",
    "text_sha256": "0b32ef4ef1d25df5deb02bbd11dc8352e9a7174c41dbef65c9a3aabc23238d66",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "0b25f2fb01c410d2d8a8",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 21.38,
+   "text": "There's now 175 companies, 34 different countries now hold Bitcoin on their balance sheet. And so I think it's important to acknowledge that this is no longer just a U.S. movement, you know. Out of those 175, more than 100 of those companies are outside of the U.S. And so what started here in America with micro strategy has now become global.",
+   "text_sha256": "cca68a1249bac09c766e8c75e0e4318c61d6a159ed6faf491da746e14bc4ba08",
+   "trimmed_leading": null
   },
   {
    "pid": "6f8de0f2f401f4aa5e48",
@@ -373,6 +481,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "1f9a5686dd010a765937~trim",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.01,
+   "text": "look, I mean, and I posted this yesterday, actually, sentiment changes by the week. Bitcoin will be understood in the fullness of time. And what I mean by that is that it's easy to kind of get caught up in the emotions of the week to week, what's going on with the price and all that. But at the end, you know, Bitcoin's already kind of won and that it's already established.",
+   "text_sha256": "a54eb787d5297b775ad6f629b7ece0b69b2e8bce15489048003a1db4f3510878",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "a0dac689ab653d410242~trim",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -388,6 +505,33 @@
    "duration": 18.57,
    "text": "You know, I've been in Bitcoin since 2016, and every bare market sentiment gets bad. But this one's been particularly interesting to me in that it's not just... It's not just people getting angry, fighting on Twitter, in fighting, which we always have. It's people kind of giving up on Bitcoin a little bit, which I've not really seen before.",
    "text_sha256": "b123fefd967c22f24ab4ca98c7844b02cd73d87a1f94eabce08adfefc3f552ce",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "f80b85be2929047fe8c7",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 14.25,
+   "text": "They go quietly, sort of, they get missed. They're under the radar a little bit because retail is not paying attention to, you know, the fact that charter banks can now custody Bitcoin. But institutions are like, wow, this is a game changer. This changes everything.",
+   "text_sha256": "6108ce9f25d835302073e7181e0e2251597169de7874ab8463d021cbe327d271",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a244369bbd883ffe98a6",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 14.96,
+   "text": "If you have a board that is not even willing to have a conversation about whether or not they should consider some sort of Bitcoin strategy, to me that's a red flag. You know, I think that At the very least, it should be in the board meeting minutes for the last couple meetings.",
+   "text_sha256": "e75bb86ffae20e0ad1721b731a3f0d8da50400074fddff7ed02f3b5ac9ce7e1b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "19bd4ecfb820993817e3",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 21.61,
+   "text": "There is a company out of London called Yellowcake that holds physical uranium. They hold no Bitcoin. Six companies in total are out as a result of this. 19 more were added to a watch list, wondering if they're next. And so people look at that and they say, well, look, smarter web got in, yellow cake is out, micro strategies out, meta planet's out.",
+   "text_sha256": "1c4e3f7131fdbcec72abf4606807408268b59c85270f652e4be3f1324c545ee8",
    "trimmed_leading": null
   },
   {
@@ -445,12 +589,39 @@
    "trimmed_leading": null
   },
   {
+   "pid": "60a9c1c1257bde9c825c",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 14.81,
+   "text": "Companies continuing to approach us asking us how they can get involved even through the depths of the bear market is another sign that, you know, this is a sentiment. temporary sentiment, a condition for Bitcoin, but that the institutions are here and they're not going anywhere.",
+   "text_sha256": "4d0ddacb614633817ee2fd83285081198880b9f80a8a575135c8bc7dd818eb01",
+   "trimmed_leading": null
+  },
+  {
    "pid": "8fe4ff5d084bbba5a88c",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
    "duration": 18.8,
    "text": "Traders are the ones that you expect at this point where Bitcoin's relatively low compared to where it's been, looking like it's pretty good, probably going to have a breakout at some point relatively soon. You'd expect the conviction there to be growing, but it's actually at the lowest you've ever seen it. Do you think that is, again, the AI trade just taking all the excitement or the enthusiasm away from Bitcoin?",
    "text_sha256": "e8d6200808c93831b683346c1360db25c5f1cda782eea9612ec077f869312fcf",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "fde1189bcd2f15f53aa1~trim",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 20.96,
+   "text": "they're up to 850,000 Bitcoin on their balance sheet, several copycats. But it's important to understand what strategy has accomplished, what some of the big two or three Bitcoin treasury companies have accomplished. is going to be, I think, in my opinion, is going to be a handful of winners in that specific strategy.",
+   "text_sha256": "d7e9438241aee044d4e01c969b49eb97ad4481033f8a0eea64ffe42ee6e8d138",
+   "trimmed_leading": "Now"
+  },
+  {
+   "pid": "c7205fcd9f163b7d8459",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 14.68,
+   "text": "We're seeing the front lines of institutions already getting it. I mean, you got a billion -dollar companies figuring this out. They're not allocating, you know, a ton of their money towards Bitcoin because... for any other reasons of the fact that they figured it out. This isn't going anywhere. This is a long -term play.",
+   "text_sha256": "ca70831755118118aeaaf572e179e81e2de87f706aef3c3e8aec49289e54e028",
    "trimmed_leading": null
   },
   {
@@ -499,12 +670,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "1014b46ea9d9f789f205",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 23.09,
+   "text": "The other trend that's fascinating is, you know, Bitcoin corporations started as a, when our mission is focusing on public companies primarily and their adoption of Bitcoin. The trend that we're seeing is that. private companies are approaching us more and more and asking for, you know, help and resources and guidance with how they can, they can implement some sort of strategy without being a public company.",
+   "text_sha256": "43959de9adcf191814435c2e871eac47cf29737f60416be494518870ee157cef",
+   "trimmed_leading": null
+  },
+  {
    "pid": "36ff34121ce1c6ade3d3",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
    "duration": 15.88,
    "text": "One of the things that I feel like makes this one really unique is the AI trade happening right now. Something that I've seen a lot in the data that has been kind of a unique thing to the OG data set that I track is how much people that have been in Bitcoin longer. are more focused on AI, which I found just completely fascinating.",
    "text_sha256": "323b331d22292c8470e445bc8b51baf3c82ee2b6c9d368b7e4a9bf7692180f5a",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5435ac403fa801c2ba6f",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 16.27,
+   "text": "Our complaint isn't even about Bitcoin. It's about whether or not these rules can be verified. That's our challenge. And we asked this in one question to MSCI. We say, does this framework reliably distinguish an operating company? rubble a passive investment vehicle, you know, why is it that a real estate trust can stay in and a uranium holder is out?",
+   "text_sha256": "eb4a732a72c0c32fe264a94975aafb204c5c151f81f2f2f51683f996436e89d3",
    "trimmed_leading": null
   },
   {
@@ -526,12 +715,48 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "78d7bf828ec74bd85cb8",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 14.37,
+   "text": "It's below 70K for the first time since August. Sentiment numbers we haven't seen since the FTX collapse in 2022. What's your read on the market right now? Yeah, I mean, it is definitely rough out there. I mean, the bear market has been brutal.",
+   "text_sha256": "c6a38fcf19d7330e63e800c0e753391a47ef8a44cd599b8c3b3efb7eca94a11b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "dc514791a38dffac7c1e~trim",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 21.41,
+   "text": "you're going to look at strategy. You're going to look at strive. You're going to look at Metaplanet. some of the top ones who have been here, the top 10 or so holders of Bitcoin on their balance sheet. So I think that's the first thing people understand is that it's changing rapidly. And so it really isn't about necessarily how much Bitcoin you have on your balance sheet. It's about it's about boards understanding and getting in line with where the buck is headed, right?",
+   "text_sha256": "b65297819a2924785a0a341285328d3082f7fa1d3db194115ad7f52071b16e78",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "86826c8685b0b1d1a32d",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
    "duration": 19.9,
    "text": "Another thing kind of relating to this, one of the cohorts I track is like the Bitcoin plebs, smaller accounts, more retail focused accounts, like sat stackers who have generally been around like a cycle OS is kind of the informalish definition I have for them. And they are insanely angry right now compared to the other groups. The OGs in particular are pretty chill. They're bored for sure, but they're relatively more chill.",
    "text_sha256": "132df141fb85a9297db9422476c9edc761e01c93a3a3625523dda1518a954f42",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "93864e801cbf9755c7e1",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 23.05,
+   "text": "The first big wave of Q313F filings just came out. J.P. Morgan shows that it grew its strategy position by a third in Q3. What is that telling you about the demand for Bitcoin Treasury stocks from the clients of big Wall Street firms right now? Yeah, and it's good timing to talk about this, especially with the market down. I think it just really reflects the reality that the market is changing.",
+   "text_sha256": "baa8e44230e88c5a9175b79d9c44ef0110e99bc6db38db8b61fc20021e874e0b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "6dcb34add7cadb32c9af",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 14.48,
+   "text": "You know, why is it that a real estate trust can stay in and a uranium holder is out? The line between kind of those two is not published. And we think that's the real problem here. When you're evaluating your cold storage setup, you shouldn't be looking for a company to tell you their product is bulletproof.",
+   "text_sha256": "eb6bcdbcfe3a1b0b1bcebd8219b11255ace3cdcfc02a08b8c67727489f788815",
    "trimmed_leading": null
   },
   {
@@ -559,6 +784,15 @@
    "duration": 14.73,
    "text": "The really builder folks seem to be building in the financialization as opposed to actually, like, free to money sort of things, which is I don't feel great about, to be honest with you. I mean, the free to money thing is one of the reasons I got into Bitcoin in the first place. But it is the thing. It's definitely happening right now.",
    "text_sha256": "b35c811fcabb4e780c3fd40e7a0ef9fdda9aa1cec4719c57df2bfec44772a881",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "eb2906e8fe1367ffbbcc",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 19.57,
+   "text": "You know, we feel that Bitcoin is going to be fine. Bitcoin's not going to be affected by this. I think Fong Lee had a quote yesterday, kind of brushing this aside as the material or not a big deal. But what happened when they removed Metaplanet and strategy? from their indexes is they created this test that's basically a check letter, right?",
+   "text_sha256": "92981ec8990d549bd976f8681a3d876cd097657951ccef5e621798f0bfc1983f",
    "trimmed_leading": null
   },
   {
@@ -595,6 +829,15 @@
    "duration": 18.6,
    "text": "Essentially, like, a really thrilling, like, intertwined story kind of thing where Bitcoin's the main thing, following an on -chain analysis guy who sort of goes through and does, like, forensic stuff around Bitcoin and takes you all over the place across the U.S. is the bad guys are. kind of murdering folks politically and doing all sorts of other crazy stuff.",
    "text_sha256": "5ad70265be6197c6a82ee3685c1c61ea511c425af8bda269cab8f5cb087c0f57",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "0e226193085e7fe28565",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 18.84,
+   "text": "I mean, this is a great first step in sort of legitimizing Bitcoin as a mainstream asset. And it does show that we're headed in the right direction. But, you know, there's still questions that. these companies are going to have who holds the keys, you know, who regulates them, what does our insurance cover?",
+   "text_sha256": "a39d3a38cd75e0e07ed742339d5a5b63d78b16a29cc54c2b6f9b5f5fe2ecb7e4",
    "trimmed_leading": null
   },
   {
