@@ -22,6 +22,8 @@ gathered pass by pass (joined on their overlap, at most HISTORY lines).
 (3) LONG TURN: the spinner's timer over 150 min.
 (5) CONTEXT: the input box's surroundings show 'until auto-compact' at 3 % or less, or 'Context low'. The
     conversation above is never read for these words (it can quote them).
+A claude pane with no input box on screen (another view, or a changed UI) is NOT judged: its state is unknown, and the
+status and the pass line name it (input_box false), so a UI change cannot blind the watchdog silently.
 (4) IDLE WITH WORK:
     - pipeline_pp_selectid idle at its prompt while pp-ingest's moments ledger changed more than 40 min ago and no
       build of the builder (a tests/package/proof/ledger_* dir) followed;
@@ -139,9 +141,8 @@ def parse_pane(lines):
         if PROMPT.match(lines[i]) and BORDER.match(lines[i - 1]) and BORDER.match(lines[i + 1]):
             box = i - 1
             break
-    if box is None:                              # no input box found: the last 6 lines stand for it
-        end = max(0, len(lines) - 6)
-        bottom, footer = lines[end:], lines[end:]
+    if box is None:                    # no input box (another view, or a new UI): its state is unknown, never read
+        end, bottom, footer = len(lines), [], []          # from the last lines (they can be quoted conversation)
     else:
         end = box
         bottom, footer = lines[max(0, box - 2):], lines[box + 3:]
@@ -162,7 +163,7 @@ def parse_pane(lines):
     turn = content[start + 1:] if start is not None else list(content)
     key = hashlib.sha1(content[start].encode()).hexdigest()[:12] if start is not None else None
     return {"in_turn": in_turn, "timer_s": timer_s, "bottom": bottom, "content": content, "turn": turn,
-            "turn_key": key}
+            "turn_key": key, "input_box": box is not None}
 
 
 def _norm(s):
@@ -498,7 +499,7 @@ def run_pass(state, now=None, paths=None, send=default_send, waiting=rows_waitin
                 f, p = claude_findings(name, capture(name), ss.setdefault(name, {}), now)
                 panes[name] = p
                 findings += f
-                view.update(in_turn=p["in_turn"], turn_timer_s=p["timer_s"],
+                view.update(input_box=p["input_box"], in_turn=p["in_turn"], turn_timer_s=p["timer_s"],
                             turn_lines_seen=len((ss[name].get("turn") or {}).get("lines") or []))
             except Exception as e:
                 status["errors"].append(f"{name}: {type(e).__name__}: {e}")
@@ -518,18 +519,28 @@ def run_pass(state, now=None, paths=None, send=default_send, waiting=rows_waitin
     status["findings"] = findings
     for f in findings:
         log_line(paths["log"], f"{f['session']} {f['kind']}: {f['what']} (since {f['since_et']})")
+    write_status(paths, status)                    # the findings are on disk before any line is sent
     if findings and not dry_run:
-        status["telegram"] = dispatch(findings, state, now, send)
+        try:
+            status["telegram"] = dispatch(findings, state, now, send)
+        except Exception as e:
+            status["errors"].append(f"telegram: {type(e).__name__}: {e}")
     for e in status["errors"]:
         log_line(paths["log"], f"ERROR {e}")
+    blind = [n for n, v in status["sessions"].items() if v.get("input_box") is False]
     log_line(paths["log"], f"pass {state['pass']}: {len(status['sessions'])} sessions, {len(findings)} findings, "
                            f"{sum('sent' in t for t in status['telegram'])} lines sent"
+                           + (f", no input box on {', '.join(blind)} (not judged)" if blind else "")
                            + (" (dry run)" if dry_run else ""))
+    write_status(paths, status)
+    return status
+
+
+def write_status(paths, status):
     try:
         save_json(paths["status"], status)
-    except OSError as e:
-        log_line(paths["log"], f"ERROR status: {e}")
-    return status
+    except Exception as e:                         # never the end of a pass
+        log_line(paths["log"], f"ERROR status: {type(e).__name__}: {e}")
 
 
 def main(argv=None):
@@ -552,8 +563,8 @@ def main(argv=None):
             log_line(PATHS["log"], f"ERROR pass: {type(e).__name__}: {e}")
         try:
             save_json(PATHS["state"], state)
-        except OSError as e:
-            log_line(PATHS["log"], f"ERROR state: {e}")
+        except Exception as e:
+            log_line(PATHS["log"], f"ERROR state: {type(e).__name__}: {e}")
         if a.once:
             return 0
         time.sleep(max(1.0, a.interval - (time.time() - t0)))

@@ -90,9 +90,14 @@ class TestParse(unittest.TestCase):
         f, _ = W.claude_findings("pipeline_x", pane(quoted + block("Read it", result=False)), {}, DAY)
         self.assertEqual(f, [])
 
-    def test_no_input_box_falls_back_to_the_last_lines(self):
-        p = W.parse_pane(["some output", "more", "  ⏵⏵ bypass permissions on · esc to interrupt"])
-        self.assertTrue(p["in_turn"])
+    def test_no_input_box_is_not_judged(self):
+        # audit batch 94 cycle 1: the last lines are not a footer when no input box is on screen (they can quote it)
+        lines = ["  the order quotes 'esc to interrupt'", "  Context low (1% remaining)",
+                 "✽ Bunning… (3h 0m 1s · ↓ 1k tokens)", "  ⏵⏵ bypass permissions on · esc to interrupt"]
+        p = W.parse_pane(lines)
+        self.assertEqual((p["in_turn"], p["timer_s"], p["bottom"], p["input_box"]), (False, None, [], False))
+        self.assertEqual(W.claude_findings("s", lines, {}, DAY)[0], [])
+        self.assertTrue(W.parse_pane(pane(["❯ go"]))["input_box"])
 
 
 class TestLoop(unittest.TestCase):
@@ -404,6 +409,26 @@ class TestPass(Paths):
         self.assertIn("pipeline_pp_selectid LOOP: the same command 5 times in this turn", log)
         self.assertIn("ERROR pipeline_gone: LookupError", log)
         self.assertIn("pass 1: 4 sessions, 1 findings, 1 lines sent", log)
+
+    def test_the_status_is_on_disk_before_a_line_is_sent_and_a_failing_dispatch_is_survived(self):
+        # audit batch 94 cycle 1: the status never waits on (or dies with) the Telegram dispatch
+        self.touch(self.paths["wordpass_log"], DAY)
+        sessions = {"pipeline_pp_wordpass": "python3", "pipeline_pp_selectid": "claude"}
+        seen = []
+
+        def send(key, kinds, line, now):
+            seen.append([f["kind"] for f in json.load(open(self.paths["status"]))["findings"]])
+            return 1
+        st, status = self.run_with(sessions, {"pipeline_pp_selectid": pane(["❯ go"])}, send=send)
+        self.assertEqual(seen, [["IDLE_WITH_WORK"]])                  # pipeline_pp_ingest_watch is missing
+        with mock.patch.object(W, "list_sessions", return_value=sessions), \
+                mock.patch.object(W, "capture", return_value=pane(["❯ go"])), \
+                mock.patch.object(W, "dispatch", side_effect=RuntimeError("telegram down")):
+            status = W.run_pass({}, now=DAY, paths=self.paths, send=send, waiting=lambda n: (0, None))
+        on_disk = json.load(open(self.paths["status"]))
+        self.assertEqual(on_disk["errors"], ["telegram: RuntimeError: telegram down"])
+        self.assertEqual([f["kind"] for f in on_disk["findings"]], ["IDLE_WITH_WORK"])
+        self.assertTrue(on_disk["sessions"]["pipeline_pp_selectid"]["input_box"])
 
     def test_a_failing_check_and_a_dead_tmux_are_survived(self):
         with mock.patch.object(W, "list_sessions", side_effect=FileNotFoundError("tmux")):
