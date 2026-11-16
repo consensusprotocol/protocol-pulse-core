@@ -1,8 +1,17 @@
 {
- "generated_at": "2026-11-16T18:40:42+00:00",
- "build": "ledger_20261116_184025",
+ "generated_at": "2026-11-16T18:46:51+00:00",
+ "build": "ledger_20261116_184632",
  "kind": "moments",
  "candidates": [
+  {
+   "pid": "76e809efb945a248cded",
+   "video_id": "stg5ui9sPos",
+   "channel": "Yahoo Finance",
+   "duration": 9.15,
+   "text": "And from where newly mined Bitcoin gets paid to help banks move existing dollars, JP Morgan and DBS, have a new cross -border connection.",
+   "text_sha256": "2532e7edadfea0a2eafe41acd6314c0269105af00e5a16882b68075477dc55c3",
+   "trimmed_leading": null
+  },
   {
    "pid": "0b0a97bb35e864f45638",
    "video_id": "uAvmynMSVhM",
@@ -146,6 +155,15 @@
    "text": "And over the last few days, Bitcoin has broke down below some key support here after the recent run to about $88,000. And I want to break down the significance of this.",
    "text_sha256": "7045fa1fd92d1250c0def2a995dce0b47078e23b1df01e44f0389efb9115b4e4",
    "trimmed_leading": null
+  },
+  {
+   "pid": "76e809efb945a248cded~trim",
+   "video_id": "stg5ui9sPos",
+   "channel": "Yahoo Finance",
+   "duration": 8.88,
+   "text": "from where newly mined Bitcoin gets paid to help banks move existing dollars, JP Morgan and DBS, have a new cross -border connection.",
+   "text_sha256": "615530b52bc4ec2fd5fa53a0570632dc790fb6d42b8b5959f4da8131db510fc9",
+   "trimmed_leading": "And"
   },
   {
    "pid": "3363fd67aed30e5f3797~trim",
@@ -362,6 +380,15 @@
    "text": "Ironically, the biggest problem for crypto was it was the first thing to show up in finance after 2008 that was new. If we'd showed up, we couldn't, right? Satoshi himself was an expression of 2008, but to humor me.",
    "text_sha256": "3abd2695f79b90d6ae5d315b27de9c23635cbc04fab32e63c401094755efb018",
    "trimmed_leading": null
+  },
+  {
+   "pid": "1a8c766755bcc038abeb~trim",
+   "video_id": "stg5ui9sPos",
+   "channel": "Yahoo Finance",
+   "duration": 14.84,
+   "text": "from where newly mined Bitcoin gets paid to help banks move existing dollars, JP Morgan and DBS, have a new cross -border connection. Here you go. J.P. Morgan and DBS. Let clients move dollars across borders.",
+   "text_sha256": "66675f49067aee26fa8e7b4209688da2b812166a0c7de97851474afa4df15933",
+   "trimmed_leading": "And"
   },
   {
    "pid": "cc97d357dea3bc0b3178",
