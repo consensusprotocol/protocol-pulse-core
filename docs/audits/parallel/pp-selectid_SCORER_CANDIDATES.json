@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T20:59:11+00:00",
- "build": "ledger_20261116_205836",
+ "generated_at": "2026-11-16T21:07:26+00:00",
+ "build": "ledger_20261116_210640",
  "kind": "moments",
  "candidates": [
   {
@@ -109,6 +109,15 @@
    "duration": 12.55,
    "text": "And those individuals that have the best story win. That's where we are right now. Very few people understand the Bitcoin story. Very few people understand the AI story. Too many people are involved in both.",
    "text_sha256": "3d481e5ed469ba7f2f8c62ef5ab0d7bd493ff6df8bc184c02af4eaf1920e73e6",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "1f6d00d7ba2fd41fc538",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 11.18,
+   "text": "And the sell -up has been painful for traders using borrowed money. More than $1.2 billion in Bitcoin positions were liquidated over the past week with the biggest wave coming on November 12th.",
+   "text_sha256": "6241440be6d96b325f5547be9c9b904140ae9ad3b38d4bfb96183f143e913210",
    "trimmed_leading": null
   },
   {
@@ -433,6 +442,15 @@
    "duration": 11.95,
    "text": "those individuals that have the best story win. That's where we are right now. Very few people understand the Bitcoin story. Very few people understand the AI story. Too many people are involved in both.",
    "text_sha256": "46af567d0c075e4532c4740104a960b12e38a7f752aaaeaff26fc71297971237",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "1f6d00d7ba2fd41fc538~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 11.16,
+   "text": "the sell -up has been painful for traders using borrowed money. More than $1.2 billion in Bitcoin positions were liquidated over the past week with the biggest wave coming on November 12th.",
+   "text_sha256": "669d0ba01d0ae1838831f6b6d4a4d69912473f171b61d3f3d13411528a87c548",
    "trimmed_leading": "And"
   },
   {
@@ -1282,6 +1300,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "7c9e729eb552644f9867",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 20.44,
+   "text": "In blue, the spot Bitcoin ETFs have lost more than $2.3 billion over the past two weeks. Yet the third quarter filings are showing, you know, Morgan Stanley. McQuare, I believe, as well, together added about 400 million or so in Bitcoin ETFs throughout September.",
+   "text_sha256": "bd3df4e49c00e0c2674a8992dbbfc9703f78443960cb09d01befc32e31ac4fb5",
+   "trimmed_leading": null
+  },
+  {
    "pid": "f80b85be2929047fe8c7",
    "video_id": "uAvmynMSVhM",
    "channel": "Bitcoin Magazine",
@@ -1336,6 +1363,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "cb387d26cf93631ded25~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 19.95,
+   "text": "you know, November 10th to November 14th, Coinbase net sold about 8,900 Bitcoin, more than three times what Binance was net selling. So, you know, that's a very simple conclusion to draw if you look at the actual exchange flows, is that the selling is coming from inside our borders largely here in the USA.",
+   "text_sha256": "f59f07366623f5599f818c40977323f73e71c62c0ad0c07c4c12ab62f271515c",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "d6adeb54ad64062081c5",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -1372,6 +1408,24 @@
    "trimmed_leading": null
   },
   {
+   "pid": "6ad38afaad9b0a8ed938~trim",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.06,
+   "text": "the sell -up has been painful for traders using borrowed money. More than $1.2 billion in Bitcoin positions were liquidated over the past week with the biggest wave coming on November 12th. So sentiment is about as bad as it can get. But let's see what traders are actually doing with their money.",
+   "text_sha256": "e7652143958d6ae582fcb7d1293de63052e9ab627613d54690de774ca0c28216",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "e0466403d2d801501a9a",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 16.94,
+   "text": "You know, and at today's price, covering the whole dividend bill with Bitcoin is roughly... 3 % of the stack a year. So in like the worst, worst, worst case scenario, maybe they burn 3 % off in a year. But then, you know, they would presumably rapidly add that back when conditions improve.",
+   "text_sha256": "ae27ca53c983f580e7a1c331390cf89eb010ad2fd67a078d81fbcdbdb926f279",
+   "trimmed_leading": null
+  },
+  {
    "pid": "41fececdeafb656fb29b",
    "video_id": "Vu0XZSz-aj4",
    "channel": "Bankless",
@@ -1387,6 +1441,15 @@
    "duration": 14.42,
    "text": "Bitcoin taking a hit over the past week, reaching its lowest level since July as investors face a growing list of setbacks, one being political uncertainty. As the Democrats are set to take control of Congress, putting the Clarity Act in limbo.",
    "text_sha256": "f182da018af33b5b9575d1a9725b6889acfd612f046bc7cf60340f9eb4fdb908",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "c5d3f42b02e35700c365",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.2,
+   "text": "Keep Bitcoin as Bitcoin and activate it. Explore VerifiedX and see how Bitcoin can move, settle, and work across programmable financial networks at verifiedx.io. Digital assets involve risk, learn before participating. All right, coming up next, AI is changing the game for Bitcoin security.",
+   "text_sha256": "2d8d67ff76abdad17a69c667dad4504327f9c54cc2fed0401d3ab14da910616c",
    "trimmed_leading": null
   },
   {
@@ -1433,6 +1496,15 @@
    "text": "the fact that we're heading down right now should definitely raise some eyebrows. I mean, we've effectively almost gone back to the recent lows. Will this anthropic theory pan out? I guess we'll have to wait a couple months and see. Now, we've got another crazy, strange, hijack, weird AI -related story in the Bitcoin mining space right here.",
    "text_sha256": "0b9322bd6838bd412777eca9cf5cd1b5650486863e82b7eff587d1d0a0d7bc87",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "846f5227358d9e0dff73",
+   "video_id": "KRvh4AcSofA",
+   "channel": "Bitcoin Magazine",
+   "duration": 18.63,
+   "text": "While it's really, AI is really good at kind of finding these gaps and attacking things, it's allowing... Bitcoin security researchers and cryptographers to further accelerate and quicker get to. known answers of the security properties of a future upgrade in Bitcoin, which may have taken years, that may collapse down to a couple months. So the speeding up can happen on both the attacker side and the defender side.",
+   "text_sha256": "9d3391ceed4cf4649a8d4b2b028a01e3ce48d3881141df02aec89212bc9a533b",
+   "trimmed_leading": null
   },
   {
    "pid": "8fe4ff5d084bbba5a88c",
