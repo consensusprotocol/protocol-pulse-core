@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T19:56:55+00:00",
- "build": "ledger_20261116_195631",
+ "generated_at": "2026-11-16T19:58:20+00:00",
+ "build": "ledger_20261116_195753",
  "kind": "moments",
  "candidates": [
   {
@@ -76,12 +76,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "bb741ce701ffbba1ea2e",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 8.02,
+   "text": "But think about the thing that secures Bitcoin in the first place. All of that computational power.",
+   "text_sha256": "496ba2d377030e8387eaf3058a05686f3ad895a5fa42b43c438a2ef427ccda32",
+   "trimmed_leading": null
+  },
+  {
    "pid": "c5a9ef2bcd4e3fdb8c10",
    "video_id": "m7ygyYMe3mg",
    "channel": "Bitcoin Magazine",
    "duration": 12.55,
    "text": "And those individuals that have the best story win. That's where we are right now. Very few people understand the Bitcoin story. Very few people understand the AI story. Too many people are involved in both.",
    "text_sha256": "3d481e5ed469ba7f2f8c62ef5ab0d7bd493ff6df8bc184c02af4eaf1920e73e6",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "ba641503ebd446b81e27",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 17.76,
+   "text": "But in today's world, we need an alternative, right? And that alternative, I think everyone has come to an agreement that that alternative is Bitcoin. And Bitcoin is... permissionless, right? And that comes with a tremendous amount of responsibility, right?",
+   "text_sha256": "3530cccdb2028da0827e9cab5048edfdf0e835e81137adcf27b6a4540d8c47de",
    "trimmed_leading": null
   },
   {
@@ -265,6 +283,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "bb741ce701ffbba1ea2e~trim",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 7.92,
+   "text": "think about the thing that secures Bitcoin in the first place. All of that computational power.",
+   "text_sha256": "b17b9a0138a35af673283f3b0233ffa3aef4aba3b6c3599e94310c4154eb66dd",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "c5a9ef2bcd4e3fdb8c10~trim",
    "video_id": "m7ygyYMe3mg",
    "channel": "Bitcoin Magazine",
@@ -272,6 +299,15 @@
    "text": "those individuals that have the best story win. That's where we are right now. Very few people understand the Bitcoin story. Very few people understand the AI story. Too many people are involved in both.",
    "text_sha256": "46af567d0c075e4532c4740104a960b12e38a7f752aaaeaff26fc71297971237",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "ba641503ebd446b81e27~trim",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 17.64,
+   "text": "in today's world, we need an alternative, right? And that alternative, I think everyone has come to an agreement that that alternative is Bitcoin. And Bitcoin is... permissionless, right? And that comes with a tremendous amount of responsibility, right?",
+   "text_sha256": "e5b52b4ee76777aa140e72a034bafb0d32af2c261e6ac59a8bfac31c2b6fd655",
+   "trimmed_leading": "But"
   },
   {
    "pid": "ce3b8471cf1707c17e18~trim",
@@ -406,6 +442,15 @@
    "duration": 13.98,
    "text": "It was really a brutal time for Bitcoin, myself included. We're seeing more fear now than we were back then. even though the price is 20 % higher, even though we're not seeing any of those negative events, quite in the same way we haven't had AI hacks and the whole Binance thing, the election result in all those sorts of things.",
    "text_sha256": "b4013dca2d5d0dde8e82e368a7539c3835c03f775c5d891a98c0fc71623658f3",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5d4aba1d1ac3c059a9dc",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 12.62,
+   "text": "This is when conviction is tested. Are you really in Bitcoin to get rich? Are you really in Bitcoin for the revolution? Right? We have a saying in the industry, which is we came for the money, stayed for the revolution.",
+   "text_sha256": "4598f2f08e8ebbced9701817bf8695fc41e90d3bbe02e3bbd9330a713fc0350e",
    "trimmed_leading": null
   },
   {
@@ -859,6 +904,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "29256c71ffdb76738cba",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 24.12,
+   "text": "This is when conviction is tested. Are you really in Bitcoin to get rich? Are you really in Bitcoin for the revolution? Right? We have a saying in the industry, which is we came for the money, stayed for the revolution. The revolutionaries are the ones, or as Michael Saylor calls them, the cyber hornets, they're the ones that really stay through the hard times and the good times.",
+   "text_sha256": "86288ba48b73eab82fa0787d321e3cbab3634c12830cf8cbed201071305bbe00",
+   "trimmed_leading": null
+  },
+  {
    "pid": "6c9ed378532d665651ae",
    "video_id": "stg5ui9sPos",
    "channel": "Yahoo Finance",
@@ -904,6 +958,15 @@
    "trimmed_leading": "But"
   },
   {
+   "pid": "33e058597d9a86e8b14e~trim",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 20.55,
+   "text": "think about the thing that secures Bitcoin in the first place. All of that computational power. Bob Buried the lead when he said that. Think about that for a second. Most Bitcoin mining pools today, you have to ask permission to use.",
+   "text_sha256": "73ba3d314956a7642bda80f3cc76e1cc75ad25a44afc33bf10b2f28fccbde065",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "b7b3347fd77af2c0154a~trim",
    "video_id": "m7ygyYMe3mg",
    "channel": "Bitcoin Magazine",
@@ -919,6 +982,15 @@
    "duration": 14.78,
    "text": "I have been recently done a budget pieces on the 2023 bull market, like climbing a wall of worry. There was massive amounts of fear during that period of time. Bitcoin was actually trending up into the right, and fear was also trending up into the right during that.",
    "text_sha256": "8e6ae65436256fcb93f3901a0c91648fb07f6fdc5798d8adbcde6760342ffcda",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "c60bc1be90b80a65cb97",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 18.66,
+   "text": "Someone in the chat said Bitcoin is the currency of independence, 100%. Bitcoin is the currency of freedom, peace, prosperity. And I'll go on a little side note here. because I was in Europe for like three weeks because I was at the Plan B conference in Lugano and the Bitcoin Amsterdam conference.",
+   "text_sha256": "fb55fa3258610684bee1408192d0018e68f983747f9b4230416e94fae648bbd3",
    "trimmed_leading": null
   },
   {
@@ -958,6 +1030,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "5ba401a25acd0f47224b",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 28.31,
+   "text": "This is how Bitcoin mining initially worked, right? So we're just going back to the roots of how Bitcoin mining worked. Correct. to take on this very, very important mission. And with that important mission, you're going to have these types of situations where it is not convenient. It requires sacrifice.",
+   "text_sha256": "cbb88fca8e14c41fe87dd005c32e80a5f5884fe2433e4423417a867a729be226",
+   "trimmed_leading": null
+  },
+  {
    "pid": "60a9c1c1257bde9c825c",
    "video_id": "uAvmynMSVhM",
    "channel": "Bitcoin Magazine",
@@ -982,6 +1063,24 @@
    "duration": 18.8,
    "text": "Traders are the ones that you expect at this point where Bitcoin's relatively low compared to where it's been, looking like it's pretty good, probably going to have a breakout at some point relatively soon. You'd expect the conviction there to be growing, but it's actually at the lowest you've ever seen it. Do you think that is, again, the AI trade just taking all the excitement or the enthusiasm away from Bitcoin?",
    "text_sha256": "e8d6200808c93831b683346c1360db25c5f1cda782eea9612ec077f869312fcf",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "c447a0ebc60a3e307b94~trim",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 21.36,
+   "text": "as a Bitcoiner, you're interpreting that experience differently. Because you're interpreting that experience knowing that the world wars happened. after the establishment of the Federal Reserve here in the United States. And it's not that Bitcoin will end wars. I think wars are part of humanity.",
+   "text_sha256": "4533f3667fde43acf8b8396f78f826b4e8b24ca07a2c6f222764b6fc6a6e2498",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "d1936a67dca50298eeb1",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 15.4,
+   "text": "Not that many people in the Bitcoin community appreciate it because they don't see the infrastructure behind the protocol that they, you know, use on a daily basis. You know, again, it's a very noble goal, and i think it's you know important.",
+   "text_sha256": "f9840c096636e324748a30fe6cf6c7608ceb760c21626c2e8721a9bc807a0056",
    "trimmed_leading": null
   },
   {
@@ -1030,6 +1129,15 @@
    "trimmed_leading": "But"
   },
   {
+   "pid": "3bcb9bc2cb8b596f18ca",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 22.44,
+   "text": "Let's say they become hostile towards the Bitcoin industry as a whole. Guess what? If you have Bitcoin in self -custody, now you have the ability to vote with your feet. This is the whole thesis behind the sovereign individual, right? So we're at... a crossroads right now, I would say in human history, where the individual has never been as empowered as he is or she is today.",
+   "text_sha256": "cadbfc8d9b8f8c5953885a21a641e72ee80ff38f739f1594cdc735b052d82f44",
+   "trimmed_leading": null
+  },
+  {
    "pid": "e8abcc9031ea856d6137~trim",
    "video_id": "m7ygyYMe3mg",
    "channel": "Bitcoin Magazine",
@@ -1063,6 +1171,15 @@
    "duration": 16.05,
    "text": "I view Bitcoin as the kernel, the kernel of the on -chain global financial system. And I look at it as a, and this is just me, okay?",
    "text_sha256": "1c5dc376572b8413afd75995465f30f48b6d16409776ecefbce1b3b440703d3b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b605ee2985c6ebeaaf06",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 29.16,
+   "text": "In 2021, you didn't have the largest banks in the United States of America offering services for Bitcoiners. You didn't have these massive publicly traded big companies having Bitcoin on their balance sheet. You didn't have any of that. And right now, you have the opportunity to buy Bitcoin under the 2021 all -time high. It's not rocket science.",
+   "text_sha256": "bac5c4244b10548658f107bbc29bb3c53dd7db1b4153c24046ecc68691a84343",
    "trimmed_leading": null
   },
   {
@@ -1162,6 +1279,15 @@
    "duration": 14.32,
    "text": "We got up to 88,000. Seeing it dump back this massively is a big warning sign for Bitcoin. It has broken the higher highs and higher lows. It's broken all the key levels on technical analysis. It's below the 50 and the 200 MAs on almost every time frame.",
    "text_sha256": "7d97b9a05e3cb1d092684d401bc4f799d4d31f880b46bb27b6fd8a9deb0634f8",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "ea8c5c9a56c0f9ee848c",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 32.39,
+   "text": "They also reported a $14.48 million increase in their Bitcoin ETF through, of course, Black Rock's Ibit. So it went up from $1.72 million as of June 30th to $14 million as of September 30th. Or $685 million and I bit up from $57 million and $704 million across all the different spot Bitcoin ETFs up from $72 million, an increase of 8.4 times, guys.",
+   "text_sha256": "0a312eefbb1a25fb45c13c77b350e75da593ed858c707565ce0f9013f8d63c95",
    "trimmed_leading": null
   },
   {
