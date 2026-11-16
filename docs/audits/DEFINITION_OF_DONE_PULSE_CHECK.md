@@ -6,6 +6,13 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 15:42 BATCHES 98 + 99 PROVEN LIVE: Bitcoin Magazine KRvh4AcSofA ("Binance Breach, AI Bitcoin Security", tier 1, approved layout) is TRANSCRIBED. The 15:30 run, the first on a2597836, did it.
+- Batch 99: the 72 h window held the video by its stream start (age 5.4 h, from the 10:00 ET live read), not by its RSS time of Nov 13.
+- Batch 98: the run read its stored is_live record again at 15:30:41 ET and found post_live.
+- Captions were unavailable, so Whisper transcribed it: 122 min of audio in 382 s, done at 15:39:23 ET (transcript.whisper.json). pp-ingest's watcher holds the video and takes the record on landing.
+- The same run transcribed BTC Sessions f-ugdpPGtf8, Digital Asset News oks1ThfeXKM and Stacker News U4lT9P_BrB0, and deferred 11 on budget, in 722 s.
+- Scott Melker f0NnJM63Ffc was transcribed by the 15:00 run (61 min in 106 s), which did 14 videos in 1,782 s and finished at 15:29:43 ET.
+
 ## 15:24 BATCH 99 LANDED (pp-ingest R14, INGEST-FAIL-03): the transcript ingest's 72 h window dates a STREAM by when it aired (merged a2597836, 15:23 ET, pushed). SCOTT MELKER f0NnJM63Ffc IS DONE: the 15:00 run transcribed it (61 min of audio in 106 s), and pp-ingest mined it at 15:07 ET (54 moments). BATCH 4 integrator spend: $0.1268 (batch 99's audits $0.0090; Heimdall, not capped).
 - **The fault:**
   - universe() kept only RSS entries whose RSS time is inside the window. For a scheduled stream, that time is when it was SCHEDULED.
