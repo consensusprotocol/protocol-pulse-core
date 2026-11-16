@@ -163,6 +163,23 @@ class TestTheFloor(Base):
         self.assertTrue(sa["rate_error"])
         self.assertEqual(sa["calibrated_floor"]["applied"], [])
 
+    def test_a_segment_refused_for_its_word_is_never_lifted_though_the_scorer_rated_it(self):
+        """A trimmed segment is always put to the scorer, so a verdict in the floor's range exists. The opener still
+        refuses it for its word (a hook on a conjunction) or its emptiness, not its score, and it stays refused."""
+        so = edl_with(hook=lambda t: "So " + t)
+        so["hook"].setdefault("selection_lock", {})["trimmed_leading"] = {"word": "And"}
+        sa = self.check(so, 3.0, mark=good([0]))
+        self.assertEqual(self.row(sa, "hook")["scorer"]["score"], 3.0)          # asked, and rated in the range
+        self.assertIn("nothing is heard before a hook", self.row(sa, "hook")["opener"]["why"])
+        self.assertFalse(self.row(sa, "hook")["opener"]["pass"])
+        self.assertEqual(sa["calibrated_floor"]["applied"], [])
+        self.assertFalse(sa["ok"])
+        sa = self.check(edl_with(clip2="", trim="But"), 3.0, mark=good([2]))
+        self.assertEqual(self.row(sa, "clip_02")["scorer"]["score"], 3.0)
+        self.assertEqual(self.row(sa, "clip_02")["opener"], {"pass": False, "why": "empty segment"})
+        self.assertEqual(sa["calibrated_floor"]["applied"], [])
+        self.assertFalse(sa["ok"])
+
     def test_a_hook_on_a_third_person_pronoun_and_a_trimmed_clip(self):
         it = edl_with(hook=lambda t: "It is simple. " + t)               # ruling 94 (b): the scorer judges it
         sa = self.check(it, 3.0, mark=good([0]))
