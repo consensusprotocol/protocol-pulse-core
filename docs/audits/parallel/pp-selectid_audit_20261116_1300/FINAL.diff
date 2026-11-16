@@ -1,0 +1,44 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 2168e97b..5ae1e1bc 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -3082,8 +3082,15 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         f"{HB.text(live)}" + (f" [{live_why}]" if live_why else "") + (f"; NOT RATED: {hook_err}" if hook_err else "")
+         + f" ({time.time() - t0:.0f} s)")
+     if not out["hook_pool"]["passing"]:                                  # (d): no line-up is paid for
++        on_bar = [m for mid, m in openers.items() if mid in rated and (hook_own(m) or {}).get("passes")]
++        #   RULING 122 (3): a hook that passes the bar and is refused only by its own frames (rulings 70 / 93) is
++        #   named with that reason; the line never blames the bar for it (builds 52-54 did)
+         out["why_none"] = ("no hook in the pool (ruling 59 d): " + (
+-            f"none of the {len(openers)} moments that can open passes {HB.text(live)}" +
++            (f"{len(on_bar)} of the {len(openers)} moments that can open pass {HB.text(live)}, and the visual check "
++             f"(rulings 70 / 93) refuses each as an opener: " + "; ".join(
++                 f"{m.get('channel_name')} {m['moment_id']}: {blocked.get(m['moment_id'], 'not seen')}" for m in on_bar)
++             if on_bar else
++             f"none of the {len(openers)} moments that can open passes {HB.text(live)}") +
+             (f" ({len(openers) - len(rated)} not rated: {hook_err})" if hook_err else "") + "; the best: " +
+             "; ".join(f"{b['channel']} {b['rating']} (scroll {b['scroll']}, alone {b['alone']}, setup {b['setup']}): "
+                       f"{b['why']}" for b in best) if openers else
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index bf999039..abf864c9 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -2370,6 +2370,18 @@ class TestRuling70Visual(unittest.TestCase):
+         self.assertNotIn("angle_write", rig.events)                      # "no hook in the pool": nothing written
+         self.assertTrue(out["why_none"].startswith("no hook in the pool"), out["why_none"])
+ 
++    def test_the_line_names_the_visual_check_when_it_alone_refuses_a_hook_that_passes_the_bar(self):
++        """RULING 122 (3): builds 52-54 said 'none of the 2 moments that can open passes the calibrated hook bar' for
++        What Bitcoin Did's 3 / 5 / 4, which passes it; ruling 93's lower-third check had refused it."""
++        out = Rig(self.MS, ["h", "x", "y", "z"], [], [], visuals={"h": self.TICKER}).run()
++        self.assertIn("1 of the 4 moments that can open pass the calibrated hook bar", out["why_none"])
++        self.assertIn("the visual check (rulings 70 / 93) refuses each as an opener: A h: ruling 93 (1 item(s)): a ticker",
++                      out["why_none"])
++        self.assertNotIn("none of the", out["why_none"])
++        out = Rig(self.MS, ["h", "x", "y", "z"], [], [], hooks={"h": (2, 3, 4)}).run()    # the bar itself refuses it
++        self.assertIn("none of the 4 moments that can open passes the calibrated hook bar", out["why_none"])
++        self.assertNotIn("the visual check", out["why_none"])
++
+     def test_a_third_person_clip_that_is_not_the_hook_is_kept_with_its_flag(self):
+         out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], visuals={"y": self.TP}).run()
+         self.assertIsNotNone(out["package"])

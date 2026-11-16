@@ -1,0 +1,21 @@
+pp-selectid: RULING 122 (3) (orchestrator 13:05 ET Nov 16): THE NO-HOOK LINE. Files: pipeline/package.py (build(): the
+why_none written when no hook is left), tests/package/test_medley.py.
+
+THE ORDER, verbatim: "(3) A CONTRADICTION TO EXPLAIN: builds 52-54 say the best hook (What Bitcoin Did: scroll 3, alone 5,
+setup 4) FAILS the calibrated bar, whose floors are scroll 3, alone 4, setup 3. On those numbers it passes. What refused
+it? If another condition sits on the hook path, name it; if it is a bug, fix it and say so plainly."
+THE ANSWER (measured on builds 52-54's records): it PASSES the bar (hook_bar.passes: every part at least its floor, rated by
+the calibrated rater). RULING 93's visual check refused it as an opener (hook_pool.visual_blocked: "a lower_third the
+9:16 crop would cut through mid-word ('IN THIS EPISODE...')"): build() sets visual_hook_block on each rated opener its own
+frames block, and can_open() returns False for it (unchanged guards: package.can_open's first line; the visual loop
+before hook_pool). THE BUG: the why_none line said "none of the N moments that can open passes <the bar>" whenever the
+passing list was empty, whatever refused them.
+
+THE CHANGE: on_bar = the rated openers that pass the bar (hook_own(m)["passes"]); when any does, the line says "K of the N
+moments that can open pass <the bar>, and the visual check (rulings 70 / 93) refuses each as an opener: <channel id:
+its reason>"; otherwise it says what it said before. The gate is unchanged: only the words of the record and the log.
+
+TESTS: the visual check alone refusing a hook that passes the bar: the line names it and never "none of"; the bar itself
+refusing: the line as before, with no visual words. Mutations V1-V2 after a control run.
+
+PLEASE CHECK: (1) that the line is true in every case; (2) that no gate changed; (3) the tests.

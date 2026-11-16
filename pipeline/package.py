@@ -3082,8 +3082,15 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         f"{HB.text(live)}" + (f" [{live_why}]" if live_why else "") + (f"; NOT RATED: {hook_err}" if hook_err else "")
         + f" ({time.time() - t0:.0f} s)")
     if not out["hook_pool"]["passing"]:                                  # (d): no line-up is paid for
+        on_bar = [m for mid, m in openers.items() if mid in rated and (hook_own(m) or {}).get("passes")]
+        #   RULING 122 (3): a hook that passes the bar and is refused only by its own frames (rulings 70 / 93) is
+        #   named with that reason; the line never blames the bar for it (builds 52-54 did)
         out["why_none"] = ("no hook in the pool (ruling 59 d): " + (
-            f"none of the {len(openers)} moments that can open passes {HB.text(live)}" +
+            (f"{len(on_bar)} of the {len(openers)} moments that can open pass {HB.text(live)}, and the visual check "
+             f"(rulings 70 / 93) refuses each as an opener: " + "; ".join(
+                 f"{m.get('channel_name')} {m['moment_id']}: {blocked.get(m['moment_id'], 'not seen')}" for m in on_bar)
+             if on_bar else
+             f"none of the {len(openers)} moments that can open passes {HB.text(live)}") +
             (f" ({len(openers) - len(rated)} not rated: {hook_err})" if hook_err else "") + "; the best: " +
             "; ".join(f"{b['channel']} {b['rating']} (scroll {b['scroll']}, alone {b['alone']}, setup {b['setup']}): "
                       f"{b['why']}" for b in best) if openers else

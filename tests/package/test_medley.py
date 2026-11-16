@@ -2370,6 +2370,18 @@ class TestRuling70Visual(unittest.TestCase):
         self.assertNotIn("angle_write", rig.events)                      # "no hook in the pool": nothing written
         self.assertTrue(out["why_none"].startswith("no hook in the pool"), out["why_none"])
 
+    def test_the_line_names_the_visual_check_when_it_alone_refuses_a_hook_that_passes_the_bar(self):
+        """RULING 122 (3): builds 52-54 said 'none of the 2 moments that can open passes the calibrated hook bar' for
+        What Bitcoin Did's 3 / 5 / 4, which passes it; ruling 93's lower-third check had refused it."""
+        out = Rig(self.MS, ["h", "x", "y", "z"], [], [], visuals={"h": self.TICKER}).run()
+        self.assertIn("1 of the 4 moments that can open pass the calibrated hook bar", out["why_none"])
+        self.assertIn("the visual check (rulings 70 / 93) refuses each as an opener: A h: ruling 93 (1 item(s)): a ticker",
+                      out["why_none"])
+        self.assertNotIn("none of the", out["why_none"])
+        out = Rig(self.MS, ["h", "x", "y", "z"], [], [], hooks={"h": (2, 3, 4)}).run()    # the bar itself refuses it
+        self.assertIn("none of the 4 moments that can open passes the calibrated hook bar", out["why_none"])
+        self.assertNotIn("the visual check", out["why_none"])
+
     def test_a_third_person_clip_that_is_not_the_hook_is_kept_with_its_flag(self):
         out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], visuals={"y": self.TP}).run()
         self.assertIsNotNone(out["package"])
