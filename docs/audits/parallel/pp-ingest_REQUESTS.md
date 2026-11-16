@@ -138,3 +138,7 @@ waited with no transcript, 2 of them Bitcoin (Bitcoin Magazine uAvmynMSVhM, 19 m
 Proposed (the integrator's call): the scorer server takes GPU0's lease only around its GPU work, or the transcript
 ingest's Whisper uses GPU1 under its lease when GPU0's is held (transcript_store.whisper accepts
 CUDA_VISIBLE_DEVICES=1 under law L-r). Until then pp-ingest takes each Whisper record within 10 minutes of it landing.
+   THE ORCHESTRATOR'S RULING (13:05 ET Nov 16): YES. The integrator is ordered to release the GPU0 lease between
+   scoring calls, or to let the pipeline's ingest use GPU1 when GPU0 is leased (builds first). pp-ingest: mine each
+   video within 10 minutes of its transcript, Bitcoin channels first; design (not build) a second caption source that
+   does not depend on this machine's YouTube quota, and say what the 429s correlate with.
