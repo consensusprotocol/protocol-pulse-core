@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T21:24:42+00:00",
- "build": "ledger_20261116_212356",
+ "generated_at": "2026-11-16T21:53:49+00:00",
+ "build": "ledger_20261116_215303",
  "kind": "moments",
  "candidates": [
   {
@@ -1840,6 +1840,15 @@
    "trimmed_leading": "But"
   },
   {
+   "pid": "edbf9746f818ecad58e5",
+   "video_id": "r5uhv8AM5MM",
+   "channel": "Bloomberg Television",
+   "duration": 14.86,
+   "text": "One of your notes here says crypto ETFs from record inflows to a negative 2026. Wow. I like to quote Goodfellas when he says, this is the bad time. Yep. Bitcoin and crypto enter those phases. you know, more than they'd like, I'm sure.",
+   "text_sha256": "6d7643de175cdb0e44fb2c54de8f1807ff88f82eb8101d0d705044a7e1af3734",
+   "trimmed_leading": null
+  },
+  {
    "pid": "41fececdeafb656fb29b",
    "video_id": "Vu0XZSz-aj4",
    "channel": "Bankless",
@@ -2575,6 +2584,15 @@
    "duration": 17.02,
    "text": "I wrapped that up maybe a little over a year ago now, and kind of wasn't sure I was going to do with my life after that, to be honest with you, I feel like that was a three -year process. It was like all I was doing for a few years there and still felt this desire to do more for Bitcoin, and then this kind of thing just came up and I had to pursue it farther.",
    "text_sha256": "708b4ee96d1a49d5812853dc0640629fe46a978b82733217e58aa3e124d030d7",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b20accc6dceedf88d6bb",
+   "video_id": "r5uhv8AM5MM",
+   "channel": "Bloomberg Television",
+   "duration": 14.56,
+   "text": "Bitcoin and crypto enter those phases. you know, more than they'd like, I'm sure. Also, try trying to promote a book in the past week. Two sides of the coin. It's both sides of the coin, but that's okay. You haven't signed it, by the way, but anyway, sure. What do you make in this?",
+   "text_sha256": "0631885b132fd4bbfc0612285d30f75943ab8f176c9f1071335cbabc57576a7d",
    "trimmed_leading": null
   },
   {
