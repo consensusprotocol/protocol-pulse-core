@@ -204,9 +204,11 @@ class TestStaleLive(Base):
 
     def test_a_snapshot_for_another_video_in_the_history_is_ignored(self):
         self.stored_live()
+        self.age(4 * 3600)                                              # this video's own read is the older one
         os.makedirs(ts._vdir(VID), exist_ok=True)
         with open(os.path.join(ts._vdir(VID), "meta_history.jsonl"), "w") as f:
-            f.write(json.dumps({"video_id": "XXXXXXXXXXX", "live_status": "was_live", "duration": 5}) + "\n")
+            f.write(json.dumps({"video_id": "XXXXXXXXXXX", "live_status": "was_live", "duration": 5,   # read later
+                                "metadata_fetched_at": ts.now_iso()}) + "\n")
         self.assertEqual(ts.ensure_meta(VID)["live_status"], "is_live")
 
 
