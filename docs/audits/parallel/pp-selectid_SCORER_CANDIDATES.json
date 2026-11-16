@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T21:10:51+00:00",
- "build": "ledger_20261116_211007",
+ "generated_at": "2026-11-16T21:22:47+00:00",
+ "build": "ledger_20261116_212200",
  "kind": "moments",
  "candidates": [
   {
@@ -1021,12 +1021,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "ed025c7e11bf1b9655b9",
+   "video_id": "9EE3F91J1vo",
+   "channel": "Bitcoin Magazine",
+   "duration": 31.59,
+   "text": "Related to this, last month, Bitcoin Core actually updated their security policy for the first time, really ever, saying that if there are bugs that are found, which are trivial for AI to reveal, what Bitcoin Core would normally do is wait 18 months before making that known to the public. But now the new rule is, if it's something that an AI model can find pretty quickly, it's actually incumbent on them to just... create a patch and fix it as soon as possible. And i think that's probably the correct um stature to take as. AI is lowering the cost and the difficulty for finding software vulnerabilities.",
+   "text_sha256": "8339f523ce794efd784898da6f3afbc3f2f380980c0778b2fab806fb798825df",
+   "trimmed_leading": null
+  },
+  {
    "pid": "198ca47275317287adfd",
    "video_id": "H5bi8hBMDTw",
    "channel": "Bitcoin Magazine",
    "duration": 20.35,
    "text": "We also sort of have the still the persistent geopolitical uncertainty in energy markets frequently. Bitcoin and digital assets are not beneficiaries when the rest of the market is in a play to quality. So I think that markets overall are incredibly skittish right now.",
    "text_sha256": "4d05daad9c1b5f51d8e7f9b85515833761261c380233e7474bd78247416e9e68",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "323f2b0be9796bbf4ec6",
+   "video_id": "9EE3F91J1vo",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.02,
+   "text": "Like the AI trade, this is... part of Bitcoin maturing where it's no longer like the fun, like brand new thing on the block, the AI trade and what it can kind of revolutionize and access, it's kind of pulling liquidity as like a black hole, everything into that.",
+   "text_sha256": "c27e561eb41890d634d68248f21bdb90ca3793d563b63487f76c7dd7d167b6e7",
    "trimmed_leading": null
   },
   {
@@ -1405,6 +1423,15 @@
    "duration": 14.1,
    "text": "Once energy decelerates, the Fed stops hiking, you see Bitcoin take off like a rocket chip, even with rates at where are they going to land? 4.5%, 4.75%. It's nothing Bitcoin hasn't been able to kick off a bull market with before.",
    "text_sha256": "cd8eade90367e330900e2f2c39ea0c8444ef278518d56e9adbf882399100d3a8",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "6c80a0c3c68fd58eb140",
+   "video_id": "oks1ThfeXKM",
+   "channel": "Digital Asset News",
+   "duration": 15.62,
+   "text": "At the current range, the offering would bring in more than $64 billion, given the company evaluation of $1.4 trillion up to 20 % of the offering is expected to be targeted towards retail. That would be us. So it sounds pretty good. So what does this all mean for Bitcoin? It's quite simple now that I understand it.",
+   "text_sha256": "bc8c7c13709a8d0f8be782773ef985f682f5217b29b63d0c5056bb62e6094c98",
    "trimmed_leading": null
   },
   {
@@ -2117,6 +2144,15 @@
    "text": "you take a look at this and you think yourself, what's going to happen with Bitcoin? Well, if you just saw what I just showed you, as everything are pulling people out as far as liquidity, you're going to see the same thing happen again, I believe, and we could just keep going down. However, there is some good news as far as the chips that will power AI revolution.",
    "text_sha256": "e7585ec28feb218503217339447bb646a459859a08a2bbf8912a9e7f0030839e",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "b59febba64f86762faaf",
+   "video_id": "oks1ThfeXKM",
+   "channel": "Digital Asset News",
+   "duration": 16.7,
+   "text": "OpenAI is going to be in Q1, 2027, and one called Databrick, which looks pretty good, actually. So you take a look at this and you think yourself, what's going to happen with Bitcoin? Well, if you just saw what I just showed you, as everything are pulling people out as far as liquidity, you're going to see the same thing happen again, I believe, and we could just keep going down.",
+   "text_sha256": "e3f9302a9aa0dde291f534ea49c88f7489bc33d9b6fb957996a25174d222615b",
+   "trimmed_leading": null
   },
   {
    "pid": "8e31c51b9a376b0c72c4~trim",
