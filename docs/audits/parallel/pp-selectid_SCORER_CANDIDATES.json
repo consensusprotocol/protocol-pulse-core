@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T05:41:57+00:00",
- "build": "ledger_20261116_054153",
+ "generated_at": "2026-11-16T10:24:18+00:00",
+ "build": "ledger_20261116_102414",
  "kind": "moments",
  "candidates": [
   {
@@ -226,6 +226,15 @@
    "duration": 16.93,
    "text": "Bitcoin's mining difficulty just fell more than 9%. That's the biggest cut since June, which is what happens when miners turn off machines that are no longer profitable. And one of the biggest public miners, Mara. disclosed that it sold about 40 % of its Bitcoin in recent weeks, more than a billion dollars worth.",
    "text_sha256": "461797557d0ba5e6b573dc16ea483d306a3e416f1f91f98f523d48ab36193ff3",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "330c00b9ae946963608c",
+   "video_id": "M6_MGnSvoAY",
+   "channel": "Bloomberg Television",
+   "duration": 16.72,
+   "text": "We did see Bitcoin fall off a cliff in the weekend. Now we see Asian markets really weak here, especially Taiwan. Taiwan's having a spectacularly big move for a market that is pretty quiet. Volatility in Taiwan has been on the way up, but nothing like what we're seeing here versus the rest of the region.",
+   "text_sha256": "eab12b44fc99b9a265b49e7753343b85cd7adba7ef3f96d4038155c467cf4097",
    "trimmed_leading": null
   }
  ]

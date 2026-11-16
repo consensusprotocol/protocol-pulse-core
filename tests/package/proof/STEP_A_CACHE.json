@@ -28895,5 +28895,56 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "f6cd42cbf9c6b48a2d72:dac886d15913d6aaf443d05d1d721ea2c27a9061a3b4291cf8361f1bbc5461ac:852a31b17b714bee6258599a015bde6b58b9a632de9366e5e23fb44c9862fec0:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "f6cd42cbf9c6b48a2d72",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [
+    {
+     "text": "in the weekend",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin fell off a cliff during the weekend.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "LET'S BRING IN MARKETS REPORT THE -- REPORTER ANTHONY STEPHENS FOR MORE.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "f6cd42cbf9c6b48a2d72",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "the weekend",
+     "refers_to": "the weekend immediately before the show date (Nov 14-15, 2026)",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in the weekend",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin fell sharply over the past weekend.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "LET'S BRING IN MARKETS REPORT THE -- REPORTER ANTHONY STEPHENS FOR MORE.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }
