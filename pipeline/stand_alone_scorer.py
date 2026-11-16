@@ -232,7 +232,10 @@ def enqueue_candidates(path, sha):
 
 def write_verdicts(c, refused, sha, src):
     """The builder's verdicts file: {rated_at, build, candidates_generated_at, scorer, verdicts: {pid: {text_sha256,
-    score, reason, fault, affirmed, prompt_sha256} | {text_sha256, error}}}. -> its path."""
+    score, reason, fault, affirmed, prompt_sha256, digest} | {text_sha256, error}}}. -> its path. Ruling 119 (1): the
+    builder's calibrated floor holds only on the measured weights, so each verdict names the Ollama digest of the
+    weights that scored it (its result entry's; null when the entry names none), and the scorer block names the ONE
+    digest every scored verdict shares, else null (never a guess for a file that mixes weights)."""
     v = {}
     for x in c.get("candidates") or []:
         pid = str(x.get("pid"))
@@ -242,13 +245,14 @@ def write_verdicts(c, refused, sha, src):
         e = latest(pid, x["text"], sha) or {}
         v[pid] = {"text_sha256": x["text_sha256"], "score": e.get("score"), "reason": e.get("reason"),
                   "fault": e.get("fault"), "affirmed": bool(e.get("affirmed")), "prompt_sha256": e.get("prompt_sha256"),
-                  **({"error": e.get("error") or "not rated"} if e.get("score") is None else {})}
+                  "digest": e.get("digest"), **({"error": e.get("error") or "not rated"} if e.get("score") is None else {})}
+    weights = {x["digest"] for x in v.values() if x.get("score") is not None}
     out = {"rated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "build": c.get("build"),
            "candidates_file": src, "candidates_generated_at": c.get("generated_at"),
            "scorer": {"model": "gemma3:27b", "kind": "moments", "rubric": "ruling 60: stand-alone only",
                       "prompt": "story_semantics.ALONE_PROMPT via stand_alone.clip_scorer(moments=True)",
                       "threshold": SA.CLIP_MIN_SCORE, "rule": "stand_alone.affirmed(moments=True): score >= threshold",
-                      "event": None, "scorer_sha": sha},
+                      "event": None, "scorer_sha": sha, "digest": weights.pop() if len(weights) == 1 else None},
            "affirmed": sum(1 for x in v.values() if x.get("affirmed")), "verdicts": v}
     d = os.path.join(ROOT, "verdicts")
     os.makedirs(d, exist_ok=True)

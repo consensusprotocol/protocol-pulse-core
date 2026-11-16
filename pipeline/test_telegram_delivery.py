@@ -148,6 +148,9 @@ MARK = {"note": NOTE_115, "bar": "BAR-TEXT scroll>=3 alone>=4 setup>=3", "floors
 LINEUP = {"note": NOTE_116, "bar": "LINEUP-TEXT", "floors": {"clips_alone": {"clips": 3}, "coherence": {
     "clips": 3, "vo_point": 3}}, "calibration_sha256": "e" * 64, "ruling": "116"}
 BOTH = {"hook_bar": MARK, "lineup_bar": LINEUP}
+NOTE_119 = "stand-alone affirmed on the calibrated floor (3.0)"   # ruling 119 (1)'s (the builder's stand_alone_bar)
+STAND = {"note": NOTE_119, "floor": 3.0, "scorer_sha": "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53",
+         "segments": [2], "ruling": "119"}
 PKG = "ab" * 32
 
 
@@ -203,6 +206,29 @@ class TestBarLines(Base):
                 self.assertEqual(lines[2], want[0])
                 self.assertTrue(lines[3].startswith("Story: "), lines)
 
+    def test_ruling_119_the_stand_alone_floor_mark_is_one_more_plain_line_after_the_bars(self):
+        for marks, want in ((dict(BOTH, stand_alone_bar=STAND), [NOTE_115, NOTE_116, NOTE_119]),
+                            ({"stand_alone_bar": STAND}, [NOTE_119]),
+                            ({"hook_bar": MARK, "stand_alone_bar": STAND}, [NOTE_115, NOTE_119])):
+            with self.subTest(marks=sorted(marks)):
+                _, sent = self.deliver(self.marked_run(marks=marks))
+                vids = [s for s in sent if s[0] == "video"]
+                self.assertEqual(len(vids), 2)
+                for s in vids:
+                    lines = s[2]["caption"].split("\n")
+                    self.assertEqual(lines[2:2 + len(want)], want, lines)
+                    self.assertTrue(lines[2 + len(want)].startswith("Story: "), lines)
+                    self.assertEqual(s[2]["caption"].count(NOTE_119), 1)
+                    self.assertNotIn("edd54964", s[2]["caption"])             # never the mark's own fields
+                for s in sent:
+                    if s[0] != "video":
+                        self.assertNotIn(NOTE_119, json.dumps(s[2]))
+        for bad in ({"note": "stand-alone affirmed"}, dict(STAND, note=NOTE_116), None, NOTE_119):
+            with self.subTest(bad=bad):
+                self.refused(self.marked_run(marks=dict(BOTH, stand_alone_bar=bad)),
+                             r"STOP: calibrated bar marks.*stand_alone_bar is not ruling 119's mark")
+        self.refused(self.marked_run(marks={"stand_alone_bar": STAND}, record_sha="cd" * 32), r"not the attested EDL's")
+
     def test_the_lines_survive_a_caption_cut_whole(self):
         rd = self.marked_run(topic="Bitcoin " * 300)                   # the story alone is past CAPTION_MAX
         _, sent = self.deliver(rd)
@@ -239,7 +265,7 @@ class TestBarLines(Base):
         for raw in ("{not json", '{"mode": "pinned"}', '{"pin": []}', '{"pin": null}', "[]"):
             with self.subTest(raw=raw):
                 self.refused(self.marked_run(raw=raw),
-                             r"STOP: calibrated bar marks \(rulings 115 \(2\) / 116\): the pin record cannot say")
+                             r"STOP: calibrated bar marks \(rulings 115 \(2\) / 116 / 119\): the pin record cannot say")
 
 
 class TestNothingIsSentUnlessAuthorised(Base):

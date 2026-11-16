@@ -3,8 +3,9 @@ readable). Ready = type 'moments'; every required gate of the sealed inventory e
 (pp-selectid's gate_problems); THEIR seal() recomputed over the pin's own bytes equals package_sha256 (and, when given,
 the digest named on the READY line); main's pinned.validate_schema and the strict pinned.moments_vo accept it; and
 main's edl_rules.takeaway_value (ruling 91's medley half, the live path's own check) passes it before launch; and
-every calibrated bar mark the pin carries (hook_bar, ruling 115 (2); lineup_bar, ruling 116) is one the drop can print
-(telegram.bar_marks).
+every calibrated bar mark the pin carries (hook_bar, ruling 115 (2); lineup_bar, ruling 116; stand_alone_bar, ruling 119)
+is one the drop can print (telegram.bar_marks); and the stand-alone floor's mark, when present, is exactly ruling
+119 (1)'s (stand_alone_floor.mark, checked first and on its own: the render's validate HOLDs on a malformed one).
 Usage: python3 check_pin_only.py PIN.json [expected_sha_prefix]  -> exit 0 ready / 1 not (reason printed)"""
 import importlib.util
 import json
@@ -20,6 +21,11 @@ def main(path, want=None):
     mp = pin.get("moments_package") or {}
     if mp.get("type") != "moments":
         return False, f"type {mp.get('type')!r}, not 'moments'"
+    import stand_alone_floor                             # ruling 119 (1): the stand-alone floor's mark, whole and first
+    try:                                                 # (the render's validate would HOLD on a malformed one)
+        stand_alone_floor.mark(mp, len(pin.get("segments") or []))
+    except ValueError as e:
+        return False, f"stand-alone calibrated floor mark: {e}"
     spec = importlib.util.spec_from_file_location("pp_pin", "/home/ultron/worktrees/pp-selectid/pipeline/package_pin.py")
     PP = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(PP)
@@ -56,7 +62,7 @@ def main(path, want=None):
         return False, why91
     out = [f"READY (pin only) {seal[:16]} title={mp.get('title')!r} intro={str(vo['intro'])[:80]!r} "
            f"bridges after {[b['after_clip'] for b in vo['bridges']]} formats={formats}", f"  {why91}",
-           f"  calibrated bars (rulings 115 (2) / 116): {'; '.join(bars) or 'no mark; the drop prints no bar line'}"]
+           f"  calibrated bars (rulings 115 (2) / 116 / 119): {'; '.join(bars) or 'no mark; the drop prints no bar line'}"]
     out += [f"  {s['role']:4} {s['channel']} {s['video_id']} {s['start']:.2f}-{s['end']:.2f} ({s['end'] - s['start']:.2f} s)"
             for s in segs]
     return True, "\n".join(out)

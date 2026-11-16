@@ -209,6 +209,34 @@ class TestCandidates(unittest.TestCase):
         self.assertEqual(v["m1"]["text_sha256"], self.c["candidates"][0]["text_sha256"])
         self.assertTrue(os.path.exists(os.path.join(self.root, "verdicts", "latest.json")))
 
+    def test_ruling_119_each_verdict_names_its_weights_and_the_block_the_one_they_all_share(self):
+        """The builder's floor holds only on the measured weights: each verdict carries the digest of the weights that
+        scored it (its result entry's), and the scorer block the one digest every scored verdict shares, else null."""
+        c, refused = SS.enqueue_candidates(self.path, "ab" * 32)
+        for p in SS.pending():
+            if ".m3." not in p:
+                SS.answer(p, FakeLLM({"clip_01": (4.0, "none")}), "ab" * 32, log=lambda *a: None)
+        out = json.load(open(SS.write_verdicts(c, refused, "ab" * 32, self.path)))
+        v = out["verdicts"]
+        self.assertEqual((v["m1"]["digest"], v["m1~trim"]["digest"], out["scorer"]["digest"]), ("dg", "dg", "dg"))
+        self.assertNotIn("digest", v["m2"])                              # refused: no verdict, no weights
+        self.assertIsNone(v["m3"]["digest"])                             # not rated
+        p = SS.result_path("m1", self.texts["m1"], "ab" * 32)          # m1 scored again on other weights
+        with open(p) as f:
+            entries = json.load(f)
+        with open(p, "w") as f:
+            json.dump(entries + [dict(entries[-1], digest="dg2", score=3.0, affirmed=False)], f)
+        out = json.load(open(SS.write_verdicts(c, refused, "ab" * 32, self.path)))
+        self.assertEqual((out["verdicts"]["m1"]["digest"], out["verdicts"]["m1~trim"]["digest"]), ("dg2", "dg"))
+        self.assertIsNone(out["scorer"]["digest"])                       # mixed weights: the block names none
+        for e in entries:                                                # a verdict whose entry names no weights
+            e.pop("digest", None)
+        with open(p, "w") as f:
+            json.dump(entries, f)
+        out = json.load(open(SS.write_verdicts(c, refused, "ab" * 32, self.path)))
+        self.assertIsNone(out["verdicts"]["m1"]["digest"])
+        self.assertIsNone(out["scorer"]["digest"])
+
     def test_latest_prefers_a_scored_entry_for_the_event(self):
         p = SS.result_path("m1", "t", "ab" * 32)
         os.makedirs(os.path.dirname(p))

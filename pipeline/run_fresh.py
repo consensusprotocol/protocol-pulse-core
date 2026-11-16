@@ -495,10 +495,20 @@ def stage_validate(run):
     sa = stand_alone.check_edl(edl, rate=rate, subject=subject, screen=screen,
                                moments="moments_package_sha256" in edl)    # ruling 60: the score alone
     sa["screen_why"] = screen_why
+    import stand_alone_floor        # ruling 119 (1): the calibrated floor, for exactly the pin's marked segments, only
+    try:                            # under the measured scorer code and weights (stand_alone.py itself is untouched)
+        sa = stand_alone_floor.apply(sa, edl, run.dir)
+    except ValueError as e:
+        run.prov["stand_alone"] = sa
+        raise Hold(f"stand-alone calibrated floor (ruling 119 (1)): {e}")
     run.prov["stand_alone"] = sa
     for r in sa["rows"]:
         print(f"  STAND_ALONE {r['segment']}: [{'PASS' if r['pass'] else 'FAIL'}] opener: {r['opener']['why']} | "
               f"topic: {r['topic']['why']}")
+    if "calibrated_floor" in sa:
+        cf = sa["calibrated_floor"]
+        print(f"  STAND_ALONE calibrated floor (ruling 119 (1)): marked {cf['segments']}, affirmed on the floor "
+              f"{cf['applied']}" + (f"; NOT APPLIED: {cf['not_applied']}" if "not_applied" in cf else ""))
     if "medley_names_bitcoin" in sa:
         print(f"  STAND_ALONE medley: [{'PASS' if sa['medley_names_bitcoin']['pass'] else 'FAIL'}] "
               f"{sa['medley_names_bitcoin']['why']} | screen: {screen_why}")
