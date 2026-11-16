@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T21:53:49+00:00",
- "build": "ledger_20261116_215303",
+ "generated_at": "2026-11-16T22:05:48+00:00",
+ "build": "ledger_20261116_220502",
  "kind": "moments",
  "candidates": [
   {
@@ -2908,15 +2908,6 @@
    "duration": 16.76,
    "text": "Have you heard of Bitcoin? This is one of the biggest things that's ever happened is AI. You made 40, 50 times your money. You don't need to make that kind of money many times your life, right? Hello everybody.",
    "text_sha256": "9419356e5762100234607a886a70636e843f1568d33bc83a3a01fd5a73549bde",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "330c00b9ae946963608c",
-   "video_id": "M6_MGnSvoAY",
-   "channel": "Bloomberg Television",
-   "duration": 16.72,
-   "text": "We did see Bitcoin fall off a cliff in the weekend. Now we see Asian markets really weak here, especially Taiwan. Taiwan's having a spectacularly big move for a market that is pretty quiet. Volatility in Taiwan has been on the way up, but nothing like what we're seeing here versus the rest of the region.",
-   "text_sha256": "eab12b44fc99b9a265b49e7753343b85cd7adba7ef3f96d4038155c467cf4097",
    "trimmed_leading": null
   },
   {
