@@ -1,0 +1,895 @@
+{
+ "4105e221f087895ed18d:9d43580c729b": {
+  "label": "4105e221f087895ed18d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "as we've continued to march throughout history",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Every company is going to become a Bitcoin company in some way, shape, or form as we continue to march throughout history.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Yeah, great question. And this one is pretty exciting because, again, it shows how quickly the situation is evolving.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "44a6d503ed11992f6f8e:9d43580c729b": {
+  "label": "44a6d503ed11992f6f8e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "People are trying to manipulate listeners' emotions using fear and anger in order to potentially get them to sell their Bitcoin, as these emotions greatly cloud judgment.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "468651df800ad2c09e32:9d43580c729b": {
+  "label": "468651df800ad2c09e32",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this region right here",
+    "refers_to": "the price levels during the prior window when everyone expected Bitcoin to crash to much lower levels",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "even when we were trading in this region right here",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Nobody anticipated Bitcoin reaching $120,000 even back when it was trading at the much lower levels of the prior period on the chart.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "17e5a9235d68c10d79b2:9d43580c729b": {
+  "label": "17e5a9235d68c10d79b2",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "buying Bitcoin when it feels easy when they're confident it's going to do well",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "the described behavior of buying when easy and underperforming DCA",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when it feels easy when they're confident it's going to do well",
+    "inside": true
+   },
+   {
+    "text": "if you do that",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "People buy Bitcoin when it feels easy and they are confident it is going to do well, and doing that causes you to drastically underperform DCA because that is what the average person does almost all the time.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "like I didn't really see anyone doing this in a professional way until I saw you sort of crop up. Like this is your thing, right?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "25f640d9a6a4004c8ae5:9d43580c729b": {
+  "label": "25f640d9a6a4004c8ae5",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "people (Bitcoiners feeling owed)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "the time until full crowd buy-in or euphoria",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "people (Bitcoiners feeling owed)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "as Bitcoin's climbing and it's still not having like the euphoria that they desire",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "People feel as though they were owed a lot, it is going to take longer, and they lash out or get angry as Bitcoin climbs without the euphoria they desire.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Why do you think sentiments got worse, you know, even than what seems to be like the hardest period of this bear market to me from the, like, when Cold Car got hacked, that was the first big hack we had from this like AI thing.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "621b5c07b02ec2e08975:9d43580c729b": {
+  "label": "621b5c07b02ec2e08975",
+  "speaker_changes_inside": "no",
+  "view": "ad_read",
+  "referents": [
+   {
+    "word": "me",
+    "refers_to": "a bitcoiner",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "my",
+    "refers_to": "a bitcoiner's",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Every bitcoiner eventually has to answer whether, if something happened to them, their family could access their Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "So download BitKee today, use the code WBD for 10% off the second generation BitKee, which is this device right here with the screen.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "d7dd256b981316b91f3e:9d43580c729b": {
+  "label": "d7dd256b981316b91f3e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "recently",
+    "refers_to": "short time before the podcast",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker is convinced that Bitcoiners desperately want the AI narrative to be like a Bitcoin narrative.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Like I told you my history is as a writer, right?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f87764c10acdaf364ae9:9d43580c729b": {
+  "label": "f87764c10acdaf364ae9",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "right now",
+    "refers_to": "the current market situation at the time of the recording",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "here",
+    "refers_to": "this podcast or discussion",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "the lows",
+    "refers_to": "Bitcoin's price lows from the recent bear market",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It's",
+    "refers_to": "the market's fearful reaction despite positive price action",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "right now",
+    "inside": true
+   },
+   {
+    "text": "in the near future here",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Right now it is really bullish in the speaker's opinion that people are still fearful even though Bitcoin is up 20% from the lows because the crowd is overreacting while positive price momentum is occurring.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "So I know that you also look at on-chain data a little bit. You've done a few pieces with Checkmate. You did one recently called disbelief in data with him.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "3e56d661ff23139eb865:9d43580c729b": {
+  "label": "3e56d661ff23139eb865",
+  "speaker_changes_inside": "no",
+  "view": "ad_read",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if it can be passed down",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is only generational wealth if it can be passed down.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a8cf9b8c6cc4f7cc8873:9d43580c729b": {
+  "label": "a8cf9b8c6cc4f7cc8873",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "blood in the streets",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "I am the guy who buys Bitcoin when there is blood in the streets, and I know all the famous trader quotes about doing so such as to buy even if it is your own blood and that the market can stay irrational longer than you can remain solvent.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a244369bbd883ffe98a6:9d43580c729b": {
+  "label": "a244369bbd883ffe98a6",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "the board",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "a board that is not even willing to have a conversation about Bitcoin strategy",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "a conversation about whether or not they should consider some sort of Bitcoin strategy",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If you have a board that is not even willing to have a conversation about whether or not they should consider some sort of Bitcoin strategy",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If a board is unwilling to discuss a Bitcoin strategy that is a red flag and at minimum the discussion should appear in recent board meeting minutes.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a32a1464ef072f8bfb9a:9d43580c729b": {
+  "label": "a32a1464ef072f8bfb9a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "They",
+    "refers_to": "Yellowcake",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "the MSCI screen or test for non-operating companies",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Yellowcake, a London company that holds physical uranium and no Bitcoin, is one of six companies removed as a result of this MSCI rule.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Could you just help us understand, you know, what is at least the presented rationale behind this distinction? Sure, yeah.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "d6adeb54ad64062081c5:9d43580c729b": {
+  "label": "d6adeb54ad64062081c5",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the 2023 bull market period",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "the 2023 bull market period",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "during the 2023 bull market",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "I have recently done pieces analyzing the 2023 bull market climbing a wall of worry, when there were massive amounts of fear as Bitcoin trended upward and fear also trended up during that time.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "what do you think comes next? I have been",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "04ddf6869c30c1f2c0de:9d43580c729b": {
+  "label": "04ddf6869c30c1f2c0de",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "despite Bitcoin being up 20% from the lows",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Watching how fearful people are, despite the fact that Bitcoin is still up like 20% off the lows, is really striking in my opinion.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "until I saw you sort of crop up. Like this is your thing, right? It very much is now",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2fac82ee361acbc4aa67:9d43580c729b": {
+  "label": "2fac82ee361acbc4aa67",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "its",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the past week",
+    "inside": true
+   },
+   {
+    "text": "since July",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has taken a hit over the past week, reaching its lowest level since July as investors face a growing list of setbacks including political uncertainty.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Let's bring in the Digital Chamber CEO Cody Carbone. Cody, good to see you this morning.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "60a9c1c1257bde9c825c:9d43580c729b": {
+  "label": "60a9c1c1257bde9c825c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "us",
+    "refers_to": "speaker's company (BFC)",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "companies",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "current bear market sentiment",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "they",
+    "refers_to": "institutions",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "even through the depths of the bear market",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Companies continuing to approach the speaker's firm to get involved with Bitcoin even during the bear market shows that the current negative sentiment is temporary and that institutions are committed to Bitcoin and not going anywhere.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "And George, with BFC at the center of the institutional Bitcoin world, you're helping to guide firms that...",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c411d1f7f5019c7c8b29:9d43580c729b": {
+  "label": "c411d1f7f5019c7c8b29",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this point",
+    "refers_to": "current time in the bear market",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "there",
+    "refers_to": "traders group",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "traders' conviction",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "at this point where Bitcoin's relatively low compared to where it's been",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Traders' conviction is expected to grow when Bitcoin is relatively low with signs of an imminent breakout but is instead at its lowest level seen.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "That's interesting because like when you look at those groups, OGs and plebs, you'd imagine these are people just buying Bitcoin, DCA and holding for a very long time. And so like when it comes to, you know, trying to get an edge on the market, maybe don't care as much because they're just in",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "11befe67149e2f12afb7:9d43580c729b": {
+  "label": "11befe67149e2f12afb7",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "Bitcoin for Corporations team",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin having already won/being established",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "Bitcoin having won/its established status",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "They",
+    "refers_to": "billion-dollar companies",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "their",
+    "refers_to": "billion-dollar companies'",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin having won/its established status",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "already/currently",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Institutions are already getting Bitcoin on the front lines, with billion-dollar companies figuring it out and allocating to it solely because they have figured it out.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "We welcome in our very own George McAil, managing director at Bitcoin for corporations.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "3aa9e8dd2f267b844619:9d43580c729b": {
+  "label": "3aa9e8dd2f267b844619",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "They",
+    "refers_to": "Saylor/MicroStrategy/Strategies",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "Saylor/MicroStrategy/Strategies",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "MicroStrategy holds 850,849 Bitcoin along with 4.9 billion in USD assets and has diluted MSTR shareholders by selling stock to buy more Bitcoin and STRC.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "86c436c385e7c2ea80ab:9d43580c729b": {
+  "label": "86c436c385e7c2ea80ab",
+  "speaker_changes_inside": "no",
+  "view": "reading_aloud",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "but I do not personally think that that is the whole story",
+  "time_ok": "yes",
+  "proposition": "Bitcoin fell 19% into the biggest IPO ever and is now down 18% heading into the second biggest.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "I am your host, Scott Melker, also known as the Wolf of All Streets.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a3e8721c54788123097a:9d43580c729b": {
+  "label": "a3e8721c54788123097a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the consequences of bad market sentiment",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when market sentiment is generally bad",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "There were billions of dollars in liquidations over the weekend, with about $2 billion on Bitcoin, further proving Bitcoin takes hits from bad sentiment because it trades 24-7, 365 unlike stocks.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "I am your host, Scott Melker, also known as the Wolf of All Streets.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f7060af3d3a9fb0532c8:9d43580c729b": {
+  "label": "f7060af3d3a9fb0532c8",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "their",
+    "refers_to": "people first get into Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when people first get into Bitcoin",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Usually when people first get into Bitcoin, their sentiment is very volatile and they are super euphoric.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "how far back have you tracked this data across how many different cycles?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "36ff34121ce1c6ade3d3:9d43580c729b": {
+  "label": "36ff34121ce1c6ade3d3",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this one",
+    "refers_to": "the current cycle or bear market",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "right now",
+    "refers_to": "the time of the interview or show date",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "happening right now",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "One thing that makes this cycle really unique is the AI trade happening right now, and long-term Bitcoin users (OGs) are more focused on AI according to the speaker's tracked data, which he finds fascinating.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "Is that a novel thing that's happened this cycle?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "86826c8685b0b1d1a32d:9d43580c729b": {
+  "label": "86826c8685b0b1d1a32d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "OGs shifting focus/energy from Bitcoin to AI",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "them",
+    "refers_to": "Bitcoin plebs, smaller accounts, more retail focused accounts, like sat stackers",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "they",
+    "refers_to": "Bitcoin plebs, smaller accounts, more retail focused accounts, like sat stackers",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "the OGs",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "right now",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The Bitcoin plebs (smaller retail-focused sat stackers around for about one cycle) that the speaker tracks are insanely angry right now compared to the OGs who are relatively chill though bored.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Yeah, I think that makes sense",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "d2ad3c36a2fc2f1767a2:9d43580c729b": {
+  "label": "d2ad3c36a2fc2f1767a2",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "measuring language/subconscious signals in Bitcoin discussions",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "subconscious seeping out in the language you're using",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "There could be some wild news item that drops like next week",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "A wild news item could drop next week and drive prices way down but measuring language still gives a pulse on how people are psychologically locked onto Bitcoin since their subconscious seeps into their word choice and can be measured.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "and I've heard you on other podcast talking about it",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "1e52e4cbe87678152999~trim:9d43580c729b": {
+  "label": "1e52e4cbe87678152999~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "here",
+    "refers_to": "the current discussion of stock market expansion, NASDAQ, gold and silver blow-off tops",
+    "inside": false,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "around the last 12 months",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Gold, silver, indices, and potentially Bitcoin have all put in major highs around the last 12 months.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "this was an area that for me. Again, not that I'm perfect and whatever. I'm not trying to make this call like this is the absolute high or anything of that nature.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "621c8cd921dac2a61444:9d43580c729b": {
+  "label": "621c8cd921dac2a61444",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "which",
+    "refers_to": "builder folks focusing on financialization as opposed to freedom money",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "the free to money thing",
+    "refers_to": "Bitcoin as freedom money",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The real builder folks are building in financialization instead of freedom money, which the speaker does not feel great about since that is one of the reasons he got into Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "OK, can we talk about the different cohorts that you have? So you have OGs. Will you tell me the main ones that you sort of track? Yeah, I have a ton of these.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

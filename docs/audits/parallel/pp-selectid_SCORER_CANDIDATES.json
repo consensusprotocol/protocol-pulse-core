@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T23:25:22+00:00",
- "build": "ledger_20261116_232428",
+ "generated_at": "2026-11-16T23:57:32+00:00",
+ "build": "ledger_20261116_235642",
  "kind": "moments",
  "candidates": [
   {
@@ -1084,15 +1084,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "262d5dcaeeb99f44f756",
-   "video_id": "UZX-cH93t_A",
-   "channel": "CoinDesk",
-   "duration": 4.56,
-   "text": "It's not going to hit 5,000 this year. It's not going to hit it next year, but it's going to hit it eventually.",
-   "text_sha256": "fe00b1c3659f6d3aa73c2f880f06cad15ced6b50cfea7cbb63f2b0099fd75147",
-   "trimmed_leading": null
-  },
-  {
    "pid": "2f4900b21a169c63e4be",
    "video_id": "KRvh4AcSofA",
    "channel": "Bitcoin Magazine",
@@ -1108,15 +1099,6 @@
    "duration": 9.34,
    "text": "This is the same type of argument I want to make clear for the Bitcoiners, right? If you think Bitcoin's going to zero, I don't want to listen to you. You haven't done work.",
    "text_sha256": "e9dc928085115df5f6b68b4c02c78055140d8eaf54f81049a24b02724ac307d1",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "fb36fae4baa7c0642441",
-   "video_id": "UZX-cH93t_A",
-   "channel": "CoinDesk",
-   "duration": 4.6,
-   "text": "It's not going to hit 5,000 this year. It's not going to hit it next year, but it's going to hit it eventually.",
-   "text_sha256": "fe00b1c3659f6d3aa73c2f880f06cad15ced6b50cfea7cbb63f2b0099fd75147",
    "trimmed_leading": null
   },
   {
@@ -1234,15 +1216,6 @@
    "duration": 15.57,
    "text": "I can assure you nobody anticipated to see $120,000 Bitcoin, even when we were trading in this region right here. We have gone through so much turmoil along the way. Carry trade, tariffs. I don't even know what the news was up here, to be honest with you.",
    "text_sha256": "3013a9795e629ee11984e11c3a83469ac74f4f7896d1505dc969afb767a9f345",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "eacfb10e73d264548fdb",
-   "video_id": "Vu0XZSz-aj4",
-   "channel": "Bankless",
-   "duration": 15.39,
-   "text": "Ironically, the biggest problem for crypto was it was the first thing to show up in finance after 2008 that was new. If we'd showed up, we couldn't, right? Satoshi himself was an expression of 2008, but to humor me.",
-   "text_sha256": "3abd2695f79b90d6ae5d315b27de9c23635cbc04fab32e63c401094755efb018",
    "trimmed_leading": null
   },
   {
@@ -1549,15 +1522,6 @@
    "duration": 29.76,
    "text": "Ibit and the rest of the Bitcoin ETFs have records that will probably never be broken. And they have made it. They're completely established. In this sell -off, 50 % drawdown and only about 10 % of the assets left. That's a really good sign. My favorite thing that you tweet... Is some bullish metric almost daily about how the ETF industry is growing, inflows are magnitudes larger, volumes are increasing, everyone who hated on ETFs are losers and suckers and ETFs are winning.",
    "text_sha256": "ca2f5e2b7ac94c26760e3f3a25811a4ca1d31431bfc90af13a77e8694c4ab7c2",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "3d62c51a3fa62c41559a",
-   "video_id": "Vu0XZSz-aj4",
-   "channel": "Bankless",
-   "duration": 17.0,
-   "text": "I get to have, you know, they donate Democrat candidates. Sometimes they call me. And it's so funny how many of the ones who were under 40 would tell me they used to mine Bitcoin in their dorm room. I'm like, I love it. Can you say that? Like, well, should I say that? I'm like, why would you not say that? No one. No one cares if you say that.",
-   "text_sha256": "fc8465b0235c7df2708779d3fe17327e88f6c164d2c700cd6d219a77627cc615",
    "trimmed_leading": null
   },
   {
@@ -2074,15 +2038,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "41fececdeafb656fb29b",
-   "video_id": "Vu0XZSz-aj4",
-   "channel": "Bankless",
-   "duration": 23.81,
-   "text": "People like to deny the utility because they don't have to deal with the hard problems of how to deal with it. If I just say this is all useless, I can just keep it away, then it's very, you don't have to go to those second order questions. I just don't think you can look at this and see all the innovations in stable coins, in the hard money of Bitcoin provides in Defi and say this is all useless.",
-   "text_sha256": "ba86a961707db7e23d8dba15f7066b6eb29d05b78f148e4d917e877e756b8c17",
-   "trimmed_leading": null
-  },
-  {
    "pid": "9452a8ac229cd412f850",
    "video_id": "DO6iIRbccIg",
    "channel": "Fox Business",
@@ -2458,15 +2413,6 @@
    "duration": 23.46,
    "text": "By far the most interesting thing is Bitcoin broadly. I still just love to see how this entire asset class is thinking and moving and changing. But one thing I think we'll definitely talk about here is just how many subgroups of Bitcoiners there are, how kind of fractured folks have been during this bear market. Different groups are doing wildly different things. You have all the Treasury company folks who are talking about some narratives. You have people that want to like transact with Bitcoin out in a jungle somewhere who talk about totally different things.",
    "text_sha256": "ba91cc85eccab78d2db86785892e9057cc0213c562cf0f9510c6d09cf2811fe1",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "0c8b148b130272219457",
-   "video_id": "Vu0XZSz-aj4",
-   "channel": "Bankless",
-   "duration": 19.34,
-   "text": "I just don't think you can look at this and see all the innovations in stable coins, in the hard money of Bitcoin provides, in defy, and say this is all useless. I've been surprised at how people can say that, but I realize a lot of it is because it's all... fundamentally, we're really good at changing the tech stack.",
-   "text_sha256": "540a36473af02790f2bbcbba67e16a036abde58c42529dad070e73b9405a2d0b",
    "trimmed_leading": null
   },
   {
@@ -3001,15 +2947,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "ed8fab0f610e1f9bf860",
-   "video_id": "UZX-cH93t_A",
-   "channel": "CoinDesk",
-   "duration": 21.52,
-   "text": "It's not going to hit 5,000 this year. It's not going to hit it next year, but it's going to hit it eventually. Have you heard of Bitcoin? This is one of the biggest things that's ever happened. is AI. You made 40 or 50 times your money. You don't need to make that kind of money many times your life, right? Hello everybody.",
-   "text_sha256": "05d05d2969175954823fe98fcc76eebc35ce61e7660066e2176b77681aa4429f",
-   "trimmed_leading": null
-  },
-  {
    "pid": "305aea349244dc511ae1",
    "video_id": "OubcRgk3D-w",
    "channel": "Simply Bitcoin",
@@ -3163,15 +3100,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "ddbab39c8ffdbfe1fd34",
-   "video_id": "UZX-cH93t_A",
-   "channel": "CoinDesk",
-   "duration": 21.52,
-   "text": "It's not going to hit 5,000 this year. It's not going to hit it next year, but it's going to hit it eventually. Have you heard of Bitcoin? This is one of the biggest things that's ever happened. is AI. You made 40, 50 times your money. You don't need to make that kind of money many times your life, right? Hello everybody.",
-   "text_sha256": "aab4827ff98dcceee4a3b714eb1e71078711d8ca88d29f8ff071b9851a89f1f1",
-   "trimmed_leading": null
-  },
-  {
    "pid": "62ab1532a50813a91b09",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -3322,15 +3250,6 @@
    "duration": 14.77,
    "text": "Again, huge Bitcoin holder, right? 30,000 plus Bitcoin in this company. We have Palmer Lucky. We have all these people out that are doing the micro sailors that are doing these things, doing heavy lifting over time. The Trump family. I mean, look at the Trump family. I know they just lend it against 73 % of their Bitcoin, which, you know, hey, maybe they're a little afraid they want to get their cash out.",
    "text_sha256": "576ca38142f8a4d6659ad3562da30d82902efdba6b44e464bd7f4089ebf6b7c7",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "d0475444fcf52fedd1ef",
-   "video_id": "UZX-cH93t_A",
-   "channel": "CoinDesk",
-   "duration": 16.76,
-   "text": "Have you heard of Bitcoin? This is one of the biggest things that's ever happened is AI. You made 40, 50 times your money. You don't need to make that kind of money many times your life, right? Hello everybody.",
-   "text_sha256": "9419356e5762100234607a886a70636e843f1568d33bc83a3a01fd5a73549bde",
    "trimmed_leading": null
   },
   {
