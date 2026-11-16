@@ -6,6 +6,56 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 06:09 SESSION WATCHDOG LIVE (orchestrator order 05:55 ET Nov 16): tools/session_watchdog.py runs in tmux pipeline_pp_sessionwatch (no cron) since 06:08:43 ET, read only, a pass every 5 min. Its first real pass read 13 pipeline_ sessions: 0 findings, 0 errors, no Telegram line. Audits batch 94 (Heimdall only, two cycles): cycle 1's consensus point and a cross-examination point were fixed. Both regressions green. BATCH 4 integrator spend: $0.0113 (Heimdall, not capped).
+- **The first real pass (06:08:43 ET, /tmp/session_watchdog_status.json):**
+  - Claude panes (7), each with its input box found, so each judged:
+    - In a turn: pipeline_pp_dod only (this session), at 2145 s by its own timer, 43 turn lines gathered.
+    - Idle: heimdall_agent, pi_receipts, pp_backtest, pp_ingest, pp_selectid, pp_tests.
+  - Other panes (6): pp_ingest_watch (sh), pp_judge (python3), pp_lockcheck (sleep), pp_scorer (python3), pp_sessionwatch (sh, the watchdog), pp_wordpass (python3).
+  - (4), on real data:
+    - Both required sessions are present.
+    - The moments ledger last changed at 05:08:16 ET, and the builder's newest build dir dates from 06:00:51 ET, so a build followed.
+    - The word pass's log was written at 06:08:21 ET: it is cycling.
+  - (6): the builder's BATCH4_LEDGER.json all_in is $0.5606 of $1.00 (56 %), window 21:10 ET Nov 15 to 21:10 ET Nov 16.
+  - logs/session_watchdog.log: "2026-11-16 06:08:43 ET pass 1: 13 sessions, 0 findings, 0 lines sent".
+- **What it checks (each pane is read with tmux list-panes / capture-pane ONLY; tmux() refuses anything else before it runs):**
+  - **(1) STUCK:** in a turn, the last 15 content lines (timers and token counts masked) unchanged for 45 min, or the same shell command still the latest action for 45 min.
+  - **(2) LOOP:** in one turn, the same command or the same error line in 5 or more separate blocks. A line repeated inside one output counts once, and the bare "Error: Exit code N" header is not an error line.
+  - **(3) LONG TURN:** the spinner's own timer is over 150 min.
+  - **(4) IDLE WITH WORK:** as above, plus the word pass silent 30 min with rows its own pick() would take.
+  - **(5) CONTEXT:** 'until auto-compact' at 3 % or less, or 'Context low', read from the input box's surroundings only.
+  - **(6) SPEND:** 80 % and 100 % of ruling 118's $1.00, each level said once per day window.
+  - Each finding gets one line in logs/session_watchdog.log. The status is written before any Telegram line and again after.
+- **Telegram (new telegram.send_watchdog, beside send_alarm):**
+  - One plain line, "WATCHDOG <session>: <KIND>: <what> (since HH:MM ET)", at most one per session an hour.
+  - 00:00-07:00 ET only IDLE WITH WORK and SPEND go out.
+  - The rule is enforced in the sender, under a file lock over data/pulse_check/watchdog_lines.jsonl: an unknown outcome counts, a Telegram refusal does not.
+- **Measured limits, said plainly:**
+  - **No scrollback on claude panes:** a Claude Code pane runs in the alternate screen, and tmux keeps no scrollback for it (history_size 0 on every claude pane, 05:40 ET). So each pass sees the visible 50 lines, and "the last 300 pane lines of one turn" are gathered pass by pass, joined on their overlap. Repetitions that scroll past between two passes without overlap are counted only on the screens seen. A join error can only undercount, never invent a loop.
+  - **(5) is tested on canned lines only:** no pane on this box has ever shown a real context warning. (5) reads Claude Code's footer formats ('Context left until auto-compact: N%', 'Context low (N% remaining)'), never the conversation: this order itself, pasted into a pane, contains every marker.
+  - **A claude pane with no input box on screen is not judged.** Its state is unknown, and the pass line names it.
+  - **SPEND reads the builder's batch ledger:** all_in, for the window holding now, at most a day long. That is the builder's "today" (21:10 to 21:10); the builder has asked whether the day should be midnight to midnight. When its day-cap guard writes its own day record, day_spend should read that instead.
+  - **It must run from the main tree.** From a worktree it reads that worktree's empty word-pass store (measured: 34 rows "waiting" where the live worker picks 0).
+- **Tests:**
+  - 36 watchdog tests on canned panes (pipeline/test_session_watchdog.py), among them: a pane quoting every marker; heredocs sharing a first line; a loop split over two screens; a vanished session; a dead tmux; send-keys and kill refused before subprocess runs.
+  - 6 sender tests (test_alarm).
+  - 26 mutations each fail a test after a passing control.
+- **Audits (batch 94, qwen27b + glm, effort none; no Grok, as ordered):**
+  - **Cycle 1:** consensus (low): the status waited on, and could be lost with, the dispatch. FIXED: the status is written first, and a failing dispatch is recorded instead of ending the pass. Cross-examination: a pane with no input box was read from its last lines. FIXED: such a pane is not judged. Both fixes have tests that fail on the first version, and mutations.
+  - **Cycle 2:** one consensus point, accepted by both reviewers as the sender's rule: an unknown send outcome counts, so a SPEND line lost in transit is not re-sent.
+  - Cost $0.0038 + $0.0075 = $0.0113.
+- **Checks on the staged merge:**
+  - py_compile.
+  - regression_test.sh: 26 PASS / 0 FAIL / 4 WARN.
+  - pipeline/regression.sh: exit 0, the references REPRODUCED.
+  - test_session_watchdog, test_alarm, test_telegram_delivery and test_review_drop: 106 passed, 64 subtests passed under the network guard.
+  - Merged as 77081ec1.
+- **Not changed:**
+  - send_alarm, deliver_run, review_drop;
+  - no cron;
+  - nothing sent keys, killed or restarted;
+  - the decoder sha a4c307f78c94 stands.
+
 ## 16:12 TELEGRAM NOTE: THE LINE-UP'S CALIBRATED BAR IS MARKED LIKE THE HOOK'S (ruling 116). A pin whose package carries lineup_bar gets "line-up passed on the calibrated bar" as its own plain line in every video caption of its release drop, under "hook passed on the calibrated bar" and right under the run line. Each mark is read on its own and checked as in batch 92. Audits batch 93, two cycles, no finding raised. Both regressions green. BATCH 3 integrator spend: $0.0479.
 - **The order:**
   - Ruling 116's calibrated line-up bar is the builder's question Q3 (15:34 ET), applied on ruling 106's default at 15:54 ET when the orchestrator did not answer: clips >= 3 and VO point >= 3 on Grok's own verdicts; every other model keeps the standard bar (4).
