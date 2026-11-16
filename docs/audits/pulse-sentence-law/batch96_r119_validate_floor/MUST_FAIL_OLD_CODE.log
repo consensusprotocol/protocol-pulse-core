@@ -1,0 +1,14 @@
+E                     ['hook passed on the calibrated bar',
+E                      'line-up passed on the calibrated bar',
+E                   +  'stand-alone affirmed on the calibrated floor (3.0)'] : ['HOLD FOR APPROVAL
+E                   + ['stand-alone affirmed on the calibrated floor (3.0)'] : ['HOLD FOR APPROVAL
+E                  
+E                   + ['hook passed on the calibrated bar',
+E                   +  'stand-alone affirmed on the calibrated floor (3.0)'] : ['HOLD FOR APPROVAL
+_ TestBarLines.test_ruling_119_the_stand_alone_floor_mark_is_one_more_plain_line_after_the_bars (bad={'floor': 3.0, 'note': 'line-up passed on the calibrated ba
+SUBFAILED(bad={'floor': 3.0, 'note': 'line-up passed on the calibrated bar', 'ruling': '119', 'scorer_sha': 'edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8
+FAILED pipeline/test_telegram_delivery.py::TestBarLines::test_ruling_119_the_stand_alone_floor_mark_is_one_more_plain_line_after_the_bars
+FAILED pipeline/test_stand_alone_scorer.py::TestCandidates::test_ruling_119_each_verdict_names_its_weights_and_the_block_the_one_they_all_share
+14 failed, 43 passed, 35 subtests passed in 24.56s
+E   ModuleNotFoundError: No module named 'stand_alone_floor'
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!

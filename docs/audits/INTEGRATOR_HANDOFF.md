@@ -22,7 +22,7 @@ line says PASS path (with the Telegram ids) or HOLD (stage, row, measured facts)
      scratchpad, putting the old file back, and running them.
   3. Run TWO audit cycles and implement the consensus (commands below). Record each cycle in
      `docs/audits/pulse-sentence-law/batchNN_<name>/cycle{1,2}/`: QUESTION.txt, STEP.diff, CONSENSUS.md, heimdall/.
-     The last batch is **95** (the watchdog's SPEND reads the builder's DAY118_LEDGER.json, Nov 16; 94 the session watchdog, tools/session_watchdog.py, orchestrator order 05:55 ET Nov 16; 93 the release caption's ruling 116 line-up bar line under ruling 115 (2)'s, 2026-11-15; 92 the hook bar line; 91 the transcript ingest's Whisper pass under the GPU0 lease; 90 the word-pass worker survives a busy GPU1 lease; 89 the pp-backtest merge; 88 the review texts name the spotlight kind; 85 the format-aware release, 86 the 16:9-only render, 87 the review drop's withhold / points; 81-83 the spotlight gate, alarm and readiness; 84 ruling 105).
+     The last batch is **96** (ruling 119 (1)'s stand-alone floor at the render's validate, landed with the builder's half on the orchestrator's yes, Nov 16; 95 the watchdog's SPEND reads the builder's DAY118_LEDGER.json, Nov 16; 94 the session watchdog, tools/session_watchdog.py, orchestrator order 05:55 ET Nov 16; 93 the release caption's ruling 116 line-up bar line under ruling 115 (2)'s, 2026-11-15; 92 the hook bar line; 91 the transcript ingest's Whisper pass under the GPU0 lease; 90 the word-pass worker survives a busy GPU1 lease; 89 the pp-backtest merge; 88 the review texts name the spotlight kind; 85 the format-aware release, 86 the 16:9-only render, 87 the review drop's withhold / points; 81-83 the spotlight gate, alarm and readiness; 84 ruling 105).
   4. On main, stage it: `git merge --no-commit --no-ff <branch>`.
   5. Run `bash regression_test.sh` (0 FAIL) and `bash pipeline/regression.sh` (exit 0: every protected reference
      reproduced) ON THE STAGED MERGE. Worktrees lack untracked assets, so run them on main.
@@ -107,6 +107,7 @@ No session waits on the orchestrator. Standing, for all three sessions:
   - Carrier: `stand_alone.opener`, `check_edl`.
 - **115 (2)** (2026-11-15 '13:24', relayed by the builder): a package sealed on the calibrated hook bar says so in the Telegram note in one plain line, "hook passed on the calibrated bar"; PBX's approve or reject of it becomes a calibration example (the builder's `hook_bar.add_example`). Carrier: `telegram.bar_lines` / `BAR_MARKS` (the release caption, under the run line; never in a review drop, whose wording law refuses 'passed') and `check_pin_only` (a malformed mark is not ready). Contract: section 5.
 - **116** (the builder's Q3, applied on ruling 106's default at 15:54 ET Nov 15; the order 15:30 asked the report): the line-up verdicts (clips-alone, coherence) take a calibrated bar the hook's way, clips >= 3 and VO point >= 3 on Grok's own verdicts (every other model keeps 4). It touches no integrity check (vo_fidelity_ok / context_integrity_ok unchanged). A package passing both on it says "line-up passed on the calibrated bar", its own line under the hook's. Carrier: the same as 115 (2) (batch 93).
+- **119 (1)** (orchestrator 08:25 ET Nov 16, relayed by the builder; landed only on the orchestrator's explicit yes, because it loosens an integrity gate, ruling 106): the stand-alone scorer's CALIBRATED FLOOR, 3.0 (the lowest score an approved clip takes alone, never under 3; measured in docs/audits/ruling119/APPROVED_CLIPS_SCORER.json). It applies at both ends together: the builder seals a clip at 3.0 <= score < 3.5 and marks the pin (`stand_alone_bar`), and the render's validate affirms exactly the marked segments. It applies only under the measured scorer code (scorer_sha edd54964a5ab15f4...) and weights (gemma3:27b digest a418f5838eaf7fe2...), compared in full, and only for the pin's own seal. Carrier: `stand_alone_floor.apply` (run_fresh's validate, after the unchanged check_edl), `stand_alone_floor.mark` (check_pin_only, validate), `telegram.BAR_MARKS` (the release caption's line), and the verdicts file's per-verdict `digest` (batch 96).
 - **L-v 3** ('22:40'): a time_sensitive clip older than 24 h on the render clock holds at stage pinned. Carrier: `pinned.recency_problems`.
 
 **Laws since Nov 12, one line each (titles as in PIPELINE_LAWS.md's LAW 26 list):**
@@ -140,7 +141,7 @@ No session waits on the orchestrator. Standing, for all three sessions:
    - It runs the builder's `gate_problems`, `trim_problems` and `seal()` from `/home/ultron/worktrees/pp-selectid/pipeline/package_pin.py`.
    - A spotlight seal passes `shape` and `first_comment`.
    - Then main's `pinned.validate_schema` and `moments_vo`.
-   - Its READY line names the calibrated bar marks (rulings 115 (2) / 116): "hook passed on the calibrated bar; line-up passed on the calibrated bar", one of them, or "no mark". A malformed mark is not ready.
+   - Its READY line names the calibrated bar marks (rulings 115 (2) / 116 / 119): "hook passed on the calibrated bar; line-up passed on the calibrated bar; stand-alone affirmed on the calibrated floor (3.0)", some of them, or "no mark". A malformed mark is not ready. A malformed `stand_alone_bar` is refused first, before the builder's gates.
 5. **Launch:** `env -u TMUX bash scripts/pulse_check_run.sh --pinned data/moments_pins/<NAME>.json`.
    - It runs in a detached tmux `pipeline_pulse_check_<UTC>`.
    - Log: `logs/pulse_check/run_<stamp>.log`. Run dir: `runs/pinned_<stamp>/`.
@@ -214,6 +215,8 @@ No session waits on the orchestrator. Standing, for all three sessions:
   - scorer_sha **edd54964a5ab** (since the L-l merge 6d7d4287, 2026-11-14 06:53; was 91d75457ceec).
   - It re-reads its sha from disk every pass but runs the code it loaded at start. So STOP it (C-c) before staging any change to stand_alone.py or story_semantics.py, and restart it after the merge.
   - The builder must be told the new scorer_sha.
+  - RULING 119 (1): the stand-alone floor is bound to scorer_sha edd54964a5ab15f4... and the gemma3:27b digest a418f5838eaf7fe2.... Any change to stand_alone.py or story_semantics.py, or new weights, switches the floor off at BOTH ends, failing closed to the 3.5 bar, until it is measured again (docs/audits/ruling119/ruling119_scorer.py, about 6 min on GPU0) and the constants move with a ruling.
+  - The verdicts file names each verdict's weights `digest` (its result entry's), and the scorer block names the one digest the file shares, else null (batch 96). The builder's floor reads the per-verdict digest.
 - **Judge** (ruling 87, Plan B's local verdict), tmux `pipeline_pp_judge`:
   `cd /home/ultron/protocol_pulse && CUDA_VISIBLE_DEVICES=0 python3 pipeline/local_judge.py serve 2>&1 | tee -a data/local_judge/serve.log`
   - judge_sha **37c0f8a5e49e** (since the L-l merge 6d7d4287, 2026-11-14 06:53; was c62a1e12088c).
@@ -252,6 +255,10 @@ No session waits on the orchestrator. Standing, for all three sessions:
   - From d039f4c0, a package whose clips-alone and coherence verdicts both passed on Grok's calibrated line-up bar also carries `moments_package["lineup_bar"]` = {note "line-up passed on the calibrated bar", floors, calibration_sha256, ruling "116"}, outside the seal. A verdict from any other model gives no mark.
   - The release caption prints each fixed line under the run line, hook first (`telegram.bar_lines` over `BAR_MARKS`, batches 92 / 93). It does so only when each present mark is exactly its ruling's and the record's package_sha256 equals the attested EDL's; otherwise the drop STOPs. An absent key: no line.
   - PBX's verdict on a marked pin reaches you only through the orchestrator. Tell the builder within the hour: "approved" or "rejected: <his reason, verbatim>", with the pin name, seal prefix, run dir and which marks it carried. It appends the verdict to the bar's calibration file (`pipeline/hook_calibration.json` via `hook_bar.add_example`; the line-up's `pipeline/lineup_calibration.json`).
+- **Stand-alone floor mark (ruling 119 (1), batch 96; the builder's half audited 20261116_0842):** a pin with a clip sealed on the floor carries `moments_package["stand_alone_bar"]` = {note "stand-alone affirmed on the calibrated floor (3.0)", floor 3.0, scorer_sha (the FULL measured sha), segments [pin positions, 0 = the hook; only clips affirmed below 3.5], ruling "119"}, outside the seal. The weights digest travels in each sealed segment's scorer_verdict, not in the mark.
+  - Exactly these five fields, or check_pin_only refuses the pin and validate HOLDs. Place p is validate's `hook` (p = 0) or `clip_{p:02d}`.
+  - At validate it lifts only an opener the scorer refused for its score alone (3.0 <= score < 3.5; the unchanged opener passes at the bar). PROVENANCE `stand_alone.calibrated_floor` records {segments, applied, scorer_sha, digest[, not_applied]}.
+  - The release caption prints its line after the hook's and the line-up's. PBX's verdict on such a pin is relayed to the builder like the others.
 - **Pre-check request:** `<request_id>.json` {request_id, segments [{video_id, start, end, role hook|clip, approved_text?, trimmed_leading? + untrimmed_start?}]}.
   - outcome is one of decoded, no_difference, adopted, two_readings, adopt_spoken (seal spoken_text), hold, error.
   - The entry also carries lock, alternatives, as_spoken {differences, classes} and cut.
@@ -313,6 +320,8 @@ No session waits on the orchestrator. Standing, for all three sessions:
 - Test files and `docs/references` are git-ignored: `git add --force` them (never in the same command as a push).
 - `git push --tags` would push `pre-lfs-fix-backup`, which is not ours. Push one tag through a glob.
 - Worktrees lack untracked data (the references' transcripts, the v2f run files, the outro asset). Run the regressions on main's staged merge.
+- The stand-alone floor (ruling 119 (1)) is bound to the scorer's code sha, which hashes the WHOLE of stand_alone.py and story_semantics.py. Never put floor logic, or anything else, in those two files without measuring again: it switches the floor off at both ends.
+- Tests run with netguard's PYTHONPATH pointed at the scratchpad import any module left there. Keep drafts in a subfolder, or a test meant to fail on the old code imports the draft and passes.
 - test_gpu0's TestNoDirectLoaders scans only top-level `pipeline/*.py`: a subpackage (pipeline/oracle) is not seen, so code there must gate GPU0 itself (as `pipeline/oracle/providers.gpu0_lease_held` does) and its tests must use their own lease files (`PP_GPU0_LEASE` / `PP_GPU1_LEASE`, as tests/oracle/conftest.py does), never a render's.
 - The stop hook flags a staged merge as "UNCOMMITTED" while the regressions run. That is expected; commit only after both regressions pass.
 - Never move the release-branch HEAD while `/tmp/pulse_check_run.lock` is held by a render (E-FAIL-078). The lock FILE always exists; check `fuser`.

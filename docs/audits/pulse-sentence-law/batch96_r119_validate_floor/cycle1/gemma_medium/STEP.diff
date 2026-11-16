@@ -1,0 +1,284 @@
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 19d1233a..128bf37e 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -495,10 +495,20 @@ def stage_validate(run):
+     sa = stand_alone.check_edl(edl, rate=rate, subject=subject, screen=screen,
+                                moments="moments_package_sha256" in edl)    # ruling 60: the score alone
+     sa["screen_why"] = screen_why
++    import stand_alone_floor        # ruling 119 (1): the calibrated floor, for exactly the pin's marked segments, only
++    try:                            # under the measured scorer code and weights (stand_alone.py itself is untouched)
++        sa = stand_alone_floor.apply(sa, edl, run.dir)
++    except ValueError as e:
++        run.prov["stand_alone"] = sa
++        raise Hold(f"stand-alone calibrated floor (ruling 119 (1)): {e}")
+     run.prov["stand_alone"] = sa
+     for r in sa["rows"]:
+         print(f"  STAND_ALONE {r['segment']}: [{'PASS' if r['pass'] else 'FAIL'}] opener: {r['opener']['why']} | "
+               f"topic: {r['topic']['why']}")
++    if "calibrated_floor" in sa:
++        cf = sa["calibrated_floor"]
++        print(f"  STAND_ALONE calibrated floor (ruling 119 (1)): marked {cf['segments']}, affirmed on the floor "
++              f"{cf['applied']}" + (f"; NOT APPLIED: {cf['not_applied']}" if "not_applied" in cf else ""))
+     if "medley_names_bitcoin" in sa:
+         print(f"  STAND_ALONE medley: [{'PASS' if sa['medley_names_bitcoin']['pass'] else 'FAIL'}] "
+               f"{sa['medley_names_bitcoin']['why']} | screen: {screen_why}")
+diff --git a/pipeline/stand_alone_floor.py b/pipeline/stand_alone_floor.py
+new file mode 100644
+index 00000000..a4d5e699
+--- /dev/null
++++ b/pipeline/stand_alone_floor.py
+@@ -0,0 +1,128 @@
++#!/usr/bin/env python3
++"""pipeline/stand_alone_floor.py: ruling 119 (1)'s CALIBRATED FLOOR for the stand-alone clip scorer, at the render's
++validate. This is the integrator's half; the builder's half is package_pin's. The two land together, on the
++orchestrator's yes (ruling 106: it loosens an integrity gate).
++
++MEASURED (docs/audits/ruling119/APPROVED_CLIPS_SCORER.json, 08:28-08:33 ET Nov 16): asked alone, PBX's approved clips
++take scores down to 2.0, and the scorer repeats every score exactly. The floor is the lowest score an approved clip
++takes, never under 3: 3.0. The builder seals a clip under the bar (3.0 <= score < 3.5) only under the measured scorer
++code and weights, and marks the pin outside the seal:
++  moments_package.stand_alone_bar = {"note": telegram's line, "floor": 3.0, "scorer_sha": the full measured sha,
++                                     "segments": [places in the pin's segments list, 0 = the hook], "ruling": "119"}.
++
++AT VALIDATE: stand_alone.check_edl asks its scorer and reads the 3.5 bar, unchanged. stand_alone.py and
++story_semantics.py are never touched here: the scorer's code sha hashes both files, and the floor is bound to it.
++apply() then re-reads, for EXACTLY the marked segments, an opener the scorer refused only for its score. It asks the
++unchanged stand_alone.opener (and trimmed_opener for a trimmed segment) again, with the score AT the bar and the
++scorer's own fault. That must pass, and the scorer's real score must be >= FLOOR. All of this applies only when:
++  - the pin record's package is the EDL's (the seal);
++  - the running scorer code is the measured one (the full sha, exact);
++  - the running weights are the measured ones (the full Ollama digest, exact).
++Otherwise nothing changes: fail closed, and the 3.5 HOLD stands. apply() never touches the topic test, or an opener
++that failed for another reason (a hook's conjunction, no verdict at all). It refuses a malformed mark (ValueError: the
++caller HOLDs) and never reads part of one."""
++import json
++import os
++
++KEY = "stand_alone_bar"
++FLOOR = 3.0
++RULING = "119"
++FIELDS = ("floor", "note", "ruling", "scorer_sha", "segments")
++MEASURED_SCORER_SHA = "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53"   # stand_alone_scorer.scorer_sha
++MEASURED_DIGEST = "a418f5838eaf7fe2cfe0a3046c8384b68ba43a4435542c942f9db00a5f342203"       # gemma3:27b on the GPU0 Ollama
++
++
++def note():
++    """The mark's one line: telegram's (the drop prints it), so the two can never differ."""
++    import telegram
++    return {key: line for key, line, _ in telegram.BAR_MARKS}[KEY]
++
++
++def mark(mp, n_segments):
++    """The pin's stand-alone mark, checked whole: None when the package carries none, else the mark. ValueError on
++    anything that is not exactly ruling 119's mark for a pin of n_segments segments."""
++    if not isinstance(mp, dict) or KEY not in mp:
++        return None
++    m = mp[KEY]
++    if not isinstance(m, dict) or sorted(m) != sorted(FIELDS):
++        raise ValueError(f"{KEY} is not ruling {RULING}'s mark: its fields are "
++                         f"{sorted(m) if isinstance(m, dict) else type(m).__name__}, not {list(FIELDS)}")
++    floor = m["floor"]
++    if m["note"] != note() or m["ruling"] != RULING or isinstance(floor, bool) or \
++            not isinstance(floor, (int, float)) or floor != FLOOR or m["scorer_sha"] != MEASURED_SCORER_SHA:
++        raise ValueError(f"{KEY} is not ruling {RULING}'s mark (note, floor {FLOOR}, the measured scorer code): "
++                         f"{json.dumps(m)[:240]}")
++    places = m["segments"]
++    if not isinstance(places, list) or not places or \
++            not all(isinstance(p, int) and not isinstance(p, bool) and 0 <= p < n_segments for p in places) or \
++            len(set(places)) != len(places):
++        raise ValueError(f"{KEY} segments must be distinct places among the pin's {n_segments} segments: {places!r}")
++    return m
++
++
++def labels(m):
++    """The marked places as validate names them: place 0 is the hook, place i the EDL's clip i (pinned.build_edl)."""
++    return ["hook" if p == 0 else f"clip_{p:02d}" for p in m["segments"]]
++
++
++def running_scorer_sha():
++    import stand_alone_scorer
++    return stand_alone_scorer.scorer_sha()
++
++
++def running_digest():
++    import story_semantics as sm
++    return sm.model_digest(sm.LLM_HOST, sm.LLM_MODEL)
++
++
++def apply(sa, edl, run_dir, scorer_sha=None, digest=None):
++    """check_edl's result (sa) with ruling 119 (1)'s floor applied to exactly the pin's marked segments (module doc).
++    A marked pin adds sa["calibrated_floor"] = {mark, segments, scorer_sha, digest, applied[, not_applied]}. ValueError:
++    an unreadable pin record, a malformed mark, or a marked package that is not the EDL's. scorer_sha / digest: callables
++    for tests; by default the running scorer code's sha and the GPU0 Ollama's digest of gemma3:27b."""
++    import stand_alone as SA
++    path = os.path.join(run_dir, "PINNED_DECISION.json")
++    if not os.path.exists(path):
++        return sa                                                # no pin record (an auto run): no mark
++    try:
++        with open(path) as f:
++            pin = json.load(f)["pin"]
++        mp, n = pin.get("moments_package"), len(pin["segments"])
++    except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
++        raise ValueError(f"{KEY}: the pin record cannot say whether the package was marked "
++                         f"({type(e).__name__}: {e})") from None
++    m = mark(mp, n)
++    if m is None:
++        return sa
++    sha = mp.get("package_sha256")
++    if not (isinstance(sha, str) and sha and sha == edl.get("moments_package_sha256")):
++        raise ValueError(f"{KEY}: the marked package in PINNED_DECISION.json is not the EDL's")
++    code, weights = (scorer_sha or running_scorer_sha)(), (digest or running_digest)()
++    rec = sa["calibrated_floor"] = {"mark": m, "segments": labels(m), "scorer_sha": code, "digest": weights,
++                                    "applied": []}
++    if code != MEASURED_SCORER_SHA or weights != MEASURED_DIGEST:
++        rec["not_applied"] = (f"the running scorer is not the measured one (code {str(code)[:12]}, weights "
++                              f"{str(weights)[:12]}; measured {MEASURED_SCORER_SHA[:12]} / {MEASURED_DIGEST[:12]}): "
++                              f"the 3.5 bar alone")
++        return sa
++    segs = {"hook": edl["hook"], **{f"clip_{c['index']:02d}": c for c in edl.get("clips", [])}}
++    for r in sa["rows"]:
++        v = r.get("scorer")
++        if r["segment"] not in rec["segments"] or r["opener"]["pass"] or not isinstance(v, dict):
++            continue
++        score, fault = v.get("score"), v.get("fault")
++        if isinstance(score, bool) or not isinstance(score, (int, float)) or not FLOOR <= score < SA.CLIP_MIN_SCORE:
++            continue
++        s = segs[r["segment"]]
++        ok, _ = SA.opener("hook" if r["segment"] == "hook" else "clip", s.get("text"), SA.CLIP_MIN_SCORE, fault, True)
++        if ok and SA.trimmed_word(s):
++            ok, _ = SA.trimmed_opener(SA.trimmed_word(s), SA.CLIP_MIN_SCORE, fault, True)
++        if not ok:                                               # it fails for another reason than its score
++            continue
++        r["opener"] = {"pass": True, "why": f"{r['opener']['why']}; AFFIRMED on ruling 119 (1)'s calibrated floor "
++                                           f"({FLOOR}) for this marked segment, under the measured scorer code and "
++                                           f"weights"}
++        r["pass"] = r["topic"]["pass"]
++        rec["applied"].append(r["segment"])
++    sa["ok"] = all(r["pass"] for r in sa["rows"]) and sa.get("medley_names_bitcoin", {"pass": True})["pass"]
++    return sa
+diff --git a/pipeline/stand_alone_scorer.py b/pipeline/stand_alone_scorer.py
+index 3a09e243..d95c0101 100644
+--- a/pipeline/stand_alone_scorer.py
++++ b/pipeline/stand_alone_scorer.py
+@@ -232,7 +232,10 @@ def enqueue_candidates(path, sha):
+ 
+ def write_verdicts(c, refused, sha, src):
+     """The builder's verdicts file: {rated_at, build, candidates_generated_at, scorer, verdicts: {pid: {text_sha256,
+-    score, reason, fault, affirmed, prompt_sha256} | {text_sha256, error}}}. -> its path."""
++    score, reason, fault, affirmed, prompt_sha256, digest} | {text_sha256, error}}}. -> its path. Ruling 119 (1): the
++    builder's calibrated floor holds only on the measured weights, so each verdict names the Ollama digest of the
++    weights that scored it (its result entry's; null when the entry names none), and the scorer block names the ONE
++    digest every scored verdict shares, else null (never a guess for a file that mixes weights)."""
+     v = {}
+     for x in c.get("candidates") or []:
+         pid = str(x.get("pid"))
+@@ -242,13 +245,14 @@ def write_verdicts(c, refused, sha, src):
+         e = latest(pid, x["text"], sha) or {}
+         v[pid] = {"text_sha256": x["text_sha256"], "score": e.get("score"), "reason": e.get("reason"),
+                   "fault": e.get("fault"), "affirmed": bool(e.get("affirmed")), "prompt_sha256": e.get("prompt_sha256"),
+-                  **({"error": e.get("error") or "not rated"} if e.get("score") is None else {})}
++                  "digest": e.get("digest"), **({"error": e.get("error") or "not rated"} if e.get("score") is None else {})}
++    weights = {x["digest"] for x in v.values() if x.get("score") is not None}
+     out = {"rated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "build": c.get("build"),
+            "candidates_file": src, "candidates_generated_at": c.get("generated_at"),
+            "scorer": {"model": "gemma3:27b", "kind": "moments", "rubric": "ruling 60: stand-alone only",
+                       "prompt": "story_semantics.ALONE_PROMPT via stand_alone.clip_scorer(moments=True)",
+                       "threshold": SA.CLIP_MIN_SCORE, "rule": "stand_alone.affirmed(moments=True): score >= threshold",
+-                      "event": None, "scorer_sha": sha},
++                      "event": None, "scorer_sha": sha, "digest": weights.pop() if len(weights) == 1 else None},
+            "affirmed": sum(1 for x in v.values() if x.get("affirmed")), "verdicts": v}
+     d = os.path.join(ROOT, "verdicts")
+     os.makedirs(d, exist_ok=True)
+diff --git a/pipeline/telegram.py b/pipeline/telegram.py
+index 6c81b7c6..991451a4 100644
+--- a/pipeline/telegram.py
++++ b/pipeline/telegram.py
+@@ -39,9 +39,14 @@ SIXTEEN_NINE_ONLY = ("16:9 ONLY: the package sealed formats ['16x9'] (ruling 93
+ # ruling 106's default at 15:54 ET Nov 15): the line-up verdicts' calibrated bar is marked the same way. A pin carries
+ # each mark in moments_package[key], outside the seal. A release caption prints THESE lines, in this order, never a
+ # mark's own words; a review drop never carries them (its wording law refuses 'passed': _review_forbidden).
++# Ruling 119 (1) (orchestrator 08:25 ET Nov 16; landed with the builder's half on the orchestrator's yes): a clip sealed
++# on the stand-alone scorer's calibrated floor is marked the same way (stand_alone_bar). stand_alone_floor.mark checks
++# that mark whole (check_pin_only, the render's validate); this table gives its line.
+ HOOK_BAR_NOTE = "hook passed on the calibrated bar"
+ LINEUP_BAR_NOTE = "line-up passed on the calibrated bar"
+-BAR_MARKS = (("hook_bar", HOOK_BAR_NOTE, "ruling 115 (2)"), ("lineup_bar", LINEUP_BAR_NOTE, "ruling 116"))
++STAND_ALONE_BAR_NOTE = "stand-alone affirmed on the calibrated floor (3.0)"
++BAR_MARKS = (("hook_bar", HOOK_BAR_NOTE, "ruling 115 (2)"), ("lineup_bar", LINEUP_BAR_NOTE, "ruling 116"),
++             ("stand_alone_bar", STAND_ALONE_BAR_NOTE, "ruling 119"))
+ 
+ 
+ def _fit(text, limit):
+@@ -74,8 +79,8 @@ REGISTRY = os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.js
+ 
+ 
+ def bar_marks(mp):
+-    """Rulings 115 (2) / 116: the calibrated-bar lines a pin's moments_package carries, in BAR_MARKS order (the hook's,
+-    then the line-up's); [] when it carries none. Each mark is read on its own: an absent key adds nothing, a present
++    """Rulings 115 (2) / 116 / 119: the calibrated-bar lines a pin's moments_package carries, in BAR_MARKS order (the
++    hook's, the line-up's, then the stand-alone floor's); [] when it carries none. Each mark is read on its own: an absent key adds nothing, a present
+     one must be an object whose "note" is exactly its line, else ValueError (never a guess, never the mark's own
+     words). check_pin_only asks this before a render."""
+     if not isinstance(mp, dict):
+@@ -104,11 +109,11 @@ def bar_lines(run_dir, edl):
+             mp = json.load(f)["pin"].get("moments_package")
+         lines = bar_marks(mp)
+     except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
+-        raise RuntimeError(f"STOP: calibrated bar marks (rulings 115 (2) / 116): the pin record cannot say whether the "
+-                           f"package was marked ({type(e).__name__}: {e})") from None
++        raise RuntimeError(f"STOP: calibrated bar marks (rulings 115 (2) / 116 / 119): the pin record cannot say whether "
++                           f"the package was marked ({type(e).__name__}: {e})") from None
+     sha = mp.get("package_sha256") if lines else None
+     if lines and not (isinstance(sha, str) and sha and sha == edl.get("moments_package_sha256")):
+-        raise RuntimeError("STOP: calibrated bar marks (rulings 115 (2) / 116): the marked package in "
++        raise RuntimeError("STOP: calibrated bar marks (rulings 115 (2) / 116 / 119): the marked package in "
+                            "PINNED_DECISION.json is not the attested EDL's")
+     return lines
+ 
+@@ -129,7 +134,7 @@ def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
+              + (f" | {duration:.1f} s" if duration else ""),
+              f"Story: {edl.get('topic', '')}",
+              "Clips: " + ", ".join([edl["hook"].get("channel", "?")] + [c.get("channel", "?") for c in edl.get("clips", [])])]
+-    lines[2:2] = bar_lines(run_dir, edl)     # rulings 115 (2) / 116: one plain line per mark, under the run line
++    lines[2:2] = bar_lines(run_dir, edl)     # rulings 115 (2) / 116 / 119: one plain line per mark, under the run line
+                                              # (never cut by _fit)
+     if mon:                                # claude-fable audit batch 16 #1: never 'all passed' with a failure unsaid
+         lines.insert(1, "Monitoring (reported, not release-deciding): " + "; ".join(f"{k} {v}" for k, v in mon.items()))
+diff --git a/scripts/integrator/check_pin_only.py b/scripts/integrator/check_pin_only.py
+index 6f7d4a29..c73d8593 100644
+--- a/scripts/integrator/check_pin_only.py
++++ b/scripts/integrator/check_pin_only.py
+@@ -3,8 +3,9 @@ readable). Ready = type 'moments'; every required gate of the sealed inventory e
+ (pp-selectid's gate_problems); THEIR seal() recomputed over the pin's own bytes equals package_sha256 (and, when given,
+ the digest named on the READY line); main's pinned.validate_schema and the strict pinned.moments_vo accept it; and
+ main's edl_rules.takeaway_value (ruling 91's medley half, the live path's own check) passes it before launch; and
+-every calibrated bar mark the pin carries (hook_bar, ruling 115 (2); lineup_bar, ruling 116) is one the drop can print
+-(telegram.bar_marks).
++every calibrated bar mark the pin carries (hook_bar, ruling 115 (2); lineup_bar, ruling 116; stand_alone_bar, ruling 119)
++is one the drop can print (telegram.bar_marks); and the stand-alone floor's mark, when present, is exactly ruling
++119 (1)'s (stand_alone_floor.mark, checked first and on its own: the render's validate HOLDs on a malformed one).
+ Usage: python3 check_pin_only.py PIN.json [expected_sha_prefix]  -> exit 0 ready / 1 not (reason printed)"""
+ import importlib.util
+ import json
+@@ -20,6 +21,11 @@ def main(path, want=None):
+     mp = pin.get("moments_package") or {}
+     if mp.get("type") != "moments":
+         return False, f"type {mp.get('type')!r}, not 'moments'"
++    import stand_alone_floor                             # ruling 119 (1): the stand-alone floor's mark, whole and first
++    try:                                                 # (the render's validate would HOLD on a malformed one)
++        stand_alone_floor.mark(mp, len(pin.get("segments") or []))
++    except ValueError as e:
++        return False, f"stand-alone calibrated floor mark: {e}"
+     spec = importlib.util.spec_from_file_location("pp_pin", "/home/ultron/worktrees/pp-selectid/pipeline/package_pin.py")
+     PP = importlib.util.module_from_spec(spec)
+     spec.loader.exec_module(PP)
+@@ -56,7 +62,7 @@ def main(path, want=None):
+         return False, why91
+     out = [f"READY (pin only) {seal[:16]} title={mp.get('title')!r} intro={str(vo['intro'])[:80]!r} "
+            f"bridges after {[b['after_clip'] for b in vo['bridges']]} formats={formats}", f"  {why91}",
+-           f"  calibrated bars (rulings 115 (2) / 116): {'; '.join(bars) or 'no mark; the drop prints no bar line'}"]
++           f"  calibrated bars (rulings 115 (2) / 116 / 119): {'; '.join(bars) or 'no mark; the drop prints no bar line'}"]
+     out += [f"  {s['role']:4} {s['channel']} {s['video_id']} {s['start']:.2f}-{s['end']:.2f} ({s['end'] - s['start']:.2f} s)"
+             for s in segs]
+     return True, "\n".join(out)
