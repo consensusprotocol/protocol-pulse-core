@@ -1,0 +1,4 @@
+FAILED pipeline/test_stream_window.py::TestStreamStart::test_r14_a_stream_scheduled_days_ago_is_dated_by_when_it_aired
+FAILED pipeline/test_stream_window.py::TestStreamStart::test_the_start_comes_from_the_newest_snapshot
+FAILED pipeline/test_stream_window.py::TestStoreKeepsTheStart::test_every_snapshot_records_the_streams_release_timestamp
+3 failed, 6 passed in 0.71s
