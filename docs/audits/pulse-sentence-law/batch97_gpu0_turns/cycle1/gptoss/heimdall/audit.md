@@ -1,0 +1,34 @@
+# Heimdall audit
+
+**Question:** Review this diff: orchestrator order '13:05' ET Nov 16 (pp-ingest's request R13).
+- The transcript ingest's Whisper pass (cron */30) now WAITS for the GPU0 lease instead of deferring every video at once when it is busy.
+- Builds and renders keep priority over Whisper. A render's yield flag stops the pass. A build's GPU0 service that wants the card (the new gpu0_want module) keeps Whisper off the lease, and gets GPU0 at Whisper's next file boundary.
+
+Report ONLY defects you can prove by quoting the diff's code. Keep each "issue" under 60 words. If every check holds, answer PASS with no findings.
+
+FACTS (unchanged code, not in the diff):
+- gpu0.lease(owner, wait_s=0) is an exclusive flock lease. It raises gpu0.LeaseBusy (a Gpu0Stop) when another process holds it, and is re-entrant within one process.
+- local_judge.render_wants_gpu0() is True while a render launcher's yield flag is up. The launcher then waits until the lease is free before it launches; pulse_check_run exits 75 if the lease is held at launch.
+- ts.release_whisper() unloads Whisper.
+- The scorer and the pre-check are long-running services that poll every 5-10 s. Each serve_once takes the lease (wait_s=0) only around its GPU work, and releases it after gpu0.release_all().
+
+CHECKS:
+K1. Does the ingest ever hold the lease while it is WAITING, so that a render or a build could be kept out?
+K2. Is a render's yield flag read right before every lease attempt? Does it stop the pass, with the remaining videos deferred, both before the lease is taken and at every file boundary during the pass?
+K3. A build's fresh want (gpu0_want.wanted()):
+    - Does it keep the ingest from taking the lease?
+    - Does it make the ingest give GPU0 back at the next file boundary, with Whisper unloaded BEFORE the lease goes?
+    - Does Whisper then go on with the remaining videos?
+K4. Is the total waiting bounded by LEASE_WAIT_S per run? Is every lease attempt non-blocking (wait_s=0)?
+K5. Is Whisper unloaded and the lease released on every exit path: a normal end, a stop, an exception?
+K6. Do the scorer and the pre-check raise their want only while GPU work waits, and clear it when their queue is empty? Can a dead service's want hold Whisper back longer than FRESH_S?
+
+**Panel:** gptoss  |  **Cost:** $0.0002
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none
