@@ -1,0 +1,228 @@
+diff --git a/pipeline/model_providers.json b/pipeline/model_providers.json
+index 57c2e64..061a9f0 100644
+--- a/pipeline/model_providers.json
++++ b/pipeline/model_providers.json
+@@ -203,7 +203,6 @@
+     "xai:grok-4.20-0309-reasoning",
+     "anthropic:claude-opus-5-5",
+     "heimdall:deepseek/deepseek-v4.1-flash",
+-    "heimdall:z-ai/glm-5.3-flash",
+     "heimdall:qwen/qwen3.8-27b",
+     "local:gemma3:27b"
+    ],
+@@ -214,7 +213,6 @@
+     "xai:grok-4.20-0309-reasoning",
+     "anthropic:claude-opus-5-5",
+     "heimdall:deepseek/deepseek-v4.1-flash",
+-    "heimdall:z-ai/glm-5.3-flash",
+     "heimdall:qwen/qwen3.8-27b",
+     "local:gemma3:27b"
+    ],
+@@ -226,7 +224,6 @@
+     "anthropic:claude-opus-5-5",
+     "xai:grok-4.20-0309-reasoning",
+     "heimdall:deepseek/deepseek-v4.1-flash",
+-    "heimdall:z-ai/glm-5.3-flash",
+     "heimdall:qwen/qwen3.8-27b",
+     "local:gemma3:27b"
+    ],
+@@ -263,7 +260,6 @@
+     "xai:grok-4.20-0309-reasoning",
+     "anthropic:claude-opus-5-5",
+     "heimdall:deepseek/deepseek-v4.1-flash",
+-    "heimdall:z-ai/glm-5.3-flash",
+     "heimdall:qwen/qwen3.8-27b"
+    ],
+    "what": "moments.exclusion_verdict: the hard exclusions of law L-u on one moment in its context"
+@@ -273,7 +269,6 @@
+     "anthropic:claude-opus-5-5",
+     "xai:grok-4.20-0309-reasoning",
+     "heimdall:deepseek/deepseek-v4.1-flash",
+-    "heimdall:z-ai/glm-5.3-flash",
+     "heimdall:qwen/qwen3.8-27b",
+     "local:gemma3:27b"
+    ],
+@@ -284,7 +279,6 @@
+     "xai:grok-4.20-0309-reasoning",
+     "anthropic:claude-opus-5-5",
+     "heimdall:deepseek/deepseek-v4.1-flash",
+-    "heimdall:z-ai/glm-5.3-flash",
+     "heimdall:qwen/qwen3.8-27b",
+     "local:gemma3:27b"
+    ],
+@@ -322,7 +316,6 @@
+   },
+   "heimdall_first": {
+    "context_verdict": [
+-    "heimdall:z-ai/glm-5.3-flash",
+     "heimdall:deepseek/deepseek-v4.1-flash",
+     "xai:grok-4.20-0309-reasoning"
+    ],
+@@ -331,42 +324,35 @@
+     "heimdall:deepseek/deepseek-v4.1-flash"
+    ],
+    "fidelity_verdict": [
+-    "heimdall:z-ai/glm-5.3-flash",
+     "heimdall:qwen/qwen3.8-27b",
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "exclusion_verdict": [
+-    "heimdall:z-ai/glm-5.3-flash",
+     "heimdall:deepseek/deepseek-v4.1-flash",
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "speaker_verdict": [
+     "xai:grok-4.20-0309-reasoning",
+     "heimdall:deepseek/deepseek-v4.1-flash",
+-    "heimdall:z-ai/glm-5.3-flash",
+     "heimdall:qwen/qwen3.8-27b"
+    ],
+    "viewer_takeaway": [
+     "xai:grok-4.20-0309-reasoning",
+     "heimdall:deepseek/deepseek-v4.1-flash",
+-    "heimdall:z-ai/glm-5.3-flash",
+     "heimdall:qwen/qwen3.8-27b"
+    ],
+    "context_verdict:step_a_first": [
+-    "heimdall:z-ai/glm-5.3-flash",
+     "heimdall:deepseek/deepseek-v4.1-flash",
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "context_verdict:step_a_second": [
+     "xai:grok-4.20-0309-reasoning",
+     "heimdall:deepseek/deepseek-v4.1-flash",
+-    "heimdall:z-ai/glm-5.3-flash",
+     "google:gemini-2.5-pro",
+     "local_judge:gemma3:27b"
+    ],
+    "context_verdict:step_c": [
+     "xai:grok-4.20-0309-reasoning",
+-    "heimdall:z-ai/glm-5.3-flash",
+     "heimdall:deepseek/deepseek-v4.1-flash"
+    ],
+    "coherence_verdict:hook": [
+@@ -381,8 +367,7 @@
+    ],
+    "coherence_verdict:coherence": [
+     "xai:grok-4.20-0309-reasoning",
+-    "heimdall:deepseek/deepseek-v4.1-flash",
+-    "heimdall:z-ai/glm-5.3-flash"
++    "heimdall:deepseek/deepseek-v4.1-flash"
+    ]
+   },
+   "plan_b": {
+@@ -461,8 +446,7 @@
+    ],
+    "context_verdict:step_c": [
+     "xai:grok-4.20-0309-reasoning",
+-    "heimdall:deepseek/deepseek-v4.1-flash",
+-    "heimdall:z-ai/glm-5.3-flash"
++    "heimdall:deepseek/deepseek-v4.1-flash"
+    ],
+    "coherence_verdict:hook": [
+     "xai:grok-4.20-0309-reasoning"
+@@ -476,6 +460,7 @@
+   "ruling_115": "RULING 115 (orchestrator 13:24 ET Nov 15), amending 85 / 88 / 96 for the HOOK only: the hook job is asked ALONE (one candidate a call) at production's seed by GROK, and Grok alone, in every routing (heimdall_first, today, plan_b): the calibrated floors (pipeline/hook_calibration.json, hook_bar.py) are Grok's, so no other model may decide a hook while Grok is out (no rating = no hook, law L-m). qwen answers every hook in SHADOW (recorded, never deciding; proof_ledger: shadow 'coherence_verdict:hook'). A hook passes when each of scroll / alone / setup is at least its floor.",
+   "ruling_96": "RULING 96 (orchestrator 01:40 ET Nov 14), FINAL until re-measured: HOOK qwen -> glm -> deepseek -> Grok; FIDELITY glm -> qwen -> Grok; EXCLUSION glm -> deepseek -> Grok; STEP A the Heimdall verdict first as the filter (glm first for speed: 45 s median against deepseek's 277 s; deepseek second; qwen third as failover, before Grok), Grok confirms what passes; STEP C, CLIPS-ALONE, COHERENCE, STEP B, SPEAKER, VISION: Grok first. qwen is never first where it failed an anchor. Re-run the replay monthly or when a Heimdall model changes; a type goes back to Grok first if its agreement falls under Grok's own self-agreement.",
+   "ruling_0612": "ORCHESTRATOR RULINGS 06:12 ET Nov 14 (the builder's two routing questions): (1) THE COHERENCE GAP: glm is coherence's LAST fallback, after Grok and after ruling 96's deepseek, which stays second (glm agreed with Grok on 94 % of the replay's coherence decisions, with one anchor failure in the whole table); an out-of-contract glm answer is no verdict (providers.call_parsed moves on, and after glm the chain is spent: fail closed). CLIPS-ALONE has NO Heimdall fallback (52-62 % on the replay): with Grok down it goes to Plan B's other outside family (Gemini's fenced key; OpenAI and Anthropic are frozen legs here; in Plan B mode the router already reads Plan B's coherence list, Grok -> Gemini -> OpenAI -> Anthropic), else it fails closed. (2) QWEN IS STRUCK FROM STEP A (mostly errors; 9 of 43 refusals let through): the first screen glm -> deepseek -> Grok, Grok's confirmation Grok -> glm -> deepseek, and the role's default list (no live caller: every step-A call names its kind) as the first screen. NOT CHANGED: the coherence role's default list (Grok -> deepseek), which the spotlight's closing-line and the medley's takeaway value verdicts use: the replay has no data for them (the orchestrator is asked, STATE 06:14, question B). Every other list is ruling 96's, unchanged.",
+-  "ruling_102": "RULING 102 (orchestrator 13:02 ET Nov 14): STEP_A_UNAVAILABLE MUST NEVER END A CLIP. Step A's second family, in order: Heimdall deepseek (its own deadline, ruling 100) -> Heimdall glm -> GEMINI through the fenced key -> the local gemma3:27b on GPU0 through the integrator's judge service (ruling 87's last resort, recorded as such on the pin and on STATE line 1). Grok stays first (ruling 88 (c): Grok confirms a Heimdall pass); the second verdict is still off the first verdict's vendor and family. The first leg that ANSWERS gives the second verdict; an unavailable leg moves on at once, it is never a refusal and never cached. Only if no leg answers is the clip held for THIS build (STEP_A_HELD, not refused), and retried next build."
++  "ruling_102": "RULING 102 (orchestrator 13:02 ET Nov 14): STEP_A_UNAVAILABLE MUST NEVER END A CLIP. Step A's second family, in order: Heimdall deepseek (its own deadline, ruling 100) -> Heimdall glm -> GEMINI through the fenced key -> the local gemma3:27b on GPU0 through the integrator's judge service (ruling 87's last resort, recorded as such on the pin and on STATE line 1). Grok stays first (ruling 88 (c): Grok confirms a Heimdall pass); the second verdict is still off the first verdict's vendor and family. The first leg that ANSWERS gives the second verdict; an unavailable leg moves on at once, it is never a refusal and never cached. Only if no leg answers is the clip held for THIS build (STEP_A_HELD, not refused), and retried next build.",
++  "ruling_119": "RULING 119 (3) (orchestrator 08:25 ET Nov 16): glm-5.3-flash is overloaded on the gateway (the Heimdall team confirmed a worker shortage): OUT OF EVERY CHAIN until the orchestrator says; each list closes up, so the next member takes glm's place (no model is added: qwen stays struck from step A by the 06:12 Nov 14 rulings, and ruling 96's other lists are kept as they stand). A held moment moves to the next member at once inside the router (a missed deadline or an open breaker is never a refusal); step A's first screen is now deepseek -> Grok."
+  }
+ }
+diff --git a/tests/package/test_ledger_build.py b/tests/package/test_ledger_build.py
+index 091079d..8364c0a 100644
+--- a/tests/package/test_ledger_build.py
++++ b/tests/package/test_ledger_build.py
+@@ -816,13 +816,14 @@ class TestDriverRefuses(unittest.TestCase):
+                          before)
+ 
+     def test_ruling_82_the_context_verdict_chain(self):
+-        """RULING 82 (20:02 Nov 13): with the frozen legs out, step A's chain is xAI first, then the three Heimdall
+-        models in the ruled order; glm-5.3-flash is a Heimdall back-end of its own family."""
++        """RULING 82 (20:02 Nov 13): with the frozen legs out, step A's chain is xAI first, then the Heimdall models in
++        the ruled order; RULING 119 (08:25 Nov 16): glm out of every chain, the list closes up. glm-5.3-flash stays a
++        Heimdall back-end of its own family (the orchestrator may put it back)."""
+         sys.path.insert(0, HERE)
+         import proof_ly as PL
+         self.assertEqual(PL.chains()["context_verdict"], ["xai:grok-4.20-0309-reasoning",
+                                                           "heimdall:deepseek/deepseek-v4.1-flash",
+-                                                          "heimdall:z-ai/glm-5.3-flash", "heimdall:qwen/qwen3.8-27b"])
++                                                          "heimdall:qwen/qwen3.8-27b"])
+         with open(os.path.join(REPO, "pipeline", "model_providers.json")) as f:
+             glm = json.load(f)["backends"]["heimdall:z-ai/glm-5.3-flash"]
+         self.assertEqual((glm["vendor"], glm["family"], glm["model"]), ("heimdall", "glm", "z-ai/glm-5.3-flash"))
+@@ -927,26 +928,28 @@ class TestRuling85NoXai(unittest.TestCase):
+ 
+     def test_ruling_96s_lists_and_xai_answering_nothing(self):
+         """RULING 96 (01:40 ET Nov 14), final until re-measured, on ruling 88's structure, as the orchestrator's 06:12
+-        rulings amend it: (1) glm last for coherence, no Heimdall model for clips-alone; (2) qwen struck from step A."""
++        rulings amend it: (1) glm last for coherence, no Heimdall model for clips-alone; (2) qwen struck from step A.
++        RULING 119 (08:25 ET Nov 16): glm out of EVERY chain (overloaded), each list closing up; nothing is added."""
+         PL = self.pl()
+         X, DS, G, Q = ("xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash",
+                        "heimdall:z-ai/glm-5.3-flash", "heimdall:qwen/qwen3.8-27b")
+         GEM = "google:gemini-2.5-pro"
+         ch = PL.chains("heimdall_first")
+-        self.assertEqual(ch["fidelity_verdict"], [G, Q, X])                       # 96: glm -> qwen -> Grok
+-        self.assertEqual(ch["exclusion_verdict"], [G, DS, X])                      # 96: glm -> deepseek -> Grok
+-        self.assertEqual(ch["context_verdict:step_a_first"], [G, DS, X])           # 06:12 (2): glm -> deepseek, no qwen
+-        self.assertEqual(ch["context_verdict:step_a_second"], [X, DS, G, GEM, "local_judge:gemma3:27b"])   # (c) Grok
+-        #   confirms; RULING 102 (13:02 Nov 14): then deepseek, glm, Gemini, the local judge (ruling 87's last resort)
+-        self.assertEqual(ch["context_verdict"], [G, DS, X])                        # the role's default: no qwen either
++        self.assertEqual(ch["fidelity_verdict"], [Q, X])                          # 96 without glm: qwen -> Grok
++        self.assertEqual(ch["exclusion_verdict"], [DS, X])                         # 96 without glm: deepseek -> Grok
++        self.assertEqual(ch["context_verdict:step_a_first"], [DS, X])              # 06:12 (2) without glm; no qwen
++        self.assertEqual(ch["context_verdict:step_a_second"], [X, DS, GEM, "local_judge:gemma3:27b"])   # (c) Grok
++        #   confirms; RULING 102 (13:02 Nov 14): then deepseek, Gemini, the local judge (ruling 87's last resort)
++        self.assertEqual(ch["context_verdict"], [DS, X])                           # the role's default: no qwen either
++        self.assertNotIn(G, [b for v in list(ch.values()) + list(PL.chains("today").values()) for b in v])   # 119
+         self.assertNotIn(Q, [b for k, v in ch.items() if k.startswith("context_verdict:step_a") for b in v])
+         self.assertEqual(ch["coherence_verdict:hook"], [X])                        # RULING 115 (amends 88 (b) / 96 for
+         #   the hook): Grok ALONE, the rater the calibrated floors are measured on (qwen in shadow, never deciding)
+-        self.assertEqual(ch["context_verdict:step_c"], [X, G, DS])                 # (b) / (e): no qwen
+-        self.assertEqual(ch["coherence_verdict:coherence"], [X, DS, G])           # 06:12 (1): glm the LAST fallback
++        self.assertEqual(ch["context_verdict:step_c"], [X, DS])                    # (b) / (e): no qwen; 119: no glm
++        self.assertEqual(ch["coherence_verdict:coherence"], [X, DS])              # 06:12 (1)'s last fallback glm: out
+         self.assertEqual(ch["coherence_verdict:clips_alone"], [X, GEM])           # 06:12 (1): no Heimdall model
+         today = PL.chains("today")                                                 # (d) and (e) hold today too
+-        self.assertEqual((today["coherence_verdict:coherence"], today["context_verdict:step_c"]), ([X, DS], [X, DS, G]))
++        self.assertEqual((today["coherence_verdict:coherence"], today["context_verdict:step_c"]), ([X, DS], [X, DS]))
+         self.assertEqual((today["coherence_verdict:hook"], PL.plan_b_chains()["coherence_verdict:hook"]), ([X], [X]))
+         #   RULING 115: the hook is Grok's alone in every routing (no uncalibrated rating is ever cached as a hook's)
+         r = PL.P.Router(env_path="/nonexistent", routing="heimdall_first", chains=ch)
+@@ -957,24 +960,22 @@ class TestRuling85NoXai(unittest.TestCase):
+             ("fidelity_verdict", None), ("exclusion_verdict", None), ("speaker_verdict", None),
+             ("viewer_takeaway", None), ("context_verdict", "step_c"), ("coherence_verdict", "hook"),
+             ("coherence_verdict", "clips_alone"), ("coherence_verdict", "coherence"))}
+-        self.assertEqual(got, {("fidelity_verdict", None): G, ("exclusion_verdict", None): G,
+-                               ("speaker_verdict", None): G, ("viewer_takeaway", None): G,
+-                               ("context_verdict", "step_c"): G, ("coherence_verdict", "hook"): None,   # ruling 115:
+-                               #   no other model decides a hook while Grok is out (no rating = no hook, law L-m)
++        self.assertEqual(got, {("fidelity_verdict", None): Q, ("exclusion_verdict", None): None,   # RULING 119: glm
++                               ("speaker_verdict", None): Q, ("viewer_takeaway", None): Q,         # out, deepseek
++                               ("context_verdict", "step_c"): None, ("coherence_verdict", "hook"): None,   # writes,
++                               #   Grok is down: no leg is a fail-closed no verdict (law L-m), never another model
+                                ("coherence_verdict", "clips_alone"): GEM,          # Plan B's other outside family
+-                               ("coherence_verdict", "coherence"): G})            # the gap is closed: glm, last
++                               ("coherence_verdict", "coherence"): None})         # glm, its last fallback, is out
+         r.down[GEM] = "Gemini answers nothing (the test)"
+         self.assertIsNone(self.pick(r, "coherence_verdict", {w.vendor}, {w.family}, kind="clips_alone"))   # closed
+-        r.down[G] = "glm answers nothing (the test)"
+-        self.assertIsNone(self.pick(r, "coherence_verdict", {w.vendor}, {w.family}, kind="coherence"))     # closed
+-        del r.down[G], r.down[GEM]
++        del r.down[GEM]
++        self.assertIsNone(self.pick(r, "context_verdict", {w.vendor}, {w.family}, kind="step_a_first"))   # held
++        #   (ruling 102): deepseek writes and Grok is down, so step A's first screen has no leg for THIS build
++        r.down.clear()
+         first = self.pick(r, "context_verdict", {w.vendor}, {w.family}, kind="step_a_first")
+         fb = r.backends[first]
+         second = self.pick(r, "context_verdict", {fb.vendor}, {fb.family}, kind="step_a_second")
+-        self.assertEqual((first, second), (G, DS))                                 # two Heimdall families, Grok down
+-        r.down.clear()
+-        second = self.pick(r, "context_verdict", {fb.vendor}, {fb.family}, kind="step_a_second")
+-        self.assertEqual(second, X)                                                # (c): Grok confirms when it answers
++        self.assertEqual((first, second), (X, DS))                                 # Grok's first, deepseek's off it
+ 
+ if __name__ == "__main__":
+     unittest.main()

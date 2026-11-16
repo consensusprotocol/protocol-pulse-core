@@ -1,0 +1,37 @@
+pp-selectid: RULING 119 (3) (orchestrator 08:25 ET Nov 16): glm out of every chain. Files: pipeline/model_providers.json
+(the chains; one note), tests/package/test_ledger_build.py (the two tests that pin the lists).
+
+THE ORDER, verbatim: "(3) glm-5.3-flash is overloaded on the gateway (the Heimdall team confirmed a worker shortage) and held
+a moment at step A's first screen twice this morning: take glm out of every chain until I say; the next healthy member takes
+its place. A held moment is retried on the next member at once, not after the breaker."
+
+THE CHANGE: heimdall:z-ai/glm-5.3-flash is removed from EVERY chain in the config (16 lists: the roles' default chains and
+the heimdall_first / today routing lists); each list closes up, so the next member takes glm's place. NOTHING IS ADDED:
+qwen stays struck from step A (the orchestrator's 06:12 Nov 14 rulings: "QWEN IS STRUCK FROM STEP A (mostly errors; 9 of 43
+refusals let through)"), and ruling 96's other lists stand as they are without glm. The back-end's own definition stays
+(the orchestrator may put it back). Lists after the change (heimdall_first): step A's first screen deepseek -> Grok; step
+A's second Grok -> deepseek -> Gemini -> the local judge; context_verdict deepseek -> Grok; fidelity qwen -> Grok;
+exclusion deepseek -> Grok; speaker and viewer_takeaway Grok -> deepseek -> qwen; step C Grok -> deepseek; coherence Grok
+-> deepseek; today's step C Grok -> deepseek.
+
+"RETRIED ON THE NEXT MEMBER AT ONCE": unchanged code already does it: Router.call moves to the chain's next member at once
+when one misses its deadline, is breaker-open (Router._skip / breaker_open) or answers out of contract
+(providers.call_parsed); ruling 102 holds a moment only when no member answers. The moment held this morning
+(c03abcbc, builds 39-40) was held because glm missed its deadline, deepseek is the writer's family (skipped by L-x), and
+Grok's step-A upper bound ($0.83) does not fit the day's dollar left (ruling 118's cap: SpendLimit, recorded in its
+package). After this change, while deepseek writes and the day's dollar is short, step A's first screen still holds new
+moments (deepseek skipped, Grok capped): that is stated, not hidden; the free panel (ruling 118) is the fix for it.
+
+UNCHANGED GUARDS (not in the diff): providers.Router._skip (pipeline/providers.py, "def _skip": the writer's vendor /
+family); Router.call's failover; package.prescreen's ruling-102 hold (pipeline/package.py "def held_why" / "def
+is_held"); ruling 118's cap (Router._reserve).
+
+TESTS: test_ledger_build test_ruling_82_the_context_verdict_chain (the 'today' context chain Grok -> deepseek -> qwen) and
+test_ruling_96s_lists_and_xai_answering_nothing (every heimdall_first and today list as above; glm in NO list; with Grok down
+and deepseek writing, the router's own picks: fidelity, speaker, takeaway -> qwen; exclusion, step C, the hook, coherence ->
+no leg (fail closed); clips-alone -> Gemini; step A's first screen -> no leg (held); with Grok up: Grok first, deepseek
+second off it). Mutations C1-C3 (glm back in step A's first screen; qwen put in glm's place in step A; glm back first for
+fidelity) after a control run. All suite files.
+
+PLEASE CHECK: (1) that glm is in no chain and nothing was added; (2) that no list breaks a standing ruling (06:12: no qwen
+in step A; 96; 102; 115: the hook Grok alone); (3) the tests.

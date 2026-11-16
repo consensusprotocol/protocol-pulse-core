@@ -816,13 +816,14 @@ class TestDriverRefuses(unittest.TestCase):
                          before)
 
     def test_ruling_82_the_context_verdict_chain(self):
-        """RULING 82 (20:02 Nov 13): with the frozen legs out, step A's chain is xAI first, then the three Heimdall
-        models in the ruled order; glm-5.3-flash is a Heimdall back-end of its own family."""
+        """RULING 82 (20:02 Nov 13): with the frozen legs out, step A's chain is xAI first, then the Heimdall models in
+        the ruled order; RULING 119 (08:25 Nov 16): glm out of every chain, the list closes up. glm-5.3-flash stays a
+        Heimdall back-end of its own family (the orchestrator may put it back)."""
         sys.path.insert(0, HERE)
         import proof_ly as PL
         self.assertEqual(PL.chains()["context_verdict"], ["xai:grok-4.20-0309-reasoning",
                                                           "heimdall:deepseek/deepseek-v4.1-flash",
-                                                          "heimdall:z-ai/glm-5.3-flash", "heimdall:qwen/qwen3.8-27b"])
+                                                          "heimdall:qwen/qwen3.8-27b"])
         with open(os.path.join(REPO, "pipeline", "model_providers.json")) as f:
             glm = json.load(f)["backends"]["heimdall:z-ai/glm-5.3-flash"]
         self.assertEqual((glm["vendor"], glm["family"], glm["model"]), ("heimdall", "glm", "z-ai/glm-5.3-flash"))
@@ -927,26 +928,28 @@ class TestRuling85NoXai(unittest.TestCase):
 
     def test_ruling_96s_lists_and_xai_answering_nothing(self):
         """RULING 96 (01:40 ET Nov 14), final until re-measured, on ruling 88's structure, as the orchestrator's 06:12
-        rulings amend it: (1) glm last for coherence, no Heimdall model for clips-alone; (2) qwen struck from step A."""
+        rulings amend it: (1) glm last for coherence, no Heimdall model for clips-alone; (2) qwen struck from step A.
+        RULING 119 (08:25 ET Nov 16): glm out of EVERY chain (overloaded), each list closing up; nothing is added."""
         PL = self.pl()
         X, DS, G, Q = ("xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash",
                        "heimdall:z-ai/glm-5.3-flash", "heimdall:qwen/qwen3.8-27b")
         GEM = "google:gemini-2.5-pro"
         ch = PL.chains("heimdall_first")
-        self.assertEqual(ch["fidelity_verdict"], [G, Q, X])                       # 96: glm -> qwen -> Grok
-        self.assertEqual(ch["exclusion_verdict"], [G, DS, X])                      # 96: glm -> deepseek -> Grok
-        self.assertEqual(ch["context_verdict:step_a_first"], [G, DS, X])           # 06:12 (2): glm -> deepseek, no qwen
-        self.assertEqual(ch["context_verdict:step_a_second"], [X, DS, G, GEM, "local_judge:gemma3:27b"])   # (c) Grok
-        #   confirms; RULING 102 (13:02 Nov 14): then deepseek, glm, Gemini, the local judge (ruling 87's last resort)
-        self.assertEqual(ch["context_verdict"], [G, DS, X])                        # the role's default: no qwen either
+        self.assertEqual(ch["fidelity_verdict"], [Q, X])                          # 96 without glm: qwen -> Grok
+        self.assertEqual(ch["exclusion_verdict"], [DS, X])                         # 96 without glm: deepseek -> Grok
+        self.assertEqual(ch["context_verdict:step_a_first"], [DS, X])              # 06:12 (2) without glm; no qwen
+        self.assertEqual(ch["context_verdict:step_a_second"], [X, DS, GEM, "local_judge:gemma3:27b"])   # (c) Grok
+        #   confirms; RULING 102 (13:02 Nov 14): then deepseek, Gemini, the local judge (ruling 87's last resort)
+        self.assertEqual(ch["context_verdict"], [DS, X])                           # the role's default: no qwen either
+        self.assertNotIn(G, [b for v in list(ch.values()) + list(PL.chains("today").values()) for b in v])   # 119
         self.assertNotIn(Q, [b for k, v in ch.items() if k.startswith("context_verdict:step_a") for b in v])
         self.assertEqual(ch["coherence_verdict:hook"], [X])                        # RULING 115 (amends 88 (b) / 96 for
         #   the hook): Grok ALONE, the rater the calibrated floors are measured on (qwen in shadow, never deciding)
-        self.assertEqual(ch["context_verdict:step_c"], [X, G, DS])                 # (b) / (e): no qwen
-        self.assertEqual(ch["coherence_verdict:coherence"], [X, DS, G])           # 06:12 (1): glm the LAST fallback
+        self.assertEqual(ch["context_verdict:step_c"], [X, DS])                    # (b) / (e): no qwen; 119: no glm
+        self.assertEqual(ch["coherence_verdict:coherence"], [X, DS])              # 06:12 (1)'s last fallback glm: out
         self.assertEqual(ch["coherence_verdict:clips_alone"], [X, GEM])           # 06:12 (1): no Heimdall model
         today = PL.chains("today")                                                 # (d) and (e) hold today too
-        self.assertEqual((today["coherence_verdict:coherence"], today["context_verdict:step_c"]), ([X, DS], [X, DS, G]))
+        self.assertEqual((today["coherence_verdict:coherence"], today["context_verdict:step_c"]), ([X, DS], [X, DS]))
         self.assertEqual((today["coherence_verdict:hook"], PL.plan_b_chains()["coherence_verdict:hook"]), ([X], [X]))
         #   RULING 115: the hook is Grok's alone in every routing (no uncalibrated rating is ever cached as a hook's)
         r = PL.P.Router(env_path="/nonexistent", routing="heimdall_first", chains=ch)
@@ -957,24 +960,22 @@ class TestRuling85NoXai(unittest.TestCase):
             ("fidelity_verdict", None), ("exclusion_verdict", None), ("speaker_verdict", None),
             ("viewer_takeaway", None), ("context_verdict", "step_c"), ("coherence_verdict", "hook"),
             ("coherence_verdict", "clips_alone"), ("coherence_verdict", "coherence"))}
-        self.assertEqual(got, {("fidelity_verdict", None): G, ("exclusion_verdict", None): G,
-                               ("speaker_verdict", None): G, ("viewer_takeaway", None): G,
-                               ("context_verdict", "step_c"): G, ("coherence_verdict", "hook"): None,   # ruling 115:
-                               #   no other model decides a hook while Grok is out (no rating = no hook, law L-m)
+        self.assertEqual(got, {("fidelity_verdict", None): Q, ("exclusion_verdict", None): None,   # RULING 119: glm
+                               ("speaker_verdict", None): Q, ("viewer_takeaway", None): Q,         # out, deepseek
+                               ("context_verdict", "step_c"): None, ("coherence_verdict", "hook"): None,   # writes,
+                               #   Grok is down: no leg is a fail-closed no verdict (law L-m), never another model
                                ("coherence_verdict", "clips_alone"): GEM,          # Plan B's other outside family
-                               ("coherence_verdict", "coherence"): G})            # the gap is closed: glm, last
+                               ("coherence_verdict", "coherence"): None})         # glm, its last fallback, is out
         r.down[GEM] = "Gemini answers nothing (the test)"
         self.assertIsNone(self.pick(r, "coherence_verdict", {w.vendor}, {w.family}, kind="clips_alone"))   # closed
-        r.down[G] = "glm answers nothing (the test)"
-        self.assertIsNone(self.pick(r, "coherence_verdict", {w.vendor}, {w.family}, kind="coherence"))     # closed
-        del r.down[G], r.down[GEM]
+        del r.down[GEM]
+        self.assertIsNone(self.pick(r, "context_verdict", {w.vendor}, {w.family}, kind="step_a_first"))   # held
+        #   (ruling 102): deepseek writes and Grok is down, so step A's first screen has no leg for THIS build
+        r.down.clear()
         first = self.pick(r, "context_verdict", {w.vendor}, {w.family}, kind="step_a_first")
         fb = r.backends[first]
         second = self.pick(r, "context_verdict", {fb.vendor}, {fb.family}, kind="step_a_second")
-        self.assertEqual((first, second), (G, DS))                                 # two Heimdall families, Grok down
-        r.down.clear()
-        second = self.pick(r, "context_verdict", {fb.vendor}, {fb.family}, kind="step_a_second")
-        self.assertEqual(second, X)                                                # (c): Grok confirms when it answers
+        self.assertEqual((first, second), (X, DS))                                 # Grok's first, deepseek's off it
 
 if __name__ == "__main__":
     unittest.main()
