@@ -1552,6 +1552,15 @@ def hook_own(m):
                 rule=HOOK_OWN_RULE)
 
 
+def opens_16x9(m):
+    """RULING 123 (2): this moment opens a package sealed formats ['16x9']: the build found no hook for both formats
+    and its own frames are refused only by ruling 93's 9:16 crop (visual_pin.crop_only), still so on its sealed record.
+    Only as the HOOK: as a clip its ruling-93 refusal stands."""
+    import visual_pin as VP
+    v = m.get("visual") or {}
+    return bool(m.get("sixteen_nine_only")) and v.get("formats") == ["16x9"] and bool(VP.crop_only(v))
+
+
 def can_open(m):
     if m.get("visual_hook_block"):                       # RULING 70: its picture may not open the medley
         return False
@@ -3088,6 +3097,15 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         #   ruling 93: its own frames, per clip; both reasons when both hold (audit 0003 C1, glm)
         if why_v:
             m["visual_hook_block"] = blocked[m["moment_id"]] = why_v
+    sixteen = {}
+    if rated_open and not [m for m in rated_open if not m.get("visual_hook_block")]:   # RULING 123 (2): no hook opens
+        for m in rated_open:                                                          # both formats: one refused ONLY
+            why_c = VP.crop_only(m.get("visual"))                                     # by ruling 93's 9:16 crop opens
+            if why_c:                                                                 # a package sealed 16:9 only
+                m.pop("visual_hook_block", None)
+                blocked.pop(m["moment_id"], None)
+                m["visual"] = dict(m["visual"], formats=["16x9"])                     # sealed: package_pin.formats
+                m["sixteen_nine_only"] = sixteen[m["moment_id"]] = why_c
     out["visual"] = out_visual
     if rated_open:
         log(f"  visual (ruling 70): {len(rated_open)} hook(s) seen, {len(blocked)} may not open"
@@ -3101,7 +3119,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                         "bar_invalid": live_why,
                         "ratings": {mid: rated[mid] for mid in sorted(rated)}, "best": best,
                         "passing": [m["moment_id"] for m in hook_order([m for m in cleared.values() if can_open(m)])],
-                        "visual_blocked": blocked}
+                        "visual_blocked": blocked,
+                        **({"sixteen_nine_only": {"hooks": sixteen, "note": "no hook passes for both formats: a hook "
+                            "refused only by ruling 93's 9:16 crop opens a package sealed formats ['16x9'] (ruling "
+                            "123 (2))"}} if sixteen else {})}
     log(f"  hooks (ruling 59): {len(openers)} can open, {len(rated)} rated, {len(out['hook_pool']['passing'])} pass "
         f"{HB.text(live)}" + (f" [{live_why}]" if live_why else "") + (f"; NOT RATED: {hook_err}" if hook_err else "")
         + f" ({time.time() - t0:.0f} s)")
@@ -3386,7 +3407,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                   if value is not None else {})}}
         see(order)                                        # RULING 70: the added clip is seen too
         vbad = {m["moment_id"]: VP.layout_block(m.get("visual")) for m in order      # ruling 93 (not measured
-                if VP.layout_block(m.get("visual"))}                                 # included, law L-m)
+                if VP.layout_block(m.get("visual")) and not (m is order[0] and opens_16x9(m))}   # included, law L-m)
         if vbad:
             note["why_not"] = ("rulings 70 / 93: " + "; ".join(f"{k}: {v}" for k, v in vbad.items()))[:400]
             return None
@@ -3652,7 +3673,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                 see(segs)                                   # RULING 70: every clip seen before any write is paid
                 vbad = {m["moment_id"]: ((m.get("visual") or {}).get("why") if not (m.get("visual") or {}).get(
                             "measured") else None) or VP.layout_block(m.get("visual"))     # ruling 93: per clip (L-m
-                        for m in segs if VP.layout_block(m.get("visual"))}                 # included); the cause named
+                        for m in segs if VP.layout_block(m.get("visual"))                  # included); the cause named
+                        and not (m is segs[0] and opens_16x9(m))}          # ruling 123 (2): the 16:9-only HOOK only
                 if vbad or segs[0].get("visual_hook_block"):
                     vbad = vbad or {segs[0]["moment_id"]: segs[0]["visual_hook_block"]}
                     dropped |= set(vbad)

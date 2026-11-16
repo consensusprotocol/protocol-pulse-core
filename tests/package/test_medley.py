@@ -4672,5 +4672,64 @@ class TestRuling118StoryFirst(unittest.TestCase):
             PK.load_candidate(rec)
 
 
+class TestRuling123SixteenNineHook(unittest.TestCase):
+    """RULING 123 (2) (orchestrator 14:05 ET Nov 16): when no hook passes for both formats, a hook whose ONLY refusal is
+    ruling 93's 9:16 crop (a lower third the crop would cut mid-word) opens a package sealed formats ['16x9']; a
+    both-format hook always wins; as a clip its refusal stands."""
+    MS = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
+    CUT = {"burned_in": [{"kind": "lower_third", "text": "IN THIS EPISODE...", "whole_in_16x9": True, "in_9x16": "cut",
+                          "covers_speaker": False}]}
+
+    def rec(self, **kw):
+        base = {"version": VP.VERSION, "measured": True, "flags": [], "burned_in": self.CUT["burned_in"]}
+        return dict(base, **kw)
+
+    def test_only_a_crop_refusal_qualifies(self):
+        lt = self.CUT["burned_in"][0]
+        self.assertTrue(VP.crop_only(self.rec()).startswith("a lower_third the 9:16 crop would cut through mid-word"))
+        for bad in (dict(lt, kind="ticker"), dict(lt, covers_speaker=True), dict(lt, whole_in_16x9=False)):
+            self.assertIsNone(VP.crop_only(self.rec(burned_in=[bad])), bad)
+        self.assertIsNone(VP.crop_only(self.rec(burned_in=[dict(lt, in_9x16="whole")])))    # nothing refused at all
+        self.assertIsNone(VP.crop_only(self.rec(version="visual-2")))
+        self.assertIsNone(VP.crop_only(self.rec(measured=False)))
+        tp = {"kind": "third_person", "text": "a still of a CEO", "why": "w"}
+        self.assertIsNone(VP.crop_only(self.rec(flags=[tp])))                                # ruling 70 still refuses
+
+    def test_with_no_both_format_hook_it_opens_a_package_sealed_16x9_only(self):
+        out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], visuals={"h": self.CUT}).run()
+        self.assertIn("h", out["hook_pool"]["sixteen_nine_only"]["hooks"])
+        self.assertEqual(out["hook_pool"]["passing"], ["h"])
+        self.assertIsNotNone(out["package"])
+        self.assertEqual(out["package"]["segments"][0]["moment_id"], "h")
+        import package_pin
+        self.assertEqual(package_pin.formats_of(out["package"]["segments"]), ["16x9"])        # sealed 16:9 only
+
+    def test_a_both_format_hook_always_wins(self):
+        out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], visuals={"h": self.CUT},
+                  hooks={"x": (5, 5, 5)}).run()
+        self.assertNotIn("sixteen_nine_only", out["hook_pool"])
+        self.assertEqual(out["hook_pool"]["passing"], ["x"])
+        self.assertIn("h", out["hook_pool"]["visual_blocked"])
+
+    def test_a_second_16x9_only_opener_is_still_refused_as_a_clip(self):
+        """Two hooks refused only by the crop and none for both formats: both may open, but in a line-up the one that
+        plays as a CLIP keeps its ruling-93 refusal (only the hook is excused)."""
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)] * 4, [None, None],
+                  visuals={"h": self.CUT, "x": self.CUT}, hooks={"x": (5, 5, 5)})
+        out = rig.run()
+        self.assertEqual(set(out["hook_pool"]["sixteen_nine_only"]["hooks"]), {"h", "x"})
+        self.assertTrue(any("x: ruling 93" in (r.get("why") or "") for r in out["tried"]), out["tried"])
+        for lu in rig.write_calls:                                    # nothing is written for a line-up with x as a clip
+            self.assertNotIn("x", lu[0][1:])
+        self.assertTrue(out["package"] is None or "x" not in [s["moment_id"] for s in out["package"]["segments"][1:]])
+
+    def test_as_a_clip_its_refusal_stands(self):
+        out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)] * 3, [None, None],
+                  visuals={"y": self.CUT}).run()
+        self.assertNotIn("sixteen_nine_only", out["hook_pool"])
+        self.assertTrue(out["package"] is None or "y" not in [s["moment_id"] for s in out["package"]["segments"]])
+        self.assertTrue(any("y: ruling 93" in (r.get("why") or "") for r in out["tried"]), out["tried"])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -309,6 +309,24 @@ def layout_block(rec):
     return (f"ruling 93 ({len(why)} item(s)): " + "; ".join(why))[:600] if why else None   # (audit 0003 C2)
 
 
+def crop_only(rec):
+    """RULING 123 (2) (orchestrator 14:05 ET Nov 16): the reason a measured record's ONLY refusal is ruling 93's 9:16 crop
+    (a lower third or bug wholly inside the 16:9, not over the speaker, that the 9:16 crop would cut through mid-word),
+    or None. Such a clip shows whole in 16:9: as a HOOK, when no hook passes for both formats, it may open a package
+    sealed formats ['16x9'] (package.build). A ticker or crawl, a part outside the 16:9, a speaker covered, a third
+    person (ruling 70) or an unmeasured or older record: None."""
+    if not ((rec or {}).get("measured") is True and rec.get("version") == VERSION and
+            isinstance(rec.get("burned_in"), list)) or hook_block(rec) is not None or \
+            not RENDER_16X9_ONLY:                # the exception makes a 16:9-only pin: only when the render can pass one
+        return None
+    why = [burned_block(x) for x in rec["burned_in"]]
+    cut = [x for x, w in zip(rec["burned_in"], why) if w]
+    if not cut or any(x["kind"] in RUNNING or x["kind"] == CAPTION or not x["whole_in_16x9"] or x["in_9x16"] != "cut"
+                      or x["covers_speaker"] for x in cut):
+        return None
+    return "; ".join(w for w in why if w)
+
+
 def hook_block(rec):
     """Why this clip may not be the HOOK (ruling 70), or None."""
     if not (rec or {}).get("measured"):

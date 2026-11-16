@@ -1,0 +1,165 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 52c1dfe..038c3c9 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -1552,6 +1552,15 @@ def hook_own(m):
+                 rule=HOOK_OWN_RULE)
+ 
+ 
++def opens_16x9(m):
++    """RULING 123 (2): this moment opens a package sealed formats ['16x9']: the build found no hook for both formats
++    and its own frames are refused only by ruling 93's 9:16 crop (visual_pin.crop_only), still so on its sealed record.
++    Only as the HOOK: as a clip its ruling-93 refusal stands."""
++    import visual_pin as VP
++    v = m.get("visual") or {}
++    return bool(m.get("sixteen_nine_only")) and v.get("formats") == ["16x9"] and bool(VP.crop_only(v))
++
++
+ def can_open(m):
+     if m.get("visual_hook_block"):                       # RULING 70: its picture may not open the medley
+         return False
+@@ -3088,6 +3097,15 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         #   ruling 93: its own frames, per clip; both reasons when both hold (audit 0003 C1, glm)
+         if why_v:
+             m["visual_hook_block"] = blocked[m["moment_id"]] = why_v
++    sixteen = {}
++    if rated_open and not [m for m in rated_open if not m.get("visual_hook_block")]:   # RULING 123 (2): no hook opens
++        for m in rated_open:                                                          # both formats: one refused ONLY
++            why_c = VP.crop_only(m.get("visual"))                                     # by ruling 93's 9:16 crop opens
++            if why_c:                                                                 # a package sealed 16:9 only
++                m.pop("visual_hook_block", None)
++                blocked.pop(m["moment_id"], None)
++                m["visual"] = dict(m["visual"], formats=["16x9"])                     # sealed: package_pin.formats
++                m["sixteen_nine_only"] = sixteen[m["moment_id"]] = why_c
+     out["visual"] = out_visual
+     if rated_open:
+         log(f"  visual (ruling 70): {len(rated_open)} hook(s) seen, {len(blocked)} may not open"
+@@ -3101,7 +3119,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                         "bar_invalid": live_why,
+                         "ratings": {mid: rated[mid] for mid in sorted(rated)}, "best": best,
+                         "passing": [m["moment_id"] for m in hook_order([m for m in cleared.values() if can_open(m)])],
+-                        "visual_blocked": blocked}
++                        "visual_blocked": blocked,
++                        **({"sixteen_nine_only": {"hooks": sixteen, "note": "no hook passes for both formats: a hook "
++                            "refused only by ruling 93's 9:16 crop opens a package sealed formats ['16x9'] (ruling "
++                            "123 (2))"}} if sixteen else {})}
+     log(f"  hooks (ruling 59): {len(openers)} can open, {len(rated)} rated, {len(out['hook_pool']['passing'])} pass "
+         f"{HB.text(live)}" + (f" [{live_why}]" if live_why else "") + (f"; NOT RATED: {hook_err}" if hook_err else "")
+         + f" ({time.time() - t0:.0f} s)")
+@@ -3386,7 +3407,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                                   if value is not None else {})}}
+         see(order)                                        # RULING 70: the added clip is seen too
+         vbad = {m["moment_id"]: VP.layout_block(m.get("visual")) for m in order      # ruling 93 (not measured
+-                if VP.layout_block(m.get("visual"))}                                 # included, law L-m)
++                if VP.layout_block(m.get("visual")) and not (m is order[0] and opens_16x9(m))}   # included, law L-m)
+         if vbad:
+             note["why_not"] = ("rulings 70 / 93: " + "; ".join(f"{k}: {v}" for k, v in vbad.items()))[:400]
+             return None
+@@ -3652,7 +3673,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                 see(segs)                                   # RULING 70: every clip seen before any write is paid
+                 vbad = {m["moment_id"]: ((m.get("visual") or {}).get("why") if not (m.get("visual") or {}).get(
+                             "measured") else None) or VP.layout_block(m.get("visual"))     # ruling 93: per clip (L-m
+-                        for m in segs if VP.layout_block(m.get("visual"))}                 # included); the cause named
++                        for m in segs if VP.layout_block(m.get("visual"))                  # included); the cause named
++                        and not (m is segs[0] and opens_16x9(m))}          # ruling 123 (2): the 16:9-only HOOK only
+                 if vbad or segs[0].get("visual_hook_block"):
+                     vbad = vbad or {segs[0]["moment_id"]: segs[0]["visual_hook_block"]}
+                     dropped |= set(vbad)
+diff --git a/pipeline/visual_pin.py b/pipeline/visual_pin.py
+index a3d31e6..24ed7a1 100644
+--- a/pipeline/visual_pin.py
++++ b/pipeline/visual_pin.py
+@@ -309,6 +309,24 @@ def layout_block(rec):
+     return (f"ruling 93 ({len(why)} item(s)): " + "; ".join(why))[:600] if why else None   # (audit 0003 C2)
+ 
+ 
++def crop_only(rec):
++    """RULING 123 (2) (orchestrator 14:05 ET Nov 16): the reason a measured record's ONLY refusal is ruling 93's 9:16 crop
++    (a lower third or bug wholly inside the 16:9, not over the speaker, that the 9:16 crop would cut through mid-word),
++    or None. Such a clip shows whole in 16:9: as a HOOK, when no hook passes for both formats, it may open a package
++    sealed formats ['16x9'] (package.build). A ticker or crawl, a part outside the 16:9, a speaker covered, a third
++    person (ruling 70) or an unmeasured or older record: None."""
++    if not ((rec or {}).get("measured") is True and rec.get("version") == VERSION and
++            isinstance(rec.get("burned_in"), list)) or hook_block(rec) is not None or \
++            not RENDER_16X9_ONLY:                # the exception makes a 16:9-only pin: only when the render can pass one
++        return None
++    why = [burned_block(x) for x in rec["burned_in"]]
++    cut = [x for x, w in zip(rec["burned_in"], why) if w]
++    if not cut or any(x["kind"] in RUNNING or x["kind"] == CAPTION or not x["whole_in_16x9"] or x["in_9x16"] != "cut"
++                      or x["covers_speaker"] for x in cut):
++        return None
++    return "; ".join(w for w in why if w)
++
++
+ def hook_block(rec):
+     """Why this clip may not be the HOOK (ruling 70), or None."""
+     if not (rec or {}).get("measured"):
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 4e1f1b8..c7d52b5 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -4672,5 +4672,64 @@ class TestRuling118StoryFirst(unittest.TestCase):
+             PK.load_candidate(rec)
+ 
+ 
++class TestRuling123SixteenNineHook(unittest.TestCase):
++    """RULING 123 (2) (orchestrator 14:05 ET Nov 16): when no hook passes for both formats, a hook whose ONLY refusal is
++    ruling 93's 9:16 crop (a lower third the crop would cut mid-word) opens a package sealed formats ['16x9']; a
++    both-format hook always wins; as a clip its refusal stands."""
++    MS = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
++    CUT = {"burned_in": [{"kind": "lower_third", "text": "IN THIS EPISODE...", "whole_in_16x9": True, "in_9x16": "cut",
++                          "covers_speaker": False}]}
++
++    def rec(self, **kw):
++        base = {"version": VP.VERSION, "measured": True, "flags": [], "burned_in": self.CUT["burned_in"]}
++        return dict(base, **kw)
++
++    def test_only_a_crop_refusal_qualifies(self):
++        lt = self.CUT["burned_in"][0]
++        self.assertTrue(VP.crop_only(self.rec()).startswith("a lower_third the 9:16 crop would cut through mid-word"))
++        for bad in (dict(lt, kind="ticker"), dict(lt, covers_speaker=True), dict(lt, whole_in_16x9=False)):
++            self.assertIsNone(VP.crop_only(self.rec(burned_in=[bad])), bad)
++        self.assertIsNone(VP.crop_only(self.rec(burned_in=[dict(lt, in_9x16="whole")])))    # nothing refused at all
++        self.assertIsNone(VP.crop_only(self.rec(version="visual-2")))
++        self.assertIsNone(VP.crop_only(self.rec(measured=False)))
++        tp = {"kind": "third_person", "text": "a still of a CEO", "why": "w"}
++        self.assertIsNone(VP.crop_only(self.rec(flags=[tp])))                                # ruling 70 still refuses
++
++    def test_with_no_both_format_hook_it_opens_a_package_sealed_16x9_only(self):
++        out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], visuals={"h": self.CUT}).run()
++        self.assertIn("h", out["hook_pool"]["sixteen_nine_only"]["hooks"])
++        self.assertEqual(out["hook_pool"]["passing"], ["h"])
++        self.assertIsNotNone(out["package"])
++        self.assertEqual(out["package"]["segments"][0]["moment_id"], "h")
++        import package_pin
++        self.assertEqual(package_pin.formats_of(out["package"]["segments"]), ["16x9"])        # sealed 16:9 only
++
++    def test_a_both_format_hook_always_wins(self):
++        out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], visuals={"h": self.CUT},
++                  hooks={"x": (5, 5, 5)}).run()
++        self.assertNotIn("sixteen_nine_only", out["hook_pool"])
++        self.assertEqual(out["hook_pool"]["passing"], ["x"])
++        self.assertIn("h", out["hook_pool"]["visual_blocked"])
++
++    def test_a_second_16x9_only_opener_is_still_refused_as_a_clip(self):
++        """Two hooks refused only by the crop and none for both formats: both may open, but in a line-up the one that
++        plays as a CLIP keeps its ruling-93 refusal (only the hook is excused)."""
++        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)] * 4, [None, None],
++                  visuals={"h": self.CUT, "x": self.CUT}, hooks={"x": (5, 5, 5)})
++        out = rig.run()
++        self.assertEqual(set(out["hook_pool"]["sixteen_nine_only"]["hooks"]), {"h", "x"})
++        self.assertTrue(any("x: ruling 93" in (r.get("why") or "") for r in out["tried"]), out["tried"])
++        for lu in rig.write_calls:                                    # nothing is written for a line-up with x as a clip
++            self.assertNotIn("x", lu[0][1:])
++        self.assertTrue(out["package"] is None or "x" not in [s["moment_id"] for s in out["package"]["segments"][1:]])
++
++    def test_as_a_clip_its_refusal_stands(self):
++        out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)] * 3, [None, None],
++                  visuals={"y": self.CUT}).run()
++        self.assertNotIn("sixteen_nine_only", out["hook_pool"])
++        self.assertTrue(out["package"] is None or "y" not in [s["moment_id"] for s in out["package"]["segments"]])
++        self.assertTrue(any("y: ruling 93" in (r.get("why") or "") for r in out["tried"]), out["tried"])
++
++
+ if __name__ == "__main__":
+     unittest.main()

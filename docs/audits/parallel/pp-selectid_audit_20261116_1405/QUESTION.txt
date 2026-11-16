@@ -1,0 +1,34 @@
+pp-selectid: RULING 123 (2) (orchestrator 14:05 ET Nov 16), A 16:9-ONLY HOOK. Files: pipeline/visual_pin.py (crop_only),
+pipeline/package.py (the hook pool's exception; opens_16x9; the two per-segment layout checks), tests/package/test_medley.py.
+
+THE ORDER, verbatim: "(2) THE HOOK YOU ALREADY HAVE: What Bitcoin Did 44a6d503 passes the calibrated bar and is refused as
+an opener only because the 9:16 crop would cut a lower third. Ruling 93 as amended already lets a clip with burned-in text
+go 16:9-ONLY. Apply the same to a hook: when no hook passes for both formats, a hook whose only refusal is ruling 93's 9:16
+crop may open a package sealed formats ['16x9'], marked, exactly as the Blockware spotlight was (PBX posted that one in
+16:9 and was content). A both-format hook always wins over a 16:9-only one. If this needs code, audit-first."
+WHY CODE: ruling 93 as amended makes a burned CAPTION cut by the 9:16 16:9-only (visual_pin.formats, unchanged); a lower
+third or bug the 9:16 crop would cut is still a refusal in any role (visual_pin.burned_block, layout_block, unchanged).
+The integrator confirms a pin sealed formats ["16x9"] renders 16:9 only through its existing path (batch 86, the
+Blockware spotlight) and needs nothing new.
+
+THE CHANGE:
+- visual_pin.crop_only(rec): the reason when a measured, current-version record's ONLY refusal is ruling 93's 9:16 crop
+  (every refusing burned-in item a lower third or bug wholly inside the 16:9, not over the speaker, cut by the 9:16), no
+  ruling-70 third person (hook_block None), else None.
+- build(): after the rated openers' frames are judged, ONLY when none of them may open (every one has
+  visual_hook_block), each whose refusal crop_only names loses its block, its record gains formats ["16x9"] (so
+  package_pin.formats_of seals the pin ["16x9"], unchanged) and sixteen_nine_only; hook_pool records them with a note.
+- opens_16x9(m): that flag, the record's ["16x9"], and crop_only still naming it. The two per-segment layout checks
+  (the no-voice order's and the line-up's, before any write) skip ruling 93 for that moment ONLY as the hook (order[0],
+  segs[0]); as a clip its refusal stands.
+
+UNCHANGED GUARDS: the hook bar, G17a, the opener rule (can_open); hook_block (ruling 70) still refuses; the visual gate
+row (inventory: every clip measured); package_pin.formats_of; the render's own checks.
+
+TESTS: crop_only (a crop-cut lower third qualifies; a ticker, a speaker covered, a part outside the 16:9, nothing refused,
+an older or unmeasured record, a third person: none); a build with no both-format hook opens on the 16:9-only hook and
+seals ["16x9"]; a both-format hook wins (the other stays refused); as a clip the moment is still refused. Mutations
+W1-W6 after a control run.
+
+PLEASE CHECK: (1) that the exception fires only when no both-format hook exists; (2) that only the hook is excused, and
+only for the 9:16 crop; (3) that the seal says 16:9 only; (4) the tests.
