@@ -941,3 +941,67 @@ def send_alarm(issue, sentence, waiting_since, send=None, now=None, log_path=Non
         f.write(json.dumps(rec) + "\n")
         f.flush()
     return rec["message_id"]
+
+
+# ==============================================================
+# THE SESSION WATCHDOG'S LINE (orchestrator order 05:55 ET Nov 16; PBX: guard against loops and wasted tokens): ONE
+# plain text line to the approval chat headed 'WATCHDOG' (session, what, since when), from tools/session_watchdog.py.
+# At most one per session (key) an hour, and none 00:00-07:00 ET except IDLE WITH WORK and SPEND, enforced HERE (a
+# file lock over an append-only log). No media; it never touches a run, a release or the alarm's log.
+# ==============================================================
+
+WATCHDOG_HEAD = "WATCHDOG "
+WATCHDOG_GAP_S = 3600
+WATCHDOG_KINDS = ("STUCK", "LOOP", "LONG_TURN", "IDLE_WITH_WORK", "CONTEXT", "SPEND")
+WATCHDOG_NIGHT_KINDS = ("IDLE_WITH_WORK", "SPEND")      # the order's (4) and (6): the only lines sent 00:00-07:00 ET
+WATCHDOG_MAX = 600
+WATCHDOG_LOG = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "pulse_check",
+                            "watchdog_lines.jsonl")
+
+
+class WatchdogRefused(RuntimeError):
+    """The watchdog's line was NOT sent: the hour, the night, or a malformed line (order 05:55 ET Nov 16)."""
+
+
+def send_watchdog(key, kinds, line, send=None, now=None, log_path=None):
+    """One watchdog line -> its Telegram message id. key: what the hour is counted for (a session, or 'spend:<level>');
+    kinds: the findings the line carries (WATCHDOG_KINDS); line: '<session>: <what> (since <time>)', headed here.
+    Refused, with nothing sent: an empty or multi-line key or line; no kind or an unknown one; 00:00-07:00 ET unless
+    every kind is in WATCHDOG_NIGHT_KINDS; a line for the same key inside WATCHDOG_GAP_S. A send whose outcome is
+    unknown still counts (it is never resent); only an explicit Telegram refusal (SendRejected) does not."""
+    import fcntl
+    import time
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    key, line, kinds = str(key).strip(), str(line).strip(), tuple(kinds or ())
+    if not key or not line or any(c in key + line for c in "\r\n"):
+        raise WatchdogRefused("a watchdog line needs a one-line key and line")
+    if not kinds or any(k not in WATCHDOG_KINDS for k in kinds):
+        raise WatchdogRefused(f"unknown finding kind(s): {list(kinds)}")
+    t = time.time() if now is None else now
+    if datetime.fromtimestamp(t, ZoneInfo("America/New_York")).hour < 7 and not set(kinds) <= set(WATCHDOG_NIGHT_KINDS):
+        raise WatchdogRefused("00:00-07:00 ET: only IDLE_WITH_WORK and SPEND lines are sent")
+    text = WATCHDOG_HEAD + line
+    if len(text) > WATCHDOG_MAX:
+        text = text[:WATCHDOG_MAX - 3].rstrip() + "..."
+    send = send or (lambda s: _send_bot_api("message", None, {"text": s}))
+    path = log_path or WATCHDOG_LOG
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "a+") as f:
+        fcntl.flock(f, fcntl.LOCK_EX)                    # one sender at a time, across processes
+        f.seek(0)
+        past = [json.loads(x) for x in f if x.strip()]
+        if any(p.get("key") == key and t - p["at"] < WATCHDOG_GAP_S for p in past):
+            raise WatchdogRefused(f"a watchdog line about {key!r} was sent within the hour")
+        rec = {"at": t, "key": key, "kinds": list(kinds), "text": text, "message_id": None, "outcome": "unknown"}
+        try:
+            rec["message_id"], rec["outcome"] = send(text), "sent"
+        except SendRejected:
+            raise                                       # a definite non-send: not recorded, may be retried
+        except BaseException:
+            f.write(json.dumps(rec) + "\n")             # the outcome is unknown: it counts, never resent
+            f.flush()
+            raise
+        f.write(json.dumps(rec) + "\n")
+        f.flush()
+    return rec["message_id"]
