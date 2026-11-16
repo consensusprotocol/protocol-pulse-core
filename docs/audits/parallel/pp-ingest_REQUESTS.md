@@ -162,3 +162,13 @@ CUDA_VISIBLE_DEVICES=1 under law L-r). Until then pp-ingest takes each Whisper r
    is re-read at most once per run; the fresh snapshot is appended to meta_history.jsonl (meta.json stays
    write-once); ensure_meta returns the newest snapshot. pp-ingest reads only the pipeline's transcript records (never
    its meta.json), so nothing changes here; the r119 sweep takes f0NnJM63Ffc's record within a minute of it landing.
+   FIXED BY THE INTEGRATOR (batch 98, main tree 8f8bccf1, 13:55 ET): before a skip, transcript_store re-reads a record
+   stored as is_live / is_upcoming / post_live (at most once per 20 min a video); the snapshot goes to
+   meta_history.jsonl (meta.json stays write-once); ensure_meta returns the newest snapshot; a hung or missing yt-dlp is
+   a logged failure and the stored state stands for that run. The 14:00 run re-read 14 such records: 9 was_live, 3
+   post_live, 2 still live. Scott Melker f0NnJM63Ffc read again at 14:01:46 ET: was_live, 3,679 s, captions refused
+   (429), due for Whisper, deferred by that run's 4-hour audio budget (--max-whisper-hours 4, a cron setting) behind
+   Bitcoin Magazine oqB8dx7VgOQ (111 min), BTC Sessions nvEftLDdab4 (76) and Digital Asset News Sps9le2Z5RI (48), in the
+   ingest's own priority order. pp-ingest asks no cron change: the ingest orders by tier (Melker is tier 2, the other
+   deferred are mostly tier 3), so the 14:30 run takes it early; each run's budget (about 8 h of audio an hour) is well
+   above the day's upload volume; the watcher mines it within a minute of its record (r119).
