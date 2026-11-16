@@ -10,18 +10,18 @@
   "audits": 2.5,
   "mining": 1.0
  },
- "builds": 0.453656,
+ "builds": 0.518602,
  "audits": 0.0,
  "audit_rows": {},
  "mining": 0.0,
  "checks": 0.0,
  "others": {},
- "all_in": 0.453656,
+ "all_in": 0.518602,
  "heimdall_not_capped": {
-  "builds": 0.010983,
+  "builds": 0.014304,
   "audits": 0.0,
   "checks": 0.0,
-  "total": 0.010983
+  "total": 0.014304
  },
  "videos_sealed": 0
 }

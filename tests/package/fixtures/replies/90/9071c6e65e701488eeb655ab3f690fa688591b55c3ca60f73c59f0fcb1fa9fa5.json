@@ -1,0 +1,296 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "c9e2d4d5629eace66b228aa1e60098f2a9d1d4c7d7fb5b10b62389ecd6026e80",
+ "result": {
+  "text": "which is what happens when miners turn off machines that are no longer profitable. And one of the biggest public miners, Mara, disclosed that it sold about 40% of its Bitcoin in recent weeks, more than a billion dollars' worth. The last time difficulty adjust-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.14,
+    "end": 13.54,
+    "text": "which is what happens when miners turn off machines that are no longer profitable. And one of the biggest public miners, Mara, disclosed that it sold about 40% of its Bitcoin in recent weeks, more than a billion dollars' worth. The last time difficulty adjust-"
+   }
+  ],
+  "words": [
+   {
+    "text": "which",
+    "start": 0.14,
+    "end": 0.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 0.28,
+    "end": 0.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 0.4,
+    "end": 0.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "happens",
+    "start": 0.56,
+    "end": 0.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 0.96,
+    "end": 1.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "miners",
+    "start": 1.12,
+    "end": 1.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "turn",
+    "start": 1.58,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "off",
+    "start": 1.82,
+    "end": 1.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "machines",
+    "start": 2.02,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 2.5,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 2.6,
+    "end": 2.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 2.72,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "longer",
+    "start": 2.9,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "profitable.",
+    "start": 3.28,
+    "end": 3.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 4.38,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 4.52,
+    "end": 4.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 4.64,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.74,
+    "end": 4.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "biggest",
+    "start": 4.84,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "public",
+    "start": 5.18,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "miners,",
+    "start": 5.52,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Mara,",
+    "start": 6.04,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "disclosed",
+    "start": 6.72,
+    "end": 7.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 7.22,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 7.38,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sold",
+    "start": 7.52,
+    "end": 7.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 7.72,
+    "end": 8.039,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "40%",
+    "start": 8.24,
+    "end": 8.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 8.92,
+    "end": 8.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 9.0,
+    "end": 9.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 9.2,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 9.72,
+    "end": 9.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "recent",
+    "start": 9.88,
+    "end": 10.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "weeks,",
+    "start": 10.28,
+    "end": 10.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 10.6,
+    "end": 10.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 10.74,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 10.92,
+    "end": 10.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 11.08,
+    "end": 11.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dollars'",
+    "start": 11.48,
+    "end": 11.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worth.",
+    "start": 11.9,
+    "end": 12.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 12.36,
+    "end": 12.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "last",
+    "start": 12.46,
+    "end": 12.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time",
+    "start": 12.66,
+    "end": 12.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "difficulty",
+    "start": 12.88,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "adjust-",
+    "start": 13.32,
+    "end": 13.54,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 13.56
+ },
+ "usd": 0.002712,
+ "seconds": 0.89,
+ "recorded_at": "2026-11-16T03:01:12Z"
+}

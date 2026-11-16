@@ -1223,5 +1223,103 @@
    "why": "sobriety to mining news",
    "backend": "xai:grok-4.20-0309-reasoning"
   }
+ },
+ "3cf57474d26c75e69571f12af79d020acfa404d7ccedc9c45f3502f093066b21:0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "ledger to self-improvement shift",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "3cf57474d26c75e69571f12af79d020acfa404d7ccedc9c45f3502f093066b21:289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "ownership to institutions pushback",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:7ac190ecc22e3bfa1104545ce23733fe40487ec7c4c26faf7d72901ed2b87fa2:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "self-improvement to mining difficulty",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no context for I don't care",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no context for nothing changed",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "7ac190ecc22e3bfa1104545ce23733fe40487ec7c4c26faf7d72901ed2b87fa2:0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "mining news to self-improvement",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "7ac190ecc22e3bfa1104545ce23733fe40487ec7c4c26faf7d72901ed2b87fa2:289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "mining to institutional resistance",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:7ac190ecc22e3bfa1104545ce23733fe40487ec7c4c26faf7d72901ed2b87fa2:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "resistance to mining difficulty",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "don't care about pushback",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "no change despite pushback",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "method after fundamentals same",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "fundamentals to institutions",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:0abf2b29f64f728ab98159599440a32d2c9758ac88b86cc6a6bcc2389d55f8d7:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "method after nothing changed",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:289f39683ec7e9d0f9a3cecb59e84149c0e712d7212006eed00c03feee5a7a7f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no change to pushback",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
  }
 }

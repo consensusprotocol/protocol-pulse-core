@@ -28671,5 +28671,229 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "c2417f60d989426e6a0e~trim:713b517691be20d20e978f352a59b43ccc8b00529c7b5422c40597bc557bd17e:178f853304b97d26d04709612654fa3f4f8d0802be666f8ea2b2357503178f3d:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "c2417f60d989426e6a0e~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "their",
+     "refers_to": "Bitcoin owners who simply hold",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "last week",
+     "refers_to": "the week of the Bitcoin crash and liquidations discussed earlier",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "last week",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "It is undisputed that nobody who simply owns their Bitcoin was forced to sell last week.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "f6a3e905900af38fe2e8:852f043d4e7d1a21a4b57cd02b3292ea9033b9e857e8debafffc775fd62ffafb:804287759421b1fcf8029c4ea4288da98ca19b42cdeb82b11d3e26d52bc1143d:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "f6a3e905900af38fe2e8",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "these",
+     "refers_to": "the recent ~25% Bitcoin drawdowns and liquidations",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "selling Bitcoin to cover a big expense",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "especially if you bought much higher or your cost basis is higher than the current price",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "It is not fun to ride these drawdowns especially if one's cost basis is above the current price, selling Bitcoin to cover a big expense is the move most holders regret, and it is not the only option.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "7b106fda94a4c0dd7562:b44879cf4e032d85028855b556b49e0a2b5a5f9269bd2de724dbc3a469ca149c:f3e4d75b197b86ed773899ff99e833cca9b54fe075c1bcf03fa568b31f80aa03:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "7b106fda94a4c0dd7562",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Mara",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "its",
+     "refers_to": "Mara",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in recent weeks",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "One of the biggest public miners, Mara, disclosed selling about 40% of its Bitcoin in recent weeks for more than a billion dollars.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Stripes Matt Cole, who's on my show this week",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "7b106fda94a4c0dd7562",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "one",
+     "refers_to": "Mara",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Mara",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "its",
+     "refers_to": "Mara",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in recent weeks",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "One of the biggest public miners, Mara, disclosed that it sold about 40% of its Bitcoin in recent weeks, worth more than a billion dollars.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "on my show this week; It's something I've warned against on this show countless times.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "7b106fda94a4c0dd7562~trim:ee2eafa0fb3b3cfd6b60aa9e1413a41818e18149206f1e239fd145c6347d2098:999c7a2dcf2d0e7d5e652032207dbafac1f2cafd22ca452e3c99a007ce187bf7:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "7b106fda94a4c0dd7562~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Mara",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "its",
+     "refers_to": "Mara",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in recent weeks",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "One of the biggest public miners, Mara, disclosed selling about 40% of its Bitcoin in recent weeks for more than a billion dollars.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Stripes Matt Cole, who's on my show this week",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "7b106fda94a4c0dd7562~trim",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "one",
+     "refers_to": "Mara",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Mara",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "its",
+     "refers_to": "Mara",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in recent weeks",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "One of the biggest public miners, Mara, disclosed that it sold about 40% of its Bitcoin in recent weeks, worth more than a billion dollars.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "on my show this week; It's something I've warned against on this show countless times.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }
