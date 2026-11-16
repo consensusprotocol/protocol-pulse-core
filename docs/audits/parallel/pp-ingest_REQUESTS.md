@@ -142,3 +142,16 @@ CUDA_VISIBLE_DEVICES=1 under law L-r). Until then pp-ingest takes each Whisper r
    scoring calls, or to let the pipeline's ingest use GPU1 when GPU0 is leased (builds first). pp-ingest: mine each
    video within 10 minutes of its transcript, Bitcoin channels first; design (not build) a second caption source that
    does not depend on this machine's YouTube quota, and say what the 429s correlate with.
+   DONE BY THE INTEGRATOR (13:4x ET Nov 16; main tree e2b3fa65 and a2dc8ec9): the transcript ingest's Whisper now
+   WAITS for GPU0 (polls every 5 s holding nothing, at most 1500 s a run) instead of deferring at once; renders (their
+   yield flag) and builds (pipeline/gpu0_want: the scorer and the pre-check raise it while work waits) come first;
+   each run record carries "waited_for_gpu0_s". CORRECTION of this request's reading: the lease file records its LAST
+   owner; the scorer never holds GPU0 idle (no process held the lease at 12:56); the 12:30 run's one no-wait attempt met
+   a 73-candidate scorer burst (12:28-12:34). pp-ingest read the file's record as a current holder without checking the
+   flock: wrong. Bitcoin Magazine uAvmynMSVhM was transcribed by the 13:00 run.
+   STILL OPEN (the integrator's, found 13:45 ET): Scott Melker f0NnJM63Ffc is skipped every run as "live_status
+   is_live" from the pipeline's meta.json written at 09:30 ET while the stream was live (is_live, no duration, captions
+   only live_chat) and never refreshed; this watcher's own probe at 13:25 ET sees it was_live, 3,679 s, with English
+   automatic captions listed (its downloads refused by the 429s). INGEST-FAIL-01's pattern (a meta written while live
+   freezes the video); proposed: re-read the metadata of a video whose stored live_status is is_live / is_upcoming /
+   post_live before skipping it (transcript_store's meta_history is its refresh path).
