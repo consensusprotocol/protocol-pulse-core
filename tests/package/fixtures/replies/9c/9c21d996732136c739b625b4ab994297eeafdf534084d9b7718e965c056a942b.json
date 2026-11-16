@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 880,
+ "system": null,
+ "prompt": "You judge JOINS between clips of 60-second videos made of other channels' own words (each clip is a\nperson's own words from a show; the shows were not in one conversation). In each PAIR, clip A plays and clip B follows\nit at once, with NO narration between them. Judge each pair ALONE: the pairs are not one video, and nothing else plays\nbefore or between A and B.\n\nTHE CLIPS:\nCLIP id=\"c1\" (on screen: Simply Bitcoin): \"Bitcoin is money that lives on nodes, thousands of computers running all across the world, thousands of computers that have a ledger, a blockchain, a time chain of the truth, of all of the transactions that have ever happened on the network, who owns what, how much do people own?\"\nCLIP id=\"c2\" (on screen: Bitcoin Magazine): \"The thing that a lot of people miss is that, you know, I would say majority of the ETF buyers wouldn't have bought Bitcoin at all if there wasn't an ETF product. So those buyers, which I believe represent, you know, over 80 % of the ETF buyers, they would have had zero exposure to Bitcoin anyways.\"\nCLIP id=\"c3\" (on screen: Scott Melker): \"Bitcoin, I've noticed, has become this, because it's this honeypot where people are trying to hack it every single day.\"\nCLIP id=\"c4\" (on screen: Digital Asset News): \"With Bitcoin, I find it really interesting that nothing about Bitcoin changed.\"\nCLIP id=\"c5\" (on screen: Digital Asset News): \"Truth is I don't care because the fundamentals of Bitcoin didn't change at all.\"\nCLIP id=\"c6\" (on screen: Simply Bitcoin): \"The whole point we're in Bitcoin is to expand our purchasing power. Like, that's the whole point.\"\nCLIP id=\"c7\" (on screen: Simply Bitcoin): \"Bitcoin is broken below $70,000. It's bounced off the 200 -week moving average as the fear returns to the bare market bottom levels.\"\nCLIP id=\"c8\" (on screen: Simply Bitcoin): \"Spend more time in Bitcoin, it'll take the drunk fat and stupid out of you. Like, that's just how it works.\"\n\nTHE PAIRS (A -> B):\nPAIR id=\"p1\": c1 -> c2\nPAIR id=\"p2\": c1 -> c3\nPAIR id=\"p3\": c1 -> c4\nPAIR id=\"p4\": c1 -> c5\nPAIR id=\"p5\": c1 -> c6\nPAIR id=\"p6\": c1 -> c7\nPAIR id=\"p7\": c1 -> c8\nPAIR id=\"p8\": c3 -> c7\n\nFor EACH pair, the join question (the previous clip is A, the next clip is B): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming from the previous clip's ending? Answer\n\"followable\": true or false, and \"why\": a few words.\nReturn ONLY this JSON object: {\"pairs\": {\"p1\": {\"followable\": true, \"why\": \"...\"}, \"p2\": {\"followable\": true, \"why\": \"...\"}, \"p3\": {\"followable\": true, \"why\": \"...\"}, \"p4\": {\"followable\": true, \"why\": \"...\"}, \"p5\": {\"followable\": true, \"why\": \"...\"}, \"p6\": {\"followable\": true, \"why\": \"...\"}, \"p7\": {\"followable\": true, \"why\": \"...\"}, \"p8\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\n\"pairs\": {\n\"p1\": {\"followable\": false, \"why\": \"abrupt shift to ETFs\"},\n\"p2\": {\"followable\": false, \"why\": \"tech to hacking unrelated\"},\n\"p3\": {\"followable\": false, \"why\": \"no context for 'changed'\"},\n\"p4\": {\"followable\": false, \"why\": \"no context for unchanged\"},\n\"p5\": {\"followable\": true, \"why\": \"purpose follows description\"},\n\"p6\": {\"followable\": false, \"why\": \"to unrelated price talk\"},\n\"p7\": {\"followable\": true, \"why\": \"benefit after explanation\"},\n\"p8\": {\"followable\": false, \"why\": \"hacking to price unclear\"}\n}\n}",
+ "usage": {
+  "in": 980,
+  "out": 3754,
+  "usd_reported": 0.0104756
+ },
+ "usd": 0.09875,
+ "seconds": 25.18,
+ "recorded_at": "2026-11-16T00:43:19Z"
+}

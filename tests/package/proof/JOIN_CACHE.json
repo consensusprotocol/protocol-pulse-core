@@ -1076,5 +1076,61 @@
    "why": "echoes no change",
    "backend": "xai:grok-4.20-0309-reasoning"
   }
+ },
+ "3cf57474d26c75e69571f12af79d020acfa404d7ccedc9c45f3502f093066b21:eb98c799c93e193e8175cea92d0ebfef0f4c6ecf0d8870bb67405ba84d1eccad:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "abrupt shift to ETFs",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "3cf57474d26c75e69571f12af79d020acfa404d7ccedc9c45f3502f093066b21:804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "tech to hacking unrelated",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "3cf57474d26c75e69571f12af79d020acfa404d7ccedc9c45f3502f093066b21:d8c741235dff93b4b6c469ba6e007ff1f98d5be52521c066746012fa47ce3ee1:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no context for 'changed'",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "3cf57474d26c75e69571f12af79d020acfa404d7ccedc9c45f3502f093066b21:ba19605ca86fce67407869d35e5ecf1c3dc7826fe7307c3eee4bbe03a75c205b:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no context for unchanged",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "3cf57474d26c75e69571f12af79d020acfa404d7ccedc9c45f3502f093066b21:064ba8c90cb34cfc4700b38947e63bd771b4c842693898dc294e5e095e92cc67:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "purpose follows description",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "3cf57474d26c75e69571f12af79d020acfa404d7ccedc9c45f3502f093066b21:11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "to unrelated price talk",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "3cf57474d26c75e69571f12af79d020acfa404d7ccedc9c45f3502f093066b21:bc3bd0e47a6f5da47072a52d116b5a6ce41f002880e9353d28dfaba15e06e13a:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "benefit after explanation",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "804c990d916da2ea0af4fd3d72c95a18d875aefaaa41ae63c41a7a7133afb516:11d42e7064da863476fabde0c7ea0417cda04607111e435de36dd0c110222a47:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "hacking to price unclear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
  }
 }

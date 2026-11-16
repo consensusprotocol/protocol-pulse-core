@@ -746,6 +746,161 @@
   },
   "version": "visual-1"
  },
+ "852da61da08ef2aa45ef:457.383-471.763:visual-3:cdf64c07761ca2f5": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     457.38
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "caption",
+    "text": "Bitcoin",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     458.38,
+     459.38
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "caption",
+    "text": "Bitcoin is money that lives on nodes",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     460.38
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "caption",
+    "text": "Thousands of computers running all across the",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     461.38
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "caption",
+    "text": "Thousands of computers running all across the world",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     457.38,
+     458.38,
+     459.38,
+     460.38,
+     461.38,
+     462.38,
+     463.38,
+     464.38,
+     465.38,
+     466.38,
+     467.38,
+     468.38,
+     469.38,
+     470.38,
+     471.38,
+     471.71
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "SIMPLY BITCOIN",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "SIMPLY BITCOIN"
+   },
+   {
+    "at": [
+     457.38
+    ],
+    "in_9x16": "whole",
+    "kind": "burned_caption",
+    "text": "Bitcoin"
+   },
+   {
+    "at": [
+     458.38,
+     459.38
+    ],
+    "in_9x16": "whole",
+    "kind": "burned_caption",
+    "text": "Bitcoin is money that lives on nodes"
+   },
+   {
+    "at": [
+     460.38
+    ],
+    "in_9x16": "whole",
+    "kind": "burned_caption",
+    "text": "Thousands of computers running all across the"
+   },
+   {
+    "at": [
+     461.38
+    ],
+    "in_9x16": "whole",
+    "kind": "burned_caption",
+    "text": "Thousands of computers running all across the world"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_ffe0b1ac5c44bc46.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_ffe0b1ac5c44bc46.jpg",
+   "sha256": "ffe0b1ac5c44bc46e8a4bfc2f1bd023d4e051e9deb1f1ba9c037b8fa82011e97",
+   "times": [
+    457.38,
+    458.38,
+    459.38,
+    460.38,
+    461.38,
+    462.38,
+    463.38,
+    464.38,
+    465.38,
+    466.38,
+    467.38,
+    468.38,
+    469.38,
+    470.38,
+    471.38,
+    471.71
+   ]
+  },
+  "third_person": {
+   "finding": "No person other than the speaker is shown as a still, photo, or graphic, and the narration explains Bitcoin rather than making a negative claim.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 3278,
+   "out": 28400,
+   "usd_reported": 0.175228
+  },
+  "version": "visual-3"
+ },
  "933f9d33a8e345356177:1706.226-1725.606:visual-2:173daccbb2a10b30": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [
