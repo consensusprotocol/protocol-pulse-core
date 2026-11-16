@@ -1,0 +1,22 @@
+{
+ "ruling": "118, orchestrator 05:40 ET Nov 16",
+ "day": [
+  "2026-11-15T21:10:00-05:00",
+  "2026-11-16T21:10:00-05:00"
+ ],
+ "ledger": "SPEND_B4.json",
+ "cap": 1.0,
+ "outside": 0.560616,
+ "parts_outside": {
+  "builds": 0.560616,
+  "audits": 0.0,
+  "checks": 0.0,
+  "others": {}
+ },
+ "heimdall_free": {
+  "builds": 0.01573,
+  "audits": 0.019956,
+  "checks": 0.032842
+ },
+ "videos_sealed": 0
+}
