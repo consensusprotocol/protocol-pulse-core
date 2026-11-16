@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T10:24:18+00:00",
- "build": "ledger_20261116_102414",
+ "generated_at": "2026-11-16T11:31:37+00:00",
+ "build": "ledger_20261116_113134",
  "kind": "moments",
  "candidates": [
   {
@@ -28,15 +28,6 @@
    "duration": 8.06,
    "text": "And one of the biggest public miners, Mara, disclosed that it sold about 40 % of its Bitcoin in recent weeks, more than a billion dollars worth.",
    "text_sha256": "b44879cf4e032d85028855b556b49e0a2b5a5f9269bd2de724dbc3a469ca149c",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "7bb3c9a78de517193634",
-   "video_id": "VQnZuwxci08",
-   "channel": "Altcoin Daily",
-   "duration": 15.95,
-   "text": "And diving in into crypto, obviously with tokenization on layer ones, the thesis is we're early. Thinking about Bitcoin, am I too late to buy Bitcoin? Again, grab a 15 % first -time deposit bonus only with Exchange Partner BTCC.",
-   "text_sha256": "c876928a400c5a85e703038c743508e335d66e0b8595a51ede94a34e45f7ce92",
    "trimmed_leading": null
   },
   {
@@ -85,15 +76,6 @@
    "trimmed_leading": "Now"
   },
   {
-   "pid": "7bb3c9a78de517193634~trim",
-   "video_id": "VQnZuwxci08",
-   "channel": "Altcoin Daily",
-   "duration": 15.91,
-   "text": "diving in into crypto, obviously with tokenization on layer ones, the thesis is we're early. Thinking about Bitcoin, am I too late to buy Bitcoin? Again, grab a 15 % first -time deposit bonus only with Exchange Partner BTCC.",
-   "text_sha256": "a874a3cf16152870042e530a7054790b985d34a4b8af5ab47d065653d7b23853",
-   "trimmed_leading": "And"
-  },
-  {
    "pid": "c0b1406eac275405e82a",
    "video_id": "5LXk2SLH4fI",
    "channel": "Natalie Brunell",
@@ -136,15 +118,6 @@
    "duration": 14.98,
    "text": "In my mind, Mr. Burns would have been smart enough to buy Bitcoin, and that's why I stack. It's because it's the one asset that actually survives in all of these different episodes that we watched. I dollar cost average every single day into Bitcoin. None of this is financial vice.",
    "text_sha256": "7d4efc298f4431362e8b0639603d8f5e0beb02f85ce1d53d3ef4e89c8ac08e10",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "b059b1a8c139cff0b223",
-   "video_id": "VQnZuwxci08",
-   "channel": "Altcoin Daily",
-   "duration": 19.75,
-   "text": "We know that... The banking system has now accepted Bitcoin as a collateral, which was a big hurdle back in 2020 and 2021. I was talking about this. It has to be collateral layer. We're seeing that. It's still too volatile to be great collateral, but we're seeing sovereign nation states, sovereign wealth funds, all of these people owning this stuff.",
-   "text_sha256": "a4aa4e7f97d6affdcb933175fde1b0d6ac96abb68d5316063f18bb431ebb62a9",
    "trimmed_leading": null
   },
   {

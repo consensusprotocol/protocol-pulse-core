@@ -1,0 +1,2482 @@
+{
+ "since": "2026-11-13T03:01:09+00:00",
+ "publish_window_h": 12.0,
+ "delivered_pins": [
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json",
+   "story_id": "moments-fresh_20261112_050611-37c5b5f5",
+   "approved_at": "2026-11-12T13:43:40+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
+   "story_id": "moments-fresh_20261112_050611-41f29b1f",
+   "approved_at": "2026-11-13T03:01:09+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json",
+   "story_id": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "approved_at": "2026-11-13T05:20:11+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_073738/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_073738-d2657bbe",
+   "approved_at": "2026-11-13T07:53:42+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_183302/MOMENTS_PIN_ATTESTED.json",
+   "story_id": "moments-ledger_20261113_183302-0c68b589",
+   "approved_at": "2026-11-13T19:12:56+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_215708/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_215708-13949b7c",
+   "approved_at": "2026-11-13T22:14:05+00:00",
+   "clips": 3
+  }
+ ],
+ "adapter_report": {
+  "lines": 3791,
+  "bad_lines": 0,
+  "bad": [],
+  "excluded": {
+   "expired (rulings 76 + 77: 12 h after its video's publish time)": 1553,
+   "hard exclusion flag (L-u)": 7,
+   "altcoin or not about Bitcoin": 3
+  },
+  "drift_checked": 0,
+  "expiry_h": 12,
+  "released_by_the_second_model": 0,
+  "returned": 23
+ },
+ "inputs": {
+  "rows": 23,
+  "no_word_record": 0,
+  "no_word_record_why": {},
+  "no_word_record_videos": {},
+  "window_records": {
+   "Dky_8mOTl0Y": [
+    "transcripts/Dky_8mOTl0Y/windows/412.333-517.086.whisper_words_punct.json",
+    "transcripts/Dky_8mOTl0Y/windows/450.869-554.801.whisper_words_punct.json",
+    "transcripts/Dky_8mOTl0Y/windows/511.212-607.000.whisper_words_punct.json",
+    "transcripts/Dky_8mOTl0Y/windows/535.719-607.000.whisper_words_punct.json",
+    "transcripts/Dky_8mOTl0Y/windows/393.048-491.536.whisper_words_punct.json",
+    "transcripts/Dky_8mOTl0Y/windows/511.212-605.857.whisper_words_punct.json",
+    "transcripts/Dky_8mOTl0Y/windows/335.844-434.061.whisper_words_punct.json"
+   ],
+   "5LXk2SLH4fI": [
+    "transcripts/5LXk2SLH4fI/windows/201.400-296.674.whisper_words_punct.json",
+    "transcripts/5LXk2SLH4fI/windows/0.000-73.857.whisper_words_punct.json",
+    "transcripts/5LXk2SLH4fI/windows/0.000-65.072.whisper_words_punct.json",
+    "transcripts/5LXk2SLH4fI/windows/428.828-526.547.whisper_words_punct.json",
+    "transcripts/5LXk2SLH4fI/windows/478.087-574.990.whisper_words_punct.json",
+    "transcripts/5LXk2SLH4fI/windows/206.721-311.277.whisper_words_punct.json",
+    "transcripts/5LXk2SLH4fI/windows/428.828-542.010.whisper_words_punct.json",
+    "transcripts/5LXk2SLH4fI/windows/44.099-142.021.whisper_words_punct.json",
+    "transcripts/5LXk2SLH4fI/windows/201.400-304.811.whisper_words_punct.json",
+    "transcripts/5LXk2SLH4fI/windows/52.067-155.267.whisper_words_punct.json",
+    "transcripts/5LXk2SLH4fI/windows/452.059-554.510.whisper_words_punct.json",
+    "transcripts/5LXk2SLH4fI/windows/34.776-134.041.whisper_words_punct.json",
+    "transcripts/5LXk2SLH4fI/windows/114.567-217.337.whisper_words_punct.json"
+   ],
+   "M6_MGnSvoAY": [
+    "transcripts/M6_MGnSvoAY/windows/4352.659-4445.796.whisper_words_punct.json"
+   ]
+  },
+  "window_waiting": 0,
+  "window_refused": 2,
+  "window_refused_videos": {
+   "Dky_8mOTl0Y": 2
+  },
+  "window_failed": 0,
+  "window_passed_over": {},
+  "no_caption_context": {},
+  "fallbacks": {},
+  "channel_conflict": {},
+  "not_anchored": {},
+  "malformed": {},
+  "duplicates": 3,
+  "duplicates_of": {
+   "55f8637bc2cba966492d": "369a18f7354c025dcf62",
+   "d4ca880e4a2e44e288dd": "b63ccf291bbd87fb1b5e",
+   "f7eec9d809427286416a": "2911f133306c1696359c"
+  },
+  "moments": 18,
+  "videos": 3,
+  "sources": 18,
+  "word_records": {},
+  "word_pass": {
+   "rows": 2490,
+   "unreadable": 0,
+   "ready": 1911,
+   "not_ready": 249,
+   "failed": 0,
+   "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl",
+   "refused": [
+    "00601fe81bcbe8b6bdf8",
+    "0102d1f81a005ffd1860",
+    "025b3828d214c7c2ce4b",
+    "05173845dea924fc0c07",
+    "05f06153c42d43c43ed7",
+    "05ff016beac936e4e409",
+    "076730439cae2cfa8c7e",
+    "08ccabe3e2c427838e15",
+    "0988da65e6ad9ba87459",
+    "0b1ed433879e3d7f844a",
+    "0ccade189163405b089b",
+    "0fad832055924851251d",
+    "0fd686f1fe79b631e91c",
+    "10d73f6379c4f91815c0",
+    "12bf31ff9e5404d7b5d9",
+    "13ad88ccef6e718fbb28",
+    "13b85894cf59bd96ddba",
+    "14f13f65d2f2458ea1ac",
+    "1525a9e1dd8dc5ac4a9e",
+    "16f275eb3464b67dfa9b",
+    "18ced5f9e7202e133319",
+    "19fc961efb1e8fbd0575",
+    "1a880c6d462d151ebe70",
+    "1ab9ae718a7e550e9ce1",
+    "1b9902d0b3f9690e9ddb",
+    "1c63a7925cf2c33b54ac",
+    "1d1556daed04fce39e7d",
+    "1d822675be04768944b1",
+    "1d828f294728facf05fd",
+    "1e9d5cb149e2d113459d",
+    "1f3444cb0463741133cd",
+    "1f3f2c2ea653f69353d5",
+    "20002de2ec0f6b521fce",
+    "2167cf6bfe8911d08707",
+    "217bd00fcf8c0665e0f6",
+    "23703f34fbd40d943e41",
+    "23fceca7029b9948e3f9",
+    "24a6dc284d02a3aeae08",
+    "24f1856c6fcf1b6c1d95",
+    "2550f3c54cec7cd95c48",
+    "25f101de6a018fb2f202",
+    "2887f8f9b00e38e79cb3",
+    "2c6b2f1bcfc96f70f39e",
+    "2c884616bf8c91a24180",
+    "2d89ae77d3305643e7eb",
+    "2db14eabaf98defccba0",
+    "2e5c3ff4488c946c1320",
+    "32a44ea8013cb6d85366",
+    "33cf7bbd673f26f307cb",
+    "33d2a783068012cbff56",
+    "33ec88880d3a99e3d97c",
+    "340ea3f3cede49ef6bbe",
+    "347495ce7e4a78ef23c5",
+    "34fd75ac6e40d43c9f5b",
+    "351d555f7879d8c870e9",
+    "3548c352a9e67f331437",
+    "375fb72bed43ccc47f6a",
+    "3798191e55603311683a",
+    "394e144a00767241b093",
+    "3c52354fdf5fdb75de2e",
+    "3e2d15a2a7244d9b7e6e",
+    "3e5706beb5c33dfb0691",
+    "3e6697e0b45a89ec82e5",
+    "3ecea4247f7da8cf3d83",
+    "4055cbb4c51cd6d6bcbd",
+    "424f1e6bbc6e801dd72d",
+    "4347359c0c00f6d49fa3",
+    "43be163f3e361a815a24",
+    "474b8ee37037650dc1ef",
+    "483155d278ba97157e1a",
+    "48643efcbfe1be04f46a",
+    "492cf0bcaa2d7db42345",
+    "49b321f0093d9204857e",
+    "4a0ae7b99a7bfc3f04ab",
+    "4a0cafc02654a834b273",
+    "4a15ecc759a9b332f3cc",
+    "4a54d7ff96a229541048",
+    "4a5ca4087ab6da856227",
+    "4ab2659efc97def0153c",
+    "4d66c09fb18c0f0d1a7f",
+    "4dbb2318181aa9d907d5",
+    "4f33bb61466a820e74b6",
+    "51c7a41fd9d5fecb71ee",
+    "51deefb0c40e66f737f0",
+    "52630ce456af6791baa3",
+    "52bf579156a21ee08c0c",
+    "5416d89f219e62bd06ad",
+    "55e3ff1057a3eba68b18",
+    "568275feb72658a6dbdb",
+    "56ee676b2e04cecd2ff9",
+    "59c3b29a851601177cc6",
+    "59e200f0478f93b88c29",
+    "5b6c5854d2d3c20f45ce",
+    "5bbb7f44bfcf00fb9e66",
+    "5dd3b1ef91e32e45a17c",
+    "5f55d9b82c8e0209b446",
+    "5fbf59f5bf383722159a",
+    "5fc35947f63b3c736dff",
+    "604c84ac1786fa09f5d7",
+    "60690bc4745487e92f5e",
+    "6083abea1edc39efdcb1",
+    "614addd0ad90b6162f0e",
+    "614ba58f79c05cd204ec",
+    "618564547f3facb2460a",
+    "62ebbfe9d62024b9bc7f",
+    "62fe58051dd488ff3c69",
+    "63b87cce3ff62655d3e2",
+    "65e288d993ba8c2bbb68",
+    "6b42533b239f3c5764aa",
+    "6ba21c8bd8cf2f43a2f8",
+    "6ba5399a3722dc217b76",
+    "6be836e0073e86498c88",
+    "6beb95b22a1035ea18c3",
+    "6c546e56ac6c8220787b",
+    "6e56cd660d5f1f13efa2",
+    "70722b0dc2fba88c0cf6",
+    "71187b79f44762f56b8a",
+    "75c9da24ec3764b3e8d1",
+    "7a19e7f67f89e5b6977c",
+    "7c67f93575aef43039cf",
+    "7e3ab76a058f8f65f601",
+    "7f326d4b6532a01fcf63",
+    "8000945a3e7cd613ea17",
+    "8051a1eaf06f56d3702b",
+    "81b26a23dd6326fcbd60",
+    "83775cd2df98be73a317",
+    "84033134a0eeaa1b2ae6",
+    "840a7091d2afea2c41e1",
+    "87a1ba949cd37f8e8301",
+    "8900aa8b374479a90cab",
+    "893a999def3edc8f1a0a",
+    "8972dfeff70fc8c02f48",
+    "8b99d7511f8b842627ab",
+    "8d244d9fdae458f0471c",
+    "8e9b32533086f2f179f4",
+    "90f44621c4eafaf5c278",
+    "90fc17206ee1f99ec636",
+    "951bf612e52c9073d22a",
+    "954c0a2d3b0133d2341d",
+    "95d38b3585c61b1d9906",
+    "96b4f9b83647bbc4ec73",
+    "96c79a7fc62a364b2b9a",
+    "96ff2e079cd464fd5308",
+    "9d3796742a2e1cd10eb8",
+    "9e6ca1765f0a032267b5",
+    "9f0450933b685f1974eb",
+    "9f8c5369f904e81221cb",
+    "9f8d835236860966db8f",
+    "9fd5a65c0dadc2ec40eb",
+    "a024ead246198d7e98ad",
+    "a045e6e7ddf843c49b28",
+    "a102673e5fad3240111e",
+    "a1e2d91d323a57b5de29",
+    "a1ff1a32efaf79f786b8",
+    "a2541ef0353d99d8a040",
+    "a47b2466e5199dce299c",
+    "a6998dd7b0cece708bb9",
+    "a8336e318c7d6b48b22b",
+    "a89f2c1bb0017a6a9d45",
+    "a8be7f45901ddd76b721",
+    "aa32080462e3581166d3",
+    "aa743024037fa80ee16b",
+    "aaffb41344d5775216f1",
+    "ae1a0d498d46de7a3ea8",
+    "af5ae28633a247b27017",
+    "affa796d1b415771a447",
+    "b30efa3bedc93432e865",
+    "b41f33c81cfdfc1ddf59",
+    "b4272eb53d7c0a4e5dd6",
+    "b507e421f01aac805570",
+    "b5112fbb7db1bddc16d9",
+    "b55b68c8fc8d7bbbfd23",
+    "b58692089a253d8fe05c",
+    "b6b983e3b060dbe5a29e",
+    "b7f4483d2f3aaf3cb9e1",
+    "b880544703c2731ecb51",
+    "ba635975783d3d2cccc3",
+    "bbb99781ef3bb1f4119c",
+    "bbe1c4f976e02940651c",
+    "bc33ae9592be1432d8f1",
+    "bc342d3ceb4f22890afa",
+    "c07c030254c41853ceef",
+    "c0c0c53384f0d42c6d3a",
+    "c11c107bdf8c481cfde9",
+    "c125e2f11616d0ece0d3",
+    "c1753585f3e4300cc38a",
+    "c41c5ce4ef32380f9fe6",
+    "c63aa04ace7972db02d9",
+    "c6a876566239b5e90c63",
+    "ceb401a3658c6d72104f",
+    "cf2df82365c0b1cc3b87",
+    "cf56a1e9574e37a923fc",
+    "d137488a51fd37dc4e30",
+    "d19be57ae98c95784c75",
+    "d1c40fb727b12f45f07a",
+    "d2cbf97818fa6b900d1c",
+    "d40f19707e018d112efa",
+    "d4400d9e9b121b0c38b3",
+    "d483ad20dd7164946a89",
+    "d4ac91c659a2cfd44ffa",
+    "d50c7e7e34316aa22ddf",
+    "d58081ef87666169be84",
+    "d611baa9cb2e0237830b",
+    "d65cdae0a25fff048477",
+    "d65e75a63edb95f20157",
+    "d762e966d9b000f208b0",
+    "d9c9f9a1e2a98585f836",
+    "d9cd6f055c0ce1e3a954",
+    "dc14cda54677c7703b85",
+    "e0faec048bfe07884bd5",
+    "e1fca5069eabf32cc1d9",
+    "e2350d63aa410df8d4a4",
+    "e24fbbc008e1b75a71a5",
+    "e477b6abee4efcc885bb",
+    "e4f23b741554d2f75182",
+    "e684c05c6759c7ce19fc",
+    "e73c4378bd39706ac9eb",
+    "e9057888919f0ced99f5",
+    "e90858606fe880415f2d",
+    "e93988462be9ca35931c",
+    "e940cc0756c91c1d3eab",
+    "eb403f27837f7d6121e9",
+    "eb63da2bad4ab3252029",
+    "ec2516f742ea4a7cf287",
+    "ec3d6c6fa7a55a606078",
+    "ed15b77cac098816caf1",
+    "edb6b66b2514b8a51c40",
+    "ee81a9e19a1236ca0eaf",
+    "ef232abc83b6a03a07f0",
+    "efaa1de614ba40dcaca1",
+    "f062336925d0fefceb61",
+    "f283bea1f8f73753a357",
+    "f344b4ca2374e60f2284",
+    "f37cdb7db1fac89efb59",
+    "f3e0ccd86b68bc09837f",
+    "f4cdef024a8b3540ffac",
+    "f4d24ba4d1c01b6172af",
+    "f7eba33e0bff81d90982",
+    "f818c3c5eac812d106da",
+    "f845c0ade832c6bb7046",
+    "f8b2905fba0cd6c54c66",
+    "fa02300c7bfb103ac427",
+    "fc24287ab36375755e5a",
+    "fc5cf0e771409a0be3de",
+    "fcd25f21dbe83b487fcc",
+    "fd3848405eb0cc660232",
+    "fe06ce187a75eb4413d4",
+    "fec37b9e508a5904c5b9",
+    "ffda700352ff151971c9"
+   ]
+  },
+  "ruling_104": {
+   "variants": [],
+   "replaced": [],
+   "notes": {}
+  }
+ },
+ "delivered": [
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 5144.99,
+   "end": 5153.37,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5",
+   "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that."
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2412.85,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5",
+   "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S."
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5",
+   "text": "Bitcoin imposes a global free market for the first time ever."
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-41f29b1f",
+   "text": "Bitcoin imposes a global free market for the first time ever."
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2422.07,
+   "pin": "moments-fresh_20261112_050611-41f29b1f",
+   "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well."
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 1826.54,
+   "end": 1843.48,
+   "pin": "moments-fresh_20261112_050611-41f29b1f",
+   "text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued."
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 3090.75,
+   "end": 3109.87,
+   "pin": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "text": "When Bitcoin and an asset is going up and the bull market is super hot, everyone loves it. When the bear market is happening and Bitcoin is going down, everyone hates it. And like, that's why the price got high and that's why the price got low, because everyone loved it at the top and everyone wanted exposure and everyone hated it and didn't want exposure at the bottom."
+  },
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 4664.57,
+   "end": 4673.21,
+   "pin": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "text": "Bitcoin shows you that you can just increase the purchasing power. So the value of Bitcoin goes up without the supply of Bitcoin going up. So the people who hold Bitcoin don't get robbed."
+  },
+  {
+   "video_id": "UJFQBaMh3yg",
+   "start": 191.38,
+   "end": 203.06,
+   "pin": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "text": "Now, higher rates make cash more attractive and borrowed money more expensive, which is very much the wrong combo for anything risky, and the market definitely sees Bitcoin as risky."
+  },
+  {
+   "video_id": "BS0XC_tixa8",
+   "start": 994.329,
+   "end": 1005.909,
+   "pin": "moments-ledger_20261113_073738-d2657bbe",
+   "text": "Bitcoin is the one piece of open source technology that can't be shut down, silenced or removed. If Bitcoin wins, open source wins. And every stat you hold is a vote against the digital prison being built around all of us."
+  },
+  {
+   "video_id": "WTCwyxW-lHk",
+   "start": 1685.968,
+   "end": 1695.698,
+   "pin": "moments-ledger_20261113_073738-d2657bbe",
+   "text": "But we have very rarely in Bitcoin's history seen six negative weeks back to back to back to back to back. to back. I think that was six."
+  },
+  {
+   "video_id": "mJviDNOhIyw",
+   "start": 1614.601,
+   "end": 1630.831,
+   "pin": "moments-ledger_20261113_073738-d2657bbe",
+   "text": "But then if someone doesn't understand Bitcoin and you drop... 25 % of their portfolio in Bitcoin and Bitcoin goes down 50%. You get fired and they sell their Bitcoin. And so that is, I think, why you've seen people like BlackRock, I think, logically walk that back to one, five percent allocation."
+  },
+  {
+   "video_id": "DcUbBkyeh9M",
+   "start": 236.688,
+   "end": 253.308,
+   "pin": "moments-ledger_20261113_183302-0c68b589",
+   "text": "A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies. and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate."
+  },
+  {
+   "video_id": "GXWj2JO9bz8",
+   "start": 124.157,
+   "end": 138.097,
+   "pin": "moments-ledger_20261113_183302-0c68b589",
+   "text": "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world."
+  },
+  {
+   "video_id": "mKNAcOFMYD4",
+   "start": 755.454,
+   "end": 764.214,
+   "pin": "moments-ledger_20261113_183302-0c68b589",
+   "text": "My biggest fear is that I go to the bank and I punch in my code and the money's not there because the bank owns the money and they could just take it from me. And that's why that's why we Bitcoin."
+  },
+  {
+   "video_id": "DcUbBkyeh9M",
+   "start": 216.054,
+   "end": 228.674,
+   "pin": "moments-ledger_20261113_215708-13949b7c",
+   "text": "Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued."
+  },
+  {
+   "video_id": "MqVqfEDXgLo",
+   "start": 937.971,
+   "end": 957.291,
+   "pin": "moments-ledger_20261113_215708-13949b7c",
+   "text": "I think, well, what we've seen in the market is on Thursday, Friday, there was actually a much bigger drop in traditional stock prices, especially tech stock. There's like 10, 20%, like Intel dropped 29%. Whereas Bitcoin only dropped like five, six percent."
+  },
+  {
+   "video_id": "HWuMai_mAug",
+   "start": 1691.139,
+   "end": 1698.069,
+   "pin": "moments-ledger_20261113_215708-13949b7c",
+   "text": "I think treasury companies will also bleed to Bitcoin. I mean, basically, everything in the industry eventually bleeds to Bitcoin."
+  }
+ ],
+ "moments": [
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "2b6d222c506787ca06a2",
+   "video_id": "5LXk2SLH4fI",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-16T01:41:19+00:00",
+   "title": "Why Bitcoin Just Lost Nearly 25% in Two Weeks | The News Block",
+   "transcript_sha256": "c93d43386e053580996dce6706f9334b50e7809ed886c2149337d5298947b7ea",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    67,
+    92
+   ],
+   "sentences": [
+    6,
+    7
+   ],
+   "text": "In just one day, about $2 billion in leveraged positions. Those are bets made with borrowed money were wiped out, affecting more than 300,000 traders.",
+   "start": 20.38,
+   "end": 28.84,
+   "duration_s": 8.46,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 3,
+    "stakes": 5,
+    "stance": 2,
+    "stands_alone": 4,
+    "surprising_fact": 5
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Concrete, high-stakes statistic about leveraged losses and trader count; strong scroll stopper.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "8.46 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T01:49:12.905811+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T0147Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "945d312fccf59f641ae015bbaf5a10f1b08c043cb761cf2ba5c34d27b05c3953",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "570f366349ceacd37d546ccad7c223a58857636760157e640698efbbecf9a4b8",
+    "window": {
+     "start_s": 0.0,
+     "end_s": 73.857,
+     "record": "transcripts/5LXk2SLH4fI/windows/0.000-73.857.whisper_words_punct.json",
+     "words_sha256": "a30f680ecea735f229cf2ae33f5c12288ae3b701a8b178e7a619b7657102929a",
+     "record_sha256": "3b5bfa7b5e2c3ebcb3573a31f2c58ef1a50f253e2239c91b200da07057356fa1",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "d8f24d8297fffdb548e8",
+    "reanchored": {
+     "anchor_ratio": 0.98,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      6,
+      7
+     ],
+     "offset_s": [
+      0.24,
+      -0.02
+     ]
+    },
+    "ledger_text": "In just one day, about two billion in leveraged positions, those are bets made with borrowed money, were wiped out, affecting more than 300,000 traders."
+   },
+   "rank_score": 23,
+   "source_key": "5LXk2SLH4fI@0.000-73.857"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "852da61da08ef2aa45ef",
+   "video_id": "Dky_8mOTl0Y",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-16T00:00:20+00:00",
+   "title": "The Simpsons Predicted the 2027 Money Crash",
+   "transcript_sha256": "a3e0e7fce89949be76c7c472a24b504828787eba411cdf2b0d5a34791c71cc08",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    159,
+    208
+   ],
+   "sentences": [
+    14,
+    14
+   ],
+   "text": "Bitcoin is money that lives on nodes, thousands of computers running all across the world, thousands of computers that have a ledger, a blockchain, a time chain of the truth, of all of the transactions that have ever happened on the network, who owns what, how much do people own?",
+   "start": 457.383,
+   "end": 471.763,
+   "duration_s": 14.38,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 5,
+    "stands_alone": 5,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Defines Bitcoin's core technical advantage (decentralization/ledger) and explicitly states that no entity, including Satoshi, can alter it.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "14.38 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "not_statement"
+     ],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T00:03:57.610281+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T0002Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "46ed5652ef5d2df9ae10934628b8e03f4724148bf952716ae7db3edeb6b593fe",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "f7a807a5fac9199ff7b118f61c98db26387e71ce38bfc74346237cae42b33ffe",
+    "window": {
+     "start_s": 412.333,
+     "end_s": 517.086,
+     "record": "transcripts/Dky_8mOTl0Y/windows/412.333-517.086.whisper_words_punct.json",
+     "words_sha256": "1f8973d2908881aad8727e23318c59a0cf560e4384ec39e083f3a7b68cba3c9b",
+     "record_sha256": "d0384e74bcfbaac442f9144f85d6ee9e012654360cb75d66abad306df8d38649",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "1999c2e3bea33495b917",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      14,
+      14
+     ],
+     "offset_s": [
+      0.05,
+      -0.32
+     ]
+    },
+    "ledger_text": "Bitcoin is money that lives on nodes. Thousands of computers running all across the world. Thousands of computers that have a ledger, a blockchain, a time chain of the truth of all of the transactions that have ever happened on the network. Who owns what? How much do people own?"
+   },
+   "rank_score": 23,
+   "source_key": "Dky_8mOTl0Y@412.333-517.086"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "c2417f60d989426e6a0e",
+   "video_id": "5LXk2SLH4fI",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-16T01:41:19+00:00",
+   "title": "Why Bitcoin Just Lost Nearly 25% in Two Weeks | The News Block",
+   "transcript_sha256": "a4e38b66a301abf34fd421da625a5dd60bef7db5076d4614f304b2cfe88c50fd",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    126,
+    144
+   ],
+   "sentences": [
+    7,
+    7
+   ],
+   "text": "Now, what isn't in dispute is that nobody who simply owns their Bitcoin was forced to sell last week.",
+   "start": 246.38,
+   "end": 251.64,
+   "duration_s": 5.26,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 5,
+    "stance": 4,
+    "stands_alone": 5,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Reassuring fact for self-custodians; clear distinction between leveraged traders and holders.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5.26 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5.26 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T01:49:12.905811+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T0147Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "262754887a49b2496d6003daac2df55353d673799fb85ed3fc3933116a95f3c0",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "80e559def5e38aeda3839c6fc3888f6e508bb2c74bfbaea29a641f452ed60854",
+    "window": {
+     "start_s": 201.4,
+     "end_s": 296.674,
+     "record": "transcripts/5LXk2SLH4fI/windows/201.400-296.674.whisper_words_punct.json",
+     "words_sha256": "d8dfecc4fdbb0f7bc64f18e059377914aafd5f64b97b7dd114913b9b326927b5",
+     "record_sha256": "6c6cf21232ab6320adc08740ec6b6d4138bc09e1e7534eba3747b49c66c39e96",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "2911f133306c1696359c",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      7,
+      7
+     ],
+     "offset_s": [
+      -0.02,
+      -0.03
+     ]
+    },
+    "ledger_text": "Now, what isn't in dispute is that nobody who simply owns their Bitcoin was forced to sell last week."
+   },
+   "rank_score": 23,
+   "source_key": "5LXk2SLH4fI@201.400-296.674"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "56c1e50978f389f7a2fc",
+   "video_id": "Dky_8mOTl0Y",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-16T00:00:20+00:00",
+   "title": "The Simpsons Predicted the 2027 Money Crash",
+   "transcript_sha256": "e7bb3c795e0cd3cec0ae626cbea31c0df70a6cf56f2d4dd35555ba72b3c12dc7",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    145,
+    180
+   ],
+   "sentences": [
+    9,
+    10
+   ],
+   "text": "In my mind, Mr. Burns would have been smart enough to buy Bitcoin, and that's why I stack. It's because it's the one asset that actually survives in all of these different episodes that we watched.",
+   "start": 556.182,
+   "end": 566.602,
+   "duration_s": 10.42,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 5,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": true,
+   "risk": [],
+   "topics": [],
+   "reason": "Strong stance linking Simpsons narrative to Bitcoin as the surviving asset; quotable and clear opinion.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "10.42 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T00:03:57.610281+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T0002Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "28a5ad646e3695215ccc3da53cf2bcfa5667712bf6a8adf3160c65cac6494ced",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "69baa7f672268eda2b62a9a9bf71cf65cd184518e6868d5a1c4581a8f3c42deb",
+    "window": {
+     "start_s": 511.212,
+     "end_s": 607.0,
+     "record": "transcripts/Dky_8mOTl0Y/windows/511.212-607.000.whisper_words_punct.json",
+     "words_sha256": "c7cb94d3bf0a203f23f0e2de7751758c6902e0bca75779b07a2f9bc18f77b209",
+     "record_sha256": "6e2f9376f9af2e4f611f5f55731802e1042d024b500cb52435989449452a2cbe",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "369a18f7354c025dcf62",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      10
+     ],
+     "offset_s": [
+      -0.03,
+      -0.48
+     ]
+    },
+    "ledger_text": "In my mind, Mr. Burns would have been smart enough to buy Bitcoin and that's why I stack. It's because it's the one asset that actually survives in all of these different episodes that we watched."
+   },
+   "rank_score": 22,
+   "source_key": "Dky_8mOTl0Y@511.212-607.000"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "addfd207b95f702e26d7",
+   "video_id": "5LXk2SLH4fI",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-16T01:41:19+00:00",
+   "title": "Why Bitcoin Just Lost Nearly 25% in Two Weeks | The News Block",
+   "transcript_sha256": "3836d71f002ed40f5820aac3c2f2da497367fefe090fb00b05329a3788269d57",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    36,
+    66
+   ],
+   "sentences": [
+    3,
+    5
+   ],
+   "text": "And what's crazy is how fast it fell. It was above $81,000 the day after the midterms. So it lost almost 25 % of its value in under two weeks.",
+   "start": 10.54,
+   "end": 19.88,
+   "duration_s": 9.34,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 2,
+    "stands_alone": 5,
+    "surprising_fact": 4
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Strong hook with specific price drop stats and timeframe. Stands alone as a factual summary of recent market action.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'and'"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "9.34 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T01:48:47.559645+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T0147Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "0d35feedbbe8e1c6cbaa67af32448df251b0e7f4840f7fb5e8a00931847f3614",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "702edd031d3154419ccc11333927a24d44e01141e630af590d8a0669df45f1a9",
+    "window": {
+     "start_s": 0.0,
+     "end_s": 65.072,
+     "record": "transcripts/5LXk2SLH4fI/windows/0.000-65.072.whisper_words_punct.json",
+     "words_sha256": "598710bca745109101f23848b9812ee1d2faef72cb02040746e4b389e2bda75c",
+     "record_sha256": "696532a9c98f4420a427e74456e0eff4d2be96bc5cf09729f76806fad4f972bb",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "4f4b854f47bf83264e2c",
+    "reanchored": {
+     "anchor_ratio": 0.984,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      3,
+      5
+     ],
+     "offset_s": [
+      0.14,
+      -0.19
+     ]
+    },
+    "ledger_text": "And what's crazy is how fast it fell. It was above 81,000 the day after the midterms. So, it lost almost 25% of its value in under two weeks."
+   },
+   "rank_score": 22,
+   "source_key": "5LXk2SLH4fI@0.000-65.072"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "e06b5180d77964e8c23a",
+   "video_id": "Dky_8mOTl0Y",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-16T00:00:20+00:00",
+   "title": "The Simpsons Predicted the 2027 Money Crash",
+   "transcript_sha256": "3f1fe45ea3eb58245ae4c75fbfe9ce2a62bb9ee639b4694303090f667b3c703a",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    156,
+    208
+   ],
+   "sentences": [
+    11,
+    13
+   ],
+   "text": "So all of the hackers in the world have been trying to steal trillions of dollars in value. And now they're saying that quantum computing is trying to steal trillions of dollars in Bitcoin, but somehow they can't crack it. And in the code, they also put the ability to not print more.",
+   "start": 495.629,
+   "end": 509.679,
+   "duration_s": 14.05,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Highlights the resilience of Bitcoin against global hacking attempts and quantum computing threats, emphasizing the 'trillions' at stake.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "14.05 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'so'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T00:03:57.610281+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T0002Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "46ed5652ef5d2df9ae10934628b8e03f4724148bf952716ae7db3edeb6b593fe",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "f7a807a5fac9199ff7b118f61c98db26387e71ce38bfc74346237cae42b33ffe",
+    "window": {
+     "start_s": 450.869,
+     "end_s": 554.801,
+     "record": "transcripts/Dky_8mOTl0Y/windows/450.869-554.801.whisper_words_punct.json",
+     "words_sha256": "469bccb1543ed7d3b54fd729173a6a866dc209303e757f18f8c880a1ee1bbe5c",
+     "record_sha256": "9dbd08ee8a8e723b69ca585c8ebe88306d4fdb478e98e1bb23b9fdea6f172ffc",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "09a1c29f3c30d52fcf1e",
+    "reanchored": {
+     "anchor_ratio": 0.991,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      11,
+      13
+     ],
+     "offset_s": [
+      -0.24,
+      -0.12
+     ]
+    },
+    "ledger_text": "So all of the hackers in the world have been trying to steal trillions of dollars in value. And now they're saying that quantum computing is trying to steal trillions of dollars in Bitcoin, but somehow they can't crack it. And in the [music] code, they also put the ability to not print more."
+   },
+   "rank_score": 22,
+   "source_key": "Dky_8mOTl0Y@450.869-554.801"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "6a2e3a6a797a2b85c357",
+   "video_id": "5LXk2SLH4fI",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-16T01:41:19+00:00",
+   "title": "Why Bitcoin Just Lost Nearly 25% in Two Weeks | The News Block",
+   "transcript_sha256": "db8b264ab93bf57ce395392bea59ac1b856ce2f5d830086af2304ea3e01fbb88",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    154,
+    176
+   ],
+   "sentences": [
+    7,
+    7
+   ],
+   "text": "What the average does tell you is that anyone buying today is paying less than the typical price over the past four years.",
+   "start": 523.077,
+   "end": 529.637,
+   "duration_s": 6.56,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 3,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "A clear, logical statement about value relative to historical averages that is easy to understand and share.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "6.56 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "6.56 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T01:49:12.905811+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T0147Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "1ebd4c782291029080048b74cff128e913f590b36932cce4d5db7abdb086c8c6",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "af47f2be85aba936dc0722652511a2e03b48bc645510f44180d4c3d9dfb532c7",
+    "window": {
+     "start_s": 478.087,
+     "end_s": 574.99,
+     "record": "transcripts/5LXk2SLH4fI/windows/478.087-574.990.whisper_words_punct.json",
+     "words_sha256": "f34e18486066513799ef6fe6e11cf70cd5c01efbe8c3700eee351985fc4808be",
+     "record_sha256": "263aac8f3f74122f6494b18ec1169da3fb3639e039fc6beecc5dafc0509bb8ba",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "bde52256a342c3197a27",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      7,
+      7
+     ],
+     "offset_s": [
+      -0.01,
+      -0.35
+     ]
+    },
+    "ledger_text": "What the average does tell you is that anyone buying today is paying less than the typical price over the past four years."
+   },
+   "rank_score": 21,
+   "source_key": "5LXk2SLH4fI@478.087-574.990"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "f2aa6e95cb04d9211644",
+   "video_id": "5LXk2SLH4fI",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-16T01:41:19+00:00",
+   "title": "Why Bitcoin Just Lost Nearly 25% in Two Weeks | The News Block",
+   "transcript_sha256": "69632481f4917b90ad6ae2bfe72bc1d0f2ab2eaa7bb7204c92c782199427b2c1",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    142,
+    167
+   ],
+   "sentences": [
+    8,
+    8
+   ],
+   "text": "Adam Back says he has a bet on Bitcoin reaching $1 million by 2028, but the price just fell through the line he calls its floor.",
+   "start": 473.858,
+   "end": 481.518,
+   "duration_s": 7.66,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 3,
+    "stands_alone": 5,
+    "surprising_fact": 4
+   },
+   "names_person": true,
+   "risk": [
+    "price_prediction"
+   ],
+   "topics": [],
+   "reason": "Names Adam Back and Bitcoin, presents a specific bet and a recent price action that creates immediate tension and curiosity.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.66 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.66 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T01:49:12.905811+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T0147Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "1ebd4c782291029080048b74cff128e913f590b36932cce4d5db7abdb086c8c6",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "af47f2be85aba936dc0722652511a2e03b48bc645510f44180d4c3d9dfb532c7",
+    "window": {
+     "start_s": 428.828,
+     "end_s": 526.547,
+     "record": "transcripts/5LXk2SLH4fI/windows/428.828-526.547.whisper_words_punct.json",
+     "words_sha256": "8915a86f2652e0a4d8ad70dd4ec6519579d15141650e8de9bca2870ee15e3a20",
+     "record_sha256": "bc9b537f760bc11dae92c9f129b6b980fc8ca9ac7141db5a78b7c42497345693",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "b63ccf291bbd87fb1b5e",
+    "reanchored": {
+     "anchor_ratio": 0.98,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      8
+     ],
+     "offset_s": [
+      0.03,
+      -0.03
+     ]
+    },
+    "ledger_text": "Adam Back says he has a bet on Bitcoin reaching 1 million by 2028, but the price just fell through the line he calls its floor."
+   },
+   "rank_score": 21,
+   "source_key": "5LXk2SLH4fI@428.828-526.547"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "7acab90139ce3b662237",
+   "video_id": "Dky_8mOTl0Y",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-16T00:00:20+00:00",
+   "title": "The Simpsons Predicted the 2027 Money Crash",
+   "transcript_sha256": "3faab44d7ffa3a95a6ed0739b285a843230840fae4d80dbf8e8bbfd8e7f48a34",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    162,
+    188
+   ],
+   "sentences": [
+    12,
+    13
+   ],
+   "text": "If Bitcoin is the one thing that I know that they can't print, then how much do I need? How much do I need to retire from?",
+   "start": 580.969,
+   "end": 585.929,
+   "duration_s": 4.96,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 3,
+    "stands_alone": 4,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Poses a compelling question about Bitcoin quantity for retirement; good hook for discussion.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.96 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "not_statement"
+     ],
+     "targets_missed": [
+      "4.96 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T00:03:57.610281+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T0002Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "28a5ad646e3695215ccc3da53cf2bcfa5667712bf6a8adf3160c65cac6494ced",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "69baa7f672268eda2b62a9a9bf71cf65cd184518e6868d5a1c4581a8f3c42deb",
+    "window": {
+     "start_s": 535.719,
+     "end_s": 607.0,
+     "record": "transcripts/Dky_8mOTl0Y/windows/535.719-607.000.whisper_words_punct.json",
+     "words_sha256": "65766a91f186a71e823877c33a574790e3ad7f4e08d83baebdb449e8edf564e5",
+     "record_sha256": "90e6b9d2b42d0caac384070bbe70dc0d81b9dad58bdbc6a432c23e1fdf8dd2f4",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "9d521402f287383aa2cd",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      12,
+      13
+     ],
+     "offset_s": [
+      0.25,
+      -0.13
+     ]
+    },
+    "ledger_text": "If Bitcoin is the one thing that I know that they can't print, then how much do I need? How much do I need to retire from?"
+   },
+   "rank_score": 19,
+   "source_key": "Dky_8mOTl0Y@535.719-607.000"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "f6a3e905900af38fe2e8",
+   "video_id": "5LXk2SLH4fI",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-16T01:41:19+00:00",
+   "title": "Why Bitcoin Just Lost Nearly 25% in Two Weeks | The News Block",
+   "transcript_sha256": "0a66016b385b0d3f5cb956877e74a1c074fb16447d346dfe699c2ca7c0349e08",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    128,
+    173
+   ],
+   "sentences": [
+    8,
+    10
+   ],
+   "text": "But obviously, it's not fun to ride these drawdowns, especially if you bought much higher or your cost basis is higher than the current price. Selling Bitcoin to cover a big expense is the move most holders end up regretting. And it isn't your only option.",
+   "start": 251.821,
+   "end": 265.941,
+   "duration_s": 14.12,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 4,
+    "stakes": 5,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 0
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Addresses the emotional pain of drawdowns and warns against selling Bitcoin to cover expenses.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "14.12 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T01:48:47.559645+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T0147Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "0ec1ba0c1090883a58f92fdd4bfab9336672f6ccde80b1d03faf691b5e6182c9",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "0684f5ad7696ee676b03ab86f9420071d0b869d32e77f6ef710ea72bf32fd049",
+    "window": {
+     "start_s": 206.721,
+     "end_s": 311.277,
+     "record": "transcripts/5LXk2SLH4fI/windows/206.721-311.277.whisper_words_punct.json",
+     "words_sha256": "39214cb0532f28b89d049f4cb49c6b50a76ddb22c384ff015e4a36fa79e930d5",
+     "record_sha256": "77768676d5a0c780f7bb210b7784f0359a3dd47a3f6ffa8f166fca7311aff748",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "02d2a4a679702848f077",
+    "reanchored": {
+     "anchor_ratio": 0.968,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      10
+     ],
+     "offset_s": [
+      0.1,
+      -0.34
+     ]
+    },
+    "ledger_text": "But obviously, it's not fun to ride these draw downs, especially if you bought much higher or your cost basis is higher than the current price. Selling Bitcoin to cover a big expense is the move most holders end up regretting, and it isn't your only option."
+   },
+   "rank_score": 19,
+   "source_key": "5LXk2SLH4fI@206.721-311.277"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "7b106fda94a4c0dd7562",
+   "video_id": "5LXk2SLH4fI",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-16T01:41:19+00:00",
+   "title": "Why Bitcoin Just Lost Nearly 25% in Two Weeks | The News Block",
+   "transcript_sha256": "32b4f7e041c4d581506713c515fbb133973dc9de168847876ee7e3bd29e9f918",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    137,
+    163
+   ],
+   "sentences": [
+    12,
+    12
+   ],
+   "text": "And one of the biggest public miners, Mara, disclosed that it sold about 40 % of its Bitcoin in recent weeks, more than a billion dollars worth.",
+   "start": 88.799,
+   "end": 96.859,
+   "duration_s": 8.06,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 2,
+    "stakes": 4,
+    "stance": 1,
+    "stands_alone": 4,
+    "surprising_fact": 4
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Names a specific company (Mara) and a large sell-off amount. High stakes for holders due to supply pressure.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "8.06 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T01:48:47.559645+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T0147Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "0d35feedbbe8e1c6cbaa67af32448df251b0e7f4840f7fb5e8a00931847f3614",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "702edd031d3154419ccc11333927a24d44e01141e630af590d8a0669df45f1a9",
+    "window": {
+     "start_s": 44.099,
+     "end_s": 142.021,
+     "record": "transcripts/5LXk2SLH4fI/windows/44.099-142.021.whisper_words_punct.json",
+     "words_sha256": "cd755c6c72e32405ab5af143595a8c0bbec8fafdbb7b51dce446e592263d8a28",
+     "record_sha256": "7f4dedacb523eef7632a91864c546712b743ed34f79925f24a88837d191e0501",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "c1d285140d95cb398e60",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      12,
+      12
+     ],
+     "offset_s": [
+      -0.3,
+      -0.16
+     ]
+    },
+    "ledger_text": "And one of the biggest public miners, Mara, disclosed that it sold about 40% of its Bitcoin in recent weeks, more than a billion dollars worth."
+   },
+   "rank_score": 18,
+   "source_key": "5LXk2SLH4fI@44.099-142.021"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "2d0bb81b3fb07d6ca3ee",
+   "video_id": "5LXk2SLH4fI",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-16T01:41:19+00:00",
+   "title": "Why Bitcoin Just Lost Nearly 25% in Two Weeks | The News Block",
+   "transcript_sha256": "92a14d64f03af51cae884833cbd9164db643d26cf75b47cadcf42f8cbe87e063",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    138,
+    182
+   ],
+   "sentences": [
+    11,
+    12
+   ],
+   "text": "The last time difficulty adjustment fell this much was a few weeks before Bitcoin hit its low for the entire year. So there could be more pain ahead because another wave of levered positions could get liquidated if the Bitcoin price falls to around 60K.",
+   "start": 97.257,
+   "end": 110.637,
+   "duration_s": 13.38,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 4,
+    "stance": 2,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Connects current difficulty drop to historical lows. Provides context for potential future price action.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "13.38 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T01:48:47.559645+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T0147Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "0d35feedbbe8e1c6cbaa67af32448df251b0e7f4840f7fb5e8a00931847f3614",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "702edd031d3154419ccc11333927a24d44e01141e630af590d8a0669df45f1a9",
+    "window": {
+     "start_s": 52.067,
+     "end_s": 155.267,
+     "record": "transcripts/5LXk2SLH4fI/windows/52.067-155.267.whisper_words_punct.json",
+     "words_sha256": "c58effb31825571cfff0c10073140ad7315c3d5b17ac3fbf666e6b90c7f6db2d",
+     "record_sha256": "7443d5031d7e14e56b9c324b08f283acb34ecdee6470d9f168e8f2ea0a349cfc",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "81c33e12c83c148048bd",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      11,
+      12
+     ],
+     "offset_s": [
+      0.19,
+      0.37
+     ]
+    },
+    "ledger_text": "The last time Difficulty Adjustment fell this much was a few weeks before Bitcoin hit its low for the entire year. So, there could be more pain ahead because another wave of levered positions could get liquidated if the Bitcoin price falls to around 60K."
+   },
+   "rank_score": 17,
+   "source_key": "5LXk2SLH4fI@52.067-155.267"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "4c8800e954929b71d65e",
+   "video_id": "Dky_8mOTl0Y",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-16T00:00:20+00:00",
+   "title": "The Simpsons Predicted the 2027 Money Crash",
+   "transcript_sha256": "d295d45682f1a96202d374dbafc8f8e343a21f9e933deba05a813adffec7682d",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    169,
+    193
+   ],
+   "sentences": [
+    11,
+    12
+   ],
+   "text": "In 2022, if you remember the Luna Collapse, $40 billion were erased like that. With FTX, $8 billion in customer funds were lost, like that.",
+   "start": 437.758,
+   "end": 446.428,
+   "duration_s": 8.67,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 2,
+    "hook_first_2s": 4,
+    "quotable": 3,
+    "stakes": 5,
+    "stance": 3,
+    "stands_alone": 4,
+    "surprising_fact": 4
+   },
+   "names_person": false,
+   "risk": [
+    "doom"
+   ],
+   "topics": [],
+   "reason": "Concrete, shocking numbers from recent crypto history that establish the stakes of 'Frankcoins' vs Bitcoin.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "8.67 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T00:04:27.067384+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T0002Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "22701b1733d7f42bd0b8b6160acf9676d78b36e4d34c0a8c0092f91c7d26bf2e",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "aee978442bca451032ea5046a54ec68c9d413007366d239719c5bb37784d0b1b",
+    "window": {
+     "start_s": 393.048,
+     "end_s": 491.536,
+     "record": "transcripts/Dky_8mOTl0Y/windows/393.048-491.536.whisper_words_punct.json",
+     "words_sha256": "bd87a7dc857efe1c6f3010c9cc0dbb5344de68380b69c293140964423418a8c5",
+     "record_sha256": "5c0eb871f52a6794ee3d19ac3d6fc10dfd26d6adb2f442c0499a96fcaa2116f9",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "17e35b17da78c54e699b",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      11,
+      12
+     ],
+     "offset_s": [
+      -0.29,
+      -0.11
+     ]
+    },
+    "ledger_text": "In 2022, if you remember the Luna collapse, $40 billion were erased like that. With FTX, $8 billion in customer funds were lost like that."
+   },
+   "rank_score": 17,
+   "source_key": "Dky_8mOTl0Y@393.048-491.536"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "98ec2a6b7d50b43875ff",
+   "video_id": "Dky_8mOTl0Y",
+   "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+   "channel_name": "Simply Bitcoin",
+   "published_at": "2026-11-16T00:00:20+00:00",
+   "title": "The Simpsons Predicted the 2027 Money Crash",
+   "transcript_sha256": "c2277fa963296f94f017a8b0cf0cc1937b9c2ede2d718beb000bdfa45f1e6df5",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    163,
+    191
+   ],
+   "sentences": [
+    10,
+    11
+   ],
+   "text": "That's every other crypto coin out there right now. Somebody made it, somebody controls it, and somebody's got a button and a magic equation to wipe it all out.",
+   "start": 380.504,
+   "end": 389.024,
+   "duration_s": 8.52,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 1,
+    "hook_first_2s": 2,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 5,
+    "stands_alone": 4,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [
+    "doom"
+   ],
+   "topics": [],
+   "reason": "Generalizes the 'button' risk to all other crypto coins; strong stance against centralized altcoins; stands alone well.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener",
+      "no_bitcoin",
+      "hook_lead"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "8.52 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T00:03:57.610281+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T0002Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "0be25cb393da56a9cfe5f8412a4326faf696374455c68afeda3da029a4b17b4c",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "119b60a6f444fa0ba1a95cc660cc03fd0ff2a428a828a1b55a3fd80a907a7dba",
+    "window": {
+     "start_s": 335.844,
+     "end_s": 434.061,
+     "record": "transcripts/Dky_8mOTl0Y/windows/335.844-434.061.whisper_words_punct.json",
+     "words_sha256": "fe45fd59550db2cd4aa15a7cd760355c1e5c7708585948353cccc0fac1b1c8b4",
+     "record_sha256": "2281a2c5753fbcb96f483f53b10921fbc946502f2909dc082fd1d0618b21b51b",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "6d1c757300cc6812374a",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      11
+     ],
+     "offset_s": [
+      -0.34,
+      -0.04
+     ]
+    },
+    "ledger_text": "That's every other crypto coin out there right now. Somebody made it, somebody controls it, and somebody's got a button and a magic equation to wipe it all out."
+   },
+   "rank_score": 16,
+   "source_key": "Dky_8mOTl0Y@335.844-434.061"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "dd2982b07b76360a4300",
+   "video_id": "5LXk2SLH4fI",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-16T01:41:19+00:00",
+   "title": "Why Bitcoin Just Lost Nearly 25% in Two Weeks | The News Block",
+   "transcript_sha256": "dda5f60f1083fe61cc39d870f97b515fa551a8f7ebb103579b76bc51409f75f7",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    151,
+    189
+   ],
+   "sentences": [
+    8,
+    9
+   ],
+   "text": "Now, the floor he talks about is the 200 week moving average, which is basically Bitcoin's average price over the past four years. It was sitting near 68,000, but... As you know, Bitcoin has just dropped below it.",
+   "start": 497.029,
+   "end": 509.399,
+   "duration_s": 12.37,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 4,
+    "stance": 2,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Explains the 200-week moving average as a 4-year average and notes Bitcoin just dropped below it, a key technical level for holders.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "12.37 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T01:48:47.559645+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T0147Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "ee0300bf9304eec9af24f59191f43e2eaab542f453e90dbbaa501b8ea234e6c9",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "fa8841838a60f904f646794effd9f0eedf79c0b666498240d881ac45a0d0539a",
+    "window": {
+     "start_s": 452.059,
+     "end_s": 554.51,
+     "record": "transcripts/5LXk2SLH4fI/windows/452.059-554.510.whisper_words_punct.json",
+     "words_sha256": "ffe69d6ca4ecde0cd89492bfaaf3815ea64c1cacd95cfae3a87ad6f47d3cecbf",
+     "record_sha256": "c37f304e74157323b84aeffc145a9a793fa236b21172c9158c1b82f1c99eda4d",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "b49a6ece1f40c2744d71",
+    "reanchored": {
+     "anchor_ratio": 0.96,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      9
+     ],
+     "offset_s": [
+      -0.03,
+      -0.11
+     ]
+    },
+    "ledger_text": "Now, the floor he talks about is the 200week moving average, which is basically Bitcoin's average price over the past four years. It was sitting near 68,000, but as you know, Bitcoin has just dropped below it."
+   },
+   "rank_score": 16,
+   "source_key": "5LXk2SLH4fI@452.059-554.510"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "21d8769b73dd20f4894b",
+   "video_id": "5LXk2SLH4fI",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-16T01:41:19+00:00",
+   "title": "Why Bitcoin Just Lost Nearly 25% in Two Weeks | The News Block",
+   "transcript_sha256": "637c49d2c52a34c6197c6a85b1710820ffd2d46e0a16c1abd3bbed9a1e3a7aac",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    134,
+    161
+   ],
+   "sentences": [
+    12,
+    13
+   ],
+   "text": "Bitcoin's mining difficulty just fell more than 9%. That's the biggest cut since June, which is what happens when miners turn off machines that are no longer profitable.",
+   "start": 79.926,
+   "end": 88.546,
+   "duration_s": 8.62,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 1,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Explains mining difficulty drop and its cause (miners turning off machines). Factual and relevant to Bitcoin network health.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "8.62 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T01:48:47.559645+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T0147Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "0d35feedbbe8e1c6cbaa67af32448df251b0e7f4840f7fb5e8a00931847f3614",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "702edd031d3154419ccc11333927a24d44e01141e630af590d8a0669df45f1a9",
+    "window": {
+     "start_s": 34.776,
+     "end_s": 134.041,
+     "record": "transcripts/5LXk2SLH4fI/windows/34.776-134.041.whisper_words_punct.json",
+     "words_sha256": "7ec9344ece56b7451e50374a04ae75990b05131d40063223fa5df5ae0d5c7bca",
+     "record_sha256": "0a03793b44fc891484faffaa5dcaab77c485fffdfb511d14dca5abe62d0ebf6f",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "dbb7f29feca1f09ff36a",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      12,
+      13
+     ],
+     "offset_s": [
+      0.15,
+      -0.49
+     ]
+    },
+    "ledger_text": "Bitcoin's mining difficulty just fell more than 9%. That's the biggest cut since June, which is what happens when miners turn off machines that are no longer profitable."
+   },
+   "rank_score": 15,
+   "source_key": "5LXk2SLH4fI@34.776-134.041"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "c0b1406eac275405e82a",
+   "video_id": "5LXk2SLH4fI",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-16T01:41:19+00:00",
+   "title": "Why Bitcoin Just Lost Nearly 25% in Two Weeks | The News Block",
+   "transcript_sha256": "2bbd4d4aecf18ae636c59c1176c24dc441350363f3cef4bd3878e853cac7c2a3",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    141,
+    190
+   ],
+   "sentences": [
+    12,
+    14
+   ],
+   "text": "That's 10 to one leverage. So if Bitcoin goes up 10%, you make $7,000 before fees and other costs, doubling your starting money. But if the price falls, the exchange can close your bet before it's even down 10%, and you can lose most or all of that 7K.",
+   "start": 159.577,
+   "end": 175.087,
+   "duration_s": 15.51,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 1,
+    "stakes": 3,
+    "stance": 1,
+    "stands_alone": 3,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Explains the mechanics of 10x leverage and how liquidation works in simple terms.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "15.51 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T01:48:47.559645+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T0147Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "0ec1ba0c1090883a58f92fdd4bfab9336672f6ccde80b1d03faf691b5e6182c9",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "0684f5ad7696ee676b03ab86f9420071d0b869d32e77f6ef710ea72bf32fd049",
+    "window": {
+     "start_s": 114.567,
+     "end_s": 217.337,
+     "record": "transcripts/5LXk2SLH4fI/windows/114.567-217.337.whisper_words_punct.json",
+     "words_sha256": "2138055a43f50e2e783f9225a34f94554da9dfb6486313bdcd43baf2e5e4666a",
+     "record_sha256": "a3711848553499780c547d362c989155134c0986337f3eea184141f4d28e17c4",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "6c3cc018465e5974758e",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      10
+     ],
+     "sentences": [
+      12,
+      14
+     ],
+     "added": {
+      "before": "",
+      "after": "and you can lose most or all of that 7K."
+     },
+     "offset_s": [
+      0.01,
+      0.27
+     ]
+    },
+    "ledger_text": "That's 10 to one leverage. So, if Bitcoin goes up 10%, you make $7,000 before fees and other costs, doubling your starting money. But if the price falls, the exchange can close your bet before it's even down 10%."
+   },
+   "rank_score": 12,
+   "source_key": "5LXk2SLH4fI@114.567-217.337"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "f6cd42cbf9c6b48a2d72",
+   "video_id": "M6_MGnSvoAY",
+   "channel_id": "UCIALMKvObZNtJ6AmdCLP7Lg",
+   "channel_name": "Bloomberg Television",
+   "published_at": "2026-11-16T10:00:03+00:00",
+   "title": "Nvidia Fallout Puts ASEAN's Tech Boom in Focus",
+   "transcript_sha256": "b1408e3090db214c4716b82846f81416de9bb9dd52fb1ec0b1d1503e21bdbfec",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    124,
+    134
+   ],
+   "sentences": [
+    9,
+    9
+   ],
+   "text": "We did see Bitcoin fall off a cliff in the weekend.",
+   "start": 4397.009,
+   "end": 4399.409,
+   "duration_s": 2.4,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 1,
+    "quotable": 0,
+    "stakes": 1,
+    "stance": 0,
+    "stands_alone": 1,
+    "surprising_fact": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Mentions Bitcoin price action but is a fragment of a larger market report; lacks standalone context and strong hook.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "2.4 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "2.4 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-16T10:08:16.490245+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261116T1006Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "4f8cf33302f0df053d3954709ac0647f56cdf518a3909ac6a4b70f7da8172d17",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "af5e117fc2a6af6807fddfff826187c835780494f7fd4d6168c264f3ceb25913",
+    "window": {
+     "start_s": 4352.659,
+     "end_s": 4445.796,
+     "record": "transcripts/M6_MGnSvoAY/windows/4352.659-4445.796.whisper_words_punct.json",
+     "words_sha256": "2d66e4c63724e634ac61e7a0bc41cc48feb527054bd7fb5159cba8d27c62fe6d",
+     "record_sha256": "b2581ea6bb3e1bb7751c872ea92b777739253264e09c235a00e5c35087c50323",
+     "context_record": "yt_manual:en"
+    },
+    "ledger_moment_id": "533ed7f7feb11c29a769",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      9
+     ],
+     "offset_s": [
+      -0.65,
+      -1.39
+     ]
+    },
+    "ledger_text": "WE DID SEE BITCOIN FALL OFF A CLIFF IN THE WEEKEND."
+   },
+   "rank_score": 3,
+   "source_key": "M6_MGnSvoAY@4352.659-4445.796"
+  }
+ ],
+ "next_attempt": {
+  "conversation": {
+   "video_id": "M6_MGnSvoAY",
+   "channel": "Bloomberg Television",
+   "published_at": "2026-11-16T10:00:03Z",
+   "expires_at": "2026-11-16T22:00:03Z",
+   "age_h": 1.5,
+   "turns_per_min": 0.64,
+   "unmarked": false,
+   "turns_from": "pp-ingest episode",
+   "rows": 1,
+   "passes": {
+    "moment/mine/2": 1
+   },
+   "word_pass_ready": 1,
+   "word_pass_refused": 0,
+   "word_pass_waiting": 0
+  },
+  "newest_upload": {
+   "video_id": "M6_MGnSvoAY",
+   "channel": "Bloomberg Television",
+   "published_at": "2026-11-16T10:00:03Z",
+   "expires_at": "2026-11-16T22:00:03Z",
+   "age_h": 1.5,
+   "turns_per_min": 0.64,
+   "unmarked": false,
+   "turns_from": "pp-ingest episode",
+   "rows": 1,
+   "passes": {
+    "moment/mine/2": 1
+   },
+   "word_pass_ready": 1,
+   "word_pass_refused": 0,
+   "word_pass_waiting": 0
+  },
+  "rule": "the newest upload whose captions do not refuse it (unmarked, or marked with a speaker change; ruling 92 amended: the layout decides per clip) (ruling 95)"
+ }
+}

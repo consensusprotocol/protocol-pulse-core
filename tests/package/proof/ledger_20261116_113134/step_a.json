@@ -1,0 +1,511 @@
+{
+ "852da61da08ef2aa45ef:9d43580c729b": {
+  "label": "852da61da08ef2aa45ef",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is money that lives on thousands of nodes-computers all across the world-each running a ledger that records the truth of all transactions that have ever happened, including who owns what and how much people own.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "And this brings us to our sponsors, Letin the leader in Bitcoin back loans.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c2417f60d989426e6a0e:9d43580c729b": {
+  "label": "c2417f60d989426e6a0e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "last week",
+    "refers_to": "the week preceding the show date of 2026-11-16",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "last week",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "It is undisputed that no person who held their own Bitcoin (without leverage) was forced to sell during the price drop last week.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Letin offers custody loans, never lent out for interest, with a track record of protecting billions in client assets. Hard assets, higher standards. Check your rate at lein.ioatalie. Availability varies by jurisdiction. All right, so much to catch up on with this Jensen Huang story.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c2417f60d989426e6a0e~trim:9d43580c729b": {
+  "label": "c2417f60d989426e6a0e~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "their",
+    "refers_to": "Bitcoin owners who simply hold",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "last week",
+    "refers_to": "the week of the Bitcoin crash and liquidations discussed earlier",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "last week",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "It is undisputed that nobody who simply owns their Bitcoin was forced to sell last week.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "56c1e50978f389f7a2fc:9d43580c729b": {
+  "label": "56c1e50978f389f7a2fc",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the idea that Bitcoin is the asset that survives the episodes",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "these",
+    "refers_to": "the Simpsons episodes about financial crashes and debt",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "we",
+    "refers_to": "speaker and audience",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "Mr. Burns being smart enough to buy Bitcoin",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Mr. Burns would have bought Bitcoin as it is the one asset that survives all the Simpsons episodes about financial crashes that were watched, which is why the speaker stacks Bitcoin.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Dante Cook with Bitcoin simply. Happy stacking.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f2aa6e95cb04d9211644:9d43580c729b": {
+  "label": "f2aa6e95cb04d9211644",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "he",
+    "refers_to": "Adam Back",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "its",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "by 2028",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Adam Back says he has a bet on Bitcoin reaching $1 million by 2028, but the price has just fallen below the line he calls its floor.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I covered this whole circular financing in a recent special video on the AI buildout and the risks of a debt spiral. One analyst who I've had on the show, James Czech, calls this a deep value zone for buying Bitcoin",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7acab90139ce3b662237:9d43580c729b": {
+  "label": "7acab90139ce3b662237",
+  "speaker_changes_inside": "no",
+  "view": "question",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "governments or central banks that print money",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If Bitcoin is the one thing that I know that they can't print",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Given that Bitcoin cannot be printed by others, the speaker questions how much of it is needed to retire.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Dante Cook with Bitcoin simply.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f6a3e905900af38fe2e8:9d43580c729b": {
+  "label": "f6a3e905900af38fe2e8",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "these",
+    "refers_to": "the recent ~25% Bitcoin drawdowns and liquidations",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "selling Bitcoin to cover a big expense",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "especially if you bought much higher or your cost basis is higher than the current price",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "It is not fun to ride these drawdowns especially if one's cost basis is above the current price, selling Bitcoin to cover a big expense is the move most holders regret, and it is not the only option.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7b106fda94a4c0dd7562:9d43580c729b": {
+  "label": "7b106fda94a4c0dd7562",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Mara",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "its",
+    "refers_to": "Mara",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in recent weeks",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "One of the biggest public miners, Mara, disclosed selling about 40% of its Bitcoin in recent weeks for more than a billion dollars.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Stripes Matt Cole, who's on my show this week",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7b106fda94a4c0dd7562~trim:9d43580c729b": {
+  "label": "7b106fda94a4c0dd7562~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Mara",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "its",
+    "refers_to": "Mara",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in recent weeks",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "One of the biggest public miners, Mara, disclosed selling about 40% of its Bitcoin in recent weeks for more than a billion dollars.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Stripes Matt Cole, who's on my show this week",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2d0bb81b3fb07d6ca3ee:9d43580c729b": {
+  "label": "2d0bb81b3fb07d6ca3ee",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "more than 9% fall in mining difficulty",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "its",
+    "refers_to": "Bitcoin's",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if the Bitcoin price falls to around 60K",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The last time Bitcoin mining difficulty fell this much was a few weeks before it hit its annual low, so more pain and liquidations of leveraged positions could occur if its price falls to around 60K.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "Stripes Matt Cole, who's on my show this week",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "dd2982b07b76360a4300:9d43580c729b": {
+  "label": "dd2982b07b76360a4300",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "he",
+    "refers_to": "Adam Back",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It",
+    "refers_to": "the 200-week moving average",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "the 200-week moving average",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the past four years",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The floor Adam Back talks about is the 200-week moving average, Bitcoin's average price over the past four years that was near 68,000 before Bitcoin just dropped below it.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "One analyst who I've had on the show, James Czech,",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "21d8769b73dd20f4894b:9d43580c729b": {
+  "label": "21d8769b73dd20f4894b",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "That's",
+    "refers_to": "Bitcoin's mining difficulty just fell more than 9%",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "which",
+    "refers_to": "mining difficulty just fell more than 9%",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "just (recently)",
+    "inside": true
+   },
+   {
+    "text": "when miners turn off machines that are no longer profitable",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's mining difficulty just fell more than 9%, which is the biggest cut since June and occurs when miners turn off unprofitable machines.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "who's on my show this week",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c0b1406eac275405e82a:9d43580c729b": {
+  "label": "c0b1406eac275405e82a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "That's",
+    "refers_to": "putting $7,000 down as a deposit to make a $70,000 bet",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin's price",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the $7,000",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if Bitcoin goes up 10%",
+    "inside": true
+   },
+   {
+    "text": "if the price falls before it's even down 10%",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "That's 10 to one leverage, so a 10% Bitcoin price rise doubles the $7,000 while the exchange can liquidate before a 10% drop, losing most or all of the $7,000.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "It's something I've warned against on this show countless times.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f6cd42cbf9c6b48a2d72:9d43580c729b": {
+  "label": "f6cd42cbf9c6b48a2d72",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "in the weekend",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin fell off a cliff during the weekend.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "LET'S BRING IN MARKETS REPORT THE -- REPORTER ANTHONY STEPHENS FOR MORE.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "33631775a48a4dcd3c38:9d43580c729b": {
+  "label": "33631775a48a4dcd3c38",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "Those",
+    "refers_to": "$2 billion in leveraged positions",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "here",
+    "refers_to": "the current Bitcoin market downturn",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "they",
+    "refers_to": "investors",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "In just one day",
+    "inside": true
+   },
+   {
+    "text": "when they get nervous",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In just one day about $2 billion in leveraged positions (bets made with borrowed money) were wiped out affecting more than 300,000 traders, and Bitcoin may be the canary in the coal mine here because it is often the first thing investors sell when they get nervous.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "who's on my show this week",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}
