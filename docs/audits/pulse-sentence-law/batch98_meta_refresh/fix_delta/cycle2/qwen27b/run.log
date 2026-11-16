@@ -1,0 +1,21 @@
+# Heimdall audit
+
+**Question:** Try to BREAK this DELTA to pipeline/transcript_store.py: metadata reads that fail on a timeout or a missing yt-dlp become logged AcquisitionErrors, and the newest metadata snapshot is chosen by its read time (metadata_fetched_at) instead of by its line position. For each attempt, give the exact history file content or yt-dlp behaviour and the code path. Report ONLY the attempts that succeed, quoting the lines that let them through. If none succeeds, answer PASS with no findings.
+
+GOALS:
+Y1. Make ensure_meta return a snapshot that is not this video's latest read: a stale live one, a foreign one, a torn one, or an undated one over a dated one.
+Y2. Make acquire raise on a yt-dlp failure during a re-read.
+Y3. Make refresh_meta call YouTube on every call, or never again, through a read time it cannot parse.
+
+**Panel:** qwen27b  |  **Cost:** $0.0049
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none
+
+
+saved: heimdall

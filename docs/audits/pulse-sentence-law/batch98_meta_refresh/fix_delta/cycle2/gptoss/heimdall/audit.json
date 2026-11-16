@@ -1,0 +1,48 @@
+{
+ "question": "Try to BREAK this DELTA to pipeline/transcript_store.py: metadata reads that fail on a timeout or a missing yt-dlp become logged AcquisitionErrors, and the newest metadata snapshot is chosen by its read time (metadata_fetched_at) instead of by its line position. For each attempt, give the exact history file content or yt-dlp behaviour and the code path. Report ONLY the attempts that succeed, quoting the lines that let them through. If none succeeds, answer PASS with no findings.\n\nGOALS:\nY1. Make ensure_meta return a snapshot that is not this video's latest read: a stale live one, a foreign one, a torn one, or an undated one over a dated one.\nY2. Make acquire raise on a yt-dlp failure during a re-read.\nY3. Make refresh_meta call YouTube on every call, or never again, through a read time it cannot parse.",
+ "files": [],
+ "panel": {
+  "gptoss": "openai/gpt-oss-20b"
+ },
+ "cycle1": [
+  {
+   "name": "gptoss",
+   "model": "openai/gpt-oss-20b",
+   "status": 200,
+   "latency_s": 23.3,
+   "cost": 0.0005053,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "gptoss",
+   "status": 200,
+   "latency_s": 2.9,
+   "cost": 8.4506e-05,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "gptoss:F1",
+   "severity": "high",
+   "file": "pipeline/transcript_store.py",
+   "line": 120,
+   "issue": "_fetch_meta does not catch CalledProcessError from yt-dlp, so failures that result in a non\u2011zero exit code are not logged as AcquisitionError and propagate uncaught.",
+   "evidence": "    try:\n        r = _ytdlp([\"-J\", \"--skip-download\", canonical_url(video_id)])\n    except (subprocess.TimeoutExpired, OSError) as e:\n        _log_attempt(video_id, step=step, status=\"unavailable\", error=f\"{type(e).__name__}: {e}\"[-300:])\n        raise AcquisitionError(f\"metadata unavailable for {video_id}: {type(e).__name__}: {e}\") from None",
+   "fix": "Add a clause to catch subprocess.CalledProcessError in the except block, log it as an AcquisitionError, and re\u2011raise. For example:\n    except (subprocess.TimeoutExpired, OSError, subprocess.CalledProcessError) as e:\n        _log_attempt(video_id, step=step, status=\"unavailable\", error=f\"{type(e).__name__}: {e}\"[-300:])\n        raise AcquisitionError(f\"metadata unavailable for {video_id}: {type(e).__name__}: {e}\") from None",
+   "agree": [
+    "gptoss"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.000589806,
+ "out_dir": "heimdall"
+}

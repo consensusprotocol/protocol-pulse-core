@@ -1,0 +1,26 @@
+{
+ "question": "Review this DELTA to pipeline/transcript_store.py. It fixes two findings from the audit of the stored-live-record re-read:\n- (C1) a hung or missing yt-dlp (subprocess.TimeoutExpired, OSError) on a metadata read now becomes a logged AcquisitionError, which acquire() already catches for a re-read;\n- (C2) the newest snapshot is now the one READ last, by metadata_fetched_at, not the last line of meta_history.jsonl.\n\nReport ONLY defects you can prove by quoting the diff's code. Keep each \"issue\" under 60 words. If every check holds, answer PASS with no findings.\n\nCHECKS:\nD1. Does every yt-dlp failure (a timeout, a missing binary, a non-JSON reply) now end in a logged AcquisitionError, with nothing else raised?\nD2. Does _newest_meta pick the snapshot with the latest metadata_fetched_at? On a tie, does the later line win? Is a snapshot that gives no read time never chosen over a dated one? Are torn and foreign lines skipped?\nD3. Does refresh_meta's re-read interval use the same read time (_fetched_at)? Can a malformed read time make it re-read on every call, or never?\nD4. Does the delta change anything else?",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 64.6,
+   "cost": 0.0022157839,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0022157839,
+ "out_dir": "heimdall"
+}
