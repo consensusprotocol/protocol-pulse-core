@@ -977,5 +977,53 @@ class TestRuling85NoXai(unittest.TestCase):
         second = self.pick(r, "context_verdict", {fb.vendor}, {fb.family}, kind="step_a_second")
         self.assertEqual((first, second), (X, DS))                                 # Grok's first, deepseek's off it
 
+class TestOrder1750OneLineUpAtATime(unittest.TestCase):
+    """ORDER 17:50 ET Nov 16: the 21:10 reset build spends the fresh dollar on ONE line-up at a time (--only: this build
+    takes only the moments a candidate set names) and stops outside calls at $0.80 (--stop-usd; at most $1.25)."""
+
+    def pins(self):
+        return [os.path.join(HERE, "proof", "fresh_20261112_050611", n) for n in ("MOMENTS_PIN.json",
+                                                                                 "MOMENTS_PIN_LY.json")]
+
+    def test_a_bad_only_file_or_stop_refuses_the_run_before_anything_is_written(self):
+        sys.path.insert(0, HERE)
+        import proof_ledger as PLG
+        proof = os.path.join(HERE, "proof")
+        before = sorted(n for n in os.listdir(proof) if n.startswith("ledger_"))
+        with tempfile.TemporaryDirectory() as d, mock.patch("sys.stderr", new=io.StringIO()), refused_only():
+            for name, body in (("empty.json", {"ids": [], "why": "w"}), ("nowhy.json", {"ids": ["a"]}),
+                               ("notlist.json", {"ids": "a", "why": "w"}), ("blank.json", {"ids": [""], "why": "w"})):
+                with open(os.path.join(d, name), "w") as f:
+                    json.dump(body, f)
+                self.assertEqual(PLG.main(["--delivered", *self.pins(), "--only", os.path.join(d, name)]), 2, name)
+            self.assertEqual(PLG.main(["--delivered", *self.pins(), "--only", os.path.join(d, "missing.json")]), 2)
+            for bad in ("0", "-1", "1.26", "2"):
+                self.assertEqual(PLG.main(["--delivered", *self.pins(), "--stop-usd", bad]), 2, bad)
+        self.assertEqual(sorted(n for n in os.listdir(proof) if n.startswith("ledger_")), before)
+
+    def test_only_keeps_the_named_moments_in_the_pools_order_and_names_the_missing(self):
+        sys.path.insert(0, HERE)
+        import proof_ledger as PLG
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "only.json")
+            with open(p, "w") as f:
+                json.dump({"ids": ["c", "a", "gone", "a"], "why": "story S-1"}, f)
+            only = PLG.read_only(p)
+            self.assertEqual((only["ids"], only["why"]), (["c", "a", "gone"], "story S-1"))
+            kept, rec = PLG.only_moments([{"moment_id": x} for x in ("a", "b", "c")], only)
+            self.assertEqual([m["moment_id"] for m in kept], ["a", "c"])
+            self.assertEqual((rec["asked"], rec["kept"], rec["missing"]), (3, 2, ["gone"]))
+
+    def test_the_stop_holds_the_start_and_the_router(self):
+        sys.path.insert(0, HERE)
+        import proof_ledger as PLG
+        self.assertIn("$0.80 stop", PLG.start_refused(0.80, 0.80))
+        self.assertIsNone(PLG.start_refused(0.79, 0.80))
+        self.assertIsNone(PLG.start_refused(0.99))                          # the day's own stop when none is given
+        self.assertIsNotNone(PLG.start_refused(PLG.PL.LY_STOP_USD))
+        self.assertEqual(PLG.build_router("heimdall_first", {}, os.devnull, limit=0.8).limit_usd, 0.8)
+        self.assertEqual(PLG.build_router("heimdall_first", {}, os.devnull).limit_usd, PLG.PL.LY_LIMIT_USD)
+
+
 if __name__ == "__main__":
     unittest.main()

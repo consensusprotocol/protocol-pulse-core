@@ -1,0 +1,203 @@
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index ec6d16ff..544684c2 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -217,11 +217,38 @@ def delivered_pins(paths):
+     return spans, newest, pins
+ 
+ 
+-def build_router(routing, shadow, shadow_log):
++STOP_CEILING_USD = 1.25          # ORDER 17:50 ET Nov 16: --stop-usd at most this ('ADD 25 CENTS': a day cap of $1.25)
++
++
++def read_only(path):
++    """ORDER 17:50 ET Nov 16 ("spend the fresh dollar on ONE line-up at a time, the likeliest first; do not screen the
++    whole held pool at Grok"): the --only file, {"ids": [this build's moment ids, at least one], "why": a reason}.
++    -> {"ids", "why", "file"}, or ValueError."""
++    with open(path) as f:
++        d = json.load(f)
++    ids = d.get("ids") if isinstance(d, dict) else None
++    if not (isinstance(ids, list) and ids and all(isinstance(x, str) and x for x in ids)) or \
++            not isinstance(d.get("why"), str) or not d["why"].strip():
++        raise ValueError(f"--only {path}: needs {{'ids': [moment ids], 'why': text}}")
++    return {"ids": list(dict.fromkeys(ids)), "why": d["why"].strip(), "file": path}
++
++
++def only_moments(moments, only):
++    """The --only set: the pool's moments it names, in the pool's order (a trimmed variant is made later, beside its
++    parent, as for any moment). -> (moments, record: file, why, asked, kept, missing)."""
++    want = set(only["ids"])
++    kept = [m for m in moments if m["moment_id"] in want]
++    have = {m["moment_id"] for m in kept}
++    return kept, {"file": only["file"], "why": only["why"], "asked": len(only["ids"]), "kept": len(kept),
++                  "missing": [x for x in only["ids"] if x not in have]}
++
++
++def build_router(routing, shadow, shadow_log, limit=None):
+     """The build's router: ruling 48's ledger and limit, the routing's chains (frozen legs out), the evidence file
+     (item 55), ruling 86's shadow, ruling 87's shared Heimdall health and Plan B chains, ruling 99's circuit breaker,
+     ruling 100's deadline table (recomputed daily from the build's own recorded answers)."""
+-    return P.Router(env_path=PS.ENV, record_dir=PL.REPLIES, spend_path=PL.SPEND, limit_usd=PL.LY_LIMIT_USD,
++    return P.Router(env_path=PS.ENV, record_dir=PL.REPLIES, spend_path=PL.SPEND,
++                    limit_usd=PL.LY_LIMIT_USD if limit is None else limit,        # ORDER 17:50: --stop-usd
+                     limit_basis=PL.LY_LIMIT_BASIS, chains=PL.chains(routing), deadline_log=PL.DEADLINE_LOG,
+                     routing=routing, shadow=shadow, shadow_log=shadow_log,
+                     health=HH.STATE, plan_b_chains=PL.plan_b_chains(), state_md=STATE_MD,      # ruling 87
+@@ -297,12 +324,14 @@ def with_variants(moments, sources, ctx, inputs, say, results_dir=None, directiv
+     return [m for m in moments if m["moment_id"] not in replaced] + variants
+ 
+ 
+-def start_refused(spent0):
++def start_refused(spent0, stop=None):
+     """RULING 48, with the orchestrator's stop of 13:02 Nov 14 (the $16 stop passed with leave; at $19 stop and tell on
+-    STATE line 1 in capitals): no build starts at or over PL.LY_STOP_USD. -> the refusal line, or None."""
+-    if spent0 >= PL.LY_STOP_USD:
++    STATE line 1 in capitals): no build starts at or over PL.LY_STOP_USD (or this build's --stop-usd, ORDER 17:50 ET
++    Nov 16). -> the refusal line, or None."""
++    stop = PL.LY_STOP_USD if stop is None else stop
++    if spent0 >= stop:
+         return (f"REFUSED (ruling 48): this order's ledger stands at ${spent0:.2f} vendor-reported (the estimate where a "
+-                f"vendor reports none), at or over the ${PL.LY_STOP_USD:.2f} stop: no build starts; the orchestrator "
++                f"vendor reports none), at or over the ${stop:.2f} stop: no build starts; the orchestrator "
+                 f"decides (13:02 Nov 14: SAY IT ON STATE LINE 1 IN CAPITALS)")
+     return None
+ 
+@@ -354,6 +383,10 @@ def main(argv=None):
+     ap.add_argument("--word-pass", default=LB.WORD_PASS, help="the word-pass worker's rows (read-only)")
+     ap.add_argument("--routing", choices=P.ROUTINGS, default=None,
+                     help="RULING 85: 'today' or 'heimdall_first' (default: model_providers.json routing.mode)")
++    ap.add_argument("--only", metavar="FILE", help="ORDER 17:50 ET Nov 16: {'ids': [moment ids], 'why': text}: this "
++                    "build takes only those moments of the pool, every gate as before (one line-up at a time)")
++    ap.add_argument("--stop-usd", type=float, default=None, help="ORDER 17:50 ET Nov 16: this build's outside-dollar "
++                    f"limit (no build starts at it; the router stops outside calls at it), in (0, {STOP_CEILING_USD}]")
+     ap.add_argument("--from-candidate", metavar="BUILD_DIR[:N]",
+                     help="RULING 66: try ONLY the line-up that passed the clips-alone verdict in this earlier build's "
+                          "record (its tried[N]; default the first that passed), as it was judged")
+@@ -370,6 +403,9 @@ def main(argv=None):
+         if since > now:
+             raise ValueError(f"since {since.isoformat()} is after now")
+         cand = None
++        only = read_only(a.only) if a.only else None     # ORDER 17:50 ET Nov 16: read before anything is written
++        if a.stop_usd is not None and not 0 < a.stop_usd <= STOP_CEILING_USD:
++            raise ValueError(f"--stop-usd {a.stop_usd} is outside (0, {STOP_CEILING_USD}]")
+         if a.from_candidate:                             # RULING 66: read before anything is written
+             cdir, sep, idx = a.from_candidate.rpartition(":")
+             cdir, idx = (cdir, idx) if sep and idx.isdigit() else (a.from_candidate, "")
+@@ -428,6 +464,10 @@ def main(argv=None):
+                                                ledger_store=os.path.join(LB.INGEST_ROOT, "data", "editorial"),
+                                                word_pass_refused=wp_refused)
+     inputs["word_pass"] = wp_rep
++    if only is not None:                                 # ORDER 17:50 ET Nov 16: one candidate set, before variants
++        moments, inputs["only"] = only_moments(moments, only)
++        say(f"  ORDER 17:50: --only: {inputs['only']['kept']} of {inputs['only']['asked']} listed moments in this pool "
++            f"({only['why']})" + (f"; not in it: {inputs['only']['missing']}" if inputs['only']['missing'] else ""))
+     try:                                                 # RULING 95: when the next qualifying episode could arrive. It
+         next_try = SPOT.next_attempt(rows, wp, now, refused=wp_refused)   # reads the inputs alone, so it is computed
+     except Exception as e:                               # noqa: BLE001  here, recorded with them, and is a report,
+@@ -450,7 +490,9 @@ def main(argv=None):
+     rt = json.load(open(P.CONFIG)).get("routing") or {}
+     routing = a.routing or rt.get("mode") or "today"
+     shadow = build_shadow(routing, rt, SH.clean_streak)   # RULING 86 (Grok) / RULING 115 (qwen on every hook)
+-    router = build_router(routing, shadow, os.path.join(out_dir, "SHADOW86.jsonl"))
++    limit = PL.LY_LIMIT_USD if a.stop_usd is None else a.stop_usd   # ORDER 17:50 ET Nov 16: --stop-usd
++    stop = PL.LY_STOP_USD if a.stop_usd is None else a.stop_usd
++    router = build_router(routing, shadow, os.path.join(out_dir, "SHADOW86.jsonl"), limit=limit)
+     say(f"  routing (ruling 85): {router.routing}; now {router.mode()} (ruling 87: the shared Heimdall health)"
+         + (f"; SHADOW (ruling 86 / 115): {shadow}" if shadow else ""))
+     live, live_why = PK.hook_live_bar()          # RULING 115: the bar in every build line, its floors and its sha
+@@ -462,13 +504,13 @@ def main(argv=None):
+     say(f"  RULING 100 (deadlines follow the model, table of {(router.deadlines or {}).get('computed_at')}): "
+         f"{DT.text(router.deadlines, applies=applied(router)) or 'no row applies: each gateway keeps its number'}")
+     spent0 = router.spent()                      # ruling 48: the running total, vendor-reported (+ estimates where none)
+-    refused = start_refused(spent0)
++    refused = start_refused(spent0, stop)
+     if refused:
+         say(refused)
+         logf.close()
+         return 3
+-    say(f"  spend (ruling 48): ${spent0:.2f} of ${PL.LY_LIMIT_USD:.2f} vendor-reported before this build (no build "
+-        f"starts at ${PL.LY_STOP_USD:.2f})")
++    say(f"  spend (ruling 48): ${spent0:.2f} of ${limit:.2f} vendor-reported before this build (no build "
++        f"starts at ${stop:.2f})")
+     own, used = PL.meter(router), PL.reply_meter(router)
+     t0 = time.time()
+     spotlit = SPOT.load_spotlit(SPOTLIGHTS)              # RULING 90: free; its pool goes to the clip scorer with the
+@@ -624,8 +666,9 @@ def main(argv=None):
+         after = round(router.spent(), 4)         # (after the shadows: their spend is in it)
+     except Exception as e:                       # noqa: BLE001
+         after = f"unreadable: {type(e).__name__}: {str(e)[:120]}"
+-    res["spend_ruling_48"] = {"before": round(spent0, 4), "after": after, "cap": PL.LY_LIMIT_USD,
+-                              "stop": PL.LY_STOP_USD, "basis": PL.LY_LIMIT_BASIS}
++    res["spend_ruling_48"] = {"before": round(spent0, 4), "after": after, "cap": limit, "stop": stop,
++                              "basis": PL.LY_LIMIT_BASIS, **({"order_17_50_stop": a.stop_usd}
++                                                             if a.stop_usd is not None else {})}
+     line101 = ruling_101_line((res.get("prescreen") or {}).get("parallel_101"))   # RULING 101: the extra spend
+     if line101:
+         say(line101)
+@@ -635,7 +678,7 @@ def main(argv=None):
+         f"vendor-reported" + (f" + ${vis.get('usd_estimate', 0):.4f} price-table estimate for "
+                               f"{vis.get('estimated_calls', 0)} call(s) with no vendor figure"
+                               if vis.get("estimated_calls") else ""))
+-    say(f"  spend (ruling 48): {after if isinstance(after, str) else f'${after:.2f}'} of ${PL.LY_LIMIT_USD:.2f} "
++    say(f"  spend (ruling 48): {after if isinstance(after, str) else f'${after:.2f}'} of ${limit:.2f} "
+         f"vendor-reported after this build (before it: ${spent0:.2f})")
+     evs = router.breaker_events                  # RULING 99: the circuit breaker's count, for STATE line 1
+     try:
+diff --git a/tests/package/test_ledger_build.py b/tests/package/test_ledger_build.py
+index 8364c0a1..384c8878 100644
+--- a/tests/package/test_ledger_build.py
++++ b/tests/package/test_ledger_build.py
+@@ -977,5 +977,53 @@ class TestRuling85NoXai(unittest.TestCase):
+         second = self.pick(r, "context_verdict", {fb.vendor}, {fb.family}, kind="step_a_second")
+         self.assertEqual((first, second), (X, DS))                                 # Grok's first, deepseek's off it
+ 
++class TestOrder1750OneLineUpAtATime(unittest.TestCase):
++    """ORDER 17:50 ET Nov 16: the 21:10 reset build spends the fresh dollar on ONE line-up at a time (--only: this build
++    takes only the moments a candidate set names) and stops outside calls at $0.80 (--stop-usd; at most $1.25)."""
++
++    def pins(self):
++        return [os.path.join(HERE, "proof", "fresh_20261112_050611", n) for n in ("MOMENTS_PIN.json",
++                                                                                 "MOMENTS_PIN_LY.json")]
++
++    def test_a_bad_only_file_or_stop_refuses_the_run_before_anything_is_written(self):
++        sys.path.insert(0, HERE)
++        import proof_ledger as PLG
++        proof = os.path.join(HERE, "proof")
++        before = sorted(n for n in os.listdir(proof) if n.startswith("ledger_"))
++        with tempfile.TemporaryDirectory() as d, mock.patch("sys.stderr", new=io.StringIO()), refused_only():
++            for name, body in (("empty.json", {"ids": [], "why": "w"}), ("nowhy.json", {"ids": ["a"]}),
++                               ("notlist.json", {"ids": "a", "why": "w"}), ("blank.json", {"ids": [""], "why": "w"})):
++                with open(os.path.join(d, name), "w") as f:
++                    json.dump(body, f)
++                self.assertEqual(PLG.main(["--delivered", *self.pins(), "--only", os.path.join(d, name)]), 2, name)
++            self.assertEqual(PLG.main(["--delivered", *self.pins(), "--only", os.path.join(d, "missing.json")]), 2)
++            for bad in ("0", "-1", "1.26", "2"):
++                self.assertEqual(PLG.main(["--delivered", *self.pins(), "--stop-usd", bad]), 2, bad)
++        self.assertEqual(sorted(n for n in os.listdir(proof) if n.startswith("ledger_")), before)
++
++    def test_only_keeps_the_named_moments_in_the_pools_order_and_names_the_missing(self):
++        sys.path.insert(0, HERE)
++        import proof_ledger as PLG
++        with tempfile.TemporaryDirectory() as d:
++            p = os.path.join(d, "only.json")
++            with open(p, "w") as f:
++                json.dump({"ids": ["c", "a", "gone", "a"], "why": "story S-1"}, f)
++            only = PLG.read_only(p)
++            self.assertEqual((only["ids"], only["why"]), (["c", "a", "gone"], "story S-1"))
++            kept, rec = PLG.only_moments([{"moment_id": x} for x in ("a", "b", "c")], only)
++            self.assertEqual([m["moment_id"] for m in kept], ["a", "c"])
++            self.assertEqual((rec["asked"], rec["kept"], rec["missing"]), (3, 2, ["gone"]))
++
++    def test_the_stop_holds_the_start_and_the_router(self):
++        sys.path.insert(0, HERE)
++        import proof_ledger as PLG
++        self.assertIn("$0.80 stop", PLG.start_refused(0.80, 0.80))
++        self.assertIsNone(PLG.start_refused(0.79, 0.80))
++        self.assertIsNone(PLG.start_refused(0.99))                          # the day's own stop when none is given
++        self.assertIsNotNone(PLG.start_refused(PLG.PL.LY_STOP_USD))
++        self.assertEqual(PLG.build_router("heimdall_first", {}, os.devnull, limit=0.8).limit_usd, 0.8)
++        self.assertEqual(PLG.build_router("heimdall_first", {}, os.devnull).limit_usd, PLG.PL.LY_LIMIT_USD)
++
++
+ if __name__ == "__main__":
+     unittest.main()

@@ -1,0 +1,28 @@
+pp-selectid: ORDER 17:50 ET Nov 16 (the 21:10 ET reset build), two options of the build DRIVER (tests/package/proof_ledger.py;
+pipeline/package.py is not touched): --only FILE and --stop-usd X. Files: tests/package/proof_ledger.py,
+tests/package/test_ledger_build.py.
+
+THE ORDER, verbatim (3): "SPEND TONIGHT: spend the fresh dollar on ONE line-up at a time, the likeliest first; do not
+screen the whole held pool (94 moments) at Grok: that alone would eat the dollar. Stop outside calls at $0.80 unless a
+package is one call from its seal." (5): "If PBX answers before 21:10 I will send 'ADD 25 CENTS': then start at once with
+the same plan and a day cap of $1.25." Ruling 122 (1)'s order of work inside the build (Grok only for the chosen line-up's
+moments) is NOT built; these options give its effect from outside the build: each run takes one candidate set.
+
+THE CHANGE:
+- --only FILE: {"ids": [this build's moment ids, at least one, non-empty strings], "why": non-empty text}; read in the
+  driver's refusal block (a bad or missing file: exit 2, nothing written); after the ledger build's inputs and BEFORE
+  the trimmed variants (with_variants), the pool keeps only the named moments, in its own order; the record's
+  inputs.only says file, why, asked, kept, missing, and the log says it. Every stage and gate of the build is unchanged:
+  it simply sees a smaller pool (eligibility, step A, the second screen, the hook bar, the visual check, story-first,
+  the writer, every verdict).
+- --stop-usd X, 0 < X <= 1.25 (else exit 2 in the refusal block): this build's router limit (Router limit_usd: no paid
+  call reserved past it) and its start stop (start_refused: no build starts at or over it); the record's
+  spend_ruling_48 names cap, stop and order_17_50_stop. Without it: ruling 118's $1.00 as before.
+
+TESTS (TestOrder1750OneLineUpAtATime): a bad or missing --only file, and --stop-usd 0, -1, 1.26, 2: exit 2 and no proof dir;
+read_only (dedupe, why) and only_moments (pool order, missing named); start_refused with and without the stop;
+build_router's limit with and without it. Mutations O1-O6 after a control run: the two pieces of main()'s wiring
+(applying --only; giving the stop to the start check) are not reachable without a full driver run: the live build's log
+line and record show them (said, not hidden).
+
+PLEASE CHECK: (1) that --only cannot add a moment or skip a gate; (2) the stop's ceiling and its wiring; (3) the tests.
