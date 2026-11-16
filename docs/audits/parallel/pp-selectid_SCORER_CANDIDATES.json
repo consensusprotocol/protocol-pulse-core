@@ -1,17 +1,8 @@
 {
- "generated_at": "2026-11-16T03:00:24+00:00",
- "build": "ledger_20261116_030009",
+ "generated_at": "2026-11-16T03:39:16+00:00",
+ "build": "ledger_20261116_033908",
  "kind": "moments",
  "candidates": [
-  {
-   "pid": "9b7d3f818bb0063f8db3",
-   "video_id": "Sps9le2Z5RI",
-   "channel": "Digital Asset News",
-   "duration": 5.86,
-   "text": "So the halving sets the clock. Liquidity sets the size of how big things become.",
-   "text_sha256": "04ab9f036360eefbd70cec972f72d5509c25715aea12e867d0e4f0ba2a26ac36",
-   "trimmed_leading": null
-  },
   {
    "pid": "2da2e90db17b23c6df77",
    "video_id": "4eEZCJVl83w",
@@ -76,15 +67,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "9655dbc9f24373efbe78",
-   "video_id": "Sps9le2Z5RI",
-   "channel": "Digital Asset News",
-   "duration": 9.97,
-   "text": "So my investment thesis for Bitcoin at 80 is the same as it is for Bitcoin at 62. Yeah, it's just that you're getting it cheaper.",
-   "text_sha256": "518d8c2a7cd40370025042f63ebcd2c3655d4dbcf7e55a4d1d75ca149049b3cc",
-   "trimmed_leading": null
-  },
-  {
    "pid": "85927a2c49e1bed31faf",
    "video_id": "4eEZCJVl83w",
    "channel": "Simply Bitcoin",
@@ -128,15 +110,6 @@
    "text": "Because there's really nothing going on in Bitcoin right now that explains this dump down to the 200 week moving average. But I'm still holding on.",
    "text_sha256": "8121f640954ceac18611a386a460044d4af4b4d3850654521ef4eff7b367cfa7",
    "trimmed_leading": null
-  },
-  {
-   "pid": "9b7d3f818bb0063f8db3~trim",
-   "video_id": "Sps9le2Z5RI",
-   "channel": "Digital Asset News",
-   "duration": 5.84,
-   "text": "the halving sets the clock. Liquidity sets the size of how big things become.",
-   "text_sha256": "26338b6e238ae7294b6bafc8394e6e488dfb28374018c9240409eb15a7162299",
-   "trimmed_leading": "So"
   },
   {
    "pid": "c2417f60d989426e6a0e~trim",
@@ -202,15 +175,6 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "9655dbc9f24373efbe78~trim",
-   "video_id": "Sps9le2Z5RI",
-   "channel": "Digital Asset News",
-   "duration": 9.89,
-   "text": "my investment thesis for Bitcoin at 80 is the same as it is for Bitcoin at 62. Yeah, it's just that you're getting it cheaper.",
-   "text_sha256": "75b97a4543b9cf1947995ffbf379f5593f7209da9efe04d76633733859bbf392",
-   "trimmed_leading": "So"
-  },
-  {
    "pid": "dd2982b07b76360a4300~trim",
    "video_id": "5LXk2SLH4fI",
    "channel": "Natalie Brunell",
@@ -247,15 +211,6 @@
    "trimmed_leading": "But"
   },
   {
-   "pid": "b8abe1a37706c77584b8",
-   "video_id": "Sps9le2Z5RI",
-   "channel": "Digital Asset News",
-   "duration": 8.94,
-   "text": "This is the big thesis, of course, as we go through it, as the government's plural, you know, debase the currency. This is why we invest into Bitcoin.",
-   "text_sha256": "6cb042ac497470318b0103b2125a0c7c3b447be44d2872bcc8c5eb1334ab1023",
-   "trimmed_leading": null
-  },
-  {
    "pid": "18d01e94a31cff680a98",
    "video_id": "4eEZCJVl83w",
    "channel": "Simply Bitcoin",
@@ -274,39 +229,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "4376fc1598efa1cfd080",
-   "video_id": "Sps9le2Z5RI",
-   "channel": "Digital Asset News",
-   "duration": 18.43,
-   "text": "It'll happen in little pockets for little things. But on mass, we're not going to see the kind of liquidity event like we saw with COVID. And that was a major catalyst for Bitcoin's ascension beyond. That $20,000 range into where we are now.",
-   "text_sha256": "eae561d0bbb7da745a9595fc5245798fe8d3ed6d7af6cc6be7a1af82e55c6270",
-   "trimmed_leading": null
-  },
-  {
    "pid": "c0b1406eac275405e82a",
    "video_id": "5LXk2SLH4fI",
    "channel": "Natalie Brunell",
    "duration": 15.51,
    "text": "That's 10 to one leverage. So if Bitcoin goes up 10%, you make $7,000 before fees and other costs, doubling your starting money. But if the price falls, the exchange can close your bet before it's even down 10%, and you can lose most or all of that 7K.",
    "text_sha256": "1ad4cd68976f8169111b388677bcf704219e87271024a9fcf2670d6b21a52f60",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "b57d4219246dc69c9f76",
-   "video_id": "Sps9le2Z5RI",
-   "channel": "Digital Asset News",
-   "duration": 14.08,
-   "text": "Bitcoin in 2009 will be between $10 and $20 million. Somewhere in between that range is what it is. So take this with a grain of salt. But as far as the next bull run starting, we'll take a look at a little bit of past history.",
-   "text_sha256": "deefac71e12a3b105c1b834eb15b88abce63fafc144b46f6b94f4ba8709677af",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "b5307a9f2f5b27d4183c",
-   "video_id": "Sps9le2Z5RI",
-   "channel": "Digital Asset News",
-   "duration": 14.6,
-   "text": "Truth is I don't care because the fundamentals of Bitcoin didn't change at all. So my investment thesis for Bitcoin at 80 is the same as it is for Bitcoin at 62. Yeah, it's just that you're getting it cheaper.",
-   "text_sha256": "b29823cc30264138d4b5e0ea6b874f0aed8a90d1f9de893bb40080932f5db636",
    "trimmed_leading": null
   },
   {
@@ -325,15 +253,6 @@
    "duration": 14.38,
    "text": "Bitcoin is money that lives on nodes, thousands of computers running all across the world, thousands of computers that have a ledger, a blockchain, a time chain of the truth, of all of the transactions that have ever happened on the network, who owns what, how much do people own?",
    "text_sha256": "3cf57474d26c75e69571f12af79d020acfa404d7ccedc9c45f3502f093066b21",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "2f7f1c8156383191d651",
-   "video_id": "Sps9le2Z5RI",
-   "channel": "Digital Asset News",
-   "duration": 21.78,
-   "text": "If everything holds up, I know a lot of people don't believe in the four -year cycles, even though this is kind of what's happening as far as like bottoms go. But we need the Fed to quantitative ease again. And like Jerry talked about, is putting that on the balance sheet. So the halving sets the clock. Liquidity sets the size of how big things become. Jerry, thoughts on this one.",
-   "text_sha256": "531aa1a244a62536051c06896b38459ae13654bd7ec4e88eb909d2d0e80d2564",
    "trimmed_leading": null
   },
   {
@@ -427,15 +346,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "6eb1fc10411990f5a328",
-   "video_id": "Sps9le2Z5RI",
-   "channel": "Digital Asset News",
-   "duration": 30.96,
-   "text": "The first part of that question, I think it's simply stated, Bitcoin has been for a very long time and will continue to be for a while longer, a speculative asset. Meaning a tremendous amount of the energy behind it going forward or appreciating higher is liquidity. And liquidity, unfortunately, is foundationally tied to the ability to borrow.",
-   "text_sha256": "3f0fa65a6eb99c9c449895f14f276d80fe935cbccef21c706ad4d36caff588db",
-   "trimmed_leading": null
-  },
-  {
    "pid": "7d626648f03282f9c249",
    "video_id": "4eEZCJVl83w",
    "channel": "Simply Bitcoin",
@@ -451,15 +361,6 @@
    "duration": 17.47,
    "text": "I feel like, Auntie, this goes back. Like, Bitcoin is already won. And we're just watching the movie play out. And it's almost hilarious. Like all this shit. Like, we see these things that have happened with, you know, Congress and baby eating and stuff.",
    "text_sha256": "3a059c07d20fbd14c1243c791a2f4ae55ed8fb5de4d1c721fe05f3acf7e0bb90",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "76c1081394bba9bd9389",
-   "video_id": "Sps9le2Z5RI",
-   "channel": "Digital Asset News",
-   "duration": 17.87,
-   "text": "I chose Bitcoin. Here's the truth. Had I put it into Apple, because Apple was at a split adjusted $40 at that particular moment. You can go look. Apple's worth 356 last count. Bitcoin 62 plus whatever.",
-   "text_sha256": "ef193231c7dec7b6602ecc63a158036b35ec246f36d42a83c3590aade395c483",
    "trimmed_leading": null
   },
   {
@@ -479,15 +380,6 @@
    "text": "I think that's why a lot of people are probably tired right now. Because it has, I mean, even, I think it was our account that posted it. And I think I used it in my show that if you look at, you know, there's always this time in Bitcoin and you can look back the 69K top in 2021. And look where we are. We're at 69K right now. So people can cherry pick that and be like, wow, Bitcoin has not grown at all in five years.",
    "text_sha256": "bce3767d640965c2c887360db891332fc1783452c833b4aa0d334cc36cc23d60",
    "trimmed_leading": "And"
-  },
-  {
-   "pid": "81d55cb2279bbebf1e83",
-   "video_id": "Sps9le2Z5RI",
-   "channel": "Digital Asset News",
-   "duration": 16.61,
-   "text": "This is the big thesis, of course, as we go through it, as the government's plural, you know, debase the currency. This is why we invest into Bitcoin. So it makes a lot of sense, even though. And it comes down to like what Jerry was talking about, the reverse repo market, the balance sheet, this is something we need to pay attention to.",
-   "text_sha256": "92b7becae3f52052ad188422a13668a25f8319046fccec8eef02e33b9ec727cb",
-   "trimmed_leading": null
   },
   {
    "pid": "6e72d71c0847271ccd10~trim",
@@ -559,15 +451,6 @@
    "duration": 14.36,
    "text": "One, yes, institutions are here. Wall Street is interested in Bitcoin, you know, J.P. Morgan, BlackRock, et cetera, et cetera. But there's still a lot of pushback from these institutions. They really don't want to let Bitcoin through the gate. That's... More obvious than ever. Remember, Bitwise did a report on that.",
    "text_sha256": "883014f56cfa342ed51054927315f111864927469a3d5b6f74b92d3e175bb532",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "2b7c156334f9472bdd13",
-   "video_id": "Sps9le2Z5RI",
-   "channel": "Digital Asset News",
-   "duration": 18.97,
-   "text": "Truth is, I don't care because the fundamentals of Bitcoin didn't change at all. So my investment thesis for Bitcoin at 80 is the same as it is for Bitcoin at 62. Yeah, it's just that you're getting it cheaper. And then I think that people are thinking about themselves is like, well, how much farther can it go?",
-   "text_sha256": "be6fa41818533a1284ade5ef05df4bdf149f449d610e20becff900b66eb912d3",
    "trimmed_leading": null
   },
   {
