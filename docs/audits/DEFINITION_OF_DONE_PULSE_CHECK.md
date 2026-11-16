@@ -6,6 +6,28 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 09:55 LANDED: RULING 119 (1)'S STAND-ALONE FLOOR (3.0), BOTH HALVES, ON RULING 120. The builder landed its half first (pp-selectid 77abe7c1, 09:48 ET); the integrator's half is merged as e8da6bec (batch 96). Both regressions are green on the staged merge: regression_test.sh 26 PASS / 0 FAIL / 4 WARN; pipeline/regression.sh exit 0, with the preview, moments, medley and fresh references reproduced. The scorer service ran the new code from 09:55:13 ET. From then on its verdicts carry their weights digest, which the builder's half requires before it seals any clip on the floor. BATCH 4 integrator spend: $0.0595 (batch 96's audits $0.0419) (Heimdall, not capped).
+- **The ruling:** ruling 120, 09:40 ET Nov 16, relayed verbatim by the builder, with the orchestrator's words "Tell the integrator this ruling stands for its half too":
+  > "YES. The stand-alone floor of 3.0 lands, BOTH HALVES TOGETHER, when both audits have cleared, exactly as you and the integrator describe: only on the measured scorer code and weights, only on the marked segments, marked on the pin and in the Telegram note in one plain line ('a clip passed stand-alone on the calibrated bar'). Reason: it is PBX's own approved clips (41f29b1f) that sit at 3.0; PBX reviews every video before it publishes; the preview's two clips at 2.0 are NOT admitted and the floor never goes under 3."
+
+  The integrator acts on a ruling the builder relays once it has the verbatim text (handoff section 1).
+- **What is live:**
+  - The render's validate runs stand_alone_floor.apply after the unchanged check_edl. It affirms exactly the segments listed in the pin's stand_alone_bar mark that the scorer refused only for a score in [3.0, 3.5).
+  - This holds only under the measured scorer code (scorer_sha edd54964..., unchanged by the merge) and weights (gemma3:27b digest a418f583...), and only on the pin's own seal. Otherwise the 3.5 bar alone applies, and PROVENANCE says why.
+  - The release caption prints ruling 120's line. The mark's note is the same string; the builder's package_pin.STAND_ALONE_NOTE was checked byte for byte equal before the merge.
+  - check_pin_only refuses a malformed mark before anything else. Its READY line names rulings 115 (2) / 116 / 119.
+  - The verdicts file names each verdict's weights digest, and the scorer block the one digest they share.
+- **Checks on the staged merge:**
+  - py_compile of every changed .py.
+  - The touched suites on main: 181 passed, 3 skipped, 142 subtests passed, 0 failed (including test_fresh's v2f test, which needs main's data).
+  - On the branch: 18 of 18 mutations killed, and the must-fail run on the old code recorded.
+  - Audits (batch 96, Heimdall only): two cycles, plus the ruling 120 delta's two cycles. One single-seat finding was judged not a defect. Records are in docs/audits/pulse-sentence-law/batch96_r119_validate_floor/.
+- **The scorer service:**
+  - Stopped with C-c at 09:49 ET, idle since 08:44, before the merge was staged.
+  - Restarted at 09:55:13 ET in its tmux pipeline_pp_scorer with the handoff's command.
+  - Verified as pid 136857, whose first line reads 'pin-stage scorer: ... | scorer_sha edd54964a5ab'. At 09:55:14 ET it rewrote verdicts_20261116T1344160000.json and latest.json, with every verdict and the scorer block carrying the full digest a418f5838eaf.... The 5 current candidates all score 2.0, so none is on the floor.
+- **What PBX sees:** a video sealed with a clip on the floor carries the line "a clip passed stand-alone on the calibrated bar" in its release caption. PBX's approve or reject of such a pin is relayed to the builder within the hour, with the reason verbatim if rejected.
+
 ## 09:33 RULING 119 (1), THE INTEGRATOR'S HALF OF THE STAND-ALONE FLOOR: BUILT, TESTED AND AUDITED, NOT LANDED. It waits for the orchestrator's explicit yes. The builder's question is on its STATE line 1, with no default: ruling 106 says loosening an integrity gate is a human's decision. The builder's half cleared its own audit (20261116_0842) and is also unlanded. They land together: the builder first, then the integrator. Branch r119-validate-bar, head 2d09ed17. Heimdall audits $0.0397 (not capped); BATCH 4 integrator spend $0.0573 (Heimdall, not capped).
 - **What it does** (pipeline/stand_alone_floor.py, called from run_fresh's validate after the unchanged check_edl):
   - It lets through, for exactly the segments the pin's stand_alone_bar mark lists, a clip the scorer refused only for its score.
