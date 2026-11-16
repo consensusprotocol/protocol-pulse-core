@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T20:04:46+00:00",
- "build": "ledger_20261116_200419",
+ "generated_at": "2026-11-16T20:11:12+00:00",
+ "build": "ledger_20261116_201045",
  "kind": "moments",
  "candidates": [
   {
@@ -553,12 +553,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "262d5dcaeeb99f44f756",
+   "video_id": "UZX-cH93t_A",
+   "channel": "CoinDesk",
+   "duration": 4.56,
+   "text": "It's not going to hit 5,000 this year. It's not going to hit it next year, but it's going to hit it eventually.",
+   "text_sha256": "fe00b1c3659f6d3aa73c2f880f06cad15ced6b50cfea7cbb63f2b0099fd75147",
+   "trimmed_leading": null
+  },
+  {
    "pid": "4e34823edd1e27148ffc",
    "video_id": "m7ygyYMe3mg",
    "channel": "Bitcoin Magazine",
    "duration": 9.34,
    "text": "This is the same type of argument I want to make clear for the Bitcoiners, right? If you think Bitcoin's going to zero, I don't want to listen to you. You haven't done work.",
    "text_sha256": "e9dc928085115df5f6b68b4c02c78055140d8eaf54f81049a24b02724ac307d1",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "fb36fae4baa7c0642441",
+   "video_id": "UZX-cH93t_A",
+   "channel": "CoinDesk",
+   "duration": 4.6,
+   "text": "It's not going to hit 5,000 this year. It's not going to hit it next year, but it's going to hit it eventually.",
+   "text_sha256": "fe00b1c3659f6d3aa73c2f880f06cad15ced6b50cfea7cbb63f2b0099fd75147",
    "trimmed_leading": null
   },
   {
@@ -1516,6 +1534,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "ed8fab0f610e1f9bf860",
+   "video_id": "UZX-cH93t_A",
+   "channel": "CoinDesk",
+   "duration": 21.52,
+   "text": "It's not going to hit 5,000 this year. It's not going to hit it next year, but it's going to hit it eventually. Have you heard of Bitcoin? This is one of the biggest things that's ever happened. is AI. You made 40 or 50 times your money. You don't need to make that kind of money many times your life, right? Hello everybody.",
+   "text_sha256": "05d05d2969175954823fe98fcc76eebc35ce61e7660066e2176b77681aa4429f",
+   "trimmed_leading": null
+  },
+  {
    "pid": "305aea349244dc511ae1",
    "video_id": "OubcRgk3D-w",
    "channel": "Simply Bitcoin",
@@ -1588,6 +1615,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "ddbab39c8ffdbfe1fd34",
+   "video_id": "UZX-cH93t_A",
+   "channel": "CoinDesk",
+   "duration": 21.52,
+   "text": "It's not going to hit 5,000 this year. It's not going to hit it next year, but it's going to hit it eventually. Have you heard of Bitcoin? This is one of the biggest things that's ever happened. is AI. You made 40, 50 times your money. You don't need to make that kind of money many times your life, right? Hello everybody.",
+   "text_sha256": "aab4827ff98dcceee4a3b714eb1e71078711d8ca88d29f8ff071b9851a89f1f1",
+   "trimmed_leading": null
+  },
+  {
    "pid": "62ab1532a50813a91b09",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -1630,6 +1666,15 @@
    "duration": 19.82,
    "text": "For future reference, price of Bitcoin hit a low of $62,000 today. So, you know, starting here. Does this make you feel any better, guys? Are you so, so feeling, you know, warm and cuddly, warm and fuzzy right now because CZ isn't dumping on us?",
    "text_sha256": "83aa8fa97bad434bf40f52dd5c0c7da421f2f2683b57301105948635164fb6f5",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d0475444fcf52fedd1ef",
+   "video_id": "UZX-cH93t_A",
+   "channel": "CoinDesk",
+   "duration": 16.76,
+   "text": "Have you heard of Bitcoin? This is one of the biggest things that's ever happened is AI. You made 40, 50 times your money. You don't need to make that kind of money many times your life, right? Hello everybody.",
+   "text_sha256": "9419356e5762100234607a886a70636e843f1568d33bc83a3a01fd5a73549bde",
    "trimmed_leading": null
   },
   {
