@@ -1,8 +1,107 @@
 {
- "generated_at": "2026-11-16T16:03:17+00:00",
- "build": "ledger_20261116_160309",
+ "generated_at": "2026-11-16T17:21:43+00:00",
+ "build": "ledger_20261116_172134",
  "kind": "moments",
  "candidates": [
+  {
+   "pid": "39fff8c907c1e5de0689",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 13.33,
+   "text": "And I think that kind of is at the core of something all of us are probably feeling where it does feel like Bitcoin's at an inflection point right now. We're kind of devoid of any strong narrative. That's kind of another. sign of a bottom, right?",
+   "text_sha256": "aadcbd6fb951e07b2ee196a6e1f844d21af317b16a2b37354667d7ec6fc1ea8c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "1e52e4cbe87678152999",
+   "video_id": "4pAa6COklAY",
+   "channel": "DataDash",
+   "duration": 11.03,
+   "text": "So essentially what I'm bringing up here is that we have gold, silver indices, and potentially Bitcoin all have put in major highs around the last. 12 months.",
+   "text_sha256": "f08879d79e07e49a00fc673942d85276886781dd5f265dc50e85ae1a7afd5fbb",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "39fadc2632e4fb075169",
+   "video_id": "4pAa6COklAY",
+   "channel": "DataDash",
+   "duration": 7.36,
+   "text": "But we're seeing Bitcoin weakness come in. We've also got the S &P 500 at incredible, incredible expansion point.",
+   "text_sha256": "e157b9983a8717e44bee652de756e91a2333e184f5a55d9b0704d18f92a49d6a",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "39fff8c907c1e5de0689~trim",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 12.93,
+   "text": "I think that kind of is at the core of something all of us are probably feeling where it does feel like Bitcoin's at an inflection point right now. We're kind of devoid of any strong narrative. That's kind of another. sign of a bottom, right?",
+   "text_sha256": "af23fb6f11ce4f9c924d53bad435ced91ee8ea979a224d9d98d807004a65e74a",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "1e52e4cbe87678152999~trim",
+   "video_id": "4pAa6COklAY",
+   "channel": "DataDash",
+   "duration": 10.99,
+   "text": "essentially what I'm bringing up here is that we have gold, silver indices, and potentially Bitcoin all have put in major highs around the last. 12 months.",
+   "text_sha256": "430f8e57b6a0df43d8251316529691c0660c91b98f2adbd411b7e289cc378504",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "39fadc2632e4fb075169~trim",
+   "video_id": "4pAa6COklAY",
+   "channel": "DataDash",
+   "duration": 7.34,
+   "text": "we're seeing Bitcoin weakness come in. We've also got the S &P 500 at incredible, incredible expansion point.",
+   "text_sha256": "86851d10ec7b6759d68c133cb5df2b2bd2f5f3077aac8908aaa525f09d74f7b0",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "17e5a9235d68c10d79b2",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 10.44,
+   "text": "They buy Bitcoin when it feels easy when they're confident it's going to do well. And if you do that, you drastically underperform DCA. And that's interesting because it kind of is what the average person is doing almost all the time.",
+   "text_sha256": "3af798dd34c9364e2f3127cbaffe42ac2c9981ed5845d597c9c058eb8eb37c09",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "fc6e81902c8c8bb540e8",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 13.98,
+   "text": "It was really a brutal time for Bitcoin, myself included. We're seeing more fear now than we were back then. even though the price is 20 % higher, even though we're not seeing any of those negative events, quite in the same way we haven't had AI hacks and the whole Binance thing, the election result in all those sorts of things.",
+   "text_sha256": "b4013dca2d5d0dde8e82e368a7539c3835c03f775c5d891a98c0fc71623658f3",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b53b48e9f2636f7af34d",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 21.84,
+   "text": "However, I think that there's like, I don't know that AI is like this amazing short -term narrative for Bitcoin, but this technology that allows everybody to build things more quickly, allows like insane amounts of deflation, allows us to do everything humans have ever wanted more quickly potentially, is super bullish for the most scarce asset that's ever existed, right? If everything's becoming more abundant, scarcity becomes more valuable.",
+   "text_sha256": "5c57de190492172d5fa2968fb5577cf89a0d872fe654140652a815c9c0aa0877",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e69e7174911b6f9d3a56",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 18.2,
+   "text": "People are trying to manipulate you. People are trying to manipulate your emotions to make you part with your Bitcoin potentially. I just can't overstate how much like fear and anger cloud your judgment. Myself included, I'm not immune from this. It's been a brutal time to huddle, right? But Bitcoin has a really unique way of like messing with your psychology.",
+   "text_sha256": "e957fa87cf853760bca543ab99f31a765f7da0a9324063bfa6d942cf8887540c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "2b76220f7be6bc9cb899",
+   "video_id": "4pAa6COklAY",
+   "channel": "DataDash",
+   "duration": 15.57,
+   "text": "I can assure you nobody anticipated to see $120,000 Bitcoin, even when we were trading in this region right here. We have gone through so much turmoil along the way. Carry trade, tariffs. I don't even know what the news was up here, to be honest with you.",
+   "text_sha256": "3013a9795e629ee11984e11c3a83469ac74f4f7896d1505dc969afb767a9f345",
+   "trimmed_leading": null
+  },
   {
    "pid": "eacfb10e73d264548fdb",
    "video_id": "Vu0XZSz-aj4",
@@ -10,6 +109,24 @@
    "duration": 15.39,
    "text": "Ironically, the biggest problem for crypto was it was the first thing to show up in finance after 2008 that was new. If we'd showed up, we couldn't, right? Satoshi himself was an expression of 2008, but to humor me.",
    "text_sha256": "3abd2695f79b90d6ae5d315b27de9c23635cbc04fab32e63c401094755efb018",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "cc97d357dea3bc0b3178",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 19.3,
+   "text": "They buy Bitcoin when it feels easy when they're confident it's going to do well. And if you do that, you drastically underperform DCA. And that's interesting because it kind of is what the average person is doing almost all the time. They just buy whenever they feel like it's easy to buy, right? Watching how fearful people are, despite the fact that Bitcoin still up like 20 % off the lows is really fricking, in my opinion.",
+   "text_sha256": "40b2acd51423a30b5d68eeeda72fee8c9134635263946e0455a088ff9722e322",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e8ba892aa1d69f0536c6",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 17.9,
+   "text": "The two paradigms that I've kind of been using to think about the present state of things are a disbelief rally. Like people just simply do not believe this. And climbing a wall of worry. Those are two patterns that you've kind of seen as Bitcoin leaves this bull market or bear market phase and enters into a bull market phase.",
+   "text_sha256": "350f30718f2f6dd37eee573f8385a27479aca4c372da979e63c677beb8a672b9",
    "trimmed_leading": null
   },
   {
@@ -22,12 +139,129 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "6f8de0f2f401f4aa5e48",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 14.87,
+   "text": "I think people just feel as though they were owed a lot and it's going to take longer. And I think as Bitcoin's climbing and it's still not having like the euphoria that they desire, they kind of lash out or angry about stuff. To go back to the AI thing, again, I think some of these hacks are on AI genuinely do cause reason for fear.",
+   "text_sha256": "d7fdd0534fc3bcc73c8863cfcfb1033cc69f4396e6599505c2afd57f906056db",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "7f4d5b59afdef8fe208e",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 17.62,
+   "text": "Every bitcoiner eventually has to answer one question. If something happened to me, could my family access my Bitcoin? Would my children inherit what I've spent years stacking? That's why Anchor Watch builds Bitcoin custody solutions designed to protect you and your family against real life, accidents, errors, kidnappings and even death.",
+   "text_sha256": "e716534aef7438e921682c2ce1a186916192e4ee37e27441092ea32de89cf11c",
+   "trimmed_leading": null
+  },
+  {
    "pid": "3d62c51a3fa62c41559a",
    "video_id": "Vu0XZSz-aj4",
    "channel": "Bankless",
    "duration": 17.0,
    "text": "I get to have, you know, they donate Democrat candidates. Sometimes they call me. And it's so funny how many of the ones who were under 40 would tell me they used to mine Bitcoin in their dorm room. I'm like, I love it. Can you say that? Like, well, should I say that? I'm like, why would you not say that? No one. No one cares if you say that.",
    "text_sha256": "fc8465b0235c7df2708779d3fe17327e88f6c164d2c700cd6d219a77627cc615",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "68592b99a7bdefef2089",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 16.48,
+   "text": "One of the things I've written about kind of recently is I'm convinced that Bitcoiners desperately want the AI narrative to be like a Bitcoin narrative. Understandably, I think it kind of is to some degree. But. I think there's a lot of that right now, but there's enthusiasm about AI and Bitcoiners want there to be enthusiasm about Bitcoin.",
+   "text_sha256": "1b63c67752c3b549ba3a85262b96b4dd53d7659881f1d80480397c8d6a75546b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "f87764c10acdaf364ae9",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 15.51,
+   "text": "Like right now, we're going to talk more about short -term stuff probably in the near future here, but like watching how fearful people are despite the fact that Bitcoin still up like 20 % off the lows. is really fricking bullish, in my opinion. It's like the crowd is overreacting, even though we're actually seeing positive price momentum.",
+   "text_sha256": "8ca14ca20971c70510b5b70bad1f3f64372aadd71ea7a00519dc23ceeafaf4ca",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "364740ab4776e2024556",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 21.06,
+   "text": "Part of the reason I think this is likely to play out, like, people are kind of buying in too much to this like diminishing returns thing, in my opinion. Just watching how assets like gold or silver have responded recently, like the fact that these older assets can have that much volatility of the upside is super bullish for Bitcoin over the long term, potentially.",
+   "text_sha256": "1dab4c9a183a707d1270baf3382cb387ffa9888e64853f072f94a866ade6366b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5ebedea02efafe9f4f55",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 23.98,
+   "text": "Bitcoin is only generational wealth if it can be passed down. So make sure your family can access tomorrow what you've built today. Anchorwatch is your custody your way. So visit anchorwatch.com to get started. That's anchor watch.com. Okay, so if, like, peak bear market is disbelief, boredom, apathy, and bull market is like euphoria, everyone's getting too excited.",
+   "text_sha256": "3763f0e5a4f58c210f3cd9f85494912691b44a6d1d390b6badd51b46fbcaf058",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "f89acd3a61d03fa8d2a4",
+   "video_id": "4pAa6COklAY",
+   "channel": "DataDash",
+   "duration": 14.84,
+   "text": "Personally speaking, it's like I don't see a world where Bitcoin is like truly at a major value point for the longer term right now until we got down to like, in the 30s, okay?",
+   "text_sha256": "bf4171edb3f3f7a95b85ccfd1bb53b3fd805b763eabd9117ba6f4045d9eee948",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "fc41a34a36d567f6d886",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 15.24,
+   "text": "Like, for example, overall across all the Treasury companies, there's higher levels of conviction through the entirety of the bear market. So Bitcoin Treasury investors, MSTR shareholders, Metaplanet, et cetera, have generally had higher levels of conviction the entire duration of the bear. That is just recent.",
+   "text_sha256": "9938d629d085cd4babb184cb86143a399fecd26f5f41798fa0c248080d7cdb56",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "1d3293853f8d9c9067bc",
+   "video_id": "4pAa6COklAY",
+   "channel": "DataDash",
+   "duration": 21.74,
+   "text": "If Bitcoin went to $300,000 in the next several years, you know, that'd be a 10x move, which is amazing. But realistically, like, you know, what is, what is buying a $70,000 asset, you know, at these levels going to achieve if we, if we have the possibility to be cut in half and still be up 10x from just a few years ago.",
+   "text_sha256": "cb839bb21d942fa1a6167b0a13a7ca1259ad3053046d8e481f0d03bcbcc0c25f",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a0dac689ab653d410242~trim",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 16.21,
+   "text": "I think that kind of is at the core of something all of us are probably feeling where it does feel like Bitcoin's at an inflection point right now. We're kind of devoid of any strong narrative. That's kind of another. sign of a bottom, right? Like, there's nothing to latch onto to tell a story about why Bitcoin's going to go up.",
+   "text_sha256": "a9b9d45ed57bd0b93c700927f54e0994fad667784800e717baceaee6a21a96ab",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "c711b9e7be6b10e76ed5",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 18.57,
+   "text": "You know, I've been in Bitcoin since 2016, and every bare market sentiment gets bad. But this one's been particularly interesting to me in that it's not just... It's not just people getting angry, fighting on Twitter, in fighting, which we always have. It's people kind of giving up on Bitcoin a little bit, which I've not really seen before.",
+   "text_sha256": "b123fefd967c22f24ab4ca98c7844b02cd73d87a1f94eabce08adfefc3f552ce",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "acc1390e78aefc595d7a~trim",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 25.76,
+   "text": "Bitcoin has... A really unique way of like messing with your psychology. People have asked me if I can apply this methodology to other stocks and stuff. And like the truth is I absolutely can do that. But Bitcoin is so unique in the sense where there is this like nebulous new idea that the world doesn't understand that people don't rock that like your average boomer thinks is just a complete hallucination and like AI is going to break tomorrow. It just it has.",
+   "text_sha256": "ed214cddb3ffbc1426529a8685f84ed955af266addbea4b6b0c843adb55d6f3c",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "d6adeb54ad64062081c5",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 14.78,
+   "text": "I have been recently done a budget pieces on the 2023 bull market, like climbing a wall of worry. There was massive amounts of fear during that period of time. Bitcoin was actually trending up into the right, and fear was also trending up into the right during that.",
+   "text_sha256": "8e6ae65436256fcb93f3901a0c91648fb07f6fdc5798d8adbcde6760342ffcda",
    "trimmed_leading": null
   },
   {
@@ -56,6 +290,24 @@
    "text": "I just don't think you can look at this and see all the innovations in stable coins, in the hard money of Bitcoin provides, in defy, and say this is all useless. I've been surprised at how people can say that, but I realize a lot of it is because it's all... fundamentally, we're really good at changing the tech stack.",
    "text_sha256": "540a36473af02790f2bbcbba67e16a036abde58c42529dad070e73b9405a2d0b",
    "trimmed_leading": null
+  },
+  {
+   "pid": "b2e512210134af5f29dc~trim",
+   "video_id": "4pAa6COklAY",
+   "channel": "DataDash",
+   "duration": 17.89,
+   "text": "essentially what I'm bringing up here is that we have gold, silver indices, and potentially Bitcoin all have put in major highs around the last. 12 months. So taking out that four -year cycle theory and all those things, just looking at the markets as they are in big picture terms, right?",
+   "text_sha256": "0a2e48153d3010b4fe398ed68be74cdffd9dfedbc86838ae044610a44fcfbeff",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "1e28a1c264d3ba687659~trim",
+   "video_id": "4pAa6COklAY",
+   "channel": "DataDash",
+   "duration": 17.16,
+   "text": "we're seeing Bitcoin weakness come in. We've also got the S &P 500 at incredible, incredible expansion point. Okay. When we broke the high right here in 2024, my target has been and remained at 74 to 7,700. We have spent the better part of six months in this region.",
+   "text_sha256": "dfcc5235eec4346a57170cce640dfe6d87ecc948a31f2098fb7f83b98c91b24b",
+   "trimmed_leading": "But"
   },
   {
    "pid": "330c00b9ae946963608c",

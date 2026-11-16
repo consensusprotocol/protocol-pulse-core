@@ -1,0 +1,254 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "2b876b542e9aa7b66413fe0540a253281c0850ed4663f00e38ed5ceb4d847888",
+ "result": {
+  "text": "People are trying to manipulate you. People are trying to manipulate your emotions to make you part with your Bitcoin potentially. I just can't overstate how much, like, fear and anger cloud your judgment. Myself included, I'm not-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 2.7,
+    "end": 12.8,
+    "text": "People are trying to manipulate you. People are trying to manipulate your emotions to make you part with your Bitcoin potentially. I just can't overstate how much, like, fear and anger cloud your judgment. Myself included, I'm not-"
+   }
+  ],
+  "words": [
+   {
+    "text": "People",
+    "start": 2.7,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 2.88,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trying",
+    "start": 2.98,
+    "end": 3.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 3.12,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "manipulate",
+    "start": 3.2,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you.",
+    "start": 3.62,
+    "end": 3.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "People",
+    "start": 4.1,
+    "end": 4.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 4.32,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trying",
+    "start": 4.52,
+    "end": 4.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 4.66,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "manipulate",
+    "start": 4.74,
+    "end": 5.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 5.16,
+    "end": 5.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "emotions",
+    "start": 5.26,
+    "end": 5.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.76,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "make",
+    "start": 5.94,
+    "end": 6.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 6.14,
+    "end": 6.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "part",
+    "start": 6.38,
+    "end": 6.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 6.54,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 6.64,
+    "end": 6.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.72,
+    "end": 7.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "potentially.",
+    "start": 7.08,
+    "end": 7.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 7.9,
+    "end": 7.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 8.06,
+    "end": 8.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can't",
+    "start": 8.24,
+    "end": 8.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "overstate",
+    "start": 8.48,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 8.98,
+    "end": 9.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "much,",
+    "start": 9.18,
+    "end": 9.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 9.6,
+    "end": 9.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fear",
+    "start": 9.9,
+    "end": 10.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 10.12,
+    "end": 10.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "anger",
+    "start": 10.24,
+    "end": 10.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cloud",
+    "start": 10.56,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 10.82,
+    "end": 10.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "judgment.",
+    "start": 11.0,
+    "end": 11.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Myself",
+    "start": 11.94,
+    "end": 12.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "included,",
+    "start": 12.34,
+    "end": 12.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 12.72,
+    "end": 12.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not-",
+    "start": 12.78,
+    "end": 12.8,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.82
+ },
+ "usd": 0.002564,
+ "seconds": 0.8,
+ "recorded_at": "2026-11-16T17:22:44Z"
+}

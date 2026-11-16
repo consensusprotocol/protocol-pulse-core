@@ -29324,5 +29324,53 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "44a6d503ed11992f6f8e:9bd2cb49df47cb7b592fe7c97cee8eadeefb236ebb2119c7710636f0e1f8cbc8:5328af12a756b7d2f7af74523635c2dd5255ced398529be3c42642b6bf5ba8d6:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "44a6d503ed11992f6f8e",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "People are trying to manipulate listeners' emotions using fear and anger in order to potentially get them to sell their Bitcoin, as these emotions greatly cloud judgment.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "468651df800ad2c09e32:f4b47d48454f61069c8d72fea2f5ec15a68c54be5a512ebdc35fb31934b343ab:eaa75c4223741eebb067aa85bb4548ee74bb4b121bac5431b3ff69bb01cc5dfd:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "468651df800ad2c09e32",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this region right here",
+     "refers_to": "the price levels during the prior window when everyone expected Bitcoin to crash to much lower levels",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "even when we were trading in this region right here",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Nobody anticipated Bitcoin reaching $120,000 even back when it was trading at the much lower levels of the prior period on the chart.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

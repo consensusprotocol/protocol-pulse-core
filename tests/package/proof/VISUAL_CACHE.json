@@ -633,6 +633,96 @@
   },
   "version": "visual-2"
  },
+ "44a6d503ed11992f6f8e:2.320-11.320:visual-3:2bcf2c62b1194aa4": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     3.32,
+     4.32,
+     5.32,
+     6.32,
+     7.32,
+     8.32,
+     9.32,
+     10.32
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "lower_third",
+    "text": "IN THIS EPISODE...",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     3.32,
+     4.32,
+     5.32,
+     6.32,
+     7.32,
+     8.32,
+     9.32,
+     10.32
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "WHAT BITCOIN DID",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "WHAT BITCOIN DID"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": false,
+    "text": "IN THIS EPISODE...",
+    "why": "A static bottom banner/title fragment that stays unchanged across the frames and makes no factual claim beyond the spoken words."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_cd741d3f9998c546.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_cd741d3f9998c546.jpg",
+   "sha256": "cd741d3f9998c5468a0aec8caa95aeaf6c73099e40259727456620db7e451b92",
+   "times": [
+    2.32,
+    3.32,
+    4.32,
+    5.32,
+    6.32,
+    7.32,
+    8.32,
+    9.32,
+    10.32,
+    11.27
+   ]
+  },
+  "third_person": {
+   "finding": "Only the speaker is on camera; no still, photo, or graphic of anyone else appears while he warns that people manipulate viewers and that fear and anger cloud judgment.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 2958,
+   "out": 10134,
+   "usd_reported": 0.064992
+  },
+  "version": "visual-3"
+ },
  "6058ee583d6fb7dce57c:153.250-165.890:visual-1:ec1215f778c6e195": {
   "backend": "xai_vision:grok-4.7",
   "flags": [],
