@@ -1,0 +1,27 @@
+# Heimdall audit
+
+**Question:** Try to BREAK this small DELTA (batch 96, ruling 120's words for the stand-alone floor's caption line: telegram.STAND_ALONE_BAR_NOTE = "a clip passed stand-alone on the calibrated bar"). For each attempt, give the exact input and the code path, and report ONLY the attempts that succeed, quoting the lines that let them through. If none succeeds, answer PASS with no findings.
+
+GOALS (any one is a finding):
+E1. Make the release caption print the new line for a pin whose stand_alone_bar note is NOT exactly these words: other case, a trailing full stop, extra spaces, or the old words "stand-alone affirmed on the calibrated floor (3.0)".
+E2. Make the mark's required note and the printed line differ, so that a mark validate accepts prints a different line, or a printed line belongs to a mark validate refuses.
+E3. Make the line, which contains "passed", appear in a review drop.
+E4. Make the hook_bar or lineup_bar lines change, or change their order.
+
+FACTS (unchanged code, not in this delta):
+- telegram.bar_marks(mp) walks BAR_MARKS in order. For each present key it requires mark["note"] == the line exactly, and appends the line. Otherwise it raises ValueError, and the drop STOPs.
+- stand_alone_floor.note() returns {key: line for key, line, _ in telegram.BAR_MARKS}["stand_alone_bar"]. stand_alone_floor.mark() raises ValueError unless mark["note"] == note().
+- build_caption (the release caption) inserts bar_lines' lines under the run line. review_drop never calls bar_lines or build_caption.
+
+**Panel:** gptoss  |  **Cost:** $0.0002
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none
+
+
+saved: heimdall

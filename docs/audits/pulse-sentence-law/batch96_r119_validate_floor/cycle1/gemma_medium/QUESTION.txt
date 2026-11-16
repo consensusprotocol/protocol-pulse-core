@@ -1,0 +1,34 @@
+Audit the integrator's half of RULING 119 (1): the stand-alone clip scorer's CALIBRATED FLOOR at the render's validate (batch 96). Find any way the floor can affirm more than it should, fail open, or let a pin through that should HOLD. Rate each finding P1 (lets a clip through that must HOLD, or fails open) / P2 / P3.
+
+BACKGROUND (fixed; not in the diff):
+- The render's stand-alone check, stand_alone.check_edl (pipeline/stand_alone.py:176, UNCHANGED), asks the clip scorer (gemma3:27b, temperature 0) only about clips opening on a conjunction or reply fragment, trimmed clips (selection_lock.trimmed_leading, trimmed_word at :160), and a hook opening on a third-person pronoun. Each row's opener verdict comes from stand_alone.opener (:79) and trimmed_opener (:166). Both read the scorer through stand_alone.affirmed (:45): for a moments pin, score >= 3.5 (CLIP_MIN_SCORE), with the fault not read. check_edl rows: {segment "hook"/"clip_NN", opener {pass, why}, topic {pass, why}, scorer {score, reason, fault} (only when the scorer rated it), pass = opener and topic}. ok = every row passes AND, for a moments pin with a screen, medley_names_bitcoin passes. rate_error is set when the scorer raised.
+- The scorer's identity is stand_alone_scorer.scorer_sha (pipeline/stand_alone_scorer.py:53, UNCHANGED): sha256 over the WHOLE files stand_alone.py and story_semantics.py. The weights' identity is story_semantics.model_digest (pipeline/story_semantics.py:318, UNCHANGED): the Ollama digest from /api/tags, None when unreadable.
+- MEASURED (docs/audits/ruling119/APPROVED_CLIPS_SCORER.json): under scorer_sha edd54964a5ab15f4... and weights a418f5838eaf7fe2..., PBX's approved clips, asked alone, score down to 2.0. The scorer repeats every score exactly. The orchestrator's ruling 119 (1) asks for a floor at the lowest score an approved clip takes, never under 3: 3.0.
+- THE BUILDER'S HALF (another repo tree, already audited): it seals a clip with 3.0 <= score < 3.5 only under the exact measured code and weights. It marks the pin outside the seal: moments_package.stand_alone_bar = {note, floor 3.0, scorer_sha (full), segments [pin positions, 0 = the hook, only clips affirmed below 3.5], ruling "119"}.
+- pinned.build_edl numbers the clips 1..n in pin order (pipeline/pinned.py:696), so pin position p is validate's "hook" (p = 0) or "clip_{p:02d}".
+- run_fresh.stage_validate (pipeline/run_fresh.py:453) raises Hold (the run stops, nothing is rendered) when sa["ok"] is false (:516). PINNED_DECISION.json in the run dir is the pin the run was built from (pinned.prepare); it is not attested. The EDL carries moments_package_sha256.
+- telegram.bar_lines (pipeline/telegram.py:99) prints one line per mark in the RELEASE caption only (build_caption, :137). It is bound to the EDL by package_sha256. A review drop never carries these lines (_review_forbidden, :653).
+- The two halves land together, and only on the orchestrator's explicit yes. A pin carrying the mark cannot exist before then.
+
+THE CHANGE (diff):
+1. NEW pipeline/stand_alone_floor.py:
+   - mark(mp, n) checks the mark whole: exactly the 5 fields; the note equal to telegram's line; floor == 3.0 (a number, not a bool); scorer_sha == the full measured sha; ruling "119"; segments a non-empty list of distinct ints in [0, n). Else ValueError.
+   - apply(sa, edl, run_dir) runs after check_edl. For exactly the marked segments it lifts an opener the scorer refused only for its score, when all of these hold:
+     - the pin record's package_sha256 equals the EDL's (else ValueError);
+     - the running scorer_sha AND the running digest equal the measured ones exactly (else nothing changes, and not_applied says why);
+     - the row has a scorer verdict with 3.0 <= score < 3.5;
+     - asked again with the score AT the bar (3.5) and the scorer's own fault, the unchanged opener (and trimmed_opener for a trimmed segment) passes.
+     Row pass becomes the topic verdict; ok is recomputed with the medley rule.
+2. run_fresh.stage_validate calls apply after check_edl. A ValueError there becomes a Hold. It prints the floor's record and keeps it in PROVENANCE.
+3. telegram.BAR_MARKS gains ("stand_alone_bar", "stand-alone affirmed on the calibrated floor (3.0)", "ruling 119"). The STOP messages name 119.
+4. scripts/integrator/check_pin_only.py refuses a malformed mark first (stand_alone_floor.mark), before the builder's gates, and names the rulings 115 (2) / 116 / 119 on its READY line.
+5. stand_alone_scorer.write_verdicts: each verdict carries its result entry's "digest", and the scorer block carries the ONE digest every scored verdict shares, else null.
+
+QUESTIONS:
+(1) Can apply affirm anything beyond exactly the marked segments, whose opener the scorer refused for its score alone, with 3.0 <= score < 3.5, under the exact measured code and weights, for the pin's own sealed package? Look at a segment label collision, a row without a scorer verdict, a non-numeric or bool score, NaN, a hook refused for a conjunction, the topic test, and the medley rule.
+(2) Is any path fail-open? Look at model_digest returning None, scorer_sha raising, an unreadable or partial PINNED_DECISION.json, a pin record without segments, a mark on another package, and an exception type the run_fresh wrapper does not catch.
+(3) Does a malformed mark always HOLD at validate and always get refused by check_pin_only, never read in part?
+(4) Does anything here change scorer_sha? stand_alone.py and story_semantics.py must be untouched.
+(5) The verdicts digest: is each verdict's digest its own scoring entry's? Is the block null whenever the scored verdicts differ or name none?
+(6) Can the mark's line appear anywhere but the release caption of the package it marks?
+Answer in your JSON format with a verdict PASS/FAIL and findings; cite file:line in the diff.

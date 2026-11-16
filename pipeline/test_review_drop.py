@@ -386,6 +386,28 @@ class TestReviewDrop(unittest.TestCase):
         for s in self.sent:
             self.assertNotIn("calibrated bar", json.dumps(s[2]))
 
+    def test_ruling_120_a_pin_marked_on_the_stand_alone_floor_reviews_without_its_line(self):
+        """Ruling 120's line ('a clip passed stand-alone on the calibrated bar') also belongs to the release caption
+        only: a review goes out without it (never refused for it), whatever other marks the pin carries."""
+        self.edl["moments_package_sha256"] = "ab" * 32
+        self._write("edl.json", self.edl)
+        stand = {"note": "a clip passed stand-alone on the calibrated bar", "floor": 3.0, "scorer_sha":
+                 "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53", "segments": [1], "ruling": "119"}
+        for extra in ({}, {"hook_bar": {"note": "hook passed on the calibrated bar", "ruling": "115"}}):
+            with self.subTest(other_marks=sorted(extra)):
+                self.sent = []
+                done = os.path.join(self.run, "REVIEW_DROP.json")       # one drop per run: the next case starts clean
+                if os.path.exists(done):
+                    os.remove(done)
+                self._write("PINNED_DECISION.json", {"mode": "pinned", "pin": {"segments": [{}, {}], "moments_package":
+                    dict({"type": "moments", "package_sha256": "ab" * 32, "stand_alone_bar": stand}, **extra)}})
+                rec = T.review_drop(self.run, send=self._send)
+                self.assertEqual(rec["status"], "complete")
+                self.assertEqual([s[0] for s in self.sent], ["video", "video", "message"])
+                for s in self.sent:
+                    self.assertNotIn("calibrated bar", json.dumps(s[2]))
+                    self.assertNotIn("passed stand-alone", json.dumps(s[2]))
+
     def test_order_0005_a_pin_without_speaker_records_adds_no_block(self):
         T.review_drop(self.run, send=self._send)
         self.assertNotIn(T.SPEAKERS_HEAD, self.sent[-1][2]["text"])

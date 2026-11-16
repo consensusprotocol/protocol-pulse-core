@@ -1,0 +1,26 @@
+{
+ "question": "Review this small DELTA to an audited change (batch 96, ruling 119 (1)'s stand-alone floor). Ruling 120 (the orchestrator's yes) gives the release caption's line its words: \"a clip passed stand-alone on the calibrated bar\". The diff changes the constant telegram.STAND_ALONE_BAR_NOTE to those words and rewords a comment. Report ONLY defects you can prove by quoting code; if every check holds, answer PASS with no findings.\n\nFACTS (unchanged code, not in this delta):\n- telegram.BAR_MARKS is a tuple of (key, line, ruling) triples. Its stand_alone_bar entry uses STAND_ALONE_BAR_NOTE.\n- telegram.bar_marks(mp) returns the line for each present mark whose \"note\" equals that line exactly, and raises ValueError otherwise.\n- stand_alone_floor.note() returns the BAR_MARKS line for \"stand_alone_bar\". stand_alone_floor.mark() requires the mark's \"note\" to equal note() exactly.\n- bar_lines (the release caption only, called by build_caption) prints those lines. The review drop (review_drop) never calls bar_lines. Its wording law (_review_forbidden) refuses the words pass / passed / approved.\n\nCHECKS:\nD1. Is the new constant exactly the ruling's words: lower-case \"a\", no full stop, no surrounding spaces?\nD2. Are the line the caption prints and the note the mark must carry still ONE value, with no second copy that could drift?\nD3. Can the new line, which contains \"passed\", now reach a review drop or any text other than the release caption?\nD4. Does the delta change anything other than the line's words and the comment?",
+ "files": [],
+ "panel": {
+  "gptoss": "openai/gpt-oss-20b"
+ },
+ "cycle1": [
+  {
+   "name": "gptoss",
+   "model": "openai/gpt-oss-20b",
+   "status": 200,
+   "latency_s": 4.5,
+   "cost": 7.9918e-05,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 7.9918e-05,
+ "out_dir": "heimdall"
+}

@@ -39,9 +39,14 @@ SIXTEEN_NINE_ONLY = ("16:9 ONLY: the package sealed formats ['16x9'] (ruling 93 
 # ruling 106's default at 15:54 ET Nov 15): the line-up verdicts' calibrated bar is marked the same way. A pin carries
 # each mark in moments_package[key], outside the seal. A release caption prints THESE lines, in this order, never a
 # mark's own words; a review drop never carries them (its wording law refuses 'passed': _review_forbidden).
+# Ruling 119 (1) (orchestrator 08:25 ET Nov 16) and ruling 120 (09:40 ET, the yes; it gives the line's words): a clip
+# sealed on the stand-alone scorer's calibrated floor is marked the same way (stand_alone_bar). stand_alone_floor.mark
+# checks that mark whole (check_pin_only, the render's validate); this table gives its line.
 HOOK_BAR_NOTE = "hook passed on the calibrated bar"
 LINEUP_BAR_NOTE = "line-up passed on the calibrated bar"
-BAR_MARKS = (("hook_bar", HOOK_BAR_NOTE, "ruling 115 (2)"), ("lineup_bar", LINEUP_BAR_NOTE, "ruling 116"))
+STAND_ALONE_BAR_NOTE = "a clip passed stand-alone on the calibrated bar"     # ruling 120's own words
+BAR_MARKS = (("hook_bar", HOOK_BAR_NOTE, "ruling 115 (2)"), ("lineup_bar", LINEUP_BAR_NOTE, "ruling 116"),
+             ("stand_alone_bar", STAND_ALONE_BAR_NOTE, "ruling 119"))
 
 
 def _fit(text, limit):
@@ -74,8 +79,8 @@ REGISTRY = os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.js
 
 
 def bar_marks(mp):
-    """Rulings 115 (2) / 116: the calibrated-bar lines a pin's moments_package carries, in BAR_MARKS order (the hook's,
-    then the line-up's); [] when it carries none. Each mark is read on its own: an absent key adds nothing, a present
+    """Rulings 115 (2) / 116 / 119: the calibrated-bar lines a pin's moments_package carries, in BAR_MARKS order (the
+    hook's, the line-up's, then the stand-alone floor's); [] when it carries none. Each mark is read on its own: an absent key adds nothing, a present
     one must be an object whose "note" is exactly its line, else ValueError (never a guess, never the mark's own
     words). check_pin_only asks this before a render."""
     if not isinstance(mp, dict):
@@ -104,11 +109,11 @@ def bar_lines(run_dir, edl):
             mp = json.load(f)["pin"].get("moments_package")
         lines = bar_marks(mp)
     except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
-        raise RuntimeError(f"STOP: calibrated bar marks (rulings 115 (2) / 116): the pin record cannot say whether the "
-                           f"package was marked ({type(e).__name__}: {e})") from None
+        raise RuntimeError(f"STOP: calibrated bar marks (rulings 115 (2) / 116 / 119): the pin record cannot say whether "
+                           f"the package was marked ({type(e).__name__}: {e})") from None
     sha = mp.get("package_sha256") if lines else None
     if lines and not (isinstance(sha, str) and sha and sha == edl.get("moments_package_sha256")):
-        raise RuntimeError("STOP: calibrated bar marks (rulings 115 (2) / 116): the marked package in "
+        raise RuntimeError("STOP: calibrated bar marks (rulings 115 (2) / 116 / 119): the marked package in "
                            "PINNED_DECISION.json is not the attested EDL's")
     return lines
 
@@ -129,7 +134,7 @@ def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
              + (f" | {duration:.1f} s" if duration else ""),
              f"Story: {edl.get('topic', '')}",
              "Clips: " + ", ".join([edl["hook"].get("channel", "?")] + [c.get("channel", "?") for c in edl.get("clips", [])])]
-    lines[2:2] = bar_lines(run_dir, edl)     # rulings 115 (2) / 116: one plain line per mark, under the run line
+    lines[2:2] = bar_lines(run_dir, edl)     # rulings 115 (2) / 116 / 119: one plain line per mark, under the run line
                                              # (never cut by _fit)
     if mon:                                # claude-fable audit batch 16 #1: never 'all passed' with a failure unsaid
         lines.insert(1, "Monitoring (reported, not release-deciding): " + "; ".join(f"{k} {v}" for k, v in mon.items()))

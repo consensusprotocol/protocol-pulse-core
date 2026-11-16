@@ -1,0 +1,21 @@
+CONTROL (unmutated): exit 0 | 62 passed, 109 subtests passed in 22.97s
+M1 the floor dropped (any score under the bar): KILLED | 3 failed, 11 passed, 53 subtests passed in 1.45s
+M2 the scorer-code check dropped: KILLED | 4 failed, 8 passed, 44 subtests passed in 1.69s
+M3 the weights check dropped: KILLED | 3 failed, 8 passed, 45 subtests passed in 1.62s
+M4 the seal check dropped: KILLED | 3 failed, 4 passed, 31 subtests passed in 1.27s
+M5 the marked segments ignored: KILLED | 3 failed, 7 passed, 38 subtests passed in 1.35s
+M6 the opener asked again at the bar skipped: KILLED | 1 failed, 4 passed, 34 subtests passed in 1.26s
+M7 the topic test ignored: KILLED | 1 failed in 1.07s
+M8 the medley rule ignored: KILLED | 1 failed, 9 passed, 50 subtests passed in 1.34s
+M9 the mark's floor not checked: KILLED | 2 failed, 3 passed, 23 subtests passed in 1.18s
+M10 the mark's scorer code not checked: KILLED | 2 failed, 3 passed, 23 subtests passed in 1.15s
+M11 the mark's places not bounded: KILLED | 1 failed, 3 passed, 24 subtests passed in 1.13s
+M12 the mark's exact fields not checked: KILLED | 3 failed, 3 passed, 22 subtests passed in 1.37s
+M13 validate does not apply the floor: KILLED | 1 failed, 12 passed, 56 subtests passed in 1.50s
+M14 a malformed mark at validate is not a HOLD: KILLED | 1 failed, 12 passed, 56 subtests passed in 1.43s
+M15 check_pin_only does not check the mark: KILLED | 6 failed, 17 passed, 56 subtests passed in 1.77s
+M16 the drop has no line for the mark: KILLED | 1 failed in 1.03s
+M17 a verdict's digest not its own entry's: KILLED | 1 failed, 58 passed, 109 subtests passed in 23.12s
+M18 the block names a digest for mixed weights: KILLED | 1 failed, 58 passed, 109 subtests passed in 22.54s
+18 of 18 killed
+AFTER (restored): exit 0 | 62 passed, 109 subtests passed in 22.32s
