@@ -6,6 +6,22 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 15:24 BATCH 99 LANDED (pp-ingest R14, INGEST-FAIL-03): the transcript ingest's 72 h window dates a STREAM by when it aired (merged a2597836, 15:23 ET, pushed). SCOTT MELKER f0NnJM63Ffc IS DONE: the 15:00 run transcribed it (61 min of audio in 106 s), and pp-ingest mined it at 15:07 ET (54 moments). BATCH 4 integrator spend: $0.1268 (batch 99's audits $0.0090; Heimdall, not capped).
+- **The fault:**
+  - universe() kept only RSS entries whose RSS time is inside the window. For a scheduled stream, that time is when it was SCHEDULED.
+  - Bitcoin Magazine KRvh4AcSofA (tier 1, approved layout; 2 h 1 min, "Binance Breach, AI Bitcoin Security") was scheduled 2026-11-13T17:19Z and aired 2026-11-16T14:32Z.
+  - It left the window at 12:19 ET, as it aired, and its stored is_live record was never reached again, so batch 98's re-read could not help.
+- **The fix:**
+  - Every metadata snapshot keeps yt-dlp's release_timestamp, the stream's start.
+  - transcript_store.stream_start() gives when a stored stream aired: its release_timestamp, or, for a snapshot read while not yet finished that names none, the time of that read.
+  - universe() re-dates an entry outside the window by that start. An ordinary upload, a finished stream naming no start, and anything unreadable keep their RSS time. A start in the future, or older than 72 h, stays out.
+- **Not fixed:** an entry that has fallen out of the RSS feed's 15 newest is still not seen.
+- **Checks:**
+  - Tests: 9, of which 3 fail on the old code. 9 of 9 mutations killed, after two corrections: W1's first form was a syntax error, and W4 needed an upload naming a release time.
+  - Audits (Heimdall only, two cycles, qwen27b + gpt-oss at medium): one single-seat finding, judged not a defect. Returning None is what keeps the RSS time, and its proposed fix is the killed mutation W3.
+  - Both regressions green on the staged merge (26 PASS / 0 FAIL / 4 WARN; exit 0, references REPRODUCED). The store's suites: 121 passed.
+- **When KRvh4AcSofA runs:** the first cron run on the new code takes it. The 15:00 run (old code) was still transcribing at 15:24; if it still holds the single-instance lock at 15:30, that is the 16:00 run.
+
 ## 14:12 BATCH 98 LANDED (pp-ingest's finding, INGEST-FAIL-01's pattern): the transcript store reads a stored live record again before skipping a video (merged 8f8bccf1, 13:55 ET, pushed). The 14:00 cron run, the first on it, read again all 14 records stored as is_live: 9 now was_live, 3 post_live (finished, still processing; never a skip), 2 still live (skipped_live 14 -> 2). Scott Melker f0NnJM63Ffc was read again at 14:01:46 ET: was_live, 3,679 s. Its captions were throttled (429), so it is now due for Whisper. This run's 4 h audio budget (the cron line's --max-whisper-hours 4; cron unchanged) went first, in the ingest's priority order, to Bitcoin Magazine oqB8dx7VgOQ (111 min), BTC Sessions nvEftLDdab4 (76) and Digital Asset News Sps9le2Z5RI (48), 3.91 h in 733 s. Melker and 13 others are deferred_budget: a following run takes them, about 4 h of audio each. BATCH 4 integrator spend: $0.1178 (batch 98's audits $0.0259) (Heimdall, not capped).
 - **The fault:** transcript_store.ensure_meta returned the stored meta.json whenever one existed and never refreshed it, so acquire() skipped any video whose record was taken while live, for ever. Scott Melker f0NnJM63Ffc's record was taken at 09:30 ET while the stream was live, and the stream ended around 10:30.
 - **The fix:**
