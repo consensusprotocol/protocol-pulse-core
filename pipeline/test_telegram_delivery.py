@@ -148,7 +148,7 @@ MARK = {"note": NOTE_115, "bar": "BAR-TEXT scroll>=3 alone>=4 setup>=3", "floors
 LINEUP = {"note": NOTE_116, "bar": "LINEUP-TEXT", "floors": {"clips_alone": {"clips": 3}, "coherence": {
     "clips": 3, "vo_point": 3}}, "calibration_sha256": "e" * 64, "ruling": "116"}
 BOTH = {"hook_bar": MARK, "lineup_bar": LINEUP}
-NOTE_119 = "stand-alone affirmed on the calibrated floor (3.0)"   # ruling 119 (1)'s (the builder's stand_alone_bar)
+NOTE_119 = "a clip passed stand-alone on the calibrated bar"   # ruling 120's words (the builder's stand_alone_bar note)
 STAND = {"note": NOTE_119, "floor": 3.0, "scorer_sha": "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53",
          "segments": [2], "ruling": "119"}
 PKG = "ab" * 32

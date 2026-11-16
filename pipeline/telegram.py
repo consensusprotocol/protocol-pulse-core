@@ -39,12 +39,12 @@ SIXTEEN_NINE_ONLY = ("16:9 ONLY: the package sealed formats ['16x9'] (ruling 93 
 # ruling 106's default at 15:54 ET Nov 15): the line-up verdicts' calibrated bar is marked the same way. A pin carries
 # each mark in moments_package[key], outside the seal. A release caption prints THESE lines, in this order, never a
 # mark's own words; a review drop never carries them (its wording law refuses 'passed': _review_forbidden).
-# Ruling 119 (1) (orchestrator 08:25 ET Nov 16; landed with the builder's half on the orchestrator's yes): a clip sealed
-# on the stand-alone scorer's calibrated floor is marked the same way (stand_alone_bar). stand_alone_floor.mark checks
-# that mark whole (check_pin_only, the render's validate); this table gives its line.
+# Ruling 119 (1) (orchestrator 08:25 ET Nov 16) and ruling 120 (09:40 ET, the yes; it gives the line's words): a clip
+# sealed on the stand-alone scorer's calibrated floor is marked the same way (stand_alone_bar). stand_alone_floor.mark
+# checks that mark whole (check_pin_only, the render's validate); this table gives its line.
 HOOK_BAR_NOTE = "hook passed on the calibrated bar"
 LINEUP_BAR_NOTE = "line-up passed on the calibrated bar"
-STAND_ALONE_BAR_NOTE = "stand-alone affirmed on the calibrated floor (3.0)"
+STAND_ALONE_BAR_NOTE = "a clip passed stand-alone on the calibrated bar"     # ruling 120's own words
 BAR_MARKS = (("hook_bar", HOOK_BAR_NOTE, "ruling 115 (2)"), ("lineup_bar", LINEUP_BAR_NOTE, "ruling 116"),
              ("stand_alone_bar", STAND_ALONE_BAR_NOTE, "ruling 119"))
 

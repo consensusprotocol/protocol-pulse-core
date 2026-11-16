@@ -35,7 +35,7 @@ import telegram  # noqa: E402,F401  (this tree's: check_pin_only puts the main t
 
 BASE = os.path.join(REPO, "references", "pulse_fresh_2026-11-13", "edl.json")    # the published 0c68b589 EDL
 CODE, WEIGHTS = SF.MEASURED_SCORER_SHA, SF.MEASURED_DIGEST
-NOTE_119 = "stand-alone affirmed on the calibrated floor (3.0)"                  # ruling 119 (1)'s words
+NOTE_119 = "a clip passed stand-alone on the calibrated bar"                      # ruling 120's words
 OFF_TOPIC = "But the weather in Paris was lovely this spring, and the cafes were full every night."
 
 
