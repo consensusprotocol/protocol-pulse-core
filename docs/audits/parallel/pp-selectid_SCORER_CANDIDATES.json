@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T17:27:07+00:00",
- "build": "ledger_20261116_172654",
+ "generated_at": "2026-11-16T17:33:30+00:00",
+ "build": "ledger_20261116_173316",
  "kind": "moments",
  "candidates": [
   {
@@ -94,6 +94,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "51f09ae164733cbf6411",
+   "video_id": "4pAa6COklAY",
+   "channel": "DataDash",
+   "duration": 11.2,
+   "text": "And over the last few days, Bitcoin has broke down below some key support here after the recent run to about $88,000. And I want to break down the significance of this.",
+   "text_sha256": "7045fa1fd92d1250c0def2a995dce0b47078e23b1df01e44f0389efb9115b4e4",
+   "trimmed_leading": null
+  },
+  {
    "pid": "39fff8c907c1e5de0689~trim",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -173,6 +182,15 @@
    "text": "as Bitcoin has positive price action in the face of those things, it's like one of the more bullish signals potentially. So you kind of watch how the crowd responds to that.",
    "text_sha256": "8e94b05130c5433d525b4afefdc31e8ab69cbc52e987869f0bc80cefae0bad46",
    "trimmed_leading": "But"
+  },
+  {
+   "pid": "51f09ae164733cbf6411~trim",
+   "video_id": "4pAa6COklAY",
+   "channel": "DataDash",
+   "duration": 10.92,
+   "text": "over the last few days, Bitcoin has broke down below some key support here after the recent run to about $88,000. And I want to break down the significance of this.",
+   "text_sha256": "9c6608128d7888d6b6d331d1703c3b3597467e0b9dda119034ec27dd97821bd4",
+   "trimmed_leading": "And"
   },
   {
    "pid": "17e5a9235d68c10d79b2",
@@ -571,6 +589,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "1bb15f8ef41ec6bd8a38",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 18.6,
+   "text": "Essentially, like, a really thrilling, like, intertwined story kind of thing where Bitcoin's the main thing, following an on -chain analysis guy who sort of goes through and does, like, forensic stuff around Bitcoin and takes you all over the place across the U.S. is the bad guys are. kind of murdering folks politically and doing all sorts of other crazy stuff.",
+   "text_sha256": "5ad70265be6197c6a82ee3685c1c61ea511c425af8bda269cab8f5cb087c0f57",
+   "trimmed_leading": null
+  },
+  {
    "pid": "447f7e0e95db3085c7fb~trim",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -578,6 +605,42 @@
    "text": "the thing that really stood out to me more than anything, though, was I feel like compared to when, say, the first came out and started doing this, like compare that to today, I think there's been a real split. Between the treasury company people and the bitcoin people, i almost feel like there's not like the vent diagram has has widened and the like group that's in the middle has got much smaller, i think. that sort of straddle both.",
    "text_sha256": "e45179bc8e95f94a2fc034e1a05f6cdd9e196cc17f24cd1bb4356d50a2997f47",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "85ab7ef1262f6097c7e6~trim",
+   "video_id": "4pAa6COklAY",
+   "channel": "DataDash",
+   "duration": 21.42,
+   "text": "over the last few days, Bitcoin has broke down below some key support here after the recent run to about $88,000. And I want to break down the significance of this. I want to kind of touch on a little bit of the four -year cycle idea, the fact that we will more than likely not see a major bull run out of Bitcoin right now.",
+   "text_sha256": "48621c4edf64096cd110a34607e92e10d855cfb927e0da17388f2b2b911a0e69",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "988a604d8b75de7ca216",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 19.61,
+   "text": "If there's a lot of like fear and anger out there, like it doesn't matter how bullish you are on bitcoin. There's certain like ideas you might spend more time thinking about. um like to kind of make like a personal analogy to this, like if you... are really angry because something happens to you, you'll start, like, forming stories about, like, why something bad happened.",
+   "text_sha256": "5416e06c032062768a33f830fc42be75aed6083ef199a033c7c00179a9a1db1a",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "62ab1532a50813a91b09",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 17.62,
+   "text": "I know that there's like a lot of manipulation going on. There's certain narratives that'll have like monetary weight thrown behind them to try to get them to trend. And people are susceptible to this. Like, people that I think are brilliant are susceptible to this. If there's a lot of, like, fear and anger out there, like, it doesn't matter how bullish you are on Bitcoin.",
+   "text_sha256": "7d3831785e282fd24d8d76eb7fb31b032149fa5cd3ee988113f07797dbc6d324",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5d1df22b1e5c0577810e",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 15.34,
+   "text": "I'm kind of expecting to see a little bit more of this where we just don't see full crowd buy in until we probably pass through like the 100K range or something like that. And it's like it's cool. You know, one of the things that I like about this is when everyone comes into Bitcoin, like, okay, what can I do in Bitcoin?",
+   "text_sha256": "665ca939a195fd7d176fa0758f038b0c54b04c7869dc50f8194d694d267d4c1b",
+   "trimmed_leading": null
   },
   {
    "pid": "330c00b9ae946963608c",
