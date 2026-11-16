@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T20:24:11+00:00",
- "build": "ledger_20261116_202339",
+ "generated_at": "2026-11-16T20:25:59+00:00",
+ "build": "ledger_20261116_202528",
  "kind": "moments",
  "candidates": [
   {
@@ -148,6 +148,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "bbd96c352a4dd00262d2",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 12.82,
+   "text": "And so the thesis behind Bitcoin buying, the pieces behind gold central bank buying is undeterred, unstopped. And that... matters because that tells you a lot about where demand comes from.",
+   "text_sha256": "5b392ec47e9c2c42c550d7aaed836c37ae67fc36b6a1bb0e15981ef77540c208",
+   "trimmed_leading": null
+  },
+  {
    "pid": "35a998f0743b2193929d",
    "video_id": "OubcRgk3D-w",
    "channel": "Simply Bitcoin",
@@ -172,6 +181,15 @@
    "duration": 19.2,
    "text": "And I think that's one of the reasons that like, I think technical analysis in general has had a lot of... pain recently because the market has chopped around and really challenged a lot of perspectives levels and lines that people thought were guaranteed to hold heaven held a lot of the stories that they use about just like how bitcoin has to trade have come under attention too yeah, it's very cool.",
    "text_sha256": "ab2bb5f774c560cf693340c5773faa6e4e3a8d609739d5decd3c8f322cac0b4b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "9a3ea111bafc2c865fcf",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 1.68,
+   "text": "And the best leading indicator for that is Bitcoin.",
+   "text_sha256": "14e2ed9e325ba472a03f8d0f3ef2f940d6f1197528b5cf6a3afb7a337ed5b483",
    "trimmed_leading": null
   },
   {
@@ -202,12 +220,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "257b962aa90db2254497",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 5.96,
+   "text": "And so it's $5,000 extra for a Bitcoin when it was $17,000, right? Right.",
+   "text_sha256": "7276de62bbcbf7d100428eb7085faf77bd9b715aae6feeffa2eec4c2b4605e65",
+   "trimmed_leading": null
+  },
+  {
    "pid": "44a96df05142bc356898",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
    "duration": 15.32,
    "text": "And this kind of thing happens on an individual level, but it's also kind of happening at the crowd level where like a good example this a while back was when Saylor sold 32 Bitcoin, everybody was freaking out about it. Like that's the exact kind of narrative that you would see people overreact to when people are angry. and they're bored, you know.",
    "text_sha256": "21539eb0397db19e121e56ac96a3c242006f3b4a32bc6a72285588d5d8d91759",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "4d65e0efdb80e24cff63",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 6.16,
+   "text": "And then I just pointed out my favorite leading indicator is down 7 % overnight. I'm sorry, from Friday's close. It's Bitcoin.",
+   "text_sha256": "c6baab57157c543bdbead0cb5a02d76700d68af03594f4842775dbd7ae7a10b4",
    "trimmed_leading": null
   },
   {
@@ -271,6 +307,15 @@
    "duration": 11.2,
    "text": "And over the last few days, Bitcoin has broke down below some key support here after the recent run to about $88,000. And I want to break down the significance of this.",
    "text_sha256": "7045fa1fd92d1250c0def2a995dce0b47078e23b1df01e44f0389efb9115b4e4",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "2887aab6f9435b386da1",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 19.56,
+   "text": "So maybe then we'll get a chance for people like to see maybe i'll revert and say, yeah, bitcoin didn't go to 10 000, but i saved a lot of stupid people from buying it above 100 000 and we bought it at 40. Maybe i'll be able to say that, but i'm pointing out this is not this is just getting started. we're overdue for we're overdue for normal 20 % correction in the stock market, and it's only 3 % so far.",
+   "text_sha256": "25e1e6c6d705c84f2e1fd3a4dba8316c2c651ac3ad213cf43b669b5e9c15cd43",
    "trimmed_leading": null
   },
   {
@@ -427,6 +472,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "9a3ea111bafc2c865fcf~trim",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 1.62,
+   "text": "the best leading indicator for that is Bitcoin.",
+   "text_sha256": "2a6440ad65d6605f3d22f154471730081159584aee5599f875a22724579ec3eb",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "d7d0ffb2113563fb6954~trim",
    "video_id": "m7ygyYMe3mg",
    "channel": "Bitcoin Magazine",
@@ -526,6 +580,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "2887aab6f9435b386da1~trim",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 19.16,
+   "text": "maybe then we'll get a chance for people like to see maybe i'll revert and say, yeah, bitcoin didn't go to 10 000, but i saved a lot of stupid people from buying it above 100 000 and we bought it at 40. Maybe i'll be able to say that, but i'm pointing out this is not this is just getting started. we're overdue for we're overdue for normal 20 % correction in the stock market, and it's only 3 % so far.",
+   "text_sha256": "d3b1cae239afef67a81eef62aae57505b3606f57743391964b6ae613ffd087b3",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "52825fc1a60b481b8c0a~trim",
    "video_id": "OubcRgk3D-w",
    "channel": "Simply Bitcoin",
@@ -604,6 +667,15 @@
    "duration": 17.18,
    "text": "There could be some wild news item that drops like next week. And like we go way down or whatever, right? But it gives you a pulse because like people kind of are locked on to Bitcoin in their own psychological way and sort of your like subconscious kind of. seeps out a little bit in the language you're using, and you can actually measure that.",
    "text_sha256": "4e42a78e3bb27cdfb6ee6d2c4f5daa3eb8bd6f1363378d6a1f23cc668439b850",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "df575c73703067c50f66",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 15.99,
+   "text": "He made the same point you guys kind of both did. Is that, you know, SpaceX marks the bottom for Bitcoin in June and that there was this massive 18, 19 % sell -off into that as people raised. liquidity to participate in SpaceX. Same thing happening now, Anthropic.",
+   "text_sha256": "5ffd8a5075be57c9ea3b3ca3aa5f26a6693b8dc3e6e0ecd629935ce795939e84",
    "trimmed_leading": null
   },
   {
@@ -1309,6 +1381,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "08061cf88a6d6f18b7a5",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 15.73,
+   "text": "Following Bitcoin, to me, this is just a matter of time we continue lower. Now, you know some of the levels I put out in Bitcoin and just normal reversion. I couldn't break through 509 to 60 pretty soon. Remember, triple bottom now. Triple bottoms are made to be broken. But it's a great leading indicator.",
+   "text_sha256": "189b8921eea9bbebbbf3790577e988e4a86b68872438e1d577f765f77746116b",
+   "trimmed_leading": null
+  },
+  {
    "pid": "c7205fcd9f163b7d8459",
    "video_id": "uAvmynMSVhM",
    "channel": "Bitcoin Magazine",
@@ -1469,6 +1550,24 @@
    "text": "Our complaint isn't even about Bitcoin. It's about whether or not these rules can be verified. That's our challenge. And we asked this in one question to MSCI. We say, does this framework reliably distinguish an operating company? rubble a passive investment vehicle, you know, why is it that a real estate trust can stay in and a uranium holder is out?",
    "text_sha256": "eb4a732a72c0c32fe264a94975aafb204c5c151f81f2f2f51683f996436e89d3",
    "trimmed_leading": null
+  },
+  {
+   "pid": "c80f20989c39d2bc44d0",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 13.84,
+   "text": "Where do you think Bitcoin is going to be? I think it's going to be below 50. That's at how far it breaks down. But yeah, Dave, we can. I would love to respond. But David has really got 10 minutes, I think, left. So I just want to talk about, you know, this is the SpaceX Anthropic and then you can respond.",
+   "text_sha256": "25cfd4302eed2f7103ca12629ac24f23f17fb27bf9fad5978b2850b93efd5d28",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "8e31c51b9a376b0c72c4~trim",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 16.93,
+   "text": "the best leading indicator for that is Bitcoin. Because you guys, I just wanted to show you something because it's kind of relevant to Dave. I don't know if you saw this story, but Berkshire breaks out to record high with fourth quarter rally reaching 19%. And they're sitting on obviously a mountain of cash that's in treasury.",
+   "text_sha256": "ea7032ba7d8c80c12a86d8181168c20144c2a5854d27dfd658d096f66c34dcdb",
+   "trimmed_leading": "And"
   },
   {
    "pid": "8beea4d087cf570d6fe0",
@@ -1669,12 +1768,30 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "8266d23031d84f9d9728",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 19.49,
+   "text": "You know, this notion that the speculative money drives Bitcoin price is certainly true. The speculators are leaning short, and they're leaning short in a big way. Right? So my big problem what Mike was saying is that the data, the funding data, all the other data, shows the speculative world leaning short now, not leaning long.",
+   "text_sha256": "1490cb42191179f39a6f9009e1458104764bcf8c29a1d4b5fa5db27424c748d8",
+   "trimmed_leading": null
+  },
+  {
    "pid": "b8242b9c44bbcefb5e43",
    "video_id": "m7ygyYMe3mg",
    "channel": "Bitcoin Magazine",
    "duration": 21.51,
    "text": "He won the Nobel, George Ackloff is an economist. He won the Nobel Prize for this article called Market for Lemons, where he attacked. The efficient market hypothesis where, you know, the efficient market hypothesis, you and I know what the true value of Bitcoin is. We know that it's where it's going to be in 20 years and all that.",
    "text_sha256": "68515735f8da1e2bf2932a7d000dc951f081b359df2eae84817616220b45c925",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a0b648116bf97d8b0f7f",
+   "video_id": "f0NnJM63Ffc",
+   "channel": "Scott Melker",
+   "duration": 14.38,
+   "text": "I would spend some time at a wedding this week when some hedge fund people I know who love Bitcoin when it was in GBTC when it was cheap and all they look like right now is treasuries. And this is me doing the circuit with hot money. I'm just telling you what I'm hearing. It's not it's not risk assets.",
+   "text_sha256": "85f1685906de2c7f58e74223021fe7415cfd1ca18f07da2ab92c2c4786a71198",
    "trimmed_leading": null
   },
   {
