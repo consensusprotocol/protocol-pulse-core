@@ -240,7 +240,7 @@ class Paths(unittest.TestCase):
                       "status": os.path.join(self.d, "status.json"), "state": os.path.join(self.d, "state.json"),
                       "moment_ledger": os.path.join(self.d, "moment_ledger.jsonl"),
                       "builds": os.path.join(self.d, "proof", "ledger_*"),
-                      "spend": os.path.join(self.d, "proof", "BATCH*_LEDGER.json"),
+                      "spend": os.path.join(self.d, "proof", "DAY118_LEDGER.json"),
                       "wordpass_log": os.path.join(self.d, "word_pass_worker.log")}
         os.makedirs(os.path.join(self.d, "proof"))
 
@@ -249,10 +249,15 @@ class Paths(unittest.TestCase):
             os.makedirs(path) if path.endswith(("_1", "_2")) else open(path, "w").close()
         os.utime(path, (t, t))
 
-    def batch(self, usd, frm="2026-11-15T21:10 ET", to="2026-11-16T21:10 ET", capped="outside vendors (Heimdall not "
-              "capped)", name="BATCH4_LEDGER.json"):
-        with open(os.path.join(self.d, "proof", name), "w") as f:
-            json.dump({"from": frm, "to": to, "all_in": usd, "capped": capped, "cap": 8.0}, f)
+    def day118(self, outside, day=("2026-11-15T21:10:00-05:00", "2026-11-16T21:10:00-05:00"), drop=()):
+        """The builder's ruling 118 day record, shaped as it wrote it at 06:10 ET Nov 16."""
+        d = {"ruling": "118, orchestrator 05:40 ET Nov 16", "day": list(day) if day is not None else None,
+             "ledger": "SPEND_B4.json", "cap": 1.0, "outside": outside,
+             "parts_outside": {"builds": outside, "audits": 0.0, "checks": 0.0, "others": {}}}
+        for k in drop:
+            d.pop(k)
+        with open(self.paths["spend"], "w") as f:
+            json.dump(d, f)
 
 
 class TestIdleWithWork(Paths):
@@ -307,15 +312,15 @@ class TestIdleWithWork(Paths):
 class TestSpend(Paths):
     def test_80_and_100_percent_once_each_per_day_window(self):
         st, send = {}, mock.Mock(return_value=7)
-        self.batch(0.79)
+        self.day118(0.79)
         self.assertEqual(W.spend_findings(st, DAY, self.paths)[0], [])
-        self.batch(0.80)
+        self.day118(0.80)
         f, view = W.spend_findings(st, DAY, self.paths)
         self.assertEqual([(x["key"], x["level"]) for x in f], [("spend:80%", 0.8)])
         self.assertEqual(view["usd"], 0.8)
         W.dispatch(f, st, DAY, send)
         self.assertEqual(W.spend_findings(st, DAY + 300, self.paths)[0], [])        # said once
-        self.batch(1.02)
+        self.day118(1.02)
         f, _ = W.spend_findings(st, DAY + 600, self.paths)
         self.assertEqual([x["key"] for x in f], ["spend:100%"])
         self.assertIn("$1.02, at 100% of ruling 118's $1.00 day cap", f[0]["what"])
@@ -324,21 +329,36 @@ class TestSpend(Paths):
         self.assertEqual(send.call_count, 2)
 
     def test_straight_to_100_says_100_only(self):
-        self.batch(1.30)
+        self.day118(1.30)
         f, _ = W.spend_findings({}, DAY, self.paths)
         self.assertEqual([x["level"] for x in f], [1.0])
 
-    def test_only_a_one_day_outside_vendor_window_that_holds_now(self):
-        for kw in ({"frm": "2026-11-14T21:10 ET", "to": "2026-11-15T21:10 ET"},       # yesterday's window
-                   {"frm": "2026-11-15T21:10 ET", "to": "2026-11-18T21:10 ET"},       # a three-day batch
-                   {"capped": "everything"},                                         # not an outside-vendor cap
-                   {"frm": "2026-11-15 21:10"}):                                     # not an ET stamp
+    def test_the_frozen_batch_ledger_is_never_read(self):
+        # the builder, 06:2x ET Nov 16: BATCH4_LEDGER.json's all_in stopped at ruling 118; DAY118_LEDGER.json is kept
+        with open(os.path.join(self.d, "proof", "BATCH4_LEDGER.json"), "w") as f:
+            json.dump({"from": "2026-11-15T21:10 ET", "to": "2026-11-16T21:10 ET", "all_in": 5.0,
+                       "capped": "outside vendors (Heimdall not capped)"}, f)
+        self.day118(0.56)
+        f, view = W.spend_findings({}, DAY, self.paths)
+        self.assertEqual((f, view["usd"]), ([], 0.56))
+        self.assertIn("DAY118_LEDGER.json 2026-11-15T21:10:00-05:00 to 2026-11-16T21:10:00-05:00", view["window"])
+
+    def test_only_a_record_whose_one_day_holds_now_and_a_real_number(self):
+        for kw, why in (({"day": ("2026-11-14T21:10:00-05:00", "2026-11-15T21:10:00-05:00")}, "not now"),  # old day
+                        ({"day": ("2026-11-15T21:10:00-05:00", "2026-11-18T21:10:00-05:00")}, "more than a day"),
+                        ({"day": ("2026-11-15T21:10:00", "2026-11-16T21:10:00")}, "no UTC offset"),
+                        ({"day": None}, "unreadable"), ({"drop": ("outside",)}, "unreadable"),
+                        ({"outside": "0.9"}, "not a number"), ({"outside": True}, "not a number"),
+                        ({"outside": float("nan")}, "not a number")):
             with self.subTest(kw=kw):
-                self.batch(5.0, **kw)
+                args = dict({"outside": 5.0}, **kw)
+                self.day118(args.pop("outside"), **args)
                 f, view = W.spend_findings({}, DAY, self.paths)
                 self.assertEqual(f, [])
                 self.assertFalse(view["readable"])
-                self.assertIn("no batch ledger", view["why"])
+                self.assertIn(why, view["why"])
+        os.remove(self.paths["spend"])
+        self.assertIn("unreadable (FileNotFoundError", W.spend_findings({}, DAY, self.paths)[1]["why"])
 
 
 class TestDispatch(unittest.TestCase):
