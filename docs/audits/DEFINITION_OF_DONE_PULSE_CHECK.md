@@ -6,6 +6,30 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 09:33 RULING 119 (1), THE INTEGRATOR'S HALF OF THE STAND-ALONE FLOOR: BUILT, TESTED AND AUDITED, NOT LANDED. It waits for the orchestrator's explicit yes. The builder's question is on its STATE line 1, with no default: ruling 106 says loosening an integrity gate is a human's decision. The builder's half cleared its own audit (20261116_0842) and is also unlanded. They land together: the builder first, then the integrator. Branch r119-validate-bar, head 2d09ed17. Heimdall audits $0.0397 (not capped); BATCH 4 integrator spend $0.0573 (Heimdall, not capped).
+- **What it does** (pipeline/stand_alone_floor.py, called from run_fresh's validate after the unchanged check_edl):
+  - It lets through, for exactly the segments the pin's stand_alone_bar mark lists, a clip the scorer refused only for its score.
+  - The score must be 3.0 <= score < 3.5, and the unchanged opener (or trimmed_opener), asked again at 3.5 with the scorer's own fault, must pass.
+  - It applies only when the pin record's package is the EDL's, and the running scorer code (full sha edd54964...) and weights (full gemma3:27b digest a418f583...) equal the measured ones.
+  - Otherwise nothing changes: the 3.5 bar alone, and PROVENANCE says why.
+  - A malformed mark HOLDs at validate, and check_pin_only refuses it first.
+  - stand_alone.py and story_semantics.py are untouched, so scorer_sha does not move.
+  - The release caption prints the mark's line, "stand-alone affirmed on the calibrated floor (3.0)", after the hook's and the line-up's.
+  - The scorer's verdicts file now names each verdict's weights digest, which the builder's half requires.
+- **Tests:**
+  - 62 tests and 106 subtests in the three suites. On the old code they fail (14 failures; the new file cannot import its module).
+  - 18 of 18 mutations killed. One survived first: a trimmed hook still opening on a conjunction. The missing test was added and kills it.
+  - The related suites pass: 197 passed. The one failure, test_v2f_manifest_same_voice, needs v2f data the worktree lacks and passes on main.
+- **The audit panel:** glm is overloaded on the gateway (ruling 119 (3)), so these seats were used instead:
+  - **Cycle 1, first attempt:** no evidence. qwen27b and deepseek at effort none spent their whole budgets without an answer, gemma at none gave a bare PASS, and gemma at medium timed out while another session's audit held the same seats.
+  - **Cycle 1, retried on the final code** with five concrete checks: gpt-oss and qwen27b at medium each traced every check through the code. PASS.
+  - **Cycle 2, adversarial** ("break it", five goals): qwen27b at medium found no way through. gpt-oss at medium traced three goals with no defect, then looped. gpt-oss at low raised one finding, that ok is unchanged when the floor does not apply. Judged not a defect: that unchanged 3.5 verdict is the fail-closed bar. No change.
+- **One fix found by the integrator's own review** (7487c0f3): an unmarked pin's record is no longer read beyond its moments_package. A record without segments no longer HOLDs a run that does not use the floor.
+- **On the orchestrator's yes:**
+  1. The builder lands and pushes.
+  2. The integrator stops the scorer service, merges, and runs both regressions on the staged merge.
+  3. The integrator commits, pushes, restarts the scorer service, and reports here.
+
 ## 08:45 CORRECTION TO THE 08:35 ENTRY, AND FOR THE ORCHESTRATOR BEFORE THE BUILDER'S 08:57 DEFAULT (ruling 119 (1)'s 3.0 floor). The render's validate does NOT ask all of a video's clips together. stand_alone.check_edl asks its scorer only about these, and puts only these in its asking:
 - a clip after the hook that opens on a conjunction or reply fragment;
 - a trimmed clip;
