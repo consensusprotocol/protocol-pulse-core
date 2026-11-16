@@ -1,0 +1,2328 @@
+{
+ "ruling": "118 (2), the calibration sets",
+ "members": {
+  "mimo": {
+   "7": {
+    "hooks": [
+     {
+      "kind": "approved",
+      "moment_id": "ref-preview",
+      "channel": "DataDash",
+      "scroll": 2,
+      "alone": 3,
+      "setup": 2,
+      "rating": 2,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-37c5b5f5",
+      "channel": "Saifedean Ammous",
+      "scroll": 3,
+      "alone": 5,
+      "setup": 3,
+      "rating": 3,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-41f29b1f",
+      "channel": "Natalie Brunell",
+      "error": "ProviderError: coherence_verdict: every back-end unavailable: [('heimdall:xiaomi/mimo-v2.6-flash-rl', 'same model as the generator: skipped')]; answers out of contract: [('heimdall:xiaomi/mimo-v2.6-flash-rl', \"JSOND"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-0c68b589",
+      "channel": "Simply Bitcoin",
+      "scroll": 4,
+      "alone": 5,
+      "setup": 4,
+      "rating": 4,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-13949b7c",
+      "channel": "Simply Bitcoin",
+      "scroll": 4,
+      "alone": 5,
+      "setup": 4,
+      "rating": 4,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-adf6d9c5",
+      "channel": "Scott Melker",
+      "scroll": 2,
+      "alone": 3,
+      "setup": 2,
+      "rating": 2,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-f5f005b9",
+      "channel": "CoinTelegraph",
+      "error": "ProviderError: coherence_verdict: every back-end unavailable: [('heimdall:xiaomi/mimo-v2.6-flash-rl', 'same model as the generator: skipped')]; answers out of contract: [('heimdall:xiaomi/mimo-v2.6-flash-rl', \"JSOND"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-d7578b88",
+      "channel": "CNBC Television",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-2e77a0a7",
+      "channel": "The Bitcoin Layer",
+      "error": "ProviderError: coherence_verdict: every back-end unavailable: [('heimdall:xiaomi/mimo-v2.6-flash-rl', 'same model as the generator: skipped')]; answers out of contract: [('heimdall:xiaomi/mimo-v2.6-flash-rl', \"JSOND"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-994ca307",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 2,
+      "rating": 2,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl"
+     }
+    ],
+    "lineups": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's value and resilience stem from its independence from political systems and remain deeply undervalued by the market.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "flagged": [],
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin removes the need to trust single institutions\u2014governments, banks, or executives\u2014by putting financial rules and ownership in the people's hands.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 5
+      },
+      "flagged": [
+       "clip_01 -> clip_02"
+      ],
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": false,
+      "through_line": "Bitcoin is uniquely durable and is proving stronger than, and increasingly absorbing value from, traditional financial markets.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 3
+      },
+      "flagged": [
+       "clip_01 -> clip_02"
+      ],
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's design makes it independent of political rulers and instead imposes a global free market.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "flagged": [],
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl",
+      "error": null
+     }
+    },
+    "coherence": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's success and value are determined by a global market that no government controls, which makes political drama irrelevant and leaves it deeply undervalued.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": false,
+      "through_line": "Bitcoin has no single owner or central authority, which gives people genuine financial freedom.",
+      "clips": {
+       "clip_01": 3,
+       "clip_02": 4
+      },
+      "vo_point": 3,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": false,
+      "through_line": "Bitcoin's resilience through market drops shows it is maturing into a durable store of value that outlasts the tech trade.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 3
+      },
+      "vo_point": 4,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": false,
+      "through_line": "Bitcoin's lack of any authority is not a flaw but its core design: no ruler, just rules nobody can bend.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 3
+      },
+      "vo_point": 4,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl",
+      "error": null
+     }
+    }
+   },
+   "8": {
+    "hooks": [
+     {
+      "kind": "approved",
+      "moment_id": "ref-preview",
+      "channel": "DataDash",
+      "scroll": 2,
+      "alone": 4,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-37c5b5f5",
+      "channel": "Saifedean Ammous",
+      "error": "ProviderError: coherence_verdict: every back-end unavailable: [('heimdall:xiaomi/mimo-v2.6-flash-rl', 'same model as the generator: skipped')]; answers out of contract: [('heimdall:xiaomi/mimo-v2.6-flash-rl', \"JSOND"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-41f29b1f",
+      "channel": "Natalie Brunell",
+      "scroll": 4,
+      "alone": 5,
+      "setup": 4,
+      "rating": 4,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-0c68b589",
+      "channel": "Simply Bitcoin",
+      "scroll": 4,
+      "alone": 5,
+      "setup": 4,
+      "rating": 4,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-13949b7c",
+      "channel": "Simply Bitcoin",
+      "scroll": 4,
+      "alone": 5,
+      "setup": 4,
+      "rating": 4,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-adf6d9c5",
+      "channel": "Scott Melker",
+      "error": "ProviderError: coherence_verdict: every back-end unavailable: [('heimdall:xiaomi/mimo-v2.6-flash-rl', 'same model as the generator: skipped')]; answers out of contract: [('heimdall:xiaomi/mimo-v2.6-flash-rl', \"JSOND"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-f5f005b9",
+      "channel": "CoinTelegraph",
+      "error": "ProviderError: coherence_verdict: every back-end unavailable: [('heimdall:xiaomi/mimo-v2.6-flash-rl', 'same model as the generator: skipped')]; answers out of contract: [('heimdall:xiaomi/mimo-v2.6-flash-rl', \"JSOND"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-d7578b88",
+      "channel": "CNBC Television",
+      "scroll": 2,
+      "alone": 1,
+      "setup": 3,
+      "rating": 1,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-2e77a0a7",
+      "channel": "The Bitcoin Layer",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 2,
+      "rating": 2,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-994ca307",
+      "channel": "Simply Bitcoin",
+      "scroll": 1,
+      "alone": 4,
+      "setup": 3,
+      "rating": 1,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl"
+     }
+    ],
+    "lineups": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's value and success stand apart from political control and remain deeply undervalued.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "flagged": [],
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin exists to free people from self-interested intermediaries\u2014CEOs, central banks, and banks\u2014who can fail or seize your money.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 5
+      },
+      "flagged": [],
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": false,
+      "through_line": "Bitcoin is uniquely resilient and ultimately absorbs value away from traditional financial assets.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 3
+      },
+      "flagged": [
+       "clip_01 -> clip_02"
+      ],
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin operates independently of political authority, functioning instead as a voluntary global free market.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "flagged": [],
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl",
+      "error": null
+     }
+    },
+    "coherence": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's value comes from a global market that no government controls, making it resilient to politics and deeply undervalued.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "vo_point": 5,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": false,
+      "through_line": "Bitcoin's rules have no single owner or central authority, which gives people genuine financial freedom.",
+      "clips": {
+       "clip_01": 3,
+       "clip_02": 4
+      },
+      "vo_point": 3,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": false,
+      "through_line": "Bitcoin's resilience through market downturns shows it maturing into a durable store of value that outlasts the tech trade.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 2
+      },
+      "vo_point": 4,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's lack of any authority or ruler is a deliberate design feature, not a flaw.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "vo_point": 5,
+      "backend": "heimdall:xiaomi/mimo-v2.6-flash-rl",
+      "error": null
+     }
+    }
+   }
+  },
+  "gemma": {
+   "7": {
+    "hooks": [
+     {
+      "kind": "approved",
+      "moment_id": "ref-preview",
+      "channel": "DataDash",
+      "scroll": 3,
+      "alone": 5,
+      "setup": 4,
+      "rating": 3,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-37c5b5f5",
+      "channel": "Saifedean Ammous",
+      "scroll": 4,
+      "alone": 5,
+      "setup": 4,
+      "rating": 4,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-41f29b1f",
+      "channel": "Natalie Brunell",
+      "scroll": 4,
+      "alone": 5,
+      "setup": 4,
+      "rating": 4,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-0c68b589",
+      "channel": "Simply Bitcoin",
+      "scroll": 4,
+      "alone": 5,
+      "setup": 5,
+      "rating": 4,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-13949b7c",
+      "channel": "Simply Bitcoin",
+      "scroll": 4,
+      "alone": 5,
+      "setup": 4,
+      "rating": 4,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-adf6d9c5",
+      "channel": "Scott Melker",
+      "scroll": 2,
+      "alone": 4,
+      "setup": 2,
+      "rating": 2,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-f5f005b9",
+      "channel": "CoinTelegraph",
+      "scroll": 1,
+      "alone": 1,
+      "setup": 3,
+      "rating": 1,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-d7578b88",
+      "channel": "CNBC Television",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 4,
+      "rating": 2,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-2e77a0a7",
+      "channel": "The Bitcoin Layer",
+      "scroll": 2,
+      "alone": 1,
+      "setup": 2,
+      "rating": 1,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-994ca307",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 3,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     }
+    ],
+    "lineups": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's nature as an independent and undervalued global financial asset.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "flagged": [],
+      "backend": "heimdall:google/gemma-4-31b-it",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin provides financial freedom and security by removing reliance on centralized authorities and their potential for failure.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 5
+      },
+      "flagged": [],
+      "backend": "heimdall:google/gemma-4-31b-it",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's resilience and superiority as a financial asset compared to traditional currencies and stocks.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "flagged": [],
+      "backend": "heimdall:google/gemma-4-31b-it",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin provides a system of financial independence and freedom from centralized governmental or political authority.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 5
+      },
+      "flagged": [],
+      "backend": "heimdall:google/gemma-4-31b-it",
+      "error": null
+     }
+    },
+    "coherence": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's value and potential are derived from its independence from government control and its status as a globally priced, undervalued asset.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 5
+      },
+      "vo_point": 5,
+      "backend": "heimdall:google/gemma-4-31b-it",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's decentralized nature removes central control, providing financial freedom and liberty for individuals.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 5
+      },
+      "vo_point": 4,
+      "backend": "heimdall:google/gemma-4-31b-it",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is maturing into a resilient asset that is outlasting and attracting capital away from traditional tech trades.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "vo_point": 5,
+      "backend": "heimdall:google/gemma-4-31b-it",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's lack of central authority is a deliberate design feature that ensures independence from political control and enables a global free market.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 5
+      },
+      "vo_point": 5,
+      "backend": "heimdall:google/gemma-4-31b-it",
+      "error": null
+     }
+    }
+   },
+   "8": {
+    "hooks": [
+     {
+      "kind": "approved",
+      "moment_id": "ref-preview",
+      "channel": "DataDash",
+      "scroll": 2,
+      "alone": 5,
+      "setup": 4,
+      "rating": 2,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-37c5b5f5",
+      "channel": "Saifedean Ammous",
+      "scroll": 3,
+      "alone": 5,
+      "setup": 4,
+      "rating": 3,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-41f29b1f",
+      "channel": "Natalie Brunell",
+      "scroll": 4,
+      "alone": 5,
+      "setup": 4,
+      "rating": 4,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-0c68b589",
+      "channel": "Simply Bitcoin",
+      "scroll": 4,
+      "alone": 5,
+      "setup": 4,
+      "rating": 4,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-13949b7c",
+      "channel": "Simply Bitcoin",
+      "scroll": 4,
+      "alone": 5,
+      "setup": 4,
+      "rating": 4,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-adf6d9c5",
+      "channel": "Scott Melker",
+      "scroll": 2,
+      "alone": 4,
+      "setup": 2,
+      "rating": 2,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-f5f005b9",
+      "channel": "CoinTelegraph",
+      "scroll": 1,
+      "alone": 1,
+      "setup": 3,
+      "rating": 1,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-d7578b88",
+      "channel": "CNBC Television",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 4,
+      "rating": 2,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-2e77a0a7",
+      "channel": "The Bitcoin Layer",
+      "scroll": 2,
+      "alone": 1,
+      "setup": 2,
+      "rating": 1,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-994ca307",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 3,
+      "setup": 4,
+      "rating": 2,
+      "backend": "heimdall:google/gemma-4-31b-it"
+     }
+    ],
+    "lineups": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's independence and value within the global financial system.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "flagged": [],
+      "backend": "heimdall:google/gemma-4-31b-it",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin serves as a decentralized alternative to traditional financial systems to provide security and financial freedom.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 5
+      },
+      "flagged": [],
+      "backend": "heimdall:google/gemma-4-31b-it",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's resilience and dominance compared to traditional financial assets.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "flagged": [],
+      "backend": "heimdall:google/gemma-4-31b-it",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin provides a system of financial independence and freedom from centralized governmental or political authority.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 5
+      },
+      "flagged": [],
+      "backend": "heimdall:google/gemma-4-31b-it",
+      "error": null
+     }
+    },
+    "coherence": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's value and potential are derived from its independence from government control and its status as a globally priced, undervalued asset.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "vo_point": 5,
+      "backend": "heimdall:google/gemma-4-31b-it",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's decentralized nature removes central control, providing financial freedom and liberty for individuals.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 5
+      },
+      "vo_point": 4,
+      "backend": "heimdall:google/gemma-4-31b-it",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is maturing into a resilient asset that is outlasting traditional tech trades and attracting more capital.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "vo_point": 5,
+      "backend": "heimdall:google/gemma-4-31b-it",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's lack of central authority is a deliberate design feature that ensures independence from political control and enables a global free market.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 5
+      },
+      "vo_point": 5,
+      "backend": "heimdall:google/gemma-4-31b-it",
+      "error": null
+     }
+    }
+   }
+  },
+  "gptoss": {
+   "7": {
+    "hooks": [
+     {
+      "kind": "approved",
+      "moment_id": "ref-preview",
+      "channel": "DataDash",
+      "scroll": 2,
+      "alone": 3,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-37c5b5f5",
+      "channel": "Saifedean Ammous",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-41f29b1f",
+      "channel": "Natalie Brunell",
+      "scroll": 1,
+      "alone": 3,
+      "setup": 4,
+      "rating": 1,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-0c68b589",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 3,
+      "setup": 4,
+      "rating": 2,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-13949b7c",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 3,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-adf6d9c5",
+      "channel": "Scott Melker",
+      "scroll": 1,
+      "alone": 1,
+      "setup": 1,
+      "rating": 1,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-f5f005b9",
+      "channel": "CoinTelegraph",
+      "scroll": 1,
+      "alone": 1,
+      "setup": 2,
+      "rating": 1,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-d7578b88",
+      "channel": "CNBC Television",
+      "scroll": 1,
+      "alone": 1,
+      "setup": 1,
+      "rating": 1,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-2e77a0a7",
+      "channel": "The Bitcoin Layer",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 2,
+      "rating": 2,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-994ca307",
+      "channel": "Simply Bitcoin",
+      "scroll": 1,
+      "alone": 1,
+      "setup": 2,
+      "rating": 1,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     }
+    ],
+    "lineups": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is a resilient, politically independent, undervalued asset.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 5
+      },
+      "flagged": [],
+      "backend": "heimdall:openai/gpt-oss-20b",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin offers decentralized financial freedom by removing central bank control.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 5
+      },
+      "flagged": [],
+      "backend": "heimdall:openai/gpt-oss-20b",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": true,
+      "through_line": "Bitcoin demonstrates resilience and growing influence in financial markets.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "flagged": [],
+      "backend": "heimdall:openai/gpt-oss-20b",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin operates independently of government authority, enabling a global free market.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 5
+      },
+      "flagged": [],
+      "backend": "heimdall:openai/gpt-oss-20b",
+      "error": null
+     }
+    },
+    "coherence": {
+     "41f29b1f": {
+      "pass_standard": false,
+      "through_line": "Bitcoin's value comes from being a globally free market asset not controlled by governments",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 3
+      },
+      "vo_point": 5,
+      "backend": "heimdall:openai/gpt-oss-20b",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's decentralization provides financial freedom and is not a partisan issue.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 5
+      },
+      "vo_point": 5,
+      "backend": "heimdall:openai/gpt-oss-20b",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's durability and resilience outlast tech stocks, making it a maturing asset that attracts capital.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "vo_point": 5,
+      "backend": "heimdall:openai/gpt-oss-20b",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's lack of central authority is intentional and beneficial",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 5
+      },
+      "vo_point": 5,
+      "backend": "heimdall:openai/gpt-oss-20b",
+      "error": null
+     }
+    }
+   },
+   "8": {
+    "hooks": [
+     {
+      "kind": "approved",
+      "moment_id": "ref-preview",
+      "channel": "DataDash",
+      "scroll": 2,
+      "alone": 3,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-37c5b5f5",
+      "channel": "Saifedean Ammous",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-41f29b1f",
+      "channel": "Natalie Brunell",
+      "scroll": 2,
+      "alone": 3,
+      "setup": 4,
+      "rating": 2,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-0c68b589",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 3,
+      "setup": 4,
+      "rating": 2,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-13949b7c",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 3,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-adf6d9c5",
+      "channel": "Scott Melker",
+      "scroll": 1,
+      "alone": 1,
+      "setup": 2,
+      "rating": 1,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-f5f005b9",
+      "channel": "CoinTelegraph",
+      "scroll": 1,
+      "alone": 1,
+      "setup": 2,
+      "rating": 1,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-d7578b88",
+      "channel": "CNBC Television",
+      "scroll": 1,
+      "alone": 2,
+      "setup": 3,
+      "rating": 1,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-2e77a0a7",
+      "channel": "The Bitcoin Layer",
+      "scroll": 2,
+      "alone": 1,
+      "setup": 2,
+      "rating": 1,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-994ca307",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 2,
+      "rating": 2,
+      "backend": "heimdall:openai/gpt-oss-20b"
+     }
+    ],
+    "lineups": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is a resilient, undervalued asset that operates independently of political influence.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 5
+      },
+      "flagged": [],
+      "backend": "heimdall:openai/gpt-oss-20b",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin offers decentralized financial freedom and security against centralized control.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 5
+      },
+      "flagged": [],
+      "backend": "heimdall:openai/gpt-oss-20b",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": true,
+      "through_line": "Bitcoin demonstrates resilience and growing influence in financial markets.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "flagged": [],
+      "backend": "heimdall:openai/gpt-oss-20b",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin operates independently of government authority, enabling a global free market.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 5
+      },
+      "flagged": [],
+      "backend": "heimdall:openai/gpt-oss-20b",
+      "error": null
+     }
+    },
+    "coherence": {
+     "41f29b1f": {
+      "pass_standard": false,
+      "through_line": "Bitcoin's value comes from its decentralized, government-independent market",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 3
+      },
+      "vo_point": 5,
+      "backend": "heimdall:openai/gpt-oss-20b",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": false,
+      "through_line": "Bitcoin's decentralization ensures no single owner controls the network, providing financial freedom",
+      "clips": {
+       "clip_01": 3,
+       "clip_02": 4
+      },
+      "vo_point": 5,
+      "backend": "heimdall:openai/gpt-oss-20b",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": true,
+      "through_line": "Bitcoin\u2019s durability and resilience make it a maturing asset that outlasts tech stocks and attracts capital.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "vo_point": 5,
+      "backend": "heimdall:openai/gpt-oss-20b",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's lack of central authority is an intentional design feature, not a flaw.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 5
+      },
+      "vo_point": 5,
+      "backend": "heimdall:openai/gpt-oss-20b",
+      "error": null
+     }
+    }
+   }
+  },
+  "minimax": {
+   "7": {
+    "hooks": [
+     {
+      "kind": "approved",
+      "moment_id": "ref-preview",
+      "channel": "DataDash",
+      "error": "ProviderError: coherence_verdict: every back-end unavailable: [('heimdall:minimax/minimax-m3.1-flash', 'same model as the generator: skipped')]; answers out of contract: [('heimdall:minimax/minimax-m3.1-flash', \"JSO"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-37c5b5f5",
+      "channel": "Saifedean Ammous",
+      "scroll": 3,
+      "alone": 5,
+      "setup": 4,
+      "rating": 3,
+      "backend": "heimdall:minimax/minimax-m3.1-flash"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-41f29b1f",
+      "channel": "Natalie Brunell",
+      "scroll": 4,
+      "alone": 5,
+      "setup": 4,
+      "rating": 4,
+      "backend": "heimdall:minimax/minimax-m3.1-flash"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-0c68b589",
+      "channel": "Simply Bitcoin",
+      "scroll": 3,
+      "alone": 5,
+      "setup": 4,
+      "rating": 3,
+      "backend": "heimdall:minimax/minimax-m3.1-flash"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-13949b7c",
+      "channel": "Simply Bitcoin",
+      "scroll": 3,
+      "alone": 5,
+      "setup": 4,
+      "rating": 3,
+      "backend": "heimdall:minimax/minimax-m3.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-adf6d9c5",
+      "channel": "Scott Melker",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:minimax/minimax-m3.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-f5f005b9",
+      "channel": "CoinTelegraph",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:minimax/minimax-m3.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-d7578b88",
+      "channel": "CNBC Television",
+      "scroll": 3,
+      "alone": 2,
+      "setup": 4,
+      "rating": 2,
+      "backend": "heimdall:minimax/minimax-m3.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-2e77a0a7",
+      "channel": "The Bitcoin Layer",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:minimax/minimax-m3.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-994ca307",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:minimax/minimax-m3.1-flash"
+     }
+    ],
+    "lineups": {
+     "41f29b1f": {
+      "pass_standard": false,
+      "through_line": null,
+      "clips": {},
+      "flagged": null,
+      "backend": null,
+      "error": "ProviderError: coherence_verdict: every back-end unavailable: [('heimdall:minimax/minimax-m3.1-flash', 'same model as the generator: skipped')]; answers out of contract: [('heimdall:minimax/minimax-m3.1-flash', \"JSO"
+     },
+     "0c68b589": {
+      "pass_standard": false,
+      "through_line": null,
+      "clips": {},
+      "flagged": null,
+      "backend": null,
+      "error": "ProviderError: coherence_verdict: every back-end unavailable: [('heimdall:minimax/minimax-m3.1-flash', 'same model as the generator: skipped')]; answers out of contract: [('heimdall:minimax/minimax-m3.1-flash', \"JSO"
+     },
+     "13949b7c": {
+      "pass_standard": false,
+      "through_line": "Bitcoin has proven more durable and resilient than traditional finance, and everything in the industry eventually flows to it.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 3
+      },
+      "flagged": [
+       "clip_01 -> clip_02"
+      ],
+      "backend": "heimdall:minimax/minimax-m3.1-flash",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's success and wealth distribution are outside the control of government authority, because Bitcoin operates as a free market no state can command or tax.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "flagged": [],
+      "backend": "heimdall:minimax/minimax-m3.1-flash",
+      "error": null
+     }
+    },
+    "coherence": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's overlooked value is that it is a globally priced market no single government can control, making it politically independent and therefore mispriced.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "heimdall:minimax/minimax-m3.1-flash",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin has no single owner or central authority \u2014 its rules are enforced by thousands of independent computers, making it a non-partisan source of financial freedom.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "heimdall:minimax/minimax-m3.1-flash",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's durability and maturation as a market draw capital away from volatile tech stocks, making it a lasting home for capital.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "heimdall:minimax/minimax-m3.1-flash",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin has no central authority \u2014 no ruler, just rules nobody gets to bend \u2014 and that absence of authority is the design, not a flaw.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "heimdall:minimax/minimax-m3.1-flash",
+      "error": null
+     }
+    }
+   },
+   "8": {
+    "hooks": [
+     {
+      "kind": "approved",
+      "moment_id": "ref-preview",
+      "channel": "DataDash",
+      "error": "ProviderError: coherence_verdict: every back-end unavailable: [('heimdall:minimax/minimax-m3.1-flash', 'same model as the generator: skipped')]; answers out of contract: [('heimdall:minimax/minimax-m3.1-flash', \"JSO"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-37c5b5f5",
+      "channel": "Saifedean Ammous",
+      "scroll": 3,
+      "alone": 5,
+      "setup": 4,
+      "rating": 3,
+      "backend": "heimdall:minimax/minimax-m3.1-flash"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-41f29b1f",
+      "channel": "Natalie Brunell",
+      "scroll": 4,
+      "alone": 5,
+      "setup": 4,
+      "rating": 4,
+      "backend": "heimdall:minimax/minimax-m3.1-flash"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-0c68b589",
+      "channel": "Simply Bitcoin",
+      "scroll": 3,
+      "alone": 5,
+      "setup": 4,
+      "rating": 3,
+      "backend": "heimdall:minimax/minimax-m3.1-flash"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-13949b7c",
+      "channel": "Simply Bitcoin",
+      "error": "ProviderError: coherence_verdict: every back-end unavailable: [('heimdall:minimax/minimax-m3.1-flash', 'same model as the generator: skipped')]; answers out of contract: [('heimdall:minimax/minimax-m3.1-flash', \"JSO"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-adf6d9c5",
+      "channel": "Scott Melker",
+      "scroll": 3,
+      "alone": 3,
+      "setup": 4,
+      "rating": 3,
+      "backend": "heimdall:minimax/minimax-m3.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-f5f005b9",
+      "channel": "CoinTelegraph",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:minimax/minimax-m3.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-d7578b88",
+      "channel": "CNBC Television",
+      "scroll": 3,
+      "alone": 2,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:minimax/minimax-m3.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-2e77a0a7",
+      "channel": "The Bitcoin Layer",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:minimax/minimax-m3.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-994ca307",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:minimax/minimax-m3.1-flash"
+     }
+    ],
+    "lineups": {
+     "41f29b1f": {
+      "pass_standard": false,
+      "through_line": null,
+      "clips": {},
+      "flagged": null,
+      "backend": null,
+      "error": "ProviderError: coherence_verdict: every back-end unavailable: [('heimdall:minimax/minimax-m3.1-flash', 'same model as the generator: skipped')]; answers out of contract: [('heimdall:minimax/minimax-m3.1-flash', \"JSO"
+     },
+     "0c68b589": {
+      "pass_standard": false,
+      "through_line": null,
+      "clips": {},
+      "flagged": null,
+      "backend": null,
+      "error": "ProviderError: coherence_verdict: every back-end unavailable: [('heimdall:minimax/minimax-m3.1-flash', 'same model as the generator: skipped')]; answers out of contract: [('heimdall:minimax/minimax-m3.1-flash', \"JSO"
+     },
+     "13949b7c": {
+      "pass_standard": false,
+      "through_line": null,
+      "clips": {},
+      "flagged": null,
+      "backend": null,
+      "error": "ProviderError: coherence_verdict: every back-end unavailable: [('heimdall:minimax/minimax-m3.1-flash', 'same model as the generator: skipped')]; answers out of contract: [('heimdall:minimax/minimax-m3.1-flash', \"JSO"
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is free of state authority and political control, functioning as a global free market whose success depends on individual choice rather than governments.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "flagged": [],
+      "backend": "heimdall:minimax/minimax-m3.1-flash",
+      "error": null
+     }
+    },
+    "coherence": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's overlooked value is that it creates a global market priced by everyone yet controlled by no single government, making its success independent of political power.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "heimdall:minimax/minimax-m3.1-flash",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin has no single owner or central authority \u2014 its rules are enforced collectively by thousands of independent computers, which is what makes it a source of financial freedom.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "heimdall:minimax/minimax-m3.1-flash",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is maturing into a durable asset that survives market cycles better than the tech trade, drawing capital into itself as the new home for money.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "heimdall:minimax/minimax-m3.1-flash",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's defining feature is the absence of any authority or ruler \u2014 it works because no single person or government controls it, only rules nobody can bend.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "heimdall:minimax/minimax-m3.1-flash",
+      "error": null
+     }
+    }
+   }
+  },
+  "qwen": {
+   "7": {
+    "hooks": [
+     {
+      "kind": "approved",
+      "moment_id": "ref-preview",
+      "channel": "DataDash",
+      "scroll": 3,
+      "alone": 5,
+      "setup": 3,
+      "rating": 3,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-37c5b5f5",
+      "channel": "Saifedean Ammous",
+      "scroll": 3,
+      "alone": 4,
+      "setup": 2,
+      "rating": 3,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-41f29b1f",
+      "channel": "Natalie Brunell",
+      "scroll": 3,
+      "alone": 4,
+      "setup": 3,
+      "rating": 3,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-0c68b589",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 4,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-13949b7c",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 4,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-adf6d9c5",
+      "channel": "Scott Melker",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 2,
+      "rating": 2,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-f5f005b9",
+      "channel": "CoinTelegraph",
+      "scroll": 2,
+      "alone": 1,
+      "setup": 2,
+      "rating": 1,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-d7578b88",
+      "channel": "CNBC Television",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-2e77a0a7",
+      "channel": "The Bitcoin Layer",
+      "scroll": 2,
+      "alone": 1,
+      "setup": 2,
+      "rating": 1,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-994ca307",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 3,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     }
+    ],
+    "lineups": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is a politically independent, undervalued asset that establishes a new global free market.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "flagged": [],
+      "backend": "heimdall:qwen/qwen3.8-27b",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin protects individuals from institutional failure (banks, governments, CEOs) by providing decentralized financial freedom.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 5
+      },
+      "flagged": [],
+      "backend": "heimdall:qwen/qwen3.8-27b",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is portrayed as a resilient, increasingly central asset that outperforms or absorbs value from traditional markets.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 5
+      },
+      "flagged": [],
+      "backend": "heimdall:qwen/qwen3.8-27b",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is free from political and governmental authority, making it a sovereign, self-directed asset.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "flagged": [],
+      "backend": "heimdall:qwen/qwen3.8-27b",
+      "error": null
+     }
+    },
+    "coherence": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is the most undervalued asset in finance because it represents a global free market that no government can control or shut down.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 5
+      },
+      "vo_point": 4,
+      "backend": "heimdall:qwen/qwen3.8-27b",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is a non-partisan, decentralized financial system with no single owner or committee, giving people financial freedom and security.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "heimdall:qwen/qwen3.8-27b",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is maturing as a durable asset that outperforms tech stocks in downturns and attracts broader capital.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "heimdall:qwen/qwen3.8-27b",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is designed to have no central authority, making it independent of political control and enabling a rule-based global free market.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "heimdall:qwen/qwen3.8-27b",
+      "error": null
+     }
+    }
+   },
+   "8": {
+    "hooks": [
+     {
+      "kind": "approved",
+      "moment_id": "ref-preview",
+      "channel": "DataDash",
+      "scroll": 3,
+      "alone": 5,
+      "setup": 3,
+      "rating": 3,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-37c5b5f5",
+      "channel": "Saifedean Ammous",
+      "scroll": 3,
+      "alone": 4,
+      "setup": 2,
+      "rating": 3,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-41f29b1f",
+      "channel": "Natalie Brunell",
+      "scroll": 3,
+      "alone": 4,
+      "setup": 3,
+      "rating": 3,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-0c68b589",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 4,
+      "setup": 4,
+      "rating": 2,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-13949b7c",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 4,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-adf6d9c5",
+      "channel": "Scott Melker",
+      "scroll": 2,
+      "alone": 3,
+      "setup": 2,
+      "rating": 2,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-f5f005b9",
+      "channel": "CoinTelegraph",
+      "scroll": 3,
+      "alone": 2,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-d7578b88",
+      "channel": "CNBC Television",
+      "scroll": 1,
+      "alone": 1,
+      "setup": 2,
+      "rating": 1,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-2e77a0a7",
+      "channel": "The Bitcoin Layer",
+      "scroll": 2,
+      "alone": 1,
+      "setup": 3,
+      "rating": 1,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-994ca307",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 3,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:qwen/qwen3.8-27b"
+     }
+    ],
+    "lineups": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is a politically independent, undervalued asset that establishes a new global free market.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "flagged": [],
+      "backend": "heimdall:qwen/qwen3.8-27b",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin provides financial freedom and security by removing dependence on centralized institutions\u2014governments, banks, and CEOs\u2014that can fail, mismanage, or seize your money.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 5
+      },
+      "flagged": [],
+      "backend": "heimdall:qwen/qwen3.8-27b",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's relative stability and gravitational dominance over traditional financial assets, with capital and confidence flowing toward it.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "flagged": [],
+      "backend": "heimdall:qwen/qwen3.8-27b",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is independent of political authority and establishes a global free market.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 5
+      },
+      "flagged": [],
+      "backend": "heimdall:qwen/qwen3.8-27b",
+      "error": null
+     }
+    },
+    "coherence": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is an undervalued asset because it creates a global free market that no government can control or switch off.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 5
+      },
+      "vo_point": 4,
+      "backend": "heimdall:qwen/qwen3.8-27b",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is a non-partisan, decentralized financial system with no single owner or committee, giving people financial freedom and security.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "heimdall:qwen/qwen3.8-27b",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is maturing as a durable asset that outperforms tech stocks in downturns and attracts broader capital.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "heimdall:qwen/qwen3.8-27b",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin's absence of central authority is a deliberate design feature, not a flaw, creating a system governed by fixed rules rather than political power.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "heimdall:qwen/qwen3.8-27b",
+      "error": null
+     }
+    }
+   }
+  },
+  "deepseek": {
+   "7": {
+    "hooks": [
+     {
+      "kind": "approved",
+      "moment_id": "ref-preview",
+      "channel": "DataDash",
+      "scroll": 3,
+      "alone": 5,
+      "setup": 3,
+      "rating": 3,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-37c5b5f5",
+      "channel": "Saifedean Ammous",
+      "scroll": 3,
+      "alone": 5,
+      "setup": 3,
+      "rating": 3,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-41f29b1f",
+      "channel": "Natalie Brunell",
+      "scroll": 3,
+      "alone": 5,
+      "setup": 4,
+      "rating": 3,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-0c68b589",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 5,
+      "setup": 4,
+      "rating": 2,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-13949b7c",
+      "channel": "Simply Bitcoin",
+      "scroll": 3,
+      "alone": 5,
+      "setup": 3,
+      "rating": 3,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-adf6d9c5",
+      "channel": "Scott Melker",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-f5f005b9",
+      "channel": "CoinTelegraph",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-d7578b88",
+      "channel": "CNBC Television",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-2e77a0a7",
+      "channel": "The Bitcoin Layer",
+      "scroll": 2,
+      "alone": 1,
+      "setup": 2,
+      "rating": 1,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-994ca307",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 4,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     }
+    ],
+    "lineups": {
+     "41f29b1f": {
+      "pass_standard": false,
+      "through_line": null,
+      "clips": {},
+      "flagged": null,
+      "backend": null,
+      "error": "ProviderError: coherence_verdict: every back-end unavailable: [('heimdall:deepseek/deepseek-v4.1-flash', 'no answer within 120 s (abandoned at the deadline; booked at its prompt tokens, $0.0010 at its own reported r"
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin/crypto matters because it offers financial freedom and protection from centralized control by banks or governments.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 5
+      },
+      "flagged": [],
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": false,
+      "through_line": "Bitcoin is the resilient, dominant asset that everything else eventually flows into.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 5
+      },
+      "flagged": [
+       "hook -> clip_01",
+       "clip_01 -> clip_02"
+      ],
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": false,
+      "through_line": null,
+      "clips": {},
+      "flagged": null,
+      "backend": null,
+      "error": "ProviderError: coherence_verdict: every back-end unavailable: [('heimdall:deepseek/deepseek-v4.1-flash', 'no answer within 120 s (abandoned at the deadline; booked at its prompt tokens, $0.0009 at its own reported r"
+     }
+    },
+    "coherence": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is an overlooked, undervalued asset whose value comes from a global free market independent of government control.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "vo_point": 5,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is not controlled by any single owner or partisan authority, and its decentralized, community-enforced rules enable financial freedom.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is maturing into a resilient asset that outlasts the tech trade and draws capital from the broader industry.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "vo_point": 5,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is designed to have no central authority or ruler, so its success and rules do not depend on political power but on a global free market.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "vo_point": 5,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+      "error": null
+     }
+    }
+   },
+   "8": {
+    "hooks": [
+     {
+      "kind": "approved",
+      "moment_id": "ref-preview",
+      "channel": "DataDash",
+      "scroll": 4,
+      "alone": 5,
+      "setup": 3,
+      "rating": 4,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-37c5b5f5",
+      "channel": "Saifedean Ammous",
+      "scroll": 3,
+      "alone": 5,
+      "setup": 3,
+      "rating": 3,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-41f29b1f",
+      "channel": "Natalie Brunell",
+      "scroll": 4,
+      "alone": 5,
+      "setup": 4,
+      "rating": 4,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-0c68b589",
+      "channel": "Simply Bitcoin",
+      "scroll": 3,
+      "alone": 5,
+      "setup": 4,
+      "rating": 3,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     },
+     {
+      "kind": "approved",
+      "moment_id": "ref-13949b7c",
+      "channel": "Simply Bitcoin",
+      "scroll": 3,
+      "alone": 5,
+      "setup": 4,
+      "rating": 3,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-adf6d9c5",
+      "channel": "Scott Melker",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 2,
+      "rating": 2,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-f5f005b9",
+      "channel": "CoinTelegraph",
+      "scroll": 2,
+      "alone": 1,
+      "setup": 2,
+      "rating": 1,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-d7578b88",
+      "channel": "CNBC Television",
+      "scroll": 2,
+      "alone": 1,
+      "setup": 3,
+      "rating": 1,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-2e77a0a7",
+      "channel": "The Bitcoin Layer",
+      "scroll": 2,
+      "alone": 1,
+      "setup": 2,
+      "rating": 1,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     },
+     {
+      "kind": "negative",
+      "moment_id": "neg-994ca307",
+      "channel": "Simply Bitcoin",
+      "scroll": 2,
+      "alone": 2,
+      "setup": 3,
+      "rating": 2,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+     }
+    ],
+    "lineups": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is a politically independent, undervalued asset that thrives outside government control.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 5
+      },
+      "flagged": [
+       "clip_01 -> clip_02"
+      ],
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin matters because it offers decentralized, nonpartisan financial freedom and protection from centralized control by banks or governments.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 5
+      },
+      "flagged": [],
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is uniquely resilient and capital/industry ultimately converges to it.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 5
+      },
+      "flagged": [
+       "hook -> clip_01"
+      ],
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is a decentralized, voluntary system independent of political control that enables a global free market.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 5
+      },
+      "flagged": [],
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+      "error": null
+     }
+    },
+    "coherence": {
+     "41f29b1f": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is an overlooked, undervalued asset because it is a global free market not controlled by any government, making ordinary political drama irrelevant.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 5
+      },
+      "vo_point": 5,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+      "error": null
+     },
+     "0c68b589": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is not controlled by any single owner or partisan authority; its rules are enforced by thousands of independent computers, making it a tool for financial freedom.",
+      "clips": {
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+      "error": null
+     },
+     "13949b7c": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is maturing into a resilient asset that outlasts the tech trade as capital increasingly flows toward it.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "vo_point": 5,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+      "error": null
+     },
+     "37c5b5f5": {
+      "pass_standard": true,
+      "through_line": "Bitcoin is designed without any central authority, so it does not depend on political rulers and instead operates as a global free market governed by rules no one can bend.",
+      "clips": {
+       "clip_01": 5,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+      "error": null
+     }
+    }
+   }
+  }
+ },
+ "at": "2026-11-16T11:46:35+00:00"
+}

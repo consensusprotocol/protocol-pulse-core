@@ -1,0 +1,596 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "e18717098dcf23b700286ed54d48df8335fdeff353088365ace34750827cf329",
+ "result": {
+  "text": "That has been the hardest problem. People like to deny the utility because they don't have to deal with the hard problems of how to deal with it. If I just say this is all useless, I can just keep it away, then it's very e-- You don't have to go to those second order questions. I just don't look, think you can look at this and see all the innovations in stable coins, in the hard money that Bitcoin provides, in DeFi, and say this is all useless. I, I, I've been surprised at-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 29.28,
+    "text": "That has been the hardest problem. People like to deny the utility because they don't have to deal with the hard problems of how to deal with it. If I just say this is all useless, I can just keep it away, then it's very e-- You don't have to go to those second order questions. I just don't look, think you can look at this and see all the innovations in stable coins, in the hard money that Bitcoin provides, in DeFi, and say this is all useless. I, I, I've been surprised at-"
+   }
+  ],
+  "words": [
+   {
+    "text": "That",
+    "start": 0.0,
+    "end": 0.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 1.56,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 1.7,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.8,
+    "end": 1.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hardest",
+    "start": 1.88,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "problem.",
+    "start": 2.18,
+    "end": 2.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "People",
+    "start": 4.04,
+    "end": 4.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 4.42,
+    "end": 4.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 4.7,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "deny",
+    "start": 4.86,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.32,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "utility",
+    "start": 5.42,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 5.98,
+    "end": 6.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 6.2,
+    "end": 6.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 6.38,
+    "end": 6.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 6.52,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 6.64,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "deal",
+    "start": 6.66,
+    "end": 6.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 6.8,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.94,
+    "end": 7.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hard",
+    "start": 7.04,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "problems",
+    "start": 7.28,
+    "end": 7.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 7.56,
+    "end": 7.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 7.64,
+    "end": 7.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 7.76,
+    "end": 7.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "deal",
+    "start": 7.9,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 8.06,
+    "end": 8.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 8.18,
+    "end": 8.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "If",
+    "start": 10.08,
+    "end": 10.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 10.26,
+    "end": 10.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 10.34,
+    "end": 10.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say",
+    "start": 10.52,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 10.7,
+    "end": 10.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 10.84,
+    "end": 10.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 10.96,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "useless,",
+    "start": 11.1,
+    "end": 11.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 11.4,
+    "end": 11.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 11.46,
+    "end": 11.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 11.54,
+    "end": 11.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "keep",
+    "start": 11.68,
+    "end": 11.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 11.82,
+    "end": 11.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "away,",
+    "start": 11.92,
+    "end": 12.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 12.96,
+    "end": 13.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 13.5,
+    "end": 13.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "very",
+    "start": 13.68,
+    "end": 13.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "e--",
+    "start": 14.06,
+    "end": 14.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 14.28,
+    "end": 14.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 14.34,
+    "end": 14.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 14.42,
+    "end": 14.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 14.48,
+    "end": 14.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 14.58,
+    "end": 14.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 14.66,
+    "end": 14.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "those",
+    "start": 14.74,
+    "end": 14.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "second",
+    "start": 14.96,
+    "end": 15.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "order",
+    "start": 15.16,
+    "end": 15.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "questions.",
+    "start": 15.36,
+    "end": 15.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 17.7,
+    "end": 17.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 17.76,
+    "end": 17.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 17.94,
+    "end": 18.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look,",
+    "start": 18.16,
+    "end": 18.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 18.36,
+    "end": 18.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 18.58,
+    "end": 18.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 18.66,
+    "end": 18.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 18.84,
+    "end": 18.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 19.0,
+    "end": 19.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 19.16,
+    "end": 19.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 19.5,
+    "end": 19.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "see",
+    "start": 19.7,
+    "end": 19.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 20.0,
+    "end": 20.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 20.22,
+    "end": 20.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "innovations",
+    "start": 20.46,
+    "end": 21.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 21.22,
+    "end": 21.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stable",
+    "start": 22.3,
+    "end": 22.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "coins,",
+    "start": 22.56,
+    "end": 23.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 23.5,
+    "end": 23.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 23.94,
+    "end": 23.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hard",
+    "start": 24.02,
+    "end": 24.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 24.24,
+    "end": 24.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 24.4,
+    "end": 24.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 24.52,
+    "end": 24.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "provides,",
+    "start": 24.84,
+    "end": 25.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 26.12,
+    "end": 26.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "DeFi,",
+    "start": 26.42,
+    "end": 26.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 26.9,
+    "end": 26.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say",
+    "start": 27.02,
+    "end": 27.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 27.16,
+    "end": 27.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 27.28,
+    "end": 27.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 27.4,
+    "end": 27.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "useless.",
+    "start": 27.54,
+    "end": 27.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I,",
+    "start": 27.94,
+    "end": 28.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I,",
+    "start": 28.14,
+    "end": 28.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I've",
+    "start": 28.32,
+    "end": 28.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 28.48,
+    "end": 28.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "surprised",
+    "start": 28.66,
+    "end": 29.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at-",
+    "start": 29.26,
+    "end": 29.28,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 29.31
+ },
+ "usd": 0.005862,
+ "seconds": 1.68,
+ "recorded_at": "2026-11-16T11:53:48Z"
+}

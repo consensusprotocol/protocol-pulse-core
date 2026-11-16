@@ -1,0 +1,500 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "8d75e55d907091063af99e154e62c4238e65524ae5499b9e2d45b9706a6bd61c",
+ "result": {
+  "text": "Right. Um, I get to have, you know, I, they donate to Democrat candidates, sometimes they call me, and it's so funny how many of the ones who are under 40 would tell me they used to mine Bitcoin in their dorm room. I'm like, \"I love it. Can you say that?\" Like, \"Well, should I say that?\" I'm like, \"Why would you not say that? No one, no one cares if you say that.\" There's a, a",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 2.84,
+    "end": 20.98,
+    "text": "Right. Um, I get to have, you know, I, they donate to Democrat candidates, sometimes they call me, and it's so funny how many of the ones who are under 40 would tell me they used to mine Bitcoin in their dorm room. I'm like, \"I love it. Can you say that?\" Like, \"Well, should I say that?\" I'm like, \"Why would you not say that? No one, no one cares if you say that.\""
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 21.46,
+    "end": 21.94,
+    "text": "There's a, a"
+   }
+  ],
+  "words": [
+   {
+    "text": "Right.",
+    "start": 2.84,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 3.32,
+    "end": 3.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.04,
+    "end": 4.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 4.1,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 4.26,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have,",
+    "start": 4.56,
+    "end": 4.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 5.08,
+    "end": 5.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 5.14,
+    "end": 5.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I,",
+    "start": 6.0,
+    "end": 6.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 6.24,
+    "end": 6.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "donate",
+    "start": 6.38,
+    "end": 6.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 6.62,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Democrat",
+    "start": 6.64,
+    "end": 6.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "candidates,",
+    "start": 6.98,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sometimes",
+    "start": 7.36,
+    "end": 7.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 7.6,
+    "end": 7.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "call",
+    "start": 7.72,
+    "end": 7.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me,",
+    "start": 7.94,
+    "end": 8.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 8.3,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 8.58,
+    "end": 8.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 8.72,
+    "end": 8.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "funny",
+    "start": 8.92,
+    "end": 9.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 9.16,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "many",
+    "start": 9.26,
+    "end": 9.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 9.44,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.82,
+    "end": 9.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ones",
+    "start": 9.94,
+    "end": 10.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who",
+    "start": 10.14,
+    "end": 10.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 10.22,
+    "end": 10.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "under",
+    "start": 10.36,
+    "end": 10.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "40",
+    "start": 10.78,
+    "end": 10.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 11.44,
+    "end": 11.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tell",
+    "start": 11.6,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me",
+    "start": 11.72,
+    "end": 11.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 11.82,
+    "end": 11.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "used",
+    "start": 11.94,
+    "end": 12.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 12.06,
+    "end": 12.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mine",
+    "start": 12.18,
+    "end": 12.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 12.4,
+    "end": 12.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 12.76,
+    "end": 12.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 12.86,
+    "end": 12.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dorm",
+    "start": 13.02,
+    "end": 13.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "room.",
+    "start": 13.24,
+    "end": 13.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 13.42,
+    "end": 13.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 13.52,
+    "end": 13.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"I",
+    "start": 13.66,
+    "end": 13.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "love",
+    "start": 13.78,
+    "end": 13.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 13.96,
+    "end": 14.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Can",
+    "start": 14.36,
+    "end": 14.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 14.48,
+    "end": 14.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say",
+    "start": 14.64,
+    "end": 14.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that?\"",
+    "start": 14.86,
+    "end": 15.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 15.18,
+    "end": 15.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Well,",
+    "start": 15.64,
+    "end": 15.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "should",
+    "start": 15.92,
+    "end": 16.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 16.1,
+    "end": 16.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say",
+    "start": 16.2,
+    "end": 16.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that?\"",
+    "start": 16.34,
+    "end": 16.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 16.44,
+    "end": 16.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 16.54,
+    "end": 16.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Why",
+    "start": 16.64,
+    "end": 16.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 16.82,
+    "end": 16.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 16.94,
+    "end": 17.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 17.06,
+    "end": 17.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say",
+    "start": 17.32,
+    "end": 17.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that?",
+    "start": 17.54,
+    "end": 17.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "No",
+    "start": 18.38,
+    "end": 18.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one,",
+    "start": 18.54,
+    "end": 18.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 19.16,
+    "end": 19.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 19.32,
+    "end": 19.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cares",
+    "start": 19.54,
+    "end": 20.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 20.22,
+    "end": 20.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 20.32,
+    "end": 20.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say",
+    "start": 20.48,
+    "end": 20.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that.\"",
+    "start": 20.72,
+    "end": 20.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "There's",
+    "start": 21.46,
+    "end": 21.62,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a,",
+    "start": 21.68,
+    "end": 21.72,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 21.92,
+    "end": 21.94,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 22.5
+ },
+ "usd": 0.0045,
+ "seconds": 1.71,
+ "recorded_at": "2026-11-16T11:53:47Z"
+}

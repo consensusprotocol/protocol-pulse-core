@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T11:31:37+00:00",
- "build": "ledger_20261116_113134",
+ "generated_at": "2026-11-16T11:52:12+00:00",
+ "build": "ledger_20261116_115156",
  "kind": "moments",
  "candidates": [
   {
@@ -166,6 +166,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "0c8b148b130272219457",
+   "video_id": "Vu0XZSz-aj4",
+   "channel": "Bankless",
+   "duration": 19.34,
+   "text": "I just don't think you can look at this and see all the innovations in stable coins, in the hard money of Bitcoin provides, in defy, and say this is all useless. I've been surprised at how people can say that, but I realize a lot of it is because it's all... fundamentally, we're really good at changing the tech stack.",
+   "text_sha256": "540a36473af02790f2bbcbba67e16a036abde58c42529dad070e73b9405a2d0b",
+   "trimmed_leading": null
+  },
+  {
    "pid": "0029560c3835b21c1ca3",
    "video_id": "5LXk2SLH4fI",
    "channel": "Natalie Brunell",
@@ -184,6 +193,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "34740e20eceb1d777488",
+   "video_id": "Vu0XZSz-aj4",
+   "channel": "Bankless",
+   "duration": 23.81,
+   "text": "People like to deny the utility because they don't have to deal with the hard problems of how to deal with it. If I just say this is all useless, I can just keep it away, then it's very, you don't have to go to those second order questions. I just don't think you can look at this and see all the innovations in stable coins, in the hard money of Bitcoin provides in Defi and say this is all useless.",
+   "text_sha256": "ba86a961707db7e23d8dba15f7066b6eb29d05b78f148e4d917e877e756b8c17",
+   "trimmed_leading": null
+  },
+  {
    "pid": "ea5ab1782696628d6384~trim",
    "video_id": "5LXk2SLH4fI",
    "channel": "Natalie Brunell",
@@ -191,6 +209,15 @@
    "text": "the floor he talks about is the 200 week moving average, which is basically Bitcoin's average price over the past four years. It was sitting near 68,000, but... As you know, Bitcoin has just dropped below it. This has happened before, including in 2020 and 22, and of course, it's recovered each time.",
    "text_sha256": "1559fa75b1a9c8ba3384cf94ec83479dda51b6c12259de04fa15e12c01e8c542",
    "trimmed_leading": "Now"
+  },
+  {
+   "pid": "0e8a90a0e685d74b90c8",
+   "video_id": "Vu0XZSz-aj4",
+   "channel": "Bankless",
+   "duration": 17.0,
+   "text": "I get to have, you know, they donate Democrat candidates. Sometimes they call me. And it's so funny how many of the ones who were under 40 would tell me they used to mine Bitcoin in their dorm room. I'm like, I love it. Can you say that? Like, well, should I say that? I'm like, why would you not say that? No one. No one cares if you say that.",
+   "text_sha256": "fc8465b0235c7df2708779d3fe17327e88f6c164d2c700cd6d219a77627cc615",
+   "trimmed_leading": null
   },
   {
    "pid": "40b6800323cfe71654fd",

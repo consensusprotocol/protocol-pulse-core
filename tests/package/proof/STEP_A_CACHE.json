@@ -28946,5 +28946,174 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "0c8b148b130272219457:540a36473af02790f2bbcbba67e16a036abde58c42529dad070e73b9405a2d0b:bc54b322607c97ad6d95fc9c3b0977199605281f80b2542fef9a5faa470c6683:9d43580c729b": {
+  "heimdall:z-ai/glm-5.3-flash": {
+   "label": "0c8b148b130272219457",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "crypto and its innovations (stablecoins, Bitcoin's hard money, DeFi)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "all of crypto / those innovations",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "the claim that crypto is all useless",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "people's ability to say crypto is useless / their denial",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "none; the assertion is unconditional, though he adds the explanation that it's because 'we're really good at changing the tech stack'",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Crypto's innovations in stablecoins, Bitcoin's hard money, and DeFi show it is not useless, even though many people deny its utility because crypto's value lies in changing the tech stack rather than in policy-world goals.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "\u203a\u203a I don't talk to Senator Warren. Um, \u203a\u203a has anyone talked to Elizabeth Warren? No, but I would tell I would tell somebody that",
+   "backend": "heimdall:z-ai/glm-5.3-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "fb7d659986b03d4b77fb:e15a59055d9a006fe73ec521e46cee8e360e2c41c6e9dfa815883b2cd1cae5eb:fb0290450da6432c5bc24142e100cdda303f8b2503584b16a16e6643bcea4f0e:9d43580c729b": {
+  "heimdall:z-ai/glm-5.3-flash": {
+   "label": "fb7d659986b03d4b77fb",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "they",
+     "refers_to": "the Democratic candidates he donates to",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "the ones",
+     "refers_to": "those Democratic candidates, specifically those under 40",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "dummy it in 'I love it'",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "that they used to mine Bitcoin in their dorm room",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "the candidates he describes are those he donates to, established just before the selection",
+     "inside": false
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Many of the young (under-40) Democratic candidates he donates to tell him they mined Bitcoin in their dorm room, and he encourages them to say so publicly.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "I I donate to Democratic candidates. Sometimes",
+   "backend": "heimdall:z-ai/glm-5.3-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "0e8a90a0e685d74b90c8:fc8465b0235c7df2708779d3fe17327e88f6c164d2c700cd6d219a77627cc615:1e6461e6d52a6c3280d51ee04fb6e9433f0df9a939511b51e965ac96776a75d6:9d43580c729b": {
+  "heimdall:z-ai/glm-5.3-flash": {
+   "label": "0e8a90a0e685d74b90c8",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "they",
+     "refers_to": "Democrat candidates who donate",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "the ones",
+     "refers_to": "the Democrat candidates who donate",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "that they used to mine Bitcoin in their dorm room (dummy in 'say that')",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "the candidates are Democrat candidates who donate (to the speaker) and are under 40",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Many young (under-40) Democratic candidates who donate to the speaker mined Bitcoin in their dorm rooms, and the speaker encourages them to say so since nobody would mind.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Do you have a take on who you want the Democratic nominee to be for 2028? \u203a\u203a Um, you have \u203a\u203a",
+   "backend": "heimdall:z-ai/glm-5.3-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "34740e20eceb1d777488:ba86a961707db7e23d8dba15f7066b6eb29d05b78f148e4d917e877e756b8c17:2c0b56acb9791cbec08147a24efb846703710cdf6908445cb37e58dd4d79e96b:9d43580c729b": {
+  "heimdall:z-ai/glm-5.3-flash": {
+   "label": "34740e20eceb1d777488",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "crypto (the innovations in stablecoins, Bitcoin, DeFi)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "all of crypto / the innovations just listed",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Crypto's utility is undeniable given the innovations in stablecoins, Bitcoin's hard money, and DeFi, and people who call it useless are just avoiding the harder second-order questions.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "I don't talk to Senator Warren. Um, \u203a\u203a \u203a\u203a has anyone talked to Elizabeth Warren? No, but I would tell I would tell somebody that like",
+   "backend": "heimdall:z-ai/glm-5.3-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }
