@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-16T13:44:16+00:00",
- "build": "ledger_20261116_134412",
+ "generated_at": "2026-11-16T16:03:17+00:00",
+ "build": "ledger_20261116_160309",
  "kind": "moments",
  "candidates": [
   {
@@ -11,6 +11,15 @@
    "text": "Ironically, the biggest problem for crypto was it was the first thing to show up in finance after 2008 that was new. If we'd showed up, we couldn't, right? Satoshi himself was an expression of 2008, but to humor me.",
    "text_sha256": "3abd2695f79b90d6ae5d315b27de9c23635cbc04fab32e63c401094755efb018",
    "trimmed_leading": null
+  },
+  {
+   "pid": "c800974b45030c070910~trim",
+   "video_id": "lcYYuefFMQA",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 27.22,
+   "text": "what we learn with credit is it's an alloy of Bitcoin and dollars. And if the alloy is 98 % Bitcoin, $2, it tends to buckle. And if the alloy becomes 25, 30, 40 percent dollars, it's like stainless steel. It's very strong. And so the real trick to creating digital credit is blending in the right amount of dollars along with the Bitcoin in order to create something which is strong.",
+   "text_sha256": "0b32ef4ef1d25df5deb02bbd11dc8352e9a7174c41dbef65c9a3aabc23238d66",
+   "trimmed_leading": "So"
   },
   {
    "pid": "3d62c51a3fa62c41559a",
@@ -28,6 +37,15 @@
    "duration": 23.81,
    "text": "People like to deny the utility because they don't have to deal with the hard problems of how to deal with it. If I just say this is all useless, I can just keep it away, then it's very, you don't have to go to those second order questions. I just don't think you can look at this and see all the innovations in stable coins, in the hard money of Bitcoin provides in Defi and say this is all useless.",
    "text_sha256": "ba86a961707db7e23d8dba15f7066b6eb29d05b78f148e4d917e877e756b8c17",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "9452a8ac229cd412f850",
+   "video_id": "DO6iIRbccIg",
+   "channel": "Fox Business",
+   "duration": 14.42,
+   "text": "Bitcoin taking a hit over the past week, reaching its lowest level since July as investors face a growing list of setbacks, one being political uncertainty. As the Democrats are set to take control of Congress, putting the Clarity Act in limbo.",
+   "text_sha256": "f182da018af33b5b9575d1a9725b6889acfd612f046bc7cf60340f9eb4fdb908",
    "trimmed_leading": null
   },
   {
