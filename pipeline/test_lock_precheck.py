@@ -934,3 +934,17 @@ class TestRuling135(Base):
         self.request(approved_text=ATTESTED)
         LP.serve_once(log=self.log)
         self.assertEqual(self.entry(ATTESTED)["outcome"], "hold")
+
+
+class TestRuling135LoneLetter(Base):
+    """Ruling 135 (d) + Heimdall batch 104 c2: a lone letter the LOCK carries (the decode and the approved text both hear
+    it) is a word, not a stray sound: the second recogniser missing it is still a difference."""
+
+    def test_a_letter_two_readings_hear_is_still_compared(self):
+        self.run_text = ATTESTED.replace("punch in my code", "punch in my B code")
+        self.scribe_text = ATTESTED
+        self.request(approved_text=self.run_text)
+        LP.serve_once(log=self.log)
+        e = self.entry(self.run_text)
+        self.assertNotEqual(e["as_spoken"]["verdict"], "same", e)
+        self.assertIn(["b", ""], e["as_spoken"]["differences"])
