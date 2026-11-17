@@ -32516,6 +32516,22 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "8dbc30ee3ad91f82552d",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin conviction and risk management can coexist; Q by iTrustCapital offers predefined automated crypto strategies within the same account experience with different approaches and holdings.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Here's my bottom line. join I Trust Capital or access Q through my I Trust Capital link that's down in the description below.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
   }
  },
  "700df83644274f6981d4:a80d47bb7b372d6579d52765d9546de941b25c2a56602f46b5acabcf368d26b4:97839071efba971abf42b5c498fcc7d805e526cee0c534f2fdf24994b72462e3:9d43580c729b": {
@@ -32574,6 +32590,82 @@
    "speaker_is": "guest",
    "speaker_evidence": "I mean, it's so true. I hope your bull case is right and I bet the next time we're talking here, maybe a year from now, you guys will have like a 100,000 Bitcoin.",
    "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "700df83644274f6981d4",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I",
+     "refers_to": "the speaker (the guest)",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "the following claim that most annual returns happen in a few days",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that's",
+     "refers_to": "the asset, Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "It",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "a massive green candle",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "when Bitcoin moves",
+     "inside": true
+    },
+    {
+     "text": "for a year",
+     "inside": true
+    },
+    {
+     "text": "in a couple days",
+     "inside": true
+    },
+    {
+     "text": "in a day or a week",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin's annual returns typically happen in just a few days, so it often seems to do nothing and then produces a massive green candle in a day or a week.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "Matt, thanks so much for joining me.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
    "replayed": false,
    "speaker_verified": false
   }
