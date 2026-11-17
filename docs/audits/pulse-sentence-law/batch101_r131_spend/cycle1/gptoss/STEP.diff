@@ -1,0 +1,246 @@
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+index 77a1c1e5..825aa225 100644
+--- a/pipeline/lock_precheck.py
++++ b/pipeline/lock_precheck.py
+@@ -212,18 +212,56 @@ def decode(r, sha, log=print):
+     return out
+ 
+ 
++REUSE_RATIO = 0.8          # batch 101: an earlier reading is this window's when it reads as this decode does
++
++
++def _earlier(a, wd):
++    """BATCH 101 (ruling 131: one true day number, nothing paid twice): the newest cached second reading of the SAME
++    window made under another decoder code (work dirs differ only by the decoder sha: the reading is the vendor's, of
++    the audio, not of our code). Ruling 77 purges the media, so a re-download never byte-matches that reading's source:
++    it is this window's audio when it was taken at the same offset (a reading that records one) and its words read as
++    this decode does (canon ratio >= REUSE_RATIO; a changed video reads differently and is paid for again).
++    -> (reading, its path, ratio) or None."""
++    import canon
++    from difflib import SequenceMatcher
++    here = canon.canon_tokens(" ".join(str(w["word"]) for w in a["transcript"]["words"]))
++    base, best = os.path.basename(wd).rsplit(".", 1)[0], None
++    for p in glob.glob(os.path.join(ROOT, "work", base + ".*", "second_recogniser.json")):
++        if os.path.dirname(os.path.abspath(p)) == os.path.abspath(wd):
++            continue
++        try:
++            with open(p) as f:
++                c = json.load(f)
++            there = canon.canon_tokens(" ".join(str(w["word"]) for w in c["words"]))
++            if c.get("offset") is not None and float(c["offset"]) != float(a["offset"]):
++                continue
++            t = os.path.getmtime(p)
++        except (OSError, ValueError, KeyError, TypeError):
++            continue
++        ratio = SequenceMatcher(None, here, there, autojunk=False).ratio() if here and there else 0.0
++        if ratio >= REUSE_RATIO and (best is None or t > best[3]):
++            best = (c, p, round(ratio, 3), t)
++    return best[:3] if best else None
++
++
+ def second_reading(a, wd):
+-    """The second recogniser's words on the acquired window: ONE paid call per acquisition, cached in its work dir and
+-    keyed by the source file's sha256. -> (words, the spend of a call made now; 0.0 when cached)."""
++    """The second recogniser's words on the acquired window: ONE paid call per window, cached in its work dir (keyed by
++    the source file's sha256) and, under a new decoder code, taken from the same window's earlier reading (_earlier,
++    batch 101). -> (words, the spend of a call made now; 0.0 when cached or reused)."""
+     p, sha = os.path.join(wd, "second_recogniser.json"), a["provenance"].get("source_file_sha256")
+     if os.path.exists(p):
+         with open(p) as f:
+             c = json.load(f)
+         if c.get("source_file_sha256") == sha:
+             return c["words"], 0.0
+-    words, usd = pinned._second_recogniser_words(a["path"])
++    prev = _earlier(a, wd)
++    if prev is not None:
++        c, src, ratio = prev
++        words, usd, note = c["words"], 0.0, {"reused_from": os.path.basename(os.path.dirname(src)), "ratio": ratio}
++    else:
++        (words, usd), note = pinned._second_recogniser_words(a["path"]), {}
+     with open(p + ".tmp", "w") as f:
+-        json.dump({"source_file_sha256": sha, "usd": usd, "words": words}, f)
++        json.dump(dict({"source_file_sha256": sha, "usd": usd, "words": words, "offset": a.get("offset")}, **note), f)
+     os.replace(p + ".tmp", p)
+     return words, usd
+ 
+@@ -678,6 +716,8 @@ def main(argv=None):
+     ap.add_argument("mode", choices=("serve", "once"))
+     ap.add_argument("--sleep", type=float, default=5.0)
+     a = ap.parse_args(argv)
++    import outside_spend                       # ruling 131: its Scribe calls are the pre-check's in the day ledger
++    outside_spend.SERVICE = "lock_precheck"
+     for d in ("requests", "results", "work"):
+         os.makedirs(os.path.join(ROOT, d), exist_ok=True)
+ 
+diff --git a/pipeline/outside_spend.py b/pipeline/outside_spend.py
+new file mode 100644
+index 00000000..1bc039df
+--- /dev/null
++++ b/pipeline/outside_spend.py
+@@ -0,0 +1,71 @@
++"""RULING 131 (orchestrator 08:25 ET Nov 17): "every outside dollar your services spend (Scribe and any other) is to be
++written into the day ledger the builder reads, so the day's $1.00 is one true number."
++
++ONE append-only JSON line per paid outside call, written at the vendor call site itself (second_recogniser.scribe_words,
++signoff.generate_signoff's xAI call, vo.generate_vo's TTS call), so no caller can spend without a line:
++  data/spend/integrator_outside.jsonl   (runtime data, never committed)
++  {"at": UTC ISO, "service": who spent it (SERVICE: "render", "lock_precheck", "replay", set by each entry point;
++   "unknown" otherwise), "vendor", "usd" (None when the code cannot price the call), "basis" ("vendor-reported ..." or
++   how the estimate is made), "units", "ref"}
++The builder sums "usd" over its day window (total()). A ledger write that fails is printed loudly and never undoes or
++hides the call's result: the money is already spent."""
++import fcntl
++import json
++import os
++import time
++
++REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
++LEDGER = os.environ.get("PP_OUTSIDE_LEDGER", os.path.join(REPO, "data", "spend", "integrator_outside.jsonl"))
++SERVICE = "unknown"               # the entry point names its service (run_fresh "render", lock_precheck, replay)
++
++
++def record(vendor, usd, basis, units=None, ref=None):
++    """Append one paid call's line -> the line (written or not)."""
++    line = {"at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "service": SERVICE, "vendor": vendor,
++            "usd": None if usd is None else round(float(usd), 6), "basis": basis, "units": units or {}, "ref": ref}
++    try:
++        os.makedirs(os.path.dirname(LEDGER), exist_ok=True)
++        with open(LEDGER, "a") as f:
++            fcntl.flock(f, fcntl.LOCK_EX)              # one line per write, whole, between processes
++            f.write(json.dumps(line, sort_keys=True) + "\n")
++    except OSError as e:
++        print(f"  OUTSIDE SPEND NOT RECORDED ({type(e).__name__}: {e}): {json.dumps(line)}", flush=True)
++    return line
++
++
++def lines(path=None):
++    """Every readable line of the ledger (a torn or foreign line is skipped)."""
++    out = []
++    try:
++        with open(path or LEDGER) as f:
++            for raw in f:
++                try:
++                    d = json.loads(raw)
++                except ValueError:
++                    continue
++                if isinstance(d, dict) and isinstance(d.get("at"), str):
++                    out.append(d)
++    except FileNotFoundError:
++        pass
++    return out
++
++
++def _when(s):
++    from datetime import datetime, timezone
++    t = datetime.fromisoformat(str(s).replace("Z", "+00:00"))
++    return (t if t.tzinfo else t.replace(tzinfo=timezone.utc)).astimezone(timezone.utc)
++
++
++def total(since, until, path=None):
++    """(USD over [since, until), the lines in it, the lines without a price) for a day window. since / until: ISO
++    times with an offset (the builder's '2026-11-16T21:10:00-05:00') or UTC 'Z'. A line without a price is reported
++    as unpriced, never counted as zero; a line whose time cannot be read is left out of every window."""
++    a, b, inside = _when(since), _when(until), []
++    for d in lines(path):
++        try:
++            if a <= _when(d["at"]) < b:
++                inside.append(d)
++        except ValueError:
++            continue
++    usd = sum(float(d["usd"]) for d in inside if isinstance(d.get("usd"), (int, float)))
++    return round(usd, 6), inside, [d for d in inside if not isinstance(d.get("usd"), (int, float))]
+diff --git a/pipeline/replay.py b/pipeline/replay.py
+index ab926c79..b721965e 100644
+--- a/pipeline/replay.py
++++ b/pipeline/replay.py
+@@ -125,6 +125,8 @@ def main():
+     ap.add_argument("--from", dest="start", default="prepare", choices=rf.TAIL_STAGES)
+     ap.add_argument("--no-vision", action="store_true", help="skip the Heimdall vision checklist (V1 not scored)")
+     a = ap.parse_args()
++    import outside_spend                       # ruling 131: a replay's outside calls (if any) are named in the ledger
++    outside_spend.SERVICE = "replay"
+     dst, verdict = replay(a.run_dir, a.start, vision=not a.no_vision)
+     sys.exit(0 if verdict == rf.VERDICT_CANDIDATE else 3)
+ 
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 128bf37e..4d3bfd9f 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -1672,6 +1672,8 @@ def main():
+     ap.add_argument("--pinned", metavar="PIN.json",
+                     help="PINNED mode: human-supplied editorial decision (see pinned.py)")
+     args = ap.parse_args()
++    import outside_spend                       # ruling 131: this run's outside calls are the render's in the day ledger
++    outside_spend.SERVICE = "render"
+     pin_path = os.path.abspath(args.pinned) if args.pinned else None
+ 
+     ts = time.strftime("%Y%m%d_%H%M%S", time.gmtime())
+diff --git a/pipeline/second_recogniser.py b/pipeline/second_recogniser.py
+index 0edcd1dc..4869435c 100644
+--- a/pipeline/second_recogniser.py
++++ b/pipeline/second_recogniser.py
+@@ -56,6 +56,10 @@ def scribe_words(src_mp4, timeout=300):
+     req = urllib.request.Request(URL, data=body, headers={"xi-api-key": key,
+                                                           "Content-Type": f"multipart/form-data; boundary={boundary}"})
+     d = json.loads(urllib.request.urlopen(req, timeout=timeout).read())
++    import outside_spend                                 # ruling 131: the day ledger, at the one vendor call
++    outside_spend.record("elevenlabs:scribe_v1", round(seconds / 60 * 0.012, 4),
++                         "estimate: the code's rate, $0.012 per audio minute (ElevenLabs reports no cost per call)",
++                         units={"audio_s": round(seconds, 2)}, ref=os.path.basename(src_mp4))
+     words = [{"word": w.get("text"), "start": w.get("start"), "end": w.get("end")}
+              for w in d.get("words") or [] if isinstance(w, dict) and w.get("type", "word") == "word"]
+     return words, d.get("text") or "", seconds
+diff --git a/pipeline/signoff.py b/pipeline/signoff.py
+index a6a4a778..7d5acbd1 100644
+--- a/pipeline/signoff.py
++++ b/pipeline/signoff.py
+@@ -154,6 +154,20 @@ B) Gratitude-first: "Big thanks to [channel] for today's clip. Go follow them, l
+ C) Call-to-action-first: "Go follow [channel]. Today's clip came from them. Links below.\""""
+ 
+ 
++def _spent(body, ref):
++    """RULING 131: the call's outside dollars in the day ledger, as xAI reports them (usage.cost_in_usd_ticks, 1 USD =
++    1e10 ticks); no reported cost -> an unpriced line with the tokens (never a guessed price)."""
++    import outside_spend
++    u = (body or {}).get("usage") if isinstance(body, dict) else None
++    u = u if isinstance(u, dict) else {}
++    ticks = u.get("cost_in_usd_ticks")
++    usd = ticks / 1e10 if isinstance(ticks, (int, float)) and not isinstance(ticks, bool) else None
++    outside_spend.record("xai:grok-3-mini", usd, "vendor-reported (xAI usage.cost_in_usd_ticks, 1 USD = 1e10 ticks)"
++                         if usd is not None else "unpriced: xAI reported no cost for this call (tokens only)",
++                         units={k: u[k] for k in ("prompt_tokens", "completion_tokens", "total_tokens") if k in u},
++                         ref=f"sign-off {ref}")
++
++
+ def generate_signoff(topic, channel_names, segment_id, max_rounds=3):
+     """Generate a fresh sign-off line via Grok. Returns the chosen text or raises."""
+     import requests
+@@ -200,7 +214,9 @@ Return ONLY 5 lines, numbered 1-5. No commentary."""
+             timeout=30,
+         )
+         resp.raise_for_status()
+-        content = resp.json()["choices"][0]["message"]["content"].strip()
++        body = resp.json()
++        _spent(body, segment_id)                         # ruling 131: the day ledger, before anything can fail
++        content = body["choices"][0]["message"]["content"].strip()
+ 
+         # Parse numbered lines
+         candidates = []
+diff --git a/pipeline/vo.py b/pipeline/vo.py
+index 16866843..4cf0cefc 100644
+--- a/pipeline/vo.py
++++ b/pipeline/vo.py
+@@ -83,7 +83,12 @@ def generate_vo(segment_dir, voice_key="ELEVENLABS_VOICE_ID_PP2",
+ 
+         import struct
+         import wave
+-        pcm_data = b"".join(audio_gen)
++        pcm_data = b"".join(audio_gen)                   # the call is made (and billed) as the stream is read
++        import outside_spend                             # ruling 131: the day ledger, at the call itself
++        outside_spend.record(f"elevenlabs:tts:{model_id}", None,
++                             "unpriced: ElevenLabs bills the input text's characters against the plan's monthly "
++                             "quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
++                             units={"characters": len(text)}, ref=stem_name)
+         with wave.open(wav_path, 'wb') as wf:
+             wf.setnchannels(1)
+             wf.setsampwidth(2)

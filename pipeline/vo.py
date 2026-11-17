@@ -83,7 +83,12 @@ def generate_vo(segment_dir, voice_key="ELEVENLABS_VOICE_ID_PP2",
 
         import struct
         import wave
-        pcm_data = b"".join(audio_gen)
+        pcm_data = b"".join(audio_gen)                   # the call is made (and billed) as the stream is read
+        import outside_spend                             # ruling 131: the day ledger, at the call itself
+        outside_spend.record(f"elevenlabs:tts:{model_id}", None,
+                             "unpriced: ElevenLabs bills the input text's characters against the plan's monthly "
+                             "quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+                             units={"characters": len(text)}, ref=stem_name)
         with wave.open(wav_path, 'wb') as wf:
             wf.setnchannels(1)
             wf.setsampwidth(2)

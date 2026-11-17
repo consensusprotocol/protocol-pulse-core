@@ -1,0 +1,26 @@
+{
+ "question": "Review this diff (orchestrator RULING 131, 08:25 ET Nov 17), verbatim: \"every outside dollar your services spend (Scribe and any other) is to be written into the day ledger the builder reads, so the day's $1.00 is one true number\". The diff writes one ledger line per paid outside call at each vendor call site, and reuses a window's earlier second-recogniser reading under a new decoder code so it is not paid for twice.\n\nCycle 2: try to BREAK it. Report ONLY a defect you can show with a CONCRETE input or sequence traced through the diff's code. Keep each \"issue\" under 80 words. If you cannot break it, answer PASS with no findings.\n\nFACTS (unchanged code, not in the diff):\n- lock_precheck.work_dir(vid, lo, hi, sha) = ROOT/work/\"{vid}.{lo:.3f}-{hi:.3f}.{sha[:12]}\"; a YouTube video id contains no '.'.\n- A window's download offset is float(round(max(0, start - 15))): the same window always gives the same offset.\n- pinned._second_recogniser_words (unchanged) calls second_recogniser.scribe_words and returns usd = secs/60*0.012.\n- Ruling 77 purges each work dir's media after use, so a re-download's source_file_sha256 never matches an older reading's.\n- Ruling 105's history (unchanged) matches earlier passes by source_file_sha256.\n- The decoder sha hashes select_passages.py, punctuation.py, pinned.py, sentence_law.py, canon.py, gpu0.py: none is in this diff.\n- run_fresh.main, replay.main and lock_precheck.main are the processes' entry points.\n\nBREAK-IT TARGETS:\nT1. A paid outside call (Scribe, the xAI sign-off, TTS) that leaves NO ledger line, or a ledger line for a call that was never made.\nT2. An xAI line whose usd is not exactly what xAI reported (a guess, a wrong scale, a bool or string counted).\nT3. A day total that counts a line from outside the window, misses one inside it, or counts an unpriced line as $0.\nT4. An earlier second reading reused for a DIFFERENT window, video or offset, or reused when its words do not read as this decode; or a reuse that still pays.\nT5. A ledger failure that raises into a render or the pre-check, or loses the call's result.\nT6. Two processes writing at once leaving a torn or merged line.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 233.8,
+   "cost": 0.0078699824,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0078699824,
+ "out_dir": "heimdall"
+}
