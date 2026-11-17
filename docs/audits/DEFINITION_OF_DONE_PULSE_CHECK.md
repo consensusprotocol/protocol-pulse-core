@@ -6,6 +6,27 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 12:42 CORRECTION to my 11:51 "regressions green" (batch 105, the render-side switch, LIVE): it broke 11 tests I never ran before merging. Fix built (batch 106), in audit now. Until it lands, the live switch has two gaps against ruling 137 (2)'s HARD list.
+- **The miss:** I ran regression_test.sh, pipeline/regression.sh and six suites, but not tests/adversarial or test_failure_blocks. On main since 11:51:
+  - red-team F3: 9 "malformed evidence refuses" cases on G8 / G16;
+  - F4: the vacuity backstop;
+  - failure-blocks: the G9 case.
+  - All 11 pass at 4676a54f (before the switch). The 3 other failures in those suites predate it (test_replay TestRunTail, two preflight tests).
+- **Gap 1, the attestation (HARD):** a SOFT row's MALFORMED evidence record (samples NaN, '3', True, -1, a list; executed 1 or 'true') became a flag instead of a hold.
+- **Gap 2, speaker credit (HARD):** V1 went SOFT whole, so a model's "no" on the credits card would flag, not hold. My 11:07 class page put V1's credits row under speaker credit. G12 / G15 (HARD) still check the credit names and avatars, so a wrong credit is still stopped there.
+- **Not a gap, by design:** a SOFT gate that measured nothing (0 samples, or SKIPPED) is flagged and never read as a pass, per 136 ("SOFT ... does not refuse"). F3's "samples = 0" and F4 asserted a hold, written before 136. Batch 106 moves them to the ruled classes: HARD rows still hold, SOFT rows must flag "did not measure anything". RULE "vacuous SOFT = HARD" if you want it back.
+- **Batch 106 (worktree r138-flagtext):**
+  - Malformed evidence holds on every row.
+  - V1's credits row holds when any model did not affirm it (said no, left it out, or no answer).
+  - Ruling 138 (3): every render flag is one sentence naming the version and the clip where the gate report names it, with no codes, e.g. "In both versions, clip 2 (Natalie Brunell) might not end in silence (a breath or the next word may be heard at its end)."
+  - The note lists one flag a line under "REVIEW FLAGS:".
+  - Checks so far: 39 must-fail results on the old code; 14 of 14 mutations killed; the touched suites and tests/adversarial green (379 passed).
+  - Next: two Heimdall cycles, then merge with the FULL suite list this time.
+- **If a pin lands first,** I render on the live code, with both gaps stated in the delivery entry, and merge 106 after the delivery.
+- **K2, found while rewording (not fixed, yours to rule):**
+  - edl R1's "hook has no text" and R11's structural reasons (clip indexes not 1..n, vo bridges not a list, no vo object) are SOFT under the switch, but they are a malformed EDL. The words gate holds an empty hook downstream, but I propose HARD for these reasons.
+  - G8's per-clip table is not in GATE_REPORT, so a sharpness flag says "a clip".
+
 ## 11:51 MILESTONE: THE RENDER-SIDE SWITCH LIVE (batch 105, rulings 136 / 137, merged a1efc177, pushed). HARD refuses; SOFT flags in plain words at the top of the Telegram note ("REVIEW FLAGS: ..."); PASS_WITH_FLAGS goes to PBX on the review path. BATCH 4 integrator spend: none outside.
 - **SOFT, flagged:** G3c, G8, G9, G16, G19, V1, G14 and the 9:16 fallback; edl R1 / R3 / R4 / R8 / R9 / R10 / R11; ruling 91's takeaway; the editorial laws; a stand-alone opener.
 - **Still HARD:** the words, a mid-word cut, credit, a face or caption crop, the runtime, R2 / R5 / R6 / R7, a topic not about Bitcoin, a malformed floor mark, layout and source coordinates, the attestation.
