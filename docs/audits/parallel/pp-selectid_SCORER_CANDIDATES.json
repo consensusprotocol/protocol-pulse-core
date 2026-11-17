@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-17T12:31:26+00:00",
- "build": "ledger_20261117_123124",
+ "generated_at": "2026-11-17T13:07:17+00:00",
+ "build": "ledger_20261117_130714",
  "kind": "moments",
  "candidates": [
   {
@@ -73,6 +73,24 @@
    "duration": 14.11,
    "text": "Monthly RSI is also in the same zone as both previous lows. If this support holds again, Bitcoin could be setting up for another massive multi -year rally. Do not be fooled.",
    "text_sha256": "af5e7e1a6f751a8bfd21f5d93166245074a281b43b5957936b5f9303933ea48e",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "c2ff7d8eaec01924db11",
+   "video_id": "yHuY9r30Oug",
+   "channel": "CoinDesk",
+   "duration": 15.8,
+   "text": "You can have, you can hold Solana privately, you can hold Zcash privately, you can hold Bitcoin privately, etc. And so I think it's extremely important for adoption of crypto in general. I think up until now, we've kind of been in stock in the mostly speculative cycle.",
+   "text_sha256": "0a9538607dfbbd521931fb1f1969222f6caa2abb8fb712c491e477ac20dcdb1a",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "6b10b4aaae0e176cdf06",
+   "video_id": "yHuY9r30Oug",
+   "channel": "CoinDesk",
+   "duration": 16.7,
+   "text": "Have you heard of Bitcoin? This is one of the biggest things that's ever happened is AI. You made 40 or 50 times your money. You don't need to make that kind of money many times your life, right? Hello, everybody.",
+   "text_sha256": "78e42046429bb61369bd652cd676c040a6b25134b621113bff4fac69ee9c34ad",
    "trimmed_leading": null
   }
  ]
