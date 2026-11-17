@@ -809,7 +809,8 @@ class TestRuling131(Base):
     PIN = ATTESTED.replace("I punch in my code", "I punch in a budget codes")
 
     def test_a_content_pair_read_as_the_run_is_sealed_as_spoken(self):
-        self.run_text, self.scribe_text = self.RUN, self.RUN
+        self.run_text = self.RUN                                  # the second recogniser's own spelling differs: the
+        self.scribe_text = self.RUN.lower().replace(".", "").replace(",", "")     # sealed text keeps the approved's
         self.request(approved_text=self.PIN)
         LP.serve_once(log=self.log)
         e = self.entry(self.PIN)
