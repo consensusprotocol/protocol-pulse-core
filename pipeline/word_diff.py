@@ -73,7 +73,7 @@ def diff(expected, heard, collapse=False, alts=None):
     for op, a0, a1, b0, b1 in difflib.SequenceMatcher(None, e, h, autojunk=False).get_opcodes():
         if op == "replace" and a1 - a0 == 1 and b1 - b0 == 1 and a0 in pos and e[a0] in pos[a0] and h[b0] in pos[a0]:
             continue
-        if op != "equal" and canon.same_words(e[a0:a1], h[b0:b1]):     # ruling 135: spelling, not speech
+        if op != "equal" and canon.same_words(e[a0:a1], h[b0:b1], stray="y"):     # ruling 135: spelling, not speech
             continue
         if op != "equal":
             out.append((op, " ".join(e[a0:a1]), " ".join(h[b0:b1])))
@@ -88,7 +88,7 @@ def _omitted_or_repeated_only(expected, heard, alts=None):
     e, h = norm(expected), norm(heard)
     pos = _alt_positions(expected, alts)
     ops = [o for o in difflib.SequenceMatcher(None, e, h, autojunk=False).get_opcodes() if o[0] != "equal"
-           and not canon.same_words(e[o[1]:o[2]], h[o[3]:o[4]])]                # ruling 135
+           and not canon.same_words(e[o[1]:o[2]], h[o[3]:o[4]], stray="y")]     # ruling 135
     if not ops:
         return False
     for op, a0, a1, b0, b1 in ops:

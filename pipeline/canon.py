@@ -301,23 +301,29 @@ def comparison_form(tokens):
     return out
 
 
-def nonlexical(tok):
-    """RULING 135 (d): a filler (FILLER_TOKENS) or a single consonant letter: not a word."""
-    return tok in FILLER_TOKENS or (len(tok) == 1 and tok in CONSONANTS)
+def nonlexical(tok, stray=False):
+    """RULING 135 (d): a filler (FILLER_TOKENS); with stray, also a single consonant letter. Not a word."""
+    return tok in FILLER_TOKENS or (stray and len(tok) == 1 and tok in CONSONANTS)
 
 
-def same_words(x, y):
+def same_words(x, y, stray=()):
     """RULING 135: the two sides of a differing pair (lists of canon tokens) are the same words. Both sides in comparison
-    form (a, c), non-lexical tokens left out (d); equal tokens, or, when neither side holds a digit, equal letters once
-    every space and hyphen is gone (b: 'itrust capital's' = 'I trust capital's' = 'iTrustCapital's', names too). Still
-    a difference: two different single letters (a letter-name dispute), any digit difference (numbers compare token for
-    token; the currency form is (B)'s), and any other change of letters (a negation, a name, a content word)."""
+    form (a, c), fillers left out (d); equal tokens, or, when neither side holds a digit, equal letters once every space
+    and hyphen is gone (b: 'itrust capital's' = 'I trust capital's' = 'iTrustCapital's', names too). A single consonant
+    is a stray sound only on a side named in `stray` ("x" / "y"): the side the caller knows ONE reading alone hears
+    (ruling 72's second recogniser against the lock, G18's final decode); in the lock itself a lone letter is a token
+    and the vote of three readings decides it (Heimdall batch 104 c2: a letter two readings hear is a word). Still a
+    difference: two different single letters, any digit difference (numbers compare token for token; the currency form
+    is (B)'s), and any other change of letters (a negation, a name, a content word). "cause" is taken as the ruled
+    "'cause" (canon_tokens drops the apostrophe, so the noun reads the same; two readings of one audio never trade the
+    noun "cause" for "because")."""
     cx, cy = comparison_form(x), comparison_form(y)
     lx = [t for t in cx if len(t) == 1 and t in CONSONANTS]
     ly = [t for t in cy if len(t) == 1 and t in CONSONANTS]
     if lx and ly and lx != ly:
         return False
-    a, b = [t for t in cx if not nonlexical(t)], [t for t in cy if not nonlexical(t)]
+    a = [t for t in cx if not nonlexical(t, "x" in stray)]
+    b = [t for t in cy if not nonlexical(t, "y" in stray)]
     if a == b:
         return True
     if any(ch.isdigit() for t in a + b for ch in t):

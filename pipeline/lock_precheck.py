@@ -346,7 +346,7 @@ def as_spoken(lock, words, sw):
         return "hold", [[lock["text"], ""]], ["hold"], ""
     import canon
     ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != "equal"
-           and not canon.same_words(L[o[1]:o[2]], S2[o[3]:o[4]])                             # ruling 135: spelling
+           and not canon.same_words(L[o[1]:o[2]], S2[o[3]:o[4]], stray="y")                  # ruling 135: spelling
            and not (all(canon.dollars_after_number(L, i) for i in range(o[1], o[2])) and     # ruling 131 (B): a
                     all(canon.dollars_after_number(S2, j) for j in range(o[3], o[4])))]       # currency symbol is
     diffs = [[" ".join(L[a:b]), " ".join(S2[c:d])] for _, a, b, c, d in ops]                  # formatting

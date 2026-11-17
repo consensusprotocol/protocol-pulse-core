@@ -338,9 +338,16 @@ class TestComparisonCanon(unittest.TestCase):
         self.assertFalse(self.same("yes", "no"))
 
     def test_non_lexical_tokens_are_not_words(self):
-        for a, b in (("um", ""), ("", "uh"), ("so um", "so"), ("h-", ""), ("mhm", ""), ("hm", "hmm")):
+        for a, b in (("um", ""), ("", "uh"), ("so um", "so"), ("mhm", ""), ("hm", "hmm")):
             self.assertTrue(self.same(a, b), (a, b))
         self.assertTrue(self.same("money's", "moneys"))                      # (a) apostrophes
+
+    def test_a_lone_letter_is_stray_only_on_the_side_one_reading_alone_hears(self):
+        h, none = C.canon_tokens("h-"), C.canon_tokens("")
+        self.assertTrue(C.same_words(none, h, stray="y"))                    # ruling 72: the second recogniser alone
+        self.assertFalse(C.same_words(none, h))                              # in the lock: a token, the vote decides
+        self.assertFalse(C.same_words(C.canon_tokens("B"), none, stray="y"))  # the lock side's letter: two readings
+        self.assertFalse(C.same_words(C.canon_tokens("Q"), C.canon_tokens("Z"), stray="xy"))
 
     def test_what_still_differs(self):
         for a, b in (("12", "1 2"), ("68,000", "86,000"), ("can't", "can"), ("don't", "do"), ("Saylor", "Taylor"),
