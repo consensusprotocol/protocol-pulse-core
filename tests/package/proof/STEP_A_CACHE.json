@@ -31720,5 +31720,71 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "71acabbeba71d12c380c:81d7240154d607f01216f8b1ffae1ec50fdee7a61ee54773eeb12b89a9706008:022f8163a39a2596c0aa9badad8b7f2a24eac4c6477af0df14c024d278597dc2:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "71acabbeba71d12c380c",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in 2017",
+     "inside": false
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "In the past Bitcoin would drop 50% in a single day due to its high volatility.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "19af20a7c4cca2397451:b274aeaa25b7ab8649a42b48bbd10dbb000e6a96fd22640d7ff8168561e01664:be1fbc84b30743d05e626abf269afe7359b00037c6cf3e396b33df53fb28589d:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "19af20a7c4cca2397451",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I",
+     "refers_to": "James Ethorne",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "the weekend preceding the broadcast",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "when there's no liquidity",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker was watching and saw somebody crash the Bitcoin market over the weekend when there was no liquidity.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Joining us now is James Ethorne, Chief Market Strategist at Wellington Altus Private Wealth. James, great to see you again.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

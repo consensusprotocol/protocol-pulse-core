@@ -1,0 +1,222 @@
+{
+ "0193406f729cc5e141e0:9d43580c729b": {
+  "label": "0193406f729cc5e141e0",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "today",
+    "refers_to": "present time of the discussion/video",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the fact that most Bitcoin mining pools require asking permission to use",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "today (current state)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Most Bitcoin mining pools today require asking permission to use them, a fact that should be alarming.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Bob, I'm... cringing when you say that you have to ask permission to use these other pools.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "44a6d503ed11992f6f8e:9d43580c729b": {
+  "label": "44a6d503ed11992f6f8e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "People try to manipulate listeners' emotions with fear and anger in order to potentially get them to sell their Bitcoin, as these emotions greatly cloud judgment.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "93cfa865d13a0c3e1709:9d43580c729b": {
+  "label": "93cfa865d13a0c3e1709",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "had a terrible weekend",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin experienced a significant downturn over the weekend, falling to 62K with $2 billion in leverage wiped out including $645 million in just 30 minutes.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I am Nathan with the BTC sessions, and this is Bitcast.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "d6adeb54ad64062081c5:9d43580c729b": {
+  "label": "d6adeb54ad64062081c5",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the 2023 bull market",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "the period of time of the 2023 bull market",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "during the 2023 bull market",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker has recently done pieces analyzing how the 2023 bull market saw massive fear even while Bitcoin and fear both trended upwards as it climbed a wall of worry.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Like if you compare this to, you know, history, what do you think comes next? I have been",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "71acabbeba71d12c380c:9d43580c729b": {
+  "label": "71acabbeba71d12c380c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "I",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in 2017",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In the past Bitcoin would drop 50% in a single day due to its high volatility.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "19af20a7c4cca2397451:9d43580c729b": {
+  "label": "19af20a7c4cca2397451",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "I",
+    "refers_to": "James Ethorne",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "the weekend preceding the broadcast",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when there's no liquidity",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker was watching and saw somebody crash the Bitcoin market over the weekend when there was no liquidity.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Joining us now is James Ethorne, Chief Market Strategist at Wellington Altus Private Wealth. James, great to see you again.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b084525ec408fdeabb4e:9d43580c729b": {
+  "label": "b084525ec408fdeabb4e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "there",
+    "refers_to": "the 58K price level",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin dropping to 62K",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "they",
+    "refers_to": "Strategy and metaplan",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "had a terrible weekend",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin had a terrible weekend dropping to 62K with billions in leverage wiped out near the 58K level, putting pressure on everybody as Strategy and Metaplan make moves while they are down.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I am Nathan with the BTC sessions, and this is Bitcast.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}
