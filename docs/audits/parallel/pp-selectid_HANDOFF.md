@@ -1,42 +1,42 @@
-# pp-selectid HANDOFF (written 13:13 ET Nov 17; rulings 139 / 140)
+# pp-selectid HANDOFF (written 14:06 ET Nov 17; rulings 139-141)
 
 ## LIVE (pushed)
-- Rulings 131 / 135: the word lock's two of three readings, the currency canon and the comparison canon. Decoder b52c9354d604 on both sides.
-- Rulings 136 / 137 / 138 / 139, the hard/soft switch:
-  - STAGE 1: never-empty for step A's first screen.
-  - STAGE 2a (ca9b5e16): the second family's soft step-A refusals and the re-screen's are flagged. CUTTABLE's sentence edge at a word boundary is flagged (ruling 139). "cuttable" is in package_pin.SOFT_GATES. The soft pass's own record is kept (never_empty.soft_record).
-  - Flags: one plain sentence a clip, at most 3. review_flags go on the pin. At most 2 flagged packages a day (FLAGGED_DAY.json).
-- Ruling 107 (1)'s guard fix (71ff97fc, audit 20261117_1305):
-  - Router.spend_refused names every paid call refused for money.
-  - open_work counts those calls, and the never-empty pass's own holds, as work left undone.
-  - Why: build 134 had asked nothing after free build 133.
-- The integrator's check_pin_only calls package_pin.gate_problems live. Their batch 106 (ETA about 13:30 ET) must be live before any pin renders; a pin that arrives earlier waits (their ruling 140 (1)).
+- Rulings 131 / 135: the word lock and the comparison canon. Decoder b52c9354d604 on both sides.
+- The hard/soft switch, in the never-empty pass. package.build runs the clean pass; only if it seals nothing, and the day allows (FLAGGED_DAY_MAX 2), it runs _build(soft=True).
+  - Flags: one plain sentence each, at most 3 (REVIEW_FLAGS_MAX). package_pin.SOFT_GATES = {context_a, cuttable, medley, stand_alone}.
+  - Stage 1: step A's first screen.
+  - Stage 2a (ca9b5e16): the second family's soft step-A refusals; CUTTABLE's sentence edge (ruling 139).
+  - Stage 2b, the hook bar (2b939b99): a hook under the calibrated bar, rated by its own rater, opens flagged. At most the best 2 (HOOK_SOFT_MAX), marked hook_bar_soft.
+  - RULING 141 (2), STAND_ALONE soft (264d740a): a moment left out only by the opener rule comes back as a clip.
+    - Flag: "The clip (<channel>) may not stand alone: <reason>." The integrator's batch 107 matches this exact prefix.
+    - The topic rule, the medley naming Bitcoin and a hook's opener stay HARD.
+- Ruling 107 (1)'s guard fix (71ff97fc): a call refused for money is work left undone. Seen working in builds 136 and 137.
+- Integrator: batches 106 and 107 are live. A pin renders the moment READY arrives; the note lists "REVIEW FLAGS:" one per line.
 
-## THE ATTEMPT (ruling 140: may run to $1.65 all-in)
-- Build 135 started 13:12 ET: router stop $1.50 + Scribe $0.096 + at most $0.032 for a swap's pre-check. The log is /tmp/claude-1000/-home-ultron-worktrees-pp-selectid/a80f37a3-3482-4017-9152-9c0c6e2f0dab/scratchpad/build135_*.log.
-- The kept line-up: ca660f2277836c085860 (hook, Scott Melker), 8dbc30ee3ad91f82552d (DataDash), 372f6afd8ff42ea6a597 (Natalie Brunell), e06e9566dbe3ea80c568 (Coin Bureau).
-  - Swaps: cae5123f9ff683c8b965, 700df83644274f6981d4, f4bad490a7d8f7f7e89d, c79b7f6d3b7dd2a9d9ea.
-  - --only file: /tmp/claude-1000/-home-ultron-worktrees-pp-selectid/a80f37a3-3482-4017-9152-9c0c6e2f0dab/scratchpad/r131/r134/ONLY_C.json.
-- Expected flags, 3 (the cap):
-  - the hook's NOT_OWN_SINCERE (Grok only);
-  - DataDash's IN sentence edge;
-  - Coin Bureau's REFERENT_OUTSIDE (both families).
-- THE CAP BINDS: one more soft refusal (clips-alone, joins, a non-crop visual flag, the writes, value, coherence) would be a 4th flag, which the seal refuses. Only a swap to a cleaner clip or a ruling on the cap helps then. Say so on line 1.
-- If it seals: SendMessage protocol-pulse-68 READY with the pin path (the build's record dir, MOMENTS_PIN_LEDGER.json) and the seal prefix (package_sha256[:12]).
-- If a not-yet-switched SOFT gate refuses (ruling 140):
-  1. Write the gate on line 1 and hold the line-up.
-  2. Switch that one gate audit-first.
-  3. Run again from the cached answers while inside 12 h.
-- Expiries: DataDash 20:00 ET; Coin Bureau 21:00; the hook ca660f22 21:01; Natalie 21:56.
-- After this attempt: no outside call until 21:10 ET, except to finish this same line-up.
+## RULING 141 (13:40): IN FORCE
+- The kept line-up (ca660f22 ...) is DROPPED; the clips-alone checker found no through-line.
+- Stage 2b order:
+  1. STAND_ALONE (DONE);
+  2. the line-up chain as kept candidates, per the approved R136 design (2): clips-alone + joins + the question hook + coherence + writes / value;
+  3. the hook bar (DONE early);
+  4. the hook's non-crop frames. Ruling 70's third person is soft by design; ruling 93's crop through burned text is HARD.
+- Money: ceiling $1.65 all-in today. One purpose only: a NEW line-up with a THROUGH-LINE, built from ONE story (stories/latest.json), story-first (ruling 118 (4)).
+  - Lock pre-check first; step A only on that story's moments. Price before the first paid call.
+  - If no story has 3 channels, say so on line 1 and re-check on each ledger change (scratch r141/story_fit.py, free).
+
+## THE STORY ATTEMPT, NOW
+- The story: S-196c50f1 "Self-custody and security risks". It has 3 channels only with STAND_ALONE soft: Yahoo Finance f0a51c45 has no scorer verdict.
+- The set: /tmp/claude-1000/-home-ultron-worktrees-pp-selectid/a80f37a3-3482-4017-9152-9c0c6e2f0dab/scratchpad/r141/ONLY_SELFCUSTODY.json, 7 moments: 6e79ceaa, ab69874e, feb4b72f (Natalie Brunell); 84884c9f, d427b949, 20cac687 (Bitcoin Magazine); f0a51c45 (Yahoo Finance).
+- Step 1, the lock pre-check: r141/precheck_story.py, request pp-selectid.story141.*, started about 14:05. Drop any held span from the set.
+- Step 2, the build: LOCK=on bash /tmp/claude-1000/-home-ultron-worktrees-pp-selectid/a80f37a3-3482-4017-9152-9c0c6e2f0dab/scratchpad/build_and_record.sh 138 "RULING 141 (4): the self-custody story" --only /tmp/claude-1000/-home-ultron-worktrees-pp-selectid/a80f37a3-3482-4017-9152-9c0c6e2f0dab/scratchpad/r141/ONLY_SELFCUSTODY.json --stop-usd 1.49
+  - The stop keeps all-in <= $1.65.
+  - Price: about $0.42 with 2 hooks passing; up to about $0.60 with 4.
+- If it seals: SendMessage protocol-pulse-68 READY with the pin path (record dir MOMENTS_PIN_LEDGER.json) and the seal prefix (package_sha256[:12]).
 
 ## MONEY
-- Before build 135: the router $0.977, Scribe $0.096. Today's stop for this attempt is $1.65 all-in. From 21:10 ET: $1.50 a day.
-- The keeper day118.py prints today's cap as $1.40; ruling 140 raised it to $1.65 for this attempt only.
+- Before the attempt: router $1.014, Scribe $0.096, all-in $1.11.
+- The keeper day118.py prints a $1.40 cap; ruling 140 / 141 make it $1.65 today. From 21:10 ET: $1.50 a day.
 
-## NEXT
-- The ledger watcher is NOT armed. After the attempt, run a routine build_and_record.sh, then re-arm watch_ledger.py --watch 300 1800.
-- Stage 2b before 21:10: the remaining soft gates.
-- The 21:10 list: ranked and pre-checked, first paid call at 21:10:01.
-- Then the 133 batch: the price cap (dev55 started), the head-side variant, and S4.
+## ROUTINE
+- The ledger watcher is armed (watch_ledger.py --watch 300 1800). On CHANGED: bash /tmp/claude-1000/-home-ultron-worktrees-pp-selectid/a80f37a3-3482-4017-9152-9c0c6e2f0dab/scratchpad/build_and_record.sh N "routine: ..." (free), then python3 -B /tmp/claude-1000/-home-ultron-worktrees-pp-selectid/a80f37a3-3482-4017-9152-9c0c6e2f0dab/scratchpad/r141/story_fit.py, then re-arm.
 - Build windows from Nov 18: 12:00, 15:30 and 19:30 ET.
