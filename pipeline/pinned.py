@@ -306,12 +306,14 @@ def post_live_offset(vid, tr, offset):
     import glob
     import statistics
     from difflib import SequenceMatcher
+    import canon
 
-    def norm(w):
-        return re.sub(r"[^a-z0-9']", "", str(w).lower())
+    def tokens(ws, off):                           # (canonical token, the start of the word it begins in + off)
+        ws = [w for w in ws if isinstance(w, dict) and "start" in w]
+        return [(tok, float(ws[i]["start"]) + off) for tok, i, _ in canon.canon_spans([str(w.get("word") or "")
+                                                                                         for w in ws])]
     try:
-        mine = [(norm(w.get("word")), float(w["start"]) + offset) for w in tr.get("words") or []
-                if isinstance(w, dict) and "start" in w]
+        mine = tokens(tr.get("words") or [], offset)
     except (TypeError, ValueError, AttributeError) as e:
         raise PinError(f"{vid}: post_live source: the decode's word times are unreadable ({type(e).__name__}): its "
                        f"clock cannot be checked (ruling 142 (3): HARD)")
@@ -331,8 +333,7 @@ def post_live_offset(vid, tr, offset):
                        f"checked (ruling 142 (3): HARD)")
     try:                                           # batch 111 cycle 1 (qwen F1): unreadable timings are a hold
         with open(best[1]) as f:
-            rec = [(norm(w.get("word")), float(w["start"])) for w in json.load(f).get("words") or []
-                   if isinstance(w, dict) and "start" in w]
+            rec = tokens(json.load(f).get("words") or [], 0.0)
     except (OSError, ValueError, TypeError, AttributeError) as e:
         raise PinError(f"{vid}: post_live source: the transcript's word timings are unreadable ({type(e).__name__}): "
                        f"its clock cannot be checked (ruling 142 (3): HARD)")

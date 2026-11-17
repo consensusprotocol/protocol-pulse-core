@@ -480,3 +480,33 @@ class TestRuling142(unittest.TestCase):
         with self.assertRaises(P.PinError) as e:
             self.settle(self.RUN.replace("Bitcoin's", "Ethereum's"), self.PIN, self.RUN)
         self.assertIn("law L-v 2", str(e.exception))
+
+
+class TestBatch112(unittest.TestCase):
+    """Batch 112: the two re-judged spans of ruling 142, settled from their recorded readings (the run decode, the
+    approved text, the second recogniser's, verbatim from the pre-check's 15:24 entries). must-fail on batch 110's code."""
+    settle = TestRuling131.settle
+
+    def test_yahoo_f0a51c45_settles_two_of_three(self):
+        run_t = ("But if you're wondering why having decentralized money that's available 24 -7, 365, that has no CEO "
+                 "and is mined by a decentralized network around the world, like Bitcoin, is important. Well, when you "
+                 "want access to your money with Bitcoin, you have it.")
+        pin_t = ("But, you know, if you're wondering why having decentralized money that's available 24 -7, 365, that has "
+                 "no CEO in his mind by a decentralized network. around the world, like Bitcoin is important. Well, when "
+                 "you want access to your money with Bitcoin, you have it.")
+        sec_t = ("But, you know, if you're wondering why having decentralized money that's available 24/7/365, uh, that "
+                 "has no CEO and is mined by a decentralized network around the world, like Bitcoin, is important, well, "
+                 "when you want access to your money, with Bitcoin, you have it.")
+        new, _ = self.settle(run_t, pin_t, sec_t)
+        self.assertIn("you know", new["text"])
+        self.assertIn("and is mined by", new["text"])
+        self.assertEqual(sorted(x["took"] for x in new["adjudication"]["pairs"]), ["approved", "run"])
+
+    def test_natalie_feb4b72f_contraction_is_decided_two_of_three(self):
+        run_t = ("And that's not to say that it's bad. It's that self -custody Bitcoin is a responsibility. If I have a "
+                 "gun, it's a responsibility. Sovereignty is a responsibility.")
+        pin_t = run_t.replace("Bitcoin is", "Bitcoin's")
+        new, _ = self.settle(run_t, pin_t, run_t)                    # the second recogniser hears 'Bitcoin is'
+        self.assertEqual(new["text"], run_t)
+        new, _ = self.settle(run_t, pin_t, pin_t)                    # it hears "Bitcoin's"
+        self.assertEqual(new["text"], pin_t)
