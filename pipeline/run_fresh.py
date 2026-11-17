@@ -169,6 +169,27 @@ class Capture(io.TextIOBase):
 
 # ── run state ──
 
+# RULINGS 136 / 137 (orchestrator 11:00 / 11:05 ET Nov 17): a SOFT check before the render FLAGS (said in plain words at
+# the top of the Telegram note) instead of holding; a HARD one holds as before. edl_rules: a failing rule holds unless
+# it is named here (an unknown or new rule fails closed as HARD); R2 (a passage twice), R5 (clip length), R6 (credits)
+# and R7 (a layout that can render) stay HARD.
+EDL_SOFT = {"rule_r1": "the hook opens on a question", "rule_r3": "a voiceover follows an answer",
+            "rule_r4": "the voiceover is over its budget", "rule_r8": "a chyron registry gap",
+            "rule_r9": "a clip does not end on a sentence", "rule_r10": "a clip does not start a sentence",
+            "rule_r11": "more voiceover than law L-y allows"}
+
+
+def flag(run, text, detail=None):
+    """RULINGS 136 / 137: a SOFT check's finding, in plain words, kept for the attestation and the note (on any run-like
+    object with status / prov dicts)."""
+    if not isinstance(getattr(run, "status", None), dict):
+        run.status = {}
+    run.status.setdefault("review_flags", [])
+    if text not in run.status["review_flags"]:
+        run.status["review_flags"].append(text)
+    run.prov.setdefault("review_flags", []).append({"flag": text, "detail": detail})
+
+
 class Run:
     def __init__(self, run_dir):
         self.dir = run_dir
@@ -461,14 +482,17 @@ def stage_validate(run):
     for r in results:
         print(f"  {r['rule']}: [{'PASS' if r['pass'] else 'FAIL'}] {r.get('reason', '')}")
     run.prov["edl_validation"] = results
-    if not ok:
-        raise Hold("EDL rejected by edl_rules: " + "; ".join(
-            f"{r['rule']}: {r.get('reason', '')}" for r in results if not r["pass"]))
+    hard = [r for r in results if not r["pass"] and r["rule"] not in EDL_SOFT]       # rulings 136 / 137
+    if hard:
+        raise Hold("EDL rejected by edl_rules: " + "; ".join(f"{r['rule']}: {r.get('reason', '')}" for r in hard))
+    for r in results:
+        if not r["pass"]:
+            flag(run, EDL_SOFT[r["rule"]], f"{r['rule']}: {r.get('reason', '')}")
     ok91, why91 = takeaway_value(edl)          # ruling 91's MEDLEY half: the live path only (the references predate it)
     print(f"  {why91}")
     run.prov["takeaway_value"] = {"pass": ok91, "reason": why91}
     if not ok91:
-        raise Hold(why91)
+        flag(run, "the takeaway's value is not affirmed (ruling 91)", why91)
 
     # Shared AUTO/PIN editorial law gate. This is the last editorial acceptance
     # point before cutting. It always writes STORYBOARD.md + EDITORIAL_GATE.json
@@ -479,7 +503,8 @@ def stage_validate(run):
         print(f"  {name}: [{'PASS' if rec.get('pass') else 'FAIL'}] " + "; ".join(rec.get("reasons") or []))
     if gate.get("verdict") != "READY_FOR_RENDER":
         failed = [name for name, rec in gate.get("laws", {}).items() if not rec.get("pass")]
-        raise Hold("editorial law gate HOLD: " + ", ".join(failed))
+        flag(run, "editorial law(s) not affirmed: " + (", ".join(failed) or "the review gave no judgment"),
+                 gate.get("verdict"))
 
     # Orchestrator 08:30 (direction 2): every segment stands alone and belongs to a Bitcoin story. The clip
     # scorer (the selection criterion) is asked only about clips that open on a conjunction / reply fragment.
@@ -512,7 +537,13 @@ def stage_validate(run):
     if "medley_names_bitcoin" in sa:
         print(f"  STAND_ALONE medley: [{'PASS' if sa['medley_names_bitcoin']['pass'] else 'FAIL'}] "
               f"{sa['medley_names_bitcoin']['why']} | screen: {screen_why}")
-    if not sa["ok"]:
+    topic_bad = [r for r in sa["rows"] if not r["topic"]["pass"]]               # ruling 137 (1): Bitcoin only, HARD
+    medley_bad = not sa.get("medley_names_bitcoin", {"pass": True})["pass"]
+    if not sa["ok"] and not topic_bad and not medley_bad:                        # openers only: SOFT
+        flag(run, "a clip may not stand alone: " + ", ".join(r["segment"] for r in sa["rows"] if not r["pass"])
+                 + (f" (scorer: {sa['rate_error']})" if sa.get("rate_error") else ""), [r["opener"]["why"]
+                 for r in sa["rows"] if not r["pass"]])
+    elif not sa["ok"]:
         raise Hold("stand-alone/topic: " + "; ".join(
             [f"{r['segment']}: " + " / ".join(x["why"] for x in (r["opener"], r["topic"]) if not x["pass"])
              for r in sa["rows"] if not r["pass"]]
@@ -1594,10 +1625,11 @@ def attest_run(run, deliverable=True, why_not=None, code_checked=True):
     if code_checked and run.prov.get("executed_code_not_at_revision") != []:
         why.append(f"executed code not at the launch revision: {run.prov.get('executed_code_not_at_revision')}")
     state = {"ok": not why, "why": why, "verdict": run.status.get("verdict"), "mode": run.mode,
-             "git_head": code.get("git_head"), "ended": run.status.get("ended")}
+             "git_head": code.get("git_head"), "ended": run.status.get("ended"),
+             "review_flags": list(run.status.get("review_flags") or [])}                 # rulings 136 / 137
     att = release_auth.attest(run.dir, state, deliverable=deliverable, why_not=why_not)
     run.status["attestation"] = {"verdict": att["verdict"], "deliverable": att["deliverable"]}
-    if att["verdict"] != "ALL_PASS" and run.status.get("verdict") == VERDICT_CANDIDATE:
+    if att["verdict"] not in ("ALL_PASS", "PASS_WITH_FLAGS") and run.status.get("verdict") == VERDICT_CANDIDATE:
         run.status["verdict"] = VERDICT_HOLD          # the attestation is the release truth; never two answers
         run.status["holds"].append("attestation: " + "; ".join(
             [f"{fmt} {k}: {v}" for fmt, b in att["blockers"].items() for k, v in b.items()]

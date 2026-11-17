@@ -160,10 +160,10 @@ class TestEvidence(Base):
             rd = make_run(self.tmp, attest=False)
 
             def fn(d, bad=bad):
-                if bad is None:
-                    d["evidence"]["16x9"].pop("G16_sentence_boundary")
+                if bad is None:                               # a HARD row (G16 is SOFT since ruling 136)
+                    d["evidence"]["16x9"].pop("G18_word_for_word")
                 else:
-                    d["evidence"]["16x9"]["G16_sentence_boundary"] = bad
+                    d["evidence"]["16x9"]["G18_word_for_word"] = bad
             edit_json(os.path.join(rd, "GATE_REPORT.json"), fn)
             self.holds(rd, f"evidence {bad!r}")
 
@@ -259,12 +259,12 @@ class TestPackAndRun(Base):
 
     def test_an_attestation_edited_to_all_pass_is_refused(self):
         rows = passing_rows()
-        rows["16x9"]["G3c_acoustic_tail"] = "FAIL"
+        rows["16x9"]["G18_word_for_word"] = "FAIL"             # a HARD row (G3c is SOFT since ruling 136)
         rd = make_run(self.tmp, rows=rows)
         edit_json(os.path.join(rd, "ATTESTATION.json"), lambda d: d.__setitem__("verdict", "ALL_PASS"))
         ok, why, _ = RA.authorise(rd)                   # the rows are re-checked, not the verdict trusted
         self.assertFalse(ok)
-        self.assertTrue(any("G3c_acoustic_tail" in w for w in why), why)
+        self.assertTrue(any("G18_word_for_word" in w for w in why), why)
 
 
 class TestRunFreshWiring(Base):
@@ -338,8 +338,8 @@ ABSENT = object()
 
 def vertical_fails():
     rows = passing_rows()
-    rows["9x16"]["V1_visual_checklist"] = "FAIL"         # the 9:16 alone fails (the Blockware case, 2026-11-14)
-    return rows
+    rows["9x16"]["G4s_layout_truth"] = "FAIL"            # the 9:16 alone fails a HARD row (a crop through a face);
+    return rows                                           # V1 (the 2026-11-14 Blockware case) is SOFT since ruling 136
 
 
 def sealed_run(parent, formats=ABSENT, rows=None, no_vertical=False):
@@ -373,7 +373,7 @@ class TestReleaseFormats(Base):
     def test_must_fail_the_same_9x16_failure_without_sealed_formats_holds(self):
         for formats in (ABSENT, ["16x9", "9x16"]):
             att = self.holds(sealed_run(self.tmp, formats, vertical_fails()), f"formats {formats}")
-            self.assertIn("V1_visual_checklist", att["blockers"]["9x16"])
+            self.assertIn("G4s_layout_truth", att["blockers"]["9x16"])
             self.assertEqual(att["formats"], ["16x9", "9x16"])
 
     def test_the_16x9_still_decides_and_binds_a_16x9_only_run(self):
@@ -407,7 +407,7 @@ class TestReleaseFormats(Base):
         ok, why, _ = RA.authorise(rd)
         self.assertFalse(ok)
         self.assertTrue(any("attested formats" in w for w in why), why)
-        self.assertTrue(any(w.startswith("9x16 V1_visual_checklist") for w in why), why)
+        self.assertTrue(any(w.startswith("9x16 G4s_layout_truth") for w in why), why)
 
     def test_package_formats_reads_only_the_two_sealed_sets(self):
         self.assertIsNone(RA.package_formats({"type": "moments"}))
@@ -478,3 +478,61 @@ class TestRunFreshFormats(Base):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRuling136(Base):
+    """RULINGS 136 / 137 (orchestrator 11:00 / 11:05 ET Nov 17): a SOFT row scores and FLAGS, never refuses; a HARD row
+    refuses as before. must-fail: 3f481f5a's 9:16 V1 (the Blockware case) and 41f29b1f's G8 / G9 deliver with plain-word
+    flags; a SOFT row never measured is said; the pin's flags and the render's share ONE cap of 3; a tampered flag list
+    is refused at authorise. must-hold: a HARD row (G18, G20, G4s) still holds."""
+
+    def run_rows(self, mutate, pin_flags=None):
+        rows = passing_rows()
+        mutate(rows)
+        rd = make_run(self.tmp, rows=rows, attest=False)
+        if pin_flags is not None:
+            json.dump({"pin": {"moments_package": {"type": "moments", "review_flags": pin_flags}}},
+                      open(os.path.join(rd, "PINNED_DECISION.json"), "w"))
+        return rd, RA.attest(rd, {"ok": True, "why": []})
+
+    def test_the_blockware_v1_case_delivers_with_its_flag(self):
+        rd, att = self.run_rows(lambda r: r["9x16"].__setitem__("V1_visual_checklist", "FAIL"))
+        self.assertEqual((att["verdict"], att["review_flags"]), ("PASS_WITH_FLAGS", [RA.FLAG_TEXT["V1_visual_checklist"]]))
+        ok, why, _ = RA.authorise(rd)
+        self.assertTrue(ok, why)
+
+    def test_41f29b1fs_sharpness_and_tail_are_two_flags(self):
+        def m(r):
+            r["9x16"]["G8_sharpness"] = "FAIL"
+            r["9x16"]["G9_tail"] = "FAIL"
+        _, att = self.run_rows(m)
+        self.assertEqual(att["verdict"], "PASS_WITH_FLAGS")
+        self.assertEqual(sorted(att["review_flags"]), sorted([RA.FLAG_TEXT["G8_sharpness"], RA.FLAG_TEXT["G9_tail"]]))
+
+    def test_a_soft_row_never_measured_is_said(self):
+        rd = make_run(self.tmp, attest=False)
+        edit_json(os.path.join(rd, "GATE_REPORT.json"), lambda d: d["evidence"]["16x9"].pop("G19_edge_shots"))
+        att = RA.attest(rd, {"ok": True, "why": []})
+        self.assertEqual(att["review_flags"], [RA.FLAG_TEXT["G19_edge_shots"] + " (not measured)"])
+
+    def test_one_cap_of_three_for_the_pin_and_the_render(self):
+        _, att = self.run_rows(lambda r: r["16x9"].__setitem__("G8_sharpness", "FAIL"), ["a", "b", "c"])
+        self.assertEqual(att["verdict"], "HOLD")
+        self.assertTrue(any("exceed the cap" in w for w in att["other_blockers"]), att["other_blockers"])
+        rd, att = self.run_rows(lambda r: None, ["a", "b", "c"])
+        self.assertEqual((att["verdict"], att["review_flags"]), ("PASS_WITH_FLAGS", ["a", "b", "c"]))
+        self.assertTrue(RA.authorise(rd)[0])
+
+    def test_a_hard_row_still_holds(self):
+        for fmt, row in (("16x9", "G18_word_for_word"), ("9x16", "G20_signoff_names_all"), ("9x16", "G4s_layout_truth"),
+                         ("16x9", "G5_tech")):
+            with self.subTest(row=row):
+                _, att = self.run_rows(lambda r, f=fmt, k=row: r[f].__setitem__(k, "FAIL"))
+                self.assertEqual(att["verdict"], "HOLD")
+
+    def test_a_flag_removed_after_the_attestation_is_refused(self):
+        rd, att = self.run_rows(lambda r: r["16x9"].__setitem__("G8_sharpness", "FAIL"))
+        edit_json(os.path.join(rd, "ATTESTATION.json"), lambda d: d.update(review_flags=[], verdict="ALL_PASS"))
+        ok, why, _ = RA.authorise(rd)
+        self.assertFalse(ok)
+        self.assertTrue(any("review flags" in w for w in why), why)

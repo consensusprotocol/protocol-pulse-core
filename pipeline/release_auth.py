@@ -42,6 +42,23 @@ INVENTORY = {"16x9": frozenset(_REQUIRED + ("G14_av_alignment",)),
 MONITORING = {"16x9": frozenset(_MONITORING),
               "9x16": frozenset(_MONITORING + ("G11_parity", "G14c_duration_parity"))}
 NONBLOCKING = {"16x9": {}, "9x16": {"G14_frame_similarity": frozenset({"LIMITED"})}}   # known limitation, not a pass
+# RULINGS 136 / 137 (orchestrator 11:00 / 11:05 ET Nov 17): TWO CLASSES. A HARD row refuses (blockers, as before). A
+# SOFT row of the inventory scores and FLAGS: its failure is said in plain words at the top of the Telegram note
+# ('REVIEW FLAGS: ...') and never refuses; PBX decides. HARD: the words (G18, G3b), a cut mid-word (G17), speaker credit
+# (G12, G15, G20), a crop through a face or burned text (G4s), a layout that cannot render and the runtime (G5), the
+# locked outro (outro_locked). SOFT, ruling 137 (2)'s default: every other inventory row. V1's credits line repeats
+# G12 / G15 / G20, which stay HARD.
+SOFT = {"16x9": frozenset({"G3c_acoustic_tail", "G8_sharpness", "G9_tail", "G16_sentence_boundary", "G19_edge_shots",
+                           "V1_visual_checklist", "G14_av_alignment"}),
+        "9x16": frozenset({"G3c_acoustic_tail", "G8_sharpness", "G9_tail", "G16_sentence_boundary", "G19_edge_shots",
+                           "V1_visual_checklist", "G14_audio_offset", "vertical_silent_fallback"})}
+FLAG_TEXT = {"G3c_acoustic_tail": "a clip's last moment is not quiet", "G8_sharpness": "a clip looks soft",
+             "G9_tail": "the ending is darker than the reference", "G16_sentence_boundary":
+             "a clip starts or ends mid-sentence", "G19_edge_shots": "a shot changes at a clip's edge",
+             "V1_visual_checklist": "the vision check questioned the look", "G14_av_alignment":
+             "sound and picture may drift", "G14_audio_offset": "the 9:16 sound may be offset",
+             "vertical_silent_fallback": "the 9:16 fell back to letterbox"}
+FLAG_CAP = 3        # ruling 136 (2): at most 3 soft flags on a package in all (the pin's and the render's)
 FORMATS = ("16x9", "9x16")
 REGISTRY = os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.json")
 BOUND = ("out/segment.mp4", "out/segment_vertical.mp4", "edl.json", "qa/concat_manifest_16x9.json",
@@ -115,6 +132,7 @@ def blockers(fmt, rows, evidence):
     if fmt not in INVENTORY or not isinstance(rows, dict):
         return {"format": f"unknown format {fmt!r} or rows not a mapping"}
     bad = {}
+    soft = SOFT.get(fmt, frozenset())
     allowed = INVENTORY[fmt] | MONITORING[fmt] | set(NONBLOCKING[fmt])
     for k in sorted(set(rows) - allowed):
         bad[k] = f"unexpected gate row (not in inventory v{INVENTORY_VERSION})"
@@ -124,7 +142,7 @@ def blockers(fmt, rows, evidence):
             bad[k] = "required gate row missing"
         elif not isinstance(v, str) or v not in VERDICTS:
             bad[k] = f"verdict {v!r} is not one of {VERDICTS}"
-        elif v != "PASS":
+        elif v != "PASS" and k not in soft:                # rulings 136 / 137: a SOFT row flags, never blocks
             bad[k] = v
     for k in sorted(MONITORING[fmt]):
         if not (isinstance(rows.get(k), str) and rows[k] in VERDICTS):
@@ -135,12 +153,40 @@ def blockers(fmt, rows, evidence):
     if evidence is not NO_EVIDENCE_CHECK:            # GPT audit #1: absent or malformed evidence is NO evidence
         ev = evidence.get(fmt) if isinstance(evidence, dict) else None
         ev = ev if isinstance(ev, dict) else {}
-        for k in sorted(INVENTORY[fmt]):
+        for k in sorted(INVENTORY[fmt] - soft):              # a SOFT row without evidence is a flag (flags())
             e = ev.get(k)
             if not (isinstance(e, dict) and e.get("executed") is True and type(e.get("samples")) is int
                     and e["samples"] >= 1):
                 bad.setdefault(k, f"no execution evidence (executed True, samples >= 1): {e!r}")
     return bad
+
+
+def flags(fmt, rows, evidence):
+    """RULINGS 136 / 137: {row: plain words} for one format's SOFT rows that did not pass, or ran without execution
+    evidence (never measured is said, never taken as a pass). A missing or malformed SOFT row is a blocker
+    (blockers()), not a flag."""
+    rows = rows if isinstance(rows, dict) else {}
+    ev = evidence.get(fmt) if isinstance(evidence, dict) else None
+    ev = ev if isinstance(ev, dict) else {}
+    out = {}
+    for k in sorted(SOFT.get(fmt, frozenset()) & INVENTORY.get(fmt, frozenset())):
+        v, e = rows.get(k), ev.get(k)
+        measured = isinstance(e, dict) and e.get("executed") is True and type(e.get("samples")) is int \
+            and e["samples"] >= 1
+        if isinstance(v, str) and v in VERDICTS and v != "PASS":
+            out[k] = FLAG_TEXT.get(k, k)
+        elif isinstance(v, str) and v == "PASS" and evidence is not NO_EVIDENCE_CHECK and not measured:
+            out[k] = f"{FLAG_TEXT.get(k, k)} (not measured)"
+    return out
+
+
+def review_flags(att_flags, pin_flags):
+    """The note's flags: the pin's (the builder's selection-side, sealed) then the render's, each once, in order."""
+    out = []
+    for f in list(pin_flags or []) + [x for fmt in sorted(att_flags or {}) for x in (att_flags[fmt] or {}).values()]:
+        if isinstance(f, str) and f and f not in out:
+            out.append(f)
+    return out
 
 
 def monitoring_report(rows):
@@ -165,6 +211,20 @@ def verification_ok(pack):
 
 def _gate_report(run_dir):
     return json.load(open(os.path.join(run_dir, "GATE_REPORT.json")))
+
+
+def pin_review_flags(run_dir):
+    """The pin's sealed review_flags (the builder's never-empty seal, ruling 136 (2)), from PINNED_DECISION.json, or []
+    (an auto run, or a pin without flags). Unreadable or malformed -> None (the caller HOLDs)."""
+    p = os.path.join(run_dir, "PINNED_DECISION.json")
+    if not os.path.exists(p):
+        return []
+    try:
+        pin = json.load(open(p))["pin"]
+        f = (pin.get("moments_package") or {}).get("review_flags", [])
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        return None
+    return list(f) if isinstance(f, list) and all(isinstance(x, str) for x in f) else None
 
 
 def attest(run_dir, run_state, deliverable=True, why_not=None):
@@ -203,8 +263,18 @@ def attest(run_dir, run_state, deliverable=True, why_not=None):
         why.append(f"gate report inventory version {rep.get('inventory_version')!r} != {INVENTORY_VERSION}")
     if not (isinstance(run_state, dict) and run_state.get("ok") is True):
         why.append("run did not end clean: " + "; ".join(map(str, (run_state or {}).get("why") or ["no state"])))
+    soft = {fmt: flags(fmt, rows.get(fmt), evidence) for fmt in formats}            # rulings 136 / 137
+    pin_flags = pin_review_flags(run_dir)
+    if pin_flags is None:
+        why.append("the pin's review_flags are unreadable")
+    stage = list((run_state or {}).get("review_flags") or []) if isinstance(run_state, dict) else []
+    note = review_flags(soft, (pin_flags or []) + stage)          # the pin's, the render's stages', the gates'
+    if len(note) > FLAG_CAP:
+        why.append(f"{len(note)} review flags (the pin's and the render's) exceed the cap of {FLAG_CAP}: {note}")
     ok = not any(bad.values()) and v_ok and not missing and not why
-    att = {"schema": SCHEMA, "inventory_version": INVENTORY_VERSION, "verdict": "ALL_PASS" if ok else "HOLD",
+    verdict = ("PASS_WITH_FLAGS" if note else "ALL_PASS") if ok else "HOLD"
+    att = {"schema": SCHEMA, "inventory_version": INVENTORY_VERSION, "verdict": verdict,
+           "soft_flags": soft, "review_flags": note,
            "formats": list(formats),
            "deliverable": bool(deliverable), "why_not_deliverable": why_not, "run_state": run_state,
            "registry_sha256": sha256(REGISTRY) if os.path.isfile(REGISTRY) else None,   # the drop's handles / urls
@@ -230,7 +300,7 @@ def authorise(run_dir):
     if not isinstance(att, dict) or att.get("schema") != SCHEMA or att.get("inventory_version") != INVENTORY_VERSION:
         return False, ["attestation schema / inventory version mismatch"], att
     why = []
-    if att.get("verdict") != "ALL_PASS":
+    if att.get("verdict") not in ("ALL_PASS", "PASS_WITH_FLAGS"):       # rulings 136 / 137: flags go to PBX
         why.append(f"attestation verdict {att.get('verdict')!r}")
     if att.get("deliverable") is not True:
         why.append(f"not deliverable: {att.get('why_not_deliverable')}")
@@ -245,6 +315,15 @@ def authorise(run_dir):
     for fmt in formats:
         for k, v in blockers(fmt, rows.get(fmt), evidence).items():
             why.append(f"{fmt} {k}: {v}")
+    pin_flags = pin_review_flags(run_dir)               # rulings 136 / 137: the note says exactly the attested flags
+    stage = list((att.get("run_state") or {}).get("review_flags") or [])
+    note = review_flags({fmt: flags(fmt, rows.get(fmt), evidence) for fmt in formats}, (pin_flags or []) + stage)
+    if pin_flags is None:
+        why.append("the pin record is unreadable: its review flags cannot be said (rulings 136 / 137)")
+    elif note != (att.get("review_flags") or []) or len(note) > FLAG_CAP:
+        why.append(f"review flags {note} differ from the attested {att.get('review_flags')!r} or exceed the cap")
+    if (att.get("verdict") == "PASS_WITH_FLAGS") != bool(note):
+        why.append("the verdict and the review flags disagree")
     try:
         rep = _gate_report(run_dir)
         if rep.get("rows") != rows or rep.get("evidence") != evidence:

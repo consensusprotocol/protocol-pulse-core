@@ -58,11 +58,13 @@ class TestStageValidateRuling91(unittest.TestCase):
                     return f"HOLD: {h}", run.prov
             return "returned", run.prov
 
-    def test_a_takeaway_without_its_verdict_holds_before_the_editorial_gate(self):
+    def test_a_takeaway_without_its_verdict_is_flagged_and_the_stage_goes_on(self):     # rulings 136 / 137: SOFT
         for gates in (None, {}, live(status="FAIL"), live(replayed=True), live(text="Another draft of the line.")):
             got, prov = self.run_stage(medley(gates))
-            self.assertTrue(got.startswith("HOLD: ruling 91 (medley)"), (gates, got))
+            self.assertEqual(got, "reached the editorial gate", gates)
             self.assertIs(prov.get("takeaway_value", {}).get("pass"), False, got)
+            self.assertEqual([f["flag"] for f in prov["review_flags"]],
+                             ["the takeaway's value is not affirmed (ruling 91)"])
 
     def test_with_its_verdict_or_no_takeaway_the_stage_goes_on(self):
         for edl in (medley(live()), medley(None, bridges=[])):

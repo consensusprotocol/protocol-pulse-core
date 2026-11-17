@@ -283,10 +283,10 @@ class TestStageValidate(unittest.TestCase):
                     raise
             return "returned", run.prov
 
-    def test_unmarked_a_floor_score_holds_at_validate(self):
+    def test_unmarked_a_floor_score_is_flagged_at_validate(self):            # rulings 136 / 137: SOFT (it held)
         got, prov = self.run_stage(edl_with(clip2=BUT))
-        self.assertTrue(got.startswith("HOLD: stand-alone/topic: clip_02: clip opens on 'but'; the clip scorer does "
-                                       "not affirm"), got)
+        self.assertEqual(got, "passed the stand-alone check")
+        self.assertEqual([f["flag"] for f in prov["review_flags"]], ["a clip may not stand alone: clip_02"])
 
     def test_ruling_119_marked_it_passes_validate_with_the_record_in_provenance(self):
         got, prov = self.run_stage(edl_with(clip2=BUT), mark=good([2]))
@@ -294,9 +294,10 @@ class TestStageValidate(unittest.TestCase):
         self.assertEqual(prov["stand_alone"]["calibrated_floor"]["applied"], ["clip_02"])
         self.assertEqual(prov["stand_alone"]["calibrated_floor"]["scorer_sha"], CODE)   # the code on disk is measured
 
-    def test_other_weights_or_a_malformed_mark_hold(self):
-        got, prov = self.run_stage(edl_with(clip2=BUT), mark=good([2]), digest="f" * 64)
-        self.assertTrue(got.startswith("HOLD: stand-alone/topic: clip_02"), got)
+    def test_other_weights_flag_and_a_malformed_mark_holds(self):        # rulings 136 / 137: the floor not applied
+        got, prov = self.run_stage(edl_with(clip2=BUT), mark=good([2]), digest="f" * 64)   # is a flag; a broken mark
+        self.assertEqual(got, "passed the stand-alone check")                              # is a broken record: HARD
+        self.assertEqual([f["flag"] for f in prov["review_flags"]], ["a clip may not stand alone: clip_02"])
         self.assertIn("not the measured one", prov["stand_alone"]["calibrated_floor"]["not_applied"])
         got, prov = self.run_stage(edl_with(clip2=BUT), mark=dict(good([2]), floor=2.5))
         self.assertTrue(got.startswith("HOLD: stand-alone calibrated floor (ruling 119 (1)): stand_alone_bar"), got)

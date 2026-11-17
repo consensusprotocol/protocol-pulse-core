@@ -333,8 +333,9 @@ class TestBarLines(Base):
     def test_an_unreadable_pin_record_sends_nothing(self):
         for raw in ("{not json", '{"mode": "pinned"}', '{"pin": []}', '{"pin": null}', "[]"):
             with self.subTest(raw=raw):
-                self.refused(self.marked_run(raw=raw),
-                             r"STOP: calibrated bar marks \(rulings 115 \(2\) / 116 / 119\): the pin record cannot say")
+                self.refused(self.marked_run(raw=raw),                   # since rulings 136 / 137 the pin's
+                             r"STOP: calibrated bar marks \(rulings 115 \(2\) / 116 / 119\): the pin record cannot say"
+                             r"|the pin record is unreadable")                # review flags fail it at authorise
 
 
 class TestNothingIsSentUnlessAuthorised(Base):
