@@ -6,6 +6,31 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 09:41 RULING 131's SPEND PART LANDED (batch 101, merged fa128042, pushed): every integrator outside call writes ONE line to the day ledger at the vendor call itself (data/spend/integrator_outside.jsonl; the builder folds it into the day's one number), and a window's second reading is no longer paid for twice under a new decoder code. The decoder sha is unchanged (ce72aefa342d). BATCH 4 integrator spend: none outside (Heimdall only).
+- **The ledger** (pipeline/outside_spend.py): one JSON line per PAID call, written right after the call succeeds.
+  - Fields: at (UTC), service (render / lock_precheck / replay, named by each entry point), vendor, usd, basis, units, ref.
+  - A reused TTS stem and a cached reading write nothing. A failed write is printed and never stops the work.
+- **What writes, and at what price:**
+  - ElevenLabs Scribe (second_recogniser.scribe_words: the pre-check, ruling 103's re-listen, the render's own lock): $0.012 per audio minute, the code's rate. It is labelled an estimate because ElevenLabs reports no cost per call.
+  - xAI grok-3-mini sign-off (signoff.py, every round): the cost xAI reports (usage.cost_in_usd_ticks). When none is reported, the line is UNPRICED with its tokens, never a guessed price.
+  - ElevenLabs TTS (vo.py, each generated stem): the input text's characters, UNPRICED.
+- **QUESTION FOR THE ORCHESTRATOR (TTS):** ElevenLabs bills TTS characters against the plan's monthly quota, and the code holds no USD rate.
+  - Are those quota characters outside dollars for the $1.00 day? If so, at what rate per 1,000 characters?
+  - Until you say, every TTS line is unpriced, and the builder reports unpriced lines apart, never as $0.
+  - A render's VO is about 200-230 characters (the two latest runs).
+- **No double count:** the pre-check's Scribe lines are also in the builder's lock_precheck_scribe (from each result's scribe_usd). The builder counts exactly one of the two.
+- **Scribe paid once per window** (lock_precheck.second_reading):
+  - Under a new decoder code, the work dir changes, so the same window used to be read and paid for again.
+  - It now reuses that window's earlier reading when the reading was taken at the same download offset and reads as the new decode does (canon ratio >= 0.8).
+  - A changed video, another offset or another window is paid for as before. Ruling 105's history is unchanged.
+  - Today's 131 sha change would have paid again for every span the builder re-asks. The builder held those re-asks until now.
+- **Checks:**
+  - On the old code, the 9 ledger tests cannot import; the reuse test (both subtests) and the service-naming test fail; the 3 must-pay controls pass.
+  - 13 of 13 mutations killed.
+  - Two Heimdall cycles (qwen27b and gpt-oss at medium). One single-seat finding was judged not a defect: `seconds` is defined at second_recogniser.py:47, unchanged, before its use, and TestScribe proves it.
+  - Regressions on the staged merge: 26 PASS / 0 FAIL / 4 WARN; pipeline/regression.sh exit 0, references REPRODUCED.
+  - Records: docs/audits/pulse-sentence-law/batch101_r131_spend/.
+
 ## 09:16 RULING 131 (A)+(B) LANDED (batch 100, merged e15ae94b, pushed; the builder's half 1852023c pushed after it, lockstep): two of the three readings settle each differing pair of the word lock; a currency symbol is formatting. Decoder sha ce72aefa342d (the old a4c307f78c94 is never read); RULES "ruling 17 + 72 + 73 + 84 + 103 + 105 + 131". BATCH 4 integrator spend: none outside (Heimdall only).
 - **(A), in the render's own lock** (pinned.adjudicate_lock: the same code the pre-check runs, so the two cannot disagree):
   - Each pair takes the approved reading where the second recogniser reads it (ruling 17's direction, anywhere in the span).
