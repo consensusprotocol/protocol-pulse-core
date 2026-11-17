@@ -6,6 +6,51 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 11:07 RULINGS 136 / 137 (2): THE RENDER-SIDE CLASS PAGE (integrator), on ruling 137's default. HARD refuses. SOFT scores and FLAGS in plain words at the top of the Telegram note ("REVIEW FLAGS: ...") and never refuses. Build order as ruled: 135 lands, today's attempt goes, then this switch (audit-first, in lockstep with the builder's never-empty seal and review_flags pin field).
+
+**HARD (the bad video each one stops):**
+- **WORDS: the cut carries the words claimed.**
+  - Gates: the lock (rulings 17 / 18 / 72 / 84 / 103 / 105 / 131 / 135, with L-v 2: numbers, negations, names whose letters differ); E-FAIL-052, the approved text found in the run's own decode; G18 word-for-word; G3b, the cut ends on the lock's last word.
+  - Stops: the Nov 12 clip_01 that did not say the approved "I mean"; any clip that says other words.
+- **CUT MID-WORD:**
+  - Gates: ruling 73 (c)'s mid-word part; G17's edge words at 85% or more; cut acceptance's mid-word test.
+  - Stops: a first or last word clipped.
+- **SPEAKER CREDIT:**
+  - Gates: G20 (the sign-off names every credited channel); G12 / G15's credit-card names and avatars, and V1's credits row; layout compatibility's registered-channel check; the registry sha at authorise.
+  - Stops: a wrong or missing channel credit.
+- **CROP THROUGH A FACE OR BURNED TEXT:**
+  - Gates: G4s layout truth (a face cut); ruling 93 (burned captions cut mid-word make a clip 16:9-only).
+  - Stops: a 9:16 that slices a face or a caption.
+- **LAYOUT THAT CANNOT RENDER:**
+  - Gates: render pre- and postflight (dims, fps, duration); G5's dims, fps and codec; the finals equal the sealed formats (ruling 93).
+  - Stops: a broken file.
+- **RUNTIME:** G5's 58-72 s (a spotlight 28-50 s).
+- **ATTESTATION AND REVIEW-PATH DELIVERY:**
+  - Gates: the executed-code check; attest / authorise (bound files, registry); the Telegram plan (49 MB or less, the kit 4096 characters or less, the headline number heard).
+  - Stops: sending a file that is not the attested one.
+- **SPEND STOP:** the builder's day keeper (the render's calls are in the batch 101 ledger).
+- **L-v 3, 24 h recency of a time-sensitive source (stage pinned):** HARD as stale-time. It stops a dated claim.
+
+**SOFT (the flag text PBX reads):**
+- ruling 73 / G16 sentence edges, at a word boundary: "clip N starts / ends mid-sentence";
+- G3c: "clip N's tail is not quiet";
+- G8: "clip N looks soft on 9:16 (sharpness X)". It refused PBX-approved 41f29b1f;
+- G9: "the tail is darker than the reference". It refused 41f29b1f. The outro stays hash-checked (HARD integrity);
+- G19: "a shot change at clip N's edge";
+- G14 A/V alignment: "audio N ms off picture". SOFT by the default. I name no bad video it stopped; make it HARD if you rule it so;
+- 9:16 silent fallback: "9:16 fell back to letterbox";
+- V1's non-credit rows (speaker centring, letterbox, boundary frames, watermark, next shot): one flag per row a model says no to. V1 refused 3f481f5a twice;
+- validate: R11 / L-y "more voiceover than L-y" (37c5b5f5); the editorial laws "law N not affirmed"; stand-alone with the floor, "clip N may not stand alone (score S)"; layout mode;
+- the MONITORING rows (G1, G2, G3, G4, G6, G10, G11, G13; G14 frame similarity) keep their caption line, outside the flag count.
+
+**THE NOTE AND THE CAP (with the builder):**
+- The Telegram note's first line is "REVIEW FLAGS: " plus the pin's review_flags and the render's own soft flags, in plain words.
+- One cap of 3 for the package: pin plus render.
+- A render whose flags push the total past 3 is HELD, never sent. A HARD row that fails HOLDs as today.
+- The verdict becomes ALL_PASS | PASS_WITH_FLAGS | HOLD. The attestation binds the flags; delivery goes to PBX's Telegram review path, and nothing publishes without PBX.
+
+**YIELD (3), render side:** per gate, the last 7 days of runs and replays: how many entered, how many it refused, and how many of those PBX approved anyway. A script over runs/*/GATE_REPORT.json and the delivery records, for the builder's line 1. Any HARD gate refusing more than a quarter goes to you.
+
 ## 10:42 RULING 134: NO PIN FROM THIS POOL. The lock pre-check refused every span the 3-channel line-ups need (8 spans, Scribe $0.0554, in the builder's day ledger). FOUR of the refusals are calibration faults in MY gates, measured below. Each needs your ruling; none is changed.
 1. **Segmentation of a brand name (DataDash 8dbc30ee; ruling 131 (A), "all three differ").**
    - The readings: "itrust capital's" (run), "I trust capital's" (approved), "iTrustCapital's" (second recogniser).
