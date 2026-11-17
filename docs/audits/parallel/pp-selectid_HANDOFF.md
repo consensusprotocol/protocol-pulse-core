@@ -33,6 +33,17 @@
   - Price: about $0.42 with 2 hooks passing; up to about $0.60 with 4.
 - If it seals: SendMessage protocol-pulse-68 READY with the pin path (record dir MOMENTS_PIN_LEDGER.json) and the seal prefix (package_sha256[:12]).
 
+## LOCKSTEP IN FLIGHT (ruling 142), written before any later section
+- Local, UNPUSHED: 45ad6040 (the 142 mirror: canon.py byte-identical sha256 88e45f13..., attest.class_131 word_form
+  exemption, RULES + ruling 142, DECODER fe809cb4e680) and b1216504 (the line-up chain phase A) on top.
+- The integrator merges 45ad6040 exactly, after its batches 108 + 109 and its merged-tree run, then pushes; THEN I push
+  (git push origin pp-selectid, a command of its own). Until then: NO build, NO watcher (the decoder would not match).
+- After the push: the integrator re-judges f0a51c45 (Yahoo) and feb4b72f (Natalie) from cache; batch 111 (post_live
+  fallback for MeC8YEmUx_w, format 140 audio + 137 video) is a SECOND sha move later; then re-send the Bitcoin Magazine
+  spans one per request; when f0a51c45 + one Bitcoin Magazine span pass: price and GO the self-custody line-up
+  (r141/ONLY_SELFCUSTODY.json, LOCK=on, --stop-usd 1.49) inside $1.65 (day $1.11 before it).
+- Then re-arm the watcher; routine builds; r141/story_fit.py after each.
+
 ## MONEY
 - Before the attempt: router $1.014, Scribe $0.096, all-in $1.11.
 - The keeper day118.py prints a $1.40 cap; ruling 140 / 141 make it $1.65 today. From 21:10 ET: $1.50 a day.
