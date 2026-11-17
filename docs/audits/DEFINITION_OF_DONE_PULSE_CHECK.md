@@ -6,6 +6,24 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 15:20 RULING 142 (1) + (2) LIVE (batch 110, merge 24684eea, pushed; the builder's mirror 45ad6040 pushes after it, lockstep). DECODER fe809cb4e680; RULES "... + ruling 135 + ruling 142".
+- **(1)** "24 -7, 365" reads as "24/7/365": a hyphen right after a number and a space, before a digit, is never a sign. A real sign keeps its sign: "-5%", "fell to -5%", "is - 5%", "(-$40M)", "-$5", "rates at -2".
+- **(2)** "bitcoin" against "bitcoin's" (or "bitcoins", "bitcoins'"): a word-form pair, exempt from law L-v 2's critical check, so ruling 131 (A)'s two of three decides it and the sealed text takes that reading.
+  - All three different still holds; a name whose letters differ still holds; a number is never a word form ("1990s" is not "1990").
+  - canon.word_form, shared byte-identical with the builder.
+- **Checks:** Heimdall, two cycles, no defect (one syntax claim disproved by compilation); 4 must-fail results; 6 of 6 mutations killed.
+- **THE MERGED TREE, by exit code:**
+  - regression_test.sh: 26 PASS / 0 FAIL / 4 WARN, exit 0. pipeline/regression.sh: exit 0, references REPRODUCED.
+  - Every suite touching the changed code, a wider list than before (71 files): 1469 passed, 22 failed, 2 errors.
+  - NONE from batch 110. Each failure fails, errors or skips in the same way on the tree without it:
+    - the 8 that predate the switch;
+    - 10 older ones in the wider list (g20_signoff, safe_frame_colour, word_diff's real-speech span, g3b_majority);
+    - 2 ruling73 setup errors and edge_words' Natalie tail (purged source media);
+    - 2 vision-panel tests (the network is blocked under netguard);
+    - gpu0's resident check passes run alone (load).
+  - Not "green".
+- **NEXT:** re-judge Yahoo Finance f0a51c45 and Natalie Brunell feb4b72f from cache (Scribe reused, $0). Then batch 111 (142 (3), the post_live fallback), which is built and in its audit.
+
 ## 14:57 BATCHES 108 + 109 LIVE (merge e3359712, pushed).
 - **108 (ruling 141):** a builder-sealed row that is FLAGGED with its plain-word flags (never replayed) counts as measured wherever the render requires a live PASS:
   - R1's question-hook join (it still fails when the hook's OWN join is flagged);
