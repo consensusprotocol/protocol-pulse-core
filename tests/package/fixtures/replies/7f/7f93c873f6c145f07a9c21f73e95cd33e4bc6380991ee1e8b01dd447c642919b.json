@@ -1,0 +1,19 @@
+{
+ "role": "exclusion_verdict",
+ "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "model": "deepseek/deepseek-v4.1-flash",
+ "vendor": "heimdall/deepseek",
+ "seed": 7,
+ "max_tokens": 800,
+ "system": null,
+ "prompt": "You screen ONE moment (the sentences inside <moment>) from a Bitcoin video before it can be clipped\ninto a short video. The text around it is context only.\n\n<before>No life would be a lot easier if there wasn't always some breaking news right after I've locked in the lineup instead of working on the packaging. So all right, let's just get right into it. Every major bank in America just went down. Chase Wells Fargo, Bank of America, U.S. Bank, Zell, thousands of people were reporting that they can't log in, transfers to stock. Balance is gone. And this is just days after we had that live breaking news on Friday that flights across America were grounded for only the second time nationwide since 9-11 because of another technical outage. Now, this is still breaking, so we'll pull more information is going, but I clearly see a pattern emerging.</before>\n<moment>Meanwhile, Bitcoin had a terrible weekend. We went all the way down to 62K, $2 billion in leverage wiped out, $645 million in just 30 minutes.</moment>\n<after>We were just a stone throw away from the 58K gang there, so eat your heart out. And of course, it's putting pressure on everybody. Strategy and metaplan are both making moves while they're down. And Nakamoto now reported owes more than the entire company is worth. Also on deck. We've also got the Fed chair says he won't tell us what's coming next, but he's worried about an AI crash. And we got another customer data leak on the same day. The company actually launched a fix for that exact problem. The boys are all here. Strap in, hit that like button. I am Nathan with the BTC sessions, and this is Bitcast. The issue is not red or blue. The issue is between the state and you. It can be a little bit of a warning sign. It gives you a tool to empower. That sounds like a utopia, my friend. It is. It's exactly a utopia. With Bitcoin, no one can take it from you. All right, boys, let's get right into it. So breaking, major U.S. banks are facing reports of widespread service disruptions with some Chase</after>\n\nAnswer:\n- \"risks\": every one that applies to the MOMENT: \"accusation\" (crime, fraud, insolvency or dishonesty alleged against a\n  named person or company), \"partner_attack\" (one Bitcoin channel or host attacking another), \"imperative\" (telling\n  the viewer to buy, sell or use leverage), \"guaranteed_return\", \"single_source_breaking\" (a breaking factual claim\n  resting on one unnamed source or rumour), \"ad_read\" (a sponsor, ad or affiliate pitch), \"third_party_media\" (someone\n  else's clip, song or broadcast being played); an empty list if none\n- \"about_bitcoin\": \"yes\" if the moment is about Bitcoin, \"no\" if it is about another coin or no crypto at all,\n  \"uncertain\"\n- \"why\": one short line\nCriticising a policy is not an accusation; a prediction framed as the speaker's own view is not an imperative;\nnaming a company neutrally is not an accusation.\nReturn ONLY this JSON object: {\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"...\"}",
+ "text": "{\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"The moment discusses Bitcoin's price drop and leverage wipeout, with no listed risk categories present.\"}",
+ "usage": {
+  "in": 756,
+  "out": 204,
+  "usd_reported": 8.482e-05
+ },
+ "usd": 0.005328,
+ "seconds": 11.63,
+ "recorded_at": "2026-11-17T03:26:38Z"
+}

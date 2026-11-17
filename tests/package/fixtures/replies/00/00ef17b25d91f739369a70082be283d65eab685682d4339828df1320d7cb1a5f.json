@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 520,
+ "system": null,
+ "prompt": "You judge JOINS between clips of 60-second videos made of other channels' own words (each clip is a\nperson's own words from a show; the shows were not in one conversation). In each PAIR, clip A plays and clip B follows\nit at once, with NO narration between them. Judge each pair ALONE: the pairs are not one video, and nothing else plays\nbefore or between A and B.\n\nTHE CLIPS:\nCLIP id=\"c1\" (on screen: Simply Bitcoin): \"Bitcoin has seen one of its largest liquidation events over the weekend, which has now slapped Bitcoin into a 25 % pullback.\"\nCLIP id=\"c2\" (on screen: Simply Bitcoin): \"Bitcoin puked all the way back to $62,000 over the weekend, and a lot of people are asking if they should just sell now before it gets worse.\"\nCLIP id=\"c3\" (on screen: What Bitcoin Did): \"People are trying to manipulate you. People are trying to manipulate your emotions to make you part with your Bitcoin potentially. I just can't overstate how much like fear and anger cloud your judgment.\"\n\nTHE PAIRS (A -> B):\nPAIR id=\"p1\": c1 -> c2\nPAIR id=\"p2\": c3 -> c2\n\nFor EACH pair, the join question (the previous clip is A, the next clip is B): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming from the previous clip's ending? Answer\n\"followable\": true or false, and \"why\": a few words.\nReturn ONLY this JSON object: {\"pairs\": {\"p1\": {\"followable\": true, \"why\": \"...\"}, \"p2\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"pairs\": {\"p1\": {\"followable\": true, \"why\": \"continues Bitcoin drop\"}, \"p2\": {\"followable\": false, \"why\": \"abrupt topic shift\"}}}",
+ "usage": {
+  "in": 586,
+  "out": 1395,
+  "usd_reported": 0.0040856
+ },
+ "usd": 0.037805,
+ "seconds": 8.38,
+ "recorded_at": "2026-11-17T03:27:05Z"
+}

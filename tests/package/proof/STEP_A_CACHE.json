@@ -31823,5 +31823,493 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "44a6d503ed11992f6f8e:9bd2cb49df47cb7b592fe7c97cee8eadeefb236ebb2119c7710636f0e1f8cbc8:62221aa86aaf9b07da93f6ab1ad7d18e27e7e1143fc6ff810c6724803fe72c97:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "44a6d503ed11992f6f8e",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "People try to manipulate listeners' emotions with fear and anger in order to potentially get them to sell their Bitcoin, as these emotions greatly cloud judgment.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "44a6d503ed11992f6f8e",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "you",
+     "refers_to": "the listener/viewer (Bitcoin holders)",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "your",
+     "refers_to": "the listener's emotions",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "you",
+     "refers_to": "the listener/viewer",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "your",
+     "refers_to": "the listener's Bitcoin",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "your",
+     "refers_to": "the listener's judgment",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "People try to manipulate your emotions to make you sell your Bitcoin, and fear and anger cloud your judgment.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "What To Watch Before Bitcoin\u2019s Next Bull Run | Michael Sullivan",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "0193406f729cc5e141e0:d8c52d4d229de1b0319798398bfdf5e6921db1ce64dc6d673e2eb3a6498b6aa5:6588bda961d361a30c67db1b4c6f4d5003040b12edfa4d0a12c0e6e924dff66a:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "0193406f729cc5e141e0",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "today",
+     "refers_to": "the present time as of the show's date",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "having to ask permission to use most Bitcoin mining pools",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "today/current time",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Most Bitcoin mining pools today require asking permission to use them, which is a serious alarming problem for Bitcoin.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Bob, I'm... cringing when you say that you have to ask permission to use these other pools. That is so against what Bitcoin fundamentally represents that like I'm hearing that and I'm like, guys, you have to understand most pools right now, especially the big ones, you have to ask permission in order to use them.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "0193406f729cc5e141e0",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "the fact that most Bitcoin mining pools today require permission to use",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "today",
+     "refers_to": "the current day/show date",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "today",
+     "inside": true
+    },
+    {
+     "text": "If that doesn't make the hair in the back of your neck stand up",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Most Bitcoin mining pools today require permission to use, which should alarm anyone who cares about Bitcoin.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "4d14201f553f57dc7672:5d9712611892fa118f21dbf17d842b46eb66c9f3b85d2e298ef582369341e9f4:a29f4d44c0b83558769a1a2c60b890718726a6edda5a7d00a6488c4ab48b570d:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "4d14201f553f57dc7672",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "they",
+     "refers_to": "a lot of people",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "now",
+     "refers_to": "the time of this video or current moment",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin or its price",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "over the weekend",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin has dropped sharply to $62,000 over the weekend with many people wondering whether they should sell immediately before it declines further.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "This is Truth Block. I'm Hurley. Let's Mind Truth.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "4d14201f553f57dc7672",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "they",
+     "refers_to": "a lot of people",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin (its price)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "now",
+     "refers_to": "the current time/show date",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "over the weekend",
+     "inside": true
+    },
+    {
+     "text": "now",
+     "inside": true
+    },
+    {
+     "text": "before it gets worse",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin dropped all the way back to $62,000 over the weekend, and many people are asking whether they should sell now before it gets worse.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "This is Truth Block. I'm Hurley. Let's Mind Truth.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "185e37a64058e69111ae:6bcbd973bc6096f1d68cf2e47ace252e93e5be3310aae0b9201dcdfd6595f418:dd84ebe7fd6cf2f43ff4d9f0e008852b6eed9de1e5178fff368e946686607ae5:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "185e37a64058e69111ae",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "its",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "which",
+     "refers_to": "the liquidation events",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "now",
+     "refers_to": "the time of speaking",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "over the weekend",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin experienced one of its largest liquidation events over the weekend, resulting in a 25% price pullback.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "my guest for the day is messing with my soundboard",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "185e37a64058e69111ae",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "its",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "which",
+     "refers_to": "one of its largest liquidation events",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "now",
+     "refers_to": "the current time/show date",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "over the weekend",
+     "inside": true
+    },
+    {
+     "text": "now",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin experienced one of its largest liquidation events over the weekend, which has now pushed it into a 25% pullback.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "my guest for the day is messing with my soundboard.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "93cfa865d13a0c3e1709:ea94b2fd4379d659e1f1fa5d6228da7925781b296ca069bf8608040136949ee6:305d7a1f3fb519e92217405be93b406ff46969aa852b452a7e9249af82793576:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "93cfa865d13a0c3e1709",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [
+    {
+     "text": "had a terrible weekend",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin had a terrible weekend in which the price went all the way down to 62K, with $2 billion in leverage wiped out and $645 million liquidated in just 30 minutes.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I am Nathan with the BTC sessions, and this is Bitcast.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "93cfa865d13a0c3e1709",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "Meanwhile",
+     "refers_to": "the preceding news about major banks going down",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "We",
+     "refers_to": "Bitcoin (or the Bitcoin market/price)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "weekend",
+     "inside": true
+    },
+    {
+     "text": "in just 30 minutes",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin had a terrible weekend, dropping to $62K with $2 billion in leverage wiped out, including $645 million in just 30 minutes.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I am Nathan with the BTC sessions, and this is Bitcast.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "bd53eedbad4aad55c201:2b08455aebeed17af0b731090c37365181fdca94aa45ae2c83574b1f47f18fa5:68b7df0ca5671780cf67148b530fd4299427117711c739f23a0b301938f8943c:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "bd53eedbad4aad55c201",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "a lot of people",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "here",
+     "refers_to": "this Bitcoin dump/situation",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "the one who's actually dumping",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "over the weekend",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin dropped to $62,000 over the weekend prompting many people to consider selling before further declines while the speaker questions whether Binance or Wall Street is doing the dumping.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "This is Truth Block. I'm Hurley.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "b084525ec408fdeabb4e:06b26699cc8b7acd1a485b218e2353b04e969ebecdd504a29d2fa660a443ba11:bdc2dd519dd19ed88b39a7e9c4d9099329687e246cd9a2c58e263d9af9c1a3ac:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b084525ec408fdeabb4e",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "We",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "there",
+     "refers_to": "the 58K price level",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin's drop to 62K",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "Strategy and metaplan",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "had a terrible weekend",
+     "inside": true
+    },
+    {
+     "text": "while they're down",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin had a terrible weekend dropping all the way to 62K with billions in leverage wiped out nearly reaching the 58K level and this is putting pressure on Strategy and Metaplan who are making moves while prices are down.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I am Nathan with the BTC sessions, and this is Bitcast.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

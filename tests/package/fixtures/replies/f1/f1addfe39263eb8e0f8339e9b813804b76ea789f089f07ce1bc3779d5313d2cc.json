@@ -1,0 +1,19 @@
+{
+ "role": "exclusion_verdict",
+ "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "model": "deepseek/deepseek-v4.1-flash",
+ "vendor": "heimdall/deepseek",
+ "seed": 7,
+ "max_tokens": 800,
+ "system": null,
+ "prompt": "You screen ONE moment (the sentences inside <moment>) from a Bitcoin video before it can be clipped\ninto a short video. The text around it is context only.\n\n<before></before>\n<moment>Bitcoin puked all the way back to $62,000 over the weekend, and a lot of people are asking if they should just sell now before it gets worse.</moment>\n<after>So who's actually dumping here? Is it Binance clawing back billions after the hack? Is it Wall Street raising cash for the Anthropic IPO? The on-chain data points to one group, and it's probably not who you think. But there's a bigger fear underneath all of this. Gold, bonds, and Bitcoin are all selling off together. And today, the head of the Fed said out loud that the AI boom could disappoint and take stocks down with it. So is Bitcoin and gold front-running a COVID-style crash? Or is this the same setup Bitcoin has only shown once before, right before one of the biggest bull runs in history? Today, I'll show you who's really selling Bitcoin and what it would take to send it to new lows. This is Truth Block. I'm Hurley. Let's Mind Truth. All right, it's been an insane week. We got lots to cover today. But before we dive in, tell me in the comments, how low does Bitcoin go before bottoming? Give me a number. And if you're not subscribed to Simply Bitcoin yet, hit that button because this</after>\n\nAnswer:\n- \"risks\": every one that applies to the MOMENT: \"accusation\" (crime, fraud, insolvency or dishonesty alleged against a\n  named person or company), \"partner_attack\" (one Bitcoin channel or host attacking another), \"imperative\" (telling\n  the viewer to buy, sell or use leverage), \"guaranteed_return\", \"single_source_breaking\" (a breaking factual claim\n  resting on one unnamed source or rumour), \"ad_read\" (a sponsor, ad or affiliate pitch), \"third_party_media\" (someone\n  else's clip, song or broadcast being played); an empty list if none\n- \"about_bitcoin\": \"yes\" if the moment is about Bitcoin, \"no\" if it is about another coin or no crypto at all,\n  \"uncertain\"\n- \"why\": one short line\nCriticising a policy is not an accusation; a prediction framed as the speaker's own view is not an imperative;\nnaming a company neutrally is not an accusation.\nReturn ONLY this JSON object: {\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"...\"}",
+ "text": "{\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"The moment discusses Bitcoin's price drop and whether people should sell, without accusations, imperatives, ads, or other listed risks.\"}",
+ "usage": {
+  "in": 598,
+  "out": 196,
+  "usd_reported": 7.353e-05
+ },
+ "usd": 0.004734,
+ "seconds": 7.13,
+ "recorded_at": "2026-11-17T03:26:33Z"
+}

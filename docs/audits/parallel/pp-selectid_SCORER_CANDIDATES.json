@@ -1,15 +1,60 @@
 {
- "generated_at": "2026-11-17T03:02:45+00:00",
- "build": "ledger_20261117_030232",
+ "generated_at": "2026-11-17T03:18:41+00:00",
+ "build": "ledger_20261117_031828",
  "kind": "moments",
  "candidates": [
   {
-   "pid": "0050388e1e805af79a6e",
-   "video_id": "H5bi8hBMDTw",
-   "channel": "Bitcoin Magazine",
-   "duration": 25.58,
-   "text": "Those are economies and countries that... very much embraced the idea and we're willing to understand quite early the idea of Bitcoin and the idea of a non -governmental hedge on money. And I think that there will continue to be traction there. And those markets have been much more open to the idea that perhaps the government doesn't have the solution or the willpower for a lot of the fiscal difficulties.",
-   "text_sha256": "a80431e7cb0a55421ff2b61ff7c1ddea3c2883298ea246781e293241faccaa93",
+   "pid": "0193406f729cc5e141e0",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 14.83,
+   "text": "Most Bitcoin mining pools today, you have to ask permission to use. If that doesn't make the hair in the back of your neck stand up, I don't know what else will.",
+   "text_sha256": "d8c52d4d229de1b0319798398bfdf5e6921db1ce64dc6d673e2eb3a6498b6aa5",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e69e7174911b6f9d3a56",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 18.2,
+   "text": "People are trying to manipulate you. People are trying to manipulate your emotions to make you part with your Bitcoin potentially. I just can't overstate how much like fear and anger cloud your judgment. Myself included, I'm not immune from this. It's been a brutal time to huddle, right? But Bitcoin has a really unique way of like messing with your psychology.",
+   "text_sha256": "e957fa87cf853760bca543ab99f31a765f7da0a9324063bfa6d942cf8887540c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "bd53eedbad4aad55c201",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 14.78,
+   "text": "Bitcoin puked all the way back to $62,000 over the weekend, and a lot of people are asking if they should just sell now before it gets worse. So who's actually dumping here? Is it Binance clawing back billions after the hack? Is it Wall Street raising cash for the Anthropic IPO?",
+   "text_sha256": "2b08455aebeed17af0b731090c37365181fdca94aa45ae2c83574b1f47f18fa5",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "c42ee35cb6775bfd699d",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 20.08,
+   "text": "Bitcoin has seen one of its largest liquidation events over the weekend, which has now slapped Bitcoin into a 25 % pullback. And when we ended the show on Friday afternoon, Bitcoin's price was around 70K, was around, sorry, sorry, my guest for the day is messing with my soundboard.",
+   "text_sha256": "95646a3262a200a2606505e15e983a07cfedaf3836bd3be6be98fad6b79ddc20",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b084525ec408fdeabb4e",
+   "video_id": "2oY7TU6CPok",
+   "channel": "BTC Sessions",
+   "duration": 15.7,
+   "text": "Meanwhile, Bitcoin had a terrible weekend. We went all the way down to 62K, $2 billion in leverage wiped out, $645 million in just 30 minutes. We were just a stone throw away from the 58K gang there, so eat your heart out. And of course, it's putting pressure on everybody. Strategy and metaplan are both making moves while they're down.",
+   "text_sha256": "06b26699cc8b7acd1a485b218e2353b04e969ebecdd504a29d2fa660a443ba11",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d6adeb54ad64062081c5",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 14.78,
+   "text": "I have been recently done a budget pieces on the 2023 bull market, like climbing a wall of worry. There was massive amounts of fear during that period of time. Bitcoin was actually trending up into the right, and fear was also trending up into the right during that.",
+   "text_sha256": "8e6ae65436256fcb93f3901a0c91648fb07f6fdc5798d8adbcde6760342ffcda",
    "trimmed_leading": null
   }
  ]

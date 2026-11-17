@@ -824,5 +824,16 @@
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
    "answer_note": "1 trailing closing brace(s) dropped (STATE Q2, 15:04 ET Nov 15)"
   }
+ },
+ "bd53eedbad4aad55c201:2b08455aebeed17af0b731090c37365181fdca94aa45ae2c83574b1f47f18fa5:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 4,
+   "alone": 4,
+   "setup": 5,
+   "rating": 4,
+   "why": "references specific events needing context",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

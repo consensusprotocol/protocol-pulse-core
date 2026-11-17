@@ -1,0 +1,368 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "3b539694f13ba30403f36ea2231e26c97a140cb9c7f46b275a5caae8ed17ebd7",
+ "result": {
+  "text": "Bitcoin puked all the way back to $62,000 over the weekend, and a lot of people are asking if they should just sell now before it gets worse. So who's actually dumping here? Is it Binance clawing back billions after the hack? Is it Wall Street raising cash for the Anthropic IPO? The on-chain data points to-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.18,
+    "end": 16.239,
+    "text": "Bitcoin puked all the way back to $62,000 over the weekend, and a lot of people are asking if they should just sell now before it gets worse. So who's actually dumping here? Is it Binance clawing back billions after the hack? Is it Wall Street raising cash for the Anthropic IPO? The on-chain data points to-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Bitcoin",
+    "start": 0.18,
+    "end": 0.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "puked",
+    "start": 0.6,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 1.02,
+    "end": 1.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.12,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 1.2,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "back",
+    "start": 1.4,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 1.6,
+    "end": 1.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$62,000",
+    "start": 1.72,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 2.96,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.1,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "weekend,",
+    "start": 3.2,
+    "end": 3.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 3.84,
+    "end": 3.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 3.94,
+    "end": 3.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot",
+    "start": 4.0,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 4.14,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 4.24,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 4.46,
+    "end": 4.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asking",
+    "start": 4.62,
+    "end": 4.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 5.02,
+    "end": 5.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 5.14,
+    "end": 5.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "should",
+    "start": 5.26,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 5.44,
+    "end": 5.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sell",
+    "start": 5.68,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 5.94,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "before",
+    "start": 6.3,
+    "end": 6.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 6.58,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gets",
+    "start": 6.68,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worse.",
+    "start": 7.0,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 7.64,
+    "end": 7.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who's",
+    "start": 7.76,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "actually",
+    "start": 8.119,
+    "end": 8.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dumping",
+    "start": 8.54,
+    "end": 8.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here?",
+    "start": 8.94,
+    "end": 9.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Is",
+    "start": 9.38,
+    "end": 9.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 9.48,
+    "end": 9.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Binance",
+    "start": 9.64,
+    "end": 10.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "clawing",
+    "start": 10.22,
+    "end": 10.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "back",
+    "start": 10.56,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billions",
+    "start": 10.84,
+    "end": 11.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "after",
+    "start": 11.3,
+    "end": 11.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.52,
+    "end": 11.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hack?",
+    "start": 11.64,
+    "end": 11.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Is",
+    "start": 12.24,
+    "end": 12.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 12.32,
+    "end": 12.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Wall",
+    "start": 12.48,
+    "end": 12.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Street",
+    "start": 12.7,
+    "end": 12.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "raising",
+    "start": 12.98,
+    "end": 13.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cash",
+    "start": 13.3,
+    "end": 13.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 13.62,
+    "end": 13.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.76,
+    "end": 13.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Anthropic",
+    "start": 13.84,
+    "end": 14.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "IPO?",
+    "start": 14.36,
+    "end": 14.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 15.02,
+    "end": 15.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on-chain",
+    "start": 15.14,
+    "end": 15.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "data",
+    "start": 15.56,
+    "end": 15.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "points",
+    "start": 15.9,
+    "end": 16.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to-",
+    "start": 16.18,
+    "end": 16.239,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 16.28
+ },
+ "usd": 0.003256,
+ "seconds": 0.82,
+ "recorded_at": "2026-11-17T03:27:52Z"
+}

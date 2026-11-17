@@ -161,7 +161,8 @@
   "tests/package/proof/ledger_20261117_025824",
   "tests/package/proof/ledger_20261117_025952",
   "tests/package/proof/ledger_20261117_030036",
-  "tests/package/proof/ledger_20261117_030232"
+  "tests/package/proof/ledger_20261117_030232",
+  "tests/package/proof/ledger_20261117_031828"
  ],
  "candidates": {
   "35b7b52533b4220b2672+5307d23dced4f444919a+f03d79cf73eb188924ee": {
@@ -482,6 +483,21 @@
      "why": "no longer cleared in this pool (delivered, aged out, or a gate fails): ['a3e8721c54788123097a']"
     }
    ]
+  },
+  "4d14201f553f57dc7672+185e37a64058e69111ae+d6adeb54ad64062081c5+93cfa865d13a0c3e1709": {
+   "lineup": [
+    "4d14201f553f57dc7672",
+    "185e37a64058e69111ae",
+    "d6adeb54ad64062081c5",
+    "93cfa865d13a0c3e1709"
+   ],
+   "source": "tests/package/proof/ledger_20261117_031828",
+   "index": 2,
+   "found_at": "2026-11-17T03:18:28.517449+00:00",
+   "state": "open",
+   "until": null,
+   "fresh_used": false,
+   "history": []
   }
  }
 }

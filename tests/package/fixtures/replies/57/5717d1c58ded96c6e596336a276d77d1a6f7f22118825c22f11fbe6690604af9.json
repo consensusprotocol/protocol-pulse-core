@@ -1,0 +1,19 @@
+{
+ "role": "exclusion_verdict",
+ "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "model": "deepseek/deepseek-v4.1-flash",
+ "vendor": "heimdall/deepseek",
+ "seed": 7,
+ "max_tokens": 800,
+ "system": null,
+ "prompt": "You screen ONE moment (the sentences inside <moment>) from a Bitcoin video before it can be clipped\ninto a short video. The text around it is context only.\n\n<before></before>\n<moment>Bitcoin has seen one of its largest liquidation events over the weekend, which has now slapped Bitcoin into a 25 % pullback.</moment>\n<after>when we ended the show on Friday afternoon, Bitcoin's price was around 70K, was around, sorry, sorry, my guest for the day is messing with my soundboard. Bitcoin's price was around 70K. And then over the weekend, I'm sure you guys are aware. We crashed down to $62,000 or, you know, thereabouts. And a lot of interesting theories have arisen over the weekend. I think I was actually one of the first to, you know, talk about what I think is the main reason going on here for who is selling Bitcoin. Binance, you know, sorry, guys, coughed here. But, you know, I think we're all wondering whether this price action is normal. And if it's not, of course, who is actually manipulating Bitcoin's price and how low are they trying to send Bitcoin right now? It is getting very interesting. Now, before I go on... We got to start with Binance here. Okay, guys. I'm sure you guys saw this if you were on Twitter last night. I'll cover the</after>\n\nAnswer:\n- \"risks\": every one that applies to the MOMENT: \"accusation\" (crime, fraud, insolvency or dishonesty alleged against a\n  named person or company), \"partner_attack\" (one Bitcoin channel or host attacking another), \"imperative\" (telling\n  the viewer to buy, sell or use leverage), \"guaranteed_return\", \"single_source_breaking\" (a breaking factual claim\n  resting on one unnamed source or rumour), \"ad_read\" (a sponsor, ad or affiliate pitch), \"third_party_media\" (someone\n  else's clip, song or broadcast being played); an empty list if none\n- \"about_bitcoin\": \"yes\" if the moment is about Bitcoin, \"no\" if it is about another coin or no crypto at all,\n  \"uncertain\"\n- \"why\": one short line\nCriticising a policy is not an accusation; a prediction framed as the speaker's own view is not an imperative;\nnaming a company neutrally is not an accusation.\nReturn ONLY this JSON object: {\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"...\"}",
+ "text": "{\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"Describes a Bitcoin liquidation event and price pullback without accusations, advice, or unverified sourcing.\"}",
+ "usage": {
+  "in": 587,
+  "out": 180,
+  "usd_reported": 6.987e-05
+ },
+ "usd": 0.004461,
+ "seconds": 7.33,
+ "recorded_at": "2026-11-17T03:26:33Z"
+}

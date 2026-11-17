@@ -1384,5 +1384,166 @@
    "why": "no link crash to mining",
    "backend": "xai:grok-4.20-0309-reasoning"
   }
+ },
+ "5d9712611892fa118f21dbf17d842b46eb66c9f3b85d2e298ef582369341e9f4:9bd2cb49df47cb7b592fe7c97cee8eadeefb236ebb2119c7710636f0e1f8cbc8:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "advice on fear after drop",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "5d9712611892fa118f21dbf17d842b46eb66c9f3b85d2e298ef582369341e9f4:8e6ae65436256fcb93f3901a0c91648fb07f6fdc5798d8adbcde6760342ffcda:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "historical fear context",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "5d9712611892fa118f21dbf17d842b46eb66c9f3b85d2e298ef582369341e9f4:ea94b2fd4379d659e1f1fa5d6228da7925781b296ca069bf8608040136949ee6:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "more on price crash",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "5d9712611892fa118f21dbf17d842b46eb66c9f3b85d2e298ef582369341e9f4:d8c52d4d229de1b0319798398bfdf5e6921db1ce64dc6d673e2eb3a6498b6aa5:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "unrelated mining shift",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "5d9712611892fa118f21dbf17d842b46eb66c9f3b85d2e298ef582369341e9f4:6bcbd973bc6096f1d68cf2e47ace252e93e5be3310aae0b9201dcdfd6595f418:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "expands on liquidation",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "9bd2cb49df47cb7b592fe7c97cee8eadeefb236ebb2119c7710636f0e1f8cbc8:8e6ae65436256fcb93f3901a0c91648fb07f6fdc5798d8adbcde6760342ffcda:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "both on market fear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "9bd2cb49df47cb7b592fe7c97cee8eadeefb236ebb2119c7710636f0e1f8cbc8:6bcbd973bc6096f1d68cf2e47ace252e93e5be3310aae0b9201dcdfd6595f418:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "fear advice to bad stats",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "8e6ae65436256fcb93f3901a0c91648fb07f6fdc5798d8adbcde6760342ffcda:9bd2cb49df47cb7b592fe7c97cee8eadeefb236ebb2119c7710636f0e1f8cbc8:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "fear to manipulation",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "8e6ae65436256fcb93f3901a0c91648fb07f6fdc5798d8adbcde6760342ffcda:ea94b2fd4379d659e1f1fa5d6228da7925781b296ca069bf8608040136949ee6:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "past to current crash",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "8e6ae65436256fcb93f3901a0c91648fb07f6fdc5798d8adbcde6760342ffcda:d8c52d4d229de1b0319798398bfdf5e6921db1ce64dc6d673e2eb3a6498b6aa5:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "unrelated to mining",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "8e6ae65436256fcb93f3901a0c91648fb07f6fdc5798d8adbcde6760342ffcda:6bcbd973bc6096f1d68cf2e47ace252e93e5be3310aae0b9201dcdfd6595f418:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "past fear to crash",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ea94b2fd4379d659e1f1fa5d6228da7925781b296ca069bf8608040136949ee6:9bd2cb49df47cb7b592fe7c97cee8eadeefb236ebb2119c7710636f0e1f8cbc8:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "crash to fear advice",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ea94b2fd4379d659e1f1fa5d6228da7925781b296ca069bf8608040136949ee6:8e6ae65436256fcb93f3901a0c91648fb07f6fdc5798d8adbcde6760342ffcda:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "crash to historical context",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ea94b2fd4379d659e1f1fa5d6228da7925781b296ca069bf8608040136949ee6:6bcbd973bc6096f1d68cf2e47ace252e93e5be3310aae0b9201dcdfd6595f418:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "both on weekend crash",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d8c52d4d229de1b0319798398bfdf5e6921db1ce64dc6d673e2eb3a6498b6aa5:9bd2cb49df47cb7b592fe7c97cee8eadeefb236ebb2119c7710636f0e1f8cbc8:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "mining to emotions",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d8c52d4d229de1b0319798398bfdf5e6921db1ce64dc6d673e2eb3a6498b6aa5:8e6ae65436256fcb93f3901a0c91648fb07f6fdc5798d8adbcde6760342ffcda:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "mining to past fear",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d8c52d4d229de1b0319798398bfdf5e6921db1ce64dc6d673e2eb3a6498b6aa5:6bcbd973bc6096f1d68cf2e47ace252e93e5be3310aae0b9201dcdfd6595f418:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "mining to liquidation",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "6bcbd973bc6096f1d68cf2e47ace252e93e5be3310aae0b9201dcdfd6595f418:9bd2cb49df47cb7b592fe7c97cee8eadeefb236ebb2119c7710636f0e1f8cbc8:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "bad news to fear advice",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "6bcbd973bc6096f1d68cf2e47ace252e93e5be3310aae0b9201dcdfd6595f418:8e6ae65436256fcb93f3901a0c91648fb07f6fdc5798d8adbcde6760342ffcda:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "pullback to wall of worry",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "6bcbd973bc6096f1d68cf2e47ace252e93e5be3310aae0b9201dcdfd6595f418:ea94b2fd4379d659e1f1fa5d6228da7925781b296ca069bf8608040136949ee6:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continues crash details",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "6bcbd973bc6096f1d68cf2e47ace252e93e5be3310aae0b9201dcdfd6595f418:d8c52d4d229de1b0319798398bfdf5e6921db1ce64dc6d673e2eb3a6498b6aa5:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "to unrelated mining",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "6bcbd973bc6096f1d68cf2e47ace252e93e5be3310aae0b9201dcdfd6595f418:5d9712611892fa118f21dbf17d842b46eb66c9f3b85d2e298ef582369341e9f4:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continues Bitcoin drop",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "9bd2cb49df47cb7b592fe7c97cee8eadeefb236ebb2119c7710636f0e1f8cbc8:5d9712611892fa118f21dbf17d842b46eb66c9f3b85d2e298ef582369341e9f4:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "abrupt topic shift",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
  }
 }
