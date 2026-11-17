@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-17T18:18:41+00:00",
- "build": "ledger_20261117_181824",
+ "generated_at": "2026-11-17T18:25:40+00:00",
+ "build": "ledger_20261117_182523",
  "kind": "moments",
  "candidates": [
   {
@@ -46,6 +46,15 @@
    "duration": 8.14,
    "text": "And I believe Bitcoin's closer to a bottom than a top. With regards to strategy, stretch or strive, I mean, these are different equities with different return profiles.",
    "text_sha256": "0be951ef0bfcfdc7a393a1c3690101289db41c0c00e79a062017444ac0efc831",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "535a3ac8727ed992ace6",
+   "video_id": "F536pi4mr7Y",
+   "channel": "Yahoo Finance",
+   "duration": 10.67,
+   "text": "So the next story that we have here today is one that makes you, you know, scratch your head and think maybe there's something to this Bitcoin thing. Of course. You saw this.",
+   "text_sha256": "a2ace9d0479ee5387f20ef6c2011a66fa9c670b32b520302956f477a7c600707",
    "trimmed_leading": null
   },
   {
@@ -103,12 +112,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "f0a51c45830936b3a3c1",
+   "video_id": "F536pi4mr7Y",
+   "channel": "Yahoo Finance",
+   "duration": 17.29,
+   "text": "But, you know, if you're wondering why having decentralized money that's available 24 -7, 365, that has no CEO in his mind by a decentralized network. around the world, like Bitcoin is important. Well, when you want access to your money with Bitcoin, you have it.",
+   "text_sha256": "94caa3912cf0874704d85bb1f589009bef2e61a9010108654b77cfdb05573a8e",
+   "trimmed_leading": null
+  },
+  {
    "pid": "feb4b72f301cde9d380d",
    "video_id": "RsCi56hEriU",
    "channel": "Natalie Brunell",
    "duration": 9.56,
    "text": "And that's not to say that it's bad. It's that self -custody Bitcoin's a responsibility. If I have a gun, it's a responsibility. Sovereignty is a responsibility.",
    "text_sha256": "0c6146765c8d7b107e17891111d2fccab7f625c3ae986027a34fbe51fa00f0ac",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "16177ae77293aa32aee2",
+   "video_id": "F536pi4mr7Y",
+   "channel": "Yahoo Finance",
+   "duration": 12.73,
+   "text": "But it's always encouraging to see diamond -handed investors adding or holding their Bitcoin positions, even if it's through an ETF. And that is what we are seeing here with Wells Fargo and their customers.",
+   "text_sha256": "3335d4ad5ce326c1db3013e1dc65abe31213a63317e03ffd08c87dec8cd6ddca",
    "trimmed_leading": null
   },
   {
@@ -229,6 +256,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "535a3ac8727ed992ace6~trim",
+   "video_id": "F536pi4mr7Y",
+   "channel": "Yahoo Finance",
+   "duration": 10.57,
+   "text": "the next story that we have here today is one that makes you, you know, scratch your head and think maybe there's something to this Bitcoin thing. Of course. You saw this.",
+   "text_sha256": "c37778f939246c040fb876ba120cd060d9b75105b89764a2c970a2a50483d229",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "8e476421ba6d575aa34a~trim",
    "video_id": "MeC8YEmUx_w",
    "channel": "Bitcoin Magazine",
@@ -274,6 +310,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "f0a51c45830936b3a3c1~trim",
+   "video_id": "F536pi4mr7Y",
+   "channel": "Yahoo Finance",
+   "duration": 17.13,
+   "text": "you know, if you're wondering why having decentralized money that's available 24 -7, 365, that has no CEO in his mind by a decentralized network. around the world, like Bitcoin is important. Well, when you want access to your money with Bitcoin, you have it.",
+   "text_sha256": "a04ba4ddb12eae26fa60f9a1fcdbdbb0667eb7c3c35286c4e221de9675dc47ed",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "feb4b72f301cde9d380d~trim",
    "video_id": "RsCi56hEriU",
    "channel": "Natalie Brunell",
@@ -281,6 +326,15 @@
    "text": "that's not to say that it's bad. It's that self -custody Bitcoin's a responsibility. If I have a gun, it's a responsibility. Sovereignty is a responsibility.",
    "text_sha256": "75affec92d6e2aebbbc7214becc0d5063c71b7d00a556aec0d106af612bff6bd",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "16177ae77293aa32aee2~trim",
+   "video_id": "F536pi4mr7Y",
+   "channel": "Yahoo Finance",
+   "duration": 12.69,
+   "text": "it's always encouraging to see diamond -handed investors adding or holding their Bitcoin positions, even if it's through an ETF. And that is what we are seeing here with Wells Fargo and their customers.",
+   "text_sha256": "d411f711ac1b83de313ffb0e52c657b8dbd5c95f249e3f8017e3602299e5d802",
+   "trimmed_leading": "But"
   },
   {
    "pid": "923545b4c8e490887129~trim",
@@ -544,6 +598,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "d2a75c0d20a3cf7ff6bb",
+   "video_id": "F536pi4mr7Y",
+   "channel": "Yahoo Finance",
+   "duration": 17.04,
+   "text": "Wells Fargo's reported BlackRock Bitcoin ETF holdings double to 2.3. $5 billion, and that was quarter to quarter, which I found pretty astounding. The share count increased approximately 103 % from $24.4 million at June 30th.",
+   "text_sha256": "ffb4e8c39bd9deb45067311d894d74e705d6ee71c2aa606f321e414a0e9a8aa0",
+   "trimmed_leading": null
+  },
+  {
    "pid": "1479940438ecde098a20",
    "video_id": "WjnphankXmM",
    "channel": "DataDash",
@@ -569,6 +632,15 @@
    "text": "I believe Bitcoin's closer to a bottom than a top. With regards to strategy, stretch or strive, I mean, these are different equities with different return profiles. Strive, you pay an expensive premium for a lot of leverage strategy. You have a lot of cash drag. and less amplification or leverage in the cap stack.",
    "text_sha256": "1dc48d78696067dc1e6d31e00685afc10883936ad02bc7b6ac42a2e9a0385839",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "7e242268ec4ca9d43819~trim",
+   "video_id": "F536pi4mr7Y",
+   "channel": "Yahoo Finance",
+   "duration": 16.51,
+   "text": "the next story that we have here today is one that makes you, you know, scratch your head and think maybe there's something to this Bitcoin thing. Of course. You saw this. Chase says transactions back to normal after outage online and at some branches.",
+   "text_sha256": "fe761bb7a818907e65a271cbf3922aadb1fc6b3260672bd2ea2b875006a6e99e",
+   "trimmed_leading": "So"
   },
   {
    "pid": "e2b3d73398b44edeaf2a~trim",
@@ -668,6 +740,15 @@
    "text": "that's not to say that it's bad. It's that self -custody Bitcoin's a responsibility. If I have a gun, it's a responsibility. Sovereignty is a responsibility. Sovereignty is not. Easy, it's hard, and i think right now it's probably around the peak of the hardness that it will ever be, to the extent that i think it is it is worrying.",
    "text_sha256": "5907a5075468f473dfe5042d8b94a9b6e3c1f87781ab262112458dcc1da18121",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "fbaea3cde8983456f04e~trim",
+   "video_id": "F536pi4mr7Y",
+   "channel": "Yahoo Finance",
+   "duration": 26.69,
+   "text": "it's always encouraging to see diamond -handed investors adding or holding their Bitcoin positions, even if it's through an ETF. And that is what we are seeing here with Wells Fargo and their customers. Meanwhile, I know I don't have it pulled up as news, but very good news is that our long death streak of ETF outflows ended yesterday with like 7 million or 10 million or 12 million, some rounding error yesterday.",
+   "text_sha256": "1b79be0584e5da77e6dd2a6f41c8bbc80a7770314e9dfb87c6883297a94f704d",
+   "trimmed_leading": "But"
   },
   {
    "pid": "501dfac999d0c0ec96e8",
@@ -848,6 +929,15 @@
    "text": "we lend out the funds and they go to the borrower. They're not sitting in a smart contract. And then we take the BTC into, you know, for the most part, qualified custodians in kind of tri -party accounts. So we can lean on their additional security, but it minimizes some of the smart contract aspects of risk.",
    "text_sha256": "fe0a4fed7268f700f0bc768586097706ec1de9ba2e913de530415ddbac1ff3fa",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "905569fa66e0f0c86042",
+   "video_id": "F536pi4mr7Y",
+   "channel": "Yahoo Finance",
+   "duration": 15.7,
+   "text": "That's all my wolf and I have for you today. We're going to see obviously how things shake out with the Bitcoin market. I'm encouraged to see those massive increases in I've been holdings by Wells Fargo customers, but we'll see if it lasts if Bitcoin stays down any longer. It's all I got for you today. I will see you tomorrow.",
+   "text_sha256": "483c672a2fe13cfd239e0ace29ba79a2addb344149cc81ad7e3fa2bd2ec3b522",
+   "trimmed_leading": null
   },
   {
    "pid": "43525e0fb51c06e3480b",
