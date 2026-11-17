@@ -6,6 +6,23 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 15:45 RULING 142 (3) + THE RE-JUDGE FIX LIVE (batches 111 + 112, merge 88a8d2c9, pushed; the builder's e88a1e51 pushes after it, lockstep). DECODER fc204e4a4385.
+- **111, THE STANDING POST_LIVE FALLBACK:**
+  - When a window's --download-sections file comes back without media (picture without audio, or a container under 0.5 s), the WHOLE audio and video are fetched once per video (data/post_live_cache/<id>/) and the window is cut locally from them.
+  - HARD guard in pinned.acquire: the render's decode of that window must sit within 0.35 s (median) of the word pass's timings on at least 10 words. Otherwise the lock HOLDS: shifted, unreadable, or no record to check against.
+  - Unchanged: a cache hit, and a section with media.
+  - MeC8YEmUx_w's whole stream is already in its cache (my 14:32 downloads).
+- **112, THE RE-JUDGE FIX:**
+  - canon_spans now reads "24" "-7," word by word as the text does. That was batch 110's defect, which made f0a51c45's settled lock unwritable.
+  - The contraction ("Bitcoin's" = "Bitcoin is" / "has") is a word form; 142 (2)'s feb4b72f is this case.
+- **Checks:**
+  - 111: three Heimdall cycles, one real finding fixed (unreadable timings are a hold, never a crash), three claims disproved; 6 of 6 mutations killed.
+  - 112: two cycles, no defect (one claim disproved with measured spans); 4 must-fail tests; 5 of 5 mutations killed.
+- **THE MERGED TREE, by exit code:**
+  - regression_test.sh: 26 PASS / 0 FAIL / 4 WARN, exit 0. pipeline/regression.sh: exit 0, references REPRODUCED.
+  - 72 suite files: 1488 passed, 22 failed, 2 errors. These are the same 22 + 2 as at 15:20, each shown to fail without these batches; 0 from 111 / 112; test_post_live green. Not "green".
+- **NOW:** f0a51c45 re-judged, and the 3 Bitcoin Magazine spans asked (one per request); outcomes to the builder and here.
+
 ## 15:29 RULING 142, THE RE-JUDGE: Yahoo Finance f0a51c45 and Natalie Brunell feb4b72f STILL HOLD under batch 110 (15:24, $0, the readings reused). Both causes are now found and fixed (batch 112). The fix lands in ONE decoder lockstep with batch 111 (post_live), ETA about 16:05.
 - **f0a51c45: a DEFECT in my batch 110.**
   - The "minus" is gone, and ruling 131 (A) settles both remaining pairs: "you know" (approved + second recogniser) and "and is mined" (run + second).
