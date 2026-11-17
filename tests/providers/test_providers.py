@@ -860,6 +860,53 @@ class TestRuling123Reserve(unittest.TestCase):
             day2.call("judge", p, 12000)              # a new day's ledger: 25 % again
             self.assertEqual(g.calls, 4)
 
+    def test_ruling_130_a_bill_above_its_reserve_trips_even_below_the_fraction_of_list(self):
+        """RULING 130 (3): a reply whose usage runs past its output cap (a vision check's) bills a small share of the
+        list price of its usage, so 'billed above the fraction of list' never fires; a bill above what was RESERVED for
+        the call trips the reserve back to list for the day."""
+        with tempfile.TemporaryDirectory() as d:
+            led = self.ledger(d, 0.40)
+            v = Fake("xai_vision:v", "xai", answer="{}", price=(5, 25),
+                     usage={"in": 1000, "out": 30000, "usd_reported": 0.10})   # its usage at list: $0.755
+            v.spec["reserve_list_fraction"] = 0.6
+            r = router(d, [v], {"judge": ["xai_vision:v"]}, spend_path=led, limit_usd=0.80, limit_basis="reported")
+            p = "p" * 3000                            # upper: 1.25 x (1,200 x $5/M + 12,000 x $25/M) = $0.3825
+            r.call("judge", p, 12000)                 # reserved 0.6 x 0.3825 = $0.2295; billed $0.10: no trip
+            self.assertIsNone(json.load(open(led)).get("reserve_tripped"))
+            v._usage = {"in": 1000, "out": 30000, "usd_reported": 0.25}    # above its $0.2295 reserve, below 0.6 x $0.755
+            r.call("judge", p, 12000)
+            trip = json.load(open(led))["reserve_tripped"]["xai_vision:v"]
+            self.assertEqual((trip["billed"], trip["reserved"]), (0.25, round(0.3825 * 0.6, 6)))
+            self.assertIn("above its reserve", trip["why"])
+            led2 = self.ledger(d, 0.40, "same_day.json")                    # 0.40 + 0.2295 fits 0.70; 0.40 + 0.3825 not
+            json.dump(dict(json.load(open(led2)), reserve_tripped={"xai_vision:v": trip}), open(led2, "w"))
+            r2 = router(d, [v], {"judge": ["xai_vision:v"]}, spend_path=led2, limit_usd=0.70, limit_basis="reported")
+            with self.assertRaises(P.SpendLimit):     # tripped: at list for the rest of the day
+                r2.call("judge", p, 12000)
+
+    def test_ruling_130_the_vision_check_is_reserved_at_its_fraction(self):
+        """RULING 130 (3): the configured vision back-end reserves its fraction of the list bound, not the whole."""
+        import visual_pin as VP
+        spec = json.load(open(P.CONFIG))["backends"]["xai_vision:grok-4.7"]
+        with tempfile.TemporaryDirectory() as d:
+            v = Fake("xai_vision:grok-4.7", "xai_vision", answer="{}", price=tuple(spec["price_usd_per_1m"]),
+                     usage={"in": 3000, "out": 2000, "usd_reported": 0.01})
+            v.spec.update({k: x for k, x in spec.items() if k in ("reserve_list_fraction", "min_out")})
+            v.vision = True                           # an image back-end (the router's own test)
+            v.upper_usd = P.VENDORS["xai_vision"]("xai_vision:grok-4.7", spec, env_path=os.devnull).upper_usd
+            prompt = {"text": VP.PROMPT.format(n=12, text="x" * 400), "images": ["A"]}
+            up = v.upper_usd(prompt, 1500)
+            for spent, runs in ((0.70 - up * spec["reserve_list_fraction"] - 0.001, True),
+                                (0.70 - up * spec["reserve_list_fraction"] + 0.001, False)):
+                led = self.ledger(d, spent, f"l{spent:.4f}.json")
+                r = router(d, [v], {"visual_check": ["xai_vision:grok-4.7"]}, spend_path=led, limit_usd=0.70,
+                           limit_basis="reported")
+                if runs:
+                    r.call("visual_check", prompt, 1500)
+                else:
+                    with self.assertRaises(P.SpendLimit):
+                        r.call("visual_check", prompt, 1500)
+
     def test_only_a_back_end_that_names_the_fraction_is_reserved_below_list(self):
         with tempfile.TemporaryDirectory() as d:
             led = self.ledger(d, 0.69)

@@ -1,0 +1,28 @@
+pp-selectid: RULING 130 (3) (orchestrator 23:00 ET Nov 16), verbatim: "Vision checks reserve at list ($0.30 for two that
+billed $0.1245): price the reserve from the real bills with the ruling 123 tripwire." Files: pipeline/providers.py,
+pipeline/model_providers.json, tests/providers/test_providers.py.
+
+THE BILLS (measured from every vision bill recorded in tests/package/proof/VISUAL_CACHE.json: 32): min $0.0072, median
+$0.0496, p90 $0.0932, max $0.1752; as a share of the reserve's list bound ($0.2965: 1.25 x list at the call's real
+output cap, ruling 121 (1)): median 16.7 %, p90 31.4 %, max 59.1 %. A vision reply's usage runs PAST its output cap
+(max_out 8,000; recorded "out" up to 28,400 tokens), so every bill is only 24-29 % of the list price of its USAGE.
+
+THE CHANGE:
+(a) model_providers.json: xai_vision:grok-4.7 gains reserve_list_fraction 0.6 (the largest bill on record is 59.1 % of
+    the list bound), with its why. UNCHANGED code reads it: Router._reserve_fraction (providers.py:1002 in the copy, ruling
+    123 (1), 8d878e7f: the fraction unless the day's ledger has reserve_tripped for that back-end) and the reserve call
+    (providers.py:1396: key = self._reserve(b, round(upper * frac, 6) if frac is not None else upper)).
+(b) providers.Router._settle's tripwire (ruling 123 (1)): it fired only when a bill exceeded the fraction times the
+    list price of the call's USAGE, which a vision bill never does (24-29 %). It now ALSO fires when the bill exceeds the
+    amount RESERVED for that call (held, the reservation it settles). Either way: reserve_tripped for that back-end in
+    the day's ledger (the reserve back to list for the rest of the day), the notice, and the record's why names which
+    test fired. For Grok (fraction 0.25, bills about $0.01 against reserves of $0.06-0.12) nothing changes in practice.
+    The worst overrun past the stop is one call's bill above its reserve, once a day, before the trip.
+
+TESTS (TestRuling123Reserve): new: a bill above its reserve but below the fraction of list trips (and the same day's
+next call is reserved at list); the configured vision back-end is reserved at its fraction (a call fits a limit just
+above fraction x upper and is refused just below it). The ruling 123 tests unchanged and passing. Mutations V1-V3 after a
+control run: 3 of 3 killed. Suites: 40 files by exit code, 852 tests.
+
+PLEASE CHECK: (1) the fraction against the bills; (2) the tripwire's new test (bill vs the held reservation) and that
+it cannot fire on a call that reserved nothing; (3) that nothing else changes for the other back-ends; (4) the tests.

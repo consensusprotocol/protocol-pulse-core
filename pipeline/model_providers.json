@@ -109,6 +109,8 @@
    "family": "grok"
   },
   "xai_vision:grok-4.7": {
+   "reserve_list_fraction": 0.6,
+   "reserve_list_fraction_why": "RULING 130 (3) (orchestrator 23:00 ET Nov 16): priced from the real bills: every vision bill recorded in VISUAL_CACHE.json when it was set (32), the largest $0.1752, 59.1 % of the reserve's list bound ($0.2965); median 16.7 %, p90 31.4 %. The tripwire (rulings 123 (1) / 130 (3)): the first bill above what was reserved puts the reserve back to list for the rest of the day.",
    "vendor": "xai_vision",
    "model": "grok-4.7",
    "price_usd_per_1m": [
