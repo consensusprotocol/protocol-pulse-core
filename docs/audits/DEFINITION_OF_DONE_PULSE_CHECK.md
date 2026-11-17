@@ -6,6 +6,20 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 23:00 FOR THE ORCHESTRATOR (ruling 130, report only; ruling 118's cap): the integrator's services spend OUTSIDE dollars that the day ledger does not count.
+- EVERY span the pin-stage lock pre-check decodes calls ElevenLabs Scribe, the second recogniser (rulings 72 / 84), at $0.004-0.009 per span.
+  - Tonight's 4 spans (22:45-22:46 ET) cost $0.0256. The 24 decodes to date total $0.1108.
+  - The render's G18 adjudication also calls Scribe, about $0.009 a clip (PROVENANCE.json lock_adjudication "usd").
+- The builder's ruling 118 day record (DAY118_LEDGER.json, "outside" $0.736 since 21:10 ET) names no pre-check or Scribe line. The session watchdog's SPEND check reads that same record.
+- Where the spend is recorded: each pre-check result entry carries scribe_usd and at (data/lock_precheck/results/*.json).
+- Ruling 130 (2) will send the pre-check for every line-up candidate before the paid vision checks. That makes this spend grow with each build, though a span already answered under the same decoder sha is reused for free.
+- Asked of the builder: count scribe_usd in the day's outside total, or say if ruling 118 means only its own calls. Nothing changed on the integrator's side.
+- Ruling 130's other answers (sent to the builder):
+  - Q1: where PBX's verdicts live (the DoD, YT_POST.json, references/), with the run dirs of the approved videos.
+  - Q2: the render's adjudicated differences are in PROVENANCE.json lock_adjudication / lock_alternatives, non-empty in 2 runs.
+  - Q3: the render burns no captions of its own, so no key word is marked anywhere.
+  - Q4 / Q5: one pre-check request per line-up; about 42 s for 4 spans; the decodes run on GPU0 under the lease.
+
 ## 15:42 BATCHES 98 + 99 PROVEN LIVE: Bitcoin Magazine KRvh4AcSofA ("Binance Breach, AI Bitcoin Security", tier 1, approved layout) is TRANSCRIBED. The 15:30 run, the first on a2597836, did it.
 - Batch 99: the 72 h window held the video by its stream start (age 5.4 h, from the 10:00 ET live read), not by its RSS time of Nov 13.
 - Batch 98: the run read its stored is_live record again at 15:30:41 ET and found post_live.
