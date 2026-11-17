@@ -1,0 +1,270 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 68e6942..7f0bbe1 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -1569,6 +1569,64 @@ def scorer_pass(ms, sources, ctx, verdicts_path, candidates_path, build_name, ex
+     return {"index": index, "record": rec}
+ 
+ 
++STAND_SOFT_PREFIX = "The clip ({channel}) may not stand alone: "   # RULING 141 (2): the integrator's render matches
++#   this prefix exactly (it then skips its own flag for that channel's clip)
++
++
++def stand_plain(m):
++    """RULING 141 (2): the render's STAND_ALONE opener refusal of moment m as a CLIP, in plain words (the clip scorer's
++    reason), e.g. "it opens on 'but' and the clip scorer has no verdict for it"; None when the clip role passes."""
++    import stand_alone as SA
++    v = verdict_of(m)
++    ok, why = SA.opener("clip", m.get("text") or "", v["score"] if v else None, v["fault"] if v else None,
++                        moments=True)
++    if ok:
++        return None
++    x = re.match(r"clip opens on (.+?) and no clip-scorer verdict is available", why)
++    if x:
++        return f"it opens on {x.group(1)} and the clip scorer has no verdict for it"
++    x = re.match(r"clip opens on (.+?); the clip scorer does not affirm it stands alone \(([^,]+), fault (.+)\)$", why)
++    if x:
++        f = x.group(3).replace("_", " ")
++        return f"it opens on {x.group(1)} and the clip scorer rated it {x.group(2)} of 5" + \
++            (f" ({f})" if f not in ("None", "none", "") else "")
++    return why
++
++
++def stand_soft_rows(stand, segs):
++    """RULING 141 (2) (STAND_ALONE soft in the never-empty pass): {label: plain reason} for the CLIP rows of a check_edl
++    result `stand` (stand_alone_check(segs)) that fail ONLY its opener rule, each on a moment that pass brought back
++    (its "stand_soft" mark); None when the check passes or any other failure stands: the hook's row, any topic row
++    (ruling 34), the medley not naming Bitcoin, a failing row of an unmarked clip (these stay HARD)."""
++    if not isinstance(stand, dict) or stand.get("ok") is True or \
++            (stand.get("medley_names_bitcoin") or {}).get("pass") is not True:
++        return None
++    by, out = dict(zip(labels(len(segs)), segs)), {}
++    for r in stand.get("rows") or []:
++        if r.get("pass") is True:
++            continue
++        m = by.get(r.get("segment"))
++        if r.get("segment") == "hook" or m is None or not m.get("stand_soft") or \
++                (r.get("topic") or {}).get("pass") is not True or (r.get("opener") or {}).get("pass") is not False:
++            return None
++        out[r["segment"]] = m["stand_soft"]
++    return out or None
++
++
++def stand_ok(segs):
++    """The render's STAND_ALONE on a line-up for the line-up rules (lineup_ok, lineup_for): it passes, or RULING 141 (2),
++    its only failures are clips the never-empty pass brought back failing only the opener rule (stand_soft_rows)."""
++    st = stand_alone_check(segs)
++    return st["ok"] is True or bool(stand_soft_rows(st, segs))
++
++
++def stand_with_soft(segs):
++    """The pin stage's STAND_ALONE (stand_alone_check) with RULING 141 (2)'s soft rows when there are any."""
++    st = stand_alone_check(segs)
++    sr = stand_soft_rows(st, segs)
++    return dict(st, soft_rows=sr) if sr else st
++
++
+ def no_topic(m):
+     """Why a moment can take NO place under the render's topic rule with the pin's screen (ruling 34), else None: it
+     fails the miner's about-Bitcoin screen, and could not complete a previous claim even right after a segment that
+@@ -1800,7 +1858,7 @@ def lineup_ok(segs, crange=None, repeat_ok=False):
+     dur = sum(m["duration_s"] for m in segs)
+     if not lo <= dur <= hi:
+         return False, f"{dur:.1f} s outside {lo}-{hi} s"
+-    if not stand_alone_check(segs)["ok"]:
++    if not stand_ok(segs):                                   # RULING 141 (2): only marked clips' openers flag
+         return False, "the render's STAND_ALONE"
+     return True, "ok"
+ 
+@@ -1937,7 +1995,7 @@ def lineup_for(angle, by_id, dropped=frozenset(), clips=LY_CLIPS, crange=None, r
+                     continue
+                 if accept is not None and not accept([h] + order):       # the caller's own condition (pool_fill)
+                     continue
+-                if need_stand_alone and not stand_alone_check([h] + order)["ok"]:
++                if need_stand_alone and not stand_ok([h] + order):     # RULING 141 (2): marked clips flag
+                     continue
+                 key = (-sum(pos[m["moment_id"]] for m in order), -abs(dur - (lo + hi) / 2))
+                 if now is not None:                       # ruling 57: a fresh clip first, then the newest clips,
+@@ -3198,6 +3256,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+     scorer = scorer_pass(ms, sources, ctx, scorer_verdicts_path, scorer_candidates_path, build_name,   # ruling 56
+                          extra=scorer_extra)                                                       # ruling 90
+     ms = [with_verdict(m, scorer["index"]) for m in ms]
++    for m in ms:                                       # RULING 141 (2)'s soft mark is this pass's own, never carried in
++        m.pop("stand_soft", None)
+     no_role = {m["moment_id"]: r for m in ms                    # both reasons when both rules fire (audit 0426 C2)
+                for r in ["; ".join(x for x in (no_role_on_screen(m), no_topic(m)) if x)] if r}
+     admitted = sorted(m["moment_id"] for m in ms if verdict_of(m) and m["moment_id"] not in no_role)   # ruling 56
+@@ -3206,6 +3266,16 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+              for v in [trim_variant(m, sources)] if v}                      # joins the pool (the original stays a clip)
+     trim_out = {k: why for k, v in trims.items() for why in [trim_refused(v)] if why}   # ruling 56: never sealed
+     trims = {k: v for k, v in trims.items() if k not in trim_out}
++    stand_back = {m["moment_id"]: p for m in ms if soft and m["moment_id"] in no_role and m["moment_id"] not in trims
++                  and no_topic(m) is None for p in [stand_plain(m)] if p}   # RULING 141 (2): STAND_ALONE SOFT in the
++    for m in ms:                                                            # never-empty pass: a moment left out ONLY
++        if m["moment_id"] in stand_back:                                    # by the opener rule (no topic refusal, no
++            m["stand_soft"] = stand_back[m["moment_id"]]                    # affirmed trim) comes back as a clip,
++    if stand_back:                                                          # flagged; it never opens (the hook rule)
++        log(f"  RULING 141 NEVER EMPTY (STAND_ALONE soft): {len(stand_back)} moment(s) left out only by the render's "
++            f"STAND_ALONE opener rule come back as clips, flagged: " +
++            ", ".join(f"{mid[:8]} ({p})" for mid, p in stand_back.items()))
++    no_role = {k: v for k, v in no_role.items() if k not in stand_back}
+     ms = [m for m in ms if m["moment_id"] not in no_role] + list(trims.values())     # ruling 33 part 2 (item 42);
+     #   a variant of a moment that keeps its own place (ruling 94 a) sits beside it: one line-up never takes both (one
+     #   video at most once, L-y 4)
+@@ -3248,6 +3318,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+     cleared, back = cleared_pool(ms, a_by, fails, soft)  # RULING 137 stage 1: the never-empty pass adds back, flagged
+     levels = current_levels(sources.values(), ctx)
+     out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable, "current_levels": levels,
++           **({"soft_stand": stand_back} if stand_back else {}),          # RULING 141 (2): back, flagged
+            "no_role": no_role, "ad_read": ad_read, "trimmed": {k: v["moment_id"] for k, v in trims.items()},
+            "reposted": reposted,
+            "scorer": dict(scorer["record"], admitted=admitted, trims_affirmed=sorted(trims), trims_out=trim_out),
+@@ -3717,7 +3788,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                                 {k: v for k, (_, v) in got.items()}, True, coh, medley=(True, nv_med),
+                                 shape=ly_shape(pk), style=HS.lint_lines(pk["lines"]),
+                                 hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
+-                                stand=stand_alone_check([cleared[sg["moment_id"]] for sg in pk["segments"]]),
++                                stand=stand_with_soft([cleared[sg["moment_id"]] for sg in pk["segments"]]),
+                                 visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
+                                 last_resort=pin_last_resort(pk), soft=soft,   # RULING 102; RULING 137 stage 1
+                                 who={sg["label"]: sg.get("channel") for sg in pk["segments"]},   # RULING 138 (3)
+@@ -4206,7 +4277,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                                             ok_c, coh, medley=(ok_m, med), shape=ly_shape(pk),
+                                             style=HS.lint_lines(pk["lines"]),
+                                             hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
+-                                            stand=stand_alone_check([cleared[sg["moment_id"]] for sg in pk["segments"]]),
++                                            stand=stand_with_soft([cleared[sg["moment_id"]] for sg in pk["segments"]]),
+                                             visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
+                                             value=val,                       # ruling 91: the takeaway earned its place
+                                             last_resort=pin_last_resort(pk),      # RULING 102: on the pin
+@@ -4327,7 +4398,7 @@ def build(*args, never_empty=False, flagged_today=0, **kw):
+     soft = _build(*args, soft=True, **kw)
+     info = {"stage": "2b", "clean_why_none": out.get("why_none"), "soft_why_none": soft.get("why_none"),
+             "soft_back": (soft.get("prescreen") or {}).get("soft_back"),
+-            "soft_record": {k: soft.get(k) for k in ("prescreen", "hook_pool", "tried")}}   # the pass's own record
++            "soft_record": {k: soft.get(k) for k in ("prescreen", "hook_pool", "tried", "soft_stand")}}   # its record
+     return dict(soft, never_empty=info) if soft.get("package") else dict(out, never_empty=info)
+ 
+ 
+@@ -4438,7 +4509,10 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+                                     "affirming one a conjunction, reply-fragment or trimmed opener fails closed)"),
+                                 rows=[f"{r['segment']}: {'PASS' if r['pass'] else 'FAIL'} opener: {r['opener']['why']} | "
+                                       f"topic: {r['topic']['why']}" for r in stand.get("rows") or []],
+-                                medley_names_bitcoin=stand.get("medley_names_bitcoin"), screen=stand.get("screen"))}
++                                medley_names_bitcoin=stand.get("medley_names_bitcoin"), screen=stand.get("screen"),
++                                **({"status": "FLAGGED", "flags": [           # RULING 141 (2): one plain sentence a clip
++                                    STAND_SOFT_PREFIX.format(channel=(who or {}).get(lb) or "its channel") + f"{why}."
++                                    for lb, why in stand["soft_rows"].items()]} if soft and stand.get("soft_rows") else {}))}
+            if stand is not None else {}),
+         **({"visual": dict(row(bool(visual) and all((v or {}).get("measured") is True for v in visual),
+                                sorted({str((v or {}).get("backend")) for v in visual}) or None,
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index 1fb3855..727abc7 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -37,8 +37,10 @@ MEDLEY_GATES = ("medley", "ly_shape", "house_style", "hook_onset", "stand_alone"
+ SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's soft codes
+                         "cuttable",                        # stage 2a: a sentence edge at a word boundary (L-v 2's
+                         #   word check, "second_pass", stays HARD)
+-                        "medley"})                         # stage 2b: the hook under the calibrated bar (its own
+-#   rater's rating; no calibration or another rater stays HARD)
++                        "medley",                          # stage 2b: the hook under the calibrated bar (its own
++                        #   rater's rating; no calibration or another rater stays HARD)
++                        "stand_alone"})                    # RULING 141 (2): a clip's STAND_ALONE opener (the topic
++#   rule, ruling 34, and the medley naming Bitcoin stay HARD)
+ REVIEW_FLAGS_MAX = 3
+ 
+ 
+diff --git a/tests/package/test_ruling_137.py b/tests/package/test_ruling_137.py
+index f61260a..fe400ca 100644
+--- a/tests/package/test_ruling_137.py
++++ b/tests/package/test_ruling_137.py
+@@ -290,6 +290,88 @@ class TestStage2bHookBar(unittest.TestCase):
+         self.assertEqual(PK.HOOK_SOFT_MAX, 2)
+ 
+ 
++class TestRuling141StandAloneSoft(unittest.TestCase):
++    """RULING 141 (2): STAND_ALONE SOFT in the never-empty pass (the builder's half; the integrator's render already only
++    flags an opener refusal and holds on the topic rule and the medley naming Bitcoin). A moment left out ONLY by the
++    render's STAND_ALONE opener rule comes back as a clip, flagged "The clip (<channel>) may not stand alone: <reason>."
++    (the integrator matches that prefix); it never opens; the topic rule, the hook's row, an unmarked clip and the medley
++    naming Bitcoin stay hard."""
++
++    def m(self, text, verdict=None):
++        x = {"moment_id": "q", "text": text}
++        return dict(x, scorer_verdict=dict(verdict, text_sha256=PK.text_sha(text))) if verdict else x
++
++    def test_the_reason_in_plain_words(self):
++        self.assertEqual(PK.stand_plain(self.m("But Bitcoin q x.")),
++                         "it opens on 'but' and the clip scorer has no verdict for it")
++        self.assertEqual(PK.stand_plain(self.m("And Bitcoin q x.", {"score": 2.0, "fault": "starts_mid_thought",
++                                                                     "reason": "r"})),
++                         "it opens on 'and' and the clip scorer rated it 2.0 of 5 (starts mid thought)")
++        self.assertIsNone(PK.stand_plain(self.m("Bitcoin q x.")))
++        self.assertTrue(PK.STAND_SOFT_PREFIX.format(channel="X").startswith("The clip (X) may not stand alone: "))
++
++    def test_only_marked_clips_failing_only_the_opener_are_soft(self):
++        segs = [{"moment_id": "h", "stand_soft": "why h"}, {"moment_id": "a", "stand_soft": "why a"},
++                {"moment_id": "b"}]                                     # a mark on the hook never softens its row
++        row = lambda seg, o, t=True: {"segment": seg, "pass": o and t, "opener": {"pass": o}, "topic": {"pass": t}}
++        st = {"ok": False, "rows": [row("hook", True), row("clip_01", False), row("clip_02", True)],
++              "medley_names_bitcoin": {"pass": True}}
++        self.assertEqual(PK.stand_soft_rows(st, segs), {"clip_01": "why a"})
++        for bad in ([row("hook", False), row("clip_01", False), row("clip_02", True)],      # the hook's own row
++                    [row("hook", True), row("clip_01", False, False), row("clip_02", True)],   # its topic too
++                    [row("hook", True), row("clip_01", False), row("clip_02", False)]):     # an unmarked clip
++            self.assertIsNone(PK.stand_soft_rows(dict(st, rows=bad), segs), bad)
++        self.assertIsNone(PK.stand_soft_rows(dict(st, medley_names_bitcoin={"pass": False}), segs))
++        self.assertIsNone(PK.stand_soft_rows(dict(st, medley_names_bitcoin=None), segs))   # unmeasured: hard
++        self.assertIsNone(PK.stand_soft_rows(dict(st, ok=True), segs))
++
++    def rig(self, never_empty, carry=False):
++        import test_medley as TM
++        from test_moments import pm
++        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), dict(pm("z", "C", 13.0), text="But Bitcoin z x."),
++              dict(pm("w", "D", 13.0), text="But nothing here at all.")]   # w: the topic rule (ruling 34) too
++        ms = [dict(m, stand_soft="carried in") for m in ms] if carry else ms
++        r = TM.Rig(ms, ["h", "x", "z"], [(True, [], None, TM.Rig.LINE)], [None])
++        r.build_kw = {"never_empty": never_empty}
++        return r.run()
++
++    def test_a_clip_left_out_only_by_the_opener_rule_seals_flagged_only_in_the_never_empty_pass(self):
++        clean = self.rig(False)
++        self.assertIsNone(clean["package"])
++        self.assertIn("z", clean["no_role"])                        # the clean pass: 2 channels, no paid verdict
++        out = self.rig(True)
++        pk = out["package"]
++        segs = {s["moment_id"]: s for s in pk["segments"]}
++        self.assertEqual((set(segs), pk["segments"][0]["moment_id"]), ({"h", "x", "z"}, "h"))   # never the hook
++        want = [f"The clip ({segs['z']['channel']}) may not stand alone: it opens on 'but' and the clip scorer has no "
++                f"verdict for it."]
++        self.assertEqual((pk["gates"]["stand_alone"]["status"], pk["gates"]["stand_alone"]["flags"]), ("FLAGGED", want))
++        self.assertEqual(PP.review_flags_of(pk["gates"]), want)
++        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])   # the seal's own check takes it
++        self.assertEqual(out["soft_stand"], {"z": "it opens on 'but' and the clip scorer has no verdict for it"})
++        self.assertIn("w", out["no_role"])                              # the topic rule stays HARD: never back
++
++    def test_a_mark_carried_in_is_never_read(self):
++        self.assertIsNone(self.rig(False, carry=True)["package"])
++
++    def test_the_line_up_rules_take_a_marked_clip_and_refuse_an_unmarked_one(self):
++        from test_moments import pm
++        h = dict(pm("h", "A", 12.0), hook_onset={"pass": True})
++        z = dict(pm("z", "C", 13.0), text="But Bitcoin z x.")
++        segs = [h, pm("x", "B", 14.0), z]
++        self.assertEqual(PK.lineup_ok(segs), (False, "the render's STAND_ALONE"))
++        self.assertEqual(PK.lineup_ok([h, segs[1], dict(z, stand_soft="it opens on 'but'")]), (True, "ok"))
++
++    def test_the_row_flags_only_in_the_soft_pass(self):
++        t = {"ok": True, "replayed": False, "edges": {"cuttable": True, "in": {"ok": True}, "out": {"ok": True}}}
++        st = {"ok": False, "rows": [], "medley_names_bitcoin": {"pass": True}, "soft_rows": {"clip_02": "why z"}}
++        row = lambda soft: PK.inventory(**TestStage2a().base(t), stand=st, soft=soft, who={"clip_02": "Yahoo Finance"})[
++            "stand_alone"]
++        self.assertEqual((row(True)["status"], row(True)["flags"]), (
++            "FLAGGED", ["The clip (Yahoo Finance) may not stand alone: why z."]))
++        self.assertEqual((row(False)["status"], "flags" in row(False)), ("FAIL", False))
++
++
+ class TestTheDayCount(unittest.TestCase):
+     def test_counted_per_day_ledger(self):
+         with tempfile.TemporaryDirectory() as d:

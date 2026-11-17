@@ -290,6 +290,90 @@ class TestStage2bHookBar(unittest.TestCase):
         self.assertEqual(PK.HOOK_SOFT_MAX, 2)
 
 
+class TestRuling141StandAloneSoft(unittest.TestCase):
+    """RULING 141 (2): STAND_ALONE SOFT in the never-empty pass (the builder's half; the integrator's render already only
+    flags an opener refusal and holds on the topic rule and the medley naming Bitcoin). A moment left out ONLY by the
+    render's STAND_ALONE opener rule comes back as a clip, flagged "The clip (<channel>) may not stand alone: <reason>."
+    (the integrator matches that prefix); it never opens; the topic rule, the hook's row, an unmarked clip and the medley
+    naming Bitcoin stay hard."""
+
+    def m(self, text, verdict=None):
+        x = {"moment_id": "q", "text": text}
+        return dict(x, scorer_verdict=dict(verdict, text_sha256=PK.text_sha(text))) if verdict else x
+
+    def test_the_reason_in_plain_words(self):
+        self.assertEqual(PK.stand_plain(self.m("But Bitcoin q x.")),
+                         "it opens on 'but' and the clip scorer has no verdict for it")
+        self.assertEqual(PK.stand_plain(self.m("And Bitcoin q x.", {"score": 2.0, "fault": "starts_mid_thought",
+                                                                     "reason": "r"})),
+                         "it opens on 'and' and the clip scorer rated it 2.0 of 5 (starts mid thought)")
+        self.assertIsNone(PK.stand_plain(self.m("Bitcoin q x.")))
+        with mock.patch("stand_alone.opener", lambda *a, **k: (False, "clip q (2.0, fault x_y) new wording")):
+            self.assertEqual(PK.stand_plain(self.m("Bitcoin q x.")), "the clip scorer does not confirm it stands alone")
+        self.assertTrue(PK.STAND_SOFT_PREFIX.format(channel="X").startswith("The clip (X) may not stand alone: "))
+
+    def test_only_marked_clips_failing_only_the_opener_are_soft(self):
+        segs = [{"moment_id": "h", "stand_soft": "why h"}, {"moment_id": "a", "stand_soft": "why a"},
+                {"moment_id": "b"}]                                     # a mark on the hook never softens its row
+        row = lambda seg, o, t=True: {"segment": seg, "pass": o and t, "opener": {"pass": o}, "topic": {"pass": t}}
+        st = {"ok": False, "rows": [row("hook", True), row("clip_01", False), row("clip_02", True)],
+              "medley_names_bitcoin": {"pass": True}}
+        self.assertEqual(PK.stand_soft_rows(st, segs), {"clip_01": "why a"})
+        for bad in ([row("hook", False), row("clip_01", False), row("clip_02", True)],      # the hook's own row
+                    [row("hook", True), row("clip_01", False, False), row("clip_02", True)],   # its topic too
+                    [row("hook", True), row("clip_01", False), row("clip_02", False)]):     # an unmarked clip
+            self.assertIsNone(PK.stand_soft_rows(dict(st, rows=bad), segs), bad)
+        self.assertIsNone(PK.stand_soft_rows(dict(st, medley_names_bitcoin={"pass": False}), segs))
+        self.assertIsNone(PK.stand_soft_rows(dict(st, medley_names_bitcoin=None), segs))   # unmeasured: hard
+        self.assertIsNone(PK.stand_soft_rows(dict(st, ok=True), segs))
+
+    def rig(self, never_empty, carry=False):
+        import test_medley as TM
+        from test_moments import pm
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), dict(pm("z", "C", 13.0), text="But Bitcoin z x."),
+              dict(pm("w", "D", 13.0), text="But nothing here at all.")]   # w: the topic rule (ruling 34) too
+        ms = [dict(m, stand_soft="carried in") for m in ms] if carry else ms
+        r = TM.Rig(ms, ["h", "x", "z"], [(True, [], None, TM.Rig.LINE)], [None])
+        r.build_kw = {"never_empty": never_empty}
+        return r.run()
+
+    def test_a_clip_left_out_only_by_the_opener_rule_seals_flagged_only_in_the_never_empty_pass(self):
+        clean = self.rig(False)
+        self.assertIsNone(clean["package"])
+        self.assertIn("z", clean["no_role"])                        # the clean pass: 2 channels, no paid verdict
+        out = self.rig(True)
+        pk = out["package"]
+        segs = {s["moment_id"]: s for s in pk["segments"]}
+        self.assertEqual((set(segs), pk["segments"][0]["moment_id"]), ({"h", "x", "z"}, "h"))   # never the hook
+        want = [f"The clip ({segs['z']['channel']}) may not stand alone: it opens on 'but' and the clip scorer has no "
+                f"verdict for it."]
+        self.assertEqual((pk["gates"]["stand_alone"]["status"], pk["gates"]["stand_alone"]["flags"]), ("FLAGGED", want))
+        self.assertEqual(PP.review_flags_of(pk["gates"]), want)
+        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])   # the seal's own check takes it
+        self.assertEqual(out["soft_stand"], {"z": "it opens on 'but' and the clip scorer has no verdict for it"})
+        self.assertIn("w", out["no_role"])                              # the topic rule stays HARD: never back
+
+    def test_a_mark_carried_in_is_never_read(self):
+        self.assertIsNone(self.rig(False, carry=True)["package"])
+
+    def test_the_line_up_rules_take_a_marked_clip_and_refuse_an_unmarked_one(self):
+        from test_moments import pm
+        h = dict(pm("h", "A", 12.0), hook_onset={"pass": True})
+        z = dict(pm("z", "C", 13.0), text="But Bitcoin z x.")
+        segs = [h, pm("x", "B", 14.0), z]
+        self.assertEqual(PK.lineup_ok(segs), (False, "the render's STAND_ALONE"))
+        self.assertEqual(PK.lineup_ok([h, segs[1], dict(z, stand_soft="it opens on 'but'")]), (True, "ok"))
+
+    def test_the_row_flags_only_in_the_soft_pass(self):
+        t = {"ok": True, "replayed": False, "edges": {"cuttable": True, "in": {"ok": True}, "out": {"ok": True}}}
+        st = {"ok": False, "rows": [], "medley_names_bitcoin": {"pass": True}, "soft_rows": {"clip_02": "why z"}}
+        row = lambda soft: PK.inventory(**TestStage2a().base(t), stand=st, soft=soft, who={"clip_02": "Yahoo Finance"})[
+            "stand_alone"]
+        self.assertEqual((row(True)["status"], row(True)["flags"]), (
+            "FLAGGED", ["The clip (Yahoo Finance) may not stand alone: why z."]))
+        self.assertEqual((row(False)["status"], "flags" in row(False)), ("FAIL", False))
+
+
 class TestTheDayCount(unittest.TestCase):
     def test_counted_per_day_ledger(self):
         with tempfile.TemporaryDirectory() as d:

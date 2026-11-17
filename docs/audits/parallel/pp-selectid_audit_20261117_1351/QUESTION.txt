@@ -1,0 +1,37 @@
+pp-selectid: RULING 141 (2) (orchestrator 13:40 ET Nov 17): STAND_ALONE becomes SOFT, the first item of stage 2b; the
+builder's half. Context: the never-empty pass (package.build runs _build(soft=True) only when the clean pass sealed
+nothing) flags soft gates in one plain sentence each; at most 3 flags seal (package_pin.REVIEW_FLAGS_MAX). STAND_ALONE
+left out 77 of 110 usable moments today. The integrator's side needs no change: since its batch 105 (11:51 ET) its
+render's validate re-asks every opener and only FLAGS an unaffirmed / unrated / conjunction opener; it HOLDS only on the
+topic rule (ruling 34), the medley naming Bitcoin, and a malformed ruling-119 floor mark. Its next batch skips its own
+flag for a channel whose pin already carries "The clip (<channel>) may not stand alone:", so that prefix must be exact.
+Files: pipeline/package.py, pipeline/package_pin.py, tests/package/test_ruling_137.py.
+
+THE CHANGE (never-empty pass only; the clean pass is unchanged):
+(a) _build: no_role (package.py:3261: no_role_on_screen :1640, the opener rule; no_topic :1630, the topic rule) still
+    leaves out what it did. In the soft pass, a moment left out ONLY by the opener rule (no_topic None) and with no
+    affirmed trim variant (trims, :3264, the clean path, kept first) comes back (stand_back, :3269), carrying its plain
+    reason as the mark "stand_soft" (stand_plain :1576: "it opens on 'but' and the clip scorer has no verdict for it" /
+    "... rated it 2.0 of 5 (starts mid thought)"). The mark is popped after with_verdict, so it never carries in. It
+    never opens: the hook role still needs SA.opener("hook") in _can_open (:1809), which every conjunction fails.
+(b) stand_soft_rows(stand, segs) (:1596): the clip rows of check_edl (stand_alone.py:176-222: one row a segment, the
+    opener and topic results, plus medley_names_bitcoin) that fail ONLY the opener, each on a marked moment. None if
+    the check passes, the hook's row fails (even marked), any topic row fails, an unmarked clip's row fails, or the
+    medley does not name Bitcoin (also when that record is missing).
+(c) stand_ok(segs) (:1616) = the check passes, or only (b)'s rows fail. It replaces the bare check in lineup_ok (:1861)
+    and in lineup_for's picker (:1998). stand_with_soft (:1623) adds the soft rows to the pin stage's check at both
+    inventory call sites.
+(d) inventory: the "stand_alone" row is FLAGGED with "The clip (<channel>) may not stand alone: <reason>." for each soft
+    row (STAND_SOFT_PREFIX :1572, the integrator's exact prefix), only when soft. package_pin.SOFT_GATES adds
+    "stand_alone". The record keeps out["soft_stand"].
+
+TESTS (test_ruling_137, 7 new): the plain reason; (b)'s every hard case; END TO END through test_medley's Rig: a 3-moment
+pool whose third channel opens on "But": the clean pass leaves it out and stops at 2 channels; the never-empty pass seals
+with the stand_alone row FLAGGED in the exact sentence, review_flags_of equal to it, gate_problems() empty, the hook not
+the flagged clip; a moment failing the topic rule too stays out. lineup_ok takes a marked clip and refuses an unmarked
+one. The row flags only in the soft pass. Mutations: 11 of 14 killed. Survivors: S13 (the pop of a carried mark) and
+S14 (the explicit opener check) are equivalent today; S3, preferring an affirmed trim, is NOT UNIT-TESTED: please read
+:3269's "not in trims".
+
+PLEASE CHECK: (1) can anything the topic rule, the medley-names-Bitcoin rule or the hook rule refuses get through? (2) the
+clean pass unchanged; (3) lineup_ok / lineup_for / the pin row agree; (4) the exact prefix; (5) the tests.
