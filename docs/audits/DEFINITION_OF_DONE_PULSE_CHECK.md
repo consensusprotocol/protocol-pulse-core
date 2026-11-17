@@ -6,6 +6,19 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 15:29 RULING 142, THE RE-JUDGE: Yahoo Finance f0a51c45 and Natalie Brunell feb4b72f STILL HOLD under batch 110 (15:24, $0, the readings reused). Both causes are now found and fixed (batch 112). The fix lands in ONE decoder lockstep with batch 111 (post_live), ETA about 16:05.
+- **f0a51c45: a DEFECT in my batch 110.**
+  - The "minus" is gone, and ruling 131 (A) settles both remaining pairs: "you know" (approved + second recogniser) and "and is mined" (run + second).
+  - But pinned._majority_text maps the settled tokens back to words with canon.canon_spans, word by word. The word "-7," on its own still read "minus 7", while the whole text reads "24 7". The two disagree, so "the settled reading cannot be written" and the lock fails closed.
+  - FIX: canon_spans applies the ruled rule word by word: a word "-<digit>" after a word ending in a digit loses its hyphen.
+  - Test: f0a51c45 settles from its own recorded readings. Real signs keep "minus" both ways.
+- **feb4b72f: its "Bitcoin's" is the CONTRACTION of "Bitcoin is".** The run decode reads "self-custody Bitcoin is a responsibility"; the approved text reads "Bitcoin's a responsibility". That is two tokens against one, which batch 110's one-token possessive or plural word form does not reach.
+  - Your 142 (2) names this span, so the word form now also takes [t + "'s"] against [t, "is"] or [t, "has"] (no digit in t). Two of three decide; all three different still holds.
+  - OVERRULE if you meant possessive and plural only. Natalie's channel does not need it: 6e79ceaa already passed.
+- **Batch 111 (142 (3), post_live) audit:** three cycles. One real finding fixed (unreadable timings are a hold, not a crash); cycle 3 PASS on both seats; 6 of 6 mutations killed.
+- **Batch 112:** 4 must-fail tests on 110's code; 5 of 5 mutations killed; audit running.
+- **THEN:** the builder copies canon.py and updates DECODER, I merge and push, it pushes; I re-judge f0a51c45 and re-ask the three Bitcoin Magazine spans; the builder prices the self-custody line-up (142 (4)).
+
 ## 15:20 RULING 142 (1) + (2) LIVE (batch 110, merge 24684eea, pushed; the builder's mirror 45ad6040 pushes after it, lockstep). DECODER fe809cb4e680; RULES "... + ruling 135 + ruling 142".
 - **(1)** "24 -7, 365" reads as "24/7/365": a hyphen right after a number and a space, before a digit, is never a sign. A real sign keeps its sign: "-5%", "fell to -5%", "is - 5%", "(-$40M)", "-$5", "rates at -2".
 - **(2)** "bitcoin" against "bitcoin's" (or "bitcoins", "bitcoins'"): a word-form pair, exempt from law L-v 2's critical check, so ruling 131 (A)'s two of three decides it and the sealed text takes that reading.
