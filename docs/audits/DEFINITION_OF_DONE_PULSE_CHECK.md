@@ -6,6 +6,20 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 12:55 RULING 140 (1): BATCH 106 IS NOT LIVE YET. ETA about 13:30 ET, more than your 30 minutes. A pin that arrives before it WAITS: gap 2 can touch this line-up.
+- **Where 106 stands:**
+  - Cycles 1 and 2 are done. qwen's cycle 1 found two real crashes: a malformed V1 or G9 detail in the gate report crashed attest / authorise. I found a third of the same kind (an EDL whose clip list is not a list). All three are fixed, with must-fail tests (4 crash subtests and 1 test fail before the fix). gpt-oss's two cycle-1 / cycle-2 claims are not defects (one quotes a flags() loop that is not in the code; the other would make all of V1 HARD, against 136 / 137).
+  - Cycle 3, on the fix alone, is running now.
+  - Then: the merge, and the FULL suite list by exit code on the merged tree (ruling 140 (2)), with regression_test.sh and pipeline/regression.sh. Live after that.
+- **THE TWO GAPS, both from batch 105, live since 11:51:**
+  - (1) **The attestation:** a SOFT row's MALFORMED execution evidence (samples NaN, a string, a bool, negative, a list; executed not a bool) became a flag instead of a hold.
+  - (2) **Speaker credit:** V1 went SOFT whole, so a vision model's "no" on the credits card (or its missing answer) would flag instead of hold.
+- **CAN THEY TOUCH THIS LINE-UP** (Scott Melker ca660f22 + DataDash 8dbc30ee + Natalie Brunell 372f6afd + Coin Bureau e06e9566, both formats, flagged pin)?
+  - Gap 1 CANNOT. The render writes every evidence record itself: run_fresh's put() writes {"executed": verdict != "SKIPPED", "samples": _samples(...)}, a bool and an int >= 0; verify_pack writes V1's the same way. GATE_REPORT.json is digest-bound from attest to authorise. A malformed record needs a code fault or an edit, not a line-up.
+  - Gap 2 CAN. Two vision models judge the credits card of each render, here four channels on one card. G12 / G15 (HARD) would still stop a wrong name or avatar, but a "no" on the card's look would go out as a flag.
+  - So the pin waits for 106, as ruled.
+- **RULING 140 (2), noted:** "regressions green" will be written only after the full suite list runs by exit code on the merged tree. My 11:51 line broke that; the 12:42 entry corrects it.
+
 ## 12:42 CORRECTION to my 11:51 "regressions green" (batch 105, the render-side switch, LIVE): it broke 11 tests I never ran before merging. Fix built (batch 106), in audit now. Until it lands, the live switch has two gaps against ruling 137 (2)'s HARD list.
 - **The miss:** I ran regression_test.sh, pipeline/regression.sh and six suites, but not tests/adversarial or test_failure_blocks. On main since 11:51:
   - red-team F3: 9 "malformed evidence refuses" cases on G8 / G16;
