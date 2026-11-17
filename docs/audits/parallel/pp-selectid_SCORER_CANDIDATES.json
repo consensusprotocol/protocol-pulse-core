@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-17T15:26:38+00:00",
- "build": "ledger_20261117_152630",
+ "generated_at": "2026-11-17T15:41:52+00:00",
+ "build": "ledger_20261117_154144",
  "kind": "moments",
  "candidates": [
   {
@@ -166,15 +166,6 @@
    "trimmed_leading": "So"
   },
   {
-   "pid": "f94136253615d09d7fe3",
-   "video_id": "WjnphankXmM",
-   "channel": "DataDash",
-   "duration": 5.48,
-   "text": "It's also why I would not present a product like Q as better than Bitcoin. That framing is just kind of too simple.",
-   "text_sha256": "3a6bd3679c47590c1e0e70a7a6a7d0b29fbc7cbc152ac3560d9af975bfd37dd0",
-   "trimmed_leading": null
-  },
-  {
    "pid": "a1e8448801145629fffd",
    "video_id": "RsCi56hEriU",
    "channel": "Natalie Brunell",
@@ -190,6 +181,15 @@
    "duration": 9.16,
    "text": "Its founder goes by Shoku, his pseudonym. He bought his first Bitcoin in 2013, and for many years after that, he stayed an investor, not a builder.",
    "text_sha256": "06515119792dea3b07cb4618faf7b9827d45ccace5cab68765ecae171ef4201d",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5f3d3e88b9ac34188848",
+   "video_id": "WjnphankXmM",
+   "channel": "DataDash",
+   "duration": 3.34,
+   "text": "It's also why I would not present a product like Q as better than Bitcoin.",
+   "text_sha256": "0192c77307921430f52aa933b84b406d3878fbe3a58980cfc5a045e7756d9c9b",
    "trimmed_leading": null
   },
   {
@@ -229,15 +229,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "eaee194a1b4a59826464",
-   "video_id": "RsCi56hEriU",
-   "channel": "Natalie Brunell",
-   "duration": 15.29,
-   "text": "The goal is to maximize the total returns for our common equity investors. Because of our bull thesis on Bitcoin, that almost always means buying Bitcoin. I don't. I think it's likely that you would see us sell Bitcoin anytime in the near future.",
-   "text_sha256": "f7988745f9a804266a5bfe070e85541b8a6e907072cddaf66498e412ff402463",
-   "trimmed_leading": null
-  },
-  {
    "pid": "700df83644274f6981d4",
    "video_id": "RsCi56hEriU",
    "channel": "Natalie Brunell",
@@ -253,15 +244,6 @@
    "duration": 16.44,
    "text": "Strategy has, I think, purchased hundreds of thousands of Bitcoin. Why is Bitcoin's price not at least near where we were? at the all -time high, like a low 100,000s, when we've seen all -time highs in the stock market over and over again. I mean, why are we sort of underperforming, do you think?",
    "text_sha256": "fa0c757c7f0a9f9482dd2310ab32efbe9286b38c457821d6207f2de95b2f192c",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "1479940438ecde098a20",
-   "video_id": "WjnphankXmM",
-   "channel": "DataDash",
-   "duration": 17.62,
-   "text": "It's also why I would not present a product like Q as better than Bitcoin. That framing is just kind of too simple. The quantum strategies hold multiple crypto assets, and the comparison portfolios on the page are also multi -asset. A Bitcoin only... investor has a different benchmark, a different concentration, and potentially a different goal.",
-   "text_sha256": "ba6a12c8671a6a23f68c687992405b14084d627d4fb3ecfb9d587f6628fda5f3",
    "trimmed_leading": null
   },
   {
