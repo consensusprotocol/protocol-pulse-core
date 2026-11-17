@@ -13,7 +13,8 @@ different name does not. canon_tokens(text) -> the canonical word list; canon(te
                       thousand'; '1.66 billion' = '$1.66B' value-wise; decimals 'one point six six' = '1.66';
                       ordinals '3rd' = 'third' = 'ord3' (never the cardinal: 'one second' != 'one two')
   currency / percent  '$40 trillion' = '40 trillion dollars' (the spoken order); '5.5%' = '5.5 percent' =
-                      'five point five percent'; 'dollar' = 'dollars'
+                      'five point five percent'; 'dollar' = 'dollars'; currency_free() (ruling 131 (B)) also equals
+                      '$2 billion' and a spoken '2 billion' where a site asks for it (G18, the sentence lock)
   signs               '-5%' = 'minus 5 percent', '+5%' = 'plus 5 percent' (GPT-cut F04: -5% != +5%); a hyphen
                       between words or a range ('2026-11', '74-75') is not a sign
 Every comparison site (quote verification, selection anchors, edge words, G3b, G18, sign-off names, ledger
@@ -262,6 +263,22 @@ def canon_aligned(words):
     """(token, index of the source word it starts in) pairs of canon_spans (punctuation transfer and other sites
     that only need where a token begins)."""
     return [(t, f) for t, f, _ in canon_spans(words)]
+
+
+_AMOUNT = re.compile(r"\d+(\.\d+)?")
+
+
+def dollars_after_number(tokens, k):
+    """RULING 131 (B) (orchestrator 2026-11-17 '08:25'): True when canonical token k is a 'dollars' right after a number,
+    the token a currency symbol makes ('$2 billion' -> '2000000000 dollars', the spoken order)."""
+    return tokens[k] == "dollars" and k > 0 and bool(_AMOUNT.fullmatch(tokens[k - 1]))
+
+
+def currency_free(tokens):
+    """RULING 131 (B): a currency symbol is formatting, so '$2 billion' equals a spoken '2 billion'. The canonical tokens
+    with every 'dollars' right after a number dropped (both sides of a comparison alike). This is G18's one tolerance
+    since mission 4a (word_diff.norm), now the one function G18 and the sentence lock both use."""
+    return [w for k, w in enumerate(tokens) if not dollars_after_number(tokens, k)]
 
 
 def canon(text):

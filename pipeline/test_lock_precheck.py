@@ -176,15 +176,17 @@ class TestOutcomes(Base):
         self.assertEqual((e["outcome"], e["as_spoken"]["verdict"]), ("no_difference", "same"), e)
         self.assertEqual((e["scribe_usd"], len(self.heard)), (0.0078, 1))
 
-    def test_the_word_pass_text_holds_as_the_render_held_it(self):
+    def test_the_word_pass_text_is_settled_by_two_of_three_readings(self):     # ruling 131 (A); held before it
         self.request(approved_text=WORD_PASS)
         LP.serve_once(log=self.log)
         e = self.entry(WORD_PASS)
-        self.assertEqual(e["outcome"], "hold")
-        self.assertIn("lock text not adjudicated (ruling 17)", e["reason"])
-        self.assertIn("[['in', 'you'], [\"that's why\", '']] the second recogniser reads the run decode", e["reason"])
-        self.assertEqual(e["scribe_usd"], 0.0078)                # the spend is recorded
-        self.assertIsNone(e["lock"])
+        self.assertEqual((e["outcome"], e["spoken_text"]), ("adopt_spoken", ATTESTED), e.get("reason"))
+        self.assertTrue(e["adjudication"]["rule"].startswith("ruling 131 (A)"))
+        self.assertEqual([(x["run"], x["approved"], x["took"], x["edge_distance"]) for x in e["adjudication"]["pairs"]],
+                         [("in", "you", "run", 13), ("that's why", "", "run", 4)])     # the copy 4 from the end
+        self.assertEqual(e["lock"]["text"], ATTESTED)            # the lock the sealed text makes: nothing to settle
+        self.assertIsNone(e["relock_adjudication"])
+        self.assertEqual((e["scribe_usd"], len(self.heard)), (0.0078, 1))     # ONE paid reading, cached for the re-lock
 
 
 class TestAdoption(Base):
@@ -211,13 +213,14 @@ class TestAdoption(Base):
         self.assertEqual((alt["readings"], alt["rule"][:13]), (["you", "in"], "ruling 84 (b)"))
         self.assertEqual((e["as_spoken"]["differences"], e["as_spoken"]["classes"]), ([["you", "in"]], [LP.ONE_FW]))
 
-    def test_two_readings_when_it_reads_the_decode_on_one_token(self):
-        self.scribe_text = self.run_text
+    def test_one_mid_span_token_both_recognisers_read_is_settled(self):          # ruling 131 (A) (ruling 18's
+        self.scribe_text = self.run_text                                          # record before it)
         self.request(approved_text=ATTESTED)
         LP.serve_once(log=self.log)
         e = self.entry(ATTESTED)
-        self.assertEqual(e["outcome"], "two_readings", e)
-        self.assertEqual(e["adjudication"][0]["readings"], ["you", "in"])
+        self.assertEqual((e["outcome"], e["spoken_text"]), ("adopt_spoken", self.run_text), e.get("reason"))
+        self.assertEqual([(x["run"], x["approved"], x["took"]) for x in e["adjudication"]["pairs"]],
+                         [("you", "in", "run")])
 
 
 class TestDiscipline(Base):
@@ -796,3 +799,47 @@ class TestRuling105(Base):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRuling131(Base):
+    """RULING 131 (orchestrator 2026-11-17 '08:25') in the pre-check: (A) the sealed text takes each pair's two-of-three
+    reading (outcome adopt_spoken, spoken_text the settled text, the render's own lock re-made with it as the pin's
+    text); (B) a currency symbol is formatting, in the lock and in ruling 72's comparison alike."""
+    RUN = ATTESTED.replace("I punch in my code", "I punch in a bunch of codes")
+    PIN = ATTESTED.replace("I punch in my code", "I punch in a budget codes")
+
+    def test_a_content_pair_read_as_the_run_is_sealed_as_spoken(self):
+        self.run_text, self.scribe_text = self.RUN, self.RUN
+        self.request(approved_text=self.PIN)
+        LP.serve_once(log=self.log)
+        e = self.entry(self.PIN)
+        self.assertEqual((e["outcome"], e["spoken_text"]), ("adopt_spoken", self.RUN), e.get("reason"))
+        self.assertEqual([(x["run"], x["approved"], x["took"], x["agreed"]) for x in e["adjudication"]["pairs"]],
+                         [("bunch of", "budget", "run", ["run", "second"])])
+        self.assertEqual(e["lock"]["text"], self.RUN)
+
+    def test_a_third_reading_holds(self):
+        self.run_text, self.scribe_text = self.RUN, self.RUN.replace("bunch of", "punch of")
+        self.request(approved_text=self.PIN)
+        LP.serve_once(log=self.log)
+        e = self.entry(self.PIN)
+        self.assertEqual(e["outcome"], "hold")
+        self.assertIn("all three readings differ", e["reason"])
+
+    def test_a_currency_symbol_in_the_approved_text_is_no_difference(self):
+        self.run_text = ATTESTED.replace("the money's not there", "the 2 billion is not there")
+        self.scribe_text = self.run_text
+        pin = ATTESTED.replace("the money's not there", "the $2 billion is not there")
+        self.request(approved_text=pin)
+        LP.serve_once(log=self.log)
+        e = self.entry(pin)
+        self.assertEqual((e["outcome"], e["as_spoken"]["verdict"]), ("no_difference", "same"), e.get("reason"))
+        self.assertEqual(e["currency_format"], [["", "dollars"]])
+
+    def test_a_currency_symbol_in_the_second_reading_is_no_difference(self):          # ruling 72's comparison
+        self.run_text = ATTESTED.replace("the money's not there", "the 2 billion is not there")
+        self.scribe_text = ATTESTED.replace("the money's not there", "the $2 billion is not there")
+        self.request(approved_text=self.run_text)
+        LP.serve_once(log=self.log)
+        e = self.entry(self.run_text)
+        self.assertEqual((e["outcome"], e["as_spoken"]["verdict"]), ("no_difference", "same"), e.get("reason"))

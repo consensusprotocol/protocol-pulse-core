@@ -31,8 +31,7 @@ def norm(text, collapse=False):
     words ('of course of course'); a difference that only that removes is NOT dropped from the evidence: G18
     adjudicates it acoustically (GPT-cut F05, gate_g18)."""
     import canon
-    t = canon.canon_tokens(text)
-    t = [w for k, w in enumerate(t) if not (w == "dollars" and k and re.fullmatch(r"\d+(\.\d+)?", t[k - 1]))]
+    t = canon.currency_free(canon.canon_tokens(text))          # ruling 131 (B): the one currency rule
     return _collapse_repeats(t) if collapse else t
 
 
@@ -57,7 +56,7 @@ def _alt_positions(expected, alts):
         a = x.get("token_index")
         if not isinstance(a, int) or not 0 <= a < len(t):
             continue
-        drop = [k for k, w in enumerate(t) if w == "dollars" and k and re.fullmatch(r"\d+(\.\d+)?", t[k - 1])]
+        drop = [k for k in range(len(t)) if canon.dollars_after_number(t, k)]      # ruling 131 (B)
         if a in drop:
             continue
         out[a - sum(1 for k in drop if k < a)] = set(x.get("readings") or [])

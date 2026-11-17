@@ -47,6 +47,9 @@ LINEUP_BAR_NOTE = "line-up passed on the calibrated bar"
 STAND_ALONE_BAR_NOTE = "a clip passed stand-alone on the calibrated bar"     # ruling 120's own words
 BAR_MARKS = (("hook_bar", HOOK_BAR_NOTE, "ruling 115 (2)"), ("lineup_bar", LINEUP_BAR_NOTE, "ruling 116"),
              ("stand_alone_bar", STAND_ALONE_BAR_NOTE, "ruling 119"))
+# Ruling 131 (orchestrator 08:25 ET Nov 17): both lock rules are MARKED in the release caption, in plain words, when used
+MAJORITY_NOTE = "word check settled by two of three readings"         # (A)
+CURRENCY_NOTE = "currency format"                                      # (B)
 
 
 def _fit(text, limit):
@@ -118,6 +121,35 @@ def bar_lines(run_dir, edl):
     return lines
 
 
+def lock_lines(run_dir, edl):
+    """RULING 131's release-caption lines, in this order: MAJORITY_NOTE when a clip's words were settled by two of the
+    three readings ((A): a render lock's own two-of-three record in the attested EDL, or a pin segment sealed with an
+    attested rule naming ruling 131 (A) in PINNED_DECISION.json, bound to the attested EDL by the package digest as
+    bar_lines' marks are); CURRENCY_NOTE when a render lock read a currency symbol as formatting ((B): its
+    currency_format). STOP (nothing is sent) on an unreadable pin record or a sealed (A) pin that is not the EDL's."""
+    locks = [x for x in [(edl.get("hook") or {}).get("selection_lock")] +
+             [c.get("selection_lock") for c in edl.get("clips") or []] if isinstance(x, dict)]
+    majority = any(isinstance(x.get("adjudication"), dict) and
+                   str(x["adjudication"].get("rule", "")).startswith("ruling 131 (A)") for x in locks)
+    path = os.path.join(run_dir, "PINNED_DECISION.json")
+    if os.path.exists(path):
+        try:
+            with open(path) as f:
+                pin = json.load(f)["pin"]
+            sealed = any("ruling 131 (A)" in str(s["attested"]["rule"]) for s in pin.get("segments") or []
+                         if s.get("attested") is not None)
+            sha = (pin.get("moments_package") or {}).get("package_sha256") if sealed else None
+        except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
+            raise RuntimeError(f"STOP: ruling 131's marks: the pin record cannot say whether a word check was settled "
+                               f"by two of three readings ({type(e).__name__}: {e})") from None
+        if sealed and not (isinstance(sha, str) and sha and sha == edl.get("moments_package_sha256")):
+            raise RuntimeError("STOP: ruling 131's marks: the sealed pin in PINNED_DECISION.json is not the attested "
+                               "EDL's")
+        majority = majority or sealed
+    currency = any(x.get("currency_format") for x in locks)
+    return [n for n, on in ((MAJORITY_NOTE, majority), (CURRENCY_NOTE, currency)) if on]
+
+
 def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
     """The caption of an AUTHORISED run: verdict line first; the MONITORING rows that did not pass are listed as
     reported, not release-deciding (addendum '22:15' item 4). snap: the verified snapshot (deliver_run)."""
@@ -134,8 +166,8 @@ def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
              + (f" | {duration:.1f} s" if duration else ""),
              f"Story: {edl.get('topic', '')}",
              "Clips: " + ", ".join([edl["hook"].get("channel", "?")] + [c.get("channel", "?") for c in edl.get("clips", [])])]
-    lines[2:2] = bar_lines(run_dir, edl)     # rulings 115 (2) / 116 / 119: one plain line per mark, under the run line
-                                             # (never cut by _fit)
+    lines[2:2] = bar_lines(run_dir, edl) + lock_lines(run_dir, edl)    # rulings 115 (2) / 116 / 119 / 131: one plain
+                                             # line per mark, under the run line (never cut by _fit)
     if mon:                                # claude-fable audit batch 16 #1: never 'all passed' with a failure unsaid
         lines.insert(1, "Monitoring (reported, not release-deciding): " + "; ".join(f"{k} {v}" for k, v in mon.items()))
     if release_auth.release_formats(edl) == ("16x9",):

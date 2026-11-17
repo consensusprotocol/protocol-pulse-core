@@ -505,6 +505,65 @@ def _token_word(words, i0, i1, a):
     return None
 
 
+MAJORITY_EDGE = 3          # ruling 131 (A): a pair the run decode wins sits at least this many tokens from both span ends
+
+
+def _edge_distance(r, p, op):
+    """RULING 131 (A): a differing pair's distance from the nearer end of the span, in the run decode's canonical tokens
+    (the cut is placed on the run's words): min(a, len(r) - b). A pair with nothing on one side (an insertion or a
+    deletion) inside a repetition ('that's why that's why') has several placements that give the same two texts (they
+    cannot say which copy is the extra one): its distance is that of the placement furthest from the ends, sliding the
+    pair only through the equal tokens beside it (each step: the token entering the pair equals the token leaving it)."""
+    from difflib import SequenceMatcher
+    tag, a, b, c, d = op = tuple(op)
+    full = SequenceMatcher(None, r, p, autojunk=False).get_opcodes()
+    shifts = [0]
+    if tag in ("delete", "insert") and op in full:
+        k = full.index(op)
+        seq, x, y = (r, a, b) if tag == "delete" else (p, c, d)
+        left = full[k - 1][2] - full[k - 1][1] if k > 0 and full[k - 1][0] == "equal" else 0
+        right = full[k + 1][2] - full[k + 1][1] if k + 1 < len(full) and full[k + 1][0] == "equal" else 0
+        n = 1
+        while n <= left and seq[x - n] == seq[y - n]:
+            shifts.append(-n)
+            n += 1
+        n = 1
+        while n <= right and seq[x + n - 1] == seq[y + n - 1]:
+            shifts.append(n)
+            n += 1
+    return max(min(a + n, len(r) - (b + n)) for n in shifts)
+
+
+def _majority_text(r, p, ops, pairs, run_t, pin_t):
+    """RULING 131 (A): the approved text with every pair that "took": "run" written in the run decode's words (the
+    approved words of that pair replaced, deleted or the run's inserted), -> the text, or None when it cannot be written
+    so that its canonical tokens are exactly the settled ones (fail closed: the lock then holds)."""
+    import canon
+    want, k = [], 0
+    by_op = {(o[1], o[3]): x for o, x in zip(ops, pairs)}
+    from difflib import SequenceMatcher
+    for tag, a, b, c, d in SequenceMatcher(None, r, p, autojunk=False).get_opcodes():
+        x = by_op.get((a, c)) if tag != "equal" else None
+        want += r[a:b] if (x is not None and x["took"] == "run") else p[c:d]
+    pw, rw = pin_t.split(), run_t.split()
+    ps, rs = canon.canon_spans(pw), canon.canon_spans(rw)
+    if [s[0] for s in ps] != p or [s[0] for s in rs] != r:
+        return None
+    out, w = [], 0                                     # w: the next approved word not yet written
+    for o, x in zip(ops, pairs):
+        if x["took"] != "run":
+            continue
+        _, a, b, c, d = o
+        lo = ps[c][1] if c < len(ps) else len(pw)      # the approved words of the pair: [lo, hi)
+        hi = ps[d - 1][2] + 1 if d > c else lo
+        if lo < w or (d > c and (ps[c][1] != lo or any(ps[j][1] < lo or ps[j][2] >= hi for j in range(c, d)))):
+            return None
+        out += pw[w:lo] + (rw[rs[a][1]:rs[b - 1][2] + 1] if b > a else [])
+        w = hi
+    text = " ".join(out + pw[w:])
+    return text if canon.canon_tokens(text) == want else None
+
+
 def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
     """Ruling 17: the run's own decode (lock['text']) and the pin's approved text (lock['selected_text']) differ
     inside the locked span -> a difference on a number, a name or a negation always holds (law L-v 2); otherwise
@@ -512,7 +571,18 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
     difference, the lock takes the approved text (two independent decodes agree) and G18 compares the final against
     it; when it reads the run's decode, or neither, HOLD naming the three readings. No difference: the lock as is.
     Ruling 84 (b): where it reads ONE function word against the decode's one, the lock keeps the decode's word and
-    records the other reading (ruling 18's record); two or more such in one span HOLD."""
+    records the other reading (ruling 18's record); two or more such in one span HOLD.
+    RULING 131 (orchestrator 2026-11-17 '08:25'):
+    (B) a pair made only of 'dollars' right after a number, on either side, is no difference: a currency symbol is
+        formatting ('$2 billion' = a spoken '2 billion'; canon.currency_free, G18's own rule). It is recorded in
+        lock["currency_format"] (the release caption says 'currency format'), and nobody is asked about it.
+    (A) when the second recogniser does not read the approved words at every remaining pair, two of the three
+        readings (approved text, run decode, second recogniser) decide EACH pair: the approved reading where it reads
+        the approved words; the run decode's where it reads the run's AND the pair is at least MAJORITY_EDGE tokens
+        from both ends of the span. Anything else HOLDS: all three differ, or a run-side pair near an edge (ruling 18's
+        one-token record stays for that case alone). A number, a name or a negation still holds before any vote (L-v 2).
+        The lock text takes each pair's reading, and the adjudication records every pair's three readings, which two
+        agreed and its distance from the nearest edge."""
     import canon
     from difflib import SequenceMatcher
     run_t, pin_t = lock["text"], lock["selected_text"]
@@ -520,6 +590,17 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
     ops = [o for o in SequenceMatcher(None, r, p, autojunk=False).get_opcodes() if o[0] != "equal"]
     if not ops:
         return lock
+    cur = [o for o in ops if all(canon.dollars_after_number(r, i) for i in range(o[1], o[2]))       # ruling 131 (B)
+           and all(canon.dollars_after_number(p, j) for j in range(o[3], o[4]))]
+    if cur:
+        ops = [o for o in ops if o not in cur]
+        lock = {k: v for k, v in lock.items() if k != "sha256"}
+        lock["currency_format"] = [[" ".join(r[a:b]), " ".join(p[c:d])] for _, a, b, c, d in cur]
+        lock["sha256"] = L._lock_digest(lock)
+        log(f"  lock {lock['video_id']} words {lock['i0']}-{lock['i1']}: {lock['currency_format']} differ only by a "
+            f"currency symbol: currency format (ruling 131 (B))")
+        if not ops:
+            return lock
     tag = f"{lock['video_id']} words {lock['i0']}-{lock['i1']}"
     diffs = [[" ".join(r[a:b]), " ".join(p[c:d])] for _, a, b, c, d in ops]
     crit = sorted({t for _, a, b, c, d in ops for t in r[a:b] + p[c:d] if _lv2_critical(t, (run_t, pin_t))})
@@ -549,6 +630,31 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
     pin_side = all(reads(p, pmap, c, d) for _, a, b, c, d in ops)
     run_side = all(reads(r, rmap, a, b) for _, a, b, c, d in ops)
     readings = {"run_decode": run_t, "approved": pin_t, "second_recogniser": sec_t}
+    if not pin_side:                                   # ruling 131 (A): two of the three readings decide each pair
+        pairs, held = [], []
+        for _, a, b, c, d in ops:
+            pin_ok, run_ok = reads(p, pmap, c, d), reads(r, rmap, a, b)
+            dist = _edge_distance(r, p, (_, a, b, c, d))
+            took = "approved" if pin_ok else "run" if run_ok and dist >= MAJORITY_EDGE else None    # as ruling 17: the
+            # approved reading first wherever the second recogniser reads it (pin_side takes it the same way)
+            pair = {"run": " ".join(r[a:b]), "approved": " ".join(p[c:d]),
+                    "second_reads": "both" if pin_ok and run_ok else "approved" if pin_ok else "run" if run_ok
+                    else "neither", "took": took,
+                    "agreed": {"approved": ["approved", "second"], "run": ["run", "second"]}.get(took),
+                    "edge_distance": dist}
+            pairs.append(pair)
+            if took is None:
+                held.append(pair)
+        merged = None if held else _majority_text(r, p, ops, pairs, run_t, pin_t)
+        if merged is not None:
+            new = {k: v for k, v in lock.items() if k != "sha256"}
+            new.update(text=merged, adjudication={"rule": "ruling 131 (A) (orchestrator 2026-11-17 '08:25')",
+                                                  "verdict": "approved", "pairs": pairs, "differences": diffs,
+                                                  "recogniser": "elevenlabs:scribe_v1", "usd": usd, **readings})
+            new["sha256"] = L._lock_digest(new)
+            log(f"  lock {tag}: two of three readings settle {[[x['run'], x['approved'], x['took']] for x in pairs]}: "
+                f"the lock takes each pair's reading (ruling 131 (A))")
+            return new
     if not pin_side and run_side and len(ops) == 1 and ops[0][0] == "replace" and ops[0][2] - ops[0][1] == 1 \
             and ops[0][4] - ops[0][3] == 1:
         # ruling 18 ('10:36'): the decodes split on ONE non-critical token: the lock records both attested readings;
@@ -568,8 +674,13 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
             f"readings recorded (ruling 18)")
         return new
     if not pin_side:
+        why = [f"{x['run']!r}/{x['approved']!r}: " + {
+            "neither": "all three readings differ",
+            "run": f"the second reads the run's, but only {x['edge_distance']} from an edge (ruling 131 (A) needs "
+                   f"{MAJORITY_EDGE})"}.get(x["second_reads"], "no majority") for x in held] \
+            if held else ["the settled reading cannot be written"]
         raise PinError(f"{tag}: lock text not adjudicated (ruling 17): at {diffs} the second recogniser reads "
-                       f"{'the run decode' if run_side else 'neither'} | " +
+                       f"{'the run decode' if run_side else 'neither'}; ruling 131 (A): {'; '.join(why)} | " +
                        " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
     # ruling 84 (b) ('20:40'): where the second recogniser reads ONE function word against the decode's one (its
     # fillers aside), the lock keeps the decode's word and records the other reading (ruling 18's record: G18 passes
