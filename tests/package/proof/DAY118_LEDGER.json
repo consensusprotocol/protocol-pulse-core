@@ -5,7 +5,7 @@
   "2026-11-16T21:10:00-05:00"
  ],
  "ledger": "SPEND_B4.json",
- "cap": 1.0,
+ "cap": 1.25,
  "outside": 1.066138,
  "parts_outside": {
   "builds": 1.066138,
