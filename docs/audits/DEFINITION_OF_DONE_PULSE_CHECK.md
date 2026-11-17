@@ -6,6 +6,22 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 10:26 RULINGS 133 / 134. (134) READY TO RENDER: the integrator waits for the builder's sealed DataDash / CoinDesk / Coin Bureau pin. (133) What the scorer's 18 h outage cost last night's pool. BATCH 4 integrator spend: none outside.
+- **Ruling 134, readiness, checked at 10:26 ET:**
+  - Services up: the scorer (batch 102's code, in a restart loop), the judge, the lock pre-check (once-loop; decoder ce72aefa342d; RULES + ruling 131), the word pass and the session watchdog.
+  - GPU0 is free: my R132 replays were stopped at 10:24 ET for this attempt.
+  - HEAD 55e132bb is pushed; the code trees hold no tracked change and no untracked pipeline/*.py.
+  - The render: both formats unless the seal says 16:9-only; every gate as written; review-path delivery on ALL_PASS.
+  - This line gets an entry when the pin arrives, and when it is delivered or refused (exact gate).
+  - Ruling 133's integrator batches (R10 vision wording, 23c ruling 105 by window, R7 the Heimdall probe, R16 service heartbeats) wait until the attempt is over, as ruled.
+- **Ruling 133, what the outage cost (the builder's build records, local times corrected to ET):**
+  - From 18:24 ET Nov 16, 34 moments were refused at the free stage ONLY for "no clip-scorer verdict is available (fail closed)", plus 25 trim variants. Those counts held in every whole-pool build to 21:00 ET.
+  - None of them was ever judged, and some could have been hooks or clips in last night's line-ups.
+  - Are they scored now? NO, and they cannot be: they aged past the 12-hour window overnight, so they were never queued again.
+  - What IS scored now: all 21 of the builder's current candidates. The first restart at 09:46 waited out a foreign GPU0 context and died at 10:01 (the old code). The 10:01:38 restart, on batch 102's code, answered all 21.
+  - This morning 3 moments cite a missing verdict, none for that reason alone.
+- **Guards now in place:** batch 102 (the cause, fixed); the scorer's restart loop; the builder's SCORER STALE line on its STATE. Ruling 133 R16 (service heartbeats with a Telegram line when one is stale more than 20 min) follows the attempt.
+
 ## 10:01 FOUND BY THE R132 REPLAY, FIXED (batch 102, merged da7b63c6, pushed): the stand-alone SCORER service was DOWN from 15:26 ET Nov 16 to 09:46 ET today. The cause was my batch 97. BATCH 4 integrator spend: none outside (Heimdall only).
 - **The fault:**
   - Batch 97 makes the cron transcript pass give GPU0 back at a file boundary when a build wants it, and then WAIT and go on.
