@@ -1559,5 +1559,215 @@
    "why": "both on same weekend drop to 62k",
    "backend": "xai:grok-4.20-0309-reasoning"
   }
+ },
+ "e7b8eeff1485d3dee1bec9160f2dde34434260286fe14b05968b9837551156dd:a80d47bb7b372d6579d52765d9546de941b25c2a56602f46b5acabcf368d26b4:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "both on BTC returns",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "e7b8eeff1485d3dee1bec9160f2dde34434260286fe14b05968b9837551156dd:037f96a28386fd6de636c50920a6a5f568a401e031d8c319798da788383a4724:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "performance to risk mgmt",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "e7b8eeff1485d3dee1bec9160f2dde34434260286fe14b05968b9837551156dd:06515119792dea3b07cb4618faf7b9827d45ccace5cab68765ecae171ef4201d:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "unclear 'its' referent",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "e7b8eeff1485d3dee1bec9160f2dde34434260286fe14b05968b9837551156dd:542707b7c35c2d494b12ffd39e3f455c6a83d77c98399ea81530edff3103f4ed:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "both on BTC performance",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "e7b8eeff1485d3dee1bec9160f2dde34434260286fe14b05968b9837551156dd:d503bf7f0765680866590d5d183c4995d4c21a4e2349b988edaf8f27b1f998d0:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "RSI to price levels",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "a80d47bb7b372d6579d52765d9546de941b25c2a56602f46b5acabcf368d26b4:037f96a28386fd6de636c50920a6a5f568a401e031d8c319798da788383a4724:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "volatility to risk mgmt",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "a80d47bb7b372d6579d52765d9546de941b25c2a56602f46b5acabcf368d26b4:06515119792dea3b07cb4618faf7b9827d45ccace5cab68765ecae171ef4201d:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "unclear 'its' referent",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "a80d47bb7b372d6579d52765d9546de941b25c2a56602f46b5acabcf368d26b4:542707b7c35c2d494b12ffd39e3f455c6a83d77c98399ea81530edff3103f4ed:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "frustrating asset to expectations",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "a80d47bb7b372d6579d52765d9546de941b25c2a56602f46b5acabcf368d26b4:d503bf7f0765680866590d5d183c4995d4c21a4e2349b988edaf8f27b1f998d0:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "moves to price highs",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "037f96a28386fd6de636c50920a6a5f568a401e031d8c319798da788383a4724:a80d47bb7b372d6579d52765d9546de941b25c2a56602f46b5acabcf368d26b4:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "risk to volatility",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "037f96a28386fd6de636c50920a6a5f568a401e031d8c319798da788383a4724:06515119792dea3b07cb4618faf7b9827d45ccace5cab68765ecae171ef4201d:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "unclear 'its' referent",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "037f96a28386fd6de636c50920a6a5f568a401e031d8c319798da788383a4724:542707b7c35c2d494b12ffd39e3f455c6a83d77c98399ea81530edff3103f4ed:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "risk to vs gold",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "037f96a28386fd6de636c50920a6a5f568a401e031d8c319798da788383a4724:d503bf7f0765680866590d5d183c4995d4c21a4e2349b988edaf8f27b1f998d0:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "risk to price question",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "06515119792dea3b07cb4618faf7b9827d45ccace5cab68765ecae171ef4201d:a80d47bb7b372d6579d52765d9546de941b25c2a56602f46b5acabcf368d26b4:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "founder to volatility shift",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "06515119792dea3b07cb4618faf7b9827d45ccace5cab68765ecae171ef4201d:037f96a28386fd6de636c50920a6a5f568a401e031d8c319798da788383a4724:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "founder to risk shift",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "06515119792dea3b07cb4618faf7b9827d45ccace5cab68765ecae171ef4201d:542707b7c35c2d494b12ffd39e3f455c6a83d77c98399ea81530edff3103f4ed:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "founder to scarce assets",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "06515119792dea3b07cb4618faf7b9827d45ccace5cab68765ecae171ef4201d:d503bf7f0765680866590d5d183c4995d4c21a4e2349b988edaf8f27b1f998d0:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "founder to price question",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "542707b7c35c2d494b12ffd39e3f455c6a83d77c98399ea81530edff3103f4ed:a80d47bb7b372d6579d52765d9546de941b25c2a56602f46b5acabcf368d26b4:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "drawdowns to returns",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "542707b7c35c2d494b12ffd39e3f455c6a83d77c98399ea81530edff3103f4ed:037f96a28386fd6de636c50920a6a5f568a401e031d8c319798da788383a4724:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "volatility to risk mgmt",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "542707b7c35c2d494b12ffd39e3f455c6a83d77c98399ea81530edff3103f4ed:06515119792dea3b07cb4618faf7b9827d45ccace5cab68765ecae171ef4201d:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "unclear 'its' referent",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "542707b7c35c2d494b12ffd39e3f455c6a83d77c98399ea81530edff3103f4ed:d503bf7f0765680866590d5d183c4995d4c21a4e2349b988edaf8f27b1f998d0:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "both on BTC price",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d503bf7f0765680866590d5d183c4995d4c21a4e2349b988edaf8f27b1f998d0:a80d47bb7b372d6579d52765d9546de941b25c2a56602f46b5acabcf368d26b4:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "price to returns",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d503bf7f0765680866590d5d183c4995d4c21a4e2349b988edaf8f27b1f998d0:037f96a28386fd6de636c50920a6a5f568a401e031d8c319798da788383a4724:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "price to conviction",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d503bf7f0765680866590d5d183c4995d4c21a4e2349b988edaf8f27b1f998d0:06515119792dea3b07cb4618faf7b9827d45ccace5cab68765ecae171ef4201d:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "unclear 'its' referent",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d503bf7f0765680866590d5d183c4995d4c21a4e2349b988edaf8f27b1f998d0:542707b7c35c2d494b12ffd39e3f455c6a83d77c98399ea81530edff3103f4ed:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "price to expectations",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "40cc3e2080df83a8589bfb1f11fb042bd4b972f80efe36fa6cc3f60cf368d8ad:542707b7c35c2d494b12ffd39e3f455c6a83d77c98399ea81530edff3103f4ed:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin performance continues",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "40cc3e2080df83a8589bfb1f11fb042bd4b972f80efe36fa6cc3f60cf368d8ad:037f96a28386fd6de636c50920a6a5f568a401e031d8c319798da788383a4724:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin investing follows",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "40cc3e2080df83a8589bfb1f11fb042bd4b972f80efe36fa6cc3f60cf368d8ad:06515119792dea3b07cb4618faf7b9827d45ccace5cab68765ecae171ef4201d:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "unclear 'its' referent",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "40cc3e2080df83a8589bfb1f11fb042bd4b972f80efe36fa6cc3f60cf368d8ad:a80d47bb7b372d6579d52765d9546de941b25c2a56602f46b5acabcf368d26b4:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "refers to Bitcoin movements",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "40cc3e2080df83a8589bfb1f11fb042bd4b972f80efe36fa6cc3f60cf368d8ad:d503bf7f0765680866590d5d183c4995d4c21a4e2349b988edaf8f27b1f998d0:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin price continues",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
  }
 }

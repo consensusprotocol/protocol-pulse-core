@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 700,
+ "system": null,
+ "prompt": "You judge JOINS between clips of 60-second videos made of other channels' own words (each clip is a\nperson's own words from a show; the shows were not in one conversation). In each PAIR, clip A plays and clip B follows\nit at once, with NO narration between them. Judge each pair ALONE: the pairs are not one video, and nothing else plays\nbefore or between A and B.\n\nTHE CLIPS:\nCLIP id=\"c1\" (on screen: Scott Melker): \"Bitcoin officially broke its 200 -week moving average, leading many to think that 50K is likely next.\"\nCLIP id=\"c2\" (on screen: Natalie Brunell): \"Bitcoin should be the fastest horse amongst the scarce assets. If it's not, I mean, I think if we're being honest, we'd say, well, Bitcoin that's kind of failed is what we would expect it to be if it can't even keep pace with gold. Most people, when Bitcoin goes down 50 % or 80%, that bothers them.\"\nCLIP id=\"c3\" (on screen: DataDash): \"Bitcoin conviction and risk management don't have to be opposites. Q is I trust capital's way of offering predefined automated crypto strategies inside the same account experience with different approaches and holdings.\"\nCLIP id=\"c4\" (on screen: Coin Bureau): \"Its founder goes by Shoku, his pseudonym. He bought his first Bitcoin in 2013, and for many years after that, he stayed an investor, not a builder.\"\nCLIP id=\"c5\" (on screen: Natalie Brunell): \"The last thing I'll say about it is you probably know this, but when Bitcoin moves... Most of the returns for a year typically happen in a couple days. So Bitcoin is an asset that's frustrating. It's like it does nothing. It does nothing. And then you get this like massive green candle in a day or a week.\"\nCLIP id=\"c6\" (on screen: Natalie Brunell): \"Why is Bitcoin's price not at least near where we were? at the all -time high, like a low 100,000s, when we've seen all -time highs in the stock market over and over again.\"\n\nTHE PAIRS (A -> B):\nPAIR id=\"p1\": c1 -> c2\nPAIR id=\"p2\": c1 -> c3\nPAIR id=\"p3\": c1 -> c4\nPAIR id=\"p4\": c1 -> c5\nPAIR id=\"p5\": c1 -> c6\n\nFor EACH pair, the join question (the previous clip is A, the next clip is B): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming from the previous clip's ending? Answer\n\"followable\": true or false, and \"why\": a few words.\nReturn ONLY this JSON object: {\"pairs\": {\"p1\": {\"followable\": true, \"why\": \"...\"}, \"p2\": {\"followable\": true, \"why\": \"...\"}, \"p3\": {\"followable\": true, \"why\": \"...\"}, \"p4\": {\"followable\": true, \"why\": \"...\"}, \"p5\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"pairs\": {\"p1\": {\"followable\": true, \"why\": \"Bitcoin performance continues\"}, \"p2\": {\"followable\": true, \"why\": \"Bitcoin investing follows\"}, \"p3\": {\"followable\": false, \"why\": \"unclear 'its' referent\"}, \"p4\": {\"followable\": true, \"why\": \"refers to Bitcoin movements\"}, \"p5\": {\"followable\": true, \"why\": \"Bitcoin price continues\"}}}",
+ "usage": {
+  "in": 892,
+  "out": 2390,
+  "usd_reported": 0.0069556
+ },
+ "usd": 0.06421,
+ "seconds": 19.16,
+ "recorded_at": "2026-11-17T18:14:39Z"
+}
