@@ -1,0 +1,26 @@
+{
+ "question": "Cycle 3: verify ONE fix in pipeline/pinned.py post_live_offset (ruling 142 (3)'s HARD guard on a post_live source's clock). Cycle 1 found that reading the transcript's word-timing record (and the decode's word times) could raise a raw exception (json.JSONDecodeError, OSError, ValueError, TypeError, AttributeError) instead of PinError, the guard's contract (a clean hold with a reason). The fix wraps both reads and raises PinError. FACTS (unchanged): pinned.py imports re and json and defines REPO at module level; PinError is the module's hold exception. Report ONLY a defect you can prove by quoting the diff; under 60 words each. If the fix holds and changes nothing else, answer PASS with no findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 51.1,
+   "cost": 0.0017464935,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0017464935,
+ "out_dir": "heimdall"
+}
