@@ -41,10 +41,11 @@ SPOTLIGHT_CLOSING = ("closing_value", "closing_fidelity", "closing_context")   #
 
 
 def _not_live(edl, rows):
-    """The sealed rows (the EDL's moments_gates, copied from the pin) that are not exactly PASS and live."""
+    """The sealed rows (the EDL's moments_gates, copied from the pin) that are not exactly PASS and live, nor FLAGGED
+    with their flags (ruling 141: the pin's review_flags say a FLAGGED row to PBX)."""
+    from edl_rules import sealed_ok
     g = edl.get("moments_gates")
-    return [r for r in rows if not (isinstance(g, dict) and isinstance(g.get(r), dict)
-                                    and g[r].get("status") == "PASS" and g[r].get("replayed") is False)]
+    return [r for r in rows if not (isinstance(g, dict) and sealed_ok(g.get(r)))]
 
 
 def evaluate_editorial_gate(edl, review):

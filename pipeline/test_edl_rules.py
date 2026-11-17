@@ -12,7 +12,8 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from edl_rules import (rule_r1, rule_r2, rule_r3, rule_r4, rule_r5, rule_r6,
-                       rule_r9, rule_r11, takeaway_value, validate_edl)
+                       rule_r9, rule_r11, takeaway_value, validate_edl,
+                       question_hook_join, QUESTION_HOOK_JOIN, sealed_ok)
 
 # Load fixtures
 FIXTURE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -1359,3 +1360,51 @@ class TestRuling91MedleyTakeaway(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main(verbosity=2)
 
+
+class TestRuling141SealedFlagged(unittest.TestCase):
+    """Ruling 141 (orchestrator 13:40 ET Nov 17) with rulings 136 / 137: the builder's never-empty seal may set a gate
+    row FLAGGED with its plain-word flags; the pin's review_flags say it to PBX. Where the render requires a sealed row
+    measured (R1's question-hook join, ruling 91's takeaway, check_pin_only through it), FLAGGED with its flags counts;
+    FLAGGED without flags, replayed, or any other status still fails closed. must-fail on the code before batch 108."""
+    FL = ["Between the second and third clips: the checker could not follow the jump."]
+
+    def gates(self, med=None, coh=None):
+        return {"moments_gates": {"medley": med or {"status": "FLAGGED", "replayed": False,
+                                                    "flagged": ["clip_01 -> clip_02"], "flags": self.FL},
+                                  "coherence": coh or {"status": "PASS", "replayed": False}}}
+
+    def test_a_flagged_medley_passes_a_question_hook_whose_own_join_is_not_flagged(self):
+        ok, why = question_hook_join(self.gates())
+        self.assertTrue(ok, why)
+        ok, why = question_hook_join(self.gates(coh={"status": "FLAGGED", "replayed": False, "flags": self.FL}))
+        self.assertTrue(ok, why)
+
+    def test_the_hooks_own_join_flagged_still_fails(self):
+        ok, why = question_hook_join(self.gates(med={"status": "FLAGGED", "replayed": False, "flags": self.FL,
+                                                     "flagged": [QUESTION_HOOK_JOIN]}))
+        self.assertFalse(ok)
+        self.assertIn("flagged the join that follows it", why)
+
+    def test_flagged_without_its_flags_or_replayed_fails_closed(self):
+        for row in ({"status": "FLAGGED", "replayed": False}, {"status": "FLAGGED", "replayed": False, "flags": []},
+                    {"status": "FLAGGED", "replayed": False, "flags": [""]}, {"status": "FLAGGED", "replayed": False,
+                                                                           "flags": "x"},
+                    {"status": "FLAGGED", "replayed": True, "flags": self.FL}, {"status": "FAIL", "replayed": False,
+                                                                             "flags": self.FL}, None, "FLAGGED"):
+            with self.subTest(row=row):
+                self.assertFalse(sealed_ok(row))
+                med = dict(row, flagged=[]) if isinstance(row, dict) else row
+                self.assertFalse(question_hook_join({"moments_gates": {"medley": med, "coherence": {
+                    "status": "PASS", "replayed": False}}})[0])
+        self.assertTrue(sealed_ok({"status": "PASS", "replayed": False}))
+
+    def test_a_flagged_takeaway_value_counts(self):
+        t = TestRuling91MedleyTakeaway()
+        ok, why = takeaway_value(t.edl(gates=t.row(status="FLAGGED", flags=["The closing line may not say much."])))
+        self.assertTrue(ok, why)
+        for bad in ({"status": "FLAGGED"}, {"status": "FLAGGED", "flags": []}, {"status": "FLAGGED", "flags": self.FL,
+                                                                                "replayed": True}):
+            with self.subTest(bad=bad):
+                ok, why = takeaway_value(t.edl(gates=t.row(**bad)))
+                self.assertFalse(ok)
+                self.assertIn("not exactly PASS and live", why)

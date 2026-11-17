@@ -82,6 +82,19 @@ def _passage_overlap(clip_a, clip_b):
 QUESTION_HOOK_JOIN = "hook -> clip_01"     # the join that follows the hook, as the packager names joins
 
 
+def sealed_ok(row):
+    """Rulings 136 / 141: a builder-sealed gate row counts as MEASURED when it is exactly PASS, or FLAGGED with its
+    plain-word flags (a soft verdict the pin's review_flags say to PBX, so the render adds no sentence of its own), and
+    never replayed. Anything else fails closed."""
+    if not isinstance(row, dict) or row.get("replayed") is not False:
+        return False
+    if row.get("status") == "PASS":
+        return True
+    f = row.get("flags")
+    return row.get("status") == "FLAGGED" and isinstance(f, list) and bool(f) \
+        and all(isinstance(x, str) and x.strip() for x in f)
+
+
 def question_hook_join(edl):
     """Ruling 37 (orchestrator 2026-11-13 '03:42'): (ok, why) for the join that follows a question hook, from the
     package's SEALED gate rows (moments_gates): the clips-alone verdict (gates.medley) measured, exactly PASS, not
@@ -90,13 +103,13 @@ def question_hook_join(edl):
     gates = edl.get("moments_gates")
     med = gates.get("medley") if isinstance(gates, dict) else None
     coh = gates.get("coherence") if isinstance(gates, dict) else None
-    if not isinstance(med, dict) or med.get("status") != "PASS" or med.get("replayed") is not False \
-            or not isinstance(med.get("flagged"), list):
-        return False, "the clips-alone verdict is not on the pin (moments_gates.medley: PASS, live, with its flagged joins)"
+    if not sealed_ok(med) or not isinstance(med.get("flagged"), list):       # ruling 141: FLAGGED with its flags
+        return False, ("the clips-alone verdict is not on the pin (moments_gates.medley: PASS or FLAGGED, live, with "
+                       "its flagged joins)")
     if QUESTION_HOOK_JOIN in med["flagged"]:
         return False, f"the clips-alone verdict flagged the join that follows it ({QUESTION_HOOK_JOIN})"
-    if not isinstance(coh, dict) or coh.get("status") != "PASS" or coh.get("replayed") is not False:
-        return False, "the blind coherence check did not pass (moments_gates.coherence: PASS, live)"
+    if not sealed_ok(coh):
+        return False, "the blind coherence check did not pass (moments_gates.coherence: PASS or FLAGGED, live)"
     return True, (f"the clips-alone verdict passes the join that follows it ({QUESTION_HOOK_JOIN} not flagged) and the "
                   f"blind coherence check passes")
 
@@ -841,9 +854,9 @@ def takeaway_value(edl):
     row = gates.get(TAKEAWAY_VALUE_ROW) if isinstance(gates, dict) else None
     if not isinstance(row, dict):
         return False, f"ruling 91 (medley): the takeaway has no sealed value verdict (moments_gates.{TAKEAWAY_VALUE_ROW})"
-    if row.get("status") != "PASS" or row.get("replayed") is not False:
-        return False, (f"ruling 91 (medley): the takeaway's value verdict is not exactly PASS and live (status "
-                       f"{row.get('status')!r}, replayed {row.get('replayed')!r})")
+    if not sealed_ok(row):                          # ruling 141: a FLAGGED verdict with its flags counts (the pin says it)
+        return False, (f"ruling 91 (medley): the takeaway's value verdict is not exactly PASS and live, nor FLAGGED "
+                       f"with its flags (status {row.get('status')!r}, replayed {row.get('replayed')!r})")
     if not isinstance(row.get("text"), str) or row["text"].strip() != line.strip():
         return False, "ruling 91 (medley): the value verdict judged another line (its text is not the takeaway)"
     return True, f"ruling 91 (medley): the takeaway carries its sealed value verdict (by {row.get('by')!r})"
