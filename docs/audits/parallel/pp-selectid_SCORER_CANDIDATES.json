@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-17T20:21:06+00:00",
- "build": "ledger_20261117_202045",
+ "generated_at": "2026-11-17T20:46:14+00:00",
+ "build": "ledger_20261117_204550",
  "kind": "moments",
  "candidates": [
   {
@@ -721,6 +721,15 @@
    "duration": 15.57,
    "text": "The big banks are piling in Wells Fargo more than doubled its iBit shares to about $2.3 billion. Mostly through its brokerage and advisor arms, Wells Fargo was the biggest ad we found in the third quarter filings and is now the largest institutional holder of Bitcoin ETFs.",
    "text_sha256": "4f1d5b65c0da35df7dcaf32f1a8fa209a6727f5c1af6bfdf7305a347f70c71b8",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "cb4c64077c2bea3b337c",
+   "video_id": "NKiFxApRffw",
+   "channel": "Stacker News",
+   "duration": 16.1,
+   "text": "Like I think that's the weirdest thing that I've discovered about all this. Like no one knows who they are. No one knows what they do. And it turns out like through all this stuff that Scoresby's been doing comes to find out not only do they do things outside of the stablecoin stuff, they do a lot of really important things in Bitcoin.",
+   "text_sha256": "f763d8271cf70b1a98df3970f896b04f0bc20141e1b1fe72fcf61e70e884fd84",
    "trimmed_leading": null
   },
   {
