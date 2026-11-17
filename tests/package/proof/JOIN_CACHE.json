@@ -1349,5 +1349,40 @@
    "why": "expands on same event",
    "backend": "xai:grok-4.20-0309-reasoning"
   }
+ },
+ "9bd2cb49df47cb7b592fe7c97cee8eadeefb236ebb2119c7710636f0e1f8cbc8:d8c52d4d229de1b0319798398bfdf5e6921db1ce64dc6d673e2eb3a6498b6aa5:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "fear links to neck hair",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d8c52d4d229de1b0319798398bfdf5e6921db1ce64dc6d673e2eb3a6498b6aa5:e248eb63ad6f2f35bc43c6faadec1889c19b16d7d5708c2713f0c5dac386a71c:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no link mining to liquidations",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "d8c52d4d229de1b0319798398bfdf5e6921db1ce64dc6d673e2eb3a6498b6aa5:ea94b2fd4379d659e1f1fa5d6228da7925781b296ca069bf8608040136949ee6:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "meanwhile unrelated to mining",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "e248eb63ad6f2f35bc43c6faadec1889c19b16d7d5708c2713f0c5dac386a71c:d8c52d4d229de1b0319798398bfdf5e6921db1ce64dc6d673e2eb3a6498b6aa5:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no link volatility to mining",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ea94b2fd4379d659e1f1fa5d6228da7925781b296ca069bf8608040136949ee6:d8c52d4d229de1b0319798398bfdf5e6921db1ce64dc6d673e2eb3a6498b6aa5:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no link crash to mining",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
  }
 }

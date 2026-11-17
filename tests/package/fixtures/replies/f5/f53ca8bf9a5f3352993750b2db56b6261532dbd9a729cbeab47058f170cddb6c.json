@@ -1,0 +1,19 @@
+{
+ "role": "exclusion_verdict",
+ "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "model": "deepseek/deepseek-v4.1-flash",
+ "vendor": "heimdall/deepseek",
+ "seed": 7,
+ "max_tokens": 800,
+ "system": null,
+ "prompt": "You screen ONE moment (the sentences inside <moment>) from a Bitcoin video before it can be clipped\ninto a short video. The text around it is context only.\n\n<before>you don't really have to trust us Certainly not to the degree that you trust other pools. And, you know, again, that's at the essence. Now, could we be more decentralized even? Yes, we're working on even ways of being more decentralized. But, but, you know, that's an ongoing task, right? Our goal... Bob, I'm... cringing when you say that you have to ask permission to use these other pools. That is so against what Bitcoin fundamentally represents that like I'm hearing that and I'm like, guys, you have to understand most pools right now, especially the big ones, you have to ask permission in order to use them. Do you understand how big of a problem that is for Bitcoin? Bitcoin wins if it stays decentralized and secure. And we take that for granted, especially if you're not mining, because you have that on the protocol level. You can just download a wallet, right? You don't have to ask permission. But think about the thing that secures Bitcoin in the first place. All of that computational power. Bob Buried the lead when he said that. Think about that for a second. Most</before>\n<moment>Most Bitcoin mining pools today, you have to ask permission to use. If that doesn't make the hair in the back of your neck stand up, I don't know what else will.</moment>\n<after>is the only pool that not only is transparent, but is permissionless and is building to being even more decentralized. than it is today. There is no other mining pool that is embarking on that mission. So I just got to say, Bob, you know, you really open my eyes in this conversation that we're having right now because I saw the Bitcoin community or not really the Bitcoin community, right? But just the ex community as a whole. I guess they have this misunderstanding of what happened. And then some of the comments that surprised me the most, it's like, guys, like, you know, roll these transactions back. It's like asking, you know, it's a very slippery slope once you start asking, hey, we should censor certain transactions and not censor other transactions, right? Right. Yeah, I think it's, you know, it's an interesting mental exercise. And, you know, I want to say, you know, first,</after>\n\nAnswer:\n- \"risks\": every one that applies to the MOMENT: \"accusation\" (crime, fraud, insolvency or dishonesty alleged against a\n  named person or company), \"partner_attack\" (one Bitcoin channel or host attacking another), \"imperative\" (telling\n  the viewer to buy, sell or use leverage), \"guaranteed_return\", \"single_source_breaking\" (a breaking factual claim\n  resting on one unnamed source or rumour), \"ad_read\" (a sponsor, ad or affiliate pitch), \"third_party_media\" (someone\n  else's clip, song or broadcast being played); an empty list if none\n- \"about_bitcoin\": \"yes\" if the moment is about Bitcoin, \"no\" if it is about another coin or no crypto at all,\n  \"uncertain\"\n- \"why\": one short line\nCriticising a policy is not an accusation; a prediction framed as the speaker's own view is not an imperative;\nnaming a company neutrally is not an accusation.\nReturn ONLY this JSON object: {\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"...\"}",
+ "text": "{\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"The moment discusses permission requirements for Bitcoin mining pools, which is directly about Bitcoin.\"}",
+ "usage": {
+  "in": 812,
+  "out": 256,
+  "usd_reported": 9.796e-05
+ },
+ "usd": 0.006276,
+ "seconds": 7.78,
+ "recorded_at": "2026-11-17T02:36:57Z"
+}

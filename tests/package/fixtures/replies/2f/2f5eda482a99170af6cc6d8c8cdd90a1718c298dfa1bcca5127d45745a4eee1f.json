@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 9,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation. The first clip (label \"hook\")\nopens the video. The hook is shown for context only: it is NOT rated here (its own job was judged on its own).\n\nCLIP label=\"hook\" (on screen: What Bitcoin Did): \"People are trying to manipulate you. People are trying to manipulate your emotions to make you part with your Bitcoin potentially. I just can't overstate how much like fear and anger cloud your judgment.\"\nCLIP label=\"clip_01\" (on screen: Yahoo Finance): \"Billions of dollars in liquidations, as always, I believe $2 billion on Bitcoin alone just Saturday and Sunday. And further proof that sometimes when market sentiment is generally bad, Bitcoin can really take it on the chin because it's open 24 -7, 365.\"\nCLIP label=\"clip_02\" (on screen: Simply Bitcoin): \"Most Bitcoin mining pools today, you have to ask permission to use. If that doesn't make the hair in the back of your neck stand up, I don't know what else will.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips, the hook's own join included (does the hook set up the clip after\n   it?): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming\n   from the previous clip's ending? Answer true or false, and why in a few words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"clip_01\": 1, \"clip_02\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\n  \"through_line\": \"There are risks and manipulations in Bitcoin that can evoke fear, bad sentiment, and clouded judgment.\",\n  \"clips\": {\n    \"clip_01\": 4,\n    \"clip_02\": 3\n  },\n  \"joins\": {\n    \"hook -> clip_01\": {\n      \"followable\": true,\n      \"why\": \"illustrates bad sentiment causing liquidations, linking to fear clouding judgment\"\n    },\n    \"clip_01 -> clip_02\": {\n      \"followable\": false,\n      \"why\": \"abrupt jump with no link from volatility to mining pool permissions\"\n    }\n  }\n}",
+ "usage": {
+  "in": 676,
+  "out": 3036,
+  "usd_reported": 0.0083006
+ },
+ "usd": 0.07928,
+ "seconds": 22.76,
+ "recorded_at": "2026-11-17T02:36:49Z"
+}

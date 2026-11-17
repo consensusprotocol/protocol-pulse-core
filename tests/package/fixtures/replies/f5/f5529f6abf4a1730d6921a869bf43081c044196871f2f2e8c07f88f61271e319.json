@@ -1,0 +1,19 @@
+{
+ "role": "exclusion_verdict",
+ "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "model": "deepseek/deepseek-v4.1-flash",
+ "vendor": "heimdall/deepseek",
+ "seed": 7,
+ "max_tokens": 800,
+ "system": null,
+ "prompt": "You screen ONE moment (the sentences inside <moment>) from a Bitcoin video before it can be clipped\ninto a short video. The text around it is context only.\n\n<before>Bitcoin fell 19% into the SpaceX IPO. Is it a coincidence that it's down about the same amount going into Anthropics, even larger IPO this week? We're going to talk about that and more today on The Daily Wolf. Let's go. What is up, everybody? Welcome to the Daily Wolf on Yahoo Finance. I am your host, Scott Melker, also known as the Wolf of All Streets. And we come into a Monday after a horrid weekend for Bitcoin and crypto price action. Billions of dollars in liquidations,</before>\n<moment>Billions of dollars in liquidations, as always, I believe $2 billion on Bitcoin alone just Saturday and Sunday. And further proof that sometimes when market sentiment is generally bad, Bitcoin can really take it on the chin because it's open 24 -7, 365.</moment>\n<after>panicking to sell something, you can sell Bitcoin on Saturday at 3 o'clock in the morning, and you cannot... sell your stocks. But we have a new narrative that just dropped that many, many seem to be grappling onto, believing that this could be the reason that Bitcoin has seen its sixth consecutive red week. Here it is right here. Now, this is from my friend Matt Cole over at Strive, who bought some Bitcoin this week. Bitcoin fell 19% into the biggest IPO ever. Now it's down to 18% heading into the second biggest. To put some numbers on it. SpaceX raised $75 billion when it went public on June 12th. In the 50 days before it listed, Bitcoin dropped 90%. Anthropic plans to raise up to 64. I've seen 84, up to 84. When it lists next week, and Bitcoin's down 18% over the same stretch. Overlay the two, and they look almost exactly the same. You can see he's actually got a chart here that we can open up and click on, and you can see it. This is exactly kind of if you overlay them. If you look at what would happen</after>\n\nAnswer:\n- \"risks\": every one that applies to the MOMENT: \"accusation\" (crime, fraud, insolvency or dishonesty alleged against a\n  named person or company), \"partner_attack\" (one Bitcoin channel or host attacking another), \"imperative\" (telling\n  the viewer to buy, sell or use leverage), \"guaranteed_return\", \"single_source_breaking\" (a breaking factual claim\n  resting on one unnamed source or rumour), \"ad_read\" (a sponsor, ad or affiliate pitch), \"third_party_media\" (someone\n  else's clip, song or broadcast being played); an empty list if none\n- \"about_bitcoin\": \"yes\" if the moment is about Bitcoin, \"no\" if it is about another coin or no crypto at all,\n  \"uncertain\"\n- \"why\": one short line\nCriticising a policy is not an accusation; a prediction framed as the speaker's own view is not an imperative;\nnaming a company neutrally is not an accusation.\nReturn ONLY this JSON object: {\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"...\"}",
+ "text": "{\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"The moment discusses Bitcoin liquidations and market sentiment, with no applicable risk categories.\"}",
+ "usage": {
+  "in": 749,
+  "out": 238,
+  "usd_reported": 9.071e-05
+ },
+ "usd": 0.005817,
+ "seconds": 7.37,
+ "recorded_at": "2026-11-17T02:36:57Z"
+}

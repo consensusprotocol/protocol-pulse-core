@@ -31015,6 +31015,50 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "0193406f729cc5e141e0",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "the fact that most Bitcoin mining pools today require permission to use",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "today",
+     "refers_to": "the current day/time of utterance",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "If that doesn't make the hair in the back of your neck stand up",
+     "inside": true
+    },
+    {
+     "text": "today",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Most Bitcoin mining pools today require permission to use, and that fact should alarm you.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Bob, I'm... cringing when you say that you have to ask permission to use these other pools. Bob Buried the lead when he said that.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
   }
  },
  "ffa2d3fc4dd38e946d3a:f9f30bfba1b0058170ac4e1357332abd9f9cddc1d75044854d2bbec4e4c0d76e:15938c3a323c60168c3c9d2b4cac08edad0658b6edbef12c8c70940d24035ec7:9d43580c729b": {
@@ -31130,6 +31174,60 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "d6adeb54ad64062081c5",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that period of time",
+     "refers_to": "the 2023 bull market",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "the 2023 bull market",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "recently",
+     "refers_to": "the recent past relative to the utterance",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "during that period of time",
+     "inside": true
+    },
+    {
+     "text": "2023 bull market",
+     "inside": true
+    },
+    {
+     "text": "recently",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker recently made pieces about the 2023 bull market, where there was massive fear while Bitcoin trended upward.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "And so when you're looking at sort of now, the next few months, what are you expecting to happen? Like if you compare this to, you know, history, what do you think comes next?",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
   }
  },
  "04ddf6869c30c1f2c0de:e9205ade56bb87781c8c1f2e85efd64ba766ad24133be32881fa5be991c0abdf:d4627d1e7eac2ab793b18e9f765b3a7b8ba2fdc75138e9e47b1a3bff6b9beffc:9d43580c729b": {
@@ -31201,6 +31299,70 @@
    "speaker_is": "host",
    "speaker_evidence": "Do you think that is, again, the AI trade just taking all the excitement or the enthusiasm away from Bitcoin?",
    "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "c411d1f7f5019c7c8b29",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "there",
+     "refers_to": "traders",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "conviction",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "conviction",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this point",
+     "refers_to": "the current time of utterance",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "relatively soon",
+     "refers_to": "the near future relative to the utterance",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "at this point where Bitcoin's relatively low compared to where it's been, looking like it's pretty good, probably going to have a breakout at some point relatively soon",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Traders' conviction is at its lowest ever, even though one would expect it to grow given Bitcoin's relatively low price and likely near-term breakout.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Okay, so if we go for those core ones of OG, plebs, and traders, do their sentiment within those groups, do they generally track and are similar?",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
    "replayed": false,
    "speaker_verified": false
   }

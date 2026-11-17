@@ -1,0 +1,19 @@
+{
+ "role": "exclusion_verdict",
+ "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "model": "deepseek/deepseek-v4.1-flash",
+ "vendor": "heimdall/deepseek",
+ "seed": 7,
+ "max_tokens": 800,
+ "system": null,
+ "prompt": "You screen ONE moment (the sentences inside <moment>) from a Bitcoin video before it can be clipped\ninto a short video. The text around it is context only.\n\n<before></before>\n<moment>People are trying to manipulate you. People are trying to manipulate your emotions to make you part with your Bitcoin potentially. I just can't overstate how much like fear and anger cloud your judgment.</moment>\n<after>cloud your judgment. Myself included, I'm not immune from this. It's been a brutal time to huddle, right? But Bitcoin has a really unique way of like messing with your psychology. They buy Bitcoin when it feels easy when they're confident it's going to do well. And if you do that, you drastically underperform DCA. And that's interesting because it kind of is what the average person is doing almost all the time. They just buy whenever they feel like it's easy to buy, right? Watching how fearful people are, despite the fact that Bitcoin still up like 20% off the lows is really fricking, in my opinion. It's like the crowd is overreacting, even though we're actually seeing positive price momentum. And those are the kind of voids and deviations that I think have the most signal around this data. I'm kind of expecting to see a little bit more of this where we just don't see full... crowd buy in until we probably passed through like the 100k range or something like that. And it's like it's cool. You know, one of the things that I like about this is when everyone comes into Bitcoin, like, okay, what can I do in Bitcoin? Like what can I add with my skill set? And like sentiment analysis, like I didn't really see anyone doing this in a professional</after>\n\nAnswer:\n- \"risks\": every one that applies to the MOMENT: \"accusation\" (crime, fraud, insolvency or dishonesty alleged against a\n  named person or company), \"partner_attack\" (one Bitcoin channel or host attacking another), \"imperative\" (telling\n  the viewer to buy, sell or use leverage), \"guaranteed_return\", \"single_source_breaking\" (a breaking factual claim\n  resting on one unnamed source or rumour), \"ad_read\" (a sponsor, ad or affiliate pitch), \"third_party_media\" (someone\n  else's clip, song or broadcast being played); an empty list if none\n- \"about_bitcoin\": \"yes\" if the moment is about Bitcoin, \"no\" if it is about another coin or no crypto at all,\n  \"uncertain\"\n- \"why\": one short line\nCriticising a policy is not an accusation; a prediction framed as the speaker's own view is not an imperative;\nnaming a company neutrally is not an accusation.\nReturn ONLY this JSON object: {\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"...\"}",
+ "text": "{\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"Warns viewers about emotional manipulation to part with Bitcoin, but names no one and gives no buy/sell instruction.\"}",
+ "usage": {
+  "in": 655,
+  "out": 189,
+  "usd_reported": 7.576e-05
+ },
+ "usd": 0.0048,
+ "seconds": 6.71,
+ "recorded_at": "2026-11-17T02:36:56Z"
+}

@@ -1,32 +1,32 @@
 {
- "usd_estimate": 0.806142,
- "calls": 9,
+ "usd_estimate": 2.0186,
+ "calls": 19,
  "by_backend": {
   "xai:grok-4.20-0309-reasoning": {
-   "calls": 3,
-   "in": 3861,
-   "out": 13063,
-   "usd_estimate": 0.34588,
+   "calls": 6,
+   "in": 5962,
+   "out": 22944,
+   "usd_estimate": 0.60341,
    "price_usd_per_1m": [
     5,
     25
    ],
-   "usd_reported": 0.03708055,
-   "reported_calls": 3,
-   "in_reported": 3861
+   "usd_reported": 0.0640061,
+   "reported_calls": 6,
+   "in_reported": 5962
   },
   "heimdall:deepseek/deepseek-v4.1-flash": {
-   "calls": 3,
-   "in": 9093,
-   "out": 24045,
-   "usd_estimate": 0.387954,
+   "calls": 8,
+   "in": 15424,
+   "out": 41242,
+   "usd_estimate": 0.664902,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.00503613,
-   "reported_calls": 3,
-   "in_reported": 9093
+   "usd_reported": 0.00862729,
+   "reported_calls": 8,
+   "in_reported": 15424
   },
   "google:gemini-2.5-pro": {
    "calls": 1,
@@ -58,27 +58,48 @@
     0.0
    ],
    "audio_s": 24.51
+  },
+  "xai_vision:grok-4.7": {
+   "calls": 2,
+   "in": 6531,
+   "out": 25813,
+   "usd_estimate": 0.67798,
+   "price_usd_per_1m": [
+    5,
+    25
+   ],
+   "usd_reported": 0.164484,
+   "reported_calls": 2,
+   "in_reported": 6531
   }
  },
  "by_role": {
   "context_verdict": {
-   "calls": 6,
-   "usd_estimate": 0.584017
+   "calls": 7,
+   "usd_estimate": 0.751915
   },
   "transcribe": {
    "calls": 1,
    "usd_estimate": 0.004902
   },
   "angle_write": {
-   "calls": 1,
-   "usd_estimate": 0.083493
+   "calls": 2,
+   "usd_estimate": 0.17565
   },
   "coherence_verdict": {
-   "calls": 1,
-   "usd_estimate": 0.13373
+   "calls": 4,
+   "usd_estimate": 0.39126
+  },
+  "exclusion_verdict": {
+   "calls": 3,
+   "usd_estimate": 0.016893
+  },
+  "visual_check": {
+   "calls": 2,
+   "usd_estimate": 0.67798
   }
  },
  "reserved": {},
- "usd_reported": 0.04211668,
+ "usd_reported": 0.23711739,
  "usd_unreported_estimate": 0.072308
 }

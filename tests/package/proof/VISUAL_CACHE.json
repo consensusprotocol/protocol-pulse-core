@@ -1,4 +1,147 @@
 {
+ "0193406f729cc5e141e0:4498.190-4513.020:visual-3:7f9b9b1428556596": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     4498.19,
+     4499.19,
+     4500.19,
+     4501.19,
+     4502.19,
+     4503.19,
+     4504.19,
+     4505.19,
+     4506.19,
+     4507.19,
+     4508.19,
+     4509.19,
+     4510.19,
+     4511.19,
+     4512.19,
+     4512.97
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "lower_third",
+    "text": "Bob Burnett",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     4498.19,
+     4499.19,
+     4500.19,
+     4501.19,
+     4502.19,
+     4503.19,
+     4504.19,
+     4505.19,
+     4506.19,
+     4507.19,
+     4508.19,
+     4509.19,
+     4510.19,
+     4511.19,
+     4512.19,
+     4512.97
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "lower_third",
+    "text": "Executive Chairman of the Board at Ocean",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     4498.19,
+     4499.19,
+     4500.19,
+     4501.19,
+     4502.19,
+     4503.19,
+     4504.19,
+     4505.19,
+     4506.19,
+     4507.19,
+     4508.19,
+     4509.19,
+     4510.19,
+     4511.19,
+     4512.19,
+     4512.97
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "niox",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "lower_third",
+    "kind": "burned_in",
+    "text": "Bob Burnett"
+   },
+   {
+    "in_9x16": "out",
+    "item": "lower_third",
+    "kind": "burned_in",
+    "text": "Executive Chairman of the Board at Ocean"
+   },
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "niox"
+   }
+  ],
+  "lower_third": {
+   "name": "Bob Burnett",
+   "text": "Bob Burnett\nExecutive Chairman of the Board at Ocean"
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_cfd782370909883d.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_cfd782370909883d.jpg",
+   "sha256": "cfd782370909883dd110d508e29d87f9e565b77b6b6f411c0aca45b8adacc7ca",
+   "times": [
+    4498.19,
+    4499.19,
+    4500.19,
+    4501.19,
+    4502.19,
+    4503.19,
+    4504.19,
+    4505.19,
+    4506.19,
+    4507.19,
+    4508.19,
+    4509.19,
+    4510.19,
+    4511.19,
+    4512.19,
+    4512.97
+   ]
+  },
+  "third_person": {
+   "finding": "No non-speaking person appears as a still, photo, or graphic; both men are live split-screen participants throughout the critical remark about mining pools.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 3256,
+   "out": 13597,
+   "usd_reported": 0.086366
+  },
+  "version": "visual-3"
+ },
  "06d34e155feae654ee56:0.000-22.940:visual-2:99aab01c28ba80f1": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [],
@@ -1532,6 +1675,137 @@
    "in": 2520,
    "out": 7899,
    "usd_reported": 0.050706
+  },
+  "version": "visual-3"
+ },
+ "a3e8721c54788123097a:36.760-51.700:visual-3:44fc731e77f21d82": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     36.76,
+     37.76,
+     38.76,
+     39.76,
+     40.76,
+     41.76,
+     42.76,
+     43.76,
+     44.76,
+     45.76,
+     46.76,
+     47.76,
+     48.76,
+     49.76,
+     50.76,
+     51.65
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "bug",
+    "text": "THE DAILY WOLF",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     36.76,
+     37.76,
+     38.76,
+     39.76,
+     40.76,
+     41.76,
+     42.76,
+     43.76,
+     44.76,
+     45.76,
+     46.76,
+     47.76,
+     48.76,
+     49.76,
+     50.76,
+     51.65
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "yahoo/finance",
+    "whole_in_16x9": false
+   },
+   {
+    "at": [
+     36.76,
+     37.76,
+     38.76,
+     39.76,
+     40.76,
+     41.76,
+     42.76,
+     43.76,
+     44.76,
+     45.76,
+     46.76,
+     47.76,
+     48.76,
+     49.76,
+     50.76,
+     51.65
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "THE DAILY WOLF",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "THE DAILY WOLF"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_733b5a4cce1dcb8d.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_733b5a4cce1dcb8d.jpg",
+   "sha256": "733b5a4cce1dcb8d77fb6c96e4f9cab5aad59ae417d190afdf13307f9f11ad6e",
+   "times": [
+    36.76,
+    37.76,
+    38.76,
+    39.76,
+    40.76,
+    41.76,
+    42.76,
+    43.76,
+    44.76,
+    45.76,
+    46.76,
+    47.76,
+    48.76,
+    49.76,
+    50.76,
+    51.65
+   ]
+  },
+  "third_person": {
+   "finding": "Only the live speaker is shown; no still, photo, or graphic of another person appears, and the words are market commentary rather than a claim of a person's mistake, accusation, scandal, crime, or fai",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 3275,
+   "out": 12216,
+   "usd_reported": 0.078118
   },
   "version": "visual-3"
  },
