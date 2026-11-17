@@ -79,7 +79,7 @@ SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
 VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
 CODE = ("select_passages.py", "punctuation.py", "pinned.py", "sentence_law.py", "canon.py", "gpu0.py")
 KEY = ("role", "approved_text", "trimmed_leading", "untrimmed_start")   # the request fields an answer depends on
-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131"   # what an entry's verdict judged; others never reused
+RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131 + ruling 135"   # what an entry's verdict judged; others never reused
 EXTRA = os.environ.get("PP_LOCK_PRECHECK_EXTRA", "/home/ultron/worktrees/pp-selectid/tests/package/proof/lock_requests")
 # RULING 67's class, as the builder's pipeline/attest.py defines it (FUNCTION_WORDS and carry_class, copied in
 # behaviour): English closed-class words; NO negation, number or ordinal (those are law L-v 2's critical tokens).
@@ -346,6 +346,7 @@ def as_spoken(lock, words, sw):
         return "hold", [[lock["text"], ""]], ["hold"], ""
     import canon
     ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != "equal"
+           and not canon.same_words(L[o[1]:o[2]], S2[o[3]:o[4]], stray="y")                  # ruling 135: spelling
            and not (all(canon.dollars_after_number(L, i) for i in range(o[1], o[2])) and     # ruling 131 (B): a
                     all(canon.dollars_after_number(S2, j) for j in range(o[3], o[4])))]       # currency symbol is
     diffs = [[" ".join(L[a:b]), " ".join(S2[c:d])] for _, a, b, c, d in ops]                  # formatting
@@ -577,6 +578,8 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                      "relock_adjudication": (lock.get("adjudication") or lock.get("alternatives"))
                      if lock and _majority(first) else None,     # ... and the lock the sealed text will make
                      "currency_format": (first or {}).get("currency_format"),          # ruling 131 (B)
+                     "spelling_only": (first or {}).get("spelling_only") or            # ruling 135: the pairs the
+                     (lock or {}).get("spelling_only"),                    # canon settled (first lock, or the re-lock)
                      "alternatives": lock.get("alternatives") if lock else None,     # ruling 18 / 84 (b)'s record
                      "as_spoken": spoken, "spoken_text": sealed if outcome == "adopt_spoken" else None,
                      "relisten": spoken.get("relisten") if spoken else None,      # ruling 103: both short readings

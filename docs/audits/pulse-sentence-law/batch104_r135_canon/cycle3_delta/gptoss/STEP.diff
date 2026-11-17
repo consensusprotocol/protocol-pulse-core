@@ -1,0 +1,78 @@
+diff --git a/pipeline/canon.py b/pipeline/canon.py
+index 12b88098..9a373e07 100644
+--- a/pipeline/canon.py
++++ b/pipeline/canon.py
+@@ -301,23 +301,29 @@ def comparison_form(tokens):
+     return out
+ 
+ 
+-def nonlexical(tok):
+-    """RULING 135 (d): a filler (FILLER_TOKENS) or a single consonant letter: not a word."""
+-    return tok in FILLER_TOKENS or (len(tok) == 1 and tok in CONSONANTS)
++def nonlexical(tok, stray=False):
++    """RULING 135 (d): a filler (FILLER_TOKENS); with stray, also a single consonant letter. Not a word."""
++    return tok in FILLER_TOKENS or (stray and len(tok) == 1 and tok in CONSONANTS)
+ 
+ 
+-def same_words(x, y):
++def same_words(x, y, stray=()):
+     """RULING 135: the two sides of a differing pair (lists of canon tokens) are the same words. Both sides in comparison
+-    form (a, c), non-lexical tokens left out (d); equal tokens, or, when neither side holds a digit, equal letters once
+-    every space and hyphen is gone (b: 'itrust capital's' = 'I trust capital's' = 'iTrustCapital's', names too). Still
+-    a difference: two different single letters (a letter-name dispute), any digit difference (numbers compare token for
+-    token; the currency form is (B)'s), and any other change of letters (a negation, a name, a content word)."""
++    form (a, c), fillers left out (d); equal tokens, or, when neither side holds a digit, equal letters once every space
++    and hyphen is gone (b: 'itrust capital's' = 'I trust capital's' = 'iTrustCapital's', names too). A single consonant
++    is a stray sound only on a side named in `stray` ("x" / "y"): the side the caller knows ONE reading alone hears
++    (ruling 72's second recogniser against the lock, G18's final decode); in the lock itself a lone letter is a token
++    and the vote of three readings decides it (Heimdall batch 104 c2: a letter two readings hear is a word). Still a
++    difference: two different single letters, any digit difference (numbers compare token for token; the currency form
++    is (B)'s), and any other change of letters (a negation, a name, a content word). "cause" is taken as the ruled
++    "'cause" (canon_tokens drops the apostrophe, so the noun reads the same; two readings of one audio never trade the
++    noun "cause" for "because")."""
+     cx, cy = comparison_form(x), comparison_form(y)
+     lx = [t for t in cx if len(t) == 1 and t in CONSONANTS]
+     ly = [t for t in cy if len(t) == 1 and t in CONSONANTS]
+     if lx and ly and lx != ly:
+         return False
+-    a, b = [t for t in cx if not nonlexical(t)], [t for t in cy if not nonlexical(t)]
++    a = [t for t in cx if not nonlexical(t, "x" in stray)]
++    b = [t for t in cy if not nonlexical(t, "y" in stray)]
+     if a == b:
+         return True
+     if any(ch.isdigit() for t in a + b for ch in t):
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+index fe723bf2..f34299dd 100644
+--- a/pipeline/lock_precheck.py
++++ b/pipeline/lock_precheck.py
+@@ -346,7 +346,7 @@ def as_spoken(lock, words, sw):
+         return "hold", [[lock["text"], ""]], ["hold"], ""
+     import canon
+     ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != "equal"
+-           and not canon.same_words(L[o[1]:o[2]], S2[o[3]:o[4]])                             # ruling 135: spelling
++           and not canon.same_words(L[o[1]:o[2]], S2[o[3]:o[4]], stray="y")                  # ruling 135: spelling
+            and not (all(canon.dollars_after_number(L, i) for i in range(o[1], o[2])) and     # ruling 131 (B): a
+                     all(canon.dollars_after_number(S2, j) for j in range(o[3], o[4])))]       # currency symbol is
+     diffs = [[" ".join(L[a:b]), " ".join(S2[c:d])] for _, a, b, c, d in ops]                  # formatting
+diff --git a/pipeline/word_diff.py b/pipeline/word_diff.py
+index f48375aa..1b6fa5c4 100644
+--- a/pipeline/word_diff.py
++++ b/pipeline/word_diff.py
+@@ -73,7 +73,7 @@ def diff(expected, heard, collapse=False, alts=None):
+     for op, a0, a1, b0, b1 in difflib.SequenceMatcher(None, e, h, autojunk=False).get_opcodes():
+         if op == "replace" and a1 - a0 == 1 and b1 - b0 == 1 and a0 in pos and e[a0] in pos[a0] and h[b0] in pos[a0]:
+             continue
+-        if op != "equal" and canon.same_words(e[a0:a1], h[b0:b1]):     # ruling 135: spelling, not speech
++        if op != "equal" and canon.same_words(e[a0:a1], h[b0:b1], stray="y"):     # ruling 135: spelling, not speech
+             continue
+         if op != "equal":
+             out.append((op, " ".join(e[a0:a1]), " ".join(h[b0:b1])))
+@@ -88,7 +88,7 @@ def _omitted_or_repeated_only(expected, heard, alts=None):
+     e, h = norm(expected), norm(heard)
+     pos = _alt_positions(expected, alts)
+     ops = [o for o in difflib.SequenceMatcher(None, e, h, autojunk=False).get_opcodes() if o[0] != "equal"
+-           and not canon.same_words(e[o[1]:o[2]], h[o[3]:o[4]])]                # ruling 135
++           and not canon.same_words(e[o[1]:o[2]], h[o[3]:o[4]], stray="y")]     # ruling 135
+     if not ops:
+         return False
+     for op, a0, a1, b0, b1 in ops:
