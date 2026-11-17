@@ -1,0 +1,13 @@
+Review this delta (ruling 135's comparison canon, the fix for a Heimdall finding). The finding: canon.same_words dropped a single consonant on one side unconditionally, but the ruling says "any stray single consonant letter one reading alone hears" is a filler. same_words sees only a pair's two sides, not the third reading, so it cannot know "alone". The fix: same_words(x, y, stray=()) drops a single consonant only on a side named in `stray`. The callers name the side they know one reading alone hears:
+- lock_precheck.as_spoken compares the lock's text (the run decode and the approved text agreeing) with the second recogniser, so it uses stray="y" (the second recogniser's side);
+- word_diff (G18) compares the lock text or source span ("expected") with the final's decode ("heard"), so it uses stray="y" (the heard side);
+- the render's lock (pinned.adjudicate_lock) calls same_words(run, approved) with no stray, so a lone letter there is a token and ruling 131 (A)'s vote of three readings decides it.
+Fillers (um, uh, er, ah, hm, hmm, mm, mhm) stay non-lexical everywhere. Two different single letters (Q vs Z) remain a difference.
+
+Report ONLY defects you can prove by quoting the delta's code. Keep each "issue" under 60 words. If every check holds, answer PASS with no findings.
+
+CHECKS:
+D1. With stray=(), can a lone consonant on either side ever be dropped? With stray="y", only y's?
+D2. Do fillers stay dropped on both sides regardless of stray?
+D3. Is "Q" vs "Z" still a difference with any stray value?
+D4. Does anything else change behaviour?

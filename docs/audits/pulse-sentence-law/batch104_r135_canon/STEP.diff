@@ -1,0 +1,171 @@
+diff --git a/pipeline/canon.py b/pipeline/canon.py
+index 25aa7378..12b88098 100644
+--- a/pipeline/canon.py
++++ b/pipeline/canon.py
+@@ -281,6 +281,50 @@ def currency_free(tokens):
+     return [w for k, w in enumerate(tokens) if not dollars_after_number(tokens, k)]
+ 
+ 
++# RULING 135 (orchestrator 10:50 ET Nov 17): THE COMPARISON CANON. "Differences of spelling are not differences of
++# speech." Applied to a differing pair's two sides before the pair is compared (the lock, ruling 72's comparison,
++# G18); canon_tokens itself is unchanged, so spans, edges and indices are not touched.
++REDUCTIONS = {      # (c) spoken reductions equal their full form: a CLOSED list, none added without a ruling
++    "kinda": ("kind", "of"), "sorta": ("sort", "of"), "gonna": ("going", "to"), "wanna": ("want", "to"),
++    "gotta": ("got", "to"), "lemme": ("let", "me"), "gimme": ("give", "me"), "cause": ("because",),
++    "cuz": ("because",), "em": ("them",), "ya": ("you",), "yeah": ("yes",), "yep": ("yes",)}
++FILLER_TOKENS = frozenset({"um", "uh", "er", "ah", "hm", "hmm", "mm", "mhm"})      # (d) non-lexical
++CONSONANTS = frozenset("bcdfghjklmnpqrstvwxz")                                     # (d) a stray consonant ("a", "i": words)
++
++
++def comparison_form(tokens):
++    """RULING 135 (a)+(c): canon tokens with their apostrophes removed, each spoken reduction (REDUCTIONS) expanded."""
++    out = []
++    for t in tokens:
++        t = str(t).replace("'", "")
++        out += list(REDUCTIONS.get(t, (t,)))
++    return out
++
++
++def nonlexical(tok):
++    """RULING 135 (d): a filler (FILLER_TOKENS) or a single consonant letter: not a word."""
++    return tok in FILLER_TOKENS or (len(tok) == 1 and tok in CONSONANTS)
++
++
++def same_words(x, y):
++    """RULING 135: the two sides of a differing pair (lists of canon tokens) are the same words. Both sides in comparison
++    form (a, c), non-lexical tokens left out (d); equal tokens, or, when neither side holds a digit, equal letters once
++    every space and hyphen is gone (b: 'itrust capital's' = 'I trust capital's' = 'iTrustCapital's', names too). Still
++    a difference: two different single letters (a letter-name dispute), any digit difference (numbers compare token for
++    token; the currency form is (B)'s), and any other change of letters (a negation, a name, a content word)."""
++    cx, cy = comparison_form(x), comparison_form(y)
++    lx = [t for t in cx if len(t) == 1 and t in CONSONANTS]
++    ly = [t for t in cy if len(t) == 1 and t in CONSONANTS]
++    if lx and ly and lx != ly:
++        return False
++    a, b = [t for t in cx if not nonlexical(t)], [t for t in cy if not nonlexical(t)]
++    if a == b:
++        return True
++    if any(ch.isdigit() for t in a + b for ch in t):
++        return False
++    return "".join(a).replace("-", "") == "".join(b).replace("-", "")
++
++
+ def canon(text):
+     return " ".join(canon_tokens(text))
+ 
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+index fcd0d4b9..fe723bf2 100644
+--- a/pipeline/lock_precheck.py
++++ b/pipeline/lock_precheck.py
+@@ -79,7 +79,7 @@ SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
+ VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
+ CODE = ("select_passages.py", "punctuation.py", "pinned.py", "sentence_law.py", "canon.py", "gpu0.py")
+ KEY = ("role", "approved_text", "trimmed_leading", "untrimmed_start")   # the request fields an answer depends on
+-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131"   # what an entry's verdict judged; others never reused
++RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131 + ruling 135"   # what an entry's verdict judged; others never reused
+ EXTRA = os.environ.get("PP_LOCK_PRECHECK_EXTRA", "/home/ultron/worktrees/pp-selectid/tests/package/proof/lock_requests")
+ # RULING 67's class, as the builder's pipeline/attest.py defines it (FUNCTION_WORDS and carry_class, copied in
+ # behaviour): English closed-class words; NO negation, number or ordinal (those are law L-v 2's critical tokens).
+@@ -346,6 +346,7 @@ def as_spoken(lock, words, sw):
+         return "hold", [[lock["text"], ""]], ["hold"], ""
+     import canon
+     ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != "equal"
++           and not canon.same_words(L[o[1]:o[2]], S2[o[3]:o[4]])                             # ruling 135: spelling
+            and not (all(canon.dollars_after_number(L, i) for i in range(o[1], o[2])) and     # ruling 131 (B): a
+                     all(canon.dollars_after_number(S2, j) for j in range(o[3], o[4])))]       # currency symbol is
+     diffs = [[" ".join(L[a:b]), " ".join(S2[c:d])] for _, a, b, c, d in ops]                  # formatting
+@@ -577,6 +578,8 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
+                      "relock_adjudication": (lock.get("adjudication") or lock.get("alternatives"))
+                      if lock and _majority(first) else None,     # ... and the lock the sealed text will make
+                      "currency_format": (first or {}).get("currency_format"),          # ruling 131 (B)
++                     "spelling_only": (first or {}).get("spelling_only") or            # ruling 135: the pairs the
++                     (lock or {}).get("spelling_only"),                    # canon settled (first lock, or the re-lock)
+                      "alternatives": lock.get("alternatives") if lock else None,     # ruling 18 / 84 (b)'s record
+                      "as_spoken": spoken, "spoken_text": sealed if outcome == "adopt_spoken" else None,
+                      "relisten": spoken.get("relisten") if spoken else None,      # ruling 103: both short readings
+diff --git a/pipeline/pinned.py b/pipeline/pinned.py
+index f7d8b781..9fcddfac 100644
+--- a/pipeline/pinned.py
++++ b/pipeline/pinned.py
+@@ -601,6 +601,16 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
+             f"currency symbol: currency format (ruling 131 (B))")
+         if not ops:
+             return lock
++    spell = [o for o in ops if canon.same_words(r[o[1]:o[2]], p[o[3]:o[4]])]       # ruling 135: spelling only
++    if spell:
++        ops = [o for o in ops if o not in spell]
++        lock = {k: v for k, v in lock.items() if k != "sha256"}
++        lock["spelling_only"] = [[" ".join(r[a:b]), " ".join(p[c:d])] for _, a, b, c, d in spell]
++        lock["sha256"] = L._lock_digest(lock)
++        log(f"  lock {lock['video_id']} words {lock['i0']}-{lock['i1']}: {lock['spelling_only']} differ only in "
++            f"spelling, segmentation, a spoken reduction or non-lexical sounds: the same words (ruling 135)")
++        if not ops:
++            return lock
+     tag = f"{lock['video_id']} words {lock['i0']}-{lock['i1']}"
+     diffs = [[" ".join(r[a:b]), " ".join(p[c:d])] for _, a, b, c, d in ops]
+     crit = sorted({t for _, a, b, c, d in ops for t in r[a:b] + p[c:d] if _lv2_critical(t, (run_t, pin_t))})
+@@ -700,7 +710,8 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
+                            " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
+         new = {k: v for k, v in lock.items() if k != "sha256"}
+         kept = [[" ".join(r[a2:b2]), " ".join(n[c2:d2])]
+-                for op, a2, b2, c2, d2 in SequenceMatcher(None, r, n, autojunk=False).get_opcodes() if op != "equal"]
++                for op, a2, b2, c2, d2 in SequenceMatcher(None, r, n, autojunk=False).get_opcodes() if op != "equal"
++                and not canon.same_words(r[a2:b2], n[c2:d2])]      # ruling 135: spelling is not a difference
+         new["text"] = text
+         if kept:                                       # the rest is ruling 17's: the approved words, read by it
+             new["adjudication"] = {"rule": "ruling 17 (orchestrator 2026-11-12 '10:20')", "verdict": "approved",
+diff --git a/pipeline/telegram.py b/pipeline/telegram.py
+index b23c1ad5..9bf2d597 100644
+--- a/pipeline/telegram.py
++++ b/pipeline/telegram.py
+@@ -50,6 +50,7 @@ BAR_MARKS = (("hook_bar", HOOK_BAR_NOTE, "ruling 115 (2)"), ("lineup_bar", LINEU
+ # Ruling 131 (orchestrator 08:25 ET Nov 17): both lock rules are MARKED in the release caption, in plain words, when used
+ MAJORITY_NOTE = "word check settled by two of three readings"         # (A)
+ CURRENCY_NOTE = "currency format"                                      # (B)
++SPELLING_NOTE = "word check: spelling only"                            # ruling 135 (orchestrator 10:50 ET Nov 17)
+ 
+ 
+ def _fit(text, limit):
+@@ -147,7 +148,8 @@ def lock_lines(run_dir, edl):
+                                "EDL's")
+         majority = majority or sealed
+     currency = any(x.get("currency_format") for x in locks)
+-    return [n for n, on in ((MAJORITY_NOTE, majority), (CURRENCY_NOTE, currency)) if on]
++    spelling = any(x.get("spelling_only") for x in locks)                 # ruling 135: the canon settled a span
++    return [n for n, on in ((MAJORITY_NOTE, majority), (CURRENCY_NOTE, currency), (SPELLING_NOTE, spelling)) if on]
+ 
+ 
+ def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
+diff --git a/pipeline/word_diff.py b/pipeline/word_diff.py
+index 3a41adb0..f48375aa 100644
+--- a/pipeline/word_diff.py
++++ b/pipeline/word_diff.py
+@@ -66,12 +66,15 @@ def _alt_positions(expected, alts):
+ def diff(expected, heard, collapse=False, alts=None):
+     """Word-level differences [(op, expected_words, heard_words)] after canonicalisation; [] if equal. alts (ruling
+     18): at an alternative's position, a one-word replacement by another attested reading is not a difference."""
++    import canon
+     e, h = norm(expected, collapse), norm(heard, collapse)
+     pos = _alt_positions(expected, alts) if not collapse else {}
+     out = []
+     for op, a0, a1, b0, b1 in difflib.SequenceMatcher(None, e, h, autojunk=False).get_opcodes():
+         if op == "replace" and a1 - a0 == 1 and b1 - b0 == 1 and a0 in pos and e[a0] in pos[a0] and h[b0] in pos[a0]:
+             continue
++        if op != "equal" and canon.same_words(e[a0:a1], h[b0:b1]):     # ruling 135: spelling, not speech
++            continue
+         if op != "equal":
+             out.append((op, " ".join(e[a0:a1]), " ".join(h[b0:b1])))
+     return out
+@@ -81,9 +84,11 @@ def _omitted_or_repeated_only(expected, heard, alts=None):
+     """Ruling 22: True when the heard text differs from the expected ONLY by omitted expected words or by repeats of
+     the expected words just before them (nothing substituted, nothing added); attested alternatives (ruling 18)
+     count as the expected word."""
++    import canon
+     e, h = norm(expected), norm(heard)
+     pos = _alt_positions(expected, alts)
+-    ops = [o for o in difflib.SequenceMatcher(None, e, h, autojunk=False).get_opcodes() if o[0] != "equal"]
++    ops = [o for o in difflib.SequenceMatcher(None, e, h, autojunk=False).get_opcodes() if o[0] != "equal"
++           and not canon.same_words(e[o[1]:o[2]], h[o[3]:o[4]])]                # ruling 135
+     if not ops:
+         return False
+     for op, a0, a1, b0, b1 in ops:
