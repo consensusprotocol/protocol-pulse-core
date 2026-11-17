@@ -239,3 +239,17 @@ class TestYesterdaysFinal(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRuling135(unittest.TestCase):
+    """RULING 135 in G18: a sealed 'kinda' against the final's decoded 'kind of' (and the brand's spellings, a filler) is
+    not a difference; a changed word still is."""
+
+    def test_spelling_is_not_a_difference_in_g18(self):
+        self.assertEqual(W.diff("That framing is just kinda too simple.", "That framing is just kind of too simple."), [])
+        self.assertEqual(W.diff("Q is iTrustCapital's way.", "Q is I trust capital's way."), [])
+        self.assertEqual(W.diff("So we went home.", "So, um, we went home."), [])
+
+    def test_a_changed_word_still_is(self):
+        self.assertNotEqual(W.diff("I can do it now.", "I can't do it now."), [])
+        self.assertNotEqual(W.diff("It cost 68,000 dollars.", "It cost 86,000 dollars."), [])

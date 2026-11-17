@@ -601,6 +601,16 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
             f"currency symbol: currency format (ruling 131 (B))")
         if not ops:
             return lock
+    spell = [o for o in ops if canon.same_words(r[o[1]:o[2]], p[o[3]:o[4]])]       # ruling 135: spelling only
+    if spell:
+        ops = [o for o in ops if o not in spell]
+        lock = {k: v for k, v in lock.items() if k != "sha256"}
+        lock["spelling_only"] = [[" ".join(r[a:b]), " ".join(p[c:d])] for _, a, b, c, d in spell]
+        lock["sha256"] = L._lock_digest(lock)
+        log(f"  lock {lock['video_id']} words {lock['i0']}-{lock['i1']}: {lock['spelling_only']} differ only in "
+            f"spelling, segmentation, a spoken reduction or non-lexical sounds: the same words (ruling 135)")
+        if not ops:
+            return lock
     tag = f"{lock['video_id']} words {lock['i0']}-{lock['i1']}"
     diffs = [[" ".join(r[a:b]), " ".join(p[c:d])] for _, a, b, c, d in ops]
     crit = sorted({t for _, a, b, c, d in ops for t in r[a:b] + p[c:d] if _lv2_critical(t, (run_t, pin_t))})
@@ -700,7 +710,8 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
                            " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
         new = {k: v for k, v in lock.items() if k != "sha256"}
         kept = [[" ".join(r[a2:b2]), " ".join(n[c2:d2])]
-                for op, a2, b2, c2, d2 in SequenceMatcher(None, r, n, autojunk=False).get_opcodes() if op != "equal"]
+                for op, a2, b2, c2, d2 in SequenceMatcher(None, r, n, autojunk=False).get_opcodes() if op != "equal"
+                and not canon.same_words(r[a2:b2], n[c2:d2])]      # ruling 135: spelling is not a difference
         new["text"] = text
         if kept:                                       # the rest is ruling 17's: the approved words, read by it
             new["adjudication"] = {"rule": "ruling 17 (orchestrator 2026-11-12 '10:20')", "verdict": "approved",

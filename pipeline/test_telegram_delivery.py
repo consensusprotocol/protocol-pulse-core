@@ -182,7 +182,8 @@ class TestLockLines(Base):
         _, sent = self.deliver(rd)
         vids = [s for s in sent if s[0] == "video"]
         self.assertEqual(len(vids), 2)
-        out = [[l for l in s[2]["caption"].split("\n") if l in (MAJORITY, CURRENCY)] for s in vids]
+        out = [[l for l in s[2]["caption"].split("\n") if l in (MAJORITY, CURRENCY, "word check: spelling only")]
+               for s in vids]
         self.assertEqual(out[0], out[1])                              # every format's note alike
         return out[0], vids[0][2]["caption"].split("\n")
 
@@ -202,6 +203,11 @@ class TestLockLines(Base):
         rd = self.run_with(hook_lock={"text": "x", "currency_format": [["", "dollars"]]},
                            clip_lock={"text": "y", "adjudication": {"rule": "ruling 131 (A) x"}})
         self.assertEqual(self.marks(rd)[0], [MAJORITY, CURRENCY])
+
+    def test_ruling_135_a_span_the_canon_settled_says_spelling_only(self):
+        rd = self.run_with(clip_lock={"text": "x", "spelling_only": [["itrust", "i trust"]]})
+        got, lines = self.marks(rd)
+        self.assertEqual(lines[2], "word check: spelling only")
 
     def test_no_line_when_neither_is_used(self):
         rd = self.run_with(clip_lock={"text": "x", "adjudication": {"rule": "ruling 17 (orchestrator 2026-11-12 "

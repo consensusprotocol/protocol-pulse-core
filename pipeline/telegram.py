@@ -51,6 +51,7 @@ BAR_MARKS = (("hook_bar", HOOK_BAR_NOTE, "ruling 115 (2)"), ("lineup_bar", LINEU
 # Ruling 131 (orchestrator 08:25 ET Nov 17): both lock rules are MARKED in the release caption, in plain words, when used
 MAJORITY_NOTE = "word check settled by two of three readings"         # (A)
 CURRENCY_NOTE = "currency format"                                      # (B)
+SPELLING_NOTE = "word check: spelling only"                            # ruling 135 (orchestrator 10:50 ET Nov 17)
 
 
 def _fit(text, limit):
@@ -148,7 +149,8 @@ def lock_lines(run_dir, edl):
                                "EDL's")
         majority = majority or sealed
     currency = any(x.get("currency_format") for x in locks)
-    return [n for n, on in ((MAJORITY_NOTE, majority), (CURRENCY_NOTE, currency)) if on]
+    spelling = any(x.get("spelling_only") for x in locks)                 # ruling 135: the canon settled a span
+    return [n for n, on in ((MAJORITY_NOTE, majority), (CURRENCY_NOTE, currency), (SPELLING_NOTE, spelling)) if on]
 
 
 def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
