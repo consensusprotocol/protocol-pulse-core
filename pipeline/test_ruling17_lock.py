@@ -513,6 +513,11 @@ class TestRuling143(unittest.TestCase):
         new, _ = self.settle(run_t, pin_t, run_t)                      # both hear I've: the transcript was wrong
         self.assertEqual(new["text"], run_t)
         self.assertEqual(len(new["transcript_corrected"]), 1)
+        run_t = "I've seen inflows into it every single day this week and last."           # opening the sentence,
+        pin_t = "IBIT seen inflows into it every single day this week and last."           # a ticker is still one
+        with self.assertRaises(P.PinError) as e:
+            self.settle(run_t, pin_t, pin_t)
+        self.assertIn("ruling 143 (3)", str(e.exception))
 
     def test_fillers_of_any_length_never_hold(self):
         run_t = "Bitcoin is the hardest money we have ever had in our lives."
