@@ -31128,5 +31128,59 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "44a6d503ed11992f6f8e:9bd2cb49df47cb7b592fe7c97cee8eadeefb236ebb2119c7710636f0e1f8cbc8:d62609520cba91af3ed66dcc53ce5e7e5db43b7f9136f861342bbf046cf7e824:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "44a6d503ed11992f6f8e",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "People try to manipulate listeners' emotions with fear and anger in order to potentially get them to sell their Bitcoin, as these emotions greatly cloud judgment.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "1eff6e75d00b8de8cf95:8ddc35eda2a4b8edc653f9bc6505c08a671771634b36094b1832e353c308d684:f7aaa7d400a3ed79432bdece513b44f6419c57c6f6f28adb0e91482cec7aa903:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "1eff6e75d00b8de8cf95",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "its",
+     "refers_to": "the government that owes $40 trillion",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "no matter who wins an election",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin's value thesis is independent of any president or election because it grew to a trillion-dollar asset despite hostile governments and remains centered on sound money that cannot be inflated by a $40T indebted government that must devalue its currency regardless.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I told him the thesis has not changed.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

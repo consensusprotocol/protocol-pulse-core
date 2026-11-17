@@ -1,8 +1,26 @@
 {
- "generated_at": "2026-11-17T02:11:10+00:00",
- "build": "ledger_20261117_021054",
+ "generated_at": "2026-11-17T02:12:03+00:00",
+ "build": "ledger_20261117_021147",
  "kind": "moments",
  "candidates": [
+  {
+   "pid": "0193406f729cc5e141e0",
+   "video_id": "OubcRgk3D-w",
+   "channel": "Simply Bitcoin",
+   "duration": 14.83,
+   "text": "Most Bitcoin mining pools today, you have to ask permission to use. If that doesn't make the hair in the back of your neck stand up, I don't know what else will.",
+   "text_sha256": "d8c52d4d229de1b0319798398bfdf5e6921db1ce64dc6d673e2eb3a6498b6aa5",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "1eff6e75d00b8de8cf95",
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "duration": 19.01,
+   "text": "Bitcoin was never riding on a president. The strategic Bitcoin Reserve still hasn't bought a single coin. And Bitcoin grew into a trillion dollar asset under governments that ignored it or outright fought against it. The thesis is centered around money. A government that owes $40 trillion has to keep making its money worth less, no matter who wins an election.",
+   "text_sha256": "8ddc35eda2a4b8edc653f9bc6505c08a671771634b36094b1832e353c308d684",
+   "trimmed_leading": null
+  },
   {
    "pid": "e69e7174911b6f9d3a56",
    "video_id": "WdiF0i925rs",
@@ -10,6 +28,42 @@
    "duration": 18.2,
    "text": "People are trying to manipulate you. People are trying to manipulate your emotions to make you part with your Bitcoin potentially. I just can't overstate how much like fear and anger cloud your judgment. Myself included, I'm not immune from this. It's been a brutal time to huddle, right? But Bitcoin has a really unique way of like messing with your psychology.",
    "text_sha256": "e957fa87cf853760bca543ab99f31a765f7da0a9324063bfa6d942cf8887540c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b084525ec408fdeabb4e",
+   "video_id": "2oY7TU6CPok",
+   "channel": "BTC Sessions",
+   "duration": 15.7,
+   "text": "Meanwhile, Bitcoin had a terrible weekend. We went all the way down to 62K, $2 billion in leverage wiped out, $645 million in just 30 minutes. We were just a stone throw away from the 58K gang there, so eat your heart out. And of course, it's putting pressure on everybody. Strategy and metaplan are both making moves while they're down.",
+   "text_sha256": "06b26699cc8b7acd1a485b218e2353b04e969ebecdd504a29d2fa660a443ba11",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d6adeb54ad64062081c5",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 14.78,
+   "text": "I have been recently done a budget pieces on the 2023 bull market, like climbing a wall of worry. There was massive amounts of fear during that period of time. Bitcoin was actually trending up into the right, and fear was also trending up into the right during that.",
+   "text_sha256": "8e6ae65436256fcb93f3901a0c91648fb07f6fdc5798d8adbcde6760342ffcda",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "8fe4ff5d084bbba5a88c",
+   "video_id": "WdiF0i925rs",
+   "channel": "What Bitcoin Did",
+   "duration": 18.8,
+   "text": "Traders are the ones that you expect at this point where Bitcoin's relatively low compared to where it's been, looking like it's pretty good, probably going to have a breakout at some point relatively soon. You'd expect the conviction there to be growing, but it's actually at the lowest you've ever seen it. Do you think that is, again, the AI trade just taking all the excitement or the enthusiasm away from Bitcoin?",
+   "text_sha256": "e8d6200808c93831b683346c1360db25c5f1cda782eea9612ec077f869312fcf",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a3e8721c54788123097a",
+   "video_id": "stg5ui9sPos",
+   "channel": "Yahoo Finance",
+   "duration": 14.94,
+   "text": "Billions of dollars in liquidations, as always, I believe $2 billion on Bitcoin alone just Saturday and Sunday. And further proof that sometimes when market sentiment is generally bad, Bitcoin can really take it on the chin because it's open 24 -7, 365.",
+   "text_sha256": "e248eb63ad6f2f35bc43c6faadec1889c19b16d7d5708c2713f0c5dac386a71c",
    "trimmed_leading": null
   }
  ]
