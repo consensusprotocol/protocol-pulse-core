@@ -6,6 +6,31 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 10:42 RULING 134: NO PIN FROM THIS POOL. The lock pre-check refused every span the 3-channel line-ups need (8 spans, Scribe $0.0554, in the builder's day ledger). FOUR of the refusals are calibration faults in MY gates, measured below. Each needs your ruling; none is changed.
+1. **Segmentation of a brand name (DataDash 8dbc30ee; ruling 131 (A), "all three differ").**
+   - The readings: "itrust capital's" (run), "I trust capital's" (approved), "iTrustCapital's" (second recogniser).
+   - FIX: a pair whose letters are identical once spaces are removed is the same words. It is a canon change, so the decoder sha moves (lockstep).
+   - Passes: this hook. Still refuses: any pair whose letters differ.
+2. **Informal contractions (DataDash f9413625; ruling 72/84, "kind of" vs "kinda").**
+   - FIX: canon aliases: kinda = kind of, gonna = going to, wanna = want to, gotta = got to, sorta = sort of, outta = out of, lotta = lot of. The same canon serves the lock, ruling 72's comparison and G18. Without the alias, G18 would also fail the final's "kind of" against a sealed "kinda". Canon change, lockstep.
+   - Passes: f9413625. Still refuses: any other word difference.
+3. **A false start written as a fragment (Natalie Brunell cae5123f; ruling 72/84, an inserted "h").**
+   - The second recogniser marks a cut-off word with a hyphen: "like a h- low 100,000s". The decoder drops it.
+   - FIX: a token the second recogniser wrote as a fragment with a trailing hyphen is a false start, classed as a filler. The change is in lock_precheck.ruling84_class, outside the decoder sha; the builder's class_84 mirror changes with it.
+   - Passes: cae5123f. Still refuses: a real inserted word.
+4. **Ruling 73 (c) at the IN edge. Two spans, two different faults:**
+   - (a) **DataDash bcd71a53 ("IN: 'page' / OUT: 'bitcoin' does not end a sentence").** The run decode has NO punctuation in this window: punctuation restoration left it bare. The second recogniser marks the sentences exactly at the span's edges: "...on the page. The last detail matters. ... one hundred percent Bitcoin. As of...".
+     - FIX: where the decode has no punctuation at an edge, two of the three readings (approved text, second recogniser) decide the sentence edge, as ruling 131 (A) does for words. It is in sentence_law, so the decoder sha moves (lockstep).
+     - Passes: bcd71a53. Still refuses: an edge that no reading ends a sentence on.
+   - (b) **Natalie Brunell 39a6cfd4 ("IN: 'not' does not end a sentence").** The speaker says "That's not the goal. The goal is to maximize...".
+     - Ruling 72's spill trim (lock_precheck._spill) keeps leading words that repeat the lock's first words as "the speaker's own edge repeat". Here those words are the END of the previous sentence ("the goal." across a full stop). So the pre-check adopts "the goal. The goal is..." and the re-lock starts the clip after "not".
+     - FIX: a leading repeat counts as the speaker's own only when no sentence end (a full stop, ? or !) in the second recogniser's text separates it from the lock. Outside the decoder sha; the builder's _spill mirror changes with it.
+     - Passes: 39a6cfd4. Still keeps: "When, when Bitcoin..." (a comma).
+- **Not miscalibrated:**
+  - CoinDesk c2ff7d8e: a post_live stream that cannot be cut yet (10:31 entry).
+  - Coin Bureau e06e9566: passes.
+  - Natalie 372f6afd: adopts at the lock, but the scorer's fresh verdict (3, starts_mid_thought) bars it from opening (the builder's row).
+
 ## 10:31 RULING 134, FIRST LINE-UP NOT PINNED: the lock pre-check refused 2 of the 3 spans of the held DataDash / CoinDesk / Coin Bureau line-up (request attempt134.20261117_102312, answered 10:25 ET). The builder goes on to its next line-up; the integrator stays ready.
 - **9k47sQ0CT18 222.455-231.615:** PASS (no_difference).
 - **DataDash hook WjnphankXmM 601.967-613.827: HOLD at ruling 131 (A), all three readings differ.** They are the SAME spoken words with the brand's word breaks placed three ways:
