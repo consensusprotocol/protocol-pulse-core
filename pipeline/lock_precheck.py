@@ -218,8 +218,8 @@ REUSE_RATIO = 0.8          # batch 101: an earlier reading is this window's when
 def _earlier(a, wd):
     """BATCH 101 (ruling 131: one true day number, nothing paid twice): the newest cached second reading of the SAME
     window made under another decoder code (work dirs differ only by the decoder sha: the reading is the vendor's, of
-    the audio, not of our code). Ruling 77 purges the media, so a re-download never byte-matches that reading's source:
-    it is this window's audio when it was taken at the same offset (a reading that records one) and its words read as
+    the audio, not of our code). Ruling 77 purges the media and a re-download need not byte-match that reading's source
+    (the 09:30 ET Nov 17 replay's four did; nothing promises it): it is this window's audio when it was taken at the same offset (a reading that records one) and its words read as
     this decode does (canon ratio >= REUSE_RATIO; a changed video reads differently and is paid for again).
     -> (reading, its path, ratio) or None."""
     import canon

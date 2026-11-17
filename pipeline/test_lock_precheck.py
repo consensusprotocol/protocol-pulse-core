@@ -849,7 +849,7 @@ class TestRuling131(Base):
 class TestReuseAcrossShas(Base):
     """BATCH 101 (ruling 131: nothing paid twice): under a new decoder code the second recogniser's reading of the SAME
     window (another decoder sha's work dir) is reused when it was taken at the same offset and reads as this decode
-    does; ruling 77 purges the media, so its source bytes can never match a re-download.
+    does; ruling 77 purges the media, and a re-download need not byte-match it.
     must-fail  the same window read under another decoder code is not paid for again
     must-pay   a reading that reads otherwise (a changed video), one taken at another offset, another window's"""
     def earlier(self, text, offset=740.0, base=None, sha="0123456789ab"):
