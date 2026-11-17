@@ -469,6 +469,16 @@ def is_held(why):
     return bool(why) and all(str(w).startswith(HELD) for w in why)
 
 
+def local_held(a):
+    """RULING 127 (2) (orchestrator 21:30 ET Nov 16): a step-A verdict from the local judge (gemma3:27b, ruling 87's last
+    resort), PASS or REFUSE, is never final while a Heimdall family can be asked: HELD, 'local, provisional', never
+    cached, asked again next build; a sealed package needs the second screen from a real second family. -> the reason."""
+    why = CI.a_failures(a)
+    return (f"{HELD}: local, provisional (ruling 127 (2)): the local judge {a.get('backend')}'s verdict "
+            f"({'refuse: ' + '+'.join(map(str, why)) if why else 'pass'}) is never final while a Heimdall family can "
+            f"be asked; never cached; held for this build, retried next build")
+
+
 def last_resort_of(verdicts):
     """RULING 102: the back-ends among `verdicts` (A items) that are the local judge's (ruling 87's last resort)."""
     return sorted({str(a.get("backend")) for a in verdicts or () if isinstance(a, dict)
@@ -574,7 +584,8 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
     wv, wf = P._as_set(writer_vendor), P._as_set(writer_family)
     off = lambda name: (lambda b: b is not None and b.vendor not in wv and b.family not in wf)(router.backends.get(name))
     pick = lambda key: next((x for name, x in sorted((cdb.get(key) or {}).items())        # a cached verdict off the
-                             if isinstance(x, dict) and off(name) and x.get("backend") == name), None)   # writers'
+                             if isinstance(x, dict) and off(name) and x.get("backend") == name    # writers', never
+                             and not name.startswith(LAST_RESORT)), None)                         # the local judge's
     moved = {}                                          # ruling 126 (1): old-key verdicts, written under the new key
     a_by, fails, vendors, families, todo, contexts, keys = {}, {}, set(), set(), [], {}, {}
     for m in order:
@@ -588,7 +599,8 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
                          "show_date": CI.show_date(ctx.now)}       # RULING 126 (1): the ET date
         keys[mid] = step_a_key(m, contexts[mid])                          # ruling 126 (1): the date only with time words
         rec = db.get(f"{mid}:{STEP_A_VERSION}")
-        if not (isinstance(rec, dict) and off(rec.get("backend"))):
+        if not (isinstance(rec, dict) and off(rec.get("backend"))
+                and not str(rec.get("backend")).startswith(LAST_RESORT)):        # ruling 127 (2): never the local judge's
             rec = pick(keys[mid])
             if rec is None and not time_sensitive(m):    # RULING 126 (1): a verdict cached before the date left the key
                 rec = next((r for r in map(pick, step_a_old_keys(m, contexts[mid], ctx.now)) if r is not None), None)
@@ -623,6 +635,10 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
                 fails[m["moment_id"]] = [held_why(e)]
             continue
         items, backend = got
+        if str(backend).startswith(LAST_RESORT):         # RULING 127 (2): the local judge's verdicts are provisional:
+            for mid, a in items.items():                 # held, never a pass or a refusal, never cached, no vendor
+                fails[mid] = [local_held(dict(a, backend=backend))]
+            continue
         b = router.backends.get(backend)
         vendors.add(b.vendor if b else backend)
         families.add(b.family if b else backend)
@@ -810,6 +826,8 @@ def second_screen(router, cleared, a_by, sources, ctx, log=print, cache=None):
             if fails.get(mid) or a2 is None:            # ruling 102: no verdict at all is HELD, retried next build
                 fail[mid] = list(fails.get(mid) or [f"{HELD}: no second verdict (law L-m); held for this build, "
                                                     f"retried next build"])
+            elif str(a2.get("backend") or "").startswith(LAST_RESORT):   # RULING 127 (2): never the second family
+                fail[mid] = [local_held(a2)]
             elif b2 is None or b2.vendor == k[0] or (k[1] and b2.family == k[1]):
                 fail[mid] = [f"STEP_A_SAME_VENDOR: the second verdict came from {a2.get('backend')}, not off the "
                              f"first's vendor {k[0]} and family {k[1]} (law L-m)"]
