@@ -1,0 +1,331 @@
+{
+ "f4bad490a7d8f7f7e89d:9d43580c729b": {
+  "label": "f4bad490a7d8f7f7e89d",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "when Bitcoin RSI 24 is observed",
+    "inside": true
+   },
+   {
+    "text": "over the next 12 months",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Analytics indicate that Bitcoin RSI 24 has never produced a loss over the next 12 months.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "You're such a good host, Scott.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "372f6afd8ff42ea6a597:9d43580c729b": {
+  "label": "372f6afd8ff42ea6a597",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin being the fastest horse amongst the scarce assets",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "Bitcoin going down 50% or 80%",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "them",
+    "refers_to": "Most people",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If it's not [the fastest horse amongst the scarce assets]",
+    "inside": true
+   },
+   {
+    "text": "if we're being honest",
+    "inside": true
+   },
+   {
+    "text": "if it can't even keep pace with gold",
+    "inside": true
+   },
+   {
+    "text": "when Bitcoin goes down 50% or 80%",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin should be the fastest horse amongst scarce assets like gold or else it has kind of failed to meet expectations, and most people are bothered when it declines 50% or 80%.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Joining me this week is CEO of Strive, Matt Cole. Matt, thanks for joining me first time in person. Yeah, thanks for having me, Natalie.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "8dbc30ee3ad91f82552d:9d43580c729b": {
+  "label": "8dbc30ee3ad91f82552d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin conviction and risk management do not have to be opposites because Q is iTrustCapital's method of providing predefined automated crypto strategies inside the same account experience using different approaches and holdings.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Here's my bottom line.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "700df83644274f6981d4:9d43580c729b": {
+  "label": "700df83644274f6981d4",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin's expected role and price movement as a scarce asset",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "the pattern that most annual Bitcoin returns occur in a couple days",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "a sudden large positive price movement in Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when Bitcoin moves",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Most of Bitcoin's returns for a year typically happen in just a couple of days, so it is a frustrating asset that does nothing and then suddenly produces a massive green candle in a day or a week.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "I mean, it's so true. I hope your bull case is right and I bet the next time we're talking here, maybe a year from now, you guys will have like a 100,000 Bitcoin.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ca660f2277836c085860:9d43580c729b": {
+  "label": "ca660f2277836c085860",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "its",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has officially broken its 200-week moving average, leading many to think that $50K is likely the next price target.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "from me, but coming from Wintermute, one of the largest market makers in crypto. We're going to talk about that and everything else happening in this bloody market today with Tillman and Andrew, of course, but also a very special recurring guest, Sid Powell from Maple. Let's go. Let's go. Good morning, everybody.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "cae5123f9ff683c8b965:9d43580c729b": {
+  "label": "cae5123f9ff683c8b965",
+  "speaker_changes_inside": "no",
+  "view": "question",
+  "referents": [
+   {
+    "word": "we",
+    "refers_to": "Bitcoin / crypto market",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when we've seen all-time highs in the stock market over and over again",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Why is Bitcoin's price not near its all-time high in the low 100000s despite the stock market reaching all-time highs repeatedly, implying underperformance?",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I mean, why are we sort of underperforming? Do you think \u203a\u203a it's been a difficult challenging environment for Bitcoin?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c79b7f6d3b7dd2a9d9ea:9d43580c729b": {
+  "label": "c79b7f6d3b7dd2a9d9ea",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "its",
+    "refers_to": "SAT",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It",
+    "refers_to": "structured finance",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when you think about structured finance",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The chart shows Bitcoin's volatility about half of ASST, SAT even after its decline almost nothing, meaning structured finance works with common equity more volatile than Bitcoin and the preferred substantially less.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a But couldn't we see those challenges again in the future? Let's say everything's going well. Obviously these pay very high rates so leverage can build on top. I mean do you worry that this could happen again including to your products? \u203a\u203a I think people are going to get smarter.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "e06e9566dbe3ea80c568:9d43580c729b": {
+  "label": "e06e9566dbe3ea80c568",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "Its",
+    "refers_to": "trade.xyz",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "his",
+    "refers_to": "Shoku",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "He",
+    "refers_to": "Shoku",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "2013",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in 2013, and for many years after that",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The founder of trade.xyz who goes by the pseudonym Shoku bought his first Bitcoin in 2013 and for many years after that stayed an investor rather than a builder.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "52d01b830867cef3fe6a:9d43580c729b": {
+  "label": "52d01b830867cef3fe6a",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "its",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "That number",
+    "refers_to": "the 50K prediction",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "me",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has officially broken its 200-week moving average, leading many to think that 50K is likely next according to Wintermute rather than the speaker himself.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Good morning, everybody. And happy Tuesday. If you're wondering why this is here, I'm going to break it. My son made me a wolf Lego.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}
