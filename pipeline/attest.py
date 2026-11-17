@@ -19,7 +19,14 @@ RULING 131 (orchestrator 08:25 ET Nov 17) has its own re-check, class_131: (A) p
 two of the three readings (the approved text, the run's decode, the second recogniser) decide it and the sealed text
 takes that reading, at least 3 tokens from both cut edges; never a number, a name or a negation; all three different
 holds. (B) a currency symbol is formatting (canon.dollars_after_number, G18's one tolerance). It re-runs the render's own
-steps on the three readings the lock records and never trusts the record's own classes."""
+steps on the three readings the lock records and never trusts the record's own classes.
+
+RULING 135 (orchestrator 10:50 ET Nov 17), THE COMPARISON CANON: "differences of spelling are not differences of
+speech". A differing pair whose two sides are the same words by canon.same_words (case, punctuation and apostrophes
+ignored; segmentation ignored, names too; the closed list of spoken reductions; non-lexical tokens, fillers and a stray
+single consonant, left out; a digit or a different single letter still differs) is no difference: dropped right after
+the currency pairs in class_131 (as the render's lock drops it before the critical check and the vote) and before any
+class in class_84 (as ruling 72's comparison drops it). The sealed text keeps the approved words there."""
 import re
 from difflib import SequenceMatcher
 
@@ -112,6 +119,10 @@ def class_84(spoken, approved):
         if tag == "equal":
             continue
         rs, ps = r2[a:b], p[c:d]
+        if canon.same_words(rs, ps, stray="x"):          # RULING 135: spelling only; a lone consonant is a stray
+            #   sound only on the spoken side (the second recogniser's reading, as ruling 72's comparison passes it)
+            out.append({"spoken": " ".join(rs), "approved": " ".join(ps), "class": "spelling only (ruling 135)"})
+            continue
         if any(critical(t, texts) for t in rs + ps):
             k = None
         elif rs and ps:
@@ -221,6 +232,10 @@ def class_131(spoken, approved, adj):
         if currency_pair(r, p, op):
             out.append(dict(row, took="currency", edge_distance=None, **{"class": "currency format (ruling 131 (B))"}))
             continue
+        if canon.same_words(r[a:b], p[c:d]):            # RULING 135: dropped before the critical check and the vote
+            #   (no stray side: in the lock a lone letter is a token, and the vote of three readings decides it)
+            out.append(dict(row, took="spelling", edge_distance=None, **{"class": "spelling only (ruling 135)"}))
+            continue
         row["edge_distance"] = edge_distance(r, p, op)
         if any(critical(t, texts) for t in r[a:b] + p[c:d]):
             out.append(dict(row, took=None, **{"class": None}, why="a number, a name or a negation (law L-v 2)"))
@@ -239,7 +254,8 @@ def class_131(spoken, approved, adj):
     rec = adj.get("pairs")
     theirs = [(x.get("run"), x.get("approved"), x.get("took"), x.get("edge_distance")) for x in rec] \
         if isinstance(rec, list) and all(isinstance(x, dict) for x in rec) else None
-    mine = [(x["spoken"], x["approved"], x["took"], x["edge_distance"]) for x in out if x["took"] != "currency"]
+    mine = [(x["spoken"], x["approved"], x["took"], x["edge_distance"]) for x in out
+            if x["took"] not in ("currency", "spelling")]           # the record keeps both apart from its pairs
     if theirs != mine:
         out.append(held(f"the lock record's pairs are not this side's: {theirs} against {mine}"[:400]))
     sp = canon.canon_tokens(spoken)

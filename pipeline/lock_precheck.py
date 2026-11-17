@@ -31,7 +31,9 @@ Outcomes:
   when this side's own re-check (attest.class_131, from the record's three readings) finds every pair decided the same
   way, every run-taken pair at least 3 tokens from both cut edges, no number, name or negation, and the spoken text
   the merged reading; anything else is a hold (fail closed). (B): currency format ('$2 billion' for a spoken
-  '2 billion') is no difference.
+  '2 billion') is no difference. RULING 135: neither is a pair of the same words by canon.same_words (spelling,
+  segmentation, the closed reductions, fillers and a stray consonant); this side's re-checks drop it where the
+  render's lock and ruling 72's comparison do (attest.class_131, attest.class_84).
 - hold: the clip may not be used with that text. The reason says why.
 - error, an outcome this module does not know, or no answer in time: no verdict. Never a pass (law L-m). A request
   is sent again rather than reusing an error.
@@ -47,7 +49,9 @@ from datetime import datetime, timezone
 import attest as AT
 import canon as C
 
-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131"   # RULING 131
+RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131 + ruling 135"   # RULING 135
+#   (orchestrator 10:50 ET Nov 17): the comparison canon (canon.same_words), the integrator's message of 10:5x Nov 17.
+#   RULING 131
 #   (orchestrator 08:25 ET Nov 17): (A) two of three readings, (B) currency format (the integrator's message of 08:2x
 #   Nov 17); entries under the old RULES are never read. RULING 105 (orchestrator
 #   20:13 Nov 14): the unstable second reading joins the rules (the integrator's messages of 20:5x-21:0x Nov 14).
@@ -55,7 +59,7 @@ RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105
 #   targeted re-listen joins the rules (the integrator's message of 14:3x Nov 14); entries under the old RULES are never
 #   read. RULING 84 (orchestrator 20:41 Nov 13): the integrator's
 #   RULES string (its message of 20:4x Nov 13). RULING 73 (live 18:43:08 Nov 13, merged 585b6da5 on the integrator's
-DECODER = "ce72aefa342d"                      # side): the render's own cut placement joins the pre-check (a passing
+DECODER = "b52c9354d604"                      # side): the render's own cut placement joins the pre-check (a passing
 #   entry carries "cut"; a span the render cannot cut holds: "ruling 73: the render cannot cut this span: ..."). RULING
 #   84 changed the render's adjudicate_lock (pinned.py), so the decoder_sha changed: 962353613cb0e065008ab0405ca8550111ddd3ca3ba70f0ae65b4b77ab1876d8
 #   (ruling 73's was 8a101f222598a4f725e7cf85626e90fb2fae35df8d81d3ff430469728114e1a7). RULING 90 (the integrator's
@@ -68,6 +72,8 @@ DECODER = "ce72aefa342d"                      # side): the render's own cut plac
 #   RULING 131 (A) + (B) (the integrator's branch r131-lock, audited; both sides land in lockstep as with 105): canon.py's
 #   currency_free / dollars_after_number and adjudicate_lock's two of three readings:
 #   ce72aefa342dcd94dd45d8b4bc96ec6477ec04c91914db2054403338d7559e60
+#   RULING 135 (the comparison canon: canon.same_words; the integrator's branch r135-canon, audited; lockstep as with 131):
+#   b52c9354d604ab2303a91e6e6e5f926990987d46448992579684934f62e9392d
 RESULTS = "/home/ultron/protocol_pulse/data/lock_precheck/results"        # the integrator's; read only
 REQUESTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
                         "lock_requests")      # this worktree's; the service only reads it

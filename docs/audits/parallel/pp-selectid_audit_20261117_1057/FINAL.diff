@@ -1,0 +1,343 @@
+diff --git a/pipeline/attest.py b/pipeline/attest.py
+index ba38c084..f4bb6eb3 100644
+--- a/pipeline/attest.py
++++ b/pipeline/attest.py
+@@ -19,7 +19,14 @@ RULING 131 (orchestrator 08:25 ET Nov 17) has its own re-check, class_131: (A) p
+ two of the three readings (the approved text, the run's decode, the second recogniser) decide it and the sealed text
+ takes that reading, at least 3 tokens from both cut edges; never a number, a name or a negation; all three different
+ holds. (B) a currency symbol is formatting (canon.dollars_after_number, G18's one tolerance). It re-runs the render's own
+-steps on the three readings the lock records and never trusts the record's own classes."""
++steps on the three readings the lock records and never trusts the record's own classes.
++
++RULING 135 (orchestrator 10:50 ET Nov 17), THE COMPARISON CANON: "differences of spelling are not differences of
++speech". A differing pair whose two sides are the same words by canon.same_words (case, punctuation and apostrophes
++ignored; segmentation ignored, names too; the closed list of spoken reductions; non-lexical tokens, fillers and a stray
++single consonant, left out; a digit or a different single letter still differs) is no difference: dropped right after
++the currency pairs in class_131 (as the render's lock drops it before the critical check and the vote) and before any
++class in class_84 (as ruling 72's comparison drops it). The sealed text keeps the approved words there."""
+ import re
+ from difflib import SequenceMatcher
+ 
+@@ -112,6 +119,10 @@ def class_84(spoken, approved):
+         if tag == "equal":
+             continue
+         rs, ps = r2[a:b], p[c:d]
++        if canon.same_words(rs, ps, stray="x"):          # RULING 135: spelling only; a lone consonant is a stray
++            #   sound only on the spoken side (the second recogniser's reading, as ruling 72's comparison passes it)
++            out.append({"spoken": " ".join(rs), "approved": " ".join(ps), "class": "spelling only (ruling 135)"})
++            continue
+         if any(critical(t, texts) for t in rs + ps):
+             k = None
+         elif rs and ps:
+@@ -221,6 +232,10 @@ def class_131(spoken, approved, adj):
+         if currency_pair(r, p, op):
+             out.append(dict(row, took="currency", edge_distance=None, **{"class": "currency format (ruling 131 (B))"}))
+             continue
++        if canon.same_words(r[a:b], p[c:d]):            # RULING 135: dropped before the critical check and the vote
++            #   (no stray side: in the lock a lone letter is a token, and the vote of three readings decides it)
++            out.append(dict(row, took="spelling", edge_distance=None, **{"class": "spelling only (ruling 135)"}))
++            continue
+         row["edge_distance"] = edge_distance(r, p, op)
+         if any(critical(t, texts) for t in r[a:b] + p[c:d]):
+             out.append(dict(row, took=None, **{"class": None}, why="a number, a name or a negation (law L-v 2)"))
+@@ -239,7 +254,8 @@ def class_131(spoken, approved, adj):
+     rec = adj.get("pairs")
+     theirs = [(x.get("run"), x.get("approved"), x.get("took"), x.get("edge_distance")) for x in rec] \
+         if isinstance(rec, list) and all(isinstance(x, dict) for x in rec) else None
+-    mine = [(x["spoken"], x["approved"], x["took"], x["edge_distance"]) for x in out if x["took"] != "currency"]
++    mine = [(x["spoken"], x["approved"], x["took"], x["edge_distance"]) for x in out
++            if x["took"] not in ("currency", "spelling")]           # the record keeps both apart from its pairs
+     if theirs != mine:
+         out.append(held(f"the lock record's pairs are not this side's: {theirs} against {mine}"[:400]))
+     sp = canon.canon_tokens(spoken)
+diff --git a/pipeline/canon.py b/pipeline/canon.py
+index 25aa7378..9a373e07 100644
+--- a/pipeline/canon.py
++++ b/pipeline/canon.py
+@@ -281,6 +281,56 @@ def currency_free(tokens):
+     return [w for k, w in enumerate(tokens) if not dollars_after_number(tokens, k)]
+ 
+ 
++# RULING 135 (orchestrator 10:50 ET Nov 17): THE COMPARISON CANON. "Differences of spelling are not differences of
++# speech." Applied to a differing pair's two sides before the pair is compared (the lock, ruling 72's comparison,
++# G18); canon_tokens itself is unchanged, so spans, edges and indices are not touched.
++REDUCTIONS = {      # (c) spoken reductions equal their full form: a CLOSED list, none added without a ruling
++    "kinda": ("kind", "of"), "sorta": ("sort", "of"), "gonna": ("going", "to"), "wanna": ("want", "to"),
++    "gotta": ("got", "to"), "lemme": ("let", "me"), "gimme": ("give", "me"), "cause": ("because",),
++    "cuz": ("because",), "em": ("them",), "ya": ("you",), "yeah": ("yes",), "yep": ("yes",)}
++FILLER_TOKENS = frozenset({"um", "uh", "er", "ah", "hm", "hmm", "mm", "mhm"})      # (d) non-lexical
++CONSONANTS = frozenset("bcdfghjklmnpqrstvwxz")                                     # (d) a stray consonant ("a", "i": words)
++
++
++def comparison_form(tokens):
++    """RULING 135 (a)+(c): canon tokens with their apostrophes removed, each spoken reduction (REDUCTIONS) expanded."""
++    out = []
++    for t in tokens:
++        t = str(t).replace("'", "")
++        out += list(REDUCTIONS.get(t, (t,)))
++    return out
++
++
++def nonlexical(tok, stray=False):
++    """RULING 135 (d): a filler (FILLER_TOKENS); with stray, also a single consonant letter. Not a word."""
++    return tok in FILLER_TOKENS or (stray and len(tok) == 1 and tok in CONSONANTS)
++
++
++def same_words(x, y, stray=()):
++    """RULING 135: the two sides of a differing pair (lists of canon tokens) are the same words. Both sides in comparison
++    form (a, c), fillers left out (d); equal tokens, or, when neither side holds a digit, equal letters once every space
++    and hyphen is gone (b: 'itrust capital's' = 'I trust capital's' = 'iTrustCapital's', names too). A single consonant
++    is a stray sound only on a side named in `stray` ("x" / "y"): the side the caller knows ONE reading alone hears
++    (ruling 72's second recogniser against the lock, G18's final decode); in the lock itself a lone letter is a token
++    and the vote of three readings decides it (Heimdall batch 104 c2: a letter two readings hear is a word). Still a
++    difference: two different single letters, any digit difference (numbers compare token for token; the currency form
++    is (B)'s), and any other change of letters (a negation, a name, a content word). "cause" is taken as the ruled
++    "'cause" (canon_tokens drops the apostrophe, so the noun reads the same; two readings of one audio never trade the
++    noun "cause" for "because")."""
++    cx, cy = comparison_form(x), comparison_form(y)
++    lx = [t for t in cx if len(t) == 1 and t in CONSONANTS]
++    ly = [t for t in cy if len(t) == 1 and t in CONSONANTS]
++    if lx and ly and lx != ly:
++        return False
++    a = [t for t in cx if not nonlexical(t, "x" in stray)]
++    b = [t for t in cy if not nonlexical(t, "y" in stray)]
++    if a == b:
++        return True
++    if any(ch.isdigit() for t in a + b for ch in t):
++        return False
++    return "".join(a).replace("-", "") == "".join(b).replace("-", "")
++
++
+ def canon(text):
+     return " ".join(canon_tokens(text))
+ 
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+index d641d886..f16b2806 100644
+--- a/pipeline/lock_precheck.py
++++ b/pipeline/lock_precheck.py
+@@ -31,7 +31,9 @@ Outcomes:
+   when this side's own re-check (attest.class_131, from the record's three readings) finds every pair decided the same
+   way, every run-taken pair at least 3 tokens from both cut edges, no number, name or negation, and the spoken text
+   the merged reading; anything else is a hold (fail closed). (B): currency format ('$2 billion' for a spoken
+-  '2 billion') is no difference.
++  '2 billion') is no difference. RULING 135: neither is a pair of the same words by canon.same_words (spelling,
++  segmentation, the closed reductions, fillers and a stray consonant); this side's re-checks drop it where the
++  render's lock and ruling 72's comparison do (attest.class_131, attest.class_84).
+ - hold: the clip may not be used with that text. The reason says why.
+ - error, an outcome this module does not know, or no answer in time: no verdict. Never a pass (law L-m). A request
+   is sent again rather than reusing an error.
+@@ -47,7 +49,9 @@ from datetime import datetime, timezone
+ import attest as AT
+ import canon as C
+ 
+-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131"   # RULING 131
++RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131 + ruling 135"   # RULING 135
++#   (orchestrator 10:50 ET Nov 17): the comparison canon (canon.same_words), the integrator's message of 10:5x Nov 17.
++#   RULING 131
+ #   (orchestrator 08:25 ET Nov 17): (A) two of three readings, (B) currency format (the integrator's message of 08:2x
+ #   Nov 17); entries under the old RULES are never read. RULING 105 (orchestrator
+ #   20:13 Nov 14): the unstable second reading joins the rules (the integrator's messages of 20:5x-21:0x Nov 14).
+@@ -55,7 +59,7 @@ RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105
+ #   targeted re-listen joins the rules (the integrator's message of 14:3x Nov 14); entries under the old RULES are never
+ #   read. RULING 84 (orchestrator 20:41 Nov 13): the integrator's
+ #   RULES string (its message of 20:4x Nov 13). RULING 73 (live 18:43:08 Nov 13, merged 585b6da5 on the integrator's
+-DECODER = "ce72aefa342d"                      # side): the render's own cut placement joins the pre-check (a passing
++DECODER = "b52c9354d604"                      # side): the render's own cut placement joins the pre-check (a passing
+ #   entry carries "cut"; a span the render cannot cut holds: "ruling 73: the render cannot cut this span: ..."). RULING
+ #   84 changed the render's adjudicate_lock (pinned.py), so the decoder_sha changed: 962353613cb0e065008ab0405ca8550111ddd3ca3ba70f0ae65b4b77ab1876d8
+ #   (ruling 73's was 8a101f222598a4f725e7cf85626e90fb2fae35df8d81d3ff430469728114e1a7). RULING 90 (the integrator's
+@@ -68,6 +72,8 @@ DECODER = "ce72aefa342d"                      # side): the render's own cut plac
+ #   RULING 131 (A) + (B) (the integrator's branch r131-lock, audited; both sides land in lockstep as with 105): canon.py's
+ #   currency_free / dollars_after_number and adjudicate_lock's two of three readings:
+ #   ce72aefa342dcd94dd45d8b4bc96ec6477ec04c91914db2054403338d7559e60
++#   RULING 135 (the comparison canon: canon.same_words; the integrator's branch r135-canon, audited; lockstep as with 131):
++#   b52c9354d604ab2303a91e6e6e5f926990987d46448992579684934f62e9392d
+ RESULTS = "/home/ultron/protocol_pulse/data/lock_precheck/results"        # the integrator's; read only
+ REQUESTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
+                         "lock_requests")      # this worktree's; the service only reads it
+diff --git a/tests/package/test_attest.py b/tests/package/test_attest.py
+index 017271eb..184f98f0 100644
+--- a/tests/package/test_attest.py
++++ b/tests/package/test_attest.py
+@@ -98,7 +98,12 @@ class TestClass84(unittest.TestCase):
+                          [("in", "on", "one function word"), ("on", "in", None)])
+         self.assertEqual(self.k("we went to the store", "we went to a shop"), [("the store", "a shop", None)])
+         self.assertEqual(self.k("went in a store", "went to the store"), [("in a", "to the", None)])   # 2-for-2
+-        self.assertEqual(self.k("the", "the um"), [("", "um", None)])              # a filler on the approved side
++        self.assertEqual(self.k("the", "the um"), [("", "um", "spelling only (ruling 135)")])   # a filler on the
++        #   approved side: since RULING 135 (d) a filler is no difference wherever it sits
++        self.assertEqual(self.k("plan is the point", "plan b is the point"), [("", "b", None)])   # RULING 135: a lone
++        #   letter the LOCK carries (the approved side) is a token, never a stray sound: it still holds
++        self.assertEqual(self.k("a h low point", "a low point"), [("h", "", "spelling only (ruling 135)")])   # the
++        #   second recogniser's stray 'h' (the spoken side) is no word
+         self.assertEqual(self.k("I paid 5 dollars", "I paid 6 dollars"), [("5", "6", None)])
+         self.assertEqual(self.k("it is not", "it is"), [("not", "", None)])
+         self.assertEqual(self.k("um I asked Mike", "I asked mike"), [("um", "", "filler")])   # canon: the same name
+diff --git a/tests/package/test_lock_precheck.py b/tests/package/test_lock_precheck.py
+index c39b1649..0c7fc5ab 100644
+--- a/tests/package/test_lock_precheck.py
++++ b/tests/package/test_lock_precheck.py
+@@ -59,7 +59,7 @@ class TestRequest(Dirs):
+         self.assertNotIn("trimmed_leading", s[1])                                        # only a trimmed moment
+         self.assertEqual((s[2]["trimmed_leading"], s[2]["untrimmed_start"]), ("And", 1690.9))
+         self.assertEqual(os.path.basename(LP.result_file(s[0], self.res)),
+-                         "DcUbBkyeh9M.216.054-228.674.ce72aefa342d.json")             # ruling 131's decoder
++                         "DcUbBkyeh9M.216.054-228.674.b52c9354d604.json")             # ruling 135's decoder
+ 
+     def test_a_request_is_renamed_from_its_tmp_and_never_written_over(self):
+         segs = LP.segments_of([HOOK, CLIP])
+@@ -137,7 +137,7 @@ class TestRuling84(unittest.TestCase):
+         """RULING 103 (14:12 Nov 14), RULING 105 (20:13 Nov 14) and RULING 131 (08:25 Nov 17) joined the integrator's
+         rules string (its messages of 14:3x and 20:5x Nov 14 and 08:2x Nov 17)."""
+         self.assertEqual(LP.RULES, "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + "
+-                                   "ruling 131")
++                                   "ruling 131 + ruling 135")
+ 
+     def test_the_held_span_of_the_20_12_build_now_adopts(self):
+         spoken = "So over time, um, I came to think, uh, or the money itself was broken."
+@@ -160,8 +160,8 @@ class TestRuling84(unittest.TestCase):
+             self.assertIn("outside ruling 84's class", d["why"])
+         e = entry(self.s, "adopt_spoken", spoken_text="So over time, I came to think so the money itself was broken.")
+         e["approved_text"] = "So over time, um, I came to think so the money itself was broken."
+-        s2 = dict(self.s, approved_text=e["approved_text"])               # a filler on the approved side alone
+-        self.assertEqual(LP.decide(s2, e)["verdict"], "hold")
++        s2 = dict(self.s, approved_text=e["approved_text"])               # a filler on the approved side alone: since
++        self.assertEqual(LP.decide(s2, e)["verdict"], "adopt")             # RULING 135 (d) no difference wherever it sits
+ 
+ 
+ class TestRuling131(Dirs):
+@@ -180,16 +180,17 @@ class TestRuling131(Dirs):
+     SECOND = ("comes next? I have been, recently done a bunch of pieces on the 2023, uh, bull market, like climbing a "
+               "wall of worry. Um, there was massive amounts of fear during that period of time. Bitcoin was actually "
+               "trending up into the right, and fear was also trending up into the right during that,")
+-    MERGED = ("I have been recently done a bunch of pieces on the 2023 bull market, like climbing a wall of worry. Um, "
+-              "there was massive amounts of fear during that period of time. Bitcoin was actually trending up into the "
+-              "right, and fear was also trending up into the right during that.")
+-    SPOKEN = MERGED.replace("2023 bull", "2023, uh, bull")      # ruling 72 on top: the second recogniser's 'uh'
++    MERGED = ("I have been recently done a bunch of pieces on the 2023 bull market, like climbing a wall of worry. There "
++              "was massive amounts of fear during that period of time. Bitcoin was actually trending up into the "
++              "right, and fear was also trending up into the right during that.")   # RULING 135: 'um' is no word, the
++    SPOKEN = MERGED                     # approved words stay there; ruling 72's 'uh' and 'Um' are no difference either
++    HEARD = ("I have been, recently done a bunch of pieces on the 2023, uh, bull market, like climbing a wall of worry. "
++             "Um, there was massive amounts of fear during that period of time. Bitcoin was actually trending up into "
++             "the right, and fear was also trending up into the right during that,")   # the second reading, trimmed
+     PAIRS = [{"run": "bunch of", "approved": "budget", "second_reads": "run", "took": "run",
+               "agreed": ["run", "second"], "edge_distance": 6},
+              {"run": "that", "approved": "like", "second_reads": "approved", "took": "approved",
+-              "agreed": ["approved", "second"], "edge_distance": 14},
+-             {"run": "um", "approved": "", "second_reads": "run", "took": "run", "agreed": ["run", "second"],
+-              "edge_distance": 20}]
++              "agreed": ["approved", "second"], "edge_distance": 14}]          # 'um' / '': spelling only (ruling 135)
+     WBD = {"moment_id": "w", "video_id": "WdiF0i925rs", "start": 3339.9, "end": 3354.68, "text": APPROVED}
+ 
+     def adj(self, **kw):
+@@ -205,11 +206,11 @@ class TestRuling131(Dirs):
+         d = self.decide()                                          # the merged text as it stands ("same")
+         self.assertEqual(d["verdict"], "adopt", d.get("why"))
+         self.assertEqual([(x["spoken"], x["approved"], x["took"]) for x in d["differences"]],
+-                         [("bunch of", "budget", "run"), ("that", "like", "approved"), ("um", "", "run")])
+-        d = self.decide(self.SPOKEN)                               # with ruling 72's 'uh' on top ("adopt")
++                         [("bunch of", "budget", "run"), ("that", "like", "approved"), ("um", "", "spelling")])
++        d = self.decide(self.HEARD)                                # the second reading itself: only no-words differ
+         self.assertEqual(d["verdict"], "adopt", d.get("why"))
+-        self.assertEqual([(x["spoken"], x["approved"], x["took"], x["class"]) for x in d["differences"]][3:],
+-                         [("uh", "", "ruling 72", "filler")])
++        self.assertTrue(d["differences"][3:] and {x["class"] for x in d["differences"][3:]} <=
++                        {"filler", "spelling only (ruling 135)"}, d["differences"][3:])   # no word differs
+         s = LP.segments_of([self.WBD])[0]
+         self.put(s, entry(s, "adopt_spoken", spoken_text=self.SPOKEN, adjudication=self.adj()))
+         pre = LP.check([self.WBD], "r", self.req, self.res, log=lambda m: None)
+@@ -221,17 +222,17 @@ class TestRuling131(Dirs):
+         self.assertEqual(LP.pin_problems(pk), [])
+ 
+     def test_this_side_rederives_every_pair_and_never_trusts_the_record(self):
+-        lie = [dict(self.PAIRS[0]), dict(self.PAIRS[1], took="run", agreed=["run", "second"]), dict(self.PAIRS[2])]
++        lie = [dict(self.PAIRS[0]), dict(self.PAIRS[1], took="run", agreed=["run", "second"])]
+         for spoken, kw, why in (
+                 (self.MERGED.replace("like climbing", "that climbing"), {"pairs": lie},   # the second reads 'like'
+                  "the lock record's pairs are not this side's"),
+-                (self.MERGED, {"pairs": self.PAIRS[:2]}, "the lock record's pairs are not this side's"),
++                (self.MERGED, {"pairs": self.PAIRS[:1]}, "the lock record's pairs are not this side's"),
+                 (self.MERGED, {"pairs": [dict(p, edge_distance=9) for p in self.PAIRS]},
+                  "the lock record's pairs are not this side's"),
+                 (self.MERGED.replace("bunch of", "budget"), {}, "neither the merged reading nor"),
+                 (self.MERGED.replace("massive", "huge"), {}, "neither the merged reading nor"),
+                 (self.MERGED.replace("climbing", "the climbing"), {}, "neither the merged reading nor"),
+-                (self.SPOKEN.replace("massive", "huge"), {"second_recogniser": self.SECOND.replace("massive", "huge")},
++                (self.HEARD.replace("massive", "huge"), {"second_recogniser": self.SECOND.replace("massive", "huge")},
+                  "outside ruling 84's class"),                                     # the second recogniser alone
+                 (self.MERGED, {"second_recogniser": None}, "does not hold the three readings"),
+                 (self.MERGED, {"approved": self.MERGED}, "does not hold the three readings")):
+@@ -342,6 +343,49 @@ class TestRuling131(Dirs):
+         self.assertIn("outside ruling 84's class", d["why"])
+ 
+ 
++class TestRuling135(unittest.TestCase):
++    """RULING 135 (orchestrator 10:50 ET Nov 17), the comparison canon: spelling, segmentation (names too), the closed
++    list of spoken reductions, fillers and a stray single consonant are no difference; a digit, a different single
++    letter, a negation and any other change of letters still are. Today's held spans: DataDash 8dbc30ee ('itrust
++    capital's' / 'I trust capital's' / 'iTrustCapital's'), DataDash f9413625 ('kind of' / 'kinda'), Natalie Brunell
++    cae5123f (the second recogniser's stray 'h')."""
++    APPROVED = "Bitcoin conviction and risk management with I trust capital's vault is kind of the point here today."
++    s = LP.segments_of([{"video_id": "WjnphankXmM", "start": 601.967, "end": 613.827, "text": APPROVED}])[0]
++
++    def decide(self, spoken, **kw):
++        return LP.decide(self.s, entry(self.s, "adopt_spoken", spoken_text=spoken, **kw))
++
++    def test_spelling_is_no_difference_in_ruling_72s_layer(self):
++        for spoken in ("Bitcoin conviction and risk management with iTrustCapital's vault is kind of the point here today.",
++                       "Bitcoin conviction and risk management with I trust capital's vault is kinda the point here today.",
++                       "Bitcoin conviction and risk management with I-trust Capital's vault is kind of the point here, h, today."):
++            d = self.decide(spoken)
++            self.assertEqual(d["verdict"], "adopt", (spoken, d.get("why")))     # audit 1057 C2: never a vacuous pass
++            self.assertTrue(d["differences"] and all(x["class"] == "spelling only (ruling 135)"
++                                                     for x in d["differences"]), d)
++
++    def test_what_still_holds(self):
++        for spoken in ("Bitcoin conviction and risk management with I trust capital's vault is kind of the point here 2day.",
++                       "Bitcoin conviction and risk management with I trust capital's vault isn't kind of the point here today.",
++                       "Bitcoin conviction and risk management with I bust capital's vault is kind of the point here today.",
++                       "Bitcoin conviction and risk management with Q trust capital's vault is kind of the point here today."):
++            self.assertEqual(self.decide(spoken)["verdict"], "hold", spoken)
++
++    def test_a_spelling_pair_never_reaches_the_vote_in_class_131(self):
++        """The render's lock drops a same-words pair right after the currency pairs: it is in neither the record's
++        pairs nor the vote, and the sealed text keeps the approved words there (8dbc30ee's three readings)."""
++        app = "So Q is a product, iTrustCapital's vault holds the coins and the founder bought a bunch of pieces then."
++        run = "so q is a product, itrust capital's vault holds the coins and the founder bought a bunch of pieces then."
++        sec = "So Q is a product, I trust capital's vault holds the coins and the founder bought a bunch of pieces then."
++        s = LP.segments_of([{"video_id": "x", "start": 1.0, "end": 9.0, "text": app}])[0]
++        adj = {"rule": "ruling 131 (A) (orchestrator 2026-11-17 '08:25')", "pairs": [], "run_decode": run,
++               "approved": app, "second_recogniser": sec}
++        rows = AT.class_131(app, app, adj)
++        self.assertEqual([(x["spoken"], x["approved"], x["took"]) for x in rows],
++                         [("itrust capital's", "itrustcapital's", "spelling")])   # audit 1057 C2: a concrete list
++        self.assertEqual(LP.decide(s, entry(s, "adopt_spoken", spoken_text=app, adjudication=adj))["verdict"], "pass")
++
++
+ class TestCheck(Dirs):
+     def run_check(self, segs, appear=None, timeout=60.0):
+         t = [0.0]
+@@ -390,7 +434,8 @@ class TestCheck(Dirs):
+         again (20:5x Nov 14), and ruling 131 again (Nov 17); a file named for an older decoder (25cd6f15e6c9, 8a101f222598,
+         962353613cb0, c705b20ed800, d1e155c642a6, a4c307f78c94) is never opened, even with a matching, newer entry under the current rules."""
+         s = LP.segments_of([HOOK])[0]
+-        for dec in ("25cd6f15e6c9", "8a101f222598", "962353613cb0", "c705b20ed800", "d1e155c642a6", "a4c307f78c94"):
++        for dec in ("25cd6f15e6c9", "8a101f222598", "962353613cb0", "c705b20ed800", "d1e155c642a6", "a4c307f78c94",
++                    "ce72aefa342d"):
+             old = LP.result_file(s, self.res, decoder=dec)
+             with open(old, "w") as f:
+                 json.dump([entry(s, "no_difference", at="2026-11-14T02:00:00Z")], f)
+diff --git a/tests/package/test_ruling_105.py b/tests/package/test_ruling_105.py
+index e3195ec7..4903fe75 100644
+--- a/tests/package/test_ruling_105.py
++++ b/tests/package/test_ruling_105.py
+@@ -40,7 +40,7 @@ BLOCKWARE = record()
+ class TestTheRules(Dirs):
+     def test_the_rules_and_decoder_are_the_integrators_ruling_105_ones(self):
+         self.assertIn("+ ruling 103 + ruling 105", LP.RULES)                      # ruling 131 joined after it
+-        self.assertEqual(LP.DECODER, "ce72aefa342d")                                 # ruling 131 moved it
++        self.assertEqual(LP.DECODER, "b52c9354d604")                                 # ruling 135 moved it
+         s = LP.segments_of([HOOK])[0]
+         self.put(s, entry(s, rules="ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103",
+                           at="2026-11-14T21:00:00Z"))

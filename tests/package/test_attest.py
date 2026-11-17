@@ -98,7 +98,12 @@ class TestClass84(unittest.TestCase):
                          [("in", "on", "one function word"), ("on", "in", None)])
         self.assertEqual(self.k("we went to the store", "we went to a shop"), [("the store", "a shop", None)])
         self.assertEqual(self.k("went in a store", "went to the store"), [("in a", "to the", None)])   # 2-for-2
-        self.assertEqual(self.k("the", "the um"), [("", "um", None)])              # a filler on the approved side
+        self.assertEqual(self.k("the", "the um"), [("", "um", "spelling only (ruling 135)")])   # a filler on the
+        #   approved side: since RULING 135 (d) a filler is no difference wherever it sits
+        self.assertEqual(self.k("plan is the point", "plan b is the point"), [("", "b", None)])   # RULING 135: a lone
+        #   letter the LOCK carries (the approved side) is a token, never a stray sound: it still holds
+        self.assertEqual(self.k("a h low point", "a low point"), [("h", "", "spelling only (ruling 135)")])   # the
+        #   second recogniser's stray 'h' (the spoken side) is no word
         self.assertEqual(self.k("I paid 5 dollars", "I paid 6 dollars"), [("5", "6", None)])
         self.assertEqual(self.k("it is not", "it is"), [("not", "", None)])
         self.assertEqual(self.k("um I asked Mike", "I asked mike"), [("um", "", "filler")])   # canon: the same name

@@ -1,0 +1,34 @@
+pp-selectid: RULING 135 (orchestrator 10:50 ET Nov 17), the builder's lockstep half, FAST. "A COMPARISON CANON applied
+to all three readings before any pair is compared ... (a) case, punctuation and apostrophes ignored; (b) SEGMENTATION
+ignored: readings whose letters are identical once spaces and hyphens are removed are the same ... names too ... (c)
+spoken reductions equal their full form, a closed list in canon.py ... (d) NON-LEXICAL tokens are fillers wherever they
+sit ... and any stray single consonant letter one reading alone hears ... STILL HOLDS: numbers (save the currency
+canon), negations, a name whose letters differ, any content pair where all three differ, ruling 73's sentence edges."
+The integrator owns canon.py (taken byte-identical: canon.same_words(x, y), comparison_form, REDUCTIONS, FILLER_TOKENS,
+CONSONANTS) and the render's lock: it drops a run/approved pair with same_words right after the currency pairs, before
+the critical check and the vote, and ruling 72's comparison drops a lock/second-recogniser pair with same_words before
+its classes. Files here: pipeline/attest.py, pipeline/lock_precheck.py, tests/package/test_lock_precheck.py
+(canon.py shown for reference: it is the integrator's, audited on its side).
+
+THE CHANGE (this side's re-checks mirror the render exactly where it drops):
+(a) attest.class_131 (the ruling 131 (A) re-check): right after the currency pairs, a pair with canon.same_words is
+    dropped (took "spelling"), before the critical check (attest.critical, UNCHANGED) and the vote; it keeps the approved
+    words in the merged text; the record's pairs are compared without it, as without the currency pairs (the
+    integrator's record keeps both apart: "currency_format", "spelling_only").
+(b) attest.class_84 (ruling 84's class, used for every adopt_spoken and for ruling 72's layer on the merged text): a
+    differing pair with canon.same_words is class "spelling only (ruling 135)", before the critical check and the
+    classes; ruling 84's existing filler step (fillers in a difference, spoken side) runs first, UNCHANGED.
+(c) lock_precheck.RULES gains "+ ruling 135"; DECODER moves to the integrator's final sha at landing.
+
+TESTS: TestRuling135: spelling, segmentation (a name too: 'I trust capital's' / 'iTrustCapital's' / 'I-trust Capital's'),
+'kinda' / 'kind of', a stray 'h' are no difference in ruling 72's layer; a digit, a negation, a changed content word
+('trust' / 'bust') and a letter-name dispute ('Q' / 'I') still hold; in class_131 a same-words pair never reaches the
+record's pairs or the vote. TestRuling131's fixtures move to ruling 135 (last night's 'um' / '' is now spelling only,
+the sealed text keeps the approved words; ruling 72's 'uh' / 'Um' are no difference), and TestRuling84's "a filler on
+the approved side alone" now adopts (135 (d): wherever it sits). Mutations M1-M26 after a control run: 26 of 26
+killed (M24-M26 the three new drops). 47 lock tests pass.
+
+PLEASE CHECK: (1) that nothing 135 keeps holding can be dropped as spelling: a number, a negation, a name whose letters
+differ, a different single letter, a content word; (2) that the drops sit exactly where the render's do (after
+currency, before critical and the vote; before ruling 84's classes); (3) that a same-words pair can never change the
+sealed text; (4) the tests.
