@@ -1,0 +1,2352 @@
+{
+ "since": "2026-11-13T03:01:09+00:00",
+ "publish_window_h": 12.0,
+ "delivered_pins": [
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json",
+   "story_id": "moments-fresh_20261112_050611-37c5b5f5",
+   "approved_at": "2026-11-12T13:43:40+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
+   "story_id": "moments-fresh_20261112_050611-41f29b1f",
+   "approved_at": "2026-11-13T03:01:09+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json",
+   "story_id": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "approved_at": "2026-11-13T05:20:11+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_073738/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_073738-d2657bbe",
+   "approved_at": "2026-11-13T07:53:42+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_183302/MOMENTS_PIN_ATTESTED.json",
+   "story_id": "moments-ledger_20261113_183302-0c68b589",
+   "approved_at": "2026-11-13T19:12:56+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_215708/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_215708-13949b7c",
+   "approved_at": "2026-11-13T22:14:05+00:00",
+   "clips": 3
+  }
+ ],
+ "adapter_report": {
+  "lines": 4736,
+  "bad_lines": 0,
+  "bad": [],
+  "excluded": {
+   "expired (rulings 76 + 77: 12 h after its video's publish time)": 2424,
+   "hard exclusion flag (L-u)": 5,
+   "altcoin or not about Bitcoin": 9
+  },
+  "drift_checked": 0,
+  "expiry_h": 12,
+  "released_by_the_second_model": 1,
+  "returned": 26
+ },
+ "inputs": {
+  "rows": 26,
+  "no_word_record": 0,
+  "no_word_record_why": {},
+  "no_word_record_videos": {},
+  "window_records": {
+   "JZyVfVpbbrE": [
+    "transcripts/JZyVfVpbbrE/windows/396.438-490.517.whisper_words_punct.json",
+    "transcripts/JZyVfVpbbrE/windows/396.438-498.824.whisper_words_punct.json",
+    "transcripts/JZyVfVpbbrE/windows/719.398-781.000.whisper_words_punct.json",
+    "transcripts/JZyVfVpbbrE/windows/266.918-366.950.whisper_words_punct.json",
+    "transcripts/JZyVfVpbbrE/windows/719.398-781.000.whisper_words_punct.json",
+    "transcripts/JZyVfVpbbrE/windows/396.438-492.890.whisper_words_punct.json",
+    "transcripts/JZyVfVpbbrE/windows/314.300-409.230.whisper_words_punct.json",
+    "transcripts/JZyVfVpbbrE/windows/683.089-781.000.whisper_words_punct.json",
+    "transcripts/JZyVfVpbbrE/windows/373.336-468.169.whisper_words_punct.json",
+    "transcripts/JZyVfVpbbrE/windows/373.336-470.473.whisper_words_punct.json",
+    "transcripts/JZyVfVpbbrE/windows/314.300-417.056.whisper_words_punct.json",
+    "transcripts/JZyVfVpbbrE/windows/206.760-302.620.whisper_words_punct.json",
+    "transcripts/JZyVfVpbbrE/windows/205.253-302.620.whisper_words_punct.json",
+    "transcripts/JZyVfVpbbrE/windows/218.853-317.640.whisper_words_punct.json",
+    "transcripts/JZyVfVpbbrE/windows/382.159-479.465.whisper_words_punct.json",
+    "transcripts/JZyVfVpbbrE/windows/73.904-183.005.whisper_words_punct.json",
+    "transcripts/JZyVfVpbbrE/windows/0.000-49.947.whisper_words_punct.json",
+    "transcripts/JZyVfVpbbrE/windows/192.276-295.169.whisper_words_punct.json",
+    "transcripts/JZyVfVpbbrE/windows/702.870-781.000.whisper_words_punct.json"
+   ],
+   "Yt_wdKWStqM": [
+    "transcripts/Yt_wdKWStqM/windows/1882.266-1981.098.whisper_words_punct.json",
+    "transcripts/Yt_wdKWStqM/windows/326.377-427.568.whisper_words_punct.json",
+    "transcripts/Yt_wdKWStqM/windows/2084.439-2192.733.whisper_words_punct.json",
+    "transcripts/Yt_wdKWStqM/windows/3339.336-3434.033.whisper_words_punct.json"
+   ]
+  },
+  "window_waiting": 0,
+  "window_refused": 3,
+  "window_refused_videos": {
+   "JZyVfVpbbrE": 2,
+   "Yt_wdKWStqM": 1
+  },
+  "window_failed": 0,
+  "window_passed_over": {},
+  "no_caption_context": {},
+  "fallbacks": {},
+  "channel_conflict": {},
+  "not_anchored": {},
+  "malformed": {},
+  "duplicates": 7,
+  "duplicates_of": {
+   "85c73ec69f268ee350a4": "3d46428962545a536985",
+   "dd1451b6ef8828738245": "3a4eaafaf948694bd243",
+   "1e85559e02b505f87538": "3d46428962545a536985",
+   "38866992d9a3b1aed776": "00dccb35fbd5f3e19500",
+   "3982c8f14b0dcd2f5652": "a5dc9a59aacfa5d76fd7",
+   "0000750c4ccecae3f669": "4e17159649d447f03325",
+   "3e0a4bb24ff2faccf757": "4e17159649d447f03325"
+  },
+  "moments": 16,
+  "videos": 2,
+  "sources": 16,
+  "word_records": {},
+  "word_pass": {
+   "rows": 3203,
+   "unreadable": 0,
+   "ready": 2552,
+   "not_ready": 321,
+   "failed": 0,
+   "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl",
+   "refused": [
+    "00601fe81bcbe8b6bdf8",
+    "0102d1f81a005ffd1860",
+    "015a0e1d0ca2b710548d",
+    "025b3828d214c7c2ce4b",
+    "047da119491355dbc5e1",
+    "05173845dea924fc0c07",
+    "05f06153c42d43c43ed7",
+    "05ff016beac936e4e409",
+    "076730439cae2cfa8c7e",
+    "08ccabe3e2c427838e15",
+    "0988da65e6ad9ba87459",
+    "0b1ed433879e3d7f844a",
+    "0ccade189163405b089b",
+    "0fad832055924851251d",
+    "0fd686f1fe79b631e91c",
+    "10d73f6379c4f91815c0",
+    "12bf31ff9e5404d7b5d9",
+    "13ad88ccef6e718fbb28",
+    "13b85894cf59bd96ddba",
+    "14f13f65d2f2458ea1ac",
+    "1525a9e1dd8dc5ac4a9e",
+    "16f275eb3464b67dfa9b",
+    "18ced5f9e7202e133319",
+    "19fc961efb1e8fbd0575",
+    "1a880c6d462d151ebe70",
+    "1ab9ae718a7e550e9ce1",
+    "1b33a31c38a045a7a216",
+    "1b9902d0b3f9690e9ddb",
+    "1c63a7925cf2c33b54ac",
+    "1d1556daed04fce39e7d",
+    "1d822675be04768944b1",
+    "1d828f294728facf05fd",
+    "1db6d7c6a3e2ba98859a",
+    "1e14acb61ae2fcedf1f6",
+    "1e9d5cb149e2d113459d",
+    "1f3444cb0463741133cd",
+    "1f3f2c2ea653f69353d5",
+    "20002de2ec0f6b521fce",
+    "2167cf6bfe8911d08707",
+    "217bd00fcf8c0665e0f6",
+    "23703f34fbd40d943e41",
+    "23fceca7029b9948e3f9",
+    "2491e006216c9a1b467e",
+    "24a6dc284d02a3aeae08",
+    "24f1856c6fcf1b6c1d95",
+    "2550f3c54cec7cd95c48",
+    "25f101de6a018fb2f202",
+    "2887f8f9b00e38e79cb3",
+    "29740fd849b26be71c4d",
+    "2c6b2f1bcfc96f70f39e",
+    "2c884616bf8c91a24180",
+    "2d89ae77d3305643e7eb",
+    "2db14eabaf98defccba0",
+    "2e5c3ff4488c946c1320",
+    "32a44ea8013cb6d85366",
+    "33cf7bbd673f26f307cb",
+    "33d2a783068012cbff56",
+    "33ec88880d3a99e3d97c",
+    "340ea3f3cede49ef6bbe",
+    "347495ce7e4a78ef23c5",
+    "34fd75ac6e40d43c9f5b",
+    "351d555f7879d8c870e9",
+    "3548c352a9e67f331437",
+    "36e7ba4c6476b5cd2b19",
+    "375fb72bed43ccc47f6a",
+    "3798191e55603311683a",
+    "3865d50fa088c050f8e8",
+    "392018ca3e9082955ab9",
+    "394e144a00767241b093",
+    "3c52354fdf5fdb75de2e",
+    "3cdeaa49ca3362ef0705",
+    "3dabf36517ab411803a2",
+    "3dc85eabd329842ba14f",
+    "3e2d15a2a7244d9b7e6e",
+    "3e5706beb5c33dfb0691",
+    "3e6697e0b45a89ec82e5",
+    "3ecea4247f7da8cf3d83",
+    "3f1d49136a47972f8bcd",
+    "4055cbb4c51cd6d6bcbd",
+    "41699e0367ea2c417340",
+    "424f1e6bbc6e801dd72d",
+    "4347359c0c00f6d49fa3",
+    "43be163f3e361a815a24",
+    "43f84b34a660b711da2c",
+    "44dd6db2f702c42702af",
+    "474b8ee37037650dc1ef",
+    "483155d278ba97157e1a",
+    "48643efcbfe1be04f46a",
+    "492cf0bcaa2d7db42345",
+    "49b321f0093d9204857e",
+    "4a0ae7b99a7bfc3f04ab",
+    "4a0cafc02654a834b273",
+    "4a15ecc759a9b332f3cc",
+    "4a54d7ff96a229541048",
+    "4a5ca4087ab6da856227",
+    "4ab2659efc97def0153c",
+    "4d66c09fb18c0f0d1a7f",
+    "4dbb2318181aa9d907d5",
+    "4f33bb61466a820e74b6",
+    "4fef00cdc68d2cea9dce",
+    "51c7a41fd9d5fecb71ee",
+    "51d2f50c2de0ae56438b",
+    "51deefb0c40e66f737f0",
+    "52630ce456af6791baa3",
+    "52bf579156a21ee08c0c",
+    "5416d89f219e62bd06ad",
+    "55e3ff1057a3eba68b18",
+    "5635a7ccc1eeefa5f824",
+    "567fcb45382761da0c9a",
+    "568275feb72658a6dbdb",
+    "56ee676b2e04cecd2ff9",
+    "58d0bb08a6214d66be5c",
+    "5921dd29a7e5bab16da9",
+    "59c3b29a851601177cc6",
+    "59e200f0478f93b88c29",
+    "5b6c5854d2d3c20f45ce",
+    "5ba6ac646e56f4f33655",
+    "5bbb7f44bfcf00fb9e66",
+    "5dd3b1ef91e32e45a17c",
+    "5f55d9b82c8e0209b446",
+    "5f56b663cc615eff5a7e",
+    "5fbf59f5bf383722159a",
+    "5fc35947f63b3c736dff",
+    "604c84ac1786fa09f5d7",
+    "6053de4046f31dfeb192",
+    "60690bc4745487e92f5e",
+    "6083abea1edc39efdcb1",
+    "614addd0ad90b6162f0e",
+    "614ba58f79c05cd204ec",
+    "618564547f3facb2460a",
+    "62ebbfe9d62024b9bc7f",
+    "62fe203a548cffa4b93e",
+    "62fe58051dd488ff3c69",
+    "63b87cce3ff62655d3e2",
+    "6413e07eaadfe6042357",
+    "64aac6eeaaab3cbfbe41",
+    "65e288d993ba8c2bbb68",
+    "660166f273ae0d1a64e1",
+    "66ebabc31f5b458a50ab",
+    "675e804178f2e3a3ce9e",
+    "6ad656c7b6288ddb6df5",
+    "6b42533b239f3c5764aa",
+    "6ba21c8bd8cf2f43a2f8",
+    "6ba5399a3722dc217b76",
+    "6be836e0073e86498c88",
+    "6beb95b22a1035ea18c3",
+    "6c546e56ac6c8220787b",
+    "6e56cd660d5f1f13efa2",
+    "6e7ab608a4e7c258e2e7",
+    "70722b0dc2fba88c0cf6",
+    "71187b79f44762f56b8a",
+    "73c3c2582a5c317c40db",
+    "75c9da24ec3764b3e8d1",
+    "76a923fa0e59af21ea8b",
+    "7a19e7f67f89e5b6977c",
+    "7b6d44057f6032ca54a6",
+    "7c67f93575aef43039cf",
+    "7d5660ea1980d860012d",
+    "7e3ab76a058f8f65f601",
+    "7f326d4b6532a01fcf63",
+    "8000945a3e7cd613ea17",
+    "800571e0d16a7f42c74c",
+    "8051a1eaf06f56d3702b",
+    "80908d443a10add30856",
+    "81512f03491bb9826032",
+    "81b26a23dd6326fcbd60",
+    "83775cd2df98be73a317",
+    "84033134a0eeaa1b2ae6",
+    "840a7091d2afea2c41e1",
+    "87a1ba949cd37f8e8301",
+    "887ae106cf8f6cc4b94e",
+    "8900aa8b374479a90cab",
+    "893a999def3edc8f1a0a",
+    "8972dfeff70fc8c02f48",
+    "8b92e4730cf015fce360",
+    "8b99d7511f8b842627ab",
+    "8d03475ba509812b767c",
+    "8d244d9fdae458f0471c",
+    "8e9b32533086f2f179f4",
+    "90f44621c4eafaf5c278",
+    "90fc17206ee1f99ec636",
+    "951bf612e52c9073d22a",
+    "954c0a2d3b0133d2341d",
+    "95d38b3585c61b1d9906",
+    "95df7af9f01ddf6a6644",
+    "96b4f9b83647bbc4ec73",
+    "96c79a7fc62a364b2b9a",
+    "96ff2e079cd464fd5308",
+    "99e3707fcca37519d07c",
+    "9a9bb0a9a44b49bbe8ab",
+    "9d3796742a2e1cd10eb8",
+    "9e6ca1765f0a032267b5",
+    "9f0450933b685f1974eb",
+    "9f8c5369f904e81221cb",
+    "9f8d835236860966db8f",
+    "9fd5a65c0dadc2ec40eb",
+    "a024ead246198d7e98ad",
+    "a045e6e7ddf843c49b28",
+    "a102673e5fad3240111e",
+    "a1e2d91d323a57b5de29",
+    "a1ff1a32efaf79f786b8",
+    "a2541ef0353d99d8a040",
+    "a47b2466e5199dce299c",
+    "a512b18a7baa3e1212d2",
+    "a6998dd7b0cece708bb9",
+    "a8336e318c7d6b48b22b",
+    "a845cadb35859cf15ef1",
+    "a888f8fc863dbd989557",
+    "a89f2c1bb0017a6a9d45",
+    "a8be7f45901ddd76b721",
+    "a8e7f8bb365c6b9f77e3",
+    "a9dbe0cc18738b4522bd",
+    "aa32080462e3581166d3",
+    "aa743024037fa80ee16b",
+    "aaf098e3675b65cccbfe",
+    "aaffb41344d5775216f1",
+    "ae1a0d498d46de7a3ea8",
+    "af5ae28633a247b27017",
+    "affa796d1b415771a447",
+    "b0b48928b91bfd8e1913",
+    "b1954c33981fe961cf20",
+    "b30efa3bedc93432e865",
+    "b41f33c81cfdfc1ddf59",
+    "b4272eb53d7c0a4e5dd6",
+    "b507e421f01aac805570",
+    "b5112fbb7db1bddc16d9",
+    "b55b68c8fc8d7bbbfd23",
+    "b58692089a253d8fe05c",
+    "b6b983e3b060dbe5a29e",
+    "b7f4483d2f3aaf3cb9e1",
+    "b880544703c2731ecb51",
+    "b8c72b542da8350c3005",
+    "ba635975783d3d2cccc3",
+    "bbb99781ef3bb1f4119c",
+    "bbe1c4f976e02940651c",
+    "bc33ae9592be1432d8f1",
+    "bc342d3ceb4f22890afa",
+    "be81c441e226b3261420",
+    "c07c030254c41853ceef",
+    "c0b78959ef676493103a",
+    "c0c0c53384f0d42c6d3a",
+    "c11c107bdf8c481cfde9",
+    "c125e2f11616d0ece0d3",
+    "c1753585f3e4300cc38a",
+    "c3fab28b11b5115488bd",
+    "c41c5ce4ef32380f9fe6",
+    "c5406490975fad7b6c06",
+    "c63aa04ace7972db02d9",
+    "c6a876566239b5e90c63",
+    "c95242108a89ed264b03",
+    "cacb80cfd91ecb5444b3",
+    "cbcf473d2f4130dc041a",
+    "cc131c64eec420cbf46b",
+    "ceb401a3658c6d72104f",
+    "cf2df82365c0b1cc3b87",
+    "cf56a1e9574e37a923fc",
+    "d137488a51fd37dc4e30",
+    "d19be57ae98c95784c75",
+    "d1c40fb727b12f45f07a",
+    "d1fb9f2e2e6105a08b86",
+    "d2cbf97818fa6b900d1c",
+    "d40f19707e018d112efa",
+    "d4400d9e9b121b0c38b3",
+    "d483ad20dd7164946a89",
+    "d4ac91c659a2cfd44ffa",
+    "d50c7e7e34316aa22ddf",
+    "d58081ef87666169be84",
+    "d611baa9cb2e0237830b",
+    "d65cdae0a25fff048477",
+    "d65e75a63edb95f20157",
+    "d762e966d9b000f208b0",
+    "d9c9f9a1e2a98585f836",
+    "d9cd6f055c0ce1e3a954",
+    "da36306acc72a6b9c1b8",
+    "dc14cda54677c7703b85",
+    "e0faec048bfe07884bd5",
+    "e1188606af8100b9fa11",
+    "e1fca5069eabf32cc1d9",
+    "e2350d63aa410df8d4a4",
+    "e24fbbc008e1b75a71a5",
+    "e477b6abee4efcc885bb",
+    "e4f23b741554d2f75182",
+    "e663e93de33a82f06cf7",
+    "e684c05c6759c7ce19fc",
+    "e73c4378bd39706ac9eb",
+    "e9057888919f0ced99f5",
+    "e90858606fe880415f2d",
+    "e93988462be9ca35931c",
+    "e940cc0756c91c1d3eab",
+    "eb403f27837f7d6121e9",
+    "eb63da2bad4ab3252029",
+    "ec2516f742ea4a7cf287",
+    "ec3d6c6fa7a55a606078",
+    "ed15b77cac098816caf1",
+    "edb6b66b2514b8a51c40",
+    "edcd3f92a0cb70d831d3",
+    "ee81a9e19a1236ca0eaf",
+    "ef232abc83b6a03a07f0",
+    "efaa1de614ba40dcaca1",
+    "f062336925d0fefceb61",
+    "f283bea1f8f73753a357",
+    "f344b4ca2374e60f2284",
+    "f37cdb7db1fac89efb59",
+    "f3e0ccd86b68bc09837f",
+    "f4cdef024a8b3540ffac",
+    "f4d24ba4d1c01b6172af",
+    "f7eba33e0bff81d90982",
+    "f818c3c5eac812d106da",
+    "f845c0ade832c6bb7046",
+    "f8b2905fba0cd6c54c66",
+    "f98ee0dd0024162ffa39",
+    "fa02300c7bfb103ac427",
+    "fc24287ab36375755e5a",
+    "fc5cf0e771409a0be3de",
+    "fc9e1da16abbb8c4465c",
+    "fcc24c616dc276c9239f",
+    "fcd25f21dbe83b487fcc",
+    "fd3848405eb0cc660232",
+    "fe06ce187a75eb4413d4",
+    "fec37b9e508a5904c5b9",
+    "ffda700352ff151971c9"
+   ]
+  },
+  "ruling_104": {
+   "variants": [],
+   "replaced": [],
+   "notes": {}
+  }
+ },
+ "delivered": [
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 5144.99,
+   "end": 5153.37,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5",
+   "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that."
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2412.85,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5",
+   "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S."
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5",
+   "text": "Bitcoin imposes a global free market for the first time ever."
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-41f29b1f",
+   "text": "Bitcoin imposes a global free market for the first time ever."
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2422.07,
+   "pin": "moments-fresh_20261112_050611-41f29b1f",
+   "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well."
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 1826.54,
+   "end": 1843.48,
+   "pin": "moments-fresh_20261112_050611-41f29b1f",
+   "text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued."
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 3090.75,
+   "end": 3109.87,
+   "pin": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "text": "When Bitcoin and an asset is going up and the bull market is super hot, everyone loves it. When the bear market is happening and Bitcoin is going down, everyone hates it. And like, that's why the price got high and that's why the price got low, because everyone loved it at the top and everyone wanted exposure and everyone hated it and didn't want exposure at the bottom."
+  },
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 4664.57,
+   "end": 4673.21,
+   "pin": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "text": "Bitcoin shows you that you can just increase the purchasing power. So the value of Bitcoin goes up without the supply of Bitcoin going up. So the people who hold Bitcoin don't get robbed."
+  },
+  {
+   "video_id": "UJFQBaMh3yg",
+   "start": 191.38,
+   "end": 203.06,
+   "pin": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "text": "Now, higher rates make cash more attractive and borrowed money more expensive, which is very much the wrong combo for anything risky, and the market definitely sees Bitcoin as risky."
+  },
+  {
+   "video_id": "BS0XC_tixa8",
+   "start": 994.329,
+   "end": 1005.909,
+   "pin": "moments-ledger_20261113_073738-d2657bbe",
+   "text": "Bitcoin is the one piece of open source technology that can't be shut down, silenced or removed. If Bitcoin wins, open source wins. And every stat you hold is a vote against the digital prison being built around all of us."
+  },
+  {
+   "video_id": "WTCwyxW-lHk",
+   "start": 1685.968,
+   "end": 1695.698,
+   "pin": "moments-ledger_20261113_073738-d2657bbe",
+   "text": "But we have very rarely in Bitcoin's history seen six negative weeks back to back to back to back to back. to back. I think that was six."
+  },
+  {
+   "video_id": "mJviDNOhIyw",
+   "start": 1614.601,
+   "end": 1630.831,
+   "pin": "moments-ledger_20261113_073738-d2657bbe",
+   "text": "But then if someone doesn't understand Bitcoin and you drop... 25 % of their portfolio in Bitcoin and Bitcoin goes down 50%. You get fired and they sell their Bitcoin. And so that is, I think, why you've seen people like BlackRock, I think, logically walk that back to one, five percent allocation."
+  },
+  {
+   "video_id": "DcUbBkyeh9M",
+   "start": 236.688,
+   "end": 253.308,
+   "pin": "moments-ledger_20261113_183302-0c68b589",
+   "text": "A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies. and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate."
+  },
+  {
+   "video_id": "GXWj2JO9bz8",
+   "start": 124.157,
+   "end": 138.097,
+   "pin": "moments-ledger_20261113_183302-0c68b589",
+   "text": "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world."
+  },
+  {
+   "video_id": "mKNAcOFMYD4",
+   "start": 755.454,
+   "end": 764.214,
+   "pin": "moments-ledger_20261113_183302-0c68b589",
+   "text": "My biggest fear is that I go to the bank and I punch in my code and the money's not there because the bank owns the money and they could just take it from me. And that's why that's why we Bitcoin."
+  },
+  {
+   "video_id": "DcUbBkyeh9M",
+   "start": 216.054,
+   "end": 228.674,
+   "pin": "moments-ledger_20261113_215708-13949b7c",
+   "text": "Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued."
+  },
+  {
+   "video_id": "MqVqfEDXgLo",
+   "start": 937.971,
+   "end": 957.291,
+   "pin": "moments-ledger_20261113_215708-13949b7c",
+   "text": "I think, well, what we've seen in the market is on Thursday, Friday, there was actually a much bigger drop in traditional stock prices, especially tech stock. There's like 10, 20%, like Intel dropped 29%. Whereas Bitcoin only dropped like five, six percent."
+  },
+  {
+   "video_id": "HWuMai_mAug",
+   "start": 1691.139,
+   "end": 1698.069,
+   "pin": "moments-ledger_20261113_215708-13949b7c",
+   "text": "I think treasury companies will also bleed to Bitcoin. I mean, basically, everything in the industry eventually bleeds to Bitcoin."
+  }
+ ],
+ "moments": [
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "f488052cdca3ecb86c21",
+   "video_id": "JZyVfVpbbrE",
+   "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+   "channel_name": "Altcoin Daily",
+   "published_at": "2026-11-17T01:22:58+00:00",
+   "title": "\"Bitcoin is Over...\" Here\u2019s What Comes Next",
+   "transcript_sha256": "c2fa21f508a67ac66b88bfdc65a9f9d9afbfe09a6dc280ae857963a7ec8400d4",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    132,
+    138
+   ],
+   "sentences": [
+    20,
+    21
+   ],
+   "text": "Money supply keeps expanding. Bitcoin's supply doesn't.",
+   "start": 441.188,
+   "end": 444.928,
+   "duration_s": 3.74,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "stakes": 5,
+    "stance": 5,
+    "stands_alone": 5,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Sharp contrast between expanding fiat and fixed BTC supply. Clear thesis, high stakes for holders.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "3.74 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "3.74 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T01:33:41.199746+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T0132Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "dd1d34a143165f643fff32d1897039136bf0c751189ae1d7dd12db5001ab7f49",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "c06132ebc3f74b9d51473757f4d40921685b6496ac9a354c40d1eab0d6237507",
+    "window": {
+     "start_s": 396.438,
+     "end_s": 490.517,
+     "record": "transcripts/JZyVfVpbbrE/windows/396.438-490.517.whisper_words_punct.json",
+     "words_sha256": "4ecfd48915f7e0c1adde5cd7d3973ce8affb24fb1aaaf336b74469d968dd7779",
+     "record_sha256": "0340a2f80e385a3cc9cbe2e78ac0f860cf730e26952dad1f39c6321483aa0673",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "3d46428962545a536985",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      20,
+      21
+     ],
+     "offset_s": [
+      -0.25,
+      -0.59
+     ]
+    },
+    "ledger_text": "Money supply keeps expanding. Bitcoin's supply doesn't."
+   },
+   "rank_score": 26,
+   "source_key": "JZyVfVpbbrE@396.438-490.517"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "cc53e72713ae52c844c8",
+   "video_id": "JZyVfVpbbrE",
+   "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+   "channel_name": "Altcoin Daily",
+   "published_at": "2026-11-17T01:22:58+00:00",
+   "title": "\"Bitcoin is Over...\" Here\u2019s What Comes Next",
+   "transcript_sha256": "c531fc91a6b761018bc6463b5e0161261203ab77177854d339a5f119441c8e3b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    129,
+    144
+   ],
+   "sentences": [
+    16,
+    18
+   ],
+   "text": "Bitcoin is not over. Crypto is not done. The new bull market is just getting started.",
+   "start": 764.418,
+   "end": 770.738,
+   "duration_s": 6.32,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 5,
+    "stands_alone": 5,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Directly contradicts the video title 'Bitcoin is Over', creating immediate curiosity and a strong stance.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "6.32 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "6.32 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T01:33:41.199746+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T0132Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "739d7fcbdc17ce79a29d2e54b2811dade6d3c79607ca79f55e9958a7719f8707",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "8bee5220fa5eafb55add8a49cd509323dcce3271b74b9958946b9eea24421c40",
+    "window": {
+     "start_s": 719.398,
+     "end_s": 781.0,
+     "record": "transcripts/JZyVfVpbbrE/windows/719.398-781.000.whisper_words_punct.json",
+     "words_sha256": "1d0a426c84769701dfec6ce3fec3167634c3b9116a495d75d955ac66d221a027",
+     "record_sha256": "448a70119f926e42c937ec3e55b78c8df0c79400e29f88d3ec7a26c4c130b25b",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "3a4eaafaf948694bd243",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      16,
+      18
+     ],
+     "offset_s": [
+      0.02,
+      0.77
+     ]
+    },
+    "ledger_text": "Bitcoin is not over. Crypto is not done. The new bull market is just getting started."
+   },
+   "rank_score": 25,
+   "source_key": "JZyVfVpbbrE@719.398-781.000"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "d9a9402280dc6d3f8ac5",
+   "video_id": "JZyVfVpbbrE",
+   "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+   "channel_name": "Altcoin Daily",
+   "published_at": "2026-11-17T01:22:58+00:00",
+   "title": "\"Bitcoin is Over...\" Here\u2019s What Comes Next",
+   "transcript_sha256": "664f9e84fb15d8d956b15cf688073039780795127929b19ec3ce72b4599ab207",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    111,
+    141
+   ],
+   "sentences": [
+    10,
+    10
+   ],
+   "text": "A setup like this has only happened once before in Bitcoin's entire history, and that was in 2015, and it preceded one of the most epic bull markets of all time.",
+   "start": 310.758,
+   "end": 321.718,
+   "duration_s": 10.96,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 5
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Concrete historical claim about a unique setup in Bitcoin history preceding a major bull run.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "10.96 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T01:33:41.199746+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T0132Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "de54e3a916024b5c606e033f870b03f5084b67509b6c2ff18710faa7743621db",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "21de0bde06973fa797a4437a7034a9c6d3ac56b61ddc32aadf2d14443ed74102",
+    "window": {
+     "start_s": 266.918,
+     "end_s": 366.95,
+     "record": "transcripts/JZyVfVpbbrE/windows/266.918-366.950.whisper_words_punct.json",
+     "words_sha256": "8e8a36eef5e6d32b21b80cc9eebc0aa0f7f49411094da6a15472c657d2ca2b53",
+     "record_sha256": "af78a0ddf245584a37d5100a4647bb94d51d88053dc368e8210c4851c4203212",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "a51485d44c9601ac5a76",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      10
+     ],
+     "offset_s": [
+      -1.16,
+      -0.23
+     ]
+    },
+    "ledger_text": "A setup like this has only happened once before in Bitcoin's entire history, and that was in 2015, and it preceded one of the most epic bull markets of all time."
+   },
+   "rank_score": 25,
+   "source_key": "JZyVfVpbbrE@266.918-366.950"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "3271f0c8708f42656ea4",
+   "video_id": "JZyVfVpbbrE",
+   "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+   "channel_name": "Altcoin Daily",
+   "published_at": "2026-11-17T01:22:58+00:00",
+   "title": "\"Bitcoin is Over...\" Here\u2019s What Comes Next",
+   "transcript_sha256": "9bd94f4e3c02942db176c1a4b4001189e6ab8bbdb03dc75980fc63d8040fb682",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    105,
+    114
+   ],
+   "sentences": [
+    8,
+    8
+   ],
+   "text": "If you survive the post midterm shakeout, bull market incoming.",
+   "start": 358.76,
+   "end": 363.04,
+   "duration_s": 4.28,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 3,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Strong conditional claim linking political events to market cycles.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "4.28 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.28 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T01:33:41.199746+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T0132Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "de54e3a916024b5c606e033f870b03f5084b67509b6c2ff18710faa7743621db",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "21de0bde06973fa797a4437a7034a9c6d3ac56b61ddc32aadf2d14443ed74102",
+    "window": {
+     "start_s": 314.3,
+     "end_s": 409.23,
+     "record": "transcripts/JZyVfVpbbrE/windows/314.300-409.230.whisper_words_punct.json",
+     "words_sha256": "27d788b0d9a61d221c259df709f6bbd8e406aadfdac9d7772b02dea10bc53f07",
+     "record_sha256": "47eeff32886af5e8642039e8f0a9a1da98b3a774de3e66a868a024a7e75fbdc8",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "a5dc9a59aacfa5d76fd7",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      8
+     ],
+     "offset_s": [
+      -0.54,
+      -1.19
+     ]
+    },
+    "ledger_text": "If you survive the post midterm shakeout, bull market incoming."
+   },
+   "rank_score": 21,
+   "source_key": "JZyVfVpbbrE@314.300-409.230"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "9e3952cf804a4c27a565",
+   "video_id": "JZyVfVpbbrE",
+   "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+   "channel_name": "Altcoin Daily",
+   "published_at": "2026-11-17T01:22:58+00:00",
+   "title": "\"Bitcoin is Over...\" Here\u2019s What Comes Next",
+   "transcript_sha256": "a1a135e52333ab824fec511151c9303542222414c16af0554c5281efa9427d4d",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    130,
+    178
+   ],
+   "sentences": [
+    15,
+    18
+   ],
+   "text": "Kathy Wood, Michael Saylor, Bitwise investment research, I'll say Bitcoin to a million in the next five to ten years. Is that great? Just take the trend, the log trend channel of Bitcoin, and just extrapolate it out. And you get to about 2036, it's about a million bucks.",
+   "start": 728.879,
+   "end": 746.339,
+   "duration_s": 17.46,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": true,
+   "risk": [
+    "price_prediction"
+   ],
+   "topics": [],
+   "reason": "High-profile price prediction ($1M) backed by named experts and technical analysis. High engagement potential due to the specific target.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "17.46 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T01:33:11.176404+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T0132Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "3a8c733322ddeba53ffb1dccf9f529e5c209f1fc9f5adc44ef1d92a91d1e1f57",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "9b84b030fbbb11c97599d952f5aaa6839a7cf7943c61a76c5afe1d8c24a08efc",
+    "window": {
+     "start_s": 683.089,
+     "end_s": 781.0,
+     "record": "transcripts/JZyVfVpbbrE/windows/683.089-781.000.whisper_words_punct.json",
+     "words_sha256": "c08e2959ed1de35fa9547013c4c9f40dc43807bb5d90e742aa668cccef2b5df3",
+     "record_sha256": "e0857b64e0d6fc205a0e1ccc103e2b2cf2fff76f43c1dcc92e91a8b427e885b6",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "a9a18cd287f2138a01a5",
+    "reanchored": {
+     "anchor_ratio": 0.989,
+     "snapped_words": [
+      0,
+      5
+     ],
+     "sentences": [
+      15,
+      18
+     ],
+     "added": {
+      "before": "",
+      "after": "it's about a million bucks."
+     },
+     "offset_s": [
+      0.79,
+      1.07
+     ]
+    },
+    "ledger_text": "Kathy Wood, Michael Saylor, Bitwise investment research, I'll say Bitcoin to a million in the next five to ten years. Is that great? Look. Just take the trend, the log trend channel of Bitcoin and just extrapolate it out. And you get to about 2036."
+   },
+   "rank_score": 21,
+   "source_key": "JZyVfVpbbrE@683.089-781.000"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "89d1ddeb55111112203d",
+   "video_id": "JZyVfVpbbrE",
+   "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+   "channel_name": "Altcoin Daily",
+   "published_at": "2026-11-17T01:22:58+00:00",
+   "title": "\"Bitcoin is Over...\" Here\u2019s What Comes Next",
+   "transcript_sha256": "c23e992e1c2c723a5db3ba079ba0b1e1ef28d4cea19bfb6142789d0d06b02cf2",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    113,
+    123
+   ],
+   "sentences": [
+    13,
+    13
+   ],
+   "text": "Bitcoin has now formed the perfect inverse head and shoulders pattern.",
+   "start": 252.06,
+   "end": 257.22,
+   "duration_s": 5.16,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 2,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Specific technical claim that promises a reversal, appealing to traders looking for entry signals.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5.16 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5.16 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T01:33:41.199746+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T0132Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "76197a2deae2b100f269ce2f6f55a0196f64f3eec25e9da7a6e2b84d21c4d42c",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "dd996a8ad9cbe0d4f3dd6def49bdd1f39422792951a43add0991fcf15ba550ba",
+    "window": {
+     "start_s": 206.76,
+     "end_s": 302.62,
+     "record": "transcripts/JZyVfVpbbrE/windows/206.760-302.620.whisper_words_punct.json",
+     "words_sha256": "109aa32a13266864271c3fa45f4fa39f28ba227c556071ca5125d112a015ccb7",
+     "record_sha256": "2b3f8125feeee881defbffdcdcfcd2f704b5420d2816a61b035dff81e50e99a9",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "4e17159649d447f03325",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      13,
+      13
+     ],
+     "offset_s": [
+      0.3,
+      -0.4
+     ]
+    },
+    "ledger_text": "Bitcoin has now formed the perfect inverse head and shoulders pattern."
+   },
+   "rank_score": 20,
+   "source_key": "JZyVfVpbbrE@206.760-302.620"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "e1ab4b900e2222ef4a67",
+   "video_id": "JZyVfVpbbrE",
+   "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+   "channel_name": "Altcoin Daily",
+   "published_at": "2026-11-17T01:22:58+00:00",
+   "title": "\"Bitcoin is Over...\" Here\u2019s What Comes Next",
+   "transcript_sha256": "397302ca5903855cb6a27704e0ef6f4b5ced674a3445954f864a096b80efff55",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    126,
+    139
+   ],
+   "sentences": [
+    13,
+    14
+   ],
+   "text": "Remember, Morgan Stanley launched a Bitcoin ETF. Wells Fargo put Bitcoin into a model.",
+   "start": 418.996,
+   "end": 423.906,
+   "duration_s": 4.91,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 3,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Cites major institutional adoption milestones, providing concrete evidence of market shift.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.91 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.91 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T01:33:11.176404+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T0132Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "a6a205774dd1e7cc8deed222b776043e191dfb59d62dba5701afc745e3c39731",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "eddce564f046def2c637e1ecbda8d1796421ac4dd5ea6522b62c538b5cfe46d4",
+    "window": {
+     "start_s": 373.336,
+     "end_s": 468.169,
+     "record": "transcripts/JZyVfVpbbrE/windows/373.336-468.169.whisper_words_punct.json",
+     "words_sha256": "6ebfc5055e6a5c46c3d3789ed9222722c24300cc797c2b5ff9f46eb851b68048",
+     "record_sha256": "d92ff103188983a890bf61467b2694bfba3be1b3762696bd9c194e74cde590c9",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "00dccb35fbd5f3e19500",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      13,
+      14
+     ],
+     "offset_s": [
+      0.66,
+      0.74
+     ]
+    },
+    "ledger_text": "Remember, Morgan Stanley launched a Bitcoin ETF. Wells Fargo put Bitcoin into a model."
+   },
+   "rank_score": 20,
+   "source_key": "JZyVfVpbbrE@373.336-468.169"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "450ba33dc4a3d6c542cb",
+   "video_id": "JZyVfVpbbrE",
+   "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+   "channel_name": "Altcoin Daily",
+   "published_at": "2026-11-17T01:22:58+00:00",
+   "title": "\"Bitcoin is Over...\" Here\u2019s What Comes Next",
+   "transcript_sha256": "d6a7afc6fa2a1f0ff709c263a29dfc1dc13457695d08137267b81aa35454d768",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    132,
+    160
+   ],
+   "sentences": [
+    15,
+    16
+   ],
+   "text": "Again, I think it's the best risk suggested trade in the market for the next five or 10 years. I think any weakness is opportunity, and I'm extraordinarily bullish.",
+   "start": 428.739,
+   "end": 435.599,
+   "duration_s": 6.86,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 5,
+    "stands_alone": 4,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Strong bullish stance with a specific timeframe. Note: 'trade' implies financial action.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "6.86 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "6.86 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T01:33:34.399599+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T0132Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "01c42fb57ae83ef76cf88934686302c313b5d9b3dc1b95e2021c6b2076a637af",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "ee687cdd7602ad35929eb8ae35e7832683ae31e8b3306c699af44a8f2107f80e",
+    "window": {
+     "start_s": 382.159,
+     "end_s": 479.465,
+     "record": "transcripts/JZyVfVpbbrE/windows/382.159-479.465.whisper_words_punct.json",
+     "words_sha256": "0f61002b1bd312cb4babcbc5d981731ae609a2861821feaff20686e19e7ff836",
+     "record_sha256": "5f9929b54443b7c8a17f4cfb8737a62b240eec0bbcb0291db6d2f216745ee742",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "7c87fc00f2620e3464d5",
+    "reanchored": {
+     "anchor_ratio": 0.96,
+     "snapped_words": [
+      0,
+      4
+     ],
+     "sentences": [
+      15,
+      16
+     ],
+     "added": {
+      "before": "",
+      "after": "and I'm extraordinarily bullish."
+     },
+     "offset_s": [
+      1.58,
+      -0.23
+     ]
+    },
+    "ledger_text": "Again, I think it's the best risk adjusted trade in the market for the next five or 10 years. I think any weakness is opportunity."
+   },
+   "rank_score": 19,
+   "source_key": "JZyVfVpbbrE@382.159-479.465"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "3494067fb5b0da47df50",
+   "video_id": "JZyVfVpbbrE",
+   "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+   "channel_name": "Altcoin Daily",
+   "published_at": "2026-11-17T01:22:58+00:00",
+   "title": "\"Bitcoin is Over...\" Here\u2019s What Comes Next",
+   "transcript_sha256": "50b17800d0bfc7a6ad6f1407b54e7991cca27537b0542ec94202cca5e6d643a0",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    7,
+    12
+   ],
+   "sentences": [
+    1,
+    2
+   ],
+   "text": "Bitcoin is over. Crypto is done.",
+   "start": 2.68,
+   "end": 5.42,
+   "duration_s": 2.74,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 5,
+    "quotable": 3,
+    "stakes": 2,
+    "stance": 4,
+    "stands_alone": 5,
+    "surprising_fact": 0
+   },
+   "names_person": false,
+   "risk": [
+    "doom"
+   ],
+   "topics": [],
+   "reason": "The opening hook. 'Bitcoin is over' is a strong, controversial statement that grabs attention immediately.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "2.74 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "2.74 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T01:33:11.176404+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T0132Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "c03836458798a04203aab60b6f1d67f92293ed05196d9b9650adbf1e91986742",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "9fd0d20d6c6983a297475b5f745f5b4f65d9f9254f1423ece991b06f06a01642",
+    "window": {
+     "start_s": 0.0,
+     "end_s": 49.947,
+     "record": "transcripts/JZyVfVpbbrE/windows/0.000-49.947.whisper_words_punct.json",
+     "words_sha256": "a455371e6bd7b3689a1dce2e910141966b8cffa4d704d9a3bf6d845578f0bd4a",
+     "record_sha256": "1080f23262b726dceab34444305ce6539dbece334abfbdd55d739c435989db01",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "afc9ef5cdef3a580c174",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      1,
+      2
+     ],
+     "offset_s": [
+      0.29,
+      0.47
+     ]
+    },
+    "ledger_text": "Bitcoin is over. Crypto is done."
+   },
+   "rank_score": 17,
+   "source_key": "JZyVfVpbbrE@0.000-49.947"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "78c8d742f93ff22afaec",
+   "video_id": "JZyVfVpbbrE",
+   "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+   "channel_name": "Altcoin Daily",
+   "published_at": "2026-11-17T01:22:58+00:00",
+   "title": "\"Bitcoin is Over...\" Here\u2019s What Comes Next",
+   "transcript_sha256": "57fe610a38a50fff234bec40237f3f0a0b20a08d07bac8b72c058c7d96aefa6f",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    78,
+    158
+   ],
+   "sentences": [
+    8,
+    9
+   ],
+   "text": "the common sentiment among most people is that bitcoin is over crypto is done yet in reality that couldn't be further from the truth watch today's whole video or forever risk missing out let's start here although bitcoin broke below it's 50 day and 200 day moving average although bitcoin broke below it's 50 week and 200 week moving average Bitcoin has not broken below its 200 -month moving average. In fact, we're seeing a possible bounce off of major support.",
+   "start": 103.304,
+   "end": 138.004,
+   "duration_s": 34.7,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Contrasts broken short-term averages with the intact 200-month average. A specific technical fact that supports the bull case.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "start_case"
+     ],
+     "targets_missed": [
+      "34.7 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "start_case"
+     ],
+     "targets_missed": [
+      "34.7 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T01:33:11.176404+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T0132Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "c03836458798a04203aab60b6f1d67f92293ed05196d9b9650adbf1e91986742",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "9fd0d20d6c6983a297475b5f745f5b4f65d9f9254f1423ece991b06f06a01642",
+    "window": {
+     "start_s": 73.904,
+     "end_s": 183.005,
+     "record": "transcripts/JZyVfVpbbrE/windows/73.904-183.005.whisper_words_punct.json",
+     "words_sha256": "bd26d1d37bba406e3a4da9a264a0e39524f2111721f4cc5109a32b92183e4bd3",
+     "record_sha256": "74643d179643c0d329a76fba05c33e29c46158696a3327467f3a0f0c76747e05",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "3b86b027b14ade813a27",
+    "reanchored": {
+     "anchor_ratio": 0.956,
+     "snapped_words": [
+      36,
+      0
+     ],
+     "sentences": [
+      8,
+      9
+     ],
+     "added": {
+      "before": "the common sentiment among most people is that bitcoin is over crypto is done yet in reality that couldn't be further from the truth watch today's whole video or forever risk missing out let's start here",
+      "after": ""
+     },
+     "offset_s": [
+      -0.6,
+      -0.0
+     ]
+    },
+    "ledger_text": "Although Bitcoin broke below its 50 day and 200 day moving average, although Bitcoin broke below its 50 week and 200 week moving average, Bitcoin has not broken below its 200 month moving average. In fact, we're seeing a possible bounce off of major support."
+   },
+   "rank_score": 17,
+   "source_key": "JZyVfVpbbrE@73.904-183.005"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "929efe73dac3cbb44038",
+   "video_id": "Yt_wdKWStqM",
+   "channel_id": "UCIALMKvObZNtJ6AmdCLP7Lg",
+   "channel_name": "Bloomberg Television",
+   "published_at": "2026-11-17T00:17:23+00:00",
+   "title": "Tech Under Pressure Ahead of Anthropic IPO, Stock Selloff Continues",
+   "transcript_sha256": "7b16653734efb8ed941e3c650ace0401a14d994d4e4739a448e9fafef0d462fa",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    142,
+    165
+   ],
+   "sentences": [
+    9,
+    10
+   ],
+   "text": "Coming up, Bitcoin playing defense today after falling to its lowest levels. Since August over the weekend we'll dig into what's behind the volatility.",
+   "start": 1927.276,
+   "end": 1934.636,
+   "duration_s": 7.36,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 2,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Directly addresses Bitcoin's recent price drop and volatility, providing a clear hook for a Bitcoin-focused video.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.36 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.36 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T00:36:36.178869+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T0030Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 2,
+    "pass": "moment",
+    "prompt_sha256": "38c64f76dd6d0b0068d1ecefc66eccf01890e38a8b47276c895dd4c73ed821bd",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "6e3dc2868c2fef3ac14e64f0cc13c9eca6ce3e5643ffb818e407f7c8f56e01e2",
+    "window": {
+     "start_s": 1882.266,
+     "end_s": 1981.098,
+     "record": "transcripts/Yt_wdKWStqM/windows/1882.266-1981.098.whisper_words_punct.json",
+     "words_sha256": "d9c7cf4b9271895b2541572afd8a46a37a28e9455365f87354e03df67e0562e7",
+     "record_sha256": "fd7d97e1ec6c312ab2d399d7b936811e28056616ba0bbfc0b186059b9a642f35",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "5b8bc4a8586a64ed31e4",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      10
+     ],
+     "offset_s": [
+      0.01,
+      -1.46
+     ]
+    },
+    "ledger_text": "Coming up, Bitcoin playing defense today after falling to its lowest levels. Since August over the weekend we'll dig into what's behind the volatility."
+   },
+   "rank_score": 17,
+   "source_key": "Yt_wdKWStqM@1882.266-1981.098"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "4185bacddef74da87217",
+   "video_id": "JZyVfVpbbrE",
+   "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+   "channel_name": "Altcoin Daily",
+   "published_at": "2026-11-17T01:22:58+00:00",
+   "title": "\"Bitcoin is Over...\" Here\u2019s What Comes Next",
+   "transcript_sha256": "119b02fca74b4d14d2ea4fe6e1aa4521bfc890c394184b96a1ed790293a66962",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    119,
+    146
+   ],
+   "sentences": [
+    12,
+    13
+   ],
+   "text": "Monthly RSI is also in the same zone as both previous lows. If this support holds again, Bitcoin could be setting up for another massive multi -year rally.",
+   "start": 237.466,
+   "end": 249.626,
+   "duration_s": 12.16,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 3,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [
+    "price_prediction"
+   ],
+   "topics": [],
+   "reason": "Links current RSI to historical lows (2018, 2022) to predict a rally. Strong historical context and bullish stance.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "12.16 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T01:33:11.176404+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T0132Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "c03836458798a04203aab60b6f1d67f92293ed05196d9b9650adbf1e91986742",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "9fd0d20d6c6983a297475b5f745f5b4f65d9f9254f1423ece991b06f06a01642",
+    "window": {
+     "start_s": 192.276,
+     "end_s": 295.169,
+     "record": "transcripts/JZyVfVpbbrE/windows/192.276-295.169.whisper_words_punct.json",
+     "words_sha256": "a436d717f80fc6de37dbddd1f2cf5d1f24c805f0ab4a1ead7e6f0d96f391a759",
+     "record_sha256": "a2f132bb2cabb207674b37d950971ef3e54d2d6247edc5b88a4083d49f588a4c",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "0e19af038afb97a2cfcc",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      12,
+      13
+     ],
+     "offset_s": [
+      0.19,
+      -0.54
+     ]
+    },
+    "ledger_text": "Monthly RSI is also in the same zone as both previous lows. If this support holds again, Bitcoin could be setting up for another massive multi-year rally."
+   },
+   "rank_score": 16,
+   "source_key": "JZyVfVpbbrE@192.276-295.169"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "a54b2a05114044512643",
+   "video_id": "Yt_wdKWStqM",
+   "channel_id": "UCIALMKvObZNtJ6AmdCLP7Lg",
+   "channel_name": "Bloomberg Television",
+   "published_at": "2026-11-17T00:17:23+00:00",
+   "title": "Tech Under Pressure Ahead of Anthropic IPO, Stock Selloff Continues",
+   "transcript_sha256": "ad850735a20dd09d11b2fd325bdfbe92472214758a8ab93264033995843eafd5",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    132,
+    160
+   ],
+   "sentences": [
+    9,
+    11
+   ],
+   "text": "I think what happens is it's a marginal, it's a marginal support for the industry. So the marginal player that needed that support. especially the Bitcoin miners turned neocloud.",
+   "start": 370.407,
+   "end": 383.437,
+   "duration_s": 13.03,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Identifies Bitcoin miners as the marginal players affected by Nvidia's shift, linking AI infrastructure to BTC.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "13.03 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T00:36:36.178869+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T0030Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "dd84ff0f3f3858444013a39a0381c6e8fae8f09c47b3b937b39cacf2b82c5b92",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "acc98a9b57a2db069026f2e21255b35b02c08b27336c92598f00379d291a78fe",
+    "window": {
+     "start_s": 326.377,
+     "end_s": 427.568,
+     "record": "transcripts/Yt_wdKWStqM/windows/326.377-427.568.whisper_words_punct.json",
+     "words_sha256": "def6a943290a92b07cf1b5f4e9bf2154c046eb97048a84de2ea249ca488738cf",
+     "record_sha256": "4b8d34bf21169ec6560e68a132317615bb90cfd006961e1f9ead9c70d568a000",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "6fc0dee492b70162cb67",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      11
+     ],
+     "offset_s": [
+      -0.97,
+      0.87
+     ]
+    },
+    "ledger_text": "I think what happens is it's a marginal, it's a marginal support for the industry. So the marginal player that needed that support. especially the Bitcoin miners turned neocloud."
+   },
+   "rank_score": 15,
+   "source_key": "Yt_wdKWStqM@326.377-427.568"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "e2148ec8f82ab301360e",
+   "video_id": "Yt_wdKWStqM",
+   "channel_id": "UCIALMKvObZNtJ6AmdCLP7Lg",
+   "channel_name": "Bloomberg Television",
+   "published_at": "2026-11-17T00:17:23+00:00",
+   "title": "Tech Under Pressure Ahead of Anthropic IPO, Stock Selloff Continues",
+   "transcript_sha256": "77fb5474a1b1db1888b6b88fa4b37761dbc6d262c5cb8beacce46005865e899d",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    152,
+    212
+   ],
+   "sentences": [
+    10,
+    11
+   ],
+   "text": "Closer look at crypto Bitcoin right now hovering right around 65,000, most of the stocks in the crypto space deep in the red, including the 6 % drop for Coinbase right now. A strategy down about 7 % as we head towards the closing bells with the broader market also on the back foot, right around lows of the day.",
+   "start": 2128.779,
+   "end": 2148.579,
+   "duration_s": 19.8,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 1,
+    "stakes": 3,
+    "stance": 1,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Directly states Bitcoin price and Coinbase drop, relevant to BTC holders, though time-sensitive.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "19.8 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T00:36:36.178869+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T0030Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "125bf2bde37681417fed032cf0cff3ecf8658cd6bad2acbe36f4608d1a58fec5",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "05c9968026a4a1502bb3a596c10c463a050ca39dae24190520bfc4c94ae4e91a",
+    "window": {
+     "start_s": 2084.439,
+     "end_s": 2192.733,
+     "record": "transcripts/Yt_wdKWStqM/windows/2084.439-2192.733.whisper_words_punct.json",
+     "words_sha256": "21590d4b0e51fca8a19cce6043edd2d393a9996499adc5ca2dd4c1e8df804289",
+     "record_sha256": "d2d5cfe2a2f30fae551e923b8ad6ce3a87c51447047a78f3a013b7dc3ac40b1e",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "09dfb19490f19ca9d628",
+    "reanchored": {
+     "anchor_ratio": 0.992,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      11
+     ],
+     "offset_s": [
+      -0.66,
+      0.85
+     ]
+    },
+    "ledger_text": "Closer look at crypto Bitcoin right now hovering right around 65,000 of the stocks in the crypto space deep in the red, including the 6% drop for Coinbase right now. A strategy down about 7% as we head towards the closing bells with the broader market also on the back foot right around lows of the day."
+   },
+   "rank_score": 13,
+   "source_key": "Yt_wdKWStqM@2084.439-2192.733"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "5bcfe404a08ed8f71161",
+   "video_id": "Yt_wdKWStqM",
+   "channel_id": "UCIALMKvObZNtJ6AmdCLP7Lg",
+   "channel_name": "Bloomberg Television",
+   "published_at": "2026-11-17T00:17:23+00:00",
+   "title": "Tech Under Pressure Ahead of Anthropic IPO, Stock Selloff Continues",
+   "transcript_sha256": "4120a82a150e9d24988ade8a3771b8522fa4114f4e92d1071045986b541cc1ac",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    97,
+    110
+   ],
+   "sentences": [
+    8,
+    8
+   ],
+   "text": "Bitcoin, after that phenomenal drop, camped out right below $65,000 on the day.",
+   "start": 3384.936,
+   "end": 3389.856,
+   "duration_s": 4.92,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 1,
+    "stakes": 2,
+    "stance": 1,
+    "stands_alone": 3,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Mentions Bitcoin price drop and specific level, but 'phenomenal drop' is vague and 'camped out' is jargon; time-sensitive.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.92 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.92 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T00:36:57.914615+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T0030Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "24fc8fcc85d5e437c72dbc2d8d366ea9f2f962ee028af931dbc2f466f63f7a9d",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "444fd6d0bc644f3cf7809db1e0d35730ca2c4141395879f96a371d090c47767c",
+    "window": {
+     "start_s": 3339.336,
+     "end_s": 3434.033,
+     "record": "transcripts/Yt_wdKWStqM/windows/3339.336-3434.033.whisper_words_punct.json",
+     "words_sha256": "4881a2d6c9d71c6a8f4271120c8e20d04901f15473873017fc0d1473513c0149",
+     "record_sha256": "29f71035259b1e530a4a64c3b93c4ee972c9371a26d054896923d5f3c8303878",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "14f7e7160521d0f300f5",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      8
+     ],
+     "offset_s": [
+      0.6,
+      0.82
+     ]
+    },
+    "ledger_text": "Bitcoin after that phenomenal drop camped out right below, $65,000 on the day."
+   },
+   "rank_score": 11,
+   "source_key": "Yt_wdKWStqM@3339.336-3434.033"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "d53c9c279f6c5d27f0b1",
+   "video_id": "JZyVfVpbbrE",
+   "channel_id": "UCbLhGKVY-bJPcawebgtNfbw",
+   "channel_name": "Altcoin Daily",
+   "published_at": "2026-11-17T01:22:58+00:00",
+   "title": "\"Bitcoin is Over...\" Here\u2019s What Comes Next",
+   "transcript_sha256": "ddafd3a12a61a799103e0c60a1f3b4f66cf1c3427a1b23fafbb6ea59b1463f8b",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    134,
+    143
+   ],
+   "sentences": [
+    15,
+    17
+   ],
+   "text": "Can it 10x from here over time? Sure. No problem.",
+   "start": 748.14,
+   "end": 751.0,
+   "duration_s": 2.86,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 1,
+    "stakes": 2,
+    "stance": 3,
+    "stands_alone": 2,
+    "surprising_fact": 0
+   },
+   "names_person": false,
+   "risk": [
+    "price_prediction"
+   ],
+   "topics": [],
+   "reason": "Casual confirmation of a 10x potential. Lacks specific context on what is 10x-ing, making it weak as a standalone clip.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "2.86 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "2.86 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T01:33:11.176404+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T0132Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "a13ae82f3b58b84419ba3c5757d1cf76e394f557e5f7bc8a92ceb7a8a7f70f68",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "7fb3765fe9ab7bf7f6b071fac982a3ad459782170eecb2dcbd7cdf9284783f4d",
+    "window": {
+     "start_s": 702.87,
+     "end_s": 781.0,
+     "record": "transcripts/JZyVfVpbbrE/windows/702.870-781.000.whisper_words_punct.json",
+     "words_sha256": "f9b5b7a0a0815637acd1d83b316a9cb7348f438aa84cabe826c65ef6e8492739",
+     "record_sha256": "d56159c61446cda64b436cd768ff9c9f54798768b8a25040530470b3dd1b32a0",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "08a346eba3349e70887c",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      15,
+      17
+     ],
+     "offset_s": [
+      0.27,
+      -0.08
+     ]
+    },
+    "ledger_text": "Can it 10x from here over time? Sure. No problem."
+   },
+   "rank_score": 8,
+   "source_key": "JZyVfVpbbrE@702.870-781.000"
+  }
+ ],
+ "next_attempt": {
+  "conversation": {
+   "video_id": "JZyVfVpbbrE",
+   "channel": "Altcoin Daily",
+   "published_at": "2026-11-17T01:22:58Z",
+   "expires_at": "2026-11-17T13:22:58Z",
+   "age_h": 10.6,
+   "turns_per_min": 0.0,
+   "unmarked": true,
+   "turns_from": "pp-ingest episode",
+   "rows": 21,
+   "passes": {
+    "hook/mine-hook/4": 5,
+    "spotlight/mine-spot/1": 1,
+    "moment/mine/2": 15
+   },
+   "word_pass_ready": 19,
+   "word_pass_refused": 2,
+   "word_pass_waiting": 0
+  },
+  "newest_upload": {
+   "video_id": "JZyVfVpbbrE",
+   "channel": "Altcoin Daily",
+   "published_at": "2026-11-17T01:22:58Z",
+   "expires_at": "2026-11-17T13:22:58Z",
+   "age_h": 10.6,
+   "turns_per_min": 0.0,
+   "unmarked": true,
+   "turns_from": "pp-ingest episode",
+   "rows": 21,
+   "passes": {
+    "hook/mine-hook/4": 5,
+    "spotlight/mine-spot/1": 1,
+    "moment/mine/2": 15
+   },
+   "word_pass_ready": 19,
+   "word_pass_refused": 2,
+   "word_pass_waiting": 0
+  },
+  "rule": "the newest upload whose captions do not refuse it (unmarked, or marked with a speaker change; ruling 92 amended: the layout decides per clip) (ruling 95)"
+ }
+}
