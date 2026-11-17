@@ -301,6 +301,60 @@
   },
   "version": "visual-3"
  },
+ "185e37a64058e69111ae:0.000-8.680:visual-3:a545f88943ff67a2": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [],
+  "flags": [
+   {
+    "kind": "on_screen_text",
+    "text": "Where the selling actually happened",
+    "why": "The chart title asserts where the selling occurred, which the spoken line about a weekend liquidation and a 25% pullback does not say."
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "Where the selling actually happened",
+    "why": "The chart title asserts where the selling occurred, which the spoken line about a weekend liquidation and a 25% pullback does not say."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_1f6c4e60189600bc.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_1f6c4e60189600bc.jpg",
+   "sha256": "1f6c4e60189600bc1481efc4902aee222b8ede6f9d6b628123061ae014f1c0f4",
+   "times": [
+    0.0,
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    5.0,
+    6.0,
+    7.0,
+    8.0,
+    8.63
+   ]
+  },
+  "third_person": {
+   "finding": "Only the speaker appears live in a webcam beside a chart; no other person is shown as a still, photo, or graphic, and the words report a liquidation and pullback rather than a negative claim about any",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2946,
+   "out": 8072,
+   "usd_reported": 0.052596
+  },
+  "version": "visual-3"
+ },
  "21d8769b73dd20f4894b:79.926-88.546:visual-3:0fc9d21dd9ed97a3": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [
@@ -863,6 +917,73 @@
    "in": 2958,
    "out": 10134,
    "usd_reported": 0.064992
+  },
+  "version": "visual-3"
+ },
+ "4d14201f553f57dc7672:0.000-7.340:visual-3:dc3219cf124a69f7": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     0.0,
+     1.0,
+     2.0,
+     3.0,
+     4.0,
+     5.0,
+     6.0,
+     7.0,
+     7.29
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "bug",
+    "text": "SIMPLY BITCOIN",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "whole",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "SIMPLY BITCOIN"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_852f367bfebee12d.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_852f367bfebee12d.jpg",
+   "sha256": "852f367bfebee12d671fae4fe04b1af61bcd8fa3a7e8a75949522f1fa2271021",
+   "times": [
+    0.0,
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    5.0,
+    6.0,
+    7.0,
+    7.29
+   ]
+  },
+  "third_person": {
+   "finding": "The words describe a sharp Bitcoin price drop, but the only non-speaker appears in moving footage rather than a still, photo, or graphic, and no on-screen text names anyone.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 2954,
+   "out": 14833,
+   "usd_reported": 0.093178
   },
   "version": "visual-3"
  },
