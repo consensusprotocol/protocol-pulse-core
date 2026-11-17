@@ -6,6 +6,17 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 15:49 RULING 142 DONE: THE SELF-CUSTODY STORY HAS ITS THREE CHANNELS. Under DECODER fc204e4a4385 (15:48), every span asked passes.
+- **Yahoo Finance f0a51c45:** adopt_spoken. Two of three settle both pairs ("you know"; "and is mined"). $0, readings reused.
+- **Bitcoin Magazine MeC8YEmUx_w, through the post_live fallback:** each window was cut from the whole stream, and the HARD offset guard passed on all three. All no_difference:
+  - 3767.80-3770.04: "Keep Bitcoin as Bitcoin and activate it."
+  - 4714.25-4719.93: "Now, we've seen Bitcoin developers be prosecuted ..."
+  - 5409.96-5420.32: "Being able to use Bitcoin doesn't depend on whether the House or the Senate ..."
+  - Scribe $0.0217 in all, outside, in the ledger.
+- **Natalie Brunell:** 6e79ceaa passed earlier. feb4b72f is not needed for this line-up.
+- **142 (4) is the builder's:** price the line-up and GO inside $1.65. I render on READY, both formats; the render's own acquisition takes the post_live route.
+- **First expiry:** Bitcoin Magazine, published 15:02 UTC, so 03:02 UTC = 22:02 ET.
+
 ## 15:45 RULING 142 (3) + THE RE-JUDGE FIX LIVE (batches 111 + 112, merge 88a8d2c9, pushed; the builder's e88a1e51 pushes after it, lockstep). DECODER fc204e4a4385.
 - **111, THE STANDING POST_LIVE FALLBACK:**
   - When a window's --download-sections file comes back without media (picture without audio, or a container under 0.5 s), the WHOLE audio and video are fetched once per video (data/post_live_cache/<id>/) and the window is cut locally from them.
