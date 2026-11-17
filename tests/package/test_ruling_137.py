@@ -374,6 +374,180 @@ class TestRuling141StandAloneSoft(unittest.TestCase):
         self.assertEqual((row(False)["status"], "flags" in row(False)), ("FAIL", False))
 
 
+class TestRuling141LineUpChain(unittest.TestCase):
+    """RULING 141 (3), THE LINE-UP CHAIN, PHASE A, in the never-empty pass: a line-up refused ONLY by soft line-up gates
+    (clip ratings under the clips-alone floor, joins past the one bridge, the question hook's first join) is KEPT, the
+    search goes on (a clean line-up first), and when it runs out the best kept one is retried once ACCEPTING: its soft
+    failures, and its clip ratings under coherence's own floor, become plain flags within the cap of 3. The through-line,
+    the hook's own bar and every other L-y check stay HARD; the writes and the value verdict are untouched."""
+    H = {"moment_id": "h", "text": "Bitcoin h x.", "hook_rating": {"scroll": 5, "alone": 5, "setup": 5, "backend": "xai:grok"}}
+    X, Y = {"moment_id": "x", "text": "Bitcoin x x."}, {"moment_id": "y", "text": "Bitcoin y x."}
+
+    def med(self, ratings=None, flagged=(), line="Nobody can change the rules of Bitcoin.", measured=True):
+        labs = PK.labels(3)
+        return {"measured": measured, "through_line": line, "clips": {lb: (ratings or {}).get(lb, 5) for lb in labs},
+                "flagged": [j for j in PK.joins(labs) if j in flagged], "floors": {"clip": 3}}
+
+    def test_what_a_clips_alone_verdict_keeps(self):
+        segs = [self.H, self.X, self.Y]
+        self.assertEqual(PK.lineup_soft(segs, self.med({"clip_02": 2})),
+                         {"weak": {"clip_02": 2}, "floor": 3, "soft_joins": [], "n": 1})
+        two = self.med(flagged=("hook -> clip_01", "clip_01 -> clip_02"))
+        self.assertEqual(PK.lineup_soft(segs, two)["soft_joins"], ["clip_01 -> clip_02"])     # the first keeps a bridge
+        q = [dict(self.H, text="Is Bitcoin h x?"), self.X, self.Y]
+        self.assertEqual(PK.lineup_soft(q, self.med(flagged=("hook -> clip_01",)))["soft_joins"], ["hook -> clip_01"])
+        for bad in (self.med({"clip_02": 2}, line="none"), self.med({"clip_02": 2}, measured=False), self.med()):
+            self.assertIsNone(PK.lineup_soft(segs, bad), bad)                  # the through-line stays hard
+        under = dict(self.H, hook_rating=dict(self.H["hook_rating"], scroll=2))
+        self.assertIsNone(PK.lineup_soft([under, self.X, self.Y], self.med({"clip_02": 2})))   # the hook's own bar
+        self.assertIsNone(PK.lineup_soft(segs, dict(self.med(), clips={"hook": 5, "clip_01": 5})))   # unmeasured clip
+        self.assertEqual(PK.seg_marks([dict(self.H), dict(self.X, step_a_flags=["REFERENT_OUTSIDE", "UNCERTAIN"]),
+                                       dict(self.Y, edge_flags=["EDGE_IN"], stand_soft="why")]), 4)
+
+    def test_what_coherence_accepts(self):
+        segs = [self.H, self.X, self.Y]
+        coh = {"measured": True, "hook_own": {"passes": True}, "through_line": "Nobody can change the rules of Bitcoin.",
+               "clips": {"hook": 5, "clip_01": 2, "clip_02": 2}, "vo_point": 4, "floors": {"clip": 3, "vo_point": 3}}
+        self.assertEqual(PK.coherence_soft(coh, segs, ("clip_02",)),
+                         {"weak": {"clip_01": 2, "clip_02": 2}, "floor": 3, "n": 1})   # clip_02 is flagged already
+        for bad in (dict(coh, vo_point=2), dict(coh, through_line="none"), dict(coh, measured=False),
+                    dict(coh, hook_own={"passes": False}), dict(coh, clips={"hook": 5, "clip_01": 4, "clip_02": 4})):
+            self.assertIsNone(PK.coherence_soft(bad, segs), bad)
+        ans = lambda tl, vo: {"through_line": tl, "vo_point": vo}
+        panel = lambda *a: dict(coh, panel={"answers": list(a)})
+        self.assertIsNotNone(PK.coherence_soft(panel(ans("Nobody can change the rules here.", 4),
+                                                     ans("Nobody can change the rules here.", 3), ans("none", 4)), segs))
+        self.assertIsNone(PK.coherence_soft(panel(ans("none", 4), ans("none", 4),
+                                                  ans("Nobody can change the rules here.", 4)), segs))   # no majority
+
+    def rig(self, medleys, writes, never_empty=True, **kw):
+        import test_medley as TM                            # the never-empty pass asks the angle writer again
+        r = TM.Rig(TM.TestBuildLoop.MS, ["h", "x", "y", "z"], medleys, writes,
+                   follow_up={"angles": [TM.angle(["h", "x", "y", "z"], "h")]}, **kw)
+        r.build_kw = {"never_empty": never_empty}
+        return r, r.run()
+
+    WEAK = (False, [], {"clip_02": 2}, "Nobody can change the rules of Bitcoin.")
+
+    def test_a_weak_clip_seals_flagged_only_in_the_never_empty_pass(self):
+        _, clean = self.rig([self.WEAK] * 2, [], never_empty=False)
+        self.assertIsNone(clean["package"])
+        r, out = self.rig([self.WEAK] * 4, [None])
+        pk = out["package"]
+        self.assertEqual([s["moment_id"] for s in pk["segments"]], ["h", "x", "y"])      # the best kept: retried
+        ch = {s["label"]: s["channel"] for s in pk["segments"]}
+        want = [f"The third clip ({ch['clip_02']}): the checker rated how much it adds to the line-up's point 2 of 5, "
+                f"needs 3."]
+        self.assertEqual((pk["gates"]["medley"]["status"], pk["gates"]["medley"]["flags"]), ("FLAGGED", want))
+        self.assertEqual((PP.review_flags_of(pk["gates"]), PP.gate_problems(pk["gates"], PP.required_gates(pk))),
+                         (want, []))
+        self.assertEqual(len(r.medley_calls), 4)                           # the retry read its cached verdict
+
+    LINE = "Nobody can change the rules of Bitcoin."
+    J2 = (False, ["hook -> clip_01", "clip_01 -> clip_02"], None, LINE)
+    B = {"text": "First, why the rules hold.", "cites": ["x"], "why": "the next speaker's 'it' has no referent"}
+
+    def test_joins_past_the_one_bridge_flag_and_the_first_keeps_its_bridge(self):
+        _, out = self.rig([self.J2] * 8, [self.B])          # each pass: 2 line-ups and ruling 63's reorders
+        pk = out["package"]
+        ch = {s["label"]: s["channel"] for s in pk["segments"]}
+        want = [f"Between the second clip ({ch['clip_01']}) and the third clip ({ch['clip_02']}): the checker could "
+                f"not follow the jump."]
+        self.assertEqual(pk["bridge"]["join"], "hook -> clip_01")            # the first flagged join: bridged
+        self.assertEqual({g: (pk["gates"][g]["status"], pk["gates"][g].get("flags")) for g in ("medley", "ly_shape")},
+                         {"medley": ("FLAGGED", want), "ly_shape": ("FLAGGED", want)})
+        self.assertEqual((PP.review_flags_of(pk["gates"]), PP.gate_problems(pk["gates"], PP.required_gates(pk))),
+                         (want, []))                                         # one doubt, flagged once
+
+    THREE = (False, ["hook -> clip_01", "clip_01 -> clip_02"], {"clip_01": 2, "clip_02": 2}, LINE)
+
+    def test_three_flags_are_kept_and_a_fourth_never(self):
+        _, out = self.rig([self.THREE] * 8, [self.B])
+        self.assertEqual(len(PP.review_flags_of(out["package"]["gates"])), 3)   # 2 clips + 1 join: the cap
+        under = {"h": (2, 5, 5), "x": (1, 1, 1), "y": (1, 1, 1), "z": (1, 1, 1)}   # + the hook under the bar: 4
+        _, out = self.rig([self.THREE] * 8, [self.B], hooks=under)
+        self.assertIsNone(out["package"])
+        self.assertFalse([t for t in out["never_empty"]["soft_record"]["tried"] if t.get("kept")])
+
+    def test_a_clean_line_up_found_later_wins(self):
+        ok = (True, [], None, self.LINE)
+        r, out = self.rig([self.WEAK, self.WEAK, self.WEAK, ok], [None])
+        pk = out["package"]
+        self.assertEqual(([s["moment_id"] for s in pk["segments"]], pk["gates"]["medley"]["status"]),
+                         (["h", "x", "z"], "PASS"))
+        self.assertEqual(PP.review_flags_of(pk["gates"]), [])
+        self.assertTrue([t for t in out["tried"] if t.get("kept")])          # kept, never needed
+
+    def test_coherence_ratings_flag_only_for_the_accepted_candidate(self):
+        _, out = self.rig([self.WEAK] * 4, [None], coherences=[(False, 2, 5)])
+        pk = out["package"]
+        ch = {s["label"]: s["channel"] for s in pk["segments"]}
+        alone = (f"The third clip ({ch['clip_02']}): the checker rated how much it adds to the line-up's point 2 of 5, "
+                 f"needs 3.")
+        coh = (f"The second clip ({ch['clip_01']}): with the narration, the checker rated how much it supports the "
+               f"point 2 of 5, needs 3.")
+        self.assertEqual((pk["gates"]["coherence"]["status"], sorted(pk["gates"]["coherence"]["flags"])),
+                         ("FLAGGED", sorted([coh, alone])))
+        self.assertEqual(sorted(PP.review_flags_of(pk["gates"])), sorted([alone, coh]))   # clip_02 flagged once
+        _, out = self.rig([self.WEAK] * 4, [None], coherences=[(False, 2, 2)])   # the VO point too: today's path
+        self.assertIsNone(out["package"])
+
+    def test_a_question_hook_join_flags_with_no_bridge_at_the_question(self):
+        import test_medley as TM
+        ms = [dict(m, text="Is Bitcoin h x?") if m["moment_id"] == "h" else m for m in TM.TestBuildLoop.MS]
+        q = (True, ["hook -> clip_01"], None, self.LINE)          # one flagged join: ruling 37 refuses it today
+        r = TM.Rig(ms, ["h", "x", "y", "z"], [q] * 8, [None],
+                   follow_up={"angles": [TM.angle(["h", "x", "y", "z"], "h")]})
+        r.build_kw = {"never_empty": True}
+        pk = r.run()["package"]
+        ch = {s["label"]: s["channel"] for s in pk["segments"]}
+        want = [f"Between the opening clip ({ch['hook']}) and the second clip ({ch['clip_01']}): the checker could not "
+                f"follow the jump."]
+        self.assertEqual((pk.get("bridge"), r.write_calls[-1][1]), (None, None))   # nothing written after the question
+        self.assertEqual((pk["gates"]["ly_shape"]["status"], PP.review_flags_of(pk["gates"])), ("FLAGGED", want))
+
+    def test_coherence_counts_one_doubt_per_clip_against_the_cap(self):
+        under = {"h": (2, 5, 5), "x": (1, 1, 1), "y": (1, 1, 1), "z": (1, 1, 1)}     # the hook's flag: 1
+        _, out = self.rig([self.WEAK] * 8, [None], hooks=under, coherences=[(False, 2, 5)])
+        self.assertEqual(len(PP.review_flags_of(out["package"]["gates"])), 3)   # hook + clip_02 + clip_01: 3, not 4
+        _, out = self.rig([self.J2] * 8, [self.B], hooks=under, coherences=[(False, 2, 5)])
+        self.assertIsNone(out["package"])                  # hook + a join + 2 new weak clips: 4, over the cap
+
+    def test_the_retry_takes_the_fewest_flags_and_the_budget_end_retries_too(self):
+        two = (False, [], {"clip_01": 2, "clip_02": 2}, self.LINE)   # [h, x, y]: y weak (1 flag), then [h, x, z]:
+        r, out = self.rig([self.WEAK, two, self.WEAK, two], [None])  # x and z weak (2 flags); both kept
+        self.assertEqual(sum(bool(t.get("kept")) for t in out["never_empty"]["soft_record"]["tried"]
+                             if t.get("kept")) if not out.get("package") else len([t for t in out["tried"]
+                                                                                  if t.get("kept")]), 2)
+        self.assertEqual([s["moment_id"] for s in out["package"]["segments"]], ["h", "x", "y"])   # 1 flag, not 2
+        import test_medley as TM
+        r = TM.Rig(TM.TestBuildLoop.MS, ["h", "x", "y", "z"], [self.WEAK] * 2, [None],
+                   follow_up={"angles": [TM.angle(["h", "x", "y", "z"], "h")]})
+        r.build_kw = {"never_empty": True, "lineups": 1}  # one judged line-up a pass: the budget ends first
+        self.assertEqual([s["moment_id"] for s in r.run()["package"]["segments"]], ["h", "x", "y"])
+
+    def test_the_rows_flag_only_in_the_soft_pass_and_only_on_a_passing_shape(self):
+        t = {"ok": True, "replayed": False, "edges": {"cuttable": True, "in": {"ok": True}, "out": {"ok": True}}}
+        soft_med = {"backend": "xai:grok", "replayed": False, "measured": True, "flagged": ["clip_01 -> clip_02"],
+                    "hook_own": {"passes": True}, "soft": {"weak": {}, "floor": 3, "soft_joins": ["clip_01 -> clip_02"],
+                                                           "n": 1}}
+        coh = {"backend": "b", "replayed": False, "measured": True, "soft": {"weak": {"clip_01": 2}, "floor": 3, "n": 1}}
+        who = {"hook": "A", "clip_01": "B", "clip_02": "C"}
+        inv = lambda soft, shape: PK.inventory(**dict(TestStage2a().base(t), coh=coh), medley=(True, soft_med),
+                                               shape=shape, soft=soft, who=who)
+        g = inv(True, (True, []))
+        self.assertEqual([g[k]["status"] for k in ("medley", "ly_shape", "coherence")], ["FLAGGED"] * 3)
+        g = inv(False, (True, []))
+        self.assertEqual([g[k]["status"] for k in ("medley", "ly_shape", "coherence")], ["PASS"] * 3)
+        self.assertEqual(inv(True, (False, ["3 bridges"]))["ly_shape"]["status"], "FAIL")   # a hard L-y failure
+
+    def test_no_through_line_is_never_kept(self):
+        none = (False, [], {"clip_02": 2}, "none")
+        _, out = self.rig([none] * 4, [None])
+        self.assertIsNone(out["package"])
+        self.assertFalse([t for t in out["never_empty"]["soft_record"]["tried"] if t.get("kept")])
+
+
 class TestTheDayCount(unittest.TestCase):
     def test_counted_per_day_ledger(self):
         with tempfile.TemporaryDirectory() as d:

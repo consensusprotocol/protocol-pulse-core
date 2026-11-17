@@ -1,0 +1,49 @@
+pp-selectid: RULING 141 (3) (orchestrator 13:40 ET Nov 17), THE LINE-UP CHAIN, PHASE A: the approved R136 design (2)'s
+KEPT CANDIDATES for clip ratings and joins, in the never-empty pass only. Context: package.build runs the clean pass, and
+only when it seals nothing runs _build(soft=True); soft gates flag in one plain sentence each; at most 3 flags seal
+(package_pin.REVIEW_FLAGS_MAX, package_pin.py:47; review_flags_of :399 gives each sentence once; flagged_ok :392 needs
+non-empty string flags). Scope agreed with the integrator (14:35 ET): its render never holds on unbridged flagged joins
+(R11 does not read medley.flagged; R1 is soft at validate; check_pin_only checks no joins); its check_pin_only REFUSES
+a pin whose takeaway_value is not exactly PASS (package_pin TAKEAWAY_GATES :68), so the writes and the value verdict are
+UNTOUCHED here. The through-line stays HARD (ruling 141 (1): "those four clips do not make a video").
+
+THE CHANGE (package.py; the clean pass is unchanged):
+(a) lineup_soft (:2235): a clips-alone verdict (medley(), its ok rule :2212: hook passing, through-line stated, every clip
+    >= the floor, <= LY_MAX_BRIDGES flagged joins) whose ONLY failures are soft: clips under the floor; flagged joins
+    past the one bridge (the first bridgeable flagged join keeps its bridge); the question hook's first join (ruling 37:
+    no bridge after a question). None (hard) when not measured, no through-line, the hook failing its own bar, a clip
+    unrated, or nothing to flag.
+(b) THE LOOP, per angle: kept / retried / accept_key reset at :3925. KEEP (:4043): in the soft pass, a verdict failing
+    (or ruling 37 refusing) with lineup_soft non-None and seg_marks (:2226: the clips' own flags) + its flags <= 3 is
+    appended; the search then goes on exactly as before (a clean line-up wins first: it seals and the loop ends).
+    RETRY: when the search runs out (:3980, where today "no line-up" breaks) or the judged-line-up budget ends (the
+    condition :3945 and :3951), the best kept candidate (best_kept :2311: fewest flags, then the highest lowest rating) is
+    retried ONCE; its clips-alone verdict is the cached one (judged, :4008; no new call, total unchanged) and is taken as
+    passing with med["soft"] (:4016). Ruling 37 skips a soft join (:4107); the bridge goes to the first flagged join that
+    is not soft (bj, :4114, also used for the declined-bridge reason and bridge_confirmed_by). Every later gate runs as
+    today: the lock (HARD), vision, the writes, the re-screen.
+(c) COHERENCE, the accepted candidate only (:4389): a failure whose ONLY cause is clip ratings under coherence's own floor
+    (coherence_soft :2264: measured, the hook passing, the through-line stated and the VO point at its floor; for the
+    free panel (:2102's majority) a majority of answers with both) is accepted when every flag stays within 3; a clip the
+    clips-alone verdict already flagged is one doubt (counted once, its same sentence reused). Any other failure follows
+    today's path (the VO point under the floor still rewrites the takeaway).
+(d) ly_shape (:2973): its ruling-37 check and "every flagged join bridged" accept exactly the soft joins of an accepted
+    candidate (soft_joins_of :2259; empty for any other verdict). Its other checks stay HARD.
+(e) inventory (:4536, :4561): the medley row FLAGGED with the hook-bar sentence (2b) + the clip and join sentences; the
+    ly_shape row FLAGGED with the join sentences (only when the shape passes); the coherence row FLAGGED with its
+    sentences. package_pin.SOFT_GATES adds "coherence" and "ly_shape".
+
+TESTS (test_ruling_137, 12 new; test_medley's Rig runs the real build): the units of (a) and (c); END TO END: a weak clip
+seals flagged only in the never-empty pass (the retry reads its cached verdict); two flagged joins: the bridge at the
+first, the second flagged on medley and ly_shape, once in review_flags; a question hook's join flags with nothing
+written after the question; 3 flags keep and a 4th never; a clean line-up found later wins; coherence flags only for
+the accepted candidate (the VO point under its floor still fails); the cap counts one doubt per clip; the retry takes
+the fewest flags and the budget's end retries too; the rows flag only in the soft pass and only on a passing shape; no
+through-line is never kept. Mutations: 22 of 24 killed. C1 (the retry's `soft`) is equivalent: kept fills only in the
+soft pass. C12 is NOT UNIT-TESTED, please read: coherence is softened only for key == accept_key; the mutant widens it to
+any later line-up of the angle after a retry, reachable only through the writer re-screen's hard refusal and its swap
+(:4240) after the accepted candidate.
+
+PLEASE CHECK: (1) can a HARD failure be kept or accepted (the through-line, the hook's own bar, the lock, a non-join
+L-y check, coherence's VO point)? (2) the clean pass unchanged; (3) the retry: once per angle, the cached verdict, the
+budget condition cannot loop; (4) the cap (unique sentences) and the one-doubt rule; (5) the tests.

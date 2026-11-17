@@ -2217,6 +2217,102 @@ def medley(router, segs, ctx, writer_vendor, seed=7, writer_family=None):
                     cached=bool(getattr(r, "cached", False)))
 
 
+def chain_cap():
+    """RULING 136 (2) / 141 (1): the most flags a package may carry (package_pin.REVIEW_FLAGS_MAX: one source)."""
+    import package_pin
+    return package_pin.REVIEW_FLAGS_MAX
+
+
+def seg_marks(segs):
+    """RULING 141 (3): the flags a line-up's clips already carry from the never-empty pass's per-clip gates, one sentence
+    each as the inventory writes them: step A's soft codes (context_a), a sentence edge (cuttable), STAND_ALONE
+    (stand_alone), the hook under the calibrated bar (the medley row's hook sentence)."""
+    n = sum(len(set(m.get("step_a_flags") or [])) + len(m.get("edge_flags") or []) + bool(m.get("stand_soft"))
+            for m in segs or [])
+    return n + bool((hook_own(segs[0]) or {}).get("flagged")) if segs else n
+
+
+def lineup_soft(segs, med):
+    """RULING 141 (3), THE LINE-UP CHAIN (phase A) in the never-empty pass: a clips-alone verdict whose ONLY failures are
+    soft -> {"weak": {label: rating}, "floor", "soft_joins": [join], "n": the flags it adds}, else None. Soft: a clip
+    rated under the verdict's floor (ruling 116); a flagged join past the one bridge L-y 2 allows (the first bridgeable
+    flagged join keeps its bridge); the question hook's first join (ruling 37: no bridge goes there). Hard (None): not
+    measured, no stated through-line, the hook not passing its own bar (the soft hook bar included), a clip with no
+    rating, or nothing to flag."""
+    if not segs or not isinstance(med, dict) or med.get("measured") is not True or \
+            not _line_ok(med.get("through_line")) or not (hook_own(segs[0]) or {}).get("passes"):
+        return None
+    labs, cl = labels(len(segs)), med.get("clips") or {}
+    if any(type(cl.get(lb)) is not int for lb in labs[1:]):
+        return None
+    floor = (med.get("floors") or STANDARD_LINEUP["clips_alone"])["clip"]
+    js = joins(labs)
+    flagged = [j for j in js if j in (med.get("flagged") or [])]
+    bridge = next((j for j in flagged if not (question_hook(segs) and j == js[0])), None)
+    soft_joins = [j for j in flagged if j != bridge]
+    weak = {lb: cl[lb] for lb in labs[1:] if cl[lb] < floor}
+    if not weak and not soft_joins:
+        return None
+    return {"weak": weak, "floor": floor, "soft_joins": soft_joins, "n": len(weak) + len(soft_joins)}
+
+
+def soft_joins_of(med):
+    """RULING 141 (3): the joins an ACCEPTED kept candidate carries unbridged, flagged (none on any other verdict)."""
+    return list(((med or {}).get("soft") or {}).get("soft_joins") or [])
+
+
+def coherence_soft(coh, segs, done=()):
+    """RULING 141 (3), phase A, for the kept candidate retried accepting: a coherence verdict whose ONLY failure is clip
+    ratings under its own floor -> {"weak": {label: rating}, "floor", "n": the NEW flags (a clip in `done`, already
+    flagged by the clips-alone verdict, is one doubt, flagged once)}, else None: not measured, the hook not passing
+    its own bar, no stated through-line or the VO point under its floor (for the free panel: not a majority of its
+    answers with both), a rating missing, or no weak clip."""
+    if not segs or not isinstance(coh, dict) or coh.get("measured") is not True or \
+            not (coh.get("hook_own") or {}).get("passes"):
+        return None
+    labs, cl = labels(len(segs)), coh.get("clips") or {}
+    fl = coh.get("floors") or STANDARD_LINEUP["coherence"]
+    if any(type(cl.get(lb)) is not int for lb in labs[1:]) or type(coh.get("vo_point")) is not int:
+        return None
+    rest = lambda a: _line_ok(a.get("through_line")) and type(a.get("vo_point")) is int and \
+        a["vo_point"] >= fl["vo_point"]
+    ans = (coh.get("panel") or {}).get("answers")
+    if not (sum(bool(rest(a)) for a in ans) * 2 > len(ans) if ans else rest(coh)):
+        return None
+    weak = {lb: cl[lb] for lb in labs[1:] if cl[lb] < fl["clip"]}
+    return {"weak": weak, "floor": fl["clip"], "n": sum(lb not in done for lb in weak)} if weak else None
+
+
+def chain_sentences(soft, who):
+    """RULING 141 (3) / 138 (3): lineup_soft's flags in plain words, each naming its clip (clip ratings, then joins)."""
+    ch = lambda lb: (who or {}).get(lb) or "its channel"
+    return [f"{CLIP_PLACE.get(lb, 'A clip')} ({ch(lb)}): the checker rated how much it adds to the line-up's point "
+            f"{x} of 5, needs {soft['floor']}." for lb, x in (soft.get("weak") or {}).items()] + \
+        join_sentences(soft.get("soft_joins"), who)
+
+
+def join_sentences(js, who):
+    """RULING 141 (3): one plain sentence per unbridged flagged join."""
+    ch = lambda lb: (who or {}).get(lb) or "its channel"
+    return [f"Between {CLIP_PLACE.get(a, 'A clip').lower()} ({ch(a)}) and {CLIP_PLACE.get(b, 'A clip').lower()} "
+            f"({ch(b)}): the checker could not follow the jump." for a, b in (j.split(" -> ") for j in js or [])]
+
+
+def coherence_sentences(cs, chain, who):
+    """RULING 141 (3): the coherence acceptance's flags; a clip the clips-alone verdict already flagged keeps that one
+    sentence (one doubt, flagged once: review_flags_of gives each sentence once)."""
+    ch = lambda lb: (who or {}).get(lb) or "its channel"
+    first = dict(zip((chain or {}).get("weak") or {}, chain_sentences(dict(chain, soft_joins=[]), who))) if chain \
+        else {}
+    return [first.get(lb) or f"{CLIP_PLACE.get(lb, 'A clip')} ({ch(lb)}): with the narration, the checker rated how "
+            f"much it supports the point {x} of 5, needs {cs['floor']}." for lb, x in (cs.get("weak") or {}).items()]
+
+
+def best_kept(kept):
+    """RULING 141 (3): the kept candidate to retry: the fewest flags, then the highest lowest clip rating."""
+    return min(kept, key=lambda c: (c["n"], -c["low"]))
+
+
 def last_clip_only(segs, med):
     """RULING 62 (12:00): whether a clips-alone failure is its LAST clip's alone: measured, the through-line stated,
     the hook passing its calibrated bar (ruling 115: hook_own of the line-up's own hook, as medley() judges it), every
@@ -2908,10 +3004,10 @@ def ly_shape(pk):
     med = pk.get("medley") or {}
     if med.get("measured") is not True or not isinstance(med.get("flagged"), list):
         fails.append("the clips-alone verdict was not measured (L-y 3)")
-    elif question_hook(segs) and js and js[0] in med["flagged"]:
+    elif question_hook(segs) and js and js[0] in med["flagged"] and js[0] not in soft_joins_of(med):
         fails.append(f"ruling 37: a hook ending on a question takes no bridge after it, so {js[0]} must be followable "
                      f"(the render's R1 reads the sealed clips-alone verdict)")
-    elif sorted(bridged) != sorted(med["flagged"]):
+    elif sorted(bridged) != sorted(j for j in med["flagged"] if j not in soft_joins_of(med)):   # 141 (3)
         fails.append(f"bridges at {bridged or 'no join'}, the clips-alone verdict flagged {med['flagged'] or 'no join'}"
                      f": a bridge goes only, and always, where a viewer could not follow the jump (L-y 2)")
     rec = pk.get("bridge") or {}
@@ -3826,6 +3922,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
     with ThreadPoolExecutor(max_workers=8) as pool:
         for ai, angle in (enumerate(angles) if candidate is None else [(candidate["ai"], angles[0])]):
             dropped, n_lineup, swapped, filled = set(), 0, None, None
+            kept, retried, accept_key, accept_soft = [], False, None, None   # RULING 141 (3): the never-empty pass's
+            #   kept candidates (soft failures only), and the one retried accepting
             sel = story_pool(angle, cleared, by_story)    # RULING 118 (4): a story's angle chooses inside its story
             #   (its join table, the fill, every swap; lineup_for and the search choose only among the angle's own and
             #   its join table's moments, so the story holds there by construction)
@@ -3844,12 +3942,15 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                     + (f"; NOT ASKED: {jt_err}" if jt_err else "") + f" ({time.time() - t0:.0f} s)")
             if candidate is not None:                     # RULING 66: its own seeds, so its recorded calls are served
                 n_lineup, swapped = candidate["n_lineup"] - 1, cand_segs
-            while total < lineups and not out["packages"] and not out.get("budget_stop") and \
-                    not out.get("lock_stop"):
+            while (total < lineups or (soft and kept and not retried)) and not out["packages"] and \
+                    not out.get("budget_stop") and not out.get("lock_stop"):
                 if candidate is not None and n_lineup >= candidate["n_lineup"]:
                     break                                 # RULING 66: the candidate alone, never re-lined or swapped
                 if over_budget(ai):
                     break
+                if total >= lineups:                      # RULING 141 (3): the judged-line-up budget ran out: only the
+                    k_ = best_kept(kept)                  # kept candidate's one retry reaches here (the condition above)
+                    swapped, retried, accept_key, accept_soft = list(k_["segs"]), True, k_["key"], k_["soft"]
                 if swapped is not None:                   # ruling 41: the swapped line-up is judged next
                     segs, swapped = swapped, None
                     exception = supply_exception(segs, ctx)
@@ -3876,6 +3977,10 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                                                  hook_only=True)   # FIRST: the
                         # pool completes it. A re-line after a drop moves on to the next angle, as before
                         exception = supply_exception(segs, ctx) if segs is not None else None
+                if segs is None and soft and kept and not retried:   # RULING 141 (3): the search ran out: the best
+                    k_ = best_kept(kept)                                # kept candidate, retried once, accepting
+                    segs, retried, accept_key, accept_soft = list(k_["segs"]), True, k_["key"], k_["soft"]
+                    exception = supply_exception(segs, ctx)
                 rec = {"angle": ai + 1, "text": angle["angle"], "lineup": [m["moment_id"] for m in segs] if segs else None,
                        "supply_exception": exception, "attempts": [],
                        **({"pool_filled": filled} if filled else {}),
@@ -3908,6 +4013,9 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                                        writer_family=writers_f)
                     judged[key] = (ok_m, med)
                     total += 0 if med.get("replayed") or med.get("cached") else 1   # 12:00: JUDGED line-ups
+                if key == accept_key:                       # RULING 141 (3): the kept candidate retried ACCEPTING:
+                    ok_m, med = True, dict(med, soft=accept_soft)   # its cached verdict's soft failures are its flags
+                    rec["accepted_soft"] = accept_soft
                 rec["medley"], rec["medley_ok"] = med, ok_m
                 if jt and med.get("measured"):            # RULING 117 (3): the table's joins against the verdict's
                     ids_ = [m["moment_id"] for m in segs]
@@ -3932,6 +4040,13 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                 if candidate is not None and not ok_m:    # RULING 66: a candidate failing a gate is closed
                     rec["why"] = "ruling 66: the candidate fails its clips-alone verdict now: closed"
                     break
+                if soft and candidate is None and key != accept_key and med.get("measured") and \
+                        (not ok_m or (question_hook(segs) and joins(labs)[0] in (med.get("flagged") or []))):
+                    ks = lineup_soft(segs, med)             # RULING 141 (3): soft failures only: KEPT (the search goes
+                    if ks is not None and seg_marks(segs) + ks["n"] <= chain_cap():   # on, a clean line-up first)
+                        kept.append({"segs": list(segs), "key": key, "soft": ks, "n": seg_marks(segs) + ks["n"],
+                                     "low": min(med["clips"][lb] for lb in labs[1:])})
+                        rec["kept"] = ks
                 if not ok_m and jt and med.get("measured"):   # RULING 117: the search over the table picks the next
                     floor_ = (med.get("floors") or STANDARD_LINEUP["clips_alone"])["clip"]
                     for lb_, mm in zip(labs[1:], segs[1:]):
@@ -3989,15 +4104,17 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                                   f"the clips alone fail (ratings / joins): dropped {sorted(weak)}, no swap fits the "
                                   f"line-up rules: re-lined")
                     continue
-                if question_hook(segs) and joins(labs)[0] in med["flagged"]:   # ruling 37: no bridge after a question
+                if question_hook(segs) and joins(labs)[0] in med["flagged"] and \
+                        joins(labs)[0] not in soft_joins_of(med):   # ruling 37: no bridge after a question (141: flagged)
                     dropped.add(segs[1]["moment_id"])
                     rec["why"] = (f"ruling 37: the join after the question hook must be followable without a bridge, and "
                                   f"the clips alone flag {joins(labs)[0]}: re-lined")
                     continue
                 join = None
-                if med["flagged"]:
-                    k = joins(labs).index(med["flagged"][0])
-                    join = (k, med["joins"][med["flagged"][0]]["why"])
+                bj = next((j for j in med["flagged"] if j not in soft_joins_of(med)), None)   # 141 (3): soft ones flag
+                if bj is not None:
+                    k = joins(labs).index(bj)
+                    join = (k, med["joins"][bj]["why"])
                 extra, relined, w_used, written = "", False, 0, ()
                 pre, no_verdict = None, False
                 if lock_check is not None:                  # RULINGS 68 / 72: the render's own lock, before any write;
@@ -4134,12 +4251,12 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                             break
                     if join is not None and fields["bridge"] is None:
                         dropped.add(segs[join[0] + 1]["moment_id"])
-                        rec["why"] = (f"the clips-alone verdict flagged {med['flagged'][0]}; the writer judged it "
+                        rec["why"] = (f"the clips-alone verdict flagged {bj}; the writer judged it "
                                       f"followable without a bridge: these clips do not sit together (L-y 2): re-lined")
                         relined = True
                         break
                     if fields["bridge"] is not None:
-                        fields["bridge_confirmed_by"] = {"join": med["flagged"][0], "why": join[1],
+                        fields["bridge_confirmed_by"] = {"join": bj, "why": join[1],
                                                          "backend": med.get("backend")}
                     fields["supply_exception"] = exception
                     pk = assemble_medley([m["moment_id"] for m in segs], cleared, fields, ctx,
@@ -4269,6 +4386,10 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                     att["second_pass"] = {mid: t for mid, (_, t) in got.items()}
                     ok_c, coh = coherence(router, pk, writers_v, writer_family=writers_f,
                                           hook=segs[0])     # then on the takeaway; ruling 61: the hook's cached
+                    cs_ = coherence_soft(coh, segs, (accept_soft or {}).get("weak") or ()) \
+                        if not ok_c and key == accept_key else None   # RULING 141 (3): the accepted candidate only
+                    if cs_ is not None and seg_marks(segs) + accept_soft["n"] + cs_["n"] <= chain_cap():
+                        ok_c, coh = True, dict(coh, soft=cs_)     # its clip ratings under coherence's floor: flagged
                     att["coherence"] = coh
                     log(f"    coherence with the takeaway {'PASS' if ok_c else 'FAIL'} {coh.get('clips')} vo "
                         f"{coh.get('vo_point')} ({time.time() - t0:.0f} s)")
@@ -4437,6 +4558,11 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
     det = fid["deterministic"]
     viol = {v["rule"] for v in ctx_.get("violations") or []}
     hook_fl = ((medley[1].get("hook_own") or {}).get("flagged") if soft and medley is not None else None)   # 2b
+    chain = medley[1].get("soft") if soft and medley is not None and medley[0] else None   # RULING 141 (3)
+    med_fl = ([f"{CLIP_PLACE['hook']} ({(who or {}).get('hook') or 'its channel'}): the checker rated it under the "
+               f"hook bar ({hook_fl})."] if hook_fl and medley is not None and medley[0] else []) + \
+        (chain_sentences(chain, who) if chain else [])
+    coh_fl = coherence_sentences(coh["soft"], chain, who) if soft and coh_ok and (coh or {}).get("soft") else []
     lab = lambda mid: (mids or {}).get(mid, mid)                      # truth is by moment id; flags name the clip
     edge_fl = [flag_sentence(lab(mid), (who or {}).get(lab(mid)), c) for mid, t in (truth or {}).items()   # RULING
                if soft and (t.get("edges") or {}).get("cuttable") is not True for c in (soft_edges(t) or [])]   # 137 2a
@@ -4488,14 +4614,14 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
                             if edge_fl and truth and all((t.get("edges") or {}).get("cuttable") is True or soft_edges(t)
                                                          for t in truth.values()) else {})),
         "coherence": dict(row(bool(coh_ok), coh.get("backend"), coh.get("replayed"), measured=bool(coh.get("measured"))),
-                          **votes_of(coh)),
+                          **votes_of(coh), **({"status": "FLAGGED", "flags": coh_fl} if coh_fl else {})),   # 141 (3)
         **({"medley": dict(row(bool(medley[0]), medley[1].get("backend"), medley[1].get("replayed"),
                                measured=bool(medley[1].get("measured"))), flagged=medley[1].get("flagged"),
-                           **({"status": "FLAGGED", "flags": [            # RULING 137 stage 2b: the hook under the bar
-                               f"{CLIP_PLACE['hook']} ({(who or {}).get('hook') or 'its channel'}): the checker rated "
-                               f"it under the hook bar ({hook_fl})."]} if hook_fl and medley[0] else {}))}
+                           **({"status": "FLAGGED", "flags": med_fl} if med_fl else {}))}   # 2b hook bar; 141 (3)
            if medley is not None else {}),
-        **({"ly_shape": dict(row(bool(shape[0]), "code (package.ly_shape, L-y)"), why=list(shape[1]))}
+        **({"ly_shape": dict(row(bool(shape[0]), "code (package.ly_shape, L-y)"), why=list(shape[1]),
+                             **({"status": "FLAGGED", "flags": join_sentences(chain["soft_joins"], who)}   # 141 (3)
+                                if chain and chain["soft_joins"] and shape[0] else {}))}
            if shape is not None else {}),
         **({"house_style": dict(row(not style, "code (house_style.lint_lines, ruling 6)"),
                                 why=[f"{v['slot']}: {v['detail']}" for v in style])}

@@ -39,6 +39,9 @@ SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's sof
                         #   word check, "second_pass", stays HARD)
                         "medley",                          # stage 2b: the hook under the calibrated bar (its own
                         #   rater's rating; no calibration or another rater stays HARD)
+                        "coherence", "ly_shape",           # RULING 141 (3), the line-up chain phase A: clip
+                        #   ratings and unbridged joins of a kept candidate (the through-line and every other L-y check
+                        #   stay HARD; the takeaway's value rows are not soft)
                         "stand_alone"})                    # RULING 141 (2): a clip's STAND_ALONE opener (the topic
 #   rule, ruling 34, and the medley naming Bitcoin stay HARD)
 REVIEW_FLAGS_MAX = 3
