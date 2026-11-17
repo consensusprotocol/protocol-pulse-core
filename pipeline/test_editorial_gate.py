@@ -171,3 +171,21 @@ class TestSpotlightLaws2And3(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRuling141FlaggedRows(unittest.TestCase):
+    """Ruling 141 with rulings 136 / 137: a spotlight's sealed rows (stands_alone, hook_own, the closing rows) count
+    when FLAGGED with their plain-word flags (the pin's review_flags say them to PBX); FLAGGED without flags, replayed,
+    or any other status is still not live. must-fail on the code before batch 108."""
+
+    def test_a_flagged_row_with_its_flags_is_live_and_one_without_is_not(self):
+        import editorial_gate as eg
+        g = {"stands_alone": {"status": "FLAGGED", "replayed": False,
+                              "flags": ["The clip (Blockware Solutions) may not stand alone: it opens on 'So'."]},
+             "hook_own": {"status": "PASS", "replayed": False}}
+        self.assertEqual(eg._not_live({"moments_gates": g}, ("stands_alone", "hook_own")), [])
+        for bad in ({"status": "FLAGGED", "replayed": False}, {"status": "FLAGGED", "replayed": True, "flags": ["x"]},
+                    {"status": "FAIL", "replayed": False, "flags": ["x"]}):
+            with self.subTest(bad=bad):
+                g["stands_alone"] = bad
+                self.assertEqual(eg._not_live({"moments_gates": g}, ("stands_alone", "hook_own")), ["stands_alone"])
