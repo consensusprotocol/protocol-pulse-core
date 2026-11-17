@@ -26,6 +26,7 @@ def send_telegram_preview(*_a, **_k):
 # ==============================================================
 
 HOLD_OK = "HOLD FOR APPROVAL - all release gates passed, no waivers"
+HOLD_FLAGGED = "HOLD FOR APPROVAL - every HARD gate passed; the soft flags above are yours to judge"   # rulings 136 / 137
 CAPTION_MAX = 1024                       # Telegram caption limit
 TEXT_MAX = 4096                          # Telegram sendMessage limit
 VIDEO_MAX_BYTES = 49_000_000             # Bot API upload limit is 50 MB; checked BEFORE the first send (X1)
@@ -159,11 +160,15 @@ def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
     import vertical_layout
     edl = (snap or snapshot(run_dir, att))["edl"]
     mon = release_auth.monitoring_report(att.get("rows") or {}).get(fmt) or {}
-    head = HOLD_OK + (f" | {len(mon)} MONITORING check(s) NOT passed (not release-deciding)" if mon else "")
+    flagged = att.get("review_flags") or []             # rulings 136 / 137: PBX reads the soft flags first
+    head = (HOLD_FLAGGED if flagged else HOLD_OK) + (
+        f" | {len(mon)} MONITORING check(s) NOT passed (not release-deciding)" if mon else "")
     if spotlight(edl):                       # law L-ab: labelled a spotlight candidate, a demonstration
         head = f"{SPOTLIGHT_HEAD} | {head}"
     if option:
         head = f"OPTION {option} (transition choice) | {head}"
+    if flagged:
+        head = "REVIEW FLAGS: " + "; ".join(flagged) + "\n" + head
     lines = [head, f"{os.path.basename(os.path.normpath(run_dir))} | {fmt} {DIMS[fmt][0]}x{DIMS[fmt][1]}"
              + (f" | {duration:.1f} s" if duration else ""),
              f"Story: {edl.get('topic', '')}",
