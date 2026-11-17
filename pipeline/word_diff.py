@@ -66,11 +66,14 @@ def _alt_positions(expected, alts):
 def diff(expected, heard, collapse=False, alts=None):
     """Word-level differences [(op, expected_words, heard_words)] after canonicalisation; [] if equal. alts (ruling
     18): at an alternative's position, a one-word replacement by another attested reading is not a difference."""
+    import canon
     e, h = norm(expected, collapse), norm(heard, collapse)
     pos = _alt_positions(expected, alts) if not collapse else {}
     out = []
     for op, a0, a1, b0, b1 in difflib.SequenceMatcher(None, e, h, autojunk=False).get_opcodes():
         if op == "replace" and a1 - a0 == 1 and b1 - b0 == 1 and a0 in pos and e[a0] in pos[a0] and h[b0] in pos[a0]:
+            continue
+        if op != "equal" and canon.same_words(e[a0:a1], h[b0:b1]):     # ruling 135: spelling, not speech
             continue
         if op != "equal":
             out.append((op, " ".join(e[a0:a1]), " ".join(h[b0:b1])))
@@ -81,9 +84,11 @@ def _omitted_or_repeated_only(expected, heard, alts=None):
     """Ruling 22: True when the heard text differs from the expected ONLY by omitted expected words or by repeats of
     the expected words just before them (nothing substituted, nothing added); attested alternatives (ruling 18)
     count as the expected word."""
+    import canon
     e, h = norm(expected), norm(heard)
     pos = _alt_positions(expected, alts)
-    ops = [o for o in difflib.SequenceMatcher(None, e, h, autojunk=False).get_opcodes() if o[0] != "equal"]
+    ops = [o for o in difflib.SequenceMatcher(None, e, h, autojunk=False).get_opcodes() if o[0] != "equal"
+           and not canon.same_words(e[o[1]:o[2]], h[o[3]:o[4]])]                # ruling 135
     if not ops:
         return False
     for op, a0, a1, b0, b1 in ops:

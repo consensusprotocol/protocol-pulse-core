@@ -487,22 +487,22 @@ class TestRuling84(Base):
         LP.serve_once(log=self.log)
         return self.entry(approved or run)
 
-    def test_a_fillers_adopt_the_spoken_text(self):
-        e = self.ask("So over time I came to the conclusion.", "So over time, um, I came to the conclusion.")
-        self.assertEqual((e["outcome"], e["as_spoken"]["classes"]), ("adopt_spoken", ["filler"]), e)
-        self.assertEqual(e["lock"]["text"], "So over time, um, I came to the conclusion.")     # ruling 17 adopted it
-        self.assertEqual(e["adjudication"]["differences"], [["", "um"]])
-        self.assertIsNone(e["alternatives"])
+    def test_a_filler_only_the_second_recogniser_hears_is_not_a_difference(self):   # ruling 135 (d) (adopted
+        e = self.ask("So over time I came to the conclusion.", "So over time, um, I came to the conclusion.")  # under 84)
+        self.assertEqual((e["outcome"], e["as_spoken"]["verdict"], e["as_spoken"]["classes"]),
+                         ("no_difference", "same", []), e)
+        self.assertEqual(e["lock"]["text"], "So over time I came to the conclusion.")     # the decode's words stand
+        self.assertIsNone(e["spoken_text"])
 
     def test_a_and_b_together_the_2012_builds_shape(self):
         e = self.ask(RUN84, SPOKEN84)
         self.assertEqual((e["outcome"], e["spoken_text"]), ("adopt_spoken", SPOKEN84), e)
-        self.assertEqual(e["as_spoken"]["classes"], ["filler", "filler", LP.ONE_FW])
+        self.assertEqual(e["as_spoken"]["classes"], [LP.ONE_FW])      # ruling 135 (d): the fillers are not words
         self.assertEqual(e["lock"]["text"], SPOKEN84.replace("replaced, or it", "replaced, so it"))
         alt, = e["alternatives"]
         self.assertEqual(alt["readings"], ["so", "or"])
         self.assertEqual(canon_tokens(e["lock"]["text"])[alt["token_index"]], "so")
-        self.assertEqual(e["adjudication"]["differences"], [["", "um"], ["", "uh"]])          # ruling 17's part
+        self.assertEqual(e["spelling_only"], [["", "um"], ["", "uh"]])      # ruling 135 (d): not words (was 17's part)
 
     def test_b_two_function_words_in_one_span_hold(self):
         e = self.ask("I go to the bank and I punch in my code.", "I go to a bank and I punch on my code.")
@@ -519,9 +519,10 @@ class TestRuling84(Base):
                 e = self.ask(run, heard)
                 self.assertEqual((e["outcome"], e["as_spoken"]["classes"]), ("hold", ["hold"]), e)
 
-    def test_a_filler_only_the_lock_has_holds(self):                  # (a) is the second recogniser's fillers only
+    def test_a_filler_only_the_lock_has_is_not_a_difference(self):     # ruling 135 (d) (it held under ruling 84)
         e = self.ask("So um I came here today.", "So I came here today.")
-        self.assertEqual((e["outcome"], e["as_spoken"]["classes"]), ("hold", ["hold"]), e)
+        self.assertEqual((e["outcome"], e["as_spoken"]["verdict"], e["as_spoken"]["classes"]),
+                         ("no_difference", "same", []), e)
 
     def test_a_filler_between_the_speakers_repeat_is_his_repetition(self):
         e = self.ask("Bitcoin and an asset is going up.", "Bitcoin and, uh, and an asset is going up.")
@@ -574,17 +575,17 @@ class TestRuling84MustFail(unittest.TestCase):
         ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != "equal"]
         self.assertEqual([LP.carry_class(L, S2, o, (lock["text"], spoken)) for o in ops],
                          [None, None, "function word"])           # um, uh outside it: HOLD
-        verdict, diffs, cls, text = LP.as_spoken(lock, words, sw)  # RULING 84
-        self.assertEqual((verdict, diffs, cls), ("adopt", old["as_spoken"]["differences"], ["filler", "filler", LP.ONE_FW]))
+        verdict, diffs, cls, text = LP.as_spoken(lock, words, sw)  # RULING 84, and ruling 135 (d): fillers are not words
+        self.assertEqual((verdict, diffs, cls), ("adopt", [["so", "or"]], [LP.ONE_FW]))
         s2 = dict(s, approved_text=text)                          # the pre-check's adoption: the render's own lock
         new = self.lock(s2, a, sw)
         alt, = new["alternatives"]
         self.assertEqual((alt["readings"], canon_tokens(new["text"])[alt["token_index"]]), (["so", "or"], "so"))
-        self.assertEqual(new["adjudication"]["differences"], [["", "um"], ["", "uh"]])
+        self.assertNotIn("adjudication", new)                     # ruling 135 (d): the fillers are not words, so
+        self.assertEqual(new["spelling_only"], [["", "um"], ["", "uh"]])   # nothing is left for ruling 17 to adjudicate
         self.assertEqual(SL.verify_lock(new), [])
         self.assertEqual(WD.diff(new["text"], text, alts=new["alternatives"]), [])   # G18 reads 'or': attested
-        self.assertEqual({op for op, _, _ in WD.diff(new["text"], lock["text"], alts=new["alternatives"])},
-                         {"delete"})                              # 'So' read, fillers dropped: omissions only
+        self.assertEqual(WD.diff(new["text"], lock["text"], alts=new["alternatives"]), [])   # fillers dropped (135)
 
     def test_1b4a63d0s_hook_still_holds_as_ruling_67s_class_says(self):
         s, a, sw, _ = real_span("Sjb6lUiL0m4_3090.750-3109.870.json")
@@ -898,3 +899,38 @@ class TestReuseAcrossShas(Base):
                                                                                         lambda log=print: 0):
             LP.main(["once"])
             self.assertEqual(outside_spend.SERVICE, "lock_precheck")
+
+
+class TestRuling135(Base):
+    """RULING 135 in ruling 72's comparison: today's Natalie Brunell false start ('a h- low') and 'kinda' / 'kind of' are
+    not differences (they held before); a real word the second recogniser alone hears still holds."""
+
+    def test_a_false_start_fragment_is_not_a_word(self):
+        self.scribe_text = ATTESTED.replace("punch in my code", "punch in my h- code")
+        self.request(approved_text=ATTESTED)
+        LP.serve_once(log=self.log)
+        e = self.entry(ATTESTED)
+        self.assertEqual((e["outcome"], e["as_spoken"]["verdict"]), ("no_difference", "same"), e.get("reason"))
+
+    def test_kinda_is_kind_of(self):
+        self.run_text = ATTESTED.replace("they could just take it", "they kind of could take it")
+        self.scribe_text = self.run_text.replace("kind of", "kinda")
+        self.request(approved_text=self.run_text)
+        LP.serve_once(log=self.log)
+        e = self.entry(self.run_text)
+        self.assertEqual((e["outcome"], e["as_spoken"]["verdict"]), ("no_difference", "same"), e.get("reason"))
+
+    def test_the_brand_spelled_three_ways_passes_and_is_recorded(self):
+        self.run_text = ATTESTED.replace("the bank owns the money", "itrust capital owns the money")
+        self.scribe_text = ATTESTED.replace("the bank owns the money", "iTrustCapital owns the money")
+        pin = ATTESTED.replace("the bank owns the money", "I trust capital owns the money")
+        self.request(approved_text=pin)
+        LP.serve_once(log=self.log)
+        e = self.entry(pin)
+        self.assertEqual((e["outcome"], e["spelling_only"]), ("no_difference", [["itrust", "i trust"]]), e.get("reason"))
+
+    def test_a_word_the_second_recogniser_alone_hears_still_holds(self):
+        self.scribe_text = ATTESTED.replace("punch in my code", "punch in my secret code")
+        self.request(approved_text=ATTESTED)
+        LP.serve_once(log=self.log)
+        self.assertEqual(self.entry(ATTESTED)["outcome"], "hold")

@@ -281,6 +281,50 @@ def currency_free(tokens):
     return [w for k, w in enumerate(tokens) if not dollars_after_number(tokens, k)]
 
 
+# RULING 135 (orchestrator 10:50 ET Nov 17): THE COMPARISON CANON. "Differences of spelling are not differences of
+# speech." Applied to a differing pair's two sides before the pair is compared (the lock, ruling 72's comparison,
+# G18); canon_tokens itself is unchanged, so spans, edges and indices are not touched.
+REDUCTIONS = {      # (c) spoken reductions equal their full form: a CLOSED list, none added without a ruling
+    "kinda": ("kind", "of"), "sorta": ("sort", "of"), "gonna": ("going", "to"), "wanna": ("want", "to"),
+    "gotta": ("got", "to"), "lemme": ("let", "me"), "gimme": ("give", "me"), "cause": ("because",),
+    "cuz": ("because",), "em": ("them",), "ya": ("you",), "yeah": ("yes",), "yep": ("yes",)}
+FILLER_TOKENS = frozenset({"um", "uh", "er", "ah", "hm", "hmm", "mm", "mhm"})      # (d) non-lexical
+CONSONANTS = frozenset("bcdfghjklmnpqrstvwxz")                                     # (d) a stray consonant ("a", "i": words)
+
+
+def comparison_form(tokens):
+    """RULING 135 (a)+(c): canon tokens with their apostrophes removed, each spoken reduction (REDUCTIONS) expanded."""
+    out = []
+    for t in tokens:
+        t = str(t).replace("'", "")
+        out += list(REDUCTIONS.get(t, (t,)))
+    return out
+
+
+def nonlexical(tok):
+    """RULING 135 (d): a filler (FILLER_TOKENS) or a single consonant letter: not a word."""
+    return tok in FILLER_TOKENS or (len(tok) == 1 and tok in CONSONANTS)
+
+
+def same_words(x, y):
+    """RULING 135: the two sides of a differing pair (lists of canon tokens) are the same words. Both sides in comparison
+    form (a, c), non-lexical tokens left out (d); equal tokens, or, when neither side holds a digit, equal letters once
+    every space and hyphen is gone (b: 'itrust capital's' = 'I trust capital's' = 'iTrustCapital's', names too). Still
+    a difference: two different single letters (a letter-name dispute), any digit difference (numbers compare token for
+    token; the currency form is (B)'s), and any other change of letters (a negation, a name, a content word)."""
+    cx, cy = comparison_form(x), comparison_form(y)
+    lx = [t for t in cx if len(t) == 1 and t in CONSONANTS]
+    ly = [t for t in cy if len(t) == 1 and t in CONSONANTS]
+    if lx and ly and lx != ly:
+        return False
+    a, b = [t for t in cx if not nonlexical(t)], [t for t in cy if not nonlexical(t)]
+    if a == b:
+        return True
+    if any(ch.isdigit() for t in a + b for ch in t):
+        return False
+    return "".join(a).replace("-", "") == "".join(b).replace("-", "")
+
+
 def canon(text):
     return " ".join(canon_tokens(text))
 

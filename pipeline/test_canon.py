@@ -312,3 +312,37 @@ class TestCurrencyFree(unittest.TestCase):
         self.assertEqual(C.currency_free(t), t)
         self.assertFalse(C.dollars_after_number(t, 0))
         self.assertEqual(C.currency_free(["5", "percent", "and", "5", "dollars"]), ["5", "percent", "and", "5"])
+
+
+class TestComparisonCanon(unittest.TestCase):
+    """RULING 135 (orchestrator 10:50 ET Nov 17): differences of spelling are not differences of speech. canon.same_words
+    on a differing pair's two sides: (a) case, punctuation, apostrophes; (b) segmentation; (c) the closed list of spoken
+    reductions; (d) non-lexical tokens. STILL differences: numbers, negations, a name whose letters differ, a content
+    word, two different single letters."""
+
+    def same(self, x, y):
+        return C.same_words(C.canon_tokens(x), C.canon_tokens(y))
+
+    def test_segmentation_names_included(self):
+        for a, b in (("itrust capital's", "I trust capital's"), ("itrust capital's", "iTrustCapital's"),
+                     ("I trust capital's", "iTrustCapital's"), ("multi -asset", "multi-asset"),
+                     ("Micro Strategy", "MicroStrategy")):
+            self.assertTrue(self.same(a, b), (a, b))
+
+    def test_the_closed_list_of_reductions(self):
+        for a, b in (("kinda", "kind of"), ("sorta", "sort of"), ("gonna", "going to"), ("wanna", "want to"),
+                     ("gotta", "got to"), ("lemme", "let me"), ("gimme", "give me"), ("'cause", "because"),
+                     ("cuz", "because"), ("'em", "them"), ("ya", "you"), ("yeah", "yes"), ("yep", "yes")):
+            self.assertTrue(self.same(a, b), (a, b))
+        self.assertFalse(self.same("yeah", "no"))
+        self.assertFalse(self.same("yes", "no"))
+
+    def test_non_lexical_tokens_are_not_words(self):
+        for a, b in (("um", ""), ("", "uh"), ("so um", "so"), ("h-", ""), ("mhm", ""), ("hm", "hmm")):
+            self.assertTrue(self.same(a, b), (a, b))
+        self.assertTrue(self.same("money's", "moneys"))                      # (a) apostrophes
+
+    def test_what_still_differs(self):
+        for a, b in (("12", "1 2"), ("68,000", "86,000"), ("can't", "can"), ("don't", "do"), ("Saylor", "Taylor"),
+                     ("budget", "bunch of"), ("Q", "Z"), ("never", "ever"), ("$2 billion", "$3 billion")):
+            self.assertFalse(self.same(a, b), (a, b))

@@ -188,7 +188,8 @@ class TestRuling84b(unittest.TestCase):
         lock, w = _lock(run_t, pin_t)
         new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads(pin_t), log=lambda *_: None)
         self.assertEqual(new["text"], "So it will replace, uh, or be replaced, so it is gone.")
-        self.assertEqual(new["adjudication"]["differences"], [["", "uh"]])
+        self.assertNotIn("adjudication", new)                          # ruling 135 (d): the 'uh' is not a word
+        self.assertEqual(new["spelling_only"], [["", "uh"]])
         alt, = new["alternatives"]
         self.assertEqual((alt["readings"], w[alt["word_index"]]["word"]), (["so", "or"], "So"))
         self.assertEqual(WD._alt_positions(new["text"], new["alternatives"]), {alt["token_index"]: {"so", "or"}})
@@ -349,14 +350,14 @@ class TestRuling131(unittest.TestCase):
 
     def test_each_pair_takes_its_two_of_three_reading(self):
         new, rec = self.settle(self.RUN, self.PIN, self.SEC)
-        self.assertEqual(new["text"], "And so we built it from a bunch of pieces like we had lying um around the "
-                                      "office for years.")
+        self.assertEqual(new["text"], "And so we built it from a bunch of pieces like we had lying around the "
+                                      "office for years.")          # ruling 135 (d): the 'um' is not a word
         adj = new["adjudication"]
         self.assertTrue(adj["rule"].startswith("ruling 131 (A)"), adj["rule"])
         self.assertEqual([(x["run"], x["approved"], x["took"], x["agreed"], x["edge_distance"]) for x in adj["pairs"]],
                          [("bunch of", "budget", "run", ["run", "second"], 7),
-                          ("that", "like", "approved", ["approved", "second"], 9),
-                          ("um", "", "run", ["run", "second"], 5)])
+                          ("that", "like", "approved", ["approved", "second"], 9)])
+        self.assertEqual(new["spelling_only"], [["um", ""]])
         self.assertEqual((adj["run_decode"], adj["approved"], adj["second_recogniser"]), (self.RUN, self.PIN, self.SEC))
         self.assertEqual(L.verify_lock(new), [])                       # the digest covers the settled text
         self.assertEqual(rec.calls, ["src.mp4"])
@@ -412,3 +413,41 @@ class TestRuling131(unittest.TestCase):
         self.assertEqual(new["text"], "They raised $2 billion last year from the fund.")
         self.assertEqual(new["currency_format"], [["", "dollars"]])
         self.assertTrue(new["adjudication"]["rule"].startswith("ruling 17"))
+
+
+class TestRuling135(unittest.TestCase):
+    """RULING 135 (orchestrator 10:50 ET Nov 17) in the render's lock: a run / approved pair that is the same words under
+    the comparison canon is dropped before any vote (recorded in spelling_only, nobody asked); the rest is unchanged.
+    must-fail  today's DataDash hook (three spellings of iTrust Capital), 'kinda' / 'kind of', a filler only the decoder
+               and the second recogniser hear right at the span's start (ruling 131 (A) held it inside 3 tokens)
+    must-hold  a number, a name whose letters differ"""
+
+    def settle(self, run_t, pin_t, sec_t):
+        lock, w = _lock(run_t, pin_t)
+        rec = _reads(sec_t)
+        return P.adjudicate_lock(lock, "src.mp4", w, recognise=rec, log=lambda *_: None), rec
+
+    def test_todays_datadash_hook_three_spellings_one_brand(self):
+        run_t = "Q is itrust capital's way of offering predefined automated crypto strategies inside the same account."
+        pin_t = "Q is I trust capital's way of offering predefined automated crypto strategies inside the same account."
+        new, rec = self.settle(run_t, pin_t, "Q is iTrustCapital's way of offering predefined automated crypto "
+                                             "strategies inside the same account.")
+        self.assertEqual((new["text"], new["spelling_only"], rec.calls), (run_t, [["itrust", "i trust"]], []))
+        self.assertNotIn("adjudication", new)
+        self.assertEqual(L.verify_lock(new), [])
+
+    def test_kinda_is_kind_of(self):
+        run_t = "That framing is just kind of too simple for the market we have today."
+        new, rec = self.settle(run_t, "That framing is just kinda too simple for the market we have today.", "x")
+        self.assertEqual((new["spelling_only"], rec.calls), ([["kind of", "kinda"]], []))
+
+    def test_a_filler_at_the_edge_is_not_a_word(self):
+        run_t = "Um so we went to the bank and then we went home."
+        new, rec = self.settle(run_t, "So we went to the bank and then we went home.", run_t)
+        self.assertEqual((new["spelling_only"], rec.calls), ([["um", ""]], []))
+
+    def test_a_number_or_a_differently_spelled_name_still_holds(self):
+        for run_t, pin_t in (("It cost them 68,000 dollars in the end.", "It cost them 86,000 dollars in the end."),
+                             ("Then I asked Saylor about it again.", "Then I asked Taylor about it again.")):
+            with self.subTest(run=run_t), self.assertRaises(P.PinError):
+                self.settle(run_t, pin_t, pin_t)
