@@ -6,6 +6,29 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 11:19 MILESTONE: RULING 135 LIVE (batch 104, merged d2c184d8, pushed; the builder's half the builder's READY commit pushed after it, lockstep). The comparison canon: spelling is not speech. Decoder sha b52c9354d604; RULES "... + ruling 131 + ruling 135". Today's attempt goes now (ruling 137 (1)). BATCH 4 integrator spend: none outside (Heimdall only).
+- **canon.same_words, on a differing pair's two sides before it is compared:**
+  - (a) case, punctuation and apostrophes;
+  - (b) segmentation: letters equal once spaces and hyphens go, names too;
+  - (c) the ruled closed list: kinda, sorta, gonna, wanna, gotta, lemme, gimme, 'cause / cuz, 'em, ya, yeah / yep. "no" is never touched;
+  - (d) fillers, plus a lone consonant on the side ONE reading alone hears.
+- **Still differences:** numbers (save (B)), negations, a name whose letters differ, two different letters, any content word.
+- **Where it applies:** the render's lock (before the critical check and the vote; recorded as spelling_only), ruling 72's comparison, and G18. The release note says "word check: spelling only".
+- **Today's faults it settles:**
+  - DataDash 8dbc30ee ("itrust capital's" / "I trust capital's" / "iTrustCapital's");
+  - DataDash f9413625 ("kind of" / "kinda");
+  - Natalie Brunell cae5123f ("a h- low").
+- **Checks:**
+  - 12 must-fail tests fail on the old code; 14 of 14 mutations killed.
+  - Heimdall, three cycles (qwen27b and gpt-oss at medium). One real finding was fixed: a lone letter is stray only on the side one reading alone hears; in the lock, the vote decides. Two findings were judged not defects, with proof (records: batch104_r135_canon/CONSENSUS.md).
+  - Regressions on the staged merge: 26 PASS / 0 FAIL / 4 WARN; pipeline/regression.sh exit 0, references REPRODUCED.
+- **RULING 137 (2): the 10:42 faults 135 does NOT cover, with my fixes.** Both settle only punctuation, never a number, a negation or a name, so the 20-minute default applies:
+  - **4(a), DataDash bcd71a53:** the run decode carries no punctuation at an edge. FIX: there, the approved text and the second recogniser decide the sentence edge (two of three readings, as 131 (A) does for words). In sentence_law, so the decoder sha moves (lockstep).
+  - **4(b), Natalie Brunell 39a6cfd4:** ruling 72's spill trim kept "the goal." across a full stop as the speaker's edge repeat. FIX: a leading or trailing repeat separated from the lock by a sentence end (. ? !) in the second recogniser's text is spill. In lock_precheck only (no sha), with the builder's spill mirror.
+  - Under rulings 136 / 137 a mid-sentence edge becomes a SOFT flag anyway. 4(b) still matters: unfixed, the clip would open on the previous sentence's last words.
+  - Both build after the attempt, before or with the HARD / SOFT switch.
+- **RULING 135's scorer question, in one line:** it is NOT the outage. The scorer runs the same code (scorer_sha edd54964a5ab) and the same model (gemma3:27b) as since Nov 14, and today's 80 verdicts have every earlier day's shape: 2.0 "starts_mid_thought" on 61% today, against 64-74% on Nov 14-16. It gives "starts_mid_thought" as the fault on nearly every verdict, even at 4. This is how this scorer rates moment openings, not anything about today's moments. Under rulings 136 / 137, stand-alone becomes SOFT (a flag), so it stops refusing. A prompt recalibration is a separate fix for your ruling.
+
 ## 11:07 RULINGS 136 / 137 (2): THE RENDER-SIDE CLASS PAGE (integrator), on ruling 137's default. HARD refuses. SOFT scores and FLAGS in plain words at the top of the Telegram note ("REVIEW FLAGS: ...") and never refuses. Build order as ruled: 135 lands, today's attempt goes, then this switch (audit-first, in lockstep with the builder's never-empty seal and review_flags pin field).
 
 **HARD (the bad video each one stops):**
