@@ -1,0 +1,188 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "97cacba52812a4e97747dc08e662313b6ba8d35b0285fb339ce4a5e582e07442",
+ "result": {
+  "text": "Bitcoin has seen one of its largest liquidation events over the weekend, which has now slapped Bitcoin into a 25% pullback. And when we ended the show-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.28,
+    "end": 10.12,
+    "text": "Bitcoin has seen one of its largest liquidation events over the weekend, which has now slapped Bitcoin into a 25% pullback. And when we ended the show-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Bitcoin",
+    "start": 0.28,
+    "end": 0.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 0.72,
+    "end": 0.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seen",
+    "start": 0.94,
+    "end": 1.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 1.4,
+    "end": 1.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 1.56,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 1.64,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "largest",
+    "start": 1.9,
+    "end": 2.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "liquidation",
+    "start": 2.44,
+    "end": 2.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "events",
+    "start": 2.98,
+    "end": 3.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 3.36,
+    "end": 3.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.54,
+    "end": 3.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "weekend,",
+    "start": 3.66,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "which",
+    "start": 4.36,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 4.52,
+    "end": 4.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 4.7,
+    "end": 4.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "slapped",
+    "start": 5.08,
+    "end": 5.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.52,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 6.08,
+    "end": 6.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 6.58,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "25%",
+    "start": 7.1,
+    "end": 8.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pullback.",
+    "start": 8.14,
+    "end": 8.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 9.08,
+    "end": 9.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 9.16,
+    "end": 9.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 9.32,
+    "end": 9.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ended",
+    "start": 9.52,
+    "end": 9.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.8,
+    "end": 9.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "show-",
+    "start": 9.96,
+    "end": 10.12,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 10.18
+ },
+ "usd": 0.002036,
+ "seconds": 0.82,
+ "recorded_at": "2026-11-17T00:29:00Z"
+}

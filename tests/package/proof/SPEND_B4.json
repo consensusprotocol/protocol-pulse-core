@@ -1,19 +1,19 @@
 {
- "usd_estimate": 7.55053,
- "calls": 104,
+ "usd_estimate": 8.487211,
+ "calls": 120,
  "by_backend": {
   "xai:grok-4.20-0309-reasoning": {
-   "calls": 40,
-   "in": 68149,
-   "out": 166922,
-   "usd_estimate": 4.513795,
+   "calls": 49,
+   "in": 81418,
+   "out": 200475,
+   "usd_estimate": 5.418965,
    "price_usd_per_1m": [
     5,
     25
    ],
-   "usd_reported": 0.49456165,
-   "reported_calls": 40,
-   "in_reported": 68149
+   "usd_reported": 0.5938208,
+   "reported_calls": 49,
+   "in_reported": 81418
   },
   "heimdall:z-ai/glm-5.3-flash": {
    "calls": 11,
@@ -29,17 +29,17 @@
    "in_reported": 12347
   },
   "heimdall:qwen/qwen3.8-27b": {
-   "calls": 11,
-   "in": 5365,
-   "out": 7008,
-   "usd_estimate": 0.121215,
+   "calls": 14,
+   "in": 6586,
+   "out": 8160,
+   "usd_estimate": 0.142158,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.00532032,
-   "reported_calls": 11,
-   "in_reported": 5365
+   "usd_reported": 0.0063683,
+   "reported_calls": 14,
+   "in_reported": 6586
   },
   "heimdall:deepseek/deepseek-v4.1-flash": {
    "calls": 14,
@@ -55,15 +55,15 @@
    "in_reported": 18576
   },
   "elevenlabs_stt:scribe_v1": {
-   "calls": 24,
+   "calls": 28,
    "in": 0,
    "out": 0,
-   "usd_estimate": 0.078976,
+   "usd_estimate": 0.089544,
    "price_usd_per_1m": [
     0.0,
     0.0
    ],
-   "audio_s": 394.88
+   "audio_s": 447.72
   },
   "xai_vision:grok-4.7": {
    "calls": 4,
@@ -81,8 +81,8 @@
  },
  "by_role": {
   "context_verdict": {
-   "calls": 36,
-   "usd_estimate": 4.035334
+   "calls": 42,
+   "usd_estimate": 4.826369
   },
   "probe87:heimdall:qwen/qwen3.8-27b": {
    "calls": 5,
@@ -97,16 +97,16 @@
    "usd_estimate": 0.051027
   },
   "transcribe": {
-   "calls": 24,
-   "usd_estimate": 0.078976
+   "calls": 28,
+   "usd_estimate": 0.089544
   },
   "coherence_verdict": {
-   "calls": 11,
-   "usd_estimate": 0.900155
+   "calls": 14,
+   "usd_estimate": 1.01429
   },
   "shadow86:coherence_verdict:hook": {
-   "calls": 4,
-   "usd_estimate": 0.04239
+   "calls": 7,
+   "usd_estimate": 0.063333
   },
   "shadow86:context_verdict": {
    "calls": 4,
@@ -134,7 +134,7 @@
   }
  },
  "reserved": {},
- "usd_reported": 0.86482689,
- "usd_unreported_estimate": 0.111591,
+ "usd_reported": 0.96513402,
+ "usd_unreported_estimate": 0.122159,
  "late_answers": 2
 }

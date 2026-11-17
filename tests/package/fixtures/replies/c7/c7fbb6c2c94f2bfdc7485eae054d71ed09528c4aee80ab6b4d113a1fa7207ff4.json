@@ -1,0 +1,218 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "e30bca67f5e6b67adc42d24d1926b8f8afb839a84f048feebeb75de1fa5dde52",
+ "result": {
+  "text": "Bitcoin puked all the way back to $62,000 over the weekend, and a lot of people are asking if they should just sell now before it gets worse. So who's actually dumping-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.18,
+    "end": 8.82,
+    "text": "Bitcoin puked all the way back to $62,000 over the weekend, and a lot of people are asking if they should just sell now before it gets worse. So who's actually dumping-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Bitcoin",
+    "start": 0.18,
+    "end": 0.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "puked",
+    "start": 0.6,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 1.02,
+    "end": 1.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.12,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 1.2,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "back",
+    "start": 1.4,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 1.6,
+    "end": 1.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$62,000",
+    "start": 1.72,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 2.94,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.1,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "weekend,",
+    "start": 3.2,
+    "end": 3.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 3.84,
+    "end": 3.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 3.94,
+    "end": 3.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot",
+    "start": 3.98,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 4.14,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 4.24,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 4.46,
+    "end": 4.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asking",
+    "start": 4.62,
+    "end": 4.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 5.02,
+    "end": 5.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 5.14,
+    "end": 5.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "should",
+    "start": 5.26,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 5.46,
+    "end": 5.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sell",
+    "start": 5.68,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 5.94,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "before",
+    "start": 6.3,
+    "end": 6.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 6.58,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gets",
+    "start": 6.68,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worse.",
+    "start": 7.0,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 7.64,
+    "end": 7.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who's",
+    "start": 7.76,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "actually",
+    "start": 8.119,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dumping-",
+    "start": 8.54,
+    "end": 8.82,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 8.84
+ },
+ "usd": 0.001768,
+ "seconds": 0.72,
+ "recorded_at": "2026-11-17T00:29:01Z"
+}

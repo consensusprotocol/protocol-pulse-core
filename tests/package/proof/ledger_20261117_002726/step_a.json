@@ -1,0 +1,398 @@
+{
+ "4d14201f553f57dc7672:9d43580c729b": {
+  "label": "4d14201f553f57dc7672",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "a lot of people",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin's price/situation",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the weekend",
+    "inside": true
+   },
+   {
+    "text": "now",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has dropped to $62,000 over the weekend with many people wondering if they should sell before conditions worsen further.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Truth Block. I'm Hurley.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "185e37a64058e69111ae:9d43580c729b": {
+  "label": "185e37a64058e69111ae",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "its",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "which",
+    "refers_to": "one of its largest liquidation events over the weekend",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the weekend",
+    "inside": true
+   },
+   {
+    "text": "now",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has experienced one of its largest liquidation events over the weekend, resulting in a 25% price pullback.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "my guest for the day is messing with my soundboard",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "93cfa865d13a0c3e1709:9d43580c729b": {
+  "label": "93cfa865d13a0c3e1709",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "had a terrible weekend",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin experienced a significant downturn over the weekend, falling to 62K with $2 billion in leverage wiped out including $645 million in just 30 minutes.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I am Nathan with the BTC sessions, and this is Bitcast.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "0737e6f7fa84166a73b3:9d43580c729b": {
+  "label": "0737e6f7fa84166a73b3",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "over the past week with the biggest wave coming on November 12th",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "More than $1.2 billion in Bitcoin positions were liquidated over the past week, with the biggest wave coming on November 12th.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "So, Sean, with the mood this dark, where are you seeing traders positioned across the exchanges right now?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "3dc5adc2b2a5285b3332:9d43580c729b": {
+  "label": "3dc5adc2b2a5285b3332",
+  "speaker_changes_inside": "no",
+  "view": "question",
+  "referents": [
+   {
+    "word": "its",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "the market with Bitcoin near its lowest level since July, strong dollar and Fed hikes",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "Bitcoin still near its lowest level since July, a strong dollar and more Fed hikes on the table",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is near its lowest level since July amid a strong dollar and possible additional Fed hikes, raising the question of how large asset managers are positioned in this market.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Joining us now is Blue Machilari, head of digital asset strategy at T-Rowe Price.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a3e8721c54788123097a:9d43580c729b": {
+  "label": "a3e8721c54788123097a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the hit from bad market sentiment",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when market sentiment is generally bad",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Billions of dollars in liquidations occurred over the weekend including about $2B on Bitcoin, proving that Bitcoin suffers heavily from bad general market sentiment because it trades 24/7.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "I am your host, Scott Melker, also known as the Wolf of All Streets.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c673cbed6e8856895628:9d43580c729b": {
+  "label": "c673cbed6e8856895628",
+  "speaker_changes_inside": "yes",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "Bitcoin below 70K",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "uncertain",
+  "proposition": "With Bitcoin below 70K there is more downside ahead rather than it being a buying opportunity.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Are you ready, Victoria? Okay, I'm ready. Here we go.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "bd53eedbad4aad55c201:9d43580c729b": {
+  "label": "bd53eedbad4aad55c201",
+  "speaker_changes_inside": "no",
+  "view": "question",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "a lot of people",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin (its price)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "here",
+    "refers_to": "the current Bitcoin market drop",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the weekend",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin dropped to $62,000 over the weekend with many wondering if they should sell before it worsens, as the speaker questions whether entities like Binance or Wall Street are the ones dumping.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Truth Block. I'm Hurley.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b084525ec408fdeabb4e:9d43580c729b": {
+  "label": "b084525ec408fdeabb4e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "there",
+    "refers_to": "the 58K price level",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin dropping to 62K",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "they",
+    "refers_to": "Strategy and metaplan",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "had a terrible weekend",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin had a terrible weekend dropping to 62K with billions in leverage wiped out near the 58K level, putting pressure on everybody as Strategy and Metaplan make moves while they are down.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I am Nathan with the BTC sessions, and this is Bitcast.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "1c84195676e41da79499:9d43580c729b": {
+  "label": "1c84195676e41da79499",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "sentiment",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "their",
+    "refers_to": "traders",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "current mood/sentiment",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "now",
+    "refers_to": "current time of broadcast",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "you",
+    "refers_to": "Sean",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the past week with biggest wave on November 12th",
+    "inside": true
+   },
+   {
+    "text": "with the mood this dark/right now",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "More than $1.2 billion in Bitcoin positions were liquidated over the past week with the biggest wave on November 12th, sentiment is as bad as it can get, and Sean is asked where traders are positioned on exchanges right now.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "So, Sean, with the mood this dark, where are you seeing traders positioned across the exchanges right now?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": true
+ },
+ "5f25b7f16ed7330fa7d5:9d43580c729b": {
+  "label": "5f25b7f16ed7330fa7d5",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "its",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "the described Bitcoin market",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "now",
+    "refers_to": "present time of the show",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "Bitcoin near its lowest level since July with strong dollar and more Fed hikes on the table",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is still near its lowest level since July with a strong dollar and more Fed hikes possible, prompting how big asset managers are playing this market as Blue Machilari is introduced to the show.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "We turn now to a familiar face here on the show. Joining us now is Blue Machilari, head of digital asset strategy at T -Rowe Price.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": true
+ }
+}

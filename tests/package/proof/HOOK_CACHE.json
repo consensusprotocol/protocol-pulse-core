@@ -790,5 +790,39 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "4d14201f553f57dc7672:5d9712611892fa118f21dbf17d842b46eb66c9f3b85d2e298ef582369341e9f4:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 5,
+   "setup": 4,
+   "rating": 3,
+   "why": "negative tone may not stop scrolls",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "185e37a64058e69111ae:6bcbd973bc6096f1d68cf2e47ace252e93e5be3310aae0b9201dcdfd6595f418:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 5,
+   "setup": 4,
+   "rating": 3,
+   "why": "first seconds too factual, lacks drama to stop scroll",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "93cfa865d13a0c3e1709:ea94b2fd4379d659e1f1fa5d6228da7925781b296ca069bf8608040136949ee6:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 2,
+   "setup": 4,
+   "rating": 2,
+   "why": "Meanwhile implies prior context",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+   "answer_note": "1 trailing closing brace(s) dropped (STATE Q2, 15:04 ET Nov 15)"
+  }
  }
 }

@@ -6,15 +6,15 @@
  ],
  "ledger": "SPEND_B4.json",
  "cap": 1.0,
- "outside": 0.956311,
+ "outside": 1.066138,
  "parts_outside": {
-  "builds": 0.956311,
+  "builds": 1.066138,
   "audits": 0.0,
   "checks": 0.0,
   "others": {}
  },
  "heimdall_free": {
-  "builds": 0.020107,
+  "builds": 0.021155,
   "audits": 0.178114,
   "checks": 5.275658,
   "others": {

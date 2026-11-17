@@ -1,0 +1,548 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "bf9323a17e3d967afed3fe6b9c549a21bcbccc6a057f228f4060d82e3e10fb5e",
+ "result": {
+  "text": "Now, this is still breaking, so we'll pull more information as it's going, but I clearly see a pattern emerging. Meanwhile, Bitcoin had a terrible weekend. We went all the way down to 62K, two billion in leverage wiped out, 645 million in just 30 minutes. We were just a stone's throw away from the, uh, the 58K gain there, so eat your heart out. And of course, that's putting pressure on everybody. Strategy and MetaPlan are both making moves while they're down, and Nakamoto now repor-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.04,
+    "end": 21.16,
+    "text": "Now, this is still breaking, so we'll pull more information as it's going, but I clearly see a pattern emerging. Meanwhile, Bitcoin had a terrible weekend. We went all the way down to 62K, two billion in leverage wiped out, 645 million in just 30 minutes. We were just a stone's throw away from the, uh, the 58K gain there, so eat your heart out. And of course, that's putting pressure on everybody. Strategy and MetaPlan are both making moves while they're down, and Nakamoto now repor-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Now,",
+    "start": 0.04,
+    "end": 0.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 0.22,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 0.34,
+    "end": 0.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "still",
+    "start": 0.42,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "breaking,",
+    "start": 0.58,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 0.86,
+    "end": 0.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we'll",
+    "start": 0.92,
+    "end": 1.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pull",
+    "start": 1.02,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 1.2,
+    "end": 1.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "information",
+    "start": 1.34,
+    "end": 1.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 1.72,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 1.74,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going,",
+    "start": 1.86,
+    "end": 2.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 2.06,
+    "end": 2.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 2.36,
+    "end": 2.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "clearly",
+    "start": 2.42,
+    "end": 2.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "see",
+    "start": 2.74,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 2.94,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pattern",
+    "start": 3.12,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "emerging.",
+    "start": 3.5,
+    "end": 3.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Meanwhile,",
+    "start": 4.32,
+    "end": 4.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.7,
+    "end": 4.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 4.96,
+    "end": 5.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 5.06,
+    "end": 5.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "terrible",
+    "start": 5.16,
+    "end": 5.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "weekend.",
+    "start": 5.54,
+    "end": 5.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 6.08,
+    "end": 6.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "went",
+    "start": 6.16,
+    "end": 6.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 6.34,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.44,
+    "end": 6.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 6.48,
+    "end": 6.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down",
+    "start": 6.6,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 6.76,
+    "end": 6.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "62K,",
+    "start": 7.1,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "two",
+    "start": 7.72,
+    "end": 7.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 7.9,
+    "end": 8.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 8.18,
+    "end": 8.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "leverage",
+    "start": 8.3,
+    "end": 8.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wiped",
+    "start": 8.62,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out,",
+    "start": 8.9,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "645",
+    "start": 9.2,
+    "end": 9.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "million",
+    "start": 10.0,
+    "end": 10.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 10.26,
+    "end": 10.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 10.36,
+    "end": 10.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "30",
+    "start": 10.68,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "minutes.",
+    "start": 10.88,
+    "end": 11.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 11.46,
+    "end": 11.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "were",
+    "start": 11.56,
+    "end": 11.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 11.68,
+    "end": 11.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 11.84,
+    "end": 11.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stone's",
+    "start": 12.0,
+    "end": 12.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "throw",
+    "start": 12.34,
+    "end": 12.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "away",
+    "start": 12.56,
+    "end": 12.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 12.86,
+    "end": 13.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the,",
+    "start": 13.06,
+    "end": 13.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 13.22,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.32,
+    "end": 13.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "58K",
+    "start": 13.54,
+    "end": 13.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gain",
+    "start": 13.96,
+    "end": 14.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there,",
+    "start": 14.16,
+    "end": 14.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 14.34,
+    "end": 14.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "eat",
+    "start": 14.5,
+    "end": 14.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 14.62,
+    "end": 14.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "heart",
+    "start": 14.76,
+    "end": 14.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out.",
+    "start": 14.96,
+    "end": 15.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 15.08,
+    "end": 15.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 15.18,
+    "end": 15.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "course,",
+    "start": 15.34,
+    "end": 15.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 15.58,
+    "end": 15.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "putting",
+    "start": 15.72,
+    "end": 15.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pressure",
+    "start": 15.98,
+    "end": 16.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 16.42,
+    "end": 16.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everybody.",
+    "start": 16.7,
+    "end": 17.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Strategy",
+    "start": 17.5,
+    "end": 17.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 17.92,
+    "end": 18.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "MetaPlan",
+    "start": 18.02,
+    "end": 18.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 18.4,
+    "end": 18.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "both",
+    "start": 18.5,
+    "end": 18.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "making",
+    "start": 18.68,
+    "end": 18.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "moves",
+    "start": 18.96,
+    "end": 19.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "while",
+    "start": 19.22,
+    "end": 19.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they're",
+    "start": 19.34,
+    "end": 19.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down,",
+    "start": 19.5,
+    "end": 19.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 19.8,
+    "end": 19.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Nakamoto",
+    "start": 20.0,
+    "end": 20.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 20.78,
+    "end": 20.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "repor-",
+    "start": 20.94,
+    "end": 21.16,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 21.2
+ },
+ "usd": 0.00424,
+ "seconds": 1.69,
+ "recorded_at": "2026-11-17T00:32:14Z"
+}
