@@ -1,0 +1,36 @@
+pp-selectid: RULING 126 (1) (orchestrator 20:00 ET Nov 16), verbatim: "THE SHOW DATE: it is meant to be the ET date (PBX's
+audience and his day), not UTC, and a verdict should carry the date in its cache key ONLY when the moment holds time words
+(the free time-word screen already knows which do); a moment with no time words is judged the same on any date and must
+never be re-paid because a clock rolled over. Build both, audit-first on Heimdall, and LAND THEM AFTER TONIGHT'S BUILDS".
+Files: pipeline/context_integrity.py, pipeline/package.py, tests/package/test_medley.py.
+
+THE CHANGE:
+(1) context_integrity.show_date(now): the ET calendar date of the clock (zoneinfo America/New_York), None without one.
+    Used by contexts_from_sources (the context check's excerpts; its callers, UNCHANGED, pass the build's clock:
+    package.py:2467, 2516, 2561, 2691; spotlight.py:1125, 1143) and by package.prescreen's step-A contexts. Before, both
+    used now.strftime on the run clock, which is UTC (eligibility.py:167: "Context.now must be an aware datetime (the
+    run clock, UTC)"), so from 19:00 ET the show date was tomorrow's.
+(2) package.step_a_key(m, context): the step-A cache key (moment id, sha256 of its text, sha256 of the context step A
+    reads, the prompt's version, as before) hashes the context WITHOUT its show_date when the moment is not
+    time-sensitive. The time-word screen is UNCHANGED package.time_sensitive (package.py:210): the miner's
+    "time_sensitive" risk flag, OR a recency word in the clip's own words (vo_fidelity.time_words, vo_fidelity.py:411),
+    OR a current-kind price. The prompt itself still carries the (ET) show date; only the cache key leaves it out.
+(3) package.step_a_old_keys(m, context, now) + prescreen: for a moment that is NOT time-sensitive and has no verdict
+    under its new key, the keys the code used before (the context hashed WITH the UTC show date, today's and
+    yesterday's UTC dates: a moment inside the 12-hour publish window cannot hold an older one) are read, with the same
+    "off the writers" filter (pick, as before); a verdict found there is used (no call) and written under the new key
+    (moved, merged into the one cache write; _cache_put UNCHANGED, package.py:512). A time-sensitive moment never takes
+    an old key's verdict. Without this, landing (2) would re-pay every cached moment once.
+
+NOT CHANGED: the context check (CI.check_contexts) has no per-moment cache: its replies are replayed by the exact prompt,
+which now carries the ET date (a line-up re-asked on a new ET date is asked again; it was so before, on the UTC date).
+
+TESTS (test_medley TestRuling58StepAEveryCandidate): the cross-build test now asks: a new show date asks NOTHING for
+moments with no time words, and asks again for time-sensitive ones (the miner's flag); new: the ET date at 00:30 UTC
+(19:30 ET) in step A's contexts and in contexts_from_sources; new: an old-key verdict is read once (no call) for a
+moment without time words, written under its new key (no call the next time), never taken by a time-sensitive moment,
+and not looked for past yesterday's UTC date. Mutations R1-R9 after a control run.
+
+PLEASE CHECK: (a) that a time-sensitive moment's verdict can never be reused across show dates; (b) the old-key read
+(the exact old key format, the date window, the writers' filter, the write under the new key); (c) the ET date at the
+DST edges (zoneinfo); (d) the tests.
