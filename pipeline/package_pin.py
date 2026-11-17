@@ -35,8 +35,10 @@ MEDLEY_GATES = ("medley", "ly_shape", "house_style", "hook_onset", "stand_alone"
 # with "flags", plain words, sealed with the gates; the pin's moments_package "review_flags" is derived from them
 # (review_flags_of), at most REVIEW_FLAGS_MAX. STAGE 1: step A's row only. A HARD gate still needs exactly PASS.
 SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's soft codes
-                        "cuttable"})                       # stage 2a: a sentence edge at a word boundary (L-v 2's
-#   word check, "second_pass", stays HARD)
+                        "cuttable",                        # stage 2a: a sentence edge at a word boundary (L-v 2's
+                        #   word check, "second_pass", stays HARD)
+                        "medley"})                         # stage 2b: the hook under the calibrated bar (its own
+#   rater's rating; no calibration or another rater stays HARD)
 REVIEW_FLAGS_MAX = 3
 
 

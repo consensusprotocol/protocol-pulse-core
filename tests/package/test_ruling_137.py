@@ -207,6 +207,89 @@ class TestStage2a(unittest.TestCase):
                                                    "flags": ["a word differs"]}), "r")
 
 
+class TestStage2bHookBar(unittest.TestCase):
+    """RULING 137 STAGE 2b (1) (line 1, 13:20 ET): the calibrated hook bar is SOFT in the never-empty pass. A hook its
+    own rater rated UNDER a floor opens, flagged in plain words (the best HOOK_SOFT_MAX of them); no calibration,
+    another rater or an unmeasured part stay hard, and the clean pass never opens it. The rigs' bar (conftest):
+    scroll 3, alone 4, setup 3, rated by "xai:grok"."""
+
+    def hm(self, sc, al, se, backend="xai:grok", mark=False):
+        m = {"moment_id": "h1", "hook_rating": {"scroll": sc, "alone": al, "setup": se, "backend": backend}}
+        return dict(m, hook_bar_soft=True) if mark else m
+
+    def test_under_the_bar_in_plain_words_and_what_stays_hard(self):
+        self.assertEqual(PK.hook_bar_under(self.hm(2, 5, 5)), "stopping the scroll 2 of 5, needs 3")
+        self.assertEqual(PK.hook_bar_under(self.hm(2, 3, 2)), "stopping the scroll 2 of 5, needs 3; making sense on "
+                         "its own 3 of 5, needs 4; setting up what follows 2 of 5, needs 3")
+        for m in (self.hm(3, 4, 3), self.hm(2, 5, 5, backend="heimdall:qwen"), self.hm(None, 5, 5),
+                  self.hm(True, 5, 5), {}, None):
+            self.assertIsNone(PK.hook_bar_under(m), m)
+        with mock.patch.object(PK, "_live_bar", lambda: (None, "no valid hook calibration")):
+            self.assertIsNone(PK.hook_bar_under(self.hm(2, 5, 5)))
+
+    def test_only_the_soft_pass_mark_opens_it(self):
+        own = PK.hook_own(self.hm(2, 5, 5))
+        self.assertEqual((own["passes"], "flagged" in own), (False, False))
+        own = PK.hook_own(self.hm(2, 5, 5, mark=True))
+        self.assertEqual((own["passes"], own["flagged"]), (True, "stopping the scroll 2 of 5, needs 3"))
+        own = PK.hook_own(self.hm(2, 5, 5, backend="heimdall:qwen", mark=True))
+        self.assertEqual((own["passes"], "flagged" in own), (False, False))         # another rater: hard
+        own = PK.hook_own(self.hm(3, 4, 3, mark=True))
+        self.assertEqual((own["passes"], "flagged" in own), (True, False))          # a pass is never flagged
+
+    def rig(self, hooks, never_empty):
+        import test_medley as TM
+        r = TM.Rig(TM.TestBuildLoop.MS, ["h", "x", "y", "z"], [(True, [], None, TM.Rig.LINE)], [None], hooks=hooks)
+        r.build_kw = {"never_empty": never_empty}
+        return r, r.run()
+
+    UNDER = {"h": (2, 5, 5), "x": (1, 1, 1), "y": (1, 1, 1), "z": (1, 1, 1)}   # h: the best hook, under the bar
+
+    def test_a_hook_under_the_bar_seals_flagged_only_in_the_never_empty_pass(self):
+        _, clean = self.rig(self.UNDER, False)
+        self.assertIsNone(clean["package"])
+        self.assertIn("no hook in the pool", clean["why_none"])
+        r, out = self.rig(self.UNDER, True)
+        pk = out["package"]
+        self.assertEqual([s["moment_id"] for s in pk["segments"]][0], "h")
+        ch = pk["segments"][0].get("channel")
+        want = [f"The opening clip ({ch}): the checker rated it under the hook bar (stopping the scroll 2 of 5, "
+                f"needs 3)."]
+        self.assertEqual((pk["gates"]["medley"]["status"], pk["gates"]["medley"]["flags"]), ("FLAGGED", want))
+        self.assertEqual(PP.review_flags_of(pk["gates"]), want)
+        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])   # the seal's own check takes it
+        self.assertEqual(pk["gates"]["coherence"]["status"], "PASS")                 # flagged once, on its own row
+        self.assertEqual(out["never_empty"]["stage"], "2b")
+        self.assertEqual(list(out["prescreen"]["soft_hook_bar"])[0], "h")
+
+    def test_a_mark_carried_in_is_never_read(self):
+        import test_medley as TM
+        ms = [dict(m, hook_bar_soft=True) for m in TM.TestBuildLoop.MS]      # the clean pass pops it with the rating
+        r = TM.Rig(ms, ["h", "x", "y", "z"], [(True, [], None, TM.Rig.LINE)], [None], hooks=self.UNDER)
+        r.build_kw = {"never_empty": False}
+        self.assertIsNone(r.run()["package"])
+
+    def test_the_medley_row_flags_only_in_the_soft_pass_and_only_on_a_passing_verdict(self):
+        t = {"ok": True, "replayed": False, "edges": {"cuttable": True, "in": {"ok": True}, "out": {"ok": True}}}
+        med = {"backend": "xai:grok", "replayed": False, "measured": True, "flagged": [],
+               "hook_own": {"passes": True, "flagged": "stopping the scroll 2 of 5, needs 3"}}
+        row = lambda ok, soft: PK.inventory(**TestStage2a().base(t), medley=(ok, med), soft=soft,
+                                            who={"hook": "Scott Melker"})["medley"]
+        self.assertEqual((row(True, True)["status"], row(True, True)["flags"]), ("FLAGGED", [
+            "The opening clip (Scott Melker): the checker rated it under the hook bar (stopping the scroll 2 of 5, "
+            "needs 3)."]))
+        self.assertEqual((row(True, False)["status"], "flags" in row(True, False)), ("PASS", False))
+        self.assertEqual(row(False, True)["status"], "FAIL")
+
+    def test_at_most_the_best_two_under_the_bar_open(self):
+        r, out = self.rig({"h": (2, 5, 5), "x": (2, 5, 4), "y": (1, 5, 5), "z": (2, 5, 3)}, True)
+        rec = out.get("prescreen") if out.get("package") else out["never_empty"]["soft_record"]["prescreen"]
+        rated = (out.get("hook_pool") or out["never_empty"]["soft_record"]["hook_pool"])["ratings"]
+        under = [m for m in ("h", "x", "z", "y") if m in rated]                       # hook_order: rating, then sum
+        self.assertEqual(list(rec["soft_hook_bar"]), under[:PK.HOOK_SOFT_MAX])
+        self.assertEqual(PK.HOOK_SOFT_MAX, 2)
+
+
 class TestTheDayCount(unittest.TestCase):
     def test_counted_per_day_ledger(self):
         with tempfile.TemporaryDirectory() as d:

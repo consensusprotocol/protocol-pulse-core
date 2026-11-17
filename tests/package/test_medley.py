@@ -850,6 +850,7 @@ class Rig:
             kw["registered"] = self.registered
         if self.lock_check is not None:
             kw["lock_check"] = self.lock_check
+        kw.update(getattr(self, "build_kw", None) or {})  # RULING 137: never_empty / flagged_today, when a test sets
         if getattr(self, "stories_path", None):            # RULING 118 (4): the stories file (default: none read)
             kw["stories_path"] = self.stories_path
         if self.verdicts is not None:                      # ruling 56: the integrator's file, read by the real reader

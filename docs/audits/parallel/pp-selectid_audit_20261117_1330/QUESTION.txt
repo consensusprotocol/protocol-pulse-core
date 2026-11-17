@@ -1,0 +1,37 @@
+pp-selectid: RULINGS 136 / 137 / 138, the hard/soft switch, STAGE 2b (1): THE CALIBRATED HOOK BAR (ruling 115) SOFT in
+the never-empty pass. Stages 1 and 2a are LIVE: package.build runs the clean pass, and only when it seals nothing (and the
+day allows) runs _build(soft=True). A soft gate there flags in one plain sentence per clip (ruling 138 (3)); at most 3
+flags seal (package_pin.REVIEW_FLAGS_MAX, :42). The measured yield: the bar refused 12 of 18 hooks over 7 days. Files:
+pipeline/package.py, pipeline/package_pin.py, tests/package/test_ruling_137.py, tests/package/test_medley.py (Rig.run
+passes a test's build_kw).
+
+THE CHANGE (only the never-empty pass; the clean pass is unchanged):
+(a) hook_bar_under(m): the plain detail of a hook rated UNDER a floor BY THE BAR'S OWN RATER with every part measured
+    ("stopping the scroll 2 of 5, needs 3"). None when it passes, a part is unmeasured, another back-end rated it, or no
+    calibration is valid: those stay HARD (law L-m).
+(b) hook_own(m) (the ONE record every bar check reads) reports passes=True plus "flagged" only for a hook that carries the
+    soft mark "hook_bar_soft" AND is under the bar by (a). Every reader therefore follows with no change of its own:
+    _can_open (package.py:1758), coherence's ok (:2089), medley's ok (:2153), ruling 62's last_clip_only (:2173),
+    ruling 63's reorder (:3893), hook_weak (:3906), the coherence floors (:4222).
+(c) _build sets the mark only when soft, on at most HOOK_SOFT_MAX = 2 hooks, the best by hook_order (:1762), after the
+    ratings are attached and before rated_open is seen (:3342-3343: each opener pays the vision check before any angle,
+    so the cap bounds the extra vision calls). The mark is popped with the old rating at the start of the hook stage, so a
+    mark never carries in. The moments _build marks are its own copies: with_verdict (:1501, :1504) builds a new dict
+    for every moment (:3200). The driver's spotlight pass gets the driver's own list (proof_ledger.py SPOT.build), never
+    these copies.
+(d) inventory: the "medley" row (the clips-alone verdict, which holds the hook's slot) is FLAGGED with one sentence
+    ("The opening clip (<channel>): the checker rated it under the hook bar (<detail>).") only when soft, the verdict
+    passed, and the verdict's hook_own carries "flagged". package_pin.SOFT_GATES adds "medley". flagged_ok (:387) still
+    needs non-empty string flags and replayed False. The coherence row stays PASS (one doubt, flagged once).
+(e) The wrapper's record label is now stage "2b".
+
+TESTS (test_ruling_137, 6 new): (a)'s detail and every hard case; only a marked hook opens; END TO END through
+test_medley's Rig (the real build, every model stubbed): the clean pass finds no hook, and the never-empty pass seals with
+the medley row FLAGGED in the exact sentence, review_flags_of equal to it, gate_problems() empty, coherence PASS; a mark
+carried in is never read; the row flags only in the soft pass and only on a passing verdict; at most the best 2 open.
+Mutations: 12 of 12 killed.
+
+PLEASE CHECK: (1) can a hook with no calibration, another rater, or an unmeasured part open, or can the clean pass open a
+hook under the bar? (2) every reader of hook_own's "passes": does any one of them now let through something it should not
+(e.g. ruling 62 / 63 / coherence)? (3) the cost bound on vision; (4) the plain sentence and the one-flag count; (5) the
+tests.

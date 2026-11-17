@@ -981,6 +981,10 @@ opens the video. The hook is shown for context only: it is NOT rated here (its o
 Return ONLY this JSON object: {{"through_line": "...", "clips": {{{clip_keys}}}, "joins": {{{joins}}}}}"""
 HOOK_PARTS = ("scroll", "alone", "setup")   # ruling 52 (08:06 Nov 13): the hook's own job, each part rated 1-5
 HOOK_RULE = "the lowest of scroll / alone / setup (ruling 52): every part must reach the bar"
+HOOK_PART_WORDS = {"scroll": "stopping the scroll", "alone": "making sense on its own",   # RULING 137 stage 2b: a
+                   "setup": "setting up what follows"}                                  # part in PBX's words
+HOOK_SOFT_MAX = 2      # RULING 137 stage 2b: the never-empty pass lets the best 2 hooks under the bar open (each is seen
+#   by the paid vision check before any angle, as every opener is)
 HOOK_OWN = ("scroll", "alone")     # RULING 61 (12:00): the hook's OWN-JOB rating, cached and never re-asked per line-up
 HOOK_OWN_RULE = ("the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> "
                  "clip_01 join")
@@ -1667,6 +1671,21 @@ def hook_bar_mark(live=None):
             "calibration_sha256": (live or {}).get("sha256"), "ruling": "115"}
 
 
+def hook_bar_under(m):
+    """RULING 137 stage 2b (the calibrated hook bar SOFT in the never-empty pass): the plain detail of a hook rated UNDER
+    the bar by the bar's own rater, every part measured, e.g. "stopping the scroll 2 of 5, needs 3"; None when it
+    passes, a part is unmeasured, another back-end rated it, or no calibration is valid (those stay hard, law L-m)."""
+    r = (m or {}).get("hook_rating") or {}
+    parts = {k: r.get(k) for k in HOOK_PARTS}
+    if not all(isinstance(x, int) and not isinstance(x, bool) for x in parts.values()):
+        return None
+    live, _ = _live_bar()
+    if live is None or r.get("backend") != live.get("rater"):
+        return None
+    under = [p for p in HOOK_PARTS if parts[p] < live["floors"][p]]
+    return "; ".join(f"{HOOK_PART_WORDS[p]} {parts[p]} of 5, needs {live['floors'][p]}" for p in under) or None
+
+
 def hook_own(m):
     """RULING 61 / RULING 115: a hook's OWN-JOB rating, the cached one ruling 59 gave it ("hook_rating"): {"scroll",
     "alone", "setup", "rating": the lower of scroll and alone (it ORDERS hooks), "passes": RULING 115, every part at
@@ -1679,9 +1698,11 @@ def hook_own(m):
         return None
     live, why = _live_bar()
     ok, short = HB.passes(dict(parts, backend=r.get("backend")), live)
-    return dict(parts, rating=min(parts[k] for k in HOOK_OWN), passes=ok, short=why if live is None else short,
+    flag = hook_bar_under(m) if not ok and m.get("hook_bar_soft") else None    # RULING 137 stage 2b: a hook the
+    return dict(parts, rating=min(parts[k] for k in HOOK_OWN), passes=ok or bool(flag),   # never-empty pass marked
+                short=why if live is None else short,                                    # opens, flagged
                 bar=HB.text(live), source="the hook's cached own-job rating (ruling 61), on the calibrated bar (ruling 115)",
-                rule=HOOK_OWN_RULE)
+                rule=HOOK_OWN_RULE, **({"flagged": flag} if flag else {}))
 
 
 def opens_16x9(m):
@@ -3299,7 +3320,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
     log(f"  {sum(m['hook_onset'].get('pass') is True for m in cleared.values())} of them can open a medley "
         f"(G17a at the pin stage: genuine quiet before the first onset)")
     for m in cleared.values():                                           # a rating is this build's own (its
-        m.pop("hook_rating", None)                                       # cache's), never one carried in
+        m.pop("hook_rating", None)                                       # cache's), never one carried in; nor is
+        m.pop("hook_bar_soft", None)                                     # RULING 137 stage 2b's soft mark
     openers = {mid: m for mid, m in cleared.items() if can_open(m)}      # RULING 59 (a): every one that can open,
     rated, hook_err = hook_ratings(router, list(openers.values()), ctx, wv, wf, cache=hook_cache) if openers else \
         ({}, None)                                                        # each alone (ruling 115), cached
@@ -3307,6 +3329,14 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
         m["hook_rating"] = rated.get(mid) or {"rating": None, "why": (f"not rated: {hook_err}" if mid in openers else
                                                                       "cannot open (hook eligibility, G17a or the "
                                                                       "render's hook rule)")}
+    under = hook_order([m for mid, m in openers.items() if mid in rated and hook_bar_under(m)])[:HOOK_SOFT_MAX] \
+        if soft else []                                                   # RULING 137 stage 2b: the hook bar is SOFT
+    for m in under:                                                       # in the never-empty pass: the best
+        m["hook_bar_soft"] = True                                         # HOOK_SOFT_MAX hooks under it open, flagged
+    if under:
+        out["prescreen"]["soft_hook_bar"] = {m["moment_id"]: hook_bar_under(m) for m in under}
+        log(f"  RULING 137 NEVER EMPTY (stage 2b): {len(under)} hook(s) rated under the calibrated bar by its own rater "
+            f"open, flagged: " + ", ".join(f"{m['moment_id'][:8]} ({hook_bar_under(m)})" for m in under))
     for m in cleared.values():
         m.pop("visual_hook_block", None)
     rated_open = [m for m in cleared.values() if can_open(m)]              # RULING 70: the hooks that would open,
@@ -4295,7 +4325,7 @@ def build(*args, never_empty=False, flagged_today=0, **kw):
     (kw.get("log") or print)(f"  RULING 136 (2) NEVER EMPTY: the clean pass sealed nothing ({out.get('why_none')}); "
                              f"the second pass lets step A's soft refusals back, flagged (stage 1)")
     soft = _build(*args, soft=True, **kw)
-    info = {"stage": "2a", "clean_why_none": out.get("why_none"), "soft_why_none": soft.get("why_none"),
+    info = {"stage": "2b", "clean_why_none": out.get("why_none"), "soft_why_none": soft.get("why_none"),
             "soft_back": (soft.get("prescreen") or {}).get("soft_back"),
             "soft_record": {k: soft.get(k) for k in ("prescreen", "hook_pool", "tried")}}   # the pass's own record
     return dict(soft, never_empty=info) if soft.get("package") else dict(out, never_empty=info)
@@ -4334,6 +4364,7 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
         return None if any(not isinstance(x, bool) for x in values) else any(values)
     det = fid["deterministic"]
     viol = {v["rule"] for v in ctx_.get("violations") or []}
+    hook_fl = ((medley[1].get("hook_own") or {}).get("flagged") if soft and medley is not None else None)   # 2b
     lab = lambda mid: (mids or {}).get(mid, mid)                      # truth is by moment id; flags name the clip
     edge_fl = [flag_sentence(lab(mid), (who or {}).get(lab(mid)), c) for mid, t in (truth or {}).items()   # RULING
                if soft and (t.get("edges") or {}).get("cuttable") is not True for c in (soft_edges(t) or [])]   # 137 2a
@@ -4387,7 +4418,10 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
         "coherence": dict(row(bool(coh_ok), coh.get("backend"), coh.get("replayed"), measured=bool(coh.get("measured"))),
                           **votes_of(coh)),
         **({"medley": dict(row(bool(medley[0]), medley[1].get("backend"), medley[1].get("replayed"),
-                               measured=bool(medley[1].get("measured"))), flagged=medley[1].get("flagged"))}
+                               measured=bool(medley[1].get("measured"))), flagged=medley[1].get("flagged"),
+                           **({"status": "FLAGGED", "flags": [            # RULING 137 stage 2b: the hook under the bar
+                               f"{CLIP_PLACE['hook']} ({(who or {}).get('hook') or 'its channel'}): the checker rated "
+                               f"it under the hook bar ({hook_fl})."]} if hook_fl and medley[0] else {}))}
            if medley is not None else {}),
         **({"ly_shape": dict(row(bool(shape[0]), "code (package.ly_shape, L-y)"), why=list(shape[1]))}
            if shape is not None else {}),
