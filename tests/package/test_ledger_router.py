@@ -104,6 +104,50 @@ class TestRuling118TheBuildsRouterCapsOnlyOutsideVendors(unittest.TestCase):
             self.assertAlmostEqual(json.load(open(led))["by_backend"]["heimdall:q"]["usd_reported"], 3.5, places=6)
 
 
+class TestRuling107TheBuildsRouterNamesEveryCallItRefusedForMoney(unittest.TestCase):
+    """RULING 107 (1) (build 134, 12:57 ET Nov 17): the build's router names the back-end of every paid call it refused
+    for money in spend_refused, and the build records them as work left undone, so the next build is never "nothing
+    new" on their account. A free call, an answered paid call or a recorded reply is no refusal."""
+
+    def router_at(self, d, xai_spent):
+        led = os.path.join(d, "SPEND.json")
+        json.dump({"usd_estimate": 0.0, "calls": 1, "by_backend": {
+            "xai:g": {"calls": 1, "in": 0, "out": 0, "usd_estimate": 0.0, "usd_reported": xai_spent}},
+            "by_role": {}, "reserved": {}, "usd_reported": xai_spent, "usd_unreported_estimate": 0.0}, open(led, "w"))
+        with contextlib.ExitStack() as st:
+            for mod, name, val in ((PL, "SPEND", led), (PL, "REPLIES", os.path.join(d, "rec")),
+                                   (PL, "DEADLINE_LOG", os.path.join(d, "DL.jsonl")),
+                                   (HH, "STATE", os.path.join(d, "HEALTH.json")),
+                                   (CB, "STATE", os.path.join(d, "BREAKERS.json")),
+                                   (DT, "STATE", os.path.join(d, "DEADLINE_TABLE.json")),
+                                   (PLG, "STATE_MD", os.path.join(d, "STATE.md"))):
+                st.enter_context(mock.patch.object(mod, name, val))
+            r = PLG.build_router("heimdall_first", None, os.path.join(d, "SHADOW86.jsonl"))
+        h = Fake("heimdall:q", "heimdall", answer="{}", usage={"in": 1000, "out": 100, "usd_reported": 0.001})
+        x = Fake("xai:g", "xai", answer="{}", usage={"in": 1000, "out": 100, "usd_reported": 0.01})
+        r.backends, r.chains["check"], r.chains["judge"] = {"heimdall:q": h, "xai:g": x}, ["heimdall:q"], ["xai:g"]
+        return r, led, x
+
+    def test_each_refusal_for_money_is_named_and_nothing_else(self):
+        with tempfile.TemporaryDirectory() as d:
+            r, led, x = self.router_at(d, 0.95)
+            self.assertEqual(r.spend_refused, [])
+            r.call("check", "p")                                     # Heimdall: free, never reserved
+            for n in (1, 2):
+                with self.assertRaises(P.SpendLimit):
+                    r.call("judge", "p")                             # 0.95 + its upper bound > the $1.00 stop
+                self.assertEqual(r.spend_refused, ["xai:g"] * n)
+            self.assertEqual(x.calls, 0)
+            open(led, "w").write("{not json")                        # an unreadable ledger refuses for money too
+            with self.assertRaises(P.SpendLimit):
+                r.call("judge", "p")
+            self.assertEqual(r.spend_refused, ["xai:g"] * 3)
+        with tempfile.TemporaryDirectory() as d:
+            r, led, x = self.router_at(d, 0.0)
+            self.assertEqual((r.call("judge", "p").backend, r.spend_refused), ("xai:g", []))   # answered: none
+            self.assertEqual((r.call("judge", "p").backend, x.calls, r.spend_refused), ("xai:g", 1, []))   # replayed
+
+
 class TestTheLedgerBuildsRouterWaitsForCallsInFlight(unittest.TestCase):
 
     def test_a_call_kept_out_only_by_a_call_in_flight_waits_and_answers(self):

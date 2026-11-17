@@ -129,6 +129,20 @@ class TestOpenWorkAndNothingNew(unittest.TestCase):
         self.assertEqual(PLG.open_work({"a": [{"b": {"verdict": "error"}}, {"verdict": "pass"}]}, {}), 1)   # nested
         self.assertEqual(PLG.open_work({"why": 'a log line quoting "verdict": "error"'}, {}), 0)   # a string is no verdict
 
+    def test_money_refused_calls_and_the_never_empty_pass_holds_are_left_undone(self):
+        """Build 134 (12:57 ET Nov 17) asked nothing: free build 133's two clips-alone verdicts, refused at its $0.00
+        stop, were not counted as undone, and the never-empty pass's own record was not read."""
+        self.assertEqual(PLG.open_work({}, {}, ["xai:grok", "xai:grok"]), 2)      # each refused call
+        self.assertEqual((PLG.open_work({}, {}, ()), PLG.open_work({}, {}, None)), (0, 0))
+
+        def soft(first, second):
+            return {"never_empty": {"soft_record": {"prescreen": {"held_102": {"first": first, "second": second}}}}}
+        self.assertEqual(PLG.open_work(soft(["a"], ["b"]), {}), 2)                # the soft pass's own holds
+        both = dict(soft(["a"], ["b", "c"]), prescreen={"held_102": {"first": ["a"], "second": ["b"]}})
+        self.assertEqual(PLG.open_work(both, {}), 3)      # a and b once (the clean pass held them too), c new
+        self.assertEqual(PLG.open_work(dict(both, never_empty=None), {}, ["x"]), 3)   # no soft pass: clean + money
+        self.assertEqual(PLG.open_work({"never_empty": {"stage": "2a"}}, {}), 0)      # a soft pass that held nothing
+
     def test_only_the_newest_finished_build_counts(self):
         with tempfile.TemporaryDirectory() as d:
             def build(name, fp=None, left=0):

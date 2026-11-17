@@ -170,16 +170,22 @@ def _errors(x):
     return 0
 
 
-def open_work(res, sp):
+def open_work(res, sp, refused=()):
     """RULING 107 (1): what a finished build left undone, which the next build must try again whatever its inputs:
-    the moments ruling 102 held (no leg answered), any segment the render's lock gave no verdict on in time, and any
-    visual check left unmeasured. -> int (0: nothing left)."""
+    the moments ruling 102 held (no leg answered), in the clean pass and, the ones it did not hold too, in the
+    never-empty pass (its own record, rulings 136 / 137); any segment the render's lock gave no verdict on in time;
+    any visual check left unmeasured; and every paid call the build's router refused for money (`refused`:
+    Router.spend_refused; build 133's two clips-alone verdicts at its $0.00 stop, 12:56 ET Nov 17, left the kept
+    line-up unjudged, and build 134 then asked nothing). -> int (0: nothing left)."""
     pre, sp = (res or {}).get("prescreen") or {}, sp or {}
     h = pre.get("held_102") or {}
     held = len(h.get("first") or []) + len(h.get("second") or []) + len(sp.get("held_102") or [])
+    s = ((((res or {}).get("never_empty") or {}).get("soft_record") or {}).get("prescreen") or {}).get("held_102") or {}
+    held += len(set((s.get("first") or []) + (s.get("second") or [])) -
+                set((h.get("first") or []) + (h.get("second") or [])))
     no_verdict = _errors(res) + _errors(sp)        # by structure, never a string search (audit 2155g C1, qwen)
     vis = (res or {}).get("visual") or {}
-    return held + no_verdict + int(vis.get("unmeasured") or 0)
+    return held + no_verdict + int(vis.get("unmeasured") or 0) + len(refused or ())
 
 
 HOOK_SHADOW = {"coherence_verdict:hook": "heimdall:qwen/qwen3.8-27b"}   # RULING 115: recorded, never deciding
@@ -760,10 +766,13 @@ def main(argv=None):
         json.dump(res, f, indent=1, default=str)
     if cand is None:                             # RULING 107 (1): the next build compares its inputs with these, as
         fp_end, parts_end = fingerprint(pool, delivered, pins, since, now, reg, a.routing)   # at this build's END
-        left = open_work(res, sp)
+        money = list(router.spend_refused)       # the calls this build's router refused for money: left undone
+        left = open_work(res, sp, money)
         with open(os.path.join(out_dir, FINGERPRINT), "w") as f:
-            json.dump({"fingerprint": fp_end, "parts": parts_end, "open_work": left, "build": name}, f, indent=1)
-        say(f"  RULING 107 (1): fingerprint {fp_end[:12]}, {left} item(s) left undone")
+            json.dump({"fingerprint": fp_end, "parts": parts_end, "open_work": left, "spend_refused": money,
+                       "build": name}, f, indent=1)
+        say(f"  RULING 107 (1): fingerprint {fp_end[:12]}, {left} item(s) left undone"
+            + (f" ({len(money)} of them paid call(s) the spend stop refused)" if money else ""))
     logf.close()
     return 0
 

@@ -760,6 +760,8 @@ class Router:
             raise ValueError(f"limit_basis must be 'estimate' or 'reported', not {limit_basis!r}")
         self.limit_basis = limit_basis            # what limit_usd counts: _basis_total
         self.uncapped = tuple(uncapped)           # RULING 118 (b): vendors recorded in the ledger but never capped
+        self.spend_refused = []                   # RULING 107 (1): the back-end of every paid call _reserve refused for
+        #   money (list.append: one per refusal, from any worker thread); a build records them as work left undone
         self.reserve_wait_s = float(reserve_wait_s)   # _reserve: 0 (the default) refuses at once, as every caller had
         self.reserve_poll_s = RESERVE_POLL_S          # it; a batch build that may wait for calls in flight opts in
         import threading
@@ -944,6 +946,14 @@ class Router:
         after batch while those four ran."""
         if not self.spend_path or b.free() or not self._capped(b.name):     # ruling 118 (b): Heimdall is free
             return None
+        try:
+            return self._reserve_capped(b, upper)
+        except SpendLimit:                        # RULING 107 (1) (build 134, 12:57 ET Nov 17): a call refused for
+            self.spend_refused.append(b.name)     # money is work left undone, never "nothing new"
+            raise
+
+    def _reserve_capped(self, b, upper):
+        """_reserve for a capped paid back-end: reserve `upper` or raise SpendLimit (its docstring)."""
         t_end, waited = time.time() + max(0.0, float(self.reserve_wait_s)), False
         while True:
             with self._lock():

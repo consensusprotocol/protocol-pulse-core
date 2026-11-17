@@ -1,0 +1,34 @@
+pp-selectid: RULING 107 (1)'s guard ("a build that judges nothing new must cost $0.00") has two gaps, found 12:57 ET
+Nov 17. The build driver (tests/package/proof_ledger.py) fingerprints its inputs; when they equal the newest finished
+build's and that build's FINGERPRINT.json says open_work == 0, it asks no model (nothing_new, proof_ledger.py:207 and
+:219, called at :538 before any router exists). open_work counted only the clean pass's ruling-102 holds, lock no-verdicts
+and unmeasured visuals. GAP 1: a paid call the router REFUSED FOR MONEY was never counted. Free build 133 (stop = the day's
+spend + $0.001) refused the kept line-up's two clips-alone verdicts by design, recorded "0 items left undone", and paid
+build 134 with the same inputs then asked nothing. GAP 2: the never-empty pass (rulings 136/137: package.build runs a
+soft pass when the clean pass seals nothing; its record is res["never_empty"]["soft_record"]) was never read.
+
+THE CHANGE:
+(a) pipeline/providers.py: Router.spend_refused = [] (in __init__). _reserve (providers.py:931; its only callers are
+    Router.call at :1406 and Router.transcribe at :1518; RoleModel at :1566 only converts a refusal already raised by
+    them) keeps its free / uncapped early return and now calls _reserve_capped (:955, the old body UNCHANGED, which
+    raises SpendLimit at :969 over the limit, and via _ledger at :855 or _basis_total at :912 on an unreadable or
+    unreported ledger). Every SpendLimit from it appends the back-end's name to spend_refused and re-raises.
+    list.append from the worker threads (step A, vision run in pools) is atomic under the GIL.
+(b) tests/package/proof_ledger.py open_work(res, sp, refused=()): + len(refused); + the soft pass's held_102 ids not
+    already held by the clean pass (a set difference: the soft pass re-runs step A on the same pool, so its first-screen
+    holds repeat the clean pass's). At the build's end (:767, only for a full build, not --from-candidate), the driver
+    passes list(router.spend_refused) (the one router of the build, built at :551) and records it in FINGERPRINT.json.
+(c) Any code change moves the fingerprint (code by content), so the next build runs anyway; after this, a build stopped
+    by money writes open_work > 0 and the next one retries. A build that cannot start at the stop (start_refused,
+    :380) still writes no FINGERPRINT.
+
+TESTS: test_ruling_107_guard (open_work: each refused call counts; the soft pass's holds count once; none or empty is 0)
+and test_ledger_router (the build's own router from PLG.build_router: Heimdall free call and an answered or replayed paid
+call add nothing; each refusal over the $1.00 stop and an unreadable ledger each add the back-end). Mutations: 6 of 7
+killed. NOT UNIT-TESTED, PLEASE READ: the one wiring line in main() (open_work(res, sp, money) at :767-:773); no
+full-run driver harness exists.
+
+PLEASE CHECK: (1) can any money refusal escape the count, or any non-money failure be counted? (2) can a build now loop
+forever or pay twice for the same judgment? A build whose router refused money writes open_work > 0, so the next build
+runs; its recorded replies replay free and its refused calls cost nothing. (3) thread safety of the append; (4) the soft
+pass's set difference; (5) the tests.

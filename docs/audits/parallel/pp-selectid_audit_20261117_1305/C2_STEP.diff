@@ -1,0 +1,156 @@
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+index 09c9f62..0372f28 100644
+--- a/pipeline/providers.py
++++ b/pipeline/providers.py
+@@ -760,6 +760,8 @@ class Router:
+             raise ValueError(f"limit_basis must be 'estimate' or 'reported', not {limit_basis!r}")
+         self.limit_basis = limit_basis            # what limit_usd counts: _basis_total
+         self.uncapped = tuple(uncapped)           # RULING 118 (b): vendors recorded in the ledger but never capped
++        self.spend_refused = []                   # RULING 107 (1): the back-end of every paid call _reserve refused for
++        #   money (list.append: one per refusal, from any worker thread); a build records them as work left undone
+         self.reserve_wait_s = float(reserve_wait_s)   # _reserve: 0 (the default) refuses at once, as every caller had
+         self.reserve_poll_s = RESERVE_POLL_S          # it; a batch build that may wait for calls in flight opts in
+         import threading
+@@ -944,6 +946,14 @@ class Router:
+         after batch while those four ran."""
+         if not self.spend_path or b.free() or not self._capped(b.name):     # ruling 118 (b): Heimdall is free
+             return None
++        try:
++            return self._reserve_capped(b, upper)
++        except SpendLimit:                        # RULING 107 (1) (build 134, 12:57 ET Nov 17): a call refused for
++            self.spend_refused.append(b.name)     # money is work left undone, never "nothing new"
++            raise
++
++    def _reserve_capped(self, b, upper):
++        """_reserve for a capped paid back-end: reserve `upper` or raise SpendLimit (its docstring)."""
+         t_end, waited = time.time() + max(0.0, float(self.reserve_wait_s)), False
+         while True:
+             with self._lock():
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 3779fe1..3359471 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -170,16 +170,22 @@ def _errors(x):
+     return 0
+ 
+ 
+-def open_work(res, sp):
++def open_work(res, sp, refused=()):
+     """RULING 107 (1): what a finished build left undone, which the next build must try again whatever its inputs:
+-    the moments ruling 102 held (no leg answered), any segment the render's lock gave no verdict on in time, and any
+-    visual check left unmeasured. -> int (0: nothing left)."""
++    the moments ruling 102 held (no leg answered), in the clean pass and, the ones it did not hold too, in the
++    never-empty pass (its own record, rulings 136 / 137); any segment the render's lock gave no verdict on in time;
++    any visual check left unmeasured; and every paid call the build's router refused for money (`refused`:
++    Router.spend_refused; build 133's two clips-alone verdicts at its $0.00 stop, 12:56 ET Nov 17, left the kept
++    line-up unjudged, and build 134 then asked nothing). -> int (0: nothing left)."""
+     pre, sp = (res or {}).get("prescreen") or {}, sp or {}
+     h = pre.get("held_102") or {}
+     held = len(h.get("first") or []) + len(h.get("second") or []) + len(sp.get("held_102") or [])
++    s = ((((res or {}).get("never_empty") or {}).get("soft_record") or {}).get("prescreen") or {}).get("held_102") or {}
++    held += len(set((s.get("first") or []) + (s.get("second") or [])) -
++                set((h.get("first") or []) + (h.get("second") or [])))
+     no_verdict = _errors(res) + _errors(sp)        # by structure, never a string search (audit 2155g C1, qwen)
+     vis = (res or {}).get("visual") or {}
+-    return held + no_verdict + int(vis.get("unmeasured") or 0)
++    return held + no_verdict + int(vis.get("unmeasured") or 0) + len(refused or ())
+ 
+ 
+ HOOK_SHADOW = {"coherence_verdict:hook": "heimdall:qwen/qwen3.8-27b"}   # RULING 115: recorded, never deciding
+@@ -760,10 +766,13 @@ def main(argv=None):
+         json.dump(res, f, indent=1, default=str)
+     if cand is None:                             # RULING 107 (1): the next build compares its inputs with these, as
+         fp_end, parts_end = fingerprint(pool, delivered, pins, since, now, reg, a.routing)   # at this build's END
+-        left = open_work(res, sp)
++        money = list(router.spend_refused)       # the calls this build's router refused for money: left undone
++        left = open_work(res, sp, money)
+         with open(os.path.join(out_dir, FINGERPRINT), "w") as f:
+-            json.dump({"fingerprint": fp_end, "parts": parts_end, "open_work": left, "build": name}, f, indent=1)
+-        say(f"  RULING 107 (1): fingerprint {fp_end[:12]}, {left} item(s) left undone")
++            json.dump({"fingerprint": fp_end, "parts": parts_end, "open_work": left, "spend_refused": money,
++                       "build": name}, f, indent=1)
++        say(f"  RULING 107 (1): fingerprint {fp_end[:12]}, {left} item(s) left undone"
++            + (f" ({len(money)} of them paid call(s) the spend stop refused)" if money else ""))
+     logf.close()
+     return 0
+ 
+diff --git a/tests/package/test_ledger_router.py b/tests/package/test_ledger_router.py
+index 45b760c..bbf08b9 100644
+--- a/tests/package/test_ledger_router.py
++++ b/tests/package/test_ledger_router.py
+@@ -104,6 +104,50 @@ class TestRuling118TheBuildsRouterCapsOnlyOutsideVendors(unittest.TestCase):
+             self.assertAlmostEqual(json.load(open(led))["by_backend"]["heimdall:q"]["usd_reported"], 3.5, places=6)
+ 
+ 
++class TestRuling107TheBuildsRouterNamesEveryCallItRefusedForMoney(unittest.TestCase):
++    """RULING 107 (1) (build 134, 12:57 ET Nov 17): the build's router names the back-end of every paid call it refused
++    for money in spend_refused, and the build records them as work left undone, so the next build is never "nothing
++    new" on their account. A free call, an answered paid call or a recorded reply is no refusal."""
++
++    def router_at(self, d, xai_spent):
++        led = os.path.join(d, "SPEND.json")
++        json.dump({"usd_estimate": 0.0, "calls": 1, "by_backend": {
++            "xai:g": {"calls": 1, "in": 0, "out": 0, "usd_estimate": 0.0, "usd_reported": xai_spent}},
++            "by_role": {}, "reserved": {}, "usd_reported": xai_spent, "usd_unreported_estimate": 0.0}, open(led, "w"))
++        with contextlib.ExitStack() as st:
++            for mod, name, val in ((PL, "SPEND", led), (PL, "REPLIES", os.path.join(d, "rec")),
++                                   (PL, "DEADLINE_LOG", os.path.join(d, "DL.jsonl")),
++                                   (HH, "STATE", os.path.join(d, "HEALTH.json")),
++                                   (CB, "STATE", os.path.join(d, "BREAKERS.json")),
++                                   (DT, "STATE", os.path.join(d, "DEADLINE_TABLE.json")),
++                                   (PLG, "STATE_MD", os.path.join(d, "STATE.md"))):
++                st.enter_context(mock.patch.object(mod, name, val))
++            r = PLG.build_router("heimdall_first", None, os.path.join(d, "SHADOW86.jsonl"))
++        h = Fake("heimdall:q", "heimdall", answer="{}", usage={"in": 1000, "out": 100, "usd_reported": 0.001})
++        x = Fake("xai:g", "xai", answer="{}", usage={"in": 1000, "out": 100, "usd_reported": 0.01})
++        r.backends, r.chains["check"], r.chains["judge"] = {"heimdall:q": h, "xai:g": x}, ["heimdall:q"], ["xai:g"]
++        return r, led, x
++
++    def test_each_refusal_for_money_is_named_and_nothing_else(self):
++        with tempfile.TemporaryDirectory() as d:
++            r, led, x = self.router_at(d, 0.95)
++            self.assertEqual(r.spend_refused, [])
++            r.call("check", "p")                                     # Heimdall: free, never reserved
++            for n in (1, 2):
++                with self.assertRaises(P.SpendLimit):
++                    r.call("judge", "p")                             # 0.95 + its upper bound > the $1.00 stop
++                self.assertEqual(r.spend_refused, ["xai:g"] * n)
++            self.assertEqual(x.calls, 0)
++            open(led, "w").write("{not json")                        # an unreadable ledger refuses for money too
++            with self.assertRaises(P.SpendLimit):
++                r.call("judge", "p")
++            self.assertEqual(r.spend_refused, ["xai:g"] * 3)
++        with tempfile.TemporaryDirectory() as d:
++            r, led, x = self.router_at(d, 0.0)
++            self.assertEqual((r.call("judge", "p").backend, r.spend_refused), ("xai:g", []))   # answered: none
++            self.assertEqual((r.call("judge", "p").backend, x.calls, r.spend_refused), ("xai:g", 1, []))   # replayed
++
++
+ class TestTheLedgerBuildsRouterWaitsForCallsInFlight(unittest.TestCase):
+ 
+     def test_a_call_kept_out_only_by_a_call_in_flight_waits_and_answers(self):
+diff --git a/tests/package/test_ruling_107_guard.py b/tests/package/test_ruling_107_guard.py
+index 8411c19..6155523 100644
+--- a/tests/package/test_ruling_107_guard.py
++++ b/tests/package/test_ruling_107_guard.py
+@@ -129,6 +129,20 @@ class TestOpenWorkAndNothingNew(unittest.TestCase):
+         self.assertEqual(PLG.open_work({"a": [{"b": {"verdict": "error"}}, {"verdict": "pass"}]}, {}), 1)   # nested
+         self.assertEqual(PLG.open_work({"why": 'a log line quoting "verdict": "error"'}, {}), 0)   # a string is no verdict
+ 
++    def test_money_refused_calls_and_the_never_empty_pass_holds_are_left_undone(self):
++        """Build 134 (12:57 ET Nov 17) asked nothing: free build 133's two clips-alone verdicts, refused at its $0.00
++        stop, were not counted as undone, and the never-empty pass's own record was not read."""
++        self.assertEqual(PLG.open_work({}, {}, ["xai:grok", "xai:grok"]), 2)      # each refused call
++        self.assertEqual((PLG.open_work({}, {}, ()), PLG.open_work({}, {}, None)), (0, 0))
++
++        def soft(first, second):
++            return {"never_empty": {"soft_record": {"prescreen": {"held_102": {"first": first, "second": second}}}}}
++        self.assertEqual(PLG.open_work(soft(["a"], ["b"]), {}), 2)                # the soft pass's own holds
++        both = dict(soft(["a"], ["b", "c"]), prescreen={"held_102": {"first": ["a"], "second": ["b"]}})
++        self.assertEqual(PLG.open_work(both, {}), 3)      # a and b once (the clean pass held them too), c new
++        self.assertEqual(PLG.open_work(dict(both, never_empty=None), {}, ["x"]), 3)   # no soft pass: clean + money
++        self.assertEqual(PLG.open_work({"never_empty": {"stage": "2a"}}, {}), 0)      # a soft pass that held nothing
++
+     def test_only_the_newest_finished_build_counts(self):
+         with tempfile.TemporaryDirectory() as d:
+             def build(name, fp=None, left=0):
