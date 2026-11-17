@@ -336,6 +336,9 @@ No session waits on the orchestrator. Standing, for all three sessions:
     - An entry that has fallen out of the RSS feed is still not seen.
   - INGEST-FAIL-01's pattern: Scott Melker f0NnJM63Ffc was frozen as live from 09:30 to ~14:00 ET Nov 16.
 - Worktrees lack untracked data (the references' transcripts, the v2f run files, the outro asset). Run the regressions on main's staged merge.
+- OUTSIDE DOLLARS ON THE INTEGRATOR'S SIDE (ruling 118's day cap; agreed with the builder 23:02 ET Nov 16):
+  - Every span the lock pre-check decodes calls ElevenLabs Scribe (second recogniser, $0.004-0.009). The builder counts that in its DAY118 outside total, from scribe_usd in data/lock_precheck/results/*.json.
+  - The render's own G18 Scribe calls (PROVENANCE.json lock_adjudication "usd", about $0.009 a clip) are on the INTEGRATOR's account: put them on the DoD's spend line of each render.
 - Code shas that a service change can move: `judge_sha` hashes local_judge.py (+ story_semantics.py), so a change re-asks every judge verdict. `scorer_sha` hashes stand_alone.py + story_semantics.py. The pre-check's `decoder_sha` hashes only its CODE files (select_passages, punctuation, pinned, sentence_law, canon, gpu0), not lock_precheck.py.
 - The stand-alone floor (ruling 119 (1)) is bound to the scorer's code sha, which hashes the WHOLE of stand_alone.py and story_semantics.py. Never put floor logic, or anything else, in those two files without measuring again: it switches the floor off at both ends.
 - Tests run with netguard's PYTHONPATH pointed at the scratchpad import any module left there. Keep drafts in a subfolder, or a test meant to fail on the old code imports the draft and passes.
