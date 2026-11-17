@@ -282,12 +282,61 @@ def acquire(pin, run_dir, log=print):
             tr = _whisper_transcribe(path, vid, run_dir)          # same call as AUTO's select stage
             if not tr:
                 raise PinError(f"{vid}: transcription failed")
-            out[vid] = {"path": path, "offset": float(offset), "transcript": tr,
-                        "provenance": {"kind": "youtube_window", "window_offset_s": offset}}
+            prov = {"kind": "youtube_window", "window_offset_s": offset}
+            if os.path.exists(path + ".post_live.json"):          # ruling 142 (3): cut from the whole stream
+                prov = {"kind": "youtube_post_live", "window_offset_s": offset,
+                        "post_live_offset_s": post_live_offset(vid, tr, float(offset))}      # HARD: raises PinError
+            out[vid] = {"path": path, "offset": float(offset), "transcript": tr, "provenance": prov}
         out[vid]["provenance"]["source_file_sha256"] = _sha256(out[vid]["path"])
         out[vid]["transcript_path"] = os.path.join(run_dir, "transcripts", f"{vid}.json")
         log(f"  {vid}: acquired ({out[vid]['provenance']['kind']})")
     return out
+
+
+POST_LIVE_MAX_OFFSET_S = 0.35    # ruling 142 (3): the decoders' own bias is about 0.1 s (measured); a trimmed stream
+POST_LIVE_MIN_ALIGNED = 10       # shifts by seconds
+
+
+def post_live_offset(vid, tr, offset):
+    """RULING 142 (3): the HARD guard on a source cut from a post_live stream's whole download. The render's decode of the
+    window (word times + offset = the source clock), aligned word by word with the word pass's record of that video
+    that overlaps it most (data/editorial/transcripts/<id>/windows: the transcript's clock), must sit within
+    POST_LIVE_MAX_OFFSET_S (median) on at least POST_LIVE_MIN_ALIGNED words; else PinError (the lock holds). -> the
+    median offset in seconds."""
+    import glob
+    import statistics
+    from difflib import SequenceMatcher
+
+    def norm(w):
+        return re.sub(r"[^a-z0-9']", "", str(w).lower())
+    mine = [(norm(w.get("word")), float(w["start"]) + offset) for w in tr.get("words") or [] if "start" in w]
+    if not mine:
+        raise PinError(f"{vid}: post_live source: the decode has no words to check its clock with (ruling 142 (3))")
+    lo, hi, best = mine[0][1], mine[-1][1], None
+    for p in glob.glob(os.path.join(REPO, "data", "editorial", "transcripts", vid, "windows", "*.json")):
+        try:
+            a, b = (float(x) for x in os.path.basename(p).split(".whisper")[0].split("-"))
+        except ValueError:
+            continue
+        ov = min(b, hi) - max(a, lo)
+        if ov > 0 and (best is None or ov > best[0]):
+            best = (ov, p)
+    if best is None:
+        raise PinError(f"{vid}: post_live source: no transcript word timings overlap the window, so its clock cannot be "
+                       f"checked (ruling 142 (3): HARD)")
+    with open(best[1]) as f:
+        rec = [(norm(w.get("word")), float(w["start"])) for w in json.load(f).get("words") or [] if "start" in w]
+    sm = SequenceMatcher(None, [m[0] for m in mine], [r[0] for r in rec], autojunk=False)
+    deltas = [mine[a + k][1] - rec[b + k][1] for op, a, a2, b, _ in sm.get_opcodes() if op == "equal"
+              for k in range(a2 - a)]
+    if len(deltas) < POST_LIVE_MIN_ALIGNED:
+        raise PinError(f"{vid}: post_live source: only {len(deltas)} words align with the transcript's timings (needs "
+                       f"{POST_LIVE_MIN_ALIGNED}): its clock cannot be checked (ruling 142 (3): HARD)")
+    med = statistics.median(deltas)
+    if abs(med) > POST_LIVE_MAX_OFFSET_S:
+        raise PinError(f"{vid}: post_live source shifted {med:+.2f} s against the transcript's word timings (ruling 142 "
+                       f"(3): within {POST_LIVE_MAX_OFFSET_S} s or the lock holds)")
+    return round(med, 3)
 
 
 # ── 3. range validation (never modifies a range) ──
