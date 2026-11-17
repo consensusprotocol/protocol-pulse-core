@@ -31,6 +31,11 @@ REQUIRED_GATES = ("vo_fidelity_deterministic", "vo_fidelity_verdict", "duplicate
 # STAND_ALONE at the pin stage, after pin d2657bbe's hold at the integrator's validate (03:00 ET Nov 13)
 MEDLEY_GATES = ("medley", "ly_shape", "house_style", "hook_onset", "stand_alone",
                 "visual")                                  # ruling 70: every clip's sheet judged (flags sealed)
+# RULINGS 136 / 137 (orchestrator 11:00 / 11:05 ET Nov 17): a SOFT gate scores and FLAGS. Its row may say "FLAGGED"
+# with "flags", plain words, sealed with the gates; the pin's moments_package "review_flags" is derived from them
+# (review_flags_of), at most REVIEW_FLAGS_MAX. STAGE 1: step A's row only. A HARD gate still needs exactly PASS.
+SOFT_GATES = frozenset({"context_a"})
+REVIEW_FLAGS_MAX = 3
 
 
 # RULING 90 (orchestrator 22:40 ET Nov 13; LAW since 22:52, amended by 91 and 92): the SPOTLIGHT, a second pin kind.
@@ -375,14 +380,41 @@ def speaker_problems(segments):
     return out
 
 
+def flagged_ok(g, row):
+    """RULING 137: a FLAGGED row stands only on a SOFT gate and only with its flags: a non-empty list of plain-word
+    strings."""
+    fl = row.get("flags")
+    return g in SOFT_GATES and isinstance(fl, list) and bool(fl) and all(isinstance(f, str) and f.strip() for f in fl)
+
+
+def review_flags_of(gates):
+    """RULING 137: the plain-word flags of the inventory's FLAGGED rows, in gate order, each once."""
+    out = []
+    for _g, row in (gates.items() if isinstance(gates, dict) else ()):
+        if isinstance(row, dict) and row.get("status") == "FLAGGED":
+            out += [f for f in row.get("flags") or [] if isinstance(f, str) and f not in out]
+    return out
+
+
+def review_problems(mp):
+    """RULING 137: [why] when a pin's moments_package "review_flags" is not exactly what its sealed gates flag, or is
+    over REVIEW_FLAGS_MAX (empty = it holds)."""
+    want, got = review_flags_of(mp.get("gates")), mp.get("review_flags") or []
+    out = [] if got == want else [f"review_flags {got} are not the sealed gates' flags {want}"]
+    return out + ([f"{len(want)} review flags, over {REVIEW_FLAGS_MAX} (ruling 136 (2))"]
+                  if len(want) > REVIEW_FLAGS_MAX else [])
+
+
 def gate_problems(gates, required=REQUIRED_GATES):
-    """[why] for an inventory that does not authorise a pin (empty = every required gate exactly PASS, measured live)."""
+    """[why] for an inventory that does not authorise a pin (empty = every required gate exactly PASS, measured live;
+    RULING 137: or FLAGGED on a SOFT gate with its flags, flagged_ok)."""
     if not isinstance(gates, dict):
         return ["no gate inventory"]
     out = []
     for g in required:
         row = gates.get(g)
-        if not isinstance(row, dict) or row.get("status") != "PASS":
+        if not isinstance(row, dict) or not (row.get("status") == "PASS" or
+                                             (row.get("status") == "FLAGGED" and flagged_ok(g, row))):
             out.append(f"{g}: {(row or {}).get('status') if isinstance(row, dict) else 'missing'}")
         elif row.get("replayed") is not False:
             out.append(f"{g}: replayed or not stated (never deliverable, law L-j)")
@@ -460,6 +492,9 @@ def to_pin(pk, run_name):
         recency_problems(pk.get("segments") or []) + speaker_problems(pk.get("segments") or []) + \
         screen_problems(pk) + trim_problems(pk.get("segments") or []) + scorer_problems(pk.get("segments") or []) + \
         spotlight_problems(pk) + takeaway_problems(pk)
+    rf = review_flags_of(pk.get("gates"))                 # RULING 137: derived from the sealed gates, at most 3
+    problems += [f"{len(rf)} review flags, over {REVIEW_FLAGS_MAX} (ruling 136 (2))"] if len(rf) > REVIEW_FLAGS_MAX \
+        else []
     if problems:
         raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
     segs = []
@@ -510,6 +545,7 @@ def to_pin(pk, run_name):
                                     "spotlight": pk.get("spotlight")}                  # and why (outside the seal)
                                    if spot else {}),
                                 "gates": pk["gates"],
+                                **({"review_flags": rf} if rf else {}),   # RULING 137: absent when clean
                                 **({"hook_bar": pk["hook_bar"]} if pk.get("hook_bar") else {}),   # ruling 115 (2): the
                                 #   calibrated hook bar's plain line for the Telegram note, floors and sha (outside the seal)
                                 **({"lineup_bar": pk["lineup_bar"]} if pk.get("lineup_bar") else {}),   # ruling 116 (Q3):

@@ -73,6 +73,32 @@ import package as PK  # noqa: E402
 import hook_bar as HB  # noqa: E402
 import package_pin  # noqa: E402
 import proof_ly as PL  # noqa: E402
+
+FLAGGED_DAY = os.path.join(HERE, "proof", "FLAGGED_DAY.json")   # RULING 136 (2): the flagged pins of the 21:10 day
+
+
+def flagged_today(path=FLAGGED_DAY, day=None):
+    """RULING 136 (2): how many flagged packages this builder sealed in the current 21:10-21:10 day (the day ledger's
+    name keys it; an unreadable or another day's file counts 0)."""
+    day = day or os.path.basename(PL.day_ledger())
+    try:
+        d = json.load(open(path))
+    except (OSError, ValueError):
+        return 0
+    return len(d.get("pins") or []) if isinstance(d, dict) and d.get("day") == day else 0
+
+
+def record_flagged(pin, path=FLAGGED_DAY, day=None):
+    """RULING 136 (2): a flagged pin was sealed: add it to the day's count."""
+    day = day or os.path.basename(PL.day_ledger())
+    try:
+        d = json.load(open(path))
+    except (OSError, ValueError):
+        d = {}
+    if not isinstance(d, dict) or d.get("day") != day:
+        d = {"day": day, "pins": []}
+    d["pins"].append({"story_id": pin["story_id"], "review_flags": pin["moments_package"].get("review_flags")})
+    json.dump(d, open(path, "w"), indent=1)
 import proof_saved_runs as PS  # noqa: E402
 import providers as P  # noqa: E402
 import speakers as SP  # noqa: E402
@@ -217,7 +243,9 @@ def delivered_pins(paths):
     return spans, newest, pins
 
 
-STOP_CEILING_USD = 1.25          # ORDER 17:50 ET Nov 16: --stop-usd at most this ('ADD 25 CENTS': a day cap of $1.25)
+STOP_CEILING_USD = 1.50          # RULING 137 (3) (orchestrator 11:05 ET Nov 17): the day cap is $1.50 all-in from the
+#   21:10 ET day of Nov 17 (today's stop $1.40, given as --stop-usd); --stop-usd at most this. Was 1.25 (ORDER 17:50 ET
+#   Nov 16, 'ADD 25 CENTS').
 
 
 def lock_off(segs):
@@ -538,6 +566,7 @@ def main(argv=None):
     spotlit = SPOT.load_spotlit(SPOTLIGHTS)              # RULING 90: free; its pool goes to the clip scorer with the
     sp_pool, _ = SPOT.pool(moments, sources, ctx, delivered, M.optout_ids(), spotlit)   # medley's own candidates
     kw = dict(delivered=delivered, optout=M.optout_ids(), log=say, scorer_extra=sp_pool,
+              never_empty=True, flagged_today=flagged_today(),                     # RULINGS 136 / 137 (stage 1)
               work_dir=a.work_dir, store=os.path.join(out_dir, "step_a.json"),
               spend=lambda: (own["est"], own["best"]),
               step_a_cache=os.path.join(HERE, "proof", "STEP_A_CACHE.json"),     # ruling 58: paid for once
@@ -614,6 +643,9 @@ def main(argv=None):
                                               name="MOMENTS_PIN_LEDGER.json")
             res["pin"] = {"path": os.path.relpath(path, REPO), "story_id": pin["story_id"],
                           "package_sha256": pin["moments_package"]["package_sha256"]}
+            if pin["moments_package"].get("review_flags"):        # RULING 136 (2): a flagged pin counts for the day
+                record_flagged(pin)
+                res["pin"]["review_flags"] = pin["moments_package"]["review_flags"]
             import shutil                                # ruling 70: each segment's sheet beside the pin
             for sg in pin["segments"]:
                 sh = (sg.get("visual") or {}).get("sheet") or {}

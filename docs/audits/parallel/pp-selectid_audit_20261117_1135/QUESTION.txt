@@ -1,0 +1,45 @@
+pp-selectid: RULINGS 136 / 137 (orchestrator 11:00 / 11:05 ET Nov 17), STAGE 1 of the hard/soft switch: NEVER EMPTY
+for step A. Approved design (docs/audits/parallel/pp-selectid_R136_DESIGN_20261117.md): "(1) TWO CLASSES. HARD gates
+still refuse ... Every OTHER gate becomes SOFT: it scores and FLAGS, it does not refuse ... (2) NEVER EMPTY. When no
+line-up passes clean, the build seals the BEST line-up that passes every hard gate, with its soft flags listed in plain
+words at the top of the Telegram note ('REVIEW FLAGS: ...'), at most one such flagged package per build window and at
+most two a day, and only if it has no more than 3 soft flags; PBX decides. A clean package always outranks a flagged
+one." Stage 1 covers step A only (today's kept line-up was refused there for soft codes only); every other gate is
+unchanged here (stage 2). Files: pipeline/package.py, pipeline/package_pin.py, tests/package/proof_ledger.py,
+tests/package/test_ruling_137.py. package_pin.py is imported LIVE by the integrator's check_pin_only, which calls
+PP.gate_problems(mp["gates"], PP.required_gates(mp)) (its message of 11:3x): it changes nothing on its side.
+
+THE CHANGE:
+(a) package.STEP_A_SOFT (the plain words PBX reads per soft code): NOT_OWN_SINCERE, REFERENT_OUTSIDE,
+    CONDITION_OUTSIDE, UNCERTAIN. STALE_TIME, SPEAKER_CHANGE and RETRACTION stay HARD even from one family in stage 1
+    (context_integrity.a_failures, UNCHANGED, gives the codes). FLAGGED_DAY_MAX = 2.
+(b) package.soft_step_a (:483) / cleared_pool (:495): the clean pool exactly as before; with soft=True also the moments
+    step A refused for soft codes ONLY (an answer on file, not held, every code soft), each a copy carrying
+    "step_a_flags".
+(c) package.build (:4204) is now a wrapper over the former build (renamed _build, one new parameter soft=False, used
+    only at cleared_pool and the two inventory calls): the clean pass first; only when it seals nothing, never_empty is
+    set and fewer than FLAGGED_DAY_MAX flagged packages went out today, the soft pass; its record names both
+    ("never_empty"). Every gate after step A runs on the soft pass's line-ups exactly as on the clean pass (L-v 2,
+    CUTTABLE, hook onset, the hook bar, joins, clips-alone, the lock, vision, writes, coherence, value: all UNCHANGED).
+(d) package.inventory (:4229): the "context_a" row is FLAGGED with "flags" (STEP_A_SOFT's words) only in the soft pass
+    and only when every step-A code of the package's segments is soft; otherwise exactly as before (FAIL on any code).
+(e) package_pin: SOFT_GATES = {"context_a"}; flagged_ok; gate_problems (:408) accepts a FLAGGED row only on a SOFT gate
+    with a non-empty list of non-empty string flags, and still needs replayed False; review_flags_of derives the pin's
+    moments_package "review_flags" from the sealed FLAGGED rows (to_pin :489, at most REVIEW_FLAGS_MAX 3, absent when
+    clean); review_problems binds the unsealed list to the sealed rows. The flags sit inside the sealed gate inventory,
+    so seal()/pin_seal (UNCHANGED, :249) bind them; an old pin has no FLAGGED row and recomputes as before.
+(f) proof_ledger: never_empty=True and flagged_today (FLAGGED_DAY.json, keyed by the 21:10 day ledger) into every
+    build call; record_flagged after a flagged pin is written.
+
+TESTS (test_ruling_137, 6): the pool (soft codes back flagged; a hard code, a held moment, no answer stay out; the clean
+pass unchanged; a copy); the step-A row (PASS clean; FAIL in the clean pass; FLAGGED with the words in the soft pass; a
+hard code FAILS even then); the pin (seals with review_flags, sealed, bound; absent when clean; FLAGGED on a hard gate,
+empty or non-string flags, replayed, and 4 flags never seal); the two passes (clean first; soft only after an empty
+clean pass; the day limit; never_empty off); the day count (per day ledger, resets). Mutations P1-P14 after a control:
+13 of 14 killed; P2 survives as an EQUIVALENT mutant (a held reason is never a soft code, so not is_held is redundant
+with the all-soft test; kept as ruling 102's explicit intent).
+
+PLEASE CHECK: (1) that no HARD gate can be passed by this change (a hard step-A code, any other gate's FAIL, a FLAGGED
+row on a hard gate); (2) that a clean package always comes first and the soft pass runs only after an empty clean pass,
+within the day limit; (3) that the pin's flags are bound by the seal and the live check accepts exactly this; (4) that
+every pin sealed before this recomputes; (5) the tests.

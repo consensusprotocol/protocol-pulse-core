@@ -979,7 +979,8 @@ class TestRuling85NoXai(unittest.TestCase):
 
 class TestOrder1750OneLineUpAtATime(unittest.TestCase):
     """ORDER 17:50 ET Nov 16: the 21:10 reset build spends the fresh dollar on ONE line-up at a time (--only: this build
-    takes only the moments a candidate set names) and stops outside calls at $0.80 (--stop-usd; at most $1.25)."""
+    takes only the moments a candidate set names) and stops outside calls at $0.80 (--stop-usd; at most $1.50 since
+    ruling 137 (3))."""
 
     def pins(self):
         return [os.path.join(HERE, "proof", "fresh_20261112_050611", n) for n in ("MOMENTS_PIN.json",
@@ -997,7 +998,7 @@ class TestOrder1750OneLineUpAtATime(unittest.TestCase):
                     json.dump(body, f)
                 self.assertEqual(PLG.main(["--delivered", *self.pins(), "--only", os.path.join(d, name)]), 2, name)
             self.assertEqual(PLG.main(["--delivered", *self.pins(), "--only", os.path.join(d, "missing.json")]), 2)
-            for bad in ("0", "-1", "1.26", "2"):
+            for bad in ("0", "-1", "1.51", "2"):                  # RULING 137 (3): at most $1.50
                 self.assertEqual(PLG.main(["--delivered", *self.pins(), "--stop-usd", bad]), 2, bad)
         self.assertEqual(sorted(n for n in os.listdir(proof) if n.startswith("ledger_")), before)
 

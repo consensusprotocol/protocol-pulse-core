@@ -79,6 +79,27 @@ PRESCREEN_WORKERS = 6              # ruling 58: the step-A batches run in parall
 SECOND_VERDICT_DEADLINE_S = 120.0  # RULING 82 (20:02 Nov 13): each second-vendor / off-writer step-A call; at it the next
 SECOND_VERDICT_BATCH = 2           # model (deepseek -> glm-5.3-flash -> qwen3.8-27b); small batches so one fits in it
 PRICE_PREDICTIONS_MAX = 1          # L-u: at most one per video
+# RULINGS 136 / 137 (orchestrator 11:00 / 11:05 ET Nov 17): TWO CLASSES, a HARD gate refuses, a SOFT gate scores and
+# FLAGS; NEVER EMPTY: when the clean search seals nothing, a second pass seals the best line-up that passes every hard
+# gate with its soft flags in plain words (the pin's moments_package "review_flags"; the integrator's note opens
+# "REVIEW FLAGS: ..."); at most FLAGGED_DAY_MAX flagged packages a day, a clean one always first. STAGE 1 (line 1, 11:29
+# ET Nov 17): step A only. Its SOFT codes, each with the plain words PBX reads; STALE_TIME (stale time), SPEAKER_CHANGE
+# (speaker credit) and RETRACTION (factual) stay HARD, even from one family, until stage 2 asks the second family.
+# RULING 138 (3): in the note each flag is ONE plain sentence PBX can judge in five seconds: what the checker doubted,
+# about which clip, no codes (flag_sentence).
+STEP_A_SOFT = {"NOT_OWN_SINCERE": "the checker doubted this is the speaker's own sincere view (they may be quoting "
+                                  "someone or joking)",
+               "REFERENT_OUTSIDE": "the checker thought it points back to something said before the clip starts",
+               "CONDITION_OUTSIDE": "the checker thought the claim depends on a condition said outside the clip",
+               "UNCERTAIN": "the checker was not sure what the speaker means"}
+CLIP_PLACE = {"hook": "The opening clip", "clip_01": "The second clip", "clip_02": "The third clip",
+              "clip_03": "The fourth clip", "clip_04": "The fifth clip"}
+
+
+def flag_sentence(label, channel, code):
+    """RULING 138 (3): one flag as PBX reads it: the clip's place and channel, then what the checker doubted."""
+    return f"{CLIP_PLACE.get(label, 'A clip')} ({channel or 'its channel'}): {STEP_A_SOFT[code]}."
+FLAGGED_DAY_MAX = 2
 SHORT_CLIP_S = 8.0                 # a clip under ~8 s is a penalty unless it is the angle's punchline (the last clip)
 MAX_ANGLES = 3                     # orchestrator 05:30: at most 3 angles x 2 writes
 WRITES = 2
@@ -467,6 +488,27 @@ def held_why(e):
 def is_held(why):
     """RULING 102: a moment's step-A reasons say HELD (no answer), not a verdict's refusal."""
     return bool(why) and all(str(w).startswith(HELD) for w in why)
+
+
+def soft_step_a(ms, a_by, fails):
+    """RULING 137 STAGE 1: the moments step A refused for SOFT codes only (STEP_A_SOFT): a step-A answer on file, a
+    refusal (never a held one, ruling 102), and every code soft (one hard code keeps it out). -> {moment_id: a copy of
+    the moment carrying "step_a_flags", its codes}."""
+    out = {}
+    for m in ms:
+        f = fails.get(m["moment_id"])
+        if m["moment_id"] in a_by and f and not is_held(f) and all(str(c) in STEP_A_SOFT for c in f):
+            out[m["moment_id"]] = dict(m, step_a_flags=sorted({str(c) for c in f}))
+    return out
+
+
+def cleared_pool(ms, a_by, fails, soft=False):
+    """The moments that cleared step A (an answer on file, no failure), and in the never-empty pass (RULING 137
+    stage 1, soft=True) also those soft_step_a lets back, flagged. -> (cleared {id: moment}, back {id: moment})."""
+    cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
+    back = soft_step_a(ms, a_by, fails) if soft else {}
+    cleared.update(back)
+    return cleared, back
 
 
 def local_held(a):
@@ -2991,13 +3033,14 @@ def candidate_lineup(router, candidate, cleared, now):
     return segs, None
 
 
-def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
+def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
           writes=WRITES, work_dir=None, store=None, spend=None, lineups=LINEUPS_PER_BUILD, step_a_cache=None,
           hook_cache=None, scorer_verdicts_path=None, scorer_candidates_path=None, build_name="", candidate=None,
           join_cache=None,
           visual_cache=None, registered=None, lock_check=None, scorer_extra=(), stories_path=None,
-          ledger_aliases=None):
-    """L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
+          ledger_aliases=None, soft=False):
+    """RULING 137: soft=True is the never-empty pass (build() calls it): step A's soft refusals are let back, flagged.
+    L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
     written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
     one bridge, only at the join the clips-alone verdict flagged); the first package that passes every hard gate wins.
@@ -3134,7 +3177,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
             par.update(ahead.result())
             ahead_pool.shutdown()
     pre_by = par.pop("by", None) or {}                   # which back-end confirmed each moment ahead (not reported)
-    cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
+    cleared, back = cleared_pool(ms, a_by, fails, soft)  # RULING 137 stage 1: the never-empty pass adds back, flagged
     levels = current_levels(sources.values(), ctx)
     out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable, "current_levels": levels,
            "no_role": no_role, "ad_read": ad_read, "trimmed": {k: v["moment_id"] for k, v in trims.items()},
@@ -3146,6 +3189,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                          "last_resort_87": {}},                  # RULING 102: held, never refused; the local judge
            "angles": [], "takeaways": [],
            "package": None}
+    if soft:                                                # RULING 137 stage 1: which came back, with which codes
+        out["prescreen"]["soft_back"] = {mid: m["step_a_flags"] for mid, m in back.items()}
+        log(f"  RULING 137 NEVER EMPTY (stage 1): {len(back)} moment(s) step A refused for soft codes only come back, "
+            f"flagged: " + ", ".join(f"{mid[:8]} {m['step_a_flags']}" for mid, m in back.items()))
     log(f"  {n_usable} usable, {len(reposted)} of them the same speech re-posted by a second channel (ruling 53: "
         f"the original publisher's kept), {len(no_role)} left out by the render's STAND_ALONE (an opener the clip scorer "
         f"would have to affirm, or no place under the topic rule with the pin's screen; {len(trims)} of them back as "
@@ -3581,7 +3628,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                 hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
                                 stand=stand_alone_check([cleared[sg["moment_id"]] for sg in pk["segments"]]),
                                 visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
-                                last_resort=pin_last_resort(pk))      # RULING 102: on the pin
+                                last_resort=pin_last_resort(pk), soft=soft,   # RULING 102; RULING 137 stage 1
+                                who={sg["label"]: sg.get("channel") for sg in pk["segments"]})   # RULING 138 (3)
         import package_pin
         problems = package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk))
         if problems:
@@ -4064,7 +4112,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                             stand=stand_alone_check([cleared[sg["moment_id"]] for sg in pk["segments"]]),
                                             visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
                                             value=val,                       # ruling 91: the takeaway earned its place
-                                            last_resort=pin_last_resort(pk))      # RULING 102: on the pin
+                                            last_resort=pin_last_resort(pk),      # RULING 102: on the pin
+                                            soft=soft, who={sg["label"]: sg.get("channel")   # RULING 137 / 138 (3)
+                                                            for sg in pk["segments"]})
                     if not ok_c:
                         tl = coh.get("through_line") if isinstance(coh.get("through_line"), str) else ""
                         cfl = coh.get("floors") or STANDARD_LINEUP["coherence"]   # ruling 116: its own bar
@@ -4163,6 +4213,23 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     return out
 
 
+def build(*args, never_empty=False, flagged_today=0, **kw):
+    """RULINGS 136 / 137, NEVER EMPTY: the clean search first (_build), as before; a clean package always outranks a
+    flagged one. Only when it seals nothing, never_empty is set and fewer than FLAGGED_DAY_MAX flagged packages went
+    out today (flagged_today, the caller's count), the never-empty pass: the same search again (_build soft=True) with
+    step A's soft refusals back in, flagged (stage 1). Its record names both passes ("never_empty")."""
+    kw = {k: v for k, v in kw.items() if k != "soft"}     # audit 1135 C1 (qwen P2): the clean pass is never soft
+    out = _build(*args, **kw)
+    if not never_empty or out.get("package") or flagged_today >= FLAGGED_DAY_MAX:
+        return out
+    (kw.get("log") or print)(f"  RULING 136 (2) NEVER EMPTY: the clean pass sealed nothing ({out.get('why_none')}); "
+                             f"the second pass lets step A's soft refusals back, flagged (stage 1)")
+    soft = _build(*args, soft=True, **kw)
+    info = {"stage": 1, "clean_why_none": out.get("why_none"), "soft_why_none": soft.get("why_none"),
+            "soft_back": (soft.get("prescreen") or {}).get("soft_back")}
+    return dict(soft, never_empty=info) if soft.get("package") else dict(out, never_empty=info)
+
+
 def _spent(spend):
     """(estimate, vendor-reported) from the caller's meter. A bare number is the estimate alone; its reported figure
     is then taken to be the same (the conservative reading). No meter: (0, 0)."""
@@ -4173,7 +4240,7 @@ def _spent(spend):
 
 
 def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None,
-              hook=None, stand=None, visual=None, value=None, last_resort=None):
+              hook=None, stand=None, visual=None, value=None, last_resort=None, soft=False, who=None):
     """The sealed GATE INVENTORY (audit p2 C1; package_pin.required_gates): one row per hard gate, each
     {"status": "PASS" | "FAIL" | "NOT RUN", "by", "replayed", "n"}. Nothing measured is never a PASS (law L-m).
     value: ruling 91's value verdict on the medley's takeaway (takeaway_value) -> the "takeaway_value" row, its "text"
@@ -4196,6 +4263,8 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
     det = fid["deterministic"]
     viol = {v["rule"] for v in ctx_.get("violations") or []}
     a_rows = list((a_by or {}).values())
+    a_codes = sorted({str(c) for a in a_rows for c in CI.a_failures(a)})   # RULING 137 stage 1: step A's codes; in the
+    soft_a = bool(soft and a_codes and all(c in STEP_A_SOFT for c in a_codes))   # never-empty pass, soft ones FLAG
     return {
         "vo_fidelity_deterministic": row(det["ok"], "code (vo_fidelity.check_deterministic)"),
         "vo_fidelity_verdict": dict(row(bool((fid.get("verdict") or {}).get("ok")), fid.get("backend"),
@@ -4208,9 +4277,13 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
         "runtime": row(rt_ok, f"code (the factory's R4 estimate: {R4_WPS} w/s + {R4_PREROLL_S} s a VO line + "
                               f"{FINAL_TAIL_S} s tail)"),
         "r4": row(bool(r4_res[0]), "package.r4 (moments-first R4, orchestrator 06:00)"),
-        "context_a": dict(row(bool(a_rows) and not any(CI.a_failures(a) for a in a_rows),
+        "context_a": dict(row(bool(a_rows) and (not a_codes or soft_a),
                               sorted({str(a.get("backend")) for a in a_rows}), rep(a.get("replayed") for a in a_rows),
                               n=len(a_rows)),
+                          **({"status": "FLAGGED",            # RULING 137 stage 1; 138 (3): a sentence a clip
+                              "flags": [flag_sentence(lb, (who or {}).get(lb), c) for lb, a in (a_by or {}).items()
+                                        for c in sorted({str(x) for x in CI.a_failures(a)})]}
+                             if soft_a and len(a_rows) >= 1 else {}),
                           **({"last_resort": last_resort} if last_resort else {})),   # RULING 102: the local judge
         "context_b": dict(row(ctx_.get("ok") is True, (ctx_.get("backends") or {}).get("B"), ctx_.get("replayed"),
                               measured=bool(ctx_.get("measured"))), **votes_of(ctx_)),

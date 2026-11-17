@@ -1,0 +1,437 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 0d4ba34..ebcdc0b 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -79,6 +79,17 @@ PRESCREEN_WORKERS = 6              # ruling 58: the step-A batches run in parall
+ SECOND_VERDICT_DEADLINE_S = 120.0  # RULING 82 (20:02 Nov 13): each second-vendor / off-writer step-A call; at it the next
+ SECOND_VERDICT_BATCH = 2           # model (deepseek -> glm-5.3-flash -> qwen3.8-27b); small batches so one fits in it
+ PRICE_PREDICTIONS_MAX = 1          # L-u: at most one per video
++# RULINGS 136 / 137 (orchestrator 11:00 / 11:05 ET Nov 17): TWO CLASSES, a HARD gate refuses, a SOFT gate scores and
++# FLAGS; NEVER EMPTY: when the clean search seals nothing, a second pass seals the best line-up that passes every hard
++# gate with its soft flags in plain words (the pin's moments_package "review_flags"; the integrator's note opens
++# "REVIEW FLAGS: ..."); at most FLAGGED_DAY_MAX flagged packages a day, a clean one always first. STAGE 1 (line 1, 11:29
++# ET Nov 17): step A only. Its SOFT codes, each with the plain words PBX reads; STALE_TIME (stale time), SPEAKER_CHANGE
++# (speaker credit) and RETRACTION (factual) stay HARD, even from one family, until stage 2 asks the second family.
++STEP_A_SOFT = {"NOT_OWN_SINCERE": "step A: the speaker may not be giving their own sincere view",
++               "REFERENT_OUTSIDE": "step A: the clip refers to something said before it",
++               "CONDITION_OUTSIDE": "step A: a condition the speaker sets lies outside the clip",
++               "UNCERTAIN": "step A: the screen was not sure what the clip means"}
++FLAGGED_DAY_MAX = 2
+ SHORT_CLIP_S = 8.0                 # a clip under ~8 s is a penalty unless it is the angle's punchline (the last clip)
+ MAX_ANGLES = 3                     # orchestrator 05:30: at most 3 angles x 2 writes
+ WRITES = 2
+@@ -469,6 +480,27 @@ def is_held(why):
+     return bool(why) and all(str(w).startswith(HELD) for w in why)
+ 
+ 
++def soft_step_a(ms, a_by, fails):
++    """RULING 137 STAGE 1: the moments step A refused for SOFT codes only (STEP_A_SOFT): a step-A answer on file, a
++    refusal (never a held one, ruling 102), and every code soft (one hard code keeps it out). -> {moment_id: a copy of
++    the moment carrying "step_a_flags", its codes}."""
++    out = {}
++    for m in ms:
++        f = fails.get(m["moment_id"])
++        if m["moment_id"] in a_by and f and not is_held(f) and all(str(c) in STEP_A_SOFT for c in f):
++            out[m["moment_id"]] = dict(m, step_a_flags=sorted({str(c) for c in f}))
++    return out
++
++
++def cleared_pool(ms, a_by, fails, soft=False):
++    """The moments that cleared step A (an answer on file, no failure), and in the never-empty pass (RULING 137
++    stage 1, soft=True) also those soft_step_a lets back, flagged. -> (cleared {id: moment}, back {id: moment})."""
++    cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
++    back = soft_step_a(ms, a_by, fails) if soft else {}
++    cleared.update(back)
++    return cleared, back
++
++
+ def local_held(a):
+     """RULING 127 (2) (orchestrator 21:30 ET Nov 16): a step-A verdict from the local judge (gemma3:27b, ruling 87's last
+     resort), PASS or REFUSE, is never final while a Heimdall family can be asked: HELD, 'local, provisional', never
+@@ -2991,13 +3023,14 @@ def candidate_lineup(router, candidate, cleared, now):
+     return segs, None
+ 
+ 
+-def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
++def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
+           writes=WRITES, work_dir=None, store=None, spend=None, lineups=LINEUPS_PER_BUILD, step_a_cache=None,
+           hook_cache=None, scorer_verdicts_path=None, scorer_candidates_path=None, build_name="", candidate=None,
+           join_cache=None,
+           visual_cache=None, registered=None, lock_check=None, scorer_extra=(), stories_path=None,
+-          ledger_aliases=None):
+-    """L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
++          ledger_aliases=None, soft=False):
++    """RULING 137: soft=True is the never-empty pass (build() calls it): step A's soft refusals are let back, flagged.
++    L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
+     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
+     written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
+     one bridge, only at the join the clips-alone verdict flagged); the first package that passes every hard gate wins.
+@@ -3134,7 +3167,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+             par.update(ahead.result())
+             ahead_pool.shutdown()
+     pre_by = par.pop("by", None) or {}                   # which back-end confirmed each moment ahead (not reported)
+-    cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
++    cleared, back = cleared_pool(ms, a_by, fails, soft)  # RULING 137 stage 1: the never-empty pass adds back, flagged
+     levels = current_levels(sources.values(), ctx)
+     out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable, "current_levels": levels,
+            "no_role": no_role, "ad_read": ad_read, "trimmed": {k: v["moment_id"] for k, v in trims.items()},
+@@ -3146,6 +3179,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                          "last_resort_87": {}},                  # RULING 102: held, never refused; the local judge
+            "angles": [], "takeaways": [],
+            "package": None}
++    if soft:                                                # RULING 137 stage 1: which came back, with which codes
++        out["prescreen"]["soft_back"] = {mid: m["step_a_flags"] for mid, m in back.items()}
++        log(f"  RULING 137 NEVER EMPTY (stage 1): {len(back)} moment(s) step A refused for soft codes only come back, "
++            f"flagged: " + ", ".join(f"{mid[:8]} {m['step_a_flags']}" for mid, m in back.items()))
+     log(f"  {n_usable} usable, {len(reposted)} of them the same speech re-posted by a second channel (ruling 53: "
+         f"the original publisher's kept), {len(no_role)} left out by the render's STAND_ALONE (an opener the clip scorer "
+         f"would have to affirm, or no place under the topic rule with the pin's screen; {len(trims)} of them back as "
+@@ -3581,7 +3618,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                                 hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
+                                 stand=stand_alone_check([cleared[sg["moment_id"]] for sg in pk["segments"]]),
+                                 visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
+-                                last_resort=pin_last_resort(pk))      # RULING 102: on the pin
++                                last_resort=pin_last_resort(pk), soft=soft)   # RULING 102; RULING 137 stage 1
+         import package_pin
+         problems = package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk))
+         if problems:
+@@ -4064,7 +4101,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                                             stand=stand_alone_check([cleared[sg["moment_id"]] for sg in pk["segments"]]),
+                                             visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
+                                             value=val,                       # ruling 91: the takeaway earned its place
+-                                            last_resort=pin_last_resort(pk))      # RULING 102: on the pin
++                                            last_resort=pin_last_resort(pk),      # RULING 102: on the pin
++                                            soft=soft)                            # RULING 137 stage 1
+                     if not ok_c:
+                         tl = coh.get("through_line") if isinstance(coh.get("through_line"), str) else ""
+                         cfl = coh.get("floors") or STANDARD_LINEUP["coherence"]   # ruling 116: its own bar
+@@ -4163,6 +4201,22 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     return out
+ 
+ 
++def build(*args, never_empty=False, flagged_today=0, **kw):
++    """RULINGS 136 / 137, NEVER EMPTY: the clean search first (_build), as before; a clean package always outranks a
++    flagged one. Only when it seals nothing, never_empty is set and fewer than FLAGGED_DAY_MAX flagged packages went
++    out today (flagged_today, the caller's count), the never-empty pass: the same search again (_build soft=True) with
++    step A's soft refusals back in, flagged (stage 1). Its record names both passes ("never_empty")."""
++    out = _build(*args, **kw)
++    if not never_empty or out.get("package") or flagged_today >= FLAGGED_DAY_MAX:
++        return out
++    (kw.get("log") or print)(f"  RULING 136 (2) NEVER EMPTY: the clean pass sealed nothing ({out.get('why_none')}); "
++                             f"the second pass lets step A's soft refusals back, flagged (stage 1)")
++    soft = _build(*args, soft=True, **kw)
++    info = {"stage": 1, "clean_why_none": out.get("why_none"), "soft_why_none": soft.get("why_none"),
++            "soft_back": (soft.get("prescreen") or {}).get("soft_back")}
++    return dict(soft, never_empty=info) if soft.get("package") else dict(out, never_empty=info)
++
++
+ def _spent(spend):
+     """(estimate, vendor-reported) from the caller's meter. A bare number is the estimate alone; its reported figure
+     is then taken to be the same (the conservative reading). No meter: (0, 0)."""
+@@ -4173,7 +4227,7 @@ def _spent(spend):
+ 
+ 
+ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None,
+-              hook=None, stand=None, visual=None, value=None, last_resort=None):
++              hook=None, stand=None, visual=None, value=None, last_resort=None, soft=False):
+     """The sealed GATE INVENTORY (audit p2 C1; package_pin.required_gates): one row per hard gate, each
+     {"status": "PASS" | "FAIL" | "NOT RUN", "by", "replayed", "n"}. Nothing measured is never a PASS (law L-m).
+     value: ruling 91's value verdict on the medley's takeaway (takeaway_value) -> the "takeaway_value" row, its "text"
+@@ -4196,6 +4250,8 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+     det = fid["deterministic"]
+     viol = {v["rule"] for v in ctx_.get("violations") or []}
+     a_rows = list((a_by or {}).values())
++    a_codes = sorted({str(c) for a in a_rows for c in CI.a_failures(a)})   # RULING 137 stage 1: step A's codes; in the
++    soft_a = bool(soft and a_codes and all(c in STEP_A_SOFT for c in a_codes))   # never-empty pass, soft ones FLAG
+     return {
+         "vo_fidelity_deterministic": row(det["ok"], "code (vo_fidelity.check_deterministic)"),
+         "vo_fidelity_verdict": dict(row(bool((fid.get("verdict") or {}).get("ok")), fid.get("backend"),
+@@ -4208,9 +4264,11 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+         "runtime": row(rt_ok, f"code (the factory's R4 estimate: {R4_WPS} w/s + {R4_PREROLL_S} s a VO line + "
+                               f"{FINAL_TAIL_S} s tail)"),
+         "r4": row(bool(r4_res[0]), "package.r4 (moments-first R4, orchestrator 06:00)"),
+-        "context_a": dict(row(bool(a_rows) and not any(CI.a_failures(a) for a in a_rows),
++        "context_a": dict(row(bool(a_rows) and (not a_codes or soft_a),
+                               sorted({str(a.get("backend")) for a in a_rows}), rep(a.get("replayed") for a in a_rows),
+                               n=len(a_rows)),
++                          **({"status": "FLAGGED", "flags": [STEP_A_SOFT[c] for c in a_codes]}   # RULING 137 stage 1
++                             if soft_a and len(a_rows) >= 1 else {}),
+                           **({"last_resort": last_resort} if last_resort else {})),   # RULING 102: the local judge
+         "context_b": dict(row(ctx_.get("ok") is True, (ctx_.get("backends") or {}).get("B"), ctx_.get("replayed"),
+                               measured=bool(ctx_.get("measured"))), **votes_of(ctx_)),
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index 3c5ca7d..5fb02f2 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -31,6 +31,11 @@ REQUIRED_GATES = ("vo_fidelity_deterministic", "vo_fidelity_verdict", "duplicate
+ # STAND_ALONE at the pin stage, after pin d2657bbe's hold at the integrator's validate (03:00 ET Nov 13)
+ MEDLEY_GATES = ("medley", "ly_shape", "house_style", "hook_onset", "stand_alone",
+                 "visual")                                  # ruling 70: every clip's sheet judged (flags sealed)
++# RULINGS 136 / 137 (orchestrator 11:00 / 11:05 ET Nov 17): a SOFT gate scores and FLAGS. Its row may say "FLAGGED"
++# with "flags", plain words, sealed with the gates; the pin's moments_package "review_flags" is derived from them
++# (review_flags_of), at most REVIEW_FLAGS_MAX. STAGE 1: step A's row only. A HARD gate still needs exactly PASS.
++SOFT_GATES = frozenset({"context_a"})
++REVIEW_FLAGS_MAX = 3
+ 
+ 
+ # RULING 90 (orchestrator 22:40 ET Nov 13; LAW since 22:52, amended by 91 and 92): the SPOTLIGHT, a second pin kind.
+@@ -375,14 +380,41 @@ def speaker_problems(segments):
+     return out
+ 
+ 
++def flagged_ok(g, row):
++    """RULING 137: a FLAGGED row stands only on a SOFT gate and only with its flags: a non-empty list of plain-word
++    strings."""
++    fl = row.get("flags")
++    return g in SOFT_GATES and isinstance(fl, list) and bool(fl) and all(isinstance(f, str) and f.strip() for f in fl)
++
++
++def review_flags_of(gates):
++    """RULING 137: the plain-word flags of the inventory's FLAGGED rows, in gate order, each once."""
++    out = []
++    for _g, row in (gates.items() if isinstance(gates, dict) else ()):
++        if isinstance(row, dict) and row.get("status") == "FLAGGED":
++            out += [f for f in row.get("flags") or [] if isinstance(f, str) and f not in out]
++    return out
++
++
++def review_problems(mp):
++    """RULING 137: [why] when a pin's moments_package "review_flags" is not exactly what its sealed gates flag, or is
++    over REVIEW_FLAGS_MAX (empty = it holds)."""
++    want, got = review_flags_of(mp.get("gates")), mp.get("review_flags") or []
++    out = [] if got == want else [f"review_flags {got} are not the sealed gates' flags {want}"]
++    return out + ([f"{len(want)} review flags, over {REVIEW_FLAGS_MAX} (ruling 136 (2))"]
++                  if len(want) > REVIEW_FLAGS_MAX else [])
++
++
+ def gate_problems(gates, required=REQUIRED_GATES):
+-    """[why] for an inventory that does not authorise a pin (empty = every required gate exactly PASS, measured live)."""
++    """[why] for an inventory that does not authorise a pin (empty = every required gate exactly PASS, measured live;
++    RULING 137: or FLAGGED on a SOFT gate with its flags, flagged_ok)."""
+     if not isinstance(gates, dict):
+         return ["no gate inventory"]
+     out = []
+     for g in required:
+         row = gates.get(g)
+-        if not isinstance(row, dict) or row.get("status") != "PASS":
++        if not isinstance(row, dict) or not (row.get("status") == "PASS" or
++                                             (row.get("status") == "FLAGGED" and flagged_ok(g, row))):
+             out.append(f"{g}: {(row or {}).get('status') if isinstance(row, dict) else 'missing'}")
+         elif row.get("replayed") is not False:
+             out.append(f"{g}: replayed or not stated (never deliverable, law L-j)")
+@@ -460,6 +492,9 @@ def to_pin(pk, run_name):
+         recency_problems(pk.get("segments") or []) + speaker_problems(pk.get("segments") or []) + \
+         screen_problems(pk) + trim_problems(pk.get("segments") or []) + scorer_problems(pk.get("segments") or []) + \
+         spotlight_problems(pk) + takeaway_problems(pk)
++    rf = review_flags_of(pk.get("gates"))                 # RULING 137: derived from the sealed gates, at most 3
++    problems += [f"{len(rf)} review flags, over {REVIEW_FLAGS_MAX} (ruling 136 (2))"] if len(rf) > REVIEW_FLAGS_MAX \
++        else []
+     if problems:
+         raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
+     segs = []
+@@ -510,6 +545,7 @@ def to_pin(pk, run_name):
+                                     "spotlight": pk.get("spotlight")}                  # and why (outside the seal)
+                                    if spot else {}),
+                                 "gates": pk["gates"],
++                                **({"review_flags": rf} if rf else {}),   # RULING 137: absent when clean
+                                 **({"hook_bar": pk["hook_bar"]} if pk.get("hook_bar") else {}),   # ruling 115 (2): the
+                                 #   calibrated hook bar's plain line for the Telegram note, floors and sha (outside the seal)
+                                 **({"lineup_bar": pk["lineup_bar"]} if pk.get("lineup_bar") else {}),   # ruling 116 (Q3):
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index b3f5a13..1feeac5 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -73,6 +73,32 @@ import package as PK  # noqa: E402
+ import hook_bar as HB  # noqa: E402
+ import package_pin  # noqa: E402
+ import proof_ly as PL  # noqa: E402
++
++FLAGGED_DAY = os.path.join(HERE, "proof", "FLAGGED_DAY.json")   # RULING 136 (2): the flagged pins of the 21:10 day
++
++
++def flagged_today(path=FLAGGED_DAY, day=None):
++    """RULING 136 (2): how many flagged packages this builder sealed in the current 21:10-21:10 day (the day ledger's
++    name keys it; an unreadable or another day's file counts 0)."""
++    day = day or os.path.basename(PL.day_ledger())
++    try:
++        d = json.load(open(path))
++    except (OSError, ValueError):
++        return 0
++    return len(d.get("pins") or []) if isinstance(d, dict) and d.get("day") == day else 0
++
++
++def record_flagged(pin, path=FLAGGED_DAY, day=None):
++    """RULING 136 (2): a flagged pin was sealed: add it to the day's count."""
++    day = day or os.path.basename(PL.day_ledger())
++    try:
++        d = json.load(open(path))
++    except (OSError, ValueError):
++        d = {}
++    if not isinstance(d, dict) or d.get("day") != day:
++        d = {"day": day, "pins": []}
++    d["pins"].append({"story_id": pin["story_id"], "review_flags": pin["moments_package"].get("review_flags")})
++    json.dump(d, open(path, "w"), indent=1)
+ import proof_saved_runs as PS  # noqa: E402
+ import providers as P  # noqa: E402
+ import speakers as SP  # noqa: E402
+@@ -538,6 +564,7 @@ def main(argv=None):
+     spotlit = SPOT.load_spotlit(SPOTLIGHTS)              # RULING 90: free; its pool goes to the clip scorer with the
+     sp_pool, _ = SPOT.pool(moments, sources, ctx, delivered, M.optout_ids(), spotlit)   # medley's own candidates
+     kw = dict(delivered=delivered, optout=M.optout_ids(), log=say, scorer_extra=sp_pool,
++              never_empty=True, flagged_today=flagged_today(),                     # RULINGS 136 / 137 (stage 1)
+               work_dir=a.work_dir, store=os.path.join(out_dir, "step_a.json"),
+               spend=lambda: (own["est"], own["best"]),
+               step_a_cache=os.path.join(HERE, "proof", "STEP_A_CACHE.json"),     # ruling 58: paid for once
+@@ -614,6 +641,9 @@ def main(argv=None):
+                                               name="MOMENTS_PIN_LEDGER.json")
+             res["pin"] = {"path": os.path.relpath(path, REPO), "story_id": pin["story_id"],
+                           "package_sha256": pin["moments_package"]["package_sha256"]}
++            if pin["moments_package"].get("review_flags"):        # RULING 136 (2): a flagged pin counts for the day
++                record_flagged(pin)
++                res["pin"]["review_flags"] = pin["moments_package"]["review_flags"]
+             import shutil                                # ruling 70: each segment's sheet beside the pin
+             for sg in pin["segments"]:
+                 sh = (sg.get("visual") or {}).get("sheet") or {}
+diff --git a/tests/package/test_ruling_137.py b/tests/package/test_ruling_137.py
+new file mode 100644
+index 0000000..6293716
+--- /dev/null
++++ b/tests/package/test_ruling_137.py
+@@ -0,0 +1,137 @@
++#!/usr/bin/env python3
++"""RULINGS 136 / 137 (orchestrator 11:00 / 11:05 ET Nov 17), STAGE 1: NEVER EMPTY for step A. A clean package first;
++when the clean pass seals nothing, a second pass lets back the moments step A refused for SOFT codes only, each flagged
++in plain words; the pin's step-A row says FLAGGED with them and moments_package carries them as review_flags (at most
++3); a hard code, a held moment, a FLAGGED row on a hard gate never pass. Offline."""
++import json
++import os
++import sys
++import tempfile
++import unittest
++from unittest import mock
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path[:0] = [os.path.join(REPO, "pipeline"), HERE]
++import package as PK  # noqa: E402
++import package_pin as PP  # noqa: E402
++import proof_ledger as PLG  # noqa: E402
++
++SINCERE = PK.STEP_A_SOFT["NOT_OWN_SINCERE"]
++
++
++def answer(**kw):
++    a = {"backend": "b", "replayed": False, "speaker_changes_inside": "no", "view": "own_sincere", "referents": [],
++         "conditions": [], "retraction": "none", "time_ok": "yes", "certainty": "certain"}
++    a.update(kw)
++    return a
++
++
++class TestTheNeverEmptyPool(unittest.TestCase):
++    def test_soft_codes_come_back_flagged_and_nothing_else_does(self):
++        ms = [{"moment_id": k} for k in ("s", "h", "x", "n", "c")]
++        a_by = {"s": {}, "h": {}, "x": {}, "c": {}}                       # 'n' has no step-A answer on file
++        fails = {"s": ["NOT_OWN_SINCERE", "REFERENT_OUTSIDE"], "h": ["REFERENT_OUTSIDE", "STALE_TIME"],
++                 "x": [PK.HELD + " no verdict"], "n": ["NOT_OWN_SINCERE"], "c": []}
++        clean, back = PK.cleared_pool(ms, a_by, fails)
++        self.assertEqual((sorted(clean), back), (["c"], {}))              # the clean pass: as before
++        both, back = PK.cleared_pool(ms, a_by, fails, soft=True)
++        self.assertEqual(sorted(both), ["c", "s"])
++        self.assertEqual(back["s"]["step_a_flags"], ["NOT_OWN_SINCERE", "REFERENT_OUTSIDE"])
++        self.assertNotIn("step_a_flags", ms[0])                           # a copy: the pool's moment is untouched
++
++
++class TestTheStepARow(unittest.TestCase):
++    def base(self, **a):
++        fid = {"deterministic": {"ok": True, "violations": [], "price_now_measured": True},
++               "verdict": {"ok": True}, "backend": "b", "replayed": False, "measured": True}
++        ctx = {"ok": True, "violations": [], "backends": {"B": "b", "C": "b"}, "replayed": False, "measured": True}
++        return dict(fid=fid, dup=[], rt_ok=True, r4_res=(True, "ok"), ctx_=ctx, a_by={"hook": answer(**a)},
++                    exc={"m": {"verdict": "keep", "backend": "b", "replayed": False, "measured": True}},
++                    truth={"m": {"ok": True, "model": "s", "replayed": False, "edges": {"cuttable": True}}},
++                    coh_ok=True, coh={"backend": "b", "replayed": False, "measured": True})
++
++    def test_soft_codes_flag_only_in_the_never_empty_pass_and_a_hard_code_still_fails(self):
++        self.assertEqual(PK.inventory(**self.base(), soft=True)["context_a"]["status"], "PASS")      # clean: PASS
++        quoted = self.base(view="quoting_someone_else")
++        self.assertEqual(PK.inventory(**quoted)["context_a"]["status"], "FAIL")                     # the clean pass
++        row = PK.inventory(**quoted, soft=True)["context_a"]
++        self.assertEqual((row["status"], row["flags"], row["replayed"]), ("FLAGGED", [SINCERE], False))
++        stale = self.base(view="quoting_someone_else", time_ok="no")                               # a hard code too
++        self.assertEqual(PK.inventory(**stale, soft=True)["context_a"]["status"], "FAIL")
++
++
++class TestThePin(unittest.TestCase):
++    def pk(self, **gates):
++        g = {k: {"status": "PASS", "by": "x", "replayed": False, "n": 1} for k in PP.REQUIRED_GATES}
++        g.update(gates)
++        return {"schema": "pp.package/1", "type": "moments", "title": "T", "caption": "C", "hook_first_words": "Bitcoin is",
++                "runtime_s_estimate": 62.0, "vo_kind": "written", "gates": g,
++                "vo": {"intro": "I", "bridges": ["B"], "bridges_after_clip": [1], "signoff": "S"},
++                "lines": [{"slot": "intro", "text": "I"}, {"slot": "bridge_1", "text": "B"},
++                          {"slot": "title", "text": "T"}, {"slot": "caption", "text": "C"}],
++                "segments": [{"video_id": v, "channel": "ch", "start": 1.0, "end": 9.0, "text": f"Bitcoin is {v}.",
++                              "transcript_sha256": "t", "url_30s_before": "u", "time_sensitive": False,
++                              "speaker": {"name": "unknown", "role": None, "line": None, "basis": None, "why": "t",
++                                          "people": [], "measured": True},
++                              "source_published_at": "2026-11-12T01:00:00Z"} for v in ("aaaaaaaaaaa", "bbbbbbbbbbb")]}
++
++    def flagged(self, flags, gate="context_a", replayed=False):
++        return {gate: {"status": "FLAGGED", "by": "x", "replayed": replayed, "n": 1, "flags": flags}}
++
++    def test_a_flagged_soft_row_seals_with_its_review_flags(self):
++        pin = PP.to_pin(self.pk(**self.flagged([SINCERE])), "r")
++        mp = pin["moments_package"]
++        self.assertEqual((mp["review_flags"], PP.review_problems(mp)), ([SINCERE], []))
++        self.assertEqual(mp["package_sha256"], PP.pin_seal(pin))                     # the flags are sealed with the gates
++        self.assertNotEqual(mp["package_sha256"], PP.to_pin(self.pk(), "r")["moments_package"]["package_sha256"])
++        self.assertTrue(PP.review_problems(dict(mp, review_flags=["something else"])))   # not the sealed flags
++        self.assertNotIn("review_flags", PP.to_pin(self.pk(), "r")["moments_package"])   # clean: absent
++
++    def test_what_never_seals(self):
++        for bad in (self.flagged([SINCERE], gate="exclusion"),                         # FLAGGED on a HARD gate
++                    self.flagged([]), self.flagged([""]), self.flagged("not a list"),
++                    self.flagged([SINCERE], replayed=True),
++                    self.flagged(["one", "two", "three", "four"])):                    # over 3 (ruling 136 (2))
++            with self.assertRaises(PP.PinRefused, msg=str(bad)):
++                PP.to_pin(self.pk(**bad), "r")
++
++
++class TestTheTwoPasses(unittest.TestCase):
++    def run_build(self, clean, soft, **kw):
++        calls = []
++
++        def fake(*a, **k):
++            calls.append(bool(k.get("soft")))
++            return dict(soft if k.get("soft") else clean)
++        with mock.patch.object(PK, "_build", side_effect=fake):
++            out = PK.build("router", [], {}, None, log=lambda m: None, **kw)
++        return calls, out
++
++    def test_clean_first_then_the_never_empty_pass_within_the_day_limit(self):
++        none, sealed = {"package": None, "why_none": "x"}, {"package": {"p": 1}}
++        calls, out = self.run_build(sealed, sealed, never_empty=True)
++        self.assertEqual((calls, "never_empty" in out), ([False], False))            # a clean package: one pass
++        calls, out = self.run_build(none, sealed, never_empty=True)
++        self.assertEqual((calls, out["package"], out["never_empty"]["clean_why_none"]), ([False, True], {"p": 1}, "x"))
++        calls, out = self.run_build(none, dict(none, why_none="y"), never_empty=True)
++        self.assertEqual((calls, out["package"], out["never_empty"]["soft_why_none"]), ([False, True], None, "y"))
++        self.assertEqual(self.run_build(none, sealed)[0], [False])                   # never_empty off: as before
++        self.assertEqual(self.run_build(none, sealed, never_empty=True, flagged_today=PK.FLAGGED_DAY_MAX)[0], [False])
++
++
++class TestTheDayCount(unittest.TestCase):
++    def test_counted_per_day_ledger(self):
++        with tempfile.TemporaryDirectory() as d:
++            p = os.path.join(d, "FLAGGED_DAY.json")
++            self.assertEqual(PLG.flagged_today(p, day="D1"), 0)
++            pin = {"story_id": "s1", "moments_package": {"review_flags": [SINCERE]}}
++            PLG.record_flagged(pin, p, day="D1")
++            PLG.record_flagged(dict(pin, story_id="s2"), p, day="D1")
++            self.assertEqual((PLG.flagged_today(p, day="D1"), PLG.flagged_today(p, day="D2")), (2, 0))
++            PLG.record_flagged(pin, p, day="D2")                                       # a new day starts afresh
++            self.assertEqual(json.load(open(p))["pins"], [{"story_id": "s1", "review_flags": [SINCERE]}])
++
++
++if __name__ == "__main__":
++    unittest.main()
