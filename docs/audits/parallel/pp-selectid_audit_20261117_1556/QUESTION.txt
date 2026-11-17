@@ -1,0 +1,29 @@
+pp-selectid: RULING 142 (3) (orchestrator 14:32 ET Nov 17: post_live streams, "do not wait for YouTube") ON THE BUILDER'S
+SIDE. The integrator's batch 111 made the render and its lock pre-check fetch a post_live stream whole and cut locally
+(its read-only cache /home/ultron/protocol_pulse/data/post_live_cache/<video>/audio.m4a, video.mp4). This side's two
+fetchers still used yt-dlp --download-sections, which on the post_live stream MeC8YEmUx_w gives an EMPTY file (tested
+15:5x ET: 258 bytes, 0 s): the word check (transcript_truth.audio_window, L-v 2 + CUTTABLE, HARD) and the frame sheet
+(visual_pin.fetch, the visual check, HARD) would fail closed on every clip of it, and every 3-channel story today needs
+one. Files: pipeline/transcript_truth.py, pipeline/visual_pin.py, tests/package/test_ruling_142_post_live.py (new).
+
+THE CHANGE:
+(a) transcript_truth: media_seconds(path) (ffprobe; 0.0 when unreadable); whole_stream(video_id, fmt, out_dir, tag):
+    the integrator's cached whole stream first when it holds media (read only), else ONE yt-dlp download of the whole
+    stream per video and tag into out_dir, reused after. audio_window: when the section file is ABSENT or shorter than
+    MIN_SECTION_SHARE (0.5) of its window, the window is cut from the whole audio stream (ffmpeg -ss <start> -i whole -t
+    <len>, 16 kHz mono); a cut that still holds under half the window raises OSError and leaves no wav (fail closed: the
+    word check reads it as not measured). A normal section takes the unchanged path.
+(b) visual_pin.fetch: the same for the <= 480p frame clip: an absent or empty section is replaced by a cut from the
+    whole video stream (re-encoded, scaled to at most 480 lines, no audio), kept as <stem>.cut.mp4 and reused; an empty
+    cut raises and is removed. A normal section is returned as before.
+    No offset check of our own: the integrator cuts audio and video from the same DASH stream timestamps, and its HARD
+    offset guard checks the audio clock; a shift here makes the word check fail closed (its words would not match).
+
+EVIDENCE: a real run (free) on MeC8YEmUx_w 5409.96-5420.32 from the integrator's cache: the word check's window 15.86 s,
+the frame clip 10.38 s. TESTS (8, offline, yt-dlp / ffmpeg / ffprobe stubbed): an empty section cut from the whole
+stream fetched once; the integrator's cache read first; no section file at all; a normal section unchanged; an empty
+audio cut fails closed and is not kept; the video cut is kept and reused, scaled to 480; a normal video section
+unchanged; an empty video cut fails closed and is removed. Mutations: 8 of 8 killed.
+
+PLEASE CHECK: (1) can an empty or wrong window ever be returned as measured? (2) is a normal (non post_live) video
+unaffected? (3) the cache and download paths (concurrent builds, partial downloads); (4) the tests.

@@ -29,6 +29,41 @@ PAUSE_MIN_S = 0.700          # ruling 38: a measured pause this long with no rec
 CANON_RUN = 6                # recogniser words read together at an edge, so a spoken number is one canonical token
 
 
+MIN_SECTION_SHARE = 0.5   # RULING 142 (3) on this side: a fetched section under half its window's length is empty
+POST_LIVE_CACHE = "/home/ultron/protocol_pulse/data/post_live_cache"   # the integrator's whole streams (batch 111;
+#   read only): <video_id>/audio.m4a (format 140) and video.mp4 (137), used first when they hold media
+WHOLE = {"audio": ("audio.m4a", "bestaudio[acodec^=mp4a]/bestaudio")}   # the integrator's audio format (15:5x ET)
+
+
+def media_seconds(path):
+    """A media file's duration in seconds (ffprobe); 0.0 when it has none or cannot be read (a post_live stream's section
+    download gives a file of 0 s: MeC8YEmUx_w, 15:5x ET Nov 17, 258 bytes)."""
+    try:
+        out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path],
+                             capture_output=True, text=True, timeout=60).stdout.strip()
+        return float(out or 0.0)
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return 0.0
+
+
+def whole_stream(video_id, fmt, out_dir, tag):
+    """RULING 142 (3) on this side (the integrator's batch 111 does the same for the render): a post_live YouTube stream
+    (DASH segments only) gives an EMPTY section download, so its whole stream in `fmt` is fetched ONCE per video and tag,
+    kept in out_dir as <video_id>.whole-<tag>.<ext>, and every window is cut from it locally. -> the file's path."""
+    theirs = os.path.join(POST_LIVE_CACHE, video_id, {"audio": "audio.m4a", "video": "video.mp4"}.get(tag, "-"))
+    if os.path.isfile(theirs) and media_seconds(theirs) > 0:   # the integrator's copy of the same stream: read only
+        return theirs
+    stem = f"{video_id}.whole-{tag}"
+    find = lambda: [f for f in sorted(os.listdir(out_dir)) if os.path.splitext(f)[0] == stem]
+    if not find():
+        subprocess.run(["yt-dlp", "-q", "--no-playlist", "-f", fmt, "-o", os.path.join(out_dir, stem + ".%(ext)s"),
+                        f"https://www.youtube.com/watch?v={video_id}"], check=True, timeout=1800, capture_output=True)
+    have = find()
+    if not have:
+        raise OSError(f"the whole stream of {video_id} ({fmt}) was not fetched")
+    return os.path.join(out_dir, have[0])
+
+
 def audio_window(video_id, start, end, out_dir, pad=PAD_S, pad_before=PAD_BEFORE_S):
     """WAV (16 kHz mono) of [start - pad_before, end + pad] (clamped at the video head), fetched with yt-dlp's
     download sections -> (path, the window's real start in video seconds)."""
@@ -42,8 +77,19 @@ def audio_window(video_id, start, end, out_dir, pad=PAD_S, pad_before=PAD_BEFORE
     subprocess.run(["yt-dlp", "-q", "--no-playlist", "-f", "bestaudio", "--download-sections", f"*{a:.2f}-{b:.2f}",
                     "--force-keyframes-at-cuts", "-o", base + ".%(ext)s", f"https://www.youtube.com/watch?v={video_id}"],
                    check=True, timeout=300, capture_output=True)
-    src = next(os.path.join(out_dir, f) for f in sorted(os.listdir(out_dir))
-               if os.path.splitext(f)[0] == stem and not f.endswith(".wav"))       # exact stem: never a longer id
+    src = next((os.path.join(out_dir, f) for f in sorted(os.listdir(out_dir))
+                if os.path.splitext(f)[0] == stem and not f.endswith(".wav")), None)   # exact stem: never a longer id
+    if src is None or media_seconds(src) < MIN_SECTION_SHARE * (b - a):   # RULING 142 (3): a post_live stream's empty
+        whole = whole_stream(video_id, WHOLE["audio"][1], out_dir, "audio")   # (or absent) section: the whole audio
+        #   stream once, the window cut here
+        tmp = base + ".tmp.wav"                       # renamed into place only whole: an interrupted cut is never cached
+        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-ss", f"{a:.3f}", "-i", whole, "-t", f"{b - a:.3f}",
+                        "-ac", "1", "-ar", "16000", tmp], check=True, timeout=300)
+        if media_seconds(tmp) < MIN_SECTION_SHARE * (b - a):            # still empty: never cached, never a pass
+            os.remove(tmp)
+            raise OSError(f"{video_id} {a:.2f}-{b:.2f}: no audio in the section or the whole stream")
+        os.replace(tmp, wav)
+        return wav, a
     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", src, "-ac", "1", "-ar", "16000", wav], check=True,
                    timeout=120)
     return wav, a

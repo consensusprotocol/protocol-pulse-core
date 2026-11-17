@@ -149,14 +149,32 @@ def fetch(video_id, start, end, work_dir):
     os.makedirs(d, exist_ok=True)
     stem = f"{video_id}_{int(start * 1000)}_{int(end * 1000)}"
     have = [f for f in sorted(os.listdir(d)) if os.path.splitext(f)[0] == stem and not f.endswith(".jpg")]
+    import transcript_truth as TT
+    cut = os.path.join(d, stem + ".cut.mp4")                    # RULING 142 (3): a post_live span cut before, whole
+    whole_cut = lambda: os.path.exists(cut) and TT.media_seconds(cut) >= TT.MIN_SECTION_SHARE * (end - start)
+    if not have and whole_cut():                                # (audit 20261117_1556 C1 qwen: never a partial one)
+        return cut
     if not have:
         subprocess.run(["yt-dlp", "-q", "--no-playlist", "-f", FORMAT, "--download-sections",
                         f"*{start:.2f}-{end:.2f}", "--force-keyframes-at-cuts", "-o", os.path.join(d, stem + ".%(ext)s"),
                         f"https://www.youtube.com/watch?v={video_id}"], check=True, timeout=300, capture_output=True)
         have = [f for f in sorted(os.listdir(d)) if os.path.splitext(f)[0] == stem and not f.endswith(".jpg")]
-    if not have:
-        raise OSError(f"no video fetched for {stem}")
-    return os.path.join(d, have[0])
+    path = os.path.join(d, have[0]) if have else None
+    if path is not None and TT.media_seconds(path) >= TT.MIN_SECTION_SHARE * (end - start):
+        return path
+    #   RULING 142 (3): a post_live stream's empty (or absent) section: the whole
+    if not whole_cut():                                                # stream once (<= 480p), the span cut here
+        whole = TT.whole_stream(video_id, FORMAT, d, "video")
+        tmp = os.path.join(d, stem + ".cut.tmp.mp4")                  # renamed into place only whole
+        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-ss", f"{start:.3f}", "-i", whole, "-t",
+                        f"{end - start:.3f}", "-an", "-vf", "scale=-2:'min(480,ih)'", "-c:v", "libx264", "-preset",
+                        "veryfast", "-crf", "28", tmp],
+                       check=True, timeout=300)
+        if TT.media_seconds(tmp) < TT.MIN_SECTION_SHARE * (end - start):
+            os.remove(tmp)
+            raise OSError(f"no video in the section or the whole stream for {stem}")
+        os.replace(tmp, cut)
+    return cut
 
 
 def sheet(video, start, end, work_dir):

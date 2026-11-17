@@ -1,0 +1,275 @@
+diff --git a/pipeline/transcript_truth.py b/pipeline/transcript_truth.py
+index 02f1207..f7c7fe3 100644
+--- a/pipeline/transcript_truth.py
++++ b/pipeline/transcript_truth.py
+@@ -29,6 +29,41 @@ PAUSE_MIN_S = 0.700          # ruling 38: a measured pause this long with no rec
+ CANON_RUN = 6                # recogniser words read together at an edge, so a spoken number is one canonical token
+ 
+ 
++MIN_SECTION_SHARE = 0.5   # RULING 142 (3) on this side: a fetched section under half its window's length is empty
++POST_LIVE_CACHE = "/home/ultron/protocol_pulse/data/post_live_cache"   # the integrator's whole streams (batch 111;
++#   read only): <video_id>/audio.m4a (format 140) and video.mp4 (137), used first when they hold media
++WHOLE = {"audio": ("audio.m4a", "bestaudio[acodec^=mp4a]/bestaudio")}   # the integrator's audio format (15:5x ET)
++
++
++def media_seconds(path):
++    """A media file's duration in seconds (ffprobe); 0.0 when it has none or cannot be read (a post_live stream's section
++    download gives a file of 0 s: MeC8YEmUx_w, 15:5x ET Nov 17, 258 bytes)."""
++    try:
++        out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path],
++                             capture_output=True, text=True, timeout=60).stdout.strip()
++        return float(out or 0.0)
++    except (OSError, ValueError, subprocess.SubprocessError):
++        return 0.0
++
++
++def whole_stream(video_id, fmt, out_dir, tag):
++    """RULING 142 (3) on this side (the integrator's batch 111 does the same for the render): a post_live YouTube stream
++    (DASH segments only) gives an EMPTY section download, so its whole stream in `fmt` is fetched ONCE per video and tag,
++    kept in out_dir as <video_id>.whole-<tag>.<ext>, and every window is cut from it locally. -> the file's path."""
++    theirs = os.path.join(POST_LIVE_CACHE, video_id, {"audio": "audio.m4a", "video": "video.mp4"}.get(tag, "-"))
++    if os.path.isfile(theirs) and media_seconds(theirs) > 0:   # the integrator's copy of the same stream: read only
++        return theirs
++    stem = f"{video_id}.whole-{tag}"
++    find = lambda: [f for f in sorted(os.listdir(out_dir)) if os.path.splitext(f)[0] == stem]
++    if not find():
++        subprocess.run(["yt-dlp", "-q", "--no-playlist", "-f", fmt, "-o", os.path.join(out_dir, stem + ".%(ext)s"),
++                        f"https://www.youtube.com/watch?v={video_id}"], check=True, timeout=1800, capture_output=True)
++    have = find()
++    if not have:
++        raise OSError(f"the whole stream of {video_id} ({fmt}) was not fetched")
++    return os.path.join(out_dir, have[0])
++
++
+ def audio_window(video_id, start, end, out_dir, pad=PAD_S, pad_before=PAD_BEFORE_S):
+     """WAV (16 kHz mono) of [start - pad_before, end + pad] (clamped at the video head), fetched with yt-dlp's
+     download sections -> (path, the window's real start in video seconds)."""
+@@ -42,8 +77,19 @@ def audio_window(video_id, start, end, out_dir, pad=PAD_S, pad_before=PAD_BEFORE
+     subprocess.run(["yt-dlp", "-q", "--no-playlist", "-f", "bestaudio", "--download-sections", f"*{a:.2f}-{b:.2f}",
+                     "--force-keyframes-at-cuts", "-o", base + ".%(ext)s", f"https://www.youtube.com/watch?v={video_id}"],
+                    check=True, timeout=300, capture_output=True)
+-    src = next(os.path.join(out_dir, f) for f in sorted(os.listdir(out_dir))
+-               if os.path.splitext(f)[0] == stem and not f.endswith(".wav"))       # exact stem: never a longer id
++    src = next((os.path.join(out_dir, f) for f in sorted(os.listdir(out_dir))
++                if os.path.splitext(f)[0] == stem and not f.endswith(".wav")), None)   # exact stem: never a longer id
++    if src is None or media_seconds(src) < MIN_SECTION_SHARE * (b - a):   # RULING 142 (3): a post_live stream's empty
++        whole = whole_stream(video_id, WHOLE["audio"][1], out_dir, "audio")   # (or absent) section: the whole audio
++        #   stream once, the window cut here
++        tmp = base + ".tmp.wav"                       # renamed into place only whole: an interrupted cut is never cached
++        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-ss", f"{a:.3f}", "-i", whole, "-t", f"{b - a:.3f}",
++                        "-ac", "1", "-ar", "16000", tmp], check=True, timeout=300)
++        if media_seconds(tmp) < MIN_SECTION_SHARE * (b - a):            # still empty: never cached, never a pass
++            os.remove(tmp)
++            raise OSError(f"{video_id} {a:.2f}-{b:.2f}: no audio in the section or the whole stream")
++        os.replace(tmp, wav)
++        return wav, a
+     subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", src, "-ac", "1", "-ar", "16000", wav], check=True,
+                    timeout=120)
+     return wav, a
+diff --git a/pipeline/visual_pin.py b/pipeline/visual_pin.py
+index 24ed7a1..3153ca7 100644
+--- a/pipeline/visual_pin.py
++++ b/pipeline/visual_pin.py
+@@ -149,14 +149,32 @@ def fetch(video_id, start, end, work_dir):
+     os.makedirs(d, exist_ok=True)
+     stem = f"{video_id}_{int(start * 1000)}_{int(end * 1000)}"
+     have = [f for f in sorted(os.listdir(d)) if os.path.splitext(f)[0] == stem and not f.endswith(".jpg")]
++    import transcript_truth as TT
++    cut = os.path.join(d, stem + ".cut.mp4")                    # RULING 142 (3): a post_live span cut before, whole
++    whole_cut = lambda: os.path.exists(cut) and TT.media_seconds(cut) >= TT.MIN_SECTION_SHARE * (end - start)
++    if not have and whole_cut():                                # (audit 20261117_1556 C1 qwen: never a partial one)
++        return cut
+     if not have:
+         subprocess.run(["yt-dlp", "-q", "--no-playlist", "-f", FORMAT, "--download-sections",
+                         f"*{start:.2f}-{end:.2f}", "--force-keyframes-at-cuts", "-o", os.path.join(d, stem + ".%(ext)s"),
+                         f"https://www.youtube.com/watch?v={video_id}"], check=True, timeout=300, capture_output=True)
+         have = [f for f in sorted(os.listdir(d)) if os.path.splitext(f)[0] == stem and not f.endswith(".jpg")]
+-    if not have:
+-        raise OSError(f"no video fetched for {stem}")
+-    return os.path.join(d, have[0])
++    path = os.path.join(d, have[0]) if have else None
++    if path is not None and TT.media_seconds(path) >= TT.MIN_SECTION_SHARE * (end - start):
++        return path
++    #   RULING 142 (3): a post_live stream's empty (or absent) section: the whole
++    if not whole_cut():                                                # stream once (<= 480p), the span cut here
++        whole = TT.whole_stream(video_id, FORMAT, d, "video")
++        tmp = os.path.join(d, stem + ".cut.tmp.mp4")                  # renamed into place only whole
++        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-ss", f"{start:.3f}", "-i", whole, "-t",
++                        f"{end - start:.3f}", "-an", "-vf", "scale=-2:'min(480,ih)'", "-c:v", "libx264", "-preset",
++                        "veryfast", "-crf", "28", tmp],
++                       check=True, timeout=300)
++        if TT.media_seconds(tmp) < TT.MIN_SECTION_SHARE * (end - start):
++            os.remove(tmp)
++            raise OSError(f"no video in the section or the whole stream for {stem}")
++        os.replace(tmp, cut)
++    return cut
+ 
+ 
+ def sheet(video, start, end, work_dir):
+diff --git a/tests/package/test_ruling_142_post_live.py b/tests/package/test_ruling_142_post_live.py
+new file mode 100644
+index 0000000..211f40d
+--- /dev/null
++++ b/tests/package/test_ruling_142_post_live.py
+@@ -0,0 +1,161 @@
++#!/usr/bin/env python3
++"""RULING 142 (3) on the builder's side (orchestrator 14:32 ET Nov 17): a post_live YouTube stream (DASH segments only)
++gives an EMPTY section download (MeC8YEmUx_w, 15:5x ET: 258 bytes, 0 s), so this side's word check
++(transcript_truth.audio_window) and frame sheet (visual_pin.fetch) would fail closed on every clip of it. They now fetch
++the whole stream once per video (the integrator's read-only cache first, batch 111), cut the window locally, and still
++fail closed when even that holds no media. Offline: yt-dlp, ffmpeg and the duration probe are stubbed."""
++import os
++import sys
++import tempfile
++import unittest
++from unittest import mock
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++import transcript_truth as TT  # noqa: E402
++import visual_pin as VP  # noqa: E402
++
++REAL_REPLACE = os.replace
++
++
++class Media:
++    """yt-dlp / ffmpeg stand-ins that write the files they would, and a duration table for media_seconds."""
++
++    def __init__(self, section_s=0.0, cut_s=None, write_section=True):
++        self.calls, self.section_s, self.cut_s, self.write_section = [], section_s, cut_s, write_section
++        self.seconds = {}
++
++    def run(self, cmd, **kw):
++        self.calls.append(list(cmd))
++        if cmd[0] == "yt-dlp":
++            out = cmd[cmd.index("-o") + 1].replace("%(ext)s", "m4a" if "bestaudio" in cmd[cmd.index("-f") + 1]
++                                                   else "mp4")
++            if "--download-sections" in cmd:
++                if self.write_section:
++                    open(out, "w").write("x")
++                    self.seconds[out] = self.section_s
++            else:
++                open(out, "w").write("whole")
++                self.seconds[out] = 5700.0
++        elif cmd[0] == "ffmpeg":
++            out = cmd[-1]
++            open(out, "w").write("cut")
++            if "-ss" in cmd:                          # a cut from a whole stream
++                self.seconds[out] = float(cmd[cmd.index("-t") + 1]) if self.cut_s is None else self.cut_s
++            else:
++                self.seconds[out] = 15.0
++        return mock.Mock(returncode=0, stdout="", stderr="")
++
++    def secs(self, path):
++        return self.seconds.get(path, 0.0)
++
++    def replace(self, src, dst):                       # a cut renamed into place keeps its duration
++        REAL_REPLACE(src, dst)
++        self.seconds[dst] = self.seconds.pop(src, 0.0)
++
++    def wholes(self):
++        return [c for c in self.calls if c[0] == "yt-dlp" and "--download-sections" not in c]
++
++
++class Base(unittest.TestCase):
++    def setUp(self):
++        self.tmp = tempfile.TemporaryDirectory()
++        self.d, self.cache = os.path.join(self.tmp.name, "w"), os.path.join(self.tmp.name, "theirs")
++        os.makedirs(self.d)
++
++    def tearDown(self):
++        self.tmp.cleanup()
++
++    def patched(self, m):
++        return [mock.patch.object(TT.subprocess, "run", m.run), mock.patch.object(TT, "media_seconds", m.secs),
++                mock.patch.object(TT, "POST_LIVE_CACHE", self.cache), mock.patch.object(os, "replace", m.replace)]
++
++    def go(self, m, fn):
++        ps = self.patched(m)
++        for p in ps:
++            p.start()
++        try:
++            return fn()
++        finally:
++            for p in ps:
++                p.stop()
++
++
++class TestTheWordChecksWindow(Base):
++    def test_an_empty_section_is_cut_from_the_whole_stream_fetched_once(self):
++        m = Media(section_s=0.0)
++        wav, a = self.go(m, lambda: TT.audio_window("vid", 100.0, 110.0, self.d))
++        self.assertEqual((a, m.secs(wav) > 0), (96.0, True))
++        self.assertEqual(len(m.wholes()), 1)
++        cut = [c for c in m.calls if c[0] == "ffmpeg"][-1]
++        self.assertEqual((cut[cut.index("-ss") + 1], cut[cut.index("-t") + 1]), ("96.000", "15.500"))
++        self.go(m, lambda: TT.audio_window("vid", 200.0, 210.0, self.d))         # another window: the same stream
++        self.assertEqual(len(m.wholes()), 1)
++
++    def test_the_integrators_cached_stream_is_read_first(self):
++        os.makedirs(os.path.join(self.cache, "vid"))
++        theirs = os.path.join(self.cache, "vid", "audio.m4a")
++        open(theirs, "w").write("whole")
++        m = Media(section_s=0.0)
++        m.seconds[theirs] = 5700.0
++        self.go(m, lambda: TT.audio_window("vid", 100.0, 110.0, self.d))
++        self.assertEqual(m.wholes(), [])                                           # no download of our own
++        self.assertIn(theirs, [c for c in m.calls if c[0] == "ffmpeg"][-1])
++
++    def test_no_section_file_at_all_takes_the_whole_stream_too(self):
++        m = Media(write_section=False)
++        wav, _ = self.go(m, lambda: TT.audio_window("vid", 100.0, 110.0, self.d))
++        self.assertTrue(m.secs(wav) > 0)
++        self.assertEqual(len(m.wholes()), 1)
++
++    def test_a_normal_section_is_used_as_before(self):
++        m = Media(section_s=15.5)
++        self.go(m, lambda: TT.audio_window("vid", 100.0, 110.0, self.d))
++        self.assertEqual(m.wholes(), [])
++        self.assertNotIn("-ss", [c for c in m.calls if c[0] == "ffmpeg"][-1])
++
++    def test_a_cut_with_no_audio_fails_closed_and_is_never_kept(self):
++        m = Media(section_s=0.0, cut_s=0.0)
++        with self.assertRaises(OSError):
++            self.go(m, lambda: TT.audio_window("vid", 100.0, 110.0, self.d))
++        self.assertFalse([f for f in os.listdir(self.d) if f.endswith(".wav")])
++
++
++class TestTheFrameSheetsVideo(Base):
++    def test_an_empty_section_is_cut_from_the_whole_stream_and_kept(self):
++        m = Media(section_s=0.0)
++        v = self.go(m, lambda: VP.fetch("vid", 100.0, 110.0, self.d))
++        self.assertTrue(v.endswith(".cut.mp4") and m.secs(v) > 0, v)
++        cut = [c for c in m.calls if c[0] == "ffmpeg"][-1]
++        self.assertEqual((cut[cut.index("-ss") + 1], cut[cut.index("-t") + 1]), ("100.000", "10.000"))
++        self.assertIn("scale=-2:'min(480,ih)'", cut)                               # the sheet's <= 480p
++        n = len(m.calls)
++        self.assertEqual(self.go(m, lambda: VP.fetch("vid", 100.0, 110.0, self.d)), v)   # cut once, then kept
++        self.assertEqual(len(m.calls), n)
++
++    def test_a_partial_cut_left_behind_is_never_returned(self):
++        """Audit 20261117_1556 C1 (qwen): an interrupted earlier cut must not stand for the span."""
++        os.makedirs(os.path.join(self.d, "visual"))
++        bad = os.path.join(self.d, "visual", "vid_100000_110000.cut.mp4")
++        open(bad, "w").write("partial")                                  # 0 s by the duration table
++        m = Media(section_s=0.0)
++        v = self.go(m, lambda: VP.fetch("vid", 100.0, 110.0, self.d))
++        self.assertEqual((v, m.secs(v)), (bad, 10.0))                        # re-cut, whole
++        self.assertTrue([c for c in m.calls if c[0] == "ffmpeg"])
++
++    def test_a_normal_section_is_returned_as_before(self):
++        m = Media(section_s=10.0)
++        v = self.go(m, lambda: VP.fetch("vid", 100.0, 110.0, self.d))
++        self.assertTrue(v.endswith("vid_100000_110000.mp4"), v)
++        self.assertEqual(m.wholes(), [])
++
++    def test_a_cut_with_no_picture_fails_closed_and_is_never_kept(self):
++        m = Media(section_s=0.0, cut_s=0.0)
++        with self.assertRaises(OSError):
++            self.go(m, lambda: VP.fetch("vid", 100.0, 110.0, self.d))
++        self.assertFalse(os.path.exists(os.path.join(self.d, "visual", "vid_100000_110000.cut.mp4")))
++
++
++if __name__ == "__main__":
++    unittest.main()
