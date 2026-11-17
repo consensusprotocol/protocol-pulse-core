@@ -21,7 +21,10 @@ Safety:
         first too, and so does another owner of the lease. The pass WAITS, polling every LEASE_POLL_S and
         holding nothing, at most LEASE_WAIT_S in all per run. Each attempt is non-blocking.
       * A build that wants GPU0 mid-pass gets it at the next file boundary: Whisper is unloaded, the lease
-        goes, and the pass waits again and goes on.
+        goes, and the pass ENDS (batch 102): the rest wait for the next run. Once Whisper has loaded, this
+        process holds a CUDA context until it exits, and every other GPU0 user (the scorer, a render) sees that
+        context as foreign (L-r) and stops after a 600 s wait. Batch 97's wait-and-go-on killed the stand-alone
+        scorer at 15:26 ET Nov 16 that way. Waiting BEFORE the first load (no context yet) is unchanged.
     Before the order the lease was tried once at no wait, so one scorer burst at the cron's start deferred
     every video for 30 minutes.
   - bounded: --hours window and --max-whisper-hours audio budget per invocation
@@ -166,8 +169,14 @@ def ingest(hours=72, max_whisper_hours=10.0, allow_during_run=False, log=print):
                 continue
             if hold is not None and (LJ.render_wants_gpu0() or gpu0_want.wanted()):
                 hold.close()                             # this file boundary: Whisper unloaded, then the lease goes
-                hold = None
-                log("  Whisper gives GPU0 back at this file boundary (a render or a build asked)")
+                hold = None                              # batch 102: and the pass ENDS, so that this process (its
+                why = "deferred_render_wants_gpu0" if LJ.render_wants_gpu0() else "deferred_gpu0_yielded"
+                for w in pending[i:]:                    # CUDA context) is gone before anyone else loads on GPU0
+                    summary["status"][w["video_id"]] = why
+                log(f"  Whisper gives GPU0 back at this file boundary (a render or a build asked) and the pass ends: "
+                    f"{len(pending) - i} video(s) wait for the next run (this process's CUDA context must not "
+                    f"outlive its turn: L-r)")
+                break
             if hold is None:
                 hold = contextlib.ExitStack()
                 why, waited = gpu0_turn(hold, waited, log)

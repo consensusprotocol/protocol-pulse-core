@@ -149,21 +149,30 @@ class TestWhisperPass(unittest.TestCase):
         self.assertTrue(attempts and cleared and min(attempts) >= cleared[0], (attempts, cleared))   # builds first
 
     def test_order_1305_a_build_wanting_gpu0_mid_pass_gets_it_at_the_next_file_boundary(self):
-        inner, seen = TI.ts.acquire, []
+        inner, seen, timers = TI.ts.acquire, [], []
 
         def acquire(video_id, **k):
             r = inner(video_id, **k)
             if k.get("allow_whisper") and video_id == "v1":            # the scorer's burst arrives during v1
                 W.want("stand_alone_scorer")
-                threading.Timer(0.2, lambda: seen.append((gpu0.held(), gpu0.holder()))).start()
-                threading.Timer(0.4, W.done, ("stand_alone_scorer",)).start()
+                timers.extend([threading.Timer(0.2, lambda: seen.append((gpu0.held(), gpu0.holder()))),
+                               threading.Timer(0.4, W.done, ("stand_alone_scorer",))])
+                for t in timers:
+                    t.start()
             return r
         taken, spy = self.lease_spy()
+        self.addCleanup(lambda: [t.join() for t in timers])           # never into the next test
+        t0 = time.time()
         with spy, mock.patch.object(TI.ts, "acquire", acquire), mock.patch.object(TI, "LEASE_WAIT_S", 10.0, create=True):
             s = self.run_ingest()
-        self.assertEqual(self.statuses(s), ["whisper"] * 3)            # Whisper went on after the build
-        self.assertEqual(self.unloads, [True, True])                   # unloaded at the boundary and at the end
-        self.assertEqual(len(taken), 2)
+        # batch 102: the pass ENDS at the boundary (its CUDA context must not wait beside the build's model):
+        # never a second lease, never a wait, the rest for the next run
+        self.assertEqual(self.statuses(s), ["whisper"] + ["deferred_gpu0_yielded"] * 2)
+        self.assertEqual(self.unloads, [True])                         # unloaded at the boundary, then gone
+        self.assertEqual(len(taken), 1)
+        self.assertLess(time.time() - t0, 0.4)                         # it did not wait for the build to finish
+        for t in timers:
+            t.join()
         self.assertEqual(seen, [(False, None)])                        # during the build's turn GPU0 was free
         self.assertIsNone(gpu0.holder())
 
