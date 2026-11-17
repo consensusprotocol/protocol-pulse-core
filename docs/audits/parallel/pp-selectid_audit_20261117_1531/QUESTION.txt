@@ -1,0 +1,24 @@
+pp-selectid: RULING 142, the BUILDER'S MIRROR of the integrator's batches 111 + 112 (one decoder lockstep; its branch
+r142-postlive 70e78551, audited on its side). The previous lockstep (batch 110 / my 45ad6040) is live. The re-judges under
+it still held: f0a51c45 because pinned._majority_text maps tokens back to words with canon.canon_spans word by word, and
+the word "-7," alone still read "minus 7"; feb4b72f because its "Bitcoin's" is the CONTRACTION of "Bitcoin is" (a 2-token
+against 1-token pair, outside 110's one-token word_form). Files: pipeline/canon.py (copied BYTE-IDENTICAL from the
+integrator's staged file, sha256 90f23312a02d402b40daaaf58d89556ecdd2ee526795cd74113b778eb3fbf2a5),
+pipeline/lock_precheck.py (DECODER only), tests/package/test_lock_precheck.py, tests/package/test_ruling_105.py.
+
+THE CHANGE:
+(a) canon.canon_spans: a word "-<digit>..." right after a word ending in a digit loses its hyphen (the word-by-word form
+    of 110's _NUM_HYPHEN; '24' '-7,' reads '24' '7'); a sign after a word ('fell' '-5%') stays 'minus'.
+(b) canon.word_form also takes the contraction [t + "'s"] against [t, 'is'] or [t, 'has'], either way round, with no
+    digit in t. attest.class_131's critical check already calls canon.word_form (my 45ad6040, unchanged here), so the
+    contraction pair reaches ruling 131 (A)'s two of three with the copy: the approved words when the second recogniser
+    reads them, the run's reading only at an edge >= 3, all three different still holds.
+(c) lock_precheck.DECODER fc204e4a4385 (full sha in the comment). RULES unchanged (ruling 142 covers it). The post_live
+    fallback and its offset guard are the integrator's acquisition code (not in my files).
+
+TESTS (test_lock_precheck TestRuling142, 2 new; the decoder pins updated): the contraction both ways round, and what is
+not one (a digit, 'was', another word); feb4b72f's shape decided two of three both ways and held when all three differ;
+canon_spans reads '24' '-7,' as '24' '7' and keeps 'fell' '-5%' a sign. Mutations: 6 of 6 killed.
+
+PLEASE CHECK: (1) can the contraction rule exempt anything the ruling did not (a number, another verb, another word)?
+(2) does the canon_spans change ever drop a real sign? (3) the decoder and the tests.

@@ -60,7 +60,7 @@ class TestRequest(Dirs):
         self.assertNotIn("trimmed_leading", s[1])                                        # only a trimmed moment
         self.assertEqual((s[2]["trimmed_leading"], s[2]["untrimmed_start"]), ("And", 1690.9))
         self.assertEqual(os.path.basename(LP.result_file(s[0], self.res)),
-                         "DcUbBkyeh9M.216.054-228.674.fe809cb4e680.json")             # ruling 142's decoder
+                         "DcUbBkyeh9M.216.054-228.674.fc204e4a4385.json")             # batches 111 + 112's decoder
 
     def test_a_request_is_renamed_from_its_tmp_and_never_written_over(self):
         segs = LP.segments_of([HOOK, CLIP])
@@ -421,6 +421,31 @@ class TestRuling142(unittest.TestCase):
         d = self.decide(self.RUN, self.RUN, "run")                                      # as spoken, edge 3
         self.assertEqual((d["verdict"], d.get("adoption")), ("adopt", AT.RULE_131), d)
         self.assertEqual(self.decide(self.APP, self.THIRD, None)["verdict"], "hold")    # all three differ
+
+    def test_the_contraction_is_the_same_word_form_pair(self):
+        """Batch 112 (the ruling's own case, Natalie Brunell feb4b72f): "Bitcoin's a responsibility" against "Bitcoin is
+        a responsibility": [t + "'s"] against [t, 'is' | 'has'], either way round, no digit in t."""
+        self.assertTrue(C.word_form(["bitcoin's"], ["bitcoin", "is"]))
+        self.assertTrue(C.word_form(["bitcoin", "has"], ["bitcoin's"]))
+        for x, y in ((["1990's"], ["1990", "is"]), (["bitcoin's"], ["bitcoin", "was"]), (["bitcoin's"], ["ether", "is"])):
+            self.assertFalse(C.word_form(x, y), (x, y))
+        app = "Holding your own keys means Bitcoin's a responsibility that nobody else can carry for you in the end."
+        run = "Holding your own keys means Bitcoin is a responsibility that nobody else can carry for you in the end."
+        third = "Holding your own keys means Bitcoin was a responsibility that nobody else can carry for you in the end."
+        s = LP.segments_of([{"video_id": "x", "start": 1.0, "end": 9.0, "text": app}])[0]
+
+        def decide(spoken, second, took):
+            adj = {"rule": "ruling 131 (A) (orchestrator 2026-11-17 '08:25')", "run_decode": run, "approved": app,
+                   "second_recogniser": second,
+                   "pairs": [{"run": "bitcoin is", "approved": "bitcoin's", "took": took, "edge_distance": 5}]}
+            return LP.decide(s, entry(s, "adopt_spoken", spoken_text=spoken, adjudication=adj))
+        self.assertEqual(decide(app, app, "approved")["verdict"], "pass")
+        self.assertEqual(decide(run, run, "run")["verdict"], "adopt")
+        self.assertEqual(decide(app, third, None)["verdict"], "hold")
+
+    def test_canon_spans_reads_the_hyphen_word_by_word(self):
+        self.assertEqual([t for t, _, _ in C.canon_spans(["24", "-7,", "365"])], ["24", "7", "365"])
+        self.assertIn("minus", [t for t, _, _ in C.canon_spans(["it", "fell", "-5%"])])
 
     def test_a_name_that_is_no_word_form_still_holds(self):
         app = self.APP.replace("Bitcoin's", "Ethereum's")

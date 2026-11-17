@@ -1,0 +1,110 @@
+diff --git a/pipeline/canon.py b/pipeline/canon.py
+index c12c8a1..043464d 100644
+--- a/pipeline/canon.py
++++ b/pipeline/canon.py
+@@ -254,6 +254,8 @@ def canon_spans(words):
+         if w.strip() in ("-", "+", "\u2212") and j < len(words) and re.match(r"^\s*\$?\d", words[j] or "") and \
+                 (w.strip() != "-" or not i or not re.search(r"[\d.,%]\s*$", words[i - 1] or "")):
+             w, j = w.strip() + (words[j] or "").strip(), j + 1        # '-' '5%' = '-5%'; '70' '-' '75' stays a range
++        if i and re.match(r"^\s*-\d", w) and re.search(r"\d$", (words[i - 1] or "").rstrip()):
++            w = w.replace("-", "", 1)        # ruling 142 (1), word by word as in the text: '24' '-7,' reads '24' '7'
+         while j < len(words) and (re.match(r"^\s*[.,][0-9A-Za-z]", words[j] or "") or (     # '$81' ',000'
+                 re.fullmatch(r"\$?\d{1,3}(\d{3})*", w.strip()) and re.fullmatch(r"\d{3}[.,!?]*", (words[j] or "").strip()))):
+             w, j = w + (words[j] or "").strip(), j + 1                                      # '74' '000'
+@@ -316,8 +318,14 @@ def word_form(x, y):
+     """Ruling 142 (2) (orchestrator 2026-11-17 '14:32'): two readings that differ ONLY by a possessive or plural ending
+     on ONE word ('bitcoin' / "bitcoin's" / 'bitcoins' / "bitcoins'"): a word-form pair, decided like any other differing
+     pair by ruling 131 (A)'s two of three (the sealed text takes that reading; all three different still holds). Never
+-    a token with a digit ('1990s' is not '1990': a number stays law L-v 2's)."""
++    a token with a digit ('1990s' is not '1990': a number stays law L-v 2's). The same "'s" written as a contraction is
++    the same pair (the ruling's own case, Natalie Brunell feb4b72f: "Bitcoin's a responsibility" against "Bitcoin is a
++    responsibility"): [t + "'s"] against [t, 'is'] or [t, 'has']."""
+     x, y = list(x or []), list(y or [])
++    for a, b in ((x, y), (y, x)):                             # the contraction, either way round
++        if len(a) == 1 and len(b) == 2 and b[1] in ("is", "has") and a[0] == b[0] + "'s" \
++                and not re.search(r"\d", a[0]):
++            return True
+     if len(x) != len(y) or not x:
+         return False
+     diff = [(a, b) for a, b in zip(x, y) if a != b]
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+index 01138c8..43b30d8 100644
+--- a/pipeline/lock_precheck.py
++++ b/pipeline/lock_precheck.py
+@@ -61,7 +61,7 @@ RULES = ("ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 10
+ #   targeted re-listen joins the rules (the integrator's message of 14:3x Nov 14); entries under the old RULES are never
+ #   read. RULING 84 (orchestrator 20:41 Nov 13): the integrator's
+ #   RULES string (its message of 20:4x Nov 13). RULING 73 (live 18:43:08 Nov 13, merged 585b6da5 on the integrator's
+-DECODER = "fe809cb4e680"                      # side): the render's own cut placement joins the pre-check (a passing
++DECODER = "fc204e4a4385"                      # side): the render's own cut placement joins the pre-check (a passing
+ #   entry carries "cut"; a span the render cannot cut holds: "ruling 73: the render cannot cut this span: ..."). RULING
+ #   84 changed the render's adjudicate_lock (pinned.py), so the decoder_sha changed: 962353613cb0e065008ab0405ca8550111ddd3ca3ba70f0ae65b4b77ab1876d8
+ #   (ruling 73's was 8a101f222598a4f725e7cf85626e90fb2fae35df8d81d3ff430469728114e1a7). RULING 90 (the integrator's
+@@ -78,6 +78,9 @@ DECODER = "fe809cb4e680"                      # side): the render's own cut plac
+ #   b52c9354d604ab2303a91e6e6e5f926990987d46448992579684934f62e9392d
+ #   RULING 142 (canon's '24 -7' and canon.word_form, adjudicate_lock's word-form exemption; the integrator's branch
+ #   r141-sign f02dd73c, audited; lockstep as with 135): fe809cb4e680a3bc5df49e4c397e79f6cf2277650ea02c05cf88b34ecc573ebd
++#   RULING 142, the integrator's batches 111 (the post_live fallback, acquisition-side) + 112 (canon_spans reads '24' '-7,'
++#   as '24' '7'; word_form takes the contraction [t + "'s"] / [t, 'is' | 'has']; branch r142-postlive 70e78551; one
++#   lockstep): fc204e4a4385a1906ef858923936cd6d6ed3a65ea78f2007281e2d4945038e09
+ RESULTS = "/home/ultron/protocol_pulse/data/lock_precheck/results"        # the integrator's; read only
+ REQUESTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
+                         "lock_requests")      # this worktree's; the service only reads it
+diff --git a/tests/package/test_lock_precheck.py b/tests/package/test_lock_precheck.py
+index 17514ac..34476f1 100644
+--- a/tests/package/test_lock_precheck.py
++++ b/tests/package/test_lock_precheck.py
+@@ -60,7 +60,7 @@ class TestRequest(Dirs):
+         self.assertNotIn("trimmed_leading", s[1])                                        # only a trimmed moment
+         self.assertEqual((s[2]["trimmed_leading"], s[2]["untrimmed_start"]), ("And", 1690.9))
+         self.assertEqual(os.path.basename(LP.result_file(s[0], self.res)),
+-                         "DcUbBkyeh9M.216.054-228.674.fe809cb4e680.json")             # ruling 142's decoder
++                         "DcUbBkyeh9M.216.054-228.674.fc204e4a4385.json")             # batches 111 + 112's decoder
+ 
+     def test_a_request_is_renamed_from_its_tmp_and_never_written_over(self):
+         segs = LP.segments_of([HOOK, CLIP])
+@@ -422,6 +422,31 @@ class TestRuling142(unittest.TestCase):
+         self.assertEqual((d["verdict"], d.get("adoption")), ("adopt", AT.RULE_131), d)
+         self.assertEqual(self.decide(self.APP, self.THIRD, None)["verdict"], "hold")    # all three differ
+ 
++    def test_the_contraction_is_the_same_word_form_pair(self):
++        """Batch 112 (the ruling's own case, Natalie Brunell feb4b72f): "Bitcoin's a responsibility" against "Bitcoin is
++        a responsibility": [t + "'s"] against [t, 'is' | 'has'], either way round, no digit in t."""
++        self.assertTrue(C.word_form(["bitcoin's"], ["bitcoin", "is"]))
++        self.assertTrue(C.word_form(["bitcoin", "has"], ["bitcoin's"]))
++        for x, y in ((["1990's"], ["1990", "is"]), (["bitcoin's"], ["bitcoin", "was"]), (["bitcoin's"], ["ether", "is"])):
++            self.assertFalse(C.word_form(x, y), (x, y))
++        app = "Holding your own keys means Bitcoin's a responsibility that nobody else can carry for you in the end."
++        run = "Holding your own keys means Bitcoin is a responsibility that nobody else can carry for you in the end."
++        third = "Holding your own keys means Bitcoin was a responsibility that nobody else can carry for you in the end."
++        s = LP.segments_of([{"video_id": "x", "start": 1.0, "end": 9.0, "text": app}])[0]
++
++        def decide(spoken, second, took):
++            adj = {"rule": "ruling 131 (A) (orchestrator 2026-11-17 '08:25')", "run_decode": run, "approved": app,
++                   "second_recogniser": second,
++                   "pairs": [{"run": "bitcoin is", "approved": "bitcoin's", "took": took, "edge_distance": 5}]}
++            return LP.decide(s, entry(s, "adopt_spoken", spoken_text=spoken, adjudication=adj))
++        self.assertEqual(decide(app, app, "approved")["verdict"], "pass")
++        self.assertEqual(decide(run, run, "run")["verdict"], "adopt")
++        self.assertEqual(decide(app, third, None)["verdict"], "hold")
++
++    def test_canon_spans_reads_the_hyphen_word_by_word(self):
++        self.assertEqual([t for t, _, _ in C.canon_spans(["24", "-7,", "365"])], ["24", "7", "365"])
++        self.assertIn("minus", [t for t, _, _ in C.canon_spans(["it", "fell", "-5%"])])
++
+     def test_a_name_that_is_no_word_form_still_holds(self):
+         app = self.APP.replace("Bitcoin's", "Ethereum's")
+         adj = {"rule": "ruling 131 (A) (orchestrator 2026-11-17 '08:25')", "run_decode": self.RUN, "approved": app,
+diff --git a/tests/package/test_ruling_105.py b/tests/package/test_ruling_105.py
+index ecccdfc..0a732d6 100644
+--- a/tests/package/test_ruling_105.py
++++ b/tests/package/test_ruling_105.py
+@@ -40,7 +40,7 @@ BLOCKWARE = record()
+ class TestTheRules(Dirs):
+     def test_the_rules_and_decoder_are_the_integrators_ruling_105_ones(self):
+         self.assertIn("+ ruling 103 + ruling 105", LP.RULES)                      # ruling 131 joined after it
+-        self.assertEqual(LP.DECODER, "fe809cb4e680")                                 # ruling 142 moved it
++        self.assertEqual(LP.DECODER, "fc204e4a4385")                                 # batches 111 + 112 moved it
+         s = LP.segments_of([HOOK])[0]
+         self.put(s, entry(s, rules="ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103",
+                           at="2026-11-14T21:00:00Z"))
