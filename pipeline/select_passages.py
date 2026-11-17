@@ -21,6 +21,71 @@ sys.path.insert(0, PIPELINE_DIR)
 import sentence_law as L  # noqa: E402  (selection locks, boundary rule)
 
 
+POST_LIVE_DIR = os.path.join(os.path.dirname(PIPELINE_DIR), "data", "post_live_cache")    # ruling 142 (3): per video
+POST_LIVE_MIN_S = 0.5            # a file whose audio or container is shorter carries no media (a post_live DASH section)
+POST_LIVE_TIMEOUT_S = 1800       # one whole stream (MeC8YEmUx_w's 95 min: audio ~2 min, 1080p video ~8 min)
+
+
+def _has_media(path):
+    """False only when ffprobe READS the file and finds no media: its container or its audio shorter than
+    POST_LIVE_MIN_S, or no audio stream: what a post_live stream's DASH section downloads as (seconds of picture, no
+    audio, a 0 s container; ruling 142 (3)). A file ffprobe cannot read is left to the path that follows (True), as
+    before this check: the range and duration checks downstream hold on it."""
+    try:
+        r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration:stream=codec_type,duration",
+                            "-of", "json", path], capture_output=True, text=True, timeout=60)
+        d = json.loads(r.stdout or "{}")
+    except Exception:
+        return True
+    if not isinstance(d, dict) or not isinstance(d.get("format"), dict) or not isinstance(d.get("streams"), list):
+        return True                                      # unreadable: not this check's to judge
+    try:
+        fmt = float(d["format"].get("duration") or 0)
+        aud = [float(s.get("duration") or 0) for s in d["streams"] if isinstance(s, dict) and s.get("codec_type") == "audio"]
+    except (TypeError, ValueError):
+        return True
+    return fmt >= POST_LIVE_MIN_S and bool(aud) and max(aud) >= POST_LIVE_MIN_S
+
+
+def _post_live_window(video_id, dl_start, dl_end, out_path, cookies=None):
+    """RULING 142 (3) (orchestrator 2026-11-17 '14:32'): a post_live stream cannot be cut by --download-sections (DASH:
+    no audio comes back). Fetch the WHOLE audio and video once per video (POST_LIVE_DIR/<id>/, reused), then cut
+    [dl_start, dl_end] locally, re-encoded so the file starts at dl_start, and write <out_path>.post_live.json: the
+    route, so pinned.acquire checks this source's clock against the transcript's word timings (HARD). -> True when
+    out_path holds media."""
+    d = os.path.join(POST_LIVE_DIR, video_id)
+    os.makedirs(d, exist_ok=True)
+    got = {}
+    for kind, fmt, name in (("audio", "bestaudio[acodec^=mp4a]/bestaudio", "audio.m4a"),
+                            ("video", "bestvideo[height<=1080][vcodec^=avc1]/bestvideo[height<=1080]", "video.mp4")):
+        p = os.path.join(d, name)
+        if not (os.path.exists(p) and os.path.getsize(p) > 100_000):
+            cmd = ["yt-dlp", "-f", fmt, "-o", p, "--no-part", "--no-warnings", "--quiet",
+                   f"https://www.youtube.com/watch?v={video_id}"] + (["--cookies", cookies] if cookies else [])
+            try:
+                subprocess.run(cmd, capture_output=True, text=True, timeout=POST_LIVE_TIMEOUT_S)
+            except subprocess.TimeoutExpired:
+                print(f"    WARN: post_live whole-stream download timeout for {video_id} ({kind})")
+                return False
+        if not (os.path.exists(p) and os.path.getsize(p) > 100_000):
+            return False
+        got[kind] = p
+    cmd = ["ffmpeg", "-v", "error", "-y", "-ss", f"{dl_start:.3f}", "-i", got["video"], "-ss", f"{dl_start:.3f}",
+           "-i", got["audio"], "-t", f"{dl_end - dl_start:.3f}", "-map", "0:v:0", "-map", "1:a:0",
+           "-c:v", "libx264", "-crf", "17", "-preset", "veryfast", "-pix_fmt", "yuv420p",
+           "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2", "-movflags", "+faststart", out_path]
+    try:
+        subprocess.run(cmd, capture_output=True, text=True, timeout=900, check=True)
+    except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
+        return False
+    if not _has_media(out_path):
+        return False
+    with open(out_path + ".post_live.json", "w") as f:
+        json.dump({"route": "post_live_whole_stream", "video_id": video_id, "window": [dl_start, dl_end],
+                   "audio": got["audio"], "video": got["video"]}, f)
+    return True
+
+
 def _download_window(video_id, start_s, end_s, run_dir, pad=15.0):
     """Download a specific time window from a YouTube video.
 
@@ -64,7 +129,11 @@ def _download_window(video_id, start_s, end_s, run_dir, pad=15.0):
         return None
 
     if os.path.exists(out_path) and os.path.getsize(out_path) > 10_000:
-        return out_path, dl_start
+        if _has_media(out_path):
+            return out_path, dl_start
+        os.remove(out_path)                          # ruling 142 (3): a post_live stream's DASH section has no media
+        if _post_live_window(video_id, dl_start, dl_end, out_path, cookies if os.path.exists(cookies) else None):
+            return out_path, dl_start
     return None, 0
 
 

@@ -254,6 +254,8 @@ def canon_spans(words):
         if w.strip() in ("-", "+", "\u2212") and j < len(words) and re.match(r"^\s*\$?\d", words[j] or "") and \
                 (w.strip() != "-" or not i or not re.search(r"[\d.,%]\s*$", words[i - 1] or "")):
             w, j = w.strip() + (words[j] or "").strip(), j + 1        # '-' '5%' = '-5%'; '70' '-' '75' stays a range
+        if i and re.match(r"^\s*-\d", w) and re.search(r"\d$", (words[i - 1] or "").rstrip()):
+            w = w.replace("-", "", 1)        # ruling 142 (1), word by word as in the text: '24' '-7,' reads '24' '7'
         while j < len(words) and (re.match(r"^\s*[.,][0-9A-Za-z]", words[j] or "") or (     # '$81' ',000'
                 re.fullmatch(r"\$?\d{1,3}(\d{3})*", w.strip()) and re.fullmatch(r"\d{3}[.,!?]*", (words[j] or "").strip()))):
             w, j = w + (words[j] or "").strip(), j + 1                                      # '74' '000'
@@ -316,8 +318,14 @@ def word_form(x, y):
     """Ruling 142 (2) (orchestrator 2026-11-17 '14:32'): two readings that differ ONLY by a possessive or plural ending
     on ONE word ('bitcoin' / "bitcoin's" / 'bitcoins' / "bitcoins'"): a word-form pair, decided like any other differing
     pair by ruling 131 (A)'s two of three (the sealed text takes that reading; all three different still holds). Never
-    a token with a digit ('1990s' is not '1990': a number stays law L-v 2's)."""
+    a token with a digit ('1990s' is not '1990': a number stays law L-v 2's). The same "'s" written as a contraction is
+    the same pair (the ruling's own case, Natalie Brunell feb4b72f: "Bitcoin's a responsibility" against "Bitcoin is a
+    responsibility"): [t + "'s"] against [t, 'is'] or [t, 'has']."""
     x, y = list(x or []), list(y or [])
+    for a, b in ((x, y), (y, x)):                             # the contraction, either way round
+        if len(a) == 1 and len(b) == 2 and b[1] in ("is", "has") and a[0] == b[0] + "'s" \
+                and not re.search(r"\d", a[0]):
+            return True
     if len(x) != len(y) or not x:
         return False
     diff = [(a, b) for a, b in zip(x, y) if a != b]

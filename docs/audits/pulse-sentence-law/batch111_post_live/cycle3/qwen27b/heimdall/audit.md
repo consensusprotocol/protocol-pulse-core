@@ -1,0 +1,13 @@
+# Heimdall audit
+
+**Question:** Cycle 3: verify ONE fix in pipeline/pinned.py post_live_offset (ruling 142 (3)'s HARD guard on a post_live source's clock). Cycle 1 found that reading the transcript's word-timing record (and the decode's word times) could raise a raw exception (json.JSONDecodeError, OSError, ValueError, TypeError, AttributeError) instead of PinError, the guard's contract (a clean hold with a reason). The fix wraps both reads and raises PinError. FACTS (unchanged): pinned.py imports re and json and defines REPO at module level; PinError is the module's hold exception. Report ONLY a defect you can prove by quoting the diff; under 60 words each. If the fix holds and changes nothing else, answer PASS with no findings.
+
+**Panel:** qwen27b  |  **Cost:** $0.0017
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none

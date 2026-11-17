@@ -1,0 +1,34 @@
+diff --git a/pipeline/pinned.py b/pipeline/pinned.py
+index b51afbcb..e3db3457 100644
+--- a/pipeline/pinned.py
++++ b/pipeline/pinned.py
+@@ -309,7 +309,12 @@ def post_live_offset(vid, tr, offset):
+ 
+     def norm(w):
+         return re.sub(r"[^a-z0-9']", "", str(w).lower())
+-    mine = [(norm(w.get("word")), float(w["start"]) + offset) for w in tr.get("words") or [] if "start" in w]
++    try:
++        mine = [(norm(w.get("word")), float(w["start"]) + offset) for w in tr.get("words") or []
++                if isinstance(w, dict) and "start" in w]
++    except (TypeError, ValueError, AttributeError) as e:
++        raise PinError(f"{vid}: post_live source: the decode's word times are unreadable ({type(e).__name__}): its "
++                       f"clock cannot be checked (ruling 142 (3): HARD)")
+     if not mine:
+         raise PinError(f"{vid}: post_live source: the decode has no words to check its clock with (ruling 142 (3))")
+     lo, hi, best = mine[0][1], mine[-1][1], None
+@@ -324,8 +329,13 @@ def post_live_offset(vid, tr, offset):
+     if best is None:
+         raise PinError(f"{vid}: post_live source: no transcript word timings overlap the window, so its clock cannot be "
+                        f"checked (ruling 142 (3): HARD)")
+-    with open(best[1]) as f:
+-        rec = [(norm(w.get("word")), float(w["start"])) for w in json.load(f).get("words") or [] if "start" in w]
++    try:                                           # batch 111 cycle 1 (qwen F1): unreadable timings are a hold
++        with open(best[1]) as f:
++            rec = [(norm(w.get("word")), float(w["start"])) for w in json.load(f).get("words") or []
++                   if isinstance(w, dict) and "start" in w]
++    except (OSError, ValueError, TypeError, AttributeError) as e:
++        raise PinError(f"{vid}: post_live source: the transcript's word timings are unreadable ({type(e).__name__}): "
++                       f"its clock cannot be checked (ruling 142 (3): HARD)")
+     sm = SequenceMatcher(None, [m[0] for m in mine], [r[0] for r in rec], autojunk=False)
+     deltas = [mine[a + k][1] - rec[b + k][1] for op, a, a2, b, _ in sm.get_opcodes() if op == "equal"
+               for k in range(a2 - a)]

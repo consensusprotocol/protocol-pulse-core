@@ -380,3 +380,23 @@ class TestRuling142(unittest.TestCase):
         for x, y in ((["1990"], ["1990s"]), (["bitcoin"], ["ethereum"]), (["bitcoin", "is"], ["bitcoin's", "was"]),
                      ([], []), (["bitcoin"], ["bitcoin's", "x"]), (["bitcoin"], ["bitcoin"]), (["s"], ["'s"])):
             self.assertFalse(C.word_form(x, y), (x, y))
+
+
+class TestRuling142Spans(unittest.TestCase):
+    """Batch 112, on batch 110: the token spans (word by word) must equal the text's tokens, or a lock that ruling 131
+    (A) settles cannot be written: Yahoo Finance f0a51c45 held 'the settled reading cannot be written' because '24'
+    '-7,' read '24 minus 7' word by word but '24 7' as a text. And ruling 142 (2)'s own case, Natalie Brunell
+    feb4b72f, is the contraction "Bitcoin's" = 'Bitcoin is'. must-fail on batch 110's code."""
+
+    def test_word_by_word_equals_the_text(self):
+        for t in ("money that's available 24 -7, 365, that has no CEO", "it fell to -5% and then 24 -7",
+                  "available 24 - 7, 365",                                        # batch 112 c1 F1: a lone hyphen
+                  "rates at -2 now", "is - 5% and 70 - 75", "(-$40M) after 24 -$5"):
+            self.assertEqual([s[0] for s in C.canon_spans(t.split())], C.canon_tokens(t), t)
+
+    def test_the_contraction_is_the_same_word_form(self):
+        self.assertTrue(C.word_form(["bitcoin's"], ["bitcoin", "is"]))
+        self.assertTrue(C.word_form(["bitcoin", "has"], ["bitcoin's"]))
+        for x, y in ((["bitcoin's"], ["bitcoin", "was"]), (["bitcoin's"], ["ethereum", "is"]), (["1990's"], ["1990", "is"]),
+                     (["bitcoin's", "x"], ["bitcoin", "is"])):
+            self.assertFalse(C.word_form(x, y), (x, y))
