@@ -544,3 +544,11 @@ class TestRuling136(Base):
         edit_json(os.path.join(rd, "PINNED_DECISION.json"),
                   lambda d: d["pin"]["moments_package"].update(package_sha256="cd" * 32))
         self.assertEqual(RA.attest(rd, {"ok": True, "why": []})["verdict"], "HOLD")      # another package's flags
+
+
+    def test_a_flag_reworded_after_the_attestation_is_refused(self):           # the verdict left as attested
+        rd, att = self.run_rows(lambda r: r["16x9"].__setitem__("G8_sharpness", "FAIL"))
+        edit_json(os.path.join(rd, "ATTESTATION.json"), lambda d: d.update(review_flags=["all fine"]))
+        ok, why, _ = RA.authorise(rd)
+        self.assertFalse(ok)
+        self.assertTrue(any("differ from the attested" in w for w in why), why)

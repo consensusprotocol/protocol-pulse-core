@@ -296,6 +296,14 @@ class TestStageValidate(unittest.TestCase):
                 got, _ = self.run_stage(edl_with(), rules=rules(hard, "rule_r11"))
                 self.assertTrue(got.startswith(f"HOLD: EDL rejected by edl_rules: {hard}"), got)
 
+    def test_ruling_137_a_medley_not_about_bitcoin_still_holds_at_validate(self):      # HARD: the show's scope
+        e = edl_with(hook=lambda t: "The halving cut new issuance in half again this year, and miners felt it.",
+                     clip1=lambda t: "Sats are the unit people actually use when they save a little every week.",
+                     clip2="But the hash rate keeps climbing to new records every single month.")
+        got, prov = self.run_stage(e, mark=good([2]))
+        self.assertTrue(got.startswith("HOLD: stand-alone/topic: medley"), got)
+        self.assertNotIn("review_flags", prov)
+
     def test_ruling_136_the_editorial_laws_flag(self):
         got, prov = self.run_stage(edl_with(), gate={"verdict": "HOLD", "laws": {
             "LAW_1_NEW_INFORMATION": {"pass": False}, "LAW_2_VO_HAS_A_JOB": {"pass": True}}})
