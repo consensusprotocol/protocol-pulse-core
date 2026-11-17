@@ -261,16 +261,17 @@ class TestStageValidate(unittest.TestCase):
     No vertical_overrides.json is written, so reaching the layout step (FileNotFoundError on it) means the stand-alone
     check passed."""
 
-    def run_stage(self, edl, mark=ABSENT, digest=WEIGHTS, score=3.0):
+    def run_stage(self, edl, mark=ABSENT, digest=WEIGHTS, score=3.0, rules=(True, []),
+                  gate=None):
         with tempfile.TemporaryDirectory() as d:
             with open(os.path.join(d, "edl.json"), "w") as f:
                 json.dump(edl, f)
             write_record(d, edl, mark=mark)
             run = types.SimpleNamespace(dir=d, prov={})
-            with mock.patch.object(edl_rules, "validate_edl", return_value=(True, [])), \
+            with mock.patch.object(edl_rules, "validate_edl", return_value=rules), \
                     mock.patch.object(edl_rules, "takeaway_value", return_value=(True, "stub")), \
-                    mock.patch.object(editorial_gate, "run_gate", return_value={"verdict": "READY_FOR_RENDER",
-                                                                               "laws": {}}), \
+                    mock.patch.object(editorial_gate, "run_gate", return_value=gate or {"verdict": "READY_FOR_RENDER",
+                                                                                       "laws": {}}), \
                     mock.patch.object(SA, "clip_scorer", return_value=rate_of(score)), \
                     mock.patch.object(SF, "running_digest", return_value=digest):
                 try:
@@ -282,6 +283,24 @@ class TestStageValidate(unittest.TestCase):
                         return "passed the stand-alone check", run.prov
                     raise
             return "returned", run.prov
+
+    def test_ruling_136_a_soft_edl_rule_flags_a_hard_or_unknown_one_holds(self):
+        def rules(*failing):
+            return False, [{"rule": r, "pass": False, "reason": f"{r} failed"} for r in failing]
+        got, prov = self.run_stage(edl_with(), rules=rules("rule_r11", "rule_r9"))
+        self.assertEqual(got, "passed the stand-alone check")
+        self.assertEqual([f["flag"] for f in prov["review_flags"]],
+                         [run_fresh.EDL_SOFT["rule_r11"], run_fresh.EDL_SOFT["rule_r9"]])
+        for hard in ("rule_r6", "rule_r2", "rule_r5", "rule_r7", "rule_r99"):        # credit, a passage twice, length,
+            with self.subTest(rule=hard):                                           # layout, a rule no list names
+                got, _ = self.run_stage(edl_with(), rules=rules(hard, "rule_r11"))
+                self.assertTrue(got.startswith(f"HOLD: EDL rejected by edl_rules: {hard}"), got)
+
+    def test_ruling_136_the_editorial_laws_flag(self):
+        got, prov = self.run_stage(edl_with(), gate={"verdict": "HOLD", "laws": {
+            "LAW_1_NEW_INFORMATION": {"pass": False}, "LAW_2_VO_HAS_A_JOB": {"pass": True}}})
+        self.assertEqual(got, "passed the stand-alone check")
+        self.assertEqual([f["flag"] for f in prov["review_flags"]], ["editorial law(s) not affirmed: LAW_1_NEW_INFORMATION"])
 
     def test_unmarked_a_floor_score_is_flagged_at_validate(self):            # rulings 136 / 137: SOFT (it held)
         got, prov = self.run_stage(edl_with(clip2=BUT))

@@ -58,7 +58,8 @@ FLAG_TEXT = {"G3c_acoustic_tail": "a clip's last moment is not quiet", "G8_sharp
              "V1_visual_checklist": "the vision check questioned the look", "G14_av_alignment":
              "sound and picture may drift", "G14_audio_offset": "the 9:16 sound may be offset",
              "vertical_silent_fallback": "the 9:16 fell back to letterbox"}
-FLAG_CAP = 3        # ruling 136 (2): at most 3 soft flags on a package in all (the pin's and the render's)
+# Ruling 136 (2)'s cap ("only if it has no more than 3 soft flags") is the never-empty SEAL's (the builder's): a render
+# lists every soft flag it finds and never holds on them, because a SOFT gate "scores and FLAGS, it does not refuse".
 FORMATS = ("16x9", "9x16")
 REGISTRY = os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.json")
 BOUND = ("out/segment.mp4", "out/segment_vertical.mp4", "edl.json", "qa/concat_manifest_16x9.json",
@@ -221,10 +222,16 @@ def pin_review_flags(run_dir):
         return []
     try:
         pin = json.load(open(p))["pin"]
-        f = (pin.get("moments_package") or {}).get("review_flags", [])
+        mp = pin.get("moments_package") or {}
+        f = mp.get("review_flags", [])
+        if f:                                            # bound to the attested EDL by the package digest (bar_lines' way)
+            edl = json.load(open(os.path.join(run_dir, "edl.json")))
+            sha = mp.get("package_sha256")
+            if not (isinstance(sha, str) and sha and sha == edl.get("moments_package_sha256")):
+                return None
     except (OSError, ValueError, KeyError, TypeError, AttributeError):
         return None
-    return list(f) if isinstance(f, list) and all(isinstance(x, str) for x in f) else None
+    return list(f) if isinstance(f, list) and all(isinstance(x, str) and x for x in f) else None
 
 
 def attest(run_dir, run_state, deliverable=True, why_not=None):
@@ -269,8 +276,6 @@ def attest(run_dir, run_state, deliverable=True, why_not=None):
         why.append("the pin's review_flags are unreadable")
     stage = list((run_state or {}).get("review_flags") or []) if isinstance(run_state, dict) else []
     note = review_flags(soft, (pin_flags or []) + stage)          # the pin's, the render's stages', the gates'
-    if len(note) > FLAG_CAP:
-        why.append(f"{len(note)} review flags (the pin's and the render's) exceed the cap of {FLAG_CAP}: {note}")
     ok = not any(bad.values()) and v_ok and not missing and not why
     verdict = ("PASS_WITH_FLAGS" if note else "ALL_PASS") if ok else "HOLD"
     att = {"schema": SCHEMA, "inventory_version": INVENTORY_VERSION, "verdict": verdict,
@@ -320,8 +325,8 @@ def authorise(run_dir):
     note = review_flags({fmt: flags(fmt, rows.get(fmt), evidence) for fmt in formats}, (pin_flags or []) + stage)
     if pin_flags is None:
         why.append("the pin record is unreadable: its review flags cannot be said (rulings 136 / 137)")
-    elif note != (att.get("review_flags") or []) or len(note) > FLAG_CAP:
-        why.append(f"review flags {note} differ from the attested {att.get('review_flags')!r} or exceed the cap")
+    elif note != (att.get("review_flags") or []):
+        why.append(f"review flags {note} differ from the attested {att.get('review_flags')!r}")
     if (att.get("verdict") == "PASS_WITH_FLAGS") != bool(note):
         why.append("the verdict and the review flags disagree")
     try:

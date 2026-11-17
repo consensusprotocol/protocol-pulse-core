@@ -229,6 +229,32 @@ class TestLockLines(Base):
             TG.deliver_run(rd, send=lambda kind, path, fields, data=None: sent.append(kind) or len(sent))
         self.assertEqual(sent, [])
 
+class TestReviewFlags(Base):
+    """RULINGS 136 / 137: a run attested PASS_WITH_FLAGS is delivered with its soft flags FIRST in every video's note, in
+    plain words, then the flagged head line; a clean run's note is unchanged."""
+
+    def test_the_flags_open_the_note(self):
+        rows = passing_rows()
+        rows["9x16"]["V1_visual_checklist"] = "FAIL"                       # 3f481f5a's case
+        rows["16x9"]["G8_sharpness"] = "FAIL"
+        rd = make_run(self.tmp, rows=rows)
+        _, sent = self.deliver(rd)
+        vids = [s for s in sent if s[0] == "video"]
+        self.assertEqual(len(vids), 2)
+        for s in vids:
+            lines = s[2]["caption"].split("\n")
+            self.assertTrue(lines[0].startswith("REVIEW FLAGS: "), lines)
+            self.assertIn("a clip looks soft", lines[0])
+            self.assertIn("the vision check questioned the look", lines[0])
+            self.assertTrue(lines[1].startswith(TG.HOLD_FLAGGED), lines)
+
+    def test_a_clean_run_has_no_flag_line(self):
+        _, sent = self.deliver(make_run(self.tmp))
+        for s in sent:
+            if s[0] == "video":
+                self.assertTrue(s[2]["caption"].startswith(TG.HOLD_OK), s[2]["caption"][:80])
+
+
 class TestBarLines(Base):
     """Rulings 115 (2) / 116 (orchestrator 13:24 ET Nov 15; the builder's Q3 on ruling 106's default, 15:54): a package
     sealed on a calibrated bar (the hook's, the line-up's) says so in the Telegram note, one plain line per mark. The

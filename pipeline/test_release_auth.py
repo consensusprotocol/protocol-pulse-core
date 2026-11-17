@@ -491,7 +491,9 @@ class TestRuling136(Base):
         mutate(rows)
         rd = make_run(self.tmp, rows=rows, attest=False)
         if pin_flags is not None:
-            json.dump({"pin": {"moments_package": {"type": "moments", "review_flags": pin_flags}}},
+            edit_json(os.path.join(rd, "edl.json"), lambda d: d.update(moments_package_sha256="ab" * 32))
+            json.dump({"pin": {"moments_package": {"type": "moments", "package_sha256": "ab" * 32,
+                                                   "review_flags": pin_flags}}},
                       open(os.path.join(rd, "PINNED_DECISION.json"), "w"))
         return rd, RA.attest(rd, {"ok": True, "why": []})
 
@@ -515,12 +517,10 @@ class TestRuling136(Base):
         att = RA.attest(rd, {"ok": True, "why": []})
         self.assertEqual(att["review_flags"], [RA.FLAG_TEXT["G19_edge_shots"] + " (not measured)"])
 
-    def test_one_cap_of_three_for_the_pin_and_the_render(self):
-        _, att = self.run_rows(lambda r: r["16x9"].__setitem__("G8_sharpness", "FAIL"), ["a", "b", "c"])
-        self.assertEqual(att["verdict"], "HOLD")
-        self.assertTrue(any("exceed the cap" in w for w in att["other_blockers"]), att["other_blockers"])
-        rd, att = self.run_rows(lambda r: None, ["a", "b", "c"])
-        self.assertEqual((att["verdict"], att["review_flags"]), ("PASS_WITH_FLAGS", ["a", "b", "c"]))
+    def test_the_render_lists_every_flag_and_never_holds_on_them(self):     # the cap of 3 is the seal's (builder)
+        rd, att = self.run_rows(lambda r: r["16x9"].__setitem__("G8_sharpness", "FAIL"), ["a", "b", "c"])
+        self.assertEqual((att["verdict"], att["review_flags"]),
+                         ("PASS_WITH_FLAGS", ["a", "b", "c", RA.FLAG_TEXT["G8_sharpness"]]))
         self.assertTrue(RA.authorise(rd)[0])
 
     def test_a_hard_row_still_holds(self):
@@ -536,3 +536,11 @@ class TestRuling136(Base):
         ok, why, _ = RA.authorise(rd)
         self.assertFalse(ok)
         self.assertTrue(any("review flags" in w for w in why), why)
+
+
+    def test_the_pins_flags_count_only_for_the_package_the_edl_was_built_from(self):
+        rd, att = self.run_rows(lambda r: None, ["a hook passed on a lowered bar"])
+        self.assertEqual(att["review_flags"], ["a hook passed on a lowered bar"])
+        edit_json(os.path.join(rd, "PINNED_DECISION.json"),
+                  lambda d: d["pin"]["moments_package"].update(package_sha256="cd" * 32))
+        self.assertEqual(RA.attest(rd, {"ok": True, "why": []})["verdict"], "HOLD")      # another package's flags
