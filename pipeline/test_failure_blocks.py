@@ -39,10 +39,10 @@ class TestFailureBlocksDelivery(unittest.TestCase):
         edit_json(os.path.join(rd, "GATE_REPORT.json"), lambda d: d["rows"]["16x9"].pop("G18_word_for_word"))
         self.refused(rd, "GATE_REPORT.json rows / evidence differ")
 
-    def test_b_failing_gate_blocks(self):
-        rows = passing_rows()
-        rows["9x16"]["G9_tail"] = "FAIL"
-        self.refused(make_run(self.tmp, rows=rows), "9x16 G9_tail: FAIL")
+    def test_b_failing_gate_blocks(self):              # a HARD gate (rulings 136 / 137: a SOFT one such as G9 flags,
+        rows = passing_rows()                          # test_release_auth.TestRuling136)
+        rows["9x16"]["G20_signoff_names_all"] = "FAIL"
+        self.refused(make_run(self.tmp, rows=rows), "9x16 G20_signoff_names_all: FAIL")
 
     def test_c_modified_mp4_after_attestation_blocks(self):
         rd = make_run(self.tmp)

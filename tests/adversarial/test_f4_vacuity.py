@@ -302,10 +302,14 @@ def test_whatever_a_gate_returns_on_nothing_release_blocks_it(media, qa):
                "G19": "G19_edge_shots", "G20": "G20_signoff_names_all", "G14 16x9": "G14_av_alignment",
                "G14 9x16": "G14_audio_offset"}
 
-    def blocked(fmt, row, data):
-        ev = {f: {k: {"executed": True, "samples": 3} for k in r} for f, r in rows.items()}
-        ev[fmt][row] = {"executed": True, "samples": RF._samples(data)}
-        return RF._samples(data) == 0 and row in RA.blockers(fmt, rows[fmt], ev)
+    def blocked(fmt, row, data):       # rulings 136 / 137: a HARD row blocks; a SOFT row is FLAGGED "did not measure
+        ev = {f: {k: {"executed": True, "samples": 3} for k in r} for f, r in rows.items()}       # anything", never
+        ev[fmt][row] = {"executed": True, "samples": RF._samples(data)}                           # read as a pass
+        if RF._samples(data) != 0:
+            return False
+        if row in RA.SOFT[fmt]:
+            return "did not measure anything" in RA.flags(fmt, rows[fmt], ev).get(row, "")
+        return row in RA.blockers(fmt, rows[fmt], ev)
 
     for data in ([], {}, {"skip": True, "pass": True}, None, [None, {}, []]):        # the vacuous shapes themselves
         assert blocked("16x9", "G8_sharpness", data), data

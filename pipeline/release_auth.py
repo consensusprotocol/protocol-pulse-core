@@ -177,6 +177,11 @@ def blockers(fmt, rows, evidence):
             if not (isinstance(e, dict) and e.get("executed") is True and type(e.get("samples")) is int
                     and e["samples"] >= 1):
                 bad.setdefault(k, f"no execution evidence (executed True, samples >= 1): {e!r}")
+        for k in sorted(INVENTORY[fmt] & soft):     # a SOFT row that measured nothing is a flag, but its record must be
+            e = ev.get(k)                           # well formed: the attestation is HARD (ruling 137 (2); F3)
+            if e is not None and not (isinstance(e, dict) and type(e.get("executed")) is bool
+                                      and type(e.get("samples")) is int and e["samples"] >= 0):
+                bad.setdefault(k, f"malformed execution evidence (the attestation is HARD): {e!r}")
     return bad
 
 
@@ -192,10 +197,10 @@ def flags(fmt, rows, evidence, report=None, edl=None):
         v, e = rows.get(k), ev.get(k)
         measured = isinstance(e, dict) and e.get("executed") is True and type(e.get("samples")) is int \
             and e["samples"] >= 1
-        if isinstance(v, str) and v in VERDICTS and v != "PASS":
+        if v == "SKIPPED" or v == "PASS" and evidence is not NO_EVIDENCE_CHECK and not measured:
+            out[k] = f"{CHECK_NAME.get(k, 'a check')} did not measure anything, so its result is unknown"
+        elif isinstance(v, str) and v in VERDICTS and v != "PASS":
             out[k] = say(k, fmt, report, edl)
-        elif isinstance(v, str) and v == "PASS" and evidence is not NO_EVIDENCE_CHECK and not measured:
-            out[k] = f"{CHECK_NAME.get(k, 'a check')} did not run, so its result is unknown"
     return out
 
 

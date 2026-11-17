@@ -158,7 +158,8 @@ def test_a_monitoring_row_reported_with_a_waiver_string_refuses(parent):
     ("row evidence = []", lambda d: d["evidence"]["9x16"].__setitem__("G18_word_for_word", [])),
     ("samples = []", lambda d: d["evidence"]["16x9"].__setitem__("G16_sentence_boundary",
                                                                  {"executed": True, "samples": []})),
-    ("samples = 0", lambda d: d["evidence"]["16x9"]["G8_sharpness"].__setitem__("samples", 0)),
+    ("samples = 0", lambda d: d["evidence"]["16x9"]["G18_word_for_word"].__setitem__("samples", 0)),   # a HARD row;
+    # rulings 136 / 137: a SOFT row (G8) that measured nothing is a flag, test_a_soft_row_that_measured_nothing below
     ("samples = -1", lambda d: d["evidence"]["16x9"]["G8_sharpness"].__setitem__("samples", -1)),
     ("samples = 3.0", lambda d: d["evidence"]["16x9"]["G8_sharpness"].__setitem__("samples", 3.0)),
     ("samples = NaN", lambda d: d["evidence"]["16x9"]["G8_sharpness"].__setitem__("samples", math.nan)),
@@ -168,6 +169,17 @@ def test_a_monitoring_row_reported_with_a_waiver_string_refuses(parent):
     ("executed = 1", lambda d: d["evidence"]["16x9"]["G8_sharpness"].__setitem__("executed", 1))])
 def test_empty_or_malformed_evidence_refuses(parent, label, fn):
     attested_hold(mutate_report(parent, fn))
+
+
+def test_a_soft_row_that_measured_nothing_is_flagged_never_a_pass(parent):
+    """Rulings 136 / 137 (orchestrator 11:00 / 11:05 ET Nov 17): a SOFT gate scores and FLAGS, it does not refuse; one
+    that measured nothing is said ("did not measure anything"), never read as a pass: the verdict is PASS_WITH_FLAGS,
+    never ALL_PASS, and PBX reads the flag first on the review path. Its malformed record still holds (above)."""
+    import release_auth as RA
+    rd = mutate_report(parent, lambda d: d["evidence"]["16x9"]["G8_sharpness"].__setitem__("samples", 0))
+    att = RA.attest(rd, {"ok": True, "why": []})
+    assert att["verdict"] == "PASS_WITH_FLAGS", att["verdict"]
+    assert any("did not measure anything" in f for f in att["review_flags"]), att["review_flags"]
 
 
 # ─────────────────────────────── a digest of a different file ───────────────────────────────

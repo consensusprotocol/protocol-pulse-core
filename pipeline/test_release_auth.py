@@ -522,7 +522,8 @@ class TestRuling136(Base):
         edit_json(os.path.join(rd, "GATE_REPORT.json"), lambda d: d["evidence"]["16x9"].pop("G19_edge_shots"))
         att = RA.attest(rd, {"ok": True, "why": []})
         self.assertEqual(att["review_flags"],
-                         ["In the 16:9 version, the shot-change check did not run, so its result is unknown."])
+                         ["In the 16:9 version, the shot-change check did not measure anything, so its result is "
+                          "unknown."])
 
     def test_the_render_lists_every_flag_and_never_holds_on_them(self):     # the cap of 3 is the seal's (builder)
         rd, att = self.run_rows(lambda r: r["16x9"].__setitem__("G8_sharpness", "FAIL"), ["a", "b", "c"])
@@ -626,3 +627,23 @@ class TestRuling138(Base):
         texts += list(RA.CHECK_NAME.values()) + list(RA.V1_WORDS.values())
         for t in texts:
             self.assertIsNone(code.search(t), t)
+
+    def test_a_soft_row_skipped_or_measuring_nothing_is_unknown_never_a_doubt_or_a_pass(self):
+        for label, fn in (("skipped", lambda d: (d["rows"]["16x9"].__setitem__("G8_sharpness", "SKIPPED"),
+                                                 d["evidence"]["16x9"].__setitem__("G8_sharpness",
+                                                                                   {"executed": False, "samples": 0}))),
+                          ("0 samples", lambda d: d["evidence"]["16x9"]["G8_sharpness"].__setitem__("samples", 0))):
+            with self.subTest(label):
+                _, att = self.run_rows(lambda r: None, report=fn)
+                self.assertEqual((att["verdict"], att["review_flags"]), ("PASS_WITH_FLAGS", [
+                    "In the 16:9 version, the sharpness check did not measure anything, so its result is unknown."]))
+
+    def test_a_soft_rows_malformed_evidence_holds(self):           # the attestation is HARD (ruling 137 (2); F3)
+        for bad in ({"executed": 1, "samples": 3}, {"executed": True, "samples": -1}, {"executed": True, "samples": 3.0},
+                    {"executed": True, "samples": True}, [], "3"):
+            with self.subTest(bad=bad):
+                _, att = self.run_rows(lambda r: None,
+                                       report=lambda d, b=bad: d["evidence"]["16x9"].__setitem__("G8_sharpness", b))
+                self.assertEqual(att["verdict"], "HOLD")
+                self.assertIn("malformed execution evidence", att["blockers"]["16x9"]["G8_sharpness"])
+
