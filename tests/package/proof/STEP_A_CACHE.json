@@ -31527,5 +31527,110 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "b0d1512d0303425a1c26:54ff1b36c01659e04160379b474cddbdf0bb244705b3a6ce5b0605748a1dc95e:1ef1ec17ffd06a7198b1ab1ec78212133dbb1a80c193e8c95e5adb5a0757c2d7:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b0d1512d0303425a1c26",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "It",
+     "refers_to": "the Bitcoin ETF launch",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It",
+     "refers_to": "the memory ETF",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The Bitcoin ETF launch was the greatest ever by all metrics, though the memory ETF came close by breaking a couple of firsts to $5 billion and challenging IBIT a couple times.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I had so much fun covering this, and I really enjoyed it, got to meet a lot of the coiners. And I honestly, it was one of the highlights of my career to cover the approval process.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "8c8c7e590cc0d1a0c6e6:fe00516a9b7d194a8225a0562a55307dac6582dd1c706a36f573e1df5cd4e670:18c0ab589ea6246c13b8d6657fe37ea77ecaed9c66352fb447f5f4816527b90b:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "8c8c7e590cc0d1a0c6e6",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "They",
+     "refers_to": "the kinds of things that happened behind the scenes in the institutional Bitcoin space such as federally chartered custodians",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "the kinds of things that happened behind the scenes in the institutional Bitcoin space such as federally chartered custodians",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "They're",
+     "refers_to": "the kinds of things that happened behind the scenes in the institutional Bitcoin space such as federally chartered custodians",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this",
+     "refers_to": "the fact that charter banks can now custody Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Institutional developments in Bitcoin custody such as charter banks go quietly, get missed and stay under the radar because retail is not paying attention, but institutions view them as a game changer.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Yeah, great question. And this one is pretty exciting because, again, it shows how quickly the situation is evolving.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "0ffd53079df584936961:58ce82f08eddf243df708fafa4fdfb17de68c9814b5d7dccaef014e3ddef1b2e:c26721119165a1eea86bc8acde00ed128184b8631729b23c44de814db00c14b7:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "0ffd53079df584936961",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "It",
+     "refers_to": "the Bitcoin ETF launch",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It",
+     "refers_to": "the memory ETF",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The Bitcoin ETF launch was the greatest ever by all metrics, though the memory ETF came close by reaching $5 billion and challenging IBIT a couple times, but mostly IBIT and the rest of the Bitcoin ETFs have records that will probably never be broken.",
+   "certainty": "likely",
+   "speaker_is": "host",
+   "speaker_evidence": "I had so much fun covering this, and I really enjoyed it, got to meet a lot of the coiners. And I honestly, it was one of the highlights of my career to cover the approval process.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

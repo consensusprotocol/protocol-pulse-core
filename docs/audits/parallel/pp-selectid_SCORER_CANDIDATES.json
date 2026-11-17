@@ -1,8 +1,26 @@
 {
- "generated_at": "2026-11-17T02:29:05+00:00",
- "build": "ledger_20261117_022849",
+ "generated_at": "2026-11-17T02:43:39+00:00",
+ "build": "ledger_20261117_024326",
  "kind": "moments",
  "candidates": [
+  {
+   "pid": "b0d1512d0303425a1c26",
+   "video_id": "9lVSYriKja4",
+   "channel": "Anthony Pompliano",
+   "duration": 10.14,
+   "text": "It was the greatest launch ever by all metrics. DRAM, actually, the memory ETF came close, broke a couple of first to $5 billion. It challenged IBIT a couple times.",
+   "text_sha256": "54ff1b36c01659e04160379b474cddbdf0bb244705b3a6ce5b0605748a1dc95e",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "8c8c7e590cc0d1a0c6e6",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 13.19,
+   "text": "They go quietly, sort of, they get missed. They're under the radar a little bit because retail is not paying attention to, you know, the fact that charter banks can now custody Bitcoin. But institutions are like, wow, this is a game changer.",
+   "text_sha256": "fe00516a9b7d194a8225a0562a55307dac6582dd1c706a36f573e1df5cd4e670",
+   "trimmed_leading": null
+  },
   {
    "pid": "0193406f729cc5e141e0",
    "video_id": "OubcRgk3D-w",
@@ -22,6 +40,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "0ffd53079df584936961",
+   "video_id": "9lVSYriKja4",
+   "channel": "Anthony Pompliano",
+   "duration": 15.18,
+   "text": "It was the greatest launch ever by all metrics. DRAM, actually, the memory ETF came close, broke a couple of first to $5 billion. It challenged IBIT a couple times. But mostly, Ibit, and the rest of the Bitcoin ETFs, have records that will probably never be broken.",
+   "text_sha256": "58ce82f08eddf243df708fafa4fdfb17de68c9814b5d7dccaef014e3ddef1b2e",
+   "trimmed_leading": null
+  },
+  {
    "pid": "b084525ec408fdeabb4e",
    "video_id": "2oY7TU6CPok",
    "channel": "BTC Sessions",
@@ -31,30 +58,21 @@
    "trimmed_leading": null
   },
   {
+   "pid": "f80b85be2929047fe8c7",
+   "video_id": "uAvmynMSVhM",
+   "channel": "Bitcoin Magazine",
+   "duration": 14.25,
+   "text": "They go quietly, sort of, they get missed. They're under the radar a little bit because retail is not paying attention to, you know, the fact that charter banks can now custody Bitcoin. But institutions are like, wow, this is a game changer. This changes everything.",
+   "text_sha256": "6108ce9f25d835302073e7181e0e2251597169de7874ab8463d021cbe327d271",
+   "trimmed_leading": null
+  },
+  {
    "pid": "d6adeb54ad64062081c5",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
    "duration": 14.78,
    "text": "I have been recently done a budget pieces on the 2023 bull market, like climbing a wall of worry. There was massive amounts of fear during that period of time. Bitcoin was actually trending up into the right, and fear was also trending up into the right during that.",
    "text_sha256": "8e6ae65436256fcb93f3901a0c91648fb07f6fdc5798d8adbcde6760342ffcda",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "8fe4ff5d084bbba5a88c",
-   "video_id": "WdiF0i925rs",
-   "channel": "What Bitcoin Did",
-   "duration": 18.8,
-   "text": "Traders are the ones that you expect at this point where Bitcoin's relatively low compared to where it's been, looking like it's pretty good, probably going to have a breakout at some point relatively soon. You'd expect the conviction there to be growing, but it's actually at the lowest you've ever seen it. Do you think that is, again, the AI trade just taking all the excitement or the enthusiasm away from Bitcoin?",
-   "text_sha256": "e8d6200808c93831b683346c1360db25c5f1cda782eea9612ec077f869312fcf",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "a3e8721c54788123097a",
-   "video_id": "stg5ui9sPos",
-   "channel": "Yahoo Finance",
-   "duration": 14.94,
-   "text": "Billions of dollars in liquidations, as always, I believe $2 billion on Bitcoin alone just Saturday and Sunday. And further proof that sometimes when market sentiment is generally bad, Bitcoin can really take it on the chin because it's open 24 -7, 365.",
-   "text_sha256": "e248eb63ad6f2f35bc43c6faadec1889c19b16d7d5708c2713f0c5dac386a71c",
    "trimmed_leading": null
   }
  ]
