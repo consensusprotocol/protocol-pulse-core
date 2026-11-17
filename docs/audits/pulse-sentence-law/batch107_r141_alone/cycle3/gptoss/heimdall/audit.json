@@ -1,0 +1,26 @@
+{
+ "question": "Cycle 3: verify ONE fix in pipeline/run_fresh.py alone_reason(): the scorer's own reason text (free text from the model) now has '_' replaced by ' ' before it is shown in a flag to PBX (ruling 138 (3): no codes). Report ONLY a defect you can prove by quoting the diff; under 60 words each. If the fix holds and changes nothing else, answer PASS with no findings.",
+ "files": [],
+ "panel": {
+  "gptoss": "openai/gpt-oss-20b"
+ },
+ "cycle1": [
+  {
+   "name": "gptoss",
+   "model": "openai/gpt-oss-20b",
+   "status": 200,
+   "latency_s": 2.5,
+   "cost": 5.3413e-05,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 5.3413e-05,
+ "out_dir": "heimdall"
+}

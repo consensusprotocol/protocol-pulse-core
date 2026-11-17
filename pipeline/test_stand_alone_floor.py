@@ -74,10 +74,12 @@ def rate_of(score, fault="starts_mid_thought", asked=None, broken=False):
 ABSENT = object()                                                       # no stand_alone_bar key at all
 
 
-def write_record(run_dir, edl, mark=ABSENT, record_sha=None, raw=None, n=3):
+def write_record(run_dir, edl, mark=ABSENT, record_sha=None, raw=None, n=3, flags=None):
     mp = {"type": "moments", "package_sha256": edl.get("moments_package_sha256") if record_sha is None else record_sha}
     if mark is not ABSENT:
         mp["stand_alone_bar"] = mark
+    if flags is not None:                                     # the never-empty seal's review_flags (ruling 136 (2))
+        mp["review_flags"] = flags
     with open(os.path.join(run_dir, "PINNED_DECISION.json"), "w") as f:
         f.write(raw if raw is not None else json.dumps({"mode": "pinned", "pin": {"segments": [{}] * n,
                                                                                    "moments_package": mp}}))
@@ -263,17 +265,17 @@ class TestStageValidate(unittest.TestCase):
     check passed."""
 
     def run_stage(self, edl, mark=ABSENT, digest=WEIGHTS, score=3.0, rules=(True, []),
-                  gate=None):
+                  gate=None, rate=None, pin_flags=None):
         with tempfile.TemporaryDirectory() as d:
             with open(os.path.join(d, "edl.json"), "w") as f:
                 json.dump(edl, f)
-            write_record(d, edl, mark=mark)
+            write_record(d, edl, mark=mark, flags=pin_flags)
             run = types.SimpleNamespace(dir=d, prov={})
             with mock.patch.object(edl_rules, "validate_edl", return_value=rules), \
                     mock.patch.object(edl_rules, "takeaway_value", return_value=(True, "stub")), \
                     mock.patch.object(editorial_gate, "run_gate", return_value=gate or {"verdict": "READY_FOR_RENDER",
                                                                                        "laws": {}}), \
-                    mock.patch.object(SA, "clip_scorer", return_value=rate_of(score)), \
+                    mock.patch.object(SA, "clip_scorer", return_value=rate or rate_of(score)), \
                     mock.patch.object(SF, "running_digest", return_value=digest):
                 try:
                     run_fresh.stage_validate(run)
@@ -324,6 +326,40 @@ class TestStageValidate(unittest.TestCase):
                 list(run_fresh.LAW_TEXT.values()):
             self.assertIsNone(code.search(t), t)
 
+    def test_ruling_141_the_flag_gives_the_scorers_reason_in_plain_words(self):
+        said = lambda ps: {p["pid"]: (2.0, "Starts with 'But', implying a previous statement.", "starts_mid_thought")
+                           for p in ps}
+        got, prov = self.run_stage(edl_with(clip2=BUT), rate=said)
+        self.assertEqual(got, "passed the stand-alone check")
+        self.assertEqual([f["flag"] for f in prov["review_flags"]],
+                         ["The clip (Scott Melker) may not stand alone: the clip scorer rated it 2 of 5 (Starts with "
+                          "'But', implying a previous statement)."])
+
+    def test_ruling_141_no_verdict_is_said(self):
+        got, prov = self.run_stage(edl_with(clip2=BUT), rate=rate_of(3.0, broken=True))
+        self.assertEqual(got, "passed the stand-alone check")
+        self.assertEqual([f["flag"] for f in prov["review_flags"]],
+                         ["The clip (Scott Melker) may not stand alone: the clip scorer did not answer."])
+
+    def test_ruling_141_a_clip_the_pin_already_flags_is_said_once(self):
+        e = dict(edl_with(clip2=BUT), moments_package_sha256="ab" * 32)
+        pin = ["The clip (Scott Melker) may not stand alone: the clip scorer rated it 2 of 5, starts mid-thought"]
+        got, prov = self.run_stage(e, pin_flags=pin)
+        self.assertEqual(got, "passed the stand-alone check")
+        self.assertNotIn("review_flags", prov)                        # the pin's sentence is the one PBX reads
+        got, prov = self.run_stage(e, pin_flags=["The clip (CNBC Television) may not stand alone: rated 2 of 5"])
+        self.assertEqual([f["flag"] for f in prov["review_flags"]],      # another clip's flag does not silence it
+                         ["The clip (Scott Melker) may not stand alone: the clip scorer rated it 3 of 5 (canned)."])
+
+    def test_ruling_141_the_opener_screens_own_words_carry_no_code(self):
+        r = {"opener": {"why": "'but' trimmed and no clip-scorer verdict on the trimmed text (fail closed, ruling 33 part 2)"}}
+        self.assertEqual(run_fresh.alone_reason(r), "'but' trimmed and no clip-scorer verdict on the trimmed text")
+        r = {"scorer": {"score": 2.0, "reason": "", "fault": "starts_mid_thought"}}
+        self.assertEqual(run_fresh.alone_reason(r), "the clip scorer rated it 2 of 5 (starts mid thought)")
+        r = {"scorer": {"score": 3.0, "reason": "Fault starts_mid_thought: opens on 'Now'.", "fault": "starts_mid_thought"}}
+        self.assertEqual(run_fresh.alone_reason(r), "the clip scorer rated it 3 of 5 (Fault starts mid thought: opens on "
+                                                    "'Now')")                  # Heimdall batch 107 c1 F2: its echo of a label
+
     def test_ruling_136_the_editorial_laws_flag(self):
         got, prov = self.run_stage(edl_with(), gate={"verdict": "HOLD", "laws": {
             "LAW_1_NEW_INFORMATION": {"pass": False}, "LAW_2_VO_HAS_A_JOB": {"pass": True}}})
@@ -335,7 +371,7 @@ class TestStageValidate(unittest.TestCase):
         got, prov = self.run_stage(edl_with(clip2=BUT))
         self.assertEqual(got, "passed the stand-alone check")
         self.assertEqual([f["flag"] for f in prov["review_flags"]],
-                         ["Clip 2 (Scott Melker) might not make sense on its own, without what comes before it."])
+                         ["The clip (Scott Melker) may not stand alone: the clip scorer rated it 3 of 5 (canned)."])
 
     def test_ruling_119_marked_it_passes_validate_with_the_record_in_provenance(self):
         got, prov = self.run_stage(edl_with(clip2=BUT), mark=good([2]))
@@ -347,7 +383,7 @@ class TestStageValidate(unittest.TestCase):
         got, prov = self.run_stage(edl_with(clip2=BUT), mark=good([2]), digest="f" * 64)   # is a flag; a broken mark
         self.assertEqual(got, "passed the stand-alone check")                              # is a broken record: HARD
         self.assertEqual([f["flag"] for f in prov["review_flags"]],
-                         ["Clip 2 (Scott Melker) might not make sense on its own, without what comes before it."])
+                         ["The clip (Scott Melker) may not stand alone: the clip scorer rated it 3 of 5 (canned)."])
         self.assertIn("not the measured one", prov["stand_alone"]["calibrated_floor"]["not_applied"])
         got, prov = self.run_stage(edl_with(clip2=BUT), mark=dict(good([2]), floor=2.5))
         self.assertTrue(got.startswith("HOLD: stand-alone calibrated floor (ruling 119 (1)): stand_alone_bar"), got)
