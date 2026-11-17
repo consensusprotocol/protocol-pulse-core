@@ -33,7 +33,7 @@ Cells are PASS / REFUSE (why) / UNTESTED (why). "x3" means every segment.
 | 1 | Pin record: seal L-t, schema, formats r93, bar marks r115/116/119, VO L-q/r90/91 (check_pin_only) | REFUSE: sealed r70/r91 rows absent * | REFUSE: five later sealed rows absent * | REFUSE: sealed r91 takeaway row absent * | PASS | UNTESTED: never sealed |
 | 2 | r17 / L-v 2: a number, name or negation differs (holds before any vote) | PASS x3 | PASS x3 | PASS x3 | PASS | PASS x4 |
 | 3 | Render lock: r17, r18, r84 (b), **r131 (A)/(B)** | PASS x3 (no difference) | PASS x3 (c1JG: r18 two readings; Sjb6: **currency, r131 (B)**) | PASS x3 (c1JG: r18 two readings) | PASS (no difference) | PASS x4 (d6adeb54: **r131 (A)**; 93cfa865: **r131 (B)**) |
-| 4 | r72/r84: lock against the second recogniser's reading | UNTESTED: no cached reading | c1JG PASS (adopts fillers); hook, Sjb6 UNTESTED: no cached reading | c1JG PASS (adopts fillers); hook, wdk5 UNTESTED: no cached reading | SPLIT: 23:17Z reading PASS; 18:51Z reading REFUSE "401k" vs "401" | PASS x4 (d6adeb54 adopts one "uh") |
+| 4 | r72/r84: lock against the second recogniser's reading | UNTESTED: no cached reading | c1JG PASS (adopt_spoken: fillers, repetitions; re-lock PASS); hook, Sjb6 UNTESTED: no cached reading | c1JG PASS (adopt_spoken: fillers, repetitions; re-lock PASS); hook, wdk5 UNTESTED: no cached reading | SPLIT: 23:17Z reading PASS; 18:51Z reading REFUSE "401k" vs "401" | PASS x4 (d6adeb54 adopts one "uh") |
 | 5 | r103: re-listen of one number or name | not reached | not reached | not reached | UNTESTED: needs a new paid reading (18:51Z case) | not reached |
 | 6 | r105: readings across passes | not reached | not reached | not reached | not reached (its history matches source bytes) | not reached |
 | 7 | r131 (A): the sealed text re-locked by the render's lock | n/a | n/a | n/a | n/a | PASS (d6adeb54 adopt_spoken) |
@@ -48,13 +48,13 @@ Cells are PASS / REFUSE (why) / UNTESTED (why). "x3" means every segment.
 | 16 | Cut acceptance (r28/33/73, L-14c); G16 before the render | the original run's: PASS | original: PASS | original: PASS | original: PASS | UNTESTED |
 | 17 | Voice: TTS + sign-off (L-a, r27) | original (outside $) | original | original | original | UNTESTED |
 | 18 | Prepare, layout, render (r29/30/71/93) | original final | original final | original final | original final | UNTESTED |
-| 19 | REQUIRED gate rows (G3b, G3c, G5, G8, G9 + outro, G12, G14, G15, G16, G17, G18, G19, G20, G4s, 9:16 fallback): today's code on the final | running (replay on its final) | running (replay on its final) | running (replay on its final) | PASS, every row, both formats | UNTESTED |
-| 20 | V1 vision checklist (r20/23), Heimdall, two models | running (replay on its final) | running (replay on its final) | running (replay on its final) | **REFUSE: 9:16 "watermark" row, one model** | UNTESTED |
+| 19 | REQUIRED gate rows (G3b, G3c, G5, G8, G9 + outro, G12, G14, G15, G16, G17, G18, G19, G20, G4s, 9:16 fallback): today's code on the final | UNTESTED: stopped for ruling 134's paid attempt | **REFUSE: 9:16 G8 sharpness, G9 tail luma** (G20 now PASS; G10 chyron FAIL is MONITORING) | UNTESTED: stopped for ruling 134's paid attempt | PASS, every row, both formats | UNTESTED |
+| 20 | V1 vision checklist (r20/23), Heimdall, two models | UNTESTED: stopped (ruling 134) | UNTESTED: stopped in verify (ruling 134) | UNTESTED: stopped (ruling 134) | **REFUSE: 9:16 "watermark" row, one model** | UNTESTED |
 | 21 | Attestation, authorisation, Telegram plan and send (RA, M16, T13) | delivered Nov 13 (its own run) | never reached (held at row 19) | never reached | never reached (held at row 20) | UNTESTED |
 
 \* The row did not exist when the package was sealed: visual is r70; takeaway_value is r91; house_style, hook_onset and stand_alone came later. Re-formed today, these verdicts are the builder's rows (its half). Rows 13-15 were judged with r91 (and L-y for 37c5b5f5) set aside, so they would not go unjudged behind the first refusal.
 
-**Running at the time of writing:** today's gates + verify on 41f29b1f, 37c5b5f5 and 0c68b589's runs (rows 19-20; about 15 min each). They waited until the cron transcript pass ended (see failure mode 1 below).
+**Rows 19-20, as of 10:27 ET:** 41f29b1f's gates ran under today's code; its verify (V1) and the 37c5b5f5 / 0c68b589 replays were STOPPED at 10:24 ET, because ruling 134's paid attempt outranks them and the render path needs GPU0. They stay UNTESTED, and no paid replay will be run (ruling 133).
 
 ## REFUSALS OF PBX-APPROVED PACKAGES, AND THE CALIBRATED FIX (nothing changed without your ruling)
 
@@ -81,7 +81,21 @@ Cells are PASS / REFUSE (why) / UNTESTED (why). "x3" means every segment.
      - It would pass: one function-word split in a "$2 billion" span.
      - It still refuses: two such splits (ruling 84 (b)), and a word that truly cannot be located.
 
-6. **Rows 19-20 for 41f29b1f, 37c5b5f5, 0c68b589:** pending the running replays.
+6. **Row 19, 41f29b1f: G9 9:16 tail luma** (today's code on its final). The tail IS the locked outro: the 9:16 conform is hash-identical. It measures luma 13.6 against a floor of 14.73, which was set from v2f's own tail (14.77) minus the re-encode spread.
+   - **Fix:** when the tail is hash-identical to the locked outro, the luma test compares against that outro's own measured luma per format, not v2f's.
+     - It would pass: 41f29b1f.
+     - It still refuses: a tail that is not the locked outro, or one darker than its own master.
+
+7. **Row 19, 41f29b1f: G8 9:16 sharpness.**
+   - clip_01 measures 10.81 against the absolute floor of 10.84. Its SOURCE is itself soft (12.14), and the source-relative ratio of 0.89 passes.
+   - clip_02 has ratio 0.732 against 0.85. The reference is the 16:9 prepared clip, while the 9:16 crop shows an upscaled region, so variance falls with the zoom.
+   - **Fix:** (a) the absolute floor binds only when the source clears it; (b) for 9:16, compare against the SAME crop region of the source, scaled the same way.
+     - It would pass: 41f29b1f, if (b)'s measurement agrees. That needs a re-measure on GPU0 after the attempt.
+     - It still refuses: a real loss of detail against the same region.
+
+8. **Rows 19-20, 37c5b5f5 and 0c68b589:** UNTESTED (stopped for ruling 134). Their originals held on:
+   - 37c5b5f5: G18 clip_01 (the final's decode dropped "it's not you know"; today's ruling 22 decides such an omission by the audio), G3c clip_02 out, and V1 9:16.
+   - 0c68b589: none (delivered).
    - Their original runs held on: 41f29b1f G20, G8 9:16, G9 9:16; 37c5b5f5 G18, G3c, V1.
    - What was measured then:
      - G20: Whisper heard the TTS's "Stephan Livera" as "stefan lavera".
@@ -93,7 +107,7 @@ Cells are PASS / REFUSE (why) / UNTESTED (why). "x3" means every segment.
 1. **A yielded transcript pass blocks GPU0 (FOUND TODAY; my batch 97).**
    - The cron Whisper pass gives GPU0 back at a file boundary when a want is up. Its process then stays alive, holding a 394 MiB CUDA context. A render, the scorer or a replay then waits 600 s and HOLDs as Gpu0Foreign.
    - It killed the stand-alone SCORER service at 15:26 ET Nov 16, which was down until 09:46 today (restarted in a restart loop) and held two of my replays this morning.
-   - Guard: batch 102 (next), where the pass ENDS when it yields, so its context dies with it, and the services survive a Gpu0Stop.
+   - **FIXED at 10:01 ET by batch 102 (merge da7b63c6):** the pass ENDS when it yields, so its context dies with it, and the scorer survives a Gpu0Stop. The builder's SCORER STALE line and the scorer's restart loop are the second guards.
 2. **The render lock is held (another run):** the launcher exits 75 and nothing queues. Guard: the next attempt.
 3. **The GPU0 lease is held by a service batch:** exit 75. Guard: services take it per batch (seconds), and the launcher can retry. The render raises no want.
 4. **The source is pulled, or yt-dlp fails at render:** PinError, HOLD. Guard: the pre-check downloaded the same window that day.
