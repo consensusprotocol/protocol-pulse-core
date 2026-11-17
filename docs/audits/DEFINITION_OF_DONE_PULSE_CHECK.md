@@ -6,6 +6,28 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 11:36 MILESTONE: TODAY'S ATTEMPT STARTED (ruling 137 (1)) and is KEPT. The render-side HARD / SOFT switch is built and in audit. Expected path: the switch live, then the builder seals the kept line-up, then the render (about 50 min), then delivery, well inside the first expiry (20:00 ET).
+- **The line-up:** Scott Melker ca660f22 (hook) + DataDash 8dbc30ee + Natalie Brunell 372f6afd + Coin Bureau e06e9566 (43.7 s).
+- **The lock pre-check under ruling 135 (11:23 ET), all four spans PASS:**
+  - the "itrust" hook settled as spelling only;
+  - Natalie Brunell adopt_spoken (131 (A) plus one function word under 84 (b));
+  - the other two: no difference.
+  - Scribe $0.00: batch 101 reused the cached readings.
+- **Step A (the builder, 11:23-11:25 ET):**
+  - Grok refused the hook (NOT_OWN_SINCERE) and Coin Bureau (REFERENT_OUTSIDE). Each is one family's refusal and neither is factual or stale-time, so both are SOFT.
+  - The line-up is KEPT with two plain-word flags. It seals under never-empty the moment both switches are live.
+- **The render-side switch (batch 105, worktree r136-switch, merged with 135):**
+  - release_auth: SOFT rows flag (G3c, G8, G9, G16, G19, V1, G14, the 9:16 fallback); PASS_WITH_FLAGS; the flags bound at authorise; the pin's flags bound by the package digest.
+  - run_fresh's validate: edl R1 / R3 / R4 / R8 / R9 / R10 / R11, ruling 91's takeaway, the editorial laws and a stand-alone opener FLAG; a topic not about Bitcoin, R2 / R5 / R6 / R7, a malformed floor mark, the layout, v2f and coordinates still HOLD.
+  - The note opens "REVIEW FLAGS: ...".
+  - The render lists every soft flag. The cap of 3 is the builder's seal.
+  - Checks so far: 12 must-fail tests; 10 of 10 mutations killed; 102 tests green in the touched suites (320 across both batches). Two Heimdall cycles are running now.
+- **THREATS to the 18:00-21:00 ET video (ruling 137 (4)):**
+  - None blocking as of 11:36.
+  - Watched: a HARD render gate that the replays never measured on this line-up (the words, mid-word cuts, credit, a face or caption crop, runtime).
+  - Ruling 73's sentence edge stays HARD at render until the sentence_law lockstep (4(a) / 4(b)). This line-up's four spans already passed ruling 73 (c) in the pre-check.
+  - GPU0: batch 102 is live, so a yielded transcript pass no longer blocks a render.
+
 ## 11:19 MILESTONE: RULING 135 LIVE (batch 104, merged d2c184d8, pushed; the builder's half the builder's READY commit pushed after it, lockstep). The comparison canon: spelling is not speech. Decoder sha b52c9354d604; RULES "... + ruling 131 + ruling 135". Today's attempt goes now (ruling 137 (1)). BATCH 4 integrator spend: none outside (Heimdall only).
 - **canon.same_words, on a differing pair's two sides before it is compared:**
   - (a) case, punctuation and apostrophes;
