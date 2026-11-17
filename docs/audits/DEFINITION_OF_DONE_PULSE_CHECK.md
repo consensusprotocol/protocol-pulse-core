@@ -6,6 +6,32 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 13:23 MILESTONE: BATCH 106 LIVE (merge f168cae1, pushed). The two gaps against ruling 137 (2)'s HARD list are closed. Every render flag is one plain sentence (ruling 138 (3)). A pin now renders at once (ruling 140 (3)).
+- **THE TWO GAPS, closed:**
+  - (1) The attestation: a SOFT row's MALFORMED execution evidence holds again on every row. A SOFT row that measured nothing (0 samples, or SKIPPED) is flagged "did not measure anything", never a pass.
+  - (2) Speaker credit: V1's credits row holds when any vision model did not affirm it (said no, left it out, or V1 gave no answer). V1's other rows stay SOFT flags.
+- **Ruling 138 (3), the note:** "REVIEW FLAGS:" then one "- " line a flag. Each flag names the version and, where the gate report says which, the clip, with no codes. For example:
+  - "In both versions, clip 2 (Natalie Brunell) might not end in silence (a breath or the next word may be heard at its end)."
+  - "In the 9:16 version, the vision check doubted that a watermark is visible on the clips."
+  - "Clip 2 (Scott Melker) might not make sense on its own, without what comes before it."
+- **The red-team tests that batch 105 broke, moved to the ruled classes:** F3's malformed cases hold again; F3's "samples = 0" moves to a HARD row (G18), with a SOFT twin that must flag; F4's backstop asserts that HARD rows block and SOFT rows flag; failure-blocks' failing gate is a HARD one (G20).
+- **Checks:**
+  - Heimdall, three cycles (records: batch106_r138_flagtext/CONSENSUS.md). qwen's cycle 1 found two real crashes on a malformed gate-report detail (V1, G9), plus one I found (an EDL clip list that is not a list). All fixed, and cycle 3 passed on both seats. Two gpt-oss claims were disproved.
+  - 39 + 5 must-fail results; 14 of 14 mutations killed.
+- **THE MERGED TREE, by exit code (ruling 140 (2)):**
+  - regression_test.sh: 26 PASS / 0 FAIL / 4 WARN, exit 0. pipeline/regression.sh: exit 0, references REPRODUCED.
+  - The full suite list (every test file importing release_auth, telegram or run_fresh: 35 files, 1006 tests), split to finish sooner:
+    - 22 files in one process: 376 passed, 9 failed, 10 skipped;
+    - the other 13 files in four parallel groups: 567 passed, 1 failed, 3 skipped, 40 xfailed;
+    - the two files re-run after their fixes (test_dec1_calibration 9 passed; test_window_review 33 passed, 2 skipped), both exit 0.
+  - **Batches 105 / 106: 0 failures after the fixes.** Batch 105 had broken two more tests outside the suites it ran, both encoding pre-136 holds: test_dec1_calibration (a G9 luma fail held) and test_window_review (a sequence without progression held at validate). Both are moved to the ruled classes and re-run on the merged tree.
+  - **8 failures that predate the switch** (each fails identically at 4676a54f, before batch 105):
+    - test_dec10_edges x2: KeyError 'cut_lo';
+    - test_g14_sampling x4: their run's sources/ was emptied by the ruling 77 purge on Nov 14;
+    - test_preflight's exception test; test_replay's TestRunTail.
+  - **Not "green":** the list exits 1 on those 8.
+- **Next:** no pin is pending. The builder's build 135 did not seal: the line-up judge (ruling 116's clips-alone bar) refused both line-ups. It has asked you whether this line-up may seal over the 3-flag cap (default NO). A pin that seals now renders at once (ruling 140 (3)).
+
 ## 12:55 RULING 140 (1): BATCH 106 IS NOT LIVE YET. ETA about 13:30 ET, more than your 30 minutes. A pin that arrives before it WAITS: gap 2 can touch this line-up.
 - **Where 106 stands:**
   - Cycles 1 and 2 are done. qwen's cycle 1 found two real crashes: a malformed V1 or G9 detail in the gate report crashed attest / authorise. I found a third of the same kind (an EDL whose clip list is not a list). All three are fixed, with must-fail tests (4 crash subtests and 1 test fail before the fix). gpt-oss's two cycle-1 / cycle-2 claims are not defects (one quotes a flags() loop that is not in the code; the other would make all of V1 HARD, against 136 / 137).
