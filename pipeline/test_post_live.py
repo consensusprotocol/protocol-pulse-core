@@ -157,6 +157,21 @@ class TestPostLiveOffset(unittest.TestCase):
             P.post_live_offset("VID", {"words": []}, 95.0)
 
 
+class TestPostLiveOffsetUnreadable(TestPostLiveOffset):           # batch 111 cycle 1 (qwen F1)
+    def test_unreadable_timings_are_a_hold_never_a_crash(self):
+        d = os.path.join(self.repo, "data", "editorial", "transcripts", "VID", "windows")
+        rec = os.path.join(d, "90.000-120.000.whisper_words_punct.json")
+        for body in ("{not json", json.dumps([1, 2]), json.dumps({"words": [{"word": "Being", "start": "soon"}]})):
+            with self.subTest(body=body[:20]):
+                with open(rec, "w") as f:
+                    f.write(body)
+                with self.assertRaises(P.PinError) as e:
+                    P.post_live_offset("VID", self.tr(0.0), 95.0)
+                self.assertIn("unreadable", str(e.exception))
+        with self.assertRaises(P.PinError):
+            P.post_live_offset("VID", {"words": [{"word": "x", "start": "late"}]}, 95.0)
+
+
 class TestAcquireRoute(unittest.TestCase):
     def setUp(self):
         self.d = tempfile.mkdtemp(prefix="post_live_acq_")
