@@ -6,12 +6,12 @@
  ],
  "ledger": "SPEND_D20261116.json",
  "cap": 1.4,
- "outside": 1.136161,
+ "outside": 1.170561,
  "parts_outside": {
   "builds": 1.014161,
   "audits": 0.0,
   "checks": 0.0,
-  "lock_precheck_scribe": 0.122,
+  "lock_precheck_scribe": 0.1564,
   "integrator_other": 0,
   "integrator_unpriced": [
    {
