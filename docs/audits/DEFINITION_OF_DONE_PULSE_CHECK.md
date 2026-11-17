@@ -6,6 +6,29 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 13:43 RULING 141 (2): THE SCORER, ANSWERED WITH EVIDENCE. It is the SCORER, not the moments, and not the outage. The scorer has NOT changed since Nov 14. It is a harsh judge of an opening, with "starts mid-thought" as its stock fault, and it was just as harsh before the 18 h outage. It refuses 2 of PBX's 10 approved clips. STAND_ALONE goes SOFT in lockstep (below).
+- **Nothing changed:**
+  - Model gemma3:27b, weights digest a418f5838eaf, on every one of its 1,158 verdicts since Nov 13; temperature 0.
+  - Code: scorer_sha edd54964a5ab, which hashes stand_alone.py + story_semantics.py (the prompt and the rating). Those were last changed Nov 14 06:41 and are the same on every verdict since.
+  - Batch 97 (2cc25c8b) and batch 102 (8f6ce7e4) changed only stand_alone_scorer.py's serve loop (GPU0 waiting; surviving a GPU0 stop), never the prompt, the model or the rating.
+- **The same moments, before the outage and now** (16 of them, old scores 4 / 3 / 2 / 1, same texts by digest, rated now through the service's own call, SA.clip_scorer(moments=True)):
+  - ONE passage a call, as production does (684 of its 914 calls): 14 of 16 get the same score, mean 2.50 then and 2.44 now. Its output is reproducible.
+  - The SAME 16 at FIVE a call: 15 of 16 change, mean 4.06; old 1s come back 3 / 4 / 5. Its score is not a stable property of the clip: it depends on what shares the prompt.
+- **PBX's approved clips, rated now one a call** (37c5b5f5, 41f29b1f, 1b4a63d0, 3f481f5a; 10 clips):
+  - 8 affirmed (>= 3.5).
+  - 2 REFUSED at 3.0 "starts mid-thought": Stephan Livera (41f29b1f clip 2, "However ...") and Saifedean Ammous (1b4a63d0 clip 1, "Bitcoin shows you ..."). PBX approved both videos.
+  - 6 of the 10 carry the "starts mid-thought" fault, even at 4.
+- **Its record by day** (mean; share >= 3.5; share giving "starts mid-thought"):
+  - Nov 14: 2.35; 11%; 98%.
+  - Nov 15: 2.33; 12%; 98%.
+  - Nov 16: 2.10; 3%; 100%.
+  - Nov 17 (after the outage): 2.22; 11%; 100%.
+  - Since the outage it is NOT "every moment 3": 60% are 2, 14% are 3, 11% are 4. The 77 of 110 left out is its normal refusal rate on any day's moments, not a change in them.
+- **So:**
+  - (a) STAND_ALONE goes SOFT in lockstep, as ruled. My render side has flagged an opener the scorer does not affirm since batch 105 (the topic rule and a malformed floor mark still hold). I am aligning my flag to your words, "The clip (X) may not stand alone: <the scorer's reason>", and checking the pin stage for any other place the scorer still refuses. Then I tell the builder, who builds its half now.
+  - (b) The scorer itself: there is no change to undo, so nothing to "fix" back. Its calibration (harsh; a stock fault label; shape-dependent) is a separate question for you. As a SOFT flag it can no longer starve the pool.
+- **Records:** docs/audits/r141_scorer/ (rerate.py; rerate.json five a call; rerate_one.json one a call). Free: local GPU0, Heimdall not used.
+
 ## 13:23 MILESTONE: BATCH 106 LIVE (merge f168cae1, pushed). The two gaps against ruling 137 (2)'s HARD list are closed. Every render flag is one plain sentence (ruling 138 (3)). A pin now renders at once (ruling 140 (3)).
 - **THE TWO GAPS, closed:**
   - (1) The attestation: a SOFT row's MALFORMED execution evidence holds again on every row. A SOFT row that measured nothing (0 samples, or SKIPPED) is flagged "did not measure anything", never a pass.

@@ -1,0 +1,335 @@
+{
+ "scorer_sha": "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53",
+ "outage_start": "2026-11-16T15:26:00-05:00",
+ "pre_outage": [
+  {
+   "moment_id": "72e9a3529c27be3eb69d",
+   "channel": "Altcoin Daily",
+   "old": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T11:53:57Z"
+   },
+   "now": {
+    "score": 5.0,
+    "fault": "none",
+    "reason": "Clear statement about institutional adoption of Bitcoin and Ethereum."
+   }
+  },
+  {
+   "moment_id": "30075b155874ab2de3c7",
+   "channel": "Altcoin Daily",
+   "old": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T17:04:11Z"
+   },
+   "now": {
+    "score": 5.0,
+    "fault": "none",
+    "reason": "States a portfolio allocation and opinion clearly."
+   }
+  },
+  {
+   "moment_id": "c762a1951bb30926fb96",
+   "channel": "Altcoin Daily",
+   "old": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T17:06:10Z"
+   },
+   "now": {
+    "score": 5.0,
+    "fault": "none",
+    "reason": "Describes Bitcoin's privacy features and original intent."
+   }
+  },
+  {
+   "moment_id": "9e059304bfc5bc1e2d85",
+   "channel": "Altcoin Daily",
+   "old": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T17:05:19Z"
+   },
+   "now": {
+    "score": 5.0,
+    "fault": "none",
+    "reason": "States Bitcoin's core purpose and institutional adoption."
+   }
+  },
+  {
+   "moment_id": "6aad8f2f278340a46449",
+   "channel": "Altcoin Daily",
+   "old": {
+    "score": 3.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T11:53:57Z"
+   },
+   "now": {
+    "score": 4.0,
+    "fault": "none",
+    "reason": "The comparison is clear, though 'derisked' needs a slight inference."
+   }
+  },
+  {
+   "moment_id": "89d5c05be258c4069a4e",
+   "channel": "Stephan Livera",
+   "old": {
+    "score": 3.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T11:53:57Z"
+   },
+   "now": {
+    "score": 5.0,
+    "fault": "none",
+    "reason": "Clear question about the impact of miners leaving Bitcoin."
+   }
+  },
+  {
+   "moment_id": "4f8d42ac7d400d93b0d2",
+   "channel": "TFTC",
+   "old": {
+    "score": 3.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T16:31:28Z"
+   },
+   "now": {
+    "score": 4.0,
+    "fault": "none",
+    "reason": "A slight gap about 'bull cycle' is easily filled by general knowledge."
+   }
+  },
+  {
+   "moment_id": "7b3dd6f526aadefbe7d7",
+   "channel": "TFTC",
+   "old": {
+    "score": 3.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T16:32:20Z"
+   },
+   "now": {
+    "score": 4.0,
+    "fault": "none",
+    "reason": "The claim is clear, though 'capitulating' requires some financial context."
+   }
+  },
+  {
+   "moment_id": "c0b10dbdc0b9dbadfac2",
+   "channel": "Altcoin Daily",
+   "old": {
+    "score": 2.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T11:53:58Z"
+   },
+   "now": {
+    "score": 3.0,
+    "fault": "starts_mid_thought",
+    "reason": "The 'that' refers to something previously stated about Bitcoin being de-risked."
+   }
+  },
+  {
+   "moment_id": "b05aed91079ce64702e4",
+   "channel": "Altcoin Daily",
+   "old": {
+    "score": 2.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T11:53:58Z"
+   },
+   "now": {
+    "score": 2.0,
+    "fault": "starts_mid_thought",
+    "reason": "The 'they' and 'here's what they don't want you to know' depend on prior context."
+   }
+  },
+  {
+   "moment_id": "05f1e4a9f750546eb83a",
+   "channel": "Stephan Livera",
+   "old": {
+    "score": 2.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T11:53:57Z"
+   },
+   "now": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts with 'I think it's...' implying a prior statement or question."
+   }
+  },
+  {
+   "moment_id": "da0ff8d5b2a224b380fa",
+   "channel": "Coin Bureau",
+   "old": {
+    "score": 2.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T14:49:54Z"
+   },
+   "now": {
+    "score": 5.0,
+    "fault": "none",
+    "reason": "Complete thought about the location of stolen funds."
+   }
+  },
+  {
+   "moment_id": "6251a82fa63ed051ea3f",
+   "channel": "Altcoin Daily",
+   "old": {
+    "score": 1.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T11:53:57Z"
+   },
+   "now": {
+    "score": 3.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts with 'And by the way...' and 'everybody was screaming...' implying a prior discussion."
+   }
+  },
+  {
+   "moment_id": "aaf0c78b19cace153444",
+   "channel": "Anthony Pompliano",
+   "old": {
+    "score": 1.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T14:57:28Z"
+   },
+   "now": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts with 'And he said...' referencing a previous statement."
+   }
+  },
+  {
+   "moment_id": "eade93c11a2a492ea763",
+   "channel": "TFTC",
+   "old": {
+    "score": 1.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T16:33:43Z"
+   },
+   "now": {
+    "score": 5.0,
+    "fault": "none",
+    "reason": "Presents a clear hypothetical question and scenario."
+   }
+  },
+  {
+   "moment_id": "b36fbc2652b71924a361",
+   "channel": "TFTC",
+   "old": {
+    "score": 1.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T16:32:41Z"
+   },
+   "now": {
+    "score": 2.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts responding to an implied question about forking; 'that fork' and 'your UTXO set' require prior context."
+   }
+  }
+ ],
+ "approved": [
+  {
+   "video": "37c5b5f5",
+   "segment": "hook",
+   "channel": "Saifedean Ammous",
+   "now": {
+    "score": 5.0,
+    "fault": "none",
+    "reason": "Complete claim about Bitcoin's security."
+   }
+  },
+  {
+   "video": "37c5b5f5",
+   "segment": "clip_1",
+   "channel": "What Bitcoin Did",
+   "now": {
+    "score": 5.0,
+    "fault": "none",
+    "reason": "Clear claim about Bitcoin's independence."
+   }
+  },
+  {
+   "video": "37c5b5f5",
+   "segment": "clip_2",
+   "channel": "Natalie Brunell",
+   "now": {
+    "score": 5.0,
+    "fault": "none",
+    "reason": "Complete claim about Bitcoin's market impact."
+   }
+  },
+  {
+   "video": "41f29b1f",
+   "segment": "hook",
+   "channel": "Natalie Brunell",
+   "now": {
+    "score": 5.0,
+    "fault": "none",
+    "reason": "Identical to p02, complete claim."
+   }
+  },
+  {
+   "video": "41f29b1f",
+   "segment": "clip_1",
+   "channel": "What Bitcoin Did",
+   "now": {
+    "score": 4.0,
+    "fault": "none",
+    "reason": "Mostly complete claim; 'price-wise' is a slight gap but easily filled."
+   }
+  },
+  {
+   "video": "41f29b1f",
+   "segment": "clip_2",
+   "channel": "Stephan Livera",
+   "now": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts with 'However', implying a previous statement."
+   }
+  },
+  {
+   "video": "1b4a63d0",
+   "segment": "hook",
+   "channel": "Stephan Livera",
+   "now": {
+    "score": 5.0,
+    "fault": "none",
+    "reason": "Complete thought about price fluctuations based on market sentiment."
+   }
+  },
+  {
+   "video": "1b4a63d0",
+   "segment": "clip_1",
+   "channel": "Saifedean Ammous",
+   "now": {
+    "score": 5.0,
+    "fault": "none",
+    "reason": "Clear claim about Bitcoin increasing purchasing power and protecting holders."
+   }
+  },
+  {
+   "video": "1b4a63d0",
+   "segment": "clip_2",
+   "channel": "Coin Bureau",
+   "now": {
+    "score": 5.0,
+    "fault": "none",
+    "reason": "Explains how interest rates affect Bitcoin's risk profile."
+   }
+  },
+  {
+   "video": "3f481f5a",
+   "segment": "hook",
+   "channel": "Blockware Solutions",
+   "now": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts with 'On my 20th birthday', referencing a past event."
+   }
+  }
+ ],
+ "model": "gemma3:27b",
+ "digest": "a418f5838eaf7fe2cfe0a3046c8384b68ba43a4435542c942f9db00a5f342203",
+ "prompt_sha256": "8e02fe17cc848f04e681bad7a950c1b05248cafba634409509dd8a1a078b357f"
+}

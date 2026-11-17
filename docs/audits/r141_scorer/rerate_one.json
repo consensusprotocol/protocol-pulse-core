@@ -1,0 +1,335 @@
+{
+ "scorer_sha": "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53",
+ "outage_start": "2026-11-16T15:26:00-05:00",
+ "pre_outage": [
+  {
+   "moment_id": "72e9a3529c27be3eb69d",
+   "channel": "Altcoin Daily",
+   "old": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T11:53:57Z"
+   },
+   "now": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "reason": "The 'So' implies a previous statement or context about institutionalization."
+   }
+  },
+  {
+   "moment_id": "30075b155874ab2de3c7",
+   "channel": "Altcoin Daily",
+   "old": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T17:04:11Z"
+   },
+   "now": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts with 'For me, you can ask me...' implying a prior question or context."
+   }
+  },
+  {
+   "moment_id": "c762a1951bb30926fb96",
+   "channel": "Altcoin Daily",
+   "old": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T17:06:10Z"
+   },
+   "now": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts with 'What's cool about Bitcoin', implying prior discussion of Bitcoin's features."
+   }
+  },
+  {
+   "moment_id": "9e059304bfc5bc1e2d85",
+   "channel": "Altcoin Daily",
+   "old": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T17:05:19Z"
+   },
+   "now": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts with 'So', implying a previous statement or question about Bitcoin's purpose."
+   }
+  },
+  {
+   "moment_id": "6aad8f2f278340a46449",
+   "channel": "Altcoin Daily",
+   "old": {
+    "score": 3.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T11:53:57Z"
+   },
+   "now": {
+    "score": 3.0,
+    "fault": "starts_mid_thought",
+    "reason": "The claim relies on understanding what 'today' refers to and what 'completely derisked' means in this context, both likely established earlier."
+   }
+  },
+  {
+   "moment_id": "89d5c05be258c4069a4e",
+   "channel": "Stephan Livera",
+   "old": {
+    "score": 3.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T11:53:57Z"
+   },
+   "now": {
+    "score": 1.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts with 'And broadly', implying a previous statement or context."
+   }
+  },
+  {
+   "moment_id": "4f8d42ac7d400d93b0d2",
+   "channel": "TFTC",
+   "old": {
+    "score": 3.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T16:31:28Z"
+   },
+   "now": {
+    "score": 3.0,
+    "fault": "starts_mid_thought",
+    "reason": "The clip begins with 'There is a point...', implying a previous discussion about bull cycles and Bitcoin's price."
+   }
+  },
+  {
+   "moment_id": "7b3dd6f526aadefbe7d7",
+   "channel": "TFTC",
+   "old": {
+    "score": 3.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T16:32:20Z"
+   },
+   "now": {
+    "score": 3.0,
+    "fault": "starts_mid_thought",
+    "reason": "\u201cThey\u201d and \u201cso\u201d imply prior context about who is capitulating."
+   }
+  },
+  {
+   "moment_id": "c0b10dbdc0b9dbadfac2",
+   "channel": "Altcoin Daily",
+   "old": {
+    "score": 2.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T11:53:58Z"
+   },
+   "now": {
+    "score": 2.0,
+    "fault": "starts_mid_thought",
+    "reason": "The 'that' refers to something previously stated about Bitcoin being de-risked."
+   }
+  },
+  {
+   "moment_id": "b05aed91079ce64702e4",
+   "channel": "Altcoin Daily",
+   "old": {
+    "score": 2.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T11:53:58Z"
+   },
+   "now": {
+    "score": 2.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts with 'And investors...', implying a previous statement about investors' perceptions."
+   }
+  },
+  {
+   "moment_id": "05f1e4a9f750546eb83a",
+   "channel": "Stephan Livera",
+   "old": {
+    "score": 2.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T11:53:57Z"
+   },
+   "now": {
+    "score": 2.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts with 'I think it's one of the most beautiful things...' - needs context to know what 'it' is."
+   }
+  },
+  {
+   "moment_id": "da0ff8d5b2a224b380fa",
+   "channel": "Coin Bureau",
+   "old": {
+    "score": 2.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T14:49:54Z"
+   },
+   "now": {
+    "score": 2.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts with 'But' implying a previous statement about money; 'this video' refers to something outside the clip."
+   }
+  },
+  {
+   "moment_id": "6251a82fa63ed051ea3f",
+   "channel": "Altcoin Daily",
+   "old": {
+    "score": 1.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T11:53:57Z"
+   },
+   "now": {
+    "score": 1.0,
+    "fault": "starts_mid_thought",
+    "reason": "Relies on prior context about 'these prices' and 'everybody' to understand what is being claimed."
+   }
+  },
+  {
+   "moment_id": "aaf0c78b19cace153444",
+   "channel": "Anthony Pompliano",
+   "old": {
+    "score": 1.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T14:57:28Z"
+   },
+   "now": {
+    "score": 1.0,
+    "fault": "starts_mid_thought",
+    "reason": "Relies on knowing who 'he' is and what 'hack' is being discussed."
+   }
+  },
+  {
+   "moment_id": "eade93c11a2a492ea763",
+   "channel": "TFTC",
+   "old": {
+    "score": 1.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T16:33:43Z"
+   },
+   "now": {
+    "score": 1.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts asking a question without context; 'Would you rather...' needs a prior setup."
+   }
+  },
+  {
+   "moment_id": "b36fbc2652b71924a361",
+   "channel": "TFTC",
+   "old": {
+    "score": 1.0,
+    "fault": "starts_mid_thought",
+    "at": "2026-11-14T16:32:41Z"
+   },
+   "now": {
+    "score": 2.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts responding to an implied question about forking; 'that fork' and 'your UTXO set' require prior context."
+   }
+  }
+ ],
+ "approved": [
+  {
+   "video": "37c5b5f5",
+   "segment": "hook",
+   "channel": "Saifedean Ammous",
+   "now": {
+    "score": 5.0,
+    "fault": "none",
+    "reason": "Complete thought; explains Bitcoin's security feature and wealth distribution."
+   }
+  },
+  {
+   "video": "37c5b5f5",
+   "segment": "clip_1",
+   "channel": "What Bitcoin Did",
+   "now": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts with 'I mean', implying a response to a previous statement."
+   }
+  },
+  {
+   "video": "37c5b5f5",
+   "segment": "clip_2",
+   "channel": "Natalie Brunell",
+   "now": {
+    "score": 5.0,
+    "fault": "none",
+    "reason": "Complete claim, easily understood."
+   }
+  },
+  {
+   "video": "41f29b1f",
+   "segment": "hook",
+   "channel": "Natalie Brunell",
+   "now": {
+    "score": 5.0,
+    "fault": "none",
+    "reason": "Complete claim, easily understood."
+   }
+  },
+  {
+   "video": "41f29b1f",
+   "segment": "clip_1",
+   "channel": "What Bitcoin Did",
+   "now": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts with 'I mean', implying a response to a previous statement."
+   }
+  },
+  {
+   "video": "41f29b1f",
+   "segment": "clip_2",
+   "channel": "Stephan Livera",
+   "now": {
+    "score": 3.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts with 'However', implying a previous statement or question."
+   }
+  },
+  {
+   "video": "1b4a63d0",
+   "segment": "hook",
+   "channel": "Stephan Livera",
+   "now": {
+    "score": 5.0,
+    "fault": "none",
+    "reason": "Fully self-contained explanation of price fluctuations based on market sentiment."
+   }
+  },
+  {
+   "video": "1b4a63d0",
+   "segment": "clip_1",
+   "channel": "Saifedean Ammous",
+   "now": {
+    "score": 3.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts with 'Bitcoin shows you...', implying a previous statement or context about what Bitcoin demonstrates."
+   }
+  },
+  {
+   "video": "1b4a63d0",
+   "segment": "clip_2",
+   "channel": "Coin Bureau",
+   "now": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts with 'Now', implying a previous statement about rates."
+   }
+  },
+  {
+   "video": "3f481f5a",
+   "segment": "hook",
+   "channel": "Blockware Solutions",
+   "now": {
+    "score": 4.0,
+    "fault": "starts_mid_thought",
+    "reason": "Starts with a personal anecdote, implying prior context about financial choices."
+   }
+  }
+ ],
+ "model": "gemma3:27b",
+ "digest": "a418f5838eaf7fe2cfe0a3046c8384b68ba43a4435542c942f9db00a5f342203",
+ "prompt_sha256": "34db8a6e25cf403eecffa9fdd14ec1a65616a7386a8497c782b4ec80874fd4ce"
+}
