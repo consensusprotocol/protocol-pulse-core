@@ -1,0 +1,48 @@
+{
+ "question": "Review this diff to pipeline/lock_precheck.py (the integrator's lock pre-check: it answers, before a paid build, what the render's lock will say about a span). Each answer has an outcome: \"hold\" is a FINAL verdict the builder never re-asks for that span; \"error\" is NO verdict (never a pass) and is asked again. The defect fixed: a YouTube video still \"post_live\" (DASH segments only) downloads a window section with seconds of picture, no audio and a 0 s container; pinned.validate_range then raised PinError \"range outside the source file (file covers 0-0.000 s ...)\" and the pre-check answered \"hold\" on words it never heard. The diff: on a PinError, when the acquired window has no media (pinned._duration < 0.5 s, or unreadable), the outcome is \"error\" and the window's work directory is removed (select_passages._download_window treats any existing file over 100 KB as a cache hit, so the 750 KB broken file would otherwise be served forever). Any other PinError (a real range fault on a file with media, a lock that cannot be made) still \"hold\".\nFACTS (unchanged code): pinned._duration(path) runs ffprobe and returns the container duration or raises PinError when it cannot read one; wd = work_dir(vid, lo, hi, sha) is this video's window directory for this request (shared by the request's spans of that video); a span whose latest entry is \"error\" is answered again on the next request (_cached).\nCycle 2: try to BREAK it. Report ONLY a defect you can show with a CONCRETE file / request state traced through the diff's code. Keep each \"issue\" under 80 words. If you cannot break it, answer PASS with no findings.\nTARGETS:\nT1. A real hold (words that differ, a range past a real video's end) turned into \"error\", so the span is asked again and could later pass.\nT2. A window with no media answered \"hold\" or \"pass\".\nT3. An exception, or a deletion outside the window's own directory.",
+ "files": [],
+ "panel": {
+  "gptoss": "openai/gpt-oss-20b"
+ },
+ "cycle1": [
+  {
+   "name": "gptoss",
+   "model": "openai/gpt-oss-20b",
+   "status": 200,
+   "latency_s": 7.8,
+   "cost": 0.000208785,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "gptoss",
+   "status": 200,
+   "latency_s": 5.5,
+   "cost": 0.00015872,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "gptoss:F1",
+   "severity": "high",
+   "file": "pipeline/lock_precheck.py",
+   "line": 213,
+   "issue": "The new _empty_source() treats any exception from pinned._duration (including real PinError range faults) as an empty source, causing a legitimate 'hold' to be converted to 'error'. This violates the intended behavior that only truly empty windows should be marked 'error'.",
+   "evidence": "def _empty_source(a):\n    try:\n        return pinned._duration(a[\"path\"]) < EMPTY_S\n    except Exception:\n        return True\n\n... \nexcept pinned.PinError as e:\n    if _empty_source(a):\n        outcome, lock = \"error\", None\n        reason = (f\"the source window downloaded empty ({e}): a post_live stream or a failed \n                  download; no verdict, ask again when the video is processed\")\n        shutil.rmtree(wd, ignore_errors=True)\n    else:\n        outcome, reason, lock = \"hold\", str(e), None",
+   "fix": "Modify _empty_source to only return True when the duration is < EMPTY_S and not when an exception occurs. For example:\n\ndef _empty_source(a):\n    try:\n        return pinned._duration(a[\"path\"]) < EMPTY_S\n    except pinned.PinError:\n        # A PinError indicates a real range fault; treat as non-empty\n        return False\n    except Exception:\n        # Any other exception (e.g., unreadable file) is considered empty\n        return True\n\nAlternatively, in answer() catch pinned.PinError separately and only call _empty_source when the exception is due to an empty source (e.g., by checking the exception message or using a custom flag).",
+   "agree": [
+    "gptoss"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.00036750499999999996,
+ "out_dir": "heimdall"
+}
