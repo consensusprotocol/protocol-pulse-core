@@ -13,7 +13,7 @@ import unittest
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from edl_rules import (rule_r1, rule_r2, rule_r3, rule_r4, rule_r5, rule_r6,
                        rule_r9, rule_r11, takeaway_value, validate_edl,
-                       question_hook_join, QUESTION_HOOK_JOIN, sealed_ok)
+                       question_hook_join, QUESTION_HOOK_JOIN)
 
 # Load fixtures
 FIXTURE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -1386,6 +1386,7 @@ class TestRuling141SealedFlagged(unittest.TestCase):
         self.assertIn("flagged the join that follows it", why)
 
     def test_flagged_without_its_flags_or_replayed_fails_closed(self):
+        from edl_rules import sealed_ok
         for row in ({"status": "FLAGGED", "replayed": False}, {"status": "FLAGGED", "replayed": False, "flags": []},
                     {"status": "FLAGGED", "replayed": False, "flags": [""]}, {"status": "FLAGGED", "replayed": False,
                                                                            "flags": "x"},
