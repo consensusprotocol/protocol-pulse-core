@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-17T19:47:14+00:00",
- "build": "ledger_20261117_194633",
+ "generated_at": "2026-11-17T20:21:06+00:00",
+ "build": "ledger_20261117_202045",
  "kind": "moments",
  "candidates": [
   {
@@ -238,6 +238,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "92575ea45653a393d050",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 8.07,
+   "text": "And it is how low will Bitcoin go in December? So 49 % of Kashi traders are saying below 60%.",
+   "text_sha256": "8c063b2978c2fbeb67d1c35c5b1ae9aee5d3b0b645d85f026e795945717edbcd",
+   "trimmed_leading": null
+  },
+  {
    "pid": "9dfff23c70dd257aa783",
    "video_id": "RsCi56hEriU",
    "channel": "Natalie Brunell",
@@ -262,6 +271,24 @@
    "duration": 10.72,
    "text": "So we lend out the funds and they go to the borrower. They're not sitting in a smart contract. And then we take the BTC into, you know, for the most part, qualified custodians in kind of tri -party accounts.",
    "text_sha256": "09569462d81c2a0d3d61265bdea3aaf7f8a278e73e5a973c66f7aeaa377dc7c1",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "adfea505577d0f0cc5e0",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 9.34,
+   "text": "And it's funny, you're like, that's literally what we're doing at our company. It's like we're trying to outperform Bitcoin, but we're also trying to minimize our risk so that we can see the promise land.",
+   "text_sha256": "b9434a212c7e33a7944fdf96aec867ca1579d43e8ac211ec9ede68b4dc27d5af",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b3b35d71d54a76d4a347",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 13.58,
+   "text": "So we are listed, the Bitcoin Treasury Company listed last year. We have a treasury strategy. We buy Bitcoin and trade around Bitcoin for our balance sheet with using derivatives.",
+   "text_sha256": "89bfcaf170230ee88e5ca7f27d3514878712ef83bf2046c167948159d5095273",
    "trimmed_leading": null
   },
   {
@@ -472,6 +499,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "92575ea45653a393d050~trim",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 7.69,
+   "text": "it is how low will Bitcoin go in December? So 49 % of Kashi traders are saying below 60%.",
+   "text_sha256": "871a4589c8f907f89267a3438071799debcd2e3158624a98ea804f259c115e42",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "9dfff23c70dd257aa783~trim",
    "video_id": "RsCi56hEriU",
    "channel": "Natalie Brunell",
@@ -496,6 +532,24 @@
    "duration": 10.7,
    "text": "we lend out the funds and they go to the borrower. They're not sitting in a smart contract. And then we take the BTC into, you know, for the most part, qualified custodians in kind of tri -party accounts.",
    "text_sha256": "df76c82aed08a0360d71baa87a10cc17e5ba47754ff00a341c0c78684a228ef6",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "adfea505577d0f0cc5e0~trim",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 9.32,
+   "text": "it's funny, you're like, that's literally what we're doing at our company. It's like we're trying to outperform Bitcoin, but we're also trying to minimize our risk so that we can see the promise land.",
+   "text_sha256": "7339ee2f3594075a7f950a5e8c210bc6d7a8501ce61cc37ac554b480dc455b50",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "b3b35d71d54a76d4a347~trim",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 13.54,
+   "text": "we are listed, the Bitcoin Treasury Company listed last year. We have a treasury strategy. We buy Bitcoin and trade around Bitcoin for our balance sheet with using derivatives.",
+   "text_sha256": "a928bfc55e75259977ae4c10eec76b287fd015c3322bfb0b12da6724c78e9331",
    "trimmed_leading": "So"
   },
   {
@@ -1174,6 +1228,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "3c5e150749b8b40c890e",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 24.4,
+   "text": "I just think we're nuts. They need explanation for everything. Europe is very slow. It's like I was to the conference in New York in September and everybody's talking about innovation and new products, rappers and Bitcoin with enthusiasm.",
+   "text_sha256": "f4533ca942063180f06150f39d18fdffd3e54ad87e1303db3b79fe71c9db1354",
+   "trimmed_leading": null
+  },
+  {
    "pid": "31c54926c19aa2d98d1b",
    "video_id": "RsCi56hEriU",
    "channel": "Natalie Brunell",
@@ -1181,6 +1244,24 @@
    "text": "It's the largest pension fund in America. Now it's getting pretty close to a trillion dollars of assets under management. When I left, it was around $500 billion of assets under management. So huge pot of money. And so it's a great, it's like, the ideal training ground for someone that works in the investment space to get to manage a lot of money.",
    "text_sha256": "f42fb14b8fe4c63e21470408f6eeba251ef15033108ed58466776b0c28285806",
    "trimmed_leading": null
+  },
+  {
+   "pid": "930666ea233d2684c869",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 24.48,
+   "text": "The Dow Jones is going to 100,000. No question about it. And that's how I think about Bitcoin. It's going to $1 million. When it's there, let's adjust the price. it's going to happen. But the cycles and the volatility, that's why we have this kind of dynamic treasury strategy.",
+   "text_sha256": "bab123e2d43311dded7083ff078807767d3578f59c98a29b3643c30115308df5",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "60609bfddfb65110c6a0~trim",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 20.01,
+   "text": "it is how low will Bitcoin go in December? So 49 % of Kashi traders are saying below 60%. 26 are saying below the last low of 57K. I don't, look, I know Nico was on the show yesterday saying, you know, the dump's not over.",
+   "text_sha256": "cdfd4f6ba398437fd546697df2dc574151c997f687d2d86c2d03335814695ff9",
+   "trimmed_leading": "And"
   },
   {
    "pid": "6b09c766d1aa3ffdcf99~trim",
@@ -1228,12 +1309,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "dd47fc3dfa8f971e1e21",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 21.13,
+   "text": "If you buy one, if you buy for 100,000 in Strive, you actually have Bitcoin exposure for 230,000 right now. But then again, if Bitcoin is staying at the biggest level, you buy it now.",
+   "text_sha256": "8fee194f8ac1df22c767dd3f944c8fbf054506da0ffb9fba59218480a1fcdb9f",
+   "trimmed_leading": null
+  },
+  {
    "pid": "6c93a8e5083797b42dea",
    "video_id": "nThfIRfBleA",
    "channel": "Scott Melker",
    "duration": 27.42,
    "text": "It's not like we can all sit here and go like, I wonder if it can go up 300 % in the year. Like this thing is when it runs, it runs like a scalded dog, as they say. And so, you know, you kind of just. Bide your time until it runs, and i think the new game in town has played the volatility until it runs, and there's so much volatility opportunity and value there that you know the the biggest hands at the table, aren't even they don't even care about the directional move.",
    "text_sha256": "57db6f1a14b20e0096f77459cb61afd69798c78027e573603cbcde1bf4c67d5c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "033531d36baa6722d5f9",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 19.08,
+   "text": "Strive is having a cost of like 22 % a year. While 21 capital is cheaper than buying iBit and strategy like 3.5%.",
+   "text_sha256": "b4634bc6081e064a9233fa6dea712ae51baa32c81a322fe70f3c2c8d2a7d8722",
    "trimmed_leading": null
   },
   {
@@ -1255,6 +1354,24 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "10607c630e1676b76b0b~trim",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 14.72,
+   "text": "it's funny, you're like, that's literally what we're doing at our company. It's like we're trying to outperform Bitcoin, but we're also trying to minimize our risk so that we can see the promise land. You know, that's the problem being early.",
+   "text_sha256": "3dd97ee755d5a688784bcf93a208c201de41abbe1719fcf1d44626a6b99e0817",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "cc4654faedc1665b1025~trim",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 16.72,
+   "text": "we are listed, the Bitcoin Treasury Company listed last year. We have a treasury strategy. We buy Bitcoin and trade around Bitcoin for our balance sheet with using derivatives. Besides that, we are a truly Bitcoin company.",
+   "text_sha256": "2f44f738fa3def95cc3ce6b7bf768262dacf92ddc39843592956b8d031646a62",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "905569fa66e0f0c86042",
    "video_id": "F536pi4mr7Y",
    "channel": "Yahoo Finance",
@@ -1271,6 +1388,33 @@
    "text": "I know you recently said Bitcoin had moved from winter into spring. Do you feel like this is still a choppy spring, or has the break below 75K changed your read on the cycle? Not at all. getting super great question.",
    "text_sha256": "968978fc3b5ef1f24db4ad14596469ef2c6b98f80a494cc43237ad5a06b324c3",
    "trimmed_leading": null
+  },
+  {
+   "pid": "4cba59755f729108b76a",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 18.36,
+   "text": "How are you expecting the Bitcoin price to run, say, in the next two or three years? Oh, 280. 280? Okay. All right. Well, I think we can take that. We could take 280. Also, 280, but then we get a 50 % pullback.",
+   "text_sha256": "b220375ca81eade903825169c4f3edce1aa70da080bb8d921c01d835aaac1e79",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e5f7c7c5de3e167564fe",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 18.43,
+   "text": "We had mentioned when Bitcoin got attacked in, what was it, July with the cold card exploit, that this was just the beginning, that this was going to a... eventually reach every more traditional infrastructure. Now we're seeing it hit the banks.",
+   "text_sha256": "420b1fb9ffcfdc943b78019afe29f804313284a14b615341b30290bb357aeca0",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d0a587c76181ead86553~trim",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 24.76,
+   "text": "if you are worried about what the stock is going or the Bitcoin is going down, obviously strategy has. the most open capital market. They were the largest probably client in Wall Street 24 and 25. They're friends of Wall Street.",
+   "text_sha256": "549946e226e089a890f819d86297ba3edcac4a34067df046b81445da4042a42b",
+   "trimmed_leading": "And"
   },
   {
    "pid": "b546dd705e0bfbe58e82",

@@ -13,12 +13,35 @@
   "checks": 0.0,
   "lock_precheck_scribe": 0.122,
   "integrator_other": 0,
-  "integrator_unpriced": [],
+  "integrator_unpriced": [
+   {
+    "at": "2026-11-17T20:06:48Z",
+    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+    "ref": "vo_signoff_pp2_v1_bf46b21f80b1",
+    "service": "unknown",
+    "units": {
+     "characters": 89
+    },
+    "usd": null,
+    "vendor": "elevenlabs:tts:eleven_v4"
+   },
+   {
+    "at": "2026-11-17T20:06:48Z",
+    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+    "ref": "vo_signoff_pp2_v1_b0ae9bf9641f",
+    "service": "unknown",
+    "units": {
+     "characters": 107
+    },
+    "usd": null,
+    "vendor": "elevenlabs:tts:eleven_v4"
+   }
+  ],
   "others": {}
  },
  "heimdall_free": {
   "builds": 0.021173,
-  "audits": 0.347938,
+  "audits": 0.382642,
   "checks": 5.275658,
   "others": {}
  },
