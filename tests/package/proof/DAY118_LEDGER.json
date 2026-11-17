@@ -6,9 +6,9 @@
  ],
  "ledger": "SPEND_D20261116.json",
  "cap": 1.0,
- "outside": 0.606999,
+ "outside": 0.736389,
  "parts_outside": {
-  "builds": 0.606999,
+  "builds": 0.736389,
   "audits": 0.0,
   "checks": 0.0,
   "others": {}

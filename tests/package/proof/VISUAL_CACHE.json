@@ -1502,6 +1502,47 @@
   },
   "version": "visual-3"
  },
+ "93cfa865d13a0c3e1709:54.260-61.380:visual-3:7bf95b910e90e982": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [],
+  "flags": [],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_c9be3cbc732d9023.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_c9be3cbc732d9023.jpg",
+   "sha256": "c9be3cbc732d90230c903b1f39e1ae5a82583fb06ea9f87ad67078f7cfea383b",
+   "times": [
+    54.26,
+    55.26,
+    56.26,
+    57.26,
+    58.26,
+    59.26,
+    60.26,
+    61.26,
+    61.33
+   ]
+  },
+  "third_person": {
+   "finding": "Only the speaker appears live on camera; no still, photo, or graphic of any other person is shown during the negative remarks about Bitcoin's weekend drop and liquidations.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 2956,
+   "out": 10311,
+   "usd_reported": 0.06605
+  },
+  "version": "visual-3"
+ },
  "94a613f35c4ed30c9980:113.874-119.674:visual-3:70cd91f3e5a32f5d": {
   "backend": "heimdall:qwen/qwen3.8-27b",
   "burned_in": [
@@ -2225,6 +2266,118 @@
    "in": 1642,
    "out": 5324,
    "usd_reported": 0.0043348
+  },
+  "version": "visual-3"
+ },
+ "d6adeb54ad64062081c5:3339.900-3354.680:visual-3:10f67f27ba1ce82b": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     3339.9,
+     3340.9,
+     3341.9,
+     3342.9,
+     3343.9,
+     3344.9,
+     3345.9,
+     3346.9,
+     3347.9,
+     3348.9,
+     3349.9,
+     3350.9,
+     3351.9,
+     3352.9,
+     3353.9,
+     3354.63
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "Ledn",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     3339.9,
+     3340.9,
+     3341.9,
+     3342.9,
+     3343.9,
+     3344.9,
+     3345.9,
+     3346.9,
+     3347.9,
+     3348.9,
+     3349.9,
+     3350.9,
+     3351.9,
+     3352.9,
+     3353.9,
+     3354.63
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "WHAT BITCOIN DID",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "Ledn"
+   },
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "WHAT BITCOIN DID"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_c40db3bfd2cd3b69.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_c40db3bfd2cd3b69.jpg",
+   "sha256": "c40db3bfd2cd3b694b2014094fbd14beddd956e2c87f0a83069f8025cbc231fc",
+   "times": [
+    3339.9,
+    3340.9,
+    3341.9,
+    3342.9,
+    3343.9,
+    3344.9,
+    3345.9,
+    3346.9,
+    3347.9,
+    3348.9,
+    3349.9,
+    3350.9,
+    3351.9,
+    3352.9,
+    3353.9,
+    3354.63
+   ]
+  },
+  "third_person": {
+   "finding": "Only the speaker appears, live on camera; no other person is shown as a still, photo, or graphic, and the words make no negative claim about any person.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 3276,
+   "out": 8943,
+   "usd_reported": 0.058482
   },
   "version": "visual-3"
  },

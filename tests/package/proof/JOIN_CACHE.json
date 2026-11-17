@@ -1545,5 +1545,19 @@
    "why": "abrupt topic shift",
    "backend": "xai:grok-4.20-0309-reasoning"
   }
+ },
+ "8e6ae65436256fcb93f3901a0c91648fb07f6fdc5798d8adbcde6760342ffcda:5d9712611892fa118f21dbf17d842b46eb66c9f3b85d2e298ef582369341e9f4:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "shifts from 2023 uptrend to recent drop",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ea94b2fd4379d659e1f1fa5d6228da7925781b296ca069bf8608040136949ee6:5d9712611892fa118f21dbf17d842b46eb66c9f3b85d2e298ef582369341e9f4:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "both on same weekend drop to 62k",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
  }
 }

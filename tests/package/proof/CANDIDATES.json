@@ -162,7 +162,8 @@
   "tests/package/proof/ledger_20261117_025952",
   "tests/package/proof/ledger_20261117_030036",
   "tests/package/proof/ledger_20261117_030232",
-  "tests/package/proof/ledger_20261117_031828"
+  "tests/package/proof/ledger_20261117_031828",
+  "tests/package/proof/ledger_20261117_033815"
  ],
  "candidates": {
   "35b7b52533b4220b2672+5307d23dced4f444919a+f03d79cf73eb188924ee": {
@@ -494,10 +495,18 @@
    "source": "tests/package/proof/ledger_20261117_031828",
    "index": 2,
    "found_at": "2026-11-17T03:18:28.517449+00:00",
-   "state": "open",
+   "state": "closed",
    "until": null,
    "fresh_used": false,
-   "history": []
+   "history": [
+    {
+     "build": "tests/package/proof/ledger_20261117_033815",
+     "at": "2026-11-17T03:38:15.184769+00:00",
+     "class": "clip",
+     "fresh": false,
+     "why": "ruling 72: the render's lock holds d6adeb54ad64062081c5: WdiF0i925rs words 50-100: lock text not adjudicated (ruling 17): at [['bunch of', 'budget'], ['that', 'like'], ['um', '']] the second recogniser reads neither | run_decode: 'i have been recently done a bunch of pieces on the 2023 bull market, "
+    }
+   ]
   }
  }
 }

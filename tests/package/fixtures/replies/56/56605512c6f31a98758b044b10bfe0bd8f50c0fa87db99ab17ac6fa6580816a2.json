@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 520,
+ "system": null,
+ "prompt": "You judge JOINS between clips of 60-second videos made of other channels' own words (each clip is a\nperson's own words from a show; the shows were not in one conversation). In each PAIR, clip A plays and clip B follows\nit at once, with NO narration between them. Judge each pair ALONE: the pairs are not one video, and nothing else plays\nbefore or between A and B.\n\nTHE CLIPS:\nCLIP id=\"c1\" (on screen: What Bitcoin Did): \"I have been recently done a budget pieces on the 2023 bull market, like climbing a wall of worry. There was massive amounts of fear during that period of time. Bitcoin was actually trending up into the right, and fear was also trending up into the right during that.\"\nCLIP id=\"c2\" (on screen: Simply Bitcoin): \"Bitcoin puked all the way back to $62,000 over the weekend, and a lot of people are asking if they should just sell now before it gets worse.\"\nCLIP id=\"c3\" (on screen: BTC Sessions): \"Meanwhile, Bitcoin had a terrible weekend. We went all the way down to 62K, $2 billion in leverage wiped out, $645 million in just 30 minutes.\"\n\nTHE PAIRS (A -> B):\nPAIR id=\"p1\": c1 -> c2\nPAIR id=\"p2\": c3 -> c2\n\nFor EACH pair, the join question (the previous clip is A, the next clip is B): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming from the previous clip's ending? Answer\n\"followable\": true or false, and \"why\": a few words.\nReturn ONLY this JSON object: {\"pairs\": {\"p1\": {\"followable\": true, \"why\": \"...\"}, \"p2\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"pairs\": {\"p1\": {\"followable\": false, \"why\": \"shifts from 2023 uptrend to recent drop\"}, \"p2\": {\"followable\": true, \"why\": \"both on same weekend drop to 62k\"}}}",
+ "usage": {
+  "in": 614,
+  "out": 1690,
+  "usd_reported": 0.0048581
+ },
+ "usd": 0.04532,
+ "seconds": 9.97,
+ "recorded_at": "2026-11-17T03:46:48Z"
+}
