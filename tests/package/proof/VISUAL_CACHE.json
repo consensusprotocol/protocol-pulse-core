@@ -2123,6 +2123,100 @@
   },
   "version": "visual-1"
  },
+ "ca660f2277836c085860:0.910-9.030:visual-3:f9be129759b84da2": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     0.91,
+     1.91,
+     2.91,
+     3.91,
+     4.91,
+     5.91,
+     6.91,
+     7.91,
+     8.81,
+     8.98
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "lower_third",
+    "text": "Scott Melker",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     0.91,
+     1.91,
+     2.91,
+     3.91,
+     4.91,
+     5.91,
+     6.91,
+     7.91,
+     8.81,
+     8.98
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "Wolf \u00d7 Arch",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "lower_third",
+    "kind": "burned_in",
+    "text": "Scott Melker"
+   },
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "Wolf \u00d7 Arch"
+   }
+  ],
+  "lower_third": {
+   "name": "Scott Melker",
+   "text": "Scott Melker"
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_3f71f213c37c8a46.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_3f71f213c37c8a46.jpg",
+   "sha256": "3f71f213c37c8a46373549dfc764b427362bd45cec662d3243672ae177dd0cde",
+   "times": [
+    0.91,
+    1.91,
+    2.91,
+    3.91,
+    4.91,
+    5.91,
+    6.91,
+    7.91,
+    8.91,
+    8.98
+   ]
+  },
+  "third_person": {
+   "finding": "No person other than the speaker appears, and nothing is shown as a still, photo, or graphic; the spoken line is market commentary, not a negative claim about anyone.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2943,
+   "out": 7712,
+   "usd_reported": 0.05043
+  },
+  "version": "visual-3"
+ },
  "cb80340f857a99178919:1455.478-1463.298:visual-2:68f34beb30d47fe8": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [
@@ -2509,5 +2603,70 @@
    "usd_reported": 0.02728
   },
   "version": "visual-2"
+ },
+ "f4bad490a7d8f7f7e89d:2176.964-2181.284:visual-3:be739a7c069c8e7f": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [],
+  "flags": [
+   {
+    "kind": "on_screen_text",
+    "text": "matthew sigel, recovering CFA",
+    "why": "The displayed tweet byline names its author and credential, which the spoken words never mention."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "Are you willing to bet this time is different?",
+    "why": "This challenge appears in the on-screen tweet but is not part of the clip's spoken words."
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "matthew sigel, recovering CFA",
+    "why": "The displayed tweet byline names its author and credential, which the spoken words never mention."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "Are you willing to bet this time is different?",
+    "why": "This challenge appears in the on-screen tweet but is not part of the clip's spoken words."
+   },
+   {
+    "asserts_beyond_words": false,
+    "text": "Bitcoin RSI at 24 has never produced a loss over the next 12 months",
+    "why": "It restates the spoken claim, differing only in minor wording ('at 24' versus '24') and omitting the spoken 'right?'."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_6e53f070ac1f1f14.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_6e53f070ac1f1f14.jpg",
+   "sha256": "6e53f070ac1f1f1468192cb9dc585ca91746949cbbf7c46e133211bcf0bd0dfc",
+   "times": [
+    2176.96,
+    2177.96,
+    2178.96,
+    2179.96,
+    2180.96,
+    2181.23
+   ]
+  },
+  "third_person": {
+   "finding": "The only people visible are live video participants in small windows, not a still, photo, or graphic, and the spoken line is a non-negative claim about Bitcoin RSI rather than an accusation or failure",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2578,
+   "out": 11510,
+   "usd_reported": 0.072488
+  },
+  "version": "visual-3"
  }
 }

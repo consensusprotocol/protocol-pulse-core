@@ -1,0 +1,494 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "8c531245f14ba84e848d0b3849cd1312e95b1fcd62151be69dcc46a937db6e28",
+ "result": {
+  "text": "has violent rips upwards. Why are we sort of underperforming, do you think? Bitcoin should be the fastest horse amongst the scarce assets. If it's not, I mean, I think if we're being honest, we'd say, well, Bitcoin has kind of failed as what we would expect it to be if it can't even keep pace with gold. Most people, when Bitcoin goes down 50% or 80%, that bothers them. They can't sleep. That could impact-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.06,
+    "end": 1.6,
+    "text": "has violent rips upwards."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 1.76,
+    "end": 3.88,
+    "text": "Why are we sort of underperforming, do you think?"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 3.98,
+    "end": 20.04,
+    "text": "Bitcoin should be the fastest horse amongst the scarce assets. If it's not, I mean, I think if we're being honest, we'd say, well, Bitcoin has kind of failed as what we would expect it to be if it can't even keep pace with gold. Most people, when Bitcoin goes down 50% or 80%, that bothers them. They can't sleep. That could impact-"
+   }
+  ],
+  "words": [
+   {
+    "text": "has",
+    "start": 0.06,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "violent",
+    "start": 0.36,
+    "end": 0.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rips",
+    "start": 0.92,
+    "end": 1.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "upwards.",
+    "start": 1.22,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Why",
+    "start": 1.76,
+    "end": 1.9,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "are",
+    "start": 1.94,
+    "end": 2.04,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "we",
+    "start": 2.08,
+    "end": 2.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "sort",
+    "start": 2.36,
+    "end": 2.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "of",
+    "start": 2.52,
+    "end": 2.62,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "underperforming,",
+    "start": 2.68,
+    "end": 3.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "do",
+    "start": 3.54,
+    "end": 3.58,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 3.62,
+    "end": 3.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "think?",
+    "start": 3.7,
+    "end": 3.88,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 3.98,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "should",
+    "start": 4.64,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 4.98,
+    "end": 5.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.48,
+    "end": 5.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fastest",
+    "start": 5.62,
+    "end": 6.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "horse",
+    "start": 6.14,
+    "end": 6.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "amongst",
+    "start": 6.62,
+    "end": 7.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.24,
+    "end": 7.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "scarce",
+    "start": 7.36,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "assets.",
+    "start": 7.72,
+    "end": 8.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "If",
+    "start": 8.08,
+    "end": 8.119,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 8.16,
+    "end": 8.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not,",
+    "start": 8.36,
+    "end": 8.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 8.68,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 8.74,
+    "end": 8.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 8.88,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 8.96,
+    "end": 9.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 9.18,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 9.26,
+    "end": 9.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 9.38,
+    "end": 9.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "honest,",
+    "start": 9.6,
+    "end": 9.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we'd",
+    "start": 9.9,
+    "end": 10.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say,",
+    "start": 10.1,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "well,",
+    "start": 10.34,
+    "end": 10.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 10.56,
+    "end": 10.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 10.92,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 11.12,
+    "end": 11.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 11.32,
+    "end": 11.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "failed",
+    "start": 11.48,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 11.74,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 11.86,
+    "end": 11.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 11.96,
+    "end": 12.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 12.02,
+    "end": 12.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "expect",
+    "start": 12.16,
+    "end": 12.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 12.5,
+    "end": 12.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 12.58,
+    "end": 12.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 12.68,
+    "end": 12.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 12.8,
+    "end": 12.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 12.9,
+    "end": 13.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can't",
+    "start": 13.1,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "even",
+    "start": 13.3,
+    "end": 13.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "keep",
+    "start": 13.54,
+    "end": 13.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pace",
+    "start": 13.72,
+    "end": 13.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 13.94,
+    "end": 14.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold.",
+    "start": 14.1,
+    "end": 14.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Most",
+    "start": 14.5,
+    "end": 14.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people,",
+    "start": 14.7,
+    "end": 15.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 15.2,
+    "end": 15.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 15.68,
+    "end": 16.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "goes",
+    "start": 16.04,
+    "end": 16.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down",
+    "start": 16.219,
+    "end": 16.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "50%",
+    "start": 16.56,
+    "end": 16.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 16.98,
+    "end": 17.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "80%,",
+    "start": 17.16,
+    "end": 17.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 17.82,
+    "end": 17.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bothers",
+    "start": 18.02,
+    "end": 18.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "them.",
+    "start": 18.46,
+    "end": 18.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "They",
+    "start": 18.64,
+    "end": 18.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can't",
+    "start": 18.82,
+    "end": 19.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sleep.",
+    "start": 19.12,
+    "end": 19.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That",
+    "start": 19.4,
+    "end": 19.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "could",
+    "start": 19.54,
+    "end": 19.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "impact-",
+    "start": 19.7,
+    "end": 20.04,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 20.08
+ },
+ "usd": 0.004016,
+ "seconds": 1.58,
+ "recorded_at": "2026-11-17T16:57:54Z"
+}

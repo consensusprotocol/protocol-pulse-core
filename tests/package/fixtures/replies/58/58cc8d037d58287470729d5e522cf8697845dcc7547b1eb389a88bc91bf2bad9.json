@@ -1,0 +1,398 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "12888191334c7aa4c4faf23815edcf84677c31ac6cedcc3211ee67018790ab69",
+ "result": {
+  "text": "It's like a heartbeat. And ASST, you see it going like this. Bitcoin's about half. And then SEDA, even with its, with its decline, is like almost nothing. And so when you think about structured finance, it's pretty, it's working in the sense that the common equity has more volatility than Bitcoin, and the preferreds have substantially less. Uh, but substantially less-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 20.74,
+    "text": "It's like a heartbeat. And ASST, you see it going like this. Bitcoin's about half. And then SEDA, even with its, with its decline, is like almost nothing. And so when you think about structured finance, it's pretty, it's working in the sense that the common equity has more volatility than Bitcoin, and the preferreds have substantially less. Uh, but substantially less-"
+   }
+  ],
+  "words": [
+   {
+    "text": "It's",
+    "start": 0.0,
+    "end": 0.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 0.1,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 0.24,
+    "end": 0.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "heartbeat.",
+    "start": 0.3,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 1.22,
+    "end": 1.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ASST,",
+    "start": 1.5,
+    "end": 1.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.06,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "see",
+    "start": 2.2,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 2.32,
+    "end": 2.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 2.68,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 2.88,
+    "end": 3.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this.",
+    "start": 3.1,
+    "end": 3.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 3.88,
+    "end": 4.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 4.5,
+    "end": 4.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "half.",
+    "start": 4.76,
+    "end": 5.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 5.24,
+    "end": 5.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 5.34,
+    "end": 5.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "SEDA,",
+    "start": 5.74,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "even",
+    "start": 6.12,
+    "end": 6.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 6.34,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its,",
+    "start": 6.46,
+    "end": 6.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 6.8,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 6.96,
+    "end": 7.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "decline,",
+    "start": 7.32,
+    "end": 7.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 7.72,
+    "end": 7.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 7.84,
+    "end": 7.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "almost",
+    "start": 8.02,
+    "end": 8.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nothing.",
+    "start": 8.34,
+    "end": 8.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 9.1,
+    "end": 9.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 9.3,
+    "end": 9.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 9.9,
+    "end": 9.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 10.0,
+    "end": 10.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 10.08,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 10.24,
+    "end": 10.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "structured",
+    "start": 10.44,
+    "end": 10.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "finance,",
+    "start": 10.86,
+    "end": 11.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 11.9,
+    "end": 12.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pretty,",
+    "start": 12.08,
+    "end": 12.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 12.62,
+    "end": 12.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "working",
+    "start": 12.82,
+    "end": 13.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 13.16,
+    "end": 13.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.26,
+    "end": 13.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sense",
+    "start": 13.36,
+    "end": 13.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 13.72,
+    "end": 14.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.24,
+    "end": 14.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "common",
+    "start": 14.38,
+    "end": 14.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "equity",
+    "start": 14.72,
+    "end": 14.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 15.02,
+    "end": 15.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 15.18,
+    "end": 15.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "volatility",
+    "start": 15.36,
+    "end": 15.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 15.94,
+    "end": 16.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 16.079,
+    "end": 16.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 17.24,
+    "end": 17.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 17.64,
+    "end": 17.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "preferreds",
+    "start": 17.72,
+    "end": 18.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 18.12,
+    "end": 18.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "substantially",
+    "start": 18.34,
+    "end": 18.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "less.",
+    "start": 18.96,
+    "end": 19.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Uh,",
+    "start": 19.66,
+    "end": 19.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 19.76,
+    "end": 19.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "substantially",
+    "start": 19.88,
+    "end": 20.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "less-",
+    "start": 20.56,
+    "end": 20.74,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 20.76
+ },
+ "usd": 0.004152,
+ "seconds": 1.11,
+ "recorded_at": "2026-11-17T16:57:55Z"
+}

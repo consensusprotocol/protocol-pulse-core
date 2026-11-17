@@ -1,0 +1,1652 @@
+{
+ "since": "2026-11-13T03:01:09+00:00",
+ "publish_window_h": 12.0,
+ "delivered_pins": [
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json",
+   "story_id": "moments-fresh_20261112_050611-37c5b5f5",
+   "approved_at": "2026-11-12T13:43:40+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
+   "story_id": "moments-fresh_20261112_050611-41f29b1f",
+   "approved_at": "2026-11-13T03:01:09+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json",
+   "story_id": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "approved_at": "2026-11-13T05:20:11+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_073738/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_073738-d2657bbe",
+   "approved_at": "2026-11-13T07:53:42+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_183302/MOMENTS_PIN_ATTESTED.json",
+   "story_id": "moments-ledger_20261113_183302-0c68b589",
+   "approved_at": "2026-11-13T19:12:56+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_215708/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_215708-13949b7c",
+   "approved_at": "2026-11-13T22:14:05+00:00",
+   "clips": 3
+  }
+ ],
+ "adapter_report": {
+  "lines": 4949,
+  "bad_lines": 0,
+  "bad": [],
+  "excluded": {
+   "expired (rulings 76 + 77: 12 h after its video's publish time)": 2454,
+   "altcoin or not about Bitcoin": 43,
+   "hard exclusion flag (L-u)": 8,
+   "speaker change inside (caption marker)": 2
+  },
+  "drift_checked": 0,
+  "expiry_h": 12,
+  "released_by_the_second_model": 3,
+  "returned": 161
+ },
+ "inputs": {
+  "rows": 161,
+  "no_word_record": 0,
+  "no_word_record_why": {},
+  "no_word_record_videos": {},
+  "window_records": {
+   "RsCi56hEriU": [
+    "transcripts/RsCi56hEriU/windows/0.000-51.386.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1653.001-1757.713.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2200.623-2304.219.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/874.401-973.397.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1546.022-1642.303.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/0.000-85.070.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1264.077-1361.782.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/0.000-56.886.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1663.502-1763.589.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2729.480-2845.790.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2326.148-2426.935.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3366.965-3471.309.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3374.438-3471.309.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3217.640-3325.195.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1917.546-2031.138.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2918.839-3014.805.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/184.298-287.984.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2175.642-2276.018.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3400.277-3506.339.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2342.574-2439.150.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/0.000-87.229.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/405.245-508.339.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1033.400-1134.242.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1653.001-1751.624.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1188.529-1292.169.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3384.037-3482.061.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/961.635-1076.065.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/939.816-1056.695.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2604.309-2702.486.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2911.296-3008.829.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2175.642-2278.522.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2595.764-2702.486.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2570.942-2680.990.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/523.546-628.957.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1312.808-1422.703.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/951.243-1056.695.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/874.401-979.871.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3073.640-3178.088.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1995.054-2111.128.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2703.329-2809.494.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3097.799-3197.169.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3147.448-3247.109.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2750.768-2850.615.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2911.296-3012.760.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/693.490-799.155.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/0.000-93.659.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1941.223-2050.282.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2495.345-2619.148.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/24.151-126.887.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1350.979-1457.111.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1254.883-1358.100.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/889.936-991.310.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1856.489-1953.381.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/395.325-492.708.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1973.865-2072.116.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1580.637-1686.590.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/698.680-802.613.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3384.037-3480.056.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1618.952-1731.109.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/316.919-423.054.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/263.315-381.614.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3159.760-3268.349.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/796.229-889.469.whisper_words_punct.json"
+   ],
+   "nThfIRfBleA": [
+    "transcripts/nThfIRfBleA/windows/2130.584-2225.769.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/2674.344-2770.197.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1492.352-1613.179.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/3219.535-3330.871.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1638.014-1748.383.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/3234.088-3330.420.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/0.000-52.573.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1019.083-1120.046.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1367.535-1468.249.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/2832.940-2940.155.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1391.484-1496.063.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/3234.088-3332.289.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/504.924-605.914.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1359.810-1457.472.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/0.000-59.503.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/3032.554-3131.684.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1696.672-1793.820.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/998.380-1104.410.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/434.067-542.655.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/214.827-312.049.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1691.510-1793.820.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/233.743-344.672.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1048.977-1149.568.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1713.942-1811.208.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/703.496-801.756.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/2803.210-2906.291.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1470.721-1570.099.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1422.080-1529.455.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/757.317-862.103.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/329.189-430.677.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/473.738-572.290.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/309.600-411.210.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/96.417-194.629.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/617.558-710.911.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/483.240-580.226.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/905.550-1017.269.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/3153.511-3254.864.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1056.712-1151.650.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/2136.129-2241.038.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/389.696-490.020.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/526.870-630.224.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/358.349-458.663.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/542.430-642.415.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/732.160-835.028.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/2774.380-2877.458.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1075.114-1177.738.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1059.627-1153.078.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/118.920-236.882.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/912.740-1017.269.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/180.620-276.317.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/83.765-182.731.whisper_words_punct.json"
+   ],
+   "WjnphankXmM": [
+    "transcripts/WjnphankXmM/windows/556.797-658.842.whisper_words_punct.json",
+    "transcripts/WjnphankXmM/windows/367.432-462.769.whisper_words_punct.json",
+    "transcripts/WjnphankXmM/windows/449.062-544.687.whisper_words_punct.json",
+    "transcripts/WjnphankXmM/windows/25.012-125.271.whisper_words_punct.json",
+    "transcripts/WjnphankXmM/windows/296.587-392.084.whisper_words_punct.json",
+    "transcripts/WjnphankXmM/windows/18.145-119.795.whisper_words_punct.json",
+    "transcripts/WjnphankXmM/windows/243.470-348.572.whisper_words_punct.json",
+    "transcripts/WjnphankXmM/windows/62.717-162.938.whisper_words_punct.json",
+    "transcripts/WjnphankXmM/windows/223.470-317.893.whisper_words_punct.json",
+    "transcripts/WjnphankXmM/windows/290.582-390.584.whisper_words_punct.json",
+    "transcripts/WjnphankXmM/windows/417.127-523.403.whisper_words_punct.json",
+    "transcripts/WjnphankXmM/windows/479.139-579.247.whisper_words_punct.json",
+    "transcripts/WjnphankXmM/windows/35.326-141.361.whisper_words_punct.json",
+    "transcripts/WjnphankXmM/windows/112.126-210.075.whisper_words_punct.json",
+    "transcripts/WjnphankXmM/windows/568.878-670.665.whisper_words_punct.json",
+    "transcripts/WjnphankXmM/windows/254.942-355.034.whisper_words_punct.json",
+    "transcripts/WjnphankXmM/windows/516.534-614.042.whisper_words_punct.json"
+   ],
+   "9k47sQ0CT18": [
+    "transcripts/9k47sQ0CT18/windows/177.335-277.149.whisper_words_punct.json"
+   ],
+   "yHuY9r30Oug": [
+    "transcripts/yHuY9r30Oug/windows/2725.780-2831.152.whisper_words_punct.json",
+    "transcripts/yHuY9r30Oug/windows/1777.006-1868.700.whisper_words_punct.json"
+   ]
+  },
+  "window_waiting": 0,
+  "window_refused": 27,
+  "window_refused_videos": {
+   "RsCi56hEriU": 18,
+   "nThfIRfBleA": 6,
+   "WjnphankXmM": 3
+  },
+  "window_failed": 0,
+  "window_passed_over": {},
+  "no_caption_context": {},
+  "fallbacks": {},
+  "channel_conflict": {},
+  "not_anchored": {
+   "4a8c0acef78fcfcd8f19": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2744-2831 s)",
+   "af46c1553203f9b95bdf": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2341-2412 s)",
+   "66f058e572ac02b47c9b": "the row's text does not anchor in the word record (sentence_law.anchor, searched 3233-3310 s)",
+   "74aa7aea6fc67ce7a4eb": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1933-2016 s)",
+   "da2940465f96c0cdfc76": "the row's text does not anchor in the word record (sentence_law.anchor, searched 420-493 s)",
+   "e0ce1f1e03d2b6b0ce14": "the row's text does not anchor in the word record (sentence_law.anchor, searched 539-614 s)",
+   "530db888dc9bfcbff746": "the row's text does not anchor in the word record (sentence_law.anchor, searched 3089-3163 s)",
+   "babe8b806c0893fd00d2": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2766-2836 s)",
+   "a9793009a6cff5a25d47": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1270-1343 s)",
+   "6c5b90c73a97f8e58f62": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1596-1672 s)",
+   "0b959bd80c4f53f47c33": "the row's text does not anchor in the word record (sentence_law.anchor, searched 3399-3465 s)",
+   "4d6e063c281cd2814b6d": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1634-1716 s)",
+   "61b25cb7ec8dba7c9fd2": "the row's text does not anchor in the word record (sentence_law.anchor, searched 278-367 s)",
+   "ae988d40cb0ec1d3e2c4": "the row's text does not anchor in the word record (sentence_law.anchor, searched 3175-3253 s)"
+  },
+  "malformed": {},
+  "duplicates": 21,
+  "duplicates_of": {
+   "1972dea7c9c8f7ebb712": "3e92fb4e5651657819fc",
+   "42c358118f2bb03752bb": "2a5ae6440509952f317f",
+   "bfa1a84edb7f35f20fa1": "b67a1279632260ff1a2a",
+   "cd239036ead6c4b41451": "860ebf63b5489a74c638",
+   "440ee01ec6bec967beda": "2a5ae6440509952f317f",
+   "3007654c99b93366e77b": "286b44851e6e593b5474",
+   "65a50b657428d14633e3": "59fc17fa3348145834a6",
+   "7959c05288649ce736bd": "37f1b17e671b762fc552",
+   "2f4dac79b31b2fe61a22": "286b44851e6e593b5474",
+   "48478cd4d0d7978b8a06": "1d63f2c764c3fd56998e",
+   "d0dea9af87bd56383ed3": "9d840a475c3d35068e83",
+   "a6451e0606c6fce001f9": "eeea659338ef1a8e951a",
+   "46bd7ac8581f2cb45d3d": "00fd42a1244adfa3c4bd",
+   "12fd9b919459c523c42a": "00fd42a1244adfa3c4bd",
+   "ab4fd56233c78a853864": "5fdc99b20b34b91b53ce",
+   "878ca57df6aaec8139a1": "2060f31a65da63d05cb1",
+   "89fbaf8e87c0bb5e83b7": "d5f28c19f5d5958366aa",
+   "b3d0f78ed3a9866bdb15": "63c6ea768f716874fef7",
+   "06c34e61feb5cfe6a3b5": "b64c001526ab9de28053",
+   "24f4c480774ff30b4938": "e331dd9d246adcf05ca2",
+   "b5240c1b5592647b12e1": "0dffb873be68c7f14243"
+  },
+  "moments": 99,
+  "videos": 5,
+  "sources": 99,
+  "word_records": {},
+  "word_pass": {
+   "rows": 3364,
+   "unreadable": 0,
+   "ready": 2686,
+   "not_ready": 348,
+   "failed": 0,
+   "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl",
+   "refused": [
+    "00601fe81bcbe8b6bdf8",
+    "0102d1f81a005ffd1860",
+    "015a0e1d0ca2b710548d",
+    "025b3828d214c7c2ce4b",
+    "047da119491355dbc5e1",
+    "05173845dea924fc0c07",
+    "05f06153c42d43c43ed7",
+    "05ff016beac936e4e409",
+    "06fd59d51f078758726a",
+    "076730439cae2cfa8c7e",
+    "08ccabe3e2c427838e15",
+    "0988da65e6ad9ba87459",
+    "0b1ed433879e3d7f844a",
+    "0ccade189163405b089b",
+    "0d2bf7e13e4cbb176480",
+    "0fad832055924851251d",
+    "0fd686f1fe79b631e91c",
+    "10d73f6379c4f91815c0",
+    "12b2a3fe328f5fad9622",
+    "12bf31ff9e5404d7b5d9",
+    "13ad88ccef6e718fbb28",
+    "13b85894cf59bd96ddba",
+    "14f13f65d2f2458ea1ac",
+    "1525a9e1dd8dc5ac4a9e",
+    "16f275eb3464b67dfa9b",
+    "1772e9339924de1c957c",
+    "18ced5f9e7202e133319",
+    "19fc961efb1e8fbd0575",
+    "1a880c6d462d151ebe70",
+    "1ab9ae718a7e550e9ce1",
+    "1b33a31c38a045a7a216",
+    "1b9902d0b3f9690e9ddb",
+    "1c63a7925cf2c33b54ac",
+    "1d1556daed04fce39e7d",
+    "1d822675be04768944b1",
+    "1d828f294728facf05fd",
+    "1db6d7c6a3e2ba98859a",
+    "1e14acb61ae2fcedf1f6",
+    "1e9d5cb149e2d113459d",
+    "1f3444cb0463741133cd",
+    "1f3f2c2ea653f69353d5",
+    "20002de2ec0f6b521fce",
+    "21677774b087f804c681",
+    "2167cf6bfe8911d08707",
+    "217bd00fcf8c0665e0f6",
+    "229eca0e081a1aea4786",
+    "23703f34fbd40d943e41",
+    "23fceca7029b9948e3f9",
+    "2491e006216c9a1b467e",
+    "24a6dc284d02a3aeae08",
+    "24f1856c6fcf1b6c1d95",
+    "251224babb6c8f5d9150",
+    "2550f3c54cec7cd95c48",
+    "25f101de6a018fb2f202",
+    "2887f8f9b00e38e79cb3",
+    "29740fd849b26be71c4d",
+    "2c6b2f1bcfc96f70f39e",
+    "2c884616bf8c91a24180",
+    "2d89ae77d3305643e7eb",
+    "2db14eabaf98defccba0",
+    "2e5c3ff4488c946c1320",
+    "30583c8876279fe50391",
+    "32a44ea8013cb6d85366",
+    "33cf7bbd673f26f307cb",
+    "33d2a783068012cbff56",
+    "33ec88880d3a99e3d97c",
+    "340ea3f3cede49ef6bbe",
+    "347495ce7e4a78ef23c5",
+    "34fd75ac6e40d43c9f5b",
+    "351d555f7879d8c870e9",
+    "3548c352a9e67f331437",
+    "36e7ba4c6476b5cd2b19",
+    "375fb72bed43ccc47f6a",
+    "3798191e55603311683a",
+    "3865d50fa088c050f8e8",
+    "392018ca3e9082955ab9",
+    "394e144a00767241b093",
+    "3bf440d0542995169ec5",
+    "3c52354fdf5fdb75de2e",
+    "3cdeaa49ca3362ef0705",
+    "3dabf36517ab411803a2",
+    "3dc85eabd329842ba14f",
+    "3e2d15a2a7244d9b7e6e",
+    "3e5706beb5c33dfb0691",
+    "3e6697e0b45a89ec82e5",
+    "3ecea4247f7da8cf3d83",
+    "3f1d49136a47972f8bcd",
+    "4055cbb4c51cd6d6bcbd",
+    "41699e0367ea2c417340",
+    "424f1e6bbc6e801dd72d",
+    "4347359c0c00f6d49fa3",
+    "43be163f3e361a815a24",
+    "43f84b34a660b711da2c",
+    "4472f1d33d92ea2897f4",
+    "44dd6db2f702c42702af",
+    "466901ae5a549db1f13b",
+    "474b8ee37037650dc1ef",
+    "483155d278ba97157e1a",
+    "48643efcbfe1be04f46a",
+    "492cf0bcaa2d7db42345",
+    "49b321f0093d9204857e",
+    "4a0ae7b99a7bfc3f04ab",
+    "4a0cafc02654a834b273",
+    "4a15ecc759a9b332f3cc",
+    "4a54d7ff96a229541048",
+    "4a5ca4087ab6da856227",
+    "4ab2659efc97def0153c",
+    "4d66c09fb18c0f0d1a7f",
+    "4dbb2318181aa9d907d5",
+    "4f33bb61466a820e74b6",
+    "4fef00cdc68d2cea9dce",
+    "51c7a41fd9d5fecb71ee",
+    "51d2f50c2de0ae56438b",
+    "51deefb0c40e66f737f0",
+    "52630ce456af6791baa3",
+    "52bf579156a21ee08c0c",
+    "5416d89f219e62bd06ad",
+    "55e3ff1057a3eba68b18",
+    "5635a7ccc1eeefa5f824",
+    "567fcb45382761da0c9a",
+    "568275feb72658a6dbdb",
+    "56ee676b2e04cecd2ff9",
+    "58d0bb08a6214d66be5c",
+    "5921dd29a7e5bab16da9",
+    "59c3b29a851601177cc6",
+    "59e200f0478f93b88c29",
+    "5b35afd7d0f553e8d952",
+    "5b6c5854d2d3c20f45ce",
+    "5ba6ac646e56f4f33655",
+    "5bbb7f44bfcf00fb9e66",
+    "5c8d5f34e02f1bd4874a",
+    "5dd3b1ef91e32e45a17c",
+    "5f55d9b82c8e0209b446",
+    "5f56b663cc615eff5a7e",
+    "5fbf59f5bf383722159a",
+    "5fc35947f63b3c736dff",
+    "604c84ac1786fa09f5d7",
+    "6053de4046f31dfeb192",
+    "60690bc4745487e92f5e",
+    "6083abea1edc39efdcb1",
+    "614addd0ad90b6162f0e",
+    "614ba58f79c05cd204ec",
+    "618564547f3facb2460a",
+    "62ebbfe9d62024b9bc7f",
+    "62fe203a548cffa4b93e",
+    "62fe58051dd488ff3c69",
+    "63b87cce3ff62655d3e2",
+    "6413e07eaadfe6042357",
+    "64aac6eeaaab3cbfbe41",
+    "65e288d993ba8c2bbb68",
+    "660166f273ae0d1a64e1",
+    "66ebabc31f5b458a50ab",
+    "675e804178f2e3a3ce9e",
+    "6a5527f95fe98679d9d7",
+    "6ad656c7b6288ddb6df5",
+    "6b42533b239f3c5764aa",
+    "6ba21c8bd8cf2f43a2f8",
+    "6ba5399a3722dc217b76",
+    "6be836e0073e86498c88",
+    "6beb95b22a1035ea18c3",
+    "6c546e56ac6c8220787b",
+    "6e56cd660d5f1f13efa2",
+    "6e7ab608a4e7c258e2e7",
+    "70722b0dc2fba88c0cf6",
+    "71187b79f44762f56b8a",
+    "73c3c2582a5c317c40db",
+    "75c9da24ec3764b3e8d1",
+    "76a923fa0e59af21ea8b",
+    "7854570deaade1d72e7c",
+    "7a19e7f67f89e5b6977c",
+    "7b6d44057f6032ca54a6",
+    "7c67f93575aef43039cf",
+    "7d5660ea1980d860012d",
+    "7e3ab76a058f8f65f601",
+    "7e3f078fa147c4aac1b3",
+    "7f326d4b6532a01fcf63",
+    "8000945a3e7cd613ea17",
+    "800571e0d16a7f42c74c",
+    "8051a1eaf06f56d3702b",
+    "80908d443a10add30856",
+    "81512f03491bb9826032",
+    "81b26a23dd6326fcbd60",
+    "83775cd2df98be73a317",
+    "84033134a0eeaa1b2ae6",
+    "840a7091d2afea2c41e1",
+    "87a1ba949cd37f8e8301",
+    "887ae106cf8f6cc4b94e",
+    "8900aa8b374479a90cab",
+    "893a999def3edc8f1a0a",
+    "8972dfeff70fc8c02f48",
+    "8b92e4730cf015fce360",
+    "8b99d7511f8b842627ab",
+    "8c787324daa3d9f53bd3",
+    "8d03475ba509812b767c",
+    "8d244d9fdae458f0471c",
+    "8e9b32533086f2f179f4",
+    "90f44621c4eafaf5c278",
+    "90fc17206ee1f99ec636",
+    "951bf612e52c9073d22a",
+    "954c0a2d3b0133d2341d",
+    "95d38b3585c61b1d9906",
+    "95df7af9f01ddf6a6644",
+    "96b4f9b83647bbc4ec73",
+    "96c79a7fc62a364b2b9a",
+    "96db0cca3062aa51397e",
+    "96ff2e079cd464fd5308",
+    "99e3707fcca37519d07c",
+    "9a9bb0a9a44b49bbe8ab",
+    "9d3796742a2e1cd10eb8",
+    "9dd8372afaa56661c01e",
+    "9e6ca1765f0a032267b5",
+    "9f0450933b685f1974eb",
+    "9f8c5369f904e81221cb",
+    "9f8d835236860966db8f",
+    "9fd5a65c0dadc2ec40eb",
+    "a024ead246198d7e98ad",
+    "a045e6e7ddf843c49b28",
+    "a09ed49a0d7fdaaeebf1",
+    "a102673e5fad3240111e",
+    "a1e2d91d323a57b5de29",
+    "a1ff1a32efaf79f786b8",
+    "a2541ef0353d99d8a040",
+    "a47b2466e5199dce299c",
+    "a512b18a7baa3e1212d2",
+    "a6998dd7b0cece708bb9",
+    "a8336e318c7d6b48b22b",
+    "a845cadb35859cf15ef1",
+    "a888f8fc863dbd989557",
+    "a89f2c1bb0017a6a9d45",
+    "a8be7f45901ddd76b721",
+    "a8e7f8bb365c6b9f77e3",
+    "a9dbe0cc18738b4522bd",
+    "aa32080462e3581166d3",
+    "aa743024037fa80ee16b",
+    "aaf098e3675b65cccbfe",
+    "aaffb41344d5775216f1",
+    "ae1a0d498d46de7a3ea8",
+    "af5ae28633a247b27017",
+    "affa796d1b415771a447",
+    "b0b48928b91bfd8e1913",
+    "b1954c33981fe961cf20",
+    "b30efa3bedc93432e865",
+    "b41f33c81cfdfc1ddf59",
+    "b4272eb53d7c0a4e5dd6",
+    "b445c92dca567d40c752",
+    "b507e421f01aac805570",
+    "b5112fbb7db1bddc16d9",
+    "b55b68c8fc8d7bbbfd23",
+    "b58692089a253d8fe05c",
+    "b6b983e3b060dbe5a29e",
+    "b7f4483d2f3aaf3cb9e1",
+    "b880544703c2731ecb51",
+    "b8c4bfe7b08ac6767ed9",
+    "b8c72b542da8350c3005",
+    "ba635975783d3d2cccc3",
+    "bbb99781ef3bb1f4119c",
+    "bbe1c4f976e02940651c",
+    "bc33ae9592be1432d8f1",
+    "bc342d3ceb4f22890afa",
+    "be81c441e226b3261420",
+    "c07c030254c41853ceef",
+    "c0b78959ef676493103a",
+    "c0c0c53384f0d42c6d3a",
+    "c11c107bdf8c481cfde9",
+    "c125e2f11616d0ece0d3",
+    "c1753585f3e4300cc38a",
+    "c3fab28b11b5115488bd",
+    "c41c5ce4ef32380f9fe6",
+    "c4d58c55c768de21aa99",
+    "c5406490975fad7b6c06",
+    "c63aa04ace7972db02d9",
+    "c6a876566239b5e90c63",
+    "c95242108a89ed264b03",
+    "cacb80cfd91ecb5444b3",
+    "cbcf473d2f4130dc041a",
+    "cc131c64eec420cbf46b",
+    "ceb401a3658c6d72104f",
+    "cf2df82365c0b1cc3b87",
+    "cf419a3eb0665f8048a5",
+    "cf56a1e9574e37a923fc",
+    "d137488a51fd37dc4e30",
+    "d19be57ae98c95784c75",
+    "d1c40fb727b12f45f07a",
+    "d1d1bc3eb821b36c5fdc",
+    "d1fb9f2e2e6105a08b86",
+    "d2cbf97818fa6b900d1c",
+    "d40f19707e018d112efa",
+    "d4400d9e9b121b0c38b3",
+    "d483ad20dd7164946a89",
+    "d4ac91c659a2cfd44ffa",
+    "d50c7e7e34316aa22ddf",
+    "d58081ef87666169be84",
+    "d611baa9cb2e0237830b",
+    "d65cdae0a25fff048477",
+    "d65e75a63edb95f20157",
+    "d762e966d9b000f208b0",
+    "d7ad6229e82fdb81c0e4",
+    "d9c9f9a1e2a98585f836",
+    "d9cd6f055c0ce1e3a954",
+    "da36306acc72a6b9c1b8",
+    "dc14cda54677c7703b85",
+    "e0faec048bfe07884bd5",
+    "e1188606af8100b9fa11",
+    "e1fca5069eabf32cc1d9",
+    "e2350d63aa410df8d4a4",
+    "e24fbbc008e1b75a71a5",
+    "e477b6abee4efcc885bb",
+    "e4f23b741554d2f75182",
+    "e663e93de33a82f06cf7",
+    "e684c05c6759c7ce19fc",
+    "e73c4378bd39706ac9eb",
+    "e9057888919f0ced99f5",
+    "e90858606fe880415f2d",
+    "e93988462be9ca35931c",
+    "e940cc0756c91c1d3eab",
+    "eb403f27837f7d6121e9",
+    "eb63da2bad4ab3252029",
+    "ec2516f742ea4a7cf287",
+    "ec3d6c6fa7a55a606078",
+    "ed15b77cac098816caf1",
+    "edb6b66b2514b8a51c40",
+    "edcd3f92a0cb70d831d3",
+    "ee81a9e19a1236ca0eaf",
+    "ef232abc83b6a03a07f0",
+    "efaa1de614ba40dcaca1",
+    "f062336925d0fefceb61",
+    "f283bea1f8f73753a357",
+    "f344b4ca2374e60f2284",
+    "f37cdb7db1fac89efb59",
+    "f3e0ccd86b68bc09837f",
+    "f4cdef024a8b3540ffac",
+    "f4d24ba4d1c01b6172af",
+    "f7eba33e0bff81d90982",
+    "f818c3c5eac812d106da",
+    "f845c0ade832c6bb7046",
+    "f8b2905fba0cd6c54c66",
+    "f98ee0dd0024162ffa39",
+    "fa02300c7bfb103ac427",
+    "fc24287ab36375755e5a",
+    "fc5cf0e771409a0be3de",
+    "fc9e1da16abbb8c4465c",
+    "fcc24c616dc276c9239f",
+    "fcd25f21dbe83b487fcc",
+    "fcee3a10e7321a95ced8",
+    "fd3848405eb0cc660232",
+    "fe06ce187a75eb4413d4",
+    "fec37b9e508a5904c5b9",
+    "ffda700352ff151971c9"
+   ]
+  },
+  "only": {
+   "file": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/a80f37a3-3482-4017-9152-9c0c6e2f0dab/scratchpad/r131/r134/ONLY_C.json",
+   "why": "ruling 137 (PBX approved 10:21 ET): the line-up + swap candidates: step A one call, 8 a call",
+   "asked": 8,
+   "kept": 8,
+   "missing": []
+  },
+  "ruling_104": {
+   "variants": [],
+   "replaced": [],
+   "notes": {}
+  }
+ },
+ "delivered": [
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 5144.99,
+   "end": 5153.37,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5",
+   "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that."
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2412.85,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5",
+   "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S."
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5",
+   "text": "Bitcoin imposes a global free market for the first time ever."
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-41f29b1f",
+   "text": "Bitcoin imposes a global free market for the first time ever."
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2422.07,
+   "pin": "moments-fresh_20261112_050611-41f29b1f",
+   "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well."
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 1826.54,
+   "end": 1843.48,
+   "pin": "moments-fresh_20261112_050611-41f29b1f",
+   "text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued."
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 3090.75,
+   "end": 3109.87,
+   "pin": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "text": "When Bitcoin and an asset is going up and the bull market is super hot, everyone loves it. When the bear market is happening and Bitcoin is going down, everyone hates it. And like, that's why the price got high and that's why the price got low, because everyone loved it at the top and everyone wanted exposure and everyone hated it and didn't want exposure at the bottom."
+  },
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 4664.57,
+   "end": 4673.21,
+   "pin": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "text": "Bitcoin shows you that you can just increase the purchasing power. So the value of Bitcoin goes up without the supply of Bitcoin going up. So the people who hold Bitcoin don't get robbed."
+  },
+  {
+   "video_id": "UJFQBaMh3yg",
+   "start": 191.38,
+   "end": 203.06,
+   "pin": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "text": "Now, higher rates make cash more attractive and borrowed money more expensive, which is very much the wrong combo for anything risky, and the market definitely sees Bitcoin as risky."
+  },
+  {
+   "video_id": "BS0XC_tixa8",
+   "start": 994.329,
+   "end": 1005.909,
+   "pin": "moments-ledger_20261113_073738-d2657bbe",
+   "text": "Bitcoin is the one piece of open source technology that can't be shut down, silenced or removed. If Bitcoin wins, open source wins. And every stat you hold is a vote against the digital prison being built around all of us."
+  },
+  {
+   "video_id": "WTCwyxW-lHk",
+   "start": 1685.968,
+   "end": 1695.698,
+   "pin": "moments-ledger_20261113_073738-d2657bbe",
+   "text": "But we have very rarely in Bitcoin's history seen six negative weeks back to back to back to back to back. to back. I think that was six."
+  },
+  {
+   "video_id": "mJviDNOhIyw",
+   "start": 1614.601,
+   "end": 1630.831,
+   "pin": "moments-ledger_20261113_073738-d2657bbe",
+   "text": "But then if someone doesn't understand Bitcoin and you drop... 25 % of their portfolio in Bitcoin and Bitcoin goes down 50%. You get fired and they sell their Bitcoin. And so that is, I think, why you've seen people like BlackRock, I think, logically walk that back to one, five percent allocation."
+  },
+  {
+   "video_id": "DcUbBkyeh9M",
+   "start": 236.688,
+   "end": 253.308,
+   "pin": "moments-ledger_20261113_183302-0c68b589",
+   "text": "A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies. and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate."
+  },
+  {
+   "video_id": "GXWj2JO9bz8",
+   "start": 124.157,
+   "end": 138.097,
+   "pin": "moments-ledger_20261113_183302-0c68b589",
+   "text": "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world."
+  },
+  {
+   "video_id": "mKNAcOFMYD4",
+   "start": 755.454,
+   "end": 764.214,
+   "pin": "moments-ledger_20261113_183302-0c68b589",
+   "text": "My biggest fear is that I go to the bank and I punch in my code and the money's not there because the bank owns the money and they could just take it from me. And that's why that's why we Bitcoin."
+  },
+  {
+   "video_id": "DcUbBkyeh9M",
+   "start": 216.054,
+   "end": 228.674,
+   "pin": "moments-ledger_20261113_215708-13949b7c",
+   "text": "Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued."
+  },
+  {
+   "video_id": "MqVqfEDXgLo",
+   "start": 937.971,
+   "end": 957.291,
+   "pin": "moments-ledger_20261113_215708-13949b7c",
+   "text": "I think, well, what we've seen in the market is on Thursday, Friday, there was actually a much bigger drop in traditional stock prices, especially tech stock. There's like 10, 20%, like Intel dropped 29%. Whereas Bitcoin only dropped like five, six percent."
+  },
+  {
+   "video_id": "HWuMai_mAug",
+   "start": 1691.139,
+   "end": 1698.069,
+   "pin": "moments-ledger_20261113_215708-13949b7c",
+   "text": "I think treasury companies will also bleed to Bitcoin. I mean, basically, everything in the industry eventually bleeds to Bitcoin."
+  }
+ ],
+ "moments": [
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "f4bad490a7d8f7f7e89d",
+   "video_id": "nThfIRfBleA",
+   "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A",
+   "channel_name": "Scott Melker",
+   "published_at": "2026-11-17T14:01:41+00:00",
+   "title": "Bitcoin Just BROKE 200-Week Support. Is $50K Next?",
+   "transcript_sha256": "44bfd20902adecad6098b8beb218be734f60bdc42a99cf481b36800819bdacbb",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    115,
+    128
+   ],
+   "sentences": [
+    10,
+    10
+   ],
+   "text": "Bitcoin RSI 24 has never produced a loss over the next 12 months, right?",
+   "start": 2176.964,
+   "end": 2181.284,
+   "duration_s": 4.32,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 3,
+    "stands_alone": 5,
+    "surprising_fact": 5
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Concrete statistical claim about Bitcoin RSI performance that stands alone and creates curiosity about the current market state.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4.32 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "not_statement"
+     ],
+     "targets_missed": [
+      "4.32 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T15:36:36.460961+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T1532Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 2,
+    "pass": "hook",
+    "prompt_sha256": "f5e372e17f8a9ee4c365b5c0b5f83cd2ca93d4ec93f8cc0a2b83b10298d9ccdc",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "e63e5d49d17ef17e6c19a0bf85ec449f79009bfe405dcbca69ea37d836e9aa42",
+    "window": {
+     "start_s": 2130.584,
+     "end_s": 2225.769,
+     "record": "transcripts/nThfIRfBleA/windows/2130.584-2225.769.whisper_words_punct.json",
+     "words_sha256": "e5e390f5eead5377a7b1c9f4c7dc2b891a9a71c513c82422668769372ac0d325",
+     "record_sha256": "b0c53b9172b4ad2e043cdeec197435c6e7489c205d01648fea2ec29d263d7851",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "5c083b762ba7b4795a52",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      10
+     ],
+     "offset_s": [
+      1.38,
+      0.52
+     ]
+    },
+    "ledger_text": "Bitcoin RSI 24 has never produced a loss over the next 12 months, right?"
+   },
+   "rank_score": 25,
+   "source_key": "nThfIRfBleA@2130.584-2225.769"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "372f6afd8ff42ea6a597",
+   "video_id": "RsCi56hEriU",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-17T14:56:39+00:00",
+   "title": "If Bitcoin Hits This Price, the Supercycle Is Dead",
+   "transcript_sha256": "4139c82b2ca252c2395758b7542d28612596261238b0486a3dedb29a9d531a53",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    107,
+    164
+   ],
+   "sentences": [
+    6,
+    8
+   ],
+   "text": "Bitcoin should be the fastest horse amongst the scarce assets. If it's not, I mean, I think if we're being honest, we'd say, well, Bitcoin that's kind of failed is what we would expect it to be if it can't even keep pace with gold. Most people, when Bitcoin goes down 50 % or 80%, that bothers them.",
+   "start": 25.6,
+   "end": 40.18,
+   "duration_s": 14.58,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 5,
+    "stands_alone": 5,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [
+    "doom"
+   ],
+   "topics": [],
+   "reason": "Strong contrarian stance that Bitcoin has failed if it underperforms gold, a clear and debatable claim that stands alone.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "14.58 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T15:11:47.949328+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T1500Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "spotlight",
+    "prompt_sha256": "c253e07a365caf28e3b8c923f74c273bc5d8826616f0d794ff9b562cdca097d2",
+    "prompt_version": "mine-spot/1",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "ca7325132f6721ec981f049e2f00cb4300898f8224d3aa383b535fc429b23522",
+    "window": {
+     "start_s": 0.0,
+     "end_s": 85.07,
+     "record": "transcripts/RsCi56hEriU/windows/0.000-85.070.whisper_words_punct.json",
+     "words_sha256": "46c17ceadc2278e99bc53cc8b661c38ab8d0a3abdf8776a813dcdc06bc9a7e9e",
+     "record_sha256": "3c1f056029ad7cb3b6238cd9c281bd8be154d2f20dff839840ebd2bdbe9f3c5b",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "860ebf63b5489a74c638",
+    "reanchored": {
+     "anchor_ratio": 0.983,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      6,
+      8
+     ],
+     "offset_s": [
+      -0.36,
+      0.11
+     ]
+    },
+    "ledger_text": "Bitcoin should be the fastest horse amongst the scarce assets. If it's not, I mean, I think if we're being honest, we'd say, well, Bitcoin has kind of failed is what we would expect it to be if it can't even keep pace with gold. Most people when Bitcoin goes down 50% or 80%, that bothers them."
+   },
+   "rank_score": 23,
+   "source_key": "RsCi56hEriU@0.000-85.070"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "8dbc30ee3ad91f82552d",
+   "video_id": "WjnphankXmM",
+   "channel_id": "UCCatR7nWbYrkVXdxXb4cGXw",
+   "channel_name": "DataDash",
+   "published_at": "2026-11-17T13:00:03+00:00",
+   "title": "Bitcoin in Your IRA? iTrustCapital Q Review & Full Breakdown",
+   "transcript_sha256": "61b6faf76b60e739ebe8a1e68ca855fa9f9cfe24a79f370b7b6d76b02d452ace",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    140,
+    171
+   ],
+   "sentences": [
+    10,
+    11
+   ],
+   "text": "Bitcoin conviction and risk management don't have to be opposites. Q is I trust capital's way of offering predefined automated crypto strategies inside the same account experience with different approaches and holdings.",
+   "start": 601.967,
+   "end": 613.827,
+   "duration_s": 11.86,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 5,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 5,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Strong, quotable thesis that reconciles two conflicting Bitcoin investor mindsets. Stands alone well.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "11.86 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T13:11:00.118080+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T1309Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "1f0f8de30528e55f5aab15cbf7e02964fbec687231ddf634efaaed2e1038c3cb",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "dd886e1ab52d10ab0c7bf919f830fa480e777b8a06286cbca54856bdf59225e8",
+    "window": {
+     "start_s": 556.797,
+     "end_s": 658.842,
+     "record": "transcripts/WjnphankXmM/windows/556.797-658.842.whisper_words_punct.json",
+     "words_sha256": "cd9b79f7d43878d3464d1702479c8f84e02f200fd99f3a971f825a9278c86d21",
+     "record_sha256": "b8d9b24ab9c29574f2ce1078e4c81ae0f98fe7e79be58b8beb936f67adc85db5",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "3fbbdaa70857d8a4cd9e",
+    "reanchored": {
+     "anchor_ratio": 0.938,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      11
+     ],
+     "offset_s": [
+      0.17,
+      -0.01
+     ]
+    },
+    "ledger_text": "Bitcoin conviction and risk management don't have to be opposites. Q is iTrust Capital's way of offering predefined, automated crypto strategies [music] inside the same account experience with different approaches and holdings."
+   },
+   "rank_score": 23,
+   "source_key": "WjnphankXmM@556.797-658.842"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "700df83644274f6981d4",
+   "video_id": "RsCi56hEriU",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-17T14:56:39+00:00",
+   "title": "If Bitcoin Hits This Price, the Supercycle Is Dead",
+   "transcript_sha256": "0847a2d847db7d8d6ff039ddc3b10bc8fa81ac97f9136689d3968368d064b2d9",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    155,
+    213
+   ],
+   "sentences": [
+    13,
+    17
+   ],
+   "text": "The last thing I'll say about it is you probably know this, but when Bitcoin moves... Most of the returns for a year typically happen in a couple days. So Bitcoin is an asset that's frustrating. It's like it does nothing. It does nothing. And then you get this like massive green candle in a day or a week.",
+   "start": 3445.367,
+   "end": 3461.207,
+   "duration_s": 15.84,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Strong quotable insight about Bitcoin's volatility pattern and the frustration of holding it, with a clear stance on its nature.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "15.84 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T15:09:55.670013+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T1500Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "736ea4d7face65fa6e788a602027903726bc69f2fdbf27cb90099f3ecfaebde8",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "dc58e722e550802a9a8b2c4d28b876e66bfcb76d44874f784f5d5308e1351ef4",
+    "window": {
+     "start_s": 3400.277,
+     "end_s": 3506.339,
+     "record": "transcripts/RsCi56hEriU/windows/3400.277-3506.339.whisper_words_punct.json",
+     "words_sha256": "c95cb3dacd75b61cbded635d636058eb6a4de0eadf41562a8618f29835a8d982",
+     "record_sha256": "9e14482ba433a977b04c3e6163f29af317a2f73cf45a0b15e85bba2f4da295fb",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "a7a9a776553b595927a0",
+    "reanchored": {
+     "anchor_ratio": 0.967,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      13,
+      17
+     ],
+     "offset_s": [
+      0.09,
+      -0.13
+     ]
+    },
+    "ledger_text": "The last thing I'll say about it is, you probably know this, but when Bitcoin moves, most of the returns for a year typically happen in a couple days, right? So, it's it's Bitcoin is an asset that's frustrating. It's like it does nothing, it does nothing, and then you get this like massive green candle in a a day or a week."
+   },
+   "rank_score": 20,
+   "source_key": "RsCi56hEriU@3400.277-3506.339"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "ca660f2277836c085860",
+   "video_id": "nThfIRfBleA",
+   "channel_id": "UCxIU1RFIdDpvA8VOITswQ1A",
+   "channel_name": "Scott Melker",
+   "published_at": "2026-11-17T14:01:41+00:00",
+   "title": "Bitcoin Just BROKE 200-Week Support. Is $50K Next?",
+   "transcript_sha256": "d13d610c7b16bbc9f08efb9dcd7ec09ae89641365df5d46ef25b5ccb74eb4789",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    0,
+    16
+   ],
+   "sentences": [
+    0,
+    0
+   ],
+   "text": "Bitcoin officially broke its 200 -week moving average, leading many to think that 50K is likely next.",
+   "start": 0.91,
+   "end": 9.03,
+   "duration_s": 8.12,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 3,
+    "stands_alone": 5,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [
+    "price_prediction"
+   ],
+   "topics": [],
+   "reason": "Strong technical claim about Bitcoin breaking a major support level, though it contains a price prediction which is a risk flag.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "8.12 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T15:36:36.460961+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T1532Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "9e858d0054ae9ff7cdbc100370d307e5033842ab8687d7cdb9cdab12095eecf5",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "f0c272cf394dfa6a7910c9c12ec06a4854287c83ad2245a79bbf35bb00d135a0",
+    "window": {
+     "start_s": 0.0,
+     "end_s": 52.573,
+     "record": "transcripts/nThfIRfBleA/windows/0.000-52.573.whisper_words_punct.json",
+     "words_sha256": "3a165c93cd845ef156344d6bd576f4c6a6706a98b469b30340944e7b534a79bf",
+     "record_sha256": "d95091b5290a5effc655c04ee980019295e9d5de4297f1f5507244c9ae067dfd",
+     "context_record": "whisper"
+    },
+    "ledger_moment_id": "5fdc99b20b34b91b53ce",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      0,
+      0
+     ],
+     "offset_s": [
+      0.0,
+      1.46
+     ]
+    },
+    "ledger_text": "Bitcoin officially broke its 200-week moving average, leading many to think that 50K is likely next."
+   },
+   "rank_score": 20,
+   "source_key": "nThfIRfBleA@0.000-52.573"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "cae5123f9ff683c8b965",
+   "video_id": "RsCi56hEriU",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-17T14:56:39+00:00",
+   "title": "If Bitcoin Hits This Price, the Supercycle Is Dead",
+   "transcript_sha256": "8e420d81f3a66dcfbb20b48a8a6a2fcc62542fd45ffdd8fd36f762b51c9d5cce",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    142,
+    176
+   ],
+   "sentences": [
+    7,
+    8
+   ],
+   "text": "Why is Bitcoin's price not at least near where we were? at the all -time high, like a low 100,000s, when we've seen all -time highs in the stock market over and over again.",
+   "start": 2220.682,
+   "end": 2231.042,
+   "duration_s": 10.36,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 3,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Direct question challenging the market performance despite massive corporate buying.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "10.36 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T15:11:47.949328+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T1500Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "f38530b798589320568cb8808df19c619b499684e2094d3156562603105f7127",
+    "prompt_version": "mine-hook/4",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "4c8e352661708ca2d5cb1389775df874e778152d9cc44b8ea4266c688261c577",
+    "window": {
+     "start_s": 2175.642,
+     "end_s": 2276.018,
+     "record": "transcripts/RsCi56hEriU/windows/2175.642-2276.018.whisper_words_punct.json",
+     "words_sha256": "0a9d438b26308445819b3101739fe1cc39e5aaa421c6539ee64a5f7fe55832f3",
+     "record_sha256": "726f6e8aa2b96e4e1a8c14478054d526312b06affb4095b6d4a55b0e834819d5",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "59fc17fa3348145834a6",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      7,
+      8
+     ],
+     "offset_s": [
+      0.04,
+      0.02
+     ]
+    },
+    "ledger_text": "Why is Bitcoin's price not at least near where we were at the all-time high, like a low 100,000s when we've seen all-time highs in the stock market over and over again?"
+   },
+   "rank_score": 20,
+   "source_key": "RsCi56hEriU@2175.642-2276.018"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "c79b7f6d3b7dd2a9d9ea",
+   "video_id": "RsCi56hEriU",
+   "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+   "channel_name": "Natalie Brunell",
+   "published_at": "2026-11-17T14:56:39+00:00",
+   "title": "If Bitcoin Hits This Price, the Supercycle Is Dead",
+   "transcript_sha256": "eead5f8032b25f201eb71ae38dcaece4f61f6e874134b7f119c8858f864fdb68",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    129,
+    171
+   ],
+   "sentences": [
+    8,
+    10
+   ],
+   "text": "Bitcoin's about half. And then SAT, even with its decline, is like almost nothing. And so when you think about structured finance, It's working in the sense that the common equity has more volatility than Bitcoin and the preferred to have substantially less.",
+   "start": 738.63,
+   "end": 753.89,
+   "duration_s": 15.26,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 3,
+    "stakes": 3,
+    "stance": 2,
+    "stands_alone": 3,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Uses the 'heartbeat' analogy to compare volatility of ASST, Bitcoin, and SATA, illustrating the risk profile of Bitcoin treasuries.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "15.26 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T15:09:55.670013+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T1500Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "662e5dac5365056fcd13f85be3862a8065c6f058cb21c8cc1c295c30bbaadd6f",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "2de28f54e49c2159b5279eb891c797019f491ea935a8bcbffc25da08f641f172",
+    "window": {
+     "start_s": 693.49,
+     "end_s": 799.155,
+     "record": "transcripts/RsCi56hEriU/windows/693.490-799.155.whisper_words_punct.json",
+     "words_sha256": "7ef099045102634dfe82857896bc597b72085455940a0c17b5563015ed101226",
+     "record_sha256": "c2f16bf469d542eccb5f6520814c93e9edc48195f87fb8fdfc0c167d32f08380",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "eeea659338ef1a8e951a",
+    "reanchored": {
+     "anchor_ratio": 0.921,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      10
+     ],
+     "offset_s": [
+      0.14,
+      -0.26
+     ]
+    },
+    "ledger_text": "Bitcoin's about half and then SATA even with it with its decline is like almost nothing. And so when you think about structured finance, it's pretty it's working in the sense that the common equity has more volatility than Bitcoin and the preferred have substantially less."
+   },
+   "rank_score": 17,
+   "source_key": "RsCi56hEriU@693.490-799.155"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "e06e9566dbe3ea80c568",
+   "video_id": "9k47sQ0CT18",
+   "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+   "channel_name": "Coin Bureau",
+   "published_at": "2026-11-17T14:00:37+00:00",
+   "title": "How Wall Street Is Choosing Crypto's WINNERS",
+   "transcript_sha256": "0db86d386961dc8158f08c058cc26f430ac65c1b08375b0e54c0ef8112b23ded",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    137,
+    163
+   ],
+   "sentences": [
+    8,
+    9
+   ],
+   "text": "Its founder goes by Shoku, his pseudonym. He bought his first Bitcoin in 2013, and for many years after that, he stayed an investor, not a builder.",
+   "start": 222.455,
+   "end": 231.615,
+   "duration_s": 9.16,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 1,
+    "quotable": 2,
+    "stakes": 1,
+    "stance": 0,
+    "stands_alone": 3,
+    "surprising_fact": 2
+   },
+   "names_person": true,
+   "risk": [],
+   "topics": [],
+   "reason": "Introduces the founder of Trade.xyz, a Bitcoin holder since 2013, connecting the story to Bitcoin history.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "9.16 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-17T14:11:40.855786+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261117T1409Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "e5693ea6d757bcfbb0e249f1cf32d4ee7c093243db2b3f05f228a517e02ffd1a",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "dcc721462839ce4e0c247c716cf88bc9032c1b8e6587a29c658f3e78f1118815",
+    "window": {
+     "start_s": 177.335,
+     "end_s": 277.149,
+     "record": "transcripts/9k47sQ0CT18/windows/177.335-277.149.whisper_words_punct.json",
+     "words_sha256": "d735da96812a24ce14beb6c0a5828256e7c3e234efe00a1aa3755493a7b4c922",
+     "record_sha256": "16c605283dbd7e2551b160aa2c35eae3db1d592f81e6f001ea7bf09e98eb1de1",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "44ea777cd6fecddf171c",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      9
+     ],
+     "offset_s": [
+      0.12,
+      -0.53
+     ]
+    },
+    "ledger_text": "Its founder goes by Shoku, his pseudonym. He bought his first Bitcoin in 2013 and for many years after that, he stayed an investor, not a builder."
+   },
+   "rank_score": 9,
+   "source_key": "9k47sQ0CT18@177.335-277.149"
+  }
+ ],
+ "next_attempt": {
+  "conversation": {
+   "video_id": "RsCi56hEriU",
+   "channel": "Natalie Brunell",
+   "published_at": "2026-11-17T14:56:39Z",
+   "expires_at": "2026-11-18T02:56:39Z",
+   "age_h": 2.0,
+   "turns_per_min": 0.99,
+   "unmarked": false,
+   "turns_from": "pp-ingest episode",
+   "rows": 81,
+   "passes": {
+    "hook/mine-hook/4": 8,
+    "spotlight/mine-spot/1": 2,
+    "moment/mine/2": 71
+   },
+   "word_pass_ready": 63,
+   "word_pass_refused": 18,
+   "word_pass_waiting": 0
+  },
+  "newest_upload": {
+   "video_id": "RsCi56hEriU",
+   "channel": "Natalie Brunell",
+   "published_at": "2026-11-17T14:56:39Z",
+   "expires_at": "2026-11-18T02:56:39Z",
+   "age_h": 2.0,
+   "turns_per_min": 0.99,
+   "unmarked": false,
+   "turns_from": "pp-ingest episode",
+   "rows": 81,
+   "passes": {
+    "hook/mine-hook/4": 8,
+    "spotlight/mine-spot/1": 2,
+    "moment/mine/2": 71
+   },
+   "word_pass_ready": 63,
+   "word_pass_refused": 18,
+   "word_pass_waiting": 0
+  },
+  "rule": "the newest upload whose captions do not refuse it (unmarked, or marked with a speaker change; ruling 92 amended: the layout decides per clip) (ruling 95)"
+ }
+}

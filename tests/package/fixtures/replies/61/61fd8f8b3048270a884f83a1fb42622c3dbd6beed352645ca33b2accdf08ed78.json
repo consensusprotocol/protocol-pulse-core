@@ -1,0 +1,170 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "307cd47b13591e8945cddd72be927c2bffe40a7b6cf30b4dd7a1b207dfd4a850",
+ "result": {
+  "text": "12 months later. And, you know, there it is. Bitcoin RSI 24 has never produced a loss over the next 12 months. Right? So",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.2,
+    "end": 9.62,
+    "text": "12 months later. And, you know, there it is. Bitcoin RSI 24 has never produced a loss over the next 12 months. Right? So"
+   }
+  ],
+  "words": [
+   {
+    "text": "12",
+    "start": 0.2,
+    "end": 0.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "months",
+    "start": 0.6,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "later.",
+    "start": 0.9,
+    "end": 1.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And,",
+    "start": 1.98,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.66,
+    "end": 2.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 2.74,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 3.24,
+    "end": 3.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 3.36,
+    "end": 3.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is.",
+    "start": 3.5,
+    "end": 3.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 3.88,
+    "end": 4.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "RSI",
+    "start": 4.34,
+    "end": 4.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "24",
+    "start": 4.94,
+    "end": 5.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 5.42,
+    "end": 5.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "never",
+    "start": 5.6,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "produced",
+    "start": 5.92,
+    "end": 6.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 6.32,
+    "end": 6.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "loss",
+    "start": 6.42,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 6.82,
+    "end": 6.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.94,
+    "end": 7.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "next",
+    "start": 7.04,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "12",
+    "start": 7.26,
+    "end": 7.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "months.",
+    "start": 7.56,
+    "end": 7.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Right?",
+    "start": 8.24,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 9.42,
+    "end": 9.62,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 9.82
+ },
+ "usd": 0.001964,
+ "seconds": 0.98,
+ "recorded_at": "2026-11-17T16:57:43Z"
+}

@@ -1,0 +1,296 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "03ade1a26f4f98b1e3ab4942e12e1f486478c4eb83c0d3ec31e320a0591800f8",
+ "result": {
+  "text": "It began with an investor who never even meant to start a company. Its founder goes by Shoku, his pseudonym. He bought his first Bitcoin in 2013, and for many years after that, he stayed an investor, not a builder. Then as the years went-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.08,
+    "end": 14.6,
+    "text": "It began with an investor who never even meant to start a company. Its founder goes by Shoku, his pseudonym. He bought his first Bitcoin in 2013, and for many years after that, he stayed an investor, not a builder. Then as the years went-"
+   }
+  ],
+  "words": [
+   {
+    "text": "It",
+    "start": 0.08,
+    "end": 0.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "began",
+    "start": 0.16,
+    "end": 0.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 0.62,
+    "end": 0.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 0.74,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "investor",
+    "start": 0.84,
+    "end": 1.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who",
+    "start": 1.38,
+    "end": 1.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "never",
+    "start": 1.6,
+    "end": 1.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "even",
+    "start": 1.88,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "meant",
+    "start": 2.2,
+    "end": 2.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 2.4,
+    "end": 2.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "start",
+    "start": 2.66,
+    "end": 2.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 2.86,
+    "end": 2.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "company.",
+    "start": 2.94,
+    "end": 3.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Its",
+    "start": 4.019,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "founder",
+    "start": 4.3,
+    "end": 4.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "goes",
+    "start": 4.84,
+    "end": 5.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 5.08,
+    "end": 5.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Shoku,",
+    "start": 5.3,
+    "end": 5.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "his",
+    "start": 6.0,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pseudonym.",
+    "start": 6.3,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "He",
+    "start": 7.42,
+    "end": 7.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bought",
+    "start": 7.56,
+    "end": 7.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "his",
+    "start": 7.78,
+    "end": 7.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "first",
+    "start": 7.98,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.24,
+    "end": 8.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 8.64,
+    "end": 8.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2013,",
+    "start": 8.88,
+    "end": 9.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 9.78,
+    "end": 9.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 9.88,
+    "end": 10.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "many",
+    "start": 10.02,
+    "end": 10.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years",
+    "start": 10.3,
+    "end": 10.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "after",
+    "start": 10.62,
+    "end": 10.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that,",
+    "start": 10.86,
+    "end": 11.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "he",
+    "start": 11.2,
+    "end": 11.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stayed",
+    "start": 11.38,
+    "end": 11.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 11.62,
+    "end": 11.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "investor,",
+    "start": 11.72,
+    "end": 12.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 12.48,
+    "end": 12.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 12.78,
+    "end": 12.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "builder.",
+    "start": 12.88,
+    "end": 13.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Then",
+    "start": 13.72,
+    "end": 13.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 14.04,
+    "end": 14.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.16,
+    "end": 14.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years",
+    "start": 14.26,
+    "end": 14.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "went-",
+    "start": 14.48,
+    "end": 14.6,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.66
+ },
+ "usd": 0.002932,
+ "seconds": 1.34,
+ "recorded_at": "2026-11-17T16:57:43Z"
+}

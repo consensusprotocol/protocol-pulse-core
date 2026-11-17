@@ -32337,6 +32337,31 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "f4bad490a7d8f7f7e89d",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [],
+   "conditions": [
+    {
+     "text": "Bitcoin RSI 24",
+     "inside": true
+    },
+    {
+     "text": "over the next 12 months",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin's RSI at 24 has historically never been followed by a loss over the next 12 months.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "You're such a good host, Scott.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
   }
  },
  "372f6afd8ff42ea6a597:542707b7c35c2d494b12ffd39e3f455c6a83d77c98399ea81530edff3103f4ed:c8ad6d51015986c5c84876d3171543c6b0fa16be6c870bc801ee3ecc2739fc55:9d43580c729b": {
@@ -32401,6 +32426,76 @@
    "speaker_is": "guest",
    "speaker_evidence": "Joining me this week is CEO of Strive, Matt Cole. Matt, thanks for joining me first time in person. Yeah, thanks for having me, Natalie.",
    "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "372f6afd8ff42ea6a597",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it's",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that's",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "them",
+     "refers_to": "most people",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "Bitcoin going down 50% or 80%",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "If it's not [the fastest horse]",
+     "inside": true
+    },
+    {
+     "text": "if we're being honest",
+     "inside": true
+    },
+    {
+     "text": "if it can't even keep pace with gold",
+     "inside": true
+    },
+    {
+     "text": "when Bitcoin goes down 50% or 80%",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin should be the fastest horse among scarce assets; if it isn't and can't keep pace with gold, then it has failed as expected, and most people are bothered by 50-80% drawdowns.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "Joining me this week is CEO of Strive, Matt Cole.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
    "replayed": false,
    "speaker_verified": false
   }
@@ -32506,6 +32601,35 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "ca660f2277836c085860",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "its",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "next",
+     "refers_to": "the next price level/move",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin has officially broken its 200-week moving average, which leads many to believe 50K is the likely next price level.",
+   "certainty": "likely",
+   "speaker_is": "host",
+   "speaker_evidence": "We're going to talk about that and everything else happening in this bloody market today with Tillman and Andrew, of course, but also a very special recurring guest, Sid Powell from Maple.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
   }
  },
  "cae5123f9ff683c8b965:d503bf7f0765680866590d5d183c4995d4c21a4e2349b988edaf8f27b1f998d0:1db1391dd0f0a864d04dc67a66447319b820eb5878f5d5f014ca9aa7c66c9e25:9d43580c729b": {
@@ -32534,6 +32658,44 @@
    "speaker_is": "host",
    "speaker_evidence": "I mean, why are we sort of underperforming? Do you think \u203a\u203a it's been a difficult challenging environment for Bitcoin?",
    "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "cae5123f9ff683c8b965",
+   "speaker_changes_inside": "no",
+   "view": "question",
+   "referents": [
+    {
+     "word": "we",
+     "refers_to": "Bitcoin's price / the market",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "where",
+     "refers_to": "the price level at the all-time high",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "when we've seen all-time highs in the stock market over and over again",
+     "inside": true
+    },
+    {
+     "text": "at the all-time high, like a low 100,000s",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker asks why Bitcoin's price is not near its previous all-time high (low 100,000s) while the stock market has repeatedly hit all-time highs.",
+   "certainty": "uncertain",
+   "speaker_is": "host",
+   "speaker_evidence": "Well, one thing I wanted to point out is you've bought like 40,000 Bitcoin in the last year.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
    "replayed": false,
    "speaker_verified": false
   }
@@ -32618,6 +32780,62 @@
    "speaker_is": "host",
    "speaker_evidence": "",
    "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "e06e9566dbe3ea80c568",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "Its",
+     "refers_to": "trade.xyz",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "his",
+     "refers_to": "the founder (Shoku)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "He",
+     "refers_to": "the founder (Shoku)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "2013 / buying his first Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "he",
+     "refers_to": "the founder (Shoku)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in 2013",
+     "inside": true
+    },
+    {
+     "text": "for many years after that",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The founder of trade.xyz, who uses the pseudonym Shoku, bought his first Bitcoin in 2013 and remained an investor rather than a builder for many years afterward.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
    "replayed": false,
    "speaker_verified": false
   }
