@@ -154,6 +154,20 @@ B) Gratitude-first: "Big thanks to [channel] for today's clip. Go follow them, l
 C) Call-to-action-first: "Go follow [channel]. Today's clip came from them. Links below.\""""
 
 
+def _spent(body, ref):
+    """RULING 131: the call's outside dollars in the day ledger, as xAI reports them (usage.cost_in_usd_ticks, 1 USD =
+    1e10 ticks); no reported cost -> an unpriced line with the tokens (never a guessed price)."""
+    import outside_spend
+    u = (body or {}).get("usage") if isinstance(body, dict) else None
+    u = u if isinstance(u, dict) else {}
+    ticks = u.get("cost_in_usd_ticks")
+    usd = ticks / 1e10 if isinstance(ticks, (int, float)) and not isinstance(ticks, bool) else None
+    outside_spend.record("xai:grok-3-mini", usd, "vendor-reported (xAI usage.cost_in_usd_ticks, 1 USD = 1e10 ticks)"
+                         if usd is not None else "unpriced: xAI reported no cost for this call (tokens only)",
+                         units={k: u[k] for k in ("prompt_tokens", "completion_tokens", "total_tokens") if k in u},
+                         ref=f"sign-off {ref}")
+
+
 def generate_signoff(topic, channel_names, segment_id, max_rounds=3):
     """Generate a fresh sign-off line via Grok. Returns the chosen text or raises."""
     import requests
@@ -200,7 +214,9 @@ Return ONLY 5 lines, numbered 1-5. No commentary."""
             timeout=30,
         )
         resp.raise_for_status()
-        content = resp.json()["choices"][0]["message"]["content"].strip()
+        body = resp.json()
+        _spent(body, segment_id)                         # ruling 131: the day ledger, before anything can fail
+        content = body["choices"][0]["message"]["content"].strip()
 
         # Parse numbered lines
         candidates = []

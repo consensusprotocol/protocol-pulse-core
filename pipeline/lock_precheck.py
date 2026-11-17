@@ -212,18 +212,56 @@ def decode(r, sha, log=print):
     return out
 
 
+REUSE_RATIO = 0.8          # batch 101: an earlier reading is this window's when it reads as this decode does
+
+
+def _earlier(a, wd):
+    """BATCH 101 (ruling 131: one true day number, nothing paid twice): the newest cached second reading of the SAME
+    window made under another decoder code (work dirs differ only by the decoder sha: the reading is the vendor's, of
+    the audio, not of our code). Ruling 77 purges the media, so a re-download never byte-matches that reading's source:
+    it is this window's audio when it was taken at the same offset (a reading that records one) and its words read as
+    this decode does (canon ratio >= REUSE_RATIO; a changed video reads differently and is paid for again).
+    -> (reading, its path, ratio) or None."""
+    import canon
+    from difflib import SequenceMatcher
+    here = canon.canon_tokens(" ".join(str(w["word"]) for w in a["transcript"]["words"]))
+    base, best = os.path.basename(wd).rsplit(".", 1)[0], None
+    for p in glob.glob(os.path.join(ROOT, "work", base + ".*", "second_recogniser.json")):
+        if os.path.dirname(os.path.abspath(p)) == os.path.abspath(wd):
+            continue
+        try:
+            with open(p) as f:
+                c = json.load(f)
+            there = canon.canon_tokens(" ".join(str(w["word"]) for w in c["words"]))
+            if c.get("offset") is not None and float(c["offset"]) != float(a["offset"]):
+                continue
+            t = os.path.getmtime(p)
+        except (OSError, ValueError, KeyError, TypeError):
+            continue
+        ratio = SequenceMatcher(None, here, there, autojunk=False).ratio() if here and there else 0.0
+        if ratio >= REUSE_RATIO and (best is None or t > best[3]):
+            best = (c, p, round(ratio, 3), t)
+    return best[:3] if best else None
+
+
 def second_reading(a, wd):
-    """The second recogniser's words on the acquired window: ONE paid call per acquisition, cached in its work dir and
-    keyed by the source file's sha256. -> (words, the spend of a call made now; 0.0 when cached)."""
+    """The second recogniser's words on the acquired window: ONE paid call per window, cached in its work dir (keyed by
+    the source file's sha256) and, under a new decoder code, taken from the same window's earlier reading (_earlier,
+    batch 101). -> (words, the spend of a call made now; 0.0 when cached or reused)."""
     p, sha = os.path.join(wd, "second_recogniser.json"), a["provenance"].get("source_file_sha256")
     if os.path.exists(p):
         with open(p) as f:
             c = json.load(f)
         if c.get("source_file_sha256") == sha:
             return c["words"], 0.0
-    words, usd = pinned._second_recogniser_words(a["path"])
+    prev = _earlier(a, wd)
+    if prev is not None:
+        c, src, ratio = prev
+        words, usd, note = c["words"], 0.0, {"reused_from": os.path.basename(os.path.dirname(src)), "ratio": ratio}
+    else:
+        (words, usd), note = pinned._second_recogniser_words(a["path"]), {}
     with open(p + ".tmp", "w") as f:
-        json.dump({"source_file_sha256": sha, "usd": usd, "words": words}, f)
+        json.dump(dict({"source_file_sha256": sha, "usd": usd, "words": words, "offset": a.get("offset")}, **note), f)
     os.replace(p + ".tmp", p)
     return words, usd
 
@@ -678,6 +716,8 @@ def main(argv=None):
     ap.add_argument("mode", choices=("serve", "once"))
     ap.add_argument("--sleep", type=float, default=5.0)
     a = ap.parse_args(argv)
+    import outside_spend                       # ruling 131: its Scribe calls are the pre-check's in the day ledger
+    outside_spend.SERVICE = "lock_precheck"
     for d in ("requests", "results", "work"):
         os.makedirs(os.path.join(ROOT, d), exist_ok=True)
 

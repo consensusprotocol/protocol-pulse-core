@@ -844,3 +844,57 @@ class TestRuling131(Base):
         LP.serve_once(log=self.log)
         e = self.entry(self.run_text)
         self.assertEqual((e["outcome"], e["as_spoken"]["verdict"]), ("no_difference", "same"), e.get("reason"))
+
+
+class TestReuseAcrossShas(Base):
+    """BATCH 101 (ruling 131: nothing paid twice): under a new decoder code the second recogniser's reading of the SAME
+    window (another decoder sha's work dir) is reused when it was taken at the same offset and reads as this decode
+    does; ruling 77 purges the media, so its source bytes can never match a re-download.
+    must-fail  the same window read under another decoder code is not paid for again
+    must-pay   a reading that reads otherwise (a changed video), one taken at another offset, another window's"""
+    def earlier(self, text, offset=740.0, base=None, sha="0123456789ab"):
+        d = os.path.join(self.root, "work", f"{base or f'{VID}.{START:.3f}-{END:.3f}'}.{sha}")
+        os.makedirs(d, exist_ok=True)
+        rec = {"source_file_sha256": "f" * 64, "usd": 0.0078, "words": words_of(text)}
+        if offset is not None:
+            rec["offset"] = offset
+        with open(os.path.join(d, "second_recogniser.json"), "w") as f:
+            json.dump(rec, f)
+        return os.path.basename(d)
+
+    def answered(self):
+        self.request(approved_text=ATTESTED)
+        LP.serve_once(log=self.log)
+        return self.entry(ATTESTED)
+
+    def test_the_same_window_read_under_another_code_is_not_paid_again(self):
+        for offset in (740.0, None):                  # a reading from before batch 101 records no offset
+            with self.subTest(offset=offset):
+                shutil.rmtree(self.root, True)
+                self.heard.clear()
+                src = self.earlier(ATTESTED, offset=offset)
+                e = self.answered()
+                self.assertEqual((e["outcome"], e["scribe_usd"], self.heard), ("no_difference", 0.0, []), e)
+                wd = LP.work_dir(VID, START, END, LP.decoder_sha())
+                with open(os.path.join(wd, "second_recogniser.json")) as f:
+                    c = json.load(f)
+                self.assertEqual((c["reused_from"], c["usd"], c["offset"]), (src, 0.0, 740.0))
+
+    def test_a_reading_of_other_words_is_paid_for(self):              # a changed video reads otherwise
+        self.earlier("Nothing here is what the decoder heard in this window at all, a different talk entirely.")
+        self.assertEqual((self.answered()["scribe_usd"], len(self.heard)), (0.0078, 1))
+
+    def test_a_reading_taken_at_another_offset_is_paid_for(self):
+        self.earlier(ATTESTED, offset=700.0)
+        self.assertEqual((self.answered()["scribe_usd"], len(self.heard)), (0.0078, 1))
+
+    def test_another_windows_reading_is_never_used(self):
+        self.earlier(ATTESTED, base=f"{VID}.{START + 1:.3f}-{END:.3f}")
+        self.assertEqual((self.answered()["scribe_usd"], len(self.heard)), (0.0078, 1))
+
+    def test_the_service_names_itself_in_the_day_ledger(self):         # ruling 131
+        import outside_spend
+        with mock.patch.object(outside_spend, "SERVICE", "unknown"), mock.patch.object(LP, "serve_once",
+                                                                                        lambda log=print: 0):
+            LP.main(["once"])
+            self.assertEqual(outside_spend.SERVICE, "lock_precheck")

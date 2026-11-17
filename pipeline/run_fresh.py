@@ -1672,6 +1672,8 @@ def main():
     ap.add_argument("--pinned", metavar="PIN.json",
                     help="PINNED mode: human-supplied editorial decision (see pinned.py)")
     args = ap.parse_args()
+    import outside_spend                       # ruling 131: this run's outside calls are the render's in the day ledger
+    outside_spend.SERVICE = "render"
     pin_path = os.path.abspath(args.pinned) if args.pinned else None
 
     ts = time.strftime("%Y%m%d_%H%M%S", time.gmtime())

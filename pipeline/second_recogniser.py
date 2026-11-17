@@ -56,6 +56,10 @@ def scribe_words(src_mp4, timeout=300):
     req = urllib.request.Request(URL, data=body, headers={"xi-api-key": key,
                                                           "Content-Type": f"multipart/form-data; boundary={boundary}"})
     d = json.loads(urllib.request.urlopen(req, timeout=timeout).read())
+    import outside_spend                                 # ruling 131: the day ledger, at the one vendor call
+    outside_spend.record("elevenlabs:scribe_v1", round(seconds / 60 * 0.012, 4),
+                         "estimate: the code's rate, $0.012 per audio minute (ElevenLabs reports no cost per call)",
+                         units={"audio_s": round(seconds, 2)}, ref=os.path.basename(src_mp4))
     words = [{"word": w.get("text"), "start": w.get("start"), "end": w.get("end")}
              for w in d.get("words") or [] if isinstance(w, dict) and w.get("type", "word") == "word"]
     return words, d.get("text") or "", seconds

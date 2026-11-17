@@ -125,6 +125,8 @@ def main():
     ap.add_argument("--from", dest="start", default="prepare", choices=rf.TAIL_STAGES)
     ap.add_argument("--no-vision", action="store_true", help="skip the Heimdall vision checklist (V1 not scored)")
     a = ap.parse_args()
+    import outside_spend                       # ruling 131: a replay's outside calls (if any) are named in the ledger
+    outside_spend.SERVICE = "replay"
     dst, verdict = replay(a.run_dir, a.start, vision=not a.no_vision)
     sys.exit(0 if verdict == rf.VERDICT_CANDIDATE else 3)
 
