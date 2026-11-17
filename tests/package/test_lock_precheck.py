@@ -12,6 +12,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, os.path.join(REPO, "pipeline"))
 import attest as AT  # noqa: E402
+import canon as C  # noqa: E402
 import lock_precheck as LP  # noqa: E402
 
 HOOK = {"moment_id": "h", "video_id": "DcUbBkyeh9M", "start": 216.0541, "end": 228.6739,
@@ -59,7 +60,7 @@ class TestRequest(Dirs):
         self.assertNotIn("trimmed_leading", s[1])                                        # only a trimmed moment
         self.assertEqual((s[2]["trimmed_leading"], s[2]["untrimmed_start"]), ("And", 1690.9))
         self.assertEqual(os.path.basename(LP.result_file(s[0], self.res)),
-                         "DcUbBkyeh9M.216.054-228.674.b52c9354d604.json")             # ruling 135's decoder
+                         "DcUbBkyeh9M.216.054-228.674.fe809cb4e680.json")             # ruling 142's decoder
 
     def test_a_request_is_renamed_from_its_tmp_and_never_written_over(self):
         segs = LP.segments_of([HOOK, CLIP])
@@ -134,10 +135,10 @@ class TestRuling84(unittest.TestCase):
     s = LP.segments_of([BREEDLOVE])[0]
 
     def test_the_rules_string_is_the_integrators(self):
-        """RULING 103 (14:12 Nov 14), RULING 105 (20:13 Nov 14) and RULING 131 (08:25 Nov 17) joined the integrator's
-        rules string (its messages of 14:3x and 20:5x Nov 14 and 08:2x Nov 17)."""
+        """RULING 103 (14:12 Nov 14), RULING 105 (20:13 Nov 14), RULING 131 (08:25 Nov 17), RULING 135 (10:50 Nov 17) and
+        RULING 142 (14:32 Nov 17) joined the integrator's rules string (its batch 110 values, 14:5x ET Nov 17)."""
         self.assertEqual(LP.RULES, "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + "
-                                   "ruling 131 + ruling 135")
+                                   "ruling 131 + ruling 135 + ruling 142")
 
     def test_the_held_span_of_the_20_12_build_now_adopts(self):
         spoken = "So over time, um, I came to think, uh, or the money itself was broken."
@@ -384,6 +385,50 @@ class TestRuling135(unittest.TestCase):
         self.assertEqual([(x["spoken"], x["approved"], x["took"]) for x in rows],
                          [("itrust capital's", "itrustcapital's", "spelling")])   # audit 1057 C2: a concrete list
         self.assertEqual(LP.decide(s, entry(s, "adopt_spoken", spoken_text=app, adjudication=adj))["verdict"], "pass")
+
+
+class TestRuling142(unittest.TestCase):
+    """RULING 142 (orchestrator 14:32 ET Nov 17), the integrator's batch 110 mirrored (its canon.py byte-identical, its
+    adjudicate_lock hunk in attest.class_131): (1) a hyphen right after a number and a space, before a digit, is never
+    a sign ('24/7/365' decoded '24 -7, 365': Yahoo Finance f0a51c45 held on 'minus'); (2) a possessive or plural
+    ending is a word-form pair: no law L-v 2 hold before ruling 131 (A)'s two of three, which decides it (the run's
+    reading only at an edge >= 3; all three different still holds): Natalie Brunell feb4b72f ('bitcoin' / "bitcoin's")."""
+    APP = "The thing about Bitcoin's design is that nobody can change the rules without everyone agreeing to it here."
+    RUN = "The thing about Bitcoin design is that nobody can change the rules without everyone agreeing to it here."
+    THIRD = "The thing about Bitcoins design is that nobody can change the rules without everyone agreeing to it here."
+    s = LP.segments_of([{"video_id": "x", "start": 1.0, "end": 9.0, "text": APP}])[0]
+
+    def test_a_number_space_hyphen_digit_is_no_sign(self):
+        self.assertEqual(C.canon_tokens("24 -7, 365"), ["24", "7", "365"])
+        self.assertIn("minus", C.canon_tokens("it fell -5% today"))           # a sign after a word stays a sign
+        self.assertIn("minus", C.canon_tokens("it is - 5% now"))
+
+    def test_a_word_form_pair_and_what_is_not_one(self):
+        self.assertTrue(C.word_form(["bitcoin"], ["bitcoin's"]))
+        self.assertTrue(C.word_form(["bitcoin"], ["bitcoins"]))
+        for x, y in ((["1990"], ["1990s"]), (["bitcoin", "x"], ["bitcoin's", "y"]), (["bitcoin"], ["ethereum"]),
+                     ([], []), (["bitcoin"], ["bitcoin's", "x"])):
+            self.assertFalse(C.word_form(x, y), (x, y))
+
+    def decide(self, spoken, second, took):
+        adj = {"rule": "ruling 131 (A) (orchestrator 2026-11-17 '08:25')", "run_decode": self.RUN, "approved": self.APP,
+               "second_recogniser": second,
+               "pairs": [{"run": "bitcoin", "approved": "bitcoin's", "took": took, "edge_distance": 3}]}
+        return LP.decide(self.s, entry(self.s, "adopt_spoken", spoken_text=spoken, adjudication=adj))
+
+    def test_two_of_three_decides_a_word_form_pair_of_a_name(self):
+        self.assertEqual(self.decide(self.APP, self.APP, "approved")["verdict"], "pass")   # the approved words
+        d = self.decide(self.RUN, self.RUN, "run")                                      # as spoken, edge 3
+        self.assertEqual((d["verdict"], d.get("adoption")), ("adopt", AT.RULE_131), d)
+        self.assertEqual(self.decide(self.APP, self.THIRD, None)["verdict"], "hold")    # all three differ
+
+    def test_a_name_that_is_no_word_form_still_holds(self):
+        app = self.APP.replace("Bitcoin's", "Ethereum's")
+        adj = {"rule": "ruling 131 (A) (orchestrator 2026-11-17 '08:25')", "run_decode": self.RUN, "approved": app,
+               "second_recogniser": app, "pairs": [{"run": "bitcoin", "approved": "ethereum's", "took": "approved",
+                                                    "edge_distance": 3}]}
+        s = LP.segments_of([{"video_id": "x", "start": 1.0, "end": 9.0, "text": app}])[0]
+        self.assertEqual(LP.decide(s, entry(s, "adopt_spoken", spoken_text=app, adjudication=adj))["verdict"], "hold")
 
 
 class TestCheck(Dirs):

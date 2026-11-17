@@ -1,0 +1,198 @@
+diff --git a/pipeline/attest.py b/pipeline/attest.py
+index f4bb6eb..690d09a 100644
+--- a/pipeline/attest.py
++++ b/pipeline/attest.py
+@@ -237,7 +237,8 @@ def class_131(spoken, approved, adj):
+             out.append(dict(row, took="spelling", edge_distance=None, **{"class": "spelling only (ruling 135)"}))
+             continue
+         row["edge_distance"] = edge_distance(r, p, op)
+-        if any(critical(t, texts) for t in r[a:b] + p[c:d]):
++        if any(critical(t, texts) for t in r[a:b] + p[c:d]) and not canon.word_form(r[a:b], p[c:d]):   # RULING 142
++            #   (2): a possessive or plural ending ('bitcoin' / "bitcoin's") goes to the vote, as the render's lock
+             out.append(dict(row, took=None, **{"class": None}, why="a number, a name or a negation (law L-v 2)"))
+         elif reads(p, s, c, d):
+             out.append(dict(row, took="approved", **{"class": "two of three readings: the approved words"}))
+diff --git a/pipeline/canon.py b/pipeline/canon.py
+index 9a373e0..c12c8a1 100644
+--- a/pipeline/canon.py
++++ b/pipeline/canon.py
+@@ -16,7 +16,8 @@ different name does not. canon_tokens(text) -> the canonical word list; canon(te
+                       'five point five percent'; 'dollar' = 'dollars'; currency_free() (ruling 131 (B)) also equals
+                       '$2 billion' and a spoken '2 billion' where a site asks for it (G18, the sentence lock)
+   signs               '-5%' = 'minus 5 percent', '+5%' = 'plus 5 percent' (GPT-cut F04: -5% != +5%); a hyphen
+-                      between words or a range ('2026-11', '74-75') is not a sign
++                      between words or a range ('2026-11', '74-75') is not a sign, nor one right after a number
++                      and a space before a digit ('24 -7, 365' = '24/7/365', ruling 142 (1))
+ Every comparison site (quote verification, selection anchors, edge words, G3b, G18, sign-off names, ledger
+ statements) goes through this module; pipeline/test_canon.py fails any site that compares text another way.
+ """
+@@ -75,10 +76,12 @@ _SIGN = re.compile(r"(?<![\w.,$%])-(?=\$?\d)")             # '-5%', '(-$40M)': a
+ _SIGN_SPACED = re.compile(r"(^|[^\d\s.,%]\s*)-\s+(?=\$?\d)")   # '- 5%', 'is - 5%' (cycle-2 #6); '70 - 75' is a range
+ _PLUS = re.compile(r"\+\s*(?=\$?\d)")                         # '+5%', '+ 5%': a plus is never a hyphen
+ _CUR_SIGN = re.compile(r"\$\s*([-+])\s*(?=\d)")                # '$-5', '$+5': the sign after the currency
++_NUM_HYPHEN = re.compile(r"(\d\s+)-(?=\d)")    # ruling 142 (1): '24 -7' after a number and a space: never a sign
+ 
+ 
+ def _prepare(text):
+     t = fold(text).replace("\u2212", " minus ")       # (fold maps U+2212 itself; kept for safety)
++    t = _NUM_HYPHEN.sub(r"\1", t)                    # ruling 142 (1): '24 -7, 365' reads '24 7 365', as '24/7/365'
+     t = _CUR_SIGN.sub(lambda m: (" minus $" if m.group(1) == "-" else " plus $"), t)
+     t = _PLUS.sub(" plus ", t)
+     t = _SIGN_SPACED.sub(lambda m: m.group(1) + " minus ", t)
+@@ -306,6 +309,24 @@ def nonlexical(tok, stray=False):
+     return tok in FILLER_TOKENS or (stray and len(tok) == 1 and tok in CONSONANTS)
+ 
+ 
++_FORM_END = re.compile(r"(?:'s|s'|'|s)$")         # ruling 142 (2): a possessive or plural ending (the canon folds ’)
++
++
++def word_form(x, y):
++    """Ruling 142 (2) (orchestrator 2026-11-17 '14:32'): two readings that differ ONLY by a possessive or plural ending
++    on ONE word ('bitcoin' / "bitcoin's" / 'bitcoins' / "bitcoins'"): a word-form pair, decided like any other differing
++    pair by ruling 131 (A)'s two of three (the sealed text takes that reading; all three different still holds). Never
++    a token with a digit ('1990s' is not '1990': a number stays law L-v 2's)."""
++    x, y = list(x or []), list(y or [])
++    if len(x) != len(y) or not x:
++        return False
++    diff = [(a, b) for a, b in zip(x, y) if a != b]
++    if len(diff) != 1 or re.search(r"\d", diff[0][0] + diff[0][1]):
++        return False
++    a, b = (_FORM_END.sub("", t) for t in diff[0])
++    return bool(a) and a == b
++
++
+ def same_words(x, y, stray=()):
+     """RULING 135: the two sides of a differing pair (lists of canon tokens) are the same words. Both sides in comparison
+     form (a, c), fillers left out (d); equal tokens, or, when neither side holds a digit, equal letters once every space
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+index f16b280..01138c8 100644
+--- a/pipeline/lock_precheck.py
++++ b/pipeline/lock_precheck.py
+@@ -49,7 +49,9 @@ from datetime import datetime, timezone
+ import attest as AT
+ import canon as C
+ 
+-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131 + ruling 135"   # RULING 135
++RULES = ("ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131 + ruling 135 + "
++         "ruling 142")                         # RULING 142 (orchestrator 14:32 ET Nov 17): '24 -7' is no sign; a
++#   possessive or plural ending is a word-form pair for 131 (A) (the integrator's batch 110 values, 14:5x ET). RULING 135
+ #   (orchestrator 10:50 ET Nov 17): the comparison canon (canon.same_words), the integrator's message of 10:5x Nov 17.
+ #   RULING 131
+ #   (orchestrator 08:25 ET Nov 17): (A) two of three readings, (B) currency format (the integrator's message of 08:2x
+@@ -59,7 +61,7 @@ RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105
+ #   targeted re-listen joins the rules (the integrator's message of 14:3x Nov 14); entries under the old RULES are never
+ #   read. RULING 84 (orchestrator 20:41 Nov 13): the integrator's
+ #   RULES string (its message of 20:4x Nov 13). RULING 73 (live 18:43:08 Nov 13, merged 585b6da5 on the integrator's
+-DECODER = "b52c9354d604"                      # side): the render's own cut placement joins the pre-check (a passing
++DECODER = "fe809cb4e680"                      # side): the render's own cut placement joins the pre-check (a passing
+ #   entry carries "cut"; a span the render cannot cut holds: "ruling 73: the render cannot cut this span: ..."). RULING
+ #   84 changed the render's adjudicate_lock (pinned.py), so the decoder_sha changed: 962353613cb0e065008ab0405ca8550111ddd3ca3ba70f0ae65b4b77ab1876d8
+ #   (ruling 73's was 8a101f222598a4f725e7cf85626e90fb2fae35df8d81d3ff430469728114e1a7). RULING 90 (the integrator's
+@@ -74,6 +76,8 @@ DECODER = "b52c9354d604"                      # side): the render's own cut plac
+ #   ce72aefa342dcd94dd45d8b4bc96ec6477ec04c91914db2054403338d7559e60
+ #   RULING 135 (the comparison canon: canon.same_words; the integrator's branch r135-canon, audited; lockstep as with 131):
+ #   b52c9354d604ab2303a91e6e6e5f926990987d46448992579684934f62e9392d
++#   RULING 142 (canon's '24 -7' and canon.word_form, adjudicate_lock's word-form exemption; the integrator's branch
++#   r141-sign f02dd73c, audited; lockstep as with 135): fe809cb4e680a3bc5df49e4c397e79f6cf2277650ea02c05cf88b34ecc573ebd
+ RESULTS = "/home/ultron/protocol_pulse/data/lock_precheck/results"        # the integrator's; read only
+ REQUESTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
+                         "lock_requests")      # this worktree's; the service only reads it
+diff --git a/tests/package/test_lock_precheck.py b/tests/package/test_lock_precheck.py
+index 0c7fc5a..17514ac 100644
+--- a/tests/package/test_lock_precheck.py
++++ b/tests/package/test_lock_precheck.py
+@@ -12,6 +12,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
+ REPO = os.path.dirname(os.path.dirname(HERE))
+ sys.path.insert(0, os.path.join(REPO, "pipeline"))
+ import attest as AT  # noqa: E402
++import canon as C  # noqa: E402
+ import lock_precheck as LP  # noqa: E402
+ 
+ HOOK = {"moment_id": "h", "video_id": "DcUbBkyeh9M", "start": 216.0541, "end": 228.6739,
+@@ -59,7 +60,7 @@ class TestRequest(Dirs):
+         self.assertNotIn("trimmed_leading", s[1])                                        # only a trimmed moment
+         self.assertEqual((s[2]["trimmed_leading"], s[2]["untrimmed_start"]), ("And", 1690.9))
+         self.assertEqual(os.path.basename(LP.result_file(s[0], self.res)),
+-                         "DcUbBkyeh9M.216.054-228.674.b52c9354d604.json")             # ruling 135's decoder
++                         "DcUbBkyeh9M.216.054-228.674.fe809cb4e680.json")             # ruling 142's decoder
+ 
+     def test_a_request_is_renamed_from_its_tmp_and_never_written_over(self):
+         segs = LP.segments_of([HOOK, CLIP])
+@@ -134,10 +135,10 @@ class TestRuling84(unittest.TestCase):
+     s = LP.segments_of([BREEDLOVE])[0]
+ 
+     def test_the_rules_string_is_the_integrators(self):
+-        """RULING 103 (14:12 Nov 14), RULING 105 (20:13 Nov 14) and RULING 131 (08:25 Nov 17) joined the integrator's
+-        rules string (its messages of 14:3x and 20:5x Nov 14 and 08:2x Nov 17)."""
++        """RULING 103 (14:12 Nov 14), RULING 105 (20:13 Nov 14), RULING 131 (08:25 Nov 17), RULING 135 (10:50 Nov 17) and
++        RULING 142 (14:32 Nov 17) joined the integrator's rules string (its batch 110 values, 14:5x ET Nov 17)."""
+         self.assertEqual(LP.RULES, "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + "
+-                                   "ruling 131 + ruling 135")
++                                   "ruling 131 + ruling 135 + ruling 142")
+ 
+     def test_the_held_span_of_the_20_12_build_now_adopts(self):
+         spoken = "So over time, um, I came to think, uh, or the money itself was broken."
+@@ -386,6 +387,50 @@ class TestRuling135(unittest.TestCase):
+         self.assertEqual(LP.decide(s, entry(s, "adopt_spoken", spoken_text=app, adjudication=adj))["verdict"], "pass")
+ 
+ 
++class TestRuling142(unittest.TestCase):
++    """RULING 142 (orchestrator 14:32 ET Nov 17), the integrator's batch 110 mirrored (its canon.py byte-identical, its
++    adjudicate_lock hunk in attest.class_131): (1) a hyphen right after a number and a space, before a digit, is never
++    a sign ('24/7/365' decoded '24 -7, 365': Yahoo Finance f0a51c45 held on 'minus'); (2) a possessive or plural
++    ending is a word-form pair: no law L-v 2 hold before ruling 131 (A)'s two of three, which decides it (the run's
++    reading only at an edge >= 3; all three different still holds): Natalie Brunell feb4b72f ('bitcoin' / "bitcoin's")."""
++    APP = "The thing about Bitcoin's design is that nobody can change the rules without everyone agreeing to it here."
++    RUN = "The thing about Bitcoin design is that nobody can change the rules without everyone agreeing to it here."
++    THIRD = "The thing about Bitcoins design is that nobody can change the rules without everyone agreeing to it here."
++    s = LP.segments_of([{"video_id": "x", "start": 1.0, "end": 9.0, "text": APP}])[0]
++
++    def test_a_number_space_hyphen_digit_is_no_sign(self):
++        self.assertEqual(C.canon_tokens("24 -7, 365"), ["24", "7", "365"])
++        self.assertIn("minus", C.canon_tokens("it fell -5% today"))           # a sign after a word stays a sign
++        self.assertIn("minus", C.canon_tokens("it is - 5% now"))
++
++    def test_a_word_form_pair_and_what_is_not_one(self):
++        self.assertTrue(C.word_form(["bitcoin"], ["bitcoin's"]))
++        self.assertTrue(C.word_form(["bitcoin"], ["bitcoins"]))
++        for x, y in ((["1990"], ["1990s"]), (["bitcoin", "x"], ["bitcoin's", "y"]), (["bitcoin"], ["ethereum"]),
++                     ([], []), (["bitcoin"], ["bitcoin's", "x"])):
++            self.assertFalse(C.word_form(x, y), (x, y))
++
++    def decide(self, spoken, second, took):
++        adj = {"rule": "ruling 131 (A) (orchestrator 2026-11-17 '08:25')", "run_decode": self.RUN, "approved": self.APP,
++               "second_recogniser": second,
++               "pairs": [{"run": "bitcoin", "approved": "bitcoin's", "took": took, "edge_distance": 3}]}
++        return LP.decide(self.s, entry(self.s, "adopt_spoken", spoken_text=spoken, adjudication=adj))
++
++    def test_two_of_three_decides_a_word_form_pair_of_a_name(self):
++        self.assertEqual(self.decide(self.APP, self.APP, "approved")["verdict"], "pass")   # the approved words
++        d = self.decide(self.RUN, self.RUN, "run")                                      # as spoken, edge 3
++        self.assertEqual((d["verdict"], d.get("adoption")), ("adopt", AT.RULE_131), d)
++        self.assertEqual(self.decide(self.APP, self.THIRD, None)["verdict"], "hold")    # all three differ
++
++    def test_a_name_that_is_no_word_form_still_holds(self):
++        app = self.APP.replace("Bitcoin's", "Ethereum's")
++        adj = {"rule": "ruling 131 (A) (orchestrator 2026-11-17 '08:25')", "run_decode": self.RUN, "approved": app,
++               "second_recogniser": app, "pairs": [{"run": "bitcoin", "approved": "ethereum's", "took": "approved",
++                                                    "edge_distance": 3}]}
++        s = LP.segments_of([{"video_id": "x", "start": 1.0, "end": 9.0, "text": app}])[0]
++        self.assertEqual(LP.decide(s, entry(s, "adopt_spoken", spoken_text=app, adjudication=adj))["verdict"], "hold")
++
++
+ class TestCheck(Dirs):
+     def run_check(self, segs, appear=None, timeout=60.0):
+         t = [0.0]
+diff --git a/tests/package/test_ruling_105.py b/tests/package/test_ruling_105.py
+index 4903fe7..ecccdfc 100644
+--- a/tests/package/test_ruling_105.py
++++ b/tests/package/test_ruling_105.py
+@@ -40,7 +40,7 @@ BLOCKWARE = record()
+ class TestTheRules(Dirs):
+     def test_the_rules_and_decoder_are_the_integrators_ruling_105_ones(self):
+         self.assertIn("+ ruling 103 + ruling 105", LP.RULES)                      # ruling 131 joined after it
+-        self.assertEqual(LP.DECODER, "b52c9354d604")                                 # ruling 135 moved it
++        self.assertEqual(LP.DECODER, "fe809cb4e680")                                 # ruling 142 moved it
+         s = LP.segments_of([HOOK])[0]
+         self.put(s, entry(s, rules="ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103",
+                           at="2026-11-14T21:00:00Z"))

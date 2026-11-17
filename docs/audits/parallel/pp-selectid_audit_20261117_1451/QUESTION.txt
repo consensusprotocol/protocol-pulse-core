@@ -1,0 +1,35 @@
+pp-selectid: RULING 142 (1) + (2) (orchestrator 14:32 ET Nov 17), the BUILDER'S MIRROR of the integrator's batch 110
+(its branch r141-sign f02dd73c, audited on its side), a DECODER LOCKSTEP as rulings 131 / 135 were. Both sides must decide
+every lock record identically: the integrator's render (pinned.adjudicate_lock) writes it, and this side's
+lock_precheck.decide (lock_precheck.py:161) re-derives it with attest.class_131 (lock_precheck.py:184); a record whose
+pairs differ from this side's derivation always holds (attest.py:260). Files: pipeline/canon.py (copied BYTE-IDENTICAL
+from the integrator's staged file, sha256 88e45f13d738fa7f38e625c395d247464d433ac26a954732536297f1a96ba742),
+pipeline/attest.py, pipeline/lock_precheck.py, tests/package/test_lock_precheck.py, tests/package/test_ruling_105.py.
+
+THE RULING: (1) a hyphen right after a number and a space, before a digit, is never a sign ('24/7/365', decoded
+'24 -7, 365' by the run: Yahoo Finance f0a51c45 held on 'minus'). (2) "L-v 2 'bitcoin' against 'bitcoin's': a
+possessive or plural ending is a word-form pair like any other: ruling 131 (A)'s two-of-three decides it and the sealed
+text takes that reading; all three differing still holds" (Natalie Brunell feb4b72f).
+
+THE CHANGE:
+(a) canon.py (the integrator's): _NUM_HYPHEN (canon.py:79) applied in _prepare (:84) before the sign passes;
+    word_form(x, y) (:315): equal-length token lists, exactly ONE differing token, no digit in it, equal once a trailing
+    's / s' / ' / s is stripped.
+(b) attest.class_131 (attest.py:197), mirroring the integrator's one-line adjudicate_lock hunk ("crit = sorted({t for _,
+    a, b, c, d in ops if not canon.word_form(r[a:b], p[c:d]) for t in ... if _lv2_critical(...)})"): a differing pair
+    for which canon.word_form is True is exempt from the critical-token hold (:240). Everything else is UNCHANGED: the
+    currency pairs first (:232), the spelling pairs next (:235, ruling 135), then the vote: the approved words when the
+    second recogniser reads them (:243), the run's reading only when it does and the pair is >= EDGE_131 tokens from both
+    cut edges (:245), else a hold ("all three readings differ"). class_84 and carry_class are untouched, as on the
+    integrator's side.
+(c) lock_precheck.py: RULES gains " + ruling 142"; DECODER "fe809cb4e680" (full sha in the comment). Entries under the
+    old RULES or decoder are never read (unchanged rule).
+
+TESTS (test_lock_precheck TestRuling142, 4 new; the RULES and decoder pins updated): '24 -7, 365' has no sign while
+'fell -5%' and 'is - 5%' keep theirs; word_form's positive and negative cases (a digit, two differing tokens, other
+words, empty, unequal lengths); a word-form pair of a NAME decided two of three both ways (pass / adopt under ruling 131
+(A)) and held when all three differ; a name that is no word form still holds. Mutations: 6 of 6 killed.
+
+PLEASE CHECK: (1) can word_form exempt anything the ruling did not (a number, a negation, a different name, two words)?
+(2) is the mirror exactly the integrator's hunk (same pairs, same order, nothing else exempted)? (3) the sign rule's
+reach ('24 -7' never a sign; '-5' after a word still one); (4) the tests.

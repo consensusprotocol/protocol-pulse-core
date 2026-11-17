@@ -49,7 +49,9 @@ from datetime import datetime, timezone
 import attest as AT
 import canon as C
 
-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131 + ruling 135"   # RULING 135
+RULES = ("ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131 + ruling 135 + "
+         "ruling 142")                         # RULING 142 (orchestrator 14:32 ET Nov 17): '24 -7' is no sign; a
+#   possessive or plural ending is a word-form pair for 131 (A) (the integrator's batch 110 values, 14:5x ET). RULING 135
 #   (orchestrator 10:50 ET Nov 17): the comparison canon (canon.same_words), the integrator's message of 10:5x Nov 17.
 #   RULING 131
 #   (orchestrator 08:25 ET Nov 17): (A) two of three readings, (B) currency format (the integrator's message of 08:2x
@@ -59,7 +61,7 @@ RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105
 #   targeted re-listen joins the rules (the integrator's message of 14:3x Nov 14); entries under the old RULES are never
 #   read. RULING 84 (orchestrator 20:41 Nov 13): the integrator's
 #   RULES string (its message of 20:4x Nov 13). RULING 73 (live 18:43:08 Nov 13, merged 585b6da5 on the integrator's
-DECODER = "b52c9354d604"                      # side): the render's own cut placement joins the pre-check (a passing
+DECODER = "fe809cb4e680"                      # side): the render's own cut placement joins the pre-check (a passing
 #   entry carries "cut"; a span the render cannot cut holds: "ruling 73: the render cannot cut this span: ..."). RULING
 #   84 changed the render's adjudicate_lock (pinned.py), so the decoder_sha changed: 962353613cb0e065008ab0405ca8550111ddd3ca3ba70f0ae65b4b77ab1876d8
 #   (ruling 73's was 8a101f222598a4f725e7cf85626e90fb2fae35df8d81d3ff430469728114e1a7). RULING 90 (the integrator's
@@ -74,6 +76,8 @@ DECODER = "b52c9354d604"                      # side): the render's own cut plac
 #   ce72aefa342dcd94dd45d8b4bc96ec6477ec04c91914db2054403338d7559e60
 #   RULING 135 (the comparison canon: canon.same_words; the integrator's branch r135-canon, audited; lockstep as with 131):
 #   b52c9354d604ab2303a91e6e6e5f926990987d46448992579684934f62e9392d
+#   RULING 142 (canon's '24 -7' and canon.word_form, adjudicate_lock's word-form exemption; the integrator's branch
+#   r141-sign f02dd73c, audited; lockstep as with 135): fe809cb4e680a3bc5df49e4c397e79f6cf2277650ea02c05cf88b34ecc573ebd
 RESULTS = "/home/ultron/protocol_pulse/data/lock_precheck/results"        # the integrator's; read only
 REQUESTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
                         "lock_requests")      # this worktree's; the service only reads it

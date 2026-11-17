@@ -237,7 +237,8 @@ def class_131(spoken, approved, adj):
             out.append(dict(row, took="spelling", edge_distance=None, **{"class": "spelling only (ruling 135)"}))
             continue
         row["edge_distance"] = edge_distance(r, p, op)
-        if any(critical(t, texts) for t in r[a:b] + p[c:d]):
+        if any(critical(t, texts) for t in r[a:b] + p[c:d]) and not canon.word_form(r[a:b], p[c:d]):   # RULING 142
+            #   (2): a possessive or plural ending ('bitcoin' / "bitcoin's") goes to the vote, as the render's lock
             out.append(dict(row, took=None, **{"class": None}, why="a number, a name or a negation (law L-v 2)"))
         elif reads(p, s, c, d):
             out.append(dict(row, took="approved", **{"class": "two of three readings: the approved words"}))
