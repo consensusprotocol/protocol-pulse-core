@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-17T13:28:31+00:00",
- "build": "ledger_20261117_132827",
+ "generated_at": "2026-11-17T14:16:51+00:00",
+ "build": "ledger_20261117_141647",
  "kind": "moments",
  "candidates": [
   {
@@ -10,6 +10,15 @@
    "duration": 5.48,
    "text": "It's also why I would not present a product like Q as better than Bitcoin. That framing is just kind of too simple.",
    "text_sha256": "3a6bd3679c47590c1e0e70a7a6a7d0b29fbc7cbc152ac3560d9af975bfd37dd0",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e06e9566dbe3ea80c568",
+   "video_id": "9k47sQ0CT18",
+   "channel": "Coin Bureau",
+   "duration": 9.16,
+   "text": "Its founder goes by Shoku, his pseudonym. He bought his first Bitcoin in 2013, and for many years after that, he stayed an investor, not a builder.",
+   "text_sha256": "06515119792dea3b07cb4618faf7b9827d45ccace5cab68765ecae171ef4201d",
    "trimmed_leading": null
   },
   {
@@ -46,6 +55,15 @@
    "duration": 15.8,
    "text": "You can have, you can hold Solana privately, you can hold Zcash privately, you can hold Bitcoin privately, etc. And so I think it's extremely important for adoption of crypto in general. I think up until now, we've kind of been in stock in the mostly speculative cycle.",
    "text_sha256": "0a9538607dfbbd521931fb1f1969222f6caa2abb8fb712c491e477ac20dcdb1a",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b546dd705e0bfbe58e82",
+   "video_id": "9k47sQ0CT18",
+   "channel": "Coin Bureau",
+   "duration": 19.3,
+   "text": "Its founder goes by Shoku, his pseudonym. He bought his first Bitcoin in 2013, and for many years after that, he stayed an investor, not a builder. Then, as the years went by, he actually came close to giving up on crypto altogether. He had said that he would likely have left the industry if he hadn't met Jeff Yan of Hyperliquid.",
+   "text_sha256": "a345742486376763004fada292e9b4fcc365c0561eaf008e3cbec26cb73ebce9",
    "trimmed_leading": null
   },
   {
