@@ -1,0 +1,45 @@
+{
+ "ruling": "118 (Heimdall seats only; not capped)",
+ "changed_lines": 212,
+ "seats_answered": 3,
+ "seats": [
+  "qwen3.8-27b",
+  "gemma-4-31b-it",
+  "mimo-v2.6-flash-rl"
+ ],
+ "cap_usd": 1.0,
+ "usd_reported": 0.034039,
+ "usd_upper_bound_unreported": 0.0,
+ "reviews": [
+  {
+   "review": "C1_gemma-4-31b-it.md",
+   "usd_reported": 0.000942,
+   "usd_upper_bound": 0.105
+  },
+  {
+   "review": "C1_mimo-v2.6-flash-rl.md",
+   "usd_reported": 0.003272,
+   "usd_upper_bound": 0.514
+  },
+  {
+   "review": "C1_qwen3.8-27b.md",
+   "usd_reported": 0.020082,
+   "usd_upper_bound": 0.395
+  },
+  {
+   "review": "C2_gemma-4-31b-it.md",
+   "usd_reported": 0.00053,
+   "usd_upper_bound": 0.057
+  },
+  {
+   "review": "C2_mimo-v2.6-flash-rl.md",
+   "usd_reported": 0.00216,
+   "usd_upper_bound": 0.334
+  },
+  {
+   "review": "C2_qwen3.8-27b.md",
+   "usd_reported": 0.007053,
+   "usd_upper_bound": 0.167
+  }
+ ]
+}

@@ -180,6 +180,30 @@
    "family": "gemma",
    "deadline_floor_s": 2400,
    "what": "RULING 87 (21:18 Nov 13): PLAN B ONLY, step A's verdict when one outside family answers: the integrator's GPU0 judge service (request files in tests/package/proof/judge_requests, answers in /home/ultron/protocol_pulse/data/local_judge/results). Free. A render comes first: up to 40 min. RULING 102 (13:02 Nov 14): also the LAST leg of step A's second family (ruling 87's last resort), reached without declaring Heimdall down; recorded as such on the pin and on STATE line 1."
+  },
+  "heimdall:minimax/minimax-m3.1-flash": {
+   "vendor": "heimdall",
+   "model": "minimax/minimax-m3.1-flash",
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "temperature": 0,
+   "min_out": 16000,
+   "family": "minimax",
+   "base_url": "https://api-staging.heimdallm.com/api/v1"
+  },
+  "heimdall:openai/gpt-oss-20b": {
+   "vendor": "heimdall",
+   "model": "openai/gpt-oss-20b",
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "temperature": 0,
+   "min_out": 16000,
+   "family": "gpt-oss",
+   "base_url": "https://api-staging.heimdallm.com/api/v1"
   }
  },
  "roles": {
@@ -302,6 +326,20 @@
     "elevenlabs_stt:scribe_v1"
    ],
    "what": "transcript_truth.py: law L-v 2's second, independent recognition pass with speaker turns on the selected segment's source audio (CPU fetch; no GPU, no Whisper)"
+  },
+  "coherence_panel": {
+   "chain": [
+    "heimdall:qwen/qwen3.8-27b",
+    "heimdall:minimax/minimax-m3.1-flash",
+    "heimdall:openai/gpt-oss-20b"
+   ],
+   "seeds": [
+    7,
+    8
+   ],
+   "min_members": 3,
+   "deadline_s": 900,
+   "what": "RULING 118 (2) / RULING 130 (4): the free panel measured on ruling 85.1's recorded Grok coherence verdicts (tests/package/proof/panel118/TABLE.md: qwen+minimax+gptoss TAKES: 18 units, no unit without a verdict, 94 % agreement against Grok's own 83 %, anchors 5/5), asked as the replay asked it: each member at seeds 7 and 8, the JSON-only contract line, a malformed answer re-asked once (seed + 100), 900 s; THE RULE: fewer than 3 members answering is no verdict (never a pass); the panel passes when more than half of all its answers pass the bar"
   }
  },
  "routing": {

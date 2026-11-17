@@ -1,0 +1,264 @@
+diff --git a/pipeline/model_providers.json b/pipeline/model_providers.json
+index 9322b8c..73dcbf9 100644
+--- a/pipeline/model_providers.json
++++ b/pipeline/model_providers.json
+@@ -180,6 +180,30 @@
+    "family": "gemma",
+    "deadline_floor_s": 2400,
+    "what": "RULING 87 (21:18 Nov 13): PLAN B ONLY, step A's verdict when one outside family answers: the integrator's GPU0 judge service (request files in tests/package/proof/judge_requests, answers in /home/ultron/protocol_pulse/data/local_judge/results). Free. A render comes first: up to 40 min. RULING 102 (13:02 Nov 14): also the LAST leg of step A's second family (ruling 87's last resort), reached without declaring Heimdall down; recorded as such on the pin and on STATE line 1."
++  },
++  "heimdall:minimax/minimax-m3.1-flash": {
++   "vendor": "heimdall",
++   "model": "minimax/minimax-m3.1-flash",
++   "price_usd_per_1m": [
++    3,
++    15
++   ],
++   "temperature": 0,
++   "min_out": 16000,
++   "family": "minimax",
++   "base_url": "https://api-staging.heimdallm.com/api/v1"
++  },
++  "heimdall:openai/gpt-oss-20b": {
++   "vendor": "heimdall",
++   "model": "openai/gpt-oss-20b",
++   "price_usd_per_1m": [
++    3,
++    15
++   ],
++   "temperature": 0,
++   "min_out": 16000,
++   "family": "gpt-oss",
++   "base_url": "https://api-staging.heimdallm.com/api/v1"
+   }
+  },
+  "roles": {
+@@ -302,6 +326,20 @@
+     "elevenlabs_stt:scribe_v1"
+    ],
+    "what": "transcript_truth.py: law L-v 2's second, independent recognition pass with speaker turns on the selected segment's source audio (CPU fetch; no GPU, no Whisper)"
++  },
++  "coherence_panel": {
++   "chain": [
++    "heimdall:qwen/qwen3.8-27b",
++    "heimdall:minimax/minimax-m3.1-flash",
++    "heimdall:openai/gpt-oss-20b"
++   ],
++   "seeds": [
++    7,
++    8
++   ],
++   "min_members": 3,
++   "deadline_s": 900,
++   "what": "RULING 118 (2) / RULING 130 (4): the free panel measured on ruling 85.1's recorded Grok coherence verdicts (tests/package/proof/panel118/TABLE.md: qwen+minimax+gptoss TAKES: 18 units, no unit without a verdict, 94 % agreement against Grok's own 83 %, anchors 5/5), asked as the replay asked it: each member at seeds 7 and 8, the JSON-only contract line, a malformed answer re-asked once (seed + 100), 900 s; THE RULE: fewer than 3 members answering is no verdict (never a pass); the panel passes when more than half of all its answers pass the bar"
+   }
+  },
+  "routing": {
+diff --git a/pipeline/package.py b/pipeline/package.py
+index c8e7874..0d4ba34 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -1874,6 +1874,75 @@ def _line_ok(tl):
+     return bool(tl.strip()) and not NO_LINE.search(tl) and len(tl.split()) >= 4
+ 
+ 
++PANEL_CONTRACT = "Answer with the JSON object only: no code fences and no text before or after it."   # ruling 118 (2)
++
++
++def coherence_panel_spec(router):
++    """RULING 118 (2) / 130 (4): the configured coherence panel (model_providers.json role "coherence_panel": its own
++    role, so it is no verdict role whose deadline-table row would replace its deadline, and no shadow role) ->
++    {"members": the role's chain as this router has it, "seeds", "min_members", "deadline_s"}, or None (no panel
++    configured, or a router without a config: the coherence verdict is one rater's, as before)."""
++    p = ((getattr(router, "config", None) or {}).get("roles") or {}).get("coherence_panel")
++    if not isinstance(p, dict) or not p.get("chain") or not hasattr(router, "chain"):
++        return None
++    return {"members": list(router.chain("coherence_panel")), "seeds": list(p.get("seeds") or [7]),
++            "min_members": int(p.get("min_members") or 3), "deadline_s": p.get("deadline_s")}
++
++
++def coherence_by_panel(router, pk, spec, parse, prompt, labs, own, writer_vendor=None, writer_family=None):
++    """RULING 118 (2) / 130 (4): the coherence verdict of the free panel, asked as the panel replay measured it. Each
++    member (never the writers' vendor or family) at each seed, once more at seed + 100 when its answer is out of contract
++    or missing; a member with no answer at either seed casts no vote. THE RULE: fewer than spec["min_members"] members
++    answering is NO VERDICT (never a pass); the panel passes when MORE THAN HALF of all its answers pass the bar (the
++    through-line, every clip after the hook and the VO point at the bar's floors). The verdict's clips and vo_point are
++    the answers' lower medians and its through-line the first sound one, for the redo and the re-line that read them.
++    -> (ok, verdict)."""
++    import statistics
++    import providers as P
++    wv, wf = P._as_set(writer_vendor), P._as_set(writer_family)
++    names = [n for n in spec["members"] if n in router.backends and router.backends[n].vendor not in wv
++             and router.backends[n].family not in wf]
++    fams = {n: router.backends[n].family for n in names}
++    votes, misses = {}, {}
++    for n in names:
++        others = {fams[o] for o in names if o != n} | wf
++        for sd in spec.get("seeds") or (7,):
++            for s in (sd, sd + 100):                     # the replay's rule: a malformed answer is asked once more
++                try:
++                    r, v = P.call_parsed(router, "coherence_panel", prompt, parse, 1200, s, system=PANEL_CONTRACT,
++                                         avoid_vendor=writer_vendor, avoid_family=others,
++                                         deadline_s=spec.get("deadline_s"))
++                except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
++                    misses.setdefault(n, []).append(f"seed {s}: {type(e).__name__}: {str(e)[:160]}")
++                    continue
++                votes.setdefault(n, []).append(dict(v, backend=r.backend, seed=s,
++                                                    replayed=bool(getattr(r, "replayed", False))))
++                break
++    rec = {"members": spec["members"], "answered": sorted(votes), "misses": misses,
++           "rule": "ruling 118 (2): fewer than %d members answering is no verdict; more than half of all answers pass"
++                   % int(spec.get("min_members") or 3)}
++    if len(votes) < int(spec.get("min_members") or 3):
++        return False, {"error": f"the coherence panel gave no verdict: {len(votes)} of {len(spec['members'])} members "
++                                f"answered (ruling 118 (2): no verdict, never a pass)", "measured": False, "panel": rec}
++    fl, which, csha = lineup_floors("coherence", sorted(votes)[0])     # a Heimdall member: the standard bar
++    answers = [v for n in sorted(votes) for v in votes[n]]
++    passes = lambda v: _line_ok(v["through_line"]) and min(v["clips"].values()) >= fl["clip"] and \
++        v["vo_point"] >= fl["vo_point"]
++    rec["answers"] = [{"backend": v["backend"], "seed": v["seed"], "pass": passes(v), "clips": v["clips"],
++                       "vo_point": v["vo_point"], "through_line": v["through_line"]} for v in answers]
++    ok_panel = sum(passes(v) for v in answers) * 2 > len(answers)
++    tl = next((v["through_line"] for v in answers if _line_ok(v["through_line"])), answers[0]["through_line"])
++    v = {"through_line": tl,
++         "clips": {**({labs[0]: own["rating"]} if own else {}),
++                   **{lb: statistics.median_low([a["clips"][lb] for a in answers]) for lb in labs[1:]}},
++         "vo_point": statistics.median_low([a["vo_point"] for a in answers]),
++         "hook_own": own or {"rating": None, "why": "the hook carries no cached own-job rating (ruling 61): fail closed"},
++         "panel": rec}
++    ok = own is not None and own["passes"] and ok_panel
++    return ok, dict(v, backend="panel:" + "+".join(sorted(votes)), measured=True, bar=which, floors=fl,
++                    calibration_sha256=csha, replayed=any(a["replayed"] for a in answers))
++
++
+ def coherence(router, pk, writer_vendor, seed=7, writer_family=None, hook=None):
+     """The blind QUALITY verdict (never the vendor / family of the text it judges): through-line + ratings. ->
+     (ok, verdict). A through-line that reads 'None.', 'no through-line', 'n/a' or is under 4 words is none (M7).
+@@ -1884,13 +1953,18 @@ def coherence(router, pk, writer_vendor, seed=7, writer_family=None, hook=None):
+     labs = [sg["label"] for sg in pk["segments"]]
+     own = hook_own(hook)
+ 
+-    def parse(text):
+-        v = json.loads(text.strip())
++    def parse(text, braces=False):
++        v = hook_answer(text)[0] if braces else json.loads(text.strip())   # ruling 118 (2): the panel's brace rule
+         if not isinstance(v, dict) or set(v) != {"through_line", "clips", "vo_point"} or \
+                 not isinstance(v["clips"], dict) or set(v["clips"]) != set(labs[1:]) or \
+                 any(type(x) is not int or not 1 <= x <= 5 for x in list(v["clips"].values()) + [v["vo_point"]]):
+             raise ValueError("coherence verdict out of contract")
+         return v
++    spec = coherence_panel_spec(router)
++    if spec is not None:                         # RULING 118 (2) / 130 (4): the free panel decides coherence
++        return coherence_by_panel(router, pk, spec, lambda t: parse(t, True), COHERENCE_PROMPT.format(
++            package=CI.package_view(pk), clip_keys=", ".join(f'"{lb}": 1' for lb in labs[1:])), labs, own,
++            writer_vendor, writer_family)
+     try:                                         # the 20:33 order: an answer out of contract moves on (P.call_parsed)
+         r, v = P.call_parsed(router, "coherence_verdict", COHERENCE_PROMPT.format(
+                                  package=CI.package_view(pk), clip_keys=", ".join(f'"{lb}": 1' for lb in labs[1:])),
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 935d77a..3fc3227 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -243,6 +243,102 @@ class TestClipsAloneVerdict(unittest.TestCase):
+             self.assertEqual(r.rejected, ["fake:coherence_verdict"])
+ 
+ 
++class TestRuling130CoherencePanel(unittest.TestCase):
++    """RULING 130 (4) / RULING 118 (2): the coherence verdict of the free panel (qwen + minimax + gpt-oss), asked as the
++    panel replay measured it: each member at seeds 7 and 8 under the JSON-only contract line and 900 s, a malformed
++    answer asked once more (seed + 100), the closing-brace rule; fewer than 3 members answering is no verdict; the panel
++    passes when MORE THAN HALF of all its answers pass the bar; never the writers' vendor or family."""
++    M = ["heimdall:qwen/qwen3.8-27b", "heimdall:minimax/minimax-m3.1-flash", "heimdall:openai/gpt-oss-20b"]
++    FAM = {M[0]: "qwen", M[1]: "minimax", M[2]: "gpt-oss"}
++    GOOD = {"through_line": "Nobody can change the rules of Bitcoin.", "clips": {"clip_01": 5, "clip_02": 4}, "vo_point": 4}
++    BAD = {"through_line": "Nobody can change the rules of Bitcoin.", "clips": {"clip_01": 5, "clip_02": 3}, "vo_point": 2}
++
++    def router(self, answers):
++        """answers: {member: {seed: dict | str (raw text) | Exception}}; a seed with no entry raises ProviderError."""
++        import providers as P
++        calls, M, FAM = [], self.M, self.FAM
++
++        class R:
++            config = {"roles": {"coherence_panel": {"chain": M, "seeds": [7, 8], "min_members": 3, "deadline_s": 900}}}
++            backends = {n: type("B", (), {"vendor": "heimdall/" + FAM[n], "family": FAM[n]})() for n in M}
++
++            def chain(self, role, kind=None):
++                return list(M) if role == "coherence_panel" else []
++
++            def call(self, role, prompt, max_tokens=2000, seed=7, system=None, avoid_vendor=None, avoid_model=None,
++                     avoid_family=None, deadline_s=None, kind=None):
++                left = [n for n in M if FAM[n] not in set(avoid_family or ()) and n not in set(avoid_model or ())]
++                if role != "coherence_panel" or not left:
++                    raise P.ProviderError(f"{role}: every back-end unavailable")
++                n = left[0]
++                calls.append({"role": role, "member": n, "seed": seed, "system": system, "deadline_s": deadline_s})
++                a = (answers.get(n) or {}).get(seed)
++                if a is None or isinstance(a, Exception):
++                    raise a if isinstance(a, Exception) else P.ProviderError(f"{n}: no answer")
++                return P.Reply(a if isinstance(a, str) else json.dumps(a), n, "heimdall")
++        return R(), calls
++
++    def run_it(self, answers, writer_family=None):
++        r, calls = self.router(answers)
++        ok, v = PK.coherence(r, TestCoherenceHookRatedOnce.PK_, {"xai"}, writer_family=writer_family,
++                             hook=TestCoherenceHookRatedOnce.HOOK)
++        return ok, v, calls
++
++    def test_the_panel_passes_on_more_than_half_of_its_answers(self):
++        G, B = self.GOOD, self.BAD
++        ok, v, calls = self.run_it({self.M[0]: {7: G, 8: G}, self.M[1]: {7: G, 8: G}, self.M[2]: {7: B, 8: B}})
++        self.assertTrue(ok)                                            # 4 of 6 answers pass
++        self.assertEqual(v["backend"], "panel:" + "+".join(sorted(self.M)))
++        self.assertEqual(sorted((c["member"], c["seed"]) for c in calls), sorted((n, s) for n in self.M for s in (7, 8)))
++        self.assertTrue(all(c["system"] == PK.PANEL_CONTRACT and c["deadline_s"] == 900 for c in calls))
++        self.assertEqual((v["measured"], v["replayed"], v["bar"]), (True, False, "standard"))
++
++    def test_half_is_not_a_pass_and_the_fields_are_lower_medians(self):
++        G, B = self.GOOD, self.BAD
++        ok, v, _ = self.run_it({self.M[0]: {7: G, 8: G}, self.M[1]: {7: G, 8: B}, self.M[2]: {7: B, 8: B}})
++        self.assertFalse(ok)                                           # 3 of 6: not more than half
++        self.assertEqual((v["clips"]["clip_02"], v["vo_point"]), (3, 2))   # the redo and the re-line read these
++        self.assertEqual(v["clips"]["hook"], 4)                        # the hook's own cached rating (ruling 61)
++
++    def test_fewer_than_three_members_answering_is_no_verdict(self):
++        G = self.GOOD
++        ok, v, calls = self.run_it({self.M[0]: {7: G, 8: G}, self.M[1]: {7: G, 8: G}})
++        self.assertFalse(ok)
++        self.assertFalse(v["measured"])
++        self.assertIn("no verdict", v["error"])
++        self.assertEqual(sorted(c["seed"] for c in calls if c["member"] == self.M[2]), [7, 8, 107, 108])
++
++    def test_the_writers_family_is_never_asked(self):
++        G = self.GOOD
++        ok, v, calls = self.run_it({n: {7: G, 8: G} for n in self.M}, writer_family={"qwen"})
++        self.assertNotIn(self.M[0], {c["member"] for c in calls})
++        self.assertFalse(ok)                                           # two members left: no verdict
++        self.assertIn("no verdict", v["error"])
++
++    def test_a_malformed_answer_is_asked_once_more_and_trailing_braces_are_read(self):
++        G = self.GOOD
++        ok, v, calls = self.run_it({self.M[0]: {7: G, 8: G}, self.M[1]: {7: "not json", 107: G, 8: G},
++                                    self.M[2]: {7: json.dumps(G) + "}", 8: G}})
++        self.assertTrue(ok)
++        self.assertEqual(sorted(v["panel"]["answered"]), sorted(self.M))
++        self.assertIn((self.M[1], 107), [(c["member"], c["seed"]) for c in calls])
++        read = [(a["backend"], a["seed"]) for a in v["panel"]["answers"]]
++        self.assertIn((self.M[2], 7), read)                            # the trailing brace dropped, the object read
++        self.assertIn((self.M[1], 107), read)
++
++    def test_a_router_without_the_panel_keeps_one_rater(self):
++        self.assertIsNone(PK.coherence_panel_spec(Canned(coherence_verdict=[self.GOOD])))
++
++    def test_the_configured_panel_is_the_measured_one(self):
++        """The build's own router: the role's chain resolves to back-ends it holds, of the three families measured."""
++        sys.path.insert(0, HERE)
++        import proof_ledger as PLG
++        r = PLG.build_router("heimdall_first", {}, os.devnull)
++        spec = PK.coherence_panel_spec(r)
++        self.assertEqual(sorted(r.backends[n].family for n in spec["members"]), ["gpt-oss", "minimax", "qwen"])
++        self.assertEqual((spec["seeds"], spec["min_members"], spec["deadline_s"]), ([7, 8], 3, 900))
++
++
+ class TestCoherenceHookRatedOnce(unittest.TestCase):
+     """RULING 61 (12:00): the coherence verdict after the takeaway does not rate the hook either: its cached own-job
+     rating stands (hook_own); the clips after the hook and vo_point are judged as before."""

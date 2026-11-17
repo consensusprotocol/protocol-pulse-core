@@ -1,0 +1,39 @@
+pp-selectid: RULING 130 (4) (orchestrator 23:00 ET Nov 16): "Then coherence panel wiring (ruling 118)." RULING 118 (2):
+the free panel decides a verdict type only where its replay proved it (tests/package/proof/panel118/TABLE.md: on
+ruling 85.1's recorded Grok coherence verdicts, qwen+minimax+gptoss TAKES: 18 units, no unit without a verdict, 94 %
+agreement against Grok's own 83 %, stricter 0, looser 1, anchors 5/5; no other type took). Files: pipeline/package.py,
+pipeline/model_providers.json, tests/package/test_medley.py.
+
+THE REPLAY'S RULE, AS MEASURED (scratchpad panel118.py): each member at seeds 7 and 8, the JSON-only contract as the system
+line, a malformed answer re-asked once (seed + 100), the closing-brace rule, 900 s; fewer than 3 members answering is
+NO VERDICT (never a pass); the panel passes when MORE THAN HALF of all its answers (members x seeds) pass; each answer
+judged on the standard bar (replay85.decide: the through-line and every rating >= COHERENCE_MIN 4).
+
+THE CHANGE:
+(a) model_providers.json: two Heimdall back-ends (minimax-m3.1-flash, gpt-oss-20b: the replay's spec), and a ROLE
+    "coherence_panel" (chain: qwen, minimax, gpt-oss; seeds [7, 8]; min_members 3; deadline_s 900; its why). Its own
+    role, so it is not a verdict role (whose deadline-table row would replace the 900 s: qwen's coherence row is 60 s)
+    and not a shadow role. proof_ly.chains gives it its chain as for any role.
+(b) package.coherence_panel_spec(router): the role's spec, or None (no such role, or a router without a config: then
+    coherence() is ONE rater's, exactly as before; every existing coherence test runs that path).
+(c) package.coherence_by_panel: each member never of the writers' vendor or family, at each seed, through
+    providers.call_parsed on the role (one member a call: the others' families avoided), system PANEL_CONTRACT,
+    deadline 900 s; out of contract or no answer: once more at seed + 100; the parse is coherence's own contract after
+    package.hook_answer's brace rule (UNCHANGED, package.py:923). < min_members answering: (False, {"error": "... no
+    verdict ...", "measured": False}). The bar: lineup_floors("coherence", <a member>) (UNCHANGED, :1538): the standard
+    bar for a Heimdall member. ok = the hook's own cached rating passes (ruling 61, as before) and more than half of
+    the answers pass. The verdict carries, for the code that reads a failed one (UNCHANGED, :4069: the takeaway's redo
+    when only vo_point is under its floor; else the weak clips dropped), the answers' LOWER MEDIANS of every clip and of
+    vo_point and the first sound through-line; backend "panel:<members>"; replayed only if an answer was replayed (the
+    router's offline replay); measured True; every answer in v["panel"]. The pin's gate check (package_pin.gate_problems,
+    UNCHANGED, :378) reads only status PASS and replayed False, never the back-end's name.
+
+TESTS (TestRuling130CoherencePanel): more than half passes; exactly half does not, and the fields are the lower medians;
+fewer than 3 members is no verdict (the missing member asked at 7, 8, 107, 108); the writers' family is never asked;
+a malformed answer is asked once more and a trailing brace is read; a router without the panel keeps one rater; the
+build's own router resolves the role to the three measured families. Mutations P1-P8 after a control run: 8 of 8
+killed. Suites: 40 files by exit code, 863 tests.
+
+PLEASE CHECK: (1) that the rule is the replay's, exactly (no verdict below 3 members; majority over all answers;
+the standard bar); (2) that the writers' vendor and family are never asked; (3) that a failed panel verdict routes the
+redo / re-line as a single rater's did; (4) that a no-verdict can never pass; (5) the tests.

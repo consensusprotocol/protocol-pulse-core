@@ -1874,6 +1874,75 @@ def _line_ok(tl):
     return bool(tl.strip()) and not NO_LINE.search(tl) and len(tl.split()) >= 4
 
 
+PANEL_CONTRACT = "Answer with the JSON object only: no code fences and no text before or after it."   # ruling 118 (2)
+
+
+def coherence_panel_spec(router):
+    """RULING 118 (2) / 130 (4): the configured coherence panel (model_providers.json role "coherence_panel": its own
+    role, so it is no verdict role whose deadline-table row would replace its deadline, and no shadow role) ->
+    {"members": the role's chain as this router has it, "seeds", "min_members", "deadline_s"}, or None (no panel
+    configured, or a router without a config: the coherence verdict is one rater's, as before)."""
+    p = ((getattr(router, "config", None) or {}).get("roles") or {}).get("coherence_panel")
+    if not isinstance(p, dict) or not p.get("chain") or not hasattr(router, "chain"):
+        return None
+    return {"members": list(router.chain("coherence_panel")), "seeds": list(p.get("seeds") or [7]),
+            "min_members": int(p.get("min_members") or 3), "deadline_s": p.get("deadline_s")}
+
+
+def coherence_by_panel(router, pk, spec, parse, prompt, labs, own, writer_vendor=None, writer_family=None):
+    """RULING 118 (2) / 130 (4): the coherence verdict of the free panel, asked as the panel replay measured it. Each
+    member (never the writers' vendor or family) at each seed, once more at seed + 100 when its answer is out of contract
+    or missing; a member with no answer at either seed casts no vote. THE RULE: fewer than spec["min_members"] members
+    answering is NO VERDICT (never a pass); the panel passes when MORE THAN HALF of all its answers pass the bar (the
+    through-line, every clip after the hook and the VO point at the bar's floors). The verdict's clips and vo_point are
+    the answers' lower medians and its through-line the first sound one, for the redo and the re-line that read them.
+    -> (ok, verdict)."""
+    import statistics
+    import providers as P
+    wv, wf = P._as_set(writer_vendor), P._as_set(writer_family)
+    names = [n for n in spec["members"] if n in router.backends and router.backends[n].vendor not in wv
+             and router.backends[n].family not in wf]
+    fams = {n: router.backends[n].family for n in names}
+    votes, misses = {}, {}
+    for n in names:
+        others = {fams[o] for o in names if o != n} | wf
+        for sd in spec.get("seeds") or (7,):
+            for s in (sd, sd + 100):                     # the replay's rule: a malformed answer is asked once more
+                try:
+                    r, v = P.call_parsed(router, "coherence_panel", prompt, parse, 1200, s, system=PANEL_CONTRACT,
+                                         avoid_vendor=writer_vendor, avoid_family=others,
+                                         deadline_s=spec.get("deadline_s"))
+                except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
+                    misses.setdefault(n, []).append(f"seed {s}: {type(e).__name__}: {str(e)[:160]}")
+                    continue
+                votes.setdefault(n, []).append(dict(v, backend=r.backend, seed=s,
+                                                    replayed=bool(getattr(r, "replayed", False))))
+                break
+    rec = {"members": spec["members"], "answered": sorted(votes), "misses": misses,
+           "rule": "ruling 118 (2): fewer than %d members answering is no verdict; more than half of all answers pass"
+                   % int(spec.get("min_members") or 3)}
+    if len(votes) < int(spec.get("min_members") or 3):
+        return False, {"error": f"the coherence panel gave no verdict: {len(votes)} of {len(spec['members'])} members "
+                                f"answered (ruling 118 (2): no verdict, never a pass)", "measured": False, "panel": rec}
+    fl, which, csha = lineup_floors("coherence", sorted(votes)[0])     # a Heimdall member: the standard bar
+    answers = [v for n in sorted(votes) for v in votes[n]]
+    passes = lambda v: _line_ok(v["through_line"]) and min(v["clips"].values()) >= fl["clip"] and \
+        v["vo_point"] >= fl["vo_point"]
+    rec["answers"] = [{"backend": v["backend"], "seed": v["seed"], "pass": passes(v), "clips": v["clips"],
+                       "vo_point": v["vo_point"], "through_line": v["through_line"]} for v in answers]
+    ok_panel = sum(passes(v) for v in answers) * 2 > len(answers)
+    tl = next((v["through_line"] for v in answers if _line_ok(v["through_line"])), answers[0]["through_line"])
+    v = {"through_line": tl,
+         "clips": {**({labs[0]: own["rating"]} if own else {}),
+                   **{lb: statistics.median_low([a["clips"][lb] for a in answers]) for lb in labs[1:]}},
+         "vo_point": statistics.median_low([a["vo_point"] for a in answers]),
+         "hook_own": own or {"rating": None, "why": "the hook carries no cached own-job rating (ruling 61): fail closed"},
+         "panel": rec}
+    ok = own is not None and own["passes"] and ok_panel
+    return ok, dict(v, backend="panel:" + "+".join(sorted(votes)), measured=True, bar=which, floors=fl,
+                    calibration_sha256=csha, replayed=any(a["replayed"] for a in answers))
+
+
 def coherence(router, pk, writer_vendor, seed=7, writer_family=None, hook=None):
     """The blind QUALITY verdict (never the vendor / family of the text it judges): through-line + ratings. ->
     (ok, verdict). A through-line that reads 'None.', 'no through-line', 'n/a' or is under 4 words is none (M7).
@@ -1884,13 +1953,18 @@ def coherence(router, pk, writer_vendor, seed=7, writer_family=None, hook=None):
     labs = [sg["label"] for sg in pk["segments"]]
     own = hook_own(hook)
 
-    def parse(text):
-        v = json.loads(text.strip())
+    def parse(text, braces=False):
+        v = hook_answer(text)[0] if braces else json.loads(text.strip())   # ruling 118 (2): the panel's brace rule
         if not isinstance(v, dict) or set(v) != {"through_line", "clips", "vo_point"} or \
                 not isinstance(v["clips"], dict) or set(v["clips"]) != set(labs[1:]) or \
                 any(type(x) is not int or not 1 <= x <= 5 for x in list(v["clips"].values()) + [v["vo_point"]]):
             raise ValueError("coherence verdict out of contract")
         return v
+    spec = coherence_panel_spec(router)
+    if spec is not None:                         # RULING 118 (2) / 130 (4): the free panel decides coherence
+        return coherence_by_panel(router, pk, spec, lambda t: parse(t, True), COHERENCE_PROMPT.format(
+            package=CI.package_view(pk), clip_keys=", ".join(f'"{lb}": 1' for lb in labs[1:])), labs, own,
+            writer_vendor, writer_family)
     try:                                         # the 20:33 order: an answer out of contract moves on (P.call_parsed)
         r, v = P.call_parsed(router, "coherence_verdict", COHERENCE_PROMPT.format(
                                  package=CI.package_view(pk), clip_keys=", ".join(f'"{lb}": 1' for lb in labs[1:])),
