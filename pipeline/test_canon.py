@@ -390,6 +390,7 @@ class TestRuling142Spans(unittest.TestCase):
 
     def test_word_by_word_equals_the_text(self):
         for t in ("money that's available 24 -7, 365, that has no CEO", "it fell to -5% and then 24 -7",
+                  "available 24 - 7, 365",                                        # batch 112 c1 F1: a lone hyphen
                   "rates at -2 now", "is - 5% and 70 - 75", "(-$40M) after 24 -$5"):
             self.assertEqual([s[0] for s in C.canon_spans(t.split())], C.canon_tokens(t), t)
 

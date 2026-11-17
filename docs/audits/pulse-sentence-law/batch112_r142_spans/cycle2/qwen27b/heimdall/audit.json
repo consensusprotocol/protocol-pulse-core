@@ -1,0 +1,26 @@
+{
+ "question": "Review this diff (pipeline/canon.py, pipeline/pinned.py). ORCHESTRATOR RULING 142 (14:32 ET Nov 17): \"(1) a hyphen right after a number and a space, before a digit, is never a sign ('24/7/365') ... re-judge Yahoo Finance f0a51c45 from its cached readings. (2) L-v 2 'bitcoin' against 'bitcoin's': a possessive or plural ending is a word-form pair like any other: ruling 131 (A)'s two-of-three decides it and the sealed text takes that reading; all three differing still holds. Apply to Natalie Brunell feb4b72f from cache.\" Batch 110 (live) implemented (1) in canon._prepare as _NUM_HYPHEN = re.compile(r\"(\\d\\s+)-(?=\\d)\") on the WHOLE text, and (2) as canon.word_form (one token differing only by 's, s', ', s). Re-judged, f0a51c45 still held: pinned._majority_text maps tokens to words with canon.canon_spans (word by word: the word '-7,' alone read 'minus 7') and requires them equal to canon_tokens of the text ('24 7'), else 'the settled reading cannot be written'. feb4b72f still held: its \"Bitcoin's\" is the CONTRACTION of 'Bitcoin is' (run 'Bitcoin is a responsibility', approved \"Bitcoin's a responsibility\"), a 1-token against 2-token pair. This diff (batch 112): canon_spans drops the hyphen of a word '-<digit>...' that follows a word ending in a digit (the whole-text rule, word by word); word_form also takes [t + \"'s\"] against [t, 'is'] or [t, 'has'] (no digit in t); and pinned.post_live_offset (batch 111, unmerged) aligns through canon_spans instead of an ad-hoc normaliser (the canon law: every comparison goes through canon).\nFACTS (unchanged): canon_spans(words) -> [(token, first word index, last word index)] and joins a lone '-' with a following number word unless the previous word ends in [\\d.,%] (a range); _prepare applies, in order, _NUM_HYPHEN, _CUR_SIGN, _PLUS, _SIGN_SPACED, _SIGN, then every '-' becomes a space; law L-v 2: a number, a negation or a name whose letters differ always holds; 131 (A) runs only on pairs not held by L-v 2's critical check, and word_form pairs are exempt from that check.\nCycle 2: try to BREAK it. Report ONLY a defect you can show with CONCRETE word lists or texts traced through the diff's code. Keep each \"issue\" under 80 words. If you cannot break it, answer PASS with no findings.\nTARGETS:\nT1. A text whose spans and tokens still disagree (a settled lock that cannot be written), or a real minus lost.\nT2. A misquote (a number, a negation, another name, another word) that now passes the lock through the contraction rule.\nT3. An exception.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 352.7,
+   "cost": 0.0102167103,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0102167103,
+ "out_dir": "heimdall"
+}
