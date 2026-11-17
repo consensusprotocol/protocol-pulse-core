@@ -4,7 +4,8 @@ Found at the 19:31 ET stall of Nov 16: Yahoo Finance nlRpMRMq2bc ("The Daily Wol
 had sat in probe_retry since 12:05 ET as "no publish time measured": `yt-dlp -J --ignore-no-formats-error` answers them
 with a stub (title "youtube video #<id>", no live_status, duration, timestamps or captions: removed, private or not
 public yet). Retried every hour forever, they kept the self-check's stall line up overnight. Now such a probe is
-UNAVAILABLE ("no metadata"), tried hourly, given up after NO_METADATA_MAX_TRIES, and never counted as waiting.
+UNAVAILABLE ("no metadata"), tried again every NO_METADATA_RETRY_S, given up only once the video is past its moments'
+life (r122, test_r122.py: a count of tries gave up a real stream), and never counted as waiting.
 """
 import pytest
 
@@ -21,16 +22,21 @@ def stub(v):
                         release_timestamp=None, media_type="video", automatic_captions={}, channel_id=None)
 
 
-def test_a_stub_probe_is_no_metadata_tried_hourly_then_given_up(q):
+def test_a_stub_probe_is_no_metadata_retried_inside_its_moments_life_then_given_up(q):
+    from pipeline.ingest import config
     v = H.vid("S")
     gate = H.FakeGate(probes={v: stub(v)})
     assert fetch.process(q, gate, add(q, v), H.CHAN, set(), now_ts=NOW) == Q.UNAVAILABLE
     row = q.video(v)
-    assert row["next_at"] == NOW + fetch.NO_METADATA_RETRY_S == NOW + 3600
+    assert row["next_at"] == NOW + fetch.NO_METADATA_RETRY_S == NOW + 900
     assert row["reason"].startswith("no metadata: yt-dlp returned no fact")
-    q.x("UPDATE videos SET tries=?, next_at=0", (fetch.NO_METADATA_MAX_TRIES - 1,))
-    assert fetch.process(q, gate, q.video(v), H.CHAN, set(), now_ts=NOW) == Q.UNAVAILABLE
-    assert q.video(v)["next_at"] >= NOW + 10 ** 9 - 1                      # given up
+    q.x("UPDATE videos SET tries=99, next_at=0")                            # r122: tries never give it up
+    assert fetch.process(q, gate, q.video(v), H.CHAN, set(), now_ts=NOW + 3600) == Q.UNAVAILABLE
+    assert q.video(v)["next_at"] == NOW + 3600 + 900
+    later = NOW + (config.EXPIRY_H + 1) * 3600                               # past its moments' life: given up
+    q.x("UPDATE videos SET next_at=0")
+    assert fetch.process(q, gate, q.video(v), H.CHAN, set(), now_ts=later) == Q.UNAVAILABLE
+    assert q.video(v)["next_at"] >= later + 10 ** 9 - 1
 
 
 def test_a_probe_with_any_fact_is_not_a_stub(q):

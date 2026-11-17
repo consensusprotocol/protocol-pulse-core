@@ -601,8 +601,10 @@ the same videos.
   VOD (its length, when the probe has none yet, the one the pipeline recorded); without a record it waits as before
   (no caption download, no meta); a stream still live is never taken. The sweep and the self-check cover it.
 - r121: a probe answered with yt-dlp's stub (title "youtube video #<id>", none of live_status, duration, timestamp,
-  release_timestamp, upload_date: removed, private or not public yet) is UNAVAILABLE "no metadata", tried hourly,
-  given up after 6 tries, never counted as waiting (two such Yahoo Finance videos had kept the stall line up).
+  release_timestamp, upload_date: removed, private or not public yet) is UNAVAILABLE "no metadata",
+  never counted as waiting (two such Yahoo Finance videos had kept the stall line up). r122: a stub can be a moment's
+  answer (CoinDesk yHuY9r30Oug after its premiere ended), so it is tried every 15 min and given up only past its 12 h,
+  and the sweep makes it due once the pipeline's store holds its record (the pipeline saw it: it exists).
 - The second caption source (designed, not built) and what the 429s correlate with:
   docs/audits/parallel/pp-ingest_CAPTION_SOURCE_DESIGN.md.
 

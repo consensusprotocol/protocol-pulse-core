@@ -35,8 +35,9 @@ UNAVAILABLE_RETRY_S = 6 * 3600
 UNAVAILABLE_MAX_TRIES = 4
 PROBE_RETRY_S = (300, 900, 1800, 3600)
 FACT_KEYS = ("live_status", "duration", "timestamp", "release_timestamp", "upload_date")   # r121: what a real probe gives
-NO_METADATA_RETRY_S = 3600          # r121: a probe answered with no fact at all (removed, private or not public yet)
-NO_METADATA_MAX_TRIES = 6           # is tried hourly, then given up: never counted as waiting (stall.WAITING)
+NO_METADATA_RETRY_S = 900           # r121/r122: a probe answered with no fact at all (removed, private, not public
+                                    # yet, or a moment's stub: CoinDesk yHuY9r30Oug, Nov 17) is tried every 15 min
+                                    # inside its moments' life, then given up; never counted as waiting
 CAPTION_THROTTLED_RETRY_S = 600     # a caption 429: tried again this soon (the pipeline's store is looked at first)
 PIPELINE_RECHECK_S = 1800           # a VOD without English captions inside its moments' life: looked at this often
                                     # (the pipeline's transcript ingest runs every 30 min)
@@ -235,9 +236,10 @@ def pipeline_sweep(q, now_ts):
     pipeline's store (pipeline_transcript: every check) is made due now, whatever its own retry time; the fetch step
     then probes it and takes the record (a stream still live never: fetch.process). No YouTube request here (one glob, and a
     read of a record that is there). Returns the ids made due; each is a queue event."""
-    rows = q.rows("SELECT video_id, channel_id FROM videos WHERE (state IN (?, ?) OR (state = ? AND live_status = ?)) "
-                  "AND next_at > ? AND COALESCE(published_ts, discovered_ts) >= ?",
-                  (Q.PROBE_RETRY, Q.CAPTIONS_PENDING, Q.LIVE, "post_live", now_ts, now_ts - config.EXPIRY_H * 3600))
+    rows = q.rows("SELECT video_id, channel_id FROM videos WHERE (state IN (?, ?) OR (state = ? AND live_status = ?) "
+                  "OR (state = ? AND reason LIKE ?)) AND next_at > ? AND COALESCE(published_ts, discovered_ts) >= ?",
+                  (Q.PROBE_RETRY, Q.CAPTIONS_PENDING, Q.LIVE, "post_live", Q.UNAVAILABLE, "no metadata:%", now_ts,
+                   now_ts - config.EXPIRY_H * 3600))   # r122: the pipeline's record proves a stub's video exists
     due = []
     for r in rows:
         try:
@@ -246,8 +248,9 @@ def pipeline_sweep(q, now_ts):
         except ValueError:                            # an id transcript_store refuses: never a path, never due here
             continue
     if due:
-        q.x(f"UPDATE videos SET next_at=? WHERE next_at > ? AND state IN (?, ?, ?) AND video_id IN "
-            f"({','.join('?' * len(due))})", (now_ts, now_ts, Q.PROBE_RETRY, Q.CAPTIONS_PENDING, Q.LIVE) + tuple(due))
+        q.x(f"UPDATE videos SET next_at=? WHERE next_at > ? AND state IN (?, ?, ?, ?) AND video_id IN "
+            f"({','.join('?' * len(due))})", (now_ts, now_ts, Q.PROBE_RETRY, Q.CAPTIONS_PENDING, Q.LIVE, Q.UNAVAILABLE)
+            + tuple(due))
         for vid in due:
             q.event("pipeline_transcript_due", vid, None)
     return due
@@ -270,8 +273,9 @@ def process(q, gate, v, chan, optout, now_ts=None):
             q.set_state(vid, Q.UNAVAILABLE, next_at=now_ts + 10 ** 9, tries=tries + 1,
                         reason=f"age-gated (needs a signed-in session): {detail[-200:]}")
             return Q.UNAVAILABLE
-        if kind == "no_metadata":                  # r121: off the waiting count; tried hourly, then given up
-            final = tries + 1 >= NO_METADATA_MAX_TRIES
+        if kind == "no_metadata":                  # r121: off the waiting count; r122: given up only past its
+            seen = v.get("published_ts") or v.get("discovered_ts") or now_ts    # moments' life (a count of tries
+            final = now_ts - float(seen) > config.EXPIRY_H * 3600                 # holds its live re-probes too)
             q.set_state(vid, Q.UNAVAILABLE, next_at=now_ts + (10 ** 9 if final else NO_METADATA_RETRY_S),
                         tries=tries + 1, reason=f"no metadata: {detail}")
             return Q.UNAVAILABLE
