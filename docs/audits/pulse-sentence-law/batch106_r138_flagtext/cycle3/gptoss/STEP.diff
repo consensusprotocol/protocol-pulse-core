@@ -1,0 +1,76 @@
+diff --git a/pipeline/release_auth.py b/pipeline/release_auth.py
+index e36ae081..84739dce 100644
+--- a/pipeline/release_auth.py
++++ b/pipeline/release_auth.py
+@@ -215,7 +215,8 @@ def seg_name(seg, edl):
+     if not m:
+         return None
+     n = int(m.group(1))
+-    ch = next((c.get("channel") for c in edl.get("clips") or [] if isinstance(c, dict) and c.get("index") == n), None)
++    clips = edl.get("clips") if isinstance(edl.get("clips"), list) else []
++    ch = next((c.get("channel") for c in clips if isinstance(c, dict) and c.get("index") == n), None)
+     return f"clip {n} ({ch or 'channel unknown'})"
+ 
+ 
+@@ -243,20 +244,24 @@ def _failed_segments(k, fmt, rep):
+ 
+ def _v1_doubts(fmt, rep):
+     """V1's rows a model did not affirm (no / missing), its cut and letterbox checks, by name; None: no answer."""
+-    v = ((rep.get("V1") or {}).get(fmt)) if isinstance(rep.get("V1"), dict) else None
++    v = rep.get("V1") if isinstance(rep, dict) else None
++    v = v.get(fmt) if isinstance(v, dict) else None
+     if not isinstance(v, dict) or v.get("error"):
+         return None
+-    per = [d for d in (v.get("per_model") or {}).values() if isinstance(d, dict)] \
+-        if isinstance(v.get("per_model"), dict) else []
++    pm = v.get("per_model")
++    per = [d for d in pm.values() if isinstance(d, dict)] if isinstance(pm, dict) else []
+     if not per:
+         return None
+-    out = sorted({r for d in per for r, x in ((d.get("rows") or {}).items() if isinstance(d.get("rows"), dict) else ())
++
++    def rows_of(d):
++        return d["rows"] if isinstance(d.get("rows"), dict) else {}
++    out = sorted({r for d in per for r, x in rows_of(d).items()
+                   if not (isinstance(x, dict) and x.get("ok") is True)} - {"no_next_shot_before_transition"})
+-    if not (v.get("boundaries") or {"ok": True}).get("ok"):
+-        out.append("next shot before the cut")
+-    if not (v.get("letterbox_per_shot") or {"ok": True}).get("ok"):
+-        out.append("letterbox per shot")
+-    if any(CREDITS_ROW not in (d.get("rows") or {}) for d in per):
++    for key, name in (("boundaries", "next shot before the cut"), ("letterbox_per_shot", "letterbox per shot")):
++        b = v.get(key)                                   # absent: not asked; anything but {"ok": True}: doubted
++        if b is not None and not (isinstance(b, dict) and b.get("ok") is True):
++            out.append(name)
++    if any(CREDITS_ROW not in rows_of(d) for d in per):
+         out.append(CREDITS_ROW)                                       # a model that never answered it
+     return out
+ 
+@@ -290,9 +295,12 @@ def say(k, fmt, report=None, edl=None):
+                 words.append(w)
+         what = " and that ".join(words) or "the video looks right"
+     elif k == "G9_tail":
+-        g = (((rep.get("G9") or {}).get(fmt) or {}).get("gate") or {}) if isinstance(rep.get("G9"), dict) else {}
++        g = rep.get("G9")
++        g = g.get(fmt) if isinstance(g, dict) else None
++        g = g.get("gate") if isinstance(g, dict) else None
++        g = g if isinstance(g, dict) else {}
+         bad = [w for w, ok in (("looks too dark", g.get("luma_ok")), ("sounds too loud or too quiet", g.get("audio_ok")))
+-               if str(ok) == "False"] if isinstance(g, dict) else []
++               if str(ok) == "False"]
+         what = " and ".join(bad) or "might look or sound wrong"
+     return FLAG_TEXT.get(k, "a check doubted the video").format(who=join_names(names) or "a clip", what=what)
+ 
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 51e0d0a9..de325fab 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -193,7 +193,7 @@ def who(edl, text, default="a clip"):
+     (ruling 138 (3)): 'the opening clip (Channel)', 'clip 2 (Channel)', joined; the default when it names none."""
+     import release_auth
+     names = []
+-    for m in _LABEL.finditer(text or ""):
++    for m in _LABEL.finditer(text if isinstance(text, str) else ""):
+         n = release_auth.seg_name(m.group(1), edl)
+         if n and n not in names:
+             names.append(n)
