@@ -64,7 +64,7 @@ class TestStageValidateRuling91(unittest.TestCase):
             self.assertEqual(got, "reached the editorial gate", gates)
             self.assertIs(prov.get("takeaway_value", {}).get("pass"), False, got)
             self.assertEqual([f["flag"] for f in prov["review_flags"]],
-                             ["the takeaway's value is not affirmed (ruling 91)"])
+                             ["The checker doubted that the closing voiceover line gives a takeaway worth saying."])
 
     def test_with_its_verdict_or_no_takeaway_the_stage_goes_on(self):
         for edl in (medley(live()), medley(None, bridges=[])):

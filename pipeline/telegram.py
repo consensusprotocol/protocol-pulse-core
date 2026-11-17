@@ -167,8 +167,8 @@ def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
         head = f"{SPOTLIGHT_HEAD} | {head}"
     if option:
         head = f"OPTION {option} (transition choice) | {head}"
-    if flagged:
-        head = "REVIEW FLAGS: " + "; ".join(flagged) + "\n" + head
+    if flagged:                            # ruling 138 (3): each flag one plain sentence, so one a line
+        head = "\n".join(["REVIEW FLAGS:"] + [f"- {f}" for f in flagged]) + "\n" + head
     lines = [head, f"{os.path.basename(os.path.normpath(run_dir))} | {fmt} {DIMS[fmt][0]}x{DIMS[fmt][1]}"
              + (f" | {duration:.1f} s" if duration else ""),
              f"Story: {edl.get('topic', '')}",
