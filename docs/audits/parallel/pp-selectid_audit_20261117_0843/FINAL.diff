@@ -1,0 +1,535 @@
+diff --git a/pipeline/attest.py b/pipeline/attest.py
+index f45e4d55..ba38c084 100644
+--- a/pipeline/attest.py
++++ b/pipeline/attest.py
+@@ -13,7 +13,13 @@ critical() is the render's _lv2_critical with its lists. CPU only, no model call
+ (package_pin, which the integrator's check imports, must never pull it in).
+ 
+ RULING 84 (orchestrator 20:41 Nov 13) has its own class, class_84, for the render's lock pre-check only (the
+-second recogniser against the lock): fillers, and ONE function word. carry_class (ruling 67's re-seal) is unchanged."""
++second recogniser against the lock): fillers, and ONE function word. carry_class (ruling 67's re-seal) is unchanged.
++
++RULING 131 (orchestrator 08:25 ET Nov 17) has its own re-check, class_131: (A) per differing pair of the render's lock,
++two of the three readings (the approved text, the run's decode, the second recogniser) decide it and the sealed text
++takes that reading, at least 3 tokens from both cut edges; never a number, a name or a negation; all three different
++holds. (B) a currency symbol is formatting (canon.dollars_after_number, G18's one tolerance). It re-runs the render's own
++steps on the three readings the lock records and never trusts the record's own classes."""
+ import re
+ from difflib import SequenceMatcher
+ 
+@@ -118,6 +124,135 @@ def class_84(spoken, approved):
+     return out
+ 
+ 
++# RULING 131 (orchestrator 08:25 ET Nov 17): the render's lock records a two-of-three adjudication under this rule (the
++# integrator's message of 08:2x Nov 17: lock["adjudication"]["rule"] "ruling 131 (A) (orchestrator 2026-11-17
++# '08:25')"); a pair takes the run's reading only at EDGE_131 tokens or more from both edges of the run's decode
++RULE_131 = "ruling 131 (A)"
++EDGE_131 = 3                                    # pinned.MAJORITY_EDGE
++
++
++def currency_pair(r, p, op):
++    """RULING 131 (B), the render's own test (pinned.adjudicate_lock): every token on the pair's non-empty side(s) is a
++    'dollars' right after a number token (canon.dollars_after_number: '$2 billion' is a spoken '2 billion'); an empty
++    side is vacuously so (audit 20261117_0843 C1, qwen P2)."""
++    _tag, a, b, c, d = op
++    return all(canon.dollars_after_number(r, i) for i in range(a, b)) and \
++        all(canon.dollars_after_number(p, j) for j in range(c, d))
++
++
++def edge_distance(r, p, op):
++    """RULING 131 (A), as the render's lock measures it (the integrator's message of 08:4x Nov 17): min(a, len(r) - b)
++    in the run decode's canon tokens r. A pair with an empty side ("delete" or "insert") inside a repetition may slide,
++    since both texts stay the same ("that's why that's why": difflib may put the extra copy on either): shift -n while
++    n <= the equal run before it and seq[x - n] == seq[y - n], +n while n <= the equal run after it and
++    seq[x + n - 1] == seq[y + n - 1] (seq, x, y = r, a, b for a delete; p, c, d for an insert); its distance is the
++    largest over the shifts (0 included). A replace never slides."""
++    tag, a, b, c, d = op
++    shifts = [0]
++    full = SequenceMatcher(None, r, p, autojunk=False).get_opcodes()
++    if tag in ("delete", "insert") and tuple(op) in full:
++        k = full.index(tuple(op))
++        seq, x, y = (r, a, b) if tag == "delete" else (p, c, d)
++        left = full[k - 1][2] - full[k - 1][1] if k > 0 and full[k - 1][0] == "equal" else 0
++        right = full[k + 1][2] - full[k + 1][1] if k + 1 < len(full) and full[k + 1][0] == "equal" else 0
++        n = 1
++        while n <= left and seq[x - n] == seq[y - n]:
++            shifts.append(-n)
++            n += 1
++        n = 1
++        while n <= right and seq[x + n - 1] == seq[y + n - 1]:
++            shifts.append(n)
++            n += 1
++    return max(min(a + n, len(r) - (b + n)) for n in shifts)
++
++
++def spill_trimmed(lock_tokens, s):
++    """RULING 72's reading of a span, as the integrator's pre-check takes it (its lock_precheck.reading + _spill, the
++    integrator's message of 08:5x Nov 17): the second recogniser's canon tokens s (its words whose midpoint lies in the
++    lock's window +- 0.3 s) with the neighbours' spill trimmed: every token before the lock's first aligned token goes
++    (fillers included), unless those tokens repeat the ones right after them (the speaker's own edge repeat, 'When,
++    when', is kept); the end alike. -> the trimmed tokens."""
++    ops = SequenceMatcher(None, lock_tokens, s, autojunk=False).get_opcodes()
++    lo, hi = 0, len(s)
++    if ops and ops[0][0] == "insert" and ops[0][1] == 0:
++        d = ops[0][4]
++        lo = next((d - n for n in range(d, 0, -1) if s[d - n:d] == s[d:d + n]), d)
++    if ops and ops[-1][0] == "insert" and ops[-1][1] == len(lock_tokens):
++        c = ops[-1][3]
++        hi = next((c + n for n in range(len(s) - c, 0, -1) if s[c:c + n] == s[c - n:c]), c)
++    return s[lo:max(lo, hi)]
++
++
++def class_131(spoken, approved, adj):
++    """RULING 131 (A) and (B) (orchestrator 08:25 ET Nov 17): this side's own re-check of an adoption, from the render's
++    lock record (the pre-check entry's "adjudication": the FIRST lock's "run_decode", "approved", "second_recogniser",
++    "pairs"), never from the record's own classes. spoken: the entry's spoken text; approved: the segment's approved
++    text. Each step is the render's own (pinned.adjudicate_lock), re-run on the recorded readings:
++    1. The ruling-17 diff (diff: canon tokens of the run's decode against the approved text). (B) first: a currency
++       pair (currency_pair) is no difference and keeps the approved words.
++    2. A number, a name or a negation in any other pair holds (law L-v 2: the render holds before any vote).
++    3. Per pair (reads: the render's test of the second recogniser's reading there): it reads the approved words ->
++       the approved; else it reads the run's AND edge_distance >= EDGE_131 tokens -> the run's; else (all three
++       differ, or the run's too near an edge) the pair holds.
++    4. The record's pairs must be exactly these (currency pairs aside), in order: the same words (canon tokens), the
++       same reading taken, the same edge distance.
++    5. The spoken text's canon tokens are the merged reading (the approved tokens, each run-taken pair as the run's)
++       or, with ruling 72's adoptions on top, exactly the second recogniser's own reading of the span (spill_trimmed:
++       the pre-check's as_spoken text); every difference from the merged reading must be in ruling 84's class
++       (class_84, as today's adopt_spoken), or it holds.
++    -> [{"spoken", "approved", "class", "took", "edge_distance"} (+ "why" when it holds)], one per pair in the diff's
++    order, then ruling 72's differences on the merged text (took "ruling 72"), then one per failed whole-record test;
++    a class None holds."""
++    def held(why, **kw):
++        return dict({"spoken": "", "approved": "", "took": None, "edge_distance": None}, **kw, **{"class": None},
++                    why=why)
++    adj = adj if isinstance(adj, dict) else {}
++    run_t, pin_t, sec_t = adj.get("run_decode"), adj.get("approved"), adj.get("second_recogniser")
++    if not all(isinstance(t, str) for t in (run_t, pin_t, sec_t, spoken, approved)) or \
++            canon.canon_tokens(pin_t) != canon.canon_tokens(approved):
++        return [held("the lock record does not hold the three readings of this segment's approved text")]
++    texts = (run_t, pin_t)
++    r, p, ops = diff(run_t, pin_t)
++    s = canon.canon_tokens(sec_t)
++    out, took_run = [], set()
++    for op in ops:
++        _tag, a, b, c, d = op
++        row = {"spoken": " ".join(r[a:b]), "approved": " ".join(p[c:d])}
++        if currency_pair(r, p, op):
++            out.append(dict(row, took="currency", edge_distance=None, **{"class": "currency format (ruling 131 (B))"}))
++            continue
++        row["edge_distance"] = edge_distance(r, p, op)
++        if any(critical(t, texts) for t in r[a:b] + p[c:d]):
++            out.append(dict(row, took=None, **{"class": None}, why="a number, a name or a negation (law L-v 2)"))
++        elif reads(p, s, c, d):
++            out.append(dict(row, took="approved", **{"class": "two of three readings: the approved words"}))
++        elif reads(r, s, a, b) and row["edge_distance"] >= EDGE_131:
++            out.append(dict(row, took="run", **{"class": "two of three readings: as spoken"}))
++            took_run.add((a, c))
++        else:
++            out.append(dict(row, took=None, **{"class": None}, why=(
++                f"the run's reading within {EDGE_131} tokens of a cut edge" if reads(r, s, a, b) else
++                "all three readings differ")))
++    merged = []
++    for tag, a, b, c, d in SequenceMatcher(None, r, p, autojunk=False).get_opcodes():
++        merged += r[a:b] if (tag != "equal" and (a, c) in took_run) else p[c:d]
++    rec = adj.get("pairs")
++    theirs = [(x.get("run"), x.get("approved"), x.get("took"), x.get("edge_distance")) for x in rec] \
++        if isinstance(rec, list) and all(isinstance(x, dict) for x in rec) else None
++    mine = [(x["spoken"], x["approved"], x["took"], x["edge_distance"]) for x in out if x["took"] != "currency"]
++    if theirs != mine:
++        out.append(held(f"the lock record's pairs are not this side's: {theirs} against {mine}"[:400]))
++    sp = canon.canon_tokens(spoken)
++    if sp != merged and sp != spill_trimmed(merged, s):  # ruling 72 adopts only the second recogniser's own reading
++        out.append(held("the spoken text is neither the merged reading nor the second recogniser's own reading of the "
++                        "span (ruling 72 adopts only its reading)"))
++    for x in class_84(spoken, " ".join(merged)):        # ruling 72 on top of the merged reading, as today
++        out.append(dict(x, took="ruling 72", edge_distance=None, **(
++            {"why": "the spoken text differs from the merged reading outside ruling 84's class"} if x["class"] is None
++            else {})))
++    return out
++
++
+ def reads(x, s, lo, hi):
+     """The second recogniser's tokens s read x's tokens lo..hi-1 AT this position (pinned.adjudicate_lock's reads):
+     they and one neighbour on each side are aligned and consecutive in s; at x's start / end nothing may precede /
+diff --git a/pipeline/canon.py b/pipeline/canon.py
+index 6564cd6d..25aa7378 100644
+--- a/pipeline/canon.py
++++ b/pipeline/canon.py
+@@ -13,7 +13,8 @@ different name does not. canon_tokens(text) -> the canonical word list; canon(te
+                       thousand'; '1.66 billion' = '$1.66B' value-wise; decimals 'one point six six' = '1.66';
+                       ordinals '3rd' = 'third' = 'ord3' (never the cardinal: 'one second' != 'one two')
+   currency / percent  '$40 trillion' = '40 trillion dollars' (the spoken order); '5.5%' = '5.5 percent' =
+-                      'five point five percent'; 'dollar' = 'dollars'
++                      'five point five percent'; 'dollar' = 'dollars'; currency_free() (ruling 131 (B)) also equals
++                      '$2 billion' and a spoken '2 billion' where a site asks for it (G18, the sentence lock)
+   signs               '-5%' = 'minus 5 percent', '+5%' = 'plus 5 percent' (GPT-cut F04: -5% != +5%); a hyphen
+                       between words or a range ('2026-11', '74-75') is not a sign
+ Every comparison site (quote verification, selection anchors, edge words, G3b, G18, sign-off names, ledger
+@@ -264,6 +265,22 @@ def canon_aligned(words):
+     return [(t, f) for t, f, _ in canon_spans(words)]
+ 
+ 
++_AMOUNT = re.compile(r"\d+(\.\d+)?")
++
++
++def dollars_after_number(tokens, k):
++    """RULING 131 (B) (orchestrator 2026-11-17 '08:25'): True when canonical token k is a 'dollars' right after a number,
++    the token a currency symbol makes ('$2 billion' -> '2000000000 dollars', the spoken order)."""
++    return tokens[k] == "dollars" and k > 0 and bool(_AMOUNT.fullmatch(tokens[k - 1]))
++
++
++def currency_free(tokens):
++    """RULING 131 (B): a currency symbol is formatting, so '$2 billion' equals a spoken '2 billion'. The canonical tokens
++    with every 'dollars' right after a number dropped (both sides of a comparison alike). This is G18's one tolerance
++    since mission 4a (word_diff.norm), now the one function G18 and the sentence lock both use."""
++    return [w for k, w in enumerate(tokens) if not dollars_after_number(tokens, k)]
++
++
+ def canon(text):
+     return " ".join(canon_tokens(text))
+ 
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+index 8eea07a3..d641d886 100644
+--- a/pipeline/lock_precheck.py
++++ b/pipeline/lock_precheck.py
+@@ -26,6 +26,12 @@ Outcomes:
+   carry-over class for an insert or a drop; never a number, a name or a negation). Otherwise it is a hold (fail
+   closed). Under ruling 84 (b) the spoken text holds the second recogniser's reading of the one function word; the
+   render's lock keeps its decode's word and records the other reading (the entry's "alternatives").
++  RULING 131 (A) (orchestrator 08:25 ET Nov 17): when the entry's lock record ("adjudication") is under ruling 131
++  (A), two of the three readings decided each pair and the spoken text is the lock's merged text. It is adopted only
++  when this side's own re-check (attest.class_131, from the record's three readings) finds every pair decided the same
++  way, every run-taken pair at least 3 tokens from both cut edges, no number, name or negation, and the spoken text
++  the merged reading; anything else is a hold (fail closed). (B): currency format ('$2 billion' for a spoken
++  '2 billion') is no difference.
+ - hold: the clip may not be used with that text. The reason says why.
+ - error, an outcome this module does not know, or no answer in time: no verdict. Never a pass (law L-m). A request
+   is sent again rather than reusing an error.
+@@ -41,13 +47,15 @@ from datetime import datetime, timezone
+ import attest as AT
+ import canon as C
+ 
+-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105"   # RULING 105 (orchestrator
++RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131"   # RULING 131
++#   (orchestrator 08:25 ET Nov 17): (A) two of three readings, (B) currency format (the integrator's message of 08:2x
++#   Nov 17); entries under the old RULES are never read. RULING 105 (orchestrator
+ #   20:13 Nov 14): the unstable second reading joins the rules (the integrator's messages of 20:5x-21:0x Nov 14).
+ #   RULING 103 (orchestrator 14:12 Nov 14): the
+ #   targeted re-listen joins the rules (the integrator's message of 14:3x Nov 14); entries under the old RULES are never
+ #   read. RULING 84 (orchestrator 20:41 Nov 13): the integrator's
+ #   RULES string (its message of 20:4x Nov 13). RULING 73 (live 18:43:08 Nov 13, merged 585b6da5 on the integrator's
+-DECODER = "a4c307f78c94"                      # side): the render's own cut placement joins the pre-check (a passing
++DECODER = "ce72aefa342d"                      # side): the render's own cut placement joins the pre-check (a passing
+ #   entry carries "cut"; a span the render cannot cut holds: "ruling 73: the render cannot cut this span: ..."). RULING
+ #   84 changed the render's adjudicate_lock (pinned.py), so the decoder_sha changed: 962353613cb0e065008ab0405ca8550111ddd3ca3ba70f0ae65b4b77ab1876d8
+ #   (ruling 73's was 8a101f222598a4f725e7cf85626e90fb2fae35df8d81d3ff430469728114e1a7). RULING 90 (the integrator's
+@@ -57,6 +65,9 @@ DECODER = "a4c307f78c94"                      # side): the render's own cut plac
+ #   integrator's side (canon-401k 373d0fed + 077407dc, audited batches 79 and 80): d1e155c642a6aaacd578ac5ad2f47c9cd1d71594c9913dc4f0f231fd6b2258ce
+ #   RULING 105 (the integrator's branch ruling105 d5bf9674, audited batch 84; both sides land in lockstep as with 103):
+ #   a4c307f78c94d1c4ee068b5c27862c79a90900880bb885fee68da616ce2a20d6
++#   RULING 131 (A) + (B) (the integrator's branch r131-lock, audited; both sides land in lockstep as with 105): canon.py's
++#   currency_free / dollars_after_number and adjudicate_lock's two of three readings:
++#   ce72aefa342dcd94dd45d8b4bc96ec6477ec04c91914db2054403338d7559e60
+ RESULTS = "/home/ultron/protocol_pulse/data/lock_precheck/results"        # the integrator's; read only
+ REQUESTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
+                         "lock_requests")      # this worktree's; the service only reads it
+@@ -158,6 +169,19 @@ def decide(seg, e):
+     spoken, approved = e.get("spoken_text"), seg["approved_text"]
+     if not isinstance(spoken, str) or not spoken.strip():
+         return {"verdict": "error", "outcome": out, "why": "adopt_spoken without a spoken_text"}
++    adj = e.get("adjudication")
++    if isinstance(adj, dict) and str(adj.get("rule") or "").startswith(AT.RULE_131):   # RULING 131 (A): two of three
++        diffs = AT.class_131(spoken, approved, adj)
++        bad = [x for x in diffs if x["class"] is None]
++        if bad:                                       # this side's re-check of the lock's record disagrees: fail closed
++            return {"verdict": "hold", "outcome": out, "differences": diffs,
++                    "why": "adopt_spoken under ruling 131 (A), but by this side's attest.class_131 it holds: " +
++                           str([[x["spoken"], x["approved"], x["why"]] for x in bad])[:300]}
++        if not any(x["took"] == "run" for x in diffs):  # no pair took the spoken reading: the approved text stands
++            return {"verdict": "pass", "outcome": out, "why": "adopt_spoken under ruling 131 (A) with no pair taking "
++                                                              "the run's reading: the approved text stands"}
++        return {"verdict": "adopt", "outcome": out, "why": why, "spoken_text": spoken, "differences": diffs,
++                "adoption": AT.RULE_131}
+     diffs = AT.class_84(spoken, approved)
+     if not diffs:                                     # the same canonical words: the approved text stands
+         return {"verdict": "pass", "outcome": out, "why": "adopt_spoken with no canonical difference"}
+@@ -262,12 +286,22 @@ def relisten_of(e):
+     return r if isinstance(r, dict) else None
+ 
+ 
+-def attested(row, run_rule="ruling 72 + ruling 84 (20:41 Nov 13): adopt_spoken, in ruling 84's class"):
+-    """The sealed record of an adopted text (package_pin.SEALED_LATER "attested"), as ruling 67's re-seal records it."""
+-    return {"rule": run_rule, "was": row["approved_text"], "differences": row["differences"],
+-            "carried": "every verdict and gate of this line-up, judged on the text it replaces: each difference is in "
+-                       "ruling 84's class (a filler, one function word, or ruling 67's carry-over class for an insert "
+-                       "or a drop; checked on this side too), and no line quotes the changed words",
++def attested(row, run_rule=None):
++    """The sealed record of an adopted text (package_pin.SEALED_LATER "attested"), as ruling 67's re-seal records it:
++    ruling 84's class, or ruling 131 (A)'s two of three readings (row["adoption"])."""
++    if row.get("adoption") == AT.RULE_131:
++        rule = run_rule or "ruling 72 + ruling 131 (A) (08:25 ET Nov 17): adopt_spoken, two of the three readings agree"
++        carried = ("every verdict and gate of this line-up, judged on the text it replaces: each changed pair is the "
++                   "reading two of the three readings (the approved text, the render's run decode, the second "
++                   "recogniser) agree on, re-checked on this side from the lock's record, at least 3 tokens from both "
++                   "cut edges, never a number, a name or a negation; no line quotes the changed words (marked on the "
++                   "release: 'word check settled by two of three readings')")
++    else:
++        rule = run_rule or "ruling 72 + ruling 84 (20:41 Nov 13): adopt_spoken, in ruling 84's class"
++        carried = ("every verdict and gate of this line-up, judged on the text it replaces: each difference is in "
++                   "ruling 84's class (a filler, one function word, or ruling 67's carry-over class for an insert "
++                   "or a drop; checked on this side too), and no line quotes the changed words")
++    return {"rule": rule, "was": row["approved_text"], "differences": row["differences"], "carried": carried,
+             "render": {"precheck": row["entry"], "spoken_text": row["spoken_text"]}}
+ 
+ 
+diff --git a/tests/package/test_lock_precheck.py b/tests/package/test_lock_precheck.py
+index fb087af9..c39b1649 100644
+--- a/tests/package/test_lock_precheck.py
++++ b/tests/package/test_lock_precheck.py
+@@ -11,6 +11,7 @@ import unittest
+ HERE = os.path.dirname(os.path.abspath(__file__))
+ REPO = os.path.dirname(os.path.dirname(HERE))
+ sys.path.insert(0, os.path.join(REPO, "pipeline"))
++import attest as AT  # noqa: E402
+ import lock_precheck as LP  # noqa: E402
+ 
+ HOOK = {"moment_id": "h", "video_id": "DcUbBkyeh9M", "start": 216.0541, "end": 228.6739,
+@@ -58,7 +59,7 @@ class TestRequest(Dirs):
+         self.assertNotIn("trimmed_leading", s[1])                                        # only a trimmed moment
+         self.assertEqual((s[2]["trimmed_leading"], s[2]["untrimmed_start"]), ("And", 1690.9))
+         self.assertEqual(os.path.basename(LP.result_file(s[0], self.res)),
+-                         "DcUbBkyeh9M.216.054-228.674.a4c307f78c94.json")             # ruling 105's decoder
++                         "DcUbBkyeh9M.216.054-228.674.ce72aefa342d.json")             # ruling 131's decoder
+ 
+     def test_a_request_is_renamed_from_its_tmp_and_never_written_over(self):
+         segs = LP.segments_of([HOOK, CLIP])
+@@ -133,9 +134,10 @@ class TestRuling84(unittest.TestCase):
+     s = LP.segments_of([BREEDLOVE])[0]
+ 
+     def test_the_rules_string_is_the_integrators(self):
+-        """RULING 103 (14:12 Nov 14) and RULING 105 (20:13 Nov 14) joined the integrator's rules string (its messages
+-        of 14:3x and 20:5x Nov 14)."""
+-        self.assertEqual(LP.RULES, "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105")
++        """RULING 103 (14:12 Nov 14), RULING 105 (20:13 Nov 14) and RULING 131 (08:25 Nov 17) joined the integrator's
++        rules string (its messages of 14:3x and 20:5x Nov 14 and 08:2x Nov 17)."""
++        self.assertEqual(LP.RULES, "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + "
++                                   "ruling 131")
+ 
+     def test_the_held_span_of_the_20_12_build_now_adopts(self):
+         spoken = "So over time, um, I came to think, uh, or the money itself was broken."
+@@ -162,6 +164,184 @@ class TestRuling84(unittest.TestCase):
+         self.assertEqual(LP.decide(s2, e)["verdict"], "hold")
+ 
+ 
++class TestRuling131(Dirs):
++    """RULING 131 (orchestrator 08:25 ET Nov 17). (A): per differing pair of the render's lock, two of the three readings
++    (the approved text, the run's decode, the second recogniser) decide it and the sealed text takes that reading, at
++    least 3 tokens from both cut edges; never a number, a name or a negation; all three different holds. (B): currency
++    format is no difference. The render's lock records it (the integrator's message of 08:2x Nov 17); this side
++    re-derives every pair from the three readings (attest.class_131). Last night's held span: What Bitcoin Did d6adeb54
++    (WdiF0i925rs 3339.900-3354.680), its three readings as the pre-check recorded them at 03:46:30Z Nov 17."""
++    RUN = ("i have been recently done a bunch of pieces on the 2023 bull market, that climbing a wall of worry. um there "
++           "was massive amounts of fear during that period of time. bitcoin was actually trending up into the right, "
++           "and fear was also trending up into the right during that.")
++    APPROVED = ("I have been recently done a budget pieces on the 2023 bull market, like climbing a wall of worry. There "
++                "was massive amounts of fear during that period of time. Bitcoin was actually trending up into the "
++                "right, and fear was also trending up into the right during that.")
++    SECOND = ("comes next? I have been, recently done a bunch of pieces on the 2023, uh, bull market, like climbing a "
++              "wall of worry. Um, there was massive amounts of fear during that period of time. Bitcoin was actually "
++              "trending up into the right, and fear was also trending up into the right during that,")
++    MERGED = ("I have been recently done a bunch of pieces on the 2023 bull market, like climbing a wall of worry. Um, "
++              "there was massive amounts of fear during that period of time. Bitcoin was actually trending up into the "
++              "right, and fear was also trending up into the right during that.")
++    SPOKEN = MERGED.replace("2023 bull", "2023, uh, bull")      # ruling 72 on top: the second recogniser's 'uh'
++    PAIRS = [{"run": "bunch of", "approved": "budget", "second_reads": "run", "took": "run",
++              "agreed": ["run", "second"], "edge_distance": 6},
++             {"run": "that", "approved": "like", "second_reads": "approved", "took": "approved",
++              "agreed": ["approved", "second"], "edge_distance": 14},
++             {"run": "um", "approved": "", "second_reads": "run", "took": "run", "agreed": ["run", "second"],
++              "edge_distance": 20}]
++    WBD = {"moment_id": "w", "video_id": "WdiF0i925rs", "start": 3339.9, "end": 3354.68, "text": APPROVED}
++
++    def adj(self, **kw):
++        return dict({"rule": "ruling 131 (A) (orchestrator 2026-11-17 '08:25')", "verdict": "approved",
++                     "pairs": self.PAIRS, "recogniser": "elevenlabs:scribe_v1", "usd": 0.0, "run_decode": self.RUN,
++                     "approved": self.APPROVED, "second_recogniser": self.SECOND}, **kw)
++
++    def decide(self, spoken=None, **kw):
++        s = LP.segments_of([self.WBD])[0]
++        return LP.decide(s, entry(s, "adopt_spoken", spoken_text=spoken or self.MERGED, adjudication=self.adj(**kw)))
++
++    def test_last_nights_held_span_now_adopts_and_is_sealed_with_its_record(self):
++        d = self.decide()                                          # the merged text as it stands ("same")
++        self.assertEqual(d["verdict"], "adopt", d.get("why"))
++        self.assertEqual([(x["spoken"], x["approved"], x["took"]) for x in d["differences"]],
++                         [("bunch of", "budget", "run"), ("that", "like", "approved"), ("um", "", "run")])
++        d = self.decide(self.SPOKEN)                               # with ruling 72's 'uh' on top ("adopt")
++        self.assertEqual(d["verdict"], "adopt", d.get("why"))
++        self.assertEqual([(x["spoken"], x["approved"], x["took"], x["class"]) for x in d["differences"]][3:],
++                         [("uh", "", "ruling 72", "filler")])
++        s = LP.segments_of([self.WBD])[0]
++        self.put(s, entry(s, "adopt_spoken", spoken_text=self.SPOKEN, adjudication=self.adj()))
++        pre = LP.check([self.WBD], "r", self.req, self.res, log=lambda m: None)
++        pk = LP.apply({"segments": [{k: self.WBD[k] for k in ("video_id", "start", "end", "text")}], "lines": []}, pre)
++        seg = pk["segments"][0]
++        self.assertEqual((seg["text"], seg["attested"]["was"]), (self.SPOKEN, self.APPROVED))
++        self.assertIn("ruling 131 (A)", seg["attested"]["rule"])
++        self.assertIn("two of the three readings", seg["attested"]["carried"])
++        self.assertEqual(LP.pin_problems(pk), [])
++
++    def test_this_side_rederives_every_pair_and_never_trusts_the_record(self):
++        lie = [dict(self.PAIRS[0]), dict(self.PAIRS[1], took="run", agreed=["run", "second"]), dict(self.PAIRS[2])]
++        for spoken, kw, why in (
++                (self.MERGED.replace("like climbing", "that climbing"), {"pairs": lie},   # the second reads 'like'
++                 "the lock record's pairs are not this side's"),
++                (self.MERGED, {"pairs": self.PAIRS[:2]}, "the lock record's pairs are not this side's"),
++                (self.MERGED, {"pairs": [dict(p, edge_distance=9) for p in self.PAIRS]},
++                 "the lock record's pairs are not this side's"),
++                (self.MERGED.replace("bunch of", "budget"), {}, "neither the merged reading nor"),
++                (self.MERGED.replace("massive", "huge"), {}, "neither the merged reading nor"),
++                (self.MERGED.replace("climbing", "the climbing"), {}, "neither the merged reading nor"),
++                (self.SPOKEN.replace("massive", "huge"), {"second_recogniser": self.SECOND.replace("massive", "huge")},
++                 "outside ruling 84's class"),                                     # the second recogniser alone
++                (self.MERGED, {"second_recogniser": None}, "does not hold the three readings"),
++                (self.MERGED, {"approved": self.MERGED}, "does not hold the three readings")):
++            d = self.decide(spoken, **kw)
++            self.assertEqual(d["verdict"], "hold", (spoken, kw))
++            self.assertIn(why, d["why"])
++
++    def test_what_still_holds(self):
++        for kw, why in (
++                ({"second_recogniser": self.SECOND.replace("bunch of", "lunch of")}, "all three readings differ"),
++                ({"run_decode": self.RUN.replace("have been", "have seen"),               # the 3rd token: 2 from the
++                  "second_recogniser": self.SECOND.replace("have been", "have seen")},     # edge
++                 "within 3 tokens of a cut edge"),
++                ({"run_decode": self.RUN.replace("2023", "2024"),
++                  "second_recogniser": self.SECOND.replace("2023", "2024")}, "a number, a name or a negation"),
++                ({"run_decode": self.RUN.replace("there was", "there wasn't"),
++                  "second_recogniser": self.SECOND.replace("there was", "there wasn't")},
++                 "a number, a name or a negation"),
++                ({"run_decode": self.RUN.replace("bunch of", "Saylor"),
++                  "second_recogniser": self.SECOND.replace("bunch of", "Saylor")}, "a number, a name or a negation")):
++            d = self.decide(**kw)
++            self.assertEqual(d["verdict"], "hold", kw)
++            self.assertIn(why, d["why"])
++
++    def test_currency_format_is_no_difference(self):
++        """BTC Sessions 93cfa865 (2oY7TU6CPok 54.260-61.380), the line-up's second hold: the approved '$2 billion',
++        '$645 million'; the run's decode and the second recogniser say no 'dollars' (the pre-check at 03:46:32Z)."""
++        app = ("Meanwhile, Bitcoin had a terrible weekend. We went all the way down to 62K, $2 billion in leverage wiped "
++               "out, $645 million in just 30 minutes.")
++        adj = self.adj(pairs=[], run_decode="meanwhile, bitcoin had a terrible weekend. we went all the way down to "
++                                            "62k, 2 billion in leverage wiped out, 645 million in just 30 minutes.",
++                       approved=app, second_recogniser="emerging. Meanwhile, Bitcoin had a terrible weekend. We went "
++                       "all the way down to 62K, two billion in leverage wiped out, 645 million in just 30 minutes.")
++        s = LP.segments_of([{"video_id": "2oY7TU6CPok", "start": 54.26, "end": 61.38, "text": app}])[0]
++        rows = AT.class_131(app, app, adj)
++        self.assertEqual([(x["spoken"], x["approved"], x["took"]) for x in rows],
++                         [("", "dollars", "currency"), ("", "dollars", "currency")])
++        self.assertEqual(LP.decide(s, entry(s, "adopt_spoken", spoken_text=app, adjudication=adj))["verdict"], "pass")
++        self.assertTrue(AT.currency_pair(["2000000000", "dollars"], ["2000000000"], ("delete", 1, 2, 1, 1)))
++        self.assertTrue(AT.currency_pair(["2000000000"], ["2000000000", "dollars"], ("insert", 1, 1, 1, 2)))
++        self.assertFalse(AT.currency_pair(["many", "dollars"], ["many"], ("delete", 1, 2, 1, 1)))   # no number before
++        self.assertFalse(AT.currency_pair(["5", "dollars", "dollars"], ["5", "dollars"], ("delete", 2, 3, 2, 2)))
++        self.assertFalse(AT.currency_pair(["5", "euros"], ["5", "dollars"], ("replace", 1, 2, 1, 2)))
++        self.assertFalse(AT.currency_pair(["5", "dollars"], ["5", "euros"], ("replace", 1, 2, 1, 2)))
++
++    def test_a_repetition_slides_to_its_furthest_placement(self):
++        """mKNAcOFMYD4 755.454-764.214, held Nov 13 (its real readings): difflib puts the extra "that's why" on the
++        second copy, 2 tokens from the end; the first copy gives the same two texts and is 4 from it (the integrator's
++        message of 08:4x Nov 17). A spoken text that reverts the vote holds, though it is in ruling 84's class."""
++        run = ("my biggest fear is that i go to the bank and i punch in my code and the money's not there because the "
++               "bank owns the money and they could just take it from me. and that's why that's why we bitcoin.")
++        app = ("My biggest fear is that I go to the bank and I punch you my code and the money's not there because the "
++               "bank owns the money and they could just take it from me. And that's why we Bitcoin.")
++        sec = ("second biggest. My biggest fear is that I go to the bank and I punch in my code and the money's not "
++               "there, 'cause the bank owns the money and they could just take it from me, and that's why, that's why "
++               "we Bitcoin.")
++        merged = app.replace("punch you", "punch in").replace("that's why we", "that's why that's why we")
++        pairs = [{"run": "in", "approved": "you", "took": "run", "edge_distance": 13},
++                 {"run": "that's why", "approved": "", "took": "run", "edge_distance": 4}]
++        s = LP.segments_of([{"video_id": "mKNAcOFMYD4", "start": 755.454, "end": 764.214, "text": app}])[0]
++        adj = self.adj(pairs=pairs, run_decode=run, approved=app, second_recogniser=sec)
++        self.assertEqual(LP.decide(s, entry(s, "adopt_spoken", spoken_text=merged, adjudication=adj))["verdict"],
++                         "adopt")
++        back = LP.decide(s, entry(s, "adopt_spoken", spoken_text=app, adjudication=adj))
++        self.assertEqual(back["verdict"], "hold")
++        self.assertIn("neither the merged reading nor", back["why"])
++
++    def test_a_repetition_near_the_start_slides_right(self):
++        """The same repetition near the span's start: difflib puts the extra "that's why" on the FIRST copy (1 token
++        from the edge); sliding right through the equal words gives 3."""
++        app = "So that's why we went to the bank and asked them for the money back."
++        run = "so that's why that's why we went to the bank and asked them for the money back."
++        s = LP.segments_of([{"video_id": "x", "start": 1.0, "end": 9.0, "text": app}])[0]
++        adj = self.adj(pairs=[{"run": "that's why", "approved": "", "took": "run", "edge_distance": 3}],
++                       run_decode=run, approved=app, second_recogniser=run)
++        r, p, ops = AT.diff(run, app)
++        # the base distance is min(1, 14) = 1; sliding right through the equal run gives 3
++        self.assertEqual((ops, AT.edge_distance(r, p, ops[0])), ([("delete", 1, 3, 1, 1)], 3))
++        d = LP.decide(s, entry(s, "adopt_spoken", spoken_text="So that's why that's why we went to the bank and asked "
++                                                               "them for the money back.", adjudication=adj))
++        self.assertEqual(d["verdict"], "adopt", d.get("why"))
++
++    def test_ruling_72_on_top_is_the_second_recognisers_reading_with_its_spill_trimmed(self):
++        """The pre-check's as_spoken text is the second recogniser's tokens with the neighbours' spill trimmed, except
++        the speaker's own edge repeat ('When, when'); a padding word ('So') is never adopted."""
++        app = "When we started this we had a budget pieces of the plan and it worked out."
++        run = "when we started this we had a bunch of pieces of the plan and it worked out."
++        sec = "So when, when we started this we had a bunch of pieces of the plan and it worked out."
++        s = LP.segments_of([{"video_id": "y", "start": 2.0, "end": 9.0, "text": app}])[0]
++        adj = self.adj(pairs=[{"run": "bunch of", "approved": "budget", "took": "run", "edge_distance": 7}],
++                       run_decode=run, approved=app, second_recogniser=sec)
++        merged = app.replace("a budget", "a bunch of")
++        self.assertEqual(AT.spill_trimmed(AT.canon.canon_tokens(merged), AT.canon.canon_tokens(sec))[:3],
++                         ["when", "when", "we"])
++        twice = "When, when " + merged[5:]
++        for second, spoken, verdict in ((sec, merged, "adopt"), (sec, twice, "adopt"),
++                                        (sec, "So when, when " + merged[5:], "hold"), (sec, "So " + merged, "hold"),
++                                        (sec + " And then", twice, "adopt"),            # the next sentence's spill
++                                        (sec + " And then", twice[:-1] + " and then.", "hold"),
++                                        (sec + " out", twice[:-1] + ", out.", "adopt")):   # the speaker's own repeat
++            d = LP.decide(s, entry(s, "adopt_spoken", spoken_text=spoken,
++                                   adjudication=dict(adj, second_recogniser=second)))
++            self.assertEqual(d["verdict"], verdict, (second, spoken, d.get("why")))
++
++    def test_only_a_ruling_131_record_is_rechecked_by_two_of_three(self):
++        d = self.decide(rule="ruling 17 (orchestrator 2026-11-12 '10:20')")                # ruling 84's class: a
++        self.assertEqual(d["verdict"], "hold")                                             # content word holds
++        self.assertIn("outside ruling 84's class", d["why"])
++
++
+ class TestCheck(Dirs):
+     def run_check(self, segs, appear=None, timeout=60.0):
+         t = [0.0]
+@@ -207,10 +387,10 @@ class TestCheck(Dirs):
+     def test_an_answer_in_the_old_decoders_file_is_never_read(self):
+         """Audit 1845 C2 (glm): ruling 73 changed the decoder, ruling 84 changed it again, and ruling 90 (the
+         integrator's spotlight branches) again, ruling 103 with the canon-401k fix again (14:3x Nov 14), and ruling 105
+-        again (20:5x Nov 14); a file named for an older decoder (25cd6f15e6c9, 8a101f222598, 962353613cb0, c705b20ed800,
+-        d1e155c642a6) is never opened, even with a matching, newer entry under the current rules."""
++        again (20:5x Nov 14), and ruling 131 again (Nov 17); a file named for an older decoder (25cd6f15e6c9, 8a101f222598,
++        962353613cb0, c705b20ed800, d1e155c642a6, a4c307f78c94) is never opened, even with a matching, newer entry under the current rules."""
+         s = LP.segments_of([HOOK])[0]
+-        for dec in ("25cd6f15e6c9", "8a101f222598", "962353613cb0", "c705b20ed800", "d1e155c642a6"):
++        for dec in ("25cd6f15e6c9", "8a101f222598", "962353613cb0", "c705b20ed800", "d1e155c642a6", "a4c307f78c94"):
+             old = LP.result_file(s, self.res, decoder=dec)
+             with open(old, "w") as f:
+                 json.dump([entry(s, "no_difference", at="2026-11-14T02:00:00Z")], f)
+diff --git a/tests/package/test_ruling_105.py b/tests/package/test_ruling_105.py
+index 0b8d8b9b..e3195ec7 100644
+--- a/tests/package/test_ruling_105.py
++++ b/tests/package/test_ruling_105.py
+@@ -39,8 +39,8 @@ BLOCKWARE = record()
+ 
+ class TestTheRules(Dirs):
+     def test_the_rules_and_decoder_are_the_integrators_ruling_105_ones(self):
+-        self.assertTrue(LP.RULES.endswith("+ ruling 103 + ruling 105"))
+-        self.assertEqual(LP.DECODER, "a4c307f78c94")
++        self.assertIn("+ ruling 103 + ruling 105", LP.RULES)                      # ruling 131 joined after it
++        self.assertEqual(LP.DECODER, "ce72aefa342d")                                 # ruling 131 moved it
+         s = LP.segments_of([HOOK])[0]
+         self.put(s, entry(s, rules="ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103",
+                           at="2026-11-14T21:00:00Z"))

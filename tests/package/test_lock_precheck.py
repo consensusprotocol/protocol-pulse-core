@@ -11,6 +11,7 @@ import unittest
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, os.path.join(REPO, "pipeline"))
+import attest as AT  # noqa: E402
 import lock_precheck as LP  # noqa: E402
 
 HOOK = {"moment_id": "h", "video_id": "DcUbBkyeh9M", "start": 216.0541, "end": 228.6739,
@@ -58,7 +59,7 @@ class TestRequest(Dirs):
         self.assertNotIn("trimmed_leading", s[1])                                        # only a trimmed moment
         self.assertEqual((s[2]["trimmed_leading"], s[2]["untrimmed_start"]), ("And", 1690.9))
         self.assertEqual(os.path.basename(LP.result_file(s[0], self.res)),
-                         "DcUbBkyeh9M.216.054-228.674.a4c307f78c94.json")             # ruling 105's decoder
+                         "DcUbBkyeh9M.216.054-228.674.ce72aefa342d.json")             # ruling 131's decoder
 
     def test_a_request_is_renamed_from_its_tmp_and_never_written_over(self):
         segs = LP.segments_of([HOOK, CLIP])
@@ -133,9 +134,10 @@ class TestRuling84(unittest.TestCase):
     s = LP.segments_of([BREEDLOVE])[0]
 
     def test_the_rules_string_is_the_integrators(self):
-        """RULING 103 (14:12 Nov 14) and RULING 105 (20:13 Nov 14) joined the integrator's rules string (its messages
-        of 14:3x and 20:5x Nov 14)."""
-        self.assertEqual(LP.RULES, "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105")
+        """RULING 103 (14:12 Nov 14), RULING 105 (20:13 Nov 14) and RULING 131 (08:25 Nov 17) joined the integrator's
+        rules string (its messages of 14:3x and 20:5x Nov 14 and 08:2x Nov 17)."""
+        self.assertEqual(LP.RULES, "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + "
+                                   "ruling 131")
 
     def test_the_held_span_of_the_20_12_build_now_adopts(self):
         spoken = "So over time, um, I came to think, uh, or the money itself was broken."
@@ -160,6 +162,184 @@ class TestRuling84(unittest.TestCase):
         e["approved_text"] = "So over time, um, I came to think so the money itself was broken."
         s2 = dict(self.s, approved_text=e["approved_text"])               # a filler on the approved side alone
         self.assertEqual(LP.decide(s2, e)["verdict"], "hold")
+
+
+class TestRuling131(Dirs):
+    """RULING 131 (orchestrator 08:25 ET Nov 17). (A): per differing pair of the render's lock, two of the three readings
+    (the approved text, the run's decode, the second recogniser) decide it and the sealed text takes that reading, at
+    least 3 tokens from both cut edges; never a number, a name or a negation; all three different holds. (B): currency
+    format is no difference. The render's lock records it (the integrator's message of 08:2x Nov 17); this side
+    re-derives every pair from the three readings (attest.class_131). Last night's held span: What Bitcoin Did d6adeb54
+    (WdiF0i925rs 3339.900-3354.680), its three readings as the pre-check recorded them at 03:46:30Z Nov 17."""
+    RUN = ("i have been recently done a bunch of pieces on the 2023 bull market, that climbing a wall of worry. um there "
+           "was massive amounts of fear during that period of time. bitcoin was actually trending up into the right, "
+           "and fear was also trending up into the right during that.")
+    APPROVED = ("I have been recently done a budget pieces on the 2023 bull market, like climbing a wall of worry. There "
+                "was massive amounts of fear during that period of time. Bitcoin was actually trending up into the "
+                "right, and fear was also trending up into the right during that.")
+    SECOND = ("comes next? I have been, recently done a bunch of pieces on the 2023, uh, bull market, like climbing a "
+              "wall of worry. Um, there was massive amounts of fear during that period of time. Bitcoin was actually "
+              "trending up into the right, and fear was also trending up into the right during that,")
+    MERGED = ("I have been recently done a bunch of pieces on the 2023 bull market, like climbing a wall of worry. Um, "
+              "there was massive amounts of fear during that period of time. Bitcoin was actually trending up into the "
+              "right, and fear was also trending up into the right during that.")
+    SPOKEN = MERGED.replace("2023 bull", "2023, uh, bull")      # ruling 72 on top: the second recogniser's 'uh'
+    PAIRS = [{"run": "bunch of", "approved": "budget", "second_reads": "run", "took": "run",
+              "agreed": ["run", "second"], "edge_distance": 6},
+             {"run": "that", "approved": "like", "second_reads": "approved", "took": "approved",
+              "agreed": ["approved", "second"], "edge_distance": 14},
+             {"run": "um", "approved": "", "second_reads": "run", "took": "run", "agreed": ["run", "second"],
+              "edge_distance": 20}]
+    WBD = {"moment_id": "w", "video_id": "WdiF0i925rs", "start": 3339.9, "end": 3354.68, "text": APPROVED}
+
+    def adj(self, **kw):
+        return dict({"rule": "ruling 131 (A) (orchestrator 2026-11-17 '08:25')", "verdict": "approved",
+                     "pairs": self.PAIRS, "recogniser": "elevenlabs:scribe_v1", "usd": 0.0, "run_decode": self.RUN,
+                     "approved": self.APPROVED, "second_recogniser": self.SECOND}, **kw)
+
+    def decide(self, spoken=None, **kw):
+        s = LP.segments_of([self.WBD])[0]
+        return LP.decide(s, entry(s, "adopt_spoken", spoken_text=spoken or self.MERGED, adjudication=self.adj(**kw)))
+
+    def test_last_nights_held_span_now_adopts_and_is_sealed_with_its_record(self):
+        d = self.decide()                                          # the merged text as it stands ("same")
+        self.assertEqual(d["verdict"], "adopt", d.get("why"))
+        self.assertEqual([(x["spoken"], x["approved"], x["took"]) for x in d["differences"]],
+                         [("bunch of", "budget", "run"), ("that", "like", "approved"), ("um", "", "run")])
+        d = self.decide(self.SPOKEN)                               # with ruling 72's 'uh' on top ("adopt")
+        self.assertEqual(d["verdict"], "adopt", d.get("why"))
+        self.assertEqual([(x["spoken"], x["approved"], x["took"], x["class"]) for x in d["differences"]][3:],
+                         [("uh", "", "ruling 72", "filler")])
+        s = LP.segments_of([self.WBD])[0]
+        self.put(s, entry(s, "adopt_spoken", spoken_text=self.SPOKEN, adjudication=self.adj()))
+        pre = LP.check([self.WBD], "r", self.req, self.res, log=lambda m: None)
+        pk = LP.apply({"segments": [{k: self.WBD[k] for k in ("video_id", "start", "end", "text")}], "lines": []}, pre)
+        seg = pk["segments"][0]
+        self.assertEqual((seg["text"], seg["attested"]["was"]), (self.SPOKEN, self.APPROVED))
+        self.assertIn("ruling 131 (A)", seg["attested"]["rule"])
+        self.assertIn("two of the three readings", seg["attested"]["carried"])
+        self.assertEqual(LP.pin_problems(pk), [])
+
+    def test_this_side_rederives_every_pair_and_never_trusts_the_record(self):
+        lie = [dict(self.PAIRS[0]), dict(self.PAIRS[1], took="run", agreed=["run", "second"]), dict(self.PAIRS[2])]
+        for spoken, kw, why in (
+                (self.MERGED.replace("like climbing", "that climbing"), {"pairs": lie},   # the second reads 'like'
+                 "the lock record's pairs are not this side's"),
+                (self.MERGED, {"pairs": self.PAIRS[:2]}, "the lock record's pairs are not this side's"),
+                (self.MERGED, {"pairs": [dict(p, edge_distance=9) for p in self.PAIRS]},
+                 "the lock record's pairs are not this side's"),
+                (self.MERGED.replace("bunch of", "budget"), {}, "neither the merged reading nor"),
+                (self.MERGED.replace("massive", "huge"), {}, "neither the merged reading nor"),
+                (self.MERGED.replace("climbing", "the climbing"), {}, "neither the merged reading nor"),
+                (self.SPOKEN.replace("massive", "huge"), {"second_recogniser": self.SECOND.replace("massive", "huge")},
+                 "outside ruling 84's class"),                                     # the second recogniser alone
+                (self.MERGED, {"second_recogniser": None}, "does not hold the three readings"),
+                (self.MERGED, {"approved": self.MERGED}, "does not hold the three readings")):
+            d = self.decide(spoken, **kw)
+            self.assertEqual(d["verdict"], "hold", (spoken, kw))
+            self.assertIn(why, d["why"])
+
+    def test_what_still_holds(self):
+        for kw, why in (
+                ({"second_recogniser": self.SECOND.replace("bunch of", "lunch of")}, "all three readings differ"),
+                ({"run_decode": self.RUN.replace("have been", "have seen"),               # the 3rd token: 2 from the
+                  "second_recogniser": self.SECOND.replace("have been", "have seen")},     # edge
+                 "within 3 tokens of a cut edge"),
+                ({"run_decode": self.RUN.replace("2023", "2024"),
+                  "second_recogniser": self.SECOND.replace("2023", "2024")}, "a number, a name or a negation"),
+                ({"run_decode": self.RUN.replace("there was", "there wasn't"),
+                  "second_recogniser": self.SECOND.replace("there was", "there wasn't")},
+                 "a number, a name or a negation"),
+                ({"run_decode": self.RUN.replace("bunch of", "Saylor"),
+                  "second_recogniser": self.SECOND.replace("bunch of", "Saylor")}, "a number, a name or a negation")):
+            d = self.decide(**kw)
+            self.assertEqual(d["verdict"], "hold", kw)
+            self.assertIn(why, d["why"])
+
+    def test_currency_format_is_no_difference(self):
+        """BTC Sessions 93cfa865 (2oY7TU6CPok 54.260-61.380), the line-up's second hold: the approved '$2 billion',
+        '$645 million'; the run's decode and the second recogniser say no 'dollars' (the pre-check at 03:46:32Z)."""
+        app = ("Meanwhile, Bitcoin had a terrible weekend. We went all the way down to 62K, $2 billion in leverage wiped "
+               "out, $645 million in just 30 minutes.")
+        adj = self.adj(pairs=[], run_decode="meanwhile, bitcoin had a terrible weekend. we went all the way down to "
+                                            "62k, 2 billion in leverage wiped out, 645 million in just 30 minutes.",
+                       approved=app, second_recogniser="emerging. Meanwhile, Bitcoin had a terrible weekend. We went "
+                       "all the way down to 62K, two billion in leverage wiped out, 645 million in just 30 minutes.")
+        s = LP.segments_of([{"video_id": "2oY7TU6CPok", "start": 54.26, "end": 61.38, "text": app}])[0]
+        rows = AT.class_131(app, app, adj)
+        self.assertEqual([(x["spoken"], x["approved"], x["took"]) for x in rows],
+                         [("", "dollars", "currency"), ("", "dollars", "currency")])
+        self.assertEqual(LP.decide(s, entry(s, "adopt_spoken", spoken_text=app, adjudication=adj))["verdict"], "pass")
+        self.assertTrue(AT.currency_pair(["2000000000", "dollars"], ["2000000000"], ("delete", 1, 2, 1, 1)))
+        self.assertTrue(AT.currency_pair(["2000000000"], ["2000000000", "dollars"], ("insert", 1, 1, 1, 2)))
+        self.assertFalse(AT.currency_pair(["many", "dollars"], ["many"], ("delete", 1, 2, 1, 1)))   # no number before
+        self.assertFalse(AT.currency_pair(["5", "dollars", "dollars"], ["5", "dollars"], ("delete", 2, 3, 2, 2)))
+        self.assertFalse(AT.currency_pair(["5", "euros"], ["5", "dollars"], ("replace", 1, 2, 1, 2)))
+        self.assertFalse(AT.currency_pair(["5", "dollars"], ["5", "euros"], ("replace", 1, 2, 1, 2)))
+
+    def test_a_repetition_slides_to_its_furthest_placement(self):
+        """mKNAcOFMYD4 755.454-764.214, held Nov 13 (its real readings): difflib puts the extra "that's why" on the
+        second copy, 2 tokens from the end; the first copy gives the same two texts and is 4 from it (the integrator's
+        message of 08:4x Nov 17). A spoken text that reverts the vote holds, though it is in ruling 84's class."""
+        run = ("my biggest fear is that i go to the bank and i punch in my code and the money's not there because the "
+               "bank owns the money and they could just take it from me. and that's why that's why we bitcoin.")
+        app = ("My biggest fear is that I go to the bank and I punch you my code and the money's not there because the "
+               "bank owns the money and they could just take it from me. And that's why we Bitcoin.")
+        sec = ("second biggest. My biggest fear is that I go to the bank and I punch in my code and the money's not "
+               "there, 'cause the bank owns the money and they could just take it from me, and that's why, that's why "
+               "we Bitcoin.")
+        merged = app.replace("punch you", "punch in").replace("that's why we", "that's why that's why we")
+        pairs = [{"run": "in", "approved": "you", "took": "run", "edge_distance": 13},
+                 {"run": "that's why", "approved": "", "took": "run", "edge_distance": 4}]
+        s = LP.segments_of([{"video_id": "mKNAcOFMYD4", "start": 755.454, "end": 764.214, "text": app}])[0]
+        adj = self.adj(pairs=pairs, run_decode=run, approved=app, second_recogniser=sec)
+        self.assertEqual(LP.decide(s, entry(s, "adopt_spoken", spoken_text=merged, adjudication=adj))["verdict"],
+                         "adopt")
+        back = LP.decide(s, entry(s, "adopt_spoken", spoken_text=app, adjudication=adj))
+        self.assertEqual(back["verdict"], "hold")
+        self.assertIn("neither the merged reading nor", back["why"])
+
+    def test_a_repetition_near_the_start_slides_right(self):
+        """The same repetition near the span's start: difflib puts the extra "that's why" on the FIRST copy (1 token
+        from the edge); sliding right through the equal words gives 3."""
+        app = "So that's why we went to the bank and asked them for the money back."
+        run = "so that's why that's why we went to the bank and asked them for the money back."
+        s = LP.segments_of([{"video_id": "x", "start": 1.0, "end": 9.0, "text": app}])[0]
+        adj = self.adj(pairs=[{"run": "that's why", "approved": "", "took": "run", "edge_distance": 3}],
+                       run_decode=run, approved=app, second_recogniser=run)
+        r, p, ops = AT.diff(run, app)
+        # the base distance is min(1, 14) = 1; sliding right through the equal run gives 3
+        self.assertEqual((ops, AT.edge_distance(r, p, ops[0])), ([("delete", 1, 3, 1, 1)], 3))
+        d = LP.decide(s, entry(s, "adopt_spoken", spoken_text="So that's why that's why we went to the bank and asked "
+                                                               "them for the money back.", adjudication=adj))
+        self.assertEqual(d["verdict"], "adopt", d.get("why"))
+
+    def test_ruling_72_on_top_is_the_second_recognisers_reading_with_its_spill_trimmed(self):
+        """The pre-check's as_spoken text is the second recogniser's tokens with the neighbours' spill trimmed, except
+        the speaker's own edge repeat ('When, when'); a padding word ('So') is never adopted."""
+        app = "When we started this we had a budget pieces of the plan and it worked out."
+        run = "when we started this we had a bunch of pieces of the plan and it worked out."
+        sec = "So when, when we started this we had a bunch of pieces of the plan and it worked out."
+        s = LP.segments_of([{"video_id": "y", "start": 2.0, "end": 9.0, "text": app}])[0]
+        adj = self.adj(pairs=[{"run": "bunch of", "approved": "budget", "took": "run", "edge_distance": 7}],
+                       run_decode=run, approved=app, second_recogniser=sec)
+        merged = app.replace("a budget", "a bunch of")
+        self.assertEqual(AT.spill_trimmed(AT.canon.canon_tokens(merged), AT.canon.canon_tokens(sec))[:3],
+                         ["when", "when", "we"])
+        twice = "When, when " + merged[5:]
+        for second, spoken, verdict in ((sec, merged, "adopt"), (sec, twice, "adopt"),
+                                        (sec, "So when, when " + merged[5:], "hold"), (sec, "So " + merged, "hold"),
+                                        (sec + " And then", twice, "adopt"),            # the next sentence's spill
+                                        (sec + " And then", twice[:-1] + " and then.", "hold"),
+                                        (sec + " out", twice[:-1] + ", out.", "adopt")):   # the speaker's own repeat
+            d = LP.decide(s, entry(s, "adopt_spoken", spoken_text=spoken,
+                                   adjudication=dict(adj, second_recogniser=second)))
+            self.assertEqual(d["verdict"], verdict, (second, spoken, d.get("why")))
+
+    def test_only_a_ruling_131_record_is_rechecked_by_two_of_three(self):
+        d = self.decide(rule="ruling 17 (orchestrator 2026-11-12 '10:20')")                # ruling 84's class: a
+        self.assertEqual(d["verdict"], "hold")                                             # content word holds
+        self.assertIn("outside ruling 84's class", d["why"])
 
 
 class TestCheck(Dirs):
@@ -207,10 +387,10 @@ class TestCheck(Dirs):
     def test_an_answer_in_the_old_decoders_file_is_never_read(self):
         """Audit 1845 C2 (glm): ruling 73 changed the decoder, ruling 84 changed it again, and ruling 90 (the
         integrator's spotlight branches) again, ruling 103 with the canon-401k fix again (14:3x Nov 14), and ruling 105
-        again (20:5x Nov 14); a file named for an older decoder (25cd6f15e6c9, 8a101f222598, 962353613cb0, c705b20ed800,
-        d1e155c642a6) is never opened, even with a matching, newer entry under the current rules."""
+        again (20:5x Nov 14), and ruling 131 again (Nov 17); a file named for an older decoder (25cd6f15e6c9, 8a101f222598,
+        962353613cb0, c705b20ed800, d1e155c642a6, a4c307f78c94) is never opened, even with a matching, newer entry under the current rules."""
         s = LP.segments_of([HOOK])[0]
-        for dec in ("25cd6f15e6c9", "8a101f222598", "962353613cb0", "c705b20ed800", "d1e155c642a6"):
+        for dec in ("25cd6f15e6c9", "8a101f222598", "962353613cb0", "c705b20ed800", "d1e155c642a6", "a4c307f78c94"):
             old = LP.result_file(s, self.res, decoder=dec)
             with open(old, "w") as f:
                 json.dump([entry(s, "no_difference", at="2026-11-14T02:00:00Z")], f)

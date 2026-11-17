@@ -26,6 +26,12 @@ Outcomes:
   carry-over class for an insert or a drop; never a number, a name or a negation). Otherwise it is a hold (fail
   closed). Under ruling 84 (b) the spoken text holds the second recogniser's reading of the one function word; the
   render's lock keeps its decode's word and records the other reading (the entry's "alternatives").
+  RULING 131 (A) (orchestrator 08:25 ET Nov 17): when the entry's lock record ("adjudication") is under ruling 131
+  (A), two of the three readings decided each pair and the spoken text is the lock's merged text. It is adopted only
+  when this side's own re-check (attest.class_131, from the record's three readings) finds every pair decided the same
+  way, every run-taken pair at least 3 tokens from both cut edges, no number, name or negation, and the spoken text
+  the merged reading; anything else is a hold (fail closed). (B): currency format ('$2 billion' for a spoken
+  '2 billion') is no difference.
 - hold: the clip may not be used with that text. The reason says why.
 - error, an outcome this module does not know, or no answer in time: no verdict. Never a pass (law L-m). A request
   is sent again rather than reusing an error.
@@ -41,13 +47,15 @@ from datetime import datetime, timezone
 import attest as AT
 import canon as C
 
-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105"   # RULING 105 (orchestrator
+RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131"   # RULING 131
+#   (orchestrator 08:25 ET Nov 17): (A) two of three readings, (B) currency format (the integrator's message of 08:2x
+#   Nov 17); entries under the old RULES are never read. RULING 105 (orchestrator
 #   20:13 Nov 14): the unstable second reading joins the rules (the integrator's messages of 20:5x-21:0x Nov 14).
 #   RULING 103 (orchestrator 14:12 Nov 14): the
 #   targeted re-listen joins the rules (the integrator's message of 14:3x Nov 14); entries under the old RULES are never
 #   read. RULING 84 (orchestrator 20:41 Nov 13): the integrator's
 #   RULES string (its message of 20:4x Nov 13). RULING 73 (live 18:43:08 Nov 13, merged 585b6da5 on the integrator's
-DECODER = "a4c307f78c94"                      # side): the render's own cut placement joins the pre-check (a passing
+DECODER = "ce72aefa342d"                      # side): the render's own cut placement joins the pre-check (a passing
 #   entry carries "cut"; a span the render cannot cut holds: "ruling 73: the render cannot cut this span: ..."). RULING
 #   84 changed the render's adjudicate_lock (pinned.py), so the decoder_sha changed: 962353613cb0e065008ab0405ca8550111ddd3ca3ba70f0ae65b4b77ab1876d8
 #   (ruling 73's was 8a101f222598a4f725e7cf85626e90fb2fae35df8d81d3ff430469728114e1a7). RULING 90 (the integrator's
@@ -57,6 +65,9 @@ DECODER = "a4c307f78c94"                      # side): the render's own cut plac
 #   integrator's side (canon-401k 373d0fed + 077407dc, audited batches 79 and 80): d1e155c642a6aaacd578ac5ad2f47c9cd1d71594c9913dc4f0f231fd6b2258ce
 #   RULING 105 (the integrator's branch ruling105 d5bf9674, audited batch 84; both sides land in lockstep as with 103):
 #   a4c307f78c94d1c4ee068b5c27862c79a90900880bb885fee68da616ce2a20d6
+#   RULING 131 (A) + (B) (the integrator's branch r131-lock, audited; both sides land in lockstep as with 105): canon.py's
+#   currency_free / dollars_after_number and adjudicate_lock's two of three readings:
+#   ce72aefa342dcd94dd45d8b4bc96ec6477ec04c91914db2054403338d7559e60
 RESULTS = "/home/ultron/protocol_pulse/data/lock_precheck/results"        # the integrator's; read only
 REQUESTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
                         "lock_requests")      # this worktree's; the service only reads it
@@ -158,6 +169,19 @@ def decide(seg, e):
     spoken, approved = e.get("spoken_text"), seg["approved_text"]
     if not isinstance(spoken, str) or not spoken.strip():
         return {"verdict": "error", "outcome": out, "why": "adopt_spoken without a spoken_text"}
+    adj = e.get("adjudication")
+    if isinstance(adj, dict) and str(adj.get("rule") or "").startswith(AT.RULE_131):   # RULING 131 (A): two of three
+        diffs = AT.class_131(spoken, approved, adj)
+        bad = [x for x in diffs if x["class"] is None]
+        if bad:                                       # this side's re-check of the lock's record disagrees: fail closed
+            return {"verdict": "hold", "outcome": out, "differences": diffs,
+                    "why": "adopt_spoken under ruling 131 (A), but by this side's attest.class_131 it holds: " +
+                           str([[x["spoken"], x["approved"], x["why"]] for x in bad])[:300]}
+        if not any(x["took"] == "run" for x in diffs):  # no pair took the spoken reading: the approved text stands
+            return {"verdict": "pass", "outcome": out, "why": "adopt_spoken under ruling 131 (A) with no pair taking "
+                                                              "the run's reading: the approved text stands"}
+        return {"verdict": "adopt", "outcome": out, "why": why, "spoken_text": spoken, "differences": diffs,
+                "adoption": AT.RULE_131}
     diffs = AT.class_84(spoken, approved)
     if not diffs:                                     # the same canonical words: the approved text stands
         return {"verdict": "pass", "outcome": out, "why": "adopt_spoken with no canonical difference"}
@@ -262,12 +286,22 @@ def relisten_of(e):
     return r if isinstance(r, dict) else None
 
 
-def attested(row, run_rule="ruling 72 + ruling 84 (20:41 Nov 13): adopt_spoken, in ruling 84's class"):
-    """The sealed record of an adopted text (package_pin.SEALED_LATER "attested"), as ruling 67's re-seal records it."""
-    return {"rule": run_rule, "was": row["approved_text"], "differences": row["differences"],
-            "carried": "every verdict and gate of this line-up, judged on the text it replaces: each difference is in "
-                       "ruling 84's class (a filler, one function word, or ruling 67's carry-over class for an insert "
-                       "or a drop; checked on this side too), and no line quotes the changed words",
+def attested(row, run_rule=None):
+    """The sealed record of an adopted text (package_pin.SEALED_LATER "attested"), as ruling 67's re-seal records it:
+    ruling 84's class, or ruling 131 (A)'s two of three readings (row["adoption"])."""
+    if row.get("adoption") == AT.RULE_131:
+        rule = run_rule or "ruling 72 + ruling 131 (A) (08:25 ET Nov 17): adopt_spoken, two of the three readings agree"
+        carried = ("every verdict and gate of this line-up, judged on the text it replaces: each changed pair is the "
+                   "reading two of the three readings (the approved text, the render's run decode, the second "
+                   "recogniser) agree on, re-checked on this side from the lock's record, at least 3 tokens from both "
+                   "cut edges, never a number, a name or a negation; no line quotes the changed words (marked on the "
+                   "release: 'word check settled by two of three readings')")
+    else:
+        rule = run_rule or "ruling 72 + ruling 84 (20:41 Nov 13): adopt_spoken, in ruling 84's class"
+        carried = ("every verdict and gate of this line-up, judged on the text it replaces: each difference is in "
+                   "ruling 84's class (a filler, one function word, or ruling 67's carry-over class for an insert "
+                   "or a drop; checked on this side too), and no line quotes the changed words")
+    return {"rule": rule, "was": row["approved_text"], "differences": row["differences"], "carried": carried,
             "render": {"precheck": row["entry"], "spoken_text": row["spoken_text"]}}
 
 

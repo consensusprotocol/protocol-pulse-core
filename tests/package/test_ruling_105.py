@@ -39,8 +39,8 @@ BLOCKWARE = record()
 
 class TestTheRules(Dirs):
     def test_the_rules_and_decoder_are_the_integrators_ruling_105_ones(self):
-        self.assertTrue(LP.RULES.endswith("+ ruling 103 + ruling 105"))
-        self.assertEqual(LP.DECODER, "a4c307f78c94")
+        self.assertIn("+ ruling 103 + ruling 105", LP.RULES)                      # ruling 131 joined after it
+        self.assertEqual(LP.DECODER, "ce72aefa342d")                                 # ruling 131 moved it
         s = LP.segments_of([HOOK])[0]
         self.put(s, entry(s, rules="ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103",
                           at="2026-11-14T21:00:00Z"))

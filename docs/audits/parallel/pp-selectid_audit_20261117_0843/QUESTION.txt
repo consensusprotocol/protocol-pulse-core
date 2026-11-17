@@ -1,0 +1,60 @@
+pp-selectid: RULING 131 (orchestrator 08:25 ET Nov 17), the builder's lockstep half. "(A) ADOPTED as written: per
+differing pair, two of the three readings (approved text, the render's run decode, the second recogniser) decide it
+and the sealed text takes that reading, for fillers, function words, repetitions and content words, each at least 3
+words from a cut edge; never a number (save B), a name or a negation; a pair where all three differ HOLDS. (B)
+ADOPTED: a currency symbol is formatting ('$2 billion' equals a spoken '2 billion'), a canon like 401k."
+The render's lock (the integrator's side, pinned.adjudicate_lock) applies it and records it; THIS side only reads the
+lock pre-check's answer for a segment and decides whether to seal it. Files: pipeline/attest.py,
+pipeline/lock_precheck.py, tests/package/test_lock_precheck.py, tests/package/test_ruling_105.py. canon.py is the
+integrator's, taken byte-identical at landing: this side uses only canon.dollars_after_number(tokens, k) (tokens[k] ==
+"dollars", k > 0, tokens[k-1] matches \d+(\.\d+)?), canon.canon_tokens and canon.canon_spans (all UNCHANGED otherwise).
+
+THE RECORD (the integrator's messages of 08:2x-08:4x Nov 17): an entry with outcome "adopt_spoken" whose
+"adjudication" (the FIRST lock's) has rule "ruling 131 (A) (orchestrator 2026-11-17 '08:25')", the three full readings
+"run_decode", "approved", "second_recogniser", and "pairs" [{"run", "approved", "second_reads", "took":
+"run"|"approved", "agreed", "edge_distance"}], currency pairs NOT among them. "spoken_text" is the lock's merged text,
+or that with ruling 72's adoptions on top (the second recogniser's fillers / a repetition / one function word beyond
+the merged text: today's adopt_spoken layer). The render's rule per pair: the approved reading where the second
+recogniser reads the approved words; else the run's where it reads the run's AND edge_distance >= 3; else HOLD.
+edge_distance = min(a, len(run) - b) in the run decode's canon tokens, except that a pair with an empty side (delete /
+insert) inside a repetition may slide through the equal tokens beside it (both texts stay the same), taking the
+largest distance over its placements.
+
+THE CHANGE:
+(a) attest.class_131(spoken, approved, adj) (attest.py:168): THIS SIDE'S OWN RE-CHECK, re-running the render's steps
+    on the recorded readings, never trusting the record's classes. attest.diff (UNCHANGED :69: canon tokens,
+    SequenceMatcher non-equal opcodes); per pair: currency_pair (:134) -> no difference, keeps the approved words; a
+    number, a name or a negation (attest.critical, UNCHANGED :54, the render's _lv2_critical) -> holds; the second
+    recogniser reads the approved words (attest.reads, UNCHANGED :239, the render's own test) -> took approved; else
+    reads the run's AND edge_distance (:142) >= 3 -> took run; else holds. Whole-record tests: the record's pairs must
+    equal this side's (run, approved, took, edge_distance) in order; the record's approved reading must be the
+    segment's approved text (canon tokens); the spoken text against the merged tokens: every difference must be in
+    ruling 84's class (attest.class_84, UNCHANGED :94) AND be the second recogniser's own reading there (reads).
+(b) lock_precheck.decide (lock_precheck.py:148): an adopt_spoken whose adjudication rule starts with "ruling 131 (A)"
+    goes to class_131: any class None -> hold (fail closed); no pair took the run's reading -> pass (the approved
+    stands); else adopt with "adoption": "ruling 131 (A)". Every other adopt_spoken keeps class_84 exactly as before.
+    Ruling 105's check runs first for every pass and adoption (UNCHANGED :155).
+(c) lock_precheck.attested (:286): the sealed record's rule holds the literal "ruling 131 (A)" (the integrator's
+    release caption prints 'word check settled by two of three readings' from it) when the row's adoption is ruling
+    131's, else ruling 84's as before. apply (UNCHANGED :311) seals the spoken text with it and still refuses when a
+    line quotes the changed words (:326); pin_problems (UNCHANGED :348) still needs the pre-check to cover the segments
+    as they now stand.
+(d) RULES gains "+ ruling 131" (an entry under the old rules is never read: _matches, UNCHANGED :105). DECODER moves to
+    the integrator's final sha at landing (a constant; the old one joins the never-read list).
+
+TESTS (TestRuling131, 7 tests): last night's held span (WdiF0i925rs 3339.900-3354.680, its REAL three readings)
+adopts as merged and with ruling 72's 'uh' on top, sealed through check/apply with the ruling 131 record; a record
+that lies (a pair claimed run that the second reads as approved; a missing pair; a wrong edge distance; a spoken text
+outside the class; a function word the second recogniser never heard; a content word only the second recogniser
+heard; no readings; another approved text) holds; all three different, a run pair 2 tokens from the edge, a number,
+a negation, a name hold; mKNAcOFMYD4's real readings: the repeated "that's why" slides left to 4 and adopts, and a
+spoken text that reverts the vote holds; the same repetition near the start slides right (1 -> 3); the BTC Sessions
+span (real readings) is currency format only and passes; currency_pair's edges; an adopt_spoken under ruling 17's
+record keeps ruling 84's class. Mutations M1-M19 after a control run: 19 of 19 killed.
+
+PLEASE CHECK: (1) that nothing the ruling forbids can be sealed: a number, a name, a negation, a three-way
+disagreement, a run reading within 3 tokens of an edge; (2) that a record which disagrees with this side's own
+derivation always holds, never passes; (3) that the currency test cannot hide a real difference; (4) that the slide
+cannot carry a pair that is not a true repetition, nor beyond the equal tokens beside it; (5) that ruling 72's layer
+on the merged text cannot reintroduce or revert a decided word; (6) that ruling 84's existing path is unchanged for
+any other adopt_spoken; (7) the tests.

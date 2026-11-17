@@ -13,7 +13,13 @@ critical() is the render's _lv2_critical with its lists. CPU only, no model call
 (package_pin, which the integrator's check imports, must never pull it in).
 
 RULING 84 (orchestrator 20:41 Nov 13) has its own class, class_84, for the render's lock pre-check only (the
-second recogniser against the lock): fillers, and ONE function word. carry_class (ruling 67's re-seal) is unchanged."""
+second recogniser against the lock): fillers, and ONE function word. carry_class (ruling 67's re-seal) is unchanged.
+
+RULING 131 (orchestrator 08:25 ET Nov 17) has its own re-check, class_131: (A) per differing pair of the render's lock,
+two of the three readings (the approved text, the run's decode, the second recogniser) decide it and the sealed text
+takes that reading, at least 3 tokens from both cut edges; never a number, a name or a negation; all three different
+holds. (B) a currency symbol is formatting (canon.dollars_after_number, G18's one tolerance). It re-runs the render's own
+steps on the three readings the lock records and never trusts the record's own classes."""
 import re
 from difflib import SequenceMatcher
 
@@ -115,6 +121,135 @@ def class_84(spoken, approved):
         else:
             k = carry_class(r2, p, op, texts)
         out.append({"spoken": " ".join(rs), "approved": " ".join(ps), "class": k})
+    return out
+
+
+# RULING 131 (orchestrator 08:25 ET Nov 17): the render's lock records a two-of-three adjudication under this rule (the
+# integrator's message of 08:2x Nov 17: lock["adjudication"]["rule"] "ruling 131 (A) (orchestrator 2026-11-17
+# '08:25')"); a pair takes the run's reading only at EDGE_131 tokens or more from both edges of the run's decode
+RULE_131 = "ruling 131 (A)"
+EDGE_131 = 3                                    # pinned.MAJORITY_EDGE
+
+
+def currency_pair(r, p, op):
+    """RULING 131 (B), the render's own test (pinned.adjudicate_lock): every token on the pair's non-empty side(s) is a
+    'dollars' right after a number token (canon.dollars_after_number: '$2 billion' is a spoken '2 billion'); an empty
+    side is vacuously so (audit 20261117_0843 C1, qwen P2)."""
+    _tag, a, b, c, d = op
+    return all(canon.dollars_after_number(r, i) for i in range(a, b)) and \
+        all(canon.dollars_after_number(p, j) for j in range(c, d))
+
+
+def edge_distance(r, p, op):
+    """RULING 131 (A), as the render's lock measures it (the integrator's message of 08:4x Nov 17): min(a, len(r) - b)
+    in the run decode's canon tokens r. A pair with an empty side ("delete" or "insert") inside a repetition may slide,
+    since both texts stay the same ("that's why that's why": difflib may put the extra copy on either): shift -n while
+    n <= the equal run before it and seq[x - n] == seq[y - n], +n while n <= the equal run after it and
+    seq[x + n - 1] == seq[y + n - 1] (seq, x, y = r, a, b for a delete; p, c, d for an insert); its distance is the
+    largest over the shifts (0 included). A replace never slides."""
+    tag, a, b, c, d = op
+    shifts = [0]
+    full = SequenceMatcher(None, r, p, autojunk=False).get_opcodes()
+    if tag in ("delete", "insert") and tuple(op) in full:
+        k = full.index(tuple(op))
+        seq, x, y = (r, a, b) if tag == "delete" else (p, c, d)
+        left = full[k - 1][2] - full[k - 1][1] if k > 0 and full[k - 1][0] == "equal" else 0
+        right = full[k + 1][2] - full[k + 1][1] if k + 1 < len(full) and full[k + 1][0] == "equal" else 0
+        n = 1
+        while n <= left and seq[x - n] == seq[y - n]:
+            shifts.append(-n)
+            n += 1
+        n = 1
+        while n <= right and seq[x + n - 1] == seq[y + n - 1]:
+            shifts.append(n)
+            n += 1
+    return max(min(a + n, len(r) - (b + n)) for n in shifts)
+
+
+def spill_trimmed(lock_tokens, s):
+    """RULING 72's reading of a span, as the integrator's pre-check takes it (its lock_precheck.reading + _spill, the
+    integrator's message of 08:5x Nov 17): the second recogniser's canon tokens s (its words whose midpoint lies in the
+    lock's window +- 0.3 s) with the neighbours' spill trimmed: every token before the lock's first aligned token goes
+    (fillers included), unless those tokens repeat the ones right after them (the speaker's own edge repeat, 'When,
+    when', is kept); the end alike. -> the trimmed tokens."""
+    ops = SequenceMatcher(None, lock_tokens, s, autojunk=False).get_opcodes()
+    lo, hi = 0, len(s)
+    if ops and ops[0][0] == "insert" and ops[0][1] == 0:
+        d = ops[0][4]
+        lo = next((d - n for n in range(d, 0, -1) if s[d - n:d] == s[d:d + n]), d)
+    if ops and ops[-1][0] == "insert" and ops[-1][1] == len(lock_tokens):
+        c = ops[-1][3]
+        hi = next((c + n for n in range(len(s) - c, 0, -1) if s[c:c + n] == s[c - n:c]), c)
+    return s[lo:max(lo, hi)]
+
+
+def class_131(spoken, approved, adj):
+    """RULING 131 (A) and (B) (orchestrator 08:25 ET Nov 17): this side's own re-check of an adoption, from the render's
+    lock record (the pre-check entry's "adjudication": the FIRST lock's "run_decode", "approved", "second_recogniser",
+    "pairs"), never from the record's own classes. spoken: the entry's spoken text; approved: the segment's approved
+    text. Each step is the render's own (pinned.adjudicate_lock), re-run on the recorded readings:
+    1. The ruling-17 diff (diff: canon tokens of the run's decode against the approved text). (B) first: a currency
+       pair (currency_pair) is no difference and keeps the approved words.
+    2. A number, a name or a negation in any other pair holds (law L-v 2: the render holds before any vote).
+    3. Per pair (reads: the render's test of the second recogniser's reading there): it reads the approved words ->
+       the approved; else it reads the run's AND edge_distance >= EDGE_131 tokens -> the run's; else (all three
+       differ, or the run's too near an edge) the pair holds.
+    4. The record's pairs must be exactly these (currency pairs aside), in order: the same words (canon tokens), the
+       same reading taken, the same edge distance.
+    5. The spoken text's canon tokens are the merged reading (the approved tokens, each run-taken pair as the run's)
+       or, with ruling 72's adoptions on top, exactly the second recogniser's own reading of the span (spill_trimmed:
+       the pre-check's as_spoken text); every difference from the merged reading must be in ruling 84's class
+       (class_84, as today's adopt_spoken), or it holds.
+    -> [{"spoken", "approved", "class", "took", "edge_distance"} (+ "why" when it holds)], one per pair in the diff's
+    order, then ruling 72's differences on the merged text (took "ruling 72"), then one per failed whole-record test;
+    a class None holds."""
+    def held(why, **kw):
+        return dict({"spoken": "", "approved": "", "took": None, "edge_distance": None}, **kw, **{"class": None},
+                    why=why)
+    adj = adj if isinstance(adj, dict) else {}
+    run_t, pin_t, sec_t = adj.get("run_decode"), adj.get("approved"), adj.get("second_recogniser")
+    if not all(isinstance(t, str) for t in (run_t, pin_t, sec_t, spoken, approved)) or \
+            canon.canon_tokens(pin_t) != canon.canon_tokens(approved):
+        return [held("the lock record does not hold the three readings of this segment's approved text")]
+    texts = (run_t, pin_t)
+    r, p, ops = diff(run_t, pin_t)
+    s = canon.canon_tokens(sec_t)
+    out, took_run = [], set()
+    for op in ops:
+        _tag, a, b, c, d = op
+        row = {"spoken": " ".join(r[a:b]), "approved": " ".join(p[c:d])}
+        if currency_pair(r, p, op):
+            out.append(dict(row, took="currency", edge_distance=None, **{"class": "currency format (ruling 131 (B))"}))
+            continue
+        row["edge_distance"] = edge_distance(r, p, op)
+        if any(critical(t, texts) for t in r[a:b] + p[c:d]):
+            out.append(dict(row, took=None, **{"class": None}, why="a number, a name or a negation (law L-v 2)"))
+        elif reads(p, s, c, d):
+            out.append(dict(row, took="approved", **{"class": "two of three readings: the approved words"}))
+        elif reads(r, s, a, b) and row["edge_distance"] >= EDGE_131:
+            out.append(dict(row, took="run", **{"class": "two of three readings: as spoken"}))
+            took_run.add((a, c))
+        else:
+            out.append(dict(row, took=None, **{"class": None}, why=(
+                f"the run's reading within {EDGE_131} tokens of a cut edge" if reads(r, s, a, b) else
+                "all three readings differ")))
+    merged = []
+    for tag, a, b, c, d in SequenceMatcher(None, r, p, autojunk=False).get_opcodes():
+        merged += r[a:b] if (tag != "equal" and (a, c) in took_run) else p[c:d]
+    rec = adj.get("pairs")
+    theirs = [(x.get("run"), x.get("approved"), x.get("took"), x.get("edge_distance")) for x in rec] \
+        if isinstance(rec, list) and all(isinstance(x, dict) for x in rec) else None
+    mine = [(x["spoken"], x["approved"], x["took"], x["edge_distance"]) for x in out if x["took"] != "currency"]
+    if theirs != mine:
+        out.append(held(f"the lock record's pairs are not this side's: {theirs} against {mine}"[:400]))
+    sp = canon.canon_tokens(spoken)
+    if sp != merged and sp != spill_trimmed(merged, s):  # ruling 72 adopts only the second recogniser's own reading
+        out.append(held("the spoken text is neither the merged reading nor the second recogniser's own reading of the "
+                        "span (ruling 72 adopts only its reading)"))
+    for x in class_84(spoken, " ".join(merged)):        # ruling 72 on top of the merged reading, as today
+        out.append(dict(x, took="ruling 72", edge_distance=None, **(
+            {"why": "the spoken text differs from the merged reading outside ruling 84's class"} if x["class"] is None
+            else {})))
     return out
 
 
