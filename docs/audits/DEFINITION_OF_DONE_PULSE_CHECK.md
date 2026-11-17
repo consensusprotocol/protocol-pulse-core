@@ -6,6 +6,29 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 10:01 FOUND BY THE R132 REPLAY, FIXED (batch 102, merged da7b63c6, pushed): the stand-alone SCORER service was DOWN from 15:26 ET Nov 16 to 09:46 ET today. The cause was my batch 97. BATCH 4 integrator spend: none outside (Heimdall only).
+- **The fault:**
+  - Batch 97 makes the cron transcript pass give GPU0 back at a file boundary when a build wants it, and then WAIT and go on.
+  - Once Whisper has loaded, that process keeps a 394 MiB CUDA context until it exits, and L-r counts it as a foreign GPU0 user.
+  - At 15:06 ET Nov 16 the scorer's swap_to(gemma3:27b) waited 600 s for it. It raised Gpu0Foreign; the scorer caught only LeaseBusy, so the service died.
+- **The cost (the builder's records):**
+  - From 18:24 ET Nov 16, 34 moments were refused at the free stage ONLY for "no clip-scorer verdict", never judged, plus 25 trim variants. The counts held to 21:00 ET.
+  - Some could have been hooks or clips in last night's line-ups.
+  - The session watchdog watches tmux sessions, not the processes inside them, so it did not see it.
+- **The same mechanism holds a render:** a render that starts while a yielded pass waits HOLDs as Gpu0Foreign. It held two of my replays this morning, and at 09:46-09:56 it stopped the restarted scorer once more.
+- **The fix:**
+  - (1) The Whisper pass ENDS when it yields mid-pass; the rest wait for the next cron run (deferred_gpu0_yielded, or deferred_render_wants_gpu0 when a render asked). The process and its context are gone before the build loads its model. Waiting before the first load (no context yet) is unchanged.
+  - (2) The scorer catches every Gpu0Stop and lives on, as the judge already does.
+  - The scorer runs in a restart loop in tmux pipeline_pp_scorer (since 09:46).
+  - The builder flags SCORER STALE on its line 1 when the verdicts trail its candidates by an hour.
+- **Trade-off, for the record:** a Whisper pass interrupted by a build resumes at the next cron run (up to 30 min later), not within the same run. This is order '13:05''s "Whisper between calls", kept without a second process on GPU0. If that slows transcripts too much, the next step is Whisper in a child process (the parent never touches CUDA).
+- **Checks:**
+  - 3 changed or new tests fail on the old code; 3 of 3 mutations killed.
+  - Two Heimdall cycles: no finding (qwen27b and gpt-oss at medium, both traced).
+  - Regressions on the staged merge: 26 PASS / 0 FAIL / 4 WARN; pipeline/regression.sh exit 0, references REPRODUCED.
+  - scorer_sha and decoder_sha unchanged (edd54964a5ab, ce72aefa342d).
+- **Proposed, for your ruling (not done):** the session watchdog checks each service's PROCESS (the scorer, judge, pre-check, word pass), not only its tmux session.
+
 ## 09:41 RULING 131's SPEND PART LANDED (batch 101, merged fa128042, pushed): every integrator outside call writes ONE line to the day ledger at the vendor call itself (data/spend/integrator_outside.jsonl; the builder folds it into the day's one number), and a window's second reading is no longer paid for twice under a new decoder code. The decoder sha is unchanged (ce72aefa342d). BATCH 4 integrator spend: none outside (Heimdall only).
 - **The ledger** (pipeline/outside_spend.py): one JSON line per PAID call, written right after the call succeeds.
   - Fields: at (UTC), service (render / lock_precheck / replay, named by each entry point), vendor, usd, basis, units, ref.
