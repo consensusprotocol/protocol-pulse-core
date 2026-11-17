@@ -61,6 +61,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import sys
 import time
 
@@ -210,6 +211,18 @@ def decode(r, sha, log=print):
         except Exception as e:                                   # no decode, never a pass
             out[vid] = (None, f"{type(e).__name__}: {str(e)[:300]}", round(time.time() - t, 1))
     return out
+
+
+EMPTY_S = 0.5              # batch 109: a source window shorter than this carries no media to judge
+
+
+def _empty_source(a):
+    """A downloaded window with no media (a post_live stream's DASH section: seconds of picture, no audio, a 0 s
+    container; a broken download): no verdict on the words. Unreadable by ffprobe is empty too."""
+    try:
+        return pinned._duration(a["path"]) < EMPTY_S
+    except Exception:
+        return True
 
 
 REUSE_RATIO = 0.8          # batch 101: an earlier reading is this window's when it reads as this decode does
@@ -561,7 +574,13 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                             outcome, lock = "hold", None
                             reason = f"ruling 73: the render cannot cut this span: {cut['error']}"
                 except pinned.PinError as e:                     # what the render's stage pinned would hold on
-                    outcome, reason, lock = "hold", str(e), None
+                    if _empty_source(a):                         # batch 109: no media is no verdict, never a hold
+                        outcome, lock = "error", None
+                        reason = (f"the source window downloaded empty ({e}): a post_live stream or a failed "
+                                  f"download; no verdict, ask again when the video is processed")
+                        shutil.rmtree(wd, ignore_errors=True)    # the window cache takes any file over 100 KB
+                    else:
+                        outcome, reason, lock = "hold", str(e), None
                 except Exception as e:                           # any step failed (the second reading included): no
                     outcome, reason, lock = "error", f"{type(e).__name__}: {str(e)[:300]}", None   # verdict, never a pass
             entry = {"request_id": r["request_id"], "video_id": vid, "start": s["start"], "end": s["end"],

@@ -948,3 +948,36 @@ class TestRuling135LoneLetter(Base):
         e = self.entry(self.run_text)
         self.assertNotEqual(e["as_spoken"]["verdict"], "same", e)
         self.assertIn(["b", ""], e["as_spoken"]["differences"])
+
+
+class TestBatch109EmptySource(Base):
+    """Batch 109 (the builder's 14:24 finding on ruling 141 (4)'s story): Bitcoin Magazine MeC8YEmUx_w was post_live,
+    and its DASH section downloaded with no media (a 0 s container), so pinned.validate_range raised 'range outside the
+    source file (file covers 0-0.000 s ...)' and the pre-check answered HOLD, a final verdict on words never heard. An
+    empty window is outcome "error" (no verdict, never a pass), its broken file is dropped so the next request downloads
+    afresh, and a real range fault on a file with media still holds. must-fail on the code before batch 109."""
+
+    def test_an_empty_window_is_no_verdict_and_is_fetched_again(self):
+        self.request(approved_text=ATTESTED)
+        with mock.patch.object(pinned, "_duration", lambda path: 0.0):
+            LP.serve_once(log=self.log)
+        e = self.entry(ATTESTED)
+        self.assertEqual(e["outcome"], "error")
+        self.assertIn("downloaded empty", e["reason"])
+        self.assertIsNone(e["lock"])
+        wd = LP.work_dir(VID, START, END, LP.decoder_sha())
+        self.assertFalse(os.path.exists(os.path.join(wd, "sources", f"{VID}.mp4")))     # never served again
+        n = len(self.downloads)
+        self.request("r2", approved_text=ATTESTED)                   # the video processed: asked again, answered
+        LP.serve_once(log=self.log)
+        self.assertEqual(self.entry(ATTESTED)["outcome"], "no_difference")
+        self.assertGreater(len(self.downloads), n)
+
+    def test_a_range_fault_on_a_file_with_media_still_holds(self):
+        self.request(approved_text=ATTESTED)
+        with mock.patch.object(pinned, "_duration", lambda path: 5.0):    # media, but the span lies past its end
+            LP.serve_once(log=self.log)
+        e = self.entry(ATTESTED)
+        self.assertEqual(e["outcome"], "hold")
+        self.assertIn("range outside the source file", e["reason"])
+
