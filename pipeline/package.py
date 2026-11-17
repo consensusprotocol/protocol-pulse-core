@@ -3448,15 +3448,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                **({"value": {k: value.get(k) for k in ("text", "ok", "measured", "adds", "no_restate",
                                                                        "missed", "short", "why", "words", "backend")}}
                                   if value is not None else {})}}
-        see(order)                                        # RULING 70: the added clip is seen too
-        vbad = {m["moment_id"]: VP.layout_block(m.get("visual")) for m in order      # ruling 93 (not measured
-                if VP.layout_block(m.get("visual")) and not (m is order[0] and opens_16x9(m))}   # included, law L-m)
-        if vbad:
-            note["why_not"] = ("rulings 70 / 93: " + "; ".join(f"{k}: {v}" for k, v in vbad.items()))[:400]
-            return None
         nv_pre = None
-        if lock_check is not None:                         # RULINGS 68 / 72: its own line-up
-            try:
+        if lock_check is not None:                         # RULINGS 68 / 72: its own line-up; RULING 130 (2): FIRST,
+            try:                                           # before its vision checks are paid
                 nv_pre = lock_check(order)
             except Exception as e:                        # noqa: BLE001  audit 1744 C1: no verdict, never a pass
                 nv_pre = LP.failed(e)
@@ -3464,6 +3458,12 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
             note["why_not"] = f"ruling 68 / 72: the render's lock: {nv_pre.get('error') or 'a clip holds'}"[:400]
             if nv_pre.get("error") or not nv_pre.get("segments"):
                 out["lock_stop"] = note["why_not"]        # no verdict: the search stops, as for a voiced line-up
+            return None
+        see(order)                                        # RULING 70: the added clip is seen too
+        vbad = {m["moment_id"]: VP.layout_block(m.get("visual")) for m in order      # ruling 93 (not measured
+                if VP.layout_block(m.get("visual")) and not (m is order[0] and opens_16x9(m))}   # included, law L-m)
+        if vbad:
+            note["why_not"] = ("rulings 70 / 93: " + "; ".join(f"{k}: {v}" for k, v in vbad.items()))[:400]
             return None
         pk = assemble_medley([m["moment_id"] for m in order], cleared, fields, ctx, "medley (L-y), no voice")
         pk["medley"] = nv_med
@@ -3710,22 +3710,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                 if med["flagged"]:
                     k = joins(labs).index(med["flagged"][0])
                     join = (k, med["joins"][med["flagged"][0]]["why"])
-                bg = {m["moment_id"]: (pool.submit(exclusion_for, router, m, sources, exc),
-                                       pool.submit(truth_for, router, m, work_dir, tru)) for m in segs}
                 extra, relined, w_used, written = "", False, 0, ()
-                see(segs)                                   # RULING 70: every clip seen before any write is paid
-                vbad = {m["moment_id"]: ((m.get("visual") or {}).get("why") if not (m.get("visual") or {}).get(
-                            "measured") else None) or VP.layout_block(m.get("visual"))     # ruling 93: per clip (L-m
-                        for m in segs if VP.layout_block(m.get("visual"))                  # included); the cause named
-                        and not (m is segs[0] and opens_16x9(m))}          # ruling 123 (2): the 16:9-only HOOK only
-                if vbad or segs[0].get("visual_hook_block"):
-                    vbad = vbad or {segs[0]["moment_id"]: segs[0]["visual_hook_block"]}
-                    dropped |= set(vbad)
-                    doomed |= set(vbad)
-                    rec["why"] = "ruling 70: " + "; ".join(f"{k}: {v}" for k, v in vbad.items())[:400] + ": re-lined"
-                    relined, w_used = True, writes      # no write is paid
-                pre = None
-                if not relined and lock_check is not None:  # RULINGS 68 / 72: the render's own lock, before any write
+                pre, no_verdict = None, False
+                if lock_check is not None:                  # RULINGS 68 / 72: the render's own lock, before any write;
+                    #   RULING 130 (2) (orchestrator 23:00 ET Nov 16): and FIRST, before the paid checks of the clips
+                    #   (vision, exclusion, the second pass), so a clip the render cannot cut never costs money
                     try:
                         pre = lock_check(segs)
                     except Exception as e:                # noqa: BLE001  audit 1744 C1: no verdict, never a pass
@@ -3740,13 +3729,28 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                     if pre.get("error") or not pre["segments"]:      # no verdict is never a pass (law L-m): nothing
                         rec["why"] = f"ruling 68 / 72: no lock verdict: {pre.get('error')}"[:500]   # is written, the
                         rec["budget"], out["lock_stop"] = True, rec["why"]   # search stops, the line-up stays a
-                        w_used = writes                                     # candidate (class "budget")
+                        w_used, no_verdict = writes, True                   # candidate (class "budget")
                     elif held:                             # the render would hold these clips: out, re-lined
                         dropped |= set(held)
                         doomed |= set(held)
                         rec["why"] = ("ruling 72: the render's lock holds " +
                                       "; ".join(f"{k}: {v}" for k, v in held.items()))[:500] + ": re-lined"
                         relined, w_used = True, writes
+                bg = {}                                     # ruling 130 (2): only for a line-up the lock let through
+                if not relined and not no_verdict:
+                    bg = {m["moment_id"]: (pool.submit(exclusion_for, router, m, sources, exc),
+                                           pool.submit(truth_for, router, m, work_dir, tru)) for m in segs}
+                    see(segs)                               # RULING 70: every clip seen before any write is paid
+                    vbad = {m["moment_id"]: ((m.get("visual") or {}).get("why") if not (m.get("visual") or {}).get(
+                                "measured") else None) or VP.layout_block(m.get("visual"))     # ruling 93: per clip
+                            for m in segs if VP.layout_block(m.get("visual"))                  # (L-m included); the
+                            and not (m is segs[0] and opens_16x9(m))}      # cause named; ruling 123 (2): the 16:9-only
+                    if vbad or segs[0].get("visual_hook_block"):                               # HOOK only
+                        vbad = vbad or {segs[0]["moment_id"]: segs[0]["visual_hook_block"]}
+                        dropped |= set(vbad)
+                        doomed |= set(vbad)
+                        rec["why"] = "ruling 70: " + "; ".join(f"{k}: {v}" for k, v in vbad.items())[:400] + ": re-lined"
+                        relined, w_used = True, writes  # no write is paid
                 take_failed, last_fields = 0, None         # ruling 3 (22:40): the no-voice fallback reads these
                 alone_n, alone_by, t_refused, t_alone, last_fid, last_rw65 = 0, None, [], False, None, False
                 v_lost, v_redo, v_novoice, v_plan, val = [], False, None, None, None   # RULING 91 (medley half):

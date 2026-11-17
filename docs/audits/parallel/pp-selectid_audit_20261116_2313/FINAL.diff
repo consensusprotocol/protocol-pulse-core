@@ -1,0 +1,223 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 70e79be..c8e7874 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -3448,15 +3448,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                                **({"value": {k: value.get(k) for k in ("text", "ok", "measured", "adds", "no_restate",
+                                                                        "missed", "short", "why", "words", "backend")}}
+                                   if value is not None else {})}}
+-        see(order)                                        # RULING 70: the added clip is seen too
+-        vbad = {m["moment_id"]: VP.layout_block(m.get("visual")) for m in order      # ruling 93 (not measured
+-                if VP.layout_block(m.get("visual")) and not (m is order[0] and opens_16x9(m))}   # included, law L-m)
+-        if vbad:
+-            note["why_not"] = ("rulings 70 / 93: " + "; ".join(f"{k}: {v}" for k, v in vbad.items()))[:400]
+-            return None
+         nv_pre = None
+-        if lock_check is not None:                         # RULINGS 68 / 72: its own line-up
+-            try:
++        if lock_check is not None:                         # RULINGS 68 / 72: its own line-up; RULING 130 (2): FIRST,
++            try:                                           # before its vision checks are paid
+                 nv_pre = lock_check(order)
+             except Exception as e:                        # noqa: BLE001  audit 1744 C1: no verdict, never a pass
+                 nv_pre = LP.failed(e)
+@@ -3465,6 +3459,12 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+             if nv_pre.get("error") or not nv_pre.get("segments"):
+                 out["lock_stop"] = note["why_not"]        # no verdict: the search stops, as for a voiced line-up
+             return None
++        see(order)                                        # RULING 70: the added clip is seen too
++        vbad = {m["moment_id"]: VP.layout_block(m.get("visual")) for m in order      # ruling 93 (not measured
++                if VP.layout_block(m.get("visual")) and not (m is order[0] and opens_16x9(m))}   # included, law L-m)
++        if vbad:
++            note["why_not"] = ("rulings 70 / 93: " + "; ".join(f"{k}: {v}" for k, v in vbad.items()))[:400]
++            return None
+         pk = assemble_medley([m["moment_id"] for m in order], cleared, fields, ctx, "medley (L-y), no voice")
+         pk["medley"] = nv_med
+         cheap, det, dup, rt_ok, r4_res = cheap_checks(pk, a_by, levels, ctx.now)
+@@ -3710,22 +3710,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                 if med["flagged"]:
+                     k = joins(labs).index(med["flagged"][0])
+                     join = (k, med["joins"][med["flagged"][0]]["why"])
+-                bg = {m["moment_id"]: (pool.submit(exclusion_for, router, m, sources, exc),
+-                                       pool.submit(truth_for, router, m, work_dir, tru)) for m in segs}
+                 extra, relined, w_used, written = "", False, 0, ()
+-                see(segs)                                   # RULING 70: every clip seen before any write is paid
+-                vbad = {m["moment_id"]: ((m.get("visual") or {}).get("why") if not (m.get("visual") or {}).get(
+-                            "measured") else None) or VP.layout_block(m.get("visual"))     # ruling 93: per clip (L-m
+-                        for m in segs if VP.layout_block(m.get("visual"))                  # included); the cause named
+-                        and not (m is segs[0] and opens_16x9(m))}          # ruling 123 (2): the 16:9-only HOOK only
+-                if vbad or segs[0].get("visual_hook_block"):
+-                    vbad = vbad or {segs[0]["moment_id"]: segs[0]["visual_hook_block"]}
+-                    dropped |= set(vbad)
+-                    doomed |= set(vbad)
+-                    rec["why"] = "ruling 70: " + "; ".join(f"{k}: {v}" for k, v in vbad.items())[:400] + ": re-lined"
+-                    relined, w_used = True, writes      # no write is paid
+-                pre = None
+-                if not relined and lock_check is not None:  # RULINGS 68 / 72: the render's own lock, before any write
++                pre, no_verdict = None, False
++                if lock_check is not None:                  # RULINGS 68 / 72: the render's own lock, before any write;
++                    #   RULING 130 (2) (orchestrator 23:00 ET Nov 16): and FIRST, before the paid checks of the clips
++                    #   (vision, exclusion, the second pass), so a clip the render cannot cut never costs money
+                     try:
+                         pre = lock_check(segs)
+                     except Exception as e:                # noqa: BLE001  audit 1744 C1: no verdict, never a pass
+@@ -3740,13 +3729,28 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                     if pre.get("error") or not pre["segments"]:      # no verdict is never a pass (law L-m): nothing
+                         rec["why"] = f"ruling 68 / 72: no lock verdict: {pre.get('error')}"[:500]   # is written, the
+                         rec["budget"], out["lock_stop"] = True, rec["why"]   # search stops, the line-up stays a
+-                        w_used = writes                                     # candidate (class "budget")
++                        w_used, no_verdict = writes, True                   # candidate (class "budget")
+                     elif held:                             # the render would hold these clips: out, re-lined
+                         dropped |= set(held)
+                         doomed |= set(held)
+                         rec["why"] = ("ruling 72: the render's lock holds " +
+                                       "; ".join(f"{k}: {v}" for k, v in held.items()))[:500] + ": re-lined"
+                         relined, w_used = True, writes
++                bg = {}                                     # ruling 130 (2): only for a line-up the lock let through
++                if not relined and not no_verdict:
++                    bg = {m["moment_id"]: (pool.submit(exclusion_for, router, m, sources, exc),
++                                           pool.submit(truth_for, router, m, work_dir, tru)) for m in segs}
++                    see(segs)                               # RULING 70: every clip seen before any write is paid
++                    vbad = {m["moment_id"]: ((m.get("visual") or {}).get("why") if not (m.get("visual") or {}).get(
++                                "measured") else None) or VP.layout_block(m.get("visual"))     # ruling 93: per clip
++                            for m in segs if VP.layout_block(m.get("visual"))                  # (L-m included); the
++                            and not (m is segs[0] and opens_16x9(m))}      # cause named; ruling 123 (2): the 16:9-only
++                    if vbad or segs[0].get("visual_hook_block"):                               # HOOK only
++                        vbad = vbad or {segs[0]["moment_id"]: segs[0]["visual_hook_block"]}
++                        dropped |= set(vbad)
++                        doomed |= set(vbad)
++                        rec["why"] = "ruling 70: " + "; ".join(f"{k}: {v}" for k, v in vbad.items())[:400] + ": re-lined"
++                        relined, w_used = True, writes  # no write is paid
+                 take_failed, last_fields = 0, None         # ruling 3 (22:40): the no-voice fallback reads these
+                 alone_n, alone_by, t_refused, t_alone, last_fid, last_rw65 = 0, None, [], False, None, False
+                 v_lost, v_redo, v_novoice, v_plan, val = [], False, None, None, None   # RULING 91 (medley half):
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 544684c..b3f5a13 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -220,6 +220,25 @@ def delivered_pins(paths):
+ STOP_CEILING_USD = 1.25          # ORDER 17:50 ET Nov 16: --stop-usd at most this ('ADD 25 CENTS': a day cap of $1.25)
+ 
+ 
++def lock_off(segs):
++    """RULING 130 (2) with the 23:02 question (orchestrator, Nov 16): the lock pre-check's second recogniser is
++    ElevenLabs Scribe, OUTSIDE dollars per span (the integrator, 23:0x Nov 16). With --lock-precheck off no request is
++    written: the answer is NO VERDICT (never a pass, law L-m), so a line-up that reaches the lock stays a candidate
++    (class "budget") with nothing paid after it. -> lock_precheck.check's shape."""
++    return {"ok": False, "request_id": None, "segments": [],
++            "error": "not asked: --lock-precheck off (ruling 130 (2): the pre-check's Scribe is outside dollars; no "
++                     "request is sent until the orchestrator releases it)"}
++
++
++def lock_for(mode, out_dir, say):
++    """RULING 130 (2): the build's lock pre-check: lock_precheck.check, one numbered request per line-up asked
++    ('pp-selectid.<build>.<n>'), when mode is 'on'; else lock_off (nothing sent). -> the lock_check callable."""
++    if mode != "on":
++        return lock_off
++    n = iter(range(1, 10 ** 6))
++    return lambda segs: LP.check(segs, f"pp-selectid.{os.path.basename(out_dir)}.{next(n)}", log=say)
++
++
+ def read_only(path):
+     """ORDER 17:50 ET Nov 16 ("spend the fresh dollar on ONE line-up at a time, the likeliest first; do not screen the
+     whole held pool at Grok"): the --only file, {"ids": [this build's moment ids, at least one], "why": a reason}.
+@@ -383,6 +402,9 @@ def main(argv=None):
+     ap.add_argument("--word-pass", default=LB.WORD_PASS, help="the word-pass worker's rows (read-only)")
+     ap.add_argument("--routing", choices=P.ROUTINGS, default=None,
+                     help="RULING 85: 'today' or 'heimdall_first' (default: model_providers.json routing.mode)")
++    ap.add_argument("--lock-precheck", choices=("on", "off"), default="on",
++                    help="RULING 130 (2): 'off' sends no lock pre-check request (its Scribe is outside dollars); a "
++                         "line-up that reaches the lock then waits as a candidate")
+     ap.add_argument("--only", metavar="FILE", help="ORDER 17:50 ET Nov 16: {'ids': [moment ids], 'why': text}: this "
+                     "build takes only those moments of the pool, every gate as before (one line-up at a time)")
+     ap.add_argument("--stop-usd", type=float, default=None, help="ORDER 17:50 ET Nov 16: this build's outside-dollar "
+@@ -526,8 +548,7 @@ def main(argv=None):
+               stories_path=PK.STORIES,                                             # ruling 118 (4): read only
+               ledger_aliases=inputs.get("duplicates_of") or {},    # its ledger ids: a dropped duplicate -> the kept row
+               visual_cache=os.path.join(HERE, "proof", "VISUAL_CACHE.json"),       # ruling 70
+-              lock_check=lambda segs, n=iter(range(1, 10 ** 6)): LP.check(       # rulings 68 / 72: before any write
+-                  segs, f"pp-selectid.{os.path.basename(out_dir)}.{next(n)}", log=say))
++              lock_check=lock_for(a.lock_precheck, out_dir, say))    # rulings 68 / 72 / 130 (2): off sends nothing
+     name, at = os.path.relpath(out_dir, REPO), now.isoformat()
+     if cand is not None:                                 # --from-candidate: that candidate alone (ruling 66, 13:18)
+         res = PK.build(router, moments, sources, ctx, candidate=cand, **kw)
+diff --git a/tests/package/test_ledger_build.py b/tests/package/test_ledger_build.py
+index 384c887..b13522c 100644
+--- a/tests/package/test_ledger_build.py
++++ b/tests/package/test_ledger_build.py
+@@ -1025,5 +1025,36 @@ class TestOrder1750OneLineUpAtATime(unittest.TestCase):
+         self.assertEqual(PLG.build_router("heimdall_first", {}, os.devnull).limit_usd, PLG.PL.LY_LIMIT_USD)
+ 
+ 
++class TestRuling130LockOff(unittest.TestCase):
++    """RULING 130 (2): --lock-precheck off writes no request and answers NO VERDICT, never a pass."""
++
++    def test_lock_off_answers_no_verdict_and_writes_nothing(self):
++        sys.path.insert(0, HERE)
++        import proof_ledger as PLG
++        import lock_precheck as LP
++        before = sorted(os.listdir(LP.REQUESTS)) if os.path.isdir(LP.REQUESTS) else []
++        got = PLG.lock_off([{"moment_id": "x", "video_id": "v", "start": 0.0, "end": 9.0}])
++        self.assertEqual((got["ok"], got["segments"], got["request_id"]), (False, [], None))
++        self.assertIn("not asked", got["error"])
++        self.assertEqual(sorted(os.listdir(LP.REQUESTS)) if os.path.isdir(LP.REQUESTS) else [], before)
++
++    def test_lock_for_sends_numbered_requests_when_on_and_nothing_when_off(self):
++        sys.path.insert(0, HERE)
++        import proof_ledger as PLG
++        self.assertIs(PLG.lock_for("off", "/x/ledger_1", print), PLG.lock_off)
++        with mock.patch.object(PLG.LP, "check", side_effect=lambda segs, rid, log=None: {"rid": rid}) as chk:
++            f = PLG.lock_for("on", "/x/ledger_1", print)
++            self.assertEqual([f([1])["rid"], f([2])["rid"]], ["pp-selectid.ledger_1.1", "pp-selectid.ledger_1.2"])
++        self.assertEqual(chk.call_count, 2)
++
++    def test_a_bad_lock_precheck_value_refuses_the_run(self):
++        sys.path.insert(0, HERE)
++        import proof_ledger as PLG
++        pins = [os.path.join(HERE, "proof", "fresh_20261112_050611", n) for n in ("MOMENTS_PIN.json",
++                                                                                 "MOMENTS_PIN_LY.json")]
++        with mock.patch("sys.stderr", new=io.StringIO()), refused_only(), self.assertRaises(SystemExit):
++            PLG.main(["--delivered", *pins, "--lock-precheck", "maybe"])
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 5996416..935d77a 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -2901,6 +2901,18 @@ class TestRuling72Lock(unittest.TestCase):
+         import lock_precheck as LP
+         self.assertEqual(LP.pin_problems(out["package"]), [])                       # the pin stage's own check
+ 
++    def test_ruling_130_a_clip_the_lock_holds_is_never_seen(self):
++        """RULING 130 (2) (23:00 ET Nov 16): the render's lock is asked FIRST: a clip it holds is never sent to the paid
++        vision check; the line-up the search forms next is seen once its own lock passes."""
++        calls = []
++        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)], [None],
++                  lock_check=lock_stub({"x": ("hold", None)}, calls=calls))
++        out = rig.run()
++        self.assertEqual(calls, [["h", "x", "y"], ["h", "y", "z"]])
++        self.assertNotIn("x", rig.visual_calls)                                  # held by the lock: never seen
++        self.assertTrue({"y", "z"} <= set(rig.visual_calls), rig.visual_calls)    # the next line-up: seen after it
++        self.assertIsNotNone(out["package"])
++
+     def test_no_verdict_writes_nothing_and_stops_the_search(self):
+         rig = Rig(self.MS, [["h", "x", "y", "z"], ["x", "h", "y", "z"]], [(True, [], None, Rig.LINE)] * 2, [None],
+                   lock_check=lock_stub(error=True))
+@@ -2909,6 +2921,8 @@ class TestRuling72Lock(unittest.TestCase):
+         self.assertEqual((rig.write_calls, len(rig.medley_calls)), ([], 1))       # no write, no second angle
+         self.assertTrue(out["tried"][0]["budget"])
+         self.assertIn("no lock verdict", out["lock_stop"])
++        self.assertNotIn("y", rig.visual_calls)        # ruling 130 (2): the line-up's clip is never seen (h and x
++        #                                                are seen earlier only as the hook stage's openers)
+         c = PK.load_candidate(TestRuling66Candidate().record(), source="proof/ledger_x")
+         out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], candidate=c,
+                   lock_check=lock_stub(error=True)).run()
+@@ -2980,6 +2994,7 @@ class TestRuling72Lock(unittest.TestCase):
+         self.assertEqual(calls, [["h", "x", "y"], ["h", "x", "y", "z"]])          # its own line-up, the added clip
+         self.assertIsNone(out["package"])
+         self.assertIn("ruling 68 / 72: the render's lock", out["tried"][0]["no_voice"]["why_not"])
++        self.assertNotIn("z", rig.visual_calls)        # RULING 130 (2): the added clip the lock holds is never seen
+ 
+ 
+ class TestRuling76Window(unittest.TestCase):

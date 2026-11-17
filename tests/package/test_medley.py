@@ -2901,6 +2901,18 @@ class TestRuling72Lock(unittest.TestCase):
         import lock_precheck as LP
         self.assertEqual(LP.pin_problems(out["package"]), [])                       # the pin stage's own check
 
+    def test_ruling_130_a_clip_the_lock_holds_is_never_seen(self):
+        """RULING 130 (2) (23:00 ET Nov 16): the render's lock is asked FIRST: a clip it holds is never sent to the paid
+        vision check; the line-up the search forms next is seen once its own lock passes."""
+        calls = []
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)], [None],
+                  lock_check=lock_stub({"x": ("hold", None)}, calls=calls))
+        out = rig.run()
+        self.assertEqual(calls, [["h", "x", "y"], ["h", "y", "z"]])
+        self.assertNotIn("x", rig.visual_calls)                                  # held by the lock: never seen
+        self.assertTrue({"y", "z"} <= set(rig.visual_calls), rig.visual_calls)    # the next line-up: seen after it
+        self.assertIsNotNone(out["package"])
+
     def test_no_verdict_writes_nothing_and_stops_the_search(self):
         rig = Rig(self.MS, [["h", "x", "y", "z"], ["x", "h", "y", "z"]], [(True, [], None, Rig.LINE)] * 2, [None],
                   lock_check=lock_stub(error=True))
@@ -2909,6 +2921,8 @@ class TestRuling72Lock(unittest.TestCase):
         self.assertEqual((rig.write_calls, len(rig.medley_calls)), ([], 1))       # no write, no second angle
         self.assertTrue(out["tried"][0]["budget"])
         self.assertIn("no lock verdict", out["lock_stop"])
+        self.assertNotIn("y", rig.visual_calls)        # ruling 130 (2): the line-up's clip is never seen (h and x
+        #                                                are seen earlier only as the hook stage's openers)
         c = PK.load_candidate(TestRuling66Candidate().record(), source="proof/ledger_x")
         out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], candidate=c,
                   lock_check=lock_stub(error=True)).run()
@@ -2980,6 +2994,7 @@ class TestRuling72Lock(unittest.TestCase):
         self.assertEqual(calls, [["h", "x", "y"], ["h", "x", "y", "z"]])          # its own line-up, the added clip
         self.assertIsNone(out["package"])
         self.assertIn("ruling 68 / 72: the render's lock", out["tried"][0]["no_voice"]["why_not"])
+        self.assertNotIn("z", rig.visual_calls)        # RULING 130 (2): the added clip the lock holds is never seen
 
 
 class TestRuling76Window(unittest.TestCase):

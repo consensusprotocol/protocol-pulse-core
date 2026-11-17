@@ -1025,5 +1025,36 @@ class TestOrder1750OneLineUpAtATime(unittest.TestCase):
         self.assertEqual(PLG.build_router("heimdall_first", {}, os.devnull).limit_usd, PLG.PL.LY_LIMIT_USD)
 
 
+class TestRuling130LockOff(unittest.TestCase):
+    """RULING 130 (2): --lock-precheck off writes no request and answers NO VERDICT, never a pass."""
+
+    def test_lock_off_answers_no_verdict_and_writes_nothing(self):
+        sys.path.insert(0, HERE)
+        import proof_ledger as PLG
+        import lock_precheck as LP
+        before = sorted(os.listdir(LP.REQUESTS)) if os.path.isdir(LP.REQUESTS) else []
+        got = PLG.lock_off([{"moment_id": "x", "video_id": "v", "start": 0.0, "end": 9.0}])
+        self.assertEqual((got["ok"], got["segments"], got["request_id"]), (False, [], None))
+        self.assertIn("not asked", got["error"])
+        self.assertEqual(sorted(os.listdir(LP.REQUESTS)) if os.path.isdir(LP.REQUESTS) else [], before)
+
+    def test_lock_for_sends_numbered_requests_when_on_and_nothing_when_off(self):
+        sys.path.insert(0, HERE)
+        import proof_ledger as PLG
+        self.assertIs(PLG.lock_for("off", "/x/ledger_1", print), PLG.lock_off)
+        with mock.patch.object(PLG.LP, "check", side_effect=lambda segs, rid, log=None: {"rid": rid}) as chk:
+            f = PLG.lock_for("on", "/x/ledger_1", print)
+            self.assertEqual([f([1])["rid"], f([2])["rid"]], ["pp-selectid.ledger_1.1", "pp-selectid.ledger_1.2"])
+        self.assertEqual(chk.call_count, 2)
+
+    def test_a_bad_lock_precheck_value_refuses_the_run(self):
+        sys.path.insert(0, HERE)
+        import proof_ledger as PLG
+        pins = [os.path.join(HERE, "proof", "fresh_20261112_050611", n) for n in ("MOMENTS_PIN.json",
+                                                                                 "MOMENTS_PIN_LY.json")]
+        with mock.patch("sys.stderr", new=io.StringIO()), refused_only(), self.assertRaises(SystemExit):
+            PLG.main(["--delivered", *pins, "--lock-precheck", "maybe"])
+
+
 if __name__ == "__main__":
     unittest.main()

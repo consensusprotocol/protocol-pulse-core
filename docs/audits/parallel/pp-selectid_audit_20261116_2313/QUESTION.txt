@@ -1,0 +1,35 @@
+pp-selectid: RULING 130 (2) (orchestrator 23:00 ET Nov 16), verbatim: "ORDER OF GATES: run the lock pre-check on every
+line-up candidate BEFORE any paid vision check, so a clip the render cannot cut never costs money and the search moves to
+the next line-up while clips are fresh. Coordinate with the integrator's lock pre-check service; land it audited."
+Files: pipeline/package.py, tests/package/test_medley.py, tests/package/proof_ledger.py, tests/package/test_ledger_build.py.
+
+WHY: tonight's one line-up that passed ruling 117 paid 2 vision checks and 1 coherence call ($0.129) and was then refused
+by the render's lock (ruling 72) on What Bitcoin Did d6adeb54; its BTC Sessions clip held at the lock too.
+
+THE CHANGE (package.build's line-up loop, and the no-voice line-up):
+(a) The lock block (lock_check(segs): rulings 68 / 72; its body UNCHANGED: a held clip is dropped and the line-up
+    re-lined; no verdict: rec "budget", out["lock_stop"], w_used = writes) now runs FIRST, right after the clips-alone
+    verdict passes. Only when it neither holds a clip nor gives no verdict (not relined and not no_verdict) are the
+    background checks started (bg: exclusion_for and truth_for, the second pass) and the clips seen (see(segs), ruling
+    70's paid vision check) with the vbad re-line as before. Before, bg and see(segs) ran first and the lock only on a
+    line-up the vision check let through. bg is read in ONE place, UNCHANGED (package.py:3878 in the copy: got = {...
+    for mid, f in bg.items()}), inside the writes loop, which a re-lined or no-verdict line-up never enters
+    (w_used = writes: the loop's first test, package.py:3760, breaks), so bg = {} there is never read.
+(b) The no-voice line-up (its own order, ruling 3 / 91): lock_check(order) first; on a hold or no verdict it returns
+    None before see(order); its vision check and vbad only after a passing lock.
+(c) The driver: --lock-precheck on|off (default on). lock_for(mode, out_dir, say): 'on' is lock_precheck.check
+    (UNCHANGED, lock_precheck.py:171) with one numbered request per line-up ('pp-selectid.<build>.<n>', as before); 'off'
+    is lock_off: NO request written, the answer is NO VERDICT ({"ok": False, "segments": [], "error": "not asked ..."}),
+    so the build's unchanged no-verdict path keeps the line-up as a candidate (class "budget"), nothing paid after it.
+    Why 'off' exists: the pre-check's second recogniser is ElevenLabs Scribe, outside dollars per span (the integrator,
+    23:0x Nov 16); the orchestrator has not yet ruled whether daytime builds may spend them (STATE line 1, 23:02).
+
+TESTS: test_medley TestRuling72Lock: new, a clip the lock holds is never sent to the vision check and the next line-up
+is seen after its lock passes; the no-voice test: its added clip the lock holds is never seen; the no-verdict test: the
+line-up's clip is never seen. test_ledger_build TestRuling130LockOff: lock_off writes nothing and answers no verdict;
+lock_for numbers its requests when on and is lock_off when off; a bad --lock-precheck value refuses the run. Mutations
+K1-K6 after a control run: 6 of 6 killed. Suites: 40 files by exit code, 854 tests.
+
+PLEASE CHECK: (1) that no paid check (vision, exclusion, the second pass) can run for a line-up the lock holds or gave
+no verdict on; (2) that a passing line-up is unchanged in every other respect (bg is read only in the writes loop);
+(3) the no-voice path; (4) lock_off can never be a pass; (5) the tests.

@@ -220,6 +220,25 @@ def delivered_pins(paths):
 STOP_CEILING_USD = 1.25          # ORDER 17:50 ET Nov 16: --stop-usd at most this ('ADD 25 CENTS': a day cap of $1.25)
 
 
+def lock_off(segs):
+    """RULING 130 (2) with the 23:02 question (orchestrator, Nov 16): the lock pre-check's second recogniser is
+    ElevenLabs Scribe, OUTSIDE dollars per span (the integrator, 23:0x Nov 16). With --lock-precheck off no request is
+    written: the answer is NO VERDICT (never a pass, law L-m), so a line-up that reaches the lock stays a candidate
+    (class "budget") with nothing paid after it. -> lock_precheck.check's shape."""
+    return {"ok": False, "request_id": None, "segments": [],
+            "error": "not asked: --lock-precheck off (ruling 130 (2): the pre-check's Scribe is outside dollars; no "
+                     "request is sent until the orchestrator releases it)"}
+
+
+def lock_for(mode, out_dir, say):
+    """RULING 130 (2): the build's lock pre-check: lock_precheck.check, one numbered request per line-up asked
+    ('pp-selectid.<build>.<n>'), when mode is 'on'; else lock_off (nothing sent). -> the lock_check callable."""
+    if mode != "on":
+        return lock_off
+    n = iter(range(1, 10 ** 6))
+    return lambda segs: LP.check(segs, f"pp-selectid.{os.path.basename(out_dir)}.{next(n)}", log=say)
+
+
 def read_only(path):
     """ORDER 17:50 ET Nov 16 ("spend the fresh dollar on ONE line-up at a time, the likeliest first; do not screen the
     whole held pool at Grok"): the --only file, {"ids": [this build's moment ids, at least one], "why": a reason}.
@@ -383,6 +402,9 @@ def main(argv=None):
     ap.add_argument("--word-pass", default=LB.WORD_PASS, help="the word-pass worker's rows (read-only)")
     ap.add_argument("--routing", choices=P.ROUTINGS, default=None,
                     help="RULING 85: 'today' or 'heimdall_first' (default: model_providers.json routing.mode)")
+    ap.add_argument("--lock-precheck", choices=("on", "off"), default="on",
+                    help="RULING 130 (2): 'off' sends no lock pre-check request (its Scribe is outside dollars); a "
+                         "line-up that reaches the lock then waits as a candidate")
     ap.add_argument("--only", metavar="FILE", help="ORDER 17:50 ET Nov 16: {'ids': [moment ids], 'why': text}: this "
                     "build takes only those moments of the pool, every gate as before (one line-up at a time)")
     ap.add_argument("--stop-usd", type=float, default=None, help="ORDER 17:50 ET Nov 16: this build's outside-dollar "
@@ -526,8 +548,7 @@ def main(argv=None):
               stories_path=PK.STORIES,                                             # ruling 118 (4): read only
               ledger_aliases=inputs.get("duplicates_of") or {},    # its ledger ids: a dropped duplicate -> the kept row
               visual_cache=os.path.join(HERE, "proof", "VISUAL_CACHE.json"),       # ruling 70
-              lock_check=lambda segs, n=iter(range(1, 10 ** 6)): LP.check(       # rulings 68 / 72: before any write
-                  segs, f"pp-selectid.{os.path.basename(out_dir)}.{next(n)}", log=say))
+              lock_check=lock_for(a.lock_precheck, out_dir, say))    # rulings 68 / 72 / 130 (2): off sends nothing
     name, at = os.path.relpath(out_dir, REPO), now.isoformat()
     if cand is not None:                                 # --from-candidate: that candidate alone (ruling 66, 13:18)
         res = PK.build(router, moments, sources, ctx, candidate=cand, **kw)
