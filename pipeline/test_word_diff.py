@@ -253,3 +253,44 @@ class TestRuling135(unittest.TestCase):
     def test_a_changed_word_still_is(self):
         self.assertNotEqual(W.diff("I can do it now.", "I can't do it now."), [])
         self.assertNotEqual(W.diff("It cost 68,000 dollars.", "It cost 86,000 dollars."), [])
+
+
+from unittest import mock  # noqa: E402
+
+
+class TestRuling143G18(unittest.TestCase):
+    """RULING 143 (2) at G18: against an ADJUDICATED lock, a final whose decode differs only on small words (no number,
+    negation, name, ticker or amount) is decided by the audio as ruling 22 decides an omission: the prepared clip's
+    interior must BE the source span. A material word still fails on text; an unadjudicated lock is judged as before.
+    must-fail on the code before batch 113."""
+
+    def g18(self, lock_text, heard, same=True, adjudicated=True):
+        clips = {"clip_01": {"lock_text": lock_text, "source": "src.mp4", "cut_in": 0.0, "cut_out": 5.0, "pad_s": 0.0,
+                             "prepared": "prep.mp4", "adjudicated": adjudicated, "alternatives": None}}
+        segs = [{"label": "clip_01", "type": "talking_head", "start": 0.0, "end": 5.0}]
+
+        class Tr:
+            def span(self, media, t0, t1):
+                return heard if media == "final.mp4" else lock_text
+        import sentence_law as SLW
+        with mock.patch.object(SLW, "span_fidelity", return_value=(same, {"stub": True})), \
+                mock.patch.object(SLW, "span_matches", return_value=(False, {"stub": True})):
+            return W.gate_g18("final.mp4", segs, clips, transcriber=Tr())
+
+    LOCK = "I go to a bank today and I punch in my code."
+
+    def test_a_small_word_is_decided_by_the_audio(self):
+        ok, rows = self.g18(self.LOCK, "I go to the bank today and I punch in my code.")
+        self.assertTrue(ok, rows)
+        self.assertEqual(rows[0]["identity_small_words"], [("replace", "a", "the")])
+        ok, rows = self.g18(self.LOCK, "I go to the bank today and I punch in my code.", same=False)
+        self.assertFalse(ok, rows)                                     # not the source's audio: it stands
+
+    def test_a_material_word_still_fails_on_text(self):
+        ok, rows = self.g18("It took 15 years and I punch in my code.", "It took 50 years and I punch in my code.")
+        self.assertFalse(ok, rows)
+        self.assertNotIn("omission_adjudication", rows[0])
+
+    def test_an_unadjudicated_lock_is_judged_as_before(self):
+        ok, rows = self.g18(self.LOCK, "I go to the bank today and I punch in my code.", adjudicated=False)
+        self.assertFalse(ok, rows)

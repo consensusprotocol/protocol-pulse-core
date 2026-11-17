@@ -58,52 +58,48 @@ class TestAdjudication(unittest.TestCase):
         rec = _reads("I mean the good news is that it works.")
         new = P.adjudicate_lock(lock, "src.mp4", w, recognise=rec, log=lambda *_: None)
         self.assertEqual(new["text"], self.PIN)
-        self.assertEqual(new["adjudication"]["verdict"], "approved")
+        self.assertEqual(new["adjudication"]["verdict"], "settled")            # ruling 143: two of three (was 17's)
+        self.assertEqual([(x["took"], x["material"]) for x in new["adjudication"]["pairs"]], [("approved", False)])
         self.assertEqual(new["adjudication"]["differences"], [["think", "mean"]])
         self.assertEqual(L.verify_lock(new), [])                       # the digest covers the adjudicated text
         self.assertEqual(rec.calls, ["src.mp4"])
-
-    def test_siding_with_the_run_decode_on_one_token_records_both_readings(self):      # ruling 18
+    def test_siding_with_the_run_decode_on_one_token_takes_the_run_reading(self):     # ruling 143 (was 18's record)
         lock, w = _lock(self.RUN, self.PIN)
         new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads(self.RUN), log=lambda *_: None)
-        self.assertEqual(new["text"], self.RUN)                         # the text stays the run's decode
-        alt, = new["alternatives"]
-        self.assertEqual((alt["readings"], alt["word_index"], alt["token_index"]), (["think", "mean"], 1, 1))
-        self.assertEqual(alt["source_span"], [w[1]["start"], round(w[1]["end"], 3)])
+        self.assertEqual(new["text"], self.RUN)                         # two of three: the run decode's word
+        self.assertNotIn("alternatives", new)
+        self.assertEqual([(x["took"], x["agreed"]) for x in new["adjudication"]["pairs"]], [("run", ["run", "second"])])
         self.assertEqual(L.verify_lock(new), [])
-
-    def test_siding_with_the_run_decode_on_two_tokens_holds(self):                   # ruling 18: at most one
-        run_t, pin_t = "I think the good news is that it works.", "I mean, the good news is how it works."
+    def test_siding_with_the_run_decode_on_two_tokens_settles(self):                   # ruling 143 (18's one-token
+        run_t, pin_t = "I think the good news is that it works.", "I mean, the good news is how it works."   # cap held it)
         lock, w = _lock(run_t, pin_t)
-        with self.assertRaises(P.PinError) as e:
-            P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads(run_t), log=lambda *_: None)
-        for part in ("the run decode", "run_decode:", "approved:", "second_recogniser:"):
-            self.assertIn(part, str(e.exception))
-
-    def test_can_and_cant_or_15_and_50_hold_before_any_vote(self):                  # ruling 18 / L-v 2
-        for run_t, pin_t in (("You can do it.", "You can't do it."), ("It took 15 years.", "It took 50 years.")):
-            lock, w = _lock(run_t, pin_t)
-            rec = _reads(run_t)
-            with self.assertRaises(P.PinError) as e:
-                P.adjudicate_lock(lock, "src.mp4", w, recognise=rec, log=lambda *_: None)
-            self.assertIn("L-v 2", str(e.exception))
-            self.assertEqual(rec.calls, [])
-
-    def test_a_reading_of_neither_holds(self):
+        new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads(run_t), log=lambda *_: None)
+        self.assertEqual(new["text"], run_t)
+        self.assertEqual([x["took"] for x in new["adjudication"]["pairs"]], ["run", "run"])
+    def test_can_and_cant_or_15_and_50_follow_the_two_audio_readings(self):        # ruling 143 (3) (was L-v 2's
+        for run_t, pin_t in (("You can do it.", "You can't do it."), ("It took 15 years.", "It took 50 years.")):  # hold)
+            with self.subTest(run=run_t):
+                lock, w = _lock(run_t, pin_t)                           # the two audio readings agree: corrected
+                new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads(run_t), log=lambda *_: None)
+                self.assertEqual(new["text"], run_t)
+                self.assertEqual(len(new["transcript_corrected"]), 1)
+                with self.assertRaises(P.PinError) as e:                # they disagree: the real doubt, HOLD
+                    P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads(pin_t), log=lambda *_: None)
+                self.assertIn("ruling 143 (3)", str(e.exception))
+    def test_a_reading_of_neither_takes_the_run_decode(self):          # ruling 143 (2) (it held)
         lock, w = _lock(self.RUN, self.PIN)
-        with self.assertRaises(P.PinError) as e:
-            P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("I guess the good news is that it works."),
-                              log=lambda *_: None)
-        self.assertIn("reads neither", str(e.exception))
-
-    def test_a_negation_flip_holds_even_at_two_to_one(self):
+        new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("I guess the good news is that it works."),
+                                log=lambda *_: None)
+        self.assertEqual(new["text"], self.RUN)
+        self.assertEqual(new["adjudication"]["pairs"][0]["second_reads"], "neither")
+        self.assertEqual(new["small_words_unsettled"], 1)
+    def test_a_negation_flip_holds_when_the_audio_readings_disagree(self):   # ruling 143 (3)
         lock, w = _lock("Bitcoin is the answer.", "Bitcoin is not the answer.")
-        rec = _reads("Bitcoin is not the answer.")
+        rec = _reads("Bitcoin is not the answer.")                      # the second hears the transcript's 'not'
         with self.assertRaises(P.PinError) as e:
             P.adjudicate_lock(lock, "src.mp4", w, recognise=rec, log=lambda *_: None)
-        self.assertIn("L-v 2", str(e.exception))
-        self.assertEqual(rec.calls, [])                                # never put to a vote
-
+        self.assertIn("ruling 143 (3)", str(e.exception))
+        self.assertEqual(rec.calls, ["src.mp4"])                        # the audio is asked (L-v 2 held before it)
     def test_a_number_or_a_name_difference_holds(self):
         for run_t, pin_t in (("It hit 70 thousand today.", "It hit 17 thousand today."),
                              ("Ask Saylor about it.", "Ask Taylor about it.")):
@@ -113,50 +109,46 @@ class TestAdjudication(unittest.TestCase):
 
     def test_audit_f1_the_approved_word_elsewhere_in_the_span_is_not_a_vote(self):
         run_t, pin_t = "so I think the plan works and we mean it", "so I mean the plan works and we mean it"
-        lock, w = _lock(run_t, pin_t)
-        with self.assertRaises(P.PinError):                             # it read 'guess' AT the difference
-            P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("so I guess the plan works and we mean it"),
-                              log=lambda *_: None)
-
+        lock, w = _lock(run_t, pin_t)                                   # it read 'guess' AT the difference: neither
+        new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("so I guess the plan works and we mean it"),
+                                log=lambda *_: None)
+        self.assertEqual((new["text"], new["adjudication"]["pairs"][0]["second_reads"]), (run_t, "neither"))
     def test_audit_f2_a_deletion_read_as_a_different_word_is_neither(self):
         lock, w = _lock("I think the good news is here", "I the good news is here")
-        with self.assertRaises(P.PinError):
-            P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("I guess the good news is here"),
-                              log=lambda *_: None)
+        new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("I guess the good news is here"),
+                                log=lambda *_: None)
+        self.assertEqual((new["text"], new["adjudication"]["pairs"][0]["second_reads"]),
+                         ("I think the good news is here", "neither"))   # ruling 143 (2): the run's (it held)
         new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("I the good news is here"), log=lambda *_: None)
         self.assertEqual(new["text"], "I the good news is here")
-
     def test_audit_f3_ordinals_and_grouped_numbers_are_numbers(self):
         for run_t, pin_t in (("the 2nd time", "the 3rd time"), ("the second time", "the third time"),
                              ("about 1,000 people", "about 1,500 people")):
             lock, w = _lock(run_t, pin_t)
-            with self.assertRaises(P.PinError) as e:
+            with self.assertRaises(P.PinError) as e:                    # material, and the audio readings disagree
                 P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads(pin_t), log=lambda *_: None)
-            self.assertIn("L-v 2", str(e.exception))
-
+            self.assertIn("ruling 143 (3)", str(e.exception))
     def test_audit_c2_f1_a_difference_at_the_span_start_needs_nothing_before_it(self):
         lock, w = _lock("think the good news is here", "the good news is here")
-        with self.assertRaises(P.PinError):                             # it read 'guess' before 'the'
-            P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("guess the good news is here"), log=lambda *_: None)
+        new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("guess the good news is here"), log=lambda *_: None)
+        self.assertEqual((new["text"], new["adjudication"]["pairs"][0]["second_reads"]),
+                         ("think the good news is here", "neither"))     # 'guess' before 'the': not the approved
         new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("the good news is here"), log=lambda *_: None)
         self.assertEqual(new["text"], "the good news is here")
-
     def test_audit_c2_f2_spelled_cardinals_are_numbers(self):              # canon writes 'one' as '1'
         lock, w = _lock("We need one more block.", "We need two more blocks.")
         with self.assertRaises(P.PinError) as e:
             P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("We need two more blocks."), log=lambda *_: None)
-        self.assertIn("L-v 2", str(e.exception))
-
+        self.assertIn("ruling 143 (3)", str(e.exception))
     def test_audit_b34_indices_are_relative_to_the_locked_span(self):
-        # the lock text is words i0..i1 only, so the diff and the token mapping are span-relative: a span in the
-        # middle of a transcript maps the ambiguous token to the right word, and a boundary is the span's
+        # the lock text is words i0..i1 only, so the diff is span-relative: a span in the middle of a transcript settles
+        # on its own words (ruling 143: the run's reading; ruling 18's index record is gone)
         w = _words("so as I said earlier I think the good news is here okay")
         lock = L.make_lock("vid", w, 5, 10, "0" * 64, "I mean the good news is", None, 0.9, "x")   # words 5..10
         new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("so as I said earlier I think the good news is here okay"),
                                 log=lambda *_: None)
-        alt, = new["alternatives"]
-        self.assertEqual((alt["word_index"], w[alt["word_index"]]["word"]), (6, "think"))
-
+        self.assertEqual((new["text"], [x["took"] for x in new["adjudication"]["pairs"]]),
+                         ("I think the good news is", ["run"]))
     def test_no_difference_keeps_the_lock_and_asks_nobody(self):
         lock, w = _lock(self.PIN, "I mean the good news is that it works.")
         rec = _reads("anything")
@@ -169,38 +161,25 @@ class TestRuling84b(unittest.TestCase):
     word against the decode's one (it reads the approved words), the lock keeps the decode's word and records the other
     reading (ruling 18's record); two or more such in one span hold; a content word stays ruling 17's."""
 
-    def test_one_function_word_keeps_the_decodes_word_and_records_the_other(self):
+    def test_one_function_word_takes_the_two_of_three_reading(self):        # ruling 143 (84 (b) kept the decode's)
         lock, w = _lock("I go to the bank today.", "I go to a bank today.")
         new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("I go to a bank today."), log=lambda *_: None)
-        self.assertEqual(new["text"], "I go to the bank today.")
-        self.assertNotIn("adjudication", new)
-        alt, = new["alternatives"]
-        self.assertEqual((alt["readings"], alt["token_index"], alt["word_index"]), (["the", "a"], 3, 3))
-        self.assertEqual(alt["source_span"], [w[3]["start"], round(w[3]["end"], 3)])
+        self.assertEqual(new["text"], "I go to a bank today.")
+        self.assertNotIn("alternatives", new)
         self.assertEqual(L.verify_lock(new), [])
-        for heard in ("I go to the bank today.", "I go to a bank today."):            # G18 passes either reading
-            self.assertEqual(WD.diff(new["text"], heard, alts=new["alternatives"]), [])
-        self.assertTrue(WD.diff(new["text"], "I go to my bank today.", alts=new["alternatives"]))   # a third: no
-
-    def test_with_fillers_the_rest_is_ruling_17s(self):
+    def test_with_fillers_the_rest_is_two_of_three(self):                   # ruling 143
         run_t = "So it will replace or be replaced. So it is gone."
         pin_t = "So it will replace, uh, or be replaced, or it is gone."
         lock, w = _lock(run_t, pin_t)
         new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads(pin_t), log=lambda *_: None)
-        self.assertEqual(new["text"], "So it will replace, uh, or be replaced, so it is gone.")
-        self.assertNotIn("adjudication", new)                          # ruling 135 (d): the 'uh' is not a word
-        self.assertEqual(new["spelling_only"], [["", "uh"]])
-        alt, = new["alternatives"]
-        self.assertEqual((alt["readings"], w[alt["word_index"]]["word"]), (["so", "or"], "So"))
-        self.assertEqual(WD._alt_positions(new["text"], new["alternatives"]), {alt["token_index"]: {"so", "or"}})
+        self.assertEqual(new["text"], pin_t)                            # the second reads 'or': approved + second
+        self.assertEqual(new["spelling_only"], [["", "uh"]])            # ruling 135 (d): the 'uh' is not a word
+        self.assertNotIn("alternatives", new)
         self.assertEqual(L.verify_lock(new), [])
-
-    def test_two_function_words_in_one_span_hold(self):
+    def test_two_function_words_in_one_span_settle(self):                   # ruling 143 (84 (b) held them)
         lock, w = _lock("I go to the bank in town.", "I go to a bank on town.")
-        with self.assertRaises(P.PinError) as e:
-            P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("I go to a bank on town."), log=lambda *_: None)
-        self.assertIn("ruling 84 (b): two or more in one span hold", str(e.exception))
-
+        new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("I go to a bank on town."), log=lambda *_: None)
+        self.assertEqual(new["text"], "I go to a bank on town.")
     def test_a_content_word_is_still_adopted_by_ruling_17(self):
         lock, w = _lock("The bank holds the money.", "The bank owns the money.")
         new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("The bank owns the money."), log=lambda *_: None)
@@ -353,41 +332,32 @@ class TestRuling131(unittest.TestCase):
         self.assertEqual(new["text"], "And so we built it from a bunch of pieces like we had lying around the "
                                       "office for years.")          # ruling 135 (d): the 'um' is not a word
         adj = new["adjudication"]
-        self.assertTrue(adj["rule"].startswith("ruling 131 (A)"), adj["rule"])
-        self.assertEqual([(x["run"], x["approved"], x["took"], x["agreed"], x["edge_distance"]) for x in adj["pairs"]],
-                         [("bunch of", "budget", "run", ["run", "second"], 7),
-                          ("that", "like", "approved", ["approved", "second"], 9)])
+        self.assertTrue(adj["rule"].startswith("ruling 143"), adj["rule"])
+        self.assertEqual([(x["run"], x["approved"], x["took"], x["agreed"]) for x in adj["pairs"]],
+                         [("bunch of", "budget", "run", ["run", "second"]),
+                          ("that", "like", "approved", ["approved", "second"])])
         self.assertEqual(new["spelling_only"], [["um", ""]])
         self.assertEqual((adj["run_decode"], adj["approved"], adj["second_recogniser"]), (self.RUN, self.PIN, self.SEC))
         self.assertEqual(L.verify_lock(new), [])                       # the digest covers the settled text
         self.assertEqual(rec.calls, ["src.mp4"])
-
-    def test_the_run_reading_needs_three_tokens_to_the_edge(self):
-        new, _ = self.settle("We went to to the bank and then home.", "We went to the bank and then home.",
-                             "We went to to the bank and then home.")
-        self.assertEqual(new["text"], "We went to to the bank and then home.")
-        self.assertEqual(new["adjudication"]["pairs"][0]["edge_distance"], 3)
-        with self.assertRaises(P.PinError) as e:                       # 2 from the start: holds
-            self.settle("We to to the bank and then home.", "We to the bank and then home.",
-                        "We to to the bank and then home.")
-        self.assertIn("lock text not adjudicated (ruling 17)", str(e.exception))
-        self.assertIn("only 2 from an edge (ruling 131 (A) needs 3)", str(e.exception))
-
-    def test_a_repetition_slides_to_the_copy_furthest_from_the_edge(self):
+    def test_the_run_reading_needs_no_distance_from_the_edge(self):          # ruling 143 (131 (A) wanted 3)
+        for run_t, pin_t in (("We went to to the bank and then home.", "We went to the bank and then home."),
+                             ("We to to the bank and then home.", "We to the bank and then home.")):
+            new, _ = self.settle(run_t, pin_t, run_t)
+            self.assertEqual(new["text"], run_t)
+    def test_a_repetition_settles_as_the_run_reads_it(self):                # ruling 143 (no edge rule)
         run_t = "It is the bank that owns the money and that's why that's why we Bitcoin."
         new, _ = self.settle(run_t, "It is the bank that owns the money and that's why we Bitcoin.", run_t)
         self.assertEqual(new["text"], run_t)
-        self.assertEqual(new["adjudication"]["pairs"][0]["edge_distance"], 4)
-        with self.assertRaises(P.PinError):                            # no copy is 3 from the end
-            self.settle("It is the bank that owns the money we said Bitcoin Bitcoin.",
-                        "It is the bank that owns the money we said Bitcoin.",
-                        "It is the bank that owns the money we said Bitcoin Bitcoin.")
-
-    def test_three_different_readings_hold(self):
-        with self.assertRaises(P.PinError) as e:
-            self.settle(self.RUN, self.PIN, self.SEC.replace("bunch of", "punch of"))
-        self.assertIn("all three readings differ", str(e.exception))
-
+        run_t = "It is the bank that owns the money we said Bitcoin Bitcoin."
+        new, _ = self.settle(run_t, "It is the bank that owns the money we said Bitcoin.", run_t)
+        import canon                                                    # the run's word written after the approved
+        self.assertEqual(canon.canon_tokens(new["text"]), canon.canon_tokens(run_t))   # 'Bitcoin.': same words
+    def test_three_different_readings_take_the_run_decode(self):            # ruling 143 (2) (it held)
+        new, _ = self.settle(self.RUN, self.PIN, self.SEC.replace("bunch of", "punch of"))
+        self.assertEqual(new["text"], "And so we built it from a bunch of pieces like we had lying around the "
+                                      "office for years.")
+        self.assertEqual(new["small_words_unsettled"], 1)
     def test_a_currency_symbol_is_formatting_either_way_round(self):
         for run_t, pin_t in (("They raised 2 billion last year from the fund.", "They raised $2 billion last year "
                               "from the fund."), ("They raised $2 billion last year from the fund.",
@@ -400,21 +370,23 @@ class TestRuling131(unittest.TestCase):
                 self.assertEqual(rec.calls, [])                        # nobody asked, nothing spent
                 self.assertEqual(L.verify_lock(new), [])
 
-    def test_the_currency_symbol_never_hides_a_number(self):
-        with self.assertRaises(P.PinError) as e:
+    def test_the_currency_symbol_never_hides_a_number(self):                # ruling 143 (3): corrected from
+        new, _ = self.settle("They raised 3 billion last year from the fund.",            # the audio when both
+                             "They raised $2 billion last year from the fund.",            # audio readings agree
+                             "They raised 3 billion last year from the fund.")
+        self.assertEqual(new["text"], "They raised 3 billion last year from the fund.")
+        self.assertEqual(len(new["transcript_corrected"]), 1)
+        with self.assertRaises(P.PinError) as e:                        # and holds when they disagree
             self.settle("They raised 3 billion last year from the fund.",
-                        "They raised $2 billion last year from the fund.", "They raised 3 billion last year.")
-        self.assertIn("number, name or negation", str(e.exception))
-
-    def test_currency_and_ruling_17_together(self):
+                        "They raised $2 billion last year from the fund.", "They raised 2 billion last year from the fund.")
+        self.assertIn("ruling 143 (3)", str(e.exception))
+    def test_currency_and_two_of_three_together(self):
         new, _ = self.settle("They raised 2 billion last year from the bank.",
                              "They raised $2 billion last year from the fund.",
                              "They raised 2 billion last year from the fund.")
         self.assertEqual(new["text"], "They raised $2 billion last year from the fund.")
         self.assertEqual(new["currency_format"], [["", "dollars"]])
-        self.assertTrue(new["adjudication"]["rule"].startswith("ruling 17"))
-
-
+        self.assertTrue(new["adjudication"]["rule"].startswith("ruling 143"))
 class TestRuling135(unittest.TestCase):
     """RULING 135 (orchestrator 10:50 ET Nov 17) in the render's lock: a run / approved pair that is the same words under
     the comparison canon is dropped before any vote (recorded in spelling_only, nobody asked); the rest is unchanged.
@@ -471,17 +443,18 @@ class TestRuling142(unittest.TestCase):
         new, _ = self.settle(self.PIN.replace("Bitcoin", "Bitcoins"), self.PIN, self.PIN)     # a plural ending too
         self.assertEqual(new["text"], self.PIN)
 
-    def test_all_three_different_still_holds(self):
-        with self.assertRaises(P.PinError) as e:
-            self.settle(self.RUN, self.PIN, self.RUN.replace("Bitcoin's", "Bitcoins"))
-        self.assertIn("all three readings differ", str(e.exception))
-
-    def test_a_name_whose_letters_differ_still_holds_before_any_vote(self):
+    def test_all_three_different_take_the_run_decode(self):                 # ruling 143 (2): word forms never
+        new, _ = self.settle(self.RUN, self.PIN, self.RUN.replace("Bitcoin's", "Bitcoins"))   # hold (142 held them)
+        self.assertEqual(new["text"], self.RUN)
+        self.assertEqual(new["small_words_unsettled"], 1)
+    def test_a_name_whose_letters_differ_holds_when_the_audio_readings_disagree(self):   # ruling 143 (3)
         with self.assertRaises(P.PinError) as e:
             self.settle(self.RUN.replace("Bitcoin's", "Ethereum's"), self.PIN, self.RUN)
-        self.assertIn("law L-v 2", str(e.exception))
-
-
+        self.assertIn("ruling 143 (3)", str(e.exception))
+        new, _ = self.settle(self.RUN.replace("Bitcoin's", "Ethereum's"), self.PIN,
+                             self.RUN.replace("Bitcoin's", "Ethereum's"))   # both audio readings: corrected
+        self.assertIn("Ethereum's", new["text"])
+        self.assertEqual(len(new["transcript_corrected"]), 1)
 class TestBatch112(unittest.TestCase):
     """Batch 112: the two re-judged spans of ruling 142, settled from their recorded readings (the run decode, the
     approved text, the second recogniser's, verbatim from the pre-check's 15:24 entries). must-fail on batch 110's code."""
@@ -510,3 +483,60 @@ class TestBatch112(unittest.TestCase):
         self.assertEqual(new["text"], run_t)
         new, _ = self.settle(run_t, pin_t, pin_t)                    # it hears "Bitcoin's"
         self.assertEqual(new["text"], pin_t)
+
+
+class TestRuling143(unittest.TestCase):
+    """RULING 143 (orchestrator 15:55 ET Nov 17): ONE principle. (1) MATERIAL = a number, a negation, a name (letters
+    differ after the canon), a ticker or a currency amount. (2) a non-material pair never holds: two of three, else the
+    run decode's; more than 3 all-differing pairs in a clip are counted for ONE soft flag. (3) a material pair: the two
+    AUDIO readings (run decode, second recogniser) agreeing against the transcript correct it (recorded); disagreeing,
+    HOLD. (4) HARD: the second reading hearing under 85 % of the run's words (more than 3 missing): the wrong audio.
+    must-fail on the code before batch 113."""
+    settle = TestRuling131.settle
+
+    def test_a_material_word_both_audio_readings_agree_on_corrects_the_transcript(self):
+        run_t = "The fund raised 2.35 billion dollars this year from the bank."
+        pin_t = "The fund raised 2.25 billion dollars this year from the bank."
+        new, _ = self.settle(run_t, pin_t, run_t)
+        self.assertEqual(new["text"], run_t)
+        self.assertEqual(new["transcript_corrected"], [["2250000000", "2350000000"]])
+        self.assertTrue(new["adjudication"]["rule"].startswith("ruling 143"))
+        with self.assertRaises(P.PinError) as e:                       # the audio readings disagree: HOLD
+            self.settle(run_t, pin_t, pin_t)
+        self.assertIn("ruling 143 (3)", str(e.exception))
+
+    def test_a_ticker_holds_unless_both_audio_readings_agree(self):    # 'i've' / 'IBIT'
+        run_t = "So I've seen inflows into it every single day this week."
+        pin_t = "So IBIT seen inflows into it every single day this week."
+        with self.assertRaises(P.PinError):
+            self.settle(run_t, pin_t, pin_t)                           # the second hears IBIT, the decode I've
+        new, _ = self.settle(run_t, pin_t, run_t)                      # both hear I've: the transcript was wrong
+        self.assertEqual(new["text"], run_t)
+        self.assertEqual(len(new["transcript_corrected"]), 1)
+
+    def test_fillers_of_any_length_never_hold(self):
+        run_t = "Bitcoin is the hardest money we have ever had in our lives."
+        for pin_t, sec_t in (("Bitcoin is, you know, the hardest money we have ever had in our lives.",
+                              "Bitcoin is the hardest money we have ever had in our lives."),
+                             ("Bitcoin is sort of like the hardest money we have ever had in our lives.",
+                              "Bitcoin is kind of the hardest money we have ever had in our lives.")):
+            with self.subTest(pin=pin_t):
+                new, _ = self.settle(run_t, pin_t, sec_t)
+                self.assertNotIn("transcript_corrected", new)
+
+    def test_another_clips_audio_is_the_wrong_audio(self):
+        run_t = "Bitcoin is the hardest money we have ever had in our lives and it keeps growing."
+        pin_t = "Bitcoin is the hardest money we have ever had in our life and it keeps growing."
+        with self.assertRaises(P.PinError) as e:
+            self.settle(run_t, pin_t, "The weather today is cold and the roads are icy near the river bank.")
+        self.assertIn("ruling 143 (4)", str(e.exception))
+
+    def test_all_differing_small_words_are_counted_for_the_flag(self):   # a long span: 4 of 36 words is not the
+        tail = " and then we all walked home together slowly along the quiet river road before the sun went down."
+        run_t = "We went in the house and saw a dog by the gate near the old red barn" + tail      # wrong audio
+        pin_t = "We went into the house and saw the dog at the gate by the old red barn" + tail
+        sec_t = "We went unto the house and saw one dog past the gate near a old red barn" + tail
+        new, _ = self.settle(run_t, pin_t, sec_t)
+        self.assertEqual(new["text"], run_t)                              # all three differ: the run decode's
+        self.assertEqual(new["small_words_unsettled"], 4)                 # in/into/unto, a/the/one, by/at/past,
+        #                                                                   near/by ('near a' is no neighbour match)

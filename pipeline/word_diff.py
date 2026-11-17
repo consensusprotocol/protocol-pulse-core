@@ -80,6 +80,13 @@ def diff(expected, heard, collapse=False, alts=None):
     return out
 
 
+def _material(diffs, texts):
+    """RULING 143 (1): True when any of G18's differences [(op, expected words, heard words)] is MATERIAL (a number, a
+    negation, a name, a ticker or an amount: pinned.material_pair, the lock's own classifier)."""
+    import pinned
+    return any(pinned.material_pair(str(e).split(), str(h).split(), texts) for _, e, h in diffs)
+
+
 def _omitted_or_repeated_only(expected, heard, alts=None):
     """Ruling 22: True when the heard text differs from the expected ONLY by omitted expected words or by repeats of
     the expected words just before them (nothing substituted, nothing added); attested alternatives (ruling 18)
@@ -199,7 +206,10 @@ def gate_g18(final_path, segments, clips, transcriber=None):
             row["repeat_only_adjudication"] = {"same_audio": same, **det}
             if same:
                 row["identity_repeats_only"], row["identity"] = row["identity"], []
-        if row["identity"] and _omitted_or_repeated_only(c["lock_text"], heard, alts) and c.get("prepared"):
+        small_only = bool(row["identity"]) and bool(c.get("adjudicated")) and \
+            not _material(row["identity"], (c["lock_text"], heard))      # ruling 143 (2): a small word never holds
+        omitted = bool(row["identity"]) and _omitted_or_repeated_only(c["lock_text"], heard, alts)
+        if row["identity"] and (omitted or small_only) and c.get("prepared"):
             # ruling 22 (orchestrator 2026-11-12 '13:06'): the final's decode is a proxy, the audio is the truth: a
             # difference that only OMITS or REPEATS locked words is decided acoustically: the prepared clip (speech
             # stem) over its interior (between the edge fades) must be the source span, G17c's comparison (-90 dBFS
@@ -213,8 +223,8 @@ def gate_g18(final_path, segments, clips, transcriber=None):
             except Exception as e:                   # not measurable: the difference stands
                 same, det = False, {"why": f"{type(e).__name__}: {e}"}
             row["omission_adjudication"] = {"same_audio": same, **det}
-            if same:
-                row["identity_omitted_only"], row["identity"] = row["identity"], []
+            if same:                                 # ruling 143: the clip plays the speaker's audio, decided above
+                row["identity_omitted_only" if omitted else "identity_small_words"], row["identity"] = row["identity"], []
         row["pass"] = not row["edges"] and not row["identity"] and not row.get("acoustic_mismatch")
         ok_all &= row["pass"]
         rows.append(row)

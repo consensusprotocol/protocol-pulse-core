@@ -532,6 +532,12 @@ def stage_validate(run):
     for r in results:
         if not r["pass"]:
             flag(run, sentence(EDL_SOFT[r["rule"]], edl, r.get("reason", "")), f"{r['rule']}: {r.get('reason', '')}")
+    for seg in [edl.get("hook") or {}] + list(edl.get("clips") or []):  # ruling 143 (2): ONE soft flag a clip whose
+        lk = seg.get("selection_lock") if isinstance(seg, dict) else None    # small words all three readings differ on
+        n = lk.get("small_words_unsettled") if isinstance(lk, dict) else None  # number more than 3
+        if isinstance(n, int) and not isinstance(n, bool) and n > 3:
+            flag(run, f"The clip ({seg.get('channel') or 'channel unknown'}): the transcript and the audio readers "
+                      f"differ on a few small words.", f"{n} small words all three readings differ on (ruling 143 (2))")
     ok91, why91 = takeaway_value(edl)          # ruling 91's MEDLEY half: the live path only (the references predate it)
     print(f"  {why91}")
     run.prov["takeaway_value"] = {"pass": ok91, "reason": why91}

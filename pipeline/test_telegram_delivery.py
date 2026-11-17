@@ -631,3 +631,15 @@ class TestLimits(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRuling143Note(TestLockLines):
+    """RULING 143 (3): a material word the two audio readings agreed on, against the transcript, is said in the note,
+    one plain line a clip ('transcript corrected from the audio: ...'). must-fail on the code before batch 113."""
+
+    def test_a_corrected_transcript_is_said(self):
+        rd = self.run_with(clip_lock={"text": "x", "transcript_corrected": [["2250000000", "2350000000"]],
+                                      "adjudication": {"rule": "ruling 143 (orchestrator 2026-11-17 '15:55')", "pairs": []}})
+        _, sent = self.deliver(rd)
+        cap = [s for s in sent if s[0] == "video"][0][2]["caption"]
+        self.assertIn("Clip 1 (Natalie Brunell): transcript corrected from the audio: '2250000000' is '2350000000'.", cap)

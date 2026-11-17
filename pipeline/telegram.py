@@ -131,15 +131,15 @@ def lock_lines(run_dir, edl):
     currency_format). STOP (nothing is sent) on an unreadable pin record or a sealed (A) pin that is not the EDL's."""
     locks = [x for x in [(edl.get("hook") or {}).get("selection_lock")] +
              [c.get("selection_lock") for c in edl.get("clips") or []] if isinstance(x, dict)]
-    majority = any(isinstance(x.get("adjudication"), dict) and
-                   str(x["adjudication"].get("rule", "")).startswith("ruling 131 (A)") for x in locks)
+    majority = any(isinstance(x.get("adjudication"), dict) and          # ruling 143 settles as (A) did
+                   str(x["adjudication"].get("rule", "")).startswith(("ruling 131 (A)", "ruling 143")) for x in locks)
     path = os.path.join(run_dir, "PINNED_DECISION.json")
     if os.path.exists(path):
         try:
             with open(path) as f:
                 pin = json.load(f)["pin"]
-            sealed = any("ruling 131 (A)" in str(s["attested"]["rule"]) for s in pin.get("segments") or []
-                         if s.get("attested") is not None)
+            sealed = any(("ruling 131 (A)" in str(s["attested"]["rule"]) or "ruling 143" in str(s["attested"]["rule"]))
+                         for s in pin.get("segments") or [] if s.get("attested") is not None)
             sha = (pin.get("moments_package") or {}).get("package_sha256") if sealed else None
         except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
             raise RuntimeError(f"STOP: ruling 131's marks: the pin record cannot say whether a word check was settled "
@@ -150,7 +150,17 @@ def lock_lines(run_dir, edl):
         majority = majority or sealed
     currency = any(x.get("currency_format") for x in locks)
     spelling = any(x.get("spelling_only") for x in locks)                 # ruling 135: the canon settled a span
-    return [n for n, on in ((MAJORITY_NOTE, majority), (CURRENCY_NOTE, currency), (SPELLING_NOTE, spelling)) if on]
+    import release_auth                                                   # ruling 143 (3): a material word the two
+    corrected = []                                                        # audio readings agreed on, said per clip
+    for label, seg in [("hook", edl.get("hook") or {})] + [(f"clip_{c.get('index')}", c) for c in edl.get("clips") or []]:
+        lk = seg.get("selection_lock") if isinstance(seg, dict) else None
+        pairs = lk.get("transcript_corrected") if isinstance(lk, dict) else None
+        if isinstance(pairs, list) and pairs:
+            who = release_auth.seg_name(label, edl) or "a clip"
+            corrected.append(f"{who[:1].upper() + who[1:]}: transcript corrected from the audio: " + "; ".join(
+                f"'{p[0]}' is '{p[1]}'" for p in pairs if isinstance(p, (list, tuple)) and len(p) == 2) + ".")
+    return [n for n, on in ((MAJORITY_NOTE, majority), (CURRENCY_NOTE, currency), (SPELLING_NOTE, spelling)) if on] \
+        + corrected
 
 
 def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
