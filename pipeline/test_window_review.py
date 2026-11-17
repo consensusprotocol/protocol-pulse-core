@@ -288,15 +288,17 @@ class TestLocalReviewAndGate(unittest.TestCase):
         self.assertEqual(g["verdict"], "HOLD")
         self.assertFalse(g["laws"]["LAW_2_VO_HAS_A_JOB"]["pass"])
 
-    def test_sequence_without_progression_never_reaches_cut(self):
-        import run_fresh as rf
+    def test_sequence_without_progression_is_flagged_at_validate(self):    # rulings 136 / 137: the editorial laws
+        import run_fresh as rf                                               # are SOFT; it held before the switch
         edl = v2f_edl()
         json.dump(edl, open(os.path.join(self.tmp, "edl.json"), "w"))
         er.write_review(FakeReviewer(good_review(edl, progresses=False)), edl, self.tmp)
         run = rf.Run(self.tmp)
-        with self.assertRaises(rf.Hold) as cm:
-            rf.stage_validate(run)                            # validate runs before cut; it must stop here
-        self.assertIn("LAW_4_SEQUENCE_PROGRESSES", str(cm.exception))
+        with self.assertRaises(rf.Hold) as cm:          # validate runs before cut; this v2f EDL holds on a HARD rule
+            rf.stage_validate(run)                      # later in validate (its hook does not name Bitcoin)
+        self.assertNotIn("LAW_4", str(cm.exception))
+        self.assertIn("The editorial check doubted that the clips build to a payoff.",
+                      [f["flag"] for f in run.prov["review_flags"]])
         src = open(rf.__file__).read()
         order = [src.index(f'run.stage("{s}"') for s in ("select", "review", "validate", "cut")]
         self.assertEqual(order, sorted(order))

@@ -1,0 +1,27 @@
+# Heimdall audit
+
+**Question:** Review this diff. ORCHESTRATOR RULING 138 (3) (11:40 ET Nov 17), verbatim: "In the Telegram note for a flagged package, each flag is one plain sentence PBX can judge in five seconds (what the checker doubted, about which clip), no codes." RULING 137 (2): "HARD: words, speaker credit, cut mid-word, crop through a face or burned text, layout that cannot render, runtime, attestation and the review-path delivery; SOFT: everything else, flagged in the note." RULING 136: a SOFT gate "scores and FLAGS, it does not refuse". The diff (1) rewords every render-side flag as one sentence naming the version and, where the gate report says which, the clip; (2) makes V1's credits row HARD again (speaker credit): a V1 that did not pass holds when ANY model did not affirm the credits row (said no, left it out, or gave no answer); V1's other rows stay SOFT flags; (3) makes a SOFT row's MALFORMED execution evidence a blocker (the attestation is HARD); a SOFT row that measured nothing (well-formed, 0 samples or SKIPPED) is a flag "did not measure anything", never a pass.
+
+FACTS (unchanged code, not in the diff):
+- GATE_REPORT.json (bound by digest at authorise) holds rows[fmt], evidence[fmt][row] = {"executed": verdict != "SKIPPED", "samples": int} written by run_fresh's put(), notes, and per-gate detail: "G16" a list of {"segment", "errors", "in": {"pass"}, "out": {"pass"}}; "G19" {fmt: [{"segment", "pass"}]}; "G14_16x9" / "G14_9x16" lists of samples {"label", "status"}; "L-c" {fmt: {"g3c_failed_edges": [[segment, side], ...]}}; "G9" {fmt: {"gate": {"luma_ok", "audio_ok"}}}; "V1" {fmt: {"ok", "error"?, "per_model": {model: {"rows": {row: {"answer", "why", "ok"}}}}, "boundaries"?, "letterbox_per_shot"?}}. G8's production table is NOT in the report.
+- edl.json (bound): "hook" {"channel", ...}, "clips" [{"index": 1..n, "channel", ...}]; segment labels are "hook" and "clip_01".."clip_NN".
+- blockers(fmt, rows, evidence) feeds attest() and authorise() (and run_fresh's run verdict); authorise() is the last check before telegram.deliver_run sends anything; it re-derives the verdict and the flags and compares them with ATTESTATION.json.
+- edl_rules' reasons name segments as "hook", "clip_02", "clip_2" or "clip 2"; ruling 37's R1 reason contains "non-hook clip".
+
+Cycle 2: try to BREAK it. Report ONLY a defect you can show with a CONCRETE state (rows, evidence, report detail, EDL, pin record) traced through the diff's code. Keep each "issue" under 80 words. If you cannot break it, answer PASS with no findings.
+
+BREAK-IT TARGETS:
+T1. A run that reaches PBX although speaker credit (V1's credits row), the attestation (malformed evidence) or another HARD check failed.
+T2. A flag that names the wrong clip, the wrong version, says a doubt the check never had, or carries a code; or a soft failure left unsaid.
+T3. Attest and authorise deriving different flags for the same files (a refusal of a good run, or a pass of a changed one).
+T4. A crash (exception) in attest, authorise, the note or the validate stage on malformed report detail, EDL, or rule reasons.
+
+**Panel:** qwen27b  |  **Cost:** $0.0215
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none

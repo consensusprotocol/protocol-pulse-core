@@ -1,0 +1,372 @@
+diff --git a/pipeline/release_auth.py b/pipeline/release_auth.py
+index 411984b2..e36ae081 100644
+--- a/pipeline/release_auth.py
++++ b/pipeline/release_auth.py
+@@ -22,6 +22,7 @@ FAIL CLOSED: absent, empty, malformed, mistyped or unexpected evidence is never
+ import hashlib
+ import json
+ import os
++import re
+ from datetime import datetime, timezone
+ 
+ SCHEMA = "pulse.attestation.v1"
+@@ -52,12 +53,29 @@ SOFT = {"16x9": frozenset({"G3c_acoustic_tail", "G8_sharpness", "G9_tail", "G16_
+                            "V1_visual_checklist", "G14_av_alignment"}),
+         "9x16": frozenset({"G3c_acoustic_tail", "G8_sharpness", "G9_tail", "G16_sentence_boundary", "G19_edge_shots",
+                            "V1_visual_checklist", "G14_audio_offset", "vertical_silent_fallback"})}
+-FLAG_TEXT = {"G3c_acoustic_tail": "a clip's last moment is not quiet", "G8_sharpness": "a clip looks soft",
+-             "G9_tail": "the ending is darker than the reference", "G16_sentence_boundary":
+-             "a clip starts or ends mid-sentence", "G19_edge_shots": "a shot changes at a clip's edge",
+-             "V1_visual_checklist": "the vision check questioned the look", "G14_av_alignment":
+-             "sound and picture may drift", "G14_audio_offset": "the 9:16 sound may be offset",
+-             "vertical_silent_fallback": "the 9:16 fell back to letterbox"}
++FLAG_TEXT = {      # ruling 138 (3): what the check doubted, about which clip, one plain sentence, no codes. {who}: the
++    #                clips the gate report names ("a clip" when it names none); review_flags says the version.
++    "G3c_acoustic_tail": "{who} might not end in silence (a breath or the next word may be heard at its end)",
++    "G8_sharpness": "{who} looks softer than its source",
++    "G9_tail": "the outro at the end {what}",
++    "G16_sentence_boundary": "{who} might start or end in the middle of a sentence",
++    "G19_edge_shots": "the picture cuts to another shot right at an edge of {who}",
++    "V1_visual_checklist": "the vision check doubted that {what}",
++    "G14_av_alignment": "the sound and picture of {who} might be slightly out of sync",
++    "G14_audio_offset": "the sound of {who} might be slightly out of sync",
++    "vertical_silent_fallback": "the picture fell back to a letterbox"}
++CHECK_NAME = {"G3c_acoustic_tail": "the check for silence at each clip's end", "G8_sharpness": "the sharpness check",
++              "G9_tail": "the check of the outro", "G16_sentence_boundary": "the sentence-edge check",
++              "G19_edge_shots": "the shot-change check", "V1_visual_checklist": "the vision check",
++              "G14_av_alignment": "the sync check", "G14_audio_offset": "the sync check",
++              "vertical_silent_fallback": "the letterbox check"}
++V1_WORDS = {"vertical_speaker_centred": "the speaker is centred in the 9:16 frame",
++            "no_letterbox_on_talking_heads": "the talking heads have no black bars",
++            "letterbox per shot": "the talking heads have no black bars",
++            "no_bad_boundary_frames": "no frame at a cut is frozen, black or repeated",
++            "next shot before the cut": "no frame of the next shot shows before a cut",
++            "watermark_present": "a watermark is visible on the clips"}
++CREDITS_ROW = "credits_round_and_match"     # ruling 137 (2): speaker credit is HARD, V1's credits row with it
+ # Ruling 136 (2)'s cap ("only if it has no more than 3 soft flags") is the never-empty SEAL's (the builder's): a render
+ # lists every soft flag it finds and never holds on them, because a SOFT gate "scores and FLAGS, it does not refuse".
+ FORMATS = ("16x9", "9x16")
+@@ -159,10 +177,15 @@ def blockers(fmt, rows, evidence):
+             if not (isinstance(e, dict) and e.get("executed") is True and type(e.get("samples")) is int
+                     and e["samples"] >= 1):
+                 bad.setdefault(k, f"no execution evidence (executed True, samples >= 1): {e!r}")
++        for k in sorted(INVENTORY[fmt] & soft):     # a SOFT row that measured nothing is a flag, but its record must be
++            e = ev.get(k)                           # well formed: the attestation is HARD (ruling 137 (2); F3)
++            if e is not None and not (isinstance(e, dict) and type(e.get("executed")) is bool
++                                      and type(e.get("samples")) is int and e["samples"] >= 0):
++                bad.setdefault(k, f"malformed execution evidence (the attestation is HARD): {e!r}")
+     return bad
+ 
+ 
+-def flags(fmt, rows, evidence):
++def flags(fmt, rows, evidence, report=None, edl=None):
+     """RULINGS 136 / 137: {row: plain words} for one format's SOFT rows that did not pass, or ran without execution
+     evidence (never measured is said, never taken as a pass). A missing or malformed SOFT row is a blocker
+     (blockers()), not a flag."""
+@@ -174,19 +197,122 @@ def flags(fmt, rows, evidence):
+         v, e = rows.get(k), ev.get(k)
+         measured = isinstance(e, dict) and e.get("executed") is True and type(e.get("samples")) is int \
+             and e["samples"] >= 1
+-        if isinstance(v, str) and v in VERDICTS and v != "PASS":
+-            out[k] = FLAG_TEXT.get(k, k)
+-        elif isinstance(v, str) and v == "PASS" and evidence is not NO_EVIDENCE_CHECK and not measured:
+-            out[k] = f"{FLAG_TEXT.get(k, k)} (not measured)"
++        if v == "SKIPPED" or v == "PASS" and evidence is not NO_EVIDENCE_CHECK and not measured:
++            out[k] = f"{CHECK_NAME.get(k, 'a check')} did not measure anything, so its result is unknown"
++        elif isinstance(v, str) and v in VERDICTS and v != "PASS":
++            out[k] = say(k, fmt, report, edl)
+     return out
+ 
+ 
++def seg_name(seg, edl):
++    """'hook' / 'clip_02' -> 'the opening clip (Channel)' / 'clip 2 (Channel)': which clip, as PBX reads it (ruling
++    138 (3)); None for anything else (the outro, a voiceover)."""
++    edl = edl if isinstance(edl, dict) else {}
++    if seg == "hook":
++        h = edl.get("hook")
++        return f"the opening clip ({(h.get('channel') if isinstance(h, dict) else None) or 'channel unknown'})"
++    m = re.fullmatch(r"clip[_ ]0*(\d+)", str(seg))
++    if not m:
++        return None
++    n = int(m.group(1))
++    ch = next((c.get("channel") for c in edl.get("clips") or [] if isinstance(c, dict) and c.get("index") == n), None)
++    return f"clip {n} ({ch or 'channel unknown'})"
++
++
++def join_names(names):
++    return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1] if names else ""
++
++
++def _failed_segments(k, fmt, rep):
++    """The segments the gate report says this SOFT row failed on ([] when it does not say: G8's production table
++    is not in the report)."""
++    try:
++        if k == "G16_sentence_boundary":
++            return [e.get("segment") for e in rep.get("G16") or []
++                    if e.get("errors") or any((e.get(s) or {}).get("pass") is False for s in ("in", "out"))]
++        if k == "G19_edge_shots":
++            return [e.get("segment") for e in (rep.get("G19") or {}).get(fmt) or [] if e.get("pass") is not True]
++        if k in ("G14_av_alignment", "G14_audio_offset"):
++            return [e.get("label") for e in rep.get("G14_" + fmt) or [] if e.get("status") != "PASS"]
++        if k == "G3c_acoustic_tail":
++            return [e[0] for e in ((rep.get("L-c") or {}).get(fmt) or {}).get("g3c_failed_edges") or []]
++    except (AttributeError, TypeError, KeyError, IndexError):
++        pass
++    return []
++
++
++def _v1_doubts(fmt, rep):
++    """V1's rows a model did not affirm (no / missing), its cut and letterbox checks, by name; None: no answer."""
++    v = ((rep.get("V1") or {}).get(fmt)) if isinstance(rep.get("V1"), dict) else None
++    if not isinstance(v, dict) or v.get("error"):
++        return None
++    per = [d for d in (v.get("per_model") or {}).values() if isinstance(d, dict)] \
++        if isinstance(v.get("per_model"), dict) else []
++    if not per:
++        return None
++    out = sorted({r for d in per for r, x in ((d.get("rows") or {}).items() if isinstance(d.get("rows"), dict) else ())
++                  if not (isinstance(x, dict) and x.get("ok") is True)} - {"no_next_shot_before_transition"})
++    if not (v.get("boundaries") or {"ok": True}).get("ok"):
++        out.append("next shot before the cut")
++    if not (v.get("letterbox_per_shot") or {"ok": True}).get("ok"):
++        out.append("letterbox per shot")
++    if any(CREDITS_ROW not in (d.get("rows") or {}) for d in per):
++        out.append(CREDITS_ROW)                                       # a model that never answered it
++    return out
++
++
++def v1_credit_block(fmt, rows, report):
++    """Ruling 137 (2): speaker credit is HARD. A V1 that did not pass blocks when its credits row was not affirmed
++    by every model (no, missing, or no answer at all); V1's other rows are SOFT flags. -> the reason, or None."""
++    if not isinstance(rows, dict) or rows.get("V1_visual_checklist") in (None, "PASS") \
++            or "V1_visual_checklist" not in INVENTORY.get(fmt, ()):
++        return None
++    d = _v1_doubts(fmt, report if isinstance(report, dict) else {})
++    if d is None:
++        return "the vision check gave no answer, so the credits card is unchecked (speaker credit is HARD)"
++    return "the vision check doubted the credits card (speaker credit is HARD)" if CREDITS_ROW in d else None
++
++
++def say(k, fmt, report=None, edl=None):
++    """One SOFT row's flag in plain words (ruling 138 (3)): what the check doubted, about which clip."""
++    rep = report if isinstance(report, dict) else {}
++    names = []
++    for s in _failed_segments(k, fmt, rep):
++        n = seg_name(s, edl)
++        if n and n not in names:
++            names.append(n)
++    what = ""
++    if k == "V1_visual_checklist":
++        words = []
++        for r in _v1_doubts(fmt, rep) or []:
++            w = V1_WORDS.get(r)
++            if w and w not in words:
++                words.append(w)
++        what = " and that ".join(words) or "the video looks right"
++    elif k == "G9_tail":
++        g = (((rep.get("G9") or {}).get(fmt) or {}).get("gate") or {}) if isinstance(rep.get("G9"), dict) else {}
++        bad = [w for w, ok in (("looks too dark", g.get("luma_ok")), ("sounds too loud or too quiet", g.get("audio_ok")))
++               if str(ok) == "False"] if isinstance(g, dict) else []
++        what = " and ".join(bad) or "might look or sound wrong"
++    return FLAG_TEXT.get(k, "a check doubted the video").format(who=join_names(names) or "a clip", what=what)
++
++
+ def review_flags(att_flags, pin_flags):
+-    """The note's flags: the pin's (the builder's selection-side, sealed) then the render's, each once, in order."""
++    """The note's flags, each ONE plain sentence (ruling 138 (3)): the pin's and the render stages' as written, then each
++    flagged gate once, saying the version it was seen in. Each sentence once, in order."""
+     out = []
+-    for f in list(pin_flags or []) + [x for fmt in sorted(att_flags or {}) for x in (att_flags[fmt] or {}).values()]:
++    for f in list(pin_flags or []):
+         if isinstance(f, str) and f and f not in out:
+             out.append(f)
++    seen = {}
++    for fmt in sorted(att_flags or {}):
++        for row, text in (att_flags[fmt] or {}).items():
++            seen.setdefault((row, text), []).append(fmt)
++    for (_, text), fmts in seen.items():
++        where = "both versions" if len(fmts) > 1 else f"the {fmts[0].replace('x', ':')} version"
++        s = f"In {where}, {text}."
++        if s not in out:
++            out.append(s)
+     return out
+ 
+ 
+@@ -214,6 +340,16 @@ def _gate_report(run_dir):
+     return json.load(open(os.path.join(run_dir, "GATE_REPORT.json")))
+ 
+ 
++def _edl(run_dir):
++    """edl.json (bound) for the clip names in the flags; {} when unreadable (the names say 'a clip')."""
++    try:
++        with open(os.path.join(run_dir, "edl.json")) as f:
++            d = json.load(f)
++        return d if isinstance(d, dict) else {}
++    except (OSError, ValueError):
++        return {}
++
++
+ def pin_review_flags(run_dir):
+     """The pin's sealed review_flags (the builder's never-empty seal, ruling 136 (2)), from PINNED_DECISION.json, or []
+     (an auto run, or a pin without flags). Unreadable or malformed -> None (the caller HOLDs)."""
+@@ -254,6 +390,10 @@ def attest(run_dir, run_state, deliverable=True, why_not=None):
+         formats = FORMATS
+         why.append(f_why)
+     bad = {fmt: blockers(fmt, rows.get(fmt), evidence) for fmt in formats}
++    for fmt in formats:                                  # ruling 137 (2): V1's credits row is speaker credit, HARD
++        cb = v1_credit_block(fmt, rows.get(fmt), rep)
++        if cb:
++            bad[fmt]["V1_visual_checklist"] = cb
+     try:
+         pack = json.load(open(os.path.join(run_dir, "VERIFY", "VERIFICATION.json")))
+     except (OSError, ValueError):
+@@ -270,7 +410,7 @@ def attest(run_dir, run_state, deliverable=True, why_not=None):
+         why.append(f"gate report inventory version {rep.get('inventory_version')!r} != {INVENTORY_VERSION}")
+     if not (isinstance(run_state, dict) and run_state.get("ok") is True):
+         why.append("run did not end clean: " + "; ".join(map(str, (run_state or {}).get("why") or ["no state"])))
+-    soft = {fmt: flags(fmt, rows.get(fmt), evidence) for fmt in formats}            # rulings 136 / 137
++    soft = {fmt: flags(fmt, rows.get(fmt), evidence, rep, _edl(run_dir)) for fmt in formats}    # 136 / 137 / 138
+     pin_flags = pin_review_flags(run_dir)
+     if pin_flags is None:
+         why.append("the pin's review_flags are unreadable")
+@@ -317,24 +457,31 @@ def authorise(run_dir):
+     if att.get("formats") != list(formats):
+         why.append(f"attested formats {att.get('formats')!r} differ from the EDL's {list(formats)}")
+     rows, evidence = att.get("rows") or {}, att.get("evidence")
++    try:
++        rep = _gate_report(run_dir)                     # bound: its digest is checked below with every bound file
++    except (OSError, ValueError):
++        rep = None
+     for fmt in formats:
+         for k, v in blockers(fmt, rows.get(fmt), evidence).items():
+             why.append(f"{fmt} {k}: {v}")
++        cb = v1_credit_block(fmt, rows.get(fmt), rep)   # ruling 137 (2): V1's credits row is HARD
++        if cb:
++            why.append(f"{fmt} V1_visual_checklist: {cb}")
+     pin_flags = pin_review_flags(run_dir)               # rulings 136 / 137: the note says exactly the attested flags
+     stage = list((att.get("run_state") or {}).get("review_flags") or [])
+-    note = review_flags({fmt: flags(fmt, rows.get(fmt), evidence) for fmt in formats}, (pin_flags or []) + stage)
++    edl = _edl(run_dir)
++    note = review_flags({fmt: flags(fmt, rows.get(fmt), evidence, rep, edl) for fmt in formats},
++                        (pin_flags or []) + stage)
+     if pin_flags is None:
+         why.append("the pin record is unreadable: its review flags cannot be said (rulings 136 / 137)")
+     elif note != (att.get("review_flags") or []):
+         why.append(f"review flags {note} differ from the attested {att.get('review_flags')!r}")
+     if (att.get("verdict") == "PASS_WITH_FLAGS") != bool(note):
+         why.append("the verdict and the review flags disagree")
+-    try:
+-        rep = _gate_report(run_dir)
+-        if rep.get("rows") != rows or rep.get("evidence") != evidence:
+-            why.append("GATE_REPORT.json rows / evidence differ from the attested ones")
+-    except (OSError, ValueError):
++    if rep is None:
+         why.append("GATE_REPORT.json unreadable")
++    elif not isinstance(rep, dict) or rep.get("rows") != rows or rep.get("evidence") != evidence:
++        why.append("GATE_REPORT.json rows / evidence differ from the attested ones")
+     try:
+         v_ok, v_why = verification_ok(json.load(open(os.path.join(run_dir, "VERIFY", "VERIFICATION.json"))))
+         why += [] if v_ok else v_why
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index ffabfb58..51e0d0a9 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -173,10 +173,36 @@ class Capture(io.TextIOBase):
+ # the top of the Telegram note) instead of holding; a HARD one holds as before. edl_rules: a failing rule holds unless
+ # it is named here (an unknown or new rule fails closed as HARD); R2 (a passage twice), R5 (clip length), R6 (credits)
+ # and R7 (a layout that can render) stay HARD.
+-EDL_SOFT = {"rule_r1": "the hook opens on a question", "rule_r3": "a voiceover follows an answer",
+-            "rule_r4": "the voiceover is over its budget", "rule_r8": "a chyron registry gap",
+-            "rule_r9": "a clip does not end on a sentence", "rule_r10": "a clip does not start a sentence",
+-            "rule_r11": "more voiceover than law L-y allows"}
++EDL_SOFT = {      # ruling 138 (3): what the check doubted, about which clip ({Who}: the clips its reason names)
++    "rule_r1": "{Who} ends on a question rather than a statement.",
++    "rule_r3": "A voiceover line follows {who}, which ends on a question.",
++    "rule_r4": "The voiceover runs over its length limit.",
++    "rule_r8": "A channel's on-screen name could not be checked.",
++    "rule_r9": "{Who} might not end cleanly at the end of a sentence.",
++    "rule_r10": "{Who} might start in the middle of a sentence.",
++    "rule_r11": "There is more voiceover than allowed (one closing line and at most one bridge)."}
++LAW_TEXT = {"LAW_1_NEW_INFORMATION": "every clip adds something new",
++            "LAW_2_VO_HAS_A_JOB": "every voiceover line has a job",
++            "LAW_3_CONCRETE_TAKEAWAY": "the takeaway is concrete",
++            "LAW_4_SEQUENCE_PROGRESSES": "the clips build to a payoff"}
++_LABEL = re.compile(r"(?<![-\w])(hook|clip[_ ]\d+)\b")
++
++
++def who(edl, text, default="a clip"):
++    """The clips a check's words name ('hook', 'clip_02', 'clip_2', 'clip 2'; never 'non-hook'), as PBX reads them
++    (ruling 138 (3)): 'the opening clip (Channel)', 'clip 2 (Channel)', joined; the default when it names none."""
++    import release_auth
++    names = []
++    for m in _LABEL.finditer(text or ""):
++        n = release_auth.seg_name(m.group(1), edl)
++        if n and n not in names:
++            names.append(n)
++    return release_auth.join_names(names) or default
++
++
++def sentence(template, edl, text):
++    w = who(edl, text)
++    return template.format(who=w, Who=w[:1].upper() + w[1:])
+ 
+ 
+ def flag(run, text, detail=None):
+@@ -487,12 +513,12 @@ def stage_validate(run):
+         raise Hold("EDL rejected by edl_rules: " + "; ".join(f"{r['rule']}: {r.get('reason', '')}" for r in hard))
+     for r in results:
+         if not r["pass"]:
+-            flag(run, EDL_SOFT[r["rule"]], f"{r['rule']}: {r.get('reason', '')}")
++            flag(run, sentence(EDL_SOFT[r["rule"]], edl, r.get("reason", "")), f"{r['rule']}: {r.get('reason', '')}")
+     ok91, why91 = takeaway_value(edl)          # ruling 91's MEDLEY half: the live path only (the references predate it)
+     print(f"  {why91}")
+     run.prov["takeaway_value"] = {"pass": ok91, "reason": why91}
+     if not ok91:
+-        flag(run, "the takeaway's value is not affirmed (ruling 91)", why91)
++        flag(run, "The checker doubted that the closing voiceover line gives a takeaway worth saying.", why91)
+ 
+     # Shared AUTO/PIN editorial law gate. This is the last editorial acceptance
+     # point before cutting. It always writes STORYBOARD.md + EDITORIAL_GATE.json
+@@ -503,8 +529,9 @@ def stage_validate(run):
+         print(f"  {name}: [{'PASS' if rec.get('pass') else 'FAIL'}] " + "; ".join(rec.get("reasons") or []))
+     if gate.get("verdict") != "READY_FOR_RENDER":
+         failed = [name for name, rec in gate.get("laws", {}).items() if not rec.get("pass")]
+-        flag(run, "editorial law(s) not affirmed: " + (", ".join(failed) or "the review gave no judgment"),
+-                 gate.get("verdict"))
++        flag(run, ("The editorial check doubted that " + " and that ".join(LAW_TEXT.get(n, "one of its rules holds")
++                                                                           for n in failed) + ".") if failed
++             else "The editorial check gave no judgment on the line-up.", gate.get("verdict"))
+ 
+     # Orchestrator 08:30 (direction 2): every segment stands alone and belongs to a Bitcoin story. The clip
+     # scorer (the selection criterion) is asked only about clips that open on a conjunction / reply fragment.
+@@ -540,9 +567,12 @@ def stage_validate(run):
+     topic_bad = [r for r in sa["rows"] if not r["topic"]["pass"]]               # ruling 137 (1): Bitcoin only, HARD
+     medley_bad = not sa.get("medley_names_bitcoin", {"pass": True})["pass"]
+     if not sa["ok"] and not topic_bad and not medley_bad:                        # openers only: SOFT
+-        flag(run, "a clip may not stand alone: " + ", ".join(r["segment"] for r in sa["rows"] if not r["pass"])
+-                 + (f" (scorer: {sa['rate_error']})" if sa.get("rate_error") else ""), [r["opener"]["why"]
+-                 for r in sa["rows"] if not r["pass"]])
++        for r in sa["rows"]:                                                    # one sentence a clip
++            if not r["pass"]:
++                flag(run, sentence("{Who} could not be checked for making sense on its own (the checker did not "
++                                   "answer)." if sa.get("rate_error") else
++                                   "{Who} might not make sense on its own, without what comes before it.",
++                                   edl, r["segment"]), r["opener"]["why"])
+     elif not sa["ok"]:
+         raise Hold("stand-alone/topic: " + "; ".join(
+             [f"{r['segment']}: " + " / ".join(x["why"] for x in (r["opener"], r["topic"]) if not x["pass"])
+diff --git a/pipeline/telegram.py b/pipeline/telegram.py
+index b4d54a89..be9a54bc 100644
+--- a/pipeline/telegram.py
++++ b/pipeline/telegram.py
+@@ -167,8 +167,8 @@ def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
+         head = f"{SPOTLIGHT_HEAD} | {head}"
+     if option:
+         head = f"OPTION {option} (transition choice) | {head}"
+-    if flagged:
+-        head = "REVIEW FLAGS: " + "; ".join(flagged) + "\n" + head
++    if flagged:                            # ruling 138 (3): each flag one plain sentence, so one a line
++        head = "\n".join(["REVIEW FLAGS:"] + [f"- {f}" for f in flagged]) + "\n" + head
+     lines = [head, f"{os.path.basename(os.path.normpath(run_dir))} | {fmt} {DIMS[fmt][0]}x{DIMS[fmt][1]}"
+              + (f" | {duration:.1f} s" if duration else ""),
+              f"Story: {edl.get('topic', '')}",

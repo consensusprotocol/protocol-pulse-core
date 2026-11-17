@@ -173,10 +173,36 @@ class Capture(io.TextIOBase):
 # the top of the Telegram note) instead of holding; a HARD one holds as before. edl_rules: a failing rule holds unless
 # it is named here (an unknown or new rule fails closed as HARD); R2 (a passage twice), R5 (clip length), R6 (credits)
 # and R7 (a layout that can render) stay HARD.
-EDL_SOFT = {"rule_r1": "the hook opens on a question", "rule_r3": "a voiceover follows an answer",
-            "rule_r4": "the voiceover is over its budget", "rule_r8": "a chyron registry gap",
-            "rule_r9": "a clip does not end on a sentence", "rule_r10": "a clip does not start a sentence",
-            "rule_r11": "more voiceover than law L-y allows"}
+EDL_SOFT = {      # ruling 138 (3): what the check doubted, about which clip ({Who}: the clips its reason names)
+    "rule_r1": "{Who} ends on a question rather than a statement.",
+    "rule_r3": "A voiceover line follows {who}, which ends on a question.",
+    "rule_r4": "The voiceover runs over its length limit.",
+    "rule_r8": "A channel's on-screen name could not be checked.",
+    "rule_r9": "{Who} might not end cleanly at the end of a sentence.",
+    "rule_r10": "{Who} might start in the middle of a sentence.",
+    "rule_r11": "There is more voiceover than allowed (one closing line and at most one bridge)."}
+LAW_TEXT = {"LAW_1_NEW_INFORMATION": "every clip adds something new",
+            "LAW_2_VO_HAS_A_JOB": "every voiceover line has a job",
+            "LAW_3_CONCRETE_TAKEAWAY": "the takeaway is concrete",
+            "LAW_4_SEQUENCE_PROGRESSES": "the clips build to a payoff"}
+_LABEL = re.compile(r"(?<![-\w])(hook|clip[_ ]\d+)\b")
+
+
+def who(edl, text, default="a clip"):
+    """The clips a check's words name ('hook', 'clip_02', 'clip_2', 'clip 2'; never 'non-hook'), as PBX reads them
+    (ruling 138 (3)): 'the opening clip (Channel)', 'clip 2 (Channel)', joined; the default when it names none."""
+    import release_auth
+    names = []
+    for m in _LABEL.finditer(text if isinstance(text, str) else ""):
+        n = release_auth.seg_name(m.group(1), edl)
+        if n and n not in names:
+            names.append(n)
+    return release_auth.join_names(names) or default
+
+
+def sentence(template, edl, text):
+    w = who(edl, text)
+    return template.format(who=w, Who=w[:1].upper() + w[1:])
 
 
 def flag(run, text, detail=None):
@@ -487,12 +513,12 @@ def stage_validate(run):
         raise Hold("EDL rejected by edl_rules: " + "; ".join(f"{r['rule']}: {r.get('reason', '')}" for r in hard))
     for r in results:
         if not r["pass"]:
-            flag(run, EDL_SOFT[r["rule"]], f"{r['rule']}: {r.get('reason', '')}")
+            flag(run, sentence(EDL_SOFT[r["rule"]], edl, r.get("reason", "")), f"{r['rule']}: {r.get('reason', '')}")
     ok91, why91 = takeaway_value(edl)          # ruling 91's MEDLEY half: the live path only (the references predate it)
     print(f"  {why91}")
     run.prov["takeaway_value"] = {"pass": ok91, "reason": why91}
     if not ok91:
-        flag(run, "the takeaway's value is not affirmed (ruling 91)", why91)
+        flag(run, "The checker doubted that the closing voiceover line gives a takeaway worth saying.", why91)
 
     # Shared AUTO/PIN editorial law gate. This is the last editorial acceptance
     # point before cutting. It always writes STORYBOARD.md + EDITORIAL_GATE.json
@@ -503,8 +529,9 @@ def stage_validate(run):
         print(f"  {name}: [{'PASS' if rec.get('pass') else 'FAIL'}] " + "; ".join(rec.get("reasons") or []))
     if gate.get("verdict") != "READY_FOR_RENDER":
         failed = [name for name, rec in gate.get("laws", {}).items() if not rec.get("pass")]
-        flag(run, "editorial law(s) not affirmed: " + (", ".join(failed) or "the review gave no judgment"),
-                 gate.get("verdict"))
+        flag(run, ("The editorial check doubted that " + " and that ".join(LAW_TEXT.get(n, "one of its rules holds")
+                                                                           for n in failed) + ".") if failed
+             else "The editorial check gave no judgment on the line-up.", gate.get("verdict"))
 
     # Orchestrator 08:30 (direction 2): every segment stands alone and belongs to a Bitcoin story. The clip
     # scorer (the selection criterion) is asked only about clips that open on a conjunction / reply fragment.
@@ -540,9 +567,12 @@ def stage_validate(run):
     topic_bad = [r for r in sa["rows"] if not r["topic"]["pass"]]               # ruling 137 (1): Bitcoin only, HARD
     medley_bad = not sa.get("medley_names_bitcoin", {"pass": True})["pass"]
     if not sa["ok"] and not topic_bad and not medley_bad:                        # openers only: SOFT
-        flag(run, "a clip may not stand alone: " + ", ".join(r["segment"] for r in sa["rows"] if not r["pass"])
-                 + (f" (scorer: {sa['rate_error']})" if sa.get("rate_error") else ""), [r["opener"]["why"]
-                 for r in sa["rows"] if not r["pass"]])
+        for r in sa["rows"]:                                                    # one sentence a clip
+            if not r["pass"]:
+                flag(run, sentence("{Who} could not be checked for making sense on its own (the checker did not "
+                                   "answer)." if sa.get("rate_error") else
+                                   "{Who} might not make sense on its own, without what comes before it.",
+                                   edl, r["segment"]), r["opener"]["why"])
     elif not sa["ok"]:
         raise Hold("stand-alone/topic: " + "; ".join(
             [f"{r['segment']}: " + " / ".join(x["why"] for x in (r["opener"], r["topic"]) if not x["pass"])

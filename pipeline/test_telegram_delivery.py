@@ -20,7 +20,7 @@ sys.path.insert(0, PIPELINE)
 
 import release_auth as RA  # noqa: E402
 import telegram as TG  # noqa: E402
-from test_release_auth import edit_json, make_run, passing_rows  # noqa: E402
+from test_release_auth import edit_json, make_run, passing_rows, v1_report  # noqa: E402
 
 
 class Base(unittest.TestCase):
@@ -235,18 +235,21 @@ class TestReviewFlags(Base):
 
     def test_the_flags_open_the_note(self):
         rows = passing_rows()
-        rows["9x16"]["V1_visual_checklist"] = "FAIL"                       # 3f481f5a's case
+        rows["9x16"]["V1_visual_checklist"] = "FAIL"                       # 3f481f5a's case: the watermark row
         rows["16x9"]["G8_sharpness"] = "FAIL"
-        rd = make_run(self.tmp, rows=rows)
+        rd = make_run(self.tmp, rows=rows, attest=False)
+        edit_json(os.path.join(rd, "GATE_REPORT.json"), v1_report("9x16", {"credits_round_and_match": True,
+                                                                           "watermark_present": False}))
+        RA.attest(rd, {"ok": True, "why": []})
         _, sent = self.deliver(rd)
         vids = [s for s in sent if s[0] == "video"]
         self.assertEqual(len(vids), 2)
         for s in vids:
             lines = s[2]["caption"].split("\n")
-            self.assertTrue(lines[0].startswith("REVIEW FLAGS: "), lines)
-            self.assertIn("a clip looks soft", lines[0])
-            self.assertIn("the vision check questioned the look", lines[0])
-            self.assertTrue(lines[1].startswith(TG.HOLD_FLAGGED), lines)
+            self.assertEqual(lines[:3], ["REVIEW FLAGS:", "- In the 16:9 version, a clip looks softer than its source.",
+                                         "- In the 9:16 version, the vision check doubted that a watermark is visible "
+                                         "on the clips."], lines)
+            self.assertTrue(lines[3].startswith(TG.HOLD_FLAGGED), lines)
 
     def test_a_clean_run_has_no_flag_line(self):
         _, sent = self.deliver(make_run(self.tmp))

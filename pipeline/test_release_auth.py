@@ -11,6 +11,7 @@ Claude 'five cheapest tests' #3). One complete passing run directory is built; e
   run         holds present (the run did not end clean), not deliverable (a replay), no / corrupt attestation
 Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_release_auth.py"""
 import json
+import re
 import os
 import shutil
 import subprocess
@@ -486,10 +487,12 @@ class TestRuling136(Base):
     flags; a SOFT row never measured is said; the pin's flags and the render's share ONE cap of 3; a tampered flag list
     is refused at authorise. must-hold: a HARD row (G18, G20, G4s) still holds."""
 
-    def run_rows(self, mutate, pin_flags=None):
+    def run_rows(self, mutate, pin_flags=None, report=None):
         rows = passing_rows()
         mutate(rows)
         rd = make_run(self.tmp, rows=rows, attest=False)
+        if report is not None:                                  # the gate report's per-clip detail (ruling 138 (3))
+            edit_json(os.path.join(rd, "GATE_REPORT.json"), report)
         if pin_flags is not None:
             edit_json(os.path.join(rd, "edl.json"), lambda d: d.update(moments_package_sha256="ab" * 32))
             json.dump({"pin": {"moments_package": {"type": "moments", "package_sha256": "ab" * 32,
@@ -498,8 +501,10 @@ class TestRuling136(Base):
         return rd, RA.attest(rd, {"ok": True, "why": []})
 
     def test_the_blockware_v1_case_delivers_with_its_flag(self):
-        rd, att = self.run_rows(lambda r: r["9x16"].__setitem__("V1_visual_checklist", "FAIL"))
-        self.assertEqual((att["verdict"], att["review_flags"]), ("PASS_WITH_FLAGS", [RA.FLAG_TEXT["V1_visual_checklist"]]))
+        rd, att = self.run_rows(lambda r: r["9x16"].__setitem__("V1_visual_checklist", "FAIL"),
+                                report=v1_report("9x16", {"credits_round_and_match": True, "watermark_present": False}))
+        self.assertEqual((att["verdict"], att["review_flags"]), ("PASS_WITH_FLAGS", [
+            "In the 9:16 version, the vision check doubted that a watermark is visible on the clips."]))
         ok, why, _ = RA.authorise(rd)
         self.assertTrue(ok, why)
 
@@ -507,20 +512,23 @@ class TestRuling136(Base):
         def m(r):
             r["9x16"]["G8_sharpness"] = "FAIL"
             r["9x16"]["G9_tail"] = "FAIL"
-        _, att = self.run_rows(m)
+        _, att = self.run_rows(m, report=lambda d: d.update(G9={"9x16": {"gate": {"luma_ok": "False", "audio_ok": True}}}))
         self.assertEqual(att["verdict"], "PASS_WITH_FLAGS")
-        self.assertEqual(sorted(att["review_flags"]), sorted([RA.FLAG_TEXT["G8_sharpness"], RA.FLAG_TEXT["G9_tail"]]))
+        self.assertEqual(att["review_flags"], ["In the 9:16 version, a clip looks softer than its source.",
+                                               "In the 9:16 version, the outro at the end looks too dark."])
 
     def test_a_soft_row_never_measured_is_said(self):
         rd = make_run(self.tmp, attest=False)
         edit_json(os.path.join(rd, "GATE_REPORT.json"), lambda d: d["evidence"]["16x9"].pop("G19_edge_shots"))
         att = RA.attest(rd, {"ok": True, "why": []})
-        self.assertEqual(att["review_flags"], [RA.FLAG_TEXT["G19_edge_shots"] + " (not measured)"])
+        self.assertEqual(att["review_flags"],
+                         ["In the 16:9 version, the shot-change check did not measure anything, so its result is "
+                          "unknown."])
 
     def test_the_render_lists_every_flag_and_never_holds_on_them(self):     # the cap of 3 is the seal's (builder)
         rd, att = self.run_rows(lambda r: r["16x9"].__setitem__("G8_sharpness", "FAIL"), ["a", "b", "c"])
         self.assertEqual((att["verdict"], att["review_flags"]),
-                         ("PASS_WITH_FLAGS", ["a", "b", "c", RA.FLAG_TEXT["G8_sharpness"]]))
+                         ("PASS_WITH_FLAGS", ["a", "b", "c", "In the 16:9 version, a clip looks softer than its source."]))
         self.assertTrue(RA.authorise(rd)[0])
 
     def test_a_hard_row_still_holds(self):
@@ -552,3 +560,114 @@ class TestRuling136(Base):
         ok, why, _ = RA.authorise(rd)
         self.assertFalse(ok)
         self.assertTrue(any("differ from the attested" in w for w in why), why)
+
+
+def v1_report(fmt, second, first=None):
+    """GATE_REPORT's V1 detail for one format: a first model affirming every row (or `first`), a second with `second`
+    ({row: ok}); a row left out was never answered."""
+    rows = lambda d: {r: {"answer": "yes" if ok else "no", "ok": ok} for r, ok in d.items()}
+    first = first or {"credits_round_and_match": True, "watermark_present": True}
+    return lambda d: d.setdefault("V1", {}).update({fmt: {"ok": False, "per_model": {
+        "qwen": {"rows": rows(first)}, "nemotron": {"rows": rows(second)}}}})
+
+
+class TestRuling138(Base):
+    """RULING 138 (3) (orchestrator 11:40 ET Nov 17): "each flag is one plain sentence PBX can judge in five seconds
+    (what the checker doubted, about which clip), no codes"; the clip is named where the gate report names it. And
+    ruling 137 (2)'s HARD speaker credit holds V1's credits row (V1's other rows flag). must-fail on batch 105's code."""
+    run_rows = TestRuling136.run_rows
+
+    def test_a_gate_flag_names_the_clip_the_report_names(self):
+        rd, att = self.run_rows(lambda r: r["16x9"].__setitem__("G19_edge_shots", "FAIL"), report=lambda d: d.update(
+            G19={"16x9": [{"segment": "hook", "pass": True}, {"segment": "clip_01", "pass": False}]}))
+        self.assertEqual(att["review_flags"], ["In the 16:9 version, the picture cuts to another shot right at an "
+                                               "edge of clip 1 (Natalie Brunell)."])
+        ok, why, _ = RA.authorise(rd)
+        self.assertTrue(ok, why)
+
+    def test_one_flag_in_both_versions_is_said_once(self):
+        def m(r):
+            r["16x9"]["G16_sentence_boundary"] = "FAIL"
+            r["9x16"]["G16_sentence_boundary"] = "FAIL"
+        _, att = self.run_rows(m, report=lambda d: d.update(G16=[
+            {"segment": "hook", "errors": ["ends mid-sentence"]},
+            {"segment": "clip_01", "errors": [], "in": {"pass": True}, "out": {"pass": True}}]))
+        self.assertEqual(att["review_flags"], ["In both versions, the opening clip (Yahoo Finance) might start or end "
+                                               "in the middle of a sentence."])
+
+    def test_a_malformed_report_detail_says_a_clip(self):
+        for bad in ("garbage", {"16x9": [1, 2]}, {"16x9": [{"pass": False}]}):
+            with self.subTest(bad=bad):
+                _, att = self.run_rows(lambda r: r["16x9"].__setitem__("G19_edge_shots", "FAIL"),
+                                       report=lambda d, b=bad: d.update(G19=b))
+                self.assertEqual(att["review_flags"], ["In the 16:9 version, the picture cuts to another shot right "
+                                                       "at an edge of a clip."])
+
+    def test_v1s_credits_row_is_hard(self):            # a model said no, or never answered it
+        for second in ({"credits_round_and_match": False, "watermark_present": True}, {"watermark_present": False}):
+            with self.subTest(second=second):
+                rd, att = self.run_rows(lambda r: r["9x16"].__setitem__("V1_visual_checklist", "FAIL"),
+                                        report=v1_report("9x16", second))
+                self.assertEqual(att["verdict"], "HOLD")
+                self.assertIn("credits card", att["blockers"]["9x16"]["V1_visual_checklist"])
+                edit_json(os.path.join(rd, "ATTESTATION.json"),
+                          lambda d: d.update(verdict="PASS_WITH_FLAGS", blockers={}))
+                ok, why, _ = RA.authorise(rd)
+                self.assertFalse(ok)
+                self.assertTrue(any("credits card" in w for w in why), why)
+
+    def test_a_v1_that_did_not_answer_holds(self):
+        _, att = self.run_rows(lambda r: r["16x9"].__setitem__("V1_visual_checklist", "FAIL"))
+        self.assertEqual(att["verdict"], "HOLD")
+        self.assertIn("no answer", att["blockers"]["16x9"]["V1_visual_checklist"])
+
+    def test_no_flag_carries_a_code(self):
+        code = re.compile(r"\w_\w|\b[A-Z]{1,2}\d|ruling|\bL-[a-z]")
+        texts = [RA.say(k, fmt) for fmt in RA.FORMATS for k in RA.SOFT[fmt]]
+        texts += list(RA.CHECK_NAME.values()) + list(RA.V1_WORDS.values())
+        for t in texts:
+            self.assertIsNone(code.search(t), t)
+
+    def test_a_soft_row_skipped_or_measuring_nothing_is_unknown_never_a_doubt_or_a_pass(self):
+        for label, fn in (("skipped", lambda d: (d["rows"]["16x9"].__setitem__("G8_sharpness", "SKIPPED"),
+                                                 d["evidence"]["16x9"].__setitem__("G8_sharpness",
+                                                                                   {"executed": False, "samples": 0}))),
+                          ("0 samples", lambda d: d["evidence"]["16x9"]["G8_sharpness"].__setitem__("samples", 0))):
+            with self.subTest(label):
+                _, att = self.run_rows(lambda r: None, report=fn)
+                self.assertEqual((att["verdict"], att["review_flags"]), ("PASS_WITH_FLAGS", [
+                    "In the 16:9 version, the sharpness check did not measure anything, so its result is unknown."]))
+
+    def test_a_soft_rows_malformed_evidence_holds(self):           # the attestation is HARD (ruling 137 (2); F3)
+        for bad in ({"executed": 1, "samples": 3}, {"executed": True, "samples": -1}, {"executed": True, "samples": 3.0},
+                    {"executed": True, "samples": True}, [], "3"):
+            with self.subTest(bad=bad):
+                _, att = self.run_rows(lambda r: None,
+                                       report=lambda d, b=bad: d["evidence"]["16x9"].__setitem__("G8_sharpness", b))
+                self.assertEqual(att["verdict"], "HOLD")
+                self.assertIn("malformed execution evidence", att["blockers"]["16x9"]["G8_sharpness"])
+
+    def test_malformed_report_detail_never_crashes_attest_or_authorise(self):     # Heimdall batch 106 c1 F1 / F2
+        cases = [("V1 not a mapping", lambda d: d.update(V1="garbage")),
+                 ("V1 format a list", lambda d: d.update(V1={"9x16": []})),
+                 ("per_model rows an int", lambda d: d.update(V1={"9x16": {"ok": False, "per_model": {"q": {"rows": 5}}}})),
+                 ("boundaries a string", lambda d: d.update(V1={"9x16": {"ok": False, "boundaries": "x", "per_model": {
+                     "q": {"rows": {"credits_round_and_match": {"ok": True}}}}}})),
+                 ("letterbox an int", lambda d: d.update(V1={"9x16": {"ok": False, "letterbox_per_shot": 3, "per_model": {
+                     "q": {"rows": {"credits_round_and_match": {"ok": True}}}}}})),
+                 ("G9 format a string", lambda d: d.update(G9={"9x16": "x"})),
+                 ("G9 gate a string", lambda d: d.update(G9={"9x16": {"gate": "x"}}))]
+        for label, fn in cases:
+            with self.subTest(label):
+                def m(r):
+                    r["9x16"]["V1_visual_checklist"] = "FAIL"
+                    r["9x16"]["G9_tail"] = "FAIL"
+                rd, att = self.run_rows(m, report=fn)
+                self.assertIn(att["verdict"], ("HOLD", "PASS_WITH_FLAGS"))
+                RA.authorise(rd)                                          # a verdict, never an exception
+
+    def test_a_malformed_edl_names_channel_unknown(self):
+        self.assertEqual(RA.seg_name("clip_01", {"clips": 5}), "clip 1 (channel unknown)")
+        self.assertEqual(RA.seg_name("hook", {"hook": "x"}), "the opening clip (channel unknown)")
+        self.assertIsNone(RA.seg_name("outro", {}))
+

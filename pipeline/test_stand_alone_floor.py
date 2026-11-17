@@ -15,6 +15,7 @@ story_semantics.py). If either file changes, the floor stops applying and those 
 be measured again under the new code."""
 import copy
 import json
+import re
 import os
 import shutil
 import sys
@@ -290,7 +291,8 @@ class TestStageValidate(unittest.TestCase):
         got, prov = self.run_stage(edl_with(), rules=rules("rule_r11", "rule_r9"))
         self.assertEqual(got, "passed the stand-alone check")
         self.assertEqual([f["flag"] for f in prov["review_flags"]],
-                         [run_fresh.EDL_SOFT["rule_r11"], run_fresh.EDL_SOFT["rule_r9"]])
+                         ["There is more voiceover than allowed (one closing line and at most one bridge).",
+                          "A clip might not end cleanly at the end of a sentence."])
         for hard in ("rule_r6", "rule_r2", "rule_r5", "rule_r7", "rule_r99"):        # credit, a passage twice, length,
             with self.subTest(rule=hard):                                           # layout, a rule no list names
                 got, _ = self.run_stage(edl_with(), rules=rules(hard, "rule_r11"))
@@ -304,16 +306,36 @@ class TestStageValidate(unittest.TestCase):
         self.assertTrue(got.startswith("HOLD: stand-alone/topic: medley"), got)
         self.assertNotIn("review_flags", prov)
 
+    def test_ruling_138_a_rule_flag_names_its_clip_never_a_non_hook(self):
+        got, prov = self.run_stage(edl_with(), rules=(False, [
+            {"rule": "rule_r9", "pass": False,
+             "reason": "R9 FAIL: clip_02: last word 'x' at 3.00s is not sentence-ending (no . ? !)"},
+            {"rule": "rule_r1", "pass": False,
+             "reason": "R1 FAIL (ruling 37): a question ending is refused for every non-hook clip: ['clip_1']"}]))
+        self.assertEqual(got, "passed the stand-alone check")
+        self.assertEqual([f["flag"] for f in prov["review_flags"]],
+                         ["Clip 2 (Scott Melker) might not end cleanly at the end of a sentence.",
+                          "Clip 1 (CNBC Television) ends on a question rather than a statement."])
+
+    def test_ruling_138_no_stage_flag_carries_a_code(self):
+        code = re.compile(r"\w_\w|\b[A-Z]{1,2}\d|ruling|\bL-[a-z]")
+        e = edl_with()
+        for t in [run_fresh.sentence(x, e, "clip_02") for x in run_fresh.EDL_SOFT.values()] + \
+                list(run_fresh.LAW_TEXT.values()):
+            self.assertIsNone(code.search(t), t)
+
     def test_ruling_136_the_editorial_laws_flag(self):
         got, prov = self.run_stage(edl_with(), gate={"verdict": "HOLD", "laws": {
             "LAW_1_NEW_INFORMATION": {"pass": False}, "LAW_2_VO_HAS_A_JOB": {"pass": True}}})
         self.assertEqual(got, "passed the stand-alone check")
-        self.assertEqual([f["flag"] for f in prov["review_flags"]], ["editorial law(s) not affirmed: LAW_1_NEW_INFORMATION"])
+        self.assertEqual([f["flag"] for f in prov["review_flags"]],
+                         ["The editorial check doubted that every clip adds something new."])
 
     def test_unmarked_a_floor_score_is_flagged_at_validate(self):            # rulings 136 / 137: SOFT (it held)
         got, prov = self.run_stage(edl_with(clip2=BUT))
         self.assertEqual(got, "passed the stand-alone check")
-        self.assertEqual([f["flag"] for f in prov["review_flags"]], ["a clip may not stand alone: clip_02"])
+        self.assertEqual([f["flag"] for f in prov["review_flags"]],
+                         ["Clip 2 (Scott Melker) might not make sense on its own, without what comes before it."])
 
     def test_ruling_119_marked_it_passes_validate_with_the_record_in_provenance(self):
         got, prov = self.run_stage(edl_with(clip2=BUT), mark=good([2]))
@@ -324,7 +346,8 @@ class TestStageValidate(unittest.TestCase):
     def test_other_weights_flag_and_a_malformed_mark_holds(self):        # rulings 136 / 137: the floor not applied
         got, prov = self.run_stage(edl_with(clip2=BUT), mark=good([2]), digest="f" * 64)   # is a flag; a broken mark
         self.assertEqual(got, "passed the stand-alone check")                              # is a broken record: HARD
-        self.assertEqual([f["flag"] for f in prov["review_flags"]], ["a clip may not stand alone: clip_02"])
+        self.assertEqual([f["flag"] for f in prov["review_flags"]],
+                         ["Clip 2 (Scott Melker) might not make sense on its own, without what comes before it."])
         self.assertIn("not the measured one", prov["stand_alone"]["calibrated_floor"]["not_applied"])
         got, prov = self.run_stage(edl_with(clip2=BUT), mark=dict(good([2]), floor=2.5))
         self.assertTrue(got.startswith("HOLD: stand-alone calibrated floor (ruling 119 (1)): stand_alone_bar"), got)
