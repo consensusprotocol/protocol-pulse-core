@@ -79,7 +79,7 @@ SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
 VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
 CODE = ("select_passages.py", "punctuation.py", "pinned.py", "sentence_law.py", "canon.py", "gpu0.py")
 KEY = ("role", "approved_text", "trimmed_leading", "untrimmed_start")   # the request fields an answer depends on
-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131 + ruling 135"   # what an entry's verdict judged; others never reused
+RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131 + ruling 135 + ruling 142"   # what an entry's verdict judged; others never reused
 EXTRA = os.environ.get("PP_LOCK_PRECHECK_EXTRA", "/home/ultron/worktrees/pp-selectid/tests/package/proof/lock_requests")
 # RULING 67's class, as the builder's pipeline/attest.py defines it (FUNCTION_WORDS and carry_class, copied in
 # behaviour): English closed-class words; NO negation, number or ordinal (those are law L-v 2's critical tokens).

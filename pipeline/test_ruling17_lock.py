@@ -451,3 +451,32 @@ class TestRuling135(unittest.TestCase):
                              ("Then I asked Saylor about it again.", "Then I asked Taylor about it again.")):
             with self.subTest(run=run_t), self.assertRaises(P.PinError):
                 self.settle(run_t, pin_t, pin_t)
+
+
+class TestRuling142(unittest.TestCase):
+    """RULING 142 (2) (orchestrator 14:32 ET Nov 17): 'bitcoin' against "bitcoin's", a name with a possessive or plural
+    ending, is a word-form pair like any other: ruling 131 (A)'s two of three decides it (the run's reading at least 3
+    tokens from an edge) and the sealed text takes that reading; all three different still holds; a name whose letters
+    differ still holds under law L-v 2 before any vote. must-fail on the code before batch 110 (it held them all)."""
+    RUN = "They said that Bitcoin's network will keep running for a very long time."
+    PIN = "They said that Bitcoin network will keep running for a very long time."
+    settle = TestRuling131.settle
+
+    def test_a_possessive_pair_takes_the_two_of_three_reading(self):
+        new, _ = self.settle(self.RUN, self.PIN, self.RUN)           # the second recogniser hears the run's
+        self.assertEqual(new["text"], self.RUN)
+        self.assertEqual([(x["took"], x["agreed"]) for x in new["adjudication"]["pairs"]], [("run", ["run", "second"])])
+        new, _ = self.settle(self.RUN, self.PIN, self.PIN)           # it hears the approved text's
+        self.assertEqual(new["text"], self.PIN)
+        new, _ = self.settle(self.PIN.replace("Bitcoin", "Bitcoins"), self.PIN, self.PIN)     # a plural ending too
+        self.assertEqual(new["text"], self.PIN)
+
+    def test_all_three_different_still_holds(self):
+        with self.assertRaises(P.PinError) as e:
+            self.settle(self.RUN, self.PIN, self.RUN.replace("Bitcoin's", "Bitcoins"))
+        self.assertIn("all three readings differ", str(e.exception))
+
+    def test_a_name_whose_letters_differ_still_holds_before_any_vote(self):
+        with self.assertRaises(P.PinError) as e:
+            self.settle(self.RUN.replace("Bitcoin's", "Ethereum's"), self.PIN, self.RUN)
+        self.assertIn("law L-v 2", str(e.exception))
