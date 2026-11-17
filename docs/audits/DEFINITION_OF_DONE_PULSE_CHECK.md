@@ -6,6 +6,22 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 10:31 RULING 134, FIRST LINE-UP NOT PINNED: the lock pre-check refused 2 of the 3 spans of the held DataDash / CoinDesk / Coin Bureau line-up (request attempt134.20261117_102312, answered 10:25 ET). The builder goes on to its next line-up; the integrator stays ready.
+- **9k47sQ0CT18 222.455-231.615:** PASS (no_difference).
+- **DataDash hook WjnphankXmM 601.967-613.827: HOLD at ruling 131 (A), all three readings differ.** They are the SAME spoken words with the brand's word breaks placed three ways:
+  - run decode: "itrust capital's";
+  - approved: "I trust capital's";
+  - second recogniser: "iTrustCapital's".
+  - Respelling the approved text would still hold at ruling 72's comparison.
+  - **Calibrated fix, for your ruling (not changed):** a pair whose letters are identical once spaces are removed is a segmentation difference, not a word difference. It would pass this hook, and still refuses any pair whose letters differ. It is a canon change, so the decoder sha moves (lockstep with the builder).
+- **CoinDesk yHuY9r30Oug 2770.01-2785.81: HOLD, "range outside the source file (file covers 0-0.000 s)". The video cannot be cut yet; this is not a code fault.**
+  - It is a finished live stream still in live_status "post_live" ("CoinDesk Live at Solana Breakpoint 2026 Day 1 | Replay", 112 min, started 06:02 UTC). YouTube serves only live-DASH formats until it finishes processing.
+  - yt-dlp's section download returns the same broken file every time (240,117 bytes; 5.0 s of video, 0.02 s of audio), reproduced at 10:28 and 10:30 ET.
+  - I am watching it every 5 min until its 13:02 ET expiry. If it becomes downloadable, I will clear the pre-check's cached broken file, mark the span for a re-ask, and tell the builder.
+  - **NEW WAY A LINE-UP DIES, for the R132 list:** a moment from a post_live stream can be transcribed (from captions or Whisper on the live manifest) but not cut.
+  - **Guards proposed:** (a) the builder does not choose a post_live source for a line-up (the ingest records live_status); (b) the pre-check answers "error" (re-askable) rather than "hold" when its own download is broken, and does not cache the broken file. (b) is a small lock_precheck.py batch after the attempt (ruling 134).
+- Outside dollars: this request's Scribe is in its entries' scribe_usd (the builder counts them).
+
 ## 10:26 RULINGS 133 / 134. (134) READY TO RENDER: the integrator waits for the builder's sealed DataDash / CoinDesk / Coin Bureau pin. (133) What the scorer's 18 h outage cost last night's pool. BATCH 4 integrator spend: none outside.
 - **Ruling 134, readiness, checked at 10:26 ET:**
   - Services up: the scorer (batch 102's code, in a restart loop), the judge, the lock pre-check (once-loop; decoder ce72aefa342d; RULES + ruling 131), the word pass and the session watchdog.
