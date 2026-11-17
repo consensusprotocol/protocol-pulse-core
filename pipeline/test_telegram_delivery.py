@@ -154,6 +154,75 @@ STAND = {"note": NOTE_119, "floor": 3.0, "scorer_sha": "edd54964a5ab15f4a17d74ec
 PKG = "ab" * 32
 
 
+MAJORITY = "word check settled by two of three readings"     # ruling 131 (A)'s words, as PBX must read them
+CURRENCY = "currency format"                                 # ruling 131 (B)'s
+
+
+class TestLockLines(Base):
+    """RULING 131 (orchestrator 08:25 ET Nov 17): a lock settled by two of the three readings ((A): the render lock's
+    own record, or a pin segment sealed with an attested rule naming ruling 131 (A)) or a currency symbol read as
+    formatting ((B): the render lock's currency_format) is MARKED in the release note, in plain words, when used."""
+
+    def run_with(self, hook_lock=None, clip_lock=None, segments=None, record_sha=PKG, edl_sha=PKG, raw=None):
+        edl = json.load(open(os.path.join(make_run(self.tmp, attest=False), "edl.json")))
+        edl["moments_package_sha256"] = edl_sha
+        if hook_lock is not None:
+            edl["hook"]["selection_lock"] = hook_lock
+        if clip_lock is not None:
+            edl["clips"][0]["selection_lock"] = clip_lock
+        rd = make_run(self.tmp, edl=edl)
+        if segments is not None or raw is not None:
+            with open(os.path.join(rd, "PINNED_DECISION.json"), "w") as f:
+                f.write(raw if raw is not None else json.dumps(
+                    {"mode": "pinned", "pin": {"segments": segments,
+                                               "moments_package": {"type": "moments", "package_sha256": record_sha}}}))
+        return rd
+
+    def marks(self, rd):
+        _, sent = self.deliver(rd)
+        vids = [s for s in sent if s[0] == "video"]
+        self.assertEqual(len(vids), 2)
+        out = [[l for l in s[2]["caption"].split("\n") if l in (MAJORITY, CURRENCY)] for s in vids]
+        self.assertEqual(out[0], out[1])                              # every format's note alike
+        return out[0], vids[0][2]["caption"].split("\n")
+
+    def test_a_render_lock_settled_two_of_three_says_so_under_the_run_line(self):
+        rd = self.run_with(clip_lock={"text": "x", "adjudication": {"rule": "ruling 131 (A) (orchestrator 2026-11-17 "
+                                                                            "'08:25')", "pairs": []}})
+        got, lines = self.marks(rd)
+        self.assertEqual(got, [MAJORITY])
+        self.assertEqual(lines[2], MAJORITY)
+
+    def test_a_pin_sealed_on_two_of_three_says_so(self):
+        rd = self.run_with(segments=[{"approved_text": "x"},
+                                     {"attested": {"rule": "ruling 72 + ruling 131 (A) (orchestrator 08:25 ET Nov 17)"}}])
+        self.assertEqual(self.marks(rd)[0], [MAJORITY])
+
+    def test_currency_format_says_so_after_the_majority_line(self):
+        rd = self.run_with(hook_lock={"text": "x", "currency_format": [["", "dollars"]]},
+                           clip_lock={"text": "y", "adjudication": {"rule": "ruling 131 (A) x"}})
+        self.assertEqual(self.marks(rd)[0], [MAJORITY, CURRENCY])
+
+    def test_no_line_when_neither_is_used(self):
+        rd = self.run_with(clip_lock={"text": "x", "adjudication": {"rule": "ruling 17 (orchestrator 2026-11-12 "
+                                                                            "'10:20')"}},
+                           segments=[{"attested": {"rule": "ruling 72 + ruling 84 (20:41 Nov 13): adopt_spoken"}}])
+        self.assertEqual(self.marks(rd)[0], [])
+
+    def test_a_sealed_pin_that_is_not_the_edls_stops(self):
+        rd = self.run_with(segments=[{"attested": {"rule": "ruling 72 + ruling 131 (A)"}}], record_sha="cd" * 32)
+        sent = []
+        with self.assertRaisesRegex(RuntimeError, "ruling 131's marks: the sealed pin"):
+            TG.deliver_run(rd, send=lambda kind, path, fields, data=None: sent.append(kind) or len(sent))
+        self.assertEqual(sent, [])
+
+    def test_an_unreadable_attested_record_stops(self):
+        rd = self.run_with(segments=[{"attested": "ruling 131 (A)"}])
+        sent = []
+        with self.assertRaisesRegex(RuntimeError, "ruling 131's marks: the pin record cannot say"):
+            TG.deliver_run(rd, send=lambda kind, path, fields, data=None: sent.append(kind) or len(sent))
+        self.assertEqual(sent, [])
+
 class TestBarLines(Base):
     """Rulings 115 (2) / 116 (orchestrator 13:24 ET Nov 15; the builder's Q3 on ruling 106's default, 15:54): a package
     sealed on a calibrated bar (the hook's, the line-up's) says so in the Telegram note, one plain line per mark. The

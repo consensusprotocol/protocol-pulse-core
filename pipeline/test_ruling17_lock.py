@@ -326,3 +326,89 @@ class TestG18AgainstTheAdjudicatedLock(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRuling131(unittest.TestCase):
+    """RULING 131 (orchestrator 2026-11-17 '08:25'). (A) per differing pair, two of the three readings (approved text,
+    run decode, second recogniser) decide it and the lock takes that reading, at least 3 tokens from both span ends for
+    the run decode's reading; never a number, a name or a negation; all three different HOLDS. (B) a currency symbol
+    is formatting: '$2 billion' equals a spoken '2 billion' (recorded, nobody asked).
+    must-fail  the d6adeb54 shape (a content pair and a filler read as the run's, a function word read as the
+               approved's) is settled pair by pair; a pair the run wins exactly 3 tokens from an edge passes; the
+               repetition 'that's why that's why' slides to the copy 4 from the end; '$2 billion' / '2 billion' is no
+               difference either way round (the old lock held them all)
+    must-hold  a pair the run wins 2 tokens from an edge; all three readings different; a number under the '$'"""
+    RUN = "And so we built it from a bunch of pieces that we had lying um around the office for years."
+    PIN = "And so we built it from a budget pieces like we had lying around the office for years."
+    SEC = "And so we built it from a bunch of pieces like we had lying um around the office for years."
+
+    def settle(self, run_t, pin_t, sec_t):
+        lock, w = _lock(run_t, pin_t)
+        rec = _reads(sec_t)
+        return P.adjudicate_lock(lock, "src.mp4", w, recognise=rec, log=lambda *_: None), rec
+
+    def test_each_pair_takes_its_two_of_three_reading(self):
+        new, rec = self.settle(self.RUN, self.PIN, self.SEC)
+        self.assertEqual(new["text"], "And so we built it from a bunch of pieces like we had lying um around the "
+                                      "office for years.")
+        adj = new["adjudication"]
+        self.assertTrue(adj["rule"].startswith("ruling 131 (A)"), adj["rule"])
+        self.assertEqual([(x["run"], x["approved"], x["took"], x["agreed"], x["edge_distance"]) for x in adj["pairs"]],
+                         [("bunch of", "budget", "run", ["run", "second"], 7),
+                          ("that", "like", "approved", ["approved", "second"], 9),
+                          ("um", "", "run", ["run", "second"], 5)])
+        self.assertEqual((adj["run_decode"], adj["approved"], adj["second_recogniser"]), (self.RUN, self.PIN, self.SEC))
+        self.assertEqual(L.verify_lock(new), [])                       # the digest covers the settled text
+        self.assertEqual(rec.calls, ["src.mp4"])
+
+    def test_the_run_reading_needs_three_tokens_to_the_edge(self):
+        new, _ = self.settle("We went to to the bank and then home.", "We went to the bank and then home.",
+                             "We went to to the bank and then home.")
+        self.assertEqual(new["text"], "We went to to the bank and then home.")
+        self.assertEqual(new["adjudication"]["pairs"][0]["edge_distance"], 3)
+        with self.assertRaises(P.PinError) as e:                       # 2 from the start: holds
+            self.settle("We to to the bank and then home.", "We to the bank and then home.",
+                        "We to to the bank and then home.")
+        self.assertIn("lock text not adjudicated (ruling 17)", str(e.exception))
+        self.assertIn("only 2 from an edge (ruling 131 (A) needs 3)", str(e.exception))
+
+    def test_a_repetition_slides_to_the_copy_furthest_from_the_edge(self):
+        run_t = "It is the bank that owns the money and that's why that's why we Bitcoin."
+        new, _ = self.settle(run_t, "It is the bank that owns the money and that's why we Bitcoin.", run_t)
+        self.assertEqual(new["text"], run_t)
+        self.assertEqual(new["adjudication"]["pairs"][0]["edge_distance"], 4)
+        with self.assertRaises(P.PinError):                            # no copy is 3 from the end
+            self.settle("It is the bank that owns the money we said Bitcoin Bitcoin.",
+                        "It is the bank that owns the money we said Bitcoin.",
+                        "It is the bank that owns the money we said Bitcoin Bitcoin.")
+
+    def test_three_different_readings_hold(self):
+        with self.assertRaises(P.PinError) as e:
+            self.settle(self.RUN, self.PIN, self.SEC.replace("bunch of", "punch of"))
+        self.assertIn("all three readings differ", str(e.exception))
+
+    def test_a_currency_symbol_is_formatting_either_way_round(self):
+        for run_t, pin_t in (("They raised 2 billion last year from the fund.", "They raised $2 billion last year "
+                              "from the fund."), ("They raised $2 billion last year from the fund.",
+                                                  "They raised 2 billion last year from the fund.")):
+            with self.subTest(run=run_t):
+                new, rec = self.settle(run_t, pin_t, "nothing heard")
+                self.assertEqual(new["text"], run_t)                   # nothing to adjudicate: the decode stands
+                self.assertNotIn("adjudication", new)
+                self.assertEqual(len(new["currency_format"]), 1)
+                self.assertEqual(rec.calls, [])                        # nobody asked, nothing spent
+                self.assertEqual(L.verify_lock(new), [])
+
+    def test_the_currency_symbol_never_hides_a_number(self):
+        with self.assertRaises(P.PinError) as e:
+            self.settle("They raised 3 billion last year from the fund.",
+                        "They raised $2 billion last year from the fund.", "They raised 3 billion last year.")
+        self.assertIn("number, name or negation", str(e.exception))
+
+    def test_currency_and_ruling_17_together(self):
+        new, _ = self.settle("They raised 2 billion last year from the bank.",
+                             "They raised $2 billion last year from the fund.",
+                             "They raised 2 billion last year from the fund.")
+        self.assertEqual(new["text"], "They raised $2 billion last year from the fund.")
+        self.assertEqual(new["currency_format"], [["", "dollars"]])
+        self.assertTrue(new["adjudication"]["rule"].startswith("ruling 17"))

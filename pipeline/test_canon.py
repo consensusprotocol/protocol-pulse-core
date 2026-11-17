@@ -297,3 +297,18 @@ class TestRetirementPlans(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestCurrencyFree(unittest.TestCase):
+    """Ruling 131 (B): a currency symbol is formatting. currency_free drops only a 'dollars' RIGHT AFTER a number."""
+
+    def test_a_symbol_and_a_spoken_amount_are_equal_either_way(self):
+        for a, b in (("They raised $2 billion last year", "They raised 2 billion last year"),
+                     ("It hit $74,000 today", "It hit 74,000 dollars today")):
+            self.assertEqual(C.currency_free(C.canon_tokens(a)), C.currency_free(C.canon_tokens(b)))
+
+    def test_only_a_dollars_right_after_a_number_is_dropped(self):
+        t = ["dollars", "will", "fall", "to", "5"]                 # the first token has nothing before it (no wrap)
+        self.assertEqual(C.currency_free(t), t)
+        self.assertFalse(C.dollars_after_number(t, 0))
+        self.assertEqual(C.currency_free(["5", "percent", "and", "5", "dollars"]), ["5", "percent", "and", "5"])

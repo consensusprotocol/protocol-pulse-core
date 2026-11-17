@@ -79,7 +79,7 @@ SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
 VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
 CODE = ("select_passages.py", "punctuation.py", "pinned.py", "sentence_law.py", "canon.py", "gpu0.py")
 KEY = ("role", "approved_text", "trimmed_leading", "untrimmed_start")   # the request fields an answer depends on
-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105"   # what an entry's verdict judged; others never reused
+RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131"   # what an entry's verdict judged; others never reused
 EXTRA = os.environ.get("PP_LOCK_PRECHECK_EXTRA", "/home/ultron/worktrees/pp-selectid/tests/package/proof/lock_requests")
 # RULING 67's class, as the builder's pipeline/attest.py defines it (FUNCTION_WORDS and carry_class, copied in
 # behaviour): English closed-class words; NO negation, number or ordinal (those are law L-v 2's critical tokens).
@@ -306,8 +306,11 @@ def as_spoken(lock, words, sw):
     L, S2, spoken = reading(lock, words, sw)
     if not S2:
         return "hold", [[lock["text"], ""]], ["hold"], ""
-    ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != "equal"]
-    diffs = [[" ".join(L[a:b]), " ".join(S2[c:d])] for _, a, b, c, d in ops]
+    import canon
+    ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != "equal"
+           and not (all(canon.dollars_after_number(L, i) for i in range(o[1], o[2])) and     # ruling 131 (B): a
+                    all(canon.dollars_after_number(S2, j) for j in range(o[3], o[4])))]       # currency symbol is
+    diffs = [[" ".join(L[a:b]), " ".join(S2[c:d])] for _, a, b, c, d in ops]                  # formatting
     if not ops:
         return "same", [], [], spoken
     cls = [ruling84_class(L, S2, op, (lock["text"], spoken)) or "hold" for op in ops]
@@ -422,6 +425,12 @@ def unstable(a, lock, spoken, heard, vid, start, end):
                 second_readings=[{"at": w, "source": s, "token": t} for w, s, t in sec])
 
 
+def _majority(lock):
+    """Ruling 131 (A): the lock's two-of-three record, or None (no lock, or another rule's adjudication)."""
+    adj = (lock or {}).get("adjudication")
+    return adj if isinstance(adj, dict) and str(adj.get("rule", "")).startswith("ruling 131 (A)") else None
+
+
 def _outcome(s, lock):
     if not s.get("approved_text"):
         return "decoded"
@@ -441,6 +450,7 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
         else:
             a, err, dsec = dec.get(vid, (None, "not decoded", 0.0))
             spent, lock, reason, t, spoken, cut = [], None, err, time.time(), None, None
+            first, sealed = None, None                           # ruling 131: the first lock; the text to seal
             wd = work_dir(vid, lo, hi, sha)
 
             def recognise(src):                                  # ONE paid reading per acquisition (cached), spend kept
@@ -452,6 +462,7 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                 try:
                     v = pinned.validate_range(s, a)
                     lock = pinned.segment_lock(s, a, v, recognise=recognise, log=log)
+                    first = lock                                 # ruling 131: the lock made with the pin's own text
                     outcome, reason = _outcome(s, lock), None
                     verdict, diffs, cls, text = as_spoken(lock, a["transcript"]["words"], recognise(a["path"])[0])
                     heard = None
@@ -468,11 +479,21 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                         verdict = "hold"                         # an earlier reading of this audio is no truncation
                     spoken = {"verdict": verdict, "differences": diffs, "classes": cls, "text": text,   # 72 + 84
                               "relisten": heard, "unstable_second_reading": usr}                    # + 103 + 105
-                    if verdict == "adopt":                       # the render's own ruling 17 must adopt the spoken text
+                    majority = _majority(first)
+                    if verdict == "same" and majority:           # ruling 131 (A): the sealed text takes each pair's
+                        s2 = dict(s, approved_text=first["text"])     # settled reading; the render's own lock must
+                        try:                                          # adopt it as the pin's text
+                            lock = pinned.segment_lock(s2, a, pinned.validate_range(s2, a), recognise=recognise, log=log)
+                            outcome, sealed = "adopt_spoken", first["text"]
+                        except pinned.PinError as e:
+                            outcome, lock = "hold", None
+                            reason = (f"ruling 131 (A): the settled text {first['text']!r} is not adopted by the "
+                                      f"render's ruling 17: {e}")
+                    elif verdict == "adopt":                     # the render's own ruling 17 must adopt the spoken text
                         s2 = dict(s, approved_text=text)
                         try:
                             lock = pinned.segment_lock(s2, a, pinned.validate_range(s2, a), recognise=recognise, log=log)
-                            outcome = "adopt_spoken"
+                            outcome, sealed = "adopt_spoken", text
                         except pinned.PinError as e:
                             outcome, lock = "hold", None
                             reason = f"ruling 72: the spoken text {text!r} is not adopted by the render's ruling 17: {e}"
@@ -513,9 +534,13 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                      "outcome": outcome, "reason": reason,
                      "lock": {k: lock.get(k) for k in ("i0", "i1", "first_word", "last_word", "text", "sha256")}
                      if lock else None,
-                     "adjudication": (lock.get("adjudication") or lock.get("alternatives")) if lock else None,
+                     "adjudication": (_majority(first) or lock.get("adjudication") or lock.get("alternatives"))
+                     if lock else None,                          # ruling 131 (A): the vote on the pin's own text
+                     "relock_adjudication": (lock.get("adjudication") or lock.get("alternatives"))
+                     if lock and _majority(first) else None,     # ... and the lock the sealed text will make
+                     "currency_format": (first or {}).get("currency_format"),          # ruling 131 (B)
                      "alternatives": lock.get("alternatives") if lock else None,     # ruling 18 / 84 (b)'s record
-                     "as_spoken": spoken, "spoken_text": spoken["text"] if outcome == "adopt_spoken" else None,
+                     "as_spoken": spoken, "spoken_text": sealed if outcome == "adopt_spoken" else None,
                      "relisten": spoken.get("relisten") if spoken else None,      # ruling 103: both short readings
                      "unstable_second_reading": spoken.get("unstable_second_reading") if spoken else None,   # 105
                      "cut": {k: cut.get(k) for k in ("cut_in", "cut_out", "cut_duration", "lead_in_pad_s", "error")}
