@@ -200,6 +200,24 @@ def who(edl, text, default="a clip"):
     return release_auth.join_names(names) or default
 
 
+def alone_reason(r, rate_error=None):
+    """Ruling 141 (2): why a clip may not stand alone, in the scorer's own words where it gave a verdict, plain
+    (ruling 138 (3): no codes): 'the clip scorer rated it 2 of 5 (<its reason>)', 'the clip scorer did not answer',
+    or the opener screen's own words."""
+    sc = r.get("scorer") if isinstance(r.get("scorer"), dict) else {}
+    if isinstance(sc.get("score"), (int, float)) and not isinstance(sc.get("score"), bool):
+        why, fault = sc.get("reason"), sc.get("fault")
+        out = f"the clip scorer rated it {float(sc['score']):g} of 5"
+        if isinstance(why, str) and why.strip():
+            return f"{out} ({why.strip().rstrip('.')})"
+        return f"{out} ({str(fault).replace('_', ' ')})" if fault and fault != "none" else out
+    if rate_error:
+        return "the clip scorer did not answer"
+    why = re.sub(r"\s*\([^()]*\b(?:fail closed|ruling|fault)\b[^()]*\)", "",
+                 str((r.get("opener") or {}).get("why") or ""))
+    return why.replace("_", " ").strip() or "the opener check did not pass"
+
+
 def sentence(template, edl, text):
     w = who(edl, text)
     return template.format(who=w, Who=w[:1].upper() + w[1:])
@@ -567,12 +585,15 @@ def stage_validate(run):
     topic_bad = [r for r in sa["rows"] if not r["topic"]["pass"]]               # ruling 137 (1): Bitcoin only, HARD
     medley_bad = not sa.get("medley_names_bitcoin", {"pass": True})["pass"]
     if not sa["ok"] and not topic_bad and not medley_bad:                        # openers only: SOFT
+        import release_auth                              # ruling 141 (2): the pin's own stand-alone flag for a clip
+        said = {f.split(" may not stand alone")[0] for f in release_auth.pin_review_flags(run.dir) or []
+                if isinstance(f, str) and " may not stand alone" in f}         # is said once: never a second sentence
         for r in sa["rows"]:                                                    # one sentence a clip
             if not r["pass"]:
-                flag(run, sentence("{Who} could not be checked for making sense on its own (the checker did not "
-                                   "answer)." if sa.get("rate_error") else
-                                   "{Who} might not make sense on its own, without what comes before it.",
-                                   edl, r["segment"]), r["opener"]["why"])
+                head = f"The clip ({r.get('channel') or 'channel unknown'})"
+                if head not in said:
+                    flag(run, f"{head} may not stand alone: {alone_reason(r, sa.get('rate_error'))}.",
+                         r["opener"]["why"])
     elif not sa["ok"]:
         raise Hold("stand-alone/topic: " + "; ".join(
             [f"{r['segment']}: " + " / ".join(x["why"] for x in (r["opener"], r["topic"]) if not x["pass"])
