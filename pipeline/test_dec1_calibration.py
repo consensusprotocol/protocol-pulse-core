@@ -165,7 +165,9 @@ class TestTailRows(unittest.TestCase):
         import run_fresh as rf
         self.assertEqual(rf.tail_rows(True, False), {"G9_tail": "PASS", "outro_locked": "PASS"})
         self.assertEqual(rf.tail_rows(False, False), {"G9_tail": "FAIL", "outro_locked": "PASS"})
-        self.assertEqual(self.verdict(rf.tail_rows(False, False)), rf.VERDICT_HOLD)   # luma fail holds
+        self.assertEqual(self.verdict(rf.tail_rows(False, False)), rf.VERDICT_CANDIDATE)   # rulings 136 / 137: G9's
+        # luma is SOFT (it refused 41f29b1f, which PBX approved): it flags at attest, never holds; outro_locked (the
+        # outro's hash identity) still holds, test_luma_pass_on_a_fallback_outro_fails_outro_locked above
         self.assertEqual(self.verdict(rf.tail_rows(True, False)), rf.VERDICT_CANDIDATE)
 
 
