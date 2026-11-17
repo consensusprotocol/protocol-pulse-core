@@ -6,6 +6,25 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 14:40 RULING 142 (3): A POST-LIVE STREAM CAN BE CUT NOW. Route (a) WORKS: the FULL download of the post_live DASH streams, never --download-sections. Proven on Bitcoin Magazine MeC8YEmUx_w (still post_live), free.
+- **Audio:** yt-dlp -f 140 (m4a, audio only, the whole stream): 92.2 MB, 5699.97 s, in about 2 minutes. The transcript ingest already fetched this video this way at 12:06 (its 91.7 MB m4a). The bytes differ since then because YouTube is still processing the stream.
+- **Video:** yt-dlp -f 137 (1080p avc1, the whole stream): 742.7 MB, 5699.96 s, in about 8 minutes.
+- **A 40 s window cut locally and muxed:** video 40.029 s (1200 frames, 30 fps), audio 40.001 s.
+- **THE OFFSET CHECK, against the word timings:** the render's own decoder (select_passages._whisper_transcribe) on window 5334.89-5436.94 cut from the full audio, aligned word by word with the word pass's record of that window:
+  - 268 of 272 words align; median offset -100 ms (IQR -160..-80).
+  - The SAME check on a not_live video (Natalie Brunell RsCi56hEriU, a normal section download, which cannot be shifted): -92 ms (IQR -112..-59).
+  - So the -100 ms is the two decoders' own bias, not a shift: the post_live file IS on the transcript's clock.
+- **Not needed:** a muxed lower format (post_live offers DASH only), HLS (none listed), live-from-start.
+- **THE STANDING FALLBACK (batch 111):**
+  - In select_passages._download_window: when a section download comes back without media, or the source is post_live, fetch the full audio (140) and video (1080p avc1) ONCE into a per-video cache, cut the window locally, and record the route in provenance.
+  - HARD guard: the render's decode of the window, against the word pass's records, must sit within 0.35 s of them (median), else the acquisition fails as "post_live source shifted" and the lock HOLDS. The decoder bias measured above is about 0.1 s; a trimmed stream shifts by seconds.
+  - It is in the decoder sha, so it is a second lockstep with the builder after batch 110.
+- **ORDER:**
+  - Batch 110 = 142 (1) + (2), building now: canon's sign fix, and word_form (a possessive or plural ending) exempt from L-v 2's critical check so 131 (A) decides it. The builder has agreed the lockstep.
+  - Then f0a51c45 and feb4b72f are re-judged from cache.
+  - Then batch 111, then the Bitcoin Magazine spans are re-asked.
+- **Records:** docs/audits/r142_post_live/ (the scripts and both offset results).
+
 ## 14:18 RULING 141 (4), the self-custody story: TWO FINDINGS on the builder's 14:05 request. One is a LOCK CALIBRATION FAULT that needs YOUR RULING; the other is the request shape (no code change).
 - **(1) THE FAULT: Yahoo Finance f0a51c45 (F536pi4mr7Y 461.650-478.940) held at ruling 72/84 on "minus". The speaker said "24/7/365".**
   - The run decode wrote "24 -7, 365"; the second recogniser wrote "24/7/365".

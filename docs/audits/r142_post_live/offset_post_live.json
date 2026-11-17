@@ -1,0 +1,17 @@
+{
+ "media_sha256": "b8a2609bae7bdd1efc72258cc5d1005b4d0a3d194b8d5e00671d5f64b2ea5f3c",
+ "ingest_media_sha256": "a4c96ef9c3a76903fb6612417a4234cabd749cf09c4271a6b1fb597bce840edf",
+ "duration_s": 5699.965,
+ "window": [
+  5334.89,
+  5436.937
+ ],
+ "aligned": 268,
+ "record_words": 272,
+ "median_offset_s": -0.1000000000003638,
+ "quartiles_s": [
+  -0.159999999998945,
+  -0.1000000000003638,
+  -0.07999999999901775
+ ]
+}
