@@ -16,7 +16,8 @@ different name does not. canon_tokens(text) -> the canonical word list; canon(te
                       'five point five percent'; 'dollar' = 'dollars'; currency_free() (ruling 131 (B)) also equals
                       '$2 billion' and a spoken '2 billion' where a site asks for it (G18, the sentence lock)
   signs               '-5%' = 'minus 5 percent', '+5%' = 'plus 5 percent' (GPT-cut F04: -5% != +5%); a hyphen
-                      between words or a range ('2026-11', '74-75') is not a sign
+                      between words or a range ('2026-11', '74-75') is not a sign, nor one right after a number
+                      and a space before a digit ('24 -7, 365' = '24/7/365', ruling 142 (1))
 Every comparison site (quote verification, selection anchors, edge words, G3b, G18, sign-off names, ledger
 statements) goes through this module; pipeline/test_canon.py fails any site that compares text another way.
 """
@@ -75,10 +76,12 @@ _SIGN = re.compile(r"(?<![\w.,$%])-(?=\$?\d)")             # '-5%', '(-$40M)': a
 _SIGN_SPACED = re.compile(r"(^|[^\d\s.,%]\s*)-\s+(?=\$?\d)")   # '- 5%', 'is - 5%' (cycle-2 #6); '70 - 75' is a range
 _PLUS = re.compile(r"\+\s*(?=\$?\d)")                         # '+5%', '+ 5%': a plus is never a hyphen
 _CUR_SIGN = re.compile(r"\$\s*([-+])\s*(?=\d)")                # '$-5', '$+5': the sign after the currency
+_NUM_HYPHEN = re.compile(r"(\d\s+)-(?=\d)")    # ruling 142 (1): '24 -7' after a number and a space: never a sign
 
 
 def _prepare(text):
     t = fold(text).replace("\u2212", " minus ")       # (fold maps U+2212 itself; kept for safety)
+    t = _NUM_HYPHEN.sub(r"\1", t)                    # ruling 142 (1): '24 -7, 365' reads '24 7 365', as '24/7/365'
     t = _CUR_SIGN.sub(lambda m: (" minus $" if m.group(1) == "-" else " plus $"), t)
     t = _PLUS.sub(" plus ", t)
     t = _SIGN_SPACED.sub(lambda m: m.group(1) + " minus ", t)
@@ -304,6 +307,24 @@ def comparison_form(tokens):
 def nonlexical(tok, stray=False):
     """RULING 135 (d): a filler (FILLER_TOKENS); with stray, also a single consonant letter. Not a word."""
     return tok in FILLER_TOKENS or (stray and len(tok) == 1 and tok in CONSONANTS)
+
+
+_FORM_END = re.compile(r"(?:'s|s'|'|s)$")         # ruling 142 (2): a possessive or plural ending (the canon folds ’)
+
+
+def word_form(x, y):
+    """Ruling 142 (2) (orchestrator 2026-11-17 '14:32'): two readings that differ ONLY by a possessive or plural ending
+    on ONE word ('bitcoin' / "bitcoin's" / 'bitcoins' / "bitcoins'"): a word-form pair, decided like any other differing
+    pair by ruling 131 (A)'s two of three (the sealed text takes that reading; all three different still holds). Never
+    a token with a digit ('1990s' is not '1990': a number stays law L-v 2's)."""
+    x, y = list(x or []), list(y or [])
+    if len(x) != len(y) or not x:
+        return False
+    diff = [(a, b) for a, b in zip(x, y) if a != b]
+    if len(diff) != 1 or re.search(r"\d", diff[0][0] + diff[0][1]):
+        return False
+    a, b = (_FORM_END.sub("", t) for t in diff[0])
+    return bool(a) and a == b
 
 
 def same_words(x, y, stray=()):

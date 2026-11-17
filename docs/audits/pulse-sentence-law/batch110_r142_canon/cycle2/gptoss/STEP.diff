@@ -1,0 +1,79 @@
+diff --git a/pipeline/canon.py b/pipeline/canon.py
+index 9a373e07..c12c8a10 100644
+--- a/pipeline/canon.py
++++ b/pipeline/canon.py
+@@ -16,7 +16,8 @@ different name does not. canon_tokens(text) -> the canonical word list; canon(te
+                       'five point five percent'; 'dollar' = 'dollars'; currency_free() (ruling 131 (B)) also equals
+                       '$2 billion' and a spoken '2 billion' where a site asks for it (G18, the sentence lock)
+   signs               '-5%' = 'minus 5 percent', '+5%' = 'plus 5 percent' (GPT-cut F04: -5% != +5%); a hyphen
+-                      between words or a range ('2026-11', '74-75') is not a sign
++                      between words or a range ('2026-11', '74-75') is not a sign, nor one right after a number
++                      and a space before a digit ('24 -7, 365' = '24/7/365', ruling 142 (1))
+ Every comparison site (quote verification, selection anchors, edge words, G3b, G18, sign-off names, ledger
+ statements) goes through this module; pipeline/test_canon.py fails any site that compares text another way.
+ """
+@@ -75,10 +76,12 @@ _SIGN = re.compile(r"(?<![\w.,$%])-(?=\$?\d)")             # '-5%', '(-$40M)': a
+ _SIGN_SPACED = re.compile(r"(^|[^\d\s.,%]\s*)-\s+(?=\$?\d)")   # '- 5%', 'is - 5%' (cycle-2 #6); '70 - 75' is a range
+ _PLUS = re.compile(r"\+\s*(?=\$?\d)")                         # '+5%', '+ 5%': a plus is never a hyphen
+ _CUR_SIGN = re.compile(r"\$\s*([-+])\s*(?=\d)")                # '$-5', '$+5': the sign after the currency
++_NUM_HYPHEN = re.compile(r"(\d\s+)-(?=\d)")    # ruling 142 (1): '24 -7' after a number and a space: never a sign
+ 
+ 
+ def _prepare(text):
+     t = fold(text).replace("\u2212", " minus ")       # (fold maps U+2212 itself; kept for safety)
++    t = _NUM_HYPHEN.sub(r"\1", t)                    # ruling 142 (1): '24 -7, 365' reads '24 7 365', as '24/7/365'
+     t = _CUR_SIGN.sub(lambda m: (" minus $" if m.group(1) == "-" else " plus $"), t)
+     t = _PLUS.sub(" plus ", t)
+     t = _SIGN_SPACED.sub(lambda m: m.group(1) + " minus ", t)
+@@ -306,6 +309,24 @@ def nonlexical(tok, stray=False):
+     return tok in FILLER_TOKENS or (stray and len(tok) == 1 and tok in CONSONANTS)
+ 
+ 
++_FORM_END = re.compile(r"(?:'s|s'|'|s)$")         # ruling 142 (2): a possessive or plural ending (the canon folds ’)
++
++
++def word_form(x, y):
++    """Ruling 142 (2) (orchestrator 2026-11-17 '14:32'): two readings that differ ONLY by a possessive or plural ending
++    on ONE word ('bitcoin' / "bitcoin's" / 'bitcoins' / "bitcoins'"): a word-form pair, decided like any other differing
++    pair by ruling 131 (A)'s two of three (the sealed text takes that reading; all three different still holds). Never
++    a token with a digit ('1990s' is not '1990': a number stays law L-v 2's)."""
++    x, y = list(x or []), list(y or [])
++    if len(x) != len(y) or not x:
++        return False
++    diff = [(a, b) for a, b in zip(x, y) if a != b]
++    if len(diff) != 1 or re.search(r"\d", diff[0][0] + diff[0][1]):
++        return False
++    a, b = (_FORM_END.sub("", t) for t in diff[0])
++    return bool(a) and a == b
++
++
+ def same_words(x, y, stray=()):
+     """RULING 135: the two sides of a differing pair (lists of canon tokens) are the same words. Both sides in comparison
+     form (a, c), fillers left out (d); equal tokens, or, when neither side holds a digit, equal letters once every space
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+index f34299dd..ff85ae5c 100644
+--- a/pipeline/lock_precheck.py
++++ b/pipeline/lock_precheck.py
+@@ -79,7 +79,7 @@ SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
+ VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
+ CODE = ("select_passages.py", "punctuation.py", "pinned.py", "sentence_law.py", "canon.py", "gpu0.py")
+ KEY = ("role", "approved_text", "trimmed_leading", "untrimmed_start")   # the request fields an answer depends on
+-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131 + ruling 135"   # what an entry's verdict judged; others never reused
++RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131 + ruling 135 + ruling 142"   # what an entry's verdict judged; others never reused
+ EXTRA = os.environ.get("PP_LOCK_PRECHECK_EXTRA", "/home/ultron/worktrees/pp-selectid/tests/package/proof/lock_requests")
+ # RULING 67's class, as the builder's pipeline/attest.py defines it (FUNCTION_WORDS and carry_class, copied in
+ # behaviour): English closed-class words; NO negation, number or ordinal (those are law L-v 2's critical tokens).
+diff --git a/pipeline/pinned.py b/pipeline/pinned.py
+index 9fcddfac..fee8f498 100644
+--- a/pipeline/pinned.py
++++ b/pipeline/pinned.py
+@@ -613,7 +613,8 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
+             return lock
+     tag = f"{lock['video_id']} words {lock['i0']}-{lock['i1']}"
+     diffs = [[" ".join(r[a:b]), " ".join(p[c:d])] for _, a, b, c, d in ops]
+-    crit = sorted({t for _, a, b, c, d in ops for t in r[a:b] + p[c:d] if _lv2_critical(t, (run_t, pin_t))})
++    crit = sorted({t for _, a, b, c, d in ops if not canon.word_form(r[a:b], p[c:d])   # ruling 142 (2): a word-form
++                   for t in r[a:b] + p[c:d] if _lv2_critical(t, (run_t, pin_t))})   # pair goes to 131 (A)
+     if crit:
+         raise PinError(f"{tag}: the run's decode and the approved text differ on a number, name or negation {crit} "
+                        f"(law L-v 2: always holds) | run decode: {run_t!r} | approved: {pin_t!r}")

@@ -613,7 +613,8 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
             return lock
     tag = f"{lock['video_id']} words {lock['i0']}-{lock['i1']}"
     diffs = [[" ".join(r[a:b]), " ".join(p[c:d])] for _, a, b, c, d in ops]
-    crit = sorted({t for _, a, b, c, d in ops for t in r[a:b] + p[c:d] if _lv2_critical(t, (run_t, pin_t))})
+    crit = sorted({t for _, a, b, c, d in ops if not canon.word_form(r[a:b], p[c:d])   # ruling 142 (2): a word-form
+                   for t in r[a:b] + p[c:d] if _lv2_critical(t, (run_t, pin_t))})   # pair goes to 131 (A)
     if crit:
         raise PinError(f"{tag}: the run's decode and the approved text differ on a number, name or negation {crit} "
                        f"(law L-v 2: always holds) | run decode: {run_t!r} | approved: {pin_t!r}")

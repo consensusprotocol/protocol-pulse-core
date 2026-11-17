@@ -353,3 +353,30 @@ class TestComparisonCanon(unittest.TestCase):
         for a, b in (("12", "1 2"), ("68,000", "86,000"), ("can't", "can"), ("don't", "do"), ("Saylor", "Taylor"),
                      ("budget", "bunch of"), ("Q", "Z"), ("never", "ever"), ("$2 billion", "$3 billion")):
             self.assertFalse(self.same(a, b), (a, b))
+
+
+class TestRuling142(unittest.TestCase):
+    """RULING 142 (orchestrator 14:32 ET Nov 17). (1) a hyphen right after a number and a space, before a digit, is never
+    a sign: Yahoo Finance f0a51c45's run decode '24 -7, 365' reads as the second recogniser's '24/7/365'; a real sign
+    keeps its sign. (2) a possessive or plural ending is a word-form pair (canon.word_form), never on a number.
+    must-fail on the code before batch 110."""
+
+    def test_a_hyphen_after_a_number_and_a_space_before_a_digit_is_never_a_sign(self):
+        self.assertEqual(C.canon_tokens("available 24 -7, 365, that has no CEO"),
+                         C.canon_tokens("available 24/7/365, that has no CEO"))
+        for s in ("24 -7, 365", "24  -7", "a 24 -7 market"):
+            self.assertNotIn("minus", C.canon_tokens(s), s)
+
+    def test_a_real_sign_keeps_its_sign(self):
+        for s in ("it fell to -5%", "is - 5%", "-5%", "(-$40M)", "24 -$5", "rates at -2 now"):
+            self.assertIn("minus", C.canon_tokens(s), s)
+        self.assertNotIn("minus", C.canon_tokens("70 - 75"))                        # a range, as before
+
+    def test_a_possessive_or_plural_ending_is_a_word_form_pair(self):
+        for a, b in (("bitcoin", "bitcoin's"), ("bitcoin", "bitcoins"), ("bitcoin's", "bitcoins'"),
+                     ("saylor", "saylor's"), ("bitcoin", "bitcoin'")):
+            self.assertTrue(C.word_form([a, "network"], [b, "network"]), (a, b))
+        self.assertTrue(C.word_form(C.canon_tokens("Bitcoin’s network"), C.canon_tokens("Bitcoin network")))
+        for x, y in ((["1990"], ["1990s"]), (["bitcoin"], ["ethereum"]), (["bitcoin", "is"], ["bitcoin's", "was"]),
+                     ([], []), (["bitcoin"], ["bitcoin's", "x"]), (["bitcoin"], ["bitcoin"]), (["s"], ["'s"])):
+            self.assertFalse(C.word_form(x, y), (x, y))

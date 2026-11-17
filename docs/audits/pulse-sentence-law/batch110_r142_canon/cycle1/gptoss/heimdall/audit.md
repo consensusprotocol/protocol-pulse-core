@@ -1,0 +1,20 @@
+# Heimdall audit
+
+**Question:** Review this diff (pipeline/canon.py, pipeline/pinned.py, pipeline/lock_precheck.py). ORCHESTRATOR RULING 142 (14:32 ET Nov 17), verbatim: "(1) THE CANON FIX IS APPROVED: a hyphen right after a number and a space, before a digit, is never a sign ('24/7/365'). ... (2) L-v 2 'bitcoin' against 'bitcoin's': a possessive or plural ending is a word-form pair like any other: ruling 131 (A)'s two-of-three decides it and the sealed text takes that reading; all three differing still holds." Law L-v 2 (unchanged): a number, a negation, or a name whose letters differ ALWAYS holds. Ruling 131 (A) (unchanged): per differing pair of the run decode and the approved text, the second recogniser's reading decides with one of them; the run's reading only at least 3 tokens from an edge; all three different holds.
+FACTS (unchanged code): canon._prepare turns text into canonical tokens; _SIGN / _SIGN_SPACED / _CUR_SIGN / _PLUS write a sign as 'minus' / 'plus' (GPT-cut F04: -5% != +5%); afterwards every remaining '-' becomes a space. canon_tokens keeps an apostrophe inside a token ("bitcoin's") and folds the curly apostrophe. In pinned.adjudicate_lock, ops are the SequenceMatcher opcodes of the run's tokens r and the approved text's tokens p; before this diff any op holding a critical token (_lv2_critical: a digit, a negation, an ordinal, or a capitalised mid-sentence word = a name) raised PinError (law L-v 2) before the 131 (A) vote.
+Report ONLY defects you can prove by quoting the diff's code. Keep each "issue" under 60 words. If every check holds, answer PASS with no findings.
+CHECKS:
+H1. Can a REAL sign now lose its sign ('-5%', 'fell to -5%', 'is - 5%', '(-$40M)', '-$5' after a number), or can '24 -7' still read as 'minus'?
+H2. Can word_form exempt anything beyond ONE token differing only by "'s", "s'", "'" or "s": a number, a negation, a different name, two differing tokens, an insertion?
+H3. Does an exempted pair always reach 131 (A)'s vote (two of three, edge >= 3, all three different holds), never pass without it?
+H4. Can any input raise in _prepare, word_form or adjudicate_lock's crit line? Does anything else change behaviour?
+
+**Panel:** gptoss  |  **Cost:** $0.0031
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none
