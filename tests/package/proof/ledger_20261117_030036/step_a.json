@@ -1,0 +1,670 @@
+{
+ "0193406f729cc5e141e0:9d43580c729b": {
+  "label": "0193406f729cc5e141e0",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "today",
+    "refers_to": "present time of the discussion/video",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the fact that most Bitcoin mining pools require asking permission to use",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "today (current state)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Most Bitcoin mining pools today require asking permission to use them, a fact that should be alarming.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Bob, I'm... cringing when you say that you have to ask permission to use these other pools.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ffa2d3fc4dd38e946d3a:9d43580c729b": {
+  "label": "ffa2d3fc4dd38e946d3a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin was never dependent on any president, the strategic Bitcoin Reserve has bought no coins, and it grew to a trillion-dollar asset despite hostile or indifferent governments, with its thesis centered on sound money.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This one has reiterated what I found out in my first cycle.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "44a6d503ed11992f6f8e:9d43580c729b": {
+  "label": "44a6d503ed11992f6f8e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "People try to manipulate listeners' emotions with fear and anger in order to potentially get them to sell their Bitcoin, as these emotions greatly cloud judgment.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "4d14201f553f57dc7672:9d43580c729b": {
+  "label": "4d14201f553f57dc7672",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "a lot of people",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin's price/situation",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the weekend",
+    "inside": true
+   },
+   {
+    "text": "now",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has dropped to $62,000 over the weekend with many people wondering if they should sell before conditions worsen further.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Truth Block. I'm Hurley.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "185e37a64058e69111ae:9d43580c729b": {
+  "label": "185e37a64058e69111ae",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "its",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "which",
+    "refers_to": "one of its largest liquidation events over the weekend",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the weekend",
+    "inside": true
+   },
+   {
+    "text": "now",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has experienced one of its largest liquidation events over the weekend, resulting in a 25% price pullback.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "my guest for the day is messing with my soundboard",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b0d1512d0303425a1c26:9d43580c729b": {
+  "label": "b0d1512d0303425a1c26",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "the Bitcoin ETF launch",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It",
+    "refers_to": "the memory ETF",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The Bitcoin ETF launch was the greatest ever by all metrics, though the memory ETF came close by breaking a couple of firsts to $5 billion and challenging IBIT a couple times.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I had so much fun covering this, and I really enjoyed it, got to meet a lot of the coiners. And I honestly, it was one of the highlights of my career to cover the approval process.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "71acabbeba71d12c380c:9d43580c729b": {
+  "label": "71acabbeba71d12c380c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "I",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in 2017",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In the past Bitcoin would drop 50% in a single day due to its high volatility.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "93cfa865d13a0c3e1709:9d43580c729b": {
+  "label": "93cfa865d13a0c3e1709",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "had a terrible weekend",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin experienced a significant downturn over the weekend, falling to 62K with $2 billion in leverage wiped out including $645 million in just 30 minutes.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I am Nathan with the BTC sessions, and this is Bitcast.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "19af20a7c4cca2397451:9d43580c729b": {
+  "label": "19af20a7c4cca2397451",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "I",
+    "refers_to": "James Ethorne",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "the weekend preceding the broadcast",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when there's no liquidity",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker was watching and saw somebody crash the Bitcoin market over the weekend when there was no liquidity.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Joining us now is James Ethorne, Chief Market Strategist at Wellington Altus Private Wealth. James, great to see you again.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "8c8c7e590cc0d1a0c6e6:9d43580c729b": {
+  "label": "8c8c7e590cc0d1a0c6e6",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "They",
+    "refers_to": "the kinds of things that happened behind the scenes in the institutional Bitcoin space such as federally chartered custodians",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "the kinds of things that happened behind the scenes in the institutional Bitcoin space such as federally chartered custodians",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "They're",
+    "refers_to": "the kinds of things that happened behind the scenes in the institutional Bitcoin space such as federally chartered custodians",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "the fact that charter banks can now custody Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Institutional developments in Bitcoin custody such as charter banks go quietly, get missed and stay under the radar because retail is not paying attention, but institutions view them as a game changer.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Yeah, great question. And this one is pretty exciting because, again, it shows how quickly the situation is evolving.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "d6adeb54ad64062081c5:9d43580c729b": {
+  "label": "d6adeb54ad64062081c5",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the 2023 bull market",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "the period of time of the 2023 bull market",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "during the 2023 bull market",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker has recently done pieces analyzing how the 2023 bull market saw massive fear even while Bitcoin and fear both trended upwards as it climbed a wall of worry.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Like if you compare this to, you know, history, what do you think comes next? I have been",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "04ddf6869c30c1f2c0de:9d43580c729b": {
+  "label": "04ddf6869c30c1f2c0de",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "the lows",
+    "refers_to": "Bitcoin's recent price lows",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Watching how fearful people are despite Bitcoin being up like 20% from the lows is really striking in the speaker's opinion.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "until I saw you sort of crop up. Like this is your thing, right? It very much is now",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c411d1f7f5019c7c8b29:9d43580c729b": {
+  "label": "c411d1f7f5019c7c8b29",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this point",
+    "refers_to": "the present time in the bear market where Bitcoin price is relatively low",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "there",
+    "refers_to": "traders",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "traders' conviction",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "at this point where Bitcoin is relatively low compared to where it's been and looking poised for a breakout",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Traders currently show the lowest conviction ever seen despite Bitcoin being at a relatively low price that would normally lead one to expect growing conviction and an imminent breakout.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Do you think that is, again, the AI trade just taking all the excitement or the enthusiasm away from Bitcoin?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a3e8721c54788123097a:9d43580c729b": {
+  "label": "a3e8721c54788123097a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the hit from bad market sentiment",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when market sentiment is generally bad",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Billions of dollars in liquidations occurred over the weekend including about $2B on Bitcoin, proving that Bitcoin suffers heavily from bad general market sentiment because it trades 24/7.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "I am your host, Scott Melker, also known as the Wolf of All Streets.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "bf8890602749f433a069:9d43580c729b": {
+  "label": "bf8890602749f433a069",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "Bitcoin ETFs",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "This",
+    "refers_to": "the period when the Terodome engaged about three days before launch",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "They",
+    "refers_to": "the ETF issuers like Invesco, Fidelity and BlackRock",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the fee war",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "the start of the fee war",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "about three days before launch on January 8th 2024",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The Terodome engaged with the Bitcoin ETFs about three days before their January 8 2024 launch when the issuers entered a rapid fee war with announcements like Invesco going to 50 basis points.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I had so much fun covering this, and I really enjoyed it, got to meet a lot of the coiners. And I honestly, it was one of the highlights of my career to cover the approval process.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c673cbed6e8856895628:9d43580c729b": {
+  "label": "c673cbed6e8856895628",
+  "speaker_changes_inside": "yes",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "Bitcoin below 70K",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "uncertain",
+  "proposition": "With Bitcoin below 70K there is more downside ahead rather than it being a buying opportunity.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Are you ready, Victoria? Okay, I'm ready. Here we go.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "1eff6e75d00b8de8cf95:9d43580c729b": {
+  "label": "1eff6e75d00b8de8cf95",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "its",
+    "refers_to": "the government that owes $40 trillion",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "no matter who wins an election",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's value thesis is independent of any president or election because it grew to a trillion-dollar asset despite hostile governments and remains centered on sound money that cannot be inflated by a $40T indebted government that must devalue its currency regardless.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I told him the thesis has not changed.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "bd53eedbad4aad55c201:9d43580c729b": {
+  "label": "bd53eedbad4aad55c201",
+  "speaker_changes_inside": "no",
+  "view": "question",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "a lot of people",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin (its price)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "here",
+    "refers_to": "the current Bitcoin market drop",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the weekend",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin dropped to $62,000 over the weekend with many wondering if they should sell before it worsens, as the speaker questions whether entities like Binance or Wall Street are the ones dumping.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Truth Block. I'm Hurley.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "0ffd53079df584936961:9d43580c729b": {
+  "label": "0ffd53079df584936961",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "the Bitcoin ETF launch",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It",
+    "refers_to": "the memory ETF",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The Bitcoin ETF launch was the greatest ever by all metrics, though the memory ETF came close by reaching $5 billion and challenging IBIT a couple times, but mostly IBIT and the rest of the Bitcoin ETFs have records that will probably never be broken.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "I had so much fun covering this, and I really enjoyed it, got to meet a lot of the coiners. And I honestly, it was one of the highlights of my career to cover the approval process.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b084525ec408fdeabb4e:9d43580c729b": {
+  "label": "b084525ec408fdeabb4e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "there",
+    "refers_to": "the 58K price level",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin dropping to 62K",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "they",
+    "refers_to": "Strategy and metaplan",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "had a terrible weekend",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin had a terrible weekend dropping to 62K with billions in leverage wiped out near the 58K level, putting pressure on everybody as Strategy and Metaplan make moves while they are down.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I am Nathan with the BTC sessions, and this is Bitcast.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}
