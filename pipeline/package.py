@@ -509,6 +509,25 @@ def _load_cache(path):
         return {}
 
 
+def step_a_key(m, context):
+    """RULING 58 / RULING 126 (1): a step-A verdict's cache key: the moment id, the sha256 of its text, the sha256 of the
+    exact context step A reads, and the prompt's version. The show date enters the context's sha ONLY for a moment that
+    holds time words (time_sensitive: the miner's flag, a recency word or a current price in its own words); a moment
+    with none is judged the same on any date and is never paid for again because a clock rolled over."""
+    kc = context if time_sensitive(m) else {k: v for k, v in context.items() if k != "show_date"}
+    return f"{m['moment_id']}:{text_sha(m['text'])}:{text_sha(json.dumps(kc, sort_keys=True))}:{STEP_A_VERSION}"
+
+
+def step_a_old_keys(m, context, now):
+    """RULING 126 (1), for a moment with no time words: the keys its verdict was cached under before the date left the
+    key (the context with the UTC show date in it, today's and yesterday's: all a moment inside the 12-hour window can
+    hold) -> [key]. Read once; the verdict found is written again under step_a_key."""
+    from datetime import timedelta
+    return [f"{m['moment_id']}:{text_sha(m['text'])}:"
+            f"{text_sha(json.dumps(dict(context, show_date=(now - timedelta(days=k)).strftime('%Y-%m-%d')), sort_keys=True))}"
+            f":{STEP_A_VERSION}" for k in (0, 1)]
+
+
 def _cache_put(path, new):
     """Merge {key: {back-end: verdict}} into the cache file (read again under the lock, .tmp then rename)."""
     if not path or not new:
@@ -554,6 +573,9 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
     db, cdb = _load_store(store), _load_cache(cache)
     wv, wf = P._as_set(writer_vendor), P._as_set(writer_family)
     off = lambda name: (lambda b: b is not None and b.vendor not in wv and b.family not in wf)(router.backends.get(name))
+    pick = lambda key: next((x for name, x in sorted((cdb.get(key) or {}).items())        # a cached verdict off the
+                             if isinstance(x, dict) and off(name) and x.get("backend") == name), None)   # writers'
+    moved = {}                                          # ruling 126 (1): old-key verdicts, written under the new key
     a_by, fails, vendors, families, todo, contexts, keys = {}, {}, set(), set(), [], {}, {}
     for m in order:
         mid = m["moment_id"]
@@ -563,12 +585,15 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
             continue                # moment is not cleared; it never poisons its batch's call
         contexts[mid] = {"text": text, "title": src_of(m, sources).title or "", "channel": _name(m, ctx),
                          "window": win, "published": str(m.get("published_at") or "")[:16],
-                         "show_date": ctx.now.strftime("%Y-%m-%d")}
-        keys[mid] = f"{mid}:{text_sha(m['text'])}:{text_sha(json.dumps(contexts[mid], sort_keys=True))}:{STEP_A_VERSION}"
+                         "show_date": CI.show_date(ctx.now)}       # RULING 126 (1): the ET date
+        keys[mid] = step_a_key(m, contexts[mid])                          # ruling 126 (1): the date only with time words
         rec = db.get(f"{mid}:{STEP_A_VERSION}")
         if not (isinstance(rec, dict) and off(rec.get("backend"))):
-            rec = next((x for name, x in sorted((cdb.get(keys[mid]) or {}).items())
-                        if isinstance(x, dict) and off(name) and x.get("backend") == name), None)
+            rec = pick(keys[mid])
+            if rec is None and not time_sensitive(m):    # RULING 126 (1): a verdict cached before the date left the key
+                rec = next((r for r in map(pick, step_a_old_keys(m, contexts[mid], ctx.now)) if r is not None), None)
+                if rec is not None:
+                    moved.setdefault(keys[mid], {})[rec["backend"]] = rec
         if rec is not None:
             b = router.backends[rec["backend"]]
             a_by[mid], fails[mid] = rec, CI.a_failures(rec)
@@ -611,7 +636,7 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
         with open(store + ".tmp", "w") as f:
             json.dump(db, f, indent=1)
         os.replace(store + ".tmp", store)
-    _cache_put(cache, new)
+    _cache_put(cache, dict(moved, **new))              # ruling 126 (1): the moved verdicts under their new keys
     return a_by, fails, vendors, families
 
 

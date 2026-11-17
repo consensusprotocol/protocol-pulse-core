@@ -1256,12 +1256,14 @@ class TestRuling58StepAEveryCandidate(unittest.TestCase):
         B = lambda v, f: type("B", (), {"vendor": v, "family": f})()
         return type("R", (), {"backends": {"xai:grok": B("xai", "grok"), "heimdall:deepseek": B("heimdall", "deepseek")}})()
 
-    def fake(self, calls, fail=frozenset()):
+    def fake(self, calls, fail=frozenset(), seen=None):
         import context_integrity as CI
         from test_gates import a_item
 
         def step_a(router_, contexts, wv, seed=7, writer_family=None, deadline_s=None, failover=False, kind=None):
             calls.append((sorted(contexts), seed))
+            if seen is not None:
+                seen.update(contexts)                    # ruling 126 (1): the exact contexts step A was given
             if set(contexts) & set(fail):
                 raise RuntimeError("the batch reply was out of contract")
             b = "heimdall:deepseek" if "xai" in (wv or set()) else "xai:grok"
@@ -1310,11 +1312,77 @@ class TestRuling58StepAEveryCandidate(unittest.TestCase):
             calls.clear()
             later = E.Context(NOW + timedelta(days=1), REG)
             PK.prescreen(self.router(), ms[:3], srcs, later, {"heimdall"}, {"deepseek"}, cache=cache)
-            self.assertEqual(sorted(sum((c[0] for c in calls), [])), ["m00", "m01", "m02"])   # a new show date
+            self.assertEqual(calls, [])                  # RULING 126 (1): no time words: a new show date asks nothing
+            ts = [dict(m, risk=["time_sensitive"]) for m in ms[:2]]          # the miner's flag: time words
+            PK.prescreen(self.router(), ts, srcs, ctx(), {"heimdall"}, {"deepseek"}, cache=cache)
+            calls.clear()
+            PK.prescreen(self.router(), ts, srcs, ctx(), {"heimdall"}, {"deepseek"}, cache=cache)
+            self.assertEqual(calls, [])                  # the same show date: paid for once
+            PK.prescreen(self.router(), ts, srcs, later, {"heimdall"}, {"deepseek"}, cache=cache)
+            self.assertEqual(sorted(sum((c[0] for c in calls), [])), ["m00", "m01"])   # time words: a new show date
             calls.clear()
             a_by, _, _, _ = PK.prescreen(self.router(), ms[:3], srcs, ctx(), {"xai"}, {"grok"}, cache=cache)
             self.assertEqual(sorted(sum((c[0] for c in calls), [])), ["m00", "m01", "m02"])   # never the writer's
             self.assertEqual({a["backend"] for a in a_by.values()}, {"heimdall:deepseek"})     # vendor's verdict
+
+    def test_ruling_126_the_show_date_is_the_et_date(self):
+        """RULING 126 (1): the show date step A and the context check carry is the ET date, not the UTC date (19:30 ET
+        Nov 10 is 00:30 UTC Nov 11)."""
+        import context_integrity as CI
+        import tempfile
+        from datetime import datetime, timezone
+        evening = datetime(2026, 11, 11, 0, 30, tzinfo=timezone.utc)
+        self.assertEqual(CI.show_date(evening), "2026-11-10")
+        self.assertEqual(CI.show_date(datetime(2026, 11, 11, 5, 0, tzinfo=timezone.utc)), "2026-11-11")
+        self.assertIsNone(CI.show_date(None))
+        ms, srcs = self.pool(2)
+        calls, seen = [], {}
+        self.fake(calls, seen=seen)
+        with tempfile.TemporaryDirectory() as d:
+            PK.prescreen(self.router(), ms, srcs, E.Context(evening, REG), {"heimdall"}, {"deepseek"},
+                         cache=os.path.join(d, "c.json"))
+        self.assertEqual({c["show_date"] for c in seen.values()}, {"2026-11-10"})
+        seg = {"label": "clip_01", "video_id": ms[0]["video_id"], "k0": 1, "k1": 1, "words": ms[0]["words"],
+               "channel": "C00"}
+        self.assertEqual(CI.contexts_from_sources({"segments": [seg]}, srcs, evening)["clip_01"]["show_date"],
+                         "2026-11-10")
+
+    def test_ruling_126_a_verdict_cached_under_the_old_key_is_read_once_and_moved(self):
+        """RULING 126 (1): a moment with no time words finds its verdict under the key it was cached under before (the
+        UTC show date in it, today's or yesterday's UTC date) and pays nothing; the verdict is written under its new key;
+        a time-sensitive moment never takes an old key's verdict; older than yesterday is not looked for."""
+        import tempfile
+        ms, srcs = self.pool(4)
+        ms[3] = dict(ms[3], risk=["time_sensitive"])
+        calls, seen = [], {}
+        self.fake(calls, seen=seen)
+        asked = lambda: sorted(sum((c[0] for c in calls), []))
+        with tempfile.TemporaryDirectory() as d:
+            c1 = os.path.join(d, "c1.json")
+            PK.prescreen(self.router(), ms, srcs, ctx(), {"heimdall"}, {"deepseek"}, cache=c1)
+            with open(c1) as f:
+                now_keys = json.load(f)
+            old = {}
+            for m in ms:                                 # the same verdicts under the keys used before ruling 126 (1)
+                c = dict(seen[m["moment_id"]], show_date=NOW.strftime("%Y-%m-%d"))
+                old[f"{m['moment_id']}:{PK.text_sha(m['text'])}:{PK.text_sha(json.dumps(c, sort_keys=True))}:"
+                    f"{PK.STEP_A_VERSION}"] = now_keys[PK.step_a_key(m, seen[m["moment_id"]])]
+            for days, want in ((20 / 24, ["m03"]), (1 + 20 / 24, ["m00", "m01", "m02", "m03"])):
+                c2 = os.path.join(d, f"c2_{days:.2f}.json")
+                with open(c2, "w") as f:
+                    json.dump(old, f)
+                calls.clear()
+                later = E.Context(NOW + timedelta(days=days), REG)
+                a_by, fails, _, _ = PK.prescreen(self.router(), ms, srcs, later, {"heimdall"}, {"deepseek"}, cache=c2)
+                self.assertEqual((asked(), len(a_by)), (want, 4), days)
+                if days < 1:
+                    with open(c2) as f:
+                        moved = json.load(f)
+                    for m in ms[:3]:                     # written under the new key: found there next time
+                        self.assertIn(PK.step_a_key(m, seen[m["moment_id"]]), moved)
+                    calls.clear()
+                    PK.prescreen(self.router(), ms, srcs, later, {"heimdall"}, {"deepseek"}, cache=c2)
+                    self.assertEqual(calls, [])
 
     def test_ruling_101_plan_only_lists_what_the_screen_would_ask_and_asks_nothing(self):
         import tempfile

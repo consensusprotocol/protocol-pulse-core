@@ -298,6 +298,16 @@ def source_for(x, sources):
     return sources[x.get("source_key") or x["video_id"]]
 
 
+def show_date(now):
+    """RULING 126 (1) (orchestrator 20:00 ET Nov 16): the show date step A and the context check carry is the ET calendar
+    date (PBX's audience and his day), never the UTC date (from 19:00 ET the UTC date is already tomorrow's).
+    -> 'YYYY-MM-DD', or None without a clock."""
+    if now is None:
+        return None
+    from zoneinfo import ZoneInfo
+    return now.astimezone(ZoneInfo("America/New_York")).strftime("%Y-%m-%d")
+
+
 def contexts_from_sources(package, sources, now=None):
     """{label: {"text": the window with <selected> marks, "title", "channel", "published", "show_date", "window"}}."""
     out = {}
@@ -309,7 +319,7 @@ def contexts_from_sources(package, sources, now=None):
             continue                                # judged as unavailable (require_all)
         out[seg["label"]] = {"text": text, "title": src.title or "", "channel": seg["channel"], "window": win,
                              "published": str(src.published_at or "")[:16],
-                             "show_date": now.strftime("%Y-%m-%d") if now else None}
+                             "show_date": show_date(now)}                 # ruling 126 (1): the ET date
     return out
 
 
