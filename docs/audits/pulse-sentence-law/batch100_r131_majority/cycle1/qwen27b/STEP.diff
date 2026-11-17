@@ -1,0 +1,372 @@
+diff --git a/pipeline/canon.py b/pipeline/canon.py
+index 6564cd6d..25aa7378 100644
+--- a/pipeline/canon.py
++++ b/pipeline/canon.py
+@@ -13,7 +13,8 @@ different name does not. canon_tokens(text) -> the canonical word list; canon(te
+                       thousand'; '1.66 billion' = '$1.66B' value-wise; decimals 'one point six six' = '1.66';
+                       ordinals '3rd' = 'third' = 'ord3' (never the cardinal: 'one second' != 'one two')
+   currency / percent  '$40 trillion' = '40 trillion dollars' (the spoken order); '5.5%' = '5.5 percent' =
+-                      'five point five percent'; 'dollar' = 'dollars'
++                      'five point five percent'; 'dollar' = 'dollars'; currency_free() (ruling 131 (B)) also equals
++                      '$2 billion' and a spoken '2 billion' where a site asks for it (G18, the sentence lock)
+   signs               '-5%' = 'minus 5 percent', '+5%' = 'plus 5 percent' (GPT-cut F04: -5% != +5%); a hyphen
+                       between words or a range ('2026-11', '74-75') is not a sign
+ Every comparison site (quote verification, selection anchors, edge words, G3b, G18, sign-off names, ledger
+@@ -264,6 +265,22 @@ def canon_aligned(words):
+     return [(t, f) for t, f, _ in canon_spans(words)]
+ 
+ 
++_AMOUNT = re.compile(r"\d+(\.\d+)?")
++
++
++def dollars_after_number(tokens, k):
++    """RULING 131 (B) (orchestrator 2026-11-17 '08:25'): True when canonical token k is a 'dollars' right after a number,
++    the token a currency symbol makes ('$2 billion' -> '2000000000 dollars', the spoken order)."""
++    return tokens[k] == "dollars" and k > 0 and bool(_AMOUNT.fullmatch(tokens[k - 1]))
++
++
++def currency_free(tokens):
++    """RULING 131 (B): a currency symbol is formatting, so '$2 billion' equals a spoken '2 billion'. The canonical tokens
++    with every 'dollars' right after a number dropped (both sides of a comparison alike). This is G18's one tolerance
++    since mission 4a (word_diff.norm), now the one function G18 and the sentence lock both use."""
++    return [w for k, w in enumerate(tokens) if not dollars_after_number(tokens, k)]
++
++
+ def canon(text):
+     return " ".join(canon_tokens(text))
+ 
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+index 3b1f6e8f..77a1c1e5 100644
+--- a/pipeline/lock_precheck.py
++++ b/pipeline/lock_precheck.py
+@@ -79,7 +79,7 @@ SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
+ VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
+ CODE = ("select_passages.py", "punctuation.py", "pinned.py", "sentence_law.py", "canon.py", "gpu0.py")
+ KEY = ("role", "approved_text", "trimmed_leading", "untrimmed_start")   # the request fields an answer depends on
+-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105"   # what an entry's verdict judged; others never reused
++RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131"   # what an entry's verdict judged; others never reused
+ EXTRA = os.environ.get("PP_LOCK_PRECHECK_EXTRA", "/home/ultron/worktrees/pp-selectid/tests/package/proof/lock_requests")
+ # RULING 67's class, as the builder's pipeline/attest.py defines it (FUNCTION_WORDS and carry_class, copied in
+ # behaviour): English closed-class words; NO negation, number or ordinal (those are law L-v 2's critical tokens).
+@@ -306,8 +306,11 @@ def as_spoken(lock, words, sw):
+     L, S2, spoken = reading(lock, words, sw)
+     if not S2:
+         return "hold", [[lock["text"], ""]], ["hold"], ""
+-    ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != "equal"]
+-    diffs = [[" ".join(L[a:b]), " ".join(S2[c:d])] for _, a, b, c, d in ops]
++    import canon
++    ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != "equal"
++           and not (all(canon.dollars_after_number(L, i) for i in range(o[1], o[2])) and     # ruling 131 (B): a
++                    all(canon.dollars_after_number(S2, j) for j in range(o[3], o[4])))]       # currency symbol is
++    diffs = [[" ".join(L[a:b]), " ".join(S2[c:d])] for _, a, b, c, d in ops]                  # formatting
+     if not ops:
+         return "same", [], [], spoken
+     cls = [ruling84_class(L, S2, op, (lock["text"], spoken)) or "hold" for op in ops]
+@@ -422,6 +425,12 @@ def unstable(a, lock, spoken, heard, vid, start, end):
+                 second_readings=[{"at": w, "source": s, "token": t} for w, s, t in sec])
+ 
+ 
++def _majority(lock):
++    """Ruling 131 (A): the lock's two-of-three record, or None (no lock, or another rule's adjudication)."""
++    adj = (lock or {}).get("adjudication")
++    return adj if isinstance(adj, dict) and str(adj.get("rule", "")).startswith("ruling 131 (A)") else None
++
++
+ def _outcome(s, lock):
+     if not s.get("approved_text"):
+         return "decoded"
+@@ -441,6 +450,7 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
+         else:
+             a, err, dsec = dec.get(vid, (None, "not decoded", 0.0))
+             spent, lock, reason, t, spoken, cut = [], None, err, time.time(), None, None
++            first, sealed = None, None                           # ruling 131: the first lock; the text to seal
+             wd = work_dir(vid, lo, hi, sha)
+ 
+             def recognise(src):                                  # ONE paid reading per acquisition (cached), spend kept
+@@ -452,6 +462,7 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
+                 try:
+                     v = pinned.validate_range(s, a)
+                     lock = pinned.segment_lock(s, a, v, recognise=recognise, log=log)
++                    first = lock                                 # ruling 131: the lock made with the pin's own text
+                     outcome, reason = _outcome(s, lock), None
+                     verdict, diffs, cls, text = as_spoken(lock, a["transcript"]["words"], recognise(a["path"])[0])
+                     heard = None
+@@ -468,11 +479,21 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
+                         verdict = "hold"                         # an earlier reading of this audio is no truncation
+                     spoken = {"verdict": verdict, "differences": diffs, "classes": cls, "text": text,   # 72 + 84
+                               "relisten": heard, "unstable_second_reading": usr}                    # + 103 + 105
+-                    if verdict == "adopt":                       # the render's own ruling 17 must adopt the spoken text
++                    majority = _majority(first)
++                    if verdict == "same" and majority:           # ruling 131 (A): the sealed text takes each pair's
++                        s2 = dict(s, approved_text=first["text"])     # settled reading; the render's own lock must
++                        try:                                          # adopt it as the pin's text
++                            lock = pinned.segment_lock(s2, a, pinned.validate_range(s2, a), recognise=recognise, log=log)
++                            outcome, sealed = "adopt_spoken", first["text"]
++                        except pinned.PinError as e:
++                            outcome, lock = "hold", None
++                            reason = (f"ruling 131 (A): the settled text {first['text']!r} is not adopted by the "
++                                      f"render's ruling 17: {e}")
++                    elif verdict == "adopt":                     # the render's own ruling 17 must adopt the spoken text
+                         s2 = dict(s, approved_text=text)
+                         try:
+                             lock = pinned.segment_lock(s2, a, pinned.validate_range(s2, a), recognise=recognise, log=log)
+-                            outcome = "adopt_spoken"
++                            outcome, sealed = "adopt_spoken", text
+                         except pinned.PinError as e:
+                             outcome, lock = "hold", None
+                             reason = f"ruling 72: the spoken text {text!r} is not adopted by the render's ruling 17: {e}"
+@@ -513,9 +534,13 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
+                      "outcome": outcome, "reason": reason,
+                      "lock": {k: lock.get(k) for k in ("i0", "i1", "first_word", "last_word", "text", "sha256")}
+                      if lock else None,
+-                     "adjudication": (lock.get("adjudication") or lock.get("alternatives")) if lock else None,
++                     "adjudication": (_majority(first) or lock.get("adjudication") or lock.get("alternatives"))
++                     if lock else None,                          # ruling 131 (A): the vote on the pin's own text
++                     "relock_adjudication": (lock.get("adjudication") or lock.get("alternatives"))
++                     if lock and _majority(first) else None,     # ... and the lock the sealed text will make
++                     "currency_format": (first or {}).get("currency_format"),          # ruling 131 (B)
+                      "alternatives": lock.get("alternatives") if lock else None,     # ruling 18 / 84 (b)'s record
+-                     "as_spoken": spoken, "spoken_text": spoken["text"] if outcome == "adopt_spoken" else None,
++                     "as_spoken": spoken, "spoken_text": sealed if outcome == "adopt_spoken" else None,
+                      "relisten": spoken.get("relisten") if spoken else None,      # ruling 103: both short readings
+                      "unstable_second_reading": spoken.get("unstable_second_reading") if spoken else None,   # 105
+                      "cut": {k: cut.get(k) for k in ("cut_in", "cut_out", "cut_duration", "lead_in_pad_s", "error")}
+diff --git a/pipeline/pinned.py b/pipeline/pinned.py
+index cf8c1f17..f7d8b781 100644
+--- a/pipeline/pinned.py
++++ b/pipeline/pinned.py
+@@ -505,6 +505,65 @@ def _token_word(words, i0, i1, a):
+     return None
+ 
+ 
++MAJORITY_EDGE = 3          # ruling 131 (A): a pair the run decode wins sits at least this many tokens from both span ends
++
++
++def _edge_distance(r, p, op):
++    """RULING 131 (A): a differing pair's distance from the nearer end of the span, in the run decode's canonical tokens
++    (the cut is placed on the run's words): min(a, len(r) - b). A pair with nothing on one side (an insertion or a
++    deletion) inside a repetition ('that's why that's why') has several placements that give the same two texts (they
++    cannot say which copy is the extra one): its distance is that of the placement furthest from the ends, sliding the
++    pair only through the equal tokens beside it (each step: the token entering the pair equals the token leaving it)."""
++    from difflib import SequenceMatcher
++    tag, a, b, c, d = op = tuple(op)
++    full = SequenceMatcher(None, r, p, autojunk=False).get_opcodes()
++    shifts = [0]
++    if tag in ("delete", "insert") and op in full:
++        k = full.index(op)
++        seq, x, y = (r, a, b) if tag == "delete" else (p, c, d)
++        left = full[k - 1][2] - full[k - 1][1] if k > 0 and full[k - 1][0] == "equal" else 0
++        right = full[k + 1][2] - full[k + 1][1] if k + 1 < len(full) and full[k + 1][0] == "equal" else 0
++        n = 1
++        while n <= left and seq[x - n] == seq[y - n]:
++            shifts.append(-n)
++            n += 1
++        n = 1
++        while n <= right and seq[x + n - 1] == seq[y + n - 1]:
++            shifts.append(n)
++            n += 1
++    return max(min(a + n, len(r) - (b + n)) for n in shifts)
++
++
++def _majority_text(r, p, ops, pairs, run_t, pin_t):
++    """RULING 131 (A): the approved text with every pair that "took": "run" written in the run decode's words (the
++    approved words of that pair replaced, deleted or the run's inserted), -> the text, or None when it cannot be written
++    so that its canonical tokens are exactly the settled ones (fail closed: the lock then holds)."""
++    import canon
++    want, k = [], 0
++    by_op = {(o[1], o[3]): x for o, x in zip(ops, pairs)}
++    from difflib import SequenceMatcher
++    for tag, a, b, c, d in SequenceMatcher(None, r, p, autojunk=False).get_opcodes():
++        x = by_op.get((a, c)) if tag != "equal" else None
++        want += r[a:b] if (x is not None and x["took"] == "run") else p[c:d]
++    pw, rw = pin_t.split(), run_t.split()
++    ps, rs = canon.canon_spans(pw), canon.canon_spans(rw)
++    if [s[0] for s in ps] != p or [s[0] for s in rs] != r:
++        return None
++    out, w = [], 0                                     # w: the next approved word not yet written
++    for o, x in zip(ops, pairs):
++        if x["took"] != "run":
++            continue
++        _, a, b, c, d = o
++        lo = ps[c][1] if c < len(ps) else len(pw)      # the approved words of the pair: [lo, hi)
++        hi = ps[d - 1][2] + 1 if d > c else lo
++        if lo < w or (d > c and (ps[c][1] != lo or any(ps[j][1] < lo or ps[j][2] >= hi for j in range(c, d)))):
++            return None
++        out += pw[w:lo] + (rw[rs[a][1]:rs[b - 1][2] + 1] if b > a else [])
++        w = hi
++    text = " ".join(out + pw[w:])
++    return text if canon.canon_tokens(text) == want else None
++
++
+ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
+     """Ruling 17: the run's own decode (lock['text']) and the pin's approved text (lock['selected_text']) differ
+     inside the locked span -> a difference on a number, a name or a negation always holds (law L-v 2); otherwise
+@@ -512,7 +571,18 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
+     difference, the lock takes the approved text (two independent decodes agree) and G18 compares the final against
+     it; when it reads the run's decode, or neither, HOLD naming the three readings. No difference: the lock as is.
+     Ruling 84 (b): where it reads ONE function word against the decode's one, the lock keeps the decode's word and
+-    records the other reading (ruling 18's record); two or more such in one span HOLD."""
++    records the other reading (ruling 18's record); two or more such in one span HOLD.
++    RULING 131 (orchestrator 2026-11-17 '08:25'):
++    (B) a pair made only of 'dollars' right after a number, on either side, is no difference: a currency symbol is
++        formatting ('$2 billion' = a spoken '2 billion'; canon.currency_free, G18's own rule). It is recorded in
++        lock["currency_format"] (the release caption says 'currency format'), and nobody is asked about it.
++    (A) when the second recogniser does not read the approved words at every remaining pair, two of the three
++        readings (approved text, run decode, second recogniser) decide EACH pair: the approved reading where it reads
++        the approved words; the run decode's where it reads the run's AND the pair is at least MAJORITY_EDGE tokens
++        from both ends of the span. Anything else HOLDS: all three differ, or a run-side pair near an edge (ruling 18's
++        one-token record stays for that case alone). A number, a name or a negation still holds before any vote (L-v 2).
++        The lock text takes each pair's reading, and the adjudication records every pair's three readings, which two
++        agreed and its distance from the nearest edge."""
+     import canon
+     from difflib import SequenceMatcher
+     run_t, pin_t = lock["text"], lock["selected_text"]
+@@ -520,6 +590,17 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
+     ops = [o for o in SequenceMatcher(None, r, p, autojunk=False).get_opcodes() if o[0] != "equal"]
+     if not ops:
+         return lock
++    cur = [o for o in ops if all(canon.dollars_after_number(r, i) for i in range(o[1], o[2]))       # ruling 131 (B)
++           and all(canon.dollars_after_number(p, j) for j in range(o[3], o[4]))]
++    if cur:
++        ops = [o for o in ops if o not in cur]
++        lock = {k: v for k, v in lock.items() if k != "sha256"}
++        lock["currency_format"] = [[" ".join(r[a:b]), " ".join(p[c:d])] for _, a, b, c, d in cur]
++        lock["sha256"] = L._lock_digest(lock)
++        log(f"  lock {lock['video_id']} words {lock['i0']}-{lock['i1']}: {lock['currency_format']} differ only by a "
++            f"currency symbol: currency format (ruling 131 (B))")
++        if not ops:
++            return lock
+     tag = f"{lock['video_id']} words {lock['i0']}-{lock['i1']}"
+     diffs = [[" ".join(r[a:b]), " ".join(p[c:d])] for _, a, b, c, d in ops]
+     crit = sorted({t for _, a, b, c, d in ops for t in r[a:b] + p[c:d] if _lv2_critical(t, (run_t, pin_t))})
+@@ -549,6 +630,31 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
+     pin_side = all(reads(p, pmap, c, d) for _, a, b, c, d in ops)
+     run_side = all(reads(r, rmap, a, b) for _, a, b, c, d in ops)
+     readings = {"run_decode": run_t, "approved": pin_t, "second_recogniser": sec_t}
++    if not pin_side:                                   # ruling 131 (A): two of the three readings decide each pair
++        pairs, held = [], []
++        for _, a, b, c, d in ops:
++            pin_ok, run_ok = reads(p, pmap, c, d), reads(r, rmap, a, b)
++            dist = _edge_distance(r, p, (_, a, b, c, d))
++            took = "approved" if pin_ok else "run" if run_ok and dist >= MAJORITY_EDGE else None    # as ruling 17: the
++            # approved reading first wherever the second recogniser reads it (pin_side takes it the same way)
++            pair = {"run": " ".join(r[a:b]), "approved": " ".join(p[c:d]),
++                    "second_reads": "both" if pin_ok and run_ok else "approved" if pin_ok else "run" if run_ok
++                    else "neither", "took": took,
++                    "agreed": {"approved": ["approved", "second"], "run": ["run", "second"]}.get(took),
++                    "edge_distance": dist}
++            pairs.append(pair)
++            if took is None:
++                held.append(pair)
++        merged = None if held else _majority_text(r, p, ops, pairs, run_t, pin_t)
++        if merged is not None:
++            new = {k: v for k, v in lock.items() if k != "sha256"}
++            new.update(text=merged, adjudication={"rule": "ruling 131 (A) (orchestrator 2026-11-17 '08:25')",
++                                                  "verdict": "approved", "pairs": pairs, "differences": diffs,
++                                                  "recogniser": "elevenlabs:scribe_v1", "usd": usd, **readings})
++            new["sha256"] = L._lock_digest(new)
++            log(f"  lock {tag}: two of three readings settle {[[x['run'], x['approved'], x['took']] for x in pairs]}: "
++                f"the lock takes each pair's reading (ruling 131 (A))")
++            return new
+     if not pin_side and run_side and len(ops) == 1 and ops[0][0] == "replace" and ops[0][2] - ops[0][1] == 1 \
+             and ops[0][4] - ops[0][3] == 1:
+         # ruling 18 ('10:36'): the decodes split on ONE non-critical token: the lock records both attested readings;
+@@ -568,8 +674,13 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
+             f"readings recorded (ruling 18)")
+         return new
+     if not pin_side:
++        why = [f"{x['run']!r}/{x['approved']!r}: " + {
++            "neither": "all three readings differ",
++            "run": f"the second reads the run's, but only {x['edge_distance']} from an edge (ruling 131 (A) needs "
++                   f"{MAJORITY_EDGE})"}.get(x["second_reads"], "no majority") for x in held] \
++            if held else ["the settled reading cannot be written"]
+         raise PinError(f"{tag}: lock text not adjudicated (ruling 17): at {diffs} the second recogniser reads "
+-                       f"{'the run decode' if run_side else 'neither'} | " +
++                       f"{'the run decode' if run_side else 'neither'}; ruling 131 (A): {'; '.join(why)} | " +
+                        " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
+     # ruling 84 (b) ('20:40'): where the second recogniser reads ONE function word against the decode's one (its
+     # fillers aside), the lock keeps the decode's word and records the other reading (ruling 18's record: G18 passes
+diff --git a/pipeline/telegram.py b/pipeline/telegram.py
+index 26f7925e..b23c1ad5 100644
+--- a/pipeline/telegram.py
++++ b/pipeline/telegram.py
+@@ -47,6 +47,9 @@ LINEUP_BAR_NOTE = "line-up passed on the calibrated bar"
+ STAND_ALONE_BAR_NOTE = "a clip passed stand-alone on the calibrated bar"     # ruling 120's own words
+ BAR_MARKS = (("hook_bar", HOOK_BAR_NOTE, "ruling 115 (2)"), ("lineup_bar", LINEUP_BAR_NOTE, "ruling 116"),
+              ("stand_alone_bar", STAND_ALONE_BAR_NOTE, "ruling 119"))
++# Ruling 131 (orchestrator 08:25 ET Nov 17): both lock rules are MARKED in the release caption, in plain words, when used
++MAJORITY_NOTE = "word check settled by two of three readings"         # (A)
++CURRENCY_NOTE = "currency format"                                      # (B)
+ 
+ 
+ def _fit(text, limit):
+@@ -118,6 +121,35 @@ def bar_lines(run_dir, edl):
+     return lines
+ 
+ 
++def lock_lines(run_dir, edl):
++    """RULING 131's release-caption lines, in this order: MAJORITY_NOTE when a clip's words were settled by two of the
++    three readings ((A): a render lock's own two-of-three record in the attested EDL, or a pin segment sealed with an
++    attested rule naming ruling 131 (A) in PINNED_DECISION.json, bound to the attested EDL by the package digest as
++    bar_lines' marks are); CURRENCY_NOTE when a render lock read a currency symbol as formatting ((B): its
++    currency_format). STOP (nothing is sent) on an unreadable pin record or a sealed (A) pin that is not the EDL's."""
++    locks = [x for x in [(edl.get("hook") or {}).get("selection_lock")] +
++             [c.get("selection_lock") for c in edl.get("clips") or []] if isinstance(x, dict)]
++    majority = any(isinstance(x.get("adjudication"), dict) and
++                   str(x["adjudication"].get("rule", "")).startswith("ruling 131 (A)") for x in locks)
++    path = os.path.join(run_dir, "PINNED_DECISION.json")
++    if os.path.exists(path):
++        try:
++            with open(path) as f:
++                pin = json.load(f)["pin"]
++            sealed = any("ruling 131 (A)" in str(s["attested"]["rule"]) for s in pin.get("segments") or []
++                         if s.get("attested") is not None)
++            sha = (pin.get("moments_package") or {}).get("package_sha256") if sealed else None
++        except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
++            raise RuntimeError(f"STOP: ruling 131's marks: the pin record cannot say whether a word check was settled "
++                               f"by two of three readings ({type(e).__name__}: {e})") from None
++        if sealed and not (isinstance(sha, str) and sha and sha == edl.get("moments_package_sha256")):
++            raise RuntimeError("STOP: ruling 131's marks: the sealed pin in PINNED_DECISION.json is not the attested "
++                               "EDL's")
++        majority = majority or sealed
++    currency = any(x.get("currency_format") for x in locks)
++    return [n for n, on in ((MAJORITY_NOTE, majority), (CURRENCY_NOTE, currency)) if on]
++
++
+ def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
+     """The caption of an AUTHORISED run: verdict line first; the MONITORING rows that did not pass are listed as
+     reported, not release-deciding (addendum '22:15' item 4). snap: the verified snapshot (deliver_run)."""
+@@ -134,8 +166,8 @@ def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
+              + (f" | {duration:.1f} s" if duration else ""),
+              f"Story: {edl.get('topic', '')}",
+              "Clips: " + ", ".join([edl["hook"].get("channel", "?")] + [c.get("channel", "?") for c in edl.get("clips", [])])]
+-    lines[2:2] = bar_lines(run_dir, edl)     # rulings 115 (2) / 116 / 119: one plain line per mark, under the run line
+-                                             # (never cut by _fit)
++    lines[2:2] = bar_lines(run_dir, edl) + lock_lines(run_dir, edl)    # rulings 115 (2) / 116 / 119 / 131: one plain
++                                             # line per mark, under the run line (never cut by _fit)
+     if mon:                                # claude-fable audit batch 16 #1: never 'all passed' with a failure unsaid
+         lines.insert(1, "Monitoring (reported, not release-deciding): " + "; ".join(f"{k} {v}" for k, v in mon.items()))
+     if release_auth.release_formats(edl) == ("16x9",):
+diff --git a/pipeline/word_diff.py b/pipeline/word_diff.py
+index 2a719037..3a41adb0 100644
+--- a/pipeline/word_diff.py
++++ b/pipeline/word_diff.py
+@@ -31,8 +31,7 @@ def norm(text, collapse=False):
+     words ('of course of course'); a difference that only that removes is NOT dropped from the evidence: G18
+     adjudicates it acoustically (GPT-cut F05, gate_g18)."""
+     import canon
+-    t = canon.canon_tokens(text)
+-    t = [w for k, w in enumerate(t) if not (w == "dollars" and k and re.fullmatch(r"\d+(\.\d+)?", t[k - 1]))]
++    t = canon.currency_free(canon.canon_tokens(text))          # ruling 131 (B): the one currency rule
+     return _collapse_repeats(t) if collapse else t
+ 
+ 
+@@ -57,7 +56,7 @@ def _alt_positions(expected, alts):
+         a = x.get("token_index")
+         if not isinstance(a, int) or not 0 <= a < len(t):
+             continue
+-        drop = [k for k, w in enumerate(t) if w == "dollars" and k and re.fullmatch(r"\d+(\.\d+)?", t[k - 1])]
++        drop = [k for k in range(len(t)) if canon.dollars_after_number(t, k)]      # ruling 131 (B)
+         if a in drop:
+             continue
+         out[a - sum(1 for k in drop if k < a)] = set(x.get("readings") or [])

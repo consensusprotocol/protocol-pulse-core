@@ -1,0 +1,26 @@
+{
+ "question": "Review this diff (orchestrator RULING 131, 08:25 ET Nov 17), verbatim: \"(A) ADOPTED as written: per differing pair, two of the three readings (approved text, the render's run decode, the second recogniser) decide it and the sealed text takes that reading, for fillers, function words, repetitions and content words, each at least 3 words from a cut edge; never a number (save B), a name or a negation; a pair where all three differ HOLDS. (B) ADOPTED: a currency symbol is formatting ('$2 billion' equals a spoken '2 billion'), a canon like 401k. Both MARKED in the Telegram note in plain words when used.\"\n\nCycle 2: try to BREAK it. Report ONLY a defect you can show with a CONCRETE input (the run decode, the approved text, the second recogniser's text) traced through the diff's code. Keep each \"issue\" under 80 words. If you cannot break it, answer PASS with no findings.\n\nFACTS (unchanged code, not in the diff):\n- pinned.adjudicate_lock's inner reads(x, xmap, lo, hi): True only when the second recogniser's tokens hold x[lo:hi] with one neighbour on each side, all aligned and consecutive; at a span end nothing may precede / follow it. pin_side = every pair reads(p...); run_side = every pair reads(r...).\n- pinned._lv2_critical(t, texts): a digit, a negation, an ordinal or a capitalised non-sentence-initial name.\n- The critical check (crit -> PinError \"number, name or negation\") runs on the pairs left in ops BEFORE the second recogniser is called (pinned.py, right after \"tag = ...\").\n- Below the (A) block, unchanged: ruling 18 (one replaced token, run_side -> both readings recorded), the HOLD when not pin_side, ruling 84 (b) (pin_side: one function word kept as the decode's with both readings; two or more hold), ruling 17 (pin_side: the approved text).\n- lock_precheck.second_reading: ONE paid call per acquisition, cached in the work dir by the source file's sha256; a cached call returns usd 0.0.\n- pinned.segment_lock = make_lock -> trimmed_lock -> adjudicate_lock is the render's own lock path (build_edl uses it).\n- word_diff.norm used to drop every 'dollars' right after a token matching \\d+(\\.\\d+)?: the same rule is now canon.dollars_after_number.\n- telegram.bar_lines (unchanged) reads PINNED_DECISION.json the same way and binds it to the attested EDL by moments_package.package_sha256 == edl[\"moments_package_sha256\"].\n\nBREAK-IT TARGETS:\nB1. The lock passes (no PinError) but at some position its text holds a reading that only ONE of the three readings has.\nB2. A number, a name or a negation differs between the run decode and the approved text, and the lock still passes (with or without a '$').\nB3. The run decode's reading is taken for a pair that is fewer than 3 run-decode tokens from a span end in EVERY valid placement of that pair.\nB4. The merged text's canonical tokens differ from the tokens the votes settled.\nB5. The pre-check seals a spoken_text that the render's own lock (segment_lock with it as approved_text) would refuse.\nB6. The release note prints a ruling 131 line when the rule was not used, or omits one when it was.\nB7. G18's comparison (word_diff.norm, word_diff._alt_positions) gives a different result than before for any input.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 843.7,
+   "cost": 0.0265091044,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0265091044,
+ "out_dir": "heimdall"
+}
