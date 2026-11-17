@@ -12,6 +12,8 @@
   "audits": 0.0,
   "checks": 0.0,
   "lock_precheck_scribe": 0.0256,
+  "integrator_other": 0,
+  "integrator_unpriced": [],
   "others": {}
  },
  "heimdall_free": {
