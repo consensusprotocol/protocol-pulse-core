@@ -270,6 +270,23 @@ class TestGpu0(unittest.TestCase):
             with open(os.path.join(self.root, "requests", f"r{i:02d}.json"), "w") as f:
                 json.dump(req(rid=f"r{i:02d}"), f)
 
+    def test_batch_102_a_gpu0_stop_while_loading_is_logged_and_the_service_lives(self):
+        logs = []
+        foreign = self.gpu0.Gpu0Foreign("swap_to(ollama:gemma3:27b): GPU0 is used by something that is not this "
+                                        "run's, still there after a 600s wait: pid 1 python3 394 MiB")
+        with mock.patch("story_semantics.LocalLLM", lambda: mock.Mock(**{"start.side_effect": foreign})):
+            self.assertEqual(SS.serve_once(log=logs.append), 0)
+        self.assertEqual(len(SS.pending()), 10)                        # nothing lost: all wait for the next pass
+        self.assertTrue(any("Gpu0Foreign" in m for m in logs), logs)
+        self.assertEqual(SS.serve_once(log=lambda *a: None), 8)        # the next pass answers as usual
+
+    def test_batch_102_a_gpu0_stop_while_leaving_keeps_the_answers(self):
+        def refuse():
+            raise self.gpu0.Gpu0Foreign("release_all: GPU0 is used by something that is not this run's")
+        with mock.patch.object(self.gpu0, "release_all", refuse):
+            self.assertEqual(SS.serve_once(log=lambda *a: None), 8)
+        self.assertEqual(len(SS.pending()), 2)
+
     def test_eight_per_lease_then_gpu0_released(self):
         self.assertEqual(SS.serve_once(log=lambda *a: None), 8)
         self.assertEqual((len(self.released), len(SS.pending())), (1, 2))

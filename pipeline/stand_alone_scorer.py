@@ -196,7 +196,9 @@ def serve_once(log=print):
                 gpu0.release_all()                               # GPU0 left as found before the lease goes
     except gpu0.LeaseBusy as e:
         log(f"  GPU0 lease busy ({e})")
-    if not pending():
+    except gpu0.Gpu0Stop as e:          # batch 102: busy, a foreign user, out of memory: logged, the service lives on
+        log(f"  GPU0 stop ({type(e).__name__}: {e}): the requests left wait for the next pass")   # (the judge's way;
+    if not pending():                   # a Gpu0Foreign killed this service at 15:26 ET Nov 16, down for 18 h)
         gpu0_want.done(WANT)                                     # the queue is empty: Whisper may have GPU0
     return n
 
