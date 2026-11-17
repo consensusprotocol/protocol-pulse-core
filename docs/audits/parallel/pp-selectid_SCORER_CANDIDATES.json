@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-17T00:41:12+00:00",
- "build": "ledger_20261117_004018",
+ "generated_at": "2026-11-17T00:54:19+00:00",
+ "build": "ledger_20261117_005326",
  "kind": "moments",
  "candidates": [
   {
@@ -2524,6 +2524,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "2f210c6aaf6794128bfe",
+   "video_id": "Yt_wdKWStqM",
+   "channel": "Bloomberg Television",
+   "duration": 25.83,
+   "text": "Coming up, Bitcoin playing defense today after falling to its lowest levels. Since August over the weekend we'll dig into what's behind the volatility. This is the close on Bloomberg. Time for stock of the hour.",
+   "text_sha256": "5391be7f8e1c65e4d1806b64a1eaa410576a24dc037a54e2bc520074f858c873",
+   "trimmed_leading": null
+  },
+  {
    "pid": "8e31c51b9a376b0c72c4~trim",
    "video_id": "f0NnJM63Ffc",
    "channel": "Scott Melker",
@@ -2866,6 +2875,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "ff75f33a43e026a2665e",
+   "video_id": "Yt_wdKWStqM",
+   "channel": "Bloomberg Television",
+   "duration": 19.27,
+   "text": "I think what happens is it's a marginal, it's a marginal support for the industry. So the marginal player that needed that support. especially the Bitcoin miners turned neocloud. You know, that's a very nascent industry that kind of needs to be brought onto their feet.",
+   "text_sha256": "5439b2d6bc3a26e736de6f4721e39ffbf8f1650935d44233d539e45aa11d7674",
+   "trimmed_leading": null
+  },
+  {
    "pid": "b8242b9c44bbcefb5e43",
    "video_id": "m7ygyYMe3mg",
    "channel": "Bitcoin Magazine",
@@ -3172,6 +3190,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "e2148ec8f82ab301360e",
+   "video_id": "Yt_wdKWStqM",
+   "channel": "Bloomberg Television",
+   "duration": 19.8,
+   "text": "Closer look at crypto Bitcoin right now hovering right around 65,000, most of the stocks in the crypto space deep in the red, including the 6 % drop for Coinbase right now. A strategy down about 7 % as we head towards the closing bells with the broader market also on the back foot, right around lows of the day.",
+   "text_sha256": "c9d57696a0a70bc041e96bbccea8fe4b6f63b6583e720e838ac8c7bc76b8c1d3",
+   "trimmed_leading": null
+  },
+  {
    "pid": "5d1df22b1e5c0577810e",
    "video_id": "WdiF0i925rs",
    "channel": "What Bitcoin Did",
@@ -3205,6 +3232,15 @@
    "duration": 22.52,
    "text": "It was my first time actually going to Europe for a Bitcoin conference. And I would say going across the pond and seeing how everyone is working. with Bitcoin over there, it was great to see. Good people and exciting conversations, a lot of it around AI and security, a good amount of conversations around treasury companies, and also just understanding kind of like what's up next for Bitcoin over the coming year.",
    "text_sha256": "538c5e15d32581357fd789f9af64155985e9a0f7bd112917930033d78d72d20a",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "3042e40f6e32c6e50676",
+   "video_id": "Yt_wdKWStqM",
+   "channel": "Bloomberg Television",
+   "duration": 14.04,
+   "text": "Bitcoin, after that phenomenal drop, camped out right below $65,000 on the day. If you're looking for a bright spot, well... This is basically it. 10 of the 11 sectors were in the red, the only one in the green. Consumer staples led largely by Clorox.",
+   "text_sha256": "77029fd323241e653561b4928d2ec9e7ca17d4570280765f65abd21cbca11420",
    "trimmed_leading": null
   },
   {
