@@ -1321,5 +1321,33 @@
    "why": "no change to pushback",
    "backend": "xai:grok-4.20-0309-reasoning"
   }
+ },
+ "9bd2cb49df47cb7b592fe7c97cee8eadeefb236ebb2119c7710636f0e1f8cbc8:e248eb63ad6f2f35bc43c6faadec1889c19b16d7d5708c2713f0c5dac386a71c:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "links fear to bad sentiment",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "9bd2cb49df47cb7b592fe7c97cee8eadeefb236ebb2119c7710636f0e1f8cbc8:ea94b2fd4379d659e1f1fa5d6228da7925781b296ca069bf8608040136949ee6:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "meanwhile lacks context",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "e248eb63ad6f2f35bc43c6faadec1889c19b16d7d5708c2713f0c5dac386a71c:ea94b2fd4379d659e1f1fa5d6228da7925781b296ca069bf8608040136949ee6:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "awkward repeat with meanwhile",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "ea94b2fd4379d659e1f1fa5d6228da7925781b296ca069bf8608040136949ee6:e248eb63ad6f2f35bc43c6faadec1889c19b16d7d5708c2713f0c5dac386a71c:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "expands on same event",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
  }
 }

@@ -30595,6 +30595,44 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "93cfa865d13a0c3e1709",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "Meanwhile",
+     "refers_to": "at the same time as the major bank outages",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "We",
+     "refers_to": "Bitcoin (price/market)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "weekend",
+     "inside": true
+    },
+    {
+     "text": "in just 30 minutes",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin had a terrible weekend, falling to $62K with $2B in leverage liquidated, including $645M in just 30 minutes.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I am Nathan with the BTC sessions, and this is Bitcast.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
   }
  },
  "0737e6f7fa84166a73b3:90ce0561e16264f4d79588f4faa381e5211a20869fbde8479d0901641fe459c7:9282a9857e9dd4eb4007c2559e2a801aac3018cdb28790ba7c7c89e02ec91f2b:9d43580c729b": {
@@ -30688,6 +30726,44 @@
    "speaker_is": "host",
    "speaker_evidence": "I am your host, Scott Melker, also known as the Wolf of All Streets.",
    "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "a3e8721c54788123097a",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it's",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "sometimes when market sentiment is generally bad",
+     "inside": true
+    },
+    {
+     "text": "because it's open 24-7, 365",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "There were billions in liquidations, about $2B on Bitcoin over the weekend, which is further proof that Bitcoin can suffer when market sentiment is bad because it trades 24/7.",
+   "certainty": "likely",
+   "speaker_is": "host",
+   "speaker_evidence": "I am your host, Scott Melker, also known as the Wolf of All Streets.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
    "replayed": false,
    "speaker_verified": false
   }
@@ -30964,6 +31040,60 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "ffa2d3fc4dd38e946d3a",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "governments",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "The thesis",
+     "refers_to": "the Bitcoin investment thesis",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "still hasn't bought a single coin",
+     "inside": true
+    },
+    {
+     "text": "was never riding on a president",
+     "inside": true
+    },
+    {
+     "text": "grew into a trillion dollar asset",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin's value does not depend on any president; the Strategic Bitcoin Reserve has not bought any coins; Bitcoin became a trillion-dollar asset under indifferent or hostile governments, and its investment thesis is about money.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
   }
  },
  "d6adeb54ad64062081c5:8e6ae65436256fcb93f3901a0c91648fb07f6fdc5798d8adbcde6760342ffcda:0fa4d38915e466c807d9ea9ed9c7b3166ea62c637f82825d9d51a0efb8638755:9d43580c729b": {
@@ -31143,6 +31273,59 @@
    "speaker_is": "uncertain",
    "speaker_evidence": "",
    "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "44a6d503ed11992f6f8e",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "you",
+     "refers_to": "the listener/viewer (Bitcoin holders)",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "your",
+     "refers_to": "the listener's emotions",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "you",
+     "refers_to": "the listener/viewer",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "your",
+     "refers_to": "the listener's Bitcoin",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "your",
+     "refers_to": "the listener's judgment",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "People try to manipulate your emotions to make you sell your Bitcoin, and fear and anger cloud your judgment.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "What To Watch Before Bitcoin\u2019s Next Bull Run | Michael Sullivan",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
    "replayed": false,
    "speaker_verified": false
   }

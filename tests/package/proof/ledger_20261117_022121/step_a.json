@@ -1,0 +1,183 @@
+{
+ "ffa2d3fc4dd38e946d3a:9d43580c729b": {
+  "label": "ffa2d3fc4dd38e946d3a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin was never dependent on any president, the strategic Bitcoin Reserve has bought no coins, and it grew to a trillion-dollar asset despite hostile or indifferent governments, with its thesis centered on sound money.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This one has reiterated what I found out in my first cycle.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "44a6d503ed11992f6f8e:9d43580c729b": {
+  "label": "44a6d503ed11992f6f8e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "People try to manipulate listeners' emotions with fear and anger in order to potentially get them to sell their Bitcoin, as these emotions greatly cloud judgment.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "93cfa865d13a0c3e1709:9d43580c729b": {
+  "label": "93cfa865d13a0c3e1709",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "had a terrible weekend",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin experienced a significant downturn over the weekend, falling to 62K with $2 billion in leverage wiped out including $645 million in just 30 minutes.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I am Nathan with the BTC sessions, and this is Bitcast.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a3e8721c54788123097a:9d43580c729b": {
+  "label": "a3e8721c54788123097a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the hit from bad market sentiment",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when market sentiment is generally bad",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Billions of dollars in liquidations occurred over the weekend including about $2B on Bitcoin, proving that Bitcoin suffers heavily from bad general market sentiment because it trades 24/7.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "I am your host, Scott Melker, also known as the Wolf of All Streets.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "1eff6e75d00b8de8cf95:9d43580c729b": {
+  "label": "1eff6e75d00b8de8cf95",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "its",
+    "refers_to": "the government that owes $40 trillion",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "no matter who wins an election",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's value thesis is independent of any president or election because it grew to a trillion-dollar asset despite hostile governments and remains centered on sound money that cannot be inflated by a $40T indebted government that must devalue its currency regardless.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I told him the thesis has not changed.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b084525ec408fdeabb4e:9d43580c729b": {
+  "label": "b084525ec408fdeabb4e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "there",
+    "refers_to": "the 58K price level",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin dropping to 62K",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "they",
+    "refers_to": "Strategy and metaplan",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "had a terrible weekend",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin had a terrible weekend dropping to 62K with billions in leverage wiped out near the 58K level, putting pressure on everybody as Strategy and Metaplan make moves while they are down.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I am Nathan with the BTC sessions, and this is Bitcast.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}
