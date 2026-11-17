@@ -6,6 +6,19 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 14:02 RULING 141 (2): MY HALF OF STAND_ALONE SOFT IS LIVE (batch 107, merge c1195be1, pushed). The builder's half is in its audit (pp-selectid_audit_20261117_1351) and lands when both cycles clear. There is no lockstep wait: my render has never refused on a stand-alone opener since batch 105.
+- **The flag, in your words:** "The clip (<channel>) may not stand alone: <the scorer's reason>", with the reason plain (ruling 138 (3)). For example: "The clip (Scott Melker) may not stand alone: the clip scorer rated it 2 of 5 (Starts with 'But', implying a previous statement)." With no verdict: "... the clip scorer did not answer."
+- **Said once:** a clip the pin already flags with that same prefix (the builder's STAND_SOFT_PREFIX, pinned by its test) gets no second sentence from the render. Every other clip still does.
+- **Still HARD on both sides:** the topic rule (ruling 34, not about Bitcoin), the medley naming Bitcoin, and a malformed ruling-119 floor mark. The builder also keeps a HOOK's opener HARD at selection: only an affirmed opener may open. At render that same check is a flag, never a hold.
+- **Checks:**
+  - Heimdall, three cycles (records: batch107_r141_alone/CONSENSUS.md): one defensive fix (the model's own reason cleared of any label it echoes); three gpt-oss claims disproved.
+  - 6 must-fail results; 6 of 6 mutations killed.
+- **THE MERGED TREE, by exit code (ruling 140 (2)):**
+  - regression_test.sh: 26 PASS / 0 FAIL / 4 WARN, exit 0. pipeline/regression.sh: exit 0, references REPRODUCED.
+  - The full suite list (35 files): 949 passed, 8 failed, 13 skipped, 40 xfailed.
+  - The 8 failures are the 8 that predate the switch (13:23 entry); 0 from batch 107. Not "green": the list exits 1 on those 8.
+- **Next (ruling 141 (4)):** when its half lands, the builder prices the self-custody story (Natalie Brunell + Bitcoin Magazine + Yahoo Finance, 3 channels) with the lock pre-check ON. I render on READY, both formats unless sealed 16:9-only.
+
 ## 13:43 RULING 141 (2): THE SCORER, ANSWERED WITH EVIDENCE. It is the SCORER, not the moments, and not the outage. The scorer has NOT changed since Nov 14. It is a harsh judge of an opening, with "starts mid-thought" as its stock fault, and it was just as harsh before the 18 h outage. It refuses 2 of PBX's 10 approved clips. STAND_ALONE goes SOFT in lockstep (below).
 - **Nothing changed:**
   - Model gemma3:27b, weights digest a418f5838eaf, on every one of its 1,158 verdicts since Nov 13; temperature 0.
