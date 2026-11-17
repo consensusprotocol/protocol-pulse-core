@@ -1,8 +1,17 @@
 {
- "generated_at": "2026-11-17T19:44:33+00:00",
- "build": "ledger_20261117_194408",
+ "generated_at": "2026-11-17T19:47:14+00:00",
+ "build": "ledger_20261117_194633",
  "kind": "moments",
  "candidates": [
+  {
+   "pid": "9c5ea4a897e2966d95de",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 11.62,
+   "text": "But at least we're always like, look, Bitcoin is the solution for literally a bank going down. This is why we always say never put your money in the banks because one day you can wake up and your money is just gone.",
+   "text_sha256": "52eae2ee1e30a5b9d085e9204f68708b3ef65d22ad41156708c5afa9b553ee3e",
+   "trimmed_leading": null
+  },
   {
    "pid": "fedb39b81b4e0ce6ac8c",
    "video_id": "RsCi56hEriU",
@@ -28,6 +37,15 @@
    "duration": 14.92,
    "text": "And when you actually get into the math of how you have a high amplification ratio. Bitcoin going down is actually helpful because it raises your leverage rate because your Bitcoin is worthless. And so some might say, well, that's a problem, but we wanted a high amplification ratio.",
    "text_sha256": "9bf9ca71ffc8e6f7910bba92629d71c4b690347c06b39e813aa4c1659312f8bb",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e2178584570694eb6d21",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 3.68,
+   "text": "But, you know, Bitcoin is still up. Bitcoin was working throughout this whole time.",
+   "text_sha256": "874aa46a9a1dc0c141e0b2c9f174ed96f3f528d6f339b6d0d49140708aea745c",
    "trimmed_leading": null
   },
   {
@@ -94,6 +112,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "6a1971b6e22950ce623e",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 15.02,
+   "text": "So, you know, the bottom line will always be, yeah, we saw basically banks go down for a little bit. People are waking up to the fact that they weren't able to access their money. And of course, for us, it's always leaning to, well, this is why we Bitcoin in the first place.",
+   "text_sha256": "75b2e5d0159451cf309a111fc75285d3dafdd308af3a24498e0083ae57d77d59",
+   "trimmed_leading": null
+  },
+  {
    "pid": "8920ef96d6a292fb3324",
    "video_id": "RsCi56hEriU",
    "channel": "Natalie Brunell",
@@ -130,12 +157,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "1375c1e63f467215bd34",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 5.44,
+   "text": "But your spidey senses should be tingling if you've been in Bitcoin for a very long time.",
+   "text_sha256": "9287fd04d78b1d67229eaf02eca2e6ecabb9afb24eeaf0fb23de52dd0a4eb461",
+   "trimmed_leading": null
+  },
+  {
    "pid": "16177ae77293aa32aee2",
    "video_id": "F536pi4mr7Y",
    "channel": "Yahoo Finance",
    "duration": 12.73,
    "text": "But it's always encouraging to see diamond -handed investors adding or holding their Bitcoin positions, even if it's through an ETF. And that is what we are seeing here with Wells Fargo and their customers.",
    "text_sha256": "3335d4ad5ce326c1db3013e1dc65abe31213a63317e03ffd08c87dec8cd6ddca",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "3caedbecccc1878d9aca",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 7.72,
+   "text": "But now a couple of years later, you're like a full -blown Bitcoiner. You're a fool -blower. You just said Bitcoin's going to a million dollars here soon.",
+   "text_sha256": "cbdae8d7ced7d6d158f99159c2734d4eb8305c8dde11c45c1133b10d86e10ecf",
    "trimmed_leading": null
   },
   {
@@ -202,6 +247,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "c1ced29eeffe45d32443",
+   "video_id": "8OYN9mWcFxg",
+   "channel": "Bitcoin Magazine",
+   "duration": 11.61,
+   "text": "So to bring this all together, 2,158 filers held spot Bitcoin ETFs as of September 30th. That's up from about 1900 at the end of June.",
+   "text_sha256": "9d6651e2c151a500eb7ae46e42d65a8309fb890970ed4310cbb3c2830fc1a469",
+   "trimmed_leading": null
+  },
+  {
    "pid": "8ce36f836c757cc6ce5b",
    "video_id": "nThfIRfBleA",
    "channel": "Scott Melker",
@@ -220,6 +274,15 @@
    "trimmed_leading": "Now"
   },
   {
+   "pid": "9c5ea4a897e2966d95de~trim",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 11.34,
+   "text": "at least we're always like, look, Bitcoin is the solution for literally a bank going down. This is why we always say never put your money in the banks because one day you can wake up and your money is just gone.",
+   "text_sha256": "391fee8f41824256ad978865cc01b951250d333edeca1365a56a4e8a671abcd4",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "fedb39b81b4e0ce6ac8c~trim",
    "video_id": "RsCi56hEriU",
    "channel": "Natalie Brunell",
@@ -236,6 +299,15 @@
    "text": "when you actually get into the math of how you have a high amplification ratio. Bitcoin going down is actually helpful because it raises your leverage rate because your Bitcoin is worthless. And so some might say, well, that's a problem, but we wanted a high amplification ratio.",
    "text_sha256": "8eab0d999cdb2f9a13731dd189cfe827953d0149880174d7a382373bbec725de",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "e2178584570694eb6d21~trim",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 3.6,
+   "text": "you know, Bitcoin is still up. Bitcoin was working throughout this whole time.",
+   "text_sha256": "0bfca7ff547d41ea4ff5d746d60272166e303a564577a9e1c2ebda8d2cd29acc",
+   "trimmed_leading": "But"
   },
   {
    "pid": "39a26740d22556283cea~trim",
@@ -301,6 +373,15 @@
    "trimmed_leading": "But"
   },
   {
+   "pid": "6a1971b6e22950ce623e~trim",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 14.9,
+   "text": "you know, the bottom line will always be, yeah, we saw basically banks go down for a little bit. People are waking up to the fact that they weren't able to access their money. And of course, for us, it's always leaning to, well, this is why we Bitcoin in the first place.",
+   "text_sha256": "f258b30941c3c6ce78424b201d1788dd09d39f5b0f25bb41308fb73c73edb8e5",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "ab69874e8351b51b5428~trim",
    "video_id": "RsCi56hEriU",
    "channel": "Natalie Brunell",
@@ -328,12 +409,30 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "1375c1e63f467215bd34~trim",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 5.04,
+   "text": "your spidey senses should be tingling if you've been in Bitcoin for a very long time.",
+   "text_sha256": "052db46dfd352e90a10e31297df30f72fb9ce2c7dc408a436104a2c5faa4bfdd",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "16177ae77293aa32aee2~trim",
    "video_id": "F536pi4mr7Y",
    "channel": "Yahoo Finance",
    "duration": 12.69,
    "text": "it's always encouraging to see diamond -handed investors adding or holding their Bitcoin positions, even if it's through an ETF. And that is what we are seeing here with Wells Fargo and their customers.",
    "text_sha256": "d411f711ac1b83de313ffb0e52c657b8dbd5c95f249e3f8017e3602299e5d802",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "3caedbecccc1878d9aca~trim",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 7.7,
+   "text": "now a couple of years later, you're like a full -blown Bitcoiner. You're a fool -blower. You just said Bitcoin's going to a million dollars here soon.",
+   "text_sha256": "b678c449b7fb5a0e2a51e87582b7f62ac9d3e720c9cef7cbca0a6eb7ae6d3073",
    "trimmed_leading": "But"
   },
   {
@@ -382,6 +481,15 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "c1ced29eeffe45d32443~trim",
+   "video_id": "8OYN9mWcFxg",
+   "channel": "Bitcoin Magazine",
+   "duration": 11.49,
+   "text": "to bring this all together, 2,158 filers held spot Bitcoin ETFs as of September 30th. That's up from about 1900 at the end of June.",
+   "text_sha256": "adc9b470979114d02907e1f3bb4ab3935694752746a71a18d9c174cb9cde7d07",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "8ce36f836c757cc6ce5b~trim",
    "video_id": "nThfIRfBleA",
    "channel": "Scott Melker",
@@ -397,6 +505,15 @@
    "duration": 5.48,
    "text": "It's also why I would not present a product like Q as better than Bitcoin. That framing is just kind of too simple.",
    "text_sha256": "3a6bd3679c47590c1e0e70a7a6a7d0b29fbc7cbc152ac3560d9af975bfd37dd0",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "03f7333c834a117e2cf6",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 17.01,
+   "text": "It's really one of these things of, you know, Greg Foss was always famous for saying that Bitcoin is fire insurance and you want to buy insurance before there's a fire on your house. It really seems right now that people need to just have a bugout stack of Bitcoin just in case.",
+   "text_sha256": "15709015bc20e2ed4dc0ccd11174be78b8c93d73af8dc6b8b7f86986083b4dc6",
    "trimmed_leading": null
   },
   {
@@ -490,6 +607,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "b635ab919483dfd3d2ac",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 19.4,
+   "text": "Bitcoin is the hardest acid on planet Earth. And it took discipline to build your stack. and the platform you use for a Bitcoin back loan should have the same discipline. That's lead -in. When the next opportunity shows up for your business, a new home, and or a new car, a leaden loan puts liquidity in your hands without selling what you spent years building.",
+   "text_sha256": "e070c3461e623e80196c5b10e276ad3936b2940c95493fc70799fee870b6f124",
+   "trimmed_leading": null
+  },
+  {
    "pid": "afbf8bef3ea9799dce5f~trim",
    "video_id": "MeC8YEmUx_w",
    "channel": "Bitcoin Magazine",
@@ -553,6 +679,24 @@
    "trimmed_leading": null
   },
   {
+   "pid": "4e8ac33f407fa13c956d",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 18.06,
+   "text": "Nobody wants Bitcoin at 40,000 or 60,000. They wanted that 130. Then you might see some crazy stuff on the upside. But we are not there yet.",
+   "text_sha256": "9f82c8740cf9cefe6c02e3d61a50d397ab28a999fe4c2411002bc0bbbf19b06c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a2606bbb397db911d4f0~trim",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 26.32,
+   "text": "at least we're always like, look, Bitcoin is the solution for literally a bank going down. This is why we always say never put your money in the banks because one day you can wake up and your money is just gone. We've seen this happen time and time again throughout the history of regime change, of very important eras where you go from, you know, when the Berlin Wall fell, when you go from a communist country to a post -communist country.",
+   "text_sha256": "a87791ab8abf33526425a728f4f0dce08214c8b53514931e5adfda0ecc3de1ae",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "89eba3fa09df506ea0cd",
    "video_id": "MeC8YEmUx_w",
    "channel": "Bitcoin Magazine",
@@ -571,12 +715,39 @@
    "trimmed_leading": null
   },
   {
+   "pid": "e07e247f2b60d56e9a7e~trim",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 20.86,
+   "text": "I know a lot of people will say, oh, you know, Bitcoin uses the internet like... If the internet goes down, Bitcoin won't be able to transact. Well, you know, that's why we've seen so many new tech coming out on Bitcoin where you can use Bluetooth. You know, we have nodes uploaded to satellites. It's like the Bitcoin network is pretty resilient.",
+   "text_sha256": "e1fcfa260a0cb5b7a8899cf664e45a1e9a040f2635235b1a219ac63092d8bd32",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "cbaeb34d77f073d5a42b~trim",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 14.94,
+   "text": "you know, Bitcoin is still up. Bitcoin was working throughout this whole time. And then this morning, it's like I did a tweet and it was something on the lines of, you know, we haven't gotten the not QEQE yet, but we got the not cyber attack, cyber attack happening right now.",
+   "text_sha256": "41766210d48370cd41c968fb6657c3c2733908e2d2c34876cf911d2523c56ec1",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "10bd9efcadbbca5ecefd",
    "video_id": "8OYN9mWcFxg",
    "channel": "Bitcoin Magazine",
    "duration": 14.56,
    "text": "Meanwhile, Bank of America grew its iBit shares more than eightfold. The position was worth about $57 million on June 30th and about $685 million on September 30th. Almost all of the ad was in B of A Securities, its broker -dealer arm.",
    "text_sha256": "867963e003cb773b1b6598e08473e9a5d7afd112c169ae52e23c06108afc68da",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "36bb947b35a3950be49e",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 14.3,
+   "text": "I really enjoyed the fact that you started with, hey, we just kind of dipped our toes in Bitcoin, and now we are full Bitcoin believers. And this is a trend that I think we are only going to see increase. But as you keep reminding us, we're still early in this.",
+   "text_sha256": "0fde3776862855cebb28d11e3f8c7c0ac6d92ae65405f4b6cbbf72de5a00b3a5",
    "trimmed_leading": null
   },
   {
@@ -613,6 +784,15 @@
    "duration": 16.02,
    "text": "Moving on now, Mubadala, an Abu Dhabi wealth fund that manages about $385 billion or did manage that at the end of 2025, kept every share of Ibit that it held at the end of June. The Abu Dhabi Investment Council, which Mubadala owns, kept its shares as well.",
    "text_sha256": "636be94d73d977ab53c89780eb57e734b146ff42efe121c76fdc6b8a60604fd1",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "aea73f811d6a91251e2f",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 20.05,
+   "text": "Bitcoin per share is like, borrow me a billion dollar, and I have more Bitcoin per share. It doesn't make any sense because it's leverage. It's debt. M now is like price to net asset value.",
+   "text_sha256": "2d0368d49fb9401e262f81f9c4668df7277be30e9361b682233ec39b2527680f",
    "trimmed_leading": null
   },
   {
@@ -688,6 +868,15 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "7bd04c5eb4291b3c1068",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 18.68,
+   "text": "You're like, oh, you're a Fiat maxi, bro. The price doesn't matter. One Bitcoin equals one Bitcoin. It's like, yeah, I know. But, you know, I can't. Can't make everyone happy, but I'm trying. I'm trying. All right. Anyways, guys, peace out. I'll see you tomorrow. Oh, we go live Monday through Friday, roughly 12.40 p.m. every day.",
+   "text_sha256": "e8e2e1b0c914b8ac7ae0dd9d31a5b2f8637d7063fbd97f467ad9b0f602f3b013",
+   "trimmed_leading": null
+  },
+  {
    "pid": "e2b3d73398b44edeaf2a~trim",
    "video_id": "MeC8YEmUx_w",
    "channel": "Bitcoin Magazine",
@@ -730,6 +919,15 @@
    "duration": 20.12,
    "text": "I think long term, both are quite complementary to each other because AI brings about massive disruption in public markets, whereas Bitcoin is really a safe haven and a store of value and a pristine collateral asset for all market participants around the world. But I do think at the moment, there's massive selling into the public equity market and a massive demand for liquidity.",
    "text_sha256": "36f815d133980f45addef2faa43771f8bfa7fe011a44e90410b839968817a994",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "4065d6d52b71fbc9ae0d",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 15.88,
+   "text": "Bitcoin hasn't decoupled yet. It will. But it hasn't. It's like it's not like today, Bitcoin is down, gold and silver is up, the market is down. I think that will happen.",
+   "text_sha256": "e8a3d678461b3b4e3ef4e8cbd6ba2515b36c15cb4adeaa38c8970608d6f2c76f",
    "trimmed_leading": null
   },
   {
@@ -778,6 +976,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "495cb398eaa4770f6036",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 18.41,
+   "text": "We are grateful for Bitcoin at 63K. We are grateful. Actually, we're grateful that we're ahead of the curve and we are already Bitcoiners. Imagine being in the face of all of this. And being like running around with your heads cut off and having no idea what's coming down a pipeline.",
+   "text_sha256": "7ff73da60f6f86a116631cdc8b0669398a6050184432b0a8b00d17c4cec3bf3d",
+   "trimmed_leading": null
+  },
+  {
    "pid": "90253de00fe7aa962b4a",
    "video_id": "nThfIRfBleA",
    "channel": "Scott Melker",
@@ -814,6 +1021,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "70b19a345b0941e87608~trim",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 23.39,
+   "text": "your spidey senses should be tingling if you've been in Bitcoin for a very long time. Again, in 2020, I remember it was Bitcoiners being one of the first people on the internet to not only... pinpoint the problem coming out of Wuhan, but also kind of really doing the deep dive on how bad it's going to be.",
+   "text_sha256": "19e6506e5c858f3f0a58b91e2a1bfb76d5cd2029c44011170f6727c15679cce5",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "fbaea3cde8983456f04e~trim",
    "video_id": "F536pi4mr7Y",
    "channel": "Yahoo Finance",
@@ -821,6 +1037,24 @@
    "text": "it's always encouraging to see diamond -handed investors adding or holding their Bitcoin positions, even if it's through an ETF. And that is what we are seeing here with Wells Fargo and their customers. Meanwhile, I know I don't have it pulled up as news, but very good news is that our long death streak of ETF outflows ended yesterday with like 7 million or 10 million or 12 million, some rounding error yesterday.",
    "text_sha256": "1b79be0584e5da77e6dd2a6f41c8bbc80a7770314e9dfb87c6883297a94f704d",
    "trimmed_leading": "But"
+  },
+  {
+   "pid": "3d9d24d322465b6802df~trim",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 18.97,
+   "text": "now a couple of years later, you're like a full -blown Bitcoiner. You're a fool -blower. You just said Bitcoin's going to a million dollars here soon. So how is that journey? And further, how do your peers that are more tradfai think about you guys going, you know, more Bitcoin bullish than probably the average person?",
+   "text_sha256": "eac7982a354a3a768b0b4986dc2dfb01afbb5b1464f8dba8e6ecc7f84cdc6f06",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "cc9571ffd8f1a47f3c97",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 17.56,
+   "text": "Of course, there is a systematic risk against Bitcoin, but we are a Bitcoin company, so we should live with it. But what we see, what strategy been through? It's totally new company different from 12 months ago.",
+   "text_sha256": "e2d12bcdd7d242c981a53d2d336f09c10a766bc12170cbaddfb2e0fc3e0b2825",
+   "trimmed_leading": null
   },
   {
    "pid": "501dfac999d0c0ec96e8",
@@ -922,6 +1156,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "e6cbe19dead4d92a7dac",
+   "video_id": "3so8qeVY4CE",
+   "channel": "Simply Bitcoin",
+   "duration": 20.7,
+   "text": "That's 68,000 is the 200 weekly chart everybody is talking about. It reminds me of Michael Saylor's rule number 12 in the truth about Bitcoin. All your models will be destroyed, so you have to be careful.",
+   "text_sha256": "a665cc2148c74fcadddd060493b9b692bddf4fd7b7049f03aaa8889d76611228",
+   "trimmed_leading": null
+  },
+  {
    "pid": "f27dc129bada590e0a28",
    "video_id": "RsCi56hEriU",
    "channel": "Natalie Brunell",
@@ -965,6 +1208,15 @@
    "text": "They could not buy the Bitcoin ETF, right? So you're allowing Bitcoin exposure to go into a portfolio like that. I was on the income side. I could not buy an equity. I also could not buy Bitcoin. I could not buy a Bitcoin ETF. I could buy structured products, which again, don't even really exist on Bitcoin because that was my play box.",
    "text_sha256": "feaa0320c7751f3da9f4ccae97e71f1799beded6238ae145f6ad1347682ec4af",
    "trimmed_leading": null
+  },
+  {
+   "pid": "f7d233a76363522f3e34~trim",
+   "video_id": "8OYN9mWcFxg",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.65,
+   "text": "to bring this all together, 2,158 filers held spot Bitcoin ETFs as of September 30th. That's up from about 1900 at the end of June. Looking at this graphic here, the biggest brand new positions.",
+   "text_sha256": "cf84847d11e6e5fa03510a03ca8913af2bfacaa52c79adeec4d582dd3e881597",
+   "trimmed_leading": "So"
   },
   {
    "pid": "c81d9c9a69be24514d6e",
