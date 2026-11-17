@@ -1,0 +1,37 @@
+{
+ "0050388e1e805af79a6e:9d43580c729b": {
+  "label": "0050388e1e805af79a6e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "Those",
+    "refers_to": "vulnerable emerging market economies and countries (e.g. Brazil after the election selloff)",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "there",
+    "refers_to": "those vulnerable emerging markets/countries",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "those markets",
+    "refers_to": "the economies and countries that embraced Bitcoin early as a non-governmental hedge",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Vulnerable emerging market countries like Brazil that early embraced Bitcoin as a non-governmental hedge on money will continue to see traction there, as those markets are more open to the idea that their governments lack the solution or willpower for fiscal difficulties.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "And blue, you know, obviously you're an expert in emerging markets... What are you seeing in emerging markets right now that might be catching your eye? Yeah, I think what happens there is as we see sort of particularly more vulnerable emerging market currency selloff.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}
