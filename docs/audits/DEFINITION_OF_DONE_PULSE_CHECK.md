@@ -6,6 +6,14 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 11:51 MILESTONE: THE RENDER-SIDE SWITCH LIVE (batch 105, rulings 136 / 137, merged a1efc177, pushed). HARD refuses; SOFT flags in plain words at the top of the Telegram note ("REVIEW FLAGS: ..."); PASS_WITH_FLAGS goes to PBX on the review path. BATCH 4 integrator spend: none outside.
+- **SOFT, flagged:** G3c, G8, G9, G16, G19, V1, G14 and the 9:16 fallback; edl R1 / R3 / R4 / R8 / R9 / R10 / R11; ruling 91's takeaway; the editorial laws; a stand-alone opener.
+- **Still HARD:** the words, a mid-word cut, credit, a face or caption crop, the runtime, R2 / R5 / R6 / R7, a topic not about Bitcoin, a malformed floor mark, layout and source coordinates, the attestation.
+- The render lists every soft flag it finds, after the pin's. The cap of 3 is the builder's never-empty seal.
+- **Backward compatible:** a pin without review_flags is a clean package.
+- **Checks:** Heimdall, two cycles (qwen27b and gpt-oss), no defect (one claim disproved, recorded in batch105_r136_switch/CONSENSUS.md). 12 must-fail results; 10 of 10 mutations killed; regressions 26 PASS / 0 FAIL / 4 WARN, exit 0, references REPRODUCED.
+- **Next:** the builder lands never-empty stage 1 and seals the kept line-up, then I render. **Not yet SOFT:** ruling 73's sentence edge where the decode gives no boundary (sentence_law, a lockstep).
+
 ## 11:36 MILESTONE: TODAY'S ATTEMPT STARTED (ruling 137 (1)) and is KEPT. The render-side HARD / SOFT switch is built and in audit. Expected path: the switch live, then the builder seals the kept line-up, then the render (about 50 min), then delivery, well inside the first expiry (20:00 ET).
 - **The line-up:** Scott Melker ca660f22 (hook) + DataDash 8dbc30ee + Natalie Brunell 372f6afd + Coin Bureau e06e9566 (43.7 s).
 - **The lock pre-check under ruling 135 (11:23 ET), all four spans PASS:**
