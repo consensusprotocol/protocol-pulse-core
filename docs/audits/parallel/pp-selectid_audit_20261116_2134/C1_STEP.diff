@@ -1,0 +1,182 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 4e971be..70e79be 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -469,6 +469,16 @@ def is_held(why):
+     return bool(why) and all(str(w).startswith(HELD) for w in why)
+ 
+ 
++def local_held(a):
++    """RULING 127 (2) (orchestrator 21:30 ET Nov 16): a step-A verdict from the local judge (gemma3:27b, ruling 87's last
++    resort), PASS or REFUSE, is never final while a Heimdall family can be asked: HELD, 'local, provisional', never
++    cached, asked again next build; a sealed package needs the second screen from a real second family. -> the reason."""
++    why = CI.a_failures(a)
++    return (f"{HELD}: local, provisional (ruling 127 (2)): the local judge {a.get('backend')}'s verdict "
++            f"({'refuse: ' + '+'.join(map(str, why)) if why else 'pass'}) is never final while a Heimdall family can "
++            f"be asked; never cached; held for this build, retried next build")
++
++
+ def last_resort_of(verdicts):
+     """RULING 102: the back-ends among `verdicts` (A items) that are the local judge's (ruling 87's last resort)."""
+     return sorted({str(a.get("backend")) for a in verdicts or () if isinstance(a, dict)
+@@ -574,7 +584,8 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
+     wv, wf = P._as_set(writer_vendor), P._as_set(writer_family)
+     off = lambda name: (lambda b: b is not None and b.vendor not in wv and b.family not in wf)(router.backends.get(name))
+     pick = lambda key: next((x for name, x in sorted((cdb.get(key) or {}).items())        # a cached verdict off the
+-                             if isinstance(x, dict) and off(name) and x.get("backend") == name), None)   # writers'
++                             if isinstance(x, dict) and off(name) and x.get("backend") == name    # writers', never
++                             and not name.startswith(LAST_RESORT)), None)                         # the local judge's
+     moved = {}                                          # ruling 126 (1): old-key verdicts, written under the new key
+     a_by, fails, vendors, families, todo, contexts, keys = {}, {}, set(), set(), [], {}, {}
+     for m in order:
+@@ -588,7 +599,8 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
+                          "show_date": CI.show_date(ctx.now)}       # RULING 126 (1): the ET date
+         keys[mid] = step_a_key(m, contexts[mid])                          # ruling 126 (1): the date only with time words
+         rec = db.get(f"{mid}:{STEP_A_VERSION}")
+-        if not (isinstance(rec, dict) and off(rec.get("backend"))):
++        if not (isinstance(rec, dict) and off(rec.get("backend"))
++                and not str(rec.get("backend")).startswith(LAST_RESORT)):        # ruling 127 (2): never the local judge's
+             rec = pick(keys[mid])
+             if rec is None and not time_sensitive(m):    # RULING 126 (1): a verdict cached before the date left the key
+                 rec = next((r for r in map(pick, step_a_old_keys(m, contexts[mid], ctx.now)) if r is not None), None)
+@@ -623,6 +635,10 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
+                 fails[m["moment_id"]] = [held_why(e)]
+             continue
+         items, backend = got
++        if str(backend).startswith(LAST_RESORT):         # RULING 127 (2): the local judge's verdicts are provisional:
++            for mid, a in items.items():                 # held, never a pass or a refusal, never cached, no vendor
++                fails[mid] = [local_held(dict(a, backend=backend))]
++            continue
+         b = router.backends.get(backend)
+         vendors.add(b.vendor if b else backend)
+         families.add(b.family if b else backend)
+@@ -810,6 +826,8 @@ def second_screen(router, cleared, a_by, sources, ctx, log=print, cache=None):
+             if fails.get(mid) or a2 is None:            # ruling 102: no verdict at all is HELD, retried next build
+                 fail[mid] = list(fails.get(mid) or [f"{HELD}: no second verdict (law L-m); held for this build, "
+                                                     f"retried next build"])
++            elif str(a2.get("backend") or "").startswith(LAST_RESORT):   # RULING 127 (2): never the second family
++                fail[mid] = [local_held(a2)]
+             elif b2 is None or b2.vendor == k[0] or (k[1] and b2.family == k[1]):
+                 fail[mid] = [f"STEP_A_SAME_VENDOR: the second verdict came from {a2.get('backend')}, not off the "
+                              f"first's vendor {k[0]} and family {k[1]} (law L-m)"]
+diff --git a/tests/package/test_ruling_102.py b/tests/package/test_ruling_102.py
+index 08e48db..5c086fa 100644
+--- a/tests/package/test_ruling_102.py
++++ b/tests/package/test_ruling_102.py
+@@ -108,21 +108,70 @@ class TestTheSecondFamily(unittest.TestCase):
+         with open(self.cache) as f:
+             return {k: sorted(v) for k, v in json.load(f).items()}
+ 
+-    def test_every_faster_leg_unavailable_the_local_judge_answers_and_is_the_last_resort(self):
++    def local(self, fail):
++        """RULING 127 (2): every moment HELD as the local judge's provisional verdict, never a pass or a refusal."""
++        self.assertEqual(sorted(fail), sorted(self.cleared))
++        self.assertTrue(all(PK.is_held(f) and "local, provisional" in f[0] for f in fail.values()), fail)
++
++    def test_every_faster_leg_unavailable_the_local_judges_answer_is_provisional_never_a_pass_never_cached(self):
++        """RULING 127 (2) (21:30 ET Nov 16): the local judge answers the second screen and its verdict is HELD as
++        'local, provisional' (no seal can rest on it), never cached; the next build asks Heimdall again."""
+         legs = [Leg(X), Leg(DS, P.Unavailable("HTTP 503")), Leg(G, P.Unavailable("HTTP 503")),
+                 Leg(GEM, P.Unavailable("HTTP 429")), Leg(LJ)]
+         two, fail = self.screen(legs)
+-        self.assertEqual(fail, {})
+-        self.assertEqual({mid: [a["backend"] for a in v] for mid, v in two.items()},
+-                         {mid: [X, LJ] for mid in self.cleared})                 # off Grok: the last leg answered
++        self.assertEqual(two, {})
++        self.local(fail)
+         self.assertEqual([b.calls for b in legs], [0, 1, 1, 1, 1])               # in order, each once, never Grok
+-        self.assertEqual({mid: PK.last_resort_of(v) for mid, v in two.items()}, {mid: [LJ] for mid in self.cleared})
++        self.assertEqual(self.cached(), {})                                      # never remembered
++        legs = [Leg(X), Leg(DS), Leg(G), Leg(GEM), Leg(LJ)]                       # the next build: deepseek is back
++        two, fail = self.screen(legs)
++        self.assertEqual((fail, {v[1]["backend"] for v in two.values()}), ({}, {DS}))   # asked again, answered
++
++    def test_a_local_refusal_is_provisional_too_and_a_cached_local_verdict_is_never_read(self):
++        """RULING 127 (2): a REFUSE from the local judge is not final either; a local verdict found in the cache (from
++        before the rule) is passed over and Heimdall is asked."""
++        legs = [Leg(X)] + [Leg(n, P.Unavailable("down")) for n in (DS, G, GEM)] + [Leg(LJ)]
++        with mock.patch.object(PK.CI, "a_failures", lambda a: ["REFERENT_OUTSIDE"]):
++            two, fail = self.screen(legs)
++        self.assertEqual(two, {})
++        self.local(fail)
++        self.assertTrue(all("refuse: REFERENT_OUTSIDE" in f[0] for f in fail.values()), fail)
++        self.assertEqual(self.cached(), {})
++        ctx = TM.ctx()
++        for m in self.ms:                                # a local verdict cached under each moment's key
++            legs = [Leg(X), Leg(DS)]
++            rr = router(self.d.name, legs)
++            PK.prescreen(rr, [m], self.srcs, ctx, {"xai"}, {"grok"}, cache=self.cache, kind="step_a_second",
++                         failover=True)
++            with open(self.cache) as f:
++                d = json.load(f)
++            k = next(k for k in d if k.startswith(m["moment_id"] + ":"))
++            d[k] = {LJ: dict(d[k][DS], backend=LJ)}      # the same verdict, as if the local judge had given it
++            with open(self.cache, "w") as f:
++                json.dump(d, f)
++        legs = [Leg(X), Leg(DS), Leg(G), Leg(GEM), Leg(LJ)]
++        two, fail = self.screen(legs)
++        self.assertEqual((fail, {v[1]["backend"] for v in two.values()}), ({}, {DS}))   # Heimdall asked again
++        self.assertEqual(legs[1].calls, 1)
++        store = os.path.join(self.d.name, "store.json")  # nor from the build's own ledger (store)
++        with open(store, "w") as f:
++            json.dump({f"{m['moment_id']}:{PK.STEP_A_VERSION}": dict(a_item(m["moment_id"]), backend=LJ)
++                       for m in self.ms}, f)
++        os.remove(self.cache)
++        legs = [Leg(X), Leg(DS), Leg(G), Leg(GEM), Leg(LJ)]   # the local judge a real back-end here: off the writers
++        a_by, fails, vendors, _ = PK.prescreen(router(self.d.name, legs), self.ms, self.srcs, ctx, {"xai"}, {"grok"},
++                                               store=store, cache=self.cache, kind="step_a_second", failover=True)
++        self.assertEqual(({a["backend"] for a in a_by.values()}, legs[1].calls), ({DS}, 1))
+ 
+     def test_the_order_is_deepseek_glm_gemini_the_judge(self):
+-        for down, want in (((), DS), ((DS,), G), ((DS, G), GEM), ((DS, G, GEM), LJ)):
++        for down, want in (((), DS), ((DS,), G), ((DS, G), GEM), ((DS, G, GEM), None)):
+             legs = [Leg(n, P.Unavailable("down") if n in down else None) for n in LEGS]
+             two, fail = self.screen(legs)
+-            self.assertEqual({v[1]["backend"] for v in two.values()}, {want}, down)
++            if want is None:                             # RULING 127 (2): the judge answers, provisional, held
++                self.assertEqual(two, {})
++                self.local(fail)
++            else:
++                self.assertEqual({v[1]["backend"] for v in two.values()}, {want}, down)
+             os.path.exists(self.cache) and os.remove(self.cache)
+         legs = [Leg(n) for n in LEGS]                         # a first verdict from glm: Grok confirms, as before
+         two, _ = self.screen(legs, first=G)
+@@ -132,7 +181,8 @@ class TestTheSecondFamily(unittest.TestCase):
+         legs = [Leg(X), Leg(DS, out_of_contract=True), Leg(G, P.DeadlineExceeded("no answer within 60 s")),
+                 Leg(GEM, P.RequestRejected("refused this request")), Leg(LJ)]
+         two, fail = self.screen(legs)
+-        self.assertEqual((fail, {v[1]["backend"] for v in two.values()}), ({}, {LJ}))
++        self.assertEqual(two, {})                        # ruling 127 (2): the judge's answer is provisional, held
++        self.local(fail)
+         self.assertEqual([b.calls for b in legs], [0, 1, 1, 1, 1])
+ 
+     def test_no_leg_answers_the_clip_is_held_never_cached_and_retried_next_build(self):
+@@ -182,7 +232,9 @@ class TestInTheBuild(unittest.TestCase):
+         self.assertTrue(PK.is_held(out["prescreen"]["failed"]["z"]))
+         self.assertIsNotNone(out["package"])                      # the build goes on without it
+ 
+-    def test_a_pin_judged_by_the_local_judge_says_so(self):
++    def test_a_second_verdict_from_the_local_judge_never_seals_a_package(self):
++        """RULING 127 (2): even when a screen hands the build the local judge's second verdicts as answers, each is
++        HELD ('local, provisional'): no clip passes the second family on it, so no package seals on it."""
+         rig = TM.Rig(self.MS, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE)], [None])
+         rig.router.backends[LJ] = type("B", (), {"vendor": "local_judge", "family": "gemma"})()
+         pre = rig.prescreen
+@@ -196,13 +248,10 @@ class TestInTheBuild(unittest.TestCase):
+             return got, fails, v, f
+         rig.prescreen = judged
+         out = rig.run()
+-        segs = out["package"]["segments"]
+-        self.assertEqual(out["prescreen"]["last_resort_87"], {mid: [LJ] for mid in sorted(out["prescreen"]
+-                                                                                         ["last_resort_87"])})
+-        self.assertTrue({sg["moment_id"] for sg in segs} <= set(out["prescreen"]["last_resort_87"]))
+-        row = out["package"]["gates"]["context_a"]
+-        self.assertEqual(row["last_resort"]["verdicts"], {sg["label"]: LJ for sg in segs})
+-        self.assertEqual(row["status"], "PASS")
++        self.assertIsNone(out["package"])
++        self.assertEqual(out["prescreen"]["last_resort_87"], {})
++        local = {mid: w for mid, w in out["prescreen"]["second_vendor"].items() if "local, provisional" in str(w)}
++        self.assertTrue(local and all(str(w).startswith("HELD") for w in local.values()), out["prescreen"])
+ 
+     def test_a_re_screen_off_the_writers_with_no_verdict_and_no_reason_is_held(self):
+         """The writers' re-screen (order 06:22 item 44): a clip it returns nothing at all for is HELD (its default

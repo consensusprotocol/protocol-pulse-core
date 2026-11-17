@@ -1,0 +1,33 @@
+pp-selectid: RULING 127 (2) (orchestrator 21:30 ET Nov 16), verbatim: "A verdict from the local gemma3:27b that REFUSES is
+never final while a Heimdall family can still be asked: it is recorded as 'local, provisional' and asked again of
+Heimdall; it must not be cached as the second vendor's verdict. ... A local PASS is not final either: a sealed package
+needs the second screen from a real second family. If a code change is needed for (2), make the smallest one, audit on
+Heimdall (it is a verdict-source rule, so it must be audited)". Files: pipeline/package.py, tests/package/test_ruling_102.py.
+The diff is on top of ruling 126 (1)'s (audit 20261116_2005, cleared, not yet landed); only 127 (2)'s lines are new here.
+
+UNCHANGED CODE IT USES (package.py): HELD = "STEP_A_HELD (ruling 102)" (:451), LAST_RESORT = "local_judge:" (:452, the
+local judge's back-end names: providers.LocalJudgeBackend, vendor "local_judge"), is_held(why) (:467: every reason
+starts with HELD), last_resort_of / last_resort_note (the pin's record of local verdicts: now never reached, left as
+they are), second_screen's existing branches (no verdict = HELD; same vendor = refused), CI.step_a's failover (a leg out
+of contract or past its deadline moves on; the chain's last leg is the local judge).
+
+THE CHANGE:
+(a) package.local_held(a): the reason: "STEP_A_HELD (ruling 102): local, provisional (ruling 127 (2)): the local judge
+    <backend>'s verdict (pass | refuse: <reasons>) is never final while a Heimdall family can be asked; never cached;
+    held for this build, retried next build".
+(b) prescreen, after a call: when the back-end that answered is the local judge's (its name starts with LAST_RESORT),
+    each of its moments gets that HELD reason; nothing goes to a_by, the build's store (db), the shared cache (new) or
+    the vendor/family sets.
+(c) prescreen, reading: a cached verdict (pick) or a stored one (db) from the local judge is never used; the moment is
+    asked again.
+(d) second_screen: a second verdict whose back-end is the local judge's is HELD with that reason, never a pass (for
+    any screen that hands one in; (b) already keeps prescreen from doing so).
+
+TESTS (test_ruling_102): the second screen's chain spent down to the local judge: its answer HELD 'local, provisional',
+never cached, deepseek asked again next build; a local REFUSE likewise (its reasons in the HELD text); a local verdict in
+the cache or in the build's store is passed over and Heimdall asked; the chain-order test and the out-of-contract test
+now end HELD at the judge; in the build, second verdicts handed in from the local judge seal no package
+(last_resort_87 empty). Mutations L1-L5 after a control run: 5 of 5 killed. Suites: 40 files by exit code, 850 tests.
+
+PLEASE CHECK: (1) that no path can still seal or cache on a local verdict; (2) that a local verdict is HELD (retried),
+never a refusal; (3) that nothing else changed for the other legs; (4) the tests.
