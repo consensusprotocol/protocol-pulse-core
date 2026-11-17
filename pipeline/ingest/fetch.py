@@ -34,6 +34,9 @@ UNAVAILABLE_MARKS = ("Private video", "Video unavailable", "This video has been 
 UNAVAILABLE_RETRY_S = 6 * 3600
 UNAVAILABLE_MAX_TRIES = 4
 PROBE_RETRY_S = (300, 900, 1800, 3600)
+FACT_KEYS = ("live_status", "duration", "timestamp", "release_timestamp", "upload_date")   # r121: what a real probe gives
+NO_METADATA_RETRY_S = 3600          # r121: a probe answered with no fact at all (removed, private or not public yet)
+NO_METADATA_MAX_TRIES = 6           # is tried hourly, then given up: never counted as waiting (stall.WAITING)
 CAPTION_THROTTLED_RETRY_S = 600     # a caption 429: tried again this soon (the pipeline's store is looked at first)
 PIPELINE_RECHECK_S = 1800           # a VOD without English captions inside its moments' life: looked at this often
                                     # (the pipeline's transcript ingest runs every 30 min)
@@ -126,7 +129,7 @@ def text_fingerprint(rec):
 
 
 def probe(gate, video_id):
-    """(json, None) or (None, (kind, detail)). kind: age_gated | unavailable | rate_limited | error."""
+    """(json, None) or (None, (kind, detail)). kind: age_gated | unavailable | no_metadata | rate_limited | error."""
     try:
         r = gate.run(["-J", "--skip-download", "--ignore-no-formats-error",
                       f"https://www.youtube.com/watch?v={video_id}"], timeout=120)
@@ -135,6 +138,8 @@ def probe(gate, video_id):
     try:
         j = json.loads(r.stdout)
         if isinstance(j, dict) and j.get("id") == video_id:
+            if not any(j.get(k) for k in FACT_KEYS):      # r121: yt-dlp's stub ("youtube video #<id>", every fact
+                return None, ("no_metadata", "yt-dlp returned no fact about it (removed, private or not public yet)")
             return j, None
     except ValueError:
         pass
@@ -264,6 +269,11 @@ def process(q, gate, v, chan, optout, now_ts=None):
         if kind == "age_gated":                    # terminal: this store signs in nowhere (integrator B4)
             q.set_state(vid, Q.UNAVAILABLE, next_at=now_ts + 10 ** 9, tries=tries + 1,
                         reason=f"age-gated (needs a signed-in session): {detail[-200:]}")
+            return Q.UNAVAILABLE
+        if kind == "no_metadata":                  # r121: off the waiting count; tried hourly, then given up
+            final = tries + 1 >= NO_METADATA_MAX_TRIES
+            q.set_state(vid, Q.UNAVAILABLE, next_at=now_ts + (10 ** 9 if final else NO_METADATA_RETRY_S),
+                        tries=tries + 1, reason=f"no metadata: {detail}")
             return Q.UNAVAILABLE
         if kind == "unavailable":
             final = tries + 1 >= UNAVAILABLE_MAX_TRIES

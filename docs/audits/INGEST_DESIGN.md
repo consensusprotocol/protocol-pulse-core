@@ -600,6 +600,9 @@ the same videos.
   (live_status post_live) whose record the pipeline has goes on through every other probe check and takes it, like a
   VOD (its length, when the probe has none yet, the one the pipeline recorded); without a record it waits as before
   (no caption download, no meta); a stream still live is never taken. The sweep and the self-check cover it.
+- r121: a probe answered with yt-dlp's stub (title "youtube video #<id>", none of live_status, duration, timestamp,
+  release_timestamp, upload_date: removed, private or not public yet) is UNAVAILABLE "no metadata", tried hourly,
+  given up after 6 tries, never counted as waiting (two such Yahoo Finance videos had kept the stall line up).
 - The second caption source (designed, not built) and what the 429s correlate with:
   docs/audits/parallel/pp-ingest_CAPTION_SOURCE_DESIGN.md.
 
