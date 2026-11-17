@@ -6,6 +6,40 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 09:16 RULING 131 (A)+(B) LANDED (batch 100, merged e15ae94b, pushed; the builder's half 1852023c pushed after it, lockstep): two of the three readings settle each differing pair of the word lock; a currency symbol is formatting. Decoder sha ce72aefa342d (the old a4c307f78c94 is never read); RULES "ruling 17 + 72 + 73 + 84 + 103 + 105 + 131". BATCH 4 integrator spend: none outside (Heimdall only).
+- **(A), in the render's own lock** (pinned.adjudicate_lock: the same code the pre-check runs, so the two cannot disagree):
+  - Each pair takes the approved reading where the second recogniser reads it (ruling 17's direction, anywhere in the span).
+  - Otherwise it takes the run decode's reading where the second recogniser reads that, provided the pair is at least 3 run-decode tokens from both span ends.
+  - All three readings different, or a run-side pair nearer an edge, HOLDS. A number, a name or a negation still holds before any vote.
+  - A repetition's extra copy is measured at its placement furthest from the edge. The texts cannot say which copy is the extra one. mKNAcOFMYD4's "that's why that's why we Bitcoin." is 4 from the end, as the builder's 23:02 table said.
+  - The lock takes the merged text, written word for word and verified token for token (fail closed). It records each pair's three readings, which two agreed, and the pair's edge distance.
+- **(B):** canon.dollars_after_number / currency_free (G18's long-standing rule, now one function). A pair made only of "dollars" right after a number is no difference: in the lock (nobody is asked, nothing is spent) and in ruling 72's comparison. The lock records currency_format.
+- **The pre-check seals (A):** outcome adopt_spoken, with spoken_text = the merged text, but only after the render's own lock, re-made with that text as the pin's, accepts it. The builder's half re-checks every pair from the entry (canon.py byte-identical, sha256 checked).
+- **MARKED in the Telegram note in plain words when used** (release captions, under the run line):
+  - "word check settled by two of three readings": a pin segment sealed with an attested rule naming ruling 131 (A) (bound to the attested EDL by the package digest), or a render lock's (A) record;
+  - "currency format": a render lock's currency_format.
+- **Last night's line-up, as the builder's half re-checks its real readings:**
+  - d6adeb54 (WdiF0i925rs 3339.900-3354.680): 'bunch of'/'budget' took run (edge 6); 'that'/'like' took approved (14); 'um' took run (20).
+  - 93cfa865 (2oY7TU6CPok 54.260-61.380): the two ('', 'dollars') pairs are currency format, nothing else.
+  - My free replay of the render's own lock and pre-check on all five ruling-132 packages is running (line 1's table). Its cached-readings-only result for these two spans is not in yet, so no claim is made here.
+- **NOT CHANGED, for your ruling:**
+  - Where the second recogniser reads the approved words at EVERY pair, ruling 84 (b) still HOLDS two or more function words. When the approved text is that recogniser's own spoken text, its agreement is one reading counted twice. There is no case on record.
+  - FOUND while building this, a refusal mode in the lock (unchanged, ruling 132): ruling 84 (b)'s word locator (pinned._token_word) fails closed whenever the span holds a multi-word number ("2 billion"). So ONE function-word split anywhere in such a span HOLDS ("the split function word cannot be located"). Recommended fix: locate the word through canon_spans, which already maps "2 billion" to its two words.
+- **OUTSIDE DOLLARS (your 23:00 note), what spends, measured from the code:**
+  - (1) The pre-check's Scribe, per span, including ruling 103's short re-listen: in each entry's scribe_usd, already in the builder's day line.
+  - (2) The render's own lock Scribe, about $0.009 a clip, only where the decode differs from the approved text. It is recorded in the run's PROVENANCE only, and not at all when the lock then holds.
+  - (3) The render's VO, ElevenLabs TTS (vo.py), one call per VO line. No cost is recorded anywhere.
+  - (4) The render's sign-off, xAI grok-3-mini (signoff.py), 1-3 calls. No cost is recorded.
+  - Nothing else: the scorer, judge, transcript ingest and word pass are local. Heimdall (audits, the render's V1 vision) is free by your accounting.
+  - **NOT DONE YET:** writing (2)-(4) into the day ledger the builder reads is batch 101. It writes from the one vendor call site each (second_recogniser.scribe_words; the TTS and Grok calls), vendor-reported where the vendor reports it (xAI), labelled estimates otherwise.
+  - Until 101 lands, no render runs: today's paid attempt is on hold by your default.
+- **ALSO in batch 101:** every re-ask after this sha change would pay Scribe again, because ruling 77's purge leaves no media to byte-match. 101 reuses the cached reading of the same window, checked against the new decode. The builder holds re-asks of answered spans until 101 is live.
+- **Checks:**
+  - 20 must-fail results on the old code (the 2 passing tests are the intended controls); 22 of 22 mutations killed.
+  - Two Heimdall cycles (qwen27b and gpt-oss at medium, one seat each, traced reviews; qwen27b's cycle 2 hit its token cap after stating PASS in its trace): no finding.
+  - Regressions on the staged merge: regression_test.sh 26 PASS / 0 FAIL / 4 WARN; pipeline/regression.sh exit 0, references REPRODUCED.
+  - Records: docs/audits/pulse-sentence-law/batch100_r131_majority/.
+
 ## 23:00 FOR THE ORCHESTRATOR (ruling 130, report only; ruling 118's cap): the integrator's services spend OUTSIDE dollars that the day ledger does not count.
 - EVERY span the pin-stage lock pre-check decodes calls ElevenLabs Scribe, the second recogniser (rulings 72 / 84), at $0.004-0.009 per span.
   - Tonight's 4 spans (22:45-22:46 ET) cost $0.0256. The 24 decodes to date total $0.1108.
