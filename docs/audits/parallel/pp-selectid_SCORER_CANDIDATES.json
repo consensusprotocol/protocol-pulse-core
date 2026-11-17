@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-17T18:25:40+00:00",
- "build": "ledger_20261117_182523",
+ "generated_at": "2026-11-17T19:44:33+00:00",
+ "build": "ledger_20261117_194408",
  "kind": "moments",
  "candidates": [
   {
@@ -481,6 +481,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "74c95bc66e5b57968192",
+   "video_id": "8OYN9mWcFxg",
+   "channel": "Bitcoin Magazine",
+   "duration": 25.07,
+   "text": "According to its SEC filing, Brevin more than tripled its shares of Ibit in the third quarter from about 7.2 million shares to about $22.4 million worth about $1.1 billion on September 30th. At the same time, its Ibit put position, fell from about $176 million to about $25 million. Now, one note here, a 13F shows long positions in certain U.S. stocks, ETFs and options.",
+   "text_sha256": "3d6a79b68706c4f9f204b812091e90769c7a3ad374f09a9c5544b441f0d60e1b",
+   "trimmed_leading": null
+  },
+  {
    "pid": "afbf8bef3ea9799dce5f~trim",
    "video_id": "MeC8YEmUx_w",
    "channel": "Bitcoin Magazine",
@@ -488,6 +497,15 @@
    "text": "we've seen Bitcoin developers be prosecuted for writing and publishing free software. And you've written that open source AI developers could expect the same thing. Now, it took a while for Bitcoin to build a legal shield. Open AI or open source AI doesn't have that yet.",
    "text_sha256": "265f272958ef134e868d7f226235b825c90675ee8e8220c57ec63bc0be1fafac",
    "trimmed_leading": "Now"
+  },
+  {
+   "pid": "034fbb3a0c36720a411d",
+   "video_id": "8OYN9mWcFxg",
+   "channel": "Bitcoin Magazine",
+   "duration": 29.67,
+   "text": "Back in May 2020, as central banks flooded markets with money, Paul Tudor Jones told his investors the best strategy was to own the fastest horse and that if he was forced to forecast. Well, his bet was Bitcoin. Six years later, his firm is buying Tudor Investment Corporation, which manages about $17 billion, nearly doubled its shares in Black Rock Spot Bitcoin ETF to about 1.4 million shares in the third quarter worth about $65 million on September 30th when the disclosure took place.",
+   "text_sha256": "da0c41fb6d9591eda0bfc629e2e2dc071bef5c21f14824f763220b05387972a6",
+   "trimmed_leading": null
   },
   {
    "pid": "372f6afd8ff42ea6a597",
@@ -514,6 +532,15 @@
    "duration": 16.11,
    "text": "Bitcoin conviction and risk management don't have to be opposites. Q is I trust capital's way of offering predefined automated crypto strategies inside the same account experience with different approaches and holdings. The potential benefit is a more systematic response to changing conditions.",
    "text_sha256": "85ec46146e8fb61081b8775fa3840f4eebf9d6898aae920efac1e901d592d689",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e48986b2cf124846ad8e",
+   "video_id": "8OYN9mWcFxg",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.57,
+   "text": "The big banks are piling in Wells Fargo more than doubled its iBit shares to about $2.3 billion. Mostly through its brokerage and advisor arms, Wells Fargo was the biggest ad we found in the third quarter filings and is now the largest institutional holder of Bitcoin ETFs.",
+   "text_sha256": "4f1d5b65c0da35df7dcaf32f1a8fa209a6727f5c1af6bfdf7305a347f70c71b8",
    "trimmed_leading": null
   },
   {
@@ -544,6 +571,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "10bd9efcadbbca5ecefd",
+   "video_id": "8OYN9mWcFxg",
+   "channel": "Bitcoin Magazine",
+   "duration": 14.56,
+   "text": "Meanwhile, Bank of America grew its iBit shares more than eightfold. The position was worth about $57 million on June 30th and about $685 million on September 30th. Almost all of the ad was in B of A Securities, its broker -dealer arm.",
+   "text_sha256": "867963e003cb773b1b6598e08473e9a5d7afd112c169ae52e23c06108afc68da",
+   "trimmed_leading": null
+  },
+  {
    "pid": "8614f86596895c4d3663~trim",
    "video_id": "MeC8YEmUx_w",
    "channel": "Bitcoin Magazine",
@@ -568,6 +604,15 @@
    "duration": 15.84,
    "text": "The last thing I'll say about it is you probably know this, but when Bitcoin moves... Most of the returns for a year typically happen in a couple days. So Bitcoin is an asset that's frustrating. It's like it does nothing. It does nothing. And then you get this like massive green candle in a day or a week.",
    "text_sha256": "a80d47bb7b372d6579d52765d9546de941b25c2a56602f46b5acabcf368d26b4",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "72f3ca098ee1c314ee86",
+   "video_id": "8OYN9mWcFxg",
+   "channel": "Bitcoin Magazine",
+   "duration": 16.02,
+   "text": "Moving on now, Mubadala, an Abu Dhabi wealth fund that manages about $385 billion or did manage that at the end of 2025, kept every share of Ibit that it held at the end of June. The Abu Dhabi Investment Council, which Mubadala owns, kept its shares as well.",
+   "text_sha256": "636be94d73d977ab53c89780eb57e734b146ff42efe121c76fdc6b8a60604fd1",
    "trimmed_leading": null
   },
   {
@@ -724,12 +769,39 @@
    "trimmed_leading": null
   },
   {
+   "pid": "bc647cbd6989bf859900",
+   "video_id": "8OYN9mWcFxg",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.2,
+   "text": "Harvard's Endowment Manager reported about $144 million of Ibit on September 30th, the same number of shares it held in June. Now, for context, the same filing shows about $600 million in gold ETFs, roughly four times its Bitcoin position.",
+   "text_sha256": "fff4bf67a8bd16f9fa6ec975ac8a2f2b724dc8ea0c52ef466d4fa0d1fb9ec4b7",
+   "trimmed_leading": null
+  },
+  {
    "pid": "90253de00fe7aa962b4a",
    "video_id": "nThfIRfBleA",
    "channel": "Scott Melker",
    "duration": 14.91,
    "text": "It is pretty astounding how many like existential threats there are to Bitcoin price in the very short term. Right. We talked about it yesterday. I don't know how you guys feel about the SpaceX Anthropic comparison. But, you know, that went obviously viral from Matt Cole.",
    "text_sha256": "0e49e7f2e251f6ba57dc9f09bf5d7ce012163c887447f9a4dd3b5cb676d23cbc",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d068a74f5787d185fd80",
+   "video_id": "8OYN9mWcFxg",
+   "channel": "Bitcoin Magazine",
+   "duration": 18.1,
+   "text": "Morgan Stanley, adding as well, about 18 % more iBit shares from about 16.5 million to about 19.5 million worth about $924 million on September 30th. It also holds about 161 million of its own spot Bitcoin ETF, mostly through its wealth management arm.",
+   "text_sha256": "c2df91548e3c5c1779e3e3304caebbad7d7a0d70218c052c368b5e92b6eb1e53",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d7aa3f6917322a939c40",
+   "video_id": "8OYN9mWcFxg",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.9,
+   "text": "The Swiss National Bank reported about $110 million of strategy stock, plus about $120 million more. in Bitcoin miners. South Korea's national pension service held about 140 million of strategy and about $60 million of Coinbase.",
+   "text_sha256": "5ccf52fdbf73cebfc811cb99940d5b3df75064630eac8ab5d70e00dcec22ddcb",
    "trimmed_leading": null
   },
   {
