@@ -356,6 +356,9 @@ class TestStageValidate(unittest.TestCase):
         self.assertEqual(run_fresh.alone_reason(r), "'but' trimmed and no clip-scorer verdict on the trimmed text")
         r = {"scorer": {"score": 2.0, "reason": "", "fault": "starts_mid_thought"}}
         self.assertEqual(run_fresh.alone_reason(r), "the clip scorer rated it 2 of 5 (starts mid thought)")
+        r = {"scorer": {"score": 3.0, "reason": "Fault starts_mid_thought: opens on 'Now'.", "fault": "starts_mid_thought"}}
+        self.assertEqual(run_fresh.alone_reason(r), "the clip scorer rated it 3 of 5 (Fault starts mid thought: opens on "
+                                                    "'Now')")                  # Heimdall batch 107 c1 F2: its echo of a label
 
     def test_ruling_136_the_editorial_laws_flag(self):
         got, prov = self.run_stage(edl_with(), gate={"verdict": "HOLD", "laws": {

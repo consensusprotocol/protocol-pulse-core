@@ -209,7 +209,7 @@ def alone_reason(r, rate_error=None):
         why, fault = sc.get("reason"), sc.get("fault")
         out = f"the clip scorer rated it {float(sc['score']):g} of 5"
         if isinstance(why, str) and why.strip():
-            return f"{out} ({why.strip().rstrip('.')})"
+            return f"{out} ({why.strip().rstrip('.').replace('_', ' ')})"          # its own words, never a code
         return f"{out} ({str(fault).replace('_', ' ')})" if fault and fault != "none" else out
     if rate_error:
         return "the clip scorer did not answer"
