@@ -193,7 +193,7 @@ def who(edl, text, default="a clip"):
     (ruling 138 (3)): 'the opening clip (Channel)', 'clip 2 (Channel)', joined; the default when it names none."""
     import release_auth
     names = []
-    for m in _LABEL.finditer(text or ""):
+    for m in _LABEL.finditer(text if isinstance(text, str) else ""):
         n = release_auth.seg_name(m.group(1), edl)
         if n and n not in names:
             names.append(n)

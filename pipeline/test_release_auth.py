@@ -647,3 +647,27 @@ class TestRuling138(Base):
                 self.assertEqual(att["verdict"], "HOLD")
                 self.assertIn("malformed execution evidence", att["blockers"]["16x9"]["G8_sharpness"])
 
+    def test_malformed_report_detail_never_crashes_attest_or_authorise(self):     # Heimdall batch 106 c1 F1 / F2
+        cases = [("V1 not a mapping", lambda d: d.update(V1="garbage")),
+                 ("V1 format a list", lambda d: d.update(V1={"9x16": []})),
+                 ("per_model rows an int", lambda d: d.update(V1={"9x16": {"ok": False, "per_model": {"q": {"rows": 5}}}})),
+                 ("boundaries a string", lambda d: d.update(V1={"9x16": {"ok": False, "boundaries": "x", "per_model": {
+                     "q": {"rows": {"credits_round_and_match": {"ok": True}}}}}})),
+                 ("letterbox an int", lambda d: d.update(V1={"9x16": {"ok": False, "letterbox_per_shot": 3, "per_model": {
+                     "q": {"rows": {"credits_round_and_match": {"ok": True}}}}}})),
+                 ("G9 format a string", lambda d: d.update(G9={"9x16": "x"})),
+                 ("G9 gate a string", lambda d: d.update(G9={"9x16": {"gate": "x"}}))]
+        for label, fn in cases:
+            with self.subTest(label):
+                def m(r):
+                    r["9x16"]["V1_visual_checklist"] = "FAIL"
+                    r["9x16"]["G9_tail"] = "FAIL"
+                rd, att = self.run_rows(m, report=fn)
+                self.assertIn(att["verdict"], ("HOLD", "PASS_WITH_FLAGS"))
+                RA.authorise(rd)                                          # a verdict, never an exception
+
+    def test_a_malformed_edl_names_channel_unknown(self):
+        self.assertEqual(RA.seg_name("clip_01", {"clips": 5}), "clip 1 (channel unknown)")
+        self.assertEqual(RA.seg_name("hook", {"hook": "x"}), "the opening clip (channel unknown)")
+        self.assertIsNone(RA.seg_name("outro", {}))
+
