@@ -114,8 +114,9 @@ class TestTheTwoPasses(unittest.TestCase):
         none, sealed = {"package": None, "why_none": "x"}, {"package": {"p": 1}}
         calls, out = self.run_build(sealed, sealed, never_empty=True)
         self.assertEqual((calls, "never_empty" in out), ([False], False))            # a clean package: one pass
-        calls, out = self.run_build(none, sealed, never_empty=True)
+        calls, out = self.run_build(none, dict(sealed, prescreen={"soft_back": {}}), never_empty=True)
         self.assertEqual((calls, out["package"], out["never_empty"]["clean_why_none"]), ([False, True], {"p": 1}, "x"))
+        self.assertEqual(out["never_empty"]["soft_record"]["prescreen"], {"soft_back": {}})   # the soft pass's record
         calls, out = self.run_build(none, dict(none, why_none="y"), never_empty=True)
         self.assertEqual((calls, out["package"], out["never_empty"]["soft_why_none"]), ([False, True], None, "y"))
         self.assertEqual(self.run_build(none, sealed)[0], [False])                   # never_empty off: as before
@@ -132,6 +133,78 @@ class TestTheTwoPasses(unittest.TestCase):
                                side_effect=lambda *a, **k: calls.append(sorted(k)) or {"package": None}):
             PK.build("router", [], {}, None, log=lambda m: None, never_empty=True, flagged_today=1, lineups=3)
         self.assertEqual(calls, [["lineups", "log"], ["lineups", "log", "soft"]])
+
+
+class TestStage2a(unittest.TestCase):
+    """RULING 137 STAGE 2a: the second family's soft step-A refusals, and the re-screen's after the writes, flag like the
+    first's (soft_codes); CUTTABLE's sentence-edge part flags (line 1 12:12 ET, default SOFT) while L-v 2's word check
+    and every other edge failure stay hard. DataDash 8dbc30ee's real record (replayed 12:1x ET): IN runs on from
+    'line:', 100 ms, the words match."""
+    DATADASH = {"ok": True, "model": "elevenlabs_stt:scribe_v1", "replayed": False,
+                "edges": {"in": {"ok": False, "word": "Bitcoin", "before": "line:", "pause_ms": 100,
+                                 "why": "the recogniser runs on into the clip ('line:', 100 ms before it)"},
+                          "out": {"ok": True, "word": "holdings.", "after": "The",
+                                  "why": "a sentence ends at the clip's last word"}, "cuttable": False}}
+
+    def test_soft_codes_and_the_second_family(self):
+        self.assertEqual(PK.soft_codes(["REFERENT_OUTSIDE", "NOT_OWN_SINCERE"]), ["NOT_OWN_SINCERE", "REFERENT_OUTSIDE"])
+        for f in (["REFERENT_OUTSIDE", "STALE_TIME"], [PK.HELD + " x"], [], None, ["SPEAKER_CHANGE"], ["RETRACTION"]):
+            self.assertIsNone(PK.soft_codes(f), f)
+        cleared = {"a": {"moment_id": "a"}, "b": {"moment_id": "b"}, "c": {"moment_id": "c"}, "d": {"moment_id": "d"}}
+        got = PK.soft_second(cleared, {"a": [{}]}, {"b": ["REFERENT_OUTSIDE"], "c": ["STALE_TIME"], "d": [PK.HELD]})
+        self.assertEqual(got, {"b": ["REFERENT_OUTSIDE"]})
+        self.assertEqual((cleared["b"].get("step_a_flags"), "step_a_flags" in cleared["c"]), (["REFERENT_OUTSIDE"], False))
+
+    def test_only_a_sentence_running_on_at_a_word_boundary_is_soft(self):
+        import copy
+        self.assertEqual(PK.soft_edges(self.DATADASH), ["EDGE_IN"])
+        both = copy.deepcopy(self.DATADASH)
+        both["edges"]["out"] = {"ok": False, "word": "x", "after": "y", "why": "the recogniser's sentence continues past the clip"}
+        self.assertEqual(PK.soft_edges(both), ["EDGE_IN", "EDGE_OUT"])
+        for why_in in ("the recogniser has no 'bitc' within 0.6 s of the clip's start", "no word timing from the recogniser",
+                       "the window starts at the clip: no word before it",
+                       "the recogniser does not hear the trimmed word 'And' right before the clip (ruling 33 part 2)"):
+            t = copy.deepcopy(self.DATADASH)
+            t["edges"]["in"]["why"] = why_in
+            self.assertIsNone(PK.soft_edges(t), why_in)
+        end = copy.deepcopy(self.DATADASH)
+        end["edges"]["out"] = {"ok": False, "why": "the window ends at the clip: no word after it"}
+        self.assertIsNone(PK.soft_edges(end))
+        for bad in (dict(self.DATADASH, ok=False), dict(self.DATADASH, error="x"), dict(self.DATADASH, edges=None)):
+            self.assertIsNone(PK.soft_edges(bad))
+
+    def base(self, truth, a=None):
+        fid = {"deterministic": {"ok": True, "violations": [], "price_now_measured": True},
+               "verdict": {"ok": True}, "backend": "b", "replayed": False, "measured": True}
+        ctx = {"ok": True, "violations": [], "backends": {"B": "b", "C": "b"}, "replayed": False, "measured": True}
+        return dict(fid=fid, dup=[], rt_ok=True, r4_res=(True, "ok"), ctx_=ctx, a_by={"clip_01": a or answer()},
+                    exc={"m": {"verdict": "keep", "backend": "b", "replayed": False, "measured": True}},
+                    truth={"m": truth}, coh_ok=True, coh={"backend": "b", "replayed": False, "measured": True})
+
+    def test_the_rows_flag_with_the_clip_named(self):
+        kw = dict(who={"clip_01": "DataDash"}, mids={"m": "clip_01"})
+        self.assertEqual(PK.inventory(**self.base(self.DATADASH), **kw)["cuttable"]["status"], "FAIL")   # clean pass
+        row = PK.inventory(**self.base(self.DATADASH), soft=True, **kw)["cuttable"]
+        self.assertEqual((row["status"], row["flags"]), ("FLAGGED", [
+            "The second clip (DataDash): the checker heard the sentence run on into the clip's first word, so it may "
+            "start mid-sentence."]))
+        hard = dict(self.DATADASH, edges=dict(self.DATADASH["edges"], **{"in": {"ok": False, "why": "no word timing from the recogniser"}}))
+        self.assertEqual(PK.inventory(**self.base(hard), soft=True, **kw)["cuttable"]["status"], "FAIL")
+        ok = dict(self.DATADASH, edges=dict(self.DATADASH["edges"], cuttable=True, **{"in": {"ok": True, "why": "ok"}}))
+        a = PK.inventory(**self.base(ok), soft=True, seg_flags={"clip_01": ["REFERENT_OUTSIDE"]}, **kw)["context_a"]
+        self.assertEqual((a["status"], a["flags"]), ("FLAGGED", [                     # the second family's doubt
+            "The second clip (DataDash): the checker thought it points back to something said before the clip starts."]))
+        stale = PK.inventory(**self.base(ok, answer(time_ok="no")), soft=True, seg_flags={"clip_01": ["REFERENT_OUTSIDE"]},
+                             **kw)["context_a"]
+        self.assertEqual(stale["status"], "FAIL")                                   # a hard code still fails
+
+    def test_the_pin_takes_a_flagged_sentence_edge_never_a_flagged_word_check(self):
+        pk = TestThePin().pk(cuttable={"status": "FLAGGED", "by": "x", "replayed": False, "n": 1, "flags": ["The second "
+                                       "clip (DataDash): the checker heard the sentence run on."]})
+        self.assertEqual(len(PP.to_pin(pk, "r")["moments_package"]["review_flags"]), 1)
+        with self.assertRaises(PP.PinRefused):
+            PP.to_pin(TestThePin().pk(second_pass={"status": "FLAGGED", "by": "x", "replayed": False, "n": 1,
+                                                   "flags": ["a word differs"]}), "r")
 
 
 class TestTheDayCount(unittest.TestCase):

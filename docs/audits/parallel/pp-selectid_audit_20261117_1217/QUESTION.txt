@@ -1,0 +1,37 @@
+pp-selectid: RULINGS 136 / 137 / 138, STAGE 2a of the hard/soft switch (stage 1, never-empty for step A's first
+screen, is LIVE: audit 20261117_1135). Approved design: HARD = the words the cut carries (L-v 2), a cut mid-word,
+speaker credit, a factual or stale-time step-A refusal by BOTH families, exclusion, 12 h, never-reused, channel count,
+runtime, spend; SOFT (flag, never refuse) = everything else; NEVER EMPTY seals the best line-up that passes every hard
+gate with at most 3 flags, each one plain sentence naming the clip (ruling 138 (3)). Stage 1's step-A reading (ruling
+138 (1)): SOFT = NOT_OWN_SINCERE, REFERENT_OUTSIDE, CONDITION_OUTSIDE, UNCERTAIN; HARD = STALE_TIME, SPEAKER_CHANGE,
+RETRACTION (kept hard here even from one family). Files: pipeline/package.py, pipeline/package_pin.py,
+tests/package/test_ruling_137.py. Today's evidence: build 131's soft pass lost DataDash 8dbc30ee at CUTTABLE (its words
+match; the second recogniser runs on from 'line:' into its first word, 100 ms) and three moments at the SECOND step-A
+screen for soft codes only.
+
+THE CHANGE (only in the never-empty pass, soft=True; the clean pass is unchanged):
+(a) soft_codes(f): a refusal's codes when all are soft and it is not held, else None; add_flags; soft_step_a (stage 1)
+    now uses soft_codes. soft_second(cleared, a_two, off_fail): the moments the SECOND family refused for soft codes
+    only stay, carrying the codes as "step_a_flags"; in _build they join cleared beside the moments it passed. The
+    re-screen off the writer's family after the writes: a soft-only refusal keeps the clip, flagged, instead of
+    dropping it (a hard code or no verdict still drops it, as before).
+(b) CUTTABLE's sentence-edge part (line 1, 12:12 ET, default SOFT): soft_edges(t) returns the failing sides only when
+    L-v 2's words match (ok True, no error, edges measured) and EVERY failing edge failed for exactly
+    transcript_truth.edges' run-on reasons ("the recogniser runs on into the clip" / "the recogniser's sentence
+    continues past the clip"); a word not found, a trimmed word, an unmeasured or window-edge edge stay HARD. Such
+    moments stay in the soft pass (edge_flags). L-v 2's "second_pass" row stays HARD.
+(c) inventory: context_a's codes are each clip's verdict codes plus every screen's soft codes (seg_flags), FLAGGED only
+    when all are soft; "cuttable" is FLAGGED with one sentence per failing edge when every non-cuttable segment's
+    failure is soft; both name the clip (who, mids: truth is keyed by moment id). package_pin.SOFT_GATES adds
+    "cuttable" ("second_pass" never).
+(d) the wrapper keeps the soft pass's own record (never_empty.soft_record: prescreen, hook_pool, tried).
+
+TESTS (test_ruling_137: 11): soft_codes and the second family; only the run-on reasons are soft (DataDash 8dbc30ee's real
+record), every other edge reason and a failed word check stay hard; both rows flag with the clip named, a hard code
+still fails; the pin takes a FLAGGED cuttable, never a FLAGGED second_pass; the soft record. Mutations: 23 of 23
+effective ones killed. NOT UNIT-TESTED, PLEASE READ: the three call sites inside _build (the second screen's
+cleared filter, the re-screen's new branch, the cut_soft filter): they only call the tested helpers.
+
+PLEASE CHECK: (1) that nothing HARD can pass: a hard code, a held moment, no verdict, a word mismatch, any non-run-on
+edge failure, a FLAGGED word check; (2) that the clean pass is unchanged; (3) the three _build call sites; (4) that
+every flag names its clip in one sentence; (5) the tests.

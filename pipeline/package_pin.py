@@ -34,7 +34,9 @@ MEDLEY_GATES = ("medley", "ly_shape", "house_style", "hook_onset", "stand_alone"
 # RULINGS 136 / 137 (orchestrator 11:00 / 11:05 ET Nov 17): a SOFT gate scores and FLAGS. Its row may say "FLAGGED"
 # with "flags", plain words, sealed with the gates; the pin's moments_package "review_flags" is derived from them
 # (review_flags_of), at most REVIEW_FLAGS_MAX. STAGE 1: step A's row only. A HARD gate still needs exactly PASS.
-SOFT_GATES = frozenset({"context_a"})
+SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's soft codes
+                        "cuttable"})                       # stage 2a: a sentence edge at a word boundary (L-v 2's
+#   word check, "second_pass", stays HARD)
 REVIEW_FLAGS_MAX = 3
 
 

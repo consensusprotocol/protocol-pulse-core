@@ -1,0 +1,322 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index f26688d..5b9ed6d 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -96,9 +96,32 @@ CLIP_PLACE = {"hook": "The opening clip", "clip_01": "The second clip", "clip_02
+               "clip_03": "The fourth clip", "clip_04": "The fifth clip"}
+ 
+ 
++# RULING 137 stage 2a (line 1, 12:12 ET, default SOFT): CUTTABLE's sentence-edge part is soft. Only these two reasons
++# of transcript_truth.edges (the sentence running on at a word boundary) flag; every other edge failure stays HARD.
++EDGE_SOFT = {"in": "the recogniser runs on into the clip", "out": "the recogniser's sentence continues past the clip"}
++EDGE_WORDS = {"EDGE_IN": "the checker heard the sentence run on into the clip's first word, so it may start "
++                         "mid-sentence",
++              "EDGE_OUT": "the checker heard the sentence carry on past the clip's last word, so it may end "
++                          "mid-sentence"}
++
++
+ def flag_sentence(label, channel, code):
+     """RULING 138 (3): one flag as PBX reads it: the clip's place and channel, then what the checker doubted."""
+-    return f"{CLIP_PLACE.get(label, 'A clip')} ({channel or 'its channel'}): {STEP_A_SOFT[code]}."
++    return f"{CLIP_PLACE.get(label, 'A clip')} ({channel or 'its channel'}): " \
++           f"{STEP_A_SOFT.get(code) or EDGE_WORDS[code]}."
++
++
++def soft_edges(t):
++    """RULING 137 stage 2a: a moment's CUTTABLE failure is soft only when its words match (law L-v 2 ok, measured, no
++    error) and EVERY failing edge failed for the sentence running on at a word boundary (EDGE_SOFT); a word not found,
++    a trimmed word, an unmeasured edge stay hard. -> ["EDGE_IN" / "EDGE_OUT"] or None."""
++    if not isinstance(t, dict) or t.get("error") or t.get("ok") is not True or not isinstance(t.get("edges"), dict):
++        return None
++    e = t["edges"]
++    bad = [k for k in ("in", "out") if (e.get(k) or {}).get("ok") is not True]
++    if not bad or not all(str((e.get(k) or {}).get("why") or "").startswith(EDGE_SOFT[k]) for k in bad):
++        return None
++    return ["EDGE_" + k.upper() for k in bad]
+ FLAGGED_DAY_MAX = 2
+ SHORT_CLIP_S = 8.0                 # a clip under ~8 s is a penalty unless it is the angle's punchline (the last clip)
+ MAX_ANGLES = 3                     # orchestrator 05:30: at most 3 angles x 2 writes
+@@ -490,15 +513,39 @@ def is_held(why):
+     return bool(why) and all(str(w).startswith(HELD) for w in why)
+ 
+ 
++def soft_codes(f):
++    """RULING 137: a step-A refusal's codes when every one is SOFT (STEP_A_SOFT) and it is a refusal, not a held
++    moment (ruling 102), else None (a hard code, a hold, or no refusal keeps it as it was)."""
++    return sorted({str(c) for c in f}) if f and not is_held(f) and all(str(c) in STEP_A_SOFT for c in f) else None
++
++
++def add_flags(m, codes):
++    """RULING 137: the moment carries every soft step-A code any screen gave it (each becomes one plain sentence)."""
++    m["step_a_flags"] = sorted(set(m.get("step_a_flags") or []) | set(codes))
++    return m
++
++
++def soft_second(cleared, a_two, off_fail):
++    """RULING 137 STAGE 2a: the moments the SECOND family refused for soft codes only stay, flagged (the same step-A
++    rule as the first screen's: soft_codes). -> {moment_id: codes}; the moments in cleared carry them."""
++    out = {}
++    for mid, m in cleared.items():
++        c = soft_codes(off_fail.get(mid)) if mid not in a_two else None
++        if c:
++            out[mid] = c
++            add_flags(m, c)
++    return out
++
++
+ def soft_step_a(ms, a_by, fails):
+     """RULING 137 STAGE 1: the moments step A refused for SOFT codes only (STEP_A_SOFT): a step-A answer on file, a
+     refusal (never a held one, ruling 102), and every code soft (one hard code keeps it out). -> {moment_id: a copy of
+     the moment carrying "step_a_flags", its codes}."""
+     out = {}
+     for m in ms:
+-        f = fails.get(m["moment_id"])
+-        if m["moment_id"] in a_by and f and not is_held(f) and all(str(c) in STEP_A_SOFT for c in f):
+-            out[m["moment_id"]] = dict(m, step_a_flags=sorted({str(c) for c in f}))
++        c = soft_codes(fails.get(m["moment_id"])) if m["moment_id"] in a_by else None
++        if c:
++            out[m["moment_id"]] = dict(m, step_a_flags=c)
+     return out
+ 
+ 
+@@ -3223,7 +3270,16 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+         mid: "PASS" if cut_ok(t) else ("NOT MEASURED: " + t["error"] if t.get("error") else
+                                        "L-v 2 FAIL" if not t.get("ok") else "not cuttable at an edge (ruling C / 7)")
+         for mid, t in tru.items()}
+-    cleared = {mid: m for mid, m in cleared.items() if cut_ok(tru.get(mid) or {})}
++    cut_soft = {mid: e for mid in cleared if not cut_ok(tru.get(mid) or {})       # RULING 137 stage 2a: a sentence
++                for e in [soft_edges(tru.get(mid) or {})] if e} if soft else {}    # edge at a word boundary flags
++    for mid, e in cut_soft.items():
++        cleared[mid]["edge_flags"] = e
++    if cut_soft:
++        out["prescreen"]["soft_edges"] = cut_soft
++        log(f"  RULING 137 NEVER EMPTY (stage 2a): {len(cut_soft)} moment(s) whose words match fail CUTTABLE only at a "
++            f"sentence edge (the recogniser runs on at a word boundary) stay, flagged: "
++            + ", ".join(f"{mid[:8]} {e}" for mid, e in cut_soft.items()))
++    cleared = {mid: m for mid, m in cleared.items() if cut_ok(tru.get(mid) or {}) or mid in cut_soft}
+     out["prescreen"]["cuttable"] = len(cleared)
+     log(f"  {len(cleared)} of them pass the second recognition pass and CUTTABLE ({time.time() - t0:.0f} s)")
+     hk = {}
+@@ -3320,7 +3376,12 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+         log(f"  RULING 102: held for this build (no leg answered; retried next build): {len(h['first'])} at the first "
+             f"screen, {len(h['second'])} at the second {h['second']}; the local judge (ruling 87's last resort) gave "
+             f"{len(out['prescreen']['last_resort_87'])} step-A verdict(s): {sorted(out['prescreen']['last_resort_87'])}")
+-    cleared = {mid: m for mid, m in cleared.items() if mid in a_two}
++    soft_two = soft_second(cleared, a_two, off_fail) if soft else {}   # RULING 137 stage 2a: flagged, kept
++    if soft_two:
++        out["prescreen"]["soft_second"] = soft_two
++        log(f"  RULING 137 NEVER EMPTY (stage 2a): {len(soft_two)} moment(s) the second family refused for soft codes "
++            f"only stay, flagged: " + ", ".join(f"{mid[:8]} {c}" for mid, c in soft_two.items()))
++    cleared = {mid: m for mid, m in cleared.items() if mid in a_two or mid in soft_two}
+     log(f"  {len(cleared)} of them clear step A from both vendors too (order 06:22 item 45: whichever vendor writes, "
+         f"a verdict off it exists) ({time.time() - t0:.0f} s)")
+     if len({m["channel_id"] for m in cleared.values()}) < 3:
+@@ -3629,7 +3690,10 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                                 stand=stand_alone_check([cleared[sg["moment_id"]] for sg in pk["segments"]]),
+                                 visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
+                                 last_resort=pin_last_resort(pk), soft=soft,   # RULING 102; RULING 137 stage 1
+-                                who={sg["label"]: sg.get("channel") for sg in pk["segments"]})   # RULING 138 (3)
++                                who={sg["label"]: sg.get("channel") for sg in pk["segments"]},   # RULING 138 (3)
++                                seg_flags={sg["label"]: (cleared.get(sg["moment_id"]) or {}).get("step_a_flags")
++                                           for sg in pk["segments"]},                          # RULING 137 stage 2a
++                                mids={sg["moment_id"]: sg["label"] for sg in pk["segments"]})
+         import package_pin
+         problems = package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk))
+         if problems:
+@@ -3944,6 +4008,9 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                             if got_a.get(mid) is not None and not fails_a.get(mid):
+                                 a_by[mid] = got_a[mid]
+                                 a_two.setdefault(mid, []).append(got_a[mid])
++                            elif soft and got_a.get(mid) is not None and soft_codes(fails_a.get(mid)):   # RULING 137
++                                add_flags(m, soft_codes(fails_a[mid]))       # stage 2a: a soft refusal off the writer
++                                a_by[mid] = got_a[mid]                        # stays, flagged
+                             else:                              # no verdict off the writers is never a pass (L-m)
+                                 bad[mid] = list(fails_a.get(mid) or [f"{HELD}: no verdict off the writers (law L-m);"
+                                                                      f" held for this build, retried next build"])
+@@ -4114,7 +4181,10 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                                             value=val,                       # ruling 91: the takeaway earned its place
+                                             last_resort=pin_last_resort(pk),      # RULING 102: on the pin
+                                             soft=soft, who={sg["label"]: sg.get("channel")   # RULING 137 / 138 (3)
+-                                                            for sg in pk["segments"]})
++                                                            for sg in pk["segments"]},
++                                            seg_flags={sg["label"]: (cleared.get(sg["moment_id"]) or {}).get(
++                                                "step_a_flags") for sg in pk["segments"]},    # RULING 137 stage 2a
++                                            mids={sg["moment_id"]: sg["label"] for sg in pk["segments"]})
+                     if not ok_c:
+                         tl = coh.get("through_line") if isinstance(coh.get("through_line"), str) else ""
+                         cfl = coh.get("floors") or STANDARD_LINEUP["coherence"]   # ruling 116: its own bar
+@@ -4225,8 +4295,9 @@ def build(*args, never_empty=False, flagged_today=0, **kw):
+     (kw.get("log") or print)(f"  RULING 136 (2) NEVER EMPTY: the clean pass sealed nothing ({out.get('why_none')}); "
+                              f"the second pass lets step A's soft refusals back, flagged (stage 1)")
+     soft = _build(*args, soft=True, **kw)
+-    info = {"stage": 1, "clean_why_none": out.get("why_none"), "soft_why_none": soft.get("why_none"),
+-            "soft_back": (soft.get("prescreen") or {}).get("soft_back")}
++    info = {"stage": "2a", "clean_why_none": out.get("why_none"), "soft_why_none": soft.get("why_none"),
++            "soft_back": (soft.get("prescreen") or {}).get("soft_back"),
++            "soft_record": {k: soft.get(k) for k in ("prescreen", "hook_pool", "tried")}}   # the pass's own record
+     return dict(soft, never_empty=info) if soft.get("package") else dict(out, never_empty=info)
+ 
+ 
+@@ -4240,7 +4311,8 @@ def _spent(spend):
+ 
+ 
+ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None,
+-              hook=None, stand=None, visual=None, value=None, last_resort=None, soft=False, who=None):
++              hook=None, stand=None, visual=None, value=None, last_resort=None, soft=False, who=None,
++              seg_flags=None, mids=None):
+     """The sealed GATE INVENTORY (audit p2 C1; package_pin.required_gates): one row per hard gate, each
+     {"status": "PASS" | "FAIL" | "NOT RUN", "by", "replayed", "n"}. Nothing measured is never a PASS (law L-m).
+     value: ruling 91's value verdict on the medley's takeaway (takeaway_value) -> the "takeaway_value" row, its "text"
+@@ -4262,9 +4334,14 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+         return None if any(not isinstance(x, bool) for x in values) else any(values)
+     det = fid["deterministic"]
+     viol = {v["rule"] for v in ctx_.get("violations") or []}
++    lab = lambda mid: (mids or {}).get(mid, mid)                      # truth is by moment id; flags name the clip
++    edge_fl = [flag_sentence(lab(mid), (who or {}).get(lab(mid)), c) for mid, t in (truth or {}).items()   # RULING
++               if soft and (t.get("edges") or {}).get("cuttable") is not True for c in (soft_edges(t) or [])]   # 137 2a
+     a_rows = list((a_by or {}).values())
+-    a_codes = sorted({str(c) for a in a_rows for c in CI.a_failures(a)})   # RULING 137 stage 1: step A's codes; in the
+-    soft_a = bool(soft and a_codes and all(c in STEP_A_SOFT for c in a_codes))   # never-empty pass, soft ones FLAG
++    lab_codes = {lb: sorted({str(c) for c in CI.a_failures(a)} | set((seg_flags or {}).get(lb) or []))   # RULING 137:
++                 for lb, a in (a_by or {}).items()}       # each clip's step-A codes, its verdict's and every screen's soft
++    a_codes = sorted({c for cs in lab_codes.values() for c in cs})   # ones (stage 2a); in the never-empty pass, soft
++    soft_a = bool(soft and a_codes and all(c in STEP_A_SOFT for c in a_codes))   # ones FLAG
+     return {
+         "vo_fidelity_deterministic": row(det["ok"], "code (vo_fidelity.check_deterministic)"),
+         "vo_fidelity_verdict": dict(row(bool((fid.get("verdict") or {}).get("ok")), fid.get("backend"),
+@@ -4281,8 +4358,8 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+                               sorted({str(a.get("backend")) for a in a_rows}), rep(a.get("replayed") for a in a_rows),
+                               n=len(a_rows)),
+                           **({"status": "FLAGGED",            # RULING 137 stage 1; 138 (3): a sentence a clip
+-                              "flags": [flag_sentence(lb, (who or {}).get(lb), c) for lb, a in (a_by or {}).items()
+-                                        for c in sorted({str(x) for x in CI.a_failures(a)})]}
++                              "flags": [flag_sentence(lb, (who or {}).get(lb), c) for lb in (a_by or {})
++                                        for c in lab_codes[lb]]}
+                              if soft_a and len(a_rows) >= 1 else {}),
+                           **({"last_resort": last_resort} if last_resort else {})),   # RULING 102: the local judge
+         "context_b": dict(row(ctx_.get("ok") is True, (ctx_.get("backends") or {}).get("B"), ctx_.get("replayed"),
+@@ -4299,10 +4376,14 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+         "second_pass": row(all(t.get("ok") for t in truth.values()), sorted({str(t.get("model")) for t in truth.values()}),
+                            rep(t.get("replayed") for t in truth.values()), n=len(truth),
+                            measured=all("error" not in t for t in truth.values())),
+-        "cuttable": row(all((t.get("edges") or {}).get("cuttable") is True for t in truth.values()),
++        "cuttable": dict(row(all((t.get("edges") or {}).get("cuttable") is True or (soft and soft_edges(t))
++                                 for t in truth.values()),
+                         "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT "
+                         "(orchestrator 06:45 ruling C / 7)", rep(t.get("replayed") for t in truth.values()), n=len(truth),
+                         measured=all("edges" in t for t in truth.values())),
++                         **({"status": "FLAGGED", "flags": edge_fl}       # RULING 137 stage 2a: a sentence edge
++                            if edge_fl and truth and all((t.get("edges") or {}).get("cuttable") is True or soft_edges(t)
++                                                         for t in truth.values()) else {})),
+         "coherence": dict(row(bool(coh_ok), coh.get("backend"), coh.get("replayed"), measured=bool(coh.get("measured"))),
+                           **votes_of(coh)),
+         **({"medley": dict(row(bool(medley[0]), medley[1].get("backend"), medley[1].get("replayed"),
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index 5fb02f2..180aba9 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -34,7 +34,9 @@ MEDLEY_GATES = ("medley", "ly_shape", "house_style", "hook_onset", "stand_alone"
+ # RULINGS 136 / 137 (orchestrator 11:00 / 11:05 ET Nov 17): a SOFT gate scores and FLAGS. Its row may say "FLAGGED"
+ # with "flags", plain words, sealed with the gates; the pin's moments_package "review_flags" is derived from them
+ # (review_flags_of), at most REVIEW_FLAGS_MAX. STAGE 1: step A's row only. A HARD gate still needs exactly PASS.
+-SOFT_GATES = frozenset({"context_a"})
++SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's soft codes
++                        "cuttable"})                       # stage 2a: a sentence edge at a word boundary (L-v 2's
++#   word check, "second_pass", stays HARD)
+ REVIEW_FLAGS_MAX = 3
+ 
+ 
+diff --git a/tests/package/test_ruling_137.py b/tests/package/test_ruling_137.py
+index bc71226..c322e28 100644
+--- a/tests/package/test_ruling_137.py
++++ b/tests/package/test_ruling_137.py
+@@ -114,8 +114,9 @@ class TestTheTwoPasses(unittest.TestCase):
+         none, sealed = {"package": None, "why_none": "x"}, {"package": {"p": 1}}
+         calls, out = self.run_build(sealed, sealed, never_empty=True)
+         self.assertEqual((calls, "never_empty" in out), ([False], False))            # a clean package: one pass
+-        calls, out = self.run_build(none, sealed, never_empty=True)
++        calls, out = self.run_build(none, dict(sealed, prescreen={"soft_back": {}}), never_empty=True)
+         self.assertEqual((calls, out["package"], out["never_empty"]["clean_why_none"]), ([False, True], {"p": 1}, "x"))
++        self.assertEqual(out["never_empty"]["soft_record"]["prescreen"], {"soft_back": {}})   # the soft pass's record
+         calls, out = self.run_build(none, dict(none, why_none="y"), never_empty=True)
+         self.assertEqual((calls, out["package"], out["never_empty"]["soft_why_none"]), ([False, True], None, "y"))
+         self.assertEqual(self.run_build(none, sealed)[0], [False])                   # never_empty off: as before
+@@ -134,6 +135,78 @@ class TestTheTwoPasses(unittest.TestCase):
+         self.assertEqual(calls, [["lineups", "log"], ["lineups", "log", "soft"]])
+ 
+ 
++class TestStage2a(unittest.TestCase):
++    """RULING 137 STAGE 2a: the second family's soft step-A refusals, and the re-screen's after the writes, flag like the
++    first's (soft_codes); CUTTABLE's sentence-edge part flags (line 1 12:12 ET, default SOFT) while L-v 2's word check
++    and every other edge failure stay hard. DataDash 8dbc30ee's real record (replayed 12:1x ET): IN runs on from
++    'line:', 100 ms, the words match."""
++    DATADASH = {"ok": True, "model": "elevenlabs_stt:scribe_v1", "replayed": False,
++                "edges": {"in": {"ok": False, "word": "Bitcoin", "before": "line:", "pause_ms": 100,
++                                 "why": "the recogniser runs on into the clip ('line:', 100 ms before it)"},
++                          "out": {"ok": True, "word": "holdings.", "after": "The",
++                                  "why": "a sentence ends at the clip's last word"}, "cuttable": False}}
++
++    def test_soft_codes_and_the_second_family(self):
++        self.assertEqual(PK.soft_codes(["REFERENT_OUTSIDE", "NOT_OWN_SINCERE"]), ["NOT_OWN_SINCERE", "REFERENT_OUTSIDE"])
++        for f in (["REFERENT_OUTSIDE", "STALE_TIME"], [PK.HELD + " x"], [], None, ["SPEAKER_CHANGE"], ["RETRACTION"]):
++            self.assertIsNone(PK.soft_codes(f), f)
++        cleared = {"a": {"moment_id": "a"}, "b": {"moment_id": "b"}, "c": {"moment_id": "c"}, "d": {"moment_id": "d"}}
++        got = PK.soft_second(cleared, {"a": [{}]}, {"b": ["REFERENT_OUTSIDE"], "c": ["STALE_TIME"], "d": [PK.HELD]})
++        self.assertEqual(got, {"b": ["REFERENT_OUTSIDE"]})
++        self.assertEqual((cleared["b"].get("step_a_flags"), "step_a_flags" in cleared["c"]), (["REFERENT_OUTSIDE"], False))
++
++    def test_only_a_sentence_running_on_at_a_word_boundary_is_soft(self):
++        import copy
++        self.assertEqual(PK.soft_edges(self.DATADASH), ["EDGE_IN"])
++        both = copy.deepcopy(self.DATADASH)
++        both["edges"]["out"] = {"ok": False, "word": "x", "after": "y", "why": "the recogniser's sentence continues past the clip"}
++        self.assertEqual(PK.soft_edges(both), ["EDGE_IN", "EDGE_OUT"])
++        for why_in in ("the recogniser has no 'bitc' within 0.6 s of the clip's start", "no word timing from the recogniser",
++                       "the window starts at the clip: no word before it",
++                       "the recogniser does not hear the trimmed word 'And' right before the clip (ruling 33 part 2)"):
++            t = copy.deepcopy(self.DATADASH)
++            t["edges"]["in"]["why"] = why_in
++            self.assertIsNone(PK.soft_edges(t), why_in)
++        end = copy.deepcopy(self.DATADASH)
++        end["edges"]["out"] = {"ok": False, "why": "the window ends at the clip: no word after it"}
++        self.assertIsNone(PK.soft_edges(end))
++        for bad in (dict(self.DATADASH, ok=False), dict(self.DATADASH, error="x"), dict(self.DATADASH, edges=None)):
++            self.assertIsNone(PK.soft_edges(bad))
++
++    def base(self, truth, a=None):
++        fid = {"deterministic": {"ok": True, "violations": [], "price_now_measured": True},
++               "verdict": {"ok": True}, "backend": "b", "replayed": False, "measured": True}
++        ctx = {"ok": True, "violations": [], "backends": {"B": "b", "C": "b"}, "replayed": False, "measured": True}
++        return dict(fid=fid, dup=[], rt_ok=True, r4_res=(True, "ok"), ctx_=ctx, a_by={"clip_01": a or answer()},
++                    exc={"m": {"verdict": "keep", "backend": "b", "replayed": False, "measured": True}},
++                    truth={"m": truth}, coh_ok=True, coh={"backend": "b", "replayed": False, "measured": True})
++
++    def test_the_rows_flag_with_the_clip_named(self):
++        kw = dict(who={"clip_01": "DataDash"}, mids={"m": "clip_01"})
++        self.assertEqual(PK.inventory(**self.base(self.DATADASH), **kw)["cuttable"]["status"], "FAIL")   # clean pass
++        row = PK.inventory(**self.base(self.DATADASH), soft=True, **kw)["cuttable"]
++        self.assertEqual((row["status"], row["flags"]), ("FLAGGED", [
++            "The second clip (DataDash): the checker heard the sentence run on into the clip's first word, so it may "
++            "start mid-sentence."]))
++        hard = dict(self.DATADASH, edges=dict(self.DATADASH["edges"], **{"in": {"ok": False, "why": "no word timing from the recogniser"}}))
++        self.assertEqual(PK.inventory(**self.base(hard), soft=True, **kw)["cuttable"]["status"], "FAIL")
++        ok = dict(self.DATADASH, edges=dict(self.DATADASH["edges"], cuttable=True, **{"in": {"ok": True, "why": "ok"}}))
++        a = PK.inventory(**self.base(ok), soft=True, seg_flags={"clip_01": ["REFERENT_OUTSIDE"]}, **kw)["context_a"]
++        self.assertEqual((a["status"], a["flags"]), ("FLAGGED", [                     # the second family's doubt
++            "The second clip (DataDash): the checker thought it points back to something said before the clip starts."]))
++        stale = PK.inventory(**self.base(ok, answer(time_ok="no")), soft=True, seg_flags={"clip_01": ["REFERENT_OUTSIDE"]},
++                             **kw)["context_a"]
++        self.assertEqual(stale["status"], "FAIL")                                   # a hard code still fails
++
++    def test_the_pin_takes_a_flagged_sentence_edge_never_a_flagged_word_check(self):
++        pk = TestThePin().pk(cuttable={"status": "FLAGGED", "by": "x", "replayed": False, "n": 1, "flags": ["The second "
++                                       "clip (DataDash): the checker heard the sentence run on."]})
++        self.assertEqual(len(PP.to_pin(pk, "r")["moments_package"]["review_flags"]), 1)
++        with self.assertRaises(PP.PinRefused):
++            PP.to_pin(TestThePin().pk(second_pass={"status": "FLAGGED", "by": "x", "replayed": False, "n": 1,
++                                                   "flags": ["a word differs"]}), "r")
++
++
+ class TestTheDayCount(unittest.TestCase):
+     def test_counted_per_day_ledger(self):
+         with tempfile.TemporaryDirectory() as d:
