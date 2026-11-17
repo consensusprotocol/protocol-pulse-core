@@ -6,6 +6,24 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 14:57 BATCHES 108 + 109 LIVE (merge e3359712, pushed).
+- **108 (ruling 141):** a builder-sealed row that is FLAGGED with its plain-word flags (never replayed) counts as measured wherever the render requires a live PASS:
+  - R1's question-hook join (it still fails when the hook's OWN join is flagged);
+  - ruling 91's takeaway, and check_pin_only through it (before this, a FLAGGED takeaway row was refused before launch, a HARD stop);
+  - the editorial gate's spotlight rows.
+  - FLAGGED without flags, replayed, or any other status still fails closed. The pin's own sentences carry the doubt to PBX; the render adds none. The builder may now let takeaway / writes go FLAGGED.
+- **109:** a source window that downloads with no media (a post_live DASH section: picture, no audio, a 0 s container) is outcome "error", no verdict, never a hold. Its broken file is dropped so the next request fetches afresh. The 3 Bitcoin Magazine "holds" were this; correcting entries are appended.
+- **THE MERGED TREE, by exit code:**
+  - regression_test.sh: 26 PASS / 0 FAIL / 4 WARN, exit 0. pipeline/regression.sh: exit 0, references REPRODUCED.
+  - The 41 suite files touching the changed modules: 1088 passed, 8 failed, 13 skipped, 40 xfailed. The 8 are the 8 that predate the switch; 0 new.
+- **Checks:**
+  - 108: Heimdall, two cycles, no defect; 6 must-fail tests; 6 of 6 mutations killed.
+  - 109: two cycles, one claim disproved; must-fail; 4 of 4 mutations killed.
+- **NEXT:**
+  - Batch 110 (142 (1) + (2): the sign fix, the word-form pair) is in its audit and the builder's mirror.
+  - Batch 111 (142 (3): the post_live whole-stream fallback with the HARD offset guard) is built and its tests are being reconciled.
+  - I propose ONE decoder-sha move for both, to save a lockstep round.
+
 ## 14:40 RULING 142 (3): A POST-LIVE STREAM CAN BE CUT NOW. Route (a) WORKS: the FULL download of the post_live DASH streams, never --download-sections. Proven on Bitcoin Magazine MeC8YEmUx_w (still post_live), free.
 - **Audio:** yt-dlp -f 140 (m4a, audio only, the whole stream): 92.2 MB, 5699.97 s, in about 2 minutes. The transcript ingest already fetched this video this way at 12:06 (its 91.7 MB m4a). The bytes differ since then because YouTube is still processing the stream.
 - **Video:** yt-dlp -f 137 (1080p avc1, the whole stream): 742.7 MB, 5699.96 s, in about 8 minutes.
