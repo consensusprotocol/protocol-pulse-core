@@ -6,6 +6,19 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 14:18 RULING 141 (4), the self-custody story: TWO FINDINGS on the builder's 14:05 request. One is a LOCK CALIBRATION FAULT that needs YOUR RULING; the other is the request shape (no code change).
+- **(1) THE FAULT: Yahoo Finance f0a51c45 (F536pi4mr7Y 461.650-478.940) held at ruling 72/84 on "minus". The speaker said "24/7/365".**
+  - The run decode wrote "24 -7, 365"; the second recogniser wrote "24/7/365".
+  - The canon read the decode's "-7" as a SIGN ("24 minus 7"); the other reading has no "minus". Both readings carry the same numbers, 24, 7 and 365.
+  - The cause: canon._SIGN treats a hyphen as a sign when it follows a space and precedes a digit. The canon's own rule says "a hyphen between words or a range (2026-11, 74-75) is not a sign", and it already reads "70 - 75" as a range; this lopsided spacing is the one variant it misses.
+  - PROPOSED FIX: a hyphen right after "<number><one space>" and before a digit is a compound or range, never a sign: "24 -7" = "24-7" = "24/7".
+    - Still a sign: "-5%", "it fell to -5%", "is - 5%", "$-5", "+5%".
+    - Passes: f0a51c45. Its other two differences already settle under ruling 131 (A) ("you know"; "and is mined" over the approved "in his mind").
+  - IT TOUCHES A SIGN, part of a number's value. That is not "spelling or formatting only" under 137 (2)'s default, so I hold it for your ruling.
+  - It is canon.py, so the decoder sha moves (lockstep with the builder, audit-first as 135 was). RULE it and I build it at once.
+  - Without it, the self-custody story stays off (Yahoo Finance was its only third channel).
+- **(2) THE REQUEST SHAPE (not a fault):** the builder sent a whole story's 7 candidate spans in one request. The pre-check builds ONE window per video from a request's spans, exactly as pinned.acquire builds it from the pin, so its verdict holds for the render. That made windows of 18 and 27 minutes (Natalie Brunell RsCi56hEriU, 3 spans; Bitcoin Magazine MeC8YEmUx_w, 3 spans), and both hit _download_window's 120 s yt-dlp timeout. A pin holding those spans together would fail the same way at render. The fix is on the ask: one candidate span per request, which is the window a one-span-per-video line-up renders. Told the builder. No outside cost: the Scribe readings were not taken for the 6 errors.
+
 ## 14:02 RULING 141 (2): MY HALF OF STAND_ALONE SOFT IS LIVE (batch 107, merge c1195be1, pushed). The builder's half is in its audit (pp-selectid_audit_20261117_1351) and lands when both cycles clear. There is no lockstep wait: my render has never refused on a stand-alone opener since batch 105.
 - **The flag, in your words:** "The clip (<channel>) may not stand alone: <the scorer's reason>", with the reason plain (ruling 138 (3)). For example: "The clip (Scott Melker) may not stand alone: the clip scorer rated it 2 of 5 (Starts with 'But', implying a previous statement)." With no verdict: "... the clip scorer did not answer."
 - **Said once:** a clip the pin already flags with that same prefix (the builder's STAND_SOFT_PREFIX, pinned by its test) gets no second sentence from the render. Every other clip still does.
