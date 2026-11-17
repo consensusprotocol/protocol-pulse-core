@@ -1,0 +1,75 @@
+{
+ "question": "Review this diff to pipeline/run_fresh.py (the render's validate stage). ORCHESTRATOR RULING 141 (2) (13:40 ET Nov 17), verbatim in part: \"STAND_ALONE becomes SOFT in lockstep on both sides ... (a flag: 'The clip (X) may not stand alone: <the scorer's reason>')\". RULING 138 (3): \"each flag is one plain sentence PBX can judge in five seconds (what the checker doubted, about which clip), no codes.\" The builder's sealed pin carries its own flags in moments_package[\"review_flags\"], with the exact prefix \"The clip (<channel>) may not stand alone:\" for this case; the render must not say a second sentence about a clip the pin already flags, and must still flag every other clip.\n\nFACTS (unchanged code): stand_alone.check_edl returns rows {\"segment\", \"channel\", \"first_words\", \"opener\": {\"pass\", \"why\"}, \"topic\": {\"pass\", \"why\"}, \"scorer\": {\"score\", \"reason\", \"fault\"} (only when the scorer was asked), \"pass\"} plus \"rate_error\" (the scorer raised; no verdict). The topic rule, the medley rule and a malformed floor mark HOLD before this code (unchanged). release_auth.pin_review_flags(run_dir) returns the pin's review_flags list ([] for no pin; None when unreadable or bound to another package). flag(run, text, detail) appends one flag. The opener's \"why\" strings look like \"clip opens on 'but'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought)\", \"'but' trimmed and no clip-scorer verdict on the trimmed text (fail closed, ruling 33 part 2)\", \"hook opens on the demonstrative 'this': nothing is heard before a hook\".\n\nReport ONLY defects you can prove by quoting the diff's code. Keep each \"issue\" under 60 words. If every check holds, answer PASS with no findings.\nCHECKS:\nH1. Is every opener-only failure still flagged (never silently dropped) unless the pin already carries \"The clip (<that channel>) may not stand alone:\"? Can a pin flag for one clip silence another clip's flag?\nH2. Does the flag follow the ruled words, give the scorer's reason in plain words (no snake_case, no \"ruling\", no \"fault\"/\"fail closed\" parentheticals), and say plainly when the scorer gave no answer?\nH3. Can any row shape (missing scorer, a non-numeric or bool score, a None reason, a missing channel) or an unreadable pin record raise in this code?\nH4. Does anything else change behaviour (a HOLD that now passes, a pass that now holds)?",
+ "files": [],
+ "panel": {
+  "gptoss": "openai/gpt-oss-20b"
+ },
+ "cycle1": [
+  {
+   "name": "gptoss",
+   "model": "openai/gpt-oss-20b",
+   "status": 200,
+   "latency_s": 21.9,
+   "cost": 0.000546127,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 3,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "gptoss",
+   "status": 200,
+   "latency_s": 9.3,
+   "cost": 0.000270196,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "gptoss:F1",
+   "severity": "high",
+   "file": "pipeline/run_fresh.py",
+   "line": 210,
+   "issue": "Flag text includes parentheses around scorer reason or fault, violating the rule that no parenthetical codes should appear.",
+   "evidence": "return f\"{out} ({why.strip().rstrip('.')})\"",
+   "fix": "Remove the parentheses and embed the reason directly, e.g., return f\"{out} {why.strip().rstrip('.')}\"",
+   "agree": [
+    "gptoss"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "gptoss:F2",
+   "severity": "high",
+   "file": "pipeline/run_fresh.py",
+   "line": 212,
+   "issue": "Scorer reason may contain snake_case because underscores are not replaced, violating the plain\u2011word requirement.",
+   "evidence": "return f\"{out} ({why.strip().rstrip('.')})\"",
+   "fix": "Replace underscores in the reason: return f\"{out} ({why.strip().replace('_', ' ').rstrip('.')})\"",
+   "agree": [
+    "gptoss"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "gptoss:F3",
+   "severity": "medium",
+   "file": "pipeline/run_fresh.py",
+   "line": 219,
+   "issue": "When opener why is missing or None, the function returns the string \"None\" instead of the default message \"the opener check did not pass\".",
+   "evidence": "return why.replace(\"_\", \" \").strip() or \"the opener check did not pass\"",
+   "fix": "Explicitly handle None: if why is None or why.strip()==\"\": return \"the opener check did not pass\"",
+   "agree": [],
+   "disagree": [
+    "gptoss"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.000816323,
+ "out_dir": "heimdall"
+}
