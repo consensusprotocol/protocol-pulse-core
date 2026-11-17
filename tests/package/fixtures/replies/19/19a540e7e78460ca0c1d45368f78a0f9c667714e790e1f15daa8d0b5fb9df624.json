@@ -1,0 +1,416 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "4e79258cbce3014207e75864a0cab1900193b7b3c95831e6e642cde12243ef31",
+ "result": {
+  "text": "Wasn't always fun. I got yelled at a lot, um, but it was really great. The terror dome really came into p- take with the Bitcoin ETFs when they were about to launch, about three days before launch. This was January 8th, 2024. They went into a fee war. Remember that? It was like Invesco's going to 50. And it's like, no, Fidelity's going to",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 18.58,
+    "text": "Wasn't always fun. I got yelled at a lot, um, but it was really great. The terror dome really came into p- take with the Bitcoin ETFs when they were about to launch, about three days before launch. This was January 8th, 2024. They went into a fee war. Remember that? It was like Invesco's going to 50. And it's like, no, Fidelity's going to"
+   }
+  ],
+  "words": [
+   {
+    "text": "Wasn't",
+    "start": 0.0,
+    "end": 0.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "always",
+    "start": 0.1,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fun.",
+    "start": 0.36,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 0.58,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "got",
+    "start": 0.64,
+    "end": 0.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yelled",
+    "start": 0.78,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 0.96,
+    "end": 1.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.08,
+    "end": 1.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot,",
+    "start": 1.14,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 1.82,
+    "end": 1.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 2.28,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 2.54,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 2.64,
+    "end": 2.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 2.8,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "great.",
+    "start": 3.0,
+    "end": 3.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 3.98,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "terror",
+    "start": 4.16,
+    "end": 4.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dome",
+    "start": 4.44,
+    "end": 4.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 4.66,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "came",
+    "start": 4.9,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 5.12,
+    "end": 5.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "p-",
+    "start": 5.7,
+    "end": 5.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "take",
+    "start": 5.84,
+    "end": 6.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 6.08,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.24,
+    "end": 6.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.42,
+    "end": 6.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ETFs",
+    "start": 6.82,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 7.28,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 7.38,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "were",
+    "start": 7.48,
+    "end": 7.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 7.56,
+    "end": 7.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 7.78,
+    "end": 7.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "launch,",
+    "start": 7.96,
+    "end": 8.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 8.36,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "three",
+    "start": 8.56,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "days",
+    "start": 8.74,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "before",
+    "start": 8.98,
+    "end": 9.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "launch.",
+    "start": 9.28,
+    "end": 9.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "This",
+    "start": 9.94,
+    "end": 10.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 10.12,
+    "end": 10.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "January",
+    "start": 10.36,
+    "end": 11.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "8th,",
+    "start": 11.2,
+    "end": 11.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2024.",
+    "start": 11.56,
+    "end": 12.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "They",
+    "start": 13.36,
+    "end": 13.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "went",
+    "start": 13.52,
+    "end": 13.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 13.68,
+    "end": 13.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 13.92,
+    "end": 13.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fee",
+    "start": 14.06,
+    "end": 14.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "war.",
+    "start": 14.26,
+    "end": 14.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Remember",
+    "start": 14.98,
+    "end": 15.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that?",
+    "start": 15.24,
+    "end": 15.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It",
+    "start": 15.72,
+    "end": 15.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 15.76,
+    "end": 15.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 15.84,
+    "end": 15.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Invesco's",
+    "start": 16.0,
+    "end": 16.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 16.58,
+    "end": 16.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 16.78,
+    "end": 16.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "50.",
+    "start": 17.06,
+    "end": 17.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 17.52,
+    "end": 17.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 17.56,
+    "end": 17.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 17.64,
+    "end": 17.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no,",
+    "start": 17.78,
+    "end": 17.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Fidelity's",
+    "start": 17.96,
+    "end": 18.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 18.36,
+    "end": 18.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 18.52,
+    "end": 18.58,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 18.68
+ },
+ "usd": 0.003736,
+ "seconds": 1.22,
+ "recorded_at": "2026-11-17T00:37:32Z"
+}

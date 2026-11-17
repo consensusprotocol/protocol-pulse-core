@@ -1,0 +1,269 @@
+{
+ "a3e8721c54788123097a:9d43580c729b": {
+  "label": "a3e8721c54788123097a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the hit from bad market sentiment",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when market sentiment is generally bad",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Billions of dollars in liquidations occurred over the weekend including about $2B on Bitcoin, proving that Bitcoin suffers heavily from bad general market sentiment because it trades 24/7.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "I am your host, Scott Melker, also known as the Wolf of All Streets.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c673cbed6e8856895628:9d43580c729b": {
+  "label": "c673cbed6e8856895628",
+  "speaker_changes_inside": "yes",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "Bitcoin below 70K",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "uncertain",
+  "proposition": "With Bitcoin below 70K there is more downside ahead rather than it being a buying opportunity.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Are you ready, Victoria? Okay, I'm ready. Here we go.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "0193406f729cc5e141e0:9d43580c729b": {
+  "label": "0193406f729cc5e141e0",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "today",
+    "refers_to": "present time of the discussion/video",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the fact that most Bitcoin mining pools require asking permission to use",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "today (current state)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Most Bitcoin mining pools today require asking permission to use them, a fact that should be alarming.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Bob, I'm... cringing when you say that you have to ask permission to use these other pools.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ffa2d3fc4dd38e946d3a:9d43580c729b": {
+  "label": "ffa2d3fc4dd38e946d3a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin was never dependent on any president, the strategic Bitcoin Reserve has bought no coins, and it grew to a trillion-dollar asset despite hostile or indifferent governments, with its thesis centered on sound money.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This one has reiterated what I found out in my first cycle.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "d6adeb54ad64062081c5:9d43580c729b": {
+  "label": "d6adeb54ad64062081c5",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the 2023 bull market",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "the period of time of the 2023 bull market",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "during the 2023 bull market",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker has recently done pieces analyzing how the 2023 bull market saw massive fear even while Bitcoin and fear both trended upwards as it climbed a wall of worry.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Like if you compare this to, you know, history, what do you think comes next? I have been",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "04ddf6869c30c1f2c0de:9d43580c729b": {
+  "label": "04ddf6869c30c1f2c0de",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "the lows",
+    "refers_to": "Bitcoin's recent price lows",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Watching how fearful people are despite Bitcoin being up like 20% from the lows is really striking in the speaker's opinion.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "until I saw you sort of crop up. Like this is your thing, right? It very much is now",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c411d1f7f5019c7c8b29:9d43580c729b": {
+  "label": "c411d1f7f5019c7c8b29",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this point",
+    "refers_to": "the present time in the bear market where Bitcoin price is relatively low",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "there",
+    "refers_to": "traders",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "traders' conviction",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "at this point where Bitcoin is relatively low compared to where it's been and looking poised for a breakout",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Traders currently show the lowest conviction ever seen despite Bitcoin being at a relatively low price that would normally lead one to expect growing conviction and an imminent breakout.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Do you think that is, again, the AI trade just taking all the excitement or the enthusiasm away from Bitcoin?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "bf8890602749f433a069:9d43580c729b": {
+  "label": "bf8890602749f433a069",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "Bitcoin ETFs",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "This",
+    "refers_to": "the period when the Terodome engaged about three days before launch",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "They",
+    "refers_to": "the ETF issuers like Invesco, Fidelity and BlackRock",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the fee war",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "the start of the fee war",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "about three days before launch on January 8th 2024",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The Terodome engaged with the Bitcoin ETFs about three days before their January 8 2024 launch when the issuers entered a rapid fee war with announcements like Invesco going to 50 basis points.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I had so much fun covering this, and I really enjoyed it, got to meet a lot of the coiners. And I honestly, it was one of the highlights of my career to cover the approval process.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

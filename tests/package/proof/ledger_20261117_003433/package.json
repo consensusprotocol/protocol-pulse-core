@@ -1,0 +1,2053 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [],
+ "unusable": {},
+ "usable": 20,
+ "current_levels": [
+  64000.0,
+  64870.0,
+  65000.0
+ ],
+ "no_role": {},
+ "ad_read": {},
+ "trimmed": {},
+ "reposted": {},
+ "scorer": {
+  "read": true,
+  "rated_at": "2026-11-16T20:01:19Z",
+  "build": "ledger_20261116_195753",
+  "candidates_generated_at": "2026-11-16T19:58:20+00:00",
+  "model": "gemma3:27b",
+  "kind": "moments",
+  "rubric": "ruling 60: stand-alone only",
+  "scorer_sha": "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53",
+  "threshold": 3.5,
+  "verdicts": 172,
+  "affirmed": 27,
+  "affirmed_on_the_floor": 21,
+  "disagree_with_the_rule": [],
+  "candidates": 22,
+  "candidates_written": true,
+  "admitted": [
+   "0193406f729cc5e141e0",
+   "17e5a9235d68c10d79b2",
+   "a3e8721c54788123097a",
+   "d6adeb54ad64062081c5",
+   "f89acd3a61d03fa8d2a4"
+  ],
+  "trims_affirmed": [],
+  "trims_out": {
+   "01e89e2b5794fe06d564": "'Now' trimmed and no clip-scorer verdict on the trimmed text yet (ruling 56: sealed only when the scorer affirms it)"
+  }
+ },
+ "prescreen": {
+  "screened": 20,
+  "cleared": 6,
+  "failed": {
+   "c673cbed6e8856895628": [
+    "SPEAKER_CHANGE",
+    "STALE_TIME"
+   ],
+   "323f2b0be9796bbf4ec6": [
+    "STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.12 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD (still, after waiting 600 s for the calls in flight)); held for this build, retried next build"
+   ],
+   "44a6d503ed11992f6f8e": [
+    "STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.12 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD (still, after waiting 600 s for the calls in flight)); held for this build, retried next build"
+   ],
+   "17e5a9235d68c10d79b2": [
+    "STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.12 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD (still, after waiting 600 s for the calls in flight)); held for this build, retried next build"
+   ],
+   "2014f9481832ee85384c": [
+    "STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.12 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD (still, after waiting 600 s for the calls in flight)); held for this build, retried next build"
+   ],
+   "01e89e2b5794fe06d564": [
+    "STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.12 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD (still, after waiting 600 s for the calls in flight)); held for this build, retried next build"
+   ],
+   "265a2e2442950a6873dc": [
+    "STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.12 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD (still, after waiting 600 s for the calls in flight)); held for this build, retried next build"
+   ],
+   "ae552075525bdb1a8bf9": [
+    "STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.12 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD (still, after waiting 600 s for the calls in flight)); held for this build, retried next build"
+   ],
+   "db44c3a11385dc92ae01": [
+    "STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.12 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD (still, after waiting 600 s for the calls in flight)); held for this build, retried next build"
+   ],
+   "e31580ecfa18f73188b8": [
+    "STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.12 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD (still, after waiting 600 s for the calls in flight)); held for this build, retried next build"
+   ],
+   "f89acd3a61d03fa8d2a4": [
+    "STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.12 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD (still, after waiting 600 s for the calls in flight)); held for this build, retried next build"
+   ],
+   "04ddf6869c30c1f2c0de": [
+    "REFERENT_OUTSIDE"
+   ],
+   "7e8ce7d9c50d81d12d5e": [
+    "STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.12 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD); held for this build, retried next build"
+   ],
+   "08b861410f49a911babf": [
+    "STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.12 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD); held for this build, retried next build"
+   ]
+  },
+  "parallel_101": {
+   "parallel": false,
+   "n_new": 18,
+   "est_wait_s": null,
+   "leg": null,
+   "confirm": null,
+   "why": "not over 20 new moments",
+   "used": 0
+  },
+  "held_102": {
+   "first": [
+    "01e89e2b5794fe06d564",
+    "08b861410f49a911babf",
+    "17e5a9235d68c10d79b2",
+    "2014f9481832ee85384c",
+    "265a2e2442950a6873dc",
+    "323f2b0be9796bbf4ec6",
+    "44a6d503ed11992f6f8e",
+    "7e8ce7d9c50d81d12d5e",
+    "ae552075525bdb1a8bf9",
+    "db44c3a11385dc92ae01",
+    "e31580ecfa18f73188b8",
+    "f89acd3a61d03fa8d2a4"
+   ],
+   "second": []
+  },
+  "last_resort_87": {},
+  "second_pass": {
+   "d6adeb54ad64062081c5": "PASS",
+   "c411d1f7f5019c7c8b29": "PASS",
+   "a3e8721c54788123097a": "PASS",
+   "ffa2d3fc4dd38e946d3a": "PASS",
+   "0193406f729cc5e141e0": "PASS",
+   "bf8890602749f433a069": "L-v 2 FAIL"
+  },
+  "cuttable": 5,
+  "hook_onset": {
+   "0193406f729cc5e141e0": "FAIL: 80 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+   "ffa2d3fc4dd38e946d3a": "FAIL: 50 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+   "d6adeb54ad64062081c5": "FAIL: 40 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+   "c411d1f7f5019c7c8b29": "FAIL: 0 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+   "a3e8721c54788123097a": "PASS"
+  },
+  "trim_cut": {}
+ },
+ "angles": [],
+ "takeaways": [],
+ "package": null,
+ "visual": {
+  "calls": 0,
+  "cached": 0,
+  "usd_reported": 0.0,
+  "usd_estimate": 0.0,
+  "estimated_calls": 0,
+  "unmeasured": 0,
+  "flags": 0
+ },
+ "hook_pool": {
+  "can_open": 1,
+  "rated": 1,
+  "error": null,
+  "bar": "the calibrated hook bar (ruling 115): scroll >= 3, alone >= 4, setup >= 3, on xai:grok-4.20-0309-reasoning asked alone at seed 7 (calibration 6978392df37e)",
+  "bar_floors": {
+   "scroll": 3,
+   "alone": 4,
+   "setup": 3
+  },
+  "bar_sha256": "6978392df37e5abff8594c6fc293e29cf761718fc0530cd87ed6b3892c3fafd6",
+  "bar_invalid": null,
+  "ratings": {
+   "a3e8721c54788123097a": {
+    "scroll": 3,
+    "alone": 2,
+    "setup": 3,
+    "rating": 2,
+    "why": "sounds like mid-topic with 'further proof' and 'as always'",
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": true
+   }
+  },
+  "best": [
+   {
+    "moment_id": "a3e8721c54788123097a",
+    "channel": "Yahoo Finance",
+    "rating": 2,
+    "scroll": 3,
+    "alone": 2,
+    "setup": 3,
+    "why": "sounds like mid-topic with 'further proof' and 'as always'",
+    "text": "Billions of dollars in liquidations, as always, I believe $2 billion on Bitcoin alone just Saturday and Sunday. And further proof that sometimes when market sen"
+   }
+  ],
+  "passing": [],
+  "visual_blocked": {}
+ },
+ "why_none": "no hook in the pool (ruling 59 d): none of the 1 moments that can open passes the calibrated hook bar (ruling 115): scroll >= 3, alone >= 4, setup >= 3, on xai:grok-4.20-0309-reasoning asked alone at seed 7 (calibration 6978392df37e); the best: Yahoo Finance 2 (scroll 3, alone 2, setup 3): sounds like mid-topic with 'further proof' and 'as always'",
+ "candidate_tries": [],
+ "spotlight": {
+  "package": null,
+  "why_none": "no moment passes rulings 90-92 now",
+  "finalists": [],
+  "near": [
+   {
+    "channel": "Simply Bitcoin",
+    "video_id": "OubcRgk3D-w",
+    "seconds": 14.83,
+    "text": "Most Bitcoin mining pools today, you have to ask permission to use. If that doesn't make the hair in the back of your neck stand up, I don't know what else will.",
+    "stage": 0,
+    "out": "the ALONE scorer: 3.0 (needs 4), a free gate before any paid verdict (ruling 109)",
+    "moment_id": "0193406f729cc5e141e0",
+    "passed": []
+   },
+   {
+    "channel": "Scott Melker",
+    "video_id": "f0NnJM63Ffc",
+    "seconds": 17.79,
+    "text": "Bitcoin has not gotten that hot ball of money, even with all the rallies that we've seen and the whatever. There really has not been any significant speculation on Bitcoin. It was there. but it wasn't",
+    "stage": 0,
+    "out": "step A: STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.13 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD); held for this build, retried next build",
+    "moment_id": "04bb1e615e4125f8d521",
+    "passed": []
+   },
+   {
+    "channel": "Simply Bitcoin",
+    "video_id": "E91shGV-np4",
+    "seconds": 19.01,
+    "text": "Bitcoin was never riding on a president. The strategic Bitcoin Reserve still hasn't bought a single coin. And Bitcoin grew into a trillion dollar asset under governments that ignored it or outright fo",
+    "stage": 0,
+    "out": "step A: STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.13 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD); held for this build, retried next build",
+    "moment_id": "1eff6e75d00b8de8cf95",
+    "passed": []
+   }
+  ],
+  "moments": {
+   "0193406f729cc5e141e0": {
+    "channel": "Simply Bitcoin",
+    "video_id": "OubcRgk3D-w",
+    "seconds": 14.83,
+    "text": "Most Bitcoin mining pools today, you have to ask permission to use. If that doesn't make the hair in the back of your neck stand up, I don't know what else will.",
+    "stage": 0,
+    "out": "the ALONE scorer: 3.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "1eff6e75d00b8de8cf95": {
+    "channel": "Simply Bitcoin",
+    "video_id": "E91shGV-np4",
+    "seconds": 19.01,
+    "text": "Bitcoin was never riding on a president. The strategic Bitcoin Reserve still hasn't bought a single coin. And Bitcoin grew into a trillion dollar asset under governments that ignored it or outright fo",
+    "stage": 0,
+    "out": "step A: STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.13 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD); held for this build, retried next build"
+   },
+   "323f2b0be9796bbf4ec6": {
+    "channel": "Bitcoin Magazine",
+    "video_id": "9EE3F91J1vo",
+    "seconds": 15.02,
+    "text": "Like the AI trade, this is... part of Bitcoin maturing where it's no longer like the fun, like brand new thing on the block, the AI trade and what it can kind of revolutionize and access, it's kind of",
+    "stage": 0,
+    "out": "step A: STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.13 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD); held for this build, retried next build"
+   },
+   "e69e7174911b6f9d3a56": {
+    "channel": "What Bitcoin Did",
+    "video_id": "WdiF0i925rs",
+    "seconds": 18.2,
+    "text": "People are trying to manipulate you. People are trying to manipulate your emotions to make you part with your Bitcoin potentially. I just can't overstate how much like fear and anger cloud your judgme",
+    "stage": 0,
+    "out": "the ALONE scorer: 3.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "cc97d357dea3bc0b3178": {
+    "channel": "What Bitcoin Did",
+    "video_id": "WdiF0i925rs",
+    "seconds": 19.3,
+    "text": "They buy Bitcoin when it feels easy when they're confident it's going to do well. And if you do that, you drastically underperform DCA. And that's interesting because it kind of is what the average pe",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "60be61eb5849ac4d5a71": {
+    "channel": "BTC Sessions",
+    "video_id": "f-ugdpPGtf8",
+    "seconds": 18.12,
+    "text": "What Bitcoin cares about is that the Fed is no longer hiking. And so until that happens, and I believe that that will happen beginning around March, Bitcoin will sort of be in this awkward in between ",
+    "stage": 0,
+    "out": "step A: STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.13 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD); held for this build, retried next build"
+   },
+   "77d8d01b625ef2dd1968~trim": {
+    "channel": "Bitcoin Magazine",
+    "video_id": "KRvh4AcSofA",
+    "seconds": 17.92,
+    "text": "to relate the AI demand to Bitcoin here, we've seen AI token prices have fallen about 60 % in a year while the usage has grown 40 -fold. So a case of cheaper compute creating more demand. But at the s",
+    "stage": 0,
+    "out": "step A: STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.13 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD); held for this build, retried next build"
+   },
+   "83a2b4a4bcf6800e00c5": {
+    "channel": "Scott Melker",
+    "video_id": "f0NnJM63Ffc",
+    "seconds": 14.5,
+    "text": "Unless, of course, Bitcoin fails completely. But absent a failure, Bitcoin and gold will both do well in the long run, and they will suffer, and they've been suffering in the short run. We've seen tha",
+    "stage": 0,
+    "out": "step A: STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.13 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD); held for this build, retried next build"
+   },
+   "7e6362b95140044c5259": {
+    "channel": "Anthony Pompliano",
+    "video_id": "9lVSYriKja4",
+    "seconds": 29.76,
+    "text": "Ibit and the rest of the Bitcoin ETFs have records that will probably never be broken. And they have made it. They're completely established. In this sell -off, 50 % drawdown and only about 10 % of th",
+    "stage": 0,
+    "out": "step A: STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.13 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD); held for this build, retried next build"
+   },
+   "04bb1e615e4125f8d521": {
+    "channel": "Scott Melker",
+    "video_id": "f0NnJM63Ffc",
+    "seconds": 17.79,
+    "text": "Bitcoin has not gotten that hot ball of money, even with all the rallies that we've seen and the whatever. There really has not been any significant speculation on Bitcoin. It was there. but it wasn't",
+    "stage": 0,
+    "out": "step A: STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.13 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD); held for this build, retried next build"
+   },
+   "2b6dfb8157f2b8f2a43b": {
+    "channel": "BTC Sessions",
+    "video_id": "f-ugdpPGtf8",
+    "seconds": 23.7,
+    "text": "The good news is this doesn't really matter for Bitcoin, all things considered, even if they do wind up hiking some more. Here is a chart of Bitcoin and the Fed funds rate. We go over the last five ye",
+    "stage": 0,
+    "out": "step A: STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.13 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD); held for this build, retried next build"
+   },
+   "f89acd3a61d03fa8d2a4": {
+    "channel": "DataDash",
+    "video_id": "4pAa6COklAY",
+    "seconds": 14.84,
+    "text": "Personally speaking, it's like I don't see a world where Bitcoin is like truly at a major value point for the longer term right now until we got down to like, in the 30s, okay?",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "d6adeb54ad64062081c5": {
+    "channel": "What Bitcoin Did",
+    "video_id": "WdiF0i925rs",
+    "seconds": 14.78,
+    "text": "I have been recently done a budget pieces on the 2023 bull market, like climbing a wall of worry. There was massive amounts of fear during that period of time. Bitcoin was actually trending up into th",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "a0468c4a2a543bffdc3c": {
+    "channel": "What Bitcoin Did",
+    "video_id": "WdiF0i925rs",
+    "seconds": 16.28,
+    "text": "Watching how fearful people are, despite the fact that Bitcoin still up like 20 % off the lows is really fricking, in my opinion. It's like the crowd is overreacting, even though we're actually seeing",
+    "stage": 0,
+    "out": "the ALONE scorer: 3.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "8fe4ff5d084bbba5a88c": {
+    "channel": "What Bitcoin Did",
+    "video_id": "WdiF0i925rs",
+    "seconds": 18.8,
+    "text": "Traders are the ones that you expect at this point where Bitcoin's relatively low compared to where it's been, looking like it's pretty good, probably going to have a breakout at some point relatively",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "a3e8721c54788123097a": {
+    "channel": "Yahoo Finance",
+    "video_id": "stg5ui9sPos",
+    "seconds": 14.94,
+    "text": "Billions of dollars in liquidations, as always, I believe $2 billion on Bitcoin alone just Saturday and Sunday. And further proof that sometimes when market sentiment is generally bad, Bitcoin can rea",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "e5ac653ed2824dc0eb62": {
+    "channel": "Anthony Pompliano",
+    "video_id": "9lVSYriKja4",
+    "seconds": 14.9,
+    "text": "The Terodome really came into take with the Bitcoin ETFs when they were about to launch, about three days before launch. This was January 8th, 2024. They went into a fee war. Remember that? It was lik",
+    "stage": 0,
+    "out": "step A: STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.13 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD); held for this build, retried next build"
+   },
+   "8beea4d087cf570d6fe0": {
+    "channel": "TheStreet",
+    "video_id": "jKtW40YaZLQ",
+    "seconds": 13.98,
+    "text": "Bitcoin below 70K. Buying opportunity or more downside ahead? More downside ahead. This is not the area I like to invest in. Year -end market. Santa Rally or more volatility?",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "25fdccbfafac5735e699": {
+    "channel": "Digital Asset News",
+    "video_id": "oks1ThfeXKM",
+    "seconds": 14.12,
+    "text": "If you bought Bitcoin at $10,000, you're laughing at me right now, but that's okay. I got in 2017. I was buying Bitcoin, $8,500, 9,500, 135, and then I... bought after that in the crash, but I wish I ",
+    "stage": 0,
+    "out": "step A: STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.13 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD); held for this build, retried next build"
+   },
+   "b20accc6dceedf88d6bb": {
+    "channel": "Bloomberg Television",
+    "video_id": "r5uhv8AM5MM",
+    "seconds": 14.56,
+    "text": "Bitcoin and crypto enter those phases. you know, more than they'd like, I'm sure. Also, try trying to promote a book in the past week. Two sides of the coin. It's both sides of the coin, but that's ok",
+    "stage": 0,
+    "out": "step A: STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.13 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.2 USD); held for this build, retried next build"
+   }
+  },
+  "pool": {
+   "may": 20,
+   "out": {},
+   "snapped": {
+    "1eff6e75d00b8de8cf95": {
+     "from": "ffa2d3fc4dd38e946d3a",
+     "sentences": [
+      11,
+      15
+     ],
+     "was": [
+      11,
+      14
+     ],
+     "seconds": [
+      12.88,
+      19.01
+     ],
+     "added": {
+      "before": "",
+      "after": "A government that owes $40 trillion has to keep making its money worth less, no matter who wins an election."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "e69e7174911b6f9d3a56": {
+     "from": "44a6d503ed11992f6f8e",
+     "sentences": [
+      0,
+      5
+     ],
+     "was": [
+      0,
+      2
+     ],
+     "seconds": [
+      9.0,
+      18.2
+     ],
+     "added": {
+      "before": "",
+      "after": "Myself included, I'm not immune from this. It's been a brutal time to huddle, right? But Bitcoin has a really unique way of like messing with your psychology."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "cc97d357dea3bc0b3178": {
+     "from": "17e5a9235d68c10d79b2",
+     "sentences": [
+      6,
+      10
+     ],
+     "was": [
+      6,
+      8
+     ],
+     "seconds": [
+      10.44,
+      19.3
+     ],
+     "added": {
+      "before": "",
+      "after": "They just buy whenever they feel like it's easy to buy, right? Watching how fearful people are, despite the fact that Bitcoin still up like 20 % off the lows is really fricking, in my opinion."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "60be61eb5849ac4d5a71": {
+     "from": "2014f9481832ee85384c",
+     "sentences": [
+      13,
+      16
+     ],
+     "was": [
+      13,
+      14
+     ],
+     "seconds": [
+      11.9,
+      18.12
+     ],
+     "added": {
+      "before": "",
+      "after": "It's very funny. This reminds me a lot of the summer of 2024, although there are much more violent swings."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "77d8d01b625ef2dd1968~trim": {
+     "from": "01e89e2b5794fe06d564",
+     "sentences": [
+      7,
+      9
+     ],
+     "was": [
+      7,
+      7
+     ],
+     "seconds": [
+      10.36,
+      18.04
+     ],
+     "added": {
+      "before": "",
+      "after": "So a case of cheaper compute creating more demand. But at the same time, an AI agent making a payment isn't automatically demand."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "83a2b4a4bcf6800e00c5": {
+     "from": "265a2e2442950a6873dc",
+     "sentences": [
+      9,
+      11
+     ],
+     "was": [
+      9,
+      10
+     ],
+     "seconds": [
+      11.04,
+      14.5
+     ],
+     "added": {
+      "before": "",
+      "after": "We've seen that story before, and I just want that to be very, very clear."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "7e6362b95140044c5259": {
+     "from": "ae552075525bdb1a8bf9",
+     "sentences": [
+      0,
+      5
+     ],
+     "was": [
+      0,
+      0
+     ],
+     "seconds": [
+      3.94,
+      29.76
+     ],
+     "added": {
+      "before": "",
+      "after": "And they have made it. They're completely established. In this sell -off, 50 % drawdown and only about 10 % of the assets left. That's a really good sign. My favorite thing that you tweet... Is some bullish metric almost daily about how the ETF industry is growing, inflows are magnitudes larger, volumes are increasing, everyone who hated on ETFs are losers and suckers and ETFs are winning."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "04bb1e615e4125f8d521": {
+     "from": "db44c3a11385dc92ae01",
+     "sentences": [
+      11,
+      14
+     ],
+     "was": [
+      11,
+      12
+     ],
+     "seconds": [
+      8.22,
+      17.79
+     ],
+     "added": {
+      "before": "",
+      "after": "It was there. but it wasn't anything close to what we saw in the silver and gold markets, just a much, much, much smaller market, you know, in terms of just size, just pure size."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "2b6dfb8157f2b8f2a43b": {
+     "from": "e31580ecfa18f73188b8",
+     "sentences": [
+      13,
+      17
+     ],
+     "was": [
+      13,
+      13
+     ],
+     "seconds": [
+      4.8,
+      23.7
+     ],
+     "added": {
+      "before": "",
+      "after": "Here is a chart of Bitcoin and the Fed funds rate. We go over the last five years. So we could see the last cycle as well. When the Fed was on hold, actually, and this is another strange coincidence in addition to the coincidence that happened earlier with this officially, if we make a new low, this officially being the longest Bitcoin bear market by one day as we record this."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "a0468c4a2a543bffdc3c": {
+     "from": "04ddf6869c30c1f2c0de",
+     "sentences": [
+      10,
+      12
+     ],
+     "was": [
+      10,
+      10
+     ],
+     "seconds": [
+      6.46,
+      16.28
+     ],
+     "added": {
+      "before": "",
+      "after": "It's like the crowd is overreacting, even though we're actually seeing positive price momentum. And those are the kind of voids and deviations that I think have the most signal around this data."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "8fe4ff5d084bbba5a88c": {
+     "from": "c411d1f7f5019c7c8b29",
+     "sentences": [
+      13,
+      15
+     ],
+     "was": [
+      13,
+      14
+     ],
+     "seconds": [
+      12.96,
+      18.8
+     ],
+     "added": {
+      "before": "",
+      "after": "Do you think that is, again, the AI trade just taking all the excitement or the enthusiasm away from Bitcoin?"
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "e5ac653ed2824dc0eb62": {
+     "from": "bf8890602749f433a069",
+     "sentences": [
+      12,
+      17
+     ],
+     "was": [
+      12,
+      16
+     ],
+     "seconds": [
+      13.18,
+      14.9
+     ],
+     "added": {
+      "before": "",
+      "after": "It's like, no, Fidelity's going to 30."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "8beea4d087cf570d6fe0": {
+     "from": "c673cbed6e8856895628",
+     "sentences": [
+      18,
+      23
+     ],
+     "was": [
+      18,
+      20
+     ],
+     "seconds": [
+      6.43,
+      13.98
+     ],
+     "added": {
+      "before": "",
+      "after": "This is not the area I like to invest in. Year -end market. Santa Rally or more volatility?"
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "25fdccbfafac5735e699": {
+     "from": "7e8ce7d9c50d81d12d5e",
+     "sentences": [
+      8,
+      11
+     ],
+     "was": [
+      8,
+      10
+     ],
+     "seconds": [
+      12.0,
+      14.12
+     ],
+     "added": {
+      "before": "",
+      "after": "And I wish I would have had this tool, and I just didn't."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "b20accc6dceedf88d6bb": {
+     "from": "08b861410f49a911babf",
+     "sentences": [
+      11,
+      17
+     ],
+     "was": [
+      11,
+      12
+     ],
+     "seconds": [
+      4.18,
+      14.56
+     ],
+     "added": {
+      "before": "",
+      "after": "Also, try trying to promote a book in the past week. Two sides of the coin. It's both sides of the coin, but that's okay. You haven't signed it, by the way, but anyway, sure. What do you make in this?"
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    }
+   }
+  },
+  "scorer_waited_s": 0.0,
+  "lock_stop": null,
+  "scorer": {
+   "read": true,
+   "rated_at": "2026-11-16T20:01:19Z",
+   "build": "ledger_20261116_195753",
+   "candidates_generated_at": "2026-11-16T19:58:20+00:00",
+   "model": "gemma3:27b",
+   "kind": "moments",
+   "rubric": "ruling 60: stand-alone only",
+   "scorer_sha": "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53",
+   "threshold": 3.5,
+   "verdicts": 172,
+   "affirmed": 27,
+   "affirmed_on_the_floor": 21,
+   "disagree_with_the_rule": []
+  }
+ },
+ "next_attempt": {
+  "conversation": {
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "published_at": "2026-11-16T22:00:18Z",
+   "expires_at": "2026-11-17T10:00:18Z",
+   "age_h": 2.6,
+   "turns_per_min": 0.0,
+   "unmarked": true,
+   "turns_from": "pp-ingest episode",
+   "rows": 37,
+   "passes": {
+    "spotlight/mine-spot/1": 4,
+    "hook/mine-hook/4": 5,
+    "moment/mine/2": 28
+   },
+   "word_pass_ready": 36,
+   "word_pass_refused": 1,
+   "word_pass_waiting": 0
+  },
+  "newest_upload": {
+   "video_id": "E91shGV-np4",
+   "channel": "Simply Bitcoin",
+   "published_at": "2026-11-16T22:00:18Z",
+   "expires_at": "2026-11-17T10:00:18Z",
+   "age_h": 2.6,
+   "turns_per_min": 0.0,
+   "unmarked": true,
+   "turns_from": "pp-ingest episode",
+   "rows": 37,
+   "passes": {
+    "spotlight/mine-spot/1": 4,
+    "hook/mine-hook/4": 5,
+    "moment/mine/2": 28
+   },
+   "word_pass_ready": 36,
+   "word_pass_refused": 1,
+   "word_pass_waiting": 0
+  },
+  "rule": "the newest upload whose captions do not refuse it (unmarked, or marked with a speaker change; ruling 92 amended: the layout decides per clip) (ruling 95)"
+ },
+ "seconds": 156.5,
+ "usd_estimate": 0.4541,
+ "usd_best_known": 0.0607,
+ "full": {
+  "est": 0.466,
+  "best": 0.0725,
+  "model_s": 141.52,
+  "calls": 9
+ },
+ "code": "3fc790ee+40d379a31df4",
+ "now": "2026-11-17T00:34:33.632565+00:00",
+ "since": "2026-11-13T03:01:09+00:00",
+ "delivered_pins": [
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json",
+   "story_id": "moments-fresh_20261112_050611-37c5b5f5",
+   "approved_at": "2026-11-12T13:43:40+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
+   "story_id": "moments-fresh_20261112_050611-41f29b1f",
+   "approved_at": "2026-11-13T03:01:09+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json",
+   "story_id": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "approved_at": "2026-11-13T05:20:11+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_073738/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_073738-d2657bbe",
+   "approved_at": "2026-11-13T07:53:42+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_183302/MOMENTS_PIN_ATTESTED.json",
+   "story_id": "moments-ledger_20261113_183302-0c68b589",
+   "approved_at": "2026-11-13T19:12:56+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_215708/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_215708-13949b7c",
+   "approved_at": "2026-11-13T22:14:05+00:00",
+   "clips": 3
+  }
+ ],
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "fidelity_verdict": [
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "context_verdict": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "speaker_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "visual_check": [
+   "xai_vision:grok-4.7",
+   "heimdall:qwen/qwen3.8-27b",
+   "heimdall:nvidia/nemotron-3.5-super-vl"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ],
+  "context_verdict:step_a_first": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "context_verdict:step_a_second": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "google:gemini-2.5-pro",
+   "local_judge:gemma3:27b"
+  ],
+  "context_verdict:step_c": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict:hook": [
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "coherence_verdict:joins": [
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "coherence_verdict:clips_alone": [
+   "xai:grok-4.20-0309-reasoning",
+   "google:gemini-2.5-pro"
+  ],
+  "coherence_verdict:coherence": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ]
+ },
+ "inputs": {
+  "rows": 653,
+  "no_word_record": 0,
+  "no_word_record_why": {},
+  "no_word_record_videos": {},
+  "window_records": {
+   "OubcRgk3D-w": [
+    "transcripts/OubcRgk3D-w/windows/4452.790-4557.485.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/1913.526-2025.069.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/579.121-675.872.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/4044.117-4141.776.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2794.920-2895.348.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/0.000-53.390.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/777.782-872.407.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/277.503-375.025.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/622.641-738.304.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/1854.694-1952.898.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/617.015-738.304.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/4396.346-4513.993.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/3994.462-4109.986.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2397.417-2492.968.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2867.723-2964.671.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/818.637-930.337.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/877.355-1025.877.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/1941.678-2041.750.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/4419.940-4513.993.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2716.601-2820.060.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/1984.060-2100.260.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2867.723-2962.599.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/227.741-326.264.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/4936.460-5037.246.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/1361.551-1466.275.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/970.859-1069.460.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2421.259-2518.887.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/227.741-330.780.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2382.040-2487.356.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/4803.603-4932.467.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/3765.300-3890.241.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2356.002-2463.054.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/277.503-379.220.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2885.153-2982.832.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/0.000-64.167.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/4438.745-4536.769.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/4828.976-4925.937.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/979.526-1084.017.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/1284.929-1383.658.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/4682.577-4783.612.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/4928.396-5037.246.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/3968.814-4076.220.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2944.069-3054.724.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/4856.109-4968.492.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/1981.830-2084.094.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/4504.595-4611.114.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/3940.069-4062.479.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/3800.328-3917.452.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/3994.462-4106.940.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/1104.146-1203.198.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2674.718-2790.060.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/777.782-880.910.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/579.121-685.518.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/4590.257-4701.939.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2820.448-2920.059.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/917.588-1042.747.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2013.049-2132.544.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/4627.221-4725.137.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2421.259-2519.770.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2397.417-2496.872.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/1884.506-2003.441.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/1854.694-1966.668.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2495.740-2602.651.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/4020.532-4141.776.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2452.266-2554.317.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2596.595-2704.890.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/823.032-929.445.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/4828.976-4932.467.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/4664.870-4765.175.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/1787.971-1888.976.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/1721.788-1821.789.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/3907.698-4003.387.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/3466.299-3588.275.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/4982.718-5095.073.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/3647.039-3814.718.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/1735.571-1841.794.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/1327.140-1421.083.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/3566.500-3736.968.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/2566.741-2668.574.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/1826.036-1933.327.whisper_words_punct.json",
+    "transcripts/OubcRgk3D-w/windows/171.202-265.881.whisper_words_punct.json"
+   ],
+   "E91shGV-np4": [
+    "transcripts/E91shGV-np4/windows/867.336-970.460.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/645.522-757.492.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/880.460-976.965.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/0.000-52.426.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/878.593-981.001.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/233.350-327.369.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/795.245-897.314.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/941.973-1027.000.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/645.522-752.568.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/585.010-689.240.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/867.336-968.541.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/101.986-197.856.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/624.436-728.369.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/585.010-693.511.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/805.512-903.374.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/925.060-1022.764.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/231.400-327.575.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/807.369-903.374.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/662.626-762.073.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/329.518-426.919.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/97.966-199.284.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/312.383-411.954.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/41.273-143.939.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/678.658-783.957.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/457.460-555.352.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/952.209-1027.000.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/378.890-480.234.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/53.996-150.609.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/852.500-952.304.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/30.662-131.217.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/783.047-879.515.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/774.084-867.431.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/799.670-897.314.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/336.973-438.317.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/306.658-406.350.whisper_words_punct.json",
+    "transcripts/E91shGV-np4/windows/0.000-75.418.whisper_words_punct.json"
+   ],
+   "uAvmynMSVhM": [
+    "transcripts/uAvmynMSVhM/windows/670.816-765.560.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/442.314-547.594.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/1093.023-1161.000.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/463.238-566.367.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/918.684-1028.563.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/452.762-558.075.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/929.721-1028.563.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/788.230-896.595.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/176.266-279.078.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/638.074-744.424.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/794.249-896.595.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/289.834-390.224.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/670.816-768.872.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/442.314-542.710.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/638.074-737.538.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/0.000-97.287.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/575.287-685.233.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/944.689-1050.903.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/20.011-122.189.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/222.088-318.660.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/399.061-493.155.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/304.215-403.431.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/0.000-69.593.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/1073.104-1161.000.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/321.055-417.030.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/761.660-869.998.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/896.700-1002.588.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/744.942-845.708.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/334.602-433.832.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/614.725-709.329.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/396.020-509.296.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/105.146-210.133.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/237.014-332.304.whisper_words_punct.json",
+    "transcripts/uAvmynMSVhM/windows/824.087-923.334.whisper_words_punct.json"
+   ],
+   "oks1ThfeXKM": [
+    "transcripts/oks1ThfeXKM/windows/75.316-172.948.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/438.914-538.751.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/525.344-622.230.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/75.316-182.580.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/71.076-172.948.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/515.608-622.230.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/508.010-603.768.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/562.390-667.758.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/39.514-138.508.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/152.470-248.506.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/67.320-172.948.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/632.815-728.020.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/537.640-635.444.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/638.020-750.250.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/589.962-687.240.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/75.316-183.737.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/106.195-211.240.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/83.009-183.737.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/257.232-356.440.whisper_words_punct.json",
+    "transcripts/oks1ThfeXKM/windows/484.108-586.196.whisper_words_punct.json"
+   ],
+   "WdiF0i925rs": [
+    "transcripts/WdiF0i925rs/windows/2384.310-2480.600.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/0.000-57.482.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1956.344-2056.014.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1502.520-1598.731.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1616.472-1716.108.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/0.000-76.824.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2368.730-2482.195.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2632.300-2727.427.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1812.856-1910.156.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2632.300-2734.743.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2603.740-2710.917.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1616.472-1732.340.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2021.996-2122.543.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2281.874-2379.810.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1574.419-1681.348.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1941.188-2046.299.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1851.015-1944.189.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/3512.619-3626.011.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2368.730-2480.600.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2603.740-2709.863.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/652.065-746.269.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1513.790-1616.062.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/3259.376-3380.380.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/3294.540-3398.007.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/359.136-459.973.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1985.377-2079.150.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/0.000-53.828.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2281.874-2382.629.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/3448.712-3549.060.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2097.520-2213.270.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1035.479-1138.435.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1616.472-1723.374.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/734.108-835.526.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1895.277-1996.115.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/729.300-835.526.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1182.275-1309.697.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/0.000-85.787.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/3664.453-3821.574.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1448.255-1551.817.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1574.419-1673.610.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2240.900-2343.045.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2172.300-2283.060.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/673.740-770.548.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/3320.620-3417.099.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2045.463-2143.233.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/496.580-591.417.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/3580.096-3680.513.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/3594.286-3691.016.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/153.121-251.325.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/3669.311-3821.574.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/269.400-384.063.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1085.281-1202.221.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/3179.820-3292.841.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/661.039-770.548.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2337.830-2435.753.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/0.000-90.268.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2436.608-2539.090.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/3820.864-3928.839.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1693.562-1795.000.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1066.948-1172.229.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/851.033-956.895.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/467.334-571.086.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/372.858-478.011.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/496.580-592.723.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/419.626-524.987.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1082.276-1185.142.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1206.213-1312.003.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1143.026-1251.618.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2083.805-2191.872.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1293.851-1396.551.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2743.005-2843.358.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/189.211-286.188.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/1919.876-2018.391.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2138.609-2262.300.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/285.615-386.165.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/2663.403-2775.645.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/539.205-635.085.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/661.039-778.061.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/829.770-928.031.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/161.374-268.917.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/814.454-912.468.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/769.026-869.555.whisper_words_punct.json",
+    "transcripts/WdiF0i925rs/windows/4.936-103.274.whisper_words_punct.json"
+   ],
+   "KRvh4AcSofA": [
+    "transcripts/KRvh4AcSofA/windows/964.094-1074.748.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4176.783-4271.445.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4171.633-4266.708.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/5945.351-6054.059.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/964.094-1061.900.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/1925.828-2022.173.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/3243.590-3340.797.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/3594.213-3693.156.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2328.029-2422.044.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/6074.810-6180.567.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/5858.870-5956.217.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/3243.590-3364.269.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4033.824-4130.215.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2707.540-2804.228.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/6293.124-6408.078.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/293.233-394.840.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2835.465-2932.582.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/3355.728-3454.679.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4683.763-4784.380.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2328.029-2427.180.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4727.184-4827.589.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/6036.143-6131.021.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/309.153-407.627.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/1893.932-2015.775.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/1254.440-1356.518.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4171.633-4271.445.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4339.090-4450.506.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/1440.116-1535.190.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2905.414-3004.313.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/6240.532-6352.103.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/1909.105-2022.173.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/1126.060-1237.140.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4449.713-4552.486.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2631.646-2732.645.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/996.122-1093.261.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/3243.590-3355.130.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/3442.630-3542.730.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4189.944-4286.391.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2094.316-2206.713.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/1949.320-2051.727.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/1925.828-2026.787.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/1303.088-1395.260.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2556.218-2648.980.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/3730.356-3845.080.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4033.824-4135.692.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/992.296-1093.261.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/6527.997-6622.500.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2804.010-2916.150.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2429.300-2530.905.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/964.094-1067.363.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/720.623-835.050.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/733.911-840.842.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/5886.196-5983.205.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2412.644-2516.480.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2835.465-2936.756.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/293.233-399.084.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/971.960-1067.363.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/5853.900-5960.786.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4829.640-4926.969.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2725.008-2833.989.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/6059.150-6164.810.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/3332.020-3445.658.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/793.314-892.468.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/3442.630-3552.069.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2440.955-2547.118.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/6503.980-6604.154.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/309.153-413.207.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/6185.361-6309.703.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/3765.069-3870.394.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/3299.950-3402.406.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4083.071-4183.941.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/5184.737-5301.194.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/1054.920-1151.590.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/1296.573-1395.260.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/7002.210-7108.562.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/1185.889-1294.150.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4962.734-5064.324.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/7014.200-7117.225.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4385.123-4486.857.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/3985.721-4086.661.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/5696.989-5793.221.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2871.797-2975.588.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/3874.992-3970.477.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/3662.305-3762.523.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/3675.261-3792.803.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/6255.103-6352.103.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/524.860-635.589.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4189.944-4289.615.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2040.366-2139.342.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4024.435-4130.215.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2212.401-2324.740.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/5048.525-5150.550.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2063.242-2182.528.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4929.754-5024.543.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/754.866-848.219.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/1445.190-1541.828.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/509.867-607.672.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4784.547-4881.281.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/3095.985-3201.522.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/1771.800-1870.156.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/3137.439-3240.785.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/947.901-1045.019.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4155.066-4255.737.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/2659.397-2758.427.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4796.854-4901.777.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/6985.030-7086.185.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/1054.920-1154.021.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/4098.724-4198.477.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/331.180-435.613.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/1044.819-1144.856.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/5173.940-5274.661.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/422.462-522.454.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/1528.913-1628.060.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/5696.989-5794.043.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/771.693-875.302.whisper_words_punct.json",
+    "transcripts/KRvh4AcSofA/windows/1316.668-1419.542.whisper_words_punct.json"
+   ],
+   "9EE3F91J1vo": [
+    "transcripts/9EE3F91J1vo/windows/343.334-465.072.whisper_words_punct.json",
+    "transcripts/9EE3F91J1vo/windows/901.651-1001.000.whisper_words_punct.json",
+    "transcripts/9EE3F91J1vo/windows/890.486-1001.000.whisper_words_punct.json",
+    "transcripts/9EE3F91J1vo/windows/528.682-627.555.whisper_words_punct.json",
+    "transcripts/9EE3F91J1vo/windows/309.690-412.258.whisper_words_punct.json",
+    "transcripts/9EE3F91J1vo/windows/358.512-471.327.whisper_words_punct.json",
+    "transcripts/9EE3F91J1vo/windows/816.508-910.528.whisper_words_punct.json",
+    "transcripts/9EE3F91J1vo/windows/582.428-695.228.whisper_words_punct.json",
+    "transcripts/9EE3F91J1vo/windows/915.208-1001.000.whisper_words_punct.json",
+    "transcripts/9EE3F91J1vo/windows/221.210-331.062.whisper_words_punct.json",
+    "transcripts/9EE3F91J1vo/windows/869.981-977.477.whisper_words_punct.json",
+    "transcripts/9EE3F91J1vo/windows/929.357-1001.000.whisper_words_punct.json",
+    "transcripts/9EE3F91J1vo/windows/617.336-727.053.whisper_words_punct.json",
+    "transcripts/9EE3F91J1vo/windows/317.168-414.395.whisper_words_punct.json",
+    "transcripts/9EE3F91J1vo/windows/700.821-813.220.whisper_words_punct.json",
+    "transcripts/9EE3F91J1vo/windows/944.980-1001.000.whisper_words_punct.json"
+   ],
+   "H5bi8hBMDTw": [
+    "transcripts/H5bi8hBMDTw/windows/16.055-115.610.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/215.501-313.085.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/641.221-743.693.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/687.250-796.012.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/584.963-681.100.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/697.058-790.379.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/215.501-314.410.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/405.899-514.140.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/824.024-931.252.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/877.319-974.000.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/584.963-693.502.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/673.350-777.180.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/35.846-141.540.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/898.753-974.000.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/478.730-581.917.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/783.980-892.280.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/113.340-219.579.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/145.561-246.872.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/195.748-305.427.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/43.724-143.908.whisper_words_punct.json",
+    "transcripts/H5bi8hBMDTw/windows/882.650-974.000.whisper_words_punct.json"
+   ],
+   "f0NnJM63Ffc": [
+    "transcripts/f0NnJM63Ffc/windows/441.073-535.478.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/2022.618-2124.324.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/668.821-765.738.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/747.020-843.371.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/2158.962-2259.745.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/1981.930-2081.917.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/1981.930-2078.085.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/504.300-619.743.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/2022.618-2126.553.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/2787.686-2891.518.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/2952.313-3052.503.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/1699.780-1808.754.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/206.219-310.314.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/0.000-62.544.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/504.300-606.993.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/2975.622-3077.494.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/1156.897-1258.661.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/1699.780-1794.280.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/1221.112-1323.885.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/2211.500-2309.575.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/1979.317-2081.917.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/831.574-934.091.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/1364.100-1465.956.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/842.593-936.124.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/1041.401-1137.240.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/2207.236-2301.435.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/1792.869-1887.926.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/2082.667-2187.196.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/2625.716-2718.580.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/747.020-848.228.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/2783.786-2877.623.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/1976.530-2069.259.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/196.238-293.799.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/1693.484-1792.317.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/2930.810-3029.091.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/717.370-824.011.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/2660.309-2761.197.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/1376.020-1476.755.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/1740.240-1834.248.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/1131.114-1234.936.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/2328.442-2436.280.whisper_words_punct.json",
+    "transcripts/f0NnJM63Ffc/windows/1577.430-1676.609.whisper_words_punct.json"
+   ],
+   "stg5ui9sPos": [
+    "transcripts/stg5ui9sPos/windows/390.980-485.309.whisper_words_punct.json",
+    "transcripts/stg5ui9sPos/windows/384.591-480.980.whisper_words_punct.json",
+    "transcripts/stg5ui9sPos/windows/370.232-480.980.whisper_words_punct.json",
+    "transcripts/stg5ui9sPos/windows/167.350-271.051.whisper_words_punct.json",
+    "transcripts/stg5ui9sPos/windows/449.438-557.332.whisper_words_punct.json",
+    "transcripts/stg5ui9sPos/windows/42.140-144.857.whisper_words_punct.json",
+    "transcripts/stg5ui9sPos/windows/314.501-408.951.whisper_words_punct.json",
+    "transcripts/stg5ui9sPos/windows/292.624-391.598.whisper_words_punct.json",
+    "transcripts/stg5ui9sPos/windows/0.000-95.806.whisper_words_punct.json",
+    "transcripts/stg5ui9sPos/windows/267.059-364.738.whisper_words_punct.json",
+    "transcripts/stg5ui9sPos/windows/214.112-315.450.whisper_words_punct.json",
+    "transcripts/stg5ui9sPos/windows/34.022-130.372.whisper_words_punct.json",
+    "transcripts/stg5ui9sPos/windows/113.439-208.358.whisper_words_punct.json",
+    "transcripts/stg5ui9sPos/windows/183.283-285.220.whisper_words_punct.json"
+   ],
+   "4pAa6COklAY": [
+    "transcripts/4pAa6COklAY/windows/593.508-690.547.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/345.441-488.816.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/872.333-967.260.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/1237.957-1340.772.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/1108.600-1210.188.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/1089.126-1200.954.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/1041.700-1147.577.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/1263.709-1374.926.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/408.290-506.614.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/1263.709-1375.339.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/872.333-975.965.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/1285.398-1380.941.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/863.020-962.266.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/1237.957-1347.274.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/774.679-873.639.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/671.653-767.363.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/704.870-801.632.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/1263.709-1361.025.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/821.402-921.772.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/1127.793-1227.450.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/747.798-847.352.whisper_words_punct.json",
+    "transcripts/4pAa6COklAY/windows/0.000-70.411.whisper_words_punct.json"
+   ],
+   "f-ugdpPGtf8": [
+    "transcripts/f-ugdpPGtf8/windows/239.969-341.560.whisper_words_punct.json",
+    "transcripts/f-ugdpPGtf8/windows/162.970-259.132.whisper_words_punct.json",
+    "transcripts/f-ugdpPGtf8/windows/288.873-388.335.whisper_words_punct.json",
+    "transcripts/f-ugdpPGtf8/windows/88.732-182.835.whisper_words_punct.json",
+    "transcripts/f-ugdpPGtf8/windows/162.970-261.729.whisper_words_punct.json",
+    "transcripts/f-ugdpPGtf8/windows/214.433-308.620.whisper_words_punct.json",
+    "transcripts/f-ugdpPGtf8/windows/0.000-100.845.whisper_words_punct.json",
+    "transcripts/f-ugdpPGtf8/windows/216.999-318.764.whisper_words_punct.json",
+    "transcripts/f-ugdpPGtf8/windows/127.372-225.990.whisper_words_punct.json",
+    "transcripts/f-ugdpPGtf8/windows/0.000-96.507.whisper_words_punct.json",
+    "transcripts/f-ugdpPGtf8/windows/24.680-134.790.whisper_words_punct.json"
+   ],
+   "9lVSYriKja4": [
+    "transcripts/9lVSYriKja4/windows/1198.200-1297.433.whisper_words_punct.json",
+    "transcripts/9lVSYriKja4/windows/1215.897-1314.628.whisper_words_punct.json",
+    "transcripts/9lVSYriKja4/windows/0.000-49.695.whisper_words_punct.json",
+    "transcripts/9lVSYriKja4/windows/1173.062-1288.144.whisper_words_punct.json",
+    "transcripts/9lVSYriKja4/windows/27.498-136.170.whisper_words_punct.json",
+    "transcripts/9lVSYriKja4/windows/386.555-490.112.whisper_words_punct.json",
+    "transcripts/9lVSYriKja4/windows/0.000-52.698.whisper_words_punct.json",
+    "transcripts/9lVSYriKja4/windows/1128.341-1231.315.whisper_words_punct.json",
+    "transcripts/9lVSYriKja4/windows/1100.168-1201.437.whisper_words_punct.json",
+    "transcripts/9lVSYriKja4/windows/1242.338-1341.242.whisper_words_punct.json",
+    "transcripts/9lVSYriKja4/windows/543.311-642.390.whisper_words_punct.json",
+    "transcripts/9lVSYriKja4/windows/1287.610-1385.101.whisper_words_punct.json",
+    "transcripts/9lVSYriKja4/windows/20.260-117.435.whisper_words_punct.json",
+    "transcripts/9lVSYriKja4/windows/1636.779-1718.000.whisper_words_punct.json"
+   ],
+   "lcYYuefFMQA": [
+    "transcripts/lcYYuefFMQA/windows/0.000-51.000.whisper_words_punct.json",
+    "transcripts/lcYYuefFMQA/windows/0.000-51.000.whisper_words_punct.json"
+   ],
+   "m7ygyYMe3mg": [
+    "transcripts/m7ygyYMe3mg/windows/1399.728-1494.624.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/42.760-152.540.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/0.000-97.023.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/1612.054-1716.049.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/16.744-119.422.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/1654.492-1737.000.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/1217.348-1332.447.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/1309.094-1417.427.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/1249.699-1346.705.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/435.416-533.740.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/1360.613-1468.638.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/1435.210-1536.746.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/776.862-870.520.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/156.127-263.051.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/1586.551-1701.986.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/1334.476-1442.852.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/62.619-163.126.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/136.426-238.003.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/519.795-636.383.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/1555.810-1669.895.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/279.129-382.420.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/1058.660-1156.741.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/1060.509-1156.741.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/1665.620-1737.000.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/7.089-106.671.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/384.388-487.770.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/264.580-360.875.whisper_words_punct.json",
+    "transcripts/m7ygyYMe3mg/windows/320.230-428.640.whisper_words_punct.json"
+   ],
+   "DO6iIRbccIg": [
+    "transcripts/DO6iIRbccIg/windows/0.000-66.886.whisper_words_punct.json",
+    "transcripts/DO6iIRbccIg/windows/0.000-87.579.whisper_words_punct.json",
+    "transcripts/DO6iIRbccIg/windows/0.000-53.891.whisper_words_punct.json",
+    "transcripts/DO6iIRbccIg/windows/30.305-125.500.whisper_words_punct.json",
+    "transcripts/DO6iIRbccIg/windows/90.140-186.952.whisper_words_punct.json"
+   ],
+   "2oY7TU6CPok": [
+    "transcripts/2oY7TU6CPok/windows/9.350-106.551.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/2534.860-2628.984.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/63.843-157.829.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/2454.030-2559.213.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/371.372-471.740.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/2515.804-2624.860.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/458.170-553.380.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/3730.007-3834.075.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/3819.290-3919.525.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/2505.582-2601.631.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/3791.914-3891.532.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/2399.710-2494.642.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/458.170-555.480.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/1988.650-2091.056.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/1956.057-2057.403.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/3064.756-3164.001.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/2276.630-2387.909.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/413.692-510.754.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/2164.441-2262.835.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/3056.253-3164.001.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/2144.876-2244.162.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/2641.075-2733.361.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/356.621-454.848.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/2168.994-2266.335.whisper_words_punct.json",
+    "transcripts/2oY7TU6CPok/windows/2920.026-3012.861.whisper_words_punct.json"
+   ],
+   "vh17bWcjDQM": [
+    "transcripts/vh17bWcjDQM/windows/201.635-282.000.whisper_words_punct.json",
+    "transcripts/vh17bWcjDQM/windows/170.360-281.773.whisper_words_punct.json",
+    "transcripts/vh17bWcjDQM/windows/216.377-282.000.whisper_words_punct.json",
+    "transcripts/vh17bWcjDQM/windows/8.043-102.646.whisper_words_punct.json",
+    "transcripts/vh17bWcjDQM/windows/170.360-282.000.whisper_words_punct.json",
+    "transcripts/vh17bWcjDQM/windows/176.675-282.000.whisper_words_punct.json",
+    "transcripts/vh17bWcjDQM/windows/124.657-221.870.whisper_words_punct.json",
+    "transcripts/vh17bWcjDQM/windows/2.893-102.646.whisper_words_punct.json",
+    "transcripts/vh17bWcjDQM/windows/0.000-86.997.whisper_words_punct.json"
+   ],
+   "r5uhv8AM5MM": [
+    "transcripts/r5uhv8AM5MM/windows/2092.330-2188.091.whisper_words_punct.json",
+    "transcripts/r5uhv8AM5MM/windows/2134.956-2250.453.whisper_words_punct.json",
+    "transcripts/r5uhv8AM5MM/windows/2146.897-2250.453.whisper_words_punct.json",
+    "transcripts/r5uhv8AM5MM/windows/2102.824-2197.585.whisper_words_punct.json"
+   ],
+   "jKtW40YaZLQ": [
+    "transcripts/jKtW40YaZLQ/windows/1393.871-1492.024.whisper_words_punct.json"
+   ]
+  },
+  "window_waiting": 0,
+  "window_refused": 69,
+  "window_refused_videos": {
+   "OubcRgk3D-w": 10,
+   "E91shGV-np4": 1,
+   "WdiF0i925rs": 16,
+   "KRvh4AcSofA": 9,
+   "9EE3F91J1vo": 2,
+   "H5bi8hBMDTw": 1,
+   "f0NnJM63Ffc": 2,
+   "4pAa6COklAY": 10,
+   "9lVSYriKja4": 2,
+   "r3XQKbqn6S0": 7,
+   "m7ygyYMe3mg": 1,
+   "2oY7TU6CPok": 6,
+   "vh17bWcjDQM": 2
+  },
+  "window_failed": 0,
+  "window_passed_over": {},
+  "no_caption_context": {},
+  "fallbacks": {},
+  "channel_conflict": {},
+  "not_anchored": {
+   "501b34f37245319e35a4": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1377-1451 s)",
+   "7030a9a1dbdf442a6a9a": "the row's text does not anchor in the word record (sentence_law.anchor, searched 4871-4953 s)",
+   "c72bf07c828321cc7143": "snapped outward to whole sentences (0 word(s) before the anchored text, 63 after) it runs 46.05 s > 35 s (ruling 32 with the 10:48 ruling (2): the spotlight's clip ceiling)",
+   "9b162056ace5a67073dc": "snapped outward to whole sentences (40 word(s) before the anchored text, 0 after) it runs 92.34 s > 35 s (ruling 32 with the 10:48 ruling (2): the spotlight's clip ceiling)",
+   "4e545d4634f68937cf63": "the row's text does not anchor in the word record (sentence_law.anchor, searched 803-882 s)",
+   "b4a27e61d9db67a93d70": "the row's text does not anchor in the word record (sentence_law.anchor, searched 414-478 s)",
+   "35336427fa52094d4990": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2619-2696 s)",
+   "d22748608f8ea3e58d98": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1709-1780 s)",
+   "cab06a596b3f73178b1b": "snapped outward to whole sentences (0 word(s) before the anchored text, 21 after) it runs 38.38 s > 35 s (ruling 32 with the 10:48 ruling (2): the spotlight's clip ceiling)"
+  },
+  "malformed": {},
+  "duplicates": 120,
+  "duplicates_of": {
+   "8518332306017f31a423": "75573eb5a05107d0a0fd",
+   "869b523bc95a1f07ca9b": "8f46d8a9872767160863",
+   "f27eb0ce8b17f24f6db2": "25bf1c849260af5c14eb",
+   "8bed635c7ed7def779a3": "182a997685a588f6ef30",
+   "1995f3f1ca7228a93a46": "4356727a433c744dcdd6",
+   "9cc196dfd33d28999284": "0bec554d15a035f88e8c",
+   "e118644d735c4a74640b": "995e4d117740c967b63d",
+   "1c5d26ad5aeb6061b475": "436c45c8f27523e22f71",
+   "9fa4e17d9f76e21c8597": "e7a29eed73d5ba799dab",
+   "dc78079be624190784e6": "2eed6ee78b352b4edf09",
+   "f9e0a14c3b5d732cd7f0": "e5907e9a457e60f55606",
+   "94975dd4862004b832d7": "33983aadc13b0b7f0a8c",
+   "b164d264d1d7570d5ace": "2a985f5316866ae480ad",
+   "dfaa231dcb2b1016a617": "40c74ac96a7717d5bec2",
+   "16dbe6cf2b8d5a6e7b01": "74be0ce09ae1354921e0",
+   "355ddfedddf9ba46822d": "1dd37efe807af972b3e3",
+   "44ea602df0c4bbc4ab63": "778ae8e2a4bd90f2b5db",
+   "a448ed044e8c7f52e59a": "9c5948255f70ce2567c3",
+   "e3f6968c66057609c34b": "3fdcb636bd80211cee1a",
+   "31251098428c7d36ce17": "995e4d117740c967b63d",
+   "9ffff5b2d4abad1b8dd1": "c49c35b3b40fd9c1f67e",
+   "dfc80dcfa4f856925deb": "d77436da25b5b1d0ece3",
+   "f8064de0f09b0f190193": "c49c35b3b40fd9c1f67e",
+   "c60a297ea536c921135a": "f220030ac843c6d75180",
+   "7ce8bb1735bec6dfc7ef": "55de3924cf16d4cb86be",
+   "f2b10e57d8d0d63b695c": "dd2a8e39416f70afd574",
+   "7582b3177a4d934e25e7": "d77436da25b5b1d0ece3",
+   "202323e5757db26def2b": "310a3328cf7a1fa69190",
+   "62886bd56179431cccde": "55de3924cf16d4cb86be",
+   "fe0d034220a099558514": "70f163fee59e5a16cfca",
+   "13357c49ae560fa1a384": "0ce72b511ad50849fd93",
+   "4dbe3e018f1da70421f9": "f57ce6aeb1531e5996a4",
+   "92c74ce547e9d0e7c45c": "b2ba7d54936de88c5a23",
+   "98da66fc90d3e270280e": "0ce72b511ad50849fd93",
+   "d24de452dda90a09a54d": "2813f9496a71269a9e11",
+   "8c233ec8a71236167ad5": "68cbc226358f42310866",
+   "d263b9f3e5fc8500f91e": "68cbc226358f42310866",
+   "2246b842b2a059615c66": "79f06502b9ffbb5d32cf",
+   "36ac0273789c33f020ff": "68cbc226358f42310866",
+   "9c4cca72d03d3682c367": "68cbc226358f42310866",
+   "f6aa34ef0b1919567257": "91b966469126bf2deaf5",
+   "332550f1fad1602ee0d7": "001f9b0e620b8a583881",
+   "80cfd2d0a3b475b0210a": "9779d3bbcf16686ba46c",
+   "d2ef3112f3c27914b78d": "91b966469126bf2deaf5",
+   "985544b5ed146f569d36": "47bfcec710b525c2b926",
+   "a1b4196076e681bf9546": "99e978dd1b3c72e40b21",
+   "0cc134d78fc1360069c7": "9779d3bbcf16686ba46c",
+   "6218910c586fe5550f8f": "18fa2fbc0bac518e5980",
+   "970cbaa570b444182ca8": "9f0e52adfea1da219df8",
+   "384601100ba87aaa35ce": "7b61f93b32b3a5cbdb32",
+   "997647664602157bcf3d": "5772e6dcdb6118af2394",
+   "b9c5f4ac31e2ac3edf87": "74f60d1a229affe109d7",
+   "94acffb74b1362b92101": "bd54f8dd90ddfb9d82c5",
+   "da80fa56f10e2608e5f9": "4a71d24f5cfa59e6a8e9",
+   "e7f4b86db3c696584e10": "6bf4852c03ce7462ba59",
+   "1d2ed166100e5daddbaf": "ca1a6d60bcbe9f1d5886",
+   "e727ca4fea8d8e9a84f0": "48a0788bd7c381376dbc",
+   "765286839e1b811e9c27": "5772e6dcdb6118af2394",
+   "624880c8b932ef2f8c05": "a6a3f16111feeb8de7ed",
+   "8b29a5a7873f3bc92886": "08d6e25602b94dbb8b1b",
+   "789e0b3088a3efa2905e": "2929a5807a0e6b05ccee",
+   "f5d810a1271b98251060": "881987bb8b4b4615f86a",
+   "92dccce2ac778e7bec84": "6bcc241092404d0a544c",
+   "e48bb993fe785eeabcc0": "08d6e25602b94dbb8b1b",
+   "29e4167046aeecc6918d": "6bcc241092404d0a544c",
+   "62aff97433e90597e0a6": "bf40f19ffc14c1bad9cb",
+   "6977d5eb87bcca916da0": "de9286df1dfff76f6a0a",
+   "9cdab2eea3ccaeccae1f": "a6a3f16111feeb8de7ed",
+   "bbd1de27e6456f9c3ced": "b96daf3ab96ed28b867a",
+   "ee2e88b6611f1f6391a5": "1c78b1167a5baba4b5fd",
+   "fd4392c9e69ae3c69a7e": "fd7ed9d575d1566266a5",
+   "12c911d4bb333f6bf198": "a6a3f16111feeb8de7ed",
+   "20cb2238d2bdee931903": "4f99ef3aa7f2b00d0cf1",
+   "54ba1895abed501446ce": "2aba582510f35752f272",
+   "7ffff08480be369cf645": "f532bfeec387eb5fb28e",
+   "a9bcce2242d75b18a62b": "c97a078c50185fbecc08",
+   "0546e5cf05fff0aef79b": "5541343a437dc150a8c9",
+   "c149ef5a323fa4fe319b": "0bf24d64269a2ab71642",
+   "95d647d80873abc0198e": "81e4cb47d856c04e72d9",
+   "aa58817ac863d103f492": "009d706f81e279956b54",
+   "be7f3187a3a516c450b1": "bf40f19ffc14c1bad9cb",
+   "a13f9251e5df48915bde": "016222691b798dfe2f59",
+   "39ad9ddb9c71b8471eee": "36ffc14951fa3235eaf6",
+   "de104a45b4f7edff4c38": "cc4ef394e367edde8f67",
+   "54b1c2cd7b904cae75da": "d48abe28eb2c4a869b2b",
+   "25e22f45d9abc2dd93a5": "2cff1963090a715d1cbb",
+   "ab75537e574933a0b3c0": "ba92591ac379fcd24513",
+   "c8e3e0637d0b11d4413e": "b98dc6b13418ee5f01c9",
+   "5048dae9df465395df0a": "86a90e09ceb39daa10fc",
+   "65fc925412ca1b6fc37f": "e1fa806335bdd6ebb8f0",
+   "ca4dc5e517be40c4498c": "bfce66421bac5b6f3278",
+   "c245d21c36fd1cb42839": "e1fa806335bdd6ebb8f0",
+   "7bd4eb8664ca23794d90": "51ed3cb5e6ad4cffd3ac",
+   "228fa5ef26dd6b9c1514": "5754d3176adbff187425",
+   "1753bf4d6c514468b409": "e2c15c212bae07b1a64b",
+   "3dee07fd881cbf71c116": "6f3c979235a1cbc0f86a",
+   "7f4271d23b5be566d00a": "51ed3cb5e6ad4cffd3ac",
+   "e23571ff263d40ffbfae": "8e11de982d66e53e6104",
+   "12b8768a9ef84552bde8": "fd6b487cf473182b110b",
+   "99f049bfcee9f55b1b2c": "6f3c979235a1cbc0f86a",
+   "01636b3a9b1f87a30430": "a7ebfdb6029967db424e",
+   "911d37dc1acacc0de91f": "59f45d1024ea6cf5a3b0",
+   "396428f0169f54870b5d": "c24af2bb93754af5b084",
+   "8f0011c83e60be8ec94d": "99b8cb0e63e270a047c5",
+   "cf89db5863d29f81181e": "f2abe296b2c621a7b6b7",
+   "81acea7f4e333bcd5866": "c24af2bb93754af5b084",
+   "23eba556bdfa109777f4": "7c7246fceae5eda3de9f",
+   "fb912533c1768d79d3db": "c1255b63c177156c465e",
+   "c2c2ec580470cc6feaaf": "79422da1ae7c7f11c44e",
+   "c4623577555f35c9315a": "9c3d30d9a3ebdcd2f492",
+   "66e576fa65808a820a39": "c2c67d219240abd93dab",
+   "963a5581943752c771db": "2ea346c40cd23592bafe",
+   "fb83b8105a0cd6781d43": "6e712de5ba8c85511209",
+   "0fef75fae5ebcafd7fe2": "62197f9ce99bd8ef9ba1",
+   "df836abb338a6cad30b0": "c242afb8eb4e3b9dc298",
+   "0c3687fbcbf10aac9bc7": "7654a3d47ad41b3634a2",
+   "12fa24a372e706228285": "949f449ff1557883d65c",
+   "76740007bce2670808fb": "949f449ff1557883d65c",
+   "24da300cb0e2eb5d64dd": "3841bfedb9cf1e2cefea",
+   "0d641ab856ed0aacf5d5": "db8dff5a9b2ba47b222d"
+  },
+  "moments": 455,
+  "videos": 20,
+  "sources": 455,
+  "word_records": {},
+  "word_pass": {
+   "rows": 3177,
+   "unreadable": 0,
+   "ready": 2529,
+   "not_ready": 318,
+   "failed": 0,
+   "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl",
+   "refused": [
+    "00601fe81bcbe8b6bdf8",
+    "0102d1f81a005ffd1860",
+    "015a0e1d0ca2b710548d",
+    "025b3828d214c7c2ce4b",
+    "047da119491355dbc5e1",
+    "05173845dea924fc0c07",
+    "05f06153c42d43c43ed7",
+    "05ff016beac936e4e409",
+    "076730439cae2cfa8c7e",
+    "08ccabe3e2c427838e15",
+    "0988da65e6ad9ba87459",
+    "0b1ed433879e3d7f844a",
+    "0ccade189163405b089b",
+    "0fad832055924851251d",
+    "0fd686f1fe79b631e91c",
+    "10d73f6379c4f91815c0",
+    "12bf31ff9e5404d7b5d9",
+    "13ad88ccef6e718fbb28",
+    "13b85894cf59bd96ddba",
+    "14f13f65d2f2458ea1ac",
+    "1525a9e1dd8dc5ac4a9e",
+    "16f275eb3464b67dfa9b",
+    "18ced5f9e7202e133319",
+    "19fc961efb1e8fbd0575",
+    "1a880c6d462d151ebe70",
+    "1ab9ae718a7e550e9ce1",
+    "1b33a31c38a045a7a216",
+    "1b9902d0b3f9690e9ddb",
+    "1c63a7925cf2c33b54ac",
+    "1d1556daed04fce39e7d",
+    "1d822675be04768944b1",
+    "1d828f294728facf05fd",
+    "1db6d7c6a3e2ba98859a",
+    "1e14acb61ae2fcedf1f6",
+    "1e9d5cb149e2d113459d",
+    "1f3444cb0463741133cd",
+    "1f3f2c2ea653f69353d5",
+    "20002de2ec0f6b521fce",
+    "2167cf6bfe8911d08707",
+    "217bd00fcf8c0665e0f6",
+    "23703f34fbd40d943e41",
+    "23fceca7029b9948e3f9",
+    "2491e006216c9a1b467e",
+    "24a6dc284d02a3aeae08",
+    "24f1856c6fcf1b6c1d95",
+    "2550f3c54cec7cd95c48",
+    "25f101de6a018fb2f202",
+    "2887f8f9b00e38e79cb3",
+    "29740fd849b26be71c4d",
+    "2c6b2f1bcfc96f70f39e",
+    "2c884616bf8c91a24180",
+    "2d89ae77d3305643e7eb",
+    "2db14eabaf98defccba0",
+    "2e5c3ff4488c946c1320",
+    "32a44ea8013cb6d85366",
+    "33cf7bbd673f26f307cb",
+    "33d2a783068012cbff56",
+    "33ec88880d3a99e3d97c",
+    "340ea3f3cede49ef6bbe",
+    "347495ce7e4a78ef23c5",
+    "34fd75ac6e40d43c9f5b",
+    "351d555f7879d8c870e9",
+    "3548c352a9e67f331437",
+    "36e7ba4c6476b5cd2b19",
+    "375fb72bed43ccc47f6a",
+    "3798191e55603311683a",
+    "3865d50fa088c050f8e8",
+    "392018ca3e9082955ab9",
+    "394e144a00767241b093",
+    "3c52354fdf5fdb75de2e",
+    "3dabf36517ab411803a2",
+    "3dc85eabd329842ba14f",
+    "3e2d15a2a7244d9b7e6e",
+    "3e5706beb5c33dfb0691",
+    "3e6697e0b45a89ec82e5",
+    "3ecea4247f7da8cf3d83",
+    "3f1d49136a47972f8bcd",
+    "4055cbb4c51cd6d6bcbd",
+    "41699e0367ea2c417340",
+    "424f1e6bbc6e801dd72d",
+    "4347359c0c00f6d49fa3",
+    "43be163f3e361a815a24",
+    "43f84b34a660b711da2c",
+    "44dd6db2f702c42702af",
+    "474b8ee37037650dc1ef",
+    "483155d278ba97157e1a",
+    "48643efcbfe1be04f46a",
+    "492cf0bcaa2d7db42345",
+    "49b321f0093d9204857e",
+    "4a0ae7b99a7bfc3f04ab",
+    "4a0cafc02654a834b273",
+    "4a15ecc759a9b332f3cc",
+    "4a54d7ff96a229541048",
+    "4a5ca4087ab6da856227",
+    "4ab2659efc97def0153c",
+    "4d66c09fb18c0f0d1a7f",
+    "4dbb2318181aa9d907d5",
+    "4f33bb61466a820e74b6",
+    "4fef00cdc68d2cea9dce",
+    "51c7a41fd9d5fecb71ee",
+    "51d2f50c2de0ae56438b",
+    "51deefb0c40e66f737f0",
+    "52630ce456af6791baa3",
+    "52bf579156a21ee08c0c",
+    "5416d89f219e62bd06ad",
+    "55e3ff1057a3eba68b18",
+    "5635a7ccc1eeefa5f824",
+    "567fcb45382761da0c9a",
+    "568275feb72658a6dbdb",
+    "56ee676b2e04cecd2ff9",
+    "58d0bb08a6214d66be5c",
+    "5921dd29a7e5bab16da9",
+    "59c3b29a851601177cc6",
+    "59e200f0478f93b88c29",
+    "5b6c5854d2d3c20f45ce",
+    "5ba6ac646e56f4f33655",
+    "5bbb7f44bfcf00fb9e66",
+    "5dd3b1ef91e32e45a17c",
+    "5f55d9b82c8e0209b446",
+    "5f56b663cc615eff5a7e",
+    "5fbf59f5bf383722159a",
+    "5fc35947f63b3c736dff",
+    "604c84ac1786fa09f5d7",
+    "6053de4046f31dfeb192",
+    "60690bc4745487e92f5e",
+    "6083abea1edc39efdcb1",
+    "614addd0ad90b6162f0e",
+    "614ba58f79c05cd204ec",
+    "618564547f3facb2460a",
+    "62ebbfe9d62024b9bc7f",
+    "62fe203a548cffa4b93e",
+    "62fe58051dd488ff3c69",
+    "63b87cce3ff62655d3e2",
+    "6413e07eaadfe6042357",
+    "64aac6eeaaab3cbfbe41",
+    "65e288d993ba8c2bbb68",
+    "660166f273ae0d1a64e1",
+    "66ebabc31f5b458a50ab",
+    "675e804178f2e3a3ce9e",
+    "6ad656c7b6288ddb6df5",
+    "6b42533b239f3c5764aa",
+    "6ba21c8bd8cf2f43a2f8",
+    "6ba5399a3722dc217b76",
+    "6be836e0073e86498c88",
+    "6beb95b22a1035ea18c3",
+    "6c546e56ac6c8220787b",
+    "6e56cd660d5f1f13efa2",
+    "6e7ab608a4e7c258e2e7",
+    "70722b0dc2fba88c0cf6",
+    "71187b79f44762f56b8a",
+    "73c3c2582a5c317c40db",
+    "75c9da24ec3764b3e8d1",
+    "76a923fa0e59af21ea8b",
+    "7a19e7f67f89e5b6977c",
+    "7b6d44057f6032ca54a6",
+    "7c67f93575aef43039cf",
+    "7d5660ea1980d860012d",
+    "7e3ab76a058f8f65f601",
+    "7f326d4b6532a01fcf63",
+    "8000945a3e7cd613ea17",
+    "800571e0d16a7f42c74c",
+    "8051a1eaf06f56d3702b",
+    "80908d443a10add30856",
+    "81512f03491bb9826032",
+    "81b26a23dd6326fcbd60",
+    "83775cd2df98be73a317",
+    "84033134a0eeaa1b2ae6",
+    "840a7091d2afea2c41e1",
+    "87a1ba949cd37f8e8301",
+    "887ae106cf8f6cc4b94e",
+    "8900aa8b374479a90cab",
+    "893a999def3edc8f1a0a",
+    "8972dfeff70fc8c02f48",
+    "8b92e4730cf015fce360",
+    "8b99d7511f8b842627ab",
+    "8d03475ba509812b767c",
+    "8d244d9fdae458f0471c",
+    "8e9b32533086f2f179f4",
+    "90f44621c4eafaf5c278",
+    "90fc17206ee1f99ec636",
+    "951bf612e52c9073d22a",
+    "954c0a2d3b0133d2341d",
+    "95d38b3585c61b1d9906",
+    "95df7af9f01ddf6a6644",
+    "96b4f9b83647bbc4ec73",
+    "96c79a7fc62a364b2b9a",
+    "96ff2e079cd464fd5308",
+    "99e3707fcca37519d07c",
+    "9a9bb0a9a44b49bbe8ab",
+    "9d3796742a2e1cd10eb8",
+    "9e6ca1765f0a032267b5",
+    "9f0450933b685f1974eb",
+    "9f8c5369f904e81221cb",
+    "9f8d835236860966db8f",
+    "9fd5a65c0dadc2ec40eb",
+    "a024ead246198d7e98ad",
+    "a045e6e7ddf843c49b28",
+    "a102673e5fad3240111e",
+    "a1e2d91d323a57b5de29",
+    "a1ff1a32efaf79f786b8",
+    "a2541ef0353d99d8a040",
+    "a47b2466e5199dce299c",
+    "a512b18a7baa3e1212d2",
+    "a6998dd7b0cece708bb9",
+    "a8336e318c7d6b48b22b",
+    "a845cadb35859cf15ef1",
+    "a888f8fc863dbd989557",
+    "a89f2c1bb0017a6a9d45",
+    "a8be7f45901ddd76b721",
+    "a8e7f8bb365c6b9f77e3",
+    "a9dbe0cc18738b4522bd",
+    "aa32080462e3581166d3",
+    "aa743024037fa80ee16b",
+    "aaf098e3675b65cccbfe",
+    "aaffb41344d5775216f1",
+    "ae1a0d498d46de7a3ea8",
+    "af5ae28633a247b27017",
+    "affa796d1b415771a447",
+    "b0b48928b91bfd8e1913",
+    "b1954c33981fe961cf20",
+    "b30efa3bedc93432e865",
+    "b41f33c81cfdfc1ddf59",
+    "b4272eb53d7c0a4e5dd6",
+    "b507e421f01aac805570",
+    "b5112fbb7db1bddc16d9",
+    "b55b68c8fc8d7bbbfd23",
+    "b58692089a253d8fe05c",
+    "b6b983e3b060dbe5a29e",
+    "b7f4483d2f3aaf3cb9e1",
+    "b880544703c2731ecb51",
+    "b8c72b542da8350c3005",
+    "ba635975783d3d2cccc3",
+    "bbb99781ef3bb1f4119c",
+    "bbe1c4f976e02940651c",
+    "bc33ae9592be1432d8f1",
+    "bc342d3ceb4f22890afa",
+    "be81c441e226b3261420",
+    "c07c030254c41853ceef",
+    "c0b78959ef676493103a",
+    "c0c0c53384f0d42c6d3a",
+    "c11c107bdf8c481cfde9",
+    "c125e2f11616d0ece0d3",
+    "c1753585f3e4300cc38a",
+    "c3fab28b11b5115488bd",
+    "c41c5ce4ef32380f9fe6",
+    "c5406490975fad7b6c06",
+    "c63aa04ace7972db02d9",
+    "c6a876566239b5e90c63",
+    "cacb80cfd91ecb5444b3",
+    "cbcf473d2f4130dc041a",
+    "cc131c64eec420cbf46b",
+    "ceb401a3658c6d72104f",
+    "cf2df82365c0b1cc3b87",
+    "cf56a1e9574e37a923fc",
+    "d137488a51fd37dc4e30",
+    "d19be57ae98c95784c75",
+    "d1c40fb727b12f45f07a",
+    "d2cbf97818fa6b900d1c",
+    "d40f19707e018d112efa",
+    "d4400d9e9b121b0c38b3",
+    "d483ad20dd7164946a89",
+    "d4ac91c659a2cfd44ffa",
+    "d50c7e7e34316aa22ddf",
+    "d58081ef87666169be84",
+    "d611baa9cb2e0237830b",
+    "d65cdae0a25fff048477",
+    "d65e75a63edb95f20157",
+    "d762e966d9b000f208b0",
+    "d9c9f9a1e2a98585f836",
+    "d9cd6f055c0ce1e3a954",
+    "da36306acc72a6b9c1b8",
+    "dc14cda54677c7703b85",
+    "e0faec048bfe07884bd5",
+    "e1188606af8100b9fa11",
+    "e1fca5069eabf32cc1d9",
+    "e2350d63aa410df8d4a4",
+    "e24fbbc008e1b75a71a5",
+    "e477b6abee4efcc885bb",
+    "e4f23b741554d2f75182",
+    "e663e93de33a82f06cf7",
+    "e684c05c6759c7ce19fc",
+    "e73c4378bd39706ac9eb",
+    "e9057888919f0ced99f5",
+    "e90858606fe880415f2d",
+    "e93988462be9ca35931c",
+    "e940cc0756c91c1d3eab",
+    "eb403f27837f7d6121e9",
+    "eb63da2bad4ab3252029",
+    "ec2516f742ea4a7cf287",
+    "ec3d6c6fa7a55a606078",
+    "ed15b77cac098816caf1",
+    "edb6b66b2514b8a51c40",
+    "edcd3f92a0cb70d831d3",
+    "ee81a9e19a1236ca0eaf",
+    "ef232abc83b6a03a07f0",
+    "efaa1de614ba40dcaca1",
+    "f062336925d0fefceb61",
+    "f283bea1f8f73753a357",
+    "f344b4ca2374e60f2284",
+    "f37cdb7db1fac89efb59",
+    "f3e0ccd86b68bc09837f",
+    "f4cdef024a8b3540ffac",
+    "f4d24ba4d1c01b6172af",
+    "f7eba33e0bff81d90982",
+    "f818c3c5eac812d106da",
+    "f845c0ade832c6bb7046",
+    "f8b2905fba0cd6c54c66",
+    "f98ee0dd0024162ffa39",
+    "fa02300c7bfb103ac427",
+    "fc24287ab36375755e5a",
+    "fc5cf0e771409a0be3de",
+    "fc9e1da16abbb8c4465c",
+    "fcc24c616dc276c9239f",
+    "fcd25f21dbe83b487fcc",
+    "fd3848405eb0cc660232",
+    "fe06ce187a75eb4413d4",
+    "fec37b9e508a5904c5b9",
+    "ffda700352ff151971c9"
+   ]
+  },
+  "only": {
+   "file": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/a80f37a3-3482-4017-9152-9c0c6e2f0dab/scratchpad/sets_add25/only_2.json",
+   "why": "the writer's set: 6 through both screens (the 16:9-only What Bitcoin Did hook in among them), 14 new for Grok, 11 channels",
+   "asked": 20,
+   "kept": 20,
+   "missing": []
+  },
+  "ruling_104": {
+   "variants": [],
+   "replaced": [],
+   "notes": {}
+  }
+ },
+ "ruling_76": {
+  "inside_12h": 20,
+  "cleared": 6,
+  "cuttable": 5,
+  "hooks_4": 0
+ },
+ "routing": "heimdall_first",
+ "mode_at_end": "heimdall_first",
+ "shadow86": {
+  "verdicts": 0,
+  "compared_units": 0,
+  "differ": 0,
+  "on_pin_differ": 0,
+  "not_compared": 0,
+  "missing": 0,
+  "shadow_usd_reported": 0,
+  "pin": false,
+  "would_seal_under_grok": null,
+  "summary": "0 verdicts shadowed, 0 decisions compared, 0 differ (0 on the pin's clips); 0 not compared; 0 still running; shadow cost $0.0000 reported"
+ },
+ "spend_ruling_48": {
+  "before": 1.0661,
+  "after": 1.1268,
+  "cap": 1.2,
+  "stop": 1.2,
+  "basis": "reported",
+  "order_17_50_stop": 1.2
+ },
+ "breakers_ruling_99": {
+  "open": [],
+  "opens": 4,
+  "closes": 2,
+  "this_build": []
+ },
+ "registry": true
+}
