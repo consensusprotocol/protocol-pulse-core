@@ -173,6 +173,7 @@ class Capture(io.TextIOBase):
 # the top of the Telegram note) instead of holding; a HARD one holds as before. edl_rules: a failing rule holds unless
 # it is named here (an unknown or new rule fails closed as HARD); R2 (a passage twice), R5 (clip length), R6 (credits)
 # and R7 (a layout that can render) stay HARD.
+HOOK_ABRUPT = "The opening clip may start abruptly."   # ruling 146 (2) (orchestrator 2026-11-18 '07:55'), verbatim
 EDL_SOFT = {      # ruling 138 (3): what the check doubted, about which clip ({Who}: the clips its reason names)
     "rule_r1": "{Who} ends on a question rather than a statement.",
     "rule_r3": "A voiceover line follows {who}, which ends on a question.",
@@ -232,6 +233,38 @@ def flag(run, text, detail=None):
     if text not in run.status["review_flags"]:
         run.status["review_flags"].append(text)
     run.prov.setdefault("review_flags", []).append({"flag": text, "detail": detail})
+
+
+def flag_short_hook_cut(run, cuts):
+    """RULING 146 (2) at the cut: a hook whose cut keeps under 80 ms of quiet before its first word (lock_cut's
+    hook_lead "short") is flagged HOOK_ABRUPT, never held."""
+    for c in cuts:
+        if isinstance(c.get("hook_lead"), dict) and c["hook_lead"].get("short"):
+            flag(run, HOOK_ABRUPT, f"G17a at the cut (ruling 146 (2)): {c['hook_lead']['short']}")
+
+
+def snap_verdict(run, clip_id, snap):
+    """Ruling 71: a shot snap that cannot keep the required quiet HOLDS; RULING 146 (2): one that keeps it but not
+    the hook's 80 ms (shot_snap's "hook_lead_short") is flagged HOOK_ABRUPT."""
+    if snap.get("refused"):
+        raise Hold(f"{clip_id}: shot snap refused (ruling 71): {snap['refused']}")
+    if snap.get("hook_lead_short"):
+        flag(run, HOOK_ABRUPT, f"shot snap (ruling 146 (2)): {snap['hook_lead_short']}")
+
+
+def g17a_hook_lead_soft(run, ok, table):
+    """RULING 146 (2) in the G17 row: G17a's table (sentence_law.gate_g17_prepared, unchanged) with the HOOK's lead
+    alone SOFT: a hook row failing only on its lead is marked lead_soft and flagged HOOK_ABRUPT, and the row's G17a
+    part judges every other row (each tail, every other lead) as before. -> that part's ok."""
+    rows = [r for r in table if isinstance(r, dict)] if isinstance(table, list) else []
+    soft = [r for r in rows if r.get("segment") == "hook" and r.get("lead_ok") is False and r.get("tail_ok") is True]
+    if not soft or len(rows) != len(table):      # a table that is not G17a's rows: judged as it stands
+        return ok
+    for r in soft:
+        r["lead_soft"] = "ruling 146 (2)"
+    flag(run, HOOK_ABRUPT, f"G17a (ruling 146 (2)): the hook keeps {soft[0].get('lead_ms')} ms of quiet before its "
+                           f"first word (< {int(round(L.HEAD_LEAD_MIN_S * 1000))} ms)")
+    return all(r.get("pass") is True for r in rows if r.get("segment") != "hook")
 
 
 class Run:
@@ -651,6 +684,7 @@ def stage_cut(run):
         L.write_lock_cut_table(run.dir)
     with open(os.path.join(run.dir, "cuts_final.json")) as f:
         cuts = json.load(f)
+    flag_short_hook_cut(run, cuts)
     report, fails = [], []
     for c in cuts:
         src = os.path.join(run.dir, "sources", f"{c['video_id']}.mp4")
@@ -926,8 +960,7 @@ def stage_prepare(run, cuts):
         if ok1 and ok2:                         # V1 (run 6): no frame of a neighbouring shot outside the speech
             import shot_snap
             snap = shot_snap.apply(clip, c, FPS, NVENC_QP_INTERMEDIATE)
-            if snap.get("refused"):             # ruling 71: a snap that cannot keep the required quiet
-                raise Hold(f"{c['clip_id']}: shot snap refused (ruling 71): {snap['refused']}")
+            snap_verdict(run, c["clip_id"], snap)
             if snap["snapped"]:
                 print(f"  {c['clip_id']}: shot snap: {snap['why']}")
         rec = {"clip_id": c["clip_id"], "sha256": sha256(clip), "contract": d1,
@@ -1324,6 +1357,7 @@ def stage_gates(run, final16, man16, final9, man9):
     # G17 ONSET/TAIL: prepared clips (>= 80 ms genuine lead-in/tail) + each final (edge words >= 85 %)
     g17a_ok, g17a = L.gate_g17_prepared({c["clip_id"]: os.path.join(qa, f"final_{c['clip_id']}.mp4")
                                           for c in cuts})
+    g17a_ok = g17a_hook_lead_soft(run, g17a_ok, g17a)
     g17b16_ok, g17b16 = L.gate_g17_output(final16, segs16, cuts, run.dir)
     g17b9_ok, g17b9 = L.gate_g17_output(final9, segs9, cuts, run.dir) if final9 else (None, None)
     # G17c (law L-b): the first and last word of every prepared clip, with their decay, at full level

@@ -127,15 +127,21 @@ class TestRuling71Parity(unittest.TestCase):
         self.assertFalse(rec["snapped"])
         self.assertNotIn("refused", rec)
 
-    def test_a_snap_that_cannot_keep_the_hooks_lead_is_refused(self):
+    def test_ruling_146_a_snap_short_of_the_hooks_80_ms_is_applied_and_marked(self):   # ruling 71 refused it
         self.hook["pause_in"] = {"end": 14.6 + 2 / 24 + 0.05}    # the first word 50 ms after a change at frame 2
         rec = self._apply([], [(2, 0.5)])
-        self.assertEqual(rec.get("refused"),
-                         "the speaker's own shot starts 0.050 s before the first word (< 0.080 s)")
-        self.assertFalse(rec["snapped"])
-        self.assertEqual(open(self.clip, "rb").read(), b"x")     # refused: nothing re-encoded
-        self.hook["clip_id"] = "clip_01"                         # not the hook: LEAD_MIN_S, snapped
-        self.assertTrue(self._apply([], [(2, 0.5)])["snapped"])
+        self.assertTrue(rec["snapped"], rec)
+        self.assertNotIn("refused", rec)
+        self.assertEqual(rec["hook_lead_short"], "the speaker's own shot starts 0.050 s before the hook's first word "
+                                                 "(< 0.080 s): flagged, not refused (ruling 146 (2))")
+        self.hook["clip_id"] = "clip_01"                         # not the hook: snapped, never marked
+        rec = self._apply([], [(2, 0.5)])
+        self.assertTrue(rec["snapped"])
+        self.assertNotIn("hook_lead_short", rec)
+        self.hook.update(clip_id="hook", pause_in={"end": 14.6 + 2 / 24 + 0.1})   # 100 ms: the hook's lead kept
+        rec = self._apply([], [(2, 0.5)])
+        self.assertTrue(rec["snapped"])
+        self.assertNotIn("hook_lead_short", rec)
 
 
 HOOK_0C68 = "/home/ultron/protocol_pulse/runs/pinned_20261113_191409"

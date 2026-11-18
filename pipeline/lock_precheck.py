@@ -81,7 +81,7 @@ VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
 CODE = ("select_passages.py", "punctuation.py", "pinned.py", "sentence_law.py", "canon.py", "gpu0.py")
 KEY = ("role", "approved_text", "trimmed_leading", "untrimmed_start")   # the request fields an answer depends on
 RULES = ("ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131 + ruling 135 + ruling 142 "
-         "+ ruling 143")   # what an entry's verdict judged; others never reused
+         "+ ruling 143 + ruling 146")   # what an entry's verdict judged; others never reused
 EXTRA = os.environ.get("PP_LOCK_PRECHECK_EXTRA", "/home/ultron/worktrees/pp-selectid/tests/package/proof/lock_requests")
 # RULING 67's class, as the builder's pipeline/attest.py defines it (FUNCTION_WORDS and carry_class, copied in
 # behaviour): English closed-class words; NO negation, number or ordinal (those are law L-v 2's critical tokens).
@@ -616,7 +616,8 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                      "as_spoken": spoken, "spoken_text": sealed if outcome == "adopt_spoken" else None,
                      "relisten": spoken.get("relisten") if spoken else None,      # ruling 103: both short readings
                      "unstable_second_reading": spoken.get("unstable_second_reading") if spoken else None,   # 105
-                     "cut": {k: cut.get(k) for k in ("cut_in", "cut_out", "cut_duration", "lead_in_pad_s", "error")}
+                     "cut": {**{k: cut.get(k) for k in ("cut_in", "cut_out", "cut_duration", "lead_in_pad_s", "error")},
+                             "hook_lead_short": (cut.get("hook_lead") or {}).get("short")}   # ruling 146 (2): a flag
                      if cut else None,
                      "rules": RULES, "scribe_usd": round(sum(spent), 4), "reused": False,
                      "timing": {"download_s": dl.get(vid, 0.0), "decode_s": dsec, "lock_s": round(time.time() - t, 1)},

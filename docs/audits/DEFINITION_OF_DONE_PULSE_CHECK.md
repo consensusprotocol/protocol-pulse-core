@@ -6,6 +6,42 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 08:57 BATCH 114 LIVE (ruling 146 (2), G17a soft): merge 6f3e6be5, in lockstep with the builder's ed9df3f2 (DECODER 50fa01b4, RULES "... + ruling 146").
+- A hook with under 80 ms of quiet before its first word keeps its planned cut. The note says "The opening clip may start abruptly." once. A cut mid-word stays HARD.
+- On the staged merge: regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0 (references reproduce); touched suites 99 passed. The 31 importing suites ran on the merged tree: no new failure after the 7c1bed55 fix.
+- NEXT: the builder runs (B) self-custody (16:9 only, not time-sensitive). I render the pin the minute it arrives.
+
+## 08:21 RULING 147 (3), INTEGRATOR: BATCH 114 (G17a soft) LANDS IN LOCKSTEP on the builder's READY.
+- DECODER 50fa01b4 (sentence_law.py sha256 48e5b639), RULES "... + ruling 146".
+- The merged-tree run found one defect of mine: the soft G17 row assumed G17a's own rows, and test_render16only's stub fails it. Fixed (7c1bed55), with a test.
+- The other 11 failures and setup errors fail the same on the live code: purged media, known.
+- The regression scripts run now; the official run is on the staged merge.
+- **CHOSEN (147 (5)):**
+  - The self-custody pin is sealed NOT time-sensitive, so law L-v 3's 24 h marks (09:56 / 10:02 ET) do not apply to it, and ruling 146 (6)'s exception is not needed for (B).
+  - That exception would need a pinned.py change, a DECODER file. So it cannot reach a pin after its seal: for (A) it would have to land BEFORE that seal.
+  - Rulings 139 and 143 land right after this video.
+
+## 08:14 RULING 146, INTEGRATOR (render side):
+- **(1) and (3) are not re-asked by the render:** no change is needed. The ticker rule lives only in the 9:16 crop, and nothing checks for a sponsor mention.
+- **(2) G17a is held in four places in the render:** the cut, the shot snap, the G17 row and my lock pre-check. It is built as batch 114: the hook keeps its planned cut and the note says "The opening clip may start abruptly." Cutting into a word stays refused.
+  - Evidence: 89 tests pass; 12 failures on the live code; 11 of 11 mutations killed; audit cycle 1 PASS from both reviewers. Cycle 2 and the merged-tree run are in progress.
+  - It moves the DECODER to 50fa01b4, so it lands in lockstep, only when the builder's hook needs it or after this video.
+- **TREASURY, FOR YOUR 10-MIN DEFAULT:** none of its 5 refusals is G17a. Two are sentence edges (HARD).
+  - Ruling 143 (batch 113: built, not landed) would settle aea77d5e ("it's"/"is", "and"/nothing) and c81d9c9a ("strategies"/"strategy's", "part"/"par"). Both are small words.
+  - c79b7f6d ("sat"/"SEDA", a name) passes only if the second recogniser also reads SEDA.
+  - Landing 113 needs about 30 min plus the builder's lockstep. Per 144 (4) it waits unless you rule otherwise.
+
+## 07:37 RENDER PATH CLEAR (rulings 144/145, the 07:36 note): Resolve (pid 1073512) left at 07:32 ET. The word pass restarted at 07:34:52 ET and is working (its Whisper holds 2420 MiB on GPU1). The judge, scorer, lock pre-check loop and watchdog are up, and the render lock is free. GPU0 holds only the transcript ingest's Whisper, which yields to a render. ONE DEADLINE ON THE RENDER CLOCK (law L-v 3, 24 h): a segment sealed time_sensitive true is refused after 09:56 ET from RsCi56hEriU, after 10:02 ET from MeC8YEmUx_w, and after 13:00 ET from F536pi4mr7Y; a segment sealed time_sensitive false has no age limit. Ruling 145's allowance (worktree r145-tenant) and the word-pass heartbeat land after this video.
+
+## 07:07 RULING 144, INTEGRATOR: ready to render on READY, with ONE HARD BLOCKER for you.
+- **The blocker:** DaVinci Resolve headless (/opt/resolve/bin/resolve -nogui, pid 1073512, started 16:59 ET Nov 17; no pipeline session started it) holds GPU0 (404 MiB) and GPU1 (678 MiB).
+  - The render's GPU0 lease (law L-r) refuses a foreign GPU user after a 600 s wait. That is how the word pass died at 17:23 ET.
+  - It is not ours to stop: CLOSE IT, or tell me to stop it. I then restart the word pass and render at once.
+- **Up:** the judge, the scorer, the lock pre-check, the watchdog. **Down:** the word pass.
+- **The 12 h exception needs nothing on the render side:** its only age gate is L-v 3's 24 h for time-sensitive segments, and yesterday's clips are about 21 h old.
+- **The note:** the builder puts the plain-words exception line first among its review flags, and the note prints those on top.
+- **Ruling 143 (batch 113):** lands after this video. The decoder stays fc204e4a4385.
+
 ## 15:49 RULING 142 DONE: THE SELF-CUSTODY STORY HAS ITS THREE CHANNELS. Under DECODER fc204e4a4385 (15:48), every span asked passes.
 - **Yahoo Finance f0a51c45:** adopt_spoken. Two of three settle both pairs ("you know"; "and is mined"). $0, readings reused.
 - **Bitcoin Magazine MeC8YEmUx_w, through the post_live fallback:** each window was cut from the whole stream, and the HARD offset guard passed on all three. All no_difference:

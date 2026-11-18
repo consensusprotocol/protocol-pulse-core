@@ -810,8 +810,8 @@ def hook_lead(src, plan, pick, sa=None):
     3. the D1 room-tone pad (LEAD_PAD_S) before a candidate whose quiet is genuine ALL the way from the cut to the
        first word, and only when the padded head itself measures >= 80 ms by G17a's measure (padded_lead_ms): the
        source's own room tone must count as genuine quiet.
-    4. otherwise no legal cut can open this hook: the entry is refused here, before any render, with the measured
-       reason. (Pin #1: digital zeros up to about 40 ms before the first word, and the word record puts the word's
+    4. otherwise no legal cut can open this hook: "refused" with the measured reason. RULING 146 (2) (orchestrator
+       2026-11-18 '07:55'): lock_cut then keeps the planned cut, marked "short" (SOFT, flagged), never a refusal. (Pin #1: digital zeros up to about 40 ms before the first word, and the word record puts the word's
        start before the zeros end, so no legal cut lies after them.)
     Only a hook that is not at a file head comes here (a file head has its own D1 rule in edge_plan). Returns the
     record the cut table keeps; "refused" carries why."""
@@ -882,7 +882,11 @@ def lock_cut(src, words, lock, label):
     """One locked segment's cut, exactly as the render places it: edge_plan (ruling 73's edges included),
     accepted_cut, ruling 28's hook_lead for the hook, ruling 33's onset rule for a trimmed word. -> the fields the
     cut table records ('error', verified False, when the segment cannot be cut). The one code path of
-    write_lock_cut_table and the pin-stage pre-check (ruling 73 (c), pipeline/lock_precheck.py)."""
+    write_lock_cut_table and the pin-stage pre-check (ruling 73 (c), pipeline/lock_precheck.py).
+    RULING 146 (2) (orchestrator 2026-11-18 '07:55'): G17a's quiet before the hook's first word is SOFT. A hook that
+    hook_lead cannot give 80 ms keeps the planned cut (accepted_cut's, as any clip), its record marked "short" with
+    the measured reason; the render flags 'The opening clip may start abruptly.' It is never refused for that. A cut
+    mid-word stays HARD (accepted_cut, G17b, G17c)."""
     plan = edge_plan(SourceAudio(src), words, lock["i0"], lock["i1"], trimmed=lock.get("trimmed_leading"))
     out = {"pause_in": plan["in"].get("pause"), "pause_out": plan["out"].get("pause")}
     if not plan["ok"]:
@@ -898,8 +902,11 @@ def lock_cut(src, words, lock, label):
     fade_in_ms, pad_s, hook, valley_in = pick["fade_in_ms"], plan["in"]["lead_in_pad_s"], None, pick["valley_in"]
     if label == "hook" and not plan["in"].get("file_head"):         # ruling 28: the hook keeps 80 ms (D1)
         hook = hook_lead(src, plan, pick)
-        if hook.get("refused"):                                    # fail closed BEFORE any render (G17a)
-            return {**out, "verified": False, "error": f"hook lead (ruling 28): {hook['refused']}", "hook_lead": hook}
+        if hook.get("refused"):                                    # ruling 146 (2): SOFT, the planned cut stands
+            hook = {**{k: v for k, v in hook.items() if k != "refused"}, "short": hook["refused"],
+                    "cut_in": pick["cut_in"], "fade_in_ms": pick["fade_in_ms"], "pad_s": plan["in"]["lead_in_pad_s"],
+                    "lead_ms": hook["planned_lead_ms"], "rule": "ruling 146 (2)",
+                    "how": "the planned cut stands under 80 ms: flagged, not refused (ruling 146 (2))"}
         if hook["cut_in"] != pick["cut_in"]:          # a moved cut is a cut_accept-clean candidate, never a
             valley_in = False                          # valley (audit batch 56 C1)
         cut_in, fade_in_ms, pad_s = hook["cut_in"], hook["fade_in_ms"], hook["pad_s"]
