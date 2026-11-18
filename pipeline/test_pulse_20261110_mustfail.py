@@ -129,7 +129,8 @@ class TestD3Edges(_G16Fixture):
         r = self.rows["clip_02"]["in"]
         self.assertFalse(r["pass"], f"D3b: clip_02 in 14.93 lands inside 'days': {r}")
         self.assertEqual((r["after_word"], r["before_word"]), ("course", "of"), r)
-        self.assertIn("does not end a sentence", r["why"], r)
+        self.assertIn("does not end a sentence", r.get("sentence_edge") or "", r)   # ruling 139: a flagged edge ...
+        self.assertIn("outside the legal range", r["why"], r)            # ... and the cut lands outside its pause: HARD
         # DEC-10: G17a no longer judges a mid-video lead (v2f: 0 ms); the defect fails on the boundary above
 
     def test_d3c_clip02_out_control_passes(self):

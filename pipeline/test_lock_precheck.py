@@ -962,3 +962,16 @@ class TestRuling146(Base):
         self.request(approved_text=ATTESTED)
         LP.serve_once(log=self.log)
         self.assertIsNone(self.entry(ATTESTED)["cut"]["hook_lead_short"])
+
+
+class TestRuling139(Base):
+    """RULING 139 / 147 (3): a lock edge at a word boundary that is not a sentence edge passes the render's cut, marked;
+    the pre-check records it for the builder's flag and never holds on it."""
+
+    def test_a_sentence_edge_passes_and_is_recorded(self):
+        self.cut = {**self.cut, "sentence_edge": {"in": "'not' does not end a sentence"}}
+        self.request(approved_text=ATTESTED)
+        LP.serve_once(log=self.log)
+        e = self.entry(ATTESTED)
+        self.assertEqual(e["outcome"], "no_difference", e)
+        self.assertEqual(e["cut"]["sentence_edge"], {"in": "'not' does not end a sentence"})

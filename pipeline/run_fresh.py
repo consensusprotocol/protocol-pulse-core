@@ -243,6 +243,22 @@ def flag_short_hook_cut(run, cuts):
             flag(run, HOOK_ABRUPT, f"G17a at the cut (ruling 146 (2)): {c['hook_lead']['short']}")
 
 
+def flag_sentence_edges(run, cuts):
+    """RULING 139 at the cut (binding the render's lock, ruling 147 (3)): a lock edge that sits at a word boundary but
+    is not a sentence edge (lock_cut's "sentence_edge") is flagged in R10's / R9's plain sentence for that clip, never
+    held. No audio between the words stays a refusal (lock_cut keeps it unverified)."""
+    marked = [c for c in cuts if isinstance(c.get("sentence_edge"), dict) and c["sentence_edge"]]
+    if not marked:
+        return
+    with open(os.path.join(run.dir, "edl.json")) as f:
+        edl = json.load(f)
+    for c in marked:
+        for side, rule in (("in", "rule_r10"), ("out", "rule_r9")):
+            if c["sentence_edge"].get(side):
+                flag(run, sentence(EDL_SOFT[rule], edl, c["clip_id"]),
+                     f"ruling 139 at the cut, {side.upper()} of {c['clip_id']}: {c['sentence_edge'][side]}")
+
+
 def snap_verdict(run, clip_id, snap):
     """Ruling 71: a shot snap that cannot keep the required quiet HOLDS; RULING 146 (2): one that keeps it but not
     the hook's 80 ms (shot_snap's "hook_lead_short") is flagged HOOK_ABRUPT."""
@@ -685,6 +701,7 @@ def stage_cut(run):
     with open(os.path.join(run.dir, "cuts_final.json")) as f:
         cuts = json.load(f)
     flag_short_hook_cut(run, cuts)
+    flag_sentence_edges(run, cuts)
     report, fails = [], []
     for c in cuts:
         src = os.path.join(run.dir, "sources", f"{c['video_id']}.mp4")
@@ -824,7 +841,8 @@ def _retry_fade_edges(run, c, d1, prerender_clips, check_clip, fps, qp):
         words = json.load(f)["words"]
     src = os.path.join(run.dir, "sources", f"{c['video_id']}.mp4")
     cand = L.cut_candidates(src, L.edge_plan(L.SourceAudio(src), words, lock["i0"], lock["i1"],
-                                             trimmed=lock.get("trimmed_leading")))    # ruling 33 part 2
+                                             trimmed=lock.get("trimmed_leading"),     # ruling 33 part 2
+                                             sentence_soft=True))                       # ruling 139 / 147 (3)
     from cut_accept import check_cut_acoustics
     pad = float(c.get("lead_in_pad_s") or 0)
     tried = c.setdefault("contract_retries", [])
