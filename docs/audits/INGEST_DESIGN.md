@@ -641,6 +641,9 @@ the same videos.
   'ok', and every gateway model is metered, so an unmeasured or tripped meter would have sent every request to GPU1
   first, against ruling 118's order. A back-end marked "last_resort" (the local model) now stays after every other one
   at every meter state; B1 is otherwise unchanged. The meter had been 'ok' at every reading, so no request went there.
+- LIVE 21:43 ET Nov 17 (r123 + r124; the line-1 question's default of 21:30). Smoke at 21:44 ET through the real client
+  and the real lease (lease_wait_s 20 for the check): busy in 20.1 s, "GPU1 LeaseBusy: the GPU1 lease is held by
+  local_watchdog (pid 1733403)"; the client and gpu0 loaded from the main tree; nothing escaped; no lease taken.
 - AS OF Nov 17 21:00 ET: DaVinci Resolve (headless, pid 1073512) has sat on both GPUs since 16:59 ET; law L-r refuses
   every lawful call while it stays, so this fallback answers `busy` (Gpu0Foreign after its 60 s bound) and the videos
   wait, as before r123. The word-pass worker died on it at 17:23 ET (the integrator's; reported).
