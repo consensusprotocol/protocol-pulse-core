@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 640,
+ "system": null,
+ "prompt": "You judge JOINS between clips of 60-second videos made of other channels' own words (each clip is a\nperson's own words from a show; the shows were not in one conversation). In each PAIR, clip A plays and clip B follows\nit at once, with NO narration between them. Judge each pair ALONE: the pairs are not one video, and nothing else plays\nbefore or between A and B.\n\nTHE CLIPS:\nCLIP id=\"c1\" (on screen: Bitcoin Magazine): \"Being able to use Bitcoin doesn't depend on whether the House or the Senate is red or blue because Bitcoin lives outside of the institutions under the thumb of any of those politicians.\"\nCLIP id=\"c2\" (on screen: Yahoo Finance): \"But, you know, if you're wondering why having decentralized money that's available 24 -7, 365, that has no CEO in his mind by a decentralized network. around the world, like Bitcoin is important. Well, when you want access to your money with Bitcoin, you have it.\"\nCLIP id=\"c3\" (on screen: Natalie Brunell): \"And that's not to say that it's bad. It's that self -custody Bitcoin's a responsibility. If I have a gun, it's a responsibility. Sovereignty is a responsibility.\"\n\nTHE PAIRS (A -> B):\nPAIR id=\"p1\": c1 -> c2\nPAIR id=\"p2\": c1 -> c3\nPAIR id=\"p3\": c2 -> c3\nPAIR id=\"p4\": c3 -> c2\n\nFor EACH pair, the join question (the previous clip is A, the next clip is B): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming from the previous clip's ending? Answer\n\"followable\": true or false, and \"why\": a few words.\nReturn ONLY this JSON object: {\"pairs\": {\"p1\": {\"followable\": true, \"why\": \"...\"}, \"p2\": {\"followable\": true, \"why\": \"...\"}, \"p3\": {\"followable\": true, \"why\": \"...\"}, \"p4\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"pairs\": {\"p1\": {\"followable\": true, \"why\": \"continues bitcoin decentralization\"}, \"p2\": {\"followable\": false, \"why\": \"unclear referent for that/it\"}, \"p3\": {\"followable\": false, \"why\": \"unclear referent for that/it\"}, \"p4\": {\"followable\": true, \"why\": \"responsibility links to access importance\"}}}",
+ "usage": {
+  "in": 671,
+  "out": 2837,
+  "usd_reported": 0.00779685
+ },
+ "usd": 0.07428,
+ "seconds": 24.4,
+ "recorded_at": "2026-11-18T14:30:11Z"
+}

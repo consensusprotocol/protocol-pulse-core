@@ -1,0 +1,162 @@
+{
+ "20cac687560642251d37:9d43580c729b": {
+  "label": "20cac687560642251d37",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "those",
+    "refers_to": "politicians in the House or Senate (red or blue)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Being able to use Bitcoin does not depend on whether the House or Senate is controlled by Republicans or Democrats because Bitcoin operates outside institutional and political control.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "what has to be done so that the freedom to use Bitcoin and open source AI doesn't depend on which party wins the following presidential election? Well, there's one encouraging piece of news, which is that what you said is already the case.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "d427b94963b3bdbd8a60:9d43580c729b": {
+  "label": "d427b94963b3bdbd8a60",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "Now",
+    "refers_to": "the present time",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin developers have been prosecuted for writing and publishing free software.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "And you've written that open source AI developers could expect the same thing.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "84884c9f79cb11fa498d:9d43580c729b": {
+  "label": "84884c9f79cb11fa498d",
+  "speaker_changes_inside": "no",
+  "view": "ad_read",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Verified X lets you keep Bitcoin as Bitcoin while activating it for payments, lending, trading and other uses without wrapping it or losing self-custody.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Thanks so much for your time today. Great seeing you again. Thanks, guys. It was awesome. Well, Bitcoin is valuable because of the ownership, control, and liquidity it gives you.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f0a51c45830936b3a3c1:9d43580c729b": {
+  "label": "f0a51c45830936b3a3c1",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "access to your money",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if you're wondering why decentralized money like Bitcoin is important",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin matters because its decentralized, always-on design with no CEO means you have access to your money whenever you want it, unlike fragile centralized banking systems that fail.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "To which I was like, did you also find the Nintendo and did you blow on the cartridge because that probably will fix all the airlines in the United States.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "feb4b72f301cde9d380d:9d43580c729b": {
+  "label": "feb4b72f301cde9d380d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the industry selling self-custody Bitcoin as easier than it was",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "self-custody of Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "owning a gun",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Self-custody of Bitcoin is not bad but is a responsibility, just like owning a gun or having sovereignty.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a There's not. And and I do think that that's a that's a challenge for the industry. And I think the industry probably sold self-custody Bitcoin as easier than it than it was. And",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "43c16a03bb3d27d74e71:9d43580c729b": {
+  "label": "43c16a03bb3d27d74e71",
+  "speaker_changes_inside": "no",
+  "view": "ad_read",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin that can be frozen or monitored by an exchange, custodial provider or anyone else",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If your Bitcoin can be frozen or monitored by an exchange, a custodial provider, or anyone else",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin that can be frozen or monitored by exchanges, custodians or others is not truly yours, so people should learn self-custody as it is straightforward to master with proper training from Bitcoin Way experts.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Go to the bitcoinway.com/natalie to schedule a free introductory call with their team.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

@@ -33215,6 +33215,52 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "feb4b72f301cde9d380d",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "the preceding claim that self-custody Bitcoin was sold as easier than it was / that it is hard",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "self-custody Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "having a gun",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "If I have a gun",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker asserts that saying self-custody Bitcoin is a responsibility (and not easy) does not mean it is bad, because self-custody and sovereignty are responsibilities, like owning a gun.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "What do you say to the critics of digital credit who say this is it's not that it's just not actual Bitcoin, but you're",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
   }
  },
  "43c16a03bb3d27d74e71:f070b1c8f3a9685ab7f761d67978d6f9c879dce508f8362991797e52a75a0eac:fbc4667f3df59f2b8779afb359fcbd52b530c63fe5c634b02bd1866830ba2016:9d43580c729b": {

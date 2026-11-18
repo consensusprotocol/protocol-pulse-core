@@ -1811,5 +1811,47 @@
    "why": "both discuss BTC price drops",
    "backend": "xai:grok-4.20-0309-reasoning"
   }
+ },
+ "8872cb33f646543931c083e13be604af0a39b64a480128fa3339af158bb5d784:94caa3912cf0874704d85bb1f589009bef2e61a9010108654b77cfdb05573a8e:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continues bitcoin decentralization",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "8872cb33f646543931c083e13be604af0a39b64a480128fa3339af158bb5d784:0c6146765c8d7b107e17891111d2fccab7f625c3ae986027a34fbe51fa00f0ac:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "unclear referent for that/it",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "94caa3912cf0874704d85bb1f589009bef2e61a9010108654b77cfdb05573a8e:0c6146765c8d7b107e17891111d2fccab7f625c3ae986027a34fbe51fa00f0ac:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "unclear referent for that/it",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "0c6146765c8d7b107e17891111d2fccab7f625c3ae986027a34fbe51fa00f0ac:94caa3912cf0874704d85bb1f589009bef2e61a9010108654b77cfdb05573a8e:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "responsibility links to access importance",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "2268d1bd4da5849a82c7dc1d3f820160a9645b2cad3e6bcbd2302818210b4572:0c6146765c8d7b107e17891111d2fccab7f625c3ae986027a34fbe51fa00f0ac:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "unclear referent for 'that's not bad'",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "61512e5aa4aa93d77f079f3e0abb1b5b753df463c30a1cefabb227ef6bad1b74:0c6146765c8d7b107e17891111d2fccab7f625c3ae986027a34fbe51fa00f0ac:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "abrupt topic shift; no referent for 'that'",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
  }
 }
