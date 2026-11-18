@@ -22,8 +22,10 @@
   cat .env or any key. Never edit .env.
 - Never edit /home/ultron/protocol_pulse (the main tree). Exception (ruling 77): the watcher's purge deletes media
   only in purge.json's targets.
-- No GPU: GPU0 belongs to the integrator (no Whisper, no Ollama, no NVENC, no renders); GPU1 is quarantined. CPU and
-  API only. (The local back-end `local_gemma` stays disabled.)
+- No GPU of your own: GPU0 belongs to the integrator (no Whisper, no Ollama, no NVENC, no renders). The one exception
+  (the 10:50 order (2) of Nov 16, r123): the miner's last fallback asks the local model on GPU1, one request per lease,
+  through the main tree's `services/gpu_lease_client.py` (60 s bound, keep_alive 0, the card left as found); it is
+  reached only when all six Heimdall models fail. Never load anything on a GPU yourself; never touch its lease by hand.
 - Read-only data: /home/ultron/protocol_pulse/runs/, references/, /home/ultron/heimdall_probe/pp_redteam/.
 - No cron changes; nothing sent to Telegram or published; no manual tasks for PBX; never merge into another branch.
 - Never change what a check accepts to make something pass; nothing measured is never a pass (L-m); fail closed (L-j).
@@ -98,8 +100,9 @@ orchestrator's checks arrive late, and a session that stops at a question cost a
   min); while the pipeline's own caption breaker is open no download is tried here.
 - The outage clock is the watcher's OWN (`data/editorial/ingest/down_signal_state.json`, the builder's module, its API):
   another session's deadline misses never move it; any answer resets it.
-- Ruling 118: the mine chain is qwen, deepseek 4.1, minimax, gemma, gpt-oss, mimo, then the local model (only under a
-  GPU lease this watcher does not take); no paid route; never glm or muse in mining; glm in no chain at all.
+- Ruling 118: the mine chain is qwen, deepseek 4.1, minimax, gemma, gpt-oss, mimo, then the local model (r123: GPU1,
+  its lease taken per request when the card is free; `busy` and the videos wait when it is not); no paid route; never
+  glm or muse in mining; glm in no chain at all.
 - The self-check: "MINING STALLED SINCE ..." on line 1 when something waits and nothing was mined for 30 min; the
   watcher makes the waiting videos due at once (and every 30 min). When you see it, read what each waits on and act.
 - If YouTube's 429s last and a video is not in the pipeline's store either: it waits for the pipeline's next Whisper

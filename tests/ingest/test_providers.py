@@ -218,52 +218,6 @@ def test_a_disabled_back_end_with_a_cache_is_not_used(tmp_path):
     assert r.run("mine", "p", None, validate_obj).backend == "b"
 
 
-def test_the_local_back_end_needs_the_real_gpu0_lease_never_an_environment_string(monkeypatch):
-    """Integrator B3: availability is gpu0.held() (a check, never an acquisition); without pipeline/gpu0.py the
-    back-end is never available; no environment string stands in for custody."""
-    cfg = {"kind": "ollama_local", "vendor": "local", "model": "local-model", "enabled": True}
-    monkeypatch.setitem(sys.modules, "gpu0", None)                 # absent (as in this worktree before the merge)
-    b = providers.OllamaLocalBackend("local", cfg, providers.Keyring("/nonexistent"))
-    assert not b.enabled()
-    with pytest.raises(BackendError) as e:
-        b.complete("p", None, 100)
-    assert e.value.kind == "disabled" and "lease" in e.value.detail
-    held = {"v": False}
-    monkeypatch.setitem(sys.modules, "gpu0", types.SimpleNamespace(held=lambda: held["v"]))
-    monkeypatch.setenv("PP_INGEST_GPU0_LEASE_HELD", "1")            # the old string means nothing now
-    assert not b.enabled()
-    held["v"] = True
-    assert b.enabled()
-    assert not providers.OllamaLocalBackend("local", dict(cfg, enabled=False), providers.Keyring("/x")).enabled()
-
-
-def test_the_local_model_is_released_at_the_end_of_a_cycle(monkeypatch):
-    stopped = []
-
-    class LLM:
-        def __init__(self, model):
-            self.digest = "d"
-
-        def start(self):
-            return self
-
-        def _post(self, prompt, max_tokens, seed):
-            return OK
-
-        def stop(self):
-            stopped.append(True)
-    monkeypatch.setitem(sys.modules, "gpu0", types.SimpleNamespace(held=lambda: True))
-    monkeypatch.setitem(sys.modules, "story_semantics", types.SimpleNamespace(LocalLLM=LLM))
-    cfg = H.router_cfg(["local"])
-    cfg["backends"]["local"] = {"kind": "ollama_local", "vendor": "local", "model": "m", "enabled": True}
-    r = providers.Router(cfg, keyring=providers.Keyring("/nonexistent"), sleep=lambda s: None)
-    assert r.run("mine", "p", None, validate_obj).backend == "local"
-    r.release()
-    assert stopped == [True] and r.backends["local"]._llm is None
-    r.release()                                    # idempotent
-    assert stopped == [True]
-
-
 def test_keys_never_appear_in_repr_or_errors(tmp_path):
     env = tmp_path / ".env"
     env.write_text("SECRET_KEY=sk-test-123456\nHEIMDALL_API_KEY_2='hk-abc'\nHEIMDALL_API_KEY=hk-def\n")
@@ -304,7 +258,9 @@ def test_the_real_config_under_the_spend_freeze():
     for bid in cfg["backends"]:
         if cfg["backends"][bid]["vendor"] in fz:
             assert r.frozen(bid) and r.available(bid)[0] is False
-    assert r.effective("mine") == mine_chain[:-1]          # this session: no GPU0 lease, so the gateway's six
+    local = cfg["backends"][mine_chain[-1]]                # ruling 118: the local model on GPU1 under its lease,
+    assert local["enabled"] is True and local["vendor"] not in fz   # taken per request (tests: the conftest's client)
+    assert r.effective("mine") == mine_chain
 
 
 def test_a_frozen_vendor_is_never_called_whatever_the_chain_only_or_enabled_say(tmp_path):
@@ -548,68 +504,32 @@ def test_an_interrupt_during_a_probe_frees_the_probe_without_counting_a_failure(
     assert snap.probing is False and snap.consec == 0
 
 
-def test_the_local_model_is_never_stopped_under_a_running_request(monkeypatch):
-    import threading
-    started, finish, stopped = threading.Event(), threading.Event(), []
-
-    class LLM:
-        def __init__(self, model):
-            self.digest = "d"
-
-        def start(self):
-            return self
-
-        def _post(self, prompt, max_tokens, seed):
-            started.set()
-            finish.wait(5)
-            return OK
-
-        def stop(self):
-            stopped.append(True)
-    monkeypatch.setitem(sys.modules, "gpu0", types.SimpleNamespace(held=lambda: True))
-    monkeypatch.setitem(sys.modules, "story_semantics", types.SimpleNamespace(LocalLLM=LLM))
-    b = providers.OllamaLocalBackend("local", {"kind": "ollama_local", "vendor": "local", "model": "m",
-                                               "enabled": True}, providers.Keyring("/nonexistent"))
-    th = threading.Thread(target=b.complete, args=("p", None, 10))
-    th.start()
-    started.wait(5)
-    b.release()                                      # a request is running: not stopped
-    assert stopped == [] and b._llm is not None
-    finish.set()
-    th.join(5)
-    b.release()
-    assert stopped == [True]
-
-
 def test_a_stored_reply_is_reused_when_the_back_end_is_enabled_but_not_callable_now(tmp_path, monkeypatch):
-    """Freeze audit c2 (muse N2): the reply cache was gated on enabled(), which for the local back-end means the GPU0
-    lease: a validated reply stored under the lease could not be re-read without it (it costs nothing, uses no GPU)."""
-    held = {"v": True}
+    """Freeze audit c2 (muse N2): the reply cache was gated on enabled(); a validated reply stored by the local back-end
+    is re-read while its card is not free (it costs nothing, uses no GPU). Ruling 118: the card is GPU1, its lease
+    taken per request through the main tree's lease client (here a stand-in that answers, then refuses)."""
+    free = {"v": True}
 
-    class LLM:
-        def __init__(self, model):
-            self.digest = "d"
+    class Busy(RuntimeError):
+        pass
 
-        def start(self):
-            return self
-
-        def _post(self, prompt, max_tokens, seed):
-            return OK
-
-        def stop(self):
-            pass
-    monkeypatch.setitem(sys.modules, "gpu0", types.SimpleNamespace(held=lambda: held["v"]))
-    monkeypatch.setitem(sys.modules, "story_semantics", types.SimpleNamespace(LocalLLM=LLM))
+    def chat_gpu1(model, messages, owner, **k):
+        if not free["v"]:
+            raise Busy("GPU1 LeaseBusy: the GPU1 lease is held by another owner")
+        return OK
+    monkeypatch.setitem(sys.modules, providers.LEASE_CLIENT_MODULE,
+                        types.SimpleNamespace(Gpu1Unavailable=Busy, chat_gpu1=chat_gpu1))
     cfg = H.router_cfg(["local"])
-    cfg["backends"]["local"] = {"kind": "ollama_local", "vendor": "local", "model": "m", "enabled": True}
+    cfg["backends"]["local"] = {"kind": "ollama_local", "vendor": "local", "model": "m", "enabled": True, "yield_s": 0}
     r = providers.Router(cfg, keyring=providers.Keyring("/nonexistent"), sleep=lambda s: None,
                          cache_dir=str(tmp_path))
     assert r.run("mine", "p", None, validate_obj).cached is False
-    held["v"] = False                                 # the lease is gone: no call, but the stored reply answers
+    free["v"] = False                                 # the card is not free: no answer, but the stored reply answers
     out = r.run("mine", "p", None, validate_obj)
     assert out.cached is True and out.backend == "local"
-    with pytest.raises(providers.AllBackendsFailed):
-        r.run("mine", "another prompt", None, validate_obj)        # nothing stored: not callable without the lease
+    with pytest.raises(providers.AllBackendsFailed) as e:
+        r.run("mine", "another prompt", None, validate_obj)        # nothing stored: the work waits
+    assert e.value.outage and e.value.tried[0][1] == "unavailable" and "busy" in e.value.tried[0][2]
 
 
 def test_a_back_ends_own_key_is_redacted_whatever_its_length(tmp_path):

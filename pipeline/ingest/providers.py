@@ -18,11 +18,14 @@ Keys are read by NAME from the env file named in the config, inside code; never 
 text is redacted of every key value before it is recorded), never sent after a redirect.
 """
 import hashlib
+import importlib.util
+import inspect
 import json
 import os
 import random
 import socket
 import statistics
+import sys
 import threading
 import time
 import urllib.error
@@ -38,7 +41,8 @@ from . import config
 
 class BackendError(Exception):
     """kind: network | timeout | http_429 | overloaded | server | empty  (retried on the same back-end with backoff)
-             routing | redirect | http_auth | http_4xx | refusal | disabled   (not retried: next back-end)
+             routing | redirect | http_auth | http_4xx | refusal | disabled | busy   (not retried: next back-end;
+             busy: the local back-end's GPU was not free within its bound)
     REJECTED kinds are about this request (the back-end answered and refused or gave nothing usable): they count as a
     failed try of the work. Every other kind is the back-end being unavailable: the work waits."""
     RETRY = frozenset({"network", "timeout", "http_429", "overloaded", "server", "empty"})
@@ -471,65 +475,93 @@ class GeminiBackend(Backend):
                      (self.cfg.get("price") or {}).get("basis", "estimate"), None, 200, None)
 
 
+# Ruling 118 (the 10:50 order of Nov 16 (2)): "then the local model on a free card under the lease". Law L-r (main
+# gpu0.py, PBX 2026-11-12): every GPU has one owner at a time; GPU0 = renders and their gates, GPU1 = everything else;
+# code outside a run asks GPU1's model server only through the main tree's lease client (main fb973fd0).
+LEASE_CLIENT = os.path.join(config.MAIN_TREE, "services", "gpu_lease_client.py")
+LEASE_CLIENT_MODULE = "pp_ingest_gpu_lease_client"      # a private name: the main tree's modules never go on sys.path
+LEASE_OWNER = "pp-ingest watcher: the miner's local fallback (ruling 118)"   # what the lease file names to others
+_client_lock = threading.Lock()
+
+
+def lease_client():
+    """The main tree's GPU1 lease client, loaded once by its file path (it loads the main tree's gpu0.py the same way)
+    and checked for the API used here. Raises (ImportError, OSError, ...) when it is absent or not that API."""
+    with _client_lock:
+        m = sys.modules.get(LEASE_CLIENT_MODULE)
+        if m is not None:
+            return m
+        spec = importlib.util.spec_from_file_location(LEASE_CLIENT_MODULE, LEASE_CLIENT)
+        if spec is None or spec.loader is None:
+            raise ImportError(f"no module at {LEASE_CLIENT}")
+        m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(m)
+        refused = getattr(m, "Gpu1Unavailable", None)
+        if not (isinstance(refused, type) and issubclass(refused, BaseException)):
+            raise ImportError(f"{LEASE_CLIENT}: no Gpu1Unavailable exception class")
+        inspect.signature(m.chat_gpu1).bind("model", [], LEASE_OWNER, options={}, fmt="json", wait_s=1.0,
+                                            timeout=1.0)          # TypeError / AttributeError: not the API used here
+        sys.modules[LEASE_CLIENT_MODULE] = m
+        return m
+
+
 class OllamaLocalBackend(Backend):
-    """The local model on Ultron GPU0 through story_semantics.LocalLLM. Available only when enabled in the config AND
-    this process holds the GPU0 lease: gpu0.held() is a check, never an acquisition (integrator B3); LocalLLM._post
-    itself calls gpu0.require() and swap_to on every request (law L-r, main 4867a74a). Where pipeline/gpu0.py is absent
-    the back-end is never available. release() unloads this run's model (LocalLLM.stop) at the end of a cycle."""
+    """The local model on GPU1 under its lease, the last of a chain (ruling 118). Each request goes through the main
+    tree's lease client (lease_client, gpu0.ollama_call): the GPU1 lease taken within lease_wait_s, the memory proven
+    free and a foreign user waited out within the same bound, the request with keep_alive 0, the model's unload
+    confirmed before the lease is released, so the card is left as found; this process never holds it between
+    requests. A card not free within the bound (its lease held, a foreign user, the memory) is 'busy': unavailable,
+    never retried on this back-end, the work waits (AllBackendsFailed.outage). After every request that reached the
+    card, the card is left free for yield_s before this back-end's next one, so an owner waiting for it (gpu0.lease
+    polls every 0.2 s, ollama_call every 1 s) takes its turn. enabled() reads the config and the client's file: a
+    check, never a load or a lease (integrator B3: nothing stands in for custody; the lease is taken per request)."""
 
     def __init__(self, bid, cfg, keyring):
         super().__init__(bid, cfg, keyring)
-        self._llm = None
-        self._llm_lock = threading.Lock()
-        self._busy = 0                                # requests in flight: release() never stops the model under one
-
-    @staticmethod
-    def _gpu0():
-        try:
-            import gpu0
-            return gpu0
-        except ImportError:
-            return None
+        self.lease_wait_s = float(cfg.get("lease_wait_s", 60))
+        self.yield_s = float(cfg.get("yield_s", 3))
+        self.num_ctx = int(cfg.get("num_ctx", 16384))
+        self._free_at = 0.0                           # the next request starts no earlier (the yield)
+        self._clock, self._sleep = time.time, time.sleep
 
     def enabled(self):
-        if not self.cfg.get("enabled"):
-            return False
-        g = self._gpu0()
-        return bool(g is not None and g.held())
+        return bool(self.cfg.get("enabled")) and os.path.isfile(LEASE_CLIENT)
 
     def complete(self, prompt, schema, max_tokens):
         if not self.cfg.get("enabled"):
             raise BackendError("disabled", "local back-end disabled in providers.json")
-        if not self.enabled():
-            raise BackendError("disabled", "GPU0 lease not held by this process (or pipeline/gpu0.py absent): the "
-                                           "local back-end runs only under the lease (law L-r)")
-        import story_semantics as sm
-        t0 = time.time()                              # a cold load is part of this call's latency (glm c2 N1)
-        with self._llm_lock:
-            if self._llm is None:
-                self._llm = sm.LocalLLM(model=self.model).start()
-            llm = self._llm
-            self._busy += 1
         try:
-            text = llm._post(prompt, int(max_tokens), seed=7)
-        except Exception as e:                        # a GPU0 stop (BaseException) is never renamed: it propagates
-            raise BackendError("server", f"{type(e).__name__}: {e}"[:300], latency_s=time.time() - t0)
+            client = lease_client()
+        except Exception as e:                        # absent, or not the API used here: never available
+            raise BackendError("disabled", f"the GPU lease client cannot be used: {type(e).__name__}: {e}"[:300])
+        wait = self._free_at - self._clock()
+        if wait > 0:
+            self._sleep(wait)
+        t0, reached = self._clock(), True
+        try:
+            text = client.chat_gpu1(self.model, [{"role": "user", "content": prompt}], LEASE_OWNER,
+                                    options={"temperature": 0, "seed": 7, "num_ctx": self.num_ctx,
+                                             "num_predict": int(max_tokens)},
+                                    fmt="json", wait_s=self.lease_wait_s, timeout=self.timeout)
+        except client.Gpu1Unavailable as e:          # every GPU stop, renamed by the client: the card is not free
+            reached = False
+            raise BackendError("busy", str(e)[:300], latency_s=self._clock() - t0) from None
+        except urllib.error.HTTPError as e:           # the request's own errors, as for every other back-end
+            raise _http_error(e, t0) from None
+        except (socket.timeout, TimeoutError) as e:
+            raise BackendError("timeout", f"{type(e).__name__}", latency_s=self._clock() - t0) from None
+        except (urllib.error.URLError, ConnectionError, OSError) as e:
+            raise BackendError("network", f"{type(e).__name__}: {getattr(e, 'reason', e)}"[:300],
+                               latency_s=self._clock() - t0) from None
+        except Exception as e:
+            raise BackendError("server", f"{type(e).__name__}: {e}"[:300], latency_s=self._clock() - t0) from None
         finally:
-            with self._llm_lock:
-                self._busy -= 1
-        lat = time.time() - t0
+            if reached:
+                self._free_at = self._clock() + self.yield_s
+        lat = self._clock() - t0
         if not isinstance(text, str) or not text.strip():
             raise BackendError("empty", "no content", latency_s=lat)
-        return Reply(text, f"{self.model}@{getattr(llm, 'digest', None)}", self.cfg.get("vendor"), lat, {}, 0.0,
-                     "local", None, 200, None)
-
-    def release(self):
-        with self._llm_lock:
-            if self._busy:                            # a request is running: released at the next idle cycle
-                return
-            llm, self._llm = self._llm, None
-        if llm is not None and hasattr(llm, "stop"):
-            llm.stop()
+        return Reply(text, self.model, self.cfg.get("vendor"), lat, {}, 0.0, "local", None, 200, None)
 
 
 class Overrides:

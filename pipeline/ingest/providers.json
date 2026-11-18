@@ -10,9 +10,10 @@
   "env_file": "/home/ultron/protocol_pulse/.env",
   "backends": {
     "local_gemma": {
-      "kind": "ollama_local", "vendor": "ultron-gpu0", "model": "gemma3:27b", "enabled": false, "requires": "gpu0_lease",
-      "note": "Ultron GPU0 through story_semantics.LocalLLM (gpu0.require + swap_to on every request, main 4867a74a). Available only while this process holds the GPU0 lease (gpu0.held); the integrator enables it under the lease; this session uses no GPU.",
-      "max_inflight": 1, "timeout_s": 600,
+      "kind": "ollama_local", "vendor": "ultron-gpu1", "model": "gemma3:27b", "enabled": true, "requires": "gpu1_lease",
+      "lease_wait_s": 60, "yield_s": 3, "num_ctx": 16384,
+      "note": "Ruling 118 (orchestrator 10:50 ET Nov 16 (2)): the local model on a free card under the lease, the last of the mine, hook and spotlight chains. Ultron GPU1 (law L-r's layout, PBX 2026-11-12: GPU0 renders and their gates, GPU1 everything else) through the main tree's lease client (services/gpu_lease_client.py, gpu0.ollama_call; main fb973fd0): per request the GPU1 lease within lease_wait_s, the memory proven free and a foreign user waited out within the same bound, keep_alive 0, the unload confirmed before the lease is released. A card not free within the bound is 'busy' (not retried; the videos wait). After each request that reached the card it is left free for yield_s (gpu0.lease polls every 0.2 s, ollama_call every 1 s). num_ctx: the pipeline's LocalLLM setting, at which gpu0.REQUIREMENT_MIB was measured; the longest mine prompt measured is 2,643 tokens (Nov 16-17), the role's reply budget 4,000. timeout_s: the request (the model's load and the reply).",
+      "max_inflight": 1, "timeout_s": 300,
       "price": {"in_per_mtok": 0.0, "out_per_mtok": 0.0, "basis": "local"}
     },
     "heimdall_qwen27b": {
@@ -198,7 +199,7 @@
   "roles": {
     "mine": {"chain": ["heimdall_qwen27b", "heimdall_deepseek", "heimdall_minimax", "heimdall_gemma", "heimdall_gptoss", "heimdall_mimo", "local_gemma"],
              "attempts": 3, "max_tokens": 4000,
-             "note": "ruling 118 (orchestrator 10:50 ET Nov 16): outside vendors are capped at $1.00 a day for the whole pipeline, so the miner's paid route is closed; its Plan B is the next Heimdall model (qwen, then deepseek 4.1, minimax, gemma, gpt-oss, mimo; never glm or muse), then the local model on a free card under the lease (local_gemma: only while this process holds the GPU lease)"},
+             "note": "ruling 118 (orchestrator 10:50 ET Nov 16): outside vendors are capped at $1.00 a day for the whole pipeline, so the miner's paid route is closed; its Plan B is the next Heimdall model (qwen, then deepseek 4.1, minimax, gemma, gpt-oss, mimo; never glm or muse), then the local model on a free card under the lease (local_gemma: GPU1, its lease taken per request when the card is free)"},
     "judge": {"chain": ["xai_frontier", "gemini_frontier", "anthropic_frontier"], "attempts": 2, "max_tokens": 8000},
     "hook": {"chain": ["heimdall_qwen27b", "heimdall_deepseek", "heimdall_minimax", "heimdall_gemma", "heimdall_gptoss", "heimdall_mimo", "local_gemma"], "attempts": 3, "max_tokens": 3000,
              "note": "ruling 80 (2026-11-13 18:42 ET): the hook pass, a second mining question over the same windows (mine.HOOK_PROMPT); the mine role's chain under the spend freeze"},

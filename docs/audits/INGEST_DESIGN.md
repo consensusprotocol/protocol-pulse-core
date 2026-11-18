@@ -153,17 +153,16 @@ its TAXONOMY.
 Every model role (here: `mine`, `judge`, `flagcheck`) goes through `pipeline.ingest.providers.Router`; vendors and model names live
 ONLY in `pipeline/ingest/providers.json` (a test reads every identifier and string of the package for them). Back-end
 kinds (wire protocols): `openai_compat` (Heimdall, xAI, OpenAI), `anthropic` (SDK), `gemini` (google-genai),
-`ollama_local` (gemma3:27b on Ultron through `story_semantics.LocalLLM`: available only while this process holds the
-GPU0 lease, `gpu0.held()`, a check; LocalLLM itself takes `gpu0.require` + `swap_to` on every request, main 4867a74a;
-`Router.release()` unloads it when a cycle ends). Every back-end names its vendor. Each role names at least two
-back-ends.
+`ollama_local` (gemma3:27b on Ultron GPU1, its lease taken per request through the main tree's lease client: section
+21, r123; until r123 it ran only where a process already held the GPU0 lease, which this watcher never did). Every
+back-end names its vendor. Each role names at least two back-ends.
 
 SPEND FREEZE (orchestrator 05:30 ET Nov 12, until told otherwise): `providers.json` `spend_freeze.vendors` = OpenAI,
 Anthropic, xAI, Google. A frozen vendor's back-end is never called by any role, whatever its chain, `only` or `enabled`
 say (`Router.available` and `Router._try` both refuse); its stored validated replies cost nothing and may be re-read.
-The `mine` chain is Heimdall qwen3.8-27b then the local model, so in this session (no GPU0 lease) Heimdall is the only
-callable miner: when it is down, videos WAIT (below) and are mined when it returns; nothing falls through to a paid
-frontier model. Lift: remove the vendor from `spend_freeze` (and restore the chain), restart.
+The `mine` chain is six Heimdall models then the local model on GPU1 (ruling 118, section 19; r123, section 21): when
+every one of them fails or its card is not free, videos WAIT (below) and are mined when one answers; nothing falls
+through to a paid frontier model. Lift: remove the vendor from `spend_freeze` (and restore the chain), restart.
 
 Per back-end: bounded in-flight (Heimdall 12, never above the global 20), queue-aware backoff on HTTP 429 and on
 503 `provider_overloaded` (Retry-After honoured, else 2 s doubling to 60 s with jitter, shared by every thread of that
@@ -573,7 +572,7 @@ the same videos.
   own switches reach line 1. Any answered call or probe resets it (the module). The probe asks one back-end per family
   the watcher calls (qwen, deepseek, minimax, gemma, gpt-oss, mimo, muse).
 - RULING 118: the mine, hook and spotlight chains are qwen, then deepseek 4.1, minimax, gemma, gpt-oss, mimo (all on
-  the Heimdall gateway), then the local model (only while this process holds the GPU lease; it does not take one):
+  the Heimdall gateway), then the local model (r123, section 21: GPU1, its lease taken per request when the card is free):
   no paid route (paid_route and mine_paid removed), never glm or muse. Measured on Nov 16 (the watcher's own question):
   minimax 2/2, mimo 2/2, gpt-oss 3 of 4, gemma 2/2 at effort none (empty at its default); deepseek gave no answer in
   time (its deadline 90 s, so it costs a window at most 4 x 90 s once before its breaker opens). RULING 119 (3): glm
@@ -607,6 +606,39 @@ the same videos.
   and the sweep makes it due once the pipeline's store holds its record (the pipeline saw it: it exists).
 - The second caption source (designed, not built) and what the 429s correlate with:
   docs/audits/parallel/pp-ingest_CAPTION_SOURCE_DESIGN.md.
+
+## 21. The local model on a free card under the lease (the 10:50 order of Nov 16 (2), ruling 118): r123
+
+- WHERE: GPU1 only. Law L-r's layout (PBX 2026-11-12, main pipeline/gpu0.py): GPU0 = renders and their gates (builds
+  first, R13), GPU1 = everything else. The Nov 12 assignment's "this session uses no GPU" is lifted by the order for
+  this fallback only (STATE line 1, Nov 17: the ruling-106 question, default live).
+- HOW: `providers.OllamaLocalBackend` asks GPU1's model server only through the main tree's lease client
+  (`services/gpu_lease_client.py`, main fb973fd0; loaded by its file path under a private module name, checked for its
+  API, never on sys.path). Per request, `gpu0.ollama_call(1, ...)`: the GPU1 lease taken within `lease_wait_s` (60 s),
+  the memory proven free and a foreign user waited out within the same bound, the request with keep_alive 0, the
+  model's unload confirmed before the lease is released. Between requests the watcher holds nothing (no lease, no
+  model), so `Router.release()` has nothing to free. The request is the pipeline LocalLLM's: /api/chat, JSON, temperature
+  0, seed 7, num_ctx 16384 (the setting at which gpu0.REQUIREMENT_MIB was measured; the longest mine prompt measured is
+  2,643 tokens, the reply budget 4,000), num_predict = the role's max_tokens; timeout 300 s (the load and the reply).
+- WHEN: last of the mine, hook and spotlight chains, after all six Heimdall models failed or were skipped for that
+  request (0 times from Nov 16 to Nov 17 21:00 ET: 1,298 replies from qwen, 1 from minimax). Its answer is mined like
+  any other (back-end local_gemma, cost 0, basis local). It never feeds the outage clock (the down signal notes the
+  gateway vendor's calls only).
+- A CARD NOT FREE: the client renames every GPU stop (LeaseBusy, Gpu0Foreign, Gpu0NotFree, ...: BaseExceptions) as
+  Gpu1Unavailable; the back-end reads it as kind `busy`: unavailable, never retried on this back-end, the work waits
+  (AllBackendsFailed.outage); 5 in a row open its breaker for 5 min. No GPU stop reaches the miner's threads. The
+  request's own errors are classified as for every back-end (an HTTP status by _http_error, a timeout, the network).
+- TURNS: after a request that reached the card, the card is left free for `yield_s` (3 s) before this back-end's next
+  request, so an owner waiting for it takes its turn (gpu0.lease polls every 0.2 s: the word-pass worker, whose wait is
+  1,800 s; ollama_call every 1 s: the broadcast, the watchdog, the site). A refusal never reached the card: no wait.
+- enabled(): the config and the client file's presence, a check, never a load or a lease (integrator B3); the startup
+  line's "callable now" lists the local back-end.
+- TESTS: tests/ingest/conftest.py gives every test a refusing client and a stand-in client file (no test takes a real
+  lease or loads a model); test_r123.py also runs the main tree's real client file with a stand-in gpu0. Mutations
+  M51-M64 killed, each run with the lease files redirected and the network refused.
+- AS OF Nov 17 21:00 ET: DaVinci Resolve (headless, pid 1073512) has sat on both GPUs since 16:59 ET; law L-r refuses
+  every lawful call while it stays, so this fallback answers `busy` (Gpu0Foreign after its 60 s bound) and the videos
+  wait, as before r123. The word-pass worker died on it at 17:23 ET (the integrator's; reported).
 
 ## 11. Assumptions (most defensible reading; the integrator may overrule)
 

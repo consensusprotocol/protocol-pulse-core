@@ -2,6 +2,7 @@
 import os
 import sys
 import tempfile
+import types
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 if REPO not in sys.path:
@@ -39,6 +40,30 @@ def _batch_in_tmp(tmp_path_factory, monkeypatch):
                              "share_usd": 1000.0, "share_of": "mining and checks"}))
     monkeypatch.setattr(batch, "SPEC", str(p))
     return p
+
+
+class NoGpuInTests(RuntimeError):
+    """What every test's GPU1 lease client raises: the local back-end reads it as a card that is not free."""
+
+
+@pytest.fixture(autouse=True)
+def _no_gpu_lease_in_tests(tmp_path_factory, monkeypatch):
+    """Ruling 118's local back-end takes the REAL GPU1 lease through the main tree's lease client (and loads a model on
+    GPU1): no test ever reaches it. Every test's client is this refusing one (providers.lease_client returns the
+    module cached under its private name, so the real file is never loaded), and the client's file is a stand-in
+    that exists, so enabled() is the same on every machine. A test of the local back-end installs its own."""
+    from pipeline.ingest import providers
+    calls = []
+
+    def chat_gpu1(*a, **k):
+        calls.append((a, k))
+        raise NoGpuInTests("tests never take a GPU lease (tests/ingest/conftest.py)")
+    stand_in = tmp_path_factory.mktemp("lease_client") / "gpu_lease_client.py"
+    stand_in.write_text("raise SystemExit('the tests stand-in lease client is never loaded')\n")
+    monkeypatch.setattr(providers, "LEASE_CLIENT", str(stand_in))
+    monkeypatch.setitem(sys.modules, providers.LEASE_CLIENT_MODULE,
+                        types.SimpleNamespace(Gpu1Unavailable=NoGpuInTests, chat_gpu1=chat_gpu1, calls=calls))
+    return calls
 
 
 @pytest.fixture(autouse=True)
