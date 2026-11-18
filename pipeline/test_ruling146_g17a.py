@@ -100,6 +100,7 @@ class TestRenderFlags(unittest.TestCase):
         RF.flag_short_hook_cut(r, [{"clip_id": "hook", "hook_lead": {"short": SHORT}}, {"clip_id": "clip_01"},
                                    {"clip_id": "clip_02", "hook_lead": {"lead_ms": 120}}])
         self.assertEqual(r.status["review_flags"], [ABRUPT])
+        self.assertEqual(len(r.prov["review_flags"]), 1)                # the short hook alone
         self.assertIn(SHORT, r.prov["review_flags"][0]["detail"])
 
     def test_a_snap_short_of_the_hooks_80_ms_is_flagged_a_refused_snap_holds(self):
