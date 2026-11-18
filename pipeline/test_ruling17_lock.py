@@ -505,6 +505,12 @@ class TestRuling143(unittest.TestCase):
             self.settle(run_t, pin_t, pin_t)
         self.assertIn("ruling 143 (3)", str(e.exception))
 
+    def test_a_filler_the_second_reader_writes_is_no_reading(self):    # ruling 135 (d) / 143 (2)
+        run_t = "I like it a lot because the plan works for every one of us here today, and that is the point."
+        pin_t = "I uh like it a lot because the plan works for every one of us here today, and that is the point."
+        new, _ = self.settle(run_t, pin_t, pin_t)        # the second recogniser writes the filler as well
+        self.assertNotIn(" uh ", f" {new['text']} ")      # a filler is not a word: never a two-of-three reading
+
     def test_a_ticker_holds_unless_both_audio_readings_agree(self):    # 'i've' / 'IBIT'
         run_t = "So I've seen inflows into it every single day this week."
         pin_t = "So IBIT seen inflows into it every single day this week."
