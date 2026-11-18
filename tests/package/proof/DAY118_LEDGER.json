@@ -1,69 +1,24 @@
 {
  "ruling": "118, orchestrator 05:40 ET Nov 16",
  "day": [
-  "2026-11-16T21:10:00-05:00",
-  "2026-11-17T21:10:00-05:00"
+  "2026-11-17T21:10:00-05:00",
+  "2026-11-18T21:10:00-05:00"
  ],
- "ledger": "SPEND_D20261116.json",
- "cap": 1.4,
- "outside": 1.170561,
+ "ledger": "SPEND_D20261117.json",
+ "cap": 1.5,
+ "outside": 0.0,
  "parts_outside": {
-  "builds": 1.014161,
+  "builds": 0.0,
   "audits": 0.0,
   "checks": 0.0,
-  "lock_precheck_scribe": 0.1564,
+  "lock_precheck_scribe": 0.0,
   "integrator_other": 0,
-  "integrator_unpriced": [
-   {
-    "at": "2026-11-17T20:06:48Z",
-    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
-    "ref": "vo_signoff_pp2_v1_bf46b21f80b1",
-    "service": "unknown",
-    "units": {
-     "characters": 89
-    },
-    "usd": null,
-    "vendor": "elevenlabs:tts:eleven_v4"
-   },
-   {
-    "at": "2026-11-17T20:06:48Z",
-    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
-    "ref": "vo_signoff_pp2_v1_b0ae9bf9641f",
-    "service": "unknown",
-    "units": {
-     "characters": 107
-    },
-    "usd": null,
-    "vendor": "elevenlabs:tts:eleven_v4"
-   },
-   {
-    "at": "2026-11-17T20:36:44Z",
-    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
-    "ref": "vo_signoff_pp2_v1_bf46b21f80b1",
-    "service": "unknown",
-    "units": {
-     "characters": 89
-    },
-    "usd": null,
-    "vendor": "elevenlabs:tts:eleven_v4"
-   },
-   {
-    "at": "2026-11-17T20:36:44Z",
-    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
-    "ref": "vo_signoff_pp2_v1_b0ae9bf9641f",
-    "service": "unknown",
-    "units": {
-     "characters": 107
-    },
-    "usd": null,
-    "vendor": "elevenlabs:tts:eleven_v4"
-   }
-  ],
+  "integrator_unpriced": [],
   "others": {}
  },
  "heimdall_free": {
-  "builds": 0.021173,
-  "audits": 0.399858,
+  "builds": 0.0,
+  "audits": 0.02029,
   "checks": 5.275658,
   "others": {}
  },
