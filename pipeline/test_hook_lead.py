@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Ruling 28 (orchestrator 2026-11-13 '01:55'): the hook's lead decided at the cut by G17a's own measure.
 real fixtures  pin #1's hook (Sjb6lUiL0m4: digital zeros of a hard edit up to ~40 ms before the first word; a gated
-               source whose room tone dips to digital silence) is REFUSED before any render, with the measured reason,
-               and its clips keep their cuts; the medley reference's hook (260 ms of lead) keeps its planned cut
+               source whose room tone dips to digital silence) keeps its planned cut, marked "short" with the measured
+               reason (RULING 146 (2), orchestrator 2026-11-18 '07:55': SOFT, flagged; it was refused), and its clips
+               keep their cuts; the medley reference's hook (260 ms of lead) keeps its planned cut
 logic          a planned cut with >= 80 ms stands; else the first legal, neighbour-clear candidate with >= 80 ms; else
                the D1 pad only where the padded head measures >= 80 ms; else refused"""
 import json
@@ -32,15 +33,17 @@ def scratch(run):
 
 class TestHookLeadReal(unittest.TestCase):
     @unittest.skipUnless(os.path.isdir(os.path.join(PIN1, "sources")), "pin #1's run is not on this machine")
-    def test_pin1s_hook_is_refused_before_any_render_and_its_clips_keep_their_cuts(self):
+    def test_pin1s_hook_keeps_its_planned_cut_marked_short_and_its_clips_keep_their_cuts(self):   # ruling 146 (2)
         d = scratch(PIN1)
         self.addCleanup(shutil.rmtree, d)
         old = {c["clip_id"]: c for c in json.load(open(os.path.join(PIN1, "cuts_final.json")))}
         new = {c["clip_id"]: c for c in L.write_lock_cut_table(d)}
         h = new["hook"]
-        self.assertFalse(h["verified"])
-        self.assertIn("hook lead (ruling 28): no legal cut in the pause keeps 80 ms", h["error"])
-        self.assertIn("the D1 room-tone pad does not give it either: G17a measures 20 ms at 14.810", h["error"])
+        self.assertTrue(h["verified"], h.get("error"))
+        self.assertNotIn("error", h)
+        self.assertEqual(h["cut_in"], h["hook_lead"]["planned_cut_in"])
+        self.assertIn("no legal cut in the pause keeps 80 ms", h["hook_lead"]["short"])
+        self.assertIn("the D1 room-tone pad does not give it either: G17a measures 20 ms at 14.810", h["hook_lead"]["short"])
         for k in ("clip_01", "clip_02"):
             self.assertEqual((new[k]["cut_in"], new[k]["cut_out"]), (old[k]["cut_in"], old[k]["cut_out"]))
 
