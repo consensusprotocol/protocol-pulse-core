@@ -3157,6 +3157,99 @@
   },
   "version": "visual-2"
  },
+ "f0a51c45830936b3a3c1:461.650-478.940:visual-3:0d10b18155745642": {
+  "backend": "heimdall:qwen/qwen3.8-27b",
+  "burned_in": [
+   {
+    "at": [
+     461.85,
+     462.65,
+     463.65,
+     464.65,
+     465.65,
+     466.65,
+     467.65,
+     468.65,
+     469.65,
+     470.65,
+     471.65,
+     472.65,
+     473.65,
+     474.65,
+     475.65,
+     476.65,
+     477.65,
+     478.65,
+     479.8
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "THE DAILY WOLF",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "THE DAILY WOLF"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": false,
+    "text": "THE DAILY WOLF",
+    "why": "This is the show's title card on the studio backdrop; it names the program but asserts no factual claim beyond what the spoken words say."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_66080c99d2c6900f.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_66080c99d2c6900f.jpg",
+   "sha256": "66080c99d2c6900ff09e2a32e0e4d04b2040557fe2e91d390e264fd27b030b17",
+   "times": [
+    461.65,
+    462.65,
+    463.65,
+    464.65,
+    465.65,
+    466.65,
+    467.65,
+    468.65,
+    469.65,
+    470.65,
+    471.65,
+    472.65,
+    473.65,
+    474.65,
+    475.65,
+    476.65,
+    477.65,
+    478.65,
+    478.89
+   ]
+  },
+  "third_person": {
+   "finding": "Only the single speaking host appears; no other person is shown as a still, photo, or graphic, and the words make no negative claim.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2301,
+   "out": 1564,
+   "usd_reported": 0.00122213
+  },
+  "version": "visual-3"
+ },
  "f4bad490a7d8f7f7e89d:2176.964-2181.284:visual-3:be739a7c069c8e7f": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [],
@@ -3219,6 +3312,75 @@
    "in": 2578,
    "out": 11510,
    "usd_reported": 0.072488
+  },
+  "version": "visual-3"
+ },
+ "feb4b72f301cde9d380d:2647.259-2656.819:visual-3:792e3783a1425a27": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     2647.26,
+     2648.26,
+     2649.26,
+     2650.26,
+     2651.26,
+     2652.26,
+     2653.26,
+     2654.26,
+     2655.26
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "NATALIE BRUNELL",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "NATALIE BRUNELL"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_3bb93bb4470429b5.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_3bb93bb4470429b5.jpg",
+   "sha256": "3bb93bb4470429b515d11feed3716b4321acb21209410a1fa0b2f490db0e8364",
+   "times": [
+    2647.26,
+    2648.26,
+    2649.26,
+    2650.26,
+    2651.26,
+    2652.26,
+    2653.26,
+    2654.26,
+    2655.26,
+    2656.26,
+    2656.77
+   ]
+  },
+  "third_person": {
+   "finding": "No still, photo, or graphic of a non-speaking person appears; the wide shots show only a live co-host, and the words make no negative claim about anyone.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2954,
+   "out": 5923,
+   "usd_reported": 0.039718
   },
   "version": "visual-3"
  }

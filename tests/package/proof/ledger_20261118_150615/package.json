@@ -1,0 +1,1957 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [],
+ "unusable": {},
+ "usable": 6,
+ "current_levels": [
+  63000.0,
+  63757.57,
+  63800.0
+ ],
+ "no_role": {
+  "f0a51c45830936b3a3c1": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'but'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'but': nothing is heard before a hook",
+  "feb4b72f301cde9d380d": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook"
+ },
+ "ad_read": {
+  "6e79ceaa8e76f34f4117": "ad-read marker 'sponsored' in the sentence before it"
+ },
+ "trimmed": {
+  "feb4b72f301cde9d380d": "feb4b72f301cde9d380d~trim"
+ },
+ "reposted": {},
+ "scorer": {
+  "read": true,
+  "rated_at": "2026-11-18T14:24:55Z",
+  "build": "ledger_20261118_142435",
+  "candidates_generated_at": "2026-11-18T14:24:45+00:00",
+  "model": "gemma3:27b",
+  "kind": "moments",
+  "rubric": "ruling 60: stand-alone only",
+  "scorer_sha": "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53",
+  "threshold": 3.5,
+  "verdicts": 9,
+  "affirmed": 3,
+  "affirmed_on_the_floor": 2,
+  "disagree_with_the_rule": [],
+  "candidates": 8,
+  "candidates_written": true,
+  "admitted": [],
+  "trims_affirmed": [
+   "feb4b72f301cde9d380d"
+  ],
+  "trims_out": {
+   "d427b94963b3bdbd8a60": "'Now' trimmed; the clip scorer does not affirm the trimmed text stands alone (1.0, under 3.5)",
+   "f0a51c45830936b3a3c1": "'But' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)"
+  }
+ },
+ "prescreen": {
+  "screened": 0,
+  "cleared": 0,
+  "failed": {},
+  "parallel_101": null,
+  "held_102": {
+   "first": [],
+   "second": []
+  },
+  "last_resort_87": {}
+ },
+ "angles": [],
+ "takeaways": [],
+ "package": null,
+ "why_none": "the pool spans 2 channel(s) after the free stages: a medley needs 3; no paid verdict (ruling 109)",
+ "ruling_109": {
+  "channels": 2,
+  "pool": 4
+ },
+ "never_empty": {
+  "stage": "2b",
+  "clean_why_none": "the pool spans 2 channel(s) after the free stages: a medley needs 3; no paid verdict (ruling 109)",
+  "soft_why_none": "no angle gave a package: angle 1: ruling 91: the takeaway did not earn its place, nor did its one rewrite, and no no-voice line-up exists (the clips-alone verdict is not a measured pass with every join followable); angle 2: no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules; angle 3: no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules",
+  "soft_back": {
+   "84884c9f79cb11fa498d": [
+    "NOT_OWN_SINCERE"
+   ],
+   "feb4b72f301cde9d380d": [
+    "REFERENT_OUTSIDE"
+   ],
+   "feb4b72f301cde9d380d~trim": [
+    "REFERENT_OUTSIDE"
+   ]
+  },
+  "soft_record": {
+   "prescreen": {
+    "screened": 6,
+    "cleared": 6,
+    "failed": {
+     "84884c9f79cb11fa498d": [
+      "NOT_OWN_SINCERE"
+     ],
+     "feb4b72f301cde9d380d": [
+      "REFERENT_OUTSIDE"
+     ],
+     "feb4b72f301cde9d380d~trim": [
+      "REFERENT_OUTSIDE"
+     ]
+    },
+    "parallel_101": {
+     "parallel": false,
+     "n_new": 0,
+     "est_wait_s": null,
+     "leg": null,
+     "confirm": null,
+     "why": "not over 20 new moments",
+     "used": 0
+    },
+    "held_102": {
+     "first": [],
+     "second": []
+    },
+    "last_resort_87": {},
+    "soft_back": {
+     "84884c9f79cb11fa498d": [
+      "NOT_OWN_SINCERE"
+     ],
+     "feb4b72f301cde9d380d": [
+      "REFERENT_OUTSIDE"
+     ],
+     "feb4b72f301cde9d380d~trim": [
+      "REFERENT_OUTSIDE"
+     ]
+    },
+    "second_pass": {
+     "84884c9f79cb11fa498d": "PASS",
+     "d427b94963b3bdbd8a60": "not cuttable at an edge (ruling C / 7)",
+     "feb4b72f301cde9d380d": "PASS",
+     "feb4b72f301cde9d380d~trim": "not cuttable at an edge (ruling C / 7)",
+     "f0a51c45830936b3a3c1": "PASS",
+     "20cac687560642251d37": "PASS"
+    },
+    "soft_edges": {
+     "d427b94963b3bdbd8a60": [
+      "EDGE_OUT"
+     ],
+     "feb4b72f301cde9d380d~trim": [
+      "EDGE_IN"
+     ]
+    },
+    "cuttable": 6,
+    "hook_onset": {
+     "20cac687560642251d37": "PASS",
+     "d427b94963b3bdbd8a60": "PASS",
+     "f0a51c45830936b3a3c1": "FAIL: 70 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+     "84884c9f79cb11fa498d": "FAIL: 10 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+     "feb4b72f301cde9d380d": "FAIL: 0 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+     "feb4b72f301cde9d380d~trim": "FAIL: no cut after the trimmed word 'And': the trimmed word 'And' cannot be cut cleanly: no measured pause between it and \"that's\" (co-articulated)"
+    },
+    "trim_cut": {
+     "feb4b72f301cde9d380d~trim": "FAIL: no trimmed cut was reached: no cut after the trimmed word 'And': the trimmed word 'And' cannot be cut cleanly: no measured pause between it and \"that's\" (co-articulated)"
+    },
+    "soft_hook_bar": {
+     "84884c9f79cb11fa498d": "making sense on its own 3 of 5, needs 4",
+     "d427b94963b3bdbd8a60": "making sense on its own 2 of 5, needs 4"
+    },
+    "second_vendor": {
+     "20cac687560642251d37": "PASS (heimdall:deepseek/deepseek-v4.1-flash)",
+     "d427b94963b3bdbd8a60": "PASS (heimdall:deepseek/deepseek-v4.1-flash)",
+     "f0a51c45830936b3a3c1": "PASS (heimdall:deepseek/deepseek-v4.1-flash)",
+     "84884c9f79cb11fa498d": "FAIL: NOT_OWN_SINCERE",
+     "feb4b72f301cde9d380d": "FAIL: REFERENT_OUTSIDE"
+    },
+    "soft_second": {
+     "84884c9f79cb11fa498d": [
+      "NOT_OWN_SINCERE"
+     ],
+     "feb4b72f301cde9d380d": [
+      "REFERENT_OUTSIDE"
+     ]
+    }
+   },
+   "hook_pool": {
+    "can_open": 3,
+    "rated": 3,
+    "error": null,
+    "bar": "the calibrated hook bar (ruling 115): scroll >= 3, alone >= 4, setup >= 3, on xai:grok-4.20-0309-reasoning asked alone at seed 7 (calibration 6978392df37e)",
+    "bar_floors": {
+     "scroll": 3,
+     "alone": 4,
+     "setup": 3
+    },
+    "bar_sha256": "6978392df37e5abff8594c6fc293e29cf761718fc0530cd87ed6b3892c3fafd6",
+    "bar_invalid": null,
+    "ratings": {
+     "20cac687560642251d37": {
+      "scroll": 3,
+      "alone": 5,
+      "setup": 4,
+      "rating": 3,
+      "why": "wordy start lacks punch to stop scroll",
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+      "cached": true
+     },
+     "84884c9f79cb11fa498d": {
+      "scroll": 3,
+      "alone": 3,
+      "setup": 4,
+      "rating": 3,
+      "why": "vague without context or strong emotion",
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+      "cached": true
+     },
+     "d427b94963b3bdbd8a60": {
+      "scroll": 3,
+      "alone": 2,
+      "setup": 4,
+      "rating": 2,
+      "why": "Implies prior context with 'Now, we've seen'",
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+      "cached": true
+     }
+    },
+    "best": [
+     {
+      "moment_id": "20cac687560642251d37",
+      "channel": "Bitcoin Magazine",
+      "rating": 3,
+      "scroll": 3,
+      "alone": 5,
+      "setup": 4,
+      "why": "wordy start lacks punch to stop scroll",
+      "text": "Being able to use Bitcoin doesn't depend on whether the House or the Senate is red or blue because Bitcoin lives outside of the institutions under the thumb of "
+     },
+     {
+      "moment_id": "84884c9f79cb11fa498d",
+      "channel": "Bitcoin Magazine",
+      "rating": 3,
+      "scroll": 3,
+      "alone": 3,
+      "setup": 4,
+      "why": "vague without context or strong emotion",
+      "text": "Keep Bitcoin as Bitcoin and activate it."
+     },
+     {
+      "moment_id": "d427b94963b3bdbd8a60",
+      "channel": "Bitcoin Magazine",
+      "rating": 2,
+      "scroll": 3,
+      "alone": 2,
+      "setup": 4,
+      "why": "Implies prior context with 'Now, we've seen'",
+      "text": "Now, we've seen Bitcoin developers be prosecuted for writing and publishing free software."
+     }
+    ],
+    "passing": [
+     "20cac687560642251d37",
+     "84884c9f79cb11fa498d",
+     "d427b94963b3bdbd8a60"
+    ],
+    "visual_blocked": {},
+    "sixteen_nine_only": {
+     "hooks": {
+      "20cac687560642251d37": "the show's own on-screen graphics (ruling 146 (1))",
+      "d427b94963b3bdbd8a60": "the show's own on-screen graphics (ruling 146 (1))",
+      "84884c9f79cb11fa498d": "the show's own on-screen graphics (ruling 146 (1))"
+     },
+     "note": "no hook passes for both formats: a hook refused only by ruling 93's 9:16 crop opens a package sealed formats ['16x9'] (ruling 123 (2))"
+    }
+   },
+   "tried": [
+    {
+     "angle": 1,
+     "text": "Bitcoin's independence from political control makes it valuable, but that same independence means self-custody is a personal responsibility and we must keep Bitcoin as Bitcoin.",
+     "lineup": [
+      "20cac687560642251d37",
+      "f0a51c45830936b3a3c1",
+      "feb4b72f301cde9d380d"
+     ],
+     "supply_exception": null,
+     "attempts": [
+      {
+       "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+       "writer_tried": [],
+       "runtime": 63.51,
+       "bridge": {
+        "after": "clip_01",
+        "after_clip": 1,
+        "join": "clip_01 -> clip_02",
+        "text": "Natalie Brunell's show turns to self-custody and responsibility.",
+        "why": "Without it, the next clip's opening referent is unclear and the shift to responsibility feels abrupt.",
+        "confirmed_by": {
+         "join": "clip_01 -> clip_02",
+         "why": "unclear referent for 'that's not to say it's bad'; abrupt shift to responsibility",
+         "backend": "xai:grok-4.20-0309-reasoning"
+        }
+       },
+       "takeaway_budget": [
+        17,
+        20
+       ],
+       "lines": [
+        {
+         "slot": "bridge_1",
+         "text": "Natalie Brunell's show turns to self-custody and responsibility.",
+         "cites": [
+          "feb4b72f301cde9d380d"
+         ]
+        },
+        {
+         "slot": "takeaway",
+         "text": "Bitcoin's freedom from politics leaves its users with personal responsibility. Keeping it unchanged is the harder part.",
+         "cites": []
+        },
+        {
+         "slot": "title",
+         "text": "Independence and the burden of self custody",
+         "cites": [
+          "20cac687560642251d37",
+          "feb4b72f301cde9d380d"
+         ]
+        },
+        {
+         "slot": "caption",
+         "text": "bitcoin answers to no party. that freedom makes self custody a personal duty.",
+         "cites": [
+          "20cac687560642251d37",
+          "feb4b72f301cde9d380d"
+         ]
+        }
+       ],
+       "value": {
+        "text": "Bitcoin's freedom from politics leaves its users with personal responsibility. Keeping it unchanged is the harder part.",
+        "words": 17,
+        "cap": 20,
+        "adds": "yes",
+        "no_restate": "no",
+        "missed": "no",
+        "short": "yes",
+        "why": "The line adds a novel point about keeping Bitcoin unchanged being harder but restates the clips' ideas on political independence and self-custody responsibility while the importance of the conclusion is not clearly essential.",
+        "measured": true,
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "ok": false
+       }
+      },
+      {
+       "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+       "writer_tried": [],
+       "runtime": 63.51,
+       "bridge": {
+        "after": "clip_01",
+        "after_clip": 1,
+        "join": "clip_01 -> clip_02",
+        "text": "Natalie Brunell's show turns to self-custody and responsibility.",
+        "why": "Without it, the next clip's opening referent is unclear and the shift to responsibility feels abrupt.",
+        "confirmed_by": {
+         "join": "clip_01 -> clip_02",
+         "why": "unclear referent for 'that's not to say it's bad'; abrupt shift to responsibility",
+         "backend": "xai:grok-4.20-0309-reasoning"
+        }
+       },
+       "takeaway_budget": [
+        12,
+        20
+       ],
+       "lines": [
+        {
+         "slot": "bridge_1",
+         "text": "Natalie Brunell's show turns to self-custody and responsibility.",
+         "cites": [
+          "feb4b72f301cde9d380d"
+         ]
+        },
+        {
+         "slot": "takeaway",
+         "text": "The protocol stays neutral only while nobody rewrites its rules. That neutrality leaves custody to each person.",
+         "cites": []
+        },
+        {
+         "slot": "title",
+         "text": "Independence and the burden of self custody",
+         "cites": [
+          "20cac687560642251d37",
+          "feb4b72f301cde9d380d"
+         ]
+        },
+        {
+         "slot": "caption",
+         "text": "bitcoin answers to no party. that freedom makes self custody a personal duty.",
+         "cites": [
+          "20cac687560642251d37",
+          "feb4b72f301cde9d380d"
+         ]
+        }
+       ],
+       "takeaway_alone": {
+        "attempt": 1,
+        "refused": [
+         {
+          "text": "Bitcoin's freedom from politics leaves its users with personal responsibility. Keeping it unchanged is the harder part.",
+          "rule": "VALUE",
+          "detail": "adds yes, no_restate no, missed no, short yes: The line adds a novel point about keeping Bitcoin unchanged being harder but restates the clips' ideas on political independence and self-custody responsibility while the importance of the conclusion is not clearly essential."
+         }
+        ],
+        "ruling_91": true
+       },
+       "value": {
+        "text": "The protocol stays neutral only while nobody rewrites its rules. That neutrality leaves custody to each person.",
+        "words": 17,
+        "cap": 20,
+        "adds": "yes",
+        "no_restate": "yes",
+        "missed": "yes",
+        "short": "yes",
+        "why": "The line adds a conditional warning on protocol neutrality and personal custody that the clips do not state.",
+        "measured": true,
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "ok": true
+       },
+       "violations": [
+        {
+         "slot": "takeaway",
+         "rule": "COMMENTARY",
+         "detail": "host commentary 'The protocol stays neutral only while nobody rewrites its rules.' fails fact"
+        },
+        {
+         "slot": "takeaway",
+         "rule": "COMMENTARY",
+         "detail": "host commentary 'That neutrality leaves custody to each person.' fails fact"
+        },
+        {
+         "slot": "caption",
+         "rule": "COMMENTARY",
+         "detail": "host commentary 'that freedom makes self custody a personal duty.' fails fact"
+        },
+        {
+         "segment": "clip_02",
+         "rule": "REFERENT_OUTSIDE",
+         "detail": "'that' -> 'the industry selling self-custody Bitcoin as easier than it was' (changes the assertion: 'yes')"
+        }
+       ],
+       "verdict_classes": {
+        "bridge_1": [
+         "attribution"
+        ],
+        "takeaway": [
+         "commentary",
+         "commentary"
+        ],
+        "title": [
+         "commentary"
+        ],
+        "caption": [
+         "fact",
+         "commentary"
+        ]
+       }
+      },
+      {
+       "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+       "writer_tried": [],
+       "runtime": 64.31,
+       "bridge": {
+        "after": "clip_01",
+        "after_clip": 1,
+        "join": "clip_01 -> clip_02",
+        "text": "On Natalie Brunell's show, the topic is self custody and responsibility.",
+        "why": "Without it, the next clip's opening phrase has no clear referent and the shift to self custody feels abrupt.",
+        "confirmed_by": {
+         "join": "clip_01 -> clip_02",
+         "why": "unclear referent for 'that's not to say it's bad'; abrupt shift to responsibility",
+         "backend": "xai:grok-4.20-0309-reasoning"
+        }
+       },
+       "takeaway_budget": [
+        12,
+        20
+       ],
+       "lines": [
+        {
+         "slot": "bridge_1",
+         "text": "On Natalie Brunell's show, the topic is self custody and responsibility.",
+         "cites": [
+          "feb4b72f301cde9d380d"
+         ]
+        },
+        {
+         "slot": "takeaway",
+         "text": "I see Bitcoin's independence as a reason custody belongs to individuals, and keeping it unchanged matters.",
+         "cites": []
+        },
+        {
+         "slot": "title",
+         "text": "No political owner, personal responsibility",
+         "cites": [
+          "20cac687560642251d37",
+          "feb4b72f301cde9d380d"
+         ]
+        },
+        {
+         "slot": "caption",
+         "text": "i see bitcoin's independence as a value, with self custody as the responsibility it brings.",
+         "cites": []
+        }
+       ],
+       "violations": [
+        {
+         "slot": "takeaway",
+         "rule": "NEEDS_SOURCE",
+         "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+        }
+       ]
+      },
+      {
+       "writer": "heimdall:qwen/qwen3.8-27b",
+       "writer_tried": [
+        [
+         "heimdall:deepseek/deepseek-v4.1-flash",
+         "same model as the generator: skipped"
+        ]
+       ],
+       "runtime": 62.31,
+       "bridge": {
+        "after": "clip_01",
+        "after_clip": 1,
+        "join": "clip_01 -> clip_02",
+        "text": "On Natalie Brunell's show, the topic is self custody and responsibility.",
+        "why": "Without it, the next clip's opening phrase has no clear referent and the shift to self custody feels abrupt.",
+        "confirmed_by": {
+         "join": "clip_01 -> clip_02",
+         "why": "unclear referent for 'that's not to say it's bad'; abrupt shift to responsibility",
+         "backend": "xai:grok-4.20-0309-reasoning"
+        }
+       },
+       "takeaway_budget": [
+        9,
+        20
+       ],
+       "lines": [
+        {
+         "slot": "bridge_1",
+         "text": "On Natalie Brunell's show, the topic is self custody and responsibility.",
+         "cites": [
+          "feb4b72f301cde9d380d"
+         ]
+        },
+        {
+         "slot": "takeaway",
+         "text": "No one to call is the same no one to rule.",
+         "cites": []
+        },
+        {
+         "slot": "title",
+         "text": "No political owner, personal responsibility",
+         "cites": [
+          "20cac687560642251d37",
+          "feb4b72f301cde9d380d"
+         ]
+        },
+        {
+         "slot": "caption",
+         "text": "i see bitcoin's independence as a value, with self custody as the responsibility it brings.",
+         "cites": []
+        }
+       ],
+       "takeaway_alone": {
+        "attempt": 2,
+        "refused": [
+         {
+          "text": "Bitcoin's freedom from politics leaves its users with personal responsibility. Keeping it unchanged is the harder part.",
+          "rule": "VALUE",
+          "detail": "adds yes, no_restate no, missed no, short yes: The line adds a novel point about keeping Bitcoin unchanged being harder but restates the clips' ideas on political independence and self-custody responsibility while the importance of the conclusion is not clearly essential."
+         },
+         {
+          "text": "The protocol stays neutral only while nobody rewrites its rules. That neutrality leaves custody to each person.",
+          "rule": "COMMENTARY",
+          "detail": "host commentary 'The protocol stays neutral only while nobody rewrites its rules.' fails fact"
+         },
+         {
+          "text": "The protocol stays neutral only while nobody rewrites its rules. That neutrality leaves custody to each person.",
+          "rule": "COMMENTARY",
+          "detail": "host commentary 'That neutrality leaves custody to each person.' fails fact"
+         },
+         {
+          "text": "I see Bitcoin's independence as a reason custody belongs to individuals, and keeping it unchanged matters.",
+          "rule": "NEEDS_SOURCE",
+          "detail": "a line with a number, name, quote, attribution or time word cites no segment"
+         }
+        ]
+       },
+       "value": {
+        "text": "No one to call is the same no one to rule.",
+        "words": 11,
+        "cap": 20,
+        "adds": "yes",
+        "no_restate": "yes",
+        "missed": "no",
+        "short": "yes",
+        "why": "The line adds a novel connection between lacking anyone to call and lacking anyone to rule without restating the clips but is abstract enough that viewers would not clearly miss it if cut.",
+        "measured": true,
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "ok": false
+       }
+      }
+     ],
+     "medley": {
+      "through_line": "Bitcoin offers independence from political institutions through decentralized access to money but requires the personal responsibility of self-custody and sovereignty.",
+      "clips": {
+       "hook": 3,
+       "clip_01": 4,
+       "clip_02": 3
+      },
+      "joins": {
+       "hook -> clip_01": {
+        "followable": true,
+        "why": "both discuss Bitcoin's independence from political/centralized control"
+       },
+       "clip_01 -> clip_02": {
+        "followable": false,
+        "why": "unclear referent for 'that's not to say it's bad'; abrupt shift to responsibility"
+       }
+      },
+      "hook_own": {
+       "scroll": 3,
+       "alone": 5,
+       "setup": 4,
+       "rating": 3,
+       "passes": true,
+       "short": null,
+       "bar": "the calibrated hook bar (ruling 115): scroll >= 3, alone >= 4, setup >= 3, on xai:grok-4.20-0309-reasoning asked alone at seed 7 (calibration 6978392df37e)",
+       "source": "the hook's cached own-job rating (ruling 61), on the calibrated bar (ruling 115)",
+       "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+      },
+      "flagged": [
+       "clip_01 -> clip_02"
+      ],
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "measured": true,
+      "bar": "calibrated",
+      "floors": {
+       "clip": 3
+      },
+      "calibration_sha256": "02440fd4e0c570fdd539938e141ec1cb0ef6549c9d37efbb8cb673387123fa11",
+      "replayed": false,
+      "cached": true
+     },
+     "medley_ok": true,
+     "join_table_vs_verdict": {
+      "hook -> clip_01": {
+       "table": true,
+       "verdict": true
+      },
+      "clip_01 -> clip_02": {
+       "table": false,
+       "verdict": false
+      }
+     },
+     "precheck": {
+      "request_id": null,
+      "ok": true,
+      "segments": [
+       {
+        "video_id": "MeC8YEmUx_w",
+        "start": 5409.96,
+        "end": 5420.32,
+        "verdict": "pass",
+        "outcome": "no_difference",
+        "why": ""
+       },
+       {
+        "video_id": "F536pi4mr7Y",
+        "start": 461.65,
+        "end": 478.94,
+        "verdict": "adopt",
+        "outcome": "adopt_spoken",
+        "why": ""
+       },
+       {
+        "video_id": "RsCi56hEriU",
+        "start": 2647.259,
+        "end": 2656.819,
+        "verdict": "adopt",
+        "outcome": "adopt_spoken",
+        "why": ""
+       }
+      ]
+     },
+     "value_lost": [
+      {
+       "text": "Bitcoin's freedom from politics leaves its users with personal responsibility. Keeping it unchanged is the harder part.",
+       "measured": true,
+       "adds": "yes",
+       "no_restate": "no",
+       "missed": "no",
+       "short": "yes",
+       "why": "The line adds a novel point about keeping Bitcoin unchanged being harder but restates the clips' ideas on political independence and self-custody responsibility while the importance of the conclusion is not clearly essential.",
+       "words": 17,
+       "backend": "xai:grok-4.20-0309-reasoning"
+      },
+      {
+       "text": "No one to call is the same no one to rule.",
+       "measured": true,
+       "adds": "yes",
+       "no_restate": "yes",
+       "missed": "no",
+       "short": "yes",
+       "why": "The line adds a novel connection between lacking anyone to call and lacking anyone to rule without restating the clips but is abstract enough that viewers would not clearly miss it if cut.",
+       "words": 11,
+       "backend": "xai:grok-4.20-0309-reasoning"
+      }
+     ],
+     "no_voice_plan": {
+      "why_not": "the clips-alone verdict is not a measured pass with every join followable",
+      "registered_skipped": []
+     },
+     "why": "ruling 91: the takeaway did not earn its place, nor did its one rewrite, and no no-voice line-up exists (the clips-alone verdict is not a measured pass with every join followable)",
+     "relined": false
+    },
+    {
+     "angle": 2,
+     "text": "Keeping Bitcoin as Bitcoin means preserving its independence from political institutions, which is why decentralized access and self-custody responsibility matter.",
+     "lineup": null,
+     "supply_exception": null,
+     "attempts": [],
+     "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+    },
+    {
+     "angle": 3,
+     "text": "Even when Bitcoin developers are prosecuted, Bitcoin's value lies in being money outside political control, so self-custody is a responsibility and we must keep Bitcoin as Bitcoin.",
+     "lineup": null,
+     "supply_exception": null,
+     "attempts": [],
+     "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+    }
+   ],
+   "soft_stand": {
+    "f0a51c45830936b3a3c1": "it opens on 'but' and the clip scorer rated it 2.0 of 5 (starts mid thought)",
+    "feb4b72f301cde9d380d": "it opens on 'and' and the clip scorer rated it 2.0 of 5 (starts mid thought)"
+   }
+  }
+ },
+ "candidate_tries": [],
+ "spotlight": {
+  "package": null,
+  "why_none": "no moment passes rulings 90-92 now",
+  "finalists": [],
+  "near": [
+   {
+    "channel": "Natalie Brunell",
+    "video_id": "RsCi56hEriU",
+    "seconds": 16.26,
+    "text": "If your Bitcoin can be frozen or monitored by an exchange, a custodial provider, or anyone else, it's not yours. My friends at the Bitcoin Way are the experts to hold your hand and train you to be you",
+    "stage": 0,
+    "out": "step A: NOT_OWN_SINCERE",
+    "moment_id": "43c16a03bb3d27d74e71",
+    "passed": []
+   },
+   {
+    "channel": "Bitcoin Magazine",
+    "video_id": "MeC8YEmUx_w",
+    "seconds": 18.7,
+    "text": "Being able to use Bitcoin doesn't depend on whether the House or the Senate is red or blue because Bitcoin lives outside of the institutions under the thumb of any of those politicians. But of course,",
+    "stage": 0,
+    "out": "the ALONE scorer: 3.0 (needs 4), a free gate before any paid verdict (ruling 109)",
+    "moment_id": "991c6f943ce358ba9f22",
+    "passed": []
+   },
+   {
+    "channel": "Bitcoin Magazine",
+    "video_id": "MeC8YEmUx_w",
+    "seconds": 17.28,
+    "text": "we've seen Bitcoin developers be prosecuted for writing and publishing free software. And you've written that open source AI developers could expect the same thing. Now, it took a while for Bitcoin to",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)",
+    "moment_id": "afbf8bef3ea9799dce5f~trim",
+    "passed": []
+   }
+  ],
+  "moments": {
+   "991c6f943ce358ba9f22": {
+    "channel": "Bitcoin Magazine",
+    "video_id": "MeC8YEmUx_w",
+    "seconds": 18.7,
+    "text": "Being able to use Bitcoin doesn't depend on whether the House or the Senate is red or blue because Bitcoin lives outside of the institutions under the thumb of any of those politicians. But of course,",
+    "stage": 0,
+    "out": "the ALONE scorer: 3.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "afbf8bef3ea9799dce5f~trim": {
+    "channel": "Bitcoin Magazine",
+    "video_id": "MeC8YEmUx_w",
+    "seconds": 17.28,
+    "text": "we've seen Bitcoin developers be prosecuted for writing and publishing free software. And you've written that open source AI developers could expect the same thing. Now, it took a while for Bitcoin to",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "43c16a03bb3d27d74e71": {
+    "channel": "Natalie Brunell",
+    "video_id": "RsCi56hEriU",
+    "seconds": 16.26,
+    "text": "If your Bitcoin can be frozen or monitored by an exchange, a custodial provider, or anyone else, it's not yours. My friends at the Bitcoin Way are the experts to hold your hand and train you to be you",
+    "stage": 0,
+    "out": "step A: NOT_OWN_SINCERE"
+   },
+   "f0a51c45830936b3a3c1~trim": {
+    "channel": "Yahoo Finance",
+    "video_id": "F536pi4mr7Y",
+    "seconds": 17.13,
+    "text": "you know, if you're wondering why having decentralized money that's available 24 -7, 365, that has no CEO in his mind by a decentralized network. around the world, like Bitcoin is important. Well, whe",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   }
+  },
+  "pool": {
+   "may": 4,
+   "out": {
+    "84884c9f79cb11fa498d": "ruling 90: snapped to 89d27af68b84bf252e6e (18.05 s), which is out: not eligible on screen: hook: fragment; clip: fragment",
+    "feb4b72f301cde9d380d": "ruling 90: snapped to 5ecf4f3f10e76f89fd3f (20.92 s), which is out: time-sensitive words from a source older than 24.0 h (L-v 3)"
+   },
+   "snapped": {
+    "991c6f943ce358ba9f22": {
+     "from": "20cac687560642251d37",
+     "sentences": [
+      12,
+      13
+     ],
+     "was": [
+      12,
+      12
+     ],
+     "seconds": [
+      10.36,
+      18.7
+     ],
+     "added": {
+      "before": "",
+      "after": "But of course, we would very much like to be able to connect our Bitcoin via an exchange to fiat on ramps and off ramps."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "afbf8bef3ea9799dce5f~trim": {
+     "from": "d427b94963b3bdbd8a60",
+     "sentences": [
+      14,
+      17
+     ],
+     "was": [
+      14,
+      14
+     ],
+     "seconds": [
+      5.68,
+      17.9
+     ],
+     "added": {
+      "before": "",
+      "after": "And you've written that open source AI developers could expect the same thing. Now, it took a while for Bitcoin to build a legal shield. Open AI or open source AI doesn't have that yet."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "43c16a03bb3d27d74e71": {
+     "from": "6e79ceaa8e76f34f4117",
+     "sentences": [
+      10,
+      13
+     ],
+     "was": [
+      10,
+      10
+     ],
+     "seconds": [
+      6.24,
+      16.26
+     ],
+     "added": {
+      "before": "",
+      "after": "My friends at the Bitcoin Way are the experts to hold your hand and train you to be your own bank. It's not rocket science. Anyone can master Bitcoin self -custody with the right training."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    }
+   }
+  },
+  "scorer_waited_s": 0.0,
+  "lock_stop": null,
+  "scorer": {
+   "read": true,
+   "rated_at": "2026-11-18T15:06:48Z",
+   "build": "ledger_20261118_150615",
+   "candidates_generated_at": "2026-11-18T15:06:43+00:00",
+   "model": "gemma3:27b",
+   "kind": "moments",
+   "rubric": "ruling 60: stand-alone only",
+   "scorer_sha": "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53",
+   "threshold": 3.5,
+   "verdicts": 8,
+   "affirmed": 3,
+   "affirmed_on_the_floor": 2,
+   "disagree_with_the_rule": []
+  }
+ },
+ "next_attempt": {
+  "conversation": {
+   "video_id": "PyVFbzU1Nik",
+   "channel": "Simply Bitcoin",
+   "published_at": "2026-11-17T23:43:08Z",
+   "expires_at": "2026-11-19T01:43:08Z",
+   "age_h": 15.4,
+   "turns_per_min": 0.6,
+   "unmarked": false,
+   "turns_from": "pp-ingest episode",
+   "rows": 35,
+   "passes": {
+    "hook/mine-hook/4": 9,
+    "moment/mine/2": 25,
+    "spotlight/mine-spot/1": 1
+   },
+   "word_pass_ready": 0,
+   "word_pass_refused": 0,
+   "word_pass_waiting": 35
+  },
+  "newest_upload": {
+   "video_id": "PyVFbzU1Nik",
+   "channel": "Simply Bitcoin",
+   "published_at": "2026-11-17T23:43:08Z",
+   "expires_at": "2026-11-19T01:43:08Z",
+   "age_h": 15.4,
+   "turns_per_min": 0.6,
+   "unmarked": false,
+   "turns_from": "pp-ingest episode",
+   "rows": 35,
+   "passes": {
+    "hook/mine-hook/4": 9,
+    "moment/mine/2": 25,
+    "spotlight/mine-spot/1": 1
+   },
+   "word_pass_ready": 0,
+   "word_pass_refused": 0,
+   "word_pass_waiting": 35
+  },
+  "rule": "the newest upload whose captions do not refuse it (unmarked, or marked with a speaker change; ruling 92 amended: the layout decides per clip) (ruling 95)"
+ },
+ "seconds": 924.0,
+ "usd_estimate": 1.1121,
+ "usd_best_known": 0.1219,
+ "full": {
+  "est": 1.32,
+  "best": 0.1441,
+  "model_s": 1178.65,
+  "calls": 28
+ },
+ "code": "41fdae6d4+6e56197953ad",
+ "now": "2026-11-18T15:06:15.608154+00:00",
+ "since": "2026-11-13T03:01:09+00:00",
+ "delivered_pins": [
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json",
+   "story_id": "moments-fresh_20261112_050611-37c5b5f5",
+   "approved_at": "2026-11-12T13:43:40+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
+   "story_id": "moments-fresh_20261112_050611-41f29b1f",
+   "approved_at": "2026-11-13T03:01:09+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json",
+   "story_id": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "approved_at": "2026-11-13T05:20:11+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_073738/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_073738-d2657bbe",
+   "approved_at": "2026-11-13T07:53:42+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_183302/MOMENTS_PIN_ATTESTED.json",
+   "story_id": "moments-ledger_20261113_183302-0c68b589",
+   "approved_at": "2026-11-13T19:12:56+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_215708/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_215708-13949b7c",
+   "approved_at": "2026-11-13T22:14:05+00:00",
+   "clips": 3
+  }
+ ],
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "fidelity_verdict": [
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "context_verdict": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "speaker_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "visual_check": [
+   "xai_vision:grok-4.7",
+   "heimdall:qwen/qwen3.8-27b",
+   "heimdall:nvidia/nemotron-3.5-super-vl"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ],
+  "coherence_panel": [
+   "heimdall:qwen/qwen3.8-27b",
+   "heimdall:minimax/minimax-m3.1-flash",
+   "heimdall:openai/gpt-oss-20b"
+  ],
+  "context_verdict:step_a_first": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "context_verdict:step_a_second": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "google:gemini-2.5-pro",
+   "local_judge:gemma3:27b"
+  ],
+  "context_verdict:step_c": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict:hook": [
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "coherence_verdict:joins": [
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "coherence_verdict:clips_alone": [
+   "xai:grok-4.20-0309-reasoning",
+   "google:gemini-2.5-pro"
+  ],
+  "coherence_verdict:coherence": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "probe87:heimdall:qwen/qwen3.8-27b": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "probe87:heimdall:deepseek/deepseek-v4.1-flash": [
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "probe87:heimdall:z-ai/glm-5.3-flash": [
+   "heimdall:z-ai/glm-5.3-flash"
+  ]
+ },
+ "inputs": {
+  "rows": 436,
+  "no_word_record": 118,
+  "no_word_record_why": {
+   "no word record in the store; no sentence-ready window record": 118
+  },
+  "no_word_record_videos": {
+   "PyVFbzU1Nik": {
+    "rows": 35,
+    "why": "no word record in the store; no sentence-ready window record"
+   },
+   "lY_DU-ayLiI": {
+    "rows": 17,
+    "why": "no word record in the store; no sentence-ready window record"
+   },
+   "Air1P1bKgB0": {
+    "rows": 36,
+    "why": "no word record in the store; no sentence-ready window record"
+   },
+   "jsnE177TWN0": {
+    "rows": 10,
+    "why": "no word record in the store; no sentence-ready window record"
+   },
+   "T162glXDCks": {
+    "rows": 4,
+    "why": "no word record in the store; no sentence-ready window record"
+   },
+   "6dRqAT3lfwI": {
+    "rows": 16,
+    "why": "no word record in the store; no sentence-ready window record"
+   }
+  },
+  "window_records": {
+   "MeC8YEmUx_w": [
+    "transcripts/MeC8YEmUx_w/windows/5334.890-5436.937.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/4362.264-4484.760.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/4639.300-4735.427.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/4362.264-4472.616.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/5041.320-5151.788.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/1272.233-1367.450.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/1320.965-1417.159.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/3643.910-3738.561.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/3643.910-3746.649.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/5066.351-5162.091.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/1272.233-1385.540.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/5328.403-5436.937.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/1144.170-1243.677.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/1242.966-1350.691.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/3884.970-3981.788.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/1588.156-1695.897.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/1308.704-1417.159.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/5172.744-5276.800.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/2911.925-3009.049.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/5046.643-5156.288.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/4382.684-4484.760.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/4382.684-4478.418.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/5265.606-5365.903.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/3693.560-3785.838.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/4052.952-4163.260.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/3377.339-3477.034.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/3452.365-3551.324.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/2924.004-3018.355.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/1285.576-1398.640.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/1174.040-1316.156.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/5186.867-5291.354.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/3211.265-3327.852.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/2757.930-2861.455.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/748.271-845.497.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/3194.620-3296.410.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/3449.645-3545.245.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/1623.054-1723.289.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/1242.966-1362.168.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/2606.657-2709.570.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/3939.813-4034.150.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/4639.300-4740.805.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/4031.446-4137.494.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/2715.120-2816.704.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/1410.456-1510.895.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/1609.482-1709.640.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/4135.575-4233.990.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/1165.477-1264.040.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/5292.712-5388.976.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/3070.512-3172.936.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/3434.474-3535.432.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/2785.964-2882.066.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/5402.697-5513.930.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/3706.700-3811.492.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/3421.854-3527.060.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/4338.680-4443.259.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/3927.207-4033.167.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/2939.394-3043.940.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/3884.970-3988.415.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/3920.500-4015.357.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/4599.374-4695.403.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/1573.826-1678.087.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/2715.120-2812.324.whisper_words_punct.json",
+    "transcripts/MeC8YEmUx_w/windows/1153.745-1255.409.whisper_words_punct.json"
+   ],
+   "RsCi56hEriU": [
+    "transcripts/RsCi56hEriU/windows/0.000-51.386.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1653.001-1757.713.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2200.623-2304.219.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/874.401-973.397.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1546.022-1642.303.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/0.000-85.070.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1264.077-1361.782.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/0.000-56.886.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1663.502-1763.589.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2729.480-2845.790.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2326.148-2426.935.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3366.965-3471.309.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3374.438-3471.309.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3217.640-3325.195.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1917.546-2031.138.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2918.839-3014.805.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/184.298-287.984.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2175.642-2276.018.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3400.277-3506.339.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2342.574-2439.150.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/0.000-87.229.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/405.245-508.339.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1033.400-1134.242.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1653.001-1751.624.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1188.529-1292.169.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3384.037-3482.061.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/961.635-1076.065.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/939.816-1056.695.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2604.309-2702.486.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2911.296-3008.829.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2175.642-2278.522.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2595.764-2702.486.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2570.942-2680.990.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/523.546-628.957.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1312.808-1422.703.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/951.243-1056.695.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/874.401-979.871.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3073.640-3178.088.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1995.054-2111.128.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2703.329-2809.494.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3097.799-3197.169.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3147.448-3247.109.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2750.768-2850.615.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2911.296-3012.760.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/693.490-799.155.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/0.000-93.659.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1941.223-2050.282.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/2495.345-2619.148.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/24.151-126.887.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1350.979-1457.111.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1254.883-1358.100.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/889.936-991.310.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1856.489-1953.381.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/395.325-492.708.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1973.865-2072.116.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1580.637-1686.590.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/698.680-802.613.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3384.037-3480.056.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/1618.952-1731.109.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/316.919-423.054.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/263.315-381.614.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/3159.760-3268.349.whisper_words_punct.json",
+    "transcripts/RsCi56hEriU/windows/796.229-889.469.whisper_words_punct.json"
+   ],
+   "nThfIRfBleA": [
+    "transcripts/nThfIRfBleA/windows/2130.584-2225.769.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/2674.344-2770.197.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1492.352-1613.179.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/3219.535-3330.871.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1638.014-1748.383.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/3234.088-3330.420.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/0.000-52.573.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1019.083-1120.046.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1367.535-1468.249.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/2832.940-2940.155.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1391.484-1496.063.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/3234.088-3332.289.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/504.924-605.914.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1359.810-1457.472.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/0.000-59.503.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/3032.554-3131.684.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1696.672-1793.820.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/998.380-1104.410.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/434.067-542.655.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/214.827-312.049.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1691.510-1793.820.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/233.743-344.672.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1048.977-1149.568.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1713.942-1811.208.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/703.496-801.756.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/2803.210-2906.291.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1470.721-1570.099.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1422.080-1529.455.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/757.317-862.103.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/329.189-430.677.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/473.738-572.290.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/309.600-411.210.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/96.417-194.629.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/617.558-710.911.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/483.240-580.226.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/905.550-1017.269.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/3153.511-3254.864.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1056.712-1151.650.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/2136.129-2241.038.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/389.696-490.020.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/526.870-630.224.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/358.349-458.663.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/542.430-642.415.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/732.160-835.028.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/2774.380-2877.458.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1075.114-1177.738.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/1059.627-1153.078.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/118.920-236.882.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/912.740-1017.269.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/180.620-276.317.whisper_words_punct.json",
+    "transcripts/nThfIRfBleA/windows/83.765-182.731.whisper_words_punct.json"
+   ],
+   "8OYN9mWcFxg": [
+    "transcripts/8OYN9mWcFxg/windows/26.869-142.235.whisper_words_punct.json",
+    "transcripts/8OYN9mWcFxg/windows/0.000-68.336.whisper_words_punct.json",
+    "transcripts/8OYN9mWcFxg/windows/313.604-410.943.whisper_words_punct.json",
+    "transcripts/8OYN9mWcFxg/windows/449.042-554.355.whisper_words_punct.json",
+    "transcripts/8OYN9mWcFxg/windows/26.869-129.822.whisper_words_punct.json",
+    "transcripts/8OYN9mWcFxg/windows/327.560-428.270.whisper_words_punct.json",
+    "transcripts/8OYN9mWcFxg/windows/313.604-417.550.whisper_words_punct.json",
+    "transcripts/8OYN9mWcFxg/windows/26.869-136.556.whisper_words_punct.json",
+    "transcripts/8OYN9mWcFxg/windows/514.634-616.025.whisper_words_punct.json",
+    "transcripts/8OYN9mWcFxg/windows/61.404-167.950.whisper_words_punct.json",
+    "transcripts/8OYN9mWcFxg/windows/116.708-218.020.whisper_words_punct.json",
+    "transcripts/8OYN9mWcFxg/windows/342.520-450.795.whisper_words_punct.json",
+    "transcripts/8OYN9mWcFxg/windows/257.720-363.194.whisper_words_punct.json",
+    "transcripts/8OYN9mWcFxg/windows/293.808-401.838.whisper_words_punct.json",
+    "transcripts/8OYN9mWcFxg/windows/257.720-355.411.whisper_words_punct.json",
+    "transcripts/8OYN9mWcFxg/windows/564.369-663.870.whisper_words_punct.json",
+    "transcripts/8OYN9mWcFxg/windows/416.774-518.464.whisper_words_punct.json"
+   ],
+   "3so8qeVY4CE": [
+    "transcripts/3so8qeVY4CE/windows/1693.235-1788.620.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/542.070-645.232.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/3720.385-3814.982.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/69.631-164.861.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/1240.873-1351.000.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/3436.992-3540.961.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/3720.385-3822.512.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/3860.440-3966.550.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/1300.681-1408.814.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/4194.600-4288.873.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/2898.752-3007.892.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/4109.731-4209.551.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/3749.788-3854.759.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/3436.992-3542.091.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/45.831-152.168.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/3007.449-3106.195.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/1546.358-1641.690.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/2524.027-2631.709.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/803.128-903.190.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/1650.657-1757.619.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/2318.150-2416.715.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/3868.864-3968.702.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/2601.805-2699.779.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/3376.980-3485.330.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/2877.950-2984.380.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/2541.765-2643.380.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/2766.851-2877.297.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/2748.044-2850.470.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/3873.106-3970.177.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/2339.779-2436.675.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/2011.540-2120.120.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/1629.855-1726.795.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/1661.326-1757.619.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/4113.502-4220.262.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/3512.677-3617.290.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/1522.097-1618.986.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/3814.721-3912.416.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/1862.767-1970.319.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/2917.960-3021.755.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/3540.483-3642.743.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/2349.083-2465.585.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/2308.420-2413.103.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/2813.281-2919.794.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/1278.115-1384.792.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/3655.706-3752.257.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/3316.140-3431.662.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/3995.317-4091.913.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/3002.879-3106.195.whisper_words_punct.json",
+    "transcripts/3so8qeVY4CE/windows/3371.516-3466.980.whisper_words_punct.json"
+   ],
+   "NKiFxApRffw": [
+    "transcripts/NKiFxApRffw/windows/393.800-490.011.whisper_words_punct.json",
+    "transcripts/NKiFxApRffw/windows/638.519-726.000.whisper_words_punct.json"
+   ],
+   "F536pi4mr7Y": [
+    "transcripts/F536pi4mr7Y/windows/22.544-119.525.whisper_words_punct.json",
+    "transcripts/F536pi4mr7Y/windows/22.544-129.129.whisper_words_punct.json",
+    "transcripts/F536pi4mr7Y/windows/331.080-431.688.whisper_words_punct.json",
+    "transcripts/F536pi4mr7Y/windows/621.528-727.403.whisper_words_punct.json",
+    "transcripts/F536pi4mr7Y/windows/416.310-523.967.whisper_words_punct.json",
+    "transcripts/F536pi4mr7Y/windows/86.291-189.164.whisper_words_punct.json",
+    "transcripts/F536pi4mr7Y/windows/363.461-468.080.whisper_words_punct.json",
+    "transcripts/F536pi4mr7Y/windows/51.301-154.910.whisper_words_punct.json",
+    "transcripts/F536pi4mr7Y/windows/833.160-892.000.whisper_words_punct.json"
+   ],
+   "ScFmMFEZRWY": [
+    "transcripts/ScFmMFEZRWY/windows/492.857-596.505.whisper_words_punct.json",
+    "transcripts/ScFmMFEZRWY/windows/352.520-452.046.whisper_words_punct.json",
+    "transcripts/ScFmMFEZRWY/windows/477.880-582.792.whisper_words_punct.json",
+    "transcripts/ScFmMFEZRWY/windows/618.290-717.611.whisper_words_punct.json",
+    "transcripts/ScFmMFEZRWY/windows/377.237-479.061.whisper_words_punct.json",
+    "transcripts/ScFmMFEZRWY/windows/456.282-556.739.whisper_words_punct.json",
+    "transcripts/ScFmMFEZRWY/windows/839.542-944.135.whisper_words_punct.json",
+    "transcripts/ScFmMFEZRWY/windows/795.000-908.185.whisper_words_punct.json",
+    "transcripts/ScFmMFEZRWY/windows/686.206-790.071.whisper_words_punct.json",
+    "transcripts/ScFmMFEZRWY/windows/859.160-961.455.whisper_words_punct.json",
+    "transcripts/ScFmMFEZRWY/windows/740.874-847.790.whisper_words_punct.json",
+    "transcripts/ScFmMFEZRWY/windows/374.520-467.182.whisper_words_punct.json"
+   ],
+   "4605SUeQc6M": [
+    "transcripts/4605SUeQc6M/windows/464.125-558.445.whisper_words_punct.json",
+    "transcripts/4605SUeQc6M/windows/487.965-591.942.whisper_words_punct.json",
+    "transcripts/4605SUeQc6M/windows/543.370-646.011.whisper_words_punct.json",
+    "transcripts/4605SUeQc6M/windows/613.997-713.100.whisper_words_punct.json",
+    "transcripts/4605SUeQc6M/windows/543.370-648.253.whisper_words_punct.json",
+    "transcripts/4605SUeQc6M/windows/464.125-559.567.whisper_words_punct.json",
+    "transcripts/4605SUeQc6M/windows/516.870-615.320.whisper_words_punct.json",
+    "transcripts/4605SUeQc6M/windows/558.321-654.506.whisper_words_punct.json"
+   ],
+   "X8UQvJn3STk": [
+    "transcripts/X8UQvJn3STk/windows/3071.580-3173.792.whisper_words_punct.json",
+    "transcripts/X8UQvJn3STk/windows/3079.704-3177.929.whisper_words_punct.json"
+   ],
+   "84-LigUfoQY": [
+    "transcripts/84-LigUfoQY/windows/1998.508-2102.722.whisper_words_punct.json",
+    "transcripts/84-LigUfoQY/windows/1168.779-1271.091.whisper_words_punct.json"
+   ],
+   "Mdueja53I_E": [
+    "transcripts/Mdueja53I_E/windows/1153.297-1259.746.whisper_words_punct.json"
+   ],
+   "9k47sQ0CT18": [
+    "transcripts/9k47sQ0CT18/windows/177.335-277.149.whisper_words_punct.json"
+   ]
+  },
+  "window_waiting": 0,
+  "window_refused": 38,
+  "window_refused_videos": {
+   "MeC8YEmUx_w": 2,
+   "RsCi56hEriU": 18,
+   "nThfIRfBleA": 6,
+   "3so8qeVY4CE": 9,
+   "NKiFxApRffw": 3
+  },
+  "window_failed": 0,
+  "window_passed_over": {},
+  "no_caption_context": {},
+  "fallbacks": {},
+  "channel_conflict": {},
+  "not_anchored": {
+   "f05e9a12a24a08a74631": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1603-1681 s)",
+   "96f783fc587d5e5f1469": "the row's text does not anchor in the word record (sentence_law.anchor, searched 3392-3462 s)",
+   "1577cca2f4653e87ee6c": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1189-1301 s)",
+   "72e1283534709adc3d5b": "the row's text does not anchor in the word record (sentence_law.anchor, searched 3226-3313 s)",
+   "7bce21620cedb7081ddc": "the row's text does not anchor in the word record (sentence_law.anchor, searched 3210-3281 s)",
+   "d5c4cb1628d84ae53fad": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1638-1708 s)",
+   "8be146ea58a02f410197": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2730-2802 s)",
+   "d8f8076ccdef7fcdf44e": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1624-1695 s)",
+   "00e5d125c9c5cc8fbc59": "the row's text does not anchor in the word record (sentence_law.anchor, searched 3936-4000 s)",
+   "f4416036068be7ebd583": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2730-2797 s)",
+   "4a8c0acef78fcfcd8f19": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2744-2831 s)",
+   "af46c1553203f9b95bdf": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2341-2412 s)",
+   "66f058e572ac02b47c9b": "the row's text does not anchor in the word record (sentence_law.anchor, searched 3233-3310 s)",
+   "74aa7aea6fc67ce7a4eb": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1933-2016 s)",
+   "da2940465f96c0cdfc76": "the row's text does not anchor in the word record (sentence_law.anchor, searched 420-493 s)",
+   "e0ce1f1e03d2b6b0ce14": "the row's text does not anchor in the word record (sentence_law.anchor, searched 539-614 s)",
+   "530db888dc9bfcbff746": "the row's text does not anchor in the word record (sentence_law.anchor, searched 3089-3163 s)",
+   "babe8b806c0893fd00d2": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2766-2836 s)",
+   "a9793009a6cff5a25d47": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1270-1343 s)",
+   "6c5b90c73a97f8e58f62": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1596-1672 s)",
+   "0b959bd80c4f53f47c33": "the row's text does not anchor in the word record (sentence_law.anchor, searched 3399-3465 s)",
+   "4d6e063c281cd2814b6d": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1634-1716 s)",
+   "61b25cb7ec8dba7c9fd2": "the row's text does not anchor in the word record (sentence_law.anchor, searched 278-367 s)",
+   "ae988d40cb0ec1d3e2c4": "the row's text does not anchor in the word record (sentence_law.anchor, searched 3175-3253 s)",
+   "3d494f95d87bf7fc586a": "the row's text does not anchor in the word record (sentence_law.anchor, searched 42-122 s)",
+   "768b5e416d7e99bbd9e7": "the row's text does not anchor in the word record (sentence_law.anchor, searched 530-601 s)",
+   "8ce446b97ae2c8799ba4": "the row's text does not anchor in the word record (sentence_law.anchor, searched 579-649 s)",
+   "ca38712376e8cf22cfb8": "snapped outward to whole sentences (0 word(s) before the anchored text, 29 after) it runs 37.29 s > 35 s (ruling 32 with the 10:48 ruling (2): the spotlight's clip ceiling)",
+   "67111d29ee2caf07c57a": "snapped outward to whole sentences (42 word(s) before the anchored text, 0 after) it runs 39.43 s > 35 s (ruling 32 with the 10:48 ruling (2): the spotlight's clip ceiling)",
+   "df3418df0cef92a766e7": "the row's text does not anchor in the word record (sentence_law.anchor, searched 38-105 s)",
+   "e451f98ea72675c1b459": "the row's text does not anchor in the word record (sentence_law.anchor, searched 66-140 s)",
+   "98940faff1c402a24402": "the row's text does not anchor in the word record (sentence_law.anchor, searched 390-452 s)",
+   "75844ba299aadb723396": "the row's text does not anchor in the word record (sentence_law.anchor, searched 629-698 s)"
+  },
+  "malformed": {},
+  "duplicates": 48,
+  "duplicates_of": {
+   "311804393a483065d5d0": "c3816c876335402aad5f",
+   "82c254581ecfefb65345": "49de057963eb7f1ea679",
+   "d5aa1e8a46b42ff751d0": "e8dbf0c7319986ad8ed0",
+   "d7361e751c1e94e8c5c2": "44450a2b3c83367ca096",
+   "3a66766891ab5604d9cc": "45e88dcb405ba0b9fbcb",
+   "8f6cdb982269defb1a26": "42fab4a86bde05f57ca9",
+   "92a73aa9c35b14e3618e": "c3816c876335402aad5f",
+   "565aaf0a538b06e622fb": "c3816c876335402aad5f",
+   "d28af071ab411eefb2ef": "e299ab9220bae42b5a26",
+   "db50c60217a6ed24df47": "3c81adb501af5b912803",
+   "6a2faff2ba3f7ad63cb4": "f886079f7538c60e6ef4",
+   "c64ba4a9759fa2f12cc2": "8ab717135a37dc089a59",
+   "e651d8c4ba90c31ca680": "40a4aa3afa43755558a5",
+   "a499d4f76a0030a1941a": "d6eab1ace2d08018c4d6",
+   "1972dea7c9c8f7ebb712": "3e92fb4e5651657819fc",
+   "42c358118f2bb03752bb": "2a5ae6440509952f317f",
+   "bfa1a84edb7f35f20fa1": "b67a1279632260ff1a2a",
+   "cd239036ead6c4b41451": "860ebf63b5489a74c638",
+   "440ee01ec6bec967beda": "2a5ae6440509952f317f",
+   "3007654c99b93366e77b": "286b44851e6e593b5474",
+   "65a50b657428d14633e3": "59fc17fa3348145834a6",
+   "7959c05288649ce736bd": "37f1b17e671b762fc552",
+   "2f4dac79b31b2fe61a22": "286b44851e6e593b5474",
+   "48478cd4d0d7978b8a06": "1d63f2c764c3fd56998e",
+   "d0dea9af87bd56383ed3": "9d840a475c3d35068e83",
+   "a6451e0606c6fce001f9": "eeea659338ef1a8e951a",
+   "46bd7ac8581f2cb45d3d": "00fd42a1244adfa3c4bd",
+   "12fd9b919459c523c42a": "00fd42a1244adfa3c4bd",
+   "ab4fd56233c78a853864": "5fdc99b20b34b91b53ce",
+   "878ca57df6aaec8139a1": "2060f31a65da63d05cb1",
+   "89fbaf8e87c0bb5e83b7": "d5f28c19f5d5958366aa",
+   "b3d0f78ed3a9866bdb15": "63c6ea768f716874fef7",
+   "db6d807eb92e59368e3f": "163bb1402361c8ea7073",
+   "83fe034868d78e6bc2c3": "c01489d1c3f91bd397c7",
+   "ec23445ae08682e82475": "89974bfe888fb51931fb",
+   "32d136bb9b13574662b7": "99ade391e4be13e29db7",
+   "eb34dd2d90df1b1d8065": "097868b6225cd89e7969",
+   "a33d3be38fa0331fceb0": "659b8e57a4a8bb3569c3",
+   "96b8421790302fd27923": "61ec431153fbd35600b8",
+   "6df1e13eb5cc17d677a6": "659b8e57a4a8bb3569c3",
+   "1dfffaf10f774cf6075e": "6e3d7e7c309a6985ad36",
+   "50b1517c5eb5999164ab": "abc11fa2552a096e418b",
+   "e49715a7ae3bfda56294": "988b032e52a57fe2e2b9",
+   "73d164b3d03b748416f2": "080225cee9c9387bb35b",
+   "d7a3f25a2abbc84dcb2c": "1ca7c80e578a22e34bd8",
+   "98fbd2482a0ee22ccac5": "0615ee0ce94cc0765505",
+   "632a71d1bf58b111b9ed": "0319789a9eb8fd1f7892",
+   "c7c0e9667953c82319d6": "109f49105917de3d5d98"
+  },
+  "moments": 199,
+  "videos": 13,
+  "sources": 199,
+  "word_records": {},
+  "word_pass": {
+   "rows": 3584,
+   "unreadable": 0,
+   "ready": 2891,
+   "not_ready": 363,
+   "failed": 0,
+   "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl",
+   "refused": [
+    "00601fe81bcbe8b6bdf8",
+    "0102d1f81a005ffd1860",
+    "015a0e1d0ca2b710548d",
+    "025b3828d214c7c2ce4b",
+    "047da119491355dbc5e1",
+    "05173845dea924fc0c07",
+    "05f06153c42d43c43ed7",
+    "05ff016beac936e4e409",
+    "06fd59d51f078758726a",
+    "076730439cae2cfa8c7e",
+    "082028606d8f1e34fa1c",
+    "08ccabe3e2c427838e15",
+    "0988da65e6ad9ba87459",
+    "0b1ed433879e3d7f844a",
+    "0ccade189163405b089b",
+    "0d2bf7e13e4cbb176480",
+    "0fad832055924851251d",
+    "0fd686f1fe79b631e91c",
+    "10d73f6379c4f91815c0",
+    "12b2a3fe328f5fad9622",
+    "12bf31ff9e5404d7b5d9",
+    "13ad88ccef6e718fbb28",
+    "13b85894cf59bd96ddba",
+    "14f13f65d2f2458ea1ac",
+    "1525a9e1dd8dc5ac4a9e",
+    "16f275eb3464b67dfa9b",
+    "1772e9339924de1c957c",
+    "18b767fbcc644db7b21d",
+    "18ced5f9e7202e133319",
+    "19fc961efb1e8fbd0575",
+    "1a880c6d462d151ebe70",
+    "1ab9ae718a7e550e9ce1",
+    "1b33a31c38a045a7a216",
+    "1b9902d0b3f9690e9ddb",
+    "1c63a7925cf2c33b54ac",
+    "1d1556daed04fce39e7d",
+    "1d822675be04768944b1",
+    "1d828f294728facf05fd",
+    "1db6d7c6a3e2ba98859a",
+    "1e14acb61ae2fcedf1f6",
+    "1e9d5cb149e2d113459d",
+    "1f3444cb0463741133cd",
+    "1f3f2c2ea653f69353d5",
+    "20002de2ec0f6b521fce",
+    "21677774b087f804c681",
+    "2167cf6bfe8911d08707",
+    "217bd00fcf8c0665e0f6",
+    "229eca0e081a1aea4786",
+    "23703f34fbd40d943e41",
+    "23fceca7029b9948e3f9",
+    "2491e006216c9a1b467e",
+    "24a6dc284d02a3aeae08",
+    "24f1856c6fcf1b6c1d95",
+    "251224babb6c8f5d9150",
+    "2550f3c54cec7cd95c48",
+    "25f101de6a018fb2f202",
+    "2887f8f9b00e38e79cb3",
+    "29740fd849b26be71c4d",
+    "2c6b2f1bcfc96f70f39e",
+    "2c884616bf8c91a24180",
+    "2d89ae77d3305643e7eb",
+    "2db14eabaf98defccba0",
+    "2e5c3ff4488c946c1320",
+    "30583c8876279fe50391",
+    "32a44ea8013cb6d85366",
+    "33cf7bbd673f26f307cb",
+    "33d2a783068012cbff56",
+    "33ec88880d3a99e3d97c",
+    "340ea3f3cede49ef6bbe",
+    "347495ce7e4a78ef23c5",
+    "34fd75ac6e40d43c9f5b",
+    "351d555f7879d8c870e9",
+    "3548c352a9e67f331437",
+    "36e7ba4c6476b5cd2b19",
+    "375fb72bed43ccc47f6a",
+    "3798191e55603311683a",
+    "3865d50fa088c050f8e8",
+    "392018ca3e9082955ab9",
+    "394e144a00767241b093",
+    "3bf440d0542995169ec5",
+    "3c52354fdf5fdb75de2e",
+    "3cdeaa49ca3362ef0705",
+    "3dabf36517ab411803a2",
+    "3dc85eabd329842ba14f",
+    "3e2d15a2a7244d9b7e6e",
+    "3e5706beb5c33dfb0691",
+    "3e6697e0b45a89ec82e5",
+    "3eb240916eebdf0fce45",
+    "3ecea4247f7da8cf3d83",
+    "3f1d49136a47972f8bcd",
+    "3fe4db9f3eb16c416b33",
+    "4055cbb4c51cd6d6bcbd",
+    "40e38350eab6a775a34d",
+    "41699e0367ea2c417340",
+    "424f1e6bbc6e801dd72d",
+    "4347359c0c00f6d49fa3",
+    "43be163f3e361a815a24",
+    "43f84b34a660b711da2c",
+    "4472f1d33d92ea2897f4",
+    "44dd6db2f702c42702af",
+    "466901ae5a549db1f13b",
+    "474b8ee37037650dc1ef",
+    "483155d278ba97157e1a",
+    "48643efcbfe1be04f46a",
+    "48742d2d864e38101142",
+    "492cf0bcaa2d7db42345",
+    "49b321f0093d9204857e",
+    "4a0ae7b99a7bfc3f04ab",
+    "4a0cafc02654a834b273",
+    "4a15ecc759a9b332f3cc",
+    "4a54d7ff96a229541048",
+    "4a5ca4087ab6da856227",
+    "4ab2659efc97def0153c",
+    "4d66c09fb18c0f0d1a7f",
+    "4dbb2318181aa9d907d5",
+    "4f33bb61466a820e74b6",
+    "4fef00cdc68d2cea9dce",
+    "51c7a41fd9d5fecb71ee",
+    "51d2f50c2de0ae56438b",
+    "51deefb0c40e66f737f0",
+    "52630ce456af6791baa3",
+    "52bf579156a21ee08c0c",
+    "5416d89f219e62bd06ad",
+    "55e3ff1057a3eba68b18",
+    "5635a7ccc1eeefa5f824",
+    "5676641a281856045caf",
+    "567fcb45382761da0c9a",
+    "568275feb72658a6dbdb",
+    "56ee676b2e04cecd2ff9",
+    "58d0bb08a6214d66be5c",
+    "5921dd29a7e5bab16da9",
+    "59c3b29a851601177cc6",
+    "59e200f0478f93b88c29",
+    "5b35afd7d0f553e8d952",
+    "5b6c5854d2d3c20f45ce",
+    "5ba6ac646e56f4f33655",
+    "5bbb7f44bfcf00fb9e66",
+    "5c8d5f34e02f1bd4874a",
+    "5dd3b1ef91e32e45a17c",
+    "5f55d9b82c8e0209b446",
+    "5f56b663cc615eff5a7e",
+    "5fbf59f5bf383722159a",
+    "5fc35947f63b3c736dff",
+    "604c84ac1786fa09f5d7",
+    "6053de4046f31dfeb192",
+    "60690bc4745487e92f5e",
+    "6083abea1edc39efdcb1",
+    "614addd0ad90b6162f0e",
+    "614ba58f79c05cd204ec",
+    "618564547f3facb2460a",
+    "62ebbfe9d62024b9bc7f",
+    "62fe203a548cffa4b93e",
+    "62fe58051dd488ff3c69",
+    "63b87cce3ff62655d3e2",
+    "6413e07eaadfe6042357",
+    "64aac6eeaaab3cbfbe41",
+    "65e288d993ba8c2bbb68",
+    "660166f273ae0d1a64e1",
+    "66ebabc31f5b458a50ab",
+    "675e804178f2e3a3ce9e",
+    "6a5527f95fe98679d9d7",
+    "6ad656c7b6288ddb6df5",
+    "6b42533b239f3c5764aa",
+    "6ba21c8bd8cf2f43a2f8",
+    "6ba5399a3722dc217b76",
+    "6be836e0073e86498c88",
+    "6beb95b22a1035ea18c3",
+    "6c546e56ac6c8220787b",
+    "6e56cd660d5f1f13efa2",
+    "6e7ab608a4e7c258e2e7",
+    "70722b0dc2fba88c0cf6",
+    "71187b79f44762f56b8a",
+    "71eff23f9bcb62db5ac5",
+    "73c3c2582a5c317c40db",
+    "75c9da24ec3764b3e8d1",
+    "76a923fa0e59af21ea8b",
+    "7854570deaade1d72e7c",
+    "7a19e7f67f89e5b6977c",
+    "7b6d44057f6032ca54a6",
+    "7c67f93575aef43039cf",
+    "7d5660ea1980d860012d",
+    "7e3ab76a058f8f65f601",
+    "7e3f078fa147c4aac1b3",
+    "7f326d4b6532a01fcf63",
+    "8000945a3e7cd613ea17",
+    "800571e0d16a7f42c74c",
+    "8051a1eaf06f56d3702b",
+    "80908d443a10add30856",
+    "81512f03491bb9826032",
+    "81b26a23dd6326fcbd60",
+    "83775cd2df98be73a317",
+    "84033134a0eeaa1b2ae6",
+    "840a7091d2afea2c41e1",
+    "87a1ba949cd37f8e8301",
+    "887ae106cf8f6cc4b94e",
+    "8900aa8b374479a90cab",
+    "893a999def3edc8f1a0a",
+    "8972dfeff70fc8c02f48",
+    "8b28b12a01aabd8338c8",
+    "8b92e4730cf015fce360",
+    "8b99d7511f8b842627ab",
+    "8c787324daa3d9f53bd3",
+    "8d03475ba509812b767c",
+    "8d244d9fdae458f0471c",
+    "8e9b32533086f2f179f4",
+    "90f44621c4eafaf5c278",
+    "90fc17206ee1f99ec636",
+    "951bf612e52c9073d22a",
+    "954c0a2d3b0133d2341d",
+    "9552fcbd5fcda3125833",
+    "95d38b3585c61b1d9906",
+    "95df7af9f01ddf6a6644",
+    "967c20675d9f745761ae",
+    "96b4f9b83647bbc4ec73",
+    "96c79a7fc62a364b2b9a",
+    "96db0cca3062aa51397e",
+    "96ff2e079cd464fd5308",
+    "99e3707fcca37519d07c",
+    "9a9bb0a9a44b49bbe8ab",
+    "9b37368d7b14fe3340c1",
+    "9d3796742a2e1cd10eb8",
+    "9dd8372afaa56661c01e",
+    "9e6ca1765f0a032267b5",
+    "9f0450933b685f1974eb",
+    "9f8c5369f904e81221cb",
+    "9f8d835236860966db8f",
+    "9fd5a65c0dadc2ec40eb",
+    "a024ead246198d7e98ad",
+    "a045e6e7ddf843c49b28",
+    "a09ed49a0d7fdaaeebf1",
+    "a102673e5fad3240111e",
+    "a1e2d91d323a57b5de29",
+    "a1ff1a32efaf79f786b8",
+    "a2541ef0353d99d8a040",
+    "a47b2466e5199dce299c",
+    "a512b18a7baa3e1212d2",
+    "a6998dd7b0cece708bb9",
+    "a8336e318c7d6b48b22b",
+    "a845cadb35859cf15ef1",
+    "a888f8fc863dbd989557",
+    "a89f2c1bb0017a6a9d45",
+    "a8be7f45901ddd76b721",
+    "a8e7f8bb365c6b9f77e3",
+    "a9dbe0cc18738b4522bd",
+    "aa32080462e3581166d3",
+    "aa743024037fa80ee16b",
+    "aaf098e3675b65cccbfe",
+    "aaffb41344d5775216f1",
+    "ae1a0d498d46de7a3ea8",
+    "af5ae28633a247b27017",
+    "affa796d1b415771a447",
+    "b0b48928b91bfd8e1913",
+    "b1954c33981fe961cf20",
+    "b30efa3bedc93432e865",
+    "b41f33c81cfdfc1ddf59",
+    "b4272eb53d7c0a4e5dd6",
+    "b445c92dca567d40c752",
+    "b507e421f01aac805570",
+    "b5112fbb7db1bddc16d9",
+    "b55b68c8fc8d7bbbfd23",
+    "b58692089a253d8fe05c",
+    "b6b983e3b060dbe5a29e",
+    "b7f4483d2f3aaf3cb9e1",
+    "b880544703c2731ecb51",
+    "b8c4bfe7b08ac6767ed9",
+    "b8c72b542da8350c3005",
+    "ba635975783d3d2cccc3",
+    "bbb99781ef3bb1f4119c",
+    "bbe1c4f976e02940651c",
+    "bc33ae9592be1432d8f1",
+    "bc342d3ceb4f22890afa",
+    "be81c441e226b3261420",
+    "bf754c1fe5c0d2e76375",
+    "c07c030254c41853ceef",
+    "c0b78959ef676493103a",
+    "c0c0c53384f0d42c6d3a",
+    "c11c107bdf8c481cfde9",
+    "c125e2f11616d0ece0d3",
+    "c1753585f3e4300cc38a",
+    "c3fab28b11b5115488bd",
+    "c41c5ce4ef32380f9fe6",
+    "c4d58c55c768de21aa99",
+    "c5406490975fad7b6c06",
+    "c63aa04ace7972db02d9",
+    "c6a876566239b5e90c63",
+    "c95242108a89ed264b03",
+    "cacb80cfd91ecb5444b3",
+    "cbcf473d2f4130dc041a",
+    "cc131c64eec420cbf46b",
+    "ceb401a3658c6d72104f",
+    "cf2df82365c0b1cc3b87",
+    "cf419a3eb0665f8048a5",
+    "cf56a1e9574e37a923fc",
+    "d137488a51fd37dc4e30",
+    "d19be57ae98c95784c75",
+    "d1c40fb727b12f45f07a",
+    "d1d1bc3eb821b36c5fdc",
+    "d1fb9f2e2e6105a08b86",
+    "d2cbf97818fa6b900d1c",
+    "d40f19707e018d112efa",
+    "d4400d9e9b121b0c38b3",
+    "d483ad20dd7164946a89",
+    "d4ac91c659a2cfd44ffa",
+    "d50c7e7e34316aa22ddf",
+    "d58081ef87666169be84",
+    "d611baa9cb2e0237830b",
+    "d65cdae0a25fff048477",
+    "d65e75a63edb95f20157",
+    "d762e966d9b000f208b0",
+    "d7ad6229e82fdb81c0e4",
+    "d898604f06ca6e713d89",
+    "d9c9f9a1e2a98585f836",
+    "d9cd6f055c0ce1e3a954",
+    "da36306acc72a6b9c1b8",
+    "dc14cda54677c7703b85",
+    "df03eab9fb2b9f829f13",
+    "e0faec048bfe07884bd5",
+    "e1188606af8100b9fa11",
+    "e1fca5069eabf32cc1d9",
+    "e2350d63aa410df8d4a4",
+    "e24fbbc008e1b75a71a5",
+    "e477b6abee4efcc885bb",
+    "e4f23b741554d2f75182",
+    "e663e93de33a82f06cf7",
+    "e684c05c6759c7ce19fc",
+    "e73c4378bd39706ac9eb",
+    "e9057888919f0ced99f5",
+    "e90858606fe880415f2d",
+    "e93988462be9ca35931c",
+    "e940cc0756c91c1d3eab",
+    "eb403f27837f7d6121e9",
+    "eb63da2bad4ab3252029",
+    "ec2516f742ea4a7cf287",
+    "ec3d6c6fa7a55a606078",
+    "ed15b77cac098816caf1",
+    "edb6b66b2514b8a51c40",
+    "edcd3f92a0cb70d831d3",
+    "ee81a9e19a1236ca0eaf",
+    "ef232abc83b6a03a07f0",
+    "efaa1de614ba40dcaca1",
+    "f062336925d0fefceb61",
+    "f283bea1f8f73753a357",
+    "f344b4ca2374e60f2284",
+    "f37cdb7db1fac89efb59",
+    "f3e0ccd86b68bc09837f",
+    "f4cdef024a8b3540ffac",
+    "f4d24ba4d1c01b6172af",
+    "f7eba33e0bff81d90982",
+    "f818c3c5eac812d106da",
+    "f845c0ade832c6bb7046",
+    "f8b2905fba0cd6c54c66",
+    "f98ee0dd0024162ffa39",
+    "fa02300c7bfb103ac427",
+    "fc24287ab36375755e5a",
+    "fc5cf0e771409a0be3de",
+    "fc9e1da16abbb8c4465c",
+    "fcc24c616dc276c9239f",
+    "fcd25f21dbe83b487fcc",
+    "fcee3a10e7321a95ced8",
+    "fd3848405eb0cc660232",
+    "fe06ce187a75eb4413d4",
+    "fec37b9e508a5904c5b9",
+    "ffda700352ff151971c9"
+   ]
+  },
+  "only": {
+   "file": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/a80f37a3-3482-4017-9152-9c0c6e2f0dab/scratchpad/r144/ONLY_144.json",
+   "why": "ruling 144: the self-custody story from Nov 17 (Natalie Brunell, Yahoo Finance, Bitcoin Magazine), PBX exception Nov 18",
+   "asked": 6,
+   "kept": 6,
+   "missing": []
+  },
+  "ruling_104": {
+   "variants": [],
+   "replaced": [],
+   "notes": {}
+  }
+ },
+ "ruling_76": {
+  "inside_12h": 6,
+  "cleared": 0,
+  "cuttable": null,
+  "hooks_4": null
+ },
+ "routing": "heimdall_first",
+ "mode_at_end": "heimdall_first",
+ "shadow86": {
+  "verdicts": 0,
+  "compared_units": 0,
+  "differ": 0,
+  "on_pin_differ": 0,
+  "not_compared": 0,
+  "missing": 0,
+  "shadow_usd_reported": 0,
+  "pin": false,
+  "would_seal_under_grok": null,
+  "summary": "0 verdicts shadowed, 0 decisions compared, 0 differ (0 on the pin's clips); 0 not compared; 0 still running; shadow cost $0.0000 reported"
+ },
+ "spend_ruling_48": {
+  "before": 0.7441,
+  "after": 0.8548,
+  "cap": 1.39,
+  "stop": 1.39,
+  "basis": "reported",
+  "order_17_50_stop": 1.39
+ },
+ "breakers_ruling_99": {
+  "open": [],
+  "opens": 2,
+  "closes": 2,
+  "this_build": [
+   {
+    "model": "xai_vision:grok-4.7",
+    "deadline_s": null,
+    "seconds": 75.13,
+    "tokens": 5923,
+    "max_out": 8000,
+    "kind": "breaker_close",
+    "why": "the trial call answered",
+    "utc": "2026-11-18T15:08:32Z"
+   }
+  ]
+ },
+ "registry": true
+}

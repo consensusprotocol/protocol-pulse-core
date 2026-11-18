@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-18T14:24:45+00:00",
- "build": "ledger_20261118_142435",
+ "generated_at": "2026-11-18T15:06:43+00:00",
+ "build": "ledger_20261118_150615",
  "kind": "moments",
  "candidates": [
   {
@@ -74,15 +74,6 @@
    "text": "If your Bitcoin can be frozen or monitored by an exchange, a custodial provider, or anyone else, it's not yours. My friends at the Bitcoin Way are the experts to hold your hand and train you to be your own bank. It's not rocket science. Anyone can master Bitcoin self -custody with the right training.",
    "text_sha256": "f070b1c8f3a9685ab7f761d67978d6f9c879dce508f8362991797e52a75a0eac",
    "trimmed_leading": null
-  },
-  {
-   "pid": "5ecf4f3f10e76f89fd3f~trim",
-   "video_id": "RsCi56hEriU",
-   "channel": "Natalie Brunell",
-   "duration": 20.88,
-   "text": "that's not to say that it's bad. It's that self -custody Bitcoin's a responsibility. If I have a gun, it's a responsibility. Sovereignty is a responsibility. Sovereignty is not. Easy, it's hard, and i think right now it's probably around the peak of the hardness that it will ever be, to the extent that i think it is it is worrying.",
-   "text_sha256": "5907a5075468f473dfe5042d8b94a9b6e3c1f87781ab262112458dcc1da18121",
-   "trimmed_leading": "And"
   }
  ]
 }
