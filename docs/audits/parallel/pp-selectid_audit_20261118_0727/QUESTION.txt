@@ -1,0 +1,20 @@
+pp-selectid: RULING 144 (PBX 07:05 ET Nov 18: "disregard the 12 hour rule for this one exception"), PART 2. Part 1 is
+live (fc191b4e, audit 20261118_0711): --pbx-exception TEXT lets --hours reach 30 for ONE build process and widens
+package_pin.WINDOW_H for it. The first run (build 144, 07:24 ET) found NONE of the six named moments: the ingest adapter
+(pp-ingest's pipeline.ingest.ledger.best_unused_moments, another session's code, run read-only through
+pipeline/ledger_build.rows) has its OWN expiry: a moment is dropped when the clock it is GIVEN is at or past
+min(expires_at, published_at + 12 h) (rulings 76 + 77; ledger.py:281 and :338). It dropped 3069 rows. File:
+tests/package/proof_ledger.py (+ its test in tests/package/test_ruling_137.py).
+
+THE CHANGE (only with --pbx-exception): the adapter is called with a_now = render clock - (hours - 12) h (12 = WINDOW_H
+read BEFORE the exception widens it), and horizon_h = hours, so its own 12 h expiry admits moments up to --hours old
+(a moment published exactly --hours ago expires at a_now and stays out). A line in the build log names it. Every other
+check runs on the real render clock: package.expired and window_problems with the widened window, never-reused against
+the delivered pins (package.usable), the exclusions, and the seal. Without the flag: the adapter gets the render clock,
+exactly as before. The adapter's other drops (delivered in 24 h, opt-out, hard flags) still run on its rows.
+
+TESTS: the adapter's clock is the render clock without the exception, and 14 h earlier with --hours 26 and the
+exception; its horizon is the window. Mutations: 2 of 2 killed (the clock never moved; moved by hours, not hours - 12).
+
+PLEASE CHECK: (1) can this admit anything the exception did not (older than --hours, a delivered or excluded moment)?
+(2) can it leak into a build without the flag? (3) the arithmetic at the boundary; (4) the test.

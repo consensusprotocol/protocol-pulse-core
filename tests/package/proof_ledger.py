@@ -53,7 +53,7 @@ import json
 import os
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
@@ -461,6 +461,7 @@ def main(argv=None):
     if not 0 < a.hours <= cap:                           # ruling 76: "rather than widen the window" (144: one exception)
         print(f"REFUSED (ruling 76): --hours {a.hours} is outside (0, {cap:g}]", file=sys.stderr)
         return 2
+    base_h = package_pin.WINDOW_H                        # 12: the rule (rulings 76 + 77) the exception widens
     if a.pbx_exception:                                  # RULING 144: this process only; every later build is 12 h
         package_pin.WINDOW_H = float(a.hours)            # (package.expired, window_problems and the registry read it)
     try:                                                 # read before anything is written (glm C2 N-4)
@@ -522,7 +523,12 @@ def main(argv=None):
         f"{len(delivered)} clip spans out")
     say(f"  RULING 76: {len(gone)} candidate(s) expired (over {package_pin.WINDOW_H:g} h on the render clock)" +
         (f": {gone}" if gone else ""))
-    rows, rep = LB.rows(since, now, horizon_h=a.hours)
+    a_now = now - timedelta(hours=a.hours - base_h) if a.pbx_exception else now   # RULING 144: the ingest adapter
+    rows, rep = LB.rows(since, a_now, horizon_h=a.hours)   # (pp-ingest's; its own 12 h expiry, rulings 76 + 77) is read
+    if a.pbx_exception:                                  # as of this earlier clock, so it admits moments up to --hours
+        say(f"  RULING 144 ({a.pbx_exception}): the ingest adapter read as of {a_now.isoformat(timespec='seconds')} "
+            f"({a.hours - base_h:g} h before the render clock), so its own {base_h:g} h expiry admits moments up to "
+            f"{a.hours:g} h old; every other check runs on the render clock with a {a.hours:g} h window")
     say(f"  adapter: {len(rows)} rows ({json.dumps(rep.get('excluded'))})")
     wp, wp_rep = LB.word_pass_index(a.word_pass)
     wp_refused = wp_rep.get("refused") or []             # final: the worker never re-works them (the inputs keep ids);

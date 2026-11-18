@@ -1,0 +1,90 @@
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 55b6b06..551e068 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -53,7 +53,7 @@ import json
+ import os
+ import sys
+ import time
+-from datetime import datetime, timezone
++from datetime import datetime, timedelta, timezone
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+ REPO = os.path.dirname(os.path.dirname(HERE))
+@@ -461,6 +461,7 @@ def main(argv=None):
+     if not 0 < a.hours <= cap:                           # ruling 76: "rather than widen the window" (144: one exception)
+         print(f"REFUSED (ruling 76): --hours {a.hours} is outside (0, {cap:g}]", file=sys.stderr)
+         return 2
++    base_h = package_pin.WINDOW_H                        # 12: the rule (rulings 76 + 77) the exception widens
+     if a.pbx_exception:                                  # RULING 144: this process only; every later build is 12 h
+         package_pin.WINDOW_H = float(a.hours)            # (package.expired, window_problems and the registry read it)
+     try:                                                 # read before anything is written (glm C2 N-4)
+@@ -522,7 +523,12 @@ def main(argv=None):
+         f"{len(delivered)} clip spans out")
+     say(f"  RULING 76: {len(gone)} candidate(s) expired (over {package_pin.WINDOW_H:g} h on the render clock)" +
+         (f": {gone}" if gone else ""))
+-    rows, rep = LB.rows(since, now, horizon_h=a.hours)
++    a_now = now - timedelta(hours=a.hours - base_h) if a.pbx_exception else now   # RULING 144: the ingest adapter
++    rows, rep = LB.rows(since, a_now, horizon_h=a.hours)   # (pp-ingest's; its own 12 h expiry, rulings 76 + 77) is read
++    if a.pbx_exception:                                  # as of this earlier clock, so it admits moments up to --hours
++        say(f"  RULING 144 ({a.pbx_exception}): the ingest adapter read as of {a_now.isoformat(timespec='seconds')} "
++            f"({a.hours - base_h:g} h before the render clock), so its own {base_h:g} h expiry admits moments up to "
++            f"{a.hours:g} h old; every other check runs on the render clock with a {a.hours:g} h window")
+     say(f"  adapter: {len(rows)} rows ({json.dumps(rep.get('excluded'))})")
+     wp, wp_rep = LB.word_pass_index(a.word_pass)
+     wp_refused = wp_rep.get("refused") or []             # final: the worker never re-works them (the inputs keep ids);
+diff --git a/tests/package/test_ruling_137.py b/tests/package/test_ruling_137.py
+index a679178..f2832ff 100644
+--- a/tests/package/test_ruling_137.py
++++ b/tests/package/test_ruling_137.py
+@@ -8,6 +8,7 @@ import os
+ import sys
+ import tempfile
+ import unittest
++from datetime import datetime, timezone
+ from unittest import mock
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+@@ -593,6 +594,42 @@ class TestRuling144TheOneException(unittest.TestCase):
+         finally:
+             PP.WINDOW_H = saved
+ 
++    def test_the_ingest_adapter_is_asked_as_of_hours_minus_12_earlier(self):
++        """pp-ingest's adapter drops a moment 12 h after its video's publish time on the clock it is given (rulings 76 +
++        77); under the exception it is given the render clock minus (hours - 12) h, so it admits moments up to --hours
++        old. Without the exception it gets the render clock, as ever."""
++        import tempfile
++        import proof_ledger as PLG
++        pins = [os.path.join(os.path.dirname(os.path.abspath(__file__)), "proof", "fresh_20261112_050611", n)
++                for n in ("MOMENTS_PIN.json", "MOMENTS_PIN_LY.json")]
++        seen = []
++
++        class Past(Exception):
++            pass
++
++        def rows(since, now, horizon_h=None, **k):
++            seen.append((now, horizon_h))
++            raise Past()
++        saved = PP.WINDOW_H
++        try:
++            for extra in ([], ["--hours", "26", "--pbx-exception", "PBX exception x"]):
++                with tempfile.TemporaryDirectory() as d:          # one folder a run: a run's folder is never reused
++                    os.makedirs(os.path.join(d, "proof"))
++                    with mock.patch.object(PLG, "HERE", d), \
++                            mock.patch.object(PLG, "REGISTRY", os.path.join(d, "proof", "CANDIDATES.json")), \
++                            mock.patch.object(PLG.PS, "ledger_entries", lambda *a, **k: []), \
++                            mock.patch.object(PLG.LB, "rows", rows), mock.patch("sys.stdout"):
++                        t0 = datetime.now(timezone.utc)
++                        with self.assertRaises(Past):
++                            PLG.main(["--delivered", *pins, *extra])
++                now, h = seen[-1]
++                back = (t0 - now).total_seconds() / 3600
++                self.assertAlmostEqual(back, 14.0 if extra else 0.0, delta=0.05)
++                self.assertEqual(h, 26.0 if extra else 12.0)
++                PP.WINDOW_H = saved
++        finally:
++            PP.WINDOW_H = saved
++
+ 
+ class TestTheDayCount(unittest.TestCase):
+     def test_counted_per_day_ledger(self):

@@ -8,6 +8,7 @@ import os
 import sys
 import tempfile
 import unittest
+from datetime import datetime, timezone
 from unittest import mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -590,6 +591,42 @@ class TestRuling144TheOneException(unittest.TestCase):
                 with self.assertRaises(Past):
                     PLG.main(["--delivered", *pins, "--hours", "26", "--pbx-exception", "PBX exception x"])
             self.assertEqual(PP.WINDOW_H, 26.0)                                # this process: every 12 h check reads it
+        finally:
+            PP.WINDOW_H = saved
+
+    def test_the_ingest_adapter_is_asked_as_of_hours_minus_12_earlier(self):
+        """pp-ingest's adapter drops a moment 12 h after its video's publish time on the clock it is given (rulings 76 +
+        77); under the exception it is given the render clock minus (hours - 12) h, so it admits moments up to --hours
+        old. Without the exception it gets the render clock, as ever."""
+        import tempfile
+        import proof_ledger as PLG
+        pins = [os.path.join(os.path.dirname(os.path.abspath(__file__)), "proof", "fresh_20261112_050611", n)
+                for n in ("MOMENTS_PIN.json", "MOMENTS_PIN_LY.json")]
+        seen = []
+
+        class Past(Exception):
+            pass
+
+        def rows(since, now, horizon_h=None, **k):
+            seen.append((now, horizon_h))
+            raise Past()
+        saved = PP.WINDOW_H
+        try:
+            for extra in ([], ["--hours", "26", "--pbx-exception", "PBX exception x"]):
+                with tempfile.TemporaryDirectory() as d:          # one folder a run: a run's folder is never reused
+                    os.makedirs(os.path.join(d, "proof"))
+                    with mock.patch.object(PLG, "HERE", d), \
+                            mock.patch.object(PLG, "REGISTRY", os.path.join(d, "proof", "CANDIDATES.json")), \
+                            mock.patch.object(PLG.PS, "ledger_entries", lambda *a, **k: []), \
+                            mock.patch.object(PLG.LB, "rows", rows), mock.patch("sys.stdout"):
+                        t0 = datetime.now(timezone.utc)
+                        with self.assertRaises(Past):
+                            PLG.main(["--delivered", *pins, *extra])
+                now, h = seen[-1]
+                back = (t0 - now).total_seconds() / 3600
+                self.assertAlmostEqual(back, 14.0 if extra else 0.0, delta=0.05)
+                self.assertEqual(h, 26.0 if extra else 12.0)
+                PP.WINDOW_H = saved
         finally:
             PP.WINDOW_H = saved
 
