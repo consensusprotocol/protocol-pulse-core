@@ -1,0 +1,14 @@
+pp-selectid: RULING 141 (2) (STAND_ALONE soft in the never-empty pass), ONE FIX found by build 147 (09:05 ET Nov 18,
+ruling 147 (B)). The come-back (package.py, in _build right after the trims) brought back a moment left out ONLY by the
+render's STAND_ALONE opener rule, flagged, but NOT when it had an affirmed one-word trim variant ("and m['moment_id'] not
+in trims"): the variant was preferred as the clean path. In build 147 Natalie Brunell feb4b72f's 'And'-trimmed variant
+then failed ruling 33's trimmed cut (HARD: the trimmed word co-articulated), and the untrimmed original, which needs no
+trim, had been kept out by it: the channel was lost and nothing sealed.
+THE CHANGE: the come-back is now package.stand_soft_back(ms, no_role, soft), which no longer reads the trims: the
+original comes back flagged beside its trim variant (the variant keeps its own place, as ruling 94 (a)'s hook trims
+already do); one line-up never takes both (one clip per video, L-y 4). Everything else is unchanged: only the never-empty
+pass, only the opener rule (no topic refusal, ruling 34), the plain reason, the flag, the hook's opener HARD.
+File: pipeline/package.py, tests/package/test_ruling_137.py.
+TESTS: the helper brings back an opener-only moment, keeps a topic refusal out, and brings nothing back in the clean pass;
+the existing end-to-end STAND_ALONE tests pass unchanged.
+PLEASE CHECK: (1) can a line-up now take both a moment and its trim variant? (2) anything else this lets through.

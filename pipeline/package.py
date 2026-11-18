@@ -1614,6 +1614,16 @@ def stand_soft_rows(stand, segs):
     return out or None
 
 
+def stand_soft_back(ms, no_role, soft):
+    """RULING 141 (2), the never-empty pass: {moment id: plain reason} of the moments brought back as clips, flagged:
+    left out ONLY by the render's STAND_ALONE opener rule (no topic refusal, ruling 34). An affirmed trim variant no
+    longer keeps its original out (build 147, 09:05 ET Nov 18: Natalie Brunell feb4b72f's 'And'-trimmed variant failed
+    ruling 33's trimmed cut, HARD, and the original was lost with it): the two sit side by side, and one line-up never
+    takes both (one clip per video, L-y 4). The clean pass brings nothing back."""
+    return {m["moment_id"]: p for m in ms if soft and m["moment_id"] in no_role and no_topic(m) is None
+            for p in [stand_plain(m)] if p}
+
+
 def stand_ok(segs):
     """The render's STAND_ALONE on a line-up for the line-up rules (lineup_ok, lineup_for): it passes, or RULING 141 (2),
     its only failures are clips the never-empty pass brought back failing only the opener rule (stand_soft_rows)."""
@@ -3382,8 +3392,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
              for v in [trim_variant(m, sources)] if v}                      # joins the pool (the original stays a clip)
     trim_out = {k: why for k, v in trims.items() for why in [trim_refused(v)] if why}   # ruling 56: never sealed
     trims = {k: v for k, v in trims.items() if k not in trim_out}
-    stand_back = {m["moment_id"]: p for m in ms if soft and m["moment_id"] in no_role and m["moment_id"] not in trims
-                  and no_topic(m) is None for p in [stand_plain(m)] if p}   # RULING 141 (2): STAND_ALONE SOFT in the
+    stand_back = stand_soft_back(ms, no_role, soft)                         # RULING 141 (2): STAND_ALONE SOFT in the
     for m in ms:                                                            # never-empty pass: a moment left out ONLY
         if m["moment_id"] in stand_back:                                    # by the opener rule (no topic refusal, no
             m["stand_soft"] = stand_back[m["moment_id"]]                    # affirmed trim) comes back as a clip,

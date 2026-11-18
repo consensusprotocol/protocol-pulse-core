@@ -1,0 +1,54 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index c962a66..250c4f1 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -1614,6 +1614,16 @@ def stand_soft_rows(stand, segs):
+     return out or None
+ 
+ 
++def stand_soft_back(ms, no_role, soft):
++    """RULING 141 (2), the never-empty pass: {moment id: plain reason} of the moments brought back as clips, flagged:
++    left out ONLY by the render's STAND_ALONE opener rule (no topic refusal, ruling 34). An affirmed trim variant no
++    longer keeps its original out (build 147, 09:05 ET Nov 18: Natalie Brunell feb4b72f's 'And'-trimmed variant failed
++    ruling 33's trimmed cut, HARD, and the original was lost with it): the two sit side by side, and one line-up never
++    takes both (one clip per video, L-y 4). The clean pass brings nothing back."""
++    return {m["moment_id"]: p for m in ms if soft and m["moment_id"] in no_role and no_topic(m) is None
++            for p in [stand_plain(m)] if p}
++
++
+ def stand_ok(segs):
+     """The render's STAND_ALONE on a line-up for the line-up rules (lineup_ok, lineup_for): it passes, or RULING 141 (2),
+     its only failures are clips the never-empty pass brought back failing only the opener rule (stand_soft_rows)."""
+@@ -3382,8 +3392,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+              for v in [trim_variant(m, sources)] if v}                      # joins the pool (the original stays a clip)
+     trim_out = {k: why for k, v in trims.items() for why in [trim_refused(v)] if why}   # ruling 56: never sealed
+     trims = {k: v for k, v in trims.items() if k not in trim_out}
+-    stand_back = {m["moment_id"]: p for m in ms if soft and m["moment_id"] in no_role and m["moment_id"] not in trims
+-                  and no_topic(m) is None for p in [stand_plain(m)] if p}   # RULING 141 (2): STAND_ALONE SOFT in the
++    stand_back = stand_soft_back(ms, no_role, soft)                         # RULING 141 (2): STAND_ALONE SOFT in the
+     for m in ms:                                                            # never-empty pass: a moment left out ONLY
+         if m["moment_id"] in stand_back:                                    # by the opener rule (no topic refusal, no
+             m["stand_soft"] = stand_back[m["moment_id"]]                    # affirmed trim) comes back as a clip,
+diff --git a/tests/package/test_ruling_137.py b/tests/package/test_ruling_137.py
+index 25b32cb..5f8d8c9 100644
+--- a/tests/package/test_ruling_137.py
++++ b/tests/package/test_ruling_137.py
+@@ -357,6 +357,18 @@ class TestRuling141StandAloneSoft(unittest.TestCase):
+     def test_a_mark_carried_in_is_never_read(self):
+         self.assertIsNone(self.rig(False, carry=True)["package"])
+ 
++    def test_an_original_comes_back_beside_its_trim_variant(self):
++        """Build 147 (09:05 ET Nov 18): the trim variant of Natalie Brunell feb4b72f failed ruling 33's trimmed cut and
++        the original, which needs no trim, had been kept out by it. The come-back no longer reads the trims at all."""
++        from test_moments import pm
++        ms = [dict(pm("a", "N", 9.6), text="And Bitcoin a x."), dict(pm("b", "Y", 9.6), text="But nothing here.")]
++        no_role = {"a": "opener", "b": "opener; topic"}
++        got = PK.stand_soft_back(ms, no_role, True)
++        self.assertEqual(list(got), ["a"])                        # the topic refusal (b) stays out
++        self.assertEqual(PK.stand_soft_back(ms, no_role, False), {})
++        import inspect
++        self.assertNotIn("trims", inspect.signature(PK.stand_soft_back).parameters)
++
+     def test_the_line_up_rules_take_a_marked_clip_and_refuse_an_unmarked_one(self):
+         from test_moments import pm
+         h = dict(pm("h", "A", 12.0), hook_onset={"pass": True})

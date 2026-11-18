@@ -357,6 +357,18 @@ class TestRuling141StandAloneSoft(unittest.TestCase):
     def test_a_mark_carried_in_is_never_read(self):
         self.assertIsNone(self.rig(False, carry=True)["package"])
 
+    def test_an_original_comes_back_beside_its_trim_variant(self):
+        """Build 147 (09:05 ET Nov 18): the trim variant of Natalie Brunell feb4b72f failed ruling 33's trimmed cut and
+        the original, which needs no trim, had been kept out by it. The come-back no longer reads the trims at all."""
+        from test_moments import pm
+        ms = [dict(pm("a", "N", 9.6), text="And Bitcoin a x."), dict(pm("b", "Y", 9.6), text="But nothing here.")]
+        no_role = {"a": "opener", "b": "opener; topic"}
+        got = PK.stand_soft_back(ms, no_role, True)
+        self.assertEqual(list(got), ["a"])                        # the topic refusal (b) stays out
+        self.assertEqual(PK.stand_soft_back(ms, no_role, False), {})
+        import inspect
+        self.assertNotIn("trims", inspect.signature(PK.stand_soft_back).parameters)
+
     def test_the_line_up_rules_take_a_marked_clip_and_refuse_an_unmarked_one(self):
         from test_moments import pm
         h = dict(pm("h", "A", 12.0), hook_onset={"pass": True})
