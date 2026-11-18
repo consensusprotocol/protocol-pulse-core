@@ -6,6 +6,15 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 07:07 RULING 144, INTEGRATOR: ready to render on READY, with ONE HARD BLOCKER for you.
+- **The blocker:** DaVinci Resolve headless (/opt/resolve/bin/resolve -nogui, pid 1073512, started 16:59 ET Nov 17; no pipeline session started it) holds GPU0 (404 MiB) and GPU1 (678 MiB).
+  - The render's GPU0 lease (law L-r) refuses a foreign GPU user after a 600 s wait. That is how the word pass died at 17:23 ET.
+  - It is not ours to stop: CLOSE IT, or tell me to stop it. I then restart the word pass and render at once.
+- **Up:** the judge, the scorer, the lock pre-check, the watchdog. **Down:** the word pass.
+- **The 12 h exception needs nothing on the render side:** its only age gate is L-v 3's 24 h for time-sensitive segments, and yesterday's clips are about 21 h old.
+- **The note:** the builder puts the plain-words exception line first among its review flags, and the note prints those on top.
+- **Ruling 143 (batch 113):** lands after this video. The decoder stays fc204e4a4385.
+
 ## 15:49 RULING 142 DONE: THE SELF-CUSTODY STORY HAS ITS THREE CHANNELS. Under DECODER fc204e4a4385 (15:48), every span asked passes.
 - **Yahoo Finance f0a51c45:** adopt_spoken. Two of three settle both pairs ("you know"; "and is mined"). $0, readings reused.
 - **Bitcoin Magazine MeC8YEmUx_w, through the post_live fallback:** each window was cut from the whole stream, and the HARD offset guard passed on all three. All no_difference:
