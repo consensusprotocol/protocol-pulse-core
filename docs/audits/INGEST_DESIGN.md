@@ -604,6 +604,10 @@ the same videos.
   never counted as waiting (two such Yahoo Finance videos had kept the stall line up). r122: a stub can be a moment's
   answer (CoinDesk yHuY9r30Oug after its premiere ended), so it is tried every 15 min and given up only past its 12 h,
   and the sweep makes it due once the pipeline's store holds its record (the pipeline saw it: it exists).
+- r125 (found by this measure: Fox Business J0UvqtdsBmc, 462 s, Nov 18): a stream whose last probe said is_live is made
+  due ONCE by the sweep when a pipeline record acquired after that probe (its row's state_at) lands (the pipeline
+  transcribes a stream only once its own probe sees it over); the probe decides (still live: never taken) and rewrites
+  state_at, so the same record never makes it due again. Its queue event carries live_status, acquired_at, probed_at.
 - The second caption source (designed, not built) and what the 429s correlate with:
   docs/audits/parallel/pp-ingest_CAPTION_SOURCE_DESIGN.md.
 

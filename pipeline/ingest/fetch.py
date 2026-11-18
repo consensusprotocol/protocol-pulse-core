@@ -229,30 +229,52 @@ def take_pipeline_transcript(q, vid, channel_id, root=None, found=None):
     return True
 
 
+def _zoned(s):
+    """A time with its zone (ISO 8601, 'Z' read as UTC), else None: a time without its zone is no time."""
+    try:
+        d = datetime.fromisoformat(str(s).replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return None
+    return d if d.tzinfo is not None else None
+
+
 def pipeline_sweep(q, now_ts):
     """The orchestrator's 13:05 ruling of Nov 16 ("mine each video within 10 minutes of its transcript"): every video
     waiting on a transcript (probe_retry, captions_pending, and r120: a stream over, live_waiting with live_status
     post_live) inside its moments' life (config.EXPIRY_H) whose next try is later and whose record is in the
     pipeline's store (pipeline_transcript: every check) is made due now, whatever its own retry time; the fetch step
     then probes it and takes the record (a stream still live never: fetch.process). No YouTube request here (one glob, and a
-    read of a record that is there). Returns the ids made due; each is a queue event."""
-    rows = q.rows("SELECT video_id, channel_id FROM videos WHERE (state IN (?, ?) OR (state = ? AND live_status = ?) "
-                  "OR (state = ? AND reason LIKE ?)) AND next_at > ? AND COALESCE(published_ts, discovered_ts) >= ?",
-                  (Q.PROBE_RETRY, Q.CAPTIONS_PENDING, Q.LIVE, "post_live", Q.UNAVAILABLE, "no metadata:%", now_ts,
-                   now_ts - config.EXPIRY_H * 3600))   # r122: the pipeline's record proves a stub's video exists
-    due = []
+    read of a record that is there). Returns the ids made due; each is a queue event.
+    r125: a stream whose last probe still said is_live is made due ONCE when a record acquired after that probe (its
+    row's state_at) lands: the pipeline transcribes a stream only once its own probe sees it over, so the fetch step
+    probes it now instead of at its 20-min re-probe (Fox Business J0UvqtdsBmc, Nov 18: 462 s). Every probe rewrites
+    state_at, so a stream still live is probed once per record, never in a loop, and never taken."""
+    rows = q.rows("SELECT video_id, channel_id, state, live_status, state_at FROM videos WHERE (state IN (?, ?) OR "
+                  "(state = ? AND live_status IN (?, ?)) OR (state = ? AND reason LIKE ?)) AND next_at > ? AND "
+                  "COALESCE(published_ts, discovered_ts) >= ?",
+                  (Q.PROBE_RETRY, Q.CAPTIONS_PENDING, Q.LIVE, "post_live", "is_live", Q.UNAVAILABLE, "no metadata:%",
+                   now_ts, now_ts - config.EXPIRY_H * 3600))   # r122: the pipeline's record proves a stub's video exists
+    due, why = [], {}
     for r in rows:
         try:
-            if pipeline_transcript(r["video_id"], r["channel_id"]) is not None:
-                due.append(r["video_id"])
+            found = pipeline_transcript(r["video_id"], r["channel_id"])
         except ValueError:                            # an id transcript_store refuses: never a path, never due here
             continue
+        if found is None:
+            continue
+        if r["state"] == Q.LIVE and r["live_status"] == "is_live":     # r125: a record newer than the live probe
+            got, probed = _zoned(found[1].get("acquired_at")), _zoned(r["state_at"])
+            if got is None or probed is None or got <= probed:
+                continue
+            why[r["video_id"]] = {"live_status": "is_live", "acquired_at": got.isoformat(),   # audit r125 c1: the
+                                  "probed_at": probed.isoformat()}                          # two times, on its event
+        due.append(r["video_id"])
     if due:
         q.x(f"UPDATE videos SET next_at=? WHERE next_at > ? AND state IN (?, ?, ?, ?) AND video_id IN "
             f"({','.join('?' * len(due))})", (now_ts, now_ts, Q.PROBE_RETRY, Q.CAPTIONS_PENDING, Q.LIVE, Q.UNAVAILABLE)
             + tuple(due))
         for vid in due:
-            q.event("pipeline_transcript_due", vid, None)
+            q.event("pipeline_transcript_due", vid, None, **why.get(vid, {}))
     return due
 
 

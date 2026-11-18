@@ -100,7 +100,8 @@ def test_the_sweep_and_the_self_check_cover_a_stream_over_never_one_still_live(q
         q.add_video(v, H.CHAN["channel_id"], "t", "rss")
         q.x("UPDATE videos SET state=?, live_status=?, next_at=?, discovered_ts=?, published_ts=? WHERE video_id=?",
             (Q.LIVE, status, later, NOW - 2400, NOW - 2400, v))
-        pipeline_record(v)
+        pipeline_record(v, tamper=None if status == "post_live" else      # r125: a still-live row's record older
+                        (lambda r: r.update(acquired_at="2026-01-01T00:00:00+00:00")))   # than its probe: never due
     assert fetch.pipeline_sweep(q, NOW) == ["over0000001"]
     assert q.video("over0000001")["next_at"] == NOW and q.video("live0000001")["next_at"] == later
     q.x("UPDATE videos SET next_at=? WHERE video_id='over0000001'", (later,))

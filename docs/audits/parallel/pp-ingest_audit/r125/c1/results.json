@@ -1,0 +1,45 @@
+{
+ "results": {
+  "heimdall_qwen": {
+   "model": "qwen/qwen3.8-27b",
+   "usage": {
+    "prompt_tokens": 5595,
+    "completion_tokens": 2834,
+    "total_tokens": 8429,
+    "prompt_tokens_details": {
+     "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 0
+    },
+    "cost": 0.0022808095
+   },
+   "cost_usd": 0.0022808095,
+   "seconds": 184.4,
+   "finish_reason": "stop"
+  },
+  "heimdall_muse": {
+   "model": "meta-models/muse-spark-open-816b-a42b",
+   "usage": {
+    "prompt_tokens": 5291,
+    "completion_tokens": 3718,
+    "total_tokens": 9009,
+    "prompt_tokens_details": {
+     "cached_tokens": 112,
+     "cache_write_tokens": 0
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 17
+    },
+    "cost": 0.003734694
+   },
+   "cost_usd": 0.003734694,
+   "seconds": 237.0,
+   "finish_reason": "stop"
+  }
+ },
+ "errors": {},
+ "error_costs": {},
+ "skipped": {},
+ "earlier_attempts": []
+}
