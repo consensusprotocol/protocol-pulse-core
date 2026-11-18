@@ -63,6 +63,13 @@ OLLAMA_HOSTS = {0: OLLAMA_HOST, 1: "127.0.0.1:11435"}
 CO_TENANTS = {1: ((re.compile(r"\bwaitress\b"), 1024),)}
 MARGIN_MIB = 1024
 UNLISTED_MAX_MIB = 1024                    # GPU0 memory no listed compute process accounts for, beyond this = foreign
+# RULING 145 (orchestrator 2026-11-18 '07:32'): a SMALL TENANT is tolerated: every foreign process on the GPU under
+# SMALL_TENANT_MAX_MIB, the GPU keeping the caller's measured need plus SMALL_TENANT_HEADROOM_MIB free of everything
+# that is not this run's, and its utilisation under SMALL_TENANT_UTIL_MAX percent; logged in the lease events (run_fresh
+# copies them into PROVENANCE) and the run's note; anything bigger or busier is refused exactly as before.
+SMALL_TENANT_MAX_MIB = 2048
+SMALL_TENANT_HEADROOM_MIB = 4096
+SMALL_TENANT_UTIL_MAX = 10
 # Peak GPU0 memory one load needs (MiB, its process's CUDA context included): the peak measured on this host's 24564 MiB
 # GPU0 by pipeline/measure_gpu0.py on 2026-11-12 (Whisper keys on 600 s of speech; DoD 'L-r GPU0 requirements'), rounded
 # up by ~5%; swap_to adds MARGIN_MIB. A key missing here can never be loaded.
@@ -409,6 +416,37 @@ def _ollama_pids():
     return out
 
 
+def utilisation():
+    """GPU utilisation (percent, nvidia-smi utilization.gpu) of this caller's GPU."""
+    out = _smi(["-i", str(current_gpu()), "--query-gpu=utilization.gpu", "--format=csv,noheader,nounits"])
+    try:
+        return int(out.strip())
+    except ValueError:
+        raise Gpu0Unreadable(f"nvidia-smi utilisation line unreadable: {out.strip()[:80]!r}") from None
+
+
+def small_tenants(f, need_mib):
+    """RULING 145: (True, record) when the foreign users `f` are all SMALL TENANTS for a caller needing `need_mib`
+    (its measured requirement; 0 to release): each a process with a pid holding under SMALL_TENANT_MAX_MIB, the GPU
+    keeping need_mib + SMALL_TENANT_HEADROOM_MIB free of everything not this run's (this run's own loads count as
+    free: swap_to unloads them), its utilisation under SMALL_TENANT_UTIL_MAX percent. Else (False, why): refused as
+    before. No need given (None): never tolerated."""
+    if need_mib is None or not f:
+        return False, "no measured need for this caller"
+    if any(pid is None or mib is None or mib >= SMALL_TENANT_MAX_MIB for pid, _, mib in f):
+        return False, f"a foreign user of {SMALL_TENANT_MAX_MIB} MiB or more, or unaccounted"
+    used, total = memory()
+    ours = {os.getpid()} | _descendants() | _lease_holders() | _ollama_pids()
+    mine = sum(m for pid, _, m in processes() if pid in ours and m)
+    free = total - used + mine
+    if free < need_mib + SMALL_TENANT_HEADROOM_MIB:
+        return False, f"{free} MiB free of others, under the need {need_mib} + {SMALL_TENANT_HEADROOM_MIB} MiB"
+    util = utilisation()
+    if util >= SMALL_TENANT_UTIL_MAX:
+        return False, f"GPU utilisation {util}% (the tenant is busy)"
+    return True, {"free_mib": free, "need_mib": need_mib, "utilisation_pct": util}
+
+
 def foreign():
     """[(pid, what, MiB)] using GPU0 that is not this run's (see the module docstring)."""
     procs = processes()
@@ -539,7 +577,7 @@ def _ollama_key(key):
     return key[len("ollama:"):] if key.startswith("ollama:") else None
 
 
-def _refuse_foreign(what):
+def _refuse_foreign(what, need_mib=None):
     """L-r item 4 as amended (orchestrator 2026-11-12 '11:57'): a foreign GPU0 user is first WAITED OUT: polled every
     FOREIGN_POLL_S for up to FOREIGN_WAIT_S (an Ollama model's keep-alive expires by itself), who it was printed and
     recorded in the run's GPU0 events; Gpu0Foreign (a HOLD naming it) only when it is still there after the wait.
@@ -547,6 +585,13 @@ def _refuse_foreign(what):
     deepseek-coder-v2:16b, 18 GB, on GPU0 for its 5-min keep-alive and a run HELD at prepare.)"""
     f = foreign()
     if not f:
+        return
+    g = current_gpu()
+    ok, rec = small_tenants(f, need_mib)                              # ruling 145: a small tenant is tolerated
+    if ok:
+        _events.append({"key": "small_tenant", "gpu": g, "what": what, "rule": "ruling 145",
+                        "tenants": [[p, n, m] for p, n, m in f], **rec})
+        print(f"  GPU{g}: {what}: a small foreign tenant tolerated (ruling 145): {describe(f)} | {rec}", flush=True)
         return
     b = getattr(_tls, "foreign_wait_s", None)                          # ollama_call: the caller's bound
     bound = FOREIGN_WAIT_S if b is None else min(FOREIGN_WAIT_S, b)
@@ -578,7 +623,7 @@ def swap_to(key, wait_s=WAIT_S, poll_s=2.0, gpu=None):
     if ON_GPU.get(key, g) != g:
         raise Gpu0NotFree(f"{key}: pinned to GPU{ON_GPU[key]} by the layout (law L-r), never loaded on GPU{g}")
     with _lock:
-        _refuse_foreign(f"swap_to({key})")
+        _refuse_foreign(f"swap_to({key})", REQUIREMENT_MIB[key])
         ev = {"key": key, "gpu": g, "at": time.time(), "before": memory(), "unloaded": []}
         for m in [m for m in _resident if m.key != key]:
             m.unload()
@@ -611,7 +656,7 @@ def _swap_wait(key, name, ev, wait_s, poll_s):
                                   f"({'already resident: the margin' if already else f'{REQUIREMENT_MIB[key]} + margin {MARGIN_MIB}'}); "
                                   f"on GPU{current_gpu()}: {describe(processes())}")
             time.sleep(poll_s)
-            _refuse_foreign(f"swap_to({key}) while waiting")
+            _refuse_foreign(f"swap_to({key}) while waiting", REQUIREMENT_MIB[key])
         if not already:
             _gen[0] += 1
         ev.update(after=[used, total], free_mib=total - used, already_resident=already,
@@ -628,7 +673,7 @@ def release_all(wait_s=WAIT_S, poll_s=2.0):
     g = current_gpu()
     need = max(v for k, v in REQUIREMENT_MIB.items() if ON_GPU.get(k, g) == g) + MARGIN_MIB   # the largest load THIS GPU takes
     with _lock:
-        _refuse_foreign("release_all")
+        _refuse_foreign("release_all", 0)
         ev = {"at": time.time(), "before": memory(), "unloaded": []}
         for m in list(_resident):
             m.unload()
@@ -649,7 +694,7 @@ def release_all(wait_s=WAIT_S, poll_s=2.0):
                                   f"after releasing everything it owns (free means >= {need} with this process at <= "
                                   f"{CONTEXT_MAX_MIB}: the failed model was not freed); on GPU{g}: {describe(processes())}")
             time.sleep(poll_s)
-            _refuse_foreign("release_all while waiting")
+            _refuse_foreign("release_all while waiting", 0)
 
 
 def leave():
