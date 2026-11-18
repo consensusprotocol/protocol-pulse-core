@@ -565,9 +565,14 @@ class TestRuling144TheOneException(unittest.TestCase):
         self.assertEqual(PP.review_flags_of(g), [self.EXC, "doubt 0", "doubt 1", "doubt 2"])
         self.assertEqual(PP.content_flags(g), 3)
         self.assertEqual(PP.review_problems({"gates": g, "review_flags": PP.review_flags_of(g)}), [])
-        self.assertEqual(len(PP.review_problems({"gates": self.gates(4), "review_flags": PP.review_flags_of(
-            self.gates(4))})), 1)                                           # a 4th DOUBT still refuses
+        self.assertEqual(PP.review_problems({"gates": self.gates(4), "review_flags": PP.review_flags_of(
+            self.gates(4))}), [])                                           # RULING 147: the excepted pin takes 5
         self.assertIn(PP.EXCEPTION_GATE, PP.SOFT_GATES)
+        five, six = self.gates(5), self.gates(6)                           # RULING 147: 5 on the excepted pin only
+        self.assertEqual(PP.review_problems({"gates": five, "review_flags": PP.review_flags_of(five)}), [])
+        self.assertEqual(len(PP.review_problems({"gates": six, "review_flags": PP.review_flags_of(six)})), 1)
+        four = {k: v for k, v in self.gates(4).items() if k != PP.EXCEPTION_GATE}
+        self.assertEqual(len(PP.review_problems({"gates": four, "review_flags": PP.review_flags_of(four)})), 1)   # 3
 
     def test_the_driver_takes_it_only_named_and_only_in_this_process(self):
         import proof_ledger as PLG

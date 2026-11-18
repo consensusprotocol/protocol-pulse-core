@@ -60,7 +60,7 @@ class TestRequest(Dirs):
         self.assertNotIn("trimmed_leading", s[1])                                        # only a trimmed moment
         self.assertEqual((s[2]["trimmed_leading"], s[2]["untrimmed_start"]), ("And", 1690.9))
         self.assertEqual(os.path.basename(LP.result_file(s[0], self.res)),
-                         "DcUbBkyeh9M.216.054-228.674.fc204e4a4385.json")             # batches 111 + 112's decoder
+                         "DcUbBkyeh9M.216.054-228.674.50fa01b400bd.json")             # batch 114's decoder
 
     def test_a_request_is_renamed_from_its_tmp_and_never_written_over(self):
         segs = LP.segments_of([HOOK, CLIP])
@@ -138,7 +138,7 @@ class TestRuling84(unittest.TestCase):
         """RULING 103 (14:12 Nov 14), RULING 105 (20:13 Nov 14), RULING 131 (08:25 Nov 17), RULING 135 (10:50 Nov 17) and
         RULING 142 (14:32 Nov 17) joined the integrator's rules string (its batch 110 values, 14:5x ET Nov 17)."""
         self.assertEqual(LP.RULES, "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + "
-                                   "ruling 131 + ruling 135 + ruling 142")
+                                   "ruling 131 + ruling 135 + ruling 142 + ruling 146")
 
     def test_the_held_span_of_the_20_12_build_now_adopts(self):
         spoken = "So over time, um, I came to think, uh, or the money itself was broken."

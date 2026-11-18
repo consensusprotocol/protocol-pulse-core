@@ -1,0 +1,17 @@
+pp-selectid: RULING 147 (orchestrator 08:20 ET Nov 18), two small parts, one lockstep:
+(a) THE BUILDER'S MIRROR OF THE INTEGRATOR'S BATCH 114 (ruling 146 (2): G17a's hook lead FLAGS in the render's lock,
+    never holds): pipeline/sentence_law.py copied BYTE-IDENTICAL from the integrator's staged file (branch r146-g17a
+    7c1bed55, sha256 48e5b639fc871f46cb6a1ba1cb671e5e966b2ab66defbc4e6af38bb55d3656b3, its two audit cycles PASS);
+    lock_precheck.DECODER 50fa01b400bd (full sha in the comment, the integrator's lock_precheck.decoder_sha()); RULES +
+    " + ruling 146". Pre-check entries gain cut["hook_lead_short"], which this side never reads.
+(b) THE EXCEPTION PIN'S CAP: "FOR THIS ONE EXCEPTION PIN ONLY the cap is 5 flags (the '12 hours' exception line does not
+    count as one). The cap is 3 again for every later build." package_pin.flags_cap(gates) = PBX_EXCEPTION_CAP (5) when the
+    gates carry the ruling-144 exception row (EXCEPTION_GATE, written only by the driver under --pbx-exception, sealed
+    with the gates), else REVIEW_FLAGS_MAX (3); to_pin and review_problems compare content_flags (the exception line
+    excluded) with it. The integrator's check_pin_only reads review_problems from this module, so it follows per pin.
+Files: pipeline/sentence_law.py, pipeline/lock_precheck.py, pipeline/package_pin.py, tests/package/test_ruling_137.py,
+tests/package/test_lock_precheck.py, tests/package/test_ruling_105.py.
+TESTS: the decoder and RULES pins; the excepted pin seals 4 and 5 doubts and refuses 6; a pin without the exception row
+refuses 4. Mutations: 4 of 4 killed (the cap both ways, the decoder, the rules).
+PLEASE CHECK: (1) can any pin other than the excepted one get the cap of 5? (2) the mirror is byte-identical and nothing
+else on this side changes behaviour; (3) the tests.

@@ -49,6 +49,8 @@ SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's sof
                         "graphics"})                       # RULING 146 (1): the show's own graphics, 16:9 only
 #   rule, ruling 34, and the medley naming Bitcoin stay HARD)
 REVIEW_FLAGS_MAX = 3
+PBX_EXCEPTION_CAP = 5   # RULING 147 (orchestrator 08:20 ET Nov 18): the excepted pin's cap (the exception line itself
+#   never counts); every other pin keeps REVIEW_FLAGS_MAX
 EXCEPTION_GATE = "pbx_exception"   # RULING 144 (PBX 07:05 ET Nov 18): a named, logged exception to a HARD rule for ONE
 #   package. Its row is FLAGGED with the exception in plain words; its sentence opens the review flags (the note's top
 #   line) and is not a doubt about the content, so it never counts toward REVIEW_FLAGS_MAX.
@@ -419,8 +421,14 @@ def review_problems(mp):
     over REVIEW_FLAGS_MAX (empty = it holds)."""
     want, got = review_flags_of(mp.get("gates")), mp.get("review_flags") or []
     out = [] if got == want else [f"review_flags {got} are not the sealed gates' flags {want}"]
-    n = content_flags(mp.get("gates"))
-    return out + ([f"{n} review flags, over {REVIEW_FLAGS_MAX} (ruling 136 (2))"] if n > REVIEW_FLAGS_MAX else [])
+    n, cap = content_flags(mp.get("gates")), flags_cap(mp.get("gates"))
+    return out + ([f"{n} review flags, over {cap} (ruling 136 (2) / 147)"] if n > cap else [])
+
+
+def flags_cap(gates):
+    """RULINGS 136 (2) / 147: the most content flags a pin may carry: PBX_EXCEPTION_CAP on the one pin that carries a
+    ruling-144 exception row, REVIEW_FLAGS_MAX on every other."""
+    return PBX_EXCEPTION_CAP if isinstance(gates, dict) and EXCEPTION_GATE in gates else REVIEW_FLAGS_MAX
 
 
 def content_flags(gates):
@@ -517,8 +525,8 @@ def to_pin(pk, run_name):
         screen_problems(pk) + trim_problems(pk.get("segments") or []) + scorer_problems(pk.get("segments") or []) + \
         spotlight_problems(pk) + takeaway_problems(pk)
     rf = review_flags_of(pk.get("gates"))                 # RULING 137: derived from the sealed gates, at most 3
-    problems += [f"{content_flags(pk.get('gates'))} review flags, over {REVIEW_FLAGS_MAX} (ruling 136 (2))"] \
-        if content_flags(pk.get("gates")) > REVIEW_FLAGS_MAX else []
+    problems += [f"{content_flags(pk.get('gates'))} review flags, over {flags_cap(pk.get('gates'))} (ruling 136 (2) / "
+                 f"147)"] if content_flags(pk.get("gates")) > flags_cap(pk.get("gates")) else []
     if problems:
         raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
     segs = []
