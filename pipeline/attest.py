@@ -98,7 +98,7 @@ def carry_class(r, p, op, texts):
     return "immediate repetition" if any(repeats(*s) for s in sides) else "function word"
 
 
-def class_84(spoken, approved):
+def class_84(spoken, approved, approved_tokens=None):
     """RULING 84 (orchestrator 20:41 Nov 13): the render's lock pre-check class, as the integrator's pre-check applies
     it (its message of 20:4x Nov 13), on this side's comparison: the spoken text (the second recogniser's reading)
     against the approved text. -> [{"spoken", "approved", "class"}], one per difference; a class None holds.
@@ -107,9 +107,17 @@ def class_84(spoken, approved):
     2. The fillers dropped, the texts are compared again. A number, a negation or a name on either side holds.
     3. One token against one token, both function words: "one function word". At most ONE per span; another holds.
     4. Any other substitution (both sides non-empty) holds, a 2-for-2 or 1-for-2 of function words included.
-    5. An insert or a drop: ruling 67's class (carry_class), unchanged, on the filler-free spoken text."""
+    5. An insert or a drop: ruling 67's class (carry_class), unchanged, on the filler-free spoken text.
+    approved_tokens (RULING 148 (3)): the approved side's canon tokens as they are (class_131's merged reading), never
+    tokenised again from a joined string: canon reads digits, a space and three digits as one number ('24 7 365' ->
+    ['24', '7365']), so a re-read join can differ from its own tokens (build 149: Yahoo Finance f0a51c45 held on '7 365'
+    against '7365', which the render's lock adopts). approved stays the text the critical-word test reads."""
     texts = (spoken, approved)
-    r, p, ops = diff(spoken, approved)
+    if approved_tokens is None:
+        r, p, ops = diff(spoken, approved)
+    else:
+        r, p = canon.canon_tokens(spoken), list(approved_tokens)
+        ops = [o for o in SequenceMatcher(None, r, p, autojunk=False).get_opcodes() if o[0] != "equal"]
     drop = {i for _tag, a, b, _c, _d in ops for i in range(a, b) if r[i] in FILLERS}
     out = [{"spoken": r[i], "approved": "", "class": "filler"} for i in sorted(drop)]
     r2 = [t for i, t in enumerate(r) if i not in drop]
@@ -263,7 +271,8 @@ def class_131(spoken, approved, adj):
     if sp != merged and sp != spill_trimmed(merged, s):  # ruling 72 adopts only the second recogniser's own reading
         out.append(held("the spoken text is neither the merged reading nor the second recogniser's own reading of the "
                         "span (ruling 72 adopts only its reading)"))
-    for x in class_84(spoken, " ".join(merged)):        # ruling 72 on top of the merged reading, as today
+    for x in class_84(spoken, " ".join(merged), merged):   # ruling 72 on top of the merged reading, as today; RULING
+        #   148 (3): compared as its tokens, never re-read from the join ('24 7 365' would read ['24', '7365'])
         out.append(dict(x, took="ruling 72", edge_distance=None, **(
             {"why": "the spoken text differs from the merged reading outside ruling 84's class"} if x["class"] is None
             else {})))

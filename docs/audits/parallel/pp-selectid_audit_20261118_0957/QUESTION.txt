@@ -1,0 +1,18 @@
+pp-selectid: RULING 148 (3) / 149 (orchestrator 09:56 ET Nov 18): ONE RULE IN ONE FILE (pipeline/attest.py).
+THE DEFECT (build 149, 09:34 ET): this side's re-check of the render lock's adoption (attest.class_131, step 5) held Yahoo
+Finance f0a51c45 although the render's own lock adopts it under ruling 131 (A). class_131 builds the merged reading as
+CANON TOKENS (merged), then called class_84(spoken, " ".join(merged)): class_84 tokenises that join AGAIN, and canon reads
+digits, a space and three digits as ONE number (its spaced-thousands rule, canon.py _SPACED_THOUSANDS, unchanged:
+'74 000' = 74000). So the merged tokens ['24', '7', '365'] re-read as ['24', '7365'] against the spoken text's
+['24', '7', '365'] ('24 -7, 365'): a number difference, held (law L-v 2). The record's own readings agree word for word.
+THE CHANGE: class_84(spoken, approved, approved_tokens=None). Given approved_tokens, it compares canon_tokens(spoken)
+against those tokens AS THEY ARE (the same SequenceMatcher opcodes diff() makes); approved stays the text the critical-
+word test reads (texts = (spoken, approved), unchanged). class_131 passes merged as approved_tokens. Every other caller
+passes none: unchanged.
+TESTS (tests/package/test_lock_precheck.py, TestRuling148TheMergedReadingKeepsItsTokens): the render lock's record of
+f0a51c45 (its three readings and two pairs, verbatim) -> class_131 holds nothing and LP.decide adopts under ruling 131
+(A); a real number difference (366 for 365, 25 for 24) still holds; class_84 with tokens reads them as they are, and
+the join re-read shows the defect. Mutations: 2 of 2 killed (the old join-only call; class_84 ignoring the tokens);
+control passes; suites 42 files / 938 passed, exit 0.
+PLEASE CHECK: (1) can approved_tokens let a genuine number / name / negation difference through? (2) is the merged
+reading's critical-word test (texts) still the same as before? (3) anything else this changes.

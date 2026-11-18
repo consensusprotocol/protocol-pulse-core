@@ -1,0 +1,99 @@
+diff --git a/pipeline/attest.py b/pipeline/attest.py
+index 690d09a..cca269f 100644
+--- a/pipeline/attest.py
++++ b/pipeline/attest.py
+@@ -98,7 +98,7 @@ def carry_class(r, p, op, texts):
+     return "immediate repetition" if any(repeats(*s) for s in sides) else "function word"
+ 
+ 
+-def class_84(spoken, approved):
++def class_84(spoken, approved, approved_tokens=None):
+     """RULING 84 (orchestrator 20:41 Nov 13): the render's lock pre-check class, as the integrator's pre-check applies
+     it (its message of 20:4x Nov 13), on this side's comparison: the spoken text (the second recogniser's reading)
+     against the approved text. -> [{"spoken", "approved", "class"}], one per difference; a class None holds.
+@@ -107,9 +107,17 @@ def class_84(spoken, approved):
+     2. The fillers dropped, the texts are compared again. A number, a negation or a name on either side holds.
+     3. One token against one token, both function words: "one function word". At most ONE per span; another holds.
+     4. Any other substitution (both sides non-empty) holds, a 2-for-2 or 1-for-2 of function words included.
+-    5. An insert or a drop: ruling 67's class (carry_class), unchanged, on the filler-free spoken text."""
++    5. An insert or a drop: ruling 67's class (carry_class), unchanged, on the filler-free spoken text.
++    approved_tokens (RULING 148 (3)): the approved side's canon tokens as they are (class_131's merged reading), never
++    tokenised again from a joined string: canon reads digits, a space and three digits as one number ('24 7 365' ->
++    ['24', '7365']), so a re-read join can differ from its own tokens (build 149: Yahoo Finance f0a51c45 held on '7 365'
++    against '7365', which the render's lock adopts). approved stays the text the critical-word test reads."""
+     texts = (spoken, approved)
+-    r, p, ops = diff(spoken, approved)
++    if approved_tokens is None:
++        r, p, ops = diff(spoken, approved)
++    else:
++        r, p = canon.canon_tokens(spoken), list(approved_tokens)
++        ops = [o for o in SequenceMatcher(None, r, p, autojunk=False).get_opcodes() if o[0] != "equal"]
+     drop = {i for _tag, a, b, _c, _d in ops for i in range(a, b) if r[i] in FILLERS}
+     out = [{"spoken": r[i], "approved": "", "class": "filler"} for i in sorted(drop)]
+     r2 = [t for i, t in enumerate(r) if i not in drop]
+@@ -263,7 +271,8 @@ def class_131(spoken, approved, adj):
+     if sp != merged and sp != spill_trimmed(merged, s):  # ruling 72 adopts only the second recogniser's own reading
+         out.append(held("the spoken text is neither the merged reading nor the second recogniser's own reading of the "
+                         "span (ruling 72 adopts only its reading)"))
+-    for x in class_84(spoken, " ".join(merged)):        # ruling 72 on top of the merged reading, as today
++    for x in class_84(spoken, " ".join(merged), merged):   # ruling 72 on top of the merged reading, as today; RULING
++        #   148 (3): compared as its tokens, never re-read from the join ('24 7 365' would read ['24', '7365'])
+         out.append(dict(x, took="ruling 72", edge_distance=None, **(
+             {"why": "the spoken text differs from the merged reading outside ruling 84's class"} if x["class"] is None
+             else {})))
+diff --git a/tests/package/test_lock_precheck.py b/tests/package/test_lock_precheck.py
+index 957d68e..a70ed0c 100644
+--- a/tests/package/test_lock_precheck.py
++++ b/tests/package/test_lock_precheck.py
+@@ -387,6 +387,51 @@ class TestRuling135(unittest.TestCase):
+         self.assertEqual(LP.decide(s, entry(s, "adopt_spoken", spoken_text=app, adjudication=adj))["verdict"], "pass")
+ 
+ 
++class TestRuling148TheMergedReadingKeepsItsTokens(unittest.TestCase):
++    """RULING 148 (3) (orchestrator 09:38 ET Nov 18): build 149 lost Yahoo Finance f0a51c45 to this side's own re-check,
++    not to the render's lock, which adopts the clip under ruling 131 (A). class_131 joined the merged reading's canon
++    tokens with spaces and class_84 tokenised the join again; canon reads digits, a space and three digits as one number
++    (spaced thousands), so '24 7 365' became ['24', '7365'] against the spoken ['24', '7', '365'] and held as a number
++    (law L-v 2). The readings below are the render's lock record (F536pi4mr7Y 461.650-478.940, decoder 50fa01b400bd)."""
++    RUN = ("But if you're wondering why having decentralized money that's available 24 -7, 365, that has no CEO and is "
++           "mined by a decentralized network around the world, like Bitcoin, is important. Well, when you want access "
++           "to your money with Bitcoin, you have it.")
++    APP = ("But, you know, if you're wondering why having decentralized money that's available 24 -7, 365, that has no "
++           "CEO in his mind by a decentralized network. around the world, like Bitcoin is important. Well, when you want "
++           "access to your money with Bitcoin, you have it.")
++    SEC = ("is. But, you know, if you're wondering why having decentralized money that's available 24/7/365, uh, that "
++           "has no CEO and is mined by a decentralized network around the world, like Bitcoin, is important, well, when "
++           "you want access to your money, with Bitcoin, you have it. Now,")
++    SPOKEN = APP.replace("in his mind", "and is mined")
++    PAIRS = [{"run": "", "approved": "you know", "second_reads": "approved", "took": "approved",
++              "agreed": ["approved", "second"], "edge_distance": 1},
++             {"run": "and is mined", "approved": "in his mind", "second_reads": "run", "took": "run",
++              "agreed": ["run", "second"], "edge_distance": 17}]
++
++    def adj(self):
++        return {"rule": "ruling 131 (A) (orchestrator 2026-11-17 '08:25')", "run_decode": self.RUN, "approved": self.APP,
++                "second_recogniser": self.SEC, "pairs": self.PAIRS}
++
++    def test_the_cause_a_join_is_not_its_tokens(self):
++        self.assertEqual(C.canon_tokens("24 7 365"), ["24", "7365"])
++        self.assertEqual(C.canon_tokens("24 -7, 365"), ["24", "7", "365"])
++
++    def test_the_render_locks_adoption_is_this_sides_too(self):
++        self.assertEqual([r for r in AT.class_131(self.SPOKEN, self.APP, self.adj()) if r["class"] is None], [])
++        s = LP.segments_of([{"video_id": "F536pi4mr7Y", "start": 461.65, "end": 478.94, "text": self.APP}])[0]
++        d = LP.decide(s, entry(s, "adopt_spoken", spoken_text=self.SPOKEN, adjudication=self.adj()))
++        self.assertEqual((d["verdict"], d.get("adoption")), ("adopt", AT.RULE_131), d)
++
++    def test_a_number_that_differs_still_holds(self):
++        for spoken in (self.SPOKEN.replace("365", "366"), self.SPOKEN.replace("24 -7", "25 -7")):
++            self.assertTrue([r for r in AT.class_131(spoken, self.APP, self.adj()) if r["class"] is None], spoken)
++
++    def test_class_84_reads_given_tokens_as_they_are(self):
++        self.assertEqual([x for x in AT.class_84("24 -7, 365 days", "24 7 365 days") if x["class"] is None],
++                         [{"spoken": "7 365", "approved": "7365", "class": None}])    # the join, re-read
++        self.assertEqual(AT.class_84("24 -7, 365 days", "24 7 365 days", ["24", "7", "365", "days"]), [])
++
++
+ class TestRuling142(unittest.TestCase):
+     """RULING 142 (orchestrator 14:32 ET Nov 17), the integrator's batch 110 mirrored (its canon.py byte-identical, its
+     adjudicate_lock hunk in attest.class_131): (1) a hyphen right after a number and a space, before a digit, is never

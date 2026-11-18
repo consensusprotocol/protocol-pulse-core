@@ -387,6 +387,51 @@ class TestRuling135(unittest.TestCase):
         self.assertEqual(LP.decide(s, entry(s, "adopt_spoken", spoken_text=app, adjudication=adj))["verdict"], "pass")
 
 
+class TestRuling148TheMergedReadingKeepsItsTokens(unittest.TestCase):
+    """RULING 148 (3) (orchestrator 09:38 ET Nov 18): build 149 lost Yahoo Finance f0a51c45 to this side's own re-check,
+    not to the render's lock, which adopts the clip under ruling 131 (A). class_131 joined the merged reading's canon
+    tokens with spaces and class_84 tokenised the join again; canon reads digits, a space and three digits as one number
+    (spaced thousands), so '24 7 365' became ['24', '7365'] against the spoken ['24', '7', '365'] and held as a number
+    (law L-v 2). The readings below are the render's lock record (F536pi4mr7Y 461.650-478.940, decoder 50fa01b400bd)."""
+    RUN = ("But if you're wondering why having decentralized money that's available 24 -7, 365, that has no CEO and is "
+           "mined by a decentralized network around the world, like Bitcoin, is important. Well, when you want access "
+           "to your money with Bitcoin, you have it.")
+    APP = ("But, you know, if you're wondering why having decentralized money that's available 24 -7, 365, that has no "
+           "CEO in his mind by a decentralized network. around the world, like Bitcoin is important. Well, when you want "
+           "access to your money with Bitcoin, you have it.")
+    SEC = ("is. But, you know, if you're wondering why having decentralized money that's available 24/7/365, uh, that "
+           "has no CEO and is mined by a decentralized network around the world, like Bitcoin, is important, well, when "
+           "you want access to your money, with Bitcoin, you have it. Now,")
+    SPOKEN = APP.replace("in his mind", "and is mined")
+    PAIRS = [{"run": "", "approved": "you know", "second_reads": "approved", "took": "approved",
+              "agreed": ["approved", "second"], "edge_distance": 1},
+             {"run": "and is mined", "approved": "in his mind", "second_reads": "run", "took": "run",
+              "agreed": ["run", "second"], "edge_distance": 17}]
+
+    def adj(self):
+        return {"rule": "ruling 131 (A) (orchestrator 2026-11-17 '08:25')", "run_decode": self.RUN, "approved": self.APP,
+                "second_recogniser": self.SEC, "pairs": self.PAIRS}
+
+    def test_the_cause_a_join_is_not_its_tokens(self):
+        self.assertEqual(C.canon_tokens("24 7 365"), ["24", "7365"])
+        self.assertEqual(C.canon_tokens("24 -7, 365"), ["24", "7", "365"])
+
+    def test_the_render_locks_adoption_is_this_sides_too(self):
+        self.assertEqual([r for r in AT.class_131(self.SPOKEN, self.APP, self.adj()) if r["class"] is None], [])
+        s = LP.segments_of([{"video_id": "F536pi4mr7Y", "start": 461.65, "end": 478.94, "text": self.APP}])[0]
+        d = LP.decide(s, entry(s, "adopt_spoken", spoken_text=self.SPOKEN, adjudication=self.adj()))
+        self.assertEqual((d["verdict"], d.get("adoption")), ("adopt", AT.RULE_131), d)
+
+    def test_a_number_that_differs_still_holds(self):
+        for spoken in (self.SPOKEN.replace("365", "366"), self.SPOKEN.replace("24 -7", "25 -7")):
+            self.assertTrue([r for r in AT.class_131(spoken, self.APP, self.adj()) if r["class"] is None], spoken)
+
+    def test_class_84_reads_given_tokens_as_they_are(self):
+        self.assertEqual([x for x in AT.class_84("24 -7, 365 days", "24 7 365 days") if x["class"] is None],
+                         [{"spoken": "7 365", "approved": "7365", "class": None}])    # the join, re-read
+        self.assertEqual(AT.class_84("24 -7, 365 days", "24 7 365 days", ["24", "7", "365", "days"]), [])
+
+
 class TestRuling142(unittest.TestCase):
     """RULING 142 (orchestrator 14:32 ET Nov 17), the integrator's batch 110 mirrored (its canon.py byte-identical, its
     adjudicate_lock hunk in attest.class_131): (1) a hyphen right after a number and a space, before a digit, is never
