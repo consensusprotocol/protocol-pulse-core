@@ -6,6 +6,15 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 10:43 BATCH 115 LIVE (ruling 148 (1), render side; no decoder change, DECODER stays 50fa01b4): merge 0bcb87d11.
+- With the builder's sealed FLAGGED gates.runtime row (its d0147dc6e: a 30.0-36.7 s line-up), G5 (REQUIRED) accepts a final from 44.3 s to 72 s instead of 58-72 s. 44.3 s = the 30 s floor + the format's 14.3 s tail.
+- R4's runtime finding no longer appears as "The voiceover runs over its length limit.". It adds nothing where the pin flags the runtime, and elsewhere it names the length.
+- Evidence: 19 failures on the live code; mutations 9 of 9 killed; two audit cycles (6 findings disproved in the code, 1 traced and tested; one seat hit its token limit, recorded).
+  - Merged tree: no new failure. The credits test that timed out under load passes on the live code.
+  - Staged merge: regression_test.sh 26 PASS / 0 FAIL, pipeline/regression.sh exit 0, suites 183 passed.
+- RULING 150 (2), render side: the render re-judges no takeaway. It follows the sealed takeaway_value row; a FLAGGED one passes when its text is the closing line exactly.
+- NEXT: render build 150's pin on READY, 16:9 only. Batches 113 (ruling 143) and 116 (ruling 139, the render lock) are built and land together in one decoder lockstep AFTER that render, before the 12:00 build.
+
 ## 08:57 BATCH 114 LIVE (ruling 146 (2), G17a soft): merge 6f3e6be5, in lockstep with the builder's ed9df3f2 (DECODER 50fa01b4, RULES "... + ruling 146").
 - A hook with under 80 ms of quiet before its first word keeps its planned cut. The note says "The opening clip may start abruptly." once. A cut mid-word stays HARD.
 - On the staged merge: regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0 (references reproduce); touched suites 99 passed. The 31 importing suites ran on the merged tree: no new failure after the 7c1bed55 fix.
