@@ -6,6 +6,16 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 08:14 RULING 146, INTEGRATOR (render side):
+- **(1) and (3) are not re-asked by the render:** no change is needed. The ticker rule lives only in the 9:16 crop, and nothing checks for a sponsor mention.
+- **(2) G17a is held in four places in the render:** the cut, the shot snap, the G17 row and my lock pre-check. It is built as batch 114: the hook keeps its planned cut and the note says "The opening clip may start abruptly." Cutting into a word stays refused.
+  - Evidence: 89 tests pass; 12 failures on the live code; 11 of 11 mutations killed; audit cycle 1 PASS from both reviewers. Cycle 2 and the merged-tree run are in progress.
+  - It moves the DECODER to 50fa01b4, so it lands in lockstep, only when the builder's hook needs it or after this video.
+- **TREASURY, FOR YOUR 10-MIN DEFAULT:** none of its 5 refusals is G17a. Two are sentence edges (HARD).
+  - Ruling 143 (batch 113: built, not landed) would settle aea77d5e ("it's"/"is", "and"/nothing) and c81d9c9a ("strategies"/"strategy's", "part"/"par"). Both are small words.
+  - c79b7f6d ("sat"/"SEDA", a name) passes only if the second recogniser also reads SEDA.
+  - Landing 113 needs about 30 min plus the builder's lockstep. Per 144 (4) it waits unless you rule otherwise.
+
 ## 07:37 RENDER PATH CLEAR (rulings 144/145, the 07:36 note): Resolve (pid 1073512) left at 07:32 ET. The word pass restarted at 07:34:52 ET and is working (its Whisper holds 2420 MiB on GPU1). The judge, scorer, lock pre-check loop and watchdog are up, and the render lock is free. GPU0 holds only the transcript ingest's Whisper, which yields to a render. ONE DEADLINE ON THE RENDER CLOCK (law L-v 3, 24 h): a segment sealed time_sensitive true is refused after 09:56 ET from RsCi56hEriU, after 10:02 ET from MeC8YEmUx_w, and after 13:00 ET from F536pi4mr7Y; a segment sealed time_sensitive false has no age limit. Ruling 145's allowance (worktree r145-tenant) and the word-pass heartbeat land after this video.
 
 ## 07:07 RULING 144, INTEGRATOR: ready to render on READY, with ONE HARD BLOCKER for you.
