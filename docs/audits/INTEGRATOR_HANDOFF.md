@@ -1,5 +1,11 @@
 # INTEGRATOR HANDOFF (written 2026-11-14 05:10 ET from `date`, at release HEAD 409188ef)
 
+## PAUSED BY PBX 10:51 ET Nov 18: read `docs/audits/parallel/integrator_STATE.md` line 1 first (the exact state)
+- **Live:** batches 105-112, 114 (G17a soft, DECODER 50fa01b4) and 115 (runtime floor, render side). No render ran on Nov 18.
+- **In progress, not merged:** branch r143-material = batch 113 (ruling 143) + batch 116 (ruling 139 on the render lock). It needs N6's test, 116's two audit cycles, the merged-tree run and ONE decoder lockstep (a41771db).
+- **On RESUME:** render a sealed build-150 pin first, then land 113 + 116, then ruling 145 (r145-tenant).
+- **The services were left running:** scorer, judge, lock pre-check, word pass, watchdog. Nothing of mine wakes this session.
+
 ## RESUME HERE (07:05 ET Nov 18): read `docs/audits/parallel/integrator_STATE.md` line 1 FIRST (the exact state)
 
 - **Live, pushed (HEAD 5e5ea999):** batches 105-112. DECODER fc204e4a4385 (lockstep with the builder's e88a1e51).
