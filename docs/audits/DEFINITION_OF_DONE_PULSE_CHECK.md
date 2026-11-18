@@ -6,6 +6,8 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 07:37 RENDER PATH CLEAR (rulings 144/145, the 07:36 note): Resolve (pid 1073512) left at 07:32 ET. The word pass restarted at 07:34:52 ET and is working (its Whisper holds 2420 MiB on GPU1). The judge, scorer, lock pre-check loop and watchdog are up, and the render lock is free. GPU0 holds only the transcript ingest's Whisper, which yields to a render. ONE DEADLINE ON THE RENDER CLOCK (law L-v 3, 24 h): a segment sealed time_sensitive true is refused after 09:56 ET from RsCi56hEriU, after 10:02 ET from MeC8YEmUx_w, and after 13:00 ET from F536pi4mr7Y; a segment sealed time_sensitive false has no age limit. Ruling 145's allowance (worktree r145-tenant) and the word-pass heartbeat land after this video.
+
 ## 07:07 RULING 144, INTEGRATOR: ready to render on READY, with ONE HARD BLOCKER for you.
 - **The blocker:** DaVinci Resolve headless (/opt/resolve/bin/resolve -nogui, pid 1073512, started 16:59 ET Nov 17; no pipeline session started it) holds GPU0 (404 MiB) and GPU1 (678 MiB).
   - The render's GPU0 lease (law L-r) refuses a foreign GPU user after a 600 s wait. That is how the word pass died at 17:23 ET.
