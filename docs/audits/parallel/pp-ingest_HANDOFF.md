@@ -1,5 +1,10 @@
 # pp-ingest: HANDOFF (read this first, then pp-ingest_STATE.md)
 
+## 0. PAUSED by PBX 10:51 ET Nov 18 (orchestrator order: no build, audit, merge or paid call; nothing wakes this session)
+- LIVE: the watcher (tmux `pipeline_pp_ingest_watch`, `python3 tools/ingest_watch.py run`; no Claude tokens) on branch `pp-ingest` with r123 (the local model on GPU1, last of the chain), r124 (it stays last at every meter state), r125 (a stream last seen live takes the pipeline's record within the sweep; b3841d2ad, live since 10:20 ET). It keeps rewriting STATE, left uncommitted while paused.
+- IN PROGRESS: nothing. r125 is finished (two audit cycles, 449 tests, 6 of 6 mutations killed, live, pushed). The session's 30-min Monitor is cancelled.
+- RESUME: commit the watcher's STATE rewrites (pathspec docs/audits/parallel/pp-ingest_STATE.md only), push alone, re-arm the 30-min problem and liveness Monitor; then the recorded follow-ups: r125 c2's comments, r123's GPU-wait observability.
+
 ## 1. Who you are
 - The builder of **pp-ingest**: continuous ingest of the 64 watched channels (listing, captions) and first-pass
   moment mining into an append-only ledger (pp.moment/1), with the adapter the packager reads. Branch `pp-ingest`,
