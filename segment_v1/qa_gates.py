@@ -42,11 +42,16 @@ G5_TRUE_PEAK_MAX_DBFS = {"16x9": -2.0, "9x16": -1.3}    # 9x16 was -2.0: v2f seg
 G5_DURATION_ACCEPT_S = (58.0, 72.0)   # ruling 12 ('09:32'): the measured final's accepted runtime, both aspects
 G5_DURATION_TARGET_S = (60.0, 70.0)   # law L-o: PBX's format target; outside it = a recorded deviation
 G5_SPOTLIGHT_S = (28.0, 50.0)         # law L-ab (ruling 90): a spotlight's format, accepted = target, both aspects
+G5_RUNTIME_FLAGGED_MAX_S = 72.0       # RULING 148 (1): a FLAGGED runtime row keeps ruling 12's ceiling; its floor is the
+#                                       30.0 s line-up floor plus the format's tail (edl_rules.RUNTIME_FLAG_FLOOR_S +
+#                                       FINAL_TAIL_S = 44.3 s), the 60-70 s target unchanged (a recorded deviation)
 
 
 def g5_window(edl_path):
     """(accepted, target) runtime for G5: a spotlight EDL (law L-ab: package_type 'moments', package_shape
-    'spotlight') is 28-50 s; every other EDL, or none, keeps ruling 12's 58-72 s accepted / 60-70 s target."""
+    'spotlight') is 28-50 s; a moments EDL whose run's sealed pin carries a FLAGGED runtime row (ruling 148 (1):
+    edl_rules.flagged_runtime_row) is accepted from 44.3 s (the 30.0 s line-up floor + the format's 14.3 s tail) to
+    72 s; every other EDL, or none, keeps ruling 12's 58-72 s accepted / 60-70 s target."""
     try:
         with open(edl_path) as f:
             edl = json.load(f)
@@ -54,6 +59,14 @@ def g5_window(edl_path):
         return G5_DURATION_ACCEPT_S, G5_DURATION_TARGET_S
     if isinstance(edl, dict) and edl.get("package_type") == "moments" and edl.get("package_shape") == "spotlight":
         return G5_SPOTLIGHT_S, G5_SPOTLIGHT_S
+    if isinstance(edl, dict) and edl.get("package_type") == "moments":      # ruling 148 (1): a sealed, FLAGGED runtime
+        pipe = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "pipeline")
+        if pipe not in sys.path:
+            sys.path.insert(0, pipe)
+        import edl_rules
+        if edl_rules.flagged_runtime_row(os.path.dirname(os.path.abspath(edl_path))) is not None:
+            return ((edl_rules.RUNTIME_FLAG_FLOOR_S + edl_rules.FINAL_TAIL_S, G5_RUNTIME_FLAGGED_MAX_S),
+                    G5_DURATION_TARGET_S)
     return G5_DURATION_ACCEPT_S, G5_DURATION_TARGET_S
 G8_SHARPNESS_FLOOR = {"16x9": 27.56, "9x16": 10.84}     # was 60: v2f worst segment medians (16x9 hook 27.56, 9x16 clip_03 10.84)
 G9_V2F_LUMA = {"16x9": 14.3357, "9x16": 14.7715}       # DEC-1: v2f's own tail luma (the locked outro ends on black)

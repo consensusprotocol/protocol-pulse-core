@@ -189,6 +189,34 @@ LAW_TEXT = {"LAW_1_NEW_INFORMATION": "every clip adds something new",
 _LABEL = re.compile(r"(?<![-\w])(hook|clip[_ ]\d+)\b")
 
 
+R4_RUNTIME = "The video's estimated length is outside the usual 60 to 70 seconds."   # ruling 138 (3): R4's runtime
+_R4_RUNTIME = re.compile(r"estimated runtime [\d.]+ s outside [^;]*")
+
+
+def r4_sentences(run_dir, reason):
+    """Ruling 138 (3) for R4, which judges two things: the voiceover (its share, slots and word caps) and the estimated
+    runtime (60-70 s). Each kind found gets its own plain sentence. A runtime the sealed pin already flags (RULING 148
+    (1): its FLAGGED "runtime" row, the builder's 'This video runs NN seconds, shorter than usual.') adds none."""
+    reason = reason if isinstance(reason, str) else ""
+    body = reason.split(":", 1)[1] if reason.startswith("R4 FAIL") and ":" in reason else reason
+    runtime = bool(_R4_RUNTIME.search(body))
+    rest = _R4_RUNTIME.sub("", body).replace(";", "").strip()
+    out = [EDL_SOFT["rule_r4"]] if rest or not runtime else []
+    import edl_rules
+    if runtime and edl_rules.flagged_runtime_row(run_dir) is None:
+        out.append(R4_RUNTIME)
+    return out
+
+
+def flag_soft_rules(run, edl, results):
+    """Rulings 136 / 137 / 138 (3): every failing SOFT edl_rules row flagged in plain words (R4: r4_sentences)."""
+    for r in results:
+        if not r["pass"]:
+            for s in (r4_sentences(run.dir, r.get("reason", "")) if r["rule"] == "rule_r4"
+                      else [sentence(EDL_SOFT[r["rule"]], edl, r.get("reason", ""))]):
+                flag(run, s, f"{r['rule']}: {r.get('reason', '')}")
+
+
 def who(edl, text, default="a clip"):
     """The clips a check's words name ('hook', 'clip_02', 'clip_2', 'clip 2'; never 'non-hook'), as PBX reads them
     (ruling 138 (3)): 'the opening clip (Channel)', 'clip 2 (Channel)', joined; the default when it names none."""
@@ -562,9 +590,7 @@ def stage_validate(run):
     hard = [r for r in results if not r["pass"] and r["rule"] not in EDL_SOFT]       # rulings 136 / 137
     if hard:
         raise Hold("EDL rejected by edl_rules: " + "; ".join(f"{r['rule']}: {r.get('reason', '')}" for r in hard))
-    for r in results:
-        if not r["pass"]:
-            flag(run, sentence(EDL_SOFT[r["rule"]], edl, r.get("reason", "")), f"{r['rule']}: {r.get('reason', '')}")
+    flag_soft_rules(run, edl, results)
     ok91, why91 = takeaway_value(edl)          # ruling 91's MEDLEY half: the live path only (the references predate it)
     print(f"  {why91}")
     run.prov["takeaway_value"] = {"pass": ok91, "reason": why91}
