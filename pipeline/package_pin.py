@@ -46,7 +46,9 @@ SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's sof
                         "pbx_exception",                   # RULING 144: EXCEPTION_GATE, only on the one excepted pin
                         "hook_onset",                      # RULING 146 (2): G17a's quiet shortfall (a cut mid-word stays
                         #   HARD)
-                        "graphics"})                       # RULING 146 (1): the show's own graphics, 16:9 only
+                        "graphics",                        # RULING 146 (1): the show's own graphics, 16:9 only
+                        "runtime"})                        # RULINGS 148 (1) / 149: a medley under 60 s, its clips at
+#   package.LY_FLOOR_S (30 s) or more, never-empty pass only (the render's G5 follows this sealed row)
 #   rule, ruling 34, and the medley naming Bitcoin stay HARD)
 REVIEW_FLAGS_MAX = 3
 PBX_EXCEPTION_CAP = 5   # RULING 147 (orchestrator 08:20 ET Nov 18): the excepted pin's cap (the exception line itself

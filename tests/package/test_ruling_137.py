@@ -648,6 +648,54 @@ class TestRuling144TheOneException(unittest.TestCase):
             PP.WINDOW_H = saved
 
 
+class TestRuling148RuntimeFloor(unittest.TestCase):
+    """RULINGS 148 (1) / 149 (orchestrator 09:56 ET Nov 18; standing from the 12:00 build): in the never-empty pass a
+    medley's clips may total LY_FLOOR_S (30 s) or more; under medley_content_range()'s lo (36.7 s) the package seals with
+    its runtime gate row FLAGGED 'This video runs NN seconds, shorter than usual.' (NN the factory's estimate). Under
+    30 s nothing seals; the clean pass is unchanged."""
+
+    def run_rig(self, ms, never_empty):
+        import test_medley as TM
+        ids = [m["moment_id"] for m in ms]
+        r = TM.Rig(ms, ids, [(True, [], None, TM.Rig.LINE), (True, [], None, TM.Rig.LINE)], [None],
+                   follow_up={"angles": [TM.angle(ids, ids[0])]})
+        r.build_kw = {"never_empty": never_empty}
+        return r.run()
+
+    def test_a_short_lineup_seals_flagged_in_the_never_empty_pass_only(self):
+        from test_moments import pm
+        ms = [pm("h", "A", 11.0), pm("x", "B", 11.5), pm("y", "C", 11.4)]          # 33.9 s: under 36.7, over 30
+        self.assertIsNone(self.run_rig(ms, False)["package"])                       # the clean pass: unchanged
+        pk = self.run_rig(ms, True)["package"]
+        self.assertIsNotNone(pk)
+        est = pk["runtime_s_estimate"]
+        self.assertLess(est, PK.RUNTIME_S[0])
+        self.assertEqual((pk["gates"]["runtime"]["status"], pk["gates"]["runtime"]["flags"]),
+                         ("FLAGGED", [f"This video runs {int(round(est))} seconds, shorter than usual."]))
+        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])
+        self.assertIsNone(PK._FLOOR)                                                # cleared after the pass
+
+    def test_under_the_floor_nothing_seals(self):
+        from test_moments import pm
+        ms = [pm("h", "A", 9.0), pm("x", "B", 9.5), pm("y", "C", 9.4)]              # 27.9 s
+        self.assertIsNone(self.run_rig(ms, True)["package"])
+
+    def test_the_takeaway_budget_and_the_sentence(self):
+        b40 = PK.takeaway_budget(40.0)
+        self.assertIsNone(PK.takeaway_budget(33.9))                                 # outside the pass: no length
+        pk = {"shape": "medley", "runtime_s_estimate": 57.19, "segments": [{"duration_s": 20.0}, {"duration_s": 13.9}]}
+        self.assertIsNone(PK.runtime_short(pk))                                     # the clean pass: no sentence
+        with mock.patch.object(PK, "_FLOOR", PK.LY_FLOOR_S):
+            lo, hi = PK.takeaway_budget(33.9)
+            self.assertEqual((hi, lo), (PK.LY_TAKEAWAY_MAX_WORDS, PK.LY_TAKEAWAY_MAX_WORDS - PK.LY_SHORT_SPAN_WORDS))
+            self.assertIsNone(PK.takeaway_budget(29.0))                             # under the floor
+            self.assertEqual(PK.takeaway_budget(40.0), b40)                          # a full line-up: unchanged
+            self.assertEqual(PK.runtime_short(pk), "This video runs 57 seconds, shorter than usual.")
+            for bad in (dict(pk, runtime_s_estimate=60.0), dict(pk, shape="vo"),
+                        dict(pk, segments=[{"duration_s": 29.9}])):
+                self.assertIsNone(PK.runtime_short(bad), bad)
+
+
 class TestRuling146(unittest.TestCase):
     """RULING 146 (orchestrator 07:55 ET Nov 18), the never-empty pass: (1) the source's own on-screen graphics (a ticker,
     a lower third, a bug) are SOFT in a package sealed 16:9 only, flagged in the ruling's words; (2) G17a's quiet before

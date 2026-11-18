@@ -1,0 +1,26 @@
+pp-selectid: RULINGS 148 (1) / 149 (orchestrator 09:56 ET Nov 18, standing from the 12:00 ET build): "the 30 s floor with
+a 'runs short' flag up to 36.7 s". A medley's clips may total LY_FLOOR_S (30.0 s) or more; under the calibrated floor
+(medley_content_range()'s lo, 36.7 s: one 20-word takeaway landing 60 s) the package carries the flag "This video runs NN
+seconds, shorter than usual." (NN = the factory's runtime estimate, whole seconds); under 30 s still refused.
+SCOPE: the NEVER-EMPTY pass only (a flag belongs to it; the clean pass is unchanged). build() sets the module's _FLOOR to
+LY_FLOOR_S around _build(soft=True) and clears it in a finally (the soft pass runs after the clean pass, in sequence).
+THE CHANGE (pipeline/package.py, pipeline/package_pin.py):
+1. ly_lo(lo): lo, or min(lo, _FLOOR) in the pass. Used ONLY by the two acceptance checks (lineup_ok's seconds test,
+   lineup_for's); lineup_for's preference key keeps the calibrated middle (lo + hi) / 2. The angle writer's prompt
+   keeps the calibrated lo/hi (unchanged text: cached replies stay valid).
+2. takeaway_budget: when neither LY_AIM_S nor 60-70 s can be landed, in the pass, with content_s >= _FLOOR and
+   LY_TAKEAWAY_MIN_WORDS <= cap < the words that would land 60 s: (max(MIN, cap - 4), cap), the longest takeaway house
+   style and R4 allow. Full line-ups: unchanged (tested). bridge_budget follows (it calls takeaway_budget).
+3. runtime_short(pk): the sentence, only with _FLOOR set, shape "medley", a numeric estimate under RUNTIME_S[0] (60 s),
+   and the clips' seconds >= _FLOOR; else None. cheap_checks: rt_ok = 60-70 s OR runtime_short(pk) (so no RUNTIME
+   violation / rewrite for an accepted short medley). inventory(short=runtime_short(pk)) at both call sites: the
+   "runtime" gate row becomes {"status": "FLAGGED", "flags": [sentence], ...row} (rt_ok must hold).
+4. package_pin.SOFT_GATES += "runtime" (the integrator's check_pin_only reads SOFT_GATES live; its render's G5 / R4
+   follow this sealed FLAGGED row, its batch 115). The flag counts toward the cap (content_flags), as ruled.
+TESTS (test_ruling_137.TestRuling148RuntimeFloor, the real build() on the stubbed rig): 33.9 s of clips: the clean pass
+seals nothing, the never-empty pass seals with runtime FLAGGED and the exact sentence, gate_problems none, _FLOOR cleared;
+27.9 s: nothing; the takeaway budget at 33.9 / 29.0 / 40.0 s with and without the floor; the sentence's refusals.
+Mutations: 7 of 7 killed (no floor in the acceptance; no short budget; no sentence; build() never sets the floor;
+runtime not a soft gate; the row never flagged; rt_ok ignoring the floor); control passes.
+PLEASE CHECK: (1) can the floor leak into the clean pass or a later build (the global)? (2) can a package under 30 s,
+over 70 s, or of another shape seal through it? (3) the takeaway budget's fallback; (4) the tests.

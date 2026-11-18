@@ -290,6 +290,12 @@ LY_MAX_BRIDGES = 1                 # L-y 2: at most ONE bridge per video
 LY_AIM_S = (61.5, 68.5)            # the takeaway's length aims the factory's estimate here when the clips allow it
                                    # (inside 60-70 s with margin: the voice measured 2.91 w/s vs R4's 2.5, ruling 12)
 LY_LINEUPS = 2                     # line-ups tried per angle (a clips-alone failure drops its weak clips once)
+LY_FLOOR_S = 30.0                  # RULINGS 148 (1) / 149 (orchestrator 09:56 ET Nov 18, standing from the 12:00 build):
+                                   # a medley's clips may total down to this in the never-empty pass; under
+                                   # medley_content_range()'s lo the package carries RUNTIME_SHORT; under it, refused
+LY_SHORT_SPAN_WORDS = 4            # clips too short to land 60 s: the takeaway is asked within this of its longest
+RUNTIME_SHORT = "This video runs {n} seconds, shorter than usual."   # 148 (1): the flag, NN the factory's estimate
+_FLOOR = None                      # LY_FLOOR_S while build() runs the never-empty pass (set and cleared there only)
 
 
 def medley_content_range(n_bridges=0, bridge_words=LY_BRIDGE_WORDS):
@@ -299,6 +305,23 @@ def medley_content_range(n_bridges=0, bridge_words=LY_BRIDGE_WORDS):
     lo = RUNTIME_S[0] - FINAL_TAIL_S - extra - (LY_TAKEAWAY_MAX_WORDS / R4_WPS + R4_PREROLL_S)
     hi = RUNTIME_S[1] - FINAL_TAIL_S - extra - (LY_TAKEAWAY_MIN_WORDS / R4_WPS + R4_PREROLL_S)
     return round(lo, 2), round(hi, 2)
+
+
+def ly_lo(lo):
+    """RULINGS 148 (1) / 149: the clips' seconds floor of a line-up: lo, or LY_FLOOR_S under it while the never-empty
+    pass runs. Only the acceptance reads it; a search's preference keeps the calibrated middle."""
+    return lo if _FLOOR is None else min(lo, _FLOOR)
+
+
+def runtime_short(pk):
+    """RULINGS 148 (1) / 149: the plain sentence of a medley sealed under 60 s by the never-empty pass (its clips at
+    LY_FLOOR_S or more, the factory's estimate under RUNTIME_S[0]): RUNTIME_SHORT with NN the estimate in whole
+    seconds. None in the clean pass, for any other shape, at 60 s or more, or under the floor."""
+    est = pk.get("runtime_s_estimate")
+    if _FLOOR is None or pk.get("shape") != "medley" or not isinstance(est, (int, float)) or isinstance(est, bool) \
+            or est >= RUNTIME_S[0] or sum(sg["duration_s"] for sg in pk.get("segments") or []) < _FLOOR:
+        return None
+    return RUNTIME_SHORT.format(n=int(round(est)))
 
 
 def bridge_budget(content_s):
@@ -330,7 +353,9 @@ def takeaway_budget(content_s, other=()):
         lo, hi = max(LY_TAKEAWAY_MIN_WORDS, math.ceil(words_at(a) - 1e-9)), min(cap, math.floor(words_at(b) + 1e-9))
         if lo <= hi:
             return lo, hi
-    return None
+    if _FLOOR is not None and content_s >= _FLOOR and LY_TAKEAWAY_MIN_WORDS <= cap < words_at(RUNTIME_S[0]):
+        return max(LY_TAKEAWAY_MIN_WORDS, cap - LY_SHORT_SPAN_WORDS), cap     # RULINGS 148 (1) / 149: clips too short
+    return None                                                               # to land 60 s: the longest takeaway
 
 
 def r4_max_vo_words(content_s, n_vo):
@@ -1886,8 +1911,8 @@ def lineup_ok(segs, crange=None, repeat_ok=False):
     if any(m["duration_s"] < SHORT_CLIP_S for m in clips[:-1]):
         return False, "a short clip that is not last"
     dur = sum(m["duration_s"] for m in segs)
-    if not lo <= dur <= hi:
-        return False, f"{dur:.1f} s outside {lo}-{hi} s"
+    if not ly_lo(lo) <= dur <= hi:                       # RULINGS 148 (1) / 149: the floor in the never-empty pass
+        return False, f"{dur:.1f} s outside {ly_lo(lo)}-{hi} s"
     if not stand_ok(segs):                                   # RULING 141 (2): only marked clips' openers flag
         return False, "the render's STAND_ALONE"
     return True, "ok"
@@ -2021,7 +2046,7 @@ def lineup_for(angle, by_id, dropped=frozenset(), clips=LY_CLIPS, crange=None, r
                 if [m for m in order[:-1] if m["duration_s"] < SHORT_CLIP_S]:
                     continue
                 dur = h["duration_s"] + sum(m["duration_s"] for m in order)
-                if not lo <= dur <= hi:
+                if not ly_lo(lo) <= dur <= hi:               # RULINGS 148 (1) / 149 (the key below: lo's middle)
                     continue
                 if accept is not None and not accept([h] + order):       # the caller's own condition (pool_fill)
                     continue
@@ -3077,7 +3102,7 @@ def cheap_checks(pk, a_by, levels, now):
     man = {"channels": [sg["channel"] for sg in pk["segments"]], "date": now.strftime("%Y-%m-%d") if now else None}
     det = VF.check_deterministic(segs_v, lines, man, levels)
     dup = duplicates(pk)
-    rt_ok = RUNTIME_S[0] <= pk["runtime_s_estimate"] <= RUNTIME_S[1]
+    rt_ok = RUNTIME_S[0] <= pk["runtime_s_estimate"] <= RUNTIME_S[1] or runtime_short(pk) is not None   # 148 (1)
     r4_res = r4(pk)
     what = "the takeaway's" if pk.get("shape") == "medley" else "the VO's"
     v = det["violations"] + dup + ([] if rt_ok else [{"slot": "-", "rule": "RUNTIME", "detail":
@@ -3921,7 +3946,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
         a_lab = {sg["label"]: a_by[sg["moment_id"]] for sg in pk["segments"]}
         pk["gates"] = inventory(fid, dup, rt_ok, r4_res, cx, a_lab, {k: v for k, (v, _) in got.items()},
                                 {k: v for k, (_, v) in got.items()}, True, coh, medley=(True, nv_med),
-                                shape=ly_shape(pk), style=HS.lint_lines(pk["lines"]),
+                                shape=ly_shape(pk), style=HS.lint_lines(pk["lines"]), short=runtime_short(pk),
                                 hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
                                 stand=stand_with_soft([cleared[sg["moment_id"]] for sg in pk["segments"]]),
                                 visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
@@ -4435,7 +4460,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                     a_lab = {sg["label"]: a_by[sg["moment_id"]] for sg in pk["segments"]}
                     pk["gates"] = inventory(fid, dup, rt_ok, r4_res, cx, a_lab,
                                             {k: v for k, (v, _) in got.items()}, {k: v for k, (_, v) in got.items()},
-                                            ok_c, coh, medley=(ok_m, med), shape=ly_shape(pk),
+                                            ok_c, coh, medley=(ok_m, med), shape=ly_shape(pk), short=runtime_short(pk),
                                             style=HS.lint_lines(pk["lines"]),
                                             hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
                                             stand=stand_with_soft([cleared[sg["moment_id"]] for sg in pk["segments"]]),
@@ -4556,7 +4581,12 @@ def build(*args, never_empty=False, flagged_today=0, **kw):
         return out
     (kw.get("log") or print)(f"  RULING 136 (2) NEVER EMPTY: the clean pass sealed nothing ({out.get('why_none')}); "
                              f"the second pass lets step A's soft refusals back, flagged (stage 1)")
-    soft = _build(*args, soft=True, **kw)
+    global _FLOOR
+    _FLOOR = LY_FLOOR_S                                  # RULINGS 148 (1) / 149: the floor, in this pass only
+    try:
+        soft = _build(*args, soft=True, **kw)
+    finally:
+        _FLOOR = None
     info = {"stage": "2b", "clean_why_none": out.get("why_none"), "soft_why_none": soft.get("why_none"),
             "soft_back": (soft.get("prescreen") or {}).get("soft_back"),
             "soft_record": {k: soft.get(k) for k in ("prescreen", "hook_pool", "tried", "soft_stand")}}   # its record
@@ -4572,7 +4602,7 @@ def _spent(spend):
     return (float(v[0]), float(v[1])) if isinstance(v, (tuple, list)) else (float(v), float(v))
 
 
-def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None,
+def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None, short=None,
               hook=None, stand=None, visual=None, value=None, last_resort=None, soft=False, who=None,
               seg_flags=None, mids=None):
     """The sealed GATE INVENTORY (audit p2 C1; package_pin.required_gates): one row per hard gate, each
@@ -4619,8 +4649,9 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
         "duplicate": row(not dup, "code (package.duplicates)"),
         "price_now": row(not any(v["rule"] == "PRICE_NOW" for v in det["violations"]),
                          "code (vo_fidelity.price_now)", measured=bool(det.get("price_now_measured"))),
-        "runtime": row(rt_ok, f"code (the factory's R4 estimate: {R4_WPS} w/s + {R4_PREROLL_S} s a VO line + "
-                              f"{FINAL_TAIL_S} s tail)"),
+        "runtime": dict(row(rt_ok, f"code (the factory's R4 estimate: {R4_WPS} w/s + {R4_PREROLL_S} s a VO line + "
+                                   f"{FINAL_TAIL_S} s tail)"),
+                        **({"status": "FLAGGED", "flags": [short]} if short and rt_ok else {})),   # RULINGS 148 (1) / 149
         "r4": row(bool(r4_res[0]), "package.r4 (moments-first R4, orchestrator 06:00)"),
         "context_a": dict(row(bool(a_rows) and (not a_codes or soft_a),
                               sorted({str(a.get("backend")) for a in a_rows}), rep(a.get("replayed") for a in a_rows),

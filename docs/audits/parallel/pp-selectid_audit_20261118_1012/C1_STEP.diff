@@ -1,0 +1,208 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 250c4f1..c32b7d6 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -290,6 +290,12 @@ LY_MAX_BRIDGES = 1                 # L-y 2: at most ONE bridge per video
+ LY_AIM_S = (61.5, 68.5)            # the takeaway's length aims the factory's estimate here when the clips allow it
+                                    # (inside 60-70 s with margin: the voice measured 2.91 w/s vs R4's 2.5, ruling 12)
+ LY_LINEUPS = 2                     # line-ups tried per angle (a clips-alone failure drops its weak clips once)
++LY_FLOOR_S = 30.0                  # RULINGS 148 (1) / 149 (orchestrator 09:56 ET Nov 18, standing from the 12:00 build):
++                                   # a medley's clips may total down to this in the never-empty pass; under
++                                   # medley_content_range()'s lo the package carries RUNTIME_SHORT; under it, refused
++LY_SHORT_SPAN_WORDS = 4            # clips too short to land 60 s: the takeaway is asked within this of its longest
++RUNTIME_SHORT = "This video runs {n} seconds, shorter than usual."   # 148 (1): the flag, NN the factory's estimate
++_FLOOR = None                      # LY_FLOOR_S while build() runs the never-empty pass (set and cleared there only)
+ 
+ 
+ def medley_content_range(n_bridges=0, bridge_words=LY_BRIDGE_WORDS):
+@@ -301,6 +307,23 @@ def medley_content_range(n_bridges=0, bridge_words=LY_BRIDGE_WORDS):
+     return round(lo, 2), round(hi, 2)
+ 
+ 
++def ly_lo(lo):
++    """RULINGS 148 (1) / 149: the clips' seconds floor of a line-up: lo, or LY_FLOOR_S under it while the never-empty
++    pass runs. Only the acceptance reads it; a search's preference keeps the calibrated middle."""
++    return lo if _FLOOR is None else min(lo, _FLOOR)
++
++
++def runtime_short(pk):
++    """RULINGS 148 (1) / 149: the plain sentence of a medley sealed under 60 s by the never-empty pass (its clips at
++    LY_FLOOR_S or more, the factory's estimate under RUNTIME_S[0]): RUNTIME_SHORT with NN the estimate in whole
++    seconds. None in the clean pass, for any other shape, at 60 s or more, or under the floor."""
++    est = pk.get("runtime_s_estimate")
++    if _FLOOR is None or pk.get("shape") != "medley" or not isinstance(est, (int, float)) or isinstance(est, bool) \
++            or est >= RUNTIME_S[0] or sum(sg["duration_s"] for sg in pk.get("segments") or []) < _FLOOR:
++        return None
++    return RUNTIME_SHORT.format(n=int(round(est)))
++
++
+ def bridge_budget(content_s):
+     """For a line-up that must carry one bridge (L-y 2), before the bridge is written: (n, (lo, hi)), the largest bridge
+     limit n <= LY_BRIDGE_WORDS words such that ANY bridge of LY_BRIDGE_MIN_WORDS..n words with a takeaway of lo..hi
+@@ -330,7 +353,9 @@ def takeaway_budget(content_s, other=()):
+         lo, hi = max(LY_TAKEAWAY_MIN_WORDS, math.ceil(words_at(a) - 1e-9)), min(cap, math.floor(words_at(b) + 1e-9))
+         if lo <= hi:
+             return lo, hi
+-    return None
++    if _FLOOR is not None and content_s >= _FLOOR and LY_TAKEAWAY_MIN_WORDS <= cap < words_at(RUNTIME_S[0]):
++        return max(LY_TAKEAWAY_MIN_WORDS, cap - LY_SHORT_SPAN_WORDS), cap     # RULINGS 148 (1) / 149: clips too short
++    return None                                                               # to land 60 s: the longest takeaway
+ 
+ 
+ def r4_max_vo_words(content_s, n_vo):
+@@ -1886,8 +1911,8 @@ def lineup_ok(segs, crange=None, repeat_ok=False):
+     if any(m["duration_s"] < SHORT_CLIP_S for m in clips[:-1]):
+         return False, "a short clip that is not last"
+     dur = sum(m["duration_s"] for m in segs)
+-    if not lo <= dur <= hi:
+-        return False, f"{dur:.1f} s outside {lo}-{hi} s"
++    if not ly_lo(lo) <= dur <= hi:                       # RULINGS 148 (1) / 149: the floor in the never-empty pass
++        return False, f"{dur:.1f} s outside {ly_lo(lo)}-{hi} s"
+     if not stand_ok(segs):                                   # RULING 141 (2): only marked clips' openers flag
+         return False, "the render's STAND_ALONE"
+     return True, "ok"
+@@ -2021,7 +2046,7 @@ def lineup_for(angle, by_id, dropped=frozenset(), clips=LY_CLIPS, crange=None, r
+                 if [m for m in order[:-1] if m["duration_s"] < SHORT_CLIP_S]:
+                     continue
+                 dur = h["duration_s"] + sum(m["duration_s"] for m in order)
+-                if not lo <= dur <= hi:
++                if not ly_lo(lo) <= dur <= hi:               # RULINGS 148 (1) / 149 (the key below: lo's middle)
+                     continue
+                 if accept is not None and not accept([h] + order):       # the caller's own condition (pool_fill)
+                     continue
+@@ -3077,7 +3102,7 @@ def cheap_checks(pk, a_by, levels, now):
+     man = {"channels": [sg["channel"] for sg in pk["segments"]], "date": now.strftime("%Y-%m-%d") if now else None}
+     det = VF.check_deterministic(segs_v, lines, man, levels)
+     dup = duplicates(pk)
+-    rt_ok = RUNTIME_S[0] <= pk["runtime_s_estimate"] <= RUNTIME_S[1]
++    rt_ok = RUNTIME_S[0] <= pk["runtime_s_estimate"] <= RUNTIME_S[1] or runtime_short(pk) is not None   # 148 (1)
+     r4_res = r4(pk)
+     what = "the takeaway's" if pk.get("shape") == "medley" else "the VO's"
+     v = det["violations"] + dup + ([] if rt_ok else [{"slot": "-", "rule": "RUNTIME", "detail":
+@@ -3921,7 +3946,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+         a_lab = {sg["label"]: a_by[sg["moment_id"]] for sg in pk["segments"]}
+         pk["gates"] = inventory(fid, dup, rt_ok, r4_res, cx, a_lab, {k: v for k, (v, _) in got.items()},
+                                 {k: v for k, (_, v) in got.items()}, True, coh, medley=(True, nv_med),
+-                                shape=ly_shape(pk), style=HS.lint_lines(pk["lines"]),
++                                shape=ly_shape(pk), style=HS.lint_lines(pk["lines"]), short=runtime_short(pk),
+                                 hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
+                                 stand=stand_with_soft([cleared[sg["moment_id"]] for sg in pk["segments"]]),
+                                 visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
+@@ -4435,7 +4460,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                     a_lab = {sg["label"]: a_by[sg["moment_id"]] for sg in pk["segments"]}
+                     pk["gates"] = inventory(fid, dup, rt_ok, r4_res, cx, a_lab,
+                                             {k: v for k, (v, _) in got.items()}, {k: v for k, (_, v) in got.items()},
+-                                            ok_c, coh, medley=(ok_m, med), shape=ly_shape(pk),
++                                            ok_c, coh, medley=(ok_m, med), shape=ly_shape(pk), short=runtime_short(pk),
+                                             style=HS.lint_lines(pk["lines"]),
+                                             hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
+                                             stand=stand_with_soft([cleared[sg["moment_id"]] for sg in pk["segments"]]),
+@@ -4556,7 +4581,12 @@ def build(*args, never_empty=False, flagged_today=0, **kw):
+         return out
+     (kw.get("log") or print)(f"  RULING 136 (2) NEVER EMPTY: the clean pass sealed nothing ({out.get('why_none')}); "
+                              f"the second pass lets step A's soft refusals back, flagged (stage 1)")
+-    soft = _build(*args, soft=True, **kw)
++    global _FLOOR
++    _FLOOR = LY_FLOOR_S                                  # RULINGS 148 (1) / 149: the floor, in this pass only
++    try:
++        soft = _build(*args, soft=True, **kw)
++    finally:
++        _FLOOR = None
+     info = {"stage": "2b", "clean_why_none": out.get("why_none"), "soft_why_none": soft.get("why_none"),
+             "soft_back": (soft.get("prescreen") or {}).get("soft_back"),
+             "soft_record": {k: soft.get(k) for k in ("prescreen", "hook_pool", "tried", "soft_stand")}}   # its record
+@@ -4572,7 +4602,7 @@ def _spent(spend):
+     return (float(v[0]), float(v[1])) if isinstance(v, (tuple, list)) else (float(v), float(v))
+ 
+ 
+-def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None,
++def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None, short=None,
+               hook=None, stand=None, visual=None, value=None, last_resort=None, soft=False, who=None,
+               seg_flags=None, mids=None):
+     """The sealed GATE INVENTORY (audit p2 C1; package_pin.required_gates): one row per hard gate, each
+@@ -4619,8 +4649,9 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+         "duplicate": row(not dup, "code (package.duplicates)"),
+         "price_now": row(not any(v["rule"] == "PRICE_NOW" for v in det["violations"]),
+                          "code (vo_fidelity.price_now)", measured=bool(det.get("price_now_measured"))),
+-        "runtime": row(rt_ok, f"code (the factory's R4 estimate: {R4_WPS} w/s + {R4_PREROLL_S} s a VO line + "
+-                              f"{FINAL_TAIL_S} s tail)"),
++        "runtime": dict(row(rt_ok, f"code (the factory's R4 estimate: {R4_WPS} w/s + {R4_PREROLL_S} s a VO line + "
++                                   f"{FINAL_TAIL_S} s tail)"),
++                        **({"status": "FLAGGED", "flags": [short]} if short and rt_ok else {})),   # RULINGS 148 (1) / 149
+         "r4": row(bool(r4_res[0]), "package.r4 (moments-first R4, orchestrator 06:00)"),
+         "context_a": dict(row(bool(a_rows) and (not a_codes or soft_a),
+                               sorted({str(a.get("backend")) for a in a_rows}), rep(a.get("replayed") for a in a_rows),
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index 67a0d4c..6400783 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -46,7 +46,9 @@ SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's sof
+                         "pbx_exception",                   # RULING 144: EXCEPTION_GATE, only on the one excepted pin
+                         "hook_onset",                      # RULING 146 (2): G17a's quiet shortfall (a cut mid-word stays
+                         #   HARD)
+-                        "graphics"})                       # RULING 146 (1): the show's own graphics, 16:9 only
++                        "graphics",                        # RULING 146 (1): the show's own graphics, 16:9 only
++                        "runtime"})                        # RULINGS 148 (1) / 149: a medley under 60 s, its clips at
++#   package.LY_FLOOR_S (30 s) or more, never-empty pass only (the render's G5 follows this sealed row)
+ #   rule, ruling 34, and the medley naming Bitcoin stay HARD)
+ REVIEW_FLAGS_MAX = 3
+ PBX_EXCEPTION_CAP = 5   # RULING 147 (orchestrator 08:20 ET Nov 18): the excepted pin's cap (the exception line itself
+diff --git a/tests/package/test_ruling_137.py b/tests/package/test_ruling_137.py
+index 5f8d8c9..e7d50a8 100644
+--- a/tests/package/test_ruling_137.py
++++ b/tests/package/test_ruling_137.py
+@@ -648,6 +648,54 @@ class TestRuling144TheOneException(unittest.TestCase):
+             PP.WINDOW_H = saved
+ 
+ 
++class TestRuling148RuntimeFloor(unittest.TestCase):
++    """RULINGS 148 (1) / 149 (orchestrator 09:56 ET Nov 18; standing from the 12:00 build): in the never-empty pass a
++    medley's clips may total LY_FLOOR_S (30 s) or more; under medley_content_range()'s lo (36.7 s) the package seals with
++    its runtime gate row FLAGGED 'This video runs NN seconds, shorter than usual.' (NN the factory's estimate). Under
++    30 s nothing seals; the clean pass is unchanged."""
++
++    def run_rig(self, ms, never_empty):
++        import test_medley as TM
++        ids = [m["moment_id"] for m in ms]
++        r = TM.Rig(ms, ids, [(True, [], None, TM.Rig.LINE), (True, [], None, TM.Rig.LINE)], [None],
++                   follow_up={"angles": [TM.angle(ids, ids[0])]})
++        r.build_kw = {"never_empty": never_empty}
++        return r.run()
++
++    def test_a_short_lineup_seals_flagged_in_the_never_empty_pass_only(self):
++        from test_moments import pm
++        ms = [pm("h", "A", 11.0), pm("x", "B", 11.5), pm("y", "C", 11.4)]          # 33.9 s: under 36.7, over 30
++        self.assertIsNone(self.run_rig(ms, False)["package"])                       # the clean pass: unchanged
++        pk = self.run_rig(ms, True)["package"]
++        self.assertIsNotNone(pk)
++        est = pk["runtime_s_estimate"]
++        self.assertLess(est, PK.RUNTIME_S[0])
++        self.assertEqual((pk["gates"]["runtime"]["status"], pk["gates"]["runtime"]["flags"]),
++                         ("FLAGGED", [f"This video runs {int(round(est))} seconds, shorter than usual."]))
++        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])
++        self.assertIsNone(PK._FLOOR)                                                # cleared after the pass
++
++    def test_under_the_floor_nothing_seals(self):
++        from test_moments import pm
++        ms = [pm("h", "A", 9.0), pm("x", "B", 9.5), pm("y", "C", 9.4)]              # 27.9 s
++        self.assertIsNone(self.run_rig(ms, True)["package"])
++
++    def test_the_takeaway_budget_and_the_sentence(self):
++        b40 = PK.takeaway_budget(40.0)
++        self.assertIsNone(PK.takeaway_budget(33.9))                                 # outside the pass: no length
++        pk = {"shape": "medley", "runtime_s_estimate": 57.19, "segments": [{"duration_s": 20.0}, {"duration_s": 13.9}]}
++        self.assertIsNone(PK.runtime_short(pk))                                     # the clean pass: no sentence
++        with mock.patch.object(PK, "_FLOOR", PK.LY_FLOOR_S):
++            lo, hi = PK.takeaway_budget(33.9)
++            self.assertEqual((hi, lo), (PK.LY_TAKEAWAY_MAX_WORDS, PK.LY_TAKEAWAY_MAX_WORDS - PK.LY_SHORT_SPAN_WORDS))
++            self.assertIsNone(PK.takeaway_budget(29.0))                             # under the floor
++            self.assertEqual(PK.takeaway_budget(40.0), b40)                          # a full line-up: unchanged
++            self.assertEqual(PK.runtime_short(pk), "This video runs 57 seconds, shorter than usual.")
++            for bad in (dict(pk, runtime_s_estimate=60.0), dict(pk, shape="vo"),
++                        dict(pk, segments=[{"duration_s": 29.9}])):
++                self.assertIsNone(PK.runtime_short(bad), bad)
++
++
+ class TestRuling146(unittest.TestCase):
+     """RULING 146 (orchestrator 07:55 ET Nov 18), the never-empty pass: (1) the source's own on-screen graphics (a ticker,
+     a lower third, a bug) are SOFT in a package sealed 16:9 only, flagged in the ruling's words; (2) G17a's quiet before
