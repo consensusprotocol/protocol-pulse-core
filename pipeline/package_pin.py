@@ -43,7 +43,10 @@ SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's sof
                         #   ratings and unbridged joins of a kept candidate (the through-line and every other L-y check
                         #   stay HARD; the takeaway's value rows are not soft)
                         "stand_alone",                     # RULING 141 (2): a clip's STAND_ALONE opener (the topic
-                        "pbx_exception"})                  # RULING 144: EXCEPTION_GATE, only on the one excepted pin
+                        "pbx_exception",                   # RULING 144: EXCEPTION_GATE, only on the one excepted pin
+                        "hook_onset",                      # RULING 146 (2): G17a's quiet shortfall (a cut mid-word stays
+                        #   HARD)
+                        "graphics"})                       # RULING 146 (1): the show's own graphics, 16:9 only
 #   rule, ruling 34, and the medley naming Bitcoin stay HARD)
 REVIEW_FLAGS_MAX = 3
 EXCEPTION_GATE = "pbx_exception"   # RULING 144 (PBX 07:05 ET Nov 18): a named, logged exception to a HARD rule for ONE

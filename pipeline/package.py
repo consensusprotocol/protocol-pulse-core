@@ -1764,6 +1764,24 @@ def hook_own(m):
                 rule=HOOK_OWN_RULE, **({"flagged": flag} if flag else {}))
 
 
+GRAPHIC_WORDS = {"ticker": "ticker", "crawl": "crawl", "lower_third": "lower third", "bug": "channel bug"}
+ONSET_QUIET = re.compile(r"ms of genuine quiet before the hook's first onset <")   # RULING 146 (2): G17a's shortfall
+
+
+def soft_graphics(m):
+    """RULING 146 (1), the never-empty pass: a clip whose ONLY visual refusal is the source's own on-screen graphics
+    (VP.graphics_only) plays in a package sealed 16:9 only, where nothing is cut: its visual record (this pass's copy)
+    is marked formats ['16x9'] (package_pin.formats_of then seals the package 16:9 only) and "graphics_16x9" (its
+    flag's words). -> True when it is. OUR 9:16 crop cutting burned text or a face stays HARD: no 9:16 version."""
+    import visual_pin as VP
+    v = m.get("visual") or {}
+    kinds = v.get("graphics_16x9") or VP.graphics_only(v)
+    if not kinds:
+        return False
+    m["visual"] = dict(v, formats=["16x9"], graphics_16x9=kinds)
+    return True
+
+
 def opens_16x9(m):
     """RULING 123 (2): this moment opens a package sealed formats ['16x9']: the build found no hook for both formats
     and its own frames are refused only by ruling 93's 9:16 crop (visual_pin.crop_only), still so on its sealed record.
@@ -1810,7 +1828,8 @@ def _can_open(m, pending_verdict=False):
     opens = lambda: defer or SA.opener("hook", m.get("text") or "", *sc, moments=True)[0]
     hook = (m.get("eligibility") or {}).get("hook") or {}
     elig = hook.get("ok") or (set(hook.get("reasons") or []) == {"opener"} and opens())   # the ledger had no verdict
-    if not (elig and (m.get("hook_onset") or {}).get("pass") is True and opens()):
+    on = m.get("hook_onset") or {}                      # RULING 146 (2): a measured quiet shortfall the never-empty
+    if not (elig and (on.get("pass") is True or on.get("soft") is True) and opens()):   # pass marked "soft" opens
         return False
     if "hook_rating" not in m:
         return True                                      # not rated yet: judged as before ruling 59
@@ -3485,6 +3504,10 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
     cleared = {mid: m for mid, m in cleared.items() if mid not in trim_cut}     # hook lead decides only whether it
     # may OPEN the medley (hook_onset "pass", need_onset), never whether it may play as a clip (audit 0710 C1, qwen)
     out["prescreen"]["trim_cut"] = trim_cut
+    for m in (cleared.values() if soft else ()):          # RULING 146 (2): G17a's quiet before the hook's first word
+        h = m.get("hook_onset") or {}                      # is SOFT in the never-empty pass (measured shortfalls only;
+        if h.get("measured") is True and h.get("pass") is not True and ONSET_QUIET.search(str(h.get("why") or "")):
+            m["hook_onset"] = dict(h, soft=True)          # a cut mid-word or an unmeasured onset stays HARD)
     log(f"  {sum(m['hook_onset'].get('pass') is True for m in cleared.values())} of them can open a medley "
         f"(G17a at the pin stage: genuine quiet before the first onset)")
     for m in cleared.values():                                           # a rating is this build's own (its
@@ -3524,6 +3547,11 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                 blocked.pop(m["moment_id"], None)
                 m["visual"] = dict(m["visual"], formats=["16x9"])                     # sealed: package_pin.formats
                 m["sixteen_nine_only"] = sixteen[m["moment_id"]] = why_c
+    for m in (rated_open if soft else ()):                # RULING 146 (1): a hook refused only by the show's own
+        if m.get("visual_hook_block") and soft_graphics(m):    # graphics opens a package sealed 16:9 only, flagged
+            m.pop("visual_hook_block", None)
+            blocked.pop(m["moment_id"], None)
+            m["sixteen_nine_only"] = sixteen[m["moment_id"]] = "the show's own on-screen graphics (ruling 146 (1))"
     out["visual"] = out_visual
     if rated_open:
         log(f"  visual (ruling 70): {len(rated_open)} hook(s) seen, {len(blocked)} may not open"
@@ -3841,7 +3869,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
             return None
         see(order)                                        # RULING 70: the added clip is seen too
         vbad = {m["moment_id"]: VP.layout_block(m.get("visual")) for m in order      # ruling 93 (not measured
-                if VP.layout_block(m.get("visual")) and not (m is order[0] and opens_16x9(m))}   # included, law L-m)
+                if VP.layout_block(m.get("visual")) and not (m is order[0] and opens_16x9(m))   # included, law L-m)
+                and not (soft and soft_graphics(m))}      # RULING 146 (1): the show's own graphics, 16:9 only
         if vbad:
             note["why_not"] = ("rulings 70 / 93: " + "; ".join(f"{k}: {v}" for k, v in vbad.items()))[:400]
             return None
@@ -4149,7 +4178,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                     vbad = {m["moment_id"]: ((m.get("visual") or {}).get("why") if not (m.get("visual") or {}).get(
                                 "measured") else None) or VP.layout_block(m.get("visual"))     # ruling 93: per clip
                             for m in segs if VP.layout_block(m.get("visual"))                  # (L-m included); the
-                            and not (m is segs[0] and opens_16x9(m))}      # cause named; ruling 123 (2): the 16:9-only
+                            and not (m is segs[0] and opens_16x9(m))       # cause named; ruling 123 (2): the 16:9-only
+                            and not (soft and soft_graphics(m))}           # RULING 146 (1): the show's own graphics
                     if vbad or segs[0].get("visual_hook_block"):                               # HOOK only
                         vbad = vbad or {segs[0]["moment_id"]: segs[0]["visual_hook_block"]}
                         dropped |= set(vbad)
@@ -4628,8 +4658,18 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
            if style is not None else {}),
         **({"hook_onset": dict(row(hook.get("pass") is True, "hook_onset.measure (sentence_law.edge_plan + head_tail "
                                    "on the source audio: G17a at the pin stage)", measured=hook.get("measured") is True),
-                               lead_ms=hook.get("lead_ms"), cut_in=hook.get("cut_in"), why=hook.get("why"))}
-           if hook is not None else {}),
+                               lead_ms=hook.get("lead_ms"), cut_in=hook.get("cut_in"), why=hook.get("why"),
+                               **({"status": "FLAGGED", "flags": ["The opening clip may start abruptly."]}   # RULING
+                                  if soft and hook.get("soft") is True and hook.get("pass") is not True else {}))}   # 146
+           if hook is not None else {}),                                                                      # (2)
+        **({"graphics": {"status": "FLAGGED", "by": "visual_pin.graphics_only (ruling 146 (1)): the show's own "
+                                                    "on-screen graphics, whole in a package sealed 16:9 only",
+                         "replayed": False, "n": len(visual), "flags": [
+                             f"The clip ({(who or {}).get(lb) or 'its channel'}) shows the show's own "
+                             f"{' / '.join(GRAPHIC_WORDS.get(k, k.replace('_', ' ')) for k in v['graphics_16x9'])}; "
+                             f"this package is 16:9 only." for lb, v in zip(labels(len(visual)), visual)
+                             if (v or {}).get("graphics_16x9")]}}
+           if soft and visual and any((v or {}).get("graphics_16x9") for v in visual) else {}),
         **({"stand_alone": dict(row(stand.get("ok") is True, "stand_alone.check_edl (the render's STAND_ALONE at the pin "
                                     "stage, moments=True: the render's clip scorer's verdicts as the integrator's "
                                     "service gave them, stand-alone only, the score alone (rulings 56, 60); without an "

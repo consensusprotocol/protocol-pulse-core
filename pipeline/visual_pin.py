@@ -345,6 +345,18 @@ def crop_only(rec):
     return "; ".join(w for w in why if w)
 
 
+def graphics_only(rec):
+    """RULING 146 (1) (orchestrator 07:55 ET Nov 18): the kinds of the source's OWN on-screen graphics (ticker, crawl,
+    lower third, bug) when they are a measured, current record's ONLY refusal (ruling 93's burned_block), else None.
+    They are refused only because OUR 9:16 crop cuts them; a package sealed 16:9 only shows them whole, so there they
+    are SOFT. A third person (ruling 70), an unmeasured or older record, or a render that cannot pass a 16:9-only pin:
+    None."""
+    if not ((rec or {}).get("measured") is True and rec.get("version") == VERSION and
+            isinstance(rec.get("burned_in"), list)) or hook_block(rec) is not None or not RENDER_16X9_ONLY:
+        return None
+    return sorted({x["kind"] for x in rec["burned_in"] if burned_block(x)}) or None
+
+
 def hook_block(rec):
     """Why this clip may not be the HOOK (ruling 70), or None."""
     if not (rec or {}).get("measured"):

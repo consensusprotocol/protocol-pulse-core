@@ -631,6 +631,85 @@ class TestRuling144TheOneException(unittest.TestCase):
             PP.WINDOW_H = saved
 
 
+class TestRuling146(unittest.TestCase):
+    """RULING 146 (orchestrator 07:55 ET Nov 18), the never-empty pass: (1) the source's own on-screen graphics (a ticker,
+    a lower third, a bug) are SOFT in a package sealed 16:9 only, flagged in the ruling's words; (2) G17a's quiet before
+    the hook's first word is SOFT (a measured shortfall only), flagged 'The opening clip may start abruptly.'"""
+    TICKER = {"kind": "ticker", "text": "S&P 500 Nasdaq Bitcoin", "whole_in_16x9": True, "in_9x16": "cut",
+              "covers_speaker": False}
+    QUIET = "70 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)"
+
+    def rec(self, **kw):
+        import visual_pin as VP
+        r = {"version": VP.VERSION, "measured": True, "flags": [], "burned_in": [dict(self.TICKER)],
+             "third_person": {"shown": False, "how": "none", "words_negative": False}}
+        return dict(r, **kw)
+
+    def test_the_shows_own_graphics_and_what_stays_hard(self):
+        import visual_pin as VP
+        self.assertEqual(VP.graphics_only(self.rec()), ["ticker"])
+        for bad in (self.rec(measured=False), self.rec(version="old"), self.rec(burned_in=None), self.rec(burned_in=[])):
+            self.assertIsNone(VP.graphics_only(bad))
+        with mock.patch.object(VP, "hook_block", lambda r: "a third person"):
+            self.assertIsNone(VP.graphics_only(self.rec()))              # ruling 70's third person: not graphics
+        m = {"moment_id": "x", "visual": self.rec()}
+        self.assertTrue(PK.soft_graphics(m))
+        self.assertEqual((m["visual"]["formats"], m["visual"]["graphics_16x9"]), (["16x9"], ["ticker"]))
+        self.assertFalse(PK.soft_graphics({"moment_id": "y", "visual": self.rec(burned_in=[])}))
+
+    def rig(self, ms, never_empty, **kw):
+        import test_medley as TM
+        r = TM.Rig(ms, [m["moment_id"] for m in ms], [(True, [], None, TM.Rig.LINE)], [None], **kw)
+        r.build_kw = {"never_empty": never_empty}
+        return r
+
+    def test_a_clip_with_the_shows_ticker_seals_16x9_only_flagged(self):
+        from test_moments import pm
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        import test_medley as TM
+        clean = self.rig(ms, False, visuals={"x": {"burned_in": [dict(self.TICKER)]}}).run()
+        self.assertIsNone(clean["package"])
+        r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE), (True, [], None, TM.Rig.LINE)], [None],
+                   visuals={"x": {"burned_in": [dict(self.TICKER)]}},
+                   follow_up={"angles": [TM.angle(["h", "x", "y"], "h")]})   # the clean pass reached its line-up
+        r.build_kw = {"never_empty": True}
+        pk = r.run()["package"]
+        self.assertEqual(PP.formats_of(pk["segments"]), ["16x9"])
+        ch = next(s["channel"] for s in pk["segments"] if s["moment_id"] == "x")
+        self.assertEqual((pk["gates"]["graphics"]["status"], pk["gates"]["graphics"]["flags"]), (
+            "FLAGGED", [f"The clip ({ch}) shows the show's own ticker; this package is 16:9 only."]))
+        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])
+
+    def test_a_hook_with_a_quiet_shortfall_opens_flagged(self):
+        from test_moments import pm
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        quiet = self.QUIET
+
+        def make(ne):
+            r = self.rig(ms, ne)
+            base = r.onset
+            r.onset = lambda m, *a, **k: ({"pass": False, "measured": True, "lead_ms": 70, "why": quiet}
+                                          if m["moment_id"] == "h" else base(m, *a, **k))
+            return r
+        self.assertIsNone(make(False).run()["package"])
+        pk = make(True).run()["package"]
+        self.assertEqual(pk["segments"][0]["moment_id"], "h")
+        self.assertEqual((pk["gates"]["hook_onset"]["status"], pk["gates"]["hook_onset"]["flags"]),
+                         ("FLAGGED", ["The opening clip may start abruptly."]))
+        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])
+
+    def test_an_unmeasured_or_other_onset_failure_stays_hard(self):
+        from test_moments import pm
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        for rec in ({"pass": False, "measured": False, "why": "not measured"},
+                    {"pass": False, "measured": True, "why": "the cut lands inside a word"}):
+            r = self.rig(ms, True)
+            base = r.onset
+            r.onset = lambda m, *a, _rec=rec, **k: dict(_rec) if m["moment_id"] == "h" else base(m, *a, **k)
+            out = r.run()
+            self.assertTrue(out["package"] is None or out["package"]["segments"][0]["moment_id"] != "h", rec)
+
+
 class TestTheDayCount(unittest.TestCase):
     def test_counted_per_day_ledger(self):
         with tempfile.TemporaryDirectory() as d:

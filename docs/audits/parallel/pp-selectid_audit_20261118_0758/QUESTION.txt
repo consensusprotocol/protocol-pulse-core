@@ -1,0 +1,33 @@
+pp-selectid: RULING 146 (1) + (2) (orchestrator 07:55 ET Nov 18), in the NEVER-EMPTY pass only (package.build runs it
+only when the clean pass sealed nothing). The approved HARD list keeps: OUR crop cutting burned text or a face, a cut
+mid-word. RULED SOFT: (1) the source's OWN on-screen graphics (a ticker crawl, a 'LIVE' lower third, a channel bug) in a
+package sealed 16:9 ONLY, where nothing is cut ("Ruling 93's 'a ticker is never allowed' is withdrawn for 16:9-only
+packages; in 9:16 the crop rule stands"), flag "The clip (X) shows the show's own ticker / lower third; this package is
+16:9 only."; (2) G17a, the quiet before the hook's first word, flag "The opening clip may start abruptly." The
+integrator's render re-asks neither the ticker nor the lower third (vertical_layout's 9:16 crop only; a pin sealed
+formats ['16x9'] renders and releases 16:9 only, release_auth.release_formats). It holds G17a HARD in its lock / cut
+table and is making those flags (its own lockstep); its render pads room tone, so its check is the more lenient and
+decides through the build's own lock pre-check. Files: pipeline/visual_pin.py, pipeline/package.py,
+pipeline/package_pin.py, tests/package/test_ruling_137.py.
+
+THE CHANGE:
+(a) visual_pin.graphics_only(rec): the kinds of the burned items burned_block refuses, when a measured, current record has
+    no third person (ruling 70's hook_block) and the render can pass a 16:9-only pin; else None.
+(b) package.soft_graphics(m): marks the pass's own copy of the clip's visual record formats ['16x9'] (package_pin.
+    formats_of then seals the WHOLE package 16:9 only, as ruling 123's hook already did) and graphics_16x9. It is used
+    only when soft: at the hook stage (a hook refused only by the graphics opens), and in both clip refusals (vbad, the
+    main line-up and the no-voice order). Our 9:16 crop is never made: no 9:16 version exists.
+(c) G17a: in the soft pass, a hook_onset record MEASURED and failed by the quiet shortfall (its why matches "ms of genuine
+    quiet before the hook's first onset <") becomes {..., soft: True}; _can_open accepts pass OR soft. Unmeasured, or any
+    other failure (a cut mid-word), stays HARD.
+(d) inventory: hook_onset row FLAGGED with the ruling's sentence when soft and the hook is soft; a new optional "graphics"
+    row FLAGGED, one sentence per such clip with its channel. package_pin.SOFT_GATES adds hook_onset and graphics.
+
+TESTS (4): graphics_only and soft_graphics (a third person, unmeasured, older, empty stay hard); END TO END through the
+Rig: a clip whose only problem is the show's ticker seals 16:9 only with the exact sentence (the clean pass seals
+nothing); a hook with a 70 ms quiet shortfall opens flagged (the clean pass seals nothing); an unmeasured or other onset
+failure never opens. Mutations: 7 of 8 killed (F7, "graphics" in SOFT_GATES, is equivalent: gate_problems checks only
+required rows and graphics is optional).
+
+PLEASE CHECK: (1) can a 9:16 version ever carry a clip whose burned text our crop cuts? (2) can a third person, an
+unmeasured record or a mid-word cut pass? (3) the clean pass unchanged; (4) the tests.

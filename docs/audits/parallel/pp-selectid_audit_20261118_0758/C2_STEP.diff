@@ -1,0 +1,232 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 5bd269c..c962a66 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -1764,6 +1764,24 @@ def hook_own(m):
+                 rule=HOOK_OWN_RULE, **({"flagged": flag} if flag else {}))
+ 
+ 
++GRAPHIC_WORDS = {"ticker": "ticker", "crawl": "crawl", "lower_third": "lower third", "bug": "channel bug"}
++ONSET_QUIET = re.compile(r"ms of genuine quiet before the hook's first onset <")   # RULING 146 (2): G17a's shortfall
++
++
++def soft_graphics(m):
++    """RULING 146 (1), the never-empty pass: a clip whose ONLY visual refusal is the source's own on-screen graphics
++    (VP.graphics_only) plays in a package sealed 16:9 only, where nothing is cut: its visual record (this pass's copy)
++    is marked formats ['16x9'] (package_pin.formats_of then seals the package 16:9 only) and "graphics_16x9" (its
++    flag's words). -> True when it is. OUR 9:16 crop cutting burned text or a face stays HARD: no 9:16 version."""
++    import visual_pin as VP
++    v = m.get("visual") or {}
++    kinds = v.get("graphics_16x9") or VP.graphics_only(v)
++    if not kinds:
++        return False
++    m["visual"] = dict(v, formats=["16x9"], graphics_16x9=kinds)
++    return True
++
++
+ def opens_16x9(m):
+     """RULING 123 (2): this moment opens a package sealed formats ['16x9']: the build found no hook for both formats
+     and its own frames are refused only by ruling 93's 9:16 crop (visual_pin.crop_only), still so on its sealed record.
+@@ -1810,7 +1828,8 @@ def _can_open(m, pending_verdict=False):
+     opens = lambda: defer or SA.opener("hook", m.get("text") or "", *sc, moments=True)[0]
+     hook = (m.get("eligibility") or {}).get("hook") or {}
+     elig = hook.get("ok") or (set(hook.get("reasons") or []) == {"opener"} and opens())   # the ledger had no verdict
+-    if not (elig and (m.get("hook_onset") or {}).get("pass") is True and opens()):
++    on = m.get("hook_onset") or {}                      # RULING 146 (2): a measured quiet shortfall the never-empty
++    if not (elig and (on.get("pass") is True or on.get("soft") is True) and opens()):   # pass marked "soft" opens
+         return False
+     if "hook_rating" not in m:
+         return True                                      # not rated yet: judged as before ruling 59
+@@ -3485,6 +3504,10 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+     cleared = {mid: m for mid, m in cleared.items() if mid not in trim_cut}     # hook lead decides only whether it
+     # may OPEN the medley (hook_onset "pass", need_onset), never whether it may play as a clip (audit 0710 C1, qwen)
+     out["prescreen"]["trim_cut"] = trim_cut
++    for m in (cleared.values() if soft else ()):          # RULING 146 (2): G17a's quiet before the hook's first word
++        h = m.get("hook_onset") or {}                      # is SOFT in the never-empty pass (measured shortfalls only;
++        if h.get("measured") is True and h.get("pass") is not True and ONSET_QUIET.search(str(h.get("why") or "")):
++            m["hook_onset"] = dict(h, soft=True)          # a cut mid-word or an unmeasured onset stays HARD)
+     log(f"  {sum(m['hook_onset'].get('pass') is True for m in cleared.values())} of them can open a medley "
+         f"(G17a at the pin stage: genuine quiet before the first onset)")
+     for m in cleared.values():                                           # a rating is this build's own (its
+@@ -3524,6 +3547,11 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                 blocked.pop(m["moment_id"], None)
+                 m["visual"] = dict(m["visual"], formats=["16x9"])                     # sealed: package_pin.formats
+                 m["sixteen_nine_only"] = sixteen[m["moment_id"]] = why_c
++    for m in (rated_open if soft else ()):                # RULING 146 (1): a hook refused only by the show's own
++        if m.get("visual_hook_block") and soft_graphics(m):    # graphics opens a package sealed 16:9 only, flagged
++            m.pop("visual_hook_block", None)
++            blocked.pop(m["moment_id"], None)
++            m["sixteen_nine_only"] = sixteen[m["moment_id"]] = "the show's own on-screen graphics (ruling 146 (1))"
+     out["visual"] = out_visual
+     if rated_open:
+         log(f"  visual (ruling 70): {len(rated_open)} hook(s) seen, {len(blocked)} may not open"
+@@ -3841,7 +3869,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+             return None
+         see(order)                                        # RULING 70: the added clip is seen too
+         vbad = {m["moment_id"]: VP.layout_block(m.get("visual")) for m in order      # ruling 93 (not measured
+-                if VP.layout_block(m.get("visual")) and not (m is order[0] and opens_16x9(m))}   # included, law L-m)
++                if VP.layout_block(m.get("visual")) and not (m is order[0] and opens_16x9(m))   # included, law L-m)
++                and not (soft and soft_graphics(m))}      # RULING 146 (1): the show's own graphics, 16:9 only
+         if vbad:
+             note["why_not"] = ("rulings 70 / 93: " + "; ".join(f"{k}: {v}" for k, v in vbad.items()))[:400]
+             return None
+@@ -4149,7 +4178,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                     vbad = {m["moment_id"]: ((m.get("visual") or {}).get("why") if not (m.get("visual") or {}).get(
+                                 "measured") else None) or VP.layout_block(m.get("visual"))     # ruling 93: per clip
+                             for m in segs if VP.layout_block(m.get("visual"))                  # (L-m included); the
+-                            and not (m is segs[0] and opens_16x9(m))}      # cause named; ruling 123 (2): the 16:9-only
++                            and not (m is segs[0] and opens_16x9(m))       # cause named; ruling 123 (2): the 16:9-only
++                            and not (soft and soft_graphics(m))}           # RULING 146 (1): the show's own graphics
+                     if vbad or segs[0].get("visual_hook_block"):                               # HOOK only
+                         vbad = vbad or {segs[0]["moment_id"]: segs[0]["visual_hook_block"]}
+                         dropped |= set(vbad)
+@@ -4628,8 +4658,18 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+            if style is not None else {}),
+         **({"hook_onset": dict(row(hook.get("pass") is True, "hook_onset.measure (sentence_law.edge_plan + head_tail "
+                                    "on the source audio: G17a at the pin stage)", measured=hook.get("measured") is True),
+-                               lead_ms=hook.get("lead_ms"), cut_in=hook.get("cut_in"), why=hook.get("why"))}
+-           if hook is not None else {}),
++                               lead_ms=hook.get("lead_ms"), cut_in=hook.get("cut_in"), why=hook.get("why"),
++                               **({"status": "FLAGGED", "flags": ["The opening clip may start abruptly."]}   # RULING
++                                  if soft and hook.get("soft") is True and hook.get("pass") is not True else {}))}   # 146
++           if hook is not None else {}),                                                                      # (2)
++        **({"graphics": {"status": "FLAGGED", "by": "visual_pin.graphics_only (ruling 146 (1)): the show's own "
++                                                    "on-screen graphics, whole in a package sealed 16:9 only",
++                         "replayed": False, "n": len(visual), "flags": [
++                             f"The clip ({(who or {}).get(lb) or 'its channel'}) shows the show's own "
++                             f"{' / '.join(GRAPHIC_WORDS.get(k, k.replace('_', ' ')) for k in v['graphics_16x9'])}; "
++                             f"this package is 16:9 only." for lb, v in zip(labels(len(visual)), visual)
++                             if (v or {}).get("graphics_16x9")]}}
++           if soft and visual and any((v or {}).get("graphics_16x9") for v in visual) else {}),
+         **({"stand_alone": dict(row(stand.get("ok") is True, "stand_alone.check_edl (the render's STAND_ALONE at the pin "
+                                     "stage, moments=True: the render's clip scorer's verdicts as the integrator's "
+                                     "service gave them, stand-alone only, the score alone (rulings 56, 60); without an "
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index 34d7bce..0fe03dc 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -43,7 +43,10 @@ SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's sof
+                         #   ratings and unbridged joins of a kept candidate (the through-line and every other L-y check
+                         #   stay HARD; the takeaway's value rows are not soft)
+                         "stand_alone",                     # RULING 141 (2): a clip's STAND_ALONE opener (the topic
+-                        "pbx_exception"})                  # RULING 144: EXCEPTION_GATE, only on the one excepted pin
++                        "pbx_exception",                   # RULING 144: EXCEPTION_GATE, only on the one excepted pin
++                        "hook_onset",                      # RULING 146 (2): G17a's quiet shortfall (a cut mid-word stays
++                        #   HARD)
++                        "graphics"})                       # RULING 146 (1): the show's own graphics, 16:9 only
+ #   rule, ruling 34, and the medley naming Bitcoin stay HARD)
+ REVIEW_FLAGS_MAX = 3
+ EXCEPTION_GATE = "pbx_exception"   # RULING 144 (PBX 07:05 ET Nov 18): a named, logged exception to a HARD rule for ONE
+diff --git a/pipeline/visual_pin.py b/pipeline/visual_pin.py
+index 3153ca7..401f4c0 100644
+--- a/pipeline/visual_pin.py
++++ b/pipeline/visual_pin.py
+@@ -345,6 +345,18 @@ def crop_only(rec):
+     return "; ".join(w for w in why if w)
+ 
+ 
++def graphics_only(rec):
++    """RULING 146 (1) (orchestrator 07:55 ET Nov 18): the kinds of the source's OWN on-screen graphics (ticker, crawl,
++    lower third, bug) when they are a measured, current record's ONLY refusal (ruling 93's burned_block), else None.
++    They are refused only because OUR 9:16 crop cuts them; a package sealed 16:9 only shows them whole, so there they
++    are SOFT. A third person (ruling 70), an unmeasured or older record, or a render that cannot pass a 16:9-only pin:
++    None."""
++    if not ((rec or {}).get("measured") is True and rec.get("version") == VERSION and
++            isinstance(rec.get("burned_in"), list)) or hook_block(rec) is not None or not RENDER_16X9_ONLY:
++        return None
++    return sorted({x["kind"] for x in rec["burned_in"] if burned_block(x)}) or None
++
++
+ def hook_block(rec):
+     """Why this clip may not be the HOOK (ruling 70), or None."""
+     if not (rec or {}).get("measured"):
+diff --git a/tests/package/test_ruling_137.py b/tests/package/test_ruling_137.py
+index f2832ff..346acd4 100644
+--- a/tests/package/test_ruling_137.py
++++ b/tests/package/test_ruling_137.py
+@@ -631,6 +631,85 @@ class TestRuling144TheOneException(unittest.TestCase):
+             PP.WINDOW_H = saved
+ 
+ 
++class TestRuling146(unittest.TestCase):
++    """RULING 146 (orchestrator 07:55 ET Nov 18), the never-empty pass: (1) the source's own on-screen graphics (a ticker,
++    a lower third, a bug) are SOFT in a package sealed 16:9 only, flagged in the ruling's words; (2) G17a's quiet before
++    the hook's first word is SOFT (a measured shortfall only), flagged 'The opening clip may start abruptly.'"""
++    TICKER = {"kind": "ticker", "text": "S&P 500 Nasdaq Bitcoin", "whole_in_16x9": True, "in_9x16": "cut",
++              "covers_speaker": False}
++    QUIET = "70 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)"
++
++    def rec(self, **kw):
++        import visual_pin as VP
++        r = {"version": VP.VERSION, "measured": True, "flags": [], "burned_in": [dict(self.TICKER)],
++             "third_person": {"shown": False, "how": "none", "words_negative": False}}
++        return dict(r, **kw)
++
++    def test_the_shows_own_graphics_and_what_stays_hard(self):
++        import visual_pin as VP
++        self.assertEqual(VP.graphics_only(self.rec()), ["ticker"])
++        for bad in (self.rec(measured=False), self.rec(version="old"), self.rec(burned_in=None), self.rec(burned_in=[])):
++            self.assertIsNone(VP.graphics_only(bad))
++        with mock.patch.object(VP, "hook_block", lambda r: "a third person"):
++            self.assertIsNone(VP.graphics_only(self.rec()))              # ruling 70's third person: not graphics
++        m = {"moment_id": "x", "visual": self.rec()}
++        self.assertTrue(PK.soft_graphics(m))
++        self.assertEqual((m["visual"]["formats"], m["visual"]["graphics_16x9"]), (["16x9"], ["ticker"]))
++        self.assertFalse(PK.soft_graphics({"moment_id": "y", "visual": self.rec(burned_in=[])}))
++
++    def rig(self, ms, never_empty, **kw):
++        import test_medley as TM
++        r = TM.Rig(ms, [m["moment_id"] for m in ms], [(True, [], None, TM.Rig.LINE)], [None], **kw)
++        r.build_kw = {"never_empty": never_empty}
++        return r
++
++    def test_a_clip_with_the_shows_ticker_seals_16x9_only_flagged(self):
++        from test_moments import pm
++        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
++        import test_medley as TM
++        clean = self.rig(ms, False, visuals={"x": {"burned_in": [dict(self.TICKER)]}}).run()
++        self.assertIsNone(clean["package"])
++        r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE), (True, [], None, TM.Rig.LINE)], [None],
++                   visuals={"x": {"burned_in": [dict(self.TICKER)]}},
++                   follow_up={"angles": [TM.angle(["h", "x", "y"], "h")]})   # the clean pass reached its line-up
++        r.build_kw = {"never_empty": True}
++        pk = r.run()["package"]
++        self.assertEqual(PP.formats_of(pk["segments"]), ["16x9"])
++        ch = next(s["channel"] for s in pk["segments"] if s["moment_id"] == "x")
++        self.assertEqual((pk["gates"]["graphics"]["status"], pk["gates"]["graphics"]["flags"]), (
++            "FLAGGED", [f"The clip ({ch}) shows the show's own ticker; this package is 16:9 only."]))
++        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])
++
++    def test_a_hook_with_a_quiet_shortfall_opens_flagged(self):
++        from test_moments import pm
++        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
++        quiet = self.QUIET
++
++        def make(ne):
++            r = self.rig(ms, ne)
++            base = r.onset
++            r.onset = lambda m, *a, **k: ({"pass": False, "measured": True, "lead_ms": 70, "why": quiet}
++                                          if m["moment_id"] == "h" else base(m, *a, **k))
++            return r
++        self.assertIsNone(make(False).run()["package"])
++        pk = make(True).run()["package"]
++        self.assertEqual(pk["segments"][0]["moment_id"], "h")
++        self.assertEqual((pk["gates"]["hook_onset"]["status"], pk["gates"]["hook_onset"]["flags"]),
++                         ("FLAGGED", ["The opening clip may start abruptly."]))
++        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])
++
++    def test_an_unmeasured_or_other_onset_failure_stays_hard(self):
++        from test_moments import pm
++        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
++        for rec in ({"pass": False, "measured": False, "why": "not measured"},
++                    {"pass": False, "measured": True, "why": "the cut lands inside a word"}):
++            r = self.rig(ms, True)
++            base = r.onset
++            r.onset = lambda m, *a, _rec=rec, **k: dict(_rec) if m["moment_id"] == "h" else base(m, *a, **k)
++            out = r.run()
++            self.assertTrue(out["package"] is None or out["package"]["segments"][0]["moment_id"] != "h", rec)
++
++
+ class TestTheDayCount(unittest.TestCase):
+     def test_counted_per_day_ledger(self):
+         with tempfile.TemporaryDirectory() as d:
