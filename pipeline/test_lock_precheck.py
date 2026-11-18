@@ -981,3 +981,22 @@ class TestBatch109EmptySource(Base):
         self.assertEqual(e["outcome"], "hold")
         self.assertIn("range outside the source file", e["reason"])
 
+
+class TestRuling146(Base):
+    """RULING 146 (2) (orchestrator 2026-11-18 '07:55'): G17a's quiet before the hook's first word is SOFT. The render's
+    cut keeps a hook it cannot give 80 ms (lock_cut's hook_lead "short"); the pre-check records it for the builder's
+    flag and never holds on it."""
+    SHORT = "no legal cut in the pause keeps 80 ms of genuine quiet before the hook's first word (best 30 ms)"
+
+    def test_a_hook_cut_short_of_80_ms_passes_and_is_recorded(self):
+        self.cut = {**self.cut, "hook_lead": {"short": self.SHORT, "lead_ms": 30, "rule": "ruling 146 (2)"}}
+        self.request(approved_text=ATTESTED, role="hook")
+        LP.serve_once(log=self.log)
+        e = self.entry(ATTESTED)
+        self.assertEqual(e["outcome"], "no_difference", e)
+        self.assertEqual((e["cut"]["cut_in"], e["cut"]["hook_lead_short"]), (15.2, self.SHORT))
+
+    def test_a_clip_records_no_short_lead(self):
+        self.request(approved_text=ATTESTED)
+        LP.serve_once(log=self.log)
+        self.assertIsNone(self.entry(ATTESTED)["cut"]["hook_lead_short"])
