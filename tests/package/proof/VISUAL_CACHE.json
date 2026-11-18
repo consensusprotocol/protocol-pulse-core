@@ -142,6 +142,154 @@
   },
   "version": "visual-3"
  },
+ "065871735af70e8c4714:1219.170-1228.740:visual-3:ab6370e6d1e24f63": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     1219.17,
+     1220.17,
+     1221.17,
+     1222.17,
+     1224.17,
+     1225.17,
+     1226.17,
+     1227.17,
+     1228.17,
+     1228.69
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "lower_third",
+    "text": "LIVE ON BMTV: MARK YUSKO",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     1219.17,
+     1220.17,
+     1221.17,
+     1222.17,
+     1224.17,
+     1225.17,
+     1226.17,
+     1227.17,
+     1228.17,
+     1228.69
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "lower_third",
+    "text": "FOUNDER, CEO & CIO, MORGAN CREEK CAPITAL MANAGEMENT (@MARKYUSKO)",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     1219.17,
+     1220.17,
+     1221.17,
+     1222.17
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "lower_third",
+    "text": "SEAN FAGAN",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     1219.17,
+     1220.17,
+     1221.17,
+     1222.17
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "lower_third",
+    "text": "GRACE BENNINGTON",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     1223.17
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "bug",
+    "text": "TV",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "kind": "on_screen_text",
+    "text": "LIVE ON BMTV: MARK YUSKO\nFOUNDER, CEO & CIO, MORGAN CREEK CAPITAL MANAGEMENT (@MARKYUSKO)",
+    "why": "The banner states he is Founder, CEO & CIO of Morgan Creek Capital Management, live on BMTV, with handle @MARKYUSKO; the spoken words only address 'Mark' and describe Bitcoin falling."
+   },
+   {
+    "in_9x16": "whole",
+    "item": "lower_third",
+    "kind": "burned_in",
+    "text": "SEAN FAGAN"
+   },
+   {
+    "in_9x16": "whole",
+    "item": "lower_third",
+    "kind": "burned_in",
+    "text": "GRACE BENNINGTON"
+   },
+   {
+    "in_9x16": "whole",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "TV"
+   }
+  ],
+  "lower_third": {
+   "name": "MARK YUSKO",
+   "text": "LIVE ON BMTV: MARK YUSKO\nFOUNDER, CEO & CIO, MORGAN CREEK CAPITAL MANAGEMENT (@MARKYUSKO)"
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "LIVE ON BMTV: MARK YUSKO\nFOUNDER, CEO & CIO, MORGAN CREEK CAPITAL MANAGEMENT (@MARKYUSKO)",
+    "why": "The banner states he is Founder, CEO & CIO of Morgan Creek Capital Management, live on BMTV, with handle @MARKYUSKO; the spoken words only address 'Mark' and describe Bitcoin falling."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_e8eb60eed5332848.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_e8eb60eed5332848.jpg",
+   "sha256": "e8eb60eed5332848cbc39ffcfe6b8e50bad95ebcdcde8e87428da7dcea853306",
+   "times": [
+    1219.17,
+    1220.17,
+    1221.17,
+    1222.17,
+    1223.17,
+    1224.17,
+    1225.17,
+    1226.17,
+    1227.17,
+    1228.17,
+    1228.69
+   ]
+  },
+  "third_person": {
+   "finding": "No non-speaker is shown as a still, photo, or graphic \u2014 every person on screen is live video \u2014 and the negative words describe Bitcoin's decline, not a person.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 2952,
+   "out": 27068,
+   "usd_reported": 0.166584
+  },
+  "version": "visual-3"
+ },
  "06d34e155feae654ee56:0.000-22.940:visual-2:99aab01c28ba80f1": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [],
@@ -2324,6 +2472,76 @@
    "usd_reported": 0.015924
   },
   "version": "visual-1"
+ },
+ "c5746c57869f9bc2ca60:4156.871-4164.311:visual-3:b01fce9f2217fb58": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     4156.87,
+     4157.87,
+     4158.87,
+     4159.87
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "caption",
+    "text": "brave and thankful, that was",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "at": [
+     4156.87,
+     4157.87,
+     4158.87,
+     4159.87
+    ],
+    "in_9x16": "cut",
+    "kind": "burned_caption",
+    "text": "brave and thankful, that was"
+   }
+  ],
+  "formats": [
+   "16x9"
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_90db5d7b0b870f80.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_90db5d7b0b870f80.jpg",
+   "sha256": "90db5d7b0b870f805ef996dc1fe673740fa61c183bfb90fe080a8bf4a0dab1c7",
+   "times": [
+    4156.87,
+    4157.87,
+    4158.87,
+    4159.87,
+    4160.87,
+    4161.87,
+    4162.87,
+    4163.87,
+    4164.26
+   ]
+  },
+  "third_person": {
+   "finding": "Only the live speaker appears; no third person is shown as a still, photo, or graphic, and the clip's words are grateful and positive, not a negative claim.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2951,
+   "out": 11384,
+   "usd_reported": 0.072478
+  },
+  "version": "visual-3"
  },
  "c7646b4ee91f955cf58f:1691.139-1698.069:visual-1:12c8f5da0237510c": {
   "backend": "xai_vision:grok-4.7",

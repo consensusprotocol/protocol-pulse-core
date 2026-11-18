@@ -1,0 +1,290 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "b805060e2cb84eb1345518ab1a5f7744aceae1a13cb0cae329822a234ebb6848",
+ "result": {
+  "text": "are, are gonna be making the rules here, which is a little scary. Moving to Bitcoin here, Mark, it's fallen six weeks in a row now, its longest losing streak since February. Fell below 62K over the weekend. I know you, you recently-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.06,
+    "end": 3.16,
+    "text": "are, are gonna be making the rules here, which is a little scary."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 4.42,
+    "end": 15.04,
+    "text": "Moving to Bitcoin here, Mark, it's fallen six weeks in a row now, its longest losing streak since February. Fell below 62K over the weekend. I know you, you recently-"
+   }
+  ],
+  "words": [
+   {
+    "text": "are,",
+    "start": 0.06,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 0.28,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 0.38,
+    "end": 0.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 0.5,
+    "end": 0.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "making",
+    "start": 0.64,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.9,
+    "end": 0.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rules",
+    "start": 1.0,
+    "end": 1.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here,",
+    "start": 1.24,
+    "end": 1.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "which",
+    "start": 1.6,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.42,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 2.52,
+    "end": 2.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "little",
+    "start": 2.56,
+    "end": 2.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "scary.",
+    "start": 2.8,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Moving",
+    "start": 4.42,
+    "end": 4.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "to",
+    "start": 4.78,
+    "end": 5.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.14,
+    "end": 5.56,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "here,",
+    "start": 5.62,
+    "end": 5.74,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Mark,",
+    "start": 5.86,
+    "end": 6.18,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it's",
+    "start": 6.34,
+    "end": 6.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "fallen",
+    "start": 6.6,
+    "end": 7.16,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "six",
+    "start": 7.38,
+    "end": 7.58,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "weeks",
+    "start": 7.64,
+    "end": 7.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "in",
+    "start": 7.88,
+    "end": 7.92,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 7.96,
+    "end": 8.02,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "row",
+    "start": 8.06,
+    "end": 8.22,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "now,",
+    "start": 8.28,
+    "end": 8.52,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "its",
+    "start": 8.64,
+    "end": 8.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "longest",
+    "start": 8.84,
+    "end": 9.16,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "losing",
+    "start": 9.22,
+    "end": 9.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "streak",
+    "start": 9.62,
+    "end": 10.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "since",
+    "start": 10.08,
+    "end": 10.28,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "February.",
+    "start": 10.34,
+    "end": 10.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Fell",
+    "start": 11.5,
+    "end": 11.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "below",
+    "start": 11.68,
+    "end": 12.12,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "62K",
+    "start": 12.5,
+    "end": 12.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "over",
+    "start": 12.94,
+    "end": 13.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 13.14,
+    "end": 13.2,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "weekend.",
+    "start": 13.24,
+    "end": 13.76,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 14.22,
+    "end": 14.26,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "know",
+    "start": 14.28,
+    "end": 14.4,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you,",
+    "start": 14.46,
+    "end": 14.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 14.7,
+    "end": 14.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "recently-",
+    "start": 14.84,
+    "end": 15.04,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.07
+ },
+ "usd": 0.003014,
+ "seconds": 0.9,
+ "recorded_at": "2026-11-18T14:08:33Z"
+}

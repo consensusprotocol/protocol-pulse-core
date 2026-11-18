@@ -1,0 +1,146 @@
+{
+ "ca660f2277836c085860:9d43580c729b": {
+  "label": "ca660f2277836c085860",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "its",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has officially broken its 200-week moving average, leading many to think that $50K is likely the next price target.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "from me, but coming from Wintermute, one of the largest market makers in crypto. We're going to talk about that and everything else happening in this bloody market today with Tillman and Andrew, of course, but also a very special recurring guest, Sid Powell from Maple. Let's go. Let's go. Good morning, everybody.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "065871735af70e8c4714:9d43580c729b": {
+  "label": "065871735af70e8c4714",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "here",
+    "refers_to": "this discussion",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has fallen six weeks in a row, its longest losing streak since February, after falling below 62K over the weekend.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I know you recently said Bitcoin had moved from winter into spring. Do you feel like this is still a choppy spring",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "91143945fbb6fdd6ae48:9d43580c729b": {
+  "label": "91143945fbb6fdd6ae48",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the fact there is still appetite to borrow",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "we",
+    "refers_to": "Bitcoin or the crypto market",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if they think they're going to get margin called the next day",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "There is still appetite to borrow against Bitcoin and other large cap assets, suggesting people think we may be nearing a bottom because people mostly avoid new loans if they expect a margin call the next day.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Key word, you said there was institutions, right? You're not necessarily your average retail client.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c5746c57869f9bc2ca60:9d43580c729b": {
+  "label": "c5746c57869f9bc2ca60",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "we",
+    "refers_to": "speaker and audience/Bitcoin community",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker and fellow Bitcoiners are grateful for Bitcoin at $63k because they are ahead of the curve and already prepared as Bitcoiners.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I love you guys. I appreciate you guys. We're going to double down on Alexander's farewell message, which is be brave and be thankful.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "52d01b830867cef3fe6a:9d43580c729b": {
+  "label": "52d01b830867cef3fe6a",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "its",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "That number",
+    "refers_to": "the 50K prediction",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "me",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has officially broken its 200-week moving average, leading many to think that 50K is likely next according to Wintermute rather than the speaker himself.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Good morning, everybody. And happy Tuesday. If you're wondering why this is here, I'm going to break it. My son made me a wolf Lego.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

@@ -1769,5 +1769,47 @@
    "why": "Bitcoin price continues",
    "backend": "xai:grok-4.20-0309-reasoning"
   }
+ },
+ "40cc3e2080df83a8589bfb1f11fb042bd4b972f80efe36fa6cc3f60cf368d8ad:6b3ca2269894097124e5669f84bf4f2bff239dcff94991e3727328106bb1729f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "consistent bitcoin price decline",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "40cc3e2080df83a8589bfb1f11fb042bd4b972f80efe36fa6cc3f60cf368d8ad:87205decd0b6f32d6d24e1a81350e82e89a6394c25f23793db848e347fe646a9:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "bearish to grateful shift",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "6b3ca2269894097124e5669f84bf4f2bff239dcff94991e3727328106bb1729f:87205decd0b6f32d6d24e1a81350e82e89a6394c25f23793db848e347fe646a9:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "losses to gratitude jump",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "87205decd0b6f32d6d24e1a81350e82e89a6394c25f23793db848e347fe646a9:6b3ca2269894097124e5669f84bf4f2bff239dcff94991e3727328106bb1729f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "gratitude to losses contrast",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "87205decd0b6f32d6d24e1a81350e82e89a6394c25f23793db848e347fe646a9:40cc3e2080df83a8589bfb1f11fb042bd4b972f80efe36fa6cc3f60cf368d8ad:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin price topic continues",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "6b3ca2269894097124e5669f84bf4f2bff239dcff94991e3727328106bb1729f:40cc3e2080df83a8589bfb1f11fb042bd4b972f80efe36fa6cc3f60cf368d8ad:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "both discuss BTC price drops",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
  }
 }

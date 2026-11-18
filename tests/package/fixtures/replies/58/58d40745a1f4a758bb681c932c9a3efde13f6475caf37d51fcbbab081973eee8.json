@@ -1,0 +1,398 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "034a8c08456ceed4b2675bb44c6e6d1f37f169f6df9a619b262ba359772b1510",
+ "result": {
+  "text": "Folks are, you know, folks, uh, still have appetite. There is still appetite to borrow against Bitcoin and other large cap assets. And, uh, and it kind of suggests that people think we're, we're maybe nearing a bottom. Uh, otherwise, mostly we don't see people request to take out new loans if they think they're gonna get margin called the next day",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 18.88,
+    "text": "Folks are, you know, folks, uh, still have appetite. There is still appetite to borrow against Bitcoin and other large cap assets. And, uh, and it kind of suggests that people think we're, we're maybe nearing a bottom. Uh, otherwise, mostly we don't see people request to take out new loans if they think they're gonna get margin called the next day"
+   }
+  ],
+  "words": [
+   {
+    "text": "Folks",
+    "start": 0.0,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are,",
+    "start": 0.38,
+    "end": 0.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 0.82,
+    "end": 0.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 0.88,
+    "end": 0.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "folks,",
+    "start": 1.42,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 2.5,
+    "end": 2.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "still",
+    "start": 3.06,
+    "end": 3.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 3.24,
+    "end": 3.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "appetite.",
+    "start": 3.42,
+    "end": 3.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "There",
+    "start": 3.98,
+    "end": 4.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 4.1,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "still",
+    "start": 4.26,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "appetite",
+    "start": 4.54,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 4.86,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "borrow",
+    "start": 4.98,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "against",
+    "start": 5.2,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.52,
+    "end": 5.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 6.08,
+    "end": 6.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "other",
+    "start": 6.34,
+    "end": 6.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "large",
+    "start": 6.6,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cap",
+    "start": 6.94,
+    "end": 7.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "assets.",
+    "start": 7.18,
+    "end": 7.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And,",
+    "start": 8.3,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 8.78,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 9.08,
+    "end": 9.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 9.5,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 9.62,
+    "end": 9.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 9.76,
+    "end": 9.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "suggests",
+    "start": 9.92,
+    "end": 10.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 10.36,
+    "end": 10.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 10.52,
+    "end": 10.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 10.86,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're,",
+    "start": 11.18,
+    "end": 11.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 11.38,
+    "end": 11.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "maybe",
+    "start": 11.5,
+    "end": 11.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nearing",
+    "start": 11.82,
+    "end": 12.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 12.4,
+    "end": 12.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bottom.",
+    "start": 12.5,
+    "end": 12.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Uh,",
+    "start": 13.32,
+    "end": 13.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "otherwise,",
+    "start": 13.6,
+    "end": 14.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mostly",
+    "start": 14.6,
+    "end": 15.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 15.24,
+    "end": 15.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 15.36,
+    "end": 15.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "see",
+    "start": 15.62,
+    "end": 15.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 15.78,
+    "end": 15.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "request",
+    "start": 16.02,
+    "end": 16.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 16.34,
+    "end": 16.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "take",
+    "start": 16.44,
+    "end": 16.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 16.62,
+    "end": 16.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "new",
+    "start": 16.76,
+    "end": 16.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "loans",
+    "start": 16.88,
+    "end": 17.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 17.16,
+    "end": 17.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 17.24,
+    "end": 17.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 17.34,
+    "end": 17.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they're",
+    "start": 17.46,
+    "end": 17.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 17.54,
+    "end": 17.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 17.66,
+    "end": 17.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "margin",
+    "start": 17.8,
+    "end": 18.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "called",
+    "start": 18.16,
+    "end": 18.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 18.36,
+    "end": 18.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "next",
+    "start": 18.46,
+    "end": 18.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "day",
+    "start": 18.68,
+    "end": 18.88,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 20.66
+ },
+ "usd": 0.004132,
+ "seconds": 1.07,
+ "recorded_at": "2026-11-18T14:08:58Z"
+}

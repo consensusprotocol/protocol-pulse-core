@@ -1,0 +1,254 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "24834ad634b074b6026a3f294250798f57dfc350f27fcf64a5f63816d6ef6b27",
+ "result": {
+  "text": "Brave and be thankful. You know, we got some gratitude here. We are grateful for Bitcoin at 63K. We are grateful- actually, we're grateful that we're ahead of the curve and we are already Bitcoiners. Imagine being in-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 12.82,
+    "text": "Brave and be thankful. You know, we got some gratitude here. We are grateful for Bitcoin at 63K. We are grateful- actually, we're grateful that we're ahead of the curve and we are already Bitcoiners. Imagine being in-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Brave",
+    "start": 0.0,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 0.6,
+    "end": 0.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 0.78,
+    "end": 0.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thankful.",
+    "start": 1.0,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 2.1,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 2.2,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 2.44,
+    "end": 2.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "got",
+    "start": 2.56,
+    "end": 2.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 2.76,
+    "end": 2.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gratitude",
+    "start": 2.96,
+    "end": 3.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here.",
+    "start": 3.68,
+    "end": 3.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 3.96,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 4.08,
+    "end": 4.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "grateful",
+    "start": 4.28,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 5.66,
+    "end": 5.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.84,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 6.24,
+    "end": 6.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "63K.",
+    "start": 6.54,
+    "end": 7.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 7.2,
+    "end": 7.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 7.28,
+    "end": 7.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "grateful-",
+    "start": 7.48,
+    "end": 7.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "actually,",
+    "start": 7.9,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 8.52,
+    "end": 8.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "grateful",
+    "start": 8.78,
+    "end": 9.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 9.22,
+    "end": 9.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 9.36,
+    "end": 9.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ahead",
+    "start": 9.52,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 9.7,
+    "end": 9.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.78,
+    "end": 9.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "curve",
+    "start": 9.9,
+    "end": 10.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 10.18,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 10.3,
+    "end": 10.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 10.44,
+    "end": 10.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "already",
+    "start": 10.64,
+    "end": 10.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoiners.",
+    "start": 11.0,
+    "end": 11.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Imagine",
+    "start": 11.5,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 12.48,
+    "end": 12.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in-",
+    "start": 12.76,
+    "end": 12.82,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.94
+ },
+ "usd": 0.002588,
+ "seconds": 0.95,
+ "recorded_at": "2026-11-18T14:08:24Z"
+}

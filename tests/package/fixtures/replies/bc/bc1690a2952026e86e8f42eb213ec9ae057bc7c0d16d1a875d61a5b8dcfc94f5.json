@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 640,
+ "system": null,
+ "prompt": "You judge JOINS between clips of 60-second videos made of other channels' own words (each clip is a\nperson's own words from a show; the shows were not in one conversation). In each PAIR, clip A plays and clip B follows\nit at once, with NO narration between them. Judge each pair ALONE: the pairs are not one video, and nothing else plays\nbefore or between A and B.\n\nTHE CLIPS:\nCLIP id=\"c1\" (on screen: Scott Melker): \"Bitcoin officially broke its 200 -week moving average, leading many to think that 50K is likely next.\"\nCLIP id=\"c2\" (on screen: Bitcoin Magazine): \"Moving to Bitcoin here, Mark. It's fallen six weeks in a row now. It's longest losing streak since February. Fell below 62K over the weekend.\"\nCLIP id=\"c3\" (on screen: Simply Bitcoin): \"We are grateful for Bitcoin at 63K. We are grateful. Actually, we're grateful that we're ahead of the curve and we are already Bitcoiners.\"\n\nTHE PAIRS (A -> B):\nPAIR id=\"p1\": c1 -> c2\nPAIR id=\"p2\": c1 -> c3\nPAIR id=\"p3\": c2 -> c3\nPAIR id=\"p4\": c3 -> c2\n\nFor EACH pair, the join question (the previous clip is A, the next clip is B): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming from the previous clip's ending? Answer\n\"followable\": true or false, and \"why\": a few words.\nReturn ONLY this JSON object: {\"pairs\": {\"p1\": {\"followable\": true, \"why\": \"...\"}, \"p2\": {\"followable\": true, \"why\": \"...\"}, \"p3\": {\"followable\": true, \"why\": \"...\"}, \"p4\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"pairs\": {\"p1\": {\"followable\": true, \"why\": \"consistent bitcoin price decline\"}, \"p2\": {\"followable\": false, \"why\": \"bearish to grateful shift\"}, \"p3\": {\"followable\": false, \"why\": \"losses to gratitude jump\"}, \"p4\": {\"followable\": false, \"why\": \"gratitude to losses contrast\"}}}",
+ "usage": {
+  "in": 628,
+  "out": 3472,
+  "usd_reported": 0.0093306
+ },
+ "usd": 0.08994,
+ "seconds": 28.49,
+ "recorded_at": "2026-11-18T14:23:48Z"
+}
