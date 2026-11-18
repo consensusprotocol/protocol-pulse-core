@@ -1,5 +1,24 @@
 # INTEGRATOR HANDOFF (written 2026-11-14 05:10 ET from `date`, at release HEAD 409188ef)
 
+## RESUME HERE (07:05 ET Nov 18): read `docs/audits/parallel/integrator_STATE.md` line 1 FIRST (the exact state)
+
+- **Live, pushed (HEAD 5e5ea999):** batches 105-112. DECODER fc204e4a4385 (lockstep with the builder's e88a1e51).
+- **Mid-build, NOT merged:** batch 113 (ruling 143, the lock's material / non-material principle).
+  - Worktree `/home/ultron/worktrees/r143-material`, branch r143-material at e0835399; the six touched suites are green.
+  - To finish: a test that kills mutation T10 (a filler in the second reading beside a disputed pair); then read cycles 1-2 in `docs/audits/pulse-sentence-law/batch113_r143_material/`.
+  - Then: consensus, the merged-tree suites, the builder's READY on DECODER 93e7d01c39f5, merge and push.
+  - Then re-judge from cache the five held spans ruling 143 lists.
+  - The scratchpad scripts (mutate.py, the must-fail log) are in `/tmp/claude-1000/-home-ultron-protocol-pulse/f10c552c-cf11-4d53-ab62-ba6be4b5be5a/scratchpad/b113/`; copy them into the audit folder.
+- **INCIDENT:** DaVinci Resolve headless (pid 1073512) holds both GPUs since 16:59 ET Nov 17.
+  - The word-pass worker has been DOWN since 17:23 ET (Gpu0Foreign).
+  - It is not ours to kill: the orchestrator decides. Then restart the worker (tmux pipeline_pp_wordpass).
+- **Lessons since batch 102:**
+  - A release-gate or lock change runs EVERY suite that imports the changed modules (`grep -l`), by exit code, on the merged tree. Batch 105 broke 13 tests unseen.
+  - Split those suites into 5-7 parallel groups, plus both regression scripts. Compare each failure against the tree without the change (a detached worktree with main's untracked references linked).
+  - The pre_bash hook blocks "push" together with any "-f" (also `--untracked-files`, `worktree remove --force`): push in its own command.
+  - `N=$(... | grep -c ... || true)`: a bare grep -c that finds nothing breaks an `&&` chain.
+  - Never end a launch line in `&` after an `&&` chain: the whole chain goes to the background, variables included.
+
 Read, in this order: `PIPELINE_LAWS.md` (LAW 26's list is the law, L-a .. L-ab), this file, and the top 60 lines of
 `docs/audits/DEFINITION_OF_DONE_PULSE_CHECK.md` (the DoD: newest entry first). With those three you carry on
 without asking anyone. The standing instruction: **render the builder's pin the moment it arrives; the DoD's first
