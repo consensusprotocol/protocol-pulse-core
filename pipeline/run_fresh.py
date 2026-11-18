@@ -256,14 +256,15 @@ def g17a_hook_lead_soft(run, ok, table):
     """RULING 146 (2) in the G17 row: G17a's table (sentence_law.gate_g17_prepared, unchanged) with the HOOK's lead
     alone SOFT: a hook row failing only on its lead is marked lead_soft and flagged HOOK_ABRUPT, and the row's G17a
     part judges every other row (each tail, every other lead) as before. -> that part's ok."""
-    soft = [r for r in table if r["segment"] == "hook" and not r["lead_ok"] and r["tail_ok"]]
-    if not soft:
+    rows = [r for r in table if isinstance(r, dict)] if isinstance(table, list) else []
+    soft = [r for r in rows if r.get("segment") == "hook" and r.get("lead_ok") is False and r.get("tail_ok") is True]
+    if not soft or len(rows) != len(table):      # a table that is not G17a's rows: judged as it stands
         return ok
     for r in soft:
         r["lead_soft"] = "ruling 146 (2)"
-    flag(run, HOOK_ABRUPT, f"G17a (ruling 146 (2)): the hook keeps {soft[0]['lead_ms']} ms of quiet before its first "
-                           f"word (< {int(round(L.HEAD_LEAD_MIN_S * 1000))} ms)")
-    return all(r["pass"] for r in table if r["segment"] != "hook")
+    flag(run, HOOK_ABRUPT, f"G17a (ruling 146 (2)): the hook keeps {soft[0].get('lead_ms')} ms of quiet before its "
+                           f"first word (< {int(round(L.HEAD_LEAD_MIN_S * 1000))} ms)")
+    return all(r.get("pass") is True for r in rows if r.get("segment") != "hook")
 
 
 class Run:

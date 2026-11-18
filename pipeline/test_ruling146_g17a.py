@@ -90,6 +90,13 @@ class TestRenderFlags(unittest.TestCase):
             with self.subTest(label):
                 self.assertFalse(RF.g17a_hook_lead_soft(run(), False, t))
 
+    def test_g17a_a_table_that_is_not_rows_is_judged_as_it_stands(self):   # merged-tree run: test_render16only's stub
+        for table in ([1], None, [{"segment": "hook", "lead_ok": False, "tail_ok": True, "pass": False}, 2]):
+            with self.subTest(table=table):
+                r = run()
+                self.assertFalse(RF.g17a_hook_lead_soft(r, False, table))
+                self.assertEqual(r.status.get("review_flags"), None)
+
     def test_g17a_a_passing_table_is_untouched(self):
         r = run()
         self.assertTrue(RF.g17a_hook_lead_soft(r, True, self.table(hook_lead_ok=True)))
