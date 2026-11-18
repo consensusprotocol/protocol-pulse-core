@@ -1,6 +1,88 @@
 {
- "generated_at": "2026-11-18T12:24:19+00:00",
- "build": "ledger_20261118_122417",
+ "generated_at": "2026-11-18T12:37:12+00:00",
+ "build": "ledger_20261118_123701",
  "kind": "moments",
- "candidates": []
+ "candidates": [
+  {
+   "pid": "f0a51c45830936b3a3c1",
+   "video_id": "F536pi4mr7Y",
+   "channel": "Yahoo Finance",
+   "duration": 17.29,
+   "text": "But, you know, if you're wondering why having decentralized money that's available 24 -7, 365, that has no CEO in his mind by a decentralized network. around the world, like Bitcoin is important. Well, when you want access to your money with Bitcoin, you have it.",
+   "text_sha256": "94caa3912cf0874704d85bb1f589009bef2e61a9010108654b77cfdb05573a8e",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "feb4b72f301cde9d380d",
+   "video_id": "RsCi56hEriU",
+   "channel": "Natalie Brunell",
+   "duration": 9.56,
+   "text": "And that's not to say that it's bad. It's that self -custody Bitcoin's a responsibility. If I have a gun, it's a responsibility. Sovereignty is a responsibility.",
+   "text_sha256": "0c6146765c8d7b107e17891111d2fccab7f625c3ae986027a34fbe51fa00f0ac",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d427b94963b3bdbd8a60~trim",
+   "video_id": "MeC8YEmUx_w",
+   "channel": "Bitcoin Magazine",
+   "duration": 5.06,
+   "text": "we've seen Bitcoin developers be prosecuted for writing and publishing free software.",
+   "text_sha256": "c28db46c1ff493515311f60390519460e51c4b23e2ddfeeb79c00b578128a67d",
+   "trimmed_leading": "Now"
+  },
+  {
+   "pid": "f0a51c45830936b3a3c1~trim",
+   "video_id": "F536pi4mr7Y",
+   "channel": "Yahoo Finance",
+   "duration": 17.13,
+   "text": "you know, if you're wondering why having decentralized money that's available 24 -7, 365, that has no CEO in his mind by a decentralized network. around the world, like Bitcoin is important. Well, when you want access to your money with Bitcoin, you have it.",
+   "text_sha256": "a04ba4ddb12eae26fa60f9a1fcdbdbb0667eb7c3c35286c4e221de9675dc47ed",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "feb4b72f301cde9d380d~trim",
+   "video_id": "RsCi56hEriU",
+   "channel": "Natalie Brunell",
+   "duration": 9.52,
+   "text": "that's not to say that it's bad. It's that self -custody Bitcoin's a responsibility. If I have a gun, it's a responsibility. Sovereignty is a responsibility.",
+   "text_sha256": "75affec92d6e2aebbbc7214becc0d5063c71b7d00a556aec0d106af612bff6bd",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "991c6f943ce358ba9f22",
+   "video_id": "MeC8YEmUx_w",
+   "channel": "Bitcoin Magazine",
+   "duration": 18.7,
+   "text": "Being able to use Bitcoin doesn't depend on whether the House or the Senate is red or blue because Bitcoin lives outside of the institutions under the thumb of any of those politicians. But of course, we would very much like to be able to connect our Bitcoin via an exchange to fiat on ramps and off ramps.",
+   "text_sha256": "e71cf575fd4082ef4c988a1a48a093fe342ac4bd65e7b03d7339ac0c9c442612",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "afbf8bef3ea9799dce5f~trim",
+   "video_id": "MeC8YEmUx_w",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.28,
+   "text": "we've seen Bitcoin developers be prosecuted for writing and publishing free software. And you've written that open source AI developers could expect the same thing. Now, it took a while for Bitcoin to build a legal shield. Open AI or open source AI doesn't have that yet.",
+   "text_sha256": "265f272958ef134e868d7f226235b825c90675ee8e8220c57ec63bc0be1fafac",
+   "trimmed_leading": "Now"
+  },
+  {
+   "pid": "43c16a03bb3d27d74e71",
+   "video_id": "RsCi56hEriU",
+   "channel": "Natalie Brunell",
+   "duration": 16.26,
+   "text": "If your Bitcoin can be frozen or monitored by an exchange, a custodial provider, or anyone else, it's not yours. My friends at the Bitcoin Way are the experts to hold your hand and train you to be your own bank. It's not rocket science. Anyone can master Bitcoin self -custody with the right training.",
+   "text_sha256": "f070b1c8f3a9685ab7f761d67978d6f9c879dce508f8362991797e52a75a0eac",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5ecf4f3f10e76f89fd3f~trim",
+   "video_id": "RsCi56hEriU",
+   "channel": "Natalie Brunell",
+   "duration": 20.88,
+   "text": "that's not to say that it's bad. It's that self -custody Bitcoin's a responsibility. If I have a gun, it's a responsibility. Sovereignty is a responsibility. Sovereignty is not. Easy, it's hard, and i think right now it's probably around the peak of the hardness that it will ever be, to the extent that i think it is it is worrying.",
+   "text_sha256": "5907a5075468f473dfe5042d8b94a9b6e3c1f87781ab262112458dcc1da18121",
+   "trimmed_leading": "And"
+  }
+ ]
 }

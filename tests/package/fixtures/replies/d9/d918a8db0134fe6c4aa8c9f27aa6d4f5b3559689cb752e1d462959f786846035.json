@@ -1,0 +1,398 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "8b8b09b8ab58411a557cba51e07657ff1bdbf17f6513fa17748f98905ca5b2a6",
+ "result": {
+  "text": "to test them, and we don't really know what the case is. But, you know, if you're wondering why having decentralized money that's available 24/7, 365, uh, that has no CEO and is mined by a decentralized network around the world like Bitcoin is important, well, when you want access to your money, with Bitcoin you have it. Now interestingly, it's not-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.1,
+    "end": 22.66,
+    "text": "to test them, and we don't really know what the case is. But, you know, if you're wondering why having decentralized money that's available 24/7, 365, uh, that has no CEO and is mined by a decentralized network around the world like Bitcoin is important, well, when you want access to your money, with Bitcoin you have it. Now interestingly, it's not-"
+   }
+  ],
+  "words": [
+   {
+    "text": "to",
+    "start": 0.1,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "test",
+    "start": 0.24,
+    "end": 0.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "them,",
+    "start": 0.56,
+    "end": 0.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.22,
+    "end": 1.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 1.32,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 1.38,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 1.6,
+    "end": 1.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 1.94,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 2.62,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.02,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "case",
+    "start": 3.18,
+    "end": 3.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is.",
+    "start": 3.62,
+    "end": 3.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But,",
+    "start": 3.88,
+    "end": 4.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.2,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 4.28,
+    "end": 4.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 4.58,
+    "end": 4.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 4.68,
+    "end": 4.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wondering",
+    "start": 4.78,
+    "end": 5.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 5.16,
+    "end": 5.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "having",
+    "start": 5.64,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "decentralized",
+    "start": 6.0,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 6.9,
+    "end": 7.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 7.24,
+    "end": 7.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "available",
+    "start": 7.42,
+    "end": 7.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "24/7,",
+    "start": 7.94,
+    "end": 8.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "365,",
+    "start": 8.9,
+    "end": 9.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 10.54,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 10.74,
+    "end": 10.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 10.9,
+    "end": 11.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 11.28,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "CEO",
+    "start": 11.8,
+    "end": 12.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 12.6,
+    "end": 12.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 12.74,
+    "end": 12.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mined",
+    "start": 12.92,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 13.32,
+    "end": 13.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 13.54,
+    "end": 13.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "decentralized",
+    "start": 13.64,
+    "end": 14.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "network",
+    "start": 14.22,
+    "end": 14.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "around",
+    "start": 15.06,
+    "end": 15.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 15.34,
+    "end": 15.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world",
+    "start": 15.44,
+    "end": 15.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 15.74,
+    "end": 15.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 15.98,
+    "end": 16.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 16.46,
+    "end": 16.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "important,",
+    "start": 16.58,
+    "end": 17.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "well,",
+    "start": 17.8,
+    "end": 17.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 18.12,
+    "end": 18.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 18.22,
+    "end": 18.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "want",
+    "start": 18.3,
+    "end": 18.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "access",
+    "start": 18.54,
+    "end": 18.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 18.88,
+    "end": 18.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 18.98,
+    "end": 19.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money,",
+    "start": 19.08,
+    "end": 19.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 19.46,
+    "end": 19.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 19.66,
+    "end": 20.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 20.8,
+    "end": 20.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 20.96,
+    "end": 21.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 21.2,
+    "end": 21.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Now",
+    "start": 21.36,
+    "end": 21.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "interestingly,",
+    "start": 21.66,
+    "end": 22.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 22.2,
+    "end": 22.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not-",
+    "start": 22.52,
+    "end": 22.66,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 22.79
+ },
+ "usd": 0.004558,
+ "seconds": 1.91,
+ "recorded_at": "2026-11-18T12:38:09Z"
+}

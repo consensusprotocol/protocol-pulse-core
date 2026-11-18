@@ -1,0 +1,326 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "a929deba031d4b16e29a336a974cf9f39839a3f70e3e4388f1c470899cb97c2a",
+ "result": {
+  "text": "Which is that what you said is already the case. Being able to use Bitcoin doesn't depend on whether the House or the Senate is red or blue, because Bitcoin lives outside of the institutions under the thumb of any of those politicians. But of course, we would very-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 14.52,
+    "text": "Which is that what you said is already the case. Being able to use Bitcoin doesn't depend on whether the House or the Senate is red or blue, because Bitcoin lives outside of the institutions under the thumb of any of those politicians."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 14.98,
+    "end": 15.84,
+    "text": "But of course, we would very-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Which",
+    "start": 0.0,
+    "end": 0.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 0.08,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 0.24,
+    "end": 0.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 1.92,
+    "end": 2.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.1,
+    "end": 2.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "said",
+    "start": 2.28,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.52,
+    "end": 2.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "already",
+    "start": 2.8,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.08,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "case.",
+    "start": 3.22,
+    "end": 3.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Being",
+    "start": 4.16,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "able",
+    "start": 4.34,
+    "end": 4.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 4.46,
+    "end": 4.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "use",
+    "start": 4.6,
+    "end": 4.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.76,
+    "end": 5.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "doesn't",
+    "start": 5.26,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "depend",
+    "start": 5.58,
+    "end": 6.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 6.44,
+    "end": 6.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whether",
+    "start": 6.64,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.1,
+    "end": 7.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "House",
+    "start": 7.24,
+    "end": 7.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 7.58,
+    "end": 7.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.66,
+    "end": 7.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Senate",
+    "start": 7.84,
+    "end": 8.119,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 8.3,
+    "end": 8.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "red",
+    "start": 8.76,
+    "end": 9.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 9.34,
+    "end": 9.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "blue,",
+    "start": 9.48,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 9.72,
+    "end": 10.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 10.18,
+    "end": 10.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lives",
+    "start": 10.56,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outside",
+    "start": 10.94,
+    "end": 11.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 11.34,
+    "end": 11.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.44,
+    "end": 11.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "institutions",
+    "start": 11.52,
+    "end": 12.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "under",
+    "start": 12.3,
+    "end": 12.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.5,
+    "end": 12.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thumb",
+    "start": 12.64,
+    "end": 12.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 12.86,
+    "end": 12.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "any",
+    "start": 13.02,
+    "end": 13.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 13.2,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "those",
+    "start": 13.3,
+    "end": 13.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "politicians.",
+    "start": 13.94,
+    "end": 14.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 14.98,
+    "end": 15.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "of",
+    "start": 15.1,
+    "end": 15.16,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "course,",
+    "start": 15.2,
+    "end": 15.42,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "we",
+    "start": 15.48,
+    "end": 15.56,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "would",
+    "start": 15.58,
+    "end": 15.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "very-",
+    "start": 15.74,
+    "end": 15.84,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.86
+ },
+ "usd": 0.003172,
+ "seconds": 3.69,
+ "recorded_at": "2026-11-18T12:38:05Z"
+}

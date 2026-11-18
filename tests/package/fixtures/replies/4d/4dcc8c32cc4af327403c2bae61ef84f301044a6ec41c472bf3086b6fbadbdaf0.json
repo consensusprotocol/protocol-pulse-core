@@ -1,0 +1,206 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "2ffa16c29fcc500f572ea691351195a4f3e480638835d75e39ec727aba53f549",
+ "result": {
+  "text": "And a lot that we'll be rolling out in the months to come. Now, we've seen Bitcoin developers be prosecuted for writing and publishing free software, and you've written-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.14,
+    "end": 3.18,
+    "text": "And a lot that we'll be rolling out in the months to come."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 4.46,
+    "end": 11.1,
+    "text": "Now, we've seen Bitcoin developers be prosecuted for writing and publishing free software, and you've written-"
+   }
+  ],
+  "words": [
+   {
+    "text": "And",
+    "start": 0.14,
+    "end": 0.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 0.26,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot",
+    "start": 0.36,
+    "end": 0.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.08,
+    "end": 1.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we'll",
+    "start": 1.34,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 1.54,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rolling",
+    "start": 1.74,
+    "end": 2.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 2.12,
+    "end": 2.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 2.44,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.52,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "months",
+    "start": 2.6,
+    "end": 2.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 2.82,
+    "end": 2.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "come.",
+    "start": 2.96,
+    "end": 3.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Now,",
+    "start": 4.46,
+    "end": 4.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "we've",
+    "start": 4.6,
+    "end": 4.74,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "seen",
+    "start": 4.8,
+    "end": 5.08,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.12,
+    "end": 5.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "developers",
+    "start": 5.52,
+    "end": 6.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "be",
+    "start": 6.38,
+    "end": 6.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "prosecuted",
+    "start": 6.7,
+    "end": 7.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "for",
+    "start": 7.62,
+    "end": 7.88,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "writing",
+    "start": 7.9,
+    "end": 8.24,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "and",
+    "start": 8.28,
+    "end": 8.36,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "publishing",
+    "start": 8.46,
+    "end": 8.98,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "free",
+    "start": 9.04,
+    "end": 9.24,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "software,",
+    "start": 9.3,
+    "end": 9.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "and",
+    "start": 10.26,
+    "end": 10.56,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you've",
+    "start": 10.62,
+    "end": 10.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "written-",
+    "start": 10.8,
+    "end": 11.1,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.18
+ },
+ "usd": 0.002236,
+ "seconds": 1.21,
+ "recorded_at": "2026-11-18T12:38:08Z"
+}

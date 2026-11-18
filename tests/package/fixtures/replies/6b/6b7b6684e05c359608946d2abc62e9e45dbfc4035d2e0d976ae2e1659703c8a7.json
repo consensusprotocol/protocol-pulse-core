@@ -1,0 +1,164 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "4a5071253a20cc1af3d64b6046493a9650ecca781991f0b01f3825829a1dd7d5",
+ "result": {
+  "text": "Bitcoin without compromising what makes Bitcoin valuable in the first place. Keep Bitcoin as Bitcoin and activate it. Explore Verified X and see-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 7.7,
+    "text": "Bitcoin without compromising what makes Bitcoin valuable in the first place. Keep Bitcoin as Bitcoin and activate it. Explore Verified X and see-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Bitcoin",
+    "start": 0.0,
+    "end": 0.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "without",
+    "start": 0.32,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "compromising",
+    "start": 0.64,
+    "end": 1.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 1.58,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "makes",
+    "start": 1.72,
+    "end": 1.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.94,
+    "end": 2.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "valuable",
+    "start": 2.36,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 2.96,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.16,
+    "end": 3.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "first",
+    "start": 3.28,
+    "end": 3.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "place.",
+    "start": 3.54,
+    "end": 3.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Keep",
+    "start": 4.24,
+    "end": 4.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.42,
+    "end": 4.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 4.96,
+    "end": 5.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.12,
+    "end": 5.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 5.64,
+    "end": 5.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "activate",
+    "start": 5.78,
+    "end": 6.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 6.2,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Explore",
+    "start": 6.46,
+    "end": 6.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Verified",
+    "start": 6.82,
+    "end": 7.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "X",
+    "start": 7.46,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 7.52,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "see-",
+    "start": 7.64,
+    "end": 7.7,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 7.74
+ },
+ "usd": 0.001548,
+ "seconds": 1.53,
+ "recorded_at": "2026-11-18T12:38:08Z"
+}

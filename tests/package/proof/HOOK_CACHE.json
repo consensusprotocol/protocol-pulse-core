@@ -858,5 +858,27 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "20cac687560642251d37:8872cb33f646543931c083e13be604af0a39b64a480128fa3339af158bb5d784:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 5,
+   "setup": 4,
+   "rating": 3,
+   "why": "wordy start lacks punch to stop scroll",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "d427b94963b3bdbd8a60:61512e5aa4aa93d77f079f3e0abb1b5b753df463c30a1cefabb227ef6bad1b74:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 2,
+   "setup": 4,
+   "rating": 2,
+   "why": "Implies prior context with 'Now, we've seen'",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

@@ -355,6 +355,169 @@
   },
   "version": "visual-3"
  },
+ "20cac687560642251d37:5409.960-5420.320:visual-3:6c6f9bdfb6d25b8e": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     5409.96,
+     5410.96,
+     5411.96,
+     5412.96,
+     5413.96,
+     5414.96,
+     5415.96,
+     5416.96,
+     5417.96,
+     5418.96,
+     5419.96,
+     5420.27
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "lower_third",
+    "text": "LIVE ON BMTV: ANDREW BAILEY",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     5409.96,
+     5410.96,
+     5411.96,
+     5412.96,
+     5413.96,
+     5414.96,
+     5415.96,
+     5416.96,
+     5417.96,
+     5418.96,
+     5419.96,
+     5420.27
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "lower_third",
+    "text": "HEAD OF STRATEGY, FINNEY FOUNDATION FOR OPEN TECHNOLOGY (@RESISTANCEMONEY)",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     5409.96,
+     5410.96,
+     5411.96,
+     5412.96,
+     5413.96,
+     5414.96,
+     5415.96,
+     5416.96,
+     5417.96,
+     5418.96,
+     5419.96,
+     5420.27
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "ticker",
+    "text": "S&P 500  Nasdaq  Bitcoin  Ethereum  Litecoin  VeriBlock  PLAUD",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     5409.96,
+     5410.96,
+     5411.96,
+     5412.96,
+     5413.96,
+     5414.96,
+     5415.96,
+     5416.96,
+     5417.96,
+     5418.96,
+     5419.96,
+     5420.27
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "lower_third",
+    "text": "SEAN VARIAN",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     5409.96,
+     5410.96,
+     5411.96,
+     5412.96,
+     5413.96,
+     5414.96,
+     5415.96,
+     5416.96,
+     5417.96,
+     5418.96,
+     5419.96,
+     5420.27
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "lower_third",
+    "text": "GRACE STIMISTON",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "lower_third",
+    "kind": "burned_in",
+    "text": "SEAN VARIAN"
+   },
+   {
+    "in_9x16": "out",
+    "item": "lower_third",
+    "kind": "burned_in",
+    "text": "GRACE STIMISTON"
+   }
+  ],
+  "lower_third": {
+   "name": "ANDREW BAILEY",
+   "text": "LIVE ON BMTV: ANDREW BAILEY\nHEAD OF STRATEGY, FINNEY FOUNDATION FOR OPEN TECHNOLOGY (@RESISTANCEMONEY)"
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_2bd2261504a6c6ae.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_2bd2261504a6c6ae.jpg",
+   "sha256": "2bd2261504a6c6ae3f54565dc30dc6e7c0c9ea5e4afb9da8073931126023a9cd",
+   "times": [
+    5409.96,
+    5410.96,
+    5411.96,
+    5412.96,
+    5413.96,
+    5414.96,
+    5415.96,
+    5416.96,
+    5417.96,
+    5418.96,
+    5419.96,
+    5420.27
+   ]
+  },
+  "third_person": {
+   "finding": "The only other people visible are live participants in small inset video windows, not a still, photo, or graphic, and the spoken line is a general claim about Bitcoin's independence from politics, not",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2954,
+   "out": 23590,
+   "usd_reported": 0.14572
+  },
+  "version": "visual-3"
+ },
  "21d8769b73dd20f4894b:79.926-88.546:visual-3:0fc9d21dd9ed97a3": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [
@@ -2360,6 +2523,103 @@
    "in": 1642,
    "out": 5324,
    "usd_reported": 0.0043348
+  },
+  "version": "visual-3"
+ },
+ "d427b94963b3bdbd8a60:4714.250-4719.930:visual-3:e4c12902c060a541": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     4714.25,
+     4715.25,
+     4716.25,
+     4717.25,
+     4718.25,
+     4719.25,
+     4719.88
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "lower_third",
+    "text": "LIVE ON BMTV: ANDREW BAILEY HEAD OF STRATEGY, FINNEY FOUNDATION FOR OPEN TECHNOLOGY (@RESISTANCEMONEY)",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     4714.25,
+     4715.25,
+     4716.25,
+     4717.25,
+     4718.25,
+     4719.25,
+     4719.88
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "ticker",
+    "text": "Cash App Square finney LTFXO S & L T VeriFedX PLAUD",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     4714.25,
+     4715.25,
+     4716.25
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "lower_third",
+    "text": "GRACE SYMINGTON",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "lower_third",
+    "kind": "burned_in",
+    "text": "GRACE SYMINGTON"
+   }
+  ],
+  "lower_third": {
+   "name": "ANDREW BAILEY",
+   "text": "LIVE ON BMTV: ANDREW BAILEY HEAD OF STRATEGY, FINNEY FOUNDATION FOR OPEN TECHNOLOGY (@RESISTANCEMONEY)"
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": false,
+    "text": "LIVE ON BMTV: ANDREW BAILEY HEAD OF STRATEGY, FINNEY FOUNDATION FOR OPEN TECHNOLOGY (@RESISTANCEMONEY)",
+    "why": "It is a speaker-identification banner naming Andrew Bailey and his role; it does not assert or extend the claim that Bitcoin developers were prosecuted."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_ba028881dfb6ff4b.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_ba028881dfb6ff4b.jpg",
+   "sha256": "ba028881dfb6ff4b56d70a328344ae6ce2017d2dc24db78996f1b1c674bca1c1",
+   "times": [
+    4714.25,
+    4715.25,
+    4716.25,
+    4717.25,
+    4718.25,
+    4719.25,
+    4719.88
+   ]
+  },
+  "third_person": {
+   "finding": "Other people appear only as live inset participants, not as a still, photo, or graphic, while the words make a negative claim about Bitcoin developers being prosecuted.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 2935,
+   "out": 15511,
+   "usd_reported": 0.097208
   },
   "version": "visual-3"
  },
