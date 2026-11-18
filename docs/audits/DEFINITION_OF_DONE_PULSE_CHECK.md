@@ -6,6 +6,16 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 08:21 RULING 147 (3), INTEGRATOR: BATCH 114 (G17a soft) LANDS IN LOCKSTEP on the builder's READY.
+- DECODER 50fa01b4 (sentence_law.py sha256 48e5b639), RULES "... + ruling 146".
+- The merged-tree run found one defect of mine: the soft G17 row assumed G17a's own rows, and test_render16only's stub fails it. Fixed (7c1bed55), with a test.
+- The other 11 failures and setup errors fail the same on the live code: purged media, known.
+- The regression scripts run now; the official run is on the staged merge.
+- **CHOSEN (147 (5)):**
+  - The self-custody pin is sealed NOT time-sensitive, so law L-v 3's 24 h marks (09:56 / 10:02 ET) do not apply to it, and ruling 146 (6)'s exception is not needed for (B).
+  - That exception would need a pinned.py change, a DECODER file. So it cannot reach a pin after its seal: for (A) it would have to land BEFORE that seal.
+  - Rulings 139 and 143 land right after this video.
+
 ## 08:14 RULING 146, INTEGRATOR (render side):
 - **(1) and (3) are not re-asked by the render:** no change is needed. The ticker rule lives only in the 9:16 crop, and nothing checks for a sponsor mention.
 - **(2) G17a is held in four places in the render:** the cut, the shot snap, the G17 row and my lock pre-check. It is built as batch 114: the hook keeps its planned cut and the note says "The opening clip may start abruptly." Cutting into a word stays refused.
