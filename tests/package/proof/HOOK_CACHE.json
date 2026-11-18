@@ -880,5 +880,16 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "84884c9f79cb11fa498d:2268d1bd4da5849a82c7dc1d3f820160a9645b2cad3e6bcbd2302818210b4572:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 3,
+   "setup": 4,
+   "rating": 3,
+   "why": "vague without context or strong emotion",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

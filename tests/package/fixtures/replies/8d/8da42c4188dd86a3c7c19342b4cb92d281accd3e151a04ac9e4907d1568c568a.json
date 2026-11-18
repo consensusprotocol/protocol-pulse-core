@@ -1,0 +1,260 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "325c2dc900320a5f4b3d575f8883f48c69c2a8007ad50ae5ce4b3aeaa14409f7",
+ "result": {
+  "text": "sold self-custody Bitcoin as easier than it, than it was, and that's not to say that it's bad. It's, it's that self-custody Bitcoin's a responsibility. If I have a gun, it's a responsibility. Sovereignty is a responsibility. Sovereignty is",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.04,
+    "end": 14.84,
+    "text": "sold self-custody Bitcoin as easier than it, than it was, and that's not to say that it's bad. It's, it's that self-custody Bitcoin's a responsibility. If I have a gun, it's a responsibility. Sovereignty is a responsibility. Sovereignty is"
+   }
+  ],
+  "words": [
+   {
+    "text": "sold",
+    "start": 0.04,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "self-custody",
+    "start": 1.14,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.88,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 2.3,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "easier",
+    "start": 2.56,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 2.98,
+    "end": 3.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it,",
+    "start": 3.12,
+    "end": 3.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 3.32,
+    "end": 3.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 3.46,
+    "end": 3.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was,",
+    "start": 3.6,
+    "end": 3.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 3.9,
+    "end": 3.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 4.0,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 4.22,
+    "end": 4.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 4.44,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say",
+    "start": 4.56,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 4.72,
+    "end": 4.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 4.84,
+    "end": 4.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bad.",
+    "start": 5.02,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's,",
+    "start": 5.5,
+    "end": 5.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 5.82,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 6.06,
+    "end": 6.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "self-custody",
+    "start": 6.94,
+    "end": 7.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 7.62,
+    "end": 7.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 8.039,
+    "end": 8.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "responsibility.",
+    "start": 8.1,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "If",
+    "start": 9.82,
+    "end": 9.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 9.96,
+    "end": 9.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 10.0,
+    "end": 10.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 10.14,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gun,",
+    "start": 10.26,
+    "end": 10.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 10.74,
+    "end": 10.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 10.88,
+    "end": 10.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "responsibility.",
+    "start": 10.94,
+    "end": 11.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Sovereignty",
+    "start": 11.74,
+    "end": 12.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 12.62,
+    "end": 12.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 12.78,
+    "end": 12.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "responsibility.",
+    "start": 12.86,
+    "end": 13.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Sovereignty",
+    "start": 14.2,
+    "end": 14.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 14.72,
+    "end": 14.84,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.02
+ },
+ "usd": 0.003004,
+ "seconds": 1.31,
+ "recorded_at": "2026-11-18T13:58:44Z"
+}

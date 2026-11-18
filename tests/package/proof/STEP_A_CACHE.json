@@ -32992,6 +32992,29 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "20cac687560642251d37",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "those politicians",
+     "refers_to": "politicians in the House or Senate",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Using Bitcoin does not depend on which party controls Congress because Bitcoin exists outside political institutions.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "what you quoted me saying there",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
   }
  },
  "d427b94963b3bdbd8a60:61512e5aa4aa93d77f079f3e0abb1b5b753df463c30a1cefabb227ef6bad1b74:45acf6f24aafa53b384b4e1f56d949469706f871300f46c4cb1a61a0ce2d4945:9d43580c729b": {
@@ -33017,6 +33040,22 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "d427b94963b3bdbd8a60",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin developers have been prosecuted for writing and publishing free software.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "And you've written that open source AI developers could expect the same thing.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
   }
  },
  "84884c9f79cb11fa498d:2268d1bd4da5849a82c7dc1d3f820160a9645b2cad3e6bcbd2302818210b4572:31d3b6c0b9dc7527a92dce798bdd17283c6d87e3d3a50a3b64d52c090e0b1e11:9d43580c729b": {
@@ -33040,6 +33079,29 @@
    "speaker_is": "host",
    "speaker_evidence": "Thanks so much for your time today. Great seeing you again. Thanks, guys. It was awesome. Well, Bitcoin is valuable because of the ownership, control, and liquidity it gives you.",
    "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "84884c9f79cb11fa498d",
+   "speaker_changes_inside": "no",
+   "view": "ad_read",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The ad urges keeping Bitcoin as Bitcoin and activating it.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
    "replayed": false,
    "speaker_verified": false
   }
@@ -33070,6 +33132,50 @@
    "speaker_is": "host",
    "speaker_evidence": "To which I was like, did you also find the Nintendo and did you blow on the cartridge because that probably will fix all the airlines in the United States.",
    "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "f0a51c45830936b3a3c1",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that's",
+     "refers_to": "decentralized money",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "decentralized money",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "access to your money",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if you're wondering why having decentralized money that's available 24-7, 365, that has no CEO in his mind by a decentralized network around the world, like Bitcoin is important",
+     "inside": true
+    },
+    {
+     "text": "when you want access to your money with Bitcoin",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "If you wonder why decentralized money like Bitcoin is important, it's because when you want access to your money with Bitcoin, you have it.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I've been having her on for years",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
    "replayed": false,
    "speaker_verified": false
   }
@@ -33136,6 +33242,37 @@
    "certainty": "certain",
    "speaker_is": "host",
    "speaker_evidence": "Go to the bitcoinway.com/natalie to schedule a free introductory call with their team.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "feb4b72f301cde9d380d~trim:75affec92d6e2aebbbc7214becc0d5063c71b7d00a556aec0d106af612bff6bd:e1419d81e2250f35b28599ffc4583f375e1cb3aef646e478a283c14146521fd0:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "feb4b72f301cde9d380d~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "the industry selling self-custody Bitcoin as easier than it was",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "self-custody of Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Self-custody of Bitcoin is a responsibility like owning a gun, and sovereignty is a responsibility, but that is not to say it is bad.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "What do you say to the critics of digital credit who say this is it's not that it's just not actual Bitcoin, but you're",
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false

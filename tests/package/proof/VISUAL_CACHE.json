@@ -1347,6 +1347,81 @@
   },
   "version": "visual-1"
  },
+ "84884c9f79cb11fa498d:3767.800-3770.040:visual-3:a2a3ec342fa05157": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     3767.8,
+     3768.8,
+     3769.8,
+     3769.99
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "lower_third",
+    "text": "VerifiedX The Financial Operating System for Bitcoin",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     3767.8,
+     3768.8,
+     3769.8,
+     3769.99
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "ticker",
+    "text": "Cash App \u00b7 BitPay \u00b7 VerifiedX",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "kind": "on_screen_text",
+    "text": "VerifiedX The Financial Operating System for Bitcoin",
+    "why": "The banner names VerifiedX and calls it the financial operating system for Bitcoin, which the spoken line does not say."
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "VerifiedX The Financial Operating System for Bitcoin",
+    "why": "The banner names VerifiedX and calls it the financial operating system for Bitcoin, which the spoken line does not say."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_dfbb5564b5e14d33.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_dfbb5564b5e14d33.jpg",
+   "sha256": "dfbb5564b5e14d33aaa4515e6b9a37446ba845676cd74b91fd935dfecf04c46c",
+   "times": [
+    3767.8,
+    3768.8,
+    3769.8,
+    3769.99
+   ]
+  },
+  "third_person": {
+   "finding": "Only the live speaker appears on the studio set; no still, photo, or graphic of any other person is shown, and the spoken line is not a negative claim.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2448,
+   "out": 12789,
+   "usd_reported": 0.079902
+  },
+  "version": "visual-3"
+ },
  "852da61da08ef2aa45ef:457.383-471.763:visual-3:cdf64c07761ca2f5": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [
