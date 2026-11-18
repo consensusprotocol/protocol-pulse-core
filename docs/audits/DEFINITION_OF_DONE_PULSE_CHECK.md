@@ -6,6 +6,11 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 08:57 BATCH 114 LIVE (ruling 146 (2), G17a soft): merge 6f3e6be5, in lockstep with the builder's ed9df3f2 (DECODER 50fa01b4, RULES "... + ruling 146").
+- A hook with under 80 ms of quiet before its first word keeps its planned cut. The note says "The opening clip may start abruptly." once. A cut mid-word stays HARD.
+- On the staged merge: regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0 (references reproduce); touched suites 99 passed. The 31 importing suites ran on the merged tree: no new failure after the 7c1bed55 fix.
+- NEXT: the builder runs (B) self-custody (16:9 only, not time-sensitive). I render the pin the minute it arrives.
+
 ## 08:21 RULING 147 (3), INTEGRATOR: BATCH 114 (G17a soft) LANDS IN LOCKSTEP on the builder's READY.
 - DECODER 50fa01b4 (sentence_law.py sha256 48e5b639), RULES "... + ruling 146".
 - The merged-tree run found one defect of mine: the soft G17 row assumed G17a's own rows, and test_render16only's stub fails it. Fixed (7c1bed55), with a test.
