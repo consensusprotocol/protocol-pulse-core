@@ -42,9 +42,13 @@ SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's sof
                         "coherence", "ly_shape",           # RULING 141 (3), the line-up chain phase A: clip
                         #   ratings and unbridged joins of a kept candidate (the through-line and every other L-y check
                         #   stay HARD; the takeaway's value rows are not soft)
-                        "stand_alone"})                    # RULING 141 (2): a clip's STAND_ALONE opener (the topic
+                        "stand_alone",                     # RULING 141 (2): a clip's STAND_ALONE opener (the topic
+                        "pbx_exception"})                  # RULING 144: EXCEPTION_GATE, only on the one excepted pin
 #   rule, ruling 34, and the medley naming Bitcoin stay HARD)
 REVIEW_FLAGS_MAX = 3
+EXCEPTION_GATE = "pbx_exception"   # RULING 144 (PBX 07:05 ET Nov 18): a named, logged exception to a HARD rule for ONE
+#   package. Its row is FLAGGED with the exception in plain words; its sentence opens the review flags (the note's top
+#   line) and is not a doubt about the content, so it never counts toward REVIEW_FLAGS_MAX.
 
 
 # RULING 90 (orchestrator 22:40 ET Nov 13; LAW since 22:52, amended by 91 and 92): the SPOTLIGHT, a second pin kind.
@@ -397,9 +401,11 @@ def flagged_ok(g, row):
 
 
 def review_flags_of(gates):
-    """RULING 137: the plain-word flags of the inventory's FLAGGED rows, in gate order, each once."""
+    """RULING 137: the plain-word flags of the inventory's FLAGGED rows, in gate order, each once; RULING 144: an
+    exception's row first (the note's top line)."""
     out = []
-    for _g, row in (gates.items() if isinstance(gates, dict) else ()):
+    items = list(gates.items()) if isinstance(gates, dict) else []
+    for _g, row in sorted(items, key=lambda kv: kv[0] != EXCEPTION_GATE):
         if isinstance(row, dict) and row.get("status") == "FLAGGED":
             out += [f for f in row.get("flags") or [] if isinstance(f, str) and f not in out]
     return out
@@ -410,8 +416,14 @@ def review_problems(mp):
     over REVIEW_FLAGS_MAX (empty = it holds)."""
     want, got = review_flags_of(mp.get("gates")), mp.get("review_flags") or []
     out = [] if got == want else [f"review_flags {got} are not the sealed gates' flags {want}"]
-    return out + ([f"{len(want)} review flags, over {REVIEW_FLAGS_MAX} (ruling 136 (2))"]
-                  if len(want) > REVIEW_FLAGS_MAX else [])
+    n = content_flags(mp.get("gates"))
+    return out + ([f"{n} review flags, over {REVIEW_FLAGS_MAX} (ruling 136 (2))"] if n > REVIEW_FLAGS_MAX else [])
+
+
+def content_flags(gates):
+    """RULING 136 (2) / 144: the flags that count toward REVIEW_FLAGS_MAX: every review flag except an exception's."""
+    exc = ((gates or {}).get(EXCEPTION_GATE) or {}).get("flags") or [] if isinstance(gates, dict) else []
+    return len([f for f in review_flags_of(gates) if f not in exc])
 
 
 def gate_problems(gates, required=REQUIRED_GATES):
@@ -502,8 +514,8 @@ def to_pin(pk, run_name):
         screen_problems(pk) + trim_problems(pk.get("segments") or []) + scorer_problems(pk.get("segments") or []) + \
         spotlight_problems(pk) + takeaway_problems(pk)
     rf = review_flags_of(pk.get("gates"))                 # RULING 137: derived from the sealed gates, at most 3
-    problems += [f"{len(rf)} review flags, over {REVIEW_FLAGS_MAX} (ruling 136 (2))"] if len(rf) > REVIEW_FLAGS_MAX \
-        else []
+    problems += [f"{content_flags(pk.get('gates'))} review flags, over {REVIEW_FLAGS_MAX} (ruling 136 (2))"] \
+        if content_flags(pk.get("gates")) > REVIEW_FLAGS_MAX else []
     if problems:
         raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
     segs = []

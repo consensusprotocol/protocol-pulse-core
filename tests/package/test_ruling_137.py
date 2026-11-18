@@ -548,6 +548,52 @@ class TestRuling141LineUpChain(unittest.TestCase):
         self.assertFalse([t for t in out["never_empty"]["soft_record"]["tried"] if t.get("kept")])
 
 
+class TestRuling144TheOneException(unittest.TestCase):
+    """RULING 144 (PBX 07:05 ET Nov 18): ONE build's 12 h window waived, named and logged. Its row is FLAGGED with the
+    plain words, they open the review flags (the note's top line), and they never count toward the cap of 3."""
+    EXC = "PBX exception Nov 18: these clips are older than 12 hours (allowed for this one video only)"
+
+    def gates(self, n_content):
+        g = {f"g{i}": {"status": "FLAGGED", "flags": [f"doubt {i}"], "by": "x", "replayed": False, "n": 1}
+             for i in range(n_content)}
+        g[PP.EXCEPTION_GATE] = {"status": "FLAGGED", "flags": [self.EXC], "by": "ruling 144", "replayed": False, "n": 3}
+        return g
+
+    def test_the_exception_reads_first_and_is_not_a_doubt(self):
+        g = self.gates(3)
+        self.assertEqual(PP.review_flags_of(g), [self.EXC, "doubt 0", "doubt 1", "doubt 2"])
+        self.assertEqual(PP.content_flags(g), 3)
+        self.assertEqual(PP.review_problems({"gates": g, "review_flags": PP.review_flags_of(g)}), [])
+        self.assertEqual(len(PP.review_problems({"gates": self.gates(4), "review_flags": PP.review_flags_of(
+            self.gates(4))})), 1)                                           # a 4th DOUBT still refuses
+        self.assertIn(PP.EXCEPTION_GATE, PP.SOFT_GATES)
+
+    def test_the_driver_takes_it_only_named_and_only_in_this_process(self):
+        import proof_ledger as PLG
+        pins = [os.path.join(os.path.dirname(os.path.abspath(__file__)), "proof", "fresh_20261112_050611", n)
+                for n in ("MOMENTS_PIN.json", "MOMENTS_PIN_LY.json")]
+
+        class Past(Exception):
+            pass
+
+        def stop(*a, **k):
+            raise Past()
+        saved = PP.WINDOW_H
+        try:
+            with mock.patch("sys.stderr"):
+                self.assertEqual(PLG.main(["--delivered", *pins, "--hours", "26"]), 2)            # 12 h as ever
+                self.assertEqual(PLG.main(["--delivered", *pins, "--hours", "26", "--pbx-exception", "please"]), 2)
+                self.assertEqual(PLG.main(["--delivered", *pins, "--hours", "31", "--pbx-exception",
+                                           "PBX exception x"]), 2)                                  # 30 h at most
+            self.assertEqual(PP.WINDOW_H, saved)                               # nothing changed by a refusal
+            with mock.patch.object(PLG, "delivered_pins", stop):
+                with self.assertRaises(Past):
+                    PLG.main(["--delivered", *pins, "--hours", "26", "--pbx-exception", "PBX exception x"])
+            self.assertEqual(PP.WINDOW_H, 26.0)                                # this process: every 12 h check reads it
+        finally:
+            PP.WINDOW_H = saved
+
+
 class TestTheDayCount(unittest.TestCase):
     def test_counted_per_day_ledger(self):
         with tempfile.TemporaryDirectory() as d:

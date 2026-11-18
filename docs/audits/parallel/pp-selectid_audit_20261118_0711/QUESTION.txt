@@ -1,0 +1,24 @@
+pp-selectid: RULING 144 (orchestrator 07:15 ET Nov 18, PBX's words 07:05: "disregard the 12 hour rule for this one
+exception and get this video done"). ONE package, from yesterday's batch, with the 12 h window waived: a NAMED, LOGGED
+exception ('PBX exception Nov 18: clips older than 12 hours'); never-reused still holds; the rule is back for every
+later build. The integrator's render needs nothing (its only age gate is L-v 3's 24 h for time_sensitive segments) and
+asked that the exception's plain words be the FIRST review flag (its note prints review flags first). Files:
+tests/package/proof_ledger.py (the build driver), pipeline/package_pin.py, tests/package/test_ruling_137.py.
+
+THE CHANGE:
+(a) proof_ledger: --pbx-exception TEXT. Refused (exit 2, before anything is written) unless TEXT starts "PBX exception".
+    With it, --hours may reach PBX_EXCEPTION_MAX_H (30) instead of package_pin.WINDOW_H (12); without it, 12 as ever.
+    package_pin.WINDOW_H = hours FOR THIS PROCESS ONLY (one build = one process; every 12 h check reads that constant:
+    package.expired, package_pin.window_problems at the seal, the candidate registry's expiry). After the package seals
+    and before its pin is written, the driver adds the exception's gate row (FLAGGED, flags [TEXT], replayed False) and
+    records res["pbx_exception"].
+(b) package_pin: EXCEPTION_GATE "pbx_exception" in SOFT_GATES (FLAGGED accepted by gate_problems as any soft row);
+    review_flags_of lists its flags FIRST; content_flags = the review flags except the exception's: the cap of 3
+    (to_pin and review_problems) counts only doubts about the content.
+
+TESTS (test_ruling_137, 2 new): the exception first and not counted (3 doubts + it seal; a 4th doubt still refuses);
+the driver: --hours 26 without the exception refused, an unnamed exception refused, 31 h refused, nothing changed by a
+refusal, and with a named exception the window becomes 26 for the process. Mutations: 7 of 7 killed.
+
+PLEASE CHECK: (1) can the exception leak to a later build or another pin? (2) can it carry more than ONE flag past the
+cap, or hide a doubt? (3) anything else the 12 h rule guards that this bypasses (never-reused must hold)? (4) the tests.

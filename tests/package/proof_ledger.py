@@ -249,6 +249,7 @@ def delivered_pins(paths):
     return spans, newest, pins
 
 
+PBX_EXCEPTION_MAX_H = 30.0     # RULING 144 (PBX 07:05 ET Nov 18): yesterday's batch, for one package only
 STOP_CEILING_USD = 1.50          # RULING 137 (3) (orchestrator 11:05 ET Nov 17): the day cap is $1.50 all-in from the
 #   21:10 ET day of Nov 17 (today's stop $1.40, given as --stop-usd); --stop-usd at most this. Was 1.25 (ORDER 17:50 ET
 #   Nov 16, 'ADD 25 CENTS').
@@ -443,14 +444,25 @@ def main(argv=None):
                     "build takes only those moments of the pool, every gate as before (one line-up at a time)")
     ap.add_argument("--stop-usd", type=float, default=None, help="ORDER 17:50 ET Nov 16: this build's outside-dollar "
                     f"limit (no build starts at it; the router stops outside calls at it), in (0, {STOP_CEILING_USD}]")
+    ap.add_argument("--pbx-exception", metavar="TEXT", default=None,
+                    help="RULING 144 (PBX 07:05 ET Nov 18): this ONE build's 12 h window is waived, named and logged "
+                         "(TEXT starts 'PBX exception'): --hours may reach PBX_EXCEPTION_MAX_H, every 12 h check of "
+                         "this process reads it, and the package carries TEXT as its first review flag")
     ap.add_argument("--from-candidate", metavar="BUILD_DIR[:N]",
                     help="RULING 66: try ONLY the line-up that passed the clips-alone verdict in this earlier build's "
                          "record (its tried[N]; default the first that passed), as it was judged")
     a = ap.parse_args(argv)
     now = datetime.now(timezone.utc)
-    if not 0 < a.hours <= package_pin.WINDOW_H:          # ruling 76: "rather than widen the window"
-        print(f"REFUSED (ruling 76): --hours {a.hours} is outside (0, {package_pin.WINDOW_H:g}]", file=sys.stderr)
+    if a.pbx_exception is not None and not (isinstance(a.pbx_exception, str) and
+                                            a.pbx_exception.startswith("PBX exception") and a.pbx_exception.strip()):
+        print("REFUSED (ruling 144): --pbx-exception must name the exception ('PBX exception ...')", file=sys.stderr)
         return 2
+    cap = PBX_EXCEPTION_MAX_H if a.pbx_exception else package_pin.WINDOW_H
+    if not 0 < a.hours <= cap:                           # ruling 76: "rather than widen the window" (144: one exception)
+        print(f"REFUSED (ruling 76): --hours {a.hours} is outside (0, {cap:g}]", file=sys.stderr)
+        return 2
+    if a.pbx_exception:                                  # RULING 144: this process only; every later build is 12 h
+        package_pin.WINDOW_H = float(a.hours)            # (package.expired, window_problems and the registry read it)
     try:                                                 # read before anything is written (glm C2 N-4)
         delivered, last, pins = delivered_pins(a.delivered)
         since = datetime.fromisoformat(a.since.replace("Z", "+00:00")) if a.since else last
@@ -641,6 +653,11 @@ def main(argv=None):
     if res["package"]:
         SP.attribute_package(router, res["package"], sources, log=say)     # 00:05 ET Nov 13 item 3: sealed in the pin
         try:
+            if a.pbx_exception:                          # RULING 144: the exception's row, its plain words first
+                res["package"]["gates"][package_pin.EXCEPTION_GATE] = {
+                    "status": "FLAGGED", "flags": [a.pbx_exception], "by": "ruling 144 (PBX 07:05 ET Nov 18)",
+                    "replayed": False, "n": len(res["package"]["segments"]), "window_h": a.hours}
+                res["pbx_exception"] = {"text": a.pbx_exception, "window_h": a.hours}
             lock = LP.pin_problems(res["package"]) + \
                 package_pin.window_problems(res["package"]["segments"])   # ruling 68; ruling 76 (c), render clock
             if lock:
