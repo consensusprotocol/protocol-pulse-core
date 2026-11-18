@@ -1,0 +1,61 @@
+{
+ "question": "Review this diff. ORCHESTRATOR RULING 143 (15:55 ET Nov 17), verbatim in part: \"(1) MATERIAL = a number, a negation, a name (letters differ after the canon), a ticker or a currency amount. Everything else is NON-MATERIAL. (2) NON-MATERIAL disagreement NEVER holds. The sealed text takes the two-of-three reading; if all three differ, the run decode's (it is what the render will cut). Sound-alikes (ad/add), fillers of any length (you know, I mean, sort of like), word forms: all here. More than 3 unsettled non-material pairs in one clip adds ONE soft flag: 'The clip (X): the transcript and the audio readers differ on a few small words.' (3) MATERIAL disagreement: if the TWO AUDIO READINGS (the run decode and the second recogniser) AGREE with each other against the transcript, the transcript was wrong: the sealed text takes the audio's reading, numbers included ('$2.35 billion') ... mark it in the note ('transcript corrected from the audio: ...'). If the two audio readings DISAGREE with each other on a material word, HOLD ... 'i've' / 'IBIT' is a ticker: material: holds unless both audio readings agree. (4) Unchanged and HARD: a cut mid-word, an empty or shifted source (the offset guard), a span whose audio readings share under 85 percent of their words (wrong audio, not small words; propose a better number from the records if you have one).\"\nThe integrator's reading of (4), recorded: the share is the run decode's words the second reading heard, in order (the second recogniser also writes the speaker's repeats, false starts and the window's spill: those are not the wrong audio), and a hold needs more than 3 words missing (a short span's one or two small words are not the wrong audio). G18 (a HARD render gate comparing the final's audio decode with the lock text when the lock was adjudicated) decides small-word-only differences by the audio, as ruling 22 already decides omissions, so that (2) holds at render too.\nFACTS (unchanged code): reads(x, xmap, lo, hi) is True when the second reading reads x's tokens lo..hi-1 at that position (with one aligned neighbour each side, nothing between); _majority_text writes the settled text from the approved text and the pairs that took 'run', or returns None; _lv2_critical(tok, texts) marks digits, negations, ordinals and capitalised mid-sentence words; canon.word_form marks a possessive / plural / contraction pair; lock_precheck answers outcome 'hold' (final for the builder), 'error' (no verdict) or a pass; G18's ruling 22 block runs span_fidelity (the prepared clip's interior against the source span) and clears the identity difference only when the audio is the same.\nReport ONLY defects you can prove by quoting the diff's code. Keep each \"issue\" under 60 words. If every check holds, answer PASS with no findings.\nCHECKS:\nH1. Can a MATERIAL pair be sealed without both audio readings agreeing on it (run decode and second recogniser), or a material disagreement between them pass (adjudicate_lock, as_spoken, G18)?\nH2. Can a NON-MATERIAL difference still hold anywhere (adjudicate_lock, as_spoken, G18 against an adjudicated lock), other than through the wrong-audio rule?\nH3. Is the wrong-audio rule as recorded (share of the run's words heard in order; < 0.85 and more than 3 missing), and can it hold the right audio or pass the wrong one?\nH4. Can any input raise uncaught, or does anything else change behaviour (the note, the flag text and count, _majority's re-lock, ruling 103's re-listen)?",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 421.2,
+   "cost": 0.0142658745,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 170.0,
+   "cost": 0.0065239066,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "critical",
+   "file": "pipeline/lock_precheck.py",
+   "line": 404,
+   "issue": "relisten() calls canon.same_words but never imports canon; only 'import gpu0' is present. Every call to relisten (ruling 103 re-listen) will raise NameError at runtime.",
+   "evidence": "def relisten(a, wd, lock, sw, spent, log=print):\n    import gpu0\n    words = a[\"transcript\"][\"words\"]\n    L, S2, spoken = reading(lock, words, sw)\n    ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != \"equal\"\n           and not canon.same_words(L[o[1]:o[2]], S2[o[3]:o[4]], stray=\"y\")",
+   "fix": "Add 'import canon' at the top of relisten() (or at module level), matching the pattern used in as_spoken and adjudicate_lock.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "high",
+   "file": "pipeline/pinned.py",
+   "line": 459,
+   "issue": "Ticker detection is dead code: the regex \\b[A-Z][a-z]+\\b requires \u22651 lowercase letter, so w.isupper() is always False for any match. Tickers like 'IBIT' are never flagged MATERIAL, violating ruling 143 (1).",
+   "evidence": "for m in re.finditer(r\"\\b[A-Z][a-z]+\\b\", t):\n            w = m.group(0)\n            if w.lower() == tok and w[0].isupper() and w != \"I\":\n                before = t[:m.start()].rstrip()\n                if (before and before[-1] not in \".!?\") or (len(w) >= 2 and w.isupper()):\n                    return True",
+   "fix": "Add a separate regex pass for all-caps words (e.g. re.finditer(r\"\\b[A-Z]{2,}\\b\", t)) before or alongside the existing loop, so that w.isupper() can actually be True and tickers are classified MATERIAL.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.020789781099999998,
+ "out_dir": "heimdall"
+}

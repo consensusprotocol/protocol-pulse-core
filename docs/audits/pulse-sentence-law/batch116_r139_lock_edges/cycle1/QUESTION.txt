@@ -1,0 +1,30 @@
+TASK: audit batch 116 of the Protocol Pulse video pipeline (Python). You are reviewing a diff. Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.
+
+THE RULINGS. Ruling 139 (orchestrator 2026-11-17 12:28), verbatim: "CUTTABLE's sentence-edge part FLAGS when the cut sits at a word boundary; L-v 2's word check and a cut mid-word stay HARD. This narrows ruling 135's line on ruling 73: a sentence edge is PBX's call to make on review". Ruling 147 (3) (2026-11-18 08:20): "Ruling 139 (a sentence edge at a word boundary flags, a cut mid-word refuses) binds the render's lock too".
+
+BACKGROUND (unchanged code):
+- sentence_law.boundary (pipeline/sentence_law.py:253) judges the boundary between two words. It returns valid False with one of these reasons:
+  - "no audio between the words" (pause None: no measured gap);
+  - "unpunctuated transcript stretch: no sentence evidence (fail closed)" (lexical "unpunctuated", with a pause);
+  - "'X' does not end a sentence" (with a pause);
+  - at a file end, valid = is_terminal(last word), with a pause and no reason;
+  - at a file head / file end with no onset / offset: no pause.
+- edge_plan (:353) computes the legal cut range (cut_lo..cut_hi inside the heard gap) ONLY for a valid boundary. Then _ruling73 bounds it (OUT never before the last word's decoded end; IN at most 600 ms before the first word). plan["ok"] needs both edges cuttable.
+- lock_cut (:904) is the render's cut and the pre-check's: an unplanned edge -> error "locked sentence edges not cuttable" (a HOLD). accepted_cut then picks a cut inside the ranges that keeps the neighbour words inaudible.
+- G16 (gate_g16 :957, _edge_row :1009) is a REQUIRED gate. An invalid boundary fails it; a valid one needs the cut inside cut_lo..cut_hi.
+
+WHAT THE DIFF DOES:
+- New soften_sentence_edge(b) (:336): a boundary that is invalid ONLY for sentence evidence and HAS a pause becomes valid, keeping the reason in b["sentence_edge"]. The cases are the unpunctuated reason, "...does not end a sentence", or a file end with no reason. "no audio between the words" and every other reason are untouched.
+- edge_plan gains sentence_soft=False. With True it softens the IN boundary (unless the IN edge is a trimmed word's, ruling 33 part 2) and the OUT boundary before planning.
+- The render's callers pass True: lock_cut, gate_g16, gate_g17_edges (:1116), gate_g17_output (:1213), run_fresh's fade retry (_retry_fade_edges).
+- Selection (select_passages.py:311) and the builder's own callers keep the default False.
+- lock_cut records {"in"/"out": reason} as out["sentence_edge"]. run_fresh.flag_sentence_edges (:246, called in stage_cut :704) flags R10's sentence (IN: "{Who} might start in the middle of a sentence.") or R9's (OUT: "{Who} might not end cleanly at the end of a sentence."). The pre-check records cut["sentence_edge"]. RULES + "ruling 139".
+
+CHECK, each with file:line and a concrete failure scenario:
+(a) Can a cut MID-WORD now pass anywhere (the lock cut, G16, the pre-check)? Trace a boundary with no pause, and one where the pause exists but accepted_cut finds no clean cut.
+(b) Does softening change any decision outside the render (selection, the builder's callers, check_preview_reference) through the shared default?
+(c) After softening, is the boundary dict consistent for edge_plan's valid branch? It reads pause, word_gap, point, file_head and file_end. Does reason=None break anything that reads b["reason"] later (edge_plan's own reason field, _edge_row)?
+(d) A trimmed IN edge (ruling 33 part 2) is never softened. Is the OUT edge of a trimmed lock still softened? Is that consistent with the ruling?
+(e) flag_sentence_edges: can it crash (no edl.json, a cut without clip_id), flag the wrong clip, or flag when the edge was not softened?
+
+OUTPUT: findings, each <severity: critical|high|medium|low> <file:line> <what fails, with inputs>; "(x): no finding" with what you traced otherwise.
