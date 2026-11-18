@@ -181,7 +181,7 @@ fleet's spend, not only this service's. At 90 % of the $460 cap, or when the spe
 L-m), it NOTIFIES and never halts (orchestrator 02:45 + 05:30; integrator B1): "HEIMDALL SPEND AT 90%" (or
 "... UNMEASURED") goes on the first line of the STATE file (rewritten only when that line changes) and the metered
 back-ends move to the END of every chain, so other callable back-ends go first; when there is none, Heimdall keeps
-mining. Frontier back-ends have a daily dollar budget in the config; a used-up budget skips that back-end. Recorded
+mining. A last-resort back-end (providers.json "last_resort": the local model) stays after them all (r124, section 21). Frontier back-ends have a daily dollar budget in the config; a used-up budget skips that back-end. Recorded
 cost: the vendor's own figure where it reports one (`usage.cost`; `usage.cost_in_usd_ticks` / 1e10), else tokens x
 the price table (estimates marked in the config). Error text is redacted of every key value before it is recorded; a
 redirect is refused (the bearer key never follows one); a runtime base-URL override is honoured only for this machine
@@ -636,6 +636,11 @@ the same videos.
 - TESTS: tests/ingest/conftest.py gives every test a refusing client and a stand-in client file (no test takes a real
   lease or loads a model); test_r123.py also runs the main tree's real client file with a stand-in gpu0. Mutations
   M51-M64 killed, each run with the lease files redirected and the network refused.
+- r124 (found at r123's restart, 21:31 ET Nov 17: the startup line listed the local back-end FIRST among the callable
+  ones): the spend meter's reorder (integrator B1) puts the metered back-ends after the others while the meter is not
+  'ok', and every gateway model is metered, so an unmeasured or tripped meter would have sent every request to GPU1
+  first, against ruling 118's order. A back-end marked "last_resort" (the local model) now stays after every other one
+  at every meter state; B1 is otherwise unchanged. The meter had been 'ok' at every reading, so no request went there.
 - AS OF Nov 17 21:00 ET: DaVinci Resolve (headless, pid 1073512) has sat on both GPUs since 16:59 ET; law L-r refuses
   every lawful call while it stays, so this fallback answers `busy` (Gpu0Foreign after its 60 s bound) and the videos
   wait, as before r123. The word-pass worker died on it at 17:23 ET (the integrator's; reported).

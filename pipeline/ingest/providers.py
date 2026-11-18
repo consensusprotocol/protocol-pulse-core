@@ -11,8 +11,9 @@ SPEND FREEZE (orchestrator 05:30 ET 2026-11-12): every back-end names its vendor
 spend_freeze is never called by any role, whatever its chain, `only`, or `enabled` say (a stored validated reply costs
 nothing and may still be reused). The spend meter only NOTIFIES (orchestrator 02:45; integrator B1): while it is not
 'ok' the metered back-ends move to the end of every chain, so the others go first where any are available; they are
-never taken out. AllBackendsFailed.outage tells a chain that was down or refusing (the caller waits, no try used) from
-one whose back-ends answered and were rejected.
+never taken out; a last-resort back-end (ruling 118's local model) stays after all of them (r124).
+AllBackendsFailed.outage tells a chain that was down or refusing (the caller waits, no try used) from one whose
+back-ends answered and were rejected.
 
 Keys are read by NAME from the env file named in the config, inside code; never logged, never in an exception (error
 text is redacted of every key value before it is recorded), never sent after a redirect.
@@ -113,6 +114,8 @@ def validate_config(cfg):
     for bid, b in cfg["backends"].items():
         if type(b.get("vendor")) is not str or not b["vendor"]:
             raise ValueError(f"back-end {bid}: no 'vendor' (every back-end names its vendor: the spend freeze)")
+        if "last_resort" in b and type(b["last_resort"]) is not bool:
+            raise ValueError(f"back-end {bid}: 'last_resort' must be true or false")
     fz = cfg.get("spend_freeze")
     if fz is not None and (type(fz) is not dict or type(fz.get("vendors")) is not list
                            or not all(type(v) is str and v for v in fz["vendors"])):
@@ -838,12 +841,19 @@ class Router:
     def _metered(self, bid):
         return bool((self.cfg["backends"].get(bid) or {}).get("spend_meter"))
 
+    def _last_resort(self, bid):
+        return bool((self.cfg["backends"].get(bid) or {}).get("last_resort"))
+
     def order(self, role):
         """The role's chain as tried now. While the spend meter is not 'ok' (90 % of the cap, or unmeasured) the
-        metered back-ends go last: the others first where any are available; the metered ones are never removed."""
+        metered back-ends go last: the others first where any are available; the metered ones are never removed. A
+        last-resort back-end (providers.json "last_resort": ruling 118's local model, "the next Heimdall model ...,
+        then the local model") is never moved ahead: it stays after every other back-end of the chain (r124)."""
         ch = self.chain(role)
         if self.meter is not None and self.meter.state() != "ok":
-            ch = [b for b in ch if not self._metered(b)] + [b for b in ch if self._metered(b)]
+            last = [b for b in ch if self._last_resort(b)]
+            ch = [b for b in ch if not self._metered(b) and b not in last] + \
+                [b for b in ch if self._metered(b) and b not in last] + last
         return ch
 
     def effective(self, role):
