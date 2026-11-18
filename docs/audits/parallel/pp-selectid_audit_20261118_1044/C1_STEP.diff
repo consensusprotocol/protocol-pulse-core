@@ -1,0 +1,137 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index c32b7d6..3b025fc 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -296,6 +296,10 @@ LY_FLOOR_S = 30.0                  # RULINGS 148 (1) / 149 (orchestrator 09:56 E
+ LY_SHORT_SPAN_WORDS = 4            # clips too short to land 60 s: the takeaway is asked within this of its longest
+ RUNTIME_SHORT = "This video runs {n} seconds, shorter than usual."   # 148 (1): the flag, NN the factory's estimate
+ _FLOOR = None                      # LY_FLOOR_S while build() runs the never-empty pass (set and cleared there only)
++VALUE_SOFT_LINE = None             # RULING 150 (1) (orchestrator 10:40 ET Nov 18) BY HAND, the one exception pin: the
++                                   # exact closing line (the driver's --value-soft-line) whose MEASURED value verdict
++                                   # (ruling 91) the never-empty pass takes as a flag; every other line as ruled
++VALUE_FLAG = 'The closing line may mostly restate the clips: "{line}"'   # RULING 150: the flag, the line verbatim
+ 
+ 
+ def medley_content_range(n_bridges=0, bridge_words=LY_BRIDGE_WORDS):
+@@ -4383,7 +4387,15 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                     log(f"    value (ruling 91) {'PASS' if val['ok'] else 'LOST'}: " +
+                         (f"{answers}, {val.get('words')} words" if val.get("measured") else
+                          f"no verdict ({str(val.get('why'))[:120]})") + f" ({time.time() - t0:.0f} s)")
+-                    if not val["ok"]:                      # "anything short of a clear yes means no line"
++                    if (soft and not val["ok"] and val.get("measured") is True and VALUE_SOFT_LINE is not None
++                            and fields["takeaway"]["text"] == VALUE_SOFT_LINE):          # RULING 150 (1) BY HAND
++                        val = att["value"] = dict(val, soft=True)
++                        rec["value_by_hand"] = {"ruling": "150 (1), applied by hand to the exception pin",
++                                                "line": VALUE_SOFT_LINE, "answers": {k: val.get(k) for k in (
++                                                    "adds", "no_restate", "missed", "short")}}
++                        log("    RULING 150 (1) BY HAND: this closing line's value verdict is a flag; fidelity, length "
++                            "and the banned words stay HARD")
++                    if not val["ok"] and not val.get("soft"):      # "anything short of a clear yes means no line"
+                         v_lost.append({k: val.get(k) for k in ("text", "measured", "adds", "no_restate", "missed",
+                                                                "short", "why", "words", "backend")})
+                         rec["value_lost"] = list(v_lost)
+@@ -4735,6 +4747,8 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+                                                                                               "missed", "short")},
+                                    why=value.get("why"), words=value.get("words"), cap=value.get("cap"),
+                                    rule=f"ruling 91 (medley half): all four a clear yes and at most {LY_TAKEAWAY_MAX_WORDS} "
+-                                        f"words, off every writer's vendor and family")}
++                                        f"words, off every writer's vendor and family",
++                                   **({"status": "FLAGGED", "flags": [VALUE_FLAG.format(line=value.get("text"))]}
++                                      if value.get("soft") and value.get("ok") is not True else {}))}   # RULING 150
+            if value is not None else {}),
+     }
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index 6400783..9cdc53c 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -47,6 +47,8 @@ SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's sof
+                         "hook_onset",                      # RULING 146 (2): G17a's quiet shortfall (a cut mid-word stays
+                         #   HARD)
+                         "graphics",                        # RULING 146 (1): the show's own graphics, 16:9 only
++                        "takeaway_value",                  # RULING 150: the closing line's value verdict (ruling
++                        #   91), a measured one; fidelity, length and the banned words stay HARD
+                         "runtime"})                        # RULINGS 148 (1) / 149: a medley under 60 s, its clips at
+ #   package.LY_FLOOR_S (30 s) or more, never-empty pass only (the render's G5 follows this sealed row)
+ #   rule, ruling 34, and the medley naming Bitcoin stay HARD)
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 551e068..0cd6787 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -444,6 +444,10 @@ def main(argv=None):
+                     "build takes only those moments of the pool, every gate as before (one line-up at a time)")
+     ap.add_argument("--stop-usd", type=float, default=None, help="ORDER 17:50 ET Nov 16: this build's outside-dollar "
+                     f"limit (no build starts at it; the router stops outside calls at it), in (0, {STOP_CEILING_USD}]")
++    ap.add_argument("--value-soft-line", metavar="LINE", default=None,
++                    help="RULING 150 (1) BY HAND (orchestrator 10:40 ET Nov 18), the one exception pin only (needs "
++                         "--pbx-exception): this exact closing line's measured value verdict is a flag in the "
++                         "never-empty pass, logged in the record")
+     ap.add_argument("--pbx-exception", metavar="TEXT", default=None,
+                     help="RULING 144 (PBX 07:05 ET Nov 18): this ONE build's 12 h window is waived, named and logged "
+                          "(TEXT starts 'PBX exception'): --hours may reach PBX_EXCEPTION_MAX_H, every 12 h check of "
+@@ -462,6 +466,10 @@ def main(argv=None):
+         print(f"REFUSED (ruling 76): --hours {a.hours} is outside (0, {cap:g}]", file=sys.stderr)
+         return 2
+     base_h = package_pin.WINDOW_H                        # 12: the rule (rulings 76 + 77) the exception widens
++    if a.value_soft_line is not None:                    # RULING 150 (1) BY HAND: the one exception pin only
++        if not a.pbx_exception or not a.value_soft_line.strip():
++            raise SystemExit("--value-soft-line needs --pbx-exception and the exact closing line")
++        PK.VALUE_SOFT_LINE = a.value_soft_line
+     if a.pbx_exception:                                  # RULING 144: this process only; every later build is 12 h
+         package_pin.WINDOW_H = float(a.hours)            # (package.expired, window_problems and the registry read it)
+     try:                                                 # read before anything is written (glm C2 N-4)
+diff --git a/tests/package/test_ruling_137.py b/tests/package/test_ruling_137.py
+index e7d50a8..1ad887d 100644
+--- a/tests/package/test_ruling_137.py
++++ b/tests/package/test_ruling_137.py
+@@ -648,6 +648,51 @@ class TestRuling144TheOneException(unittest.TestCase):
+             PP.WINDOW_H = saved
+ 
+ 
++class TestRuling150ValueByHand(unittest.TestCase):
++    """RULING 150 (1) (orchestrator 10:40 ET Nov 18), applied BY HAND to the one exception pin: the exact closing line
++    the driver names (--value-soft-line) keeps its place in the never-empty pass when its MEASURED value verdict (ruling
++    91) is LOST, flagged 'The closing line may mostly restate the clips: "<line>"'. Any other line, an unmeasured
++    verdict, and the clean pass: unchanged."""
++    TICKER = {"kind": "ticker", "text": "S&P 500 Nasdaq Bitcoin", "whole_in_16x9": True, "in_9x16": "cut",
++              "covers_speaker": False}
++
++    def run_rig(self, line, measured=True):
++        import test_medley as TM
++        from test_moments import pm
++        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
++        lost = {"adds": "yes", "no_restate": "no", "why": "it restates the clips"} if measured else {"measured": False}
++        r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE), (True, [], None, TM.Rig.LINE)], [None],
++                   visuals={"x": {"burned_in": [dict(self.TICKER)]}}, values=[dict(lost) for _ in range(6)],
++                   follow_up={"angles": [TM.angle(["h", "x", "y"], "h")]})
++        r.build_kw = {"never_empty": True}
++        with mock.patch.object(PK, "VALUE_SOFT_LINE", line):
++            return r.run()["package"]
++
++    def test_the_named_line_seals_flagged(self):
++        import test_medley as TM
++        pk = self.run_rig(TM.Rig.LINE)
++        self.assertIsNotNone(pk)
++        row = pk["gates"]["takeaway_value"]
++        self.assertEqual((row["status"], row["flags"], row["text"]), (
++            "FLAGGED", [f'The closing line may mostly restate the clips: "{TM.Rig.LINE}"'], TM.Rig.LINE))
++        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])
++
++    def test_the_clean_pass_never_takes_it(self):
++        import test_medley as TM
++        from test_moments import pm
++        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]           # nothing soft: the clean pass
++        r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE), (True, [], None, TM.Rig.LINE)], [None],
++                   values=[{"adds": "yes", "no_restate": "no", "why": "it restates the clips"} for _ in range(6)])
++        with mock.patch.object(PK, "VALUE_SOFT_LINE", TM.Rig.LINE):
++            self.assertIsNone(r.run()["package"])                                   # reaches the value gate: HARD
++
++    def test_any_other_line_or_no_verdict_stays_hard(self):
++        import test_medley as TM
++        self.assertIsNone(self.run_rig("A different closing line."))
++        self.assertIsNone(self.run_rig(None))
++        self.assertIsNone(self.run_rig(TM.Rig.LINE, measured=False))
++
++
+ class TestRuling148RuntimeFloor(unittest.TestCase):
+     """RULINGS 148 (1) / 149 (orchestrator 09:56 ET Nov 18; standing from the 12:00 build): in the never-empty pass a
+     medley's clips may total LY_FLOOR_S (30 s) or more; under medley_content_range()'s lo (36.7 s) the package seals with

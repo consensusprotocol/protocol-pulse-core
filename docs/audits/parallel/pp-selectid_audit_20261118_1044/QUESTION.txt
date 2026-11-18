@@ -1,0 +1,22 @@
+pp-selectid: RULING 150 (1) (orchestrator 10:40 ET Nov 18), APPLIED BY HAND to the one exception pin ("as a manual
+application of this ruling logged in the build record if the code is not yet built; build the code audit-first right
+after"). The ruling: the takeaway's value verdict (ruling 91) is SOFT, flagged 'The closing line may mostly restate the
+clips: "<the line>"'; fidelity (COMMENTARY, NEEDS_SOURCE), length and the banned words stay HARD. For THIS pin: seal
+build 150's line-up with write 1 as the takeaway if it passes fidelity (its only refusal was VALUE).
+THE CHANGE (narrow; the general rule follows in its own audited change):
+- package.VALUE_SOFT_LINE (None by default) = the exact closing line the driver names (--value-soft-line LINE, which
+  requires --pbx-exception and a non-empty line). In _build's write loop, ONLY in the never-empty pass (soft), ONLY
+  for a MEASURED value verdict that is not ok, ONLY when the line written is exactly VALUE_SOFT_LINE: val becomes
+  dict(val, soft=True), the line-up's record gets value_by_hand {ruling, line, answers}, a log line; the loop then goes
+  on to the paid gates (fidelity + context, HARD as before) instead of the rewrite. Every other case: unchanged.
+- inventory: the takeaway_value row (its text is the judged line, as the pin and the render compare) gets status
+  FLAGGED and flags [VALUE_FLAG with the line verbatim] when value.soft and value.ok is not True.
+- package_pin.SOFT_GATES += "takeaway_value" (the integrator's check_pin_only reads it live; its render reads the
+  sealed row: FLAGGED with plain flags, replayed false, text equal to the shipped line).
+Files: pipeline/package.py, pipeline/package_pin.py, tests/package/proof_ledger.py, tests/package/test_ruling_137.py.
+TESTS (TestRuling150ValueByHand, the real build() on the stubbed rig): the named line seals with the FLAGGED row, the
+exact sentence and text, gate_problems none; another line, no line, an unmeasured verdict: no package; the clean pass
+reaching the value gate with the line named: no package. Mutations 6 of 6 killed (never by hand; any line; unmeasured
+too; the row never flagged; not a soft gate; the clean pass too); control passes.
+PLEASE CHECK: (1) can any line other than the named one, or the clean pass, or an unmeasured verdict, get through?
+(2) does fidelity / context / length / banned words stay HARD for the named line? (3) the row the render reads.
