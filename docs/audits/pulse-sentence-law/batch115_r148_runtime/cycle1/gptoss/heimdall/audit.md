@@ -1,0 +1,64 @@
+# Heimdall audit
+
+**Question:** TASK: audit batch 115 of the Protocol Pulse video pipeline (Python). You are reviewing a diff. Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.
+
+THE RULING (orchestrator 2026-11-18 09:38, ruling 148 (1)), verbatim: "THE RUNTIME FLOOR: 36.7 s is a calibration, not a law of PBX's. For this exception pin a line-up of 30.0 s or more may seal; between 30.0 and 36.7 s it carries the flag 'This video runs NN seconds, shorter than usual.' (it counts toward the 5). Under 30 s still refused." Its last part makes this standing for later builds too: "the 30 s floor with its flag".
+
+The builder seals such a line-up with a gate row moments_package.gates.runtime = {"status": "FLAGGED", "flags": ["This video runs NN seconds, shorter than usual."], "replayed": false, ...}. The render must then deliver it. Before this diff it could not:
+- G5_tech is a REQUIRED release row (pipeline/release_auth.py:36). It accepted a final of 58-72 s only (segment_v1/qa_gates.py gate_g5 :707, window from g5_window :50).
+- edl_rules R4 is SOFT (pipeline/run_fresh.py:180, in EDL_SOFT), but it flagged a short runtime as "The voiceover runs over its length limit.", the wrong sentence.
+
+WHAT THE DIFF DOES:
+1. edl_rules.flagged_runtime_row(run_dir) (pipeline/edl_rules.py:103) reads run_dir/PINNED_DECISION.json (pin -> moments_package -> gates -> runtime). It returns the row only when sealed_ok (:85, unchanged: PASS, or FLAGGED with non-empty string flags; replayed must be False) says so AND the status is FLAGGED. Otherwise it returns None.
+2. qa_gates.g5_window: for a moments EDL whose run has that row, G5 accepts 44.3-72 s. 44.3 = RUNTIME_FLAG_FLOOR_S 30.0 + FINAL_TAIL_S 14.30 (edl_rules :229, the format's credits/outro/pads). The target stays 60-70, and the spotlight branch comes first, unchanged. gates.run_gates passes edl_path = <run dir>/edl.json (pipeline/gates.py:599), so dirname is the run dir.
+3. run_fresh.r4_sentences (:196) splits R4's reason. Any non-runtime finding gets the old voiceover sentence. A runtime finding gets none when the row is flagged, else "The video's estimated length is outside the usual 60 to 70 seconds."
+4. run_fresh.flag_soft_rules (:211) is the old inline loop of stage_validate (:593) with R4 routed through r4_sentences.
+
+CHECK, each with file:line and a concrete failure scenario:
+(a) Can the G5 relaxation apply to a run whose sealed row is NOT FLAGGED, is replayed or malformed, or to a non-moments or spotlight EDL?
+(b) Can a final under 44.3 s, or over 72 s, pass G5 now? Is anything else in G5 (loudness, dims, fps) changed?
+(c) r4_sentences: can a real voiceover finding lose its sentence, or a runtime finding be missed? The regex is r"estimated runtime [\d.]+ s outside [^;]*", and _r4_moments joins findings with "; " under the prefix "R4 FAIL (moments): ". Check against the failure strings in pipeline/edl_rules.py _r4_moments.
+(d) Is anything else in stage_validate changed by moving the loop into flag_soft_rules (hard rules still HOLD first)?
+(e) Any crash: an unreadable PINNED_DECISION.json, gates not a dict, reason not a string, edl_path None?
+
+OUTPUT: findings, each <severity: critical|high|medium|low> <file:line> <what fails, with inputs>; "(x): no finding" with what you traced otherwise.
+
+**Panel:** gptoss  |  **Cost:** $0.0015
+## Consensus findings (majority of panel agrees)
+- **[high] pipeline/run_fresh.py:189** `r4_sentences` incorrectly handles voiceover-only failures: it returns the runtime sentence (`EDL_SOFT["rule_r4"]`) when the body contains only a voiceover reason and no runtime part, instead of returning the voiceover sentence. This causes tests that expect a voiceover sentence to fail.
+  - evidence: `def r4_sentences(run_dir, reason):
+    ...
+    runtime = bool(_R4_RUNTIME.search(body))
+    rest = _R4_RUNTIME.sub("", body).replace(";", "").strip()
+    out = [EDL_SOFT["rule_r4"]] if rest or not run`
+  - fix: Change the logic to return the appropriate sentence based on the type of failure. For example:
+
+    if runtime:
+        if edl_rules.flagged_runtime_row(run_dir) is None:
+            out.append(R4_RUNTIME)
+    else:
+        # voiceover or other non-runtime failures
+        out.append(EDL_SOFT["rule_r1"] if "VO" in body else EDL_SOFT["rule_r4"])
+
+This ensures that a voiceover-only failure returns the voiceover sentence instead of the runtime sentence.
+  - raised by gptoss:F1; agree: gptoss
+- **[medium] pipeline/edl_rules.py:103** `flagged_runtime_row` calls `sealed_ok(row)` without checking if `row` is `None`. If the PINNED_DECISION.json is missing or malformed, `row` will be `None` and `sealed_ok(None)` may raise a `TypeError`, causing the function to crash instead of returning `None` as intended.
+  - evidence: `def flagged_runtime_row(run_dir):
+    ...
+    try:
+        with open(os.path.join(run_dir, "PINNED_DECISION.json")) as f:
+            row = ((json.load(f).get("pin") or {}).get("moments_package") or {`
+  - fix: Add a guard before calling `sealed_ok`:
+
+    if row is None:
+        return None
+    if not sealed_ok(row):
+        return None
+    return row if row.get("status") == "FLAGGED" else None
+  - raised by gptoss:F2; agree: gptoss
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none

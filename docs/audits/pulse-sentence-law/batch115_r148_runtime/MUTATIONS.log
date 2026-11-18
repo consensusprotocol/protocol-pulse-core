@@ -1,0 +1,11 @@
+CONTROL (unmutated): exit 0 | 35 passed, 85 subtests passed in 5.03s
+M1 a PASS runtime row relaxes G5: KILLED | 1 failed, 2 passed, 8 subtests passed in 2.23s
+M2 a replayed row counts: KILLED | 3 failed, 2 passed, 6 subtests passed in 2.38s
+M3 the floor forgets the format's tail: KILLED | 1 failed, 2 passed, 9 subtests passed in 2.45s
+M4 any EDL takes the exception: KILLED | 1 failed, 5 passed, 12 subtests passed in 2.23s
+M5 the ceiling drops to 70 s: KILLED | 1 failed, 2 passed, 9 subtests passed in 2.19s
+M6 R4 always says the voiceover: KILLED | 1 failed, 5 passed, 13 subtests passed in 2.24s
+M7 R4 ignores the sealed row: KILLED | 1 failed, 5 passed, 13 subtests passed in 2.51s
+M8 validate does not route R4: KILLED | 1 failed, 8 passed, 18 subtests passed in 2.33s
+M9 validate flags no soft rule: KILLED | 1 failed, 23 passed, 74 subtests passed in 4.80s
+9 of 9 killed
