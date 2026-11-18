@@ -1,0 +1,33 @@
+# Heimdall audit
+
+**Question:** TASK: second audit cycle of batch 114 of the Protocol Pulse video pipeline (Python), same diff. Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.
+
+THE RULING (orchestrator 2026-11-18 07:55, ruling 146 (2)), verbatim: "G17a, quiet before the hook's first word: SOFT, flag 'The opening clip may start abruptly.' A cut mid-word stays HARD."
+
+Cycle 1 traced the changed functions themselves. This cycle checks what happens DOWNSTREAM of them. The facts:
+- A soft hook's cut-table entry has verified True, the planned cut_in and lead_in_pad_s, and a hook_lead record with "short" (no "refused").
+- run_fresh.stage_cut (pipeline/run_fresh.py:680) calls flag_short_hook_cut, then runs the acceptance check on every cut (unchanged).
+- run_fresh.stage_prepare (:956) calls snap_verdict(run, clip_id, snap) where it used to raise Hold inline. This runs only when the clip contract (ok1) and the edge words (ok2) passed (unchanged).
+- run_fresh.flag (:227) appends the text to run.status["review_flags"] once (de-duplicated) and the detail to run.prov["review_flags"]. run.status["review_flags"] goes to release_auth.attest at :1713.
+
+CHECK, each with file:line and a concrete failure scenario:
+(a) snap_verdict is called where the old code raised Hold inline. Is the Hold still raised in exactly the old cases (any refused snap, hook or not)? Is anything else in that block skipped or reordered?
+(b) shot_snap.apply: is "on" (speech onset) ever None where the new hook_lead_short line computes on - head / fps? Compare with the unchanged refusal line above it.
+(c) After the soft path, can a later stage (the D1 pad apply, G16 at sentence_law.gate_g16, the transitions' lead/tail) treat the hook differently because hook_lead has no "refused" but has "short"?
+(d) Is the flag's text exactly 'The opening clip may start abruptly.' wherever it is added, so the de-duplication makes ONE line in the note?
+(e) lock_precheck: RULES now ends " + ruling 146". The entry's "cut" dict gains "hook_lead_short" (None for a clip). Can a reader of older entries (no "hook_lead_short" key) crash, or any reader of entry["cut"]?
+
+OUTPUT: findings, each <severity> <file:line> <what fails, with inputs>; "(x): no finding" with what you traced otherwise.
+
+**Panel:** qwen27b  |  **Cost:** $0.0087
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none
+
+
+saved: /home/ultron/worktrees/r146-g17a/docs/audits/pulse-sentence-law/batch114_r146_g17a/cycle2/qwen27b/heimdall

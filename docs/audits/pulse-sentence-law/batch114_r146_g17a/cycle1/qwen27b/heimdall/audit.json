@@ -1,0 +1,26 @@
+{
+ "question": "TASK: audit batch 114 of the Protocol Pulse video pipeline (Python). You are reviewing a diff. Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.\n\nTHE RULING being implemented (orchestrator 2026-11-18 07:55, ruling 146 (2)), verbatim: \"G17a, quiet before the hook's first word: SOFT, flag 'The opening clip may start abruptly.' A cut mid-word stays HARD.\" (SOFT = the check scores and flags; it never refuses. The hook is the opening clip; it needed >= 80 ms of genuine quiet before its first word, HEAD_LEAD_MIN_S = 0.080.)\n\nWHAT THE DIFF DOES:\n1. sentence_law.lock_cut (pipeline/sentence_law.py:881): when hook_lead (unchanged, :802) returns \"refused\", the hook now keeps the planned cut from accepted_cut (:896, unchanged: it returns None, an error, when no cut inside the locked pauses keeps the neighbour words inaudible) instead of returning an error. The record is marked \"short\", and the \"refused\" key is dropped.\n2. shot_snap.apply: the hook's snap needs only LEAD_MIN_S (0.000) like any clip. When the hook's own shot starts under 0.080 s before its first word, the snap is applied and marked \"hook_lead_short\".\n3. run_fresh: three helpers flag the same sentence via flag() (:227, which de-duplicates by text):\n   - flag_short_hook_cut, called at :680 after the cut table;\n   - snap_verdict, called at :956 in prepare;\n   - g17a_hook_lead_soft, called at :1353: the G17a table (sentence_law.gate_g17_prepared :1166, unchanged) with the hook row's lead alone soft.\n   The G17 row at :1360 still needs G17b (gate_g17_output :1184: first and last word keep >= 85 %) and G17c (gate_g17_edges :1087: edge words at full level), both unchanged and HARD. The row is in release_auth._REQUIRED (pipeline/release_auth.py:37). run.status[\"review_flags\"] reaches release_auth.attest at run_fresh.py:1713.\n4. lock_precheck: records cut[\"hook_lead_short\"], and RULES gains \" + ruling 146\".\n\nCHECK, each with file:line and a concrete failure scenario:\n(a) Can any changed path still HOLD a hook ONLY for having under 80 ms of quiet before its first word?\n(b) Can the change let a cut THROUGH a word pass (a mid-word cut), or relax anything other than the hook's lead (other clips' leads, any tail, neighbour words)?\n(c) In lock_cut's soft path, are cut_in, fade_in_ms, lead_in_pad_s and valley_in consistent with accepted_cut's pick, as a non-hook clip gets them?\n(d) Can g17a_hook_lead_soft return True while a row other than the hook's lead fails? Is a KeyError possible on the rows gate_g17_prepared builds?\n(e) Does any code read hook_lead[\"refused\"], or expect a hook record to carry it?\n(f) Any crash: a non-dict hook_lead, on None in shot_snap, a missing key?\n\nOUTPUT: a list of findings, each <severity: critical|high|medium|low> <file:line> <what fails, with inputs>. If you find nothing for a check, say \"(x): no finding\" and say what you traced. Remember: only what the diff and the cited lines show; if unsure, say so.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 325.8,
+   "cost": 0.0109029325,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0109029325,
+ "out_dir": "/home/ultron/worktrees/r146-g17a/docs/audits/pulse-sentence-law/batch114_r146_g17a/cycle1/qwen27b/heimdall"
+}

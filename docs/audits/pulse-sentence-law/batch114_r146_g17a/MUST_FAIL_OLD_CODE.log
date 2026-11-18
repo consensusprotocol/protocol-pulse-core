@@ -1,0 +1,155 @@
+..F.FFF.FFFs......ss..Fs....................................... [ 67%]
+............................FF                                    [100%]
+=================================== FAILURES ===================================
+__ TestLockCut.test_a_hook_short_of_80_ms_keeps_the_planned_cut_marked_short ___
+
+self = <pipeline.test_ruling146_g17a.TestLockCut testMethod=test_a_hook_short_of_80_ms_keeps_the_planned_cut_marked_short>
+
+    def test_a_hook_short_of_80_ms_keeps_the_planned_cut_marked_short(self):
+        r, calls = self.cut({"need_ms": 80, "planned_cut_in": 1.02, "planned_lead_ms": 30, "refused": SHORT,
+                             "tried": [{"cut_in": 1.05, "lead_ms": 30}]})
+        self.assertEqual(calls, [1.02])
+>       self.assertTrue(r["verified"], r)
+E       AssertionError: False is not true : {'pause_in': [1.0, 1.3], 'pause_out': [9.0, 9.4], 'verified': False, 'error': "hook lead (ruling 28): no legal cut in the pause keeps 80 ms of genuine quiet before the hook's first word (best 30 ms), and no legal cut has genuine quiet from the cut to the word for a D1 pad to join (digital zeros lie between)", 'hook_lead': {'need_ms': 80, 'planned_cut_in': 1.02, 'planned_lead_ms': 30, 'refused': "no legal cut in the pause keeps 80 ms of genuine quiet before the hook's first word (best 30 ms), and no legal cut has genuine quiet from the cut to the word for a D1 pad to join (digital zeros lie between)", 'tried': [{'cut_in': 1.05, 'lead_ms': 30}]}}
+
+pipeline/test_ruling146_g17a.py:46: AssertionError
+_ TestRenderFlags.test_a_snap_short_of_the_hooks_80_ms_is_flagged_a_refused_snap_holds _
+
+self = <pipeline.test_ruling146_g17a.TestRenderFlags testMethod=test_a_snap_short_of_the_hooks_80_ms_is_flagged_a_refused_snap_holds>
+
+    def test_a_snap_short_of_the_hooks_80_ms_is_flagged_a_refused_snap_holds(self):
+        r = run()
+>       RF.snap_verdict(r, "hook", {"snapped": True, "hook_lead_short": "the speaker's own shot starts 0.050 s"})
+E       AttributeError: module 'run_fresh' has no attribute 'snap_verdict'
+
+pipeline/test_ruling146_g17a.py:107: AttributeError
+_ TestRenderFlags.test_g17a_a_hook_short_of_80_ms_passes_the_row_and_is_flagged _
+
+self = <pipeline.test_ruling146_g17a.TestRenderFlags testMethod=test_g17a_a_hook_short_of_80_ms_passes_the_row_and_is_flagged>
+
+    def test_g17a_a_hook_short_of_80_ms_passes_the_row_and_is_flagged(self):
+        r, t = run(), self.table()
+>       self.assertTrue(RF.g17a_hook_lead_soft(r, False, t))
+E       AttributeError: module 'run_fresh' has no attribute 'g17a_hook_lead_soft'
+
+pipeline/test_ruling146_g17a.py:82: AttributeError
+____________ TestRenderFlags.test_g17a_a_passing_table_is_untouched ____________
+
+self = <pipeline.test_ruling146_g17a.TestRenderFlags testMethod=test_g17a_a_passing_table_is_untouched>
+
+    def test_g17a_a_passing_table_is_untouched(self):
+        r = run()
+>       self.assertTrue(RF.g17a_hook_lead_soft(r, True, self.table(hook_lead_ok=True)))
+E       AttributeError: module 'run_fresh' has no attribute 'g17a_hook_lead_soft'
+
+pipeline/test_ruling146_g17a.py:95: AttributeError
+_ TestRenderFlags.test_g17a_every_other_failure_still_fails_the_row [the hook's tail] _
+
+self = <pipeline.test_ruling146_g17a.TestRenderFlags testMethod=test_g17a_every_other_failure_still_fails_the_row>
+
+    def test_g17a_every_other_failure_still_fails_the_row(self):
+        for label, t in (("the hook's tail", self.table(hook_tail_ok=False)),
+                         ("another clip", self.table(clip_ok=False))):
+            with self.subTest(label):
+>               self.assertFalse(RF.g17a_hook_lead_soft(run(), False, t))
+E               AttributeError: module 'run_fresh' has no attribute 'g17a_hook_lead_soft'
+
+pipeline/test_ruling146_g17a.py:91: AttributeError
+_ TestRenderFlags.test_g17a_every_other_failure_still_fails_the_row [another clip] _
+
+self = <pipeline.test_ruling146_g17a.TestRenderFlags testMethod=test_g17a_every_other_failure_still_fails_the_row>
+
+    def test_g17a_every_other_failure_still_fails_the_row(self):
+        for label, t in (("the hook's tail", self.table(hook_tail_ok=False)),
+                         ("another clip", self.table(clip_ok=False))):
+            with self.subTest(label):
+>               self.assertFalse(RF.g17a_hook_lead_soft(run(), False, t))
+E               AttributeError: module 'run_fresh' has no attribute 'g17a_hook_lead_soft'
+
+pipeline/test_ruling146_g17a.py:91: AttributeError
+__________ TestRenderFlags.test_the_cut_tables_short_hook_is_flagged ___________
+
+self = <pipeline.test_ruling146_g17a.TestRenderFlags testMethod=test_the_cut_tables_short_hook_is_flagged>
+
+    def test_the_cut_tables_short_hook_is_flagged(self):
+        r = run()
+>       RF.flag_short_hook_cut(r, [{"clip_id": "hook", "hook_lead": {"short": SHORT}}, {"clip_id": "clip_01"},
+                                   {"clip_id": "clip_02", "hook_lead": {"lead_ms": 120}}])
+E       AttributeError: module 'run_fresh' has no attribute 'flag_short_hook_cut'
+
+pipeline/test_ruling146_g17a.py:100: AttributeError
+______________ TestRenderFlags.test_three_findings_make_one_flag _______________
+
+self = <pipeline.test_ruling146_g17a.TestRenderFlags testMethod=test_three_findings_make_one_flag>
+
+    def test_three_findings_make_one_flag(self):
+        r = run()
+>       RF.flag_short_hook_cut(r, [{"clip_id": "hook", "hook_lead": {"short": SHORT}}])
+E       AttributeError: module 'run_fresh' has no attribute 'flag_short_hook_cut'
+
+pipeline/test_ruling146_g17a.py:117: AttributeError
+_ TestHookLeadReal.test_pin1s_hook_keeps_its_planned_cut_marked_short_and_its_clips_keep_their_cuts _
+
+self = <pipeline.test_hook_lead.TestHookLeadReal testMethod=test_pin1s_hook_keeps_its_planned_cut_marked_short_and_its_clips_keep_their_cuts>
+
+    @unittest.skipUnless(os.path.isdir(os.path.join(PIN1, "sources")), "pin #1's run is not on this machine")
+    def test_pin1s_hook_keeps_its_planned_cut_marked_short_and_its_clips_keep_their_cuts(self):   # ruling 146 (2)
+        d = scratch(PIN1)
+        self.addCleanup(shutil.rmtree, d)
+        old = {c["clip_id"]: c for c in json.load(open(os.path.join(PIN1, "cuts_final.json")))}
+        new = {c["clip_id"]: c for c in L.write_lock_cut_table(d)}
+        h = new["hook"]
+>       self.assertTrue(h["verified"], h.get("error"))
+E       AssertionError: False is not true : hook lead (ruling 28): no legal cut in the pause keeps 80 ms of genuine quiet before the hook's first word (best 60 ms), and the D1 room-tone pad does not give it either: G17a measures 20 ms at 14.810, 20 ms at 14.820 (the source's own room tone is not genuine quiet: it dips to digital silence)
+
+pipeline/test_hook_lead.py:42: AssertionError
+_ TestRuling71Parity.test_ruling_146_a_snap_short_of_the_hooks_80_ms_is_applied_and_marked _
+
+self = <pipeline.test_shot_snap.TestRuling71Parity testMethod=test_ruling_146_a_snap_short_of_the_hooks_80_ms_is_applied_and_marked>
+
+    def test_ruling_146_a_snap_short_of_the_hooks_80_ms_is_applied_and_marked(self):   # ruling 71 refused it
+        self.hook["pause_in"] = {"end": 14.6 + 2 / 24 + 0.05}    # the first word 50 ms after a change at frame 2
+        rec = self._apply([], [(2, 0.5)])
+>       self.assertTrue(rec["snapped"], rec)
+E       AssertionError: False is not true : {'speech_on_s': 0.133, 'speech_off_s': 16.86, 'hard_cuts': [], 'hard_cuts_9x16': [(2, 0.5)], 'frames': 407, 'snapped': False, 'refused': "the speaker's own shot starts 0.050 s before the first word (< 0.080 s)"}
+
+pipeline/test_shot_snap.py:133: AssertionError
+_______________ TestRuling146.test_a_clip_records_no_short_lead ________________
+
+self = <pipeline.test_lock_precheck.TestRuling146 testMethod=test_a_clip_records_no_short_lead>
+
+    def test_a_clip_records_no_short_lead(self):
+        self.request(approved_text=ATTESTED)
+        LP.serve_once(log=self.log)
+>       self.assertIsNone(self.entry(ATTESTED)["cut"]["hook_lead_short"])
+E       KeyError: 'hook_lead_short'
+
+pipeline/test_lock_precheck.py:1002: KeyError
+_____ TestRuling146.test_a_hook_cut_short_of_80_ms_passes_and_is_recorded ______
+
+self = <pipeline.test_lock_precheck.TestRuling146 testMethod=test_a_hook_cut_short_of_80_ms_passes_and_is_recorded>
+
+    def test_a_hook_cut_short_of_80_ms_passes_and_is_recorded(self):
+        self.cut = {**self.cut, "hook_lead": {"short": self.SHORT, "lead_ms": 30, "rule": "ruling 146 (2)"}}
+        self.request(approved_text=ATTESTED, role="hook")
+        LP.serve_once(log=self.log)
+        e = self.entry(ATTESTED)
+        self.assertEqual(e["outcome"], "no_difference", e)
+>       self.assertEqual((e["cut"]["cut_in"], e["cut"]["hook_lead_short"]), (15.2, self.SHORT))
+E       KeyError: 'hook_lead_short'
+
+pipeline/test_lock_precheck.py:997: KeyError
+=========================== short test summary info ============================
+FAILED pipeline/test_ruling146_g17a.py::TestLockCut::test_a_hook_short_of_80_ms_keeps_the_planned_cut_marked_short
+FAILED pipeline/test_ruling146_g17a.py::TestRenderFlags::test_a_snap_short_of_the_hooks_80_ms_is_flagged_a_refused_snap_holds
+FAILED pipeline/test_ruling146_g17a.py::TestRenderFlags::test_g17a_a_hook_short_of_80_ms_passes_the_row_and_is_flagged
+FAILED pipeline/test_ruling146_g17a.py::TestRenderFlags::test_g17a_a_passing_table_is_untouched
+SUBFAILED[the hook's tail] pipeline/test_ruling146_g17a.py::TestRenderFlags::test_g17a_every_other_failure_still_fails_the_row
+SUBFAILED[another clip] pipeline/test_ruling146_g17a.py::TestRenderFlags::test_g17a_every_other_failure_still_fails_the_row
+FAILED pipeline/test_ruling146_g17a.py::TestRenderFlags::test_the_cut_tables_short_hook_is_flagged
+FAILED pipeline/test_ruling146_g17a.py::TestRenderFlags::test_three_findings_make_one_flag
+FAILED pipeline/test_hook_lead.py::TestHookLeadReal::test_pin1s_hook_keeps_its_planned_cut_marked_short_and_its_clips_keep_their_cuts
+FAILED pipeline/test_shot_snap.py::TestRuling71Parity::test_ruling_146_a_snap_short_of_the_hooks_80_ms_is_applied_and_marked
+FAILED pipeline/test_lock_precheck.py::TestRuling146::test_a_clip_records_no_short_lead
+FAILED pipeline/test_lock_precheck.py::TestRuling146::test_a_hook_cut_short_of_80_ms_passes_and_is_recorded
+12 failed, 79 passed, 4 skipped, 14 subtests passed in 47.67s
