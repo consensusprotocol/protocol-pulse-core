@@ -59,7 +59,9 @@ class TestTheSealedRow(Base):
                           ("no pinned decision", {}),
                           ("unreadable", {"raw": "{not json"}),
                           ("gates not an object", {"raw": json.dumps({"pin": {"moments_package": {"gates": ["x"]}}})}),
-                          ("no pin", {"raw": json.dumps({"mode": "pinned"})})):
+                          ("no pin", {"raw": json.dumps({"mode": "pinned"})}),
+                          ("a row that is a string", {"row": "FLAGGED"}),          # audit 115 c1 (qwen F1)
+                          ("a row that is None", {"raw": json.dumps({"pin": {"moments_package": {"gates": {"runtime": None}}}})})):
             with self.subTest(label):
                 self.assertIsNone(edl_rules.flagged_runtime_row(self.run_dir(**kw)))
 
