@@ -1296,6 +1296,21 @@ def ad_read_out(ms, sources):
     return out
 
 
+def ad_before_soft(ms, ad_read, soft):
+    """RULING 146 (3) (orchestrator 07:55 ET Nov 18): in the never-empty pass, a moment the deterministic ad-read screen
+    refuses ONLY for a marker in the sentence before it stays in the pool, marked ad_before (this pass's own mark on
+    its own copies: popped first, never carried in). exclusion_for() then asks the model with the context; its ad_read
+    risk (the moment's own words in the ad) still excludes. A marker in the moment's own words stays HARD; the clean
+    pass marks nothing. -> {moment id: the screen's reason}."""
+    for m in ms:
+        m.pop("ad_before", None)
+    out = {k: v for k, v in ad_read.items() if soft and v.endswith("in the sentence before it")}
+    for m in ms:
+        if m["moment_id"] in out:
+            m["ad_before"] = out[m["moment_id"]]
+    return out
+
+
 def trim_variant(m, sources):
     """RULING 33 PART 2 (the render merged it at 11e361cc; the orchestrator's 04:58 item 42, "use it now"). A moment
     whose first word is ONE of TRIM_WORDS, left out by the render's STAND_ALONE opener rule, may be cut one word in.
@@ -3133,7 +3148,8 @@ def paid_gates(router, pk, sources, a_by, levels, now, writers_v, writers_f, poo
 
 
 def exclusion_for(router, m, sources, cache, seed=7):
-    key = m["moment_id"] if seed == 7 else (m["moment_id"], seed)
+    soft = bool(m.get("ad_before"))                   # RULING 146 (3): the never-empty pass's sponsor-before mark, and
+    key = (m["moment_id"] if seed == 7 else (m["moment_id"], seed)) if not soft else (m["moment_id"], seed, "ad_before")
     if key not in cache:
         import moments as M
         src = src_of(m, sources)
@@ -3142,8 +3158,8 @@ def exclusion_for(router, m, sources, cache, seed=7):
             cache[key] = {"verdict": "exclude", "why": "no context: the moment's context is unavailable",   # caption
                           "risks": [], "backend": None, "measured": False, "replayed": False}            # record)
         else:
-            cache[key] = M.exclusion_verdict(router, m["text"], before, after, seed=seed,
-                                             avoid_model=(m.get("mined") or {}).get("by"))
+            cache[key] = M.exclusion_verdict(router, m["text"], before, after, seed=seed,   # its own cache key
+                                             avoid_model=(m.get("mined") or {}).get("by"), before_marker_soft=soft)
     return cache[key]
 
 
@@ -3433,7 +3449,12 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
     #   a variant of a moment that keeps its own place (ruling 94 a) sits beside it: one line-up never takes both (one
     #   video at most once, L-y 4)
     ad_read = ad_read_out(ms, sources)                # the exclusion screen's free part, BEFORE the angle is built
-    ms = [m for m in ms if m["moment_id"] not in ad_read]     # around a moment it refuses (the 03:39 build's hook)
+    ad_soft = ad_before_soft(ms, ad_read, soft)       # RULING 146 (3): the never-empty pass's sponsor-before moments
+    if ad_soft:
+        log(f"  RULING 146 (3) NEVER EMPTY: {len(ad_soft)} moment(s) with a sponsor marker only in the sentence before "
+            f"them go to the exclusion model (its ad_read risk stays HARD), flagged if kept: "
+            f"{', '.join(k[:8] for k in sorted(ad_soft))}")
+    ms = [m for m in ms if m["moment_id"] not in ad_read or m["moment_id"] in ad_soft]   # around a moment it refuses
     n_ch = len({m["channel_id"] for m in ms})
     if candidate is None and n_ch < 3:
         # RULING 109 (free gates first) on the medley's 3-channel rule (orchestrator 08:56 ET Nov 15: "one channel
@@ -3954,7 +3975,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                                 stand=stand_with_soft([cleared[sg["moment_id"]] for sg in pk["segments"]]),
                                 visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
                                 last_resort=pin_last_resort(pk), soft=soft,   # RULING 102; RULING 137 stage 1
-                                who={sg["label"]: sg.get("channel") for sg in pk["segments"]},   # RULING 138 (3)
+                                who={sg["label"]: sg.get("channel") for sg in pk["segments"]},
+                                chan_of={sg["moment_id"]: sg.get("channel") for sg in pk["segments"]},   # 146 (3)   # RULING 138 (3)
                                 seg_flags={sg["label"]: (cleared.get(sg["moment_id"]) or {}).get("step_a_flags")
                                            for sg in pk["segments"]},                          # RULING 137 stage 2a
                                 mids={sg["moment_id"]: sg["label"] for sg in pk["segments"]})
@@ -4477,7 +4499,9 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                                             visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
                                             value=val,                       # ruling 91: the takeaway earned its place
                                             last_resort=pin_last_resort(pk),      # RULING 102: on the pin
-                                            soft=soft, who={sg["label"]: sg.get("channel")   # RULING 137 / 138 (3)
+                                            soft=soft,
+                                            chan_of={sg["moment_id"]: sg.get("channel") for sg in pk["segments"]},
+                                            who={sg["label"]: sg.get("channel")   # RULING 137 / 138 (3)
                                                             for sg in pk["segments"]},
                                             seg_flags={sg["label"]: (cleared.get(sg["moment_id"]) or {}).get(
                                                 "step_a_flags") for sg in pk["segments"]},    # RULING 137 stage 2a
@@ -4613,6 +4637,7 @@ def _spent(spend):
 
 
 def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None, short=None,
+              chan_of=None,
               hook=None, stand=None, visual=None, value=None, last_resort=None, soft=False, who=None,
               seg_flags=None, mids=None):
     """The sealed GATE INVENTORY (audit p2 C1; package_pin.required_gates): one row per hard gate, each
@@ -4712,6 +4737,12 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
                                **({"status": "FLAGGED", "flags": ["The opening clip may start abruptly."]}   # RULING
                                   if soft and hook.get("soft") is True and hook.get("pass") is not True else {}))}   # 146
            if hook is not None else {}),                                                                      # (2)
+        **({"sponsor": {"status": "FLAGGED", "by": "moments.exclusion_verdict (ruling 146 (3)): a sponsor mention in "
+                                                   "the sentence before the clip only; its own words judged by the "
+                                                   "exclusion model", "replayed": False, "n": len(exc), "flags": [
+                            f"The clip ({(chan_of or {}).get(mid) or 'its channel'}) comes right after a sponsor "
+                            f"mention." for mid, e in exc.items() if e.get("ad_before") and e.get("verdict") == "keep"]}}
+           if any(e.get("ad_before") and e.get("verdict") == "keep" for e in exc.values()) else {}),
         **({"graphics": {"status": "FLAGGED", "by": "visual_pin.graphics_only (ruling 146 (1)): the show's own "
                                                     "on-screen graphics, whole in a package sealed 16:9 only",
                          "replayed": False, "n": len(visual), "flags": [

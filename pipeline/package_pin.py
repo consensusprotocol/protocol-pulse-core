@@ -49,6 +49,8 @@ SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's sof
                         "graphics",                        # RULING 146 (1): the show's own graphics, 16:9 only
                         "takeaway_value",                  # RULING 150: the closing line's value verdict (ruling
                         #   91), a measured one; fidelity, length and the banned words stay HARD
+                        "sponsor",                         # RULING 146 (3): a sponsor mention in the sentence before
+                        #   a clip only, the clip kept by the exclusion model (its ad_read risk stays HARD)
                         "runtime"})                        # RULINGS 148 (1) / 149: a medley under 60 s, its clips at
 #   package.LY_FLOOR_S (30 s) or more, never-empty pass only (the render's G5 follows this sealed row)
 #   rule, ruling 34, and the medley naming Bitcoin stay HARD)
@@ -454,6 +456,10 @@ def gate_problems(gates, required=REQUIRED_GATES):
             out.append(f"{g}: {(row or {}).get('status') if isinstance(row, dict) else 'missing'}")
         elif row.get("replayed") is not False:
             out.append(f"{g}: replayed or not stated (never deliverable, law L-j)")
+    for g, row in gates.items():                     # RULING 146 (3) (its audit's S8): a FLAGGED row outside the
+        if g not in required and isinstance(row, dict) and row.get("status") == "FLAGGED" and \
+                not flagged_ok(g, row):              # required set stands, as any other, only on a SOFT gate with flags
+            out.append(f"{g}: FLAGGED without a soft gate and its plain flags (ruling 137)")
     return out
 
 

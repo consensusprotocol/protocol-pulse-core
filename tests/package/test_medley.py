@@ -834,7 +834,8 @@ class Rig:
             "paid_gates": lambda *a, **k: (self.fids.pop(0) if self.fids else fid, cx),
             "exclusion_for": lambda router, m, *a, **k: {"verdict": "drop" if m["moment_id"] in self.excluded else
                                                          "keep", "measured": True, "replayed": False,
-                                                         "backend": "xai:grok"},
+                                                         "backend": "xai:grok",     # RULING 146 (3): as the real one
+                                                         **({"ad_before": m["ad_before"]} if m.get("ad_before") else {})},
             "truth_for": lambda router, m, *a, **k: {"ok": True, "replayed": False, "model": "scribe_v1",
                                                      "edges": {"cuttable": m["moment_id"] not in self.uncuttable}},
             "hook_onset_for": self.onset,

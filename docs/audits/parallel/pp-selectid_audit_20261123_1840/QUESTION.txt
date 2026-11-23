@@ -1,0 +1,30 @@
+pp-selectid: RULING 146 (3) (orchestrator 07:55 ET Nov 18; restated 18:18 ET Nov 23: "HARD: ANY sponsor or ad-read
+words inside the clip (PBX: 'we never include any sponsor material, ever')"; "SOFT, flagged: a clip right after a
+sponsor mention"). Builder-only: the integrator's render never re-checks sponsor mentions (its DoD: "nothing checks for
+a sponsor mention").
+THE CHANGE (never-empty pass only; the clean pass unchanged):
+- moments.exclusion_verdict(..., before_marker_soft=False) (moments.py:369): with before_marker_soft, a deterministic
+  ad-read marker (ad_read_marker, moments.py:358, unchanged) found ONLY in the sentence before the moment (none in the
+  moment's own words) no longer excludes by itself: the blind model reads the moment with its context; ANY risk it
+  names (ad_read among them: the moment's own words in the ad) excludes as always; a kept verdict carries "ad_before"
+  (the screen's reason). A marker in the moment's own words stays a deterministic exclude.
+- package.ad_before_soft (package.py:1299): pops every moment's old mark first; in the never-empty pass only, marks the
+  moments the free screen ad_read_out (package.py:1280, unchanged) refused ONLY for a marker "in the sentence before
+  it"; _build (package.py:3452) keeps those moments in the pool; exclusion_for (package.py:3150) passes the mark as
+  before_marker_soft under its OWN cache key.
+- inventory (package.py:4740): an extra "sponsor" row, FLAGGED, one flag per kept marked clip: "The clip (<channel>)
+  comes right after a sponsor mention." package_pin.SOFT_GATES += "sponsor".
+- package_pin.gate_problems (package_pin.py:446): ALSO checks every FLAGGED row outside the required set with the
+  unchanged flagged_ok (package_pin.py:407: a SOFT gate and non-empty plain flags). The integrator's check_pin_only
+  calls gate_problems live: this only adds refusals (the live soft rows graphics / runtime / hook_onset /
+  pbx_exception are all in SOFT_GATES). review_flags_of (414) and the cap (content_flags, 440) already count every
+  FLAGGED row's flags.
+Files: pipeline/moments.py, pipeline/package.py, pipeline/package_pin.py, tests/package/test_medley.py (the rig's
+exclusion stub returns the mark as the real one does), tests/package/test_ruling_137.py.
+TESTS (TestRuling146SponsorBefore): the model decides a marker in the sentence before (keep: marked; ad_read: exclude);
+a marker in the clip, and the clean pass, stay deterministic excludes with no model call; the mark is the pass's own
+and the cache key its own; the real build() seals FLAGGED in the never-empty pass only and refuses when the model
+excludes; an extra FLAGGED row stands only on a soft gate with flags. Mutations 11 of 11 killed.
+PLEASE CHECK: (1) can any words of the clip ITSELF that belong to an ad read reach a sealed package? (2) can the clean
+pass, or a cached verdict from the other pass, let a marked moment in? (3) is the flag right (one per kept marked clip,
+counted toward the cap of 3)? (4) does the gate_problems addition refuse anything a live pin legitimately carries?

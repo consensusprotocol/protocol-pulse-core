@@ -684,6 +684,91 @@ class TestRuling150ValueSoft(unittest.TestCase):
     def test_no_verdict_stays_hard(self):
         _, pk = self.run_rig(measured=False)
         self.assertIsNone(pk)
+class TestRuling146SponsorBefore(unittest.TestCase):
+    """RULING 146 (3) (orchestrator 07:55 ET Nov 18; PBX 08:34 'we never include any sponsor material ever, but if it
+    doesn't have any in it then it is fine to use'), the never-empty pass: a sponsor marker ONLY in the sentence before
+    a clip goes to the exclusion model with the context; its ad_read risk (the clip's own words in the ad: Natalie
+    Brunell 6e79ceaa was the opening line of The Bitcoin Way's read) excludes, HARD; kept, the package flags 'The clip
+    (X) comes right after a sponsor mention.' A marker in the clip's own words stays HARD; the clean pass is unchanged."""
+    BEFORE = "Use my promo code stories to get 10% off. This episode is sponsored by BitKey."
+    CLIP = "If your Bitcoin can be frozen or monitored by an exchange, it's not yours."
+    SPONSOR = "ad-read marker 'sponsored' in the sentence before it"
+
+    def verdict(self, text, before, soft, reply):
+        import json
+        import types
+        import moments as M
+        import providers as P
+        calls = []
+
+        def fake(router, role, prompt, parse, n, seed, avoid_model=None):
+            calls.append(role)
+            return types.SimpleNamespace(backend="heimdall:deepseek", replayed=False), parse(json.dumps(reply))
+        with mock.patch.object(P, "call_parsed", fake):
+            return M.exclusion_verdict(None, text, before, "", before_marker_soft=soft), calls
+
+    def test_the_model_decides_a_marker_in_the_sentence_before(self):
+        keep = {"risks": [], "about_bitcoin": "yes", "why": "her own view on custody"}
+        v, calls = self.verdict(self.CLIP, self.BEFORE, True, keep)
+        self.assertEqual((v["verdict"], v.get("ad_before"), calls), ("keep", self.SPONSOR, ["exclusion_verdict"]))
+        ad = {"risks": ["ad_read"], "about_bitcoin": "yes", "why": "the opening line of the next ad read"}
+        v, _ = self.verdict(self.CLIP, self.BEFORE, True, ad)
+        self.assertEqual((v["verdict"], v.get("ad_before")), ("exclude", None))           # the clip IS the ad: HARD
+
+    def test_a_marker_in_the_clip_and_the_clean_pass_stay_hard(self):
+        keep = {"risks": [], "about_bitcoin": "yes", "why": "x"}
+        for text, before, soft in ((self.CLIP + " Use my promo code stories.", "", True),
+                                   (self.CLIP, self.BEFORE, False)):
+            v, calls = self.verdict(text, before, soft, keep)
+            self.assertEqual((v["verdict"], v["backend"], calls), ("exclude", "deterministic", []), (text, soft))
+
+    def test_the_mark_is_the_passs_own_and_the_cache_key_its_own(self):
+        ms = [{"moment_id": "a", "ad_before": "stale"}, {"moment_id": "b"}]
+        ad_read = {"a": self.SPONSOR, "b": "ad-read marker 'promo code' in the moment"}
+        self.assertEqual(PK.ad_before_soft(ms, ad_read, False), {})
+        self.assertNotIn("ad_before", ms[0])                                              # popped, never carried in
+        self.assertEqual(PK.ad_before_soft(ms, ad_read, True), {"a": self.SPONSOR})
+        self.assertEqual((ms[0].get("ad_before"), ms[1].get("ad_before")), (self.SPONSOR, None))
+        seen, cache = [], {}
+        with mock.patch.object(PK, "src_of", lambda m, s: "src"), \
+                mock.patch.object(PK.CI, "context_around", lambda *a: (self.BEFORE, "")):
+            import moments as M
+            with mock.patch.object(M, "exclusion_verdict", lambda *a, **k: seen.append(k) or {"verdict": "keep"}):
+                PK.exclusion_for(None, dict(ms[0], text=self.CLIP, sentences=[1, 1], words=[0, 3]), {}, cache)
+                PK.exclusion_for(None, dict(ms[1], text=self.CLIP, sentences=[1, 1], words=[0, 3]), {}, cache)
+        self.assertEqual([k["before_marker_soft"] for k in seen], [True, False])
+        self.assertEqual(sorted(map(str, cache)), sorted(map(str, [("a", 7, "ad_before"), "b"])))
+
+    def run_rig(self, never_empty, excluded=()):
+        import test_medley as TM
+        from test_moments import pm
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE), (True, [], None, TM.Rig.LINE)], [None],
+                   excluded=excluded, follow_up={"angles": [TM.angle(["h", "x", "y"], "h")]})
+        r.build_kw = {"never_empty": never_empty}
+        with mock.patch.object(PK, "ad_read_out", lambda ms, sources: {"x": self.SPONSOR}):
+            return r.run()["package"]
+
+    def test_a_clip_after_a_sponsor_mention_seals_flagged_never_empty_only(self):
+        self.assertIsNone(self.run_rig(False))                                            # the clean pass: refused
+        pk = self.run_rig(True)
+        self.assertIsNotNone(pk)
+        ch = next(s["channel"] for s in pk["segments"] if s["moment_id"] == "x")
+        self.assertEqual((pk["gates"]["sponsor"]["status"], pk["gates"]["sponsor"]["flags"]),
+                         ("FLAGGED", [f"The clip ({ch}) comes right after a sponsor mention."]))
+        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])
+        self.assertIsNone(self.run_rig(True, excluded={"x"}))                              # the model excludes: HARD
+
+    def test_an_extra_flagged_row_stands_only_on_a_soft_gate_with_flags(self):
+        pk = self.run_rig(True)
+        req = PP.required_gates(pk)
+        self.assertNotIn("sponsor", req)                              # an extra row: gate_problems reads it as well
+        made_up = {"status": "FLAGGED", "flags": ["A plain sentence."], "replayed": False}
+        self.assertEqual(PP.gate_problems(dict(pk["gates"], made_up=made_up), req),
+                         ["made_up: FLAGGED without a soft gate and its plain flags (ruling 137)"])
+        no_flags = dict(pk["gates"], sponsor=dict(pk["gates"]["sponsor"], flags=[]))
+        self.assertEqual(PP.gate_problems(no_flags, req),
+                         ["sponsor: FLAGGED without a soft gate and its plain flags (ruling 137)"])
 
 
 class TestRuling148RuntimeFloor(unittest.TestCase):
