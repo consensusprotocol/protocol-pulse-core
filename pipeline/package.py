@@ -296,6 +296,9 @@ LY_FLOOR_S = 30.0                  # RULINGS 148 (1) / 149 (orchestrator 09:56 E
 LY_SHORT_SPAN_WORDS = 4            # clips too short to land 60 s: the takeaway is asked within this of its longest
 RUNTIME_SHORT = "This video runs {n} seconds, shorter than usual."   # 148 (1): the flag, NN the factory's estimate
 _FLOOR = None                      # LY_FLOOR_S while build() runs the never-empty pass (set and cleared there only)
+VALUE_FLAG = 'The closing line may mostly restate the clips: "{line}"'   # RULING 150 (standing, orchestrator 18:18 ET
+#   Nov 23): in the never-empty pass a MEASURED value verdict (ruling 91) that is not a clear yes keeps the closing line
+#   with this flag, the line verbatim; no verdict, fidelity, length and the banned words stay HARD; the clean pass as ruled
 
 
 def medley_content_range(n_bridges=0, bridge_words=LY_BRIDGE_WORDS):
@@ -4383,7 +4386,14 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                     log(f"    value (ruling 91) {'PASS' if val['ok'] else 'LOST'}: " +
                         (f"{answers}, {val.get('words')} words" if val.get("measured") else
                          f"no verdict ({str(val.get('why'))[:120]})") + f" ({time.time() - t0:.0f} s)")
-                    if not val["ok"]:                      # "anything short of a clear yes means no line"
+                    if soft and not val["ok"] and val.get("measured") is True:     # RULING 150: the grade is SOFT
+                        val = att["value"] = dict(val, soft=True)
+                        rec["value_soft"] = {"ruling": "150 (standing from 18:18 ET Nov 23)",
+                                             "line": fields["takeaway"]["text"], "answers": {k: val.get(k) for k in (
+                                                 "adds", "no_restate", "missed", "short")}}
+                        log("    RULING 150: this closing line's measured value verdict is a flag (never-empty pass); "
+                            "fidelity, length and the banned words stay HARD")
+                    if not val["ok"] and not val.get("soft"):      # "anything short of a clear yes means no line"
                         v_lost.append({k: val.get(k) for k in ("text", "measured", "adds", "no_restate", "missed",
                                                                "short", "why", "words", "backend")})
                         rec["value_lost"] = list(v_lost)
@@ -4735,6 +4745,8 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
                                                                                               "missed", "short")},
                                    why=value.get("why"), words=value.get("words"), cap=value.get("cap"),
                                    rule=f"ruling 91 (medley half): all four a clear yes and at most {LY_TAKEAWAY_MAX_WORDS} "
-                                        f"words, off every writer's vendor and family")}
+                                        f"words, off every writer's vendor and family",
+                                   **({"status": "FLAGGED", "flags": [VALUE_FLAG.format(line=value.get("text"))]}
+                                      if value.get("soft") and value.get("ok") is not True else {}))}   # RULING 150
            if value is not None else {}),
     }

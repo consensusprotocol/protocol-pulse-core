@@ -648,6 +648,44 @@ class TestRuling144TheOneException(unittest.TestCase):
             PP.WINDOW_H = saved
 
 
+class TestRuling150ValueSoft(unittest.TestCase):
+    """RULING 150 (standing; orchestrator 18:18 ET Nov 23: 'the value grade of our closing line' is SOFT): in the
+    never-empty pass a closing line whose MEASURED value verdict (ruling 91) is not a clear yes keeps its place, flagged
+    'The closing line may mostly restate the clips: "<line>"', and goes on to fidelity. An unmeasured verdict, and the
+    clean pass: unchanged (HARD)."""
+    TICKER = {"kind": "ticker", "text": "S&P 500 Nasdaq Bitcoin", "whole_in_16x9": True, "in_9x16": "cut",
+              "covers_speaker": False}
+
+    def run_rig(self, measured=True, never_empty=True, ticker=True):
+        import test_medley as TM
+        from test_moments import pm
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        lost = {"adds": "yes", "no_restate": "no", "why": "it restates the clips"} if measured else {"measured": False}
+        kw = {"visuals": {"x": {"burned_in": [dict(self.TICKER)]}}} if ticker else {}
+        r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE), (True, [], None, TM.Rig.LINE)], [None],
+                   values=[dict(lost) for _ in range(6)], follow_up={"angles": [TM.angle(["h", "x", "y"], "h")]}, **kw)
+        if never_empty:
+            r.build_kw = {"never_empty": True}
+        return r, r.run()["package"]
+
+    def test_a_measured_loss_seals_flagged(self):
+        import test_medley as TM
+        _, pk = self.run_rig()
+        self.assertIsNotNone(pk)
+        row = pk["gates"]["takeaway_value"]
+        self.assertEqual((row["status"], row["flags"], row["text"]), (
+            "FLAGGED", [f'The closing line may mostly restate the clips: "{TM.Rig.LINE}"'], TM.Rig.LINE))
+        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])
+
+    def test_the_clean_pass_never_takes_it(self):
+        _, pk = self.run_rig(never_empty=False, ticker=False)      # reaches the value gate: HARD
+        self.assertIsNone(pk)
+
+    def test_no_verdict_stays_hard(self):
+        _, pk = self.run_rig(measured=False)
+        self.assertIsNone(pk)
+
+
 class TestRuling148RuntimeFloor(unittest.TestCase):
     """RULINGS 148 (1) / 149 (orchestrator 09:56 ET Nov 18; standing from the 12:00 build): in the never-empty pass a
     medley's clips may total LY_FLOOR_S (30 s) or more; under medley_content_range()'s lo (36.7 s) the package seals with

@@ -1,0 +1,23 @@
+pp-selectid: RULING 150, STANDING (orchestrator 18:18 ET Nov 23: "SOFT, flagged: ... the value grade of our closing
+line"; HARD stays: "a line of ours that states a fact the clips do not carry"). It replaces the Nov 18 by-hand version
+(one named line on one exception pin, audit 20261118_1044) with the standing rule; the driver option is gone.
+THE CHANGE:
+- package._build's write loop (package.py:4389): ONLY in the never-empty pass (`soft`, _build's own parameter,
+  package.py:3321, False in the clean pass), ONLY for a MEASURED value verdict (val["measured"] is True) that is not
+  ok: val becomes dict(val, soft=True), the line-up record gets value_soft {ruling, line, answers}, one log line. The
+  UNCHANGED next guard (package.py:4396) `if not val["ok"] and not val.get("soft")` then skips the value-loss branch
+  (the rewrite, the no-voice shape, the refusal), so the loop goes on to the paid gates (fidelity + context,
+  package.py:4420), HARD as before.
+- inventory (package.py:4742): the takeaway_value row gets status FLAGGED and flags [VALUE_FLAG with the line
+  verbatim] when value.soft and value.ok is not True.
+- package_pin.SOFT_GATES += "takeaway_value" (the unchanged gate_problems, package_pin.py:444, accepts a FLAGGED row
+  only for a gate in SOFT_GATES; the unchanged cap REVIEW_FLAGS_MAX = 3, package_pin.py:55, counts every flag).
+Files: pipeline/package.py, pipeline/package_pin.py, tests/package/test_ruling_137.py.
+TESTS (TestRuling150ValueSoft, the real build() on the stubbed rig): never-empty pass + a measured loss: seals, the row
+FLAGGED with the exact sentence and the line as its text, gate_problems none; the clean pass reaching the value gate:
+no package; an unmeasured verdict: no package. Mutations 6 of 6 killed (the clean pass too; unmeasured too; not a soft
+gate; another sentence; the row never flagged; the soft line still lost); the control passes.
+PLEASE CHECK: (1) can the clean pass, or a verdict that was never measured, get a line through? (2) do fidelity,
+context, length and the banned words stay HARD for a soft-value line? (3) is the FLAGGED row consistent with what the
+render reads (its text = the shipped closing line)? (4) any path where the never-empty pass now seals a closing line
+with no value verdict at all?
