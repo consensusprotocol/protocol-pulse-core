@@ -1,0 +1,70 @@
+{
+ "contact_sheet_16x9.jpg": {
+  "v1_ok": false,
+  "advertising": {
+   "qwen/qwen3.8-27b": {
+    "answer": "no",
+    "why": "The tweet-screen clips carry a Kraken banner reading 'OPEN A CRYPTO IRA' and 'TRADE CRYPTOS & STOCKS IN 190+ COUNTRIES \u2014 KRAKEN \u2014 $25 SIGN UP BONUS', which is a paid sign-up/IRA offer (Ruling 158).",
+    "ok": false
+   },
+   "nvidia/nemotron-3.5-super-vl": {
+    "answer": "no",
+    "why": "Stills such as 12.06s and 16.06s show a banner reading 'OPEN A CRYPTO ACCOUNT' in the tweet screenshots, which constitutes an 'open an account' offer/advertising.",
+    "ok": false
+   }
+  },
+  "s": 104.3,
+  "errors": {}
+ },
+ "contact_sheet_9x16.jpg": {
+  "v1_ok": false,
+  "advertising": {
+   "qwen/qwen3.8-27b": {
+    "answer": "no",
+    "why": "The screen-share still shows paid advertising: a Kraken '$25 SIGN UP BONUS / TRADE CRYPTOS & STOCKS IN 190+ COUNTRIES' banner and an iTrust Capital 'OPEN A CRYPTO IRA / GET A $100 FUNDING REWARD' panel.",
+    "ok": false
+   },
+   "nvidia/nemotron-3.5-super-vl": {
+    "answer": "no",
+    "why": "A Kraken advertisement banner with a '$25 SIGN UP BONUS' offer is visible at the bottom of the tweet panel.",
+    "ok": false
+   }
+  },
+  "s": 85.3,
+  "errors": {}
+ },
+ "dan_ad47eab4_575.61s.jpg": {
+  "v1_ok": false,
+  "advertising": {
+   "qwen/qwen3.8-27b": {
+    "answer": "no",
+    "why": "The bottom ticker shows paid advertising: 'TRADE CRYPTOS & STOCKS IN 190+ COUNTRIES' with the KRAKEN logo and a '$25 SIGN UP BONUS' offer, which is a sponsor sign-up bonus ad.",
+    "ok": false
+   },
+   "nvidia/nemotron-3.5-super-vl": {
+    "answer": "no",
+    "why": "A Kraken '$25 SIGN UP BONUS' banner is visible at the bottom, which is a sign-up bonus offer and counts as paid advertising under Ruling 158.",
+    "ok": false
+   }
+  },
+  "s": 87.9,
+  "errors": {}
+ },
+ "dan_ad47eab4_581.61s.jpg": {
+  "v1_ok": false,
+  "advertising": {
+   "qwen/qwen3.8-27b": {
+    "answer": "no",
+    "why": "Paid advertising is on screen: a bottom 'KRAKEN \u2013 $25 SIGN UP BONUS, ESTABLISHED 2017' banner and a 'CRYPTO IRA / 100% SCALING / 100% LEVERAGE' promo panel, which are sponsor/bonus offers, not the show's own branding.",
+    "ok": false
+   },
+   "nvidia/nemotron-3.5-super-vl": {
+    "answer": "no",
+    "why": "A Kraken banner at the bottom shows '$25 SIGN UP BONUS', which is a paid advertising / sign-up bonus offer.",
+    "ok": false
+   }
+  },
+  "s": 70.3,
+  "errors": {}
+ }
+}
