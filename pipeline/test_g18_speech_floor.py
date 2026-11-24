@@ -56,7 +56,7 @@ class TestRealClip(unittest.TestCase):
         ok, det = self.judge(self.prep)
         self.assertTrue(ok, det)
         self.assertLessEqual(det["worst_db"], 1.0)
-        self.assertEqual(det["floor_dbfs"], -63.6)                                  # the speech median -33.6, less 30
+        self.assertEqual(det["floor_dbfs"], -60.0)                       # the span's 90th percentile -15.0, less 45
         self.assertGreater(det["compared_frames"], 700)
 
     def test_a_lossless_copy_passes_and_the_word_3_db_down_or_silenced_holds(self):
@@ -70,10 +70,53 @@ class TestRealClip(unittest.TestCase):
         self.assertFalse(ok, det)
         self.assertGreater(det["worst_db"], 20.0)
 
+    def test_a_word_inserted_where_the_source_is_quiet_holds(self):
+        """batch 129 c1 (gemma): the clip's own speech is compared where the source is quiet: a 0.2 s tone at -20 dBFS
+        laid into the pause at source 21.6 s (the near-silent frames the change stops comparing) fails."""
+        a = round(21.55 - float(self.c["cut_in"]), 3)
+        tone = os.path.join(self.d, "tone.wav")
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "sine=frequency=440:sample_rate=48000:duration=0.2",
+                        "-af", "volume=-20dB", "-ac", "2", tone], check=True, timeout=60)
+        ins = os.path.join(self.d, "inserted.wav")
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", self.prep, "-i", tone, "-filter_complex",
+                        f"[1:a]adelay={int(a * 1000)}|{int(a * 1000)}[t];[0:a][t]amix=inputs=2:normalize=0:duration=first",
+                        "-vn", "-c:a", "pcm_s16le", ins], check=True, timeout=120)
+        ok, det = self.judge(ins)
+        self.assertFalse(ok, det)
+        self.assertGreater(det["worst_db"], 20.0)
+
     def test_a_span_with_no_audible_frame_is_no_proof(self):
         silent = self.doctored("silent.wav", "volume=0")
         ok, det = WD.same_speech_audio(silent, silent, 1.0, 2.0, 0.0)
         self.assertEqual((ok, det["why"]), (False, "no audible source frame in the span"))
+
+
+class TestMostlyPause(unittest.TestCase):
+    """batch 129 c1 (glm): a span that is mostly pause must not sink the floor into the pause's codec noise. Synthetic:
+    2 s of a tone at speech level (-13.5 dBFS RMS) then 8 s of noise near -80 dBFS; the 'clip' is the same audio
+    through AAC and back. The
+    span's median sits in the noise (a median floor would compare it); its 90th percentile is the tone."""
+
+    def test_the_pause_is_not_compared_and_a_change_in_the_tone_is(self):
+        d = tempfile.mkdtemp(prefix="g18pause_")
+        self.addCleanup(shutil.rmtree, d, True)
+        src, aac, back, down = (os.path.join(d, n) for n in ("src.wav", "c.m4a", "clip.wav", "down.wav"))
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i",                 # a tone at speech level
+                        "aevalsrc=0.3*sin(2*PI*300*t):s=48000:d=2", "-f", "lavfi", "-i",       # (-13.5 dBFS RMS)
+                        "anoisesrc=color=white:amplitude=0.0001:sample_rate=48000:duration=8", "-filter_complex",
+                        "[0:a][1:a]concat=n=2:v=0:a=1", "-ac", "2", src], check=True, timeout=60)
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", src, "-c:a", "aac", "-b:a", "96k", aac], check=True, timeout=60)
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", aac, "-c:a", "pcm_s16le", back], check=True, timeout=60)
+        import numpy as np
+        _, ds = L.SourceAudio(src).sl(0.1, 9.9)
+        self.assertLess(float(np.median(ds[ds > -90])), -60.0)          # the median is the pause
+        ok, det = WD.same_speech_audio(src, back, 0.1, 9.9, 0.0)
+        self.assertTrue(ok, det)
+        self.assertGreater(det["floor_dbfs"], -70.0)
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", back, "-af", "volume=enable='between(t,0.5,1.0)':volume=-3dB",
+                        "-c:a", "pcm_s16le", down], check=True, timeout=60)
+        ok, det = WD.same_speech_audio(src, down, 0.1, 9.9, 0.0)
+        self.assertFalse(ok, det)                                       # the tone 3 dB down for 0.5 s
 
 
 @unittest.skipUnless(os.path.exists(os.path.join(RUN, "GATE_REPORT.json")), "run pinned_20261124_033952")
