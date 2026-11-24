@@ -342,11 +342,15 @@ def out_edges(run, edl, router=None, cuts=None, frozen=False):
 OUT_EDGE_CACHE = os.path.join(REPO, "data", "out_edge", "answers")   # the answers, keyed (owner_rules.answer_key)
 
 
-def check_out_edges(run, edl, cuts, router=None, frozen=False):
+def check_out_edges(run, edl=None, cuts=None, router=None, frozen=False):
     """RULING 162 (1) as settled (orchestrator 09:45 ET Nov 24): AFTER the deterministic edge check (flag_sentence_edges:
     an OUT sentence edge has already HELD) and the cut acceptance, every segment's OUT edge is asked once whether the
     thought is complete (out_edges). Not complete HOLDS; no answer HOLDS as UNVERIFIED (ruling 160 (2a)): open work,
-    never a pass. The answers are cached against the exact transcript, cut coordinates and prompt version."""
+    never a pass. The answers are cached against the exact transcript, cut coordinates and prompt version. edl: the
+    run's edl.json when None."""
+    if edl is None:
+        with open(os.path.join(run.dir, "edl.json")) as f:
+            edl = json.load(f)
     edges = out_edges(run, edl, router=router, cuts=cuts, frozen=frozen)
     run.prov["out_edge"] = edges
     open_ = [f"{e['segment']} ({e['why']})" for e in edges if e["complete"] is False]
@@ -915,9 +919,8 @@ def stage_cut(run):
     jdump(os.path.join(run.dir, "CUT_ACCEPTANCE.json"), report)
     if fails:
         raise Hold(f"cut acceptance rejected {fails} (see CUT_ACCEPTANCE.json)")
-    with open(os.path.join(run.dir, "edl.json")) as f:     # orchestrator 09:45 ET Nov 24: the deterministic edge check
-        check_out_edges(run, json.load(f), cuts)           # (flag_sentence_edges) and the cut first, then the question
-    return cuts
+    check_out_edges(run, cuts=cuts)          # orchestrator 09:45 ET Nov 24: the deterministic edge check
+    return cuts                              # (flag_sentence_edges) and the cut first, then the question
 
 
 def stage_sentence_law(run):
