@@ -6,6 +6,8 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 10:09 INTEGRATOR: 1 PUSHED 56df2dbfa | 2 PUSHED 56df2dbfa | 3 PUSHED 56df2dbfa | 6 PUSHED 56df2dbfa | 7 PUSHED 56df2dbfa | 8 PUSHED 56df2dbfa | 9 PUSHED 56df2dbfa | all mine PUSHED 10:09 ET
+
 ## 08:23 RULINGS 160-163, THE INTEGRATOR'S HALF: WHERE EACH ROW STANDS AND WHEN I EXPECT IT (nothing below is pushed yet unless a commit is named on the release line)
 - RULING 161, THE RENDER'S SIDE (batch 126, branch r161-v1info a7e7da5b1): V1's sponsor question no longer holds; what a vision model sees goes on ONE information line ('Visible sponsor graphics (information, ruling 161: not a flag, not a hold): ...'), in the review note whole and in the release caption cut at 240 characters, never under REVIEW FLAGS; the pin's per-segment visible_sponsor_graphics (the builder's field) prints on it too. Tests: 83 in the delivery / review-drop suites and 24 offline in the visual suite pass on the branch. Cycle 1: gemma and qwen27b at effort medium answered PASS with no finding (glm's 4-second answer at effort none is not counted). Mutations so far: 4 of 4 killed; 1 ended in a timeout under load, not counted as a kill; 2 still running. Cycle 2 (traced questions) running since 08:22.
 - RULING 162, THE RENDER'S SIDE (batch 127, branch r162-render 8d852b6bf):
