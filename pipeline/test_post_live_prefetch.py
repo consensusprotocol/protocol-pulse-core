@@ -94,10 +94,11 @@ class TestCallers(Base):
         run = types.SimpleNamespace(dir=self.run_dir, status={}, prov={})
         with mock.patch.object(RF, "free_gpu0_for_whisper", lambda run, stage: None), \
                 mock.patch.object(RF, "prefetch_post_live", lambda run, p: order.append("prefetch")), \
+                mock.patch.object(RF, "pin_admissible", lambda p: order.append("admissible") or (True, "stub")), \
                 mock.patch.object(pinned, "prepare", prepare):
             with self.assertRaises(Stop):
                 RF.stage_pinned(run, pin)
-        self.assertEqual(order, ["prefetch", "prepare"])
+        self.assertEqual(order, ["admissible", "prefetch", "prepare"])  # readiness first (rows 13 / 18, Nov 24)
 
     def test_an_unreadable_pin_is_left_to_prepare(self):
         import run_fresh as RF

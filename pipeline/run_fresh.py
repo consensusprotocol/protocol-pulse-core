@@ -575,10 +575,37 @@ def prefetch_post_live(run, pin_path):
         post_live_prefetch.prefetch(vid, lo, hi, run.dir, log=lambda s: print(s, flush=True))
 
 
+def pin_ready(pin_path):
+    """The verifier's rows 13 / 18 (Nov 24) inside the render: scripts/integrator/check_pin_only.py on this pin, in its
+    own process (it loads the builder's package_pin: the gates, the seal, ruling 76's 12 hours, at most 3 kinds of
+    review flag), exactly as the launcher runs it before a run starts. -> (ready, its last line). Fail closed: a check
+    that cannot run, exits non-zero or times out is not READY."""
+    import subprocess
+    try:
+        r = subprocess.run([sys.executable, "-B", os.path.join(REPO, "scripts", "integrator", "check_pin_only.py"),
+                            pin_path], capture_output=True, text=True, timeout=120)
+    except (OSError, subprocess.SubprocessError) as e:
+        return False, f"the readiness check did not run ({type(e).__name__}: {e})"
+    out = (r.stdout or r.stderr or "").strip().splitlines()
+    return r.returncode == 0, (out[0] if out else f"exit {r.returncode}")[:600]
+
+
+def pin_admissible(pin_path):
+    """The verifier's rows 13 / 18 (Nov 24) inside the render, before GPU0 or any download (run_fresh.py may be
+    started without the launcher, or the pin file changed since the launcher's check): pin_ready, the builder's own
+    judgement (package_pin.window_problems on this clock, review_problems, the gates and the seal; no copy of either
+    rule lives here, so the two sides cannot drift). -> (admissible, why)."""
+    ok, why = pin_ready(pin_path)
+    return (True, why) if ok else (False, f"not READY (scripts/integrator/check_pin_only.py): {why}")
+
+
 def stage_pinned(run, pin_path):
     """PINNED entry point: validate the human decision and write the canonical EDL. Replaces
     stage_editorial + stage_select only; everything downstream is shared."""
     from pinned import prepare, PinError
+    ok, why = pin_admissible(pin_path)     # the verifier's rows 13 / 18, before GPU0 or any download
+    if not ok:
+        raise Hold(f"pinned decision rejected: {why}")
     free_gpu0_for_whisper(run, "pinned")   # pinned.acquire runs Whisper on GPU0 (E-FAIL-052: the preflight's model OOM'd it)
     prefetch_post_live(run, pin_path)
     try:

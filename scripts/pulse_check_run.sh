@@ -46,6 +46,16 @@ while [ $# -gt 0 ]; do
   esac
 done
 
+# the readiness check of a pinned run, before anything is started (the verifier's rows 13 / 18, Nov 24): a pin that is
+# not READY by scripts/integrator/check_pin_only.py (the builder's gates and seal, ruling 76's 12 hours on this clock,
+# at most 3 kinds of review flag) is refused here, whoever launches it; nothing is locked or spawned
+if [ "$MODE" = pinned ]; then
+  if ! python3 -B "$REPO/scripts/integrator/check_pin_only.py" "${ARGS[1]}"; then
+    echo "pulse_check_run: the pin is not READY (scripts/integrator/check_pin_only.py): refused, nothing started" >&2
+    exit 3
+  fi
+fi
+
 CUR_SESSION=""
 [ -n "${TMUX:-}" ] && CUR_SESSION="$(tmux display-message -p '#S' 2>/dev/null || true)"
 if [ "$FOREGROUND" = 0 ] && [[ "$CUR_SESSION" != pipeline_* ]]; then
