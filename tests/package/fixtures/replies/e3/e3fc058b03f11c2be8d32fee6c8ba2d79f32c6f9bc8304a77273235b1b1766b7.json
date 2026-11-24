@@ -1,0 +1,260 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "c3ad8819fbfccff8431b8027bd7789c6232227137d00ea9dde13d33257fee396",
+ "result": {
+  "text": "And, uh, you know, give us four to eight years. I mean, at Bitcoin a million, you know, we're, we're crawling, you know, we're crawling into the top 10 at Bitcoin a million. Uh, it's not complicated. It's, uh",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 1.1,
+    "end": 14.86,
+    "text": "And, uh, you know, give us four to eight years. I mean, at Bitcoin a million, you know, we're, we're crawling, you know, we're crawling into the top 10 at Bitcoin a million. Uh, it's not complicated. It's, uh"
+   }
+  ],
+  "words": [
+   {
+    "text": "And,",
+    "start": 1.1,
+    "end": 1.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 1.5,
+    "end": 1.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.0,
+    "end": 2.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 2.1,
+    "end": 2.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "give",
+    "start": 2.56,
+    "end": 2.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "us",
+    "start": 2.74,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "four",
+    "start": 2.94,
+    "end": 3.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 3.14,
+    "end": 3.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "eight",
+    "start": 3.32,
+    "end": 3.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years.",
+    "start": 3.56,
+    "end": 3.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 3.94,
+    "end": 3.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 4.0,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 4.14,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.28,
+    "end": 4.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.72,
+    "end": 4.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "million,",
+    "start": 4.84,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 5.6,
+    "end": 5.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 5.7,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're,",
+    "start": 5.98,
+    "end": 6.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 7.0,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crawling,",
+    "start": 7.3,
+    "end": 7.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 8.16,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 8.24,
+    "end": 8.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 8.62,
+    "end": 8.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crawling",
+    "start": 8.78,
+    "end": 9.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 9.12,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.28,
+    "end": 9.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "top",
+    "start": 9.42,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "10",
+    "start": 9.76,
+    "end": 10.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 11.38,
+    "end": 11.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 11.54,
+    "end": 11.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 11.94,
+    "end": 11.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "million.",
+    "start": 12.04,
+    "end": 12.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Uh,",
+    "start": 12.76,
+    "end": 12.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 13.02,
+    "end": 13.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 13.2,
+    "end": 13.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "complicated.",
+    "start": 13.48,
+    "end": 14.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's,",
+    "start": 14.48,
+    "end": 14.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh",
+    "start": 14.8,
+    "end": 14.86,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.54
+ },
+ "usd": 0.003108,
+ "seconds": 0.82,
+ "recorded_at": "2026-11-24T01:59:26Z"
+}

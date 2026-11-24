@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 18,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation. The first clip (label \"hook\")\nopens the video. The hook is shown for context only: it is NOT rated here (its own job was judged on its own).\n\nCLIP label=\"hook\" (on screen: Natalie Brunell): \"Strategy stock fell 30 % last week, but Michael Saylor says a long Bitcoin drawdown will not break the company.\"\nCLIP label=\"clip_01\" (on screen: Strategy (MicroStrategy)): \"Gold's dead money because it's not better than the S &P. Mag 7 or tech stocks, they can look good. They looked really good at the beginning of the week, not so good later in the week. Bitcoin is beating that, and then all we're doing is just levering the Bitcoin with intelligent credit.\"\nCLIP label=\"clip_02\" (on screen: Yahoo Finance): \"They want STRC back at $100 so they can use it to start buying a hell of a lot of Bitcoin. Not happening yet, but getting, getting much closer. And obviously, the higher Bitcoin rises, the easier all of that will become.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips, the hook's own join included (does the hook set up the clip after\n   it?): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming\n   from the previous clip's ending? Answer true or false, and why in a few words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"clip_01\": 1, \"clip_02\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"through_line\": \"MicroStrategy views Bitcoin as superior to gold, tech stocks, and the S&P by using leverage to amplify holdings while targeting higher stock prices to buy even more.\", \"clips\": {\"clip_01\": 5, \"clip_02\": 4}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"explains why Bitcoin drawdown won't break company via asset outperformance\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"continues MSTR Bitcoin leverage/acquisition topic with stock price link\"}}}",
+ "usage": {
+  "in": 690,
+  "out": 1836,
+  "usd_reported": 0.0053181
+ },
+ "usd": 0.04935,
+ "seconds": 13.82,
+ "recorded_at": "2026-11-24T02:23:22Z"
+}

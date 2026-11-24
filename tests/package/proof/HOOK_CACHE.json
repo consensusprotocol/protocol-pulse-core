@@ -1013,5 +1013,28 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "b9acd2c7db932773f9c5:ea420b1e90fd070ef7e51dfd8e35a449602689f8290719df2ed2e49f8cd1e56b:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 4,
+   "alone": 3,
+   "setup": 4,
+   "rating": 3,
+   "why": "mid-conversation feel",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "f4aa3aed9e3732216a2d:0af9b23e23a51a6df038705c9cec05f6afb58e9c24df1e03f1629e95d20aff69:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 2,
+   "setup": 3,
+   "rating": 2,
+   "why": "starts with 'I mean' and fillers, lacks punch",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+   "answer_note": "1 trailing closing brace(s) dropped (STATE Q2, 15:04 ET Nov 15)"
+  }
  }
 }

@@ -34071,6 +34071,53 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
+  },
+  "google:gemini-2.5-pro": {
+   "label": "b9acd2c7db932773f9c5",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it's",
+     "refers_to": "Gold",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "Mag 7 or tech stocks",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "They",
+     "refers_to": "Mag 7 or tech stocks",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "The performance of other asset classes like the S&P, Mag 7, and tech stocks",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "we're",
+     "refers_to": "MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin is outperforming other asset classes like gold and tech stocks, and MicroStrategy is leveraging its Bitcoin holdings with credit.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I said we want to be the central bank right now with the 56th largest central bank in the world",
+   "backend": "google:gemini-2.5-pro",
+   "replayed": false,
+   "speaker_verified": false
   }
  },
  "c467bae85f80f5dadd14:4ca96a91556a952f5a81dcbd16b209353f9838e03b43796b0e7e209e1e7f8741:8ac236625ed833fc3dcb90bcc5616300aa7c7daee53504c893719b5288b5583b:9d43580c729b": {
@@ -34333,6 +34380,46 @@
    "speaker_is": "uncertain",
    "speaker_evidence": "",
    "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "google:gemini-2.5-pro": {
+   "label": "f4aa3aed9e3732216a2d",
+   "speaker_changes_inside": "no",
+   "view": "conditional",
+   "referents": [
+    {
+     "word": "we're",
+     "refers_to": "MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "top 10",
+     "refers_to": "The top 10 largest central banks in the world by reserve size",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It's",
+     "refers_to": "The calculation that MicroStrategy will be in the top 10 at a Bitcoin price of one million",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "at Bitcoin a million",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "It is a simple calculation that MicroStrategy's treasury will rank in the top 10 among central banks if Bitcoin's price reaches one million dollars.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I said we want to be the central bank right now with the 56th largest central bank in the world, wedged in between Ukraine and Slovakia. But I look forward to getting into the 20s and 30s.",
+   "backend": "google:gemini-2.5-pro",
    "replayed": false,
    "speaker_verified": false
   }

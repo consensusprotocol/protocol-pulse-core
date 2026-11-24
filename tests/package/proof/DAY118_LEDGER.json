@@ -1,24 +1,24 @@
 {
  "ruling": "118, orchestrator 05:40 ET Nov 16",
  "day": [
-  "2026-11-22T21:10:00-05:00",
-  "2026-11-23T21:10:00-05:00"
+  "2026-11-23T21:10:00-05:00",
+  "2026-11-24T21:10:00-05:00"
  ],
- "ledger": "SPEND_D20261122.json",
+ "ledger": "SPEND_D20261123.json",
  "cap": 1.5,
- "outside": 1.15724,
+ "outside": 0.0,
  "parts_outside": {
-  "builds": 0.94464,
+  "builds": 0.0,
   "audits": 0.0,
   "checks": 0.0,
-  "lock_precheck_scribe": 0.2126,
+  "lock_precheck_scribe": 0.0,
   "integrator_other": 0,
   "integrator_unpriced": [],
   "others": {}
  },
  "heimdall_free": {
-  "builds": 0.028823,
-  "audits": 0.059486,
+  "builds": 0.0,
+  "audits": 0.0,
   "checks": 5.275658,
   "others": {}
  },

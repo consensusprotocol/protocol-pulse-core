@@ -1596,6 +1596,129 @@
   },
   "version": "visual-2"
  },
+ "72fbbf8137925c139e16:483.470-496.290:visual-3:f85d980ce7bfc28c": {
+  "backend": "heimdall:qwen/qwen3.8-27b",
+  "burned_in": [
+   {
+    "at": [
+     483.47,
+     484.47,
+     485.47,
+     486.47,
+     487.47,
+     488.47,
+     489.47,
+     490.47,
+     491.47,
+     492.47,
+     493.47,
+     494.47,
+     495.47,
+     496.24
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "bug",
+    "text": "THE DAILY WOLF",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     483.47,
+     484.47,
+     485.47,
+     486.47,
+     487.47,
+     488.47,
+     489.47,
+     490.47,
+     491.47,
+     492.47,
+     493.47,
+     494.47,
+     495.47,
+     496.24
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "bug",
+    "text": "yahoo/finance",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     483.47,
+     484.47,
+     485.47,
+     486.47,
+     487.47,
+     488.47,
+     489.47,
+     490.47,
+     491.47,
+     492.47,
+     493.47,
+     494.47,
+     495.47,
+     496.24
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "THE DAILY WOLF",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "THE DAILY WOLF"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_058afd1fbd8df774.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_058afd1fbd8df774.jpg",
+   "sha256": "058afd1fbd8df7747a354ec1cf67d34703f5fb27c34b48390d69a9e1bb39731e",
+   "times": [
+    483.47,
+    484.47,
+    485.47,
+    486.47,
+    487.47,
+    488.47,
+    489.47,
+    490.47,
+    491.47,
+    492.47,
+    493.47,
+    494.47,
+    495.47,
+    496.24
+   ]
+  },
+  "third_person": {
+   "finding": "No person other than the speaking host appears in any frame, and the spoken words make no negative claim about a named individual.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2028,
+   "out": 6279,
+   "usd_reported": 0.00491205
+  },
+  "version": "visual-3"
+ },
  "7ef148a1181168cf14a5:0.000-7.000:visual-3:c7926f1ef31c833e": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [],
@@ -2593,6 +2716,186 @@
   },
   "version": "visual-1"
  },
+ "ae49f0e88243e485ba44:422.840-428.860:visual-3:030a55a6a9f24295": {
+  "backend": "heimdall:nvidia/nemotron-3.5-super-vl",
+  "burned_in": [],
+  "flags": [],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": false,
+    "text": "Strategy Acquires 457 Bitcoin",
+    "why": "The post repeats the same 457 Bitcoin acquisition stated in the spoken words."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_191bd7f88898bc86.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_191bd7f88898bc86.jpg",
+   "sha256": "191bd7f88898bc861bb56788e2a88062ecfe21bbbac0ee2dc5d4ec6f9e617f06",
+   "times": [
+    422.84,
+    423.84,
+    424.84,
+    425.84,
+    426.84,
+    427.84,
+    428.81
+   ]
+  },
+  "third_person": {
+   "finding": "The spoken words describe an encouraging sign (positive), not a negative claim, and no third-person still/photo/graphic is shown during a negative claim.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 1681,
+   "out": 11541,
+   "usd_reported": 0.00602265
+  },
+  "version": "visual-3"
+ },
+ "afc71c91ac7dd87d4ec6:336.908-346.948:visual-3:b4f1c2e1ac3f4ec5": {
+  "backend": "heimdall:nvidia/nemotron-3.5-super-vl",
+  "burned_in": [
+   {
+    "at": [
+     345.9,
+     346.9
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "caption",
+    "text": "LOWEST LEVEL SINCE EARLY 2024",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     336.9,
+     337.9,
+     338.9,
+     339.9,
+     340.9,
+     341.9,
+     342.9,
+     343.9,
+     344.9,
+     345.9,
+     346.9
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "NATALIE BRUNELL",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     343.9,
+     344.9
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "caption",
+    "text": "LOWEST",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "kind": "on_screen_text",
+    "text": "-12%",
+    "why": "Asserts a 12% decline, while the spoken words state Bitcoin is 20% below cost."
+   },
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "NATALIE BRUNELL"
+   },
+   {
+    "at": [
+     345.9,
+     346.9
+    ],
+    "in_9x16": "cut",
+    "kind": "burned_caption",
+    "text": "LOWEST LEVEL SINCE EARLY 2024"
+   },
+   {
+    "at": [
+     343.9,
+     344.9
+    ],
+    "in_9x16": "whole",
+    "kind": "burned_caption",
+    "text": "LOWEST"
+   }
+  ],
+  "formats": [
+   "16x9"
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "-12%",
+    "why": "Asserts a 12% decline, while the spoken words state Bitcoin is 20% below cost."
+   },
+   {
+    "asserts_beyond_words": false,
+    "text": "-20% BELOW",
+    "why": "Restates the spoken claim that Bitcoin is 20% below cost without adding new information."
+   },
+   {
+    "asserts_beyond_words": false,
+    "text": "-20% BELOW COST",
+    "why": "Restates the spoken claim that Bitcoin is 20% below strategy's average cost without adding new information."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_6b565b4302a94eb2.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_6b565b4302a94eb2.jpg",
+   "sha256": "6b565b4302a94eb204f3c03a6d2bfe8e35ed85f20e69c3be0bdeb4c17e5f30c6",
+   "times": [
+    336.91,
+    337.91,
+    338.91,
+    339.91,
+    340.91,
+    341.91,
+    342.91,
+    343.91,
+    344.91,
+    345.91,
+    346.9
+   ]
+  },
+  "third_person": {
+   "finding": "No third-party person is shown as a still, photo, or graphic; only the speaker and charts appear while the negative claims are made.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 1704,
+   "out": 12644,
+   "usd_reported": 0.0065776
+  },
+  "version": "visual-3"
+ },
  "afe8101ad97672f4a9ad:3799.476-3815.836:visual-1:04751cd9f52004ea": {
   "backend": "xai_vision:grok-4.7",
   "flags": [],
@@ -2709,6 +3012,105 @@
    "in": 2576,
    "out": 14881,
    "usd_reported": 0.09271
+  },
+  "version": "visual-3"
+ },
+ "b9acd2c7db932773f9c5:1971.196-1986.596:visual-3:9fa5348d3e4d36f5": {
+  "backend": "heimdall:qwen/qwen3.8-27b",
+  "burned_in": [
+   {
+    "at": [
+     1712.0,
+     1712.2,
+     1713.2,
+     1714.2,
+     1715.2,
+     1716.2,
+     1717.2,
+     1718.2,
+     1719.2,
+     1720.2,
+     1721.2,
+     1722.2,
+     1723.2,
+     1724.2,
+     1725.2,
+     1726.2,
+     1726.5
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "Strive",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "kind": "on_screen_text",
+    "text": "Our Capital Structure is a Volatility Transformer",
+    "why": "The spoken words never mention the company's capital structure or a 'volatility transformer', so this title asserts a concept not stated in the audio."
+   },
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "Strive"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "Our Capital Structure is a Volatility Transformer",
+    "why": "The spoken words never mention the company's capital structure or a 'volatility transformer', so this title asserts a concept not stated in the audio."
+   },
+   {
+    "asserts_beyond_words": false,
+    "text": "MSTR Common Equity is Amplified Bitcoin",
+    "why": "The spoken words describe the company as 'just levering the Bitcoin with intelligent credit', which is the same amplification claim the title makes, so it adds no new assertion."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_3eb1eafb81296078.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_3eb1eafb81296078.jpg",
+   "sha256": "3eb1eafb81296078241a56b74390eb951943d62bfb4966bb5b66df1ae0a92a79",
+   "times": [
+    1971.2,
+    1972.2,
+    1973.2,
+    1974.2,
+    1975.2,
+    1976.2,
+    1977.2,
+    1978.2,
+    1979.2,
+    1980.2,
+    1981.2,
+    1982.2,
+    1983.2,
+    1984.2,
+    1985.2,
+    1986.2,
+    1986.55
+   ]
+  },
+  "third_person": {
+   "finding": "No non-speaking person appears as a still, photo, or graphic in any frame; the only person visible is the live speaker on the left, and the negative remarks in the audio target gold and tech stocks ra",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2042,
+   "out": 8451,
+   "usd_reported": 0.00654245
   },
   "version": "visual-3"
  },

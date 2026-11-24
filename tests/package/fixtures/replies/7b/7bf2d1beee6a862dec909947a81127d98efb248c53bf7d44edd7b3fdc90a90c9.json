@@ -1,0 +1,19 @@
+{
+ "role": "viewer_takeaway",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 3000,
+ "system": null,
+ "prompt": "You are an ordinary viewer of a 60-second video. Here is everything the video shows and says, in order.\n\nTITLE: \nCAPTION: \nCLIP label=\"hook\" (on screen: Strategy (MicroStrategy)): \"Gold's dead money because it's not better than the S &P. Mag 7 or tech stocks, they can look good. They looked really good at the beginning of the week, not so good later in the week. Bitcoin is beating that, and then all we're doing is just levering the Bitcoin with intelligent credit.\"\nCLIP label=\"clip_01\" (on screen: Natalie Brunell): \"At 60K, Bitcoin is about 20 % below strategy's average cost of roughly 75,500. And the stock closed Friday at its lowest level since early 2024.\"\nCLIP label=\"clip_02\" (on screen: Yahoo Finance): \"Another encouraging sign for Bitcoin always is when this guy decides to buy some strategy has acquired 457 Bitcoin.\"\n\nFor each clip say what you conclude its speaker asserts, how certain they sound, and whether it is positive, negative\nor neutral about its subject. What you conclude a speaker asserts INCLUDES whatever the title, the caption or the\nvoice-over ATTRIBUTES to that speaker (\"X: Y\" or \"X says Y\" tells you that X asserts Y). The voice-over's own opinion,\nframing, question or takeaway, attributed to nobody, is the host's, not the speaker's. Each clip's label is the text inside label=\"...\" after the word CLIP: use exactly that\nlabel in \"label\" and in \"labels\", never the speakers' names. Labels: hook, clip_01, clip_02. Then, for each pair of clips, say whether the video presents their speakers as RELATED TO EACH\nOTHER: one answering the other, one rebutting the other, one agreeing WITH the other (\"X agrees\", \"Y backs that up\",\n\"both say\"), or the two being in one conversation. Two speakers who each state their own view on the same subject,\neach credited, are NOT related (\"none\") unless the video says or implies that they respond to each other.\nReturn ONLY this JSON object: {\"takeaways\": [{\"label\": \"...\", \"asserts\": \"...\", \"certainty\": \"certain\" | \"likely\" |\n\"possible\" | \"speculative\" | \"uncertain\", \"polarity\": \"positive\" | \"negative\" | \"neutral\"}], \"relations\":\n[{\"labels\": [\"...\", \"...\"], \"relation\": \"none\" | \"agreeing\" | \"answering\" | \"rebutting\" | \"same_conversation\" |\n\"uncertain\"}]}",
+ "text": "{\n  \"takeaways\": [\n    {\n      \"label\": \"hook\",\n      \"asserts\": \"Gold is dead money because it's not better than the S&P, Mag 7 or tech stocks can look good initially but not later, Bitcoin is beating that, and MicroStrategy is levering Bitcoin with intelligent credit.\",\n      \"certainty\": \"certain\",\n      \"polarity\": \"positive\"\n    },\n    {\n      \"label\": \"clip_01\",\n      \"asserts\": \"At 60K, Bitcoin is about 20% below MicroStrategy's average cost of roughly 75,500, and the stock closed Friday at its lowest level since early 2024.\",\n      \"certainty\": \"certain\",\n      \"polarity\": \"negative\"\n    },\n    {\n      \"label\": \"clip_02\",\n      \"asserts\": \"MicroStrategy acquiring 457 Bitcoin is an encouraging sign for Bitcoin.\",\n      \"certainty\": \"certain\",\n      \"polarity\": \"positive\"\n    }\n  ],\n  \"relations\": [\n    {\n      \"labels\": [\"hook\", \"clip_01\"],\n      \"relation\": \"none\"\n    },\n    {\n      \"labels\": [\"hook\", \"clip_02\"],\n      \"relation\": \"none\"\n    },\n    {\n      \"labels\": [\"clip_01\", \"clip_02\"],\n      \"relation\": \"none\"\n    }\n  ]\n}",
+ "usage": {
+  "in": 762,
+  "out": 2736,
+  "usd_reported": 0.0076581
+ },
+ "usd": 0.07221,
+ "seconds": 17.16,
+ "recorded_at": "2026-11-24T02:19:36Z"
+}

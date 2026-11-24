@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 1060,
+ "system": null,
+ "prompt": "You judge JOINS between clips of 60-second videos made of other channels' own words (each clip is a\nperson's own words from a show; the shows were not in one conversation). In each PAIR, clip A plays and clip B follows\nit at once, with NO narration between them. Judge each pair ALONE: the pairs are not one video, and nothing else plays\nbefore or between A and B.\n\nTHE CLIPS:\nCLIP id=\"c1\" (on screen: Natalie Brunell): \"He also said the company has more than three years of cash to cover dividends and interest and that the only real threat to its existence is Bitcoin going to zero. overnight.\"\nCLIP id=\"c2\" (on screen: Yahoo Finance): \"They want STRC back at $100 so they can use it to start buying a hell of a lot of Bitcoin. Not happening yet, but getting, getting much closer. And obviously, the higher Bitcoin rises, the easier all of that will become.\"\nCLIP id=\"c3\" (on screen: Natalie Brunell): \"He said, strategy is building a bank. He called it the bank of Bitcoin, a company that holds Bitcoin the same way that a central bank would hold gold and issue credit on top of it.\"\nCLIP id=\"c4\" (on screen: Natalie Brunell): \"At 60K, Bitcoin is about 20 % below strategy's average cost of roughly 75,500. And the stock closed Friday at its lowest level since early 2024.\"\nCLIP id=\"c5\" (on screen: Yahoo Finance): \"Another encouraging sign for Bitcoin always is when this guy decides to buy some strategy has acquired 457 Bitcoin.\"\nCLIP id=\"c6\" (on screen: Natalie Brunell): \"Strategy stock fell 30 % last week, but Michael Saylor says a long Bitcoin drawdown will not break the company.\"\n\nTHE PAIRS (A -> B):\nPAIR id=\"p1\": c1 -> c2\nPAIR id=\"p2\": c3 -> c4\nPAIR id=\"p3\": c3 -> c5\nPAIR id=\"p4\": c3 -> c6\nPAIR id=\"p5\": c3 -> c1\nPAIR id=\"p6\": c3 -> c2\nPAIR id=\"p7\": c2 -> c4\nPAIR id=\"p8\": c2 -> c5\nPAIR id=\"p9\": c2 -> c6\nPAIR id=\"p10\": c2 -> c1\nPAIR id=\"p11\": c2 -> c3\n\nFor EACH pair, the join question (the previous clip is A, the next clip is B): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming from the previous clip's ending? Answer\n\"followable\": true or false, and \"why\": a few words.\nReturn ONLY this JSON object: {\"pairs\": {\"p1\": {\"followable\": true, \"why\": \"...\"}, \"p2\": {\"followable\": true, \"why\": \"...\"}, \"p3\": {\"followable\": true, \"why\": \"...\"}, \"p4\": {\"followable\": true, \"why\": \"...\"}, \"p5\": {\"followable\": true, \"why\": \"...\"}, \"p6\": {\"followable\": true, \"why\": \"...\"}, \"p7\": {\"followable\": true, \"why\": \"...\"}, \"p8\": {\"followable\": true, \"why\": \"...\"}, \"p9\": {\"followable\": true, \"why\": \"...\"}, \"p10\": {\"followable\": true, \"why\": \"...\"}, \"p11\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"pairs\": {\"p1\": {\"followable\": false, \"why\": \"unclear they, topic shift\"}, \"p2\": {\"followable\": true, \"why\": \"strategy pricing follows bank\"}, \"p3\": {\"followable\": false, \"why\": \"unclear this guy\"}, \"p4\": {\"followable\": true, \"why\": \"bank to stock impact\"}, \"p5\": {\"followable\": true, \"why\": \"continues he also said\"}, \"p6\": {\"followable\": false, \"why\": \"unclear they/STRC\"}, \"p7\": {\"followable\": true, \"why\": \"Bitcoin price continues\"}, \"p8\": {\"followable\": false, \"why\": \"unclear this guy\"}, \"p9\": {\"followable\": true, \"why\": \"rise to drawdown resilience\"}, \"p10\": {\"followable\": false, \"why\": \"unclear he\"}, \"p11\": {\"followable\": false, \"why\": \"unclear he\"}}}",
+ "usage": {
+  "in": 988,
+  "out": 6544,
+  "usd_reported": 0.0174606
+ },
+ "usd": 0.16854,
+ "seconds": 46.64,
+ "recorded_at": "2026-11-24T02:08:34Z"
+}
