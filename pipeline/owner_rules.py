@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """pipeline/owner_rules.py -- RULING 162 (orchestrator 07:45 ET Nov 24, from PBX's review of pin afd8977d at 07:37),
 both sides, ONE file: the builder loads it read-only (it seals VERSION and this file's sha256 on its rows) and the
-render calls it at validate. Standard library only: nothing here imports another pipeline module.
+render calls it at validate. It imports one pipeline module, canon (a decoder file: the same bytes in both trees by
+the decoder lockstep, and the one normaliser of every comparison: test_canon's TestSites), nothing else.
 
 (1) A CLIP NEVER ENDS WHILE THE SPEAKER IS STILL MID-SENTENCE, or mid-thought: out_edge() asks whether a clip's last
     sentence finishes the speaker's thought, given what the speaker says next. The reason for the rule (must-fail):
@@ -118,26 +119,33 @@ def out_edge(router, clip_text, before_text, next_sentences, seed=7, role="out_e
             "backend": backend, "measured": True, "version": VERSION}
 
 
-def _tokens(text):
-    t = str(text or "").lower().replace("’", "'")
-    t = re.sub(r"'s\b", "", t).replace("'", "")
-    return re.findall(r"[a-z0-9]+", t)
+def _stands_in(line, sub):
+    """sub (canon tokens) stands in line (canon tokens) in order and side by side; its LAST word may differ by a
+    possessive or plural ending (canon.word_form, ruling 142 (2): "brunell's" is 'Brunell')."""
+    import canon
+    n = len(sub)
+    for i in range(len(line) - n + 1):
+        w = line[i:i + n]
+        if w == sub or (n and w[:-1] == sub[:-1] and canon.word_form([w[-1]], [sub[-1]])):
+            return True
+    return False
 
 
 def line_faults(text, names):
     """RULING 162 (2): what makes `text`, one line of ours, a listing: "names '<name>'" for each of `names` (the
-    credited channels' display names and aliases) whose words stand in the line in order and side by side, and
-    "says '<phrase>'" for each LISTING_PHRASES phrase in it. Letters and digits only, case ignored, a possessive 's
-    dropped ("Natalie Brunell's" names 'Natalie Brunell'). [] when nothing makes it one. A one-word channel name that
-    is also a plain word ('Strike', 'Unchained') is matched as that word: such a line is held; rewrite it."""
-    joined = f" {' '.join(_tokens(text))} "
+    credited channels' display names and aliases) whose canon tokens stand in the line's (canon.canon_tokens: case,
+    punctuation and number words folded) in order and side by side, a possessive or plural ending on the last word
+    allowed, and "says '<phrase>'" for each LISTING_PHRASES phrase in it. [] when nothing makes it one. A one-word
+    channel name that is also a plain word ('Strike', 'Unchained') is matched as that word: such a line is held."""
+    import canon
+    line = canon.canon_tokens(str(text or ""))
     faults = []
     for n in names or []:
-        toks = _tokens(n)
-        if toks and f" {' '.join(toks)} " in joined and f"names '{n}'" not in faults:
+        toks = canon.canon_tokens(str(n or ""))
+        if toks and _stands_in(line, toks) and f"names '{n}'" not in faults:
             faults.append(f"names '{n}'")
     for p in LISTING_PHRASES:
-        if f" {' '.join(_tokens(p))} " in joined:
+        if _stands_in(line, canon.canon_tokens(p)):
             faults.append(f"says '{p}'")
     return faults
 
@@ -154,7 +162,7 @@ class HeimdallText:
         env = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
         with open(env) as f:
             for line in f:
-                if line.startswith("HEIMDALL_API_KEY"):
+                if "=" in line and line.split("=", 1)[0].strip() == "HEIMDALL_API_KEY":   # the exact NAME (c2, glm F2)
                     return line.split("=", 1)[1].strip().strip('"\'')
         raise RuntimeError("HEIMDALL_API_KEY not found in the repo .env")
 
