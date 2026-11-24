@@ -9,9 +9,19 @@
 - **The judge now starts as** `cd /home/ultron/protocol_pulse && CUDA_VISIBLE_DEVICES=0 python3 pipeline/judge_serve.py 2>&1 | tee -a data/local_judge/serve.log` (judge_sha unchanged).
 - **The word pass runs in a new window** of pipeline_pp_wordpass, opened with `tmux new-window`. The scorer pane runs its restart loop (C-c stops the loop).
 - **Re-judge under a new DECODER:** move aside `data/lock_precheck/answered/<request>.*` markers; the loop answers them again. Scribe is reused only when the earlier reading matches at the reuse ratio, so name/number disagreements pay again.
-- **Open:**
-  - 116's audit cycle 2 (follow-up).
-  - No render has completed since Nov 13. The render path is proven by preflight only (18:23 Nov 23). The first sealed pin is the proof.
+- **The render path ran end to end at 22:39-23:37 ET Nov 23** (pin afd8977d143e). The verdict was HOLD on G18 (a word form, since fixed). By ruling 158 it went to PBX on the review path only, NOT FOR PUBLISHING: the video showed paid on-screen ads.
+- **Ruling 159 (b) rows, closed overnight (pushed 2a7197e07):**
+  - G18 follows ruling 143 for every lock and at its edges (batches 121 / 124).
+  - The 145 allowance's headroom test (122).
+  - The watchdog STARTS a dead kept-alive service at any hour (123). It never kills anything. It is refused in a test session or from a worktree, after the 23:44 incident in which a test started a stray pre-check loop ($0).
+  - V1's advertising line (125, ruling 158 (2)).
+  - The second audit cycles of batches 116, 119 and 120.
+  - test_ruling17_lock rewritten to ruling 143.
+- **Open for the orchestrator:**
+  - The sponsor-wall question (state line; default: refuse).
+  - Spelled-out numbers are not material in pinned.material_pair. It is a decoder file, so it needs a lockstep.
+  - The post_live orphan-ffmpeg leak and the partial-cache reuse. Both are fail-closed; the fix is proposed for the next decoder lockstep.
+- **Heimdall seats tonight:** gpt-oss at HIGH effort loops until its token limit, so use medium. qwen at high gives traced answers but can run past 600 s.
 
 ## PAUSED BY PBX 10:51 ET Nov 18: read `docs/audits/parallel/integrator_STATE.md` line 1 first (the exact state)
 - **Live:** batches 105-112, 114 (G17a soft, DECODER 50fa01b4) and 115 (runtime floor, render side). No render ran on Nov 18.
