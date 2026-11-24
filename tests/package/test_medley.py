@@ -979,15 +979,19 @@ class TestBuildLoop(unittest.TestCase):
         self.assertEqual(len(rig.write_calls), 2)          # the paid verdicts never ran on the doomed line-up
         self.assertEqual([s["moment_id"] for s in out["package"]["segments"]], ["h", "z", "w"])
 
-    def test_no_voice_when_the_takeaway_fails_twice_on_clips_that_hold_alone(self):
-        """Ruling 3 (22:40): clips back to back and the sign-off, NOT dropped; one clip added to land 60-70 s."""
+    def test_no_voice_when_the_takeaway_fails_its_one_write_on_clips_that_hold_alone(self):
+        """Ruling 3 (22:40), with ITEM 2 (orchestrator 09:35 ET Nov 24: "One write ... no retry loop"): the takeaway
+        failing its gates in its ONE write means no VO line: clips back to back and the sign-off, NOT dropped; one clip
+        added to land 60-70 s. The second takeaway offered is never asked for."""
         bad = ["Ultimately the network decides what it is worth.", "In the end the rules decide everything here."]
         rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)],
                   [None, None], takeaways=bad)
         out = rig.run()
         pk = out["package"]
         self.assertIsNotNone(pk)
-        self.assertEqual(len(rig.write_calls), 2)                  # both takeaways failed (takeaway-opener)
+        self.assertEqual(len(rig.write_calls), 1)                  # ITEM 2: its one write failed (takeaway-opener)
+        self.assertEqual(rig.takeaways, bad[1:])                   # the second takeaway offered: never asked for
+        self.assertEqual(out["tried"][0]["result"], "PACKAGE (no voice, ruling 3)")
         self.assertEqual([s["moment_id"] for s in pk["segments"]], ["h", "x", "y", "z"])   # 39 s + z: 52 s
         self.assertEqual(rig.medley_calls[-1], ["h", "x", "y", "z"])   # the new line-up judged on the clips alone
         self.assertEqual((pk["vo"]["intro"], pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"]), (None, [], []))
@@ -1880,10 +1884,13 @@ class TestRuling116LineupBar(unittest.TestCase):
             self.assertIn("ruling 63", out["tried"][0]["why"], bar)
             self.assertIsNotNone(out["package"], bar)
 
-    def test_the_takeaway_alone_is_rewritten_when_only_its_point_is_weak_with_a_hook_at_its_floors(self):
-        """Coherence fails on the VO point alone (2), the clips pass the calibrated floor and the hook sits at its
-        floors (rating 3): the takeaway is written again (it was the next angle while the hook's 3 sat in the min)."""
-        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+    def test_a_weak_vo_point_is_never_rewritten_and_the_line_up_takes_the_no_voice_shape(self):
+        """REPLACES 'the takeaway alone is rewritten when only its point is weak with a hook at its floors' (ITEM 2,
+        orchestrator 09:35 ET Nov 24: "One write ... no retry loop"): coherence fails on the VO point alone (2), the
+        clips pass the calibrated floor and the hook sits at its floors (rating 3): the closing line is NOT written
+        again; no line is a valid close, so the line-up takes the no-voice shape (its clips meet the seconds), one
+        flag."""
+        ms = [pm("h", "A", 16.0), pm("x", "B", 16.0), pm("y", "C", 16.0)]          # 48 s: 62.3 s with no VO line
         from unittest import mock
         for bar, clip in (("calibrated", 3), ("standard", 4)):   # the standard bar's 4: the hook's 3 blocked it
             with mock.patch.object(PK, "_live_lineup_bar", lambda: (None, "none")) if bar == "standard" else \
@@ -1891,8 +1898,12 @@ class TestRuling116LineupBar(unittest.TestCase):
                 rig = Rig(ms, ["h", "x", "y"], [(True, [], None, Rig.LINE)], [None, None], hooks={"h": (3, 4, 3)},
                           coherences=[(False, clip, 2), (True, 4, 4)])
                 out = rig.run()
-            self.assertEqual(len(rig.write_calls), 2, bar)                               # the takeaway again
-            self.assertIsNotNone(out["package"], bar)
+            self.assertEqual(len(rig.write_calls), 1, bar)                               # never the takeaway again
+            self.assertFalse([p for r, p in rig.prompts if r == "angle_write" and "was refused" in p], bar)
+            pk = out["package"]
+            self.assertIsNotNone(pk, (bar, out.get("why_none")))
+            self.assertEqual([x["slot"] for x in pk["lines"]], ["title", "caption"], bar)    # no closing line
+            self.assertTrue(NV_FLAG_OK(pk["gates"]), (bar, pk["gates"]))
 
     def test_after_a_failed_verdict_only_the_clips_under_its_own_floor_are_swapped(self):
         """A clip at 3 passes the calibrated floor: when the line-up fails on another clip (2), only that one is
@@ -2715,7 +2726,7 @@ class TestRuling66Candidate(unittest.TestCase):
         out = rig.run()
         self.assertIsNone(out["package"])
         self.assertEqual((out["candidate"]["class"], out["candidate"]["fresh"]), ("line", True))
-        self.assertEqual(rig.seeds, [("medley", 8), ("write", 1108), ("write", 1109)])   # fresh writes, the verdict
+        self.assertEqual(rig.seeds, [("medley", 8), ("write", 1108)])   # ITEM 2: ONE fresh write; the verdict
                                                                                           # still its recorded seed
 
     def test_the_search_never_re_forms_a_registered_line_up(self):
@@ -2799,9 +2810,10 @@ class TestRuling66Candidate(unittest.TestCase):
 
 
 class TestRuling66Amended(unittest.TestCase):
-    """RULING 66 amended (17:02 Nov 13): a line-up whose clips pass and whose takeaway alone failed gets, at once, up to
-    TWO writes of the takeaway ALONE (told each refused sentence and why; the second on the other writer model), the
-    other lines kept as gated; then ruling 3's no-voice fallback when its seconds allow, else the line-up rests."""
+    """RULING 66 amended (17:02 Nov 13), as ITEM 2 leaves it (orchestrator 09:35 ET Nov 24: "An in-house model writes,
+    a different family judges, no paid rescue, no retry loop"): a takeaway refused in its ONE write is never written
+    again alone (the writes of the takeaway ALONE are withdrawn); ruling 3's no-voice fallback when its seconds allow,
+    else the line-up rests. A title or caption failing alone keeps ruling 65's own writes, unchanged."""
     MS = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
     WHY = "host commentary 'Nobody gets to bend these rules' fails imperative_or_prediction"
 
@@ -2841,52 +2853,45 @@ class TestRuling66Amended(unittest.TestCase):
         finally:
             VF.check, CI.check_contexts, CI.contexts_from_sources = saved
 
-    def test_both_writes_refuse_the_takeaway_then_the_takeaway_alone_passes(self):
-        new = "Nobody bends these rules, and that is exactly why they keep working for everyone who holds them anywhere."   # 18 words: the budget of 39 s of clips
-        rig, out, seen, avoid = self.run_rig([self.failing(), self.failing()], [{"takeaway": {"text": new,
-                                                                                              "cites": []}}])
-        pk = out["package"]
-        self.assertIsNotNone(pk)
-        lines = {x["slot"]: x["text"] for x in pk["lines"]}
-        self.assertEqual(lines["takeaway"], new)
-        self.assertEqual((lines["title"], lines["caption"]), ("Nobody bends the rules", "nobody bends these rules"))
-        prompt = [p for r, p in rig.prompts if r == "angle_write"][-1]
-        self.assertIn("Your takeaway was refused", prompt)                    # told the refused sentence and why
-        self.assertIn(f'"{Rig.LINE}" (as host commentary it must state no fact', prompt)
-        self.assertIn("fails imperative_or_prediction", prompt)
-        self.assertIn('TITLE: "Nobody bends the rules"', prompt)              # the other lines, kept as gated
-        self.assertNotIn('TAKEAWAY: "', prompt)
-        self.assertEqual(seen, [[new]])                                        # the verdict on the takeaway alone
-        self.assertEqual(len(rig.write_calls), 2)                              # the two writes, then the line alone
-        att = out["tried"][0]["attempts"][2]
-        self.assertEqual((att["takeaway_alone"]["attempt"], len(att["takeaway_alone"]["refused"])), (1, 1))
-        self.assertEqual(prompt.count(f'"{Rig.LINE}"'), 1)                    # the same refusal told once
-        self.assertEqual(pk["gates"]["vo_fidelity_verdict"]["status"], "PASS")
-        self.assertEqual(avoid, {"takeaway": [{"heimdall:deepseek"}]})          # RULING 162 (2): down the chain
-        self.assertEqual([t["write"] for t in out["takeaways"]], [1, 2, 3])
-        self.assertIn(PK.TAKEAWAY_SAID, prompt)                                # 17:20: the patterns refused today
+    def test_a_refused_takeaway_is_never_written_again_alone(self):
+        """REPLACES 'both writes refuse the takeaway, then the takeaway alone passes' (ITEM 2: no retry loop): the
+        takeaway refused in its one write is never written alone and no prompt tells it why; the reply offered for it is
+        never asked for, and no verdict judges a line alone."""
+        new = "Nobody bends these rules, and that is exactly why they keep working for everyone who holds them anywhere."
+        rig, out, seen, avoid = self.run_rig([self.failing()], [{"takeaway": {"text": new, "cites": []}}])
+        self.assertIsNone(out["package"])                                      # 39 s: no no-voice line-up lands
+        self.assertEqual((len(rig.write_calls), seen, avoid), (1, [], {}))      # one write; nothing written alone
+        self.assertFalse([p for r, p in rig.prompts if r == "angle_write" and "Your takeaway was refused" in p])
+        self.assertEqual(rig.router.answers["angle_write"], [{"takeaway": {"text": new, "cites": []}}])   # unasked
+        self.assertEqual([t["write"] for t in out["takeaways"]], [1])
+        self.assertEqual(rig.seeds, [("medley", 8), ("write", 108)])
+        self.assertFalse([a for a in out["tried"][0]["attempts"] if a.get("takeaway_alone")])
 
-    def test_the_second_takeaway_alone_is_on_the_other_writer_model(self):
+    def test_no_writer_is_asked_for_the_takeaway_again_the_paid_model_included(self):
+        """REPLACES 'the second takeaway alone is on the other writer model' (ITEM 2: one write, no paid rescue): after
+        the takeaway's refusal no writer, the paid model included, is asked for it again: the only angle_write call on
+        the router is the angle's own; both replies offered for the line alone stay unasked."""
         a1, a2 = "Rules nobody can bend are rules that work the same way for every single person who holds them.", "Nobody bends these rules, and that is exactly why they keep working for everyone who holds them anywhere."
-        rig, out, seen, avoid = self.run_rig([self.failing(), self.failing()],
+        rig, out, seen, avoid = self.run_rig([self.failing()],
                                              [{"takeaway": {"text": a1, "cites": []}},
                                               {"takeaway": {"text": a2, "cites": []}}], alone_ok=(False, True))
-        self.assertEqual(avoid, {"takeaway": [{"heimdall:deepseek"}, {"heimdall:deepseek", "fake:angle_write"}]})
-        #   RULING 162 (2): every model that wrote this line-up's closing line is avoided, the full write's included
-        self.assertEqual(seen, [[a1], [a2]])
-        prompts = [p for r, p in rig.prompts if r == "angle_write" and "Your takeaway was refused" in p]
-        self.assertIn(f'"{a1}"', prompts[1])                                   # its own refusal told too
-        self.assertEqual(next(x["text"] for x in out["package"]["lines"] if x["slot"] == "takeaway"), a2)
+        self.assertEqual([c[0] for c in rig.router.calls].count("angle_write"), 1)    # the angle, nothing more
+        self.assertEqual((seen, avoid), ([], {}))
+        self.assertEqual(len(rig.router.answers["angle_write"]), 2)
+        self.assertIsNone(out["package"])
 
-    def test_both_takeaway_alone_writes_fail_and_the_line_up_rests(self):
-        rig, out, seen, _ = self.run_rig([self.failing(), self.failing()],
+    def test_a_refused_takeaway_rests_the_line_up_after_its_one_write(self):
+        """REPLACES 'both takeaway-alone writes fail and the line-up rests' (ITEM 2): the line-up rests after the ONE
+        write when no no-voice line-up lands (39 s of clips, no clip to add), its reason recorded."""
+        rig, out, seen, _ = self.run_rig([self.failing()],
                                          [{"takeaway": {"text": "Rules nobody can bend are rules that work the same way for every single person who holds them.", "cites": []}},
                                           {"takeaway": {"text": "Nobody bends these rules, and that is exactly why they keep working for everyone who holds them anywhere.", "cites": []}}],
                                          alone_ok=(False, False))
         self.assertIsNone(out["package"])
-        self.assertEqual(len(seen), 2)                                         # up to TWO, never more
-        self.assertIn("2 write(s) and 3 of the takeaway alone (ruling 66, 17:02) failed", out["tried"][0]["why"])   # 156 (1)
+        self.assertEqual(seen, [])                                             # no line judged alone
+        self.assertEqual(out["tried"][0]["why"], "1 write(s) failed their gates (COMMENTARY)")
         self.assertIn("no one clip of the angle lands", out["tried"][0]["no_voice"]["why_not"])   # then rest
+        self.assertIn("1 write(s) failed their gates", out["why_none"])
 
     def test_a_failure_on_another_line_gets_no_takeaway_alone_write(self):
         both = dict(self.failing(), violations=[{"slot": "takeaway", "rule": "COMMENTARY", "detail": self.WHY},
@@ -2896,7 +2901,9 @@ class TestRuling66Amended(unittest.TestCase):
         self.assertIsNone(out["package"])
         self.assertEqual((seen, avoid), ([], {}))
 
-    def test_the_no_voice_fallback_comes_after_the_takeaway_alone(self):
+    def test_the_no_voice_fallback_comes_right_after_the_one_write(self):
+        """REPLACES 'the no-voice fallback comes after the takeaway alone' (ITEM 2): ruling 3's no-voice shape comes
+        straight after the takeaway's one refused write; no line is written alone first."""
         bad = ["Ultimately the network decides what it is worth.", "In the end the rules decide everything here."]
         ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
         rig, out, seen, avoid = self.run_rig([], [{"takeaway": {"text": "Ultimately nobody bends the rules.",
@@ -2904,7 +2911,8 @@ class TestRuling66Amended(unittest.TestCase):
                                                   {"takeaway": {"text": "In the end nobody bends them.", "cites": []}}],
                                              ms=ms, takeaways=bad,
                                              medleys=[(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)])
-        self.assertEqual(len(avoid["takeaway"]), 3)                            # the takeaway alone, 3 times (156 (1))
+        self.assertEqual((avoid, seen, len(rig.write_calls)), ({}, [], 1))    # no line alone; one write
+        self.assertEqual(len(rig.router.answers["angle_write"]), 2)            # the replies for a line alone: unasked
         self.assertEqual(out["tried"][0]["result"], "PACKAGE (no voice, ruling 3)")   # then ruling 3
         self.assertEqual(rig.medley_calls[-1], ["h", "x", "y", "z"])
 
@@ -2932,22 +2940,24 @@ class TestRuling66Amended(unittest.TestCase):
         self.assertEqual((len(seen), avoid), (1, {"caption": [None]}))          # the caption: one, then the fixed line
         self.assertTrue(out["package"]["caption_fallback"])
 
-    def test_a_reply_out_of_contract_still_sends_the_second_write_to_the_other_model(self):
-        """Audit 1735 C1 (glm P1-1): the first write of the line alone answered out of contract (no line, so no gate):
-        its model is still known, and the second write avoids it."""
+    def test_a_title_reply_out_of_contract_still_sends_the_second_write_to_the_other_model(self):
+        """Audit 1735 C1 (glm P1-1), on ruling 65's TITLE path (unchanged by item 2): the first write of the title alone
+        answered out of contract (no line, so no gate): its model is still known, and the second write avoids it. Its
+        TAKEAWAY half is gone with ITEM 2: a takeaway refused in its one write gets no write alone, so a reply out of
+        contract offered for it is never asked for and never rejected."""
         a2 = "Nobody bends these rules, and that is exactly why they keep working for everyone who holds them anywhere."
-        rig, out, seen, avoid = self.run_rig([self.failing(), self.failing()],
+        rig, out, seen, avoid = self.run_rig([self.failing()],
                                              [{"takeaway": "not an object"}, {"takeaway": {"text": a2, "cites": []}}])
-        self.assertEqual(avoid, {"takeaway": [{"heimdall:deepseek"}, {"heimdall:deepseek", "fake:angle_write"}]})
-        self.assertEqual(seen, [[a2]])                                          # only the second reached a gate
-        self.assertEqual(next(x["text"] for x in out["package"]["lines"] if x["slot"] == "takeaway"), a2)
-        self.assertEqual(rig.router.rejected, ["fake:angle_write"])             # the bad reply was rejected
+        self.assertEqual((avoid, seen, rig.router.rejected), ({}, [], []))     # ITEM 2: never asked, never rejected
+        self.assertEqual(len(rig.router.answers["angle_write"]), 2)
+        self.assertIsNone(out["package"])
         rig, out, seen, avoid = self.run_rig([self.failing("title", "Bitcoin is owned by nobody at all", "VERDICT_NO")],
                                              [{"title": "not an object"},
                                               {"title": {"text": "Nobody bends these rules", "cites": []}}])
         self.assertEqual(avoid, {"title": [None, {"fake:angle_write"}]})
         self.assertEqual(next(x["text"] for x in out["package"]["lines"] if x["slot"] == "title"),
                          "Nobody bends these rules")
+        self.assertEqual(rig.router.rejected, ["fake:angle_write"])             # the bad title reply was rejected
 
     def test_both_takeaway_prompts_name_the_two_refused_patterns(self):
         """17:20: the takeaway writer is told the two patterns refused today, and that the line may characterise what
@@ -4166,17 +4176,20 @@ class TestRuling91MedleyHalf(unittest.TestCase):
     """RULING 91, its MEDLEY half ('22:53' Nov 13): "The same value verdict also applies to a MEDLEY's takeaway going
     forward: a medley that loses its takeaway falls back to L-y's no-voice shape only if its clips meet the seconds;
     otherwise the takeaway may be rewritten once." The row "takeaway_value" was agreed with the integrator (05:5x ET
-    Nov 14): status PASS, replayed false, "text" the takeaway it judged."""
+    Nov 14): status PASS, replayed false, "text" the takeaway it judged. ITEM 2 (orchestrator 09:35 ET Nov 24: "One
+    write, one judge ... no retry loop") withdraws the rewrite: a lost takeaway is NO closing line, the no-voice shape
+    when the clips meet the seconds, else the line-up rests."""
     SHORT = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]          # 39 s: under 45.7 s with no VO line
     FITS = [pm("h", "A", 16.0), pm("x", "B", 16.0), pm("y", "C", 16.0)]           # 48 s: 62.3 s with no VO line
     NEW = ("Nobody bends these rules, and that is exactly why they keep working for everyone who holds them "
            "anywhere.")                                                            # 18 words: lands 39 s of clips
     MED = [(True, [], None, Rig.LINE)]
-    ALONE = [{"takeaway": {"text": t, "cites": []}} for t in (       # RULING 162 (2): the three writes of the line alone
+    ALONE = [{"takeaway": {"text": t, "cites": []}} for t in (       # replies for the line written alone: ITEM 2
+        #   never asks for them (they stay unconsumed on the router)
         "Nobody gets to bend these rules, and that is exactly why they last when it counts.",
         "Nobody gets to bend these rules, and that is precisely why they hold when it counts.",
         "Nobody gets to bend these rules, which is exactly why they hold up when it counts.")]
-    LOST4 = [{"adds": "no", "why": "it restates clip_02"}] * 4        # every one of the four writes loses its value
+    LOST4 = [{"adds": "no", "why": "it restates clip_02"}] * 4        # value answers for up to 4 writes: ITEM 2 asks ONE
 
     def test_a_takeaway_that_earns_its_place_ships_with_its_row_bound_to_its_text(self):
         rig = Rig(self.SHORT, ["h", "x", "y"], self.MED, [None])
@@ -4195,8 +4208,8 @@ class TestRuling91MedleyHalf(unittest.TestCase):
         self.assertEqual(package_pin.takeaway_line(mp), Rig.LINE)
 
     def test_a_lost_takeaway_on_clips_that_meet_the_seconds_ships_no_voice_and_no_paid_gate_judged_it(self):
-        """RULING 162 (2): the value grade is a requirement; up to 4 writes (the write, then the line alone three
-        times, each told why); when none passes, NO closing line: L-y's no-voice shape with its one flag."""
+        """RULING 162 (2) with ITEM 2: the value grade is a requirement; ONE write, ONE judge; when it loses, NO closing
+        line: L-y's no-voice shape with its one flag. The three replies for the line alone are never asked for."""
         rig = Rig(self.FITS, ["h", "x", "y"], self.MED, [None], values=self.LOST4, lines=self.ALONE)
         out = rig.run()
         pk = out["package"]
@@ -4207,11 +4220,13 @@ class TestRuling91MedleyHalf(unittest.TestCase):
         self.assertIn("adds no", pk["no_voice"]["why"])
         self.assertIsNone(pk["no_voice"]["added_clip"])
         self.assertEqual((pk["no_voice"]["value"]["adds"], pk["no_voice"]["value"]["text"]),
-                         ("no", self.ALONE[-1]["takeaway"]["text"]))             # the last loss is named
+                         ("no", Rig.LINE))                                       # the one write's loss is named
         self.assertEqual(out["tried"][0]["result"], "PACKAGE (no voice, ruling 91)")
         self.assertNotIn("takeaway_value", pk["gates"])                          # no takeaway: no row
         self.assertTrue(NV_FLAG_OK(pk["gates"]), pk["gates"])                    # RULING 162 (2): its one flag
-        self.assertEqual((len(rig.write_calls), len(rig.value_calls)), (1, 4))  # the write and 3 of the line alone
+        self.assertEqual((len(rig.write_calls), len(rig.value_calls)), (1, 1))  # ITEM 2: one write, one judge
+        self.assertEqual(len(rig.router.answers["angle_write"]), 3)              # the replies for it alone: unasked
+        self.assertIn("item 2", out["tried"][0]["why"])
         att = out["tried"][0]["attempts"][0]
         self.assertEqual(att["value"]["adds"], "no")
         self.assertNotIn("verdict_classes", att)                                 # asked before any paid gate
@@ -4219,24 +4234,22 @@ class TestRuling91MedleyHalf(unittest.TestCase):
         self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": []})
         self.assertIn("ruling 91", pk["checks"]["coherence"]["note"])
 
-    def test_a_lost_takeaway_on_short_clips_gets_one_rewrite_alone_told_why(self):
+    def test_a_lost_takeaway_on_short_clips_is_never_rewritten_and_the_line_up_rests(self):
+        """REPLACES 'a lost takeaway on short clips gets one rewrite alone, told why' (ruling 91's one rewrite is
+        withdrawn by ITEM 2: "no retry loop"): on 39 s of clips no no-voice line-up lands, so the line-up rests after
+        its one write; the rewrite offered is never asked for, no prompt tells the loss."""
         rig = Rig(self.SHORT, ["h", "x", "y"], self.MED, [None], lines=[{"takeaway": {"text": self.NEW, "cites": []}}],
                   values=[{"adds": "no", "no_restate": "no", "why": "it restates the clips"}])
         out = rig.run()
-        pk = out["package"]
-        self.assertEqual(next(x["text"] for x in pk["lines"] if x["slot"] == "takeaway"), self.NEW)
-        self.assertEqual(pk["gates"]["takeaway_value"]["text"], self.NEW)      # the rewrite's verdict, never draft 1's
-        self.assertEqual([c["line"] for c in rig.value_calls], [Rig.LINE, self.NEW])
-        self.assertEqual(len(rig.write_calls), 1)                                # one full write, then the takeaway ALONE
-        prompt = [p for r, p in rig.prompts if r == "angle_write"][-1]
-        self.assertIn("Your takeaway was refused", prompt)
-        self.assertIn(f'"{Rig.LINE}" (it did not earn its place (ruling 91)', prompt)
-        self.assertIn("adds no, no_restate no, missed yes, short yes: it restates the clips", prompt)
-        self.assertIn('TITLE: "Nobody bends the rules"', prompt)                # the other lines kept
+        self.assertIsNone(out["package"])
+        self.assertEqual([c["line"] for c in rig.value_calls], [Rig.LINE])        # one write, one judge
+        self.assertEqual(len(rig.write_calls), 1)
+        self.assertFalse([p for r, p in rig.prompts if r == "angle_write" and "Your takeaway was refused" in p])
+        self.assertEqual(rig.router.answers["angle_write"], [{"takeaway": {"text": self.NEW, "cites": []}}])
         tried = out["tried"][0]
-        self.assertTrue(tried["attempts"][1]["takeaway_alone"]["ruling_91"])
+        self.assertIn("ruling 91: the takeaway did not earn its place", tried["why"])
+        self.assertIn("no one clip of the angle lands", tried["no_voice"]["why_not"])
         self.assertEqual([x["text"] for x in tried["value_lost"]], [Rig.LINE])
-        self.assertEqual(tried["result"], "PACKAGE")
 
     def test_a_lost_takeaway_takes_the_one_no_voice_shape_with_the_added_clip(self):
         """The orchestrator's 07:30 ruling (A): "the no-voice shape is one shape whatever removed the takeaway (two
@@ -4251,7 +4264,7 @@ class TestRuling91MedleyHalf(unittest.TestCase):
         self.assertIn("one clip added (z)", pk["no_voice"]["why"])
         self.assertEqual(pk["no_voice"]["value"]["adds"], "no")
         self.assertEqual(rig.medley_calls[-1], ["h", "x", "y", "z"])          # the new line-up judged on the clips alone
-        self.assertEqual((len(rig.write_calls), len(rig.value_calls)), (1, 4))  # RULING 162 (2): 4 writes first
+        self.assertEqual((len(rig.write_calls), len(rig.value_calls)), (1, 1))  # ITEM 2: one write, one judge
         self.assertEqual(out["tried"][0]["result"], "PACKAGE (no voice, ruling 91)")
         self.assertTrue(NV_FLAG_OK(pk["gates"]), pk["gates"])
         self.assertNotIn("takeaway_value", pk["gates"])
@@ -4266,24 +4279,23 @@ class TestRuling91MedleyHalf(unittest.TestCase):
                   values=self.LOST4, lines=self.ALONE)
         out = rig.run()
         self.assertIsNone(out["package"])
-        self.assertEqual(len(rig.value_calls), 4)                                # RULING 162 (2): 4 writes, then
+        self.assertEqual(len(rig.value_calls), 1)                                # ITEM 2: one write, then
         self.assertIn("ruling 91", out["tried"][0]["why"])
         self.assertIn("fails on the clips alone", out["tried"][0]["why"])
 
     def test_a_doomed_clip_is_never_the_added_clip(self):
         """Audit 0734 C1 (qwen's condition): z fails exclusion in angle 1's line-up, so it is doomed for the whole build.
-        Angle 2's takeaway then loses its value verdict on 39 s of clips: nv_order skips z, no no-voice line-up exists,
-        and ruling 91's one rewrite is used instead."""
+        Angle 2's takeaway then loses its value verdict on 39 s of clips: nv_order skips z, so no no-voice line-up
+        exists, and (ITEM 2: no rewrite) the line-up rests; z is never judged in a line-up again."""
         ms = self.SHORT + [pm("z", "D", 13.0)]
         rig = Rig(ms, [["h", "z", "y"], ["h", "x", "y", "z"]], self.MED * 2, [None, None], excluded={"z"},
                   lines=[{"takeaway": {"text": self.NEW, "cites": []}}], values=[{"adds": "no"}])
         out = rig.run()
-        pk = out["package"]
+        self.assertIsNone(out["package"])
         self.assertIn("'z': 'exclusion'", out["tried"][0]["why"])                # doomed in angle 1
-        self.assertEqual([s["moment_id"] for s in pk["segments"]], ["h", "x", "y"])   # never added back
-        self.assertNotIn("no_voice", out["tried"][-1])
-        self.assertEqual(next(x["text"] for x in pk["lines"] if x["slot"] == "takeaway"), self.NEW)
-        self.assertEqual([c["line"] for c in rig.value_calls], [Rig.LINE, self.NEW])
+        self.assertEqual(rig.medley_calls, [["h", "z", "y"], ["h", "x", "y"]])   # never added back
+        self.assertIn("no one clip of the angle lands", out["tried"][-1]["no_voice"]["why_not"])
+        self.assertEqual([c["line"] for c in rig.value_calls], [Rig.LINE])      # one write, no rewrite
 
     def test_a_lone_caption_failure_with_a_clip_failing_its_gate_ends_cleanly(self):
         """Audit 0734 C2 (grok): the no-voice line-up's caption fails alone AND its added clip fails exclusion. The
@@ -4302,26 +4314,31 @@ class TestRuling91MedleyHalf(unittest.TestCase):
 
     def test_a_value_loss_leaves_a_registered_line_up_to_the_registry(self):
         """Audit 0734 C2 (glm): on ruling 91's path too, the only clip that would land the seconds forms a registered
-        line-up, so it is left to the registry (ruling 66): no no-voice line-up exists, the reason is recorded, and the
-        one rewrite is used."""
+        line-up, so it is left to the registry (ruling 66): no no-voice line-up exists, the reason is recorded, and
+        (ITEM 2: no rewrite) the line-up rests."""
         rig = Rig(self.SHORT + [pm("z", "D", 13.0)], ["h", "x", "y", "z"], self.MED, [None],
                   lines=[{"takeaway": {"text": self.NEW, "cites": []}}], values=[{"adds": "no"}],
                   registered={("h", "x", "y", "z"): {"key": "h+x+y+z", "state": "resting", "until": None,
                                                      "source": "proof/ledger_x", "index": 0}})
-        out = rig.run()                                    # RULING 162 (2): the line is rewritten first, and passes
+        out = rig.run()
         self.assertEqual(rig.medley_calls, [["h", "x", "y"]])                    # h+x+y+z never judged
-        self.assertEqual(next(x["text"] for x in out["package"]["lines"] if x["slot"] == "takeaway"), self.NEW)
+        self.assertIsNone(out["package"])
+        nv = out["tried"][0]["no_voice"]
+        self.assertEqual(nv["registered_skipped"], ["h+x+y+z"])
+        self.assertIn("left to the registry", nv["why_not"])
+        self.assertEqual([c["line"] for c in rig.value_calls], [Rig.LINE])      # one write, no rewrite
 
-    def test_a_second_loss_ends_the_line_up_when_no_no_voice_line_up_exists(self):
-        """No clip of the angle can be added (h, x, y are all it has), so ruling 91's one rewrite is used; its loss
-        ends the line-up."""
+    def test_the_first_loss_ends_the_line_up_when_no_no_voice_line_up_exists(self):
+        """REPLACES 'a second loss ends the line-up when no no-voice line-up exists' (ITEM 2: one write): no clip of the
+        angle can be added (h, x, y are all it has), so the FIRST loss ends the line-up; the three rewrites offered are
+        never asked for and never judged."""
         rig = Rig(self.SHORT, ["h", "x", "y"], self.MED, [None],
                   lines=[{"takeaway": {"text": self.NEW, "cites": []}}] + self.ALONE[:2],
                   values=[{"adds": "no"}, {"missed": "no"}, {"adds": "no"}, {"adds": "no"}])
         out = rig.run()
         self.assertIsNone(out["package"])
-        self.assertEqual([c["line"] for c in rig.value_calls],                   # RULING 162 (2): 4 writes, no more
-                         [Rig.LINE, self.NEW] + [x["takeaway"]["text"] for x in self.ALONE[:2]])
+        self.assertEqual([c["line"] for c in rig.value_calls], [Rig.LINE])       # one judge, on the one write
+        self.assertEqual(len(rig.router.answers["angle_write"]), 3)              # the rewrites: never asked for
         self.assertIn("no one clip of the angle lands", out["tried"][0]["no_voice"]["why_not"])   # then no shape
         self.assertIn("ruling 91", out["why_none"])
 
@@ -4334,7 +4351,7 @@ class TestRuling91MedleyHalf(unittest.TestCase):
                   values=[{"measured": False}, {"measured": False}])
         out = rig.run()
         self.assertIsNone(out["package"])                                       # nothing measured is never a pass
-        self.assertEqual(len(rig.value_calls), 2)
+        self.assertEqual(len(rig.value_calls), 1)                               # ITEM 2: no second write to judge
 
     def test_ruling_3_is_unchanged_and_no_value_verdict_judges_a_takeaway_its_cheap_gates_refuse(self):
         bad = ["Ultimately the network decides what it is worth.", "In the end the rules decide everything here."]
@@ -4479,16 +4496,16 @@ class TestRuling91MedleyHalf(unittest.TestCase):
         self.assertIn("no verdict", pk["no_voice"]["why"])
         self.assertEqual(rig.router.rejected, ["fake:coherence_verdict"])
 
-    def test_the_rewrite_after_a_takeaway_alone_is_judged_on_its_own_new_text(self):
-        """Audit 0608 C2 (glm's condition): two full writes fail the fidelity verdict on the takeaway (ruling 66 keeps
-        the other lines' verdicts), the takeaway alone then loses its value verdict, and ruling 91's forced rewrite goes
-        through takeaway_alone_gates: the fidelity verdict itself judges the NEW takeaway (never the earlier write's),
-        and the sealed row is the new line's."""
+    def test_a_takeaway_refused_by_fidelity_gets_no_alone_gate_and_no_rewrite(self):
+        """REPLACES 'the rewrite after a takeaway alone is judged on its own new text' (audit 0608 C2): its premise (two
+        full writes, the takeaway alone, then ruling 91's forced rewrite through takeaway_alone_gates) is gone with
+        ITEM 2. The takeaway failing the fidelity verdict in its ONE write is never rewritten, and takeaway_alone_gates
+        never runs: its own fidelity check is never called."""
         import context_integrity as CI
         import vo_fidelity as VF
         seen = []
 
-        def one(router, segs, lns, *a, **k):              # the real takeaway_alone_gates calls VF.check on the line
+        def one(router, segs, lns, *a, **k):              # takeaway_alone_gates' own VF.check: must never run
             seen.append([ln["text"] for ln in lns])
             return {"ok": True, "violations": [], "measured": True, "replayed": False, "backend": "xai:grok",
                     "deterministic": {"ok": True, "violations": [], "price_now_measured": True},
@@ -4501,27 +4518,26 @@ class TestRuling91MedleyHalf(unittest.TestCase):
         CI.contexts_from_sources = lambda *a, **k: {}
         try:
             failing = TestRuling66Amended().failing()
-            rig = Rig(self.SHORT, ["h", "x", "y"], self.MED, [None, None], fids=[failing, failing],
-                      lines=[{"takeaway": {"text": Rig.LINE, "cites": []}}, {"takeaway": {"text": self.NEW, "cites": []}}],
-                      values=[{}, {}, {"adds": "no"}])          # writes 1-2 pass it, the takeaway alone loses it
+            rig = Rig(self.SHORT, ["h", "x", "y"], self.MED, [None, None], fids=[failing],
+                      lines=[{"takeaway": {"text": self.NEW, "cites": []}}], values=[{}])
             out = rig.run()
         finally:
             VF.check, CI.check_contexts, CI.contexts_from_sources = saved
-        pk = out["package"]
-        self.assertEqual(next(x["text"] for x in pk["lines"] if x["slot"] == "takeaway"), self.NEW)
-        self.assertEqual(pk["gates"]["takeaway_value"]["text"], self.NEW)
-        self.assertEqual([c["line"] for c in rig.value_calls], [Rig.LINE, Rig.LINE, Rig.LINE, self.NEW])
-        self.assertEqual(seen, [[self.NEW]])                 # the verdict judged the rewrite's own text, alone
-        alone = [a.get("takeaway_alone") for a in out["tried"][0]["attempts"] if a.get("takeaway_alone")]
-        self.assertEqual([bool(a.get("ruling_91")) for a in alone], [False, True])   # ruling 66's, then ruling 91's
+        self.assertIsNone(out["package"])
+        self.assertEqual(seen, [])                                               # no alone gate ever ran
+        self.assertEqual([c["line"] for c in rig.value_calls], [Rig.LINE])
+        self.assertEqual(len(rig.write_calls), 1)
+        self.assertFalse([a for a in out["tried"][0]["attempts"] if a.get("takeaway_alone")])
+        self.assertEqual(rig.router.answers["angle_write"], [{"takeaway": {"text": self.NEW, "cites": []}}])
 
     def test_the_line_up_records_every_takeaway_with_its_value(self):
+        """Every takeaway written is recorded with its value verdict; with ITEM 2 a line-up writes ONE."""
         rig = Rig(self.SHORT, ["h", "x", "y"], self.MED, [None], lines=[{"takeaway": {"text": self.NEW, "cites": []}}],
                   values=[{"short": "no"}])
         out = rig.run()
-        vals = [t["value"] for t in out["takeaways"]]
-        self.assertEqual([(v["ok"], v["short"]) for v in vals], [(False, "no"), (True, "yes")])
-
+        self.assertEqual([(t["write"], t["value"]["ok"], t["value"]["short"]) for t in out["takeaways"]],
+                         [(1, False, "no")])
+        self.assertIsNone(out["package"])                                        # its loss: no line, no shape (39 s)
 
 class TestTakeawayValueVerdict(unittest.TestCase):
     """package.takeaway_value: the spotlight's value contract (spotlight.parse_value) over a medley's clips."""

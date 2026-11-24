@@ -257,52 +257,134 @@ class TestTheSpotlight(unittest.TestCase):
 class TestTheClosingLine(unittest.TestCase):
     """RULING 162 (2) (orchestrator 07:45 ET Nov 24, from PBX's review of afd8977d: "my VO ... is literally just me
     saying all the clips that were featured ... Let's never do that again"): OUR CLOSING VO LINE MUST ADD VALUE, never a
-    list of the channels. The paid model writes it first, then the Heimdall families, up to 4 writes, each told why; a
-    Heimdall family judges fidelity and value when the paid model wrote, and the reverse; no line passing both means NO
-    closing line, one flag. Any spoken line of ours (intro, bridge, closing) never names a channel or lists."""
+    list of the channels; any spoken line of ours (intro, bridge, closing) never names a channel or lists. As amended by
+    ITEM 2 (amendment B, orchestrator 09:35 ET Nov 24): "An in-house model writes, a different family judges, no paid
+    rescue, no retry loop. No judge from another family awake means no line." The lexical checks (LISTING, ONE
+    sentence, no digit the clips do not say) run in code before any model; no line is a valid close (one flag)."""
     GROK = "xai:grok-4.20-0309-reasoning"
-    HEIM = ["heimdall:qwen/qwen3.8-27b", "heimdall:deepseek/deepseek-v4.1-flash", "heimdall:openai/gpt-oss-20b",
-            "heimdall:google/gemma-4-31b-it", "heimdall:minimax/minimax-m3.1-flash"]
+    QWEN, DS = "heimdall:qwen/qwen3.8-27b", "heimdall:deepseek/deepseek-v4.1-flash"
+    LAST_NIGHT = "Bitcoin, in the words of Simply Bitcoin, Digital Asset News and Yahoo Finance, in their own clips."
+    CHANNELS = ("Simply Bitcoin", "Digital Asset News", "Yahoo Finance")
 
-    def test_the_paid_model_writes_it_first_and_each_rewrite_goes_down_the_chain(self):
+    @staticmethod
+    def providers_tests():
+        """tests/providers/test_providers.py, loaded by path: its Fake back-end, router() and stand-in rig."""
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("providers_tests_162",
+                                                      os.path.join(REPO, "tests", "providers", "test_providers.py"))
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def judges(self, d, down=()):
+        """A router on the REAL chains (proof_ly.chains("heimdall_first")) for the closing line's judges, each back-end
+        a fake with the real back-end's vendor, family and gateway; the families in `down` do not answer."""
+        import proof_ly as PL
+        tp = self.providers_tests()
+        ch = PL.chains("heimdall_first")
+        real = P.Router(chains=ch, routing="heimdall_first")
+        roles = {k: ch[k] for k in ("fidelity_verdict", "coherence_verdict", "angle_write", "angle_write:closing")}
+        fakes = []
+        for n in dict.fromkeys(x for v in roles.values() for x in v):
+            rb = real.backends[n]
+            fb = tp.Fake(n, rb.vendor, answer='{"ok": 1}', family=rb.family,
+                         fail="down (the test)" if rb.family in down else None)
+            fb.gateway = P.gateway(rb)
+            fakes.append(fb)
+        r = tp.router(d, fakes, roles)
+        r.chains.update(roles)
+        return r
+
+    def test_an_in_house_model_writes_it_and_no_paid_model_ever_does(self):
+        """REPLACES 'the paid model writes it first and each rewrite goes down the chain' (ITEM 2: "An in-house model
+        writes ... no paid rescue"): our closing line's writer list is the Heimdall writers alone; write_takeaway and the
+        takeaway written by write_line ask for it as kind "closing"; a title keeps the writer chain."""
         import proof_ly as PL
         import test_medley as TM
         ch = PL.chains("heimdall_first")
-        self.assertEqual(ch["angle_write:closing"], PL.WRITERS[-1:] + PL.WRITERS[:-1])
-        self.assertEqual(ch["angle_write:closing"][0], self.GROK)
-        self.assertEqual(ch["angle_write"], PL.WRITERS)                      # the angle itself: Heimdall first
+        self.assertEqual(ch["angle_write:closing"], [w for w in PL.WRITERS if w.startswith("heimdall:")])
+        self.assertEqual(ch["angle_write"], PL.WRITERS)                      # the angle itself: unchanged
+        r = P.Router(chains=ch, routing="heimdall_first")
+        self.assertEqual([n for n in r.chain("angle_write", "closing") if P.gateway(r.backends[n]) != "heimdall"], [])
         seen = []
 
         class R:
             def call(self, role, prompt, max_tokens=2000, seed=7, **k):
-                seen.append((role, k.get("kind"), k.get("avoid_model")))
+                seen.append((role, k.get("kind")))
                 raise P.ProviderError("stop")
         segs, ctx = TM.TestWriteTakeaway.SEGS, E.Context(NOW, REG)
         fields = {"takeaway": {"text": "x", "cites": []}, "title": {"text": "t", "cites": []},
                   "caption": {"text": "c", "cites": []}}
-        for f in (lambda: PK.write_takeaway(R(), TM.angle(["h", "x", "y"], "h"), segs, ctx, {},
-                                            avoid_model={self.GROK}),
+        for f in (lambda: PK.write_takeaway(R(), TM.angle(["h", "x", "y"], "h"), segs, ctx, {}),
                   lambda: PK.write_line(R(), TM.angle(["h", "x", "y"], "h"), segs, ctx, {}, "takeaway", fields, [],
-                                        avoid_model={self.GROK, "heimdall:qwen/qwen3.8-27b"}, limit="12-16 words"),
+                                        limit="12-16 words"),
                   lambda: PK.write_line(R(), TM.angle(["h", "x", "y"], "h"), segs, ctx, {}, "title", fields, [])):
             with self.assertRaises(P.ProviderError):
                 f()
-        self.assertEqual(seen, [("angle_write", "closing", {self.GROK}),
-                                ("angle_write", "closing", {self.GROK, "heimdall:qwen/qwen3.8-27b"}),
-                                ("angle_write", None, None)])                # the title: the writer chain as before
+        self.assertEqual(seen, [("angle_write", "closing"), ("angle_write", "closing"), ("angle_write", None)])
 
-    def test_a_heimdall_family_judges_when_the_paid_model_wrote_and_the_reverse(self):
-        import proof_ly as PL
-        ch = PL.chains("heimdall_first")
-        for role in ("fidelity_verdict", "coherence_verdict"):              # fidelity, and the value grade's role
-            self.assertEqual(ch[role][0], self.GROK, role)
-            self.assertEqual(set(ch[role][1:]), set(self.HEIM), role)
-        r = P.Router(chains=ch, routing="heimdall_first")              # each family its own maker
-        for role in ("fidelity_verdict", "coherence_verdict"):
-            names = r.chain(role)
-            off = lambda av, af: [n for n in names if r.backends[n].vendor not in av and r.backends[n].family not in af]
-            self.assertEqual(r.backends[off({"xai"}, set())[0]].vendor.split("/")[0], "heimdall")   # paid wrote
-            self.assertEqual(off({"heimdall/deepseek"}, {"deepseek"})[0], self.GROK)               # the reverse
+    def test_a_family_that_did_not_write_judges_it_on_ruling_96s_lists(self):
+        """REPLACES 'a Heimdall family judges when the paid model wrote, and the reverse' (162 (2)'s chain extension is
+        reverted with ITEM 2: no paid model writes the closing line). On the real chains (ruling 96's lists): fidelity
+        and the value grade go to a family that did not write; with Grok down, the value grade's other family answers,
+        and fidelity (qwen -> Grok) has none awake when qwen wrote: no judge, no line (never the writer's family)."""
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            r = self.judges(d)
+            for wrote, fid, val in (("qwen", self.GROK, self.GROK), ("deepseek", self.QWEN, self.GROK)):
+                w = {"avoid_vendor": {f"heimdall/{wrote}"}, "avoid_family": {wrote}}
+                self.assertEqual(r.call("fidelity_verdict", "p", kind="closing", **w).backend, fid, wrote)
+                self.assertEqual(r.call("coherence_verdict", "p", kind="value", **w).backend, val, wrote)
+        with tempfile.TemporaryDirectory() as d:
+            r = self.judges(d, down=("grok",))
+            r.lx_soft = True                                                 # the never-empty pass
+            w = {"avoid_vendor": {"heimdall/qwen"}, "avoid_family": {"qwen"}}
+            self.assertEqual(r.call("coherence_verdict", "p", kind="value", **w).backend, self.DS)
+            with self.assertRaises(P.ProviderError):
+                r.call("fidelity_verdict", "p", kind="closing", **w)
+
+    def test_no_judge_from_another_family_awake_means_no_line_never_a_stand_in(self):
+        """ITEM 2: "No judge from another family awake means no line." In the never-empty pass (lx_soft) the stand-in
+        judges of ruling 154 (1) never judge our closing line: with only the writer's own family left, the value grade
+        (coherence_verdict, kind "value") and fidelity over a package carrying it (kind "closing") raise; the same call
+        with no kind still takes the stand-in. package.takeaway_value and paid_gates ask with those kinds."""
+        import tempfile
+        tp = self.providers_tests()
+        with tempfile.TemporaryDirectory() as d:
+            r = tp.TestRuling154StandInJudge().rig(d, down=("grok", "deepseek", "gpt-oss"))   # qwen wrote; glm never
+            r.chains["fidelity_verdict"] = ["xai:grok"]                                       # judges (ruling 119)
+            r.lx_soft = True
+            w = {"avoid_vendor": {"heimdall/qwen"}, "avoid_family": {"qwen"}}
+            for role, kind in (("coherence_verdict", "value"), ("fidelity_verdict", "closing")):
+                with self.assertRaises(P.ProviderError, msg=role):
+                    r.call(role, "p", kind=kind, **w)
+                a = r.call(role, "p", **w)                                    # no kind: the stand-in, as ruled
+                self.assertEqual((a.backend, a.lx_soft["step"]), ("heimdall:qwen", 2), role)
+        import test_medley as TM
+        seen = []
+
+        class R:
+            def call(self, role, prompt, max_tokens=2000, seed=7, **k):
+                seen.append((role, k.get("kind")))
+                raise P.ProviderError("down")
+        v = PK.takeaway_value(R(), TM.TestTakeawayValueVerdict.SEGS, E.Context(NOW, REG), "The floor held.",
+                              {"heimdall/qwen"}, {"qwen"})
+        self.assertEqual((seen, v["measured"], v["ok"]), ([("coherence_verdict", "value")], False, False))
+        import concurrent.futures
+        import context_integrity as CI
+        import vo_fidelity as VF
+        kinds = []
+        segs = [{"moment_id": m, "label": m, "channel": c, "video_id": f"v{m}", "text": f"Bitcoin {m}."}
+                for m, c in (("h", "A"), ("x", "B"), ("y", "C"))]
+        with unittest.mock.patch.object(VF, "check", lambda *a, **k: kinds.append(k.get("kind")) or {"ok": True}), \
+                unittest.mock.patch.object(CI, "check_contexts", lambda *a, **k: {"ok": True}), \
+                unittest.mock.patch.object(CI, "contexts_from_sources", lambda *a, **k: {}), \
+                concurrent.futures.ThreadPoolExecutor(2) as pool:
+            for lines in ([{"slot": "title", "text": "t", "cites": []}, {"slot": "takeaway", "text": "x", "cites": []}],
+                          [{"slot": "title", "text": "t", "cites": []}, {"slot": "caption", "text": "c", "cites": []}]):
+                PK.paid_gates(None, {"segments": segs, "lines": lines}, {}, {m: {} for m in "hxy"}, [], NOW,
+                              {"heimdall/qwen"}, {"qwen"}, pool)
+        self.assertEqual(kinds, ["closing", None])                            # with our closing line: never a stand-in
 
     def test_the_prompts_ask_for_one_sentence_that_names_no_one(self):
         for t in (PK.WRITE_LY, PK.TAKEAWAY_LIMIT):
@@ -329,6 +411,59 @@ class TestTheClosingLine(unittest.TestCase):
         with unittest.mock.patch.object(OE, "OWNER_RULES", "/nonexistent/owner_rules.py"):
             self.assertEqual(rules("takeaway", ok), ["LISTING"])                         # no rules file: fails closed
 
+    def test_last_nights_close_is_refused_by_the_lexical_check_with_zero_model_calls(self):
+        """ITEM 2's test: last night's spoken close is rejected by the lexical check in code, before any model: with
+        every model path recording and raising, owner_line_faults refuses it (LISTING: the three credited channels
+        and the listing phrases) and no call is made; in a build its one write is refused before the value grade or
+        any paid verdict, never written again, and the no-voice shape (no line) is the close."""
+        calls = []
+
+        def record_and_raise(*a, **k):
+            calls.append(a[:2])
+            raise P.ProviderError("a model was asked: the lexical check must ask none")
+        pk = {"segments": [{"channel": c, "text": f"Bitcoin held, says {c}."} for c in self.CHANNELS],
+              "lines": [{"slot": "title", "text": "Bitcoin at the bottom", "cites": []},
+                        {"slot": "takeaway", "text": self.LAST_NIGHT, "cites": []}]}
+        with unittest.mock.patch.object(P.Router, "call", record_and_raise), \
+                unittest.mock.patch.object(P.Router, "_call", record_and_raise), \
+                unittest.mock.patch.object(P, "call_parsed", record_and_raise):
+            v = PK.owner_line_faults(pk)
+        self.assertEqual(([x["rule"] for x in v], [x["slot"] for x in v]), (["LISTING"], ["takeaway"]))
+        for said in [f"names '{c}'" for c in self.CHANNELS] + ["says 'in the words of'"]:
+            self.assertIn(said, v[0]["detail"])
+        self.assertEqual(calls, [])                                           # zero model calls
+        import test_medley as TM
+        from test_moments import pm
+        ms = [pm("h", self.CHANNELS[0], 16.0), pm("x", self.CHANNELS[1], 16.0), pm("y", self.CHANNELS[2], 16.0)]
+        rig = TM.Rig(ms, ["h", "x", "y"], TM.TestRuling91MedleyHalf.MED, [None, None],
+                     takeaways=[self.LAST_NIGHT, TM.Rig.LINE])
+        out = rig.run()
+        first = out["tried"][0]["attempts"][0]
+        self.assertIn("LISTING", [x["rule"] for x in first["violations"]])
+        self.assertNotIn("verdict_classes", first)                           # no paid verdict judged it
+        self.assertEqual((rig.value_calls, len(rig.write_calls), rig.takeaways), ([], 1, [TM.Rig.LINE]))
+        pk = out["package"]
+        self.assertIsNotNone(pk, out.get("why_none"))
+        self.assertEqual([x["slot"] for x in pk["lines"]], ["title", "caption"])    # no line: a valid close
+        self.assertTrue(TM.NV_FLAG_OK(pk["gates"]), pk["gates"])
+
+    def test_a_digit_no_clip_says_is_refused(self):
+        """ITEM 2's lexical rule: "no digit not in the clips". A number the closing line says must be one a clip says
+        (its commas aside: '1000' is the clips' '1,000'); any other refuses (DIGIT), before any model."""
+        segs = [{"channel": "Simply Bitcoin", "text": "Bitcoin fell 1,000 dollars below its high."},
+                {"channel": "Yahoo Finance", "text": "Outflows hit 3.5 billion in 2 days."},
+                {"channel": "Natalie Brunell", "text": "The floor held."}]
+        faults = lambda text: PK.owner_line_faults({"segments": segs, "lines": [{"slot": "takeaway", "text": text}]})
+        rules = lambda text: [v["rule"] for v in faults(text)]
+        self.assertEqual(rules("The floor held, and a 1000 dollar drop did not break it."), [])
+        self.assertEqual(rules("The floor held after 3.5 billion left in 2 days."), [])
+        for text, new in (("The floor held at 55 thousand.", "55"), ("Watch 1,001 next.", "1,001"),
+                          ("The floor held for 7 days.", "7"), ("Outflows of 3.6 billion did not break it.", "3.6")):
+            self.assertEqual(rules(text), ["DIGIT"], text)
+            self.assertIn(f"'{new}'", faults(text)[0]["detail"], text)
+        self.assertEqual([v["rule"] for v in PK.owner_line_faults({"segments": segs, "lines": [
+            {"slot": "title", "text": "Bitcoin at 55K"}]})], [])                 # a title is never spoken
+
     def test_no_line_passing_means_no_closing_line_and_one_flag(self):
         import test_medley as TM
         T = TM.TestRuling91MedleyHalf
@@ -338,27 +473,32 @@ class TestTheClosingLine(unittest.TestCase):
         self.assertIsNotNone(pk, out.get("why_none"))
         self.assertEqual([x["slot"] for x in pk["lines"]], ["title", "caption"])          # no closing line at all
         self.assertTrue(TM.NV_FLAG_OK(pk["gates"]), pk["gates"])
-        self.assertEqual(len(rig.value_calls), 4)                                         # the write and 3 alone
+        self.assertEqual((len(rig.write_calls), len(rig.value_calls)), (1, 1))            # ITEM 2: one write, one judge
+        self.assertEqual(len(rig.router.answers["angle_write"]), 3)                       # no write of it alone
         self.assertFalse([x for x in pk["lines"] if "in the words of" in x["text"].lower()])   # no plain line, ever
         import package_pin
         mp = package_pin.to_pin(TM.spk(pk), "test")["moments_package"]
         self.assertEqual(mp["review_flags"], [PK.NO_LINE_FLAG])
         self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": []})
 
-    def test_a_closing_line_that_lists_is_written_again_told_why(self):
+    def test_a_closing_line_that_lists_is_refused_unjudged_and_never_written_again(self):
+        """REPLACES 'a closing line that lists is written again, told why' (ITEM 2: no retry loop): the listing line
+        is refused by the lexical check, never judged by a model, never written again: no line (the no-voice shape,
+        its one flag)."""
         import test_medley as TM
+        T = TM.TestRuling91MedleyHalf
         listing = "Bitcoin at the bottom, in the words of A, B and C, in their own clips here."
-        rig = TM.Rig(TM.TestRuling91MedleyHalf.SHORT, ["h", "x", "y"], TM.TestRuling91MedleyHalf.MED, [None, None],
-                     takeaways=[listing])
+        rig = TM.Rig(T.FITS, ["h", "x", "y"], T.MED, [None, None], takeaways=[listing, TM.Rig.LINE])
         out = rig.run()
-        pk = out["package"]
-        self.assertIsNotNone(pk, out.get("why_none"))
-        self.assertEqual(next(x["text"] for x in pk["lines"] if x["slot"] == "takeaway"), TM.Rig.LINE)
         first = out["tried"][0]["attempts"][0]
         self.assertTrue([v for v in first.get("violations") or [] if v["rule"] == "LISTING"], first)
-        self.assertNotIn("no_closing_line", pk["gates"])
-        self.assertEqual(pk["gates"]["takeaway_value"]["status"], "PASS")
-
+        self.assertNotIn("verdict_classes", first)                                  # no paid verdict judged it
+        self.assertEqual((len(rig.write_calls), rig.value_calls, rig.takeaways), (1, [], [TM.Rig.LINE]))
+        self.assertFalse([p for r, p in rig.prompts if r == "angle_write" and "was refused" in p])
+        pk = out["package"]
+        self.assertIsNotNone(pk, out.get("why_none"))
+        self.assertEqual([x["slot"] for x in pk["lines"]], ["title", "caption"])
+        self.assertTrue(TM.NV_FLAG_OK(pk["gates"]), pk["gates"])
 
 if __name__ == "__main__":
     unittest.main()
