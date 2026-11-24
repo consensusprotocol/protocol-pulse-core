@@ -1,0 +1,26 @@
+{
+ "question": "TASK: cycle 2 of the audit of batch 123 (Protocol Pulse, Python): the session watchdog STARTS a dead kept-alive service (ruling 159 (b)). The diff is the whole change as it now stands. Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.\n\nCYCLE 1: gemma PASS, gpt-oss PASS (both medium effort); qwen at high effort gave no answer in time. CHANGES SINCE CYCLE 1:\n(a) restart_dead resolves `running` and `start_service` per call (they were default arguments). INCIDENT, 23:44 ET Nov 23: a test patched W.start_service, the patch missed the bound default, and the REAL start_service opened a live lock pre-check loop from a git worktree in the live tmux session. It ran 28 min (46 answers, all errors, written only under the worktree; no paid call).\n(b) start_service now refuses when PP_HEARTBEAT_DIR is set (pipeline/conftest.py sets it for every pytest session) or when the code's REPO is not the main tree (MAIN_TREE).\n(c) The 'alive with no finished pass' finding now names its service with dead=False, and restart_dead acts only on dead=True.\n(d) lock_precheck.main starts the 60 s heartbeat thread, also in its `once` mode: a pass can now last 17+ min (a post_live whole-stream download), and before this a long pass read as dead.\n\nTRACE AND ANSWER:\nT1. Name every way a test or a copy of the code (a worktree, a scratch copy) could still start a live service through this code.\nT2. With (d), the pre-check's record `pid` is a short-lived once process. Walk the case: the loop dies between passes. When does the watchdog act, and what does running() see?\nT3. Any other defect.\n\nOUTPUT: for each finding, severity (critical|high|medium|low), file:line, the concrete failure, the fix. If none, say NONE.\nREMINDER: only what the diff and the cited lines show; say when uncertain.",
+ "files": [],
+ "panel": {
+  "gemma": "google/gemma-4-31b-it"
+ },
+ "cycle1": [
+  {
+   "name": "gemma",
+   "model": "google/gemma-4-31b-it",
+   "status": 200,
+   "latency_s": 415.2,
+   "cost": 0.0016574,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0016574,
+ "out_dir": "batch123_r159_restart/cycle2/gemma_medium/heimdall"
+}

@@ -1,0 +1,28 @@
+# Heimdall audit
+
+**Question:** TASK: audit batch 121 of the Protocol Pulse video pipeline (Python): G18, the release gate that the words heard in the final are the words we claim. Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.
+
+RULINGS. 143 (the lock's principle): a NON-MATERIAL differing pair never holds; a MATERIAL pair (a number, a negation, a name, a ticker or an amount: pinned.material_pair, unchanged, via word_diff._material) holds unless the two audio readings agree. 159 (b), 23:42 ET Nov 23: "G18's HOLD tonight ('bottom' against 'bottomed'): ... a word-form difference is non-material; the two audio readings decide ... the lock and the release gate must not disagree."
+
+TONIGHT: clip_01's lock was no_difference (not adjudicated), so gate_g18 compared the final's decode with the SOURCE SPAN's decode (`ref = c["lock_text"] if (c.get("adjudicated") or alts) else src`, unchanged). The source decode read "bottomed", the final's "bottom": identity [("replace","bottomed","bottom")], and the small-word path (ruling 143 (2), batch 113) did not apply because it required `c.get("adjudicated")`. The run HELD on a difference the lock passes.
+
+THE DIFF: drops the `bool(c.get("adjudicated"))` precondition of `small_only`. Everything after it is unchanged: a non-material difference still needs `c.get("prepared")` and the acoustic adjudication (sentence_law.span_fidelity: the prepared clip's interior, between the fades, must BE the source span, -90 dBFS floor, 1 dB), recorded in row["omission_adjudication"]; only then does the difference move to row["identity_small_words"] and stop failing. A material difference fails on text exactly as before. Tests: the unadjudicated small word passes on the same audio and fails on different audio; an unadjudicated number (15/50) fails; tonight's sentence pair as a fixture.
+
+CHECK, AND ANSWER EACH:
+Q1. Can a MATERIAL difference now pass G18 (through this path or any other in the diff)?
+Q2. With an unadjudicated lock, the reference is the source span's DECODE, not the lock text. Can a non-material difference now pass when the final's audio is not the source's (a wrong clip, a shifted cut)?
+Q3. Is anything else in gate_g18 or its callers relying on `small_only` being False for unadjudicated locks?
+Q4. Any other defect.
+
+OUTPUT: for each finding, severity (critical|high|medium|low), file:line, the concrete failure (inputs -> wrong result), and the fix. If none, say NONE for that question.
+REMINDER: only what the diff and the cited lines show; say when uncertain.
+
+**Panel:** gptoss  |  **Cost:** $0.0030
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none

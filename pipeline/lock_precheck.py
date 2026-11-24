@@ -762,7 +762,8 @@ def main(argv=None):
     def log(m):
         print(f"{time.strftime('%H:%M:%S')} {m}", flush=True)
     log(f"lock pre-check: decoder_sha {decoder_sha()[:12]}, root {ROOT}")
-    while True:
+    heartbeat.start("lock_precheck")             # a pass can now run 17+ min (a post_live whole stream, batch 119):
+    while True:                                  # beat while it lives, so a long pass never reads as dead
         n = serve_once(log=log)
         heartbeat.mark_pass("lock_precheck", served=n)       # ruling 133 R16 (the service is a once-loop)
         if a.mode == "once":

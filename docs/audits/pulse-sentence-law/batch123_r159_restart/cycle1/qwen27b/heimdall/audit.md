@@ -1,0 +1,28 @@
+# Heimdall audit
+
+**Question:** TASK: audit batch 123 of the Protocol Pulse video pipeline (Python): tools/session_watchdog.py now RESTARTS a dead kept-alive service. Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.
+
+THE ORDER (ruling 159 (b), 23:42 ET Nov 23): "keep quiet hours for PBX's phone but have the watchdog RESTART a dead kept-alive service itself at any hour and log it." Until now the watchdog was strictly read-only (tmux() refuses anything but list-panes / capture-pane; unchanged). The services: the scorer, the judge, the lock pre-check (a shell loop that runs one short `lock_precheck.py once` process every 5 s, each writing the heartbeat at the end of its pass) and the word pass. Each writes /tmp/pulse_heartbeats/<service>.json (batch 117): `at` refreshed every 60 s by a thread while the process lives, `pass_at` at the end of each loop pass.
+
+THE DIFF:
+- heartbeat_findings marks its HEARTBEAT findings with the service name and dead=True (no beat for 20 min, or missing 20 min) or dead=False (alive with no finished pass for 90 min).
+- restart_dead(findings, ...), called in run_pass right after heartbeat_findings (skipped in --dry-run): for each dead finding of a service in LAUNCH, unless one was started within RESTART_GAP_S (30 min), unless running(markers) finds a process whose /proc cmdline holds one of the service's markers, it calls start_service: `tmux new-window -t =<session>: -n <name>-restarted <fixed launch line>` when the session exists, else `tmux new-session -d -s <session> <line>`. It records the time in the state, appends "; restarted by the watchdog at HH:MM" to the finding's text and logs a RESTARTED line. Any error is logged (RESTART FAILED) and the pass goes on. The Telegram line keeps its hour and its night rule (send_watchdog, unchanged).
+
+CHECK, AND ANSWER EACH:
+Q1. Can the watchdog ever start a SECOND copy of a service that is still running (alive but slow, frozen, mid-pass), or start one in a loop?
+Q2. Can it ever kill, signal or send keys to anything, or run a command other than the four fixed lines?
+Q3. The lock pre-check's heartbeat pid is the last short-lived `once` process, gone after each pass by design: does that make a healthy pre-check look dead?
+Q4. Any other defect (state handling across restarts of the watchdog itself, the session-present check, an exception path).
+
+OUTPUT: for each finding, severity (critical|high|medium|low), file:line, the concrete failure (inputs -> wrong result), and the fix. If none, say NONE for that question.
+REMINDER: only what the diff and the cited lines show; say when uncertain.
+
+**Panel:** qwen27b  |  **Cost:** $0.0187
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none

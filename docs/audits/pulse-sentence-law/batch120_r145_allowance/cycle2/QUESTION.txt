@@ -1,0 +1,13 @@
+TASK: cycle 2 of the audit of batch 120 (Protocol Pulse, Python): ruling 145's GPU small-tenant allowance (gpu0.small_tenants, shown at the end of the diff) and the test the independent verifier found missing. Only state what you can verify from the diff. If uncertain, say so. Do not guess.
+
+RULING 145: "a foreign program under 2 GiB and under 10 percent use is tolerated and logged". Its three conditions: every foreign user a process with reported memory under 2048 MiB (and not another client's Ollama model); the GPU keeping the caller's need + 4096 MiB free of everything not this run's; utilisation under 10 percent. CYCLE 1 (qwen27b PASS; gpt-oss's two findings disproved in the code: Gpu0Unreadable subclasses Gpu0Stop; `and m` already skips None). THE VERIFIER (Nov 23): the third condition (memory left for our load) had no test: the 'no headroom' subtest is refused by a different rule (memory no listed process accounts for: an unlisted entry with pid None).
+
+THE DIFF: test_the_headroom_alone_decides: tenants of 1,900 MiB each, 100 MiB unlisted (under UNLISTED_MAX_MIB 1024), utilisation 0; one MiB short of need + headroom is refused (small_tenants' reason names "under the need", and swap_to raises Gpu0Foreign after the wait); exactly the room is tolerated.
+
+TRACE AND ANSWER:
+T1. For "one MiB short": compute free = total - used + mine with the test's numbers and show which branch of small_tenants refuses it.
+T2. Does any subtest still pass because of a rule other than the one it names?
+T3. Any defect in small_tenants itself (the arithmetic, the order of the checks, what is logged).
+
+OUTPUT: for each finding, severity, file:line, the failure, the fix. If none, say NONE.
+REMINDER: only what the diff shows; say when uncertain.

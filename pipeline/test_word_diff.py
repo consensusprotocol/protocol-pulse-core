@@ -291,6 +291,34 @@ class TestRuling143G18(unittest.TestCase):
         self.assertFalse(ok, rows)
         self.assertNotIn("omission_adjudication", rows[0])
 
-    def test_an_unadjudicated_lock_is_judged_as_before(self):
+    def test_an_unadjudicated_lock_takes_the_same_rule(self):
+        """RULING 159 (b): the lock and the release gate must not disagree. A no_difference lock (not adjudicated)
+        compares the final's decode with the source span's: a small word is decided by the audio, as above."""
         ok, rows = self.g18(self.LOCK, "I go to the bank today and I punch in my code.", adjudicated=False)
-        self.assertFalse(ok, rows)
+        self.assertTrue(ok, rows)
+        self.assertEqual(rows[0]["identity_small_words"], [("replace", "a", "the")])
+        ok, rows = self.g18(self.LOCK, "I go to the bank today and I punch in my code.", adjudicated=False, same=False)
+        self.assertFalse(ok, rows)                                     # not the source's audio: it stands
+        ok, rows = self.g18("It took 15 years and I punch in my code.", "It took 50 years and I punch in my code.",
+                            adjudicated=False)
+        self.assertFalse(ok, rows)                                     # a number still fails on text
+        self.assertNotIn("omission_adjudication", rows[0])
+
+    def test_tonights_word_form_passes_on_the_audio(self):
+        """Pin afd8977d143e, run pinned_20261124_033952, clip_01 (Digital Asset News vX2WKBOua8w), G18 FAIL at 23:3x
+        ET Nov 23: the source span read 'bottomed', the final 'bottom', the no_difference lock 'bottom'."""
+        src = "He said, over the weekend, we hit a new low. Bitcoin bottomed four years ago to the exact day."
+        fin = "He said, over the weekend, we hit a new low. Bitcoin bottom four years ago to the exact day."
+        clips = {"clip_01": {"lock_text": fin.lower(), "source": "src.mp4", "cut_in": 0.0, "cut_out": 9.0,
+                             "pad_s": 0.0, "prepared": "prep.mp4", "adjudicated": False, "alternatives": None}}
+        segs = [{"label": "clip_01", "type": "talking_head", "start": 0.0, "end": 9.0}]
+
+        class Tr:
+            def span(self, media, t0, t1):
+                return fin if media == "final.mp4" else src
+        import sentence_law as SLW
+        for same in (True, False):
+            with self.subTest(same_audio=same), mock.patch.object(SLW, "span_fidelity", return_value=(same, {"stub": True})), \
+                    mock.patch.object(SLW, "span_matches", return_value=(False, {"stub": True})):
+                ok, rows = W.gate_g18("final.mp4", segs, clips, transcriber=Tr())
+            self.assertEqual(ok, same, rows)

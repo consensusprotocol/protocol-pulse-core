@@ -1,0 +1,26 @@
+{
+ "question": "TASK: cycle 2 of the audit of batch 119 (Protocol Pulse, Python): pipeline/post_live_prefetch.py and its two callers (run_fresh.prefetch_post_live before pinned.prepare; lock_precheck.prefetch). Same diff as cycle 1. Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.\n\nCYCLE 1: qwen27b F1 (the live_status probe's 90 s timeout -> 30 s) and F2 (a segment without a source is YouTube: documented as pinned.acquire's model) were applied; gpt-oss PASS. SINCE THEN, LIVE: U7X6kReXets (post_live, 7134 s) was cut from the cached whole stream at 20:27 ET Nov 23 and the HARD clock guard (pinned.post_live_offset) passed; the independent verifier's drill confirmed the same window (41.2 s) and that the guard refuses a window shifted 1 s or 2.5 s.\n\nTRACE AND ANSWER:\nT1. A yt-dlp section download that TIMES OUT is killed by subprocess.run's timeout; can a process it started keep writing the same out path after _post_live_window has written it (a race that replaces the cut window), and does anything here prevent or detect that?\nT2. If the whole-stream download is partial (a truncated video.mp4 above 100 KB left by an earlier failed run in POST_LIVE_DIR), what does this route produce, and which check (if any) refuses it before a render uses it?\nT3. Any other defect.\n\nOUTPUT: for each finding, severity, file:line, the concrete failure, the fix. If none, say NONE.\nREMINDER: only what the diff and the cited lines show; say when uncertain.",
+ "files": [],
+ "panel": {
+  "gptoss": "openai/gpt-oss-20b"
+ },
+ "cycle1": [
+  {
+   "name": "gptoss",
+   "model": "openai/gpt-oss-20b",
+   "status": 200,
+   "latency_s": 20.6,
+   "cost": 0.000304464,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.000304464,
+ "out_dir": "batch119_r142_postlive_timeout/cycle2/gptoss_medium/heimdall"
+}

@@ -1,0 +1,26 @@
+{
+ "question": "TASK: cycle 2 of the audit of batch 121 (Protocol Pulse, Python): G18 follows ruling 143 for every lock (the same diff as cycle 1). Cycle 1: qwen27b (high effort, traced) PASS, gemma PASS, gpt-oss PASS: no findings. This cycle asks for the strongest case AGAINST the change. Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.\n\nTRACE AND ANSWER:\nT1. Construct the most dangerous input you can for the changed line: a final whose words differ from the source span's decode where the difference is classed NON-material but changes what the speaker asserts (a tense, a modal like \"will\"/\"would\", \"can\"/\"can't\" split by the decoder, a plural/singular). Which of these does pinned.material_pair (via _material) class as material, and which pass now on the audio check?\nT2. The audio check (span_fidelity between the prepared clip and the source span) passes when the clip plays the speaker's own audio. In that case, is a decoder's word-form difference ever a claim we make that the speaker did not make?\nT3. Any other defect.\n\nOUTPUT: for each finding, severity, file:line, the concrete failure, the fix. If none, say NONE.\nREMINDER: only what the diff and the cited lines show; say when uncertain.",
+ "files": [],
+ "panel": {
+  "gemma": "google/gemma-4-31b-it"
+ },
+ "cycle1": [
+  {
+   "name": "gemma",
+   "model": "google/gemma-4-31b-it",
+   "status": 200,
+   "latency_s": 240.9,
+   "cost": 0.00127045,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.00127045,
+ "out_dir": "batch121_r159_g18/cycle2/gemma_medium/heimdall"
+}

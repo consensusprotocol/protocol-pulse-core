@@ -1,0 +1,145 @@
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+index bb5c7dc43..fdaf4b81b 100644
+--- a/pipeline/lock_precheck.py
++++ b/pipeline/lock_precheck.py
+@@ -763,5 +763,6 @@ def main(argv=None):
+         print(f"{time.strftime('%H:%M:%S')} {m}", flush=True)
+     log(f"lock pre-check: decoder_sha {decoder_sha()[:12]}, root {ROOT}")
+-    while True:
++    heartbeat.start("lock_precheck")             # a pass can now run 17+ min (a post_live whole stream, batch 119):
++    while True:                                  # beat while it lives, so a long pass never reads as dead
+         n = serve_once(log=log)
+         heartbeat.mark_pass("lock_precheck", served=n)       # ruling 133 R16 (the service is a once-loop)
+diff --git a/tools/session_watchdog.py b/tools/session_watchdog.py
+index b559222ce..a2da1daee 100644
+--- a/tools/session_watchdog.py
++++ b/tools/session_watchdog.py
+@@ -7,6 +7,9 @@ It reads ITS OWN tree's logs/ and word-pass worker (store and rows): run it from
+ worktree it would read that worktree's empty store (measured: 34 rows 'waiting' where the live worker picks 0).
+ 
+-READ ONLY: the only tmux commands it ever runs are list-panes and capture-pane (tmux() refuses any other before it
+-runs). It never sends keys, kills, restarts or signals anything.
++READ ONLY, with one exception: the only tmux commands it reads with are list-panes and capture-pane (tmux() refuses any
++other before it runs). It never sends keys, kills or signals anything. RULING 159 (b) (23:42 ET Nov 23): it STARTS a dead
++kept-alive service, at any hour, and logs it (restart_dead): only when the service's heartbeat has been dead or missing
++for heartbeat.STALE_S AND no process of that service runs, at most once per RESTART_GAP_S each, and only with that
++service's own fixed launch line (LAUNCH) in a NEW tmux window (or a new session when the session is gone).
+ 
+ Every pass, for each tmux session whose name starts with 'pipeline_', its active pane is read. A Claude Code pane (its
+@@ -91,4 +94,23 @@ HEARTBEATS = (("scorer", "pipeline_pp_scorer"), ("judge", "pipeline_pp_judge"),
+               ("lock_precheck", "pipeline_pp_lockcheck"), ("word_pass", WORDPASS_SESSION))
+ TRANSCRIPT_KEY, TRANSCRIPT_STALE_S = "transcript_ingest", 65 * 60
++# ruling 159 (b): what restart_dead may start, per service: the command-line markers that mean it runs, its launch line
++_CANDS = os.path.join(BUILDER_ROOT, "docs", "audits", "parallel", "pp-selectid_SCORER_CANDIDATES.json")
++LAUNCH = {
++    "scorer": (("stand_alone_scorer.py serve",),
++               f"cd {REPO} && while true; do CUDA_VISIBLE_DEVICES=0 python3 pipeline/stand_alone_scorer.py serve "
++               f"--candidates {_CANDS} 2>&1 | tee -a logs/stand_alone_scorer.log; echo \"$(date +%H:%M:%S) scorer exited; "
++               f"restart in 30 s\" | tee -a logs/stand_alone_scorer.log; sleep 30; done"),
++    "judge": (("judge_serve.py", "local_judge.py serve"),
++              f"cd {REPO} && CUDA_VISIBLE_DEVICES=0 python3 pipeline/judge_serve.py 2>&1 | tee -a data/local_judge/serve.log"),
++    "lock_precheck": (("lock_precheck.py once", "lock_precheck.py serve"),
++                      f"cd {REPO} && while true; do CUDA_VISIBLE_DEVICES=0 python3 pipeline/lock_precheck.py once 2>&1 | "
++                      f"grep --line-buffered -v 'lock pre-check: decoder_sha' | tee -a data/lock_precheck/serve.log; sleep 5; "
++                      f"done"),
++    "word_pass": (("word_pass_worker.py",),
++                  f"cd {REPO} && CUDA_VISIBLE_DEVICES=1 python3 pipeline/word_pass_worker.py 2>&1 | tee -a "
++                  f"logs/word_pass_worker.log; exec sh"),
++}
++RESTART_GAP_S = 30 * 60
++MAIN_TREE = "/home/ultron/protocol_pulse"               # the only tree whose watchdog may start a service
+ 
+ BORDER = re.compile(r"^\s*─{8,}")
+@@ -467,5 +489,6 @@ def heartbeat_findings(state, now, paths):
+             view[name] = {"missing_since": hm(since)}
+             if now - since > heartbeat.STALE_S:
+-                out.append(finding(session, "HEARTBEAT", f"{name}: no heartbeat written", since))
++                out.append(finding(session, "HEARTBEAT", f"{name}: no heartbeat written", since, service=name,
++                                   dead=True))
+             continue
+         miss.pop(name, None)
+@@ -476,8 +499,9 @@ def heartbeat_findings(state, now, paths):
+         if now - at > heartbeat.STALE_S:
+             out.append(finding(session, "HEARTBEAT", f"{name}: no heartbeat since {hm(at)} (pid {pid} "
+-                                                     f"{'still there' if alive else 'gone'})", at))
++                                                     f"{'still there' if alive else 'gone'})", at, service=name,
++                               dead=True))
+         elif pass_at is not None and now - pass_at > heartbeat.PASS_STALE_S:
+             out.append(finding(session, "HEARTBEAT", f"{name}: alive (pid {pid}) but no finished pass since "
+-                                                     f"{hm(pass_at)}", pass_at))
++                                                     f"{hm(pass_at)}", pass_at, service=name, dead=False))
+     if not paths.get("transcript_log"):
+         return out, view
+@@ -491,4 +515,65 @@ def heartbeat_findings(state, now, paths):
+ 
+ 
++def running(markers):
++    """True when any process's command line holds one of the markers (python or the shell loop that starts it)."""
++    me = os.getpid()
++    for d in glob.glob("/proc/[0-9]*/cmdline"):
++        try:
++            if int(d.split("/")[2]) == me:
++                continue
++            with open(d, "rb") as f:
++                cmd = f.read().replace(b"\0", b" ").decode(errors="replace")
++        except (OSError, ValueError):
++            continue
++        if any(m in cmd for m in markers):
++            return True
++    return False
++
++
++def start_service(name, session, present):
++    """The ONE write the watchdog makes (ruling 159 (b)): the service's fixed launch line in a new window of its
++    session, or a new detached session when the session is gone. Never a kill, a signal or keys.
++    Refused in a test session (pipeline/conftest.py sets PP_HEARTBEAT_DIR) and from any tree but the main one: on
++    23:44 ET Nov 23 a test whose patch missed this function started a live pre-check loop from a worktree."""
++    if os.environ.get("PP_HEARTBEAT_DIR") or os.path.realpath(REPO) != MAIN_TREE:
++        raise RuntimeError(f"refused: only the main tree's live watchdog starts a service ({REPO})")
++    cmd = LAUNCH[name][1]
++    argv = (["tmux", "new-window", "-t", f"={session}:", "-n", f"{name}-restarted", cmd] if present
++            else ["tmux", "new-session", "-d", "-s", session, cmd])
++    r = subprocess.run(argv, capture_output=True, text=True, timeout=15)
++    if r.returncode != 0:
++        raise RuntimeError((r.stderr or "").strip()[:200] or f"tmux exit {r.returncode}")
++
++
++def restart_dead(findings, state, now, paths, sessions, is_running=None, start=None):
++    """RULING 159 (b): every HEARTBEAT finding of a kept-alive service (dead or missing past heartbeat.STALE_S) whose
++    process does not run is started again, at any hour, at most once per RESTART_GAP_S; a service still running
++    (frozen, or slow) is never touched. -> [what was done], also logged; the finding's line says it."""
++    is_running, start = is_running or running, start or start_service      # looked up per call (tests patch them)
++    done, last = [], state.setdefault("restarts", {})
++    for f in findings:
++        name = f.get("service")
++        if f.get("kind") != "HEARTBEAT" or name not in LAUNCH or not f.get("dead"):
++            continue
++        if now - float(last.get(name, 0)) < RESTART_GAP_S:
++            done.append({"service": name, "held": f"restarted at {hm(float(last[name]))}, within {RESTART_GAP_S // 60} min"})
++            continue
++        if is_running(LAUNCH[name][0]):
++            done.append({"service": name, "held": "a process of it still runs: never touched"})
++            continue
++        session = dict(HEARTBEATS)[name]
++        try:
++            start(name, session, session in (sessions or ()))
++        except Exception as e:
++            done.append({"service": name, "error": f"{type(e).__name__}: {str(e)[:160]}"})
++            log_line(paths["log"], f"RESTART FAILED {name} in {session}: {type(e).__name__}: {str(e)[:160]}")
++            continue
++        last[name] = now
++        f["what"] += f"; restarted by the watchdog at {hm(now)}"
++        done.append({"service": name, "restarted": hm(now), "session": session})
++        log_line(paths["log"], f"RESTARTED {name} in {session} (ruling 159 (b)): {f['what']}")
++    return done
++
++
+ def default_send(key, kinds, line, now):
+     if PIPELINE not in sys.path:
+@@ -579,4 +664,6 @@ def run_pass(state, now=None, paths=None, send=default_send, waiting=rows_waitin
+         f, status["heartbeats"] = heartbeat_findings(state, now, paths)
+         findings += f
++        if not dry_run:
++            status["restarts"] = restart_dead(f, state, now, paths, sessions)    # ruling 159 (b): any hour
+     except Exception as e:
+         status["errors"].append(f"heartbeats: {type(e).__name__}: {e}")

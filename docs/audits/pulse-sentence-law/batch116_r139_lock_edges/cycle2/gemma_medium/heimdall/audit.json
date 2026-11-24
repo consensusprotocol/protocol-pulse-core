@@ -1,0 +1,48 @@
+{
+ "question": "TASK: cycle 2 of the audit of batch 116 (Protocol Pulse, Python), landed in the ruling 153 lockstep: ruling 139 on the render's lock. Same diff as cycle 1. Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.\n\nRULING 139 (verbatim): \"CUTTABLE's sentence-edge part FLAGS when the cut sits at a word boundary; L-v 2's word check and a cut mid-word stay HARD.\" Ruling 147 (3): it \"binds the render's lock too\". CYCLE 1: gpt-oss F1 (high): flag_sentence_edges opens edl.json and reads c[\"clip_id\"] without checks. Our reading: stage_cut runs after validate wrote edl.json, and every cuts_final.json entry carries clip_id (write_lock_cut_table); an exception there fails the stage, which HOLDS the run (fail closed), so it can never pass a bad edge. qwen27b's cycle-1 answer was lost at a pause.\n\nTRACE AND ANSWER:\nT1. In the diff, list every path by which a lock edge becomes 'sentence_soft' (planned as a sentence boundary and flagged). For each, say whether it can apply to: no audio between the words; a trimmed word's edge; ruling 73's bounds (OUT never before the last locked word's decoded end, IN at most 600 ms before the first word); a cut inside a word.\nT2. Is F1 a real defect (a bad edge passing) or a fail-closed stop?\nT3. Any other defect.\n\nOUTPUT: for each finding, severity, file:line, the concrete failure, the fix. If none, say NONE.\nREMINDER: only what the diff and the cited lines show; say when uncertain.",
+ "files": [],
+ "panel": {
+  "gemma": "google/gemma-4-31b-it"
+ },
+ "cycle1": [
+  {
+   "name": "gemma",
+   "model": "google/gemma-4-31b-it",
+   "status": 200,
+   "latency_s": 361.1,
+   "cost": 0.00230055,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "gemma",
+   "status": 200,
+   "latency_s": 49.5,
+   "cost": 0.00091105,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "gemma:F1",
+   "severity": "critical",
+   "file": "pipeline/sentence_law.py",
+   "line": 983,
+   "issue": "The function `_edge_row` fails to return a value when `b.get('valid')` is True. This causes `gate_g16` to assign `None` to `row['in']` or `row['out']`, leading to a `TypeError` when the code subsequently attempts to access `row['in']['pass']`.",
+   "evidence": "def _edge_row(b, cut_t, side, cut):\n    r = {\"cut\": cut_t, \"boundary_valid\": b.get(\"valid\"), \"pause\": b.get(\"pause\"), \"lexical\": b.get(\"lexical\"),\n         \"after_word\": b.get(\"after_word\"), \"before_word\": b.get(\"before_word\"),\n         **({\"sentence_edge\": b[\"sentence_edge\"]} if b.get(\"sentence_edge\") else {})}      # ruling 139: flagged\n    if not b.get(\"valid\"):\n        what = \"trimmed leading word (ruling 33 part 2)\" if \"trimmed_leading\" in b else \"no sentence boundary\"\n        return {**r, \"pass\": False, \"why\": f\"{what}: {b.get('reason')}\"}",
+   "fix": "Add `return {**r, \"pass\": True}` at the end of the `_edge_row` function to handle the case where the boundary is valid.",
+   "agree": [
+    "gemma"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0032116000000000002,
+ "out_dir": "batch116_r139_lock_edges/cycle2/gemma_medium/heimdall"
+}

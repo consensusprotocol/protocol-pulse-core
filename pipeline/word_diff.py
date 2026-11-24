@@ -206,8 +206,10 @@ def gate_g18(final_path, segments, clips, transcriber=None):
             row["repeat_only_adjudication"] = {"same_audio": same, **det}
             if same:
                 row["identity_repeats_only"], row["identity"] = row["identity"], []
-        small_only = bool(row["identity"]) and bool(c.get("adjudicated")) and \
-            not _material(row["identity"], (c["lock_text"], heard))      # ruling 143 (2): a small word never holds
+        small_only = bool(row["identity"]) and \
+            not _material(row["identity"], (c["lock_text"], heard))      # ruling 143 (2): a small word never holds,
+        #   adjudicated lock or not (ruling 159 (b), Nov 23: a no_difference lock's final read 'bottom' where its source
+        #   read 'bottomed' and G18 held what the lock passes); the prepared clip's audio still decides it below
         omitted = bool(row["identity"]) and _omitted_or_repeated_only(c["lock_text"], heard, alts)
         if row["identity"] and (omitted or small_only) and c.get("prepared"):
             # ruling 22 (orchestrator 2026-11-12 '13:06'): the final's decode is a proxy, the audio is the truth: a

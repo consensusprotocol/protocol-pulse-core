@@ -1,0 +1,26 @@
+{
+ "question": "TASK: cycle 2 of the audit of batch 120 (Protocol Pulse, Python): ruling 145's GPU small-tenant allowance (gpu0.small_tenants, shown at the end of the diff) and the test the independent verifier found missing. Only state what you can verify from the diff. If uncertain, say so. Do not guess.\n\nRULING 145: \"a foreign program under 2 GiB and under 10 percent use is tolerated and logged\". Its three conditions: every foreign user a process with reported memory under 2048 MiB (and not another client's Ollama model); the GPU keeping the caller's need + 4096 MiB free of everything not this run's; utilisation under 10 percent. CYCLE 1 (qwen27b PASS; gpt-oss's two findings disproved in the code: Gpu0Unreadable subclasses Gpu0Stop; `and m` already skips None). THE VERIFIER (Nov 23): the third condition (memory left for our load) had no test: the 'no headroom' subtest is refused by a different rule (memory no listed process accounts for: an unlisted entry with pid None).\n\nTHE DIFF: test_the_headroom_alone_decides: tenants of 1,900 MiB each, 100 MiB unlisted (under UNLISTED_MAX_MIB 1024), utilisation 0; one MiB short of need + headroom is refused (small_tenants' reason names \"under the need\", and swap_to raises Gpu0Foreign after the wait); exactly the room is tolerated.\n\nTRACE AND ANSWER:\nT1. For \"one MiB short\": compute free = total - used + mine with the test's numbers and show which branch of small_tenants refuses it.\nT2. Does any subtest still pass because of a rule other than the one it names?\nT3. Any defect in small_tenants itself (the arithmetic, the order of the checks, what is logged).\n\nOUTPUT: for each finding, severity, file:line, the failure, the fix. If none, say NONE.\nREMINDER: only what the diff shows; say when uncertain.",
+ "files": [],
+ "panel": {
+  "gemma": "google/gemma-4-31b-it"
+ },
+ "cycle1": [
+  {
+   "name": "gemma",
+   "model": "google/gemma-4-31b-it",
+   "status": 200,
+   "latency_s": 271.1,
+   "cost": 0.00140135,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.00140135,
+ "out_dir": "batch120_r145_allowance/cycle2/gemma_medium/heimdall"
+}

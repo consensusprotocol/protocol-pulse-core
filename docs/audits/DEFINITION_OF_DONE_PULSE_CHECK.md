@@ -6,6 +6,36 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 00:30 RULING 159 (b), INTEGRATOR ROWS: merge of r159-g18 (staged: regression_test.sh 26 PASS / 0 FAIL, pipeline/regression.sh exit 0). One line per row, with its commit:
+- ROW G18 UNDER RULING 143, CLOSED (batch 121, 1602034ab).
+  - The question: does G18 run ruling 143's principle? It did NOT for a lock that was not adjudicated: its small-word path required `adjudicated`. Tonight's no_difference lock compared the final with the source span's decode and held 'bottomed'/'bottom'.
+  - The fix: now every lock takes it. A non-material difference is decided by the prepared clip's audio (it must BE the source span); a number, negation, name, ticker or amount still fails on text. The lock and the release gate agree.
+  - Evidence: the tests fail on the old code; mutations G1/G2 killed; Heimdall cycle 1 PASS (qwen high traced, gemma, gpt-oss) and cycle 2 PASS (qwen, gemma; gpt-oss's 2 findings were a hunk-view artefact).
+- ROW THE ALLOWANCE'S MISSING TEST AND ITS AUDIT, CLOSED (batch 122, 02ba79e74).
+  - test_the_headroom_alone_decides: every tenant small, every MiB accounted, the GPU idle; the need + 4 GiB alone decides, one MiB either way. It kills the headroom-removed mutant that the old subtest let through.
+  - Audit batch 120 cycle 2: qwen, gemma and gpt-oss PASS.
+- ROW THE POST-LIVE PATH'S SECOND CYCLE, CLOSED (batch 119 cycle 2).
+  - Disproved: the "90 s probe" (the code has 30 s; the stale diff showed 90) and the rounded start (by design).
+  - Two real, both fail-closed, PROPOSED for the next decoder lockstep:
+    - (a) A timed-out section download orphans its ffmpeg. Seen 00:04-00:12 ET: it keeps downloading into yt-dlp's `.part` temp file, never the window file. Fix: select_passages' download in its own process group, killed whole.
+    - (b) A partial whole-stream cache file is reused. The clock guard or the word checks refuse its window. Fix: refuse a file with a `.ytdl` sidecar, and one lock per video directory.
+- ROW BATCH 116'S SECOND CYCLE, CLOSED.
+  - gemma's "missing return" is disproved: _edge_row returns on every path.
+  - qwen's "G17 omits trimmed" is disproved for every verdict: edge_word_bounds never reads the plan.
+  - Cycle 1's gpt-oss F1 is a fail-closed stop, not a pass.
+- ROW THE WATCHDOG RESTARTS A DEAD SERVICE, CLOSED (batch 123: d5c184ee7, f8a837646, f28b54572, c04de9a73).
+  - At any hour it starts a kept-alive service whose heartbeat is dead or missing for 20 min AND which has no running process. It never kills, signals or sends keys. It restarts each service at most once per 30 min, with that service's own fixed launch line, in a new tmux window. It logs a RESTARTED line. Quiet hours hold only the Telegram line.
+  - The pre-check's once process now beats while it lives: a post_live pass can run 17+ min.
+  - Mutations 9 of 9. Heimdall: gemma PASS in both cycles; gpt-oss PASS in cycle 1, its cycle-2 KeyError claims disproved; qwen at high effort gave no answer in time in either cycle (recorded).
+- INCIDENT, MINE (23:44-00:12 ET):
+  - What happened: the first run of the night-restart test bound the real start_service as a default argument, so the test's patch missed it. A live lock pre-check loop started FROM THE r159-g18 WORKTREE in pipeline_pp_lockcheck (window "lock_precheck-restarted").
+  - What it did: in 28 min it answered 46 of the builder's requests, ALL errors, written only under the worktree (the builder never read them). It made real section downloads (2 orphaned ffmpegs, killed 00:10). No Scribe call: the live ledger has no row since 23:40. $0. The window was closed at 00:12.
+  - Fixed: restart_dead resolves its functions per call, and start_service refuses in any test session and from any tree but the main one (mutation R7 killed).
+- FOUND, FOR THE ORCHESTRATOR:
+  - (1) test_ruling17_lock's Nov 12 tests (TestNov12Clip01Head, TestG18WithAttestedReadings) have FAILED on the live code SINCE THE RULING 153 LOCKSTEP. Ruling 143 no longer records ruling 18's "alternatives" for that case. They run only where runs/pinned_20261112_135315 exists, so my lockstep worktree skipped them. Confirmed on a detached 1996be256 with main's runs linked. They need rewriting to ruling 143: test-only, no decoder change; it is my next row.
+  - (2) pinned.material_pair treats a spelled-out number as NON-material: 'fifteen'/'fifty' -> False. Only digits and ordinals count, so law L-v 2 ("numbers always hold") has a gap for a decoder that spells numbers. It lives in pinned.py, a DECODER file, so it needs a lockstep with the builder. Not changed.
+- Other merged-tree failures: test_gpu0's Ollama wait is a load-timing flake (passes alone); TestSpanMatchesRealSpeech reads purged media; TestYesterdaysFinal x4 is GPU-only, as on the live code.
+
 ## 23:38 DELIVERED ON THE REVIEW PATH (ruling 158 (1); NOT FOR PUBLISHING): Telegram 68164 (16:9), 68165 (9:16) and the note 68166, after the standalone DO NOT PUBLISH line 68162 (23:19). Pin afd8977d143e, run /home/ultron/protocol_pulse/runs/pinned_20261124_033952.
 - THE RENDER PATH RAN END TO END, for the first time since Nov 13:
   - Every stage ran: env, pinned, review, validate, cut, sentence_law, voice, prepare, layout, render, gates, attestation.
