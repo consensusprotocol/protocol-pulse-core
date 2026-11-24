@@ -1,6 +1,6 @@
 {
- "usd_estimate": 5.642378,
- "calls": 79,
+ "usd_estimate": 5.985657,
+ "calls": 83,
  "by_backend": {
   "heimdall:qwen/qwen3.8-27b": {
    "calls": 14,
@@ -26,17 +26,17 @@
    ]
   },
   "xai:grok-4.20-0309-reasoning": {
-   "calls": 32,
-   "in": 33570,
-   "out": 135960,
-   "usd_estimate": 3.56685,
+   "calls": 35,
+   "in": 39344,
+   "out": 148053,
+   "usd_estimate": 3.898045,
    "price_usd_per_1m": [
     5,
     25
    ],
-   "usd_reported": 0.3775617,
-   "reported_calls": 32,
-   "in_reported": 33570
+   "usd_reported": 0.4146085,
+   "reported_calls": 35,
+   "in_reported": 39344
   },
   "heimdall:z-ai/glm-5.3-flash": {
    "calls": 6,
@@ -125,17 +125,17 @@
    "in_reported": 1364
   },
   "heimdall:google/gemma-4-31b-it": {
-   "calls": 3,
-   "in": 1569,
-   "out": 2544,
-   "usd_estimate": 0.042867,
+   "calls": 4,
+   "in": 2092,
+   "out": 3245,
+   "usd_estimate": 0.054951,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.00061365,
-   "reported_calls": 3,
-   "in_reported": 1569
+   "usd_reported": 0.00078025,
+   "reported_calls": 4,
+   "in_reported": 2092
   }
  },
  "by_role": {
@@ -188,12 +188,16 @@
    "usd_estimate": 1.291295
   },
   "coherence_panel": {
-   "calls": 7,
-   "usd_estimate": 0.060696
+   "calls": 8,
+   "usd_estimate": 0.07278
+  },
+  "speaker_verdict": {
+   "calls": 3,
+   "usd_estimate": 0.331195
   }
  },
  "reserved": {},
  "usd_unreported_estimate": 0.160939,
- "usd_reported": 0.62750292,
+ "usd_reported": 0.66471632,
  "late_answers": 2
 }

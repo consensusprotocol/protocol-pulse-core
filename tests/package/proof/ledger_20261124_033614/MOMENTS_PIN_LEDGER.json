@@ -1,0 +1,826 @@
+{
+ "schema": "protocol_pulse.pinned_story.v1",
+ "story_id": "moments-ledger_20261124_033614-afd8977d",
+ "label": "bitcoin",
+ "headline": "Bitcoin, in their words",
+ "approved_by": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
+ "approved_at": "2026-11-24T03:38:15+00:00",
+ "approval_ref": "docs/audits/parallel/pp-selectid_STATE.md (top package, ledger_20261124_033614)",
+ "machine_cuts": true,
+ "segments": [
+  {
+   "role": "hook",
+   "video_id": "0shaXx_n870",
+   "channel": "Simply Bitcoin",
+   "start": 93.149,
+   "end": 99.169,
+   "approved_text": "Stocks had fallen seven days in a row, Bitcoin was on its way to 55K, and everybody had the same story.",
+   "transcript_sha256": "d34822cb2bb29f1cc8e41396f40692ab368b20c680794957b321695f6cba081e",
+   "time_sensitive": true,
+   "source_published_at": "2026-11-23T22:13:38Z",
+   "speaker": {
+    "name": "unknown",
+    "role": null,
+    "line": null,
+    "basis": null,
+    "why": "nothing in the transcript or around the clip identifies the speaker by name or ties the content in first person to any named person from the source lines",
+    "people": [],
+    "turn": {
+     "read": false,
+     "why": "no speaker-change marker before the clip",
+     "address": null,
+     "self_intro": null
+    },
+    "measured": true,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "replayed": false
+   },
+   "visual": {
+    "version": "visual-3",
+    "measured": true,
+    "flags": [
+     {
+      "kind": "on_screen_text",
+      "text": "TRUMP LAUNCHES MEMECOIN",
+      "why": "The narration never mentions Trump or a memecoin."
+     },
+     {
+      "kind": "on_screen_text",
+      "text": "OCTOBER 2025 RECORD HIGH",
+      "why": "The narration does not mention an October 2025 record high."
+     },
+     {
+      "kind": "on_screen_text",
+      "text": "IRAN WAR",
+      "why": "The narration does not mention any war."
+     },
+     {
+      "kind": "on_screen_text",
+      "text": "TRADE WAR",
+      "why": "The narration does not mention a trade war."
+     },
+     {
+      "kind": "on_screen_text",
+      "text": "TRUMP WINS 2024 ELECTION",
+      "why": "The narration does not mention Trump or an election result."
+     },
+     {
+      "kind": "on_screen_text",
+      "text": "BITCOIN ERASES ALL POST-ELECTION GAINS",
+      "why": "The narration only says Bitcoin was heading toward 55K, not that it erased all post-election gains."
+     },
+     {
+      "kind": "on_screen_text",
+      "text": "2024 ELECTION",
+      "why": "The narration does not mention the 2024 election."
+     },
+     {
+      "in_9x16": "whole",
+      "item": "bug",
+      "kind": "burned_in",
+      "text": "SIMPLY BITCOIN"
+     }
+    ],
+    "third_person": {
+     "finding": "No person other than the unseen narrator appears as a still, photo, or graphic; the frames show only annotated price charts and tweet screenshots, and the narration describes market declines rather th",
+     "how": "none",
+     "name_on_screen": null,
+     "shown": false,
+     "words_negative": false
+    },
+    "on_screen_text": [
+     {
+      "asserts_beyond_words": true,
+      "text": "TRUMP LAUNCHES MEMECOIN",
+      "why": "The narration never mentions Trump or a memecoin."
+     },
+     {
+      "asserts_beyond_words": true,
+      "text": "OCTOBER 2025 RECORD HIGH",
+      "why": "The narration does not mention an October 2025 record high."
+     },
+     {
+      "asserts_beyond_words": true,
+      "text": "IRAN WAR",
+      "why": "The narration does not mention any war."
+     },
+     {
+      "asserts_beyond_words": true,
+      "text": "TRADE WAR",
+      "why": "The narration does not mention a trade war."
+     },
+     {
+      "asserts_beyond_words": true,
+      "text": "TRUMP WINS 2024 ELECTION",
+      "why": "The narration does not mention Trump or an election result."
+     },
+     {
+      "asserts_beyond_words": true,
+      "text": "BITCOIN ERASES ALL POST-ELECTION GAINS",
+      "why": "The narration only says Bitcoin was heading toward 55K, not that it erased all post-election gains."
+     },
+     {
+      "asserts_beyond_words": true,
+      "text": "2024 ELECTION",
+      "why": "The narration does not mention the 2024 election."
+     }
+    ],
+    "lower_third": {
+     "name": null,
+     "text": null
+    },
+    "burned_in": [
+     {
+      "at": [
+       93.15,
+       94.15,
+       95.15,
+       96.15,
+       97.15,
+       98.15
+      ],
+      "covers_speaker": false,
+      "in_9x16": "whole",
+      "kind": "bug",
+      "text": "SIMPLY BITCOIN",
+      "whole_in_16x9": true
+     }
+    ],
+    "backend": "xai_vision:grok-4.7",
+    "replayed": false,
+    "sheet": {
+     "name": "visual_d7d635e7cf12daa2.jpg",
+     "sha256": "d7d635e7cf12daa2e2b640831ecebce607664a501351e03b3cb7837013dafd50",
+     "times": [
+      93.15,
+      94.15,
+      95.15,
+      96.15,
+      97.15,
+      98.15,
+      99.12
+     ]
+    }
+   },
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  },
+  {
+   "role": "clip",
+   "video_id": "vX2WKBOua8w",
+   "channel": "Digital Asset News",
+   "start": 575.606,
+   "end": 586.556,
+   "approved_text": "He said, over the weekend, we hit a new low. Bitcoin bottom four years ago to the exact day. Let me read that again.",
+   "transcript_sha256": "a8b62a12c8907fdc41df34a669bf0efe0ad59e9a8e97f1c7b6370fe758b5f0a0",
+   "time_sensitive": true,
+   "source_published_at": "2026-11-23T22:35:55Z",
+   "speaker": {
+    "name": "unknown",
+    "role": null,
+    "line": null,
+    "basis": null,
+    "why": "nothing in the transcript or clip addresses a named person who then speaks, uses first-person self-reference tied to a source line, or otherwise identifies the speaker per the rules",
+    "people": [
+     {
+      "name": "Jensen Huang",
+      "role": "other",
+      "line": "Jensen Huang is back as Nvidia CEO, Nvidia jumped 31%, and stocks added about 3 TRILLION dollars in one day. Bitcoin spiked to 64,500 and gave it all back within hours, and that is exactly how a bear market behaves."
+     },
+     {
+      "name": "Tristan",
+      "role": "other",
+      "line": "Follow Tristan for DATA ANALYTICS - https://x.com/tristanqcolt/status/2124716904069632195"
+     }
+    ],
+    "turn": {
+     "read": false,
+     "why": "no speaker-change marker before the clip",
+     "address": null,
+     "self_intro": null
+    },
+    "measured": true,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "replayed": false
+   },
+   "visual": {
+    "version": "visual-3",
+    "measured": true,
+    "flags": [
+     {
+      "kind": "third_person",
+      "name_on_screen": "The Bitcoin Therapist",
+      "text": "A still photo of a man in a suit (the 'The Bitcoin Therapist' account) is shown in the post, overlaid with the negative graphic 'IT'S ALL GONE 100% SCAMS', while the speaker says they 'hit a new low'."
+     },
+     {
+      "kind": "on_screen_text",
+      "text": "Bitcoin bottomed 4 years ago to the exact day. Seriously, what are the odds of this?",
+      "why": "The rhetorical 'Seriously, what are the odds of this?' is on screen but not spoken."
+     },
+     {
+      "kind": "on_screen_text",
+      "text": "November 21, 2022 \u2014 $15,479",
+      "why": "Gives an exact date and price that the spoken words do not state."
+     },
+     {
+      "kind": "on_screen_text",
+      "text": "November 21, 2020 \u2014 $8,527",
+      "why": "Gives an exact date and price that the spoken words do not state."
+     },
+     {
+      "kind": "on_screen_text",
+      "text": "IT'S ALL GONE 100% SCAMS 0% LEVERAGE 100% VOLUME",
+      "why": "Asserts 'IT'S ALL GONE' and '100% SCAMS', which the spoken words never say."
+     },
+     {
+      "in_9x16": "whole",
+      "item": "bug",
+      "kind": "burned_in",
+      "text": "CRYPTO IRA"
+     }
+    ],
+    "third_person": {
+     "finding": "A still photo of a man in a suit (the 'The Bitcoin Therapist' account) is shown in the post, overlaid with the negative graphic 'IT'S ALL GONE 100% SCAMS', while the speaker says they 'hit a new low'.",
+     "how": "photo",
+     "name_on_screen": "The Bitcoin Therapist",
+     "shown": true,
+     "words_negative": true
+    },
+    "on_screen_text": [
+     {
+      "asserts_beyond_words": true,
+      "text": "Bitcoin bottomed 4 years ago to the exact day. Seriously, what are the odds of this?",
+      "why": "The rhetorical 'Seriously, what are the odds of this?' is on screen but not spoken."
+     },
+     {
+      "asserts_beyond_words": true,
+      "text": "November 21, 2022 \u2014 $15,479",
+      "why": "Gives an exact date and price that the spoken words do not state."
+     },
+     {
+      "asserts_beyond_words": true,
+      "text": "November 21, 2020 \u2014 $8,527",
+      "why": "Gives an exact date and price that the spoken words do not state."
+     },
+     {
+      "asserts_beyond_words": true,
+      "text": "IT'S ALL GONE 100% SCAMS 0% LEVERAGE 100% VOLUME",
+      "why": "Asserts 'IT'S ALL GONE' and '100% SCAMS', which the spoken words never say."
+     }
+    ],
+    "lower_third": {
+     "name": null,
+     "text": null
+    },
+    "burned_in": [
+     {
+      "at": [
+       5761.1,
+       5761.6,
+       5801.1,
+       5861.1,
+       5861.6
+      ],
+      "covers_speaker": false,
+      "in_9x16": "whole",
+      "kind": "ticker",
+      "text": "TRADE CRYPTOS & STOCKS IN 190+ COUNTRIES  KRAKEN  $25 SIGN UP BONUS. ESTABLISHED 2011",
+      "whole_in_16x9": true
+     },
+     {
+      "at": [
+       5761.1,
+       5761.6,
+       5801.1,
+       5861.1,
+       5861.6
+      ],
+      "covers_speaker": false,
+      "in_9x16": "whole",
+      "kind": "bug",
+      "text": "CRYPTO IRA",
+      "whole_in_16x9": true
+     }
+    ],
+    "backend": "heimdall:qwen/qwen3.8-27b",
+    "replayed": false,
+    "sheet": {
+     "name": "visual_bcc818fa469e20a9.jpg",
+     "sha256": "bcc818fa469e20a9e9d105cdbdb51c5fc08f331048e73324d84a4713ceb3f7cf",
+     "times": [
+      575.61,
+      576.61,
+      577.61,
+      578.61,
+      579.61,
+      580.61,
+      581.61,
+      582.61,
+      583.61,
+      584.61,
+      585.61,
+      586.51
+     ]
+    }
+   },
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  },
+  {
+   "role": "clip",
+   "video_id": "duqpCH2snqE",
+   "channel": "Yahoo Finance",
+   "start": 202.473,
+   "end": 221.113,
+   "approved_text": "Bitcoin swept those lows. Late in the middle of the night this weekend, I woke up, Bitcoin had gone to $55,000 and had bounced. Now, this was basically a historic sell -off. You had one, two, three, four, five, six, seven red weeks in a row. And then this very, very long wick on serious volume.",
+   "transcript_sha256": "7226daed308f635448d70c7a5b6c2d9f5a32571bd800a3a30296ff7fc91c0bfe",
+   "time_sensitive": true,
+   "source_published_at": "2026-11-23T18:00:37Z",
+   "speaker": {
+    "name": "unknown",
+    "role": null,
+    "line": null,
+    "basis": null,
+    "why": "nothing in the transcript around the clip or inside the clip itself addresses anyone by name or ties the first-person statements to a specific person from the source lines",
+    "people": [],
+    "turn": {
+     "read": false,
+     "why": "no speaker-change marker before the clip",
+     "address": null,
+     "self_intro": null
+    },
+    "measured": true,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "replayed": false
+   },
+   "visual": {
+    "version": "visual-3",
+    "measured": true,
+    "flags": [
+     {
+      "in_9x16": "whole",
+      "item": "bug",
+      "kind": "burned_in",
+      "text": "THE DAILY WOLF"
+     }
+    ],
+    "third_person": {
+     "finding": "No non-speaker person is shown as a still, photo, or graphic in any frame; only the speaker appears.",
+     "how": "none",
+     "name_on_screen": null,
+     "shown": false,
+     "words_negative": true
+    },
+    "on_screen_text": [],
+    "lower_third": {
+     "name": null,
+     "text": null
+    },
+    "burned_in": [
+     {
+      "at": [
+       202.47,
+       203.47,
+       204.47,
+       205.47,
+       206.47,
+       207.47,
+       208.47,
+       209.47,
+       210.47,
+       211.47,
+       212.47,
+       213.47,
+       214.47,
+       215.47,
+       216.47,
+       217.47,
+       218.47,
+       219.47,
+       220.47,
+       221.08
+      ],
+      "covers_speaker": false,
+      "in_9x16": "whole",
+      "kind": "bug",
+      "text": "THE DAILY WOLF",
+      "whole_in_16x9": true
+     }
+    ],
+    "backend": "heimdall:nvidia/nemotron-3.5-super-vl",
+    "replayed": false,
+    "sheet": {
+     "name": "visual_a5146fcfca70a60f.jpg",
+     "sha256": "a5146fcfca70a60fae55bcddcc7cc2a2c1b24ff10fdea2fed3e00201487c15d0",
+     "times": [
+      202.47,
+      203.47,
+      204.47,
+      205.47,
+      206.47,
+      207.47,
+      208.47,
+      209.47,
+      210.47,
+      211.47,
+      212.47,
+      213.47,
+      214.47,
+      215.47,
+      216.47,
+      217.47,
+      218.47,
+      219.47,
+      220.47,
+      221.06
+     ]
+    }
+   },
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  }
+ ],
+ "moments_package": {
+  "schema": "pp.package/1",
+  "package_sha256": "afd8977d143eb66a88a20dc02df764c436fc7cdd271dae3ff3e3bfefa7c33e47",
+  "type": "moments",
+  "vo_kind": "medley (L-y), written, attempt 2",
+  "edl_vo": {
+   "intro": null,
+   "bridges": [
+    {
+     "text": "Bitcoin, in the words of Simply Bitcoin, Digital Asset News and Yahoo Finance, in their own clips.",
+     "after_clip": 2
+    }
+   ]
+  },
+  "signoff_expected": "Clips today from Simply Bitcoin, Digital Asset News, and Yahoo Finance. Go follow them for more. Links are below.",
+  "title": "Bitcoin, in their words",
+  "caption": "bitcoin, in the words of simply bitcoin, digital asset news and yahoo finance.",
+  "hook_first_words": "Stocks had fallen seven days in a row,",
+  "vo_jobs": {
+   "takeaway": "takeaway"
+  },
+  "shape": "medley",
+  "bridge": null,
+  "supply_exception": null,
+  "no_voice": null,
+  "caption_fallback": false,
+  "gates": {
+   "vo_fidelity_deterministic": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.check_deterministic)",
+    "replayed": false,
+    "n": 1
+   },
+   "vo_fidelity_verdict": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "duplicate": {
+    "status": "PASS",
+    "by": "code (package.duplicates)",
+    "replayed": false,
+    "n": 1
+   },
+   "price_now": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.price_now)",
+    "replayed": false,
+    "n": 1
+   },
+   "runtime": {
+    "status": "FLAGGED",
+    "by": "code (the factory's R4 estimate: 2.5 w/s + 1.0 s a VO line + 14.3 s tail)",
+    "replayed": false,
+    "n": 1,
+    "flags": [
+     "This video runs 58 seconds, shorter than usual."
+    ]
+   },
+   "r4": {
+    "status": "PASS",
+    "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+    "replayed": false,
+    "n": 1
+   },
+   "context_a": {
+    "status": "FLAGGED",
+    "by": [
+     "google:gemini-2.5-pro"
+    ],
+    "replayed": false,
+    "n": 3,
+    "flags": [
+     "Our fact-checker raised soft doubts on 20 of the 21 clips it checked tonight, which points at the checker more than the clips. On this video: the opener depends on a condition stated before it; Digital Asset News may not be giving its own sincere view and refers to something said earlier; Yahoo Finance refers to something said earlier."
+    ]
+   },
+   "context_b": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "context_c": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "exclusion": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "second_pass": {
+    "status": "PASS",
+    "by": [
+     "elevenlabs_stt:scribe_v1"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "cuttable": {
+    "status": "FLAGGED",
+    "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
+    "replayed": false,
+    "n": 3,
+    "flags": [
+     "The opening clip (Simply Bitcoin): the checker heard the sentence carry on past the clip's last word, so it may end mid-sentence."
+    ]
+   },
+   "coherence": {
+    "status": "PASS",
+    "by": "panel:heimdall:google/gemma-4-31b-it+heimdall:minimax/minimax-m3.1-flash+heimdall:z-ai/glm-5.3-flash",
+    "replayed": false,
+    "n": 1
+   },
+   "medley": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1,
+    "flagged": []
+   },
+   "ly_shape": {
+    "status": "PASS",
+    "by": "code (package.ly_shape, L-y)",
+    "replayed": false,
+    "n": 1,
+    "why": []
+   },
+   "house_style": {
+    "status": "PASS",
+    "by": "code (house_style.lint_lines, ruling 6)",
+    "replayed": false,
+    "n": 1,
+    "why": []
+   },
+   "hook_onset": {
+    "status": "PASS",
+    "by": "hook_onset.measure (sentence_law.edge_plan + head_tail on the source audio: G17a at the pin stage)",
+    "replayed": false,
+    "n": 1,
+    "lead_ms": 260,
+    "cut_in": 92.839,
+    "why": "ok"
+   },
+   "kinds_cap": {
+    "status": "PASS",
+    "cap": 5,
+    "why": "ORCHESTRATOR RULING 157 (1) (22:27 ET Nov 23): for this package the cap is the kinds it carries (4 or 5: step A's soft doubts as one, our plain lines as one, the sentence edge, the sponsor mention before a clip, the opener under the bar if it is); the standing cap stays 3",
+    "replayed": false,
+    "n": 1,
+    "by": "the driver (the 22:21 ET Nov 23 question's default; package_pin.flags_cap)"
+   },
+   "fallback_line": {
+    "status": "FLAGGED",
+    "by": "package.fallback_fields (ruling 156 (2)): the plain lines built by code from fixed templates that state no fact, gated as any line",
+    "replayed": false,
+    "n": 1,
+    "flags": [
+     "Our lines are the plain fallback because our writers failed their checks: \"Bitcoin, in the words of Simply Bitcoin, Digital Asset News and Yahoo Finance, in their own clips.\""
+    ]
+   },
+   "sponsor": {
+    "status": "FLAGGED",
+    "by": "moments.exclusion_verdict (ruling 146 (3)): a sponsor mention in the sentence before the clip only; its own words judged by the exclusion model",
+    "replayed": false,
+    "n": 3,
+    "flags": [
+     "The clip (Digital Asset News) comes right after a sponsor mention."
+    ]
+   },
+   "stand_alone": {
+    "status": "PASS",
+    "by": "stand_alone.check_edl (the render's STAND_ALONE at the pin stage, moments=True: the render's clip scorer's verdicts as the integrator's service gave them, stand-alone only, the score alone (rulings 56, 60); without an affirming one a conjunction, reply-fragment or trimmed opener fails closed)",
+    "replayed": false,
+    "n": 1,
+    "rows": [
+     "hook: PASS opener: opens on 'stocks' | topic: about Bitcoin by the miner's screen ('Bitcoin')",
+     "clip_01: PASS opener: opens on 'he' | topic: about Bitcoin by the miner's screen ('Bitcoin')",
+     "clip_02: PASS opener: opens on 'bitcoin' | topic: about Bitcoin by the miner's screen ('Bitcoin')"
+    ],
+    "medley_names_bitcoin": {
+     "pass": true,
+     "segments": [
+      "hook",
+      "clip_01",
+      "clip_02"
+     ],
+     "why": "named by hook, clip_01, clip_02"
+    },
+    "screen": "\\b(bitcoins?|btc|sats|satoshis?|halving|hash ?rate|lightning network|self[- ]custody|cold storage|microstrategy|mstr|ibit|saylor)\\b"
+   },
+   "visual": {
+    "status": "PASS",
+    "by": [
+     "heimdall:nvidia/nemotron-3.5-super-vl",
+     "heimdall:qwen/qwen3.8-27b",
+     "xai_vision:grok-4.7"
+    ],
+    "replayed": false,
+    "n": 3,
+    "flags": [
+     {
+      "segment": 0,
+      "kind": "on_screen_text",
+      "text": "TRUMP LAUNCHES MEMECOIN",
+      "why": "The narration never mentions Trump or a memecoin."
+     },
+     {
+      "segment": 0,
+      "kind": "on_screen_text",
+      "text": "OCTOBER 2025 RECORD HIGH",
+      "why": "The narration does not mention an October 2025 record high."
+     },
+     {
+      "segment": 0,
+      "kind": "on_screen_text",
+      "text": "IRAN WAR",
+      "why": "The narration does not mention any war."
+     },
+     {
+      "segment": 0,
+      "kind": "on_screen_text",
+      "text": "TRADE WAR",
+      "why": "The narration does not mention a trade war."
+     },
+     {
+      "segment": 0,
+      "kind": "on_screen_text",
+      "text": "TRUMP WINS 2024 ELECTION",
+      "why": "The narration does not mention Trump or an election result."
+     },
+     {
+      "segment": 0,
+      "kind": "on_screen_text",
+      "text": "BITCOIN ERASES ALL POST-ELECTION GAINS",
+      "why": "The narration only says Bitcoin was heading toward 55K, not that it erased all post-election gains."
+     },
+     {
+      "segment": 0,
+      "kind": "on_screen_text",
+      "text": "2024 ELECTION",
+      "why": "The narration does not mention the 2024 election."
+     },
+     {
+      "segment": 0,
+      "in_9x16": "whole",
+      "item": "bug",
+      "kind": "burned_in",
+      "text": "SIMPLY BITCOIN"
+     },
+     {
+      "segment": 1,
+      "kind": "third_person",
+      "name_on_screen": "The Bitcoin Therapist",
+      "text": "A still photo of a man in a suit (the 'The Bitcoin Therapist' account) is shown in the post, overlaid with the negative graphic 'IT'S ALL GONE 100% SCAMS', while the speaker says they 'hit a new low'."
+     },
+     {
+      "segment": 1,
+      "kind": "on_screen_text",
+      "text": "Bitcoin bottomed 4 years ago to the exact day. Seriously, what are the odds of this?",
+      "why": "The rhetorical 'Seriously, what are the odds of this?' is on screen but not spoken."
+     },
+     {
+      "segment": 1,
+      "kind": "on_screen_text",
+      "text": "November 21, 2022 \u2014 $15,479",
+      "why": "Gives an exact date and price that the spoken words do not state."
+     },
+     {
+      "segment": 1,
+      "kind": "on_screen_text",
+      "text": "November 21, 2020 \u2014 $8,527",
+      "why": "Gives an exact date and price that the spoken words do not state."
+     },
+     {
+      "segment": 1,
+      "kind": "on_screen_text",
+      "text": "IT'S ALL GONE 100% SCAMS 0% LEVERAGE 100% VOLUME",
+      "why": "Asserts 'IT'S ALL GONE' and '100% SCAMS', which the spoken words never say."
+     },
+     {
+      "segment": 1,
+      "in_9x16": "whole",
+      "item": "bug",
+      "kind": "burned_in",
+      "text": "CRYPTO IRA"
+     },
+     {
+      "segment": 2,
+      "in_9x16": "whole",
+      "item": "bug",
+      "kind": "burned_in",
+      "text": "THE DAILY WOLF"
+     }
+    ],
+    "by_rule": "visual_pin (ruling 70): one contact sheet per clip; a finding is a FLAG, sealed, never a reject by itself"
+   },
+   "takeaway_value": {
+    "status": "FLAGGED",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1,
+    "text": "Bitcoin, in the words of Simply Bitcoin, Digital Asset News and Yahoo Finance, in their own clips.",
+    "answers": {
+     "adds": "no",
+     "no_restate": "yes",
+     "missed": "no",
+     "short": "yes"
+    },
+    "why": "The line only attributes the prior clips without adding any new information, insight, or conclusion that viewers would notice if removed.",
+    "words": 17,
+    "cap": 20,
+    "rule": "ruling 91 (medley half): all four a clear yes and at most 20 words, off every writer's vendor and family",
+    "flags": [
+     "Our lines are the plain fallback because our writers failed their checks: \"Bitcoin, in the words of Simply Bitcoin, Digital Asset News and Yahoo Finance, in their own clips.\""
+    ]
+   }
+  },
+  "review_flags": [
+   "This video runs 58 seconds, shorter than usual.",
+   "Our fact-checker raised soft doubts on 20 of the 21 clips it checked tonight, which points at the checker more than the clips. On this video: the opener depends on a condition stated before it; Digital Asset News may not be giving its own sincere view and refers to something said earlier; Yahoo Finance refers to something said earlier.",
+   "The opening clip (Simply Bitcoin): the checker heard the sentence carry on past the clip's last word, so it may end mid-sentence.",
+   "Our lines are the plain fallback because our writers failed their checks: \"Bitcoin, in the words of Simply Bitcoin, Digital Asset News and Yahoo Finance, in their own clips.\"",
+   "The clip (Digital Asset News) comes right after a sponsor mention."
+  ],
+  "hook_bar": {
+   "note": "hook passed on the calibrated bar",
+   "bar": "the calibrated hook bar (ruling 115): scroll >= 3, alone >= 4, setup >= 3, on xai:grok-4.20-0309-reasoning asked alone at seed 7 (calibration 6978392df37e)",
+   "floors": {
+    "scroll": 3,
+    "alone": 4,
+    "setup": 3
+   },
+   "calibration_sha256": "6978392df37e5abff8594c6fc293e29cf761718fc0530cd87ed6b3892c3fafd6",
+   "ruling": "115"
+  },
+  "btc_screen": {
+   "pattern": "\\b(bitcoins?|btc|sats|satoshis?|halving|hash ?rate|lightning network|self[- ]custody|cold storage|microstrategy|mstr|ibit|saylor)\\b",
+   "source": "pp-ingest pipeline/ingest/mine.py@8e6afb61"
+  },
+  "checks": {
+   "vo_fidelity_ok": true,
+   "context_integrity_ok": true,
+   "derived_from": "gates (every required row exactly PASS, checked above)",
+   "models": {
+    "angle": "heimdall:openai/gpt-oss-20b",
+    "writer": "code:fallback (ruling 156)",
+    "medley": "xai:grok-4.20-0309-reasoning",
+    "fidelity_verdict": "xai:grok-4.20-0309-reasoning",
+    "context": {
+     "A": {
+      "hook": "google:gemini-2.5-pro",
+      "clip_01": "google:gemini-2.5-pro",
+      "clip_02": "google:gemini-2.5-pro"
+     },
+     "B0": "xai:grok-4.20-0309-reasoning",
+     "B": "xai:grok-4.20-0309-reasoning",
+     "C": "xai:grok-4.20-0309-reasoning"
+    },
+    "coherence": "panel:heimdall:google/gemma-4-31b-it+heimdall:minimax/minimax-m3.1-flash+heimdall:z-ai/glm-5.3-flash",
+    "value": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  "runtime_s_estimate": 57.71,
+  "cut_evidence": null,
+  "sources_30s_before": [
+   "https://www.youtube.com/watch?v=0shaXx_n870&t=63s",
+   "https://www.youtube.com/watch?v=vX2WKBOua8w&t=545s",
+   "https://www.youtube.com/watch?v=duqpCH2snqE&t=172s"
+  ]
+ }
+}

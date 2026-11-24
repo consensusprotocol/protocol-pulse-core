@@ -207,7 +207,8 @@
   "tests/package/proof/ledger_20261124_024458",
   "tests/package/proof/ledger_20261124_025241",
   "tests/package/proof/ledger_20261124_031326",
-  "tests/package/proof/ledger_20261124_032741"
+  "tests/package/proof/ledger_20261124_032741",
+  "tests/package/proof/ledger_20261124_033614"
  ],
  "candidates": {
   "35b7b52533b4220b2672+5307d23dced4f444919a+f03d79cf73eb188924ee": {
@@ -549,6 +550,28 @@
      "class": "clip",
      "fresh": false,
      "why": "ruling 72: the render's lock holds d6adeb54ad64062081c5: WdiF0i925rs words 50-100: lock text not adjudicated (ruling 17): at [['bunch of', 'budget'], ['that', 'like'], ['um', '']] the second recogniser reads neither | run_decode: 'i have been recently done a bunch of pieces on the 2023 bull market, "
+    }
+   ]
+  },
+  "1cb1675158fd53f1033a+ad47eab4a19c2324a9eb+96056caa002021fd9a1d": {
+   "lineup": [
+    "1cb1675158fd53f1033a",
+    "ad47eab4a19c2324a9eb",
+    "96056caa002021fd9a1d"
+   ],
+   "source": "tests/package/proof/ledger_20261124_033614",
+   "index": 0,
+   "found_at": "2026-11-24T03:36:14.846198+00:00",
+   "state": "closed",
+   "until": null,
+   "fresh_used": false,
+   "history": [
+    {
+     "build": "tests/package/proof/ledger_20261124_033614",
+     "at": "2026-11-24T03:36:14.846198+00:00",
+     "class": "package",
+     "fresh": false,
+     "why": "packaged by the build that passed it"
     }
    ]
   }
