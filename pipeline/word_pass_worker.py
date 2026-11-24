@@ -51,6 +51,7 @@ import time
 
 PIPELINE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, PIPELINE)
+import heartbeat  # noqa: E402  (ruling 133 R16)
 import transcript_store as ts  # noqa: E402
 
 INGEST_ROOT = os.environ.get("PP_INGEST_ROOT", "/home/ultron/worktrees/pp-ingest")
@@ -492,12 +493,20 @@ def main(argv=None):
     a = ap.parse_args(argv)
     if os.environ.get("CUDA_VISIBLE_DEVICES") != "1":
         sys.exit("the word-pass worker runs on GPU1: CUDA_VISIBLE_DEVICES=1 (law L-r)")
+    import gpu0
+    if not a.once:
+        heartbeat.start("word_pass")                           # ruling 133 R16
     while True:
         try:
             rep = cycle(limit=a.limit)
         except RuntimeError as e:                    # the ledger adapter failed or refused: never an empty ledger
             log(f"cycle stopped: {e}")
             rep = {"picked": 0}
+        except (gpu0.Gpu0Foreign, gpu0.GpuOOM, gpu0.Gpu0NotFree) as e:   # ruling 145: another program on GPU1 ends the
+            log(f"cycle stopped, GPU1 not ours to use now: {type(e).__name__}: {e}")   # cycle, never the worker;
+            rep = {"picked": 0, "blocked": f"{type(e).__name__}"}               # the moments are picked again
+        if not a.once:
+            heartbeat.mark_pass("word_pass", picked=rep.get("picked"), blocked=rep.get("blocked"))
         if a.once:
             return 0
         if not rep.get("picked") or rep.get("blocked"):

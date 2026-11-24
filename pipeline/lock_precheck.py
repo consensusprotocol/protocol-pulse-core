@@ -68,6 +68,7 @@ import time
 PIPELINE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(PIPELINE)
 sys.path.insert(0, PIPELINE)
+import heartbeat  # noqa: E402  (ruling 133 R16)
 import local_judge as LJ  # noqa: E402  (the yield flag)
 import pinned  # noqa: E402
 import sentence_law  # noqa: E402  (ruling 73 (c): the render's own cut placement, lock_cut)
@@ -763,6 +764,7 @@ def main(argv=None):
     log(f"lock pre-check: decoder_sha {decoder_sha()[:12]}, root {ROOT}")
     while True:
         n = serve_once(log=log)
+        heartbeat.mark_pass("lock_precheck", served=n)       # ruling 133 R16 (the service is a once-loop)
         if a.mode == "once":
             return 0
         if not n:

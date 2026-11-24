@@ -1,0 +1,38 @@
+# Heimdall audit
+
+**Question:** TASK: audit batch 117 of the Protocol Pulse video pipeline (Python). You are reviewing a diff. Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.
+
+THE RULING (ruling 133 R16, restated by the orchestrator 18:18 ET Nov 23): "the watchdog heartbeat on every kept-alive service": service heartbeats, with a Telegram line when one is stale more than 20 min. The kept-alive services are the stand-alone scorer, the local judge, the lock pre-check and the word-pass worker (each a long-running tmux process; the lock pre-check is a shell loop that runs `lock_precheck.py once` every 5 s), plus the transcript run (a */30 cron job). The session watchdog (tools/session_watchdog.py, one pass every 5 min) already sends one Telegram line per key per hour through telegram.send_watchdog.
+
+WHAT THE DIFF DOES:
+1. New pipeline/heartbeat.py: <DIR>/<service>.json = {service, pid, at, pass_at, passes, info}. start() writes now and every 60 s from a daemon thread (process alive); mark_pass() records the end of a loop pass. A failed write is printed once and never raises.
+2. The writers: stand_alone_scorer.main and word_pass_worker.main start the thread in serve mode only and mark each loop pass; lock_precheck.main marks each pass (no thread: each `once` process lives seconds). The judge gets a launcher, pipeline/judge_serve.py, which wraps local_judge.serve_once and calls local_judge.main(["serve"]) unchanged, because judge_sha (local_judge.py:168, unchanged) hashes local_judge.py and any edit there would re-ask every cached judge verdict.
+3. tools/session_watchdog.py heartbeat_findings (:452), called from run_pass (:576) inside its own try (an error is recorded, the pass goes on): a heartbeat older than 20 min (process gone or frozen), missing for 20 min, or alive with no finished pass for 90 min (a render holds GPU0 about 50 min; the word pass may wait 30 min for its lease); the transcript run by its log's mtime, 65 min (two missed cron runs). The finding kind is HEARTBEAT, keyed by the service's tmux session, so the hour limit is per service.
+4. pipeline/telegram.py:999 adds "HEARTBEAT" to WATCHDOG_KINDS. Unchanged: dispatch (:497) and send_watchdog (telegram.py:1026) send only IDLE_WITH_WORK and SPEND from 00:00 to 07:00 ET, so a HEARTBEAT line found at night waits for 07:00 (the finding persists).
+5. pipeline/conftest.py points PP_HEARTBEAT_DIR at a temp dir for every pytest session, so no test overwrites a live heartbeat.
+
+CHECK, AND ANSWER EACH:
+Q1. Can any change here stop or slow a service (an exception escaping heartbeat.py into a service loop, a lock held across I/O, a thread that blocks exit)?
+Q2. Can a dead service read as alive (a stale file kept fresh by anything other than its own process), or a live one read as dead during a normal long wait?
+Q3. Does judge_serve.main run the judge exactly as `python3 pipeline/local_judge.py serve` does (the CUDA refusal, the same loop), with only the pass mark added?
+Q4. Any bug in heartbeat_findings (missing-file grace, pid check, the transcript branch, the view) or in how it joins run_pass?
+
+OUTPUT: for each finding, <severity P0|P1|P2>, file:line, the concrete failure (inputs -> wrong result), and the fix. If none, say NONE for that question.
+REMINDER: only what the diff and the cited lines show; say when uncertain.
+
+**Panel:** qwen27b  |  **Cost:** $0.0110
+## Consensus findings (majority of panel agrees)
+- **[low] tools/session_watchdog.py:472** float(pass_at) in the elif branch is outside the try/except that guards the file read. If the JSON file were manually corrupted so that pass_at is a non-numeric string, the ValueError would propagate out of heartbeat_findings and abort all four service checks plus the transcript check for that pass (caught only by run_pass's generic except, losing every heartbeat finding).
+  - evidence: `elif pass_at is not None and now - float(pass_at) > heartbeat.PASS_STALE_S:`
+  - fix: Wrap the float(pass_at) conversion in a try/except (ValueError, TypeError) that treats the record as unreadable (same path as the missing-file branch), or move the pass_at float conversion inside the initial try block alongside float(rec["at"]).
+  - raised by qwen27b:F1; agree: qwen27b
+- **[low] pipeline/judge_serve.py:27** The monkey-patch local_judge.serve_once = serve_once only works if local_judge.main resolves serve_once via a module-global lookup at each call site. The diff does not show local_judge.main's body, so this cannot be independently verified. If main captured a local reference (e.g. _so = serve_once at function scope or via a default argument), the pass mark would silently never fire and the judge heartbeat would show 'alive but no finished pass' after 90 min.
+  - evidence: `local_judge.serve_once = serve_once                     # main() looks serve_once up at call time`
+  - fix: Verify (or add a unit test) that local_judge.main calls serve_once through the module namespace (e.g. by calling local_judge.serve_once(...) or a bare global name) rather than a captured local. If it uses a local, refactor to a wrapper class or pass the function as an argument.
+  - raised by qwen27b:F2; agree: qwen27b
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none

@@ -1,0 +1,16 @@
+TASK: cycle 2 of the audit of batch 117 (Protocol Pulse, Python): service heartbeats for ruling 133 R16 ("the watchdog heartbeat on every kept-alive service": a Telegram line when a service's heartbeat is stale more than 20 min). Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.
+
+CYCLE 1 FOUND (qwen27b), NOW FIXED, SHOWN IN THIS DIFF:
+- F1: tools/session_watchdog.py heartbeat_findings converted pass_at with float() outside its guarded read, so one corrupted heartbeat file would have ended every heartbeat check of that watchdog pass. Now pass_at is parsed inside the try, and a record that is not a dict (AttributeError) reads as missing too. New test: test_an_unreadable_record_reads_as_missing_and_never_ends_the_check.
+- F2: judge_serve.py patches local_judge.serve_once; that works only if local_judge.main looks serve_once up at call time. Verified in the unchanged code: local_judge.py:330 is `n = serve_once(log=lambda m: ...)` inside main's `while True` loop, a module-global name read each pass. New test: test_the_real_local_judge_main_calls_the_wrapped_serve_once runs the REAL local_judge.main through the launcher.
+
+THIS DIFF: the whole of heartbeat_findings as it now stands (session_watchdog.py, its constants HEARTBEATS / TRANSCRIPT_KEY / TRANSCRIPT_STALE_S, its call from run_pass inside its own try), and the heartbeat tests added since cycle 1. heartbeat.STALE_S = 1200 s, heartbeat.PASS_STALE_S = 5400 s (pipeline/heartbeat.py, unchanged since cycle 1).
+
+CHECK, AND ANSWER EACH:
+Q1. Is F1 fixed: can any content of a heartbeat file (any JSON, a list, strings in at / pass_at / pid, an empty file) raise out of heartbeat_findings?
+Q2. Does a fresh heartbeat with pass_at null (the thread has beaten, no pass finished yet) ever produce a finding before the record's `at` is 20 min old?
+Q3. Do the new tests prove what they claim (would each fail if its fix were reverted)?
+Q4. Any other defect in the shown code.
+
+OUTPUT: for each finding, severity (critical|high|medium|low), file:line, the concrete failure (inputs -> wrong result), and the fix. If none, say NONE for that question.
+REMINDER: only what the diff and the cited lines show; say when uncertain.
