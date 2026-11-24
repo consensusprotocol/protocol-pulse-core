@@ -1,0 +1,110 @@
+{
+ "usd_estimate": 1.419999,
+ "calls": 17,
+ "by_backend": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "calls": 2,
+   "in": 67,
+   "out": 30,
+   "usd_estimate": 0.016494,
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "usd_reported": 2.92e-05,
+   "reported_calls": 1,
+   "in_reported": 67
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "calls": 4,
+   "in": 0,
+   "out": 0,
+   "usd_estimate": 0.037119,
+   "price_usd_per_1m": [
+    3,
+    15
+   ]
+  },
+  "xai:grok-4.20-0309-reasoning": {
+   "calls": 9,
+   "in": 9486,
+   "out": 49194,
+   "usd_estimate": 1.27728,
+   "price_usd_per_1m": [
+    5,
+    25
+   ],
+   "usd_reported": 0.1336329,
+   "reported_calls": 9,
+   "in_reported": 9486
+  },
+  "heimdall:z-ai/glm-5.3-flash": {
+   "calls": 1,
+   "in": 27,
+   "out": 3653,
+   "usd_estimate": 0.054876,
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "usd_reported": 0.00054957,
+   "reported_calls": 1,
+   "in_reported": 27
+  },
+  "heimdall:openai/gpt-oss-20b": {
+   "calls": 1,
+   "in": 1540,
+   "out": 1974,
+   "usd_estimate": 0.03423,
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "usd_reported": 0.0001928,
+   "reported_calls": 1,
+   "in_reported": 1540
+  }
+ },
+ "by_role": {
+  "angle_write": {
+   "calls": 2,
+   "usd_estimate": 0.050073
+  },
+  "probe87:heimdall:qwen/qwen3.8-27b": {
+   "calls": 1,
+   "usd_estimate": 0.000651
+  },
+  "exclusion_verdict": {
+   "calls": 3,
+   "usd_estimate": 0.036429
+  },
+  "probe87:heimdall:deepseek/deepseek-v4.1-flash": {
+   "calls": 1,
+   "usd_estimate": 0.00069
+  },
+  "context_verdict": {
+   "calls": 4,
+   "usd_estimate": 0.706015
+  },
+  "probe87:heimdall:z-ai/glm-5.3-flash": {
+   "calls": 1,
+   "usd_estimate": 0.054876
+  },
+  "viewer_takeaway": {
+   "calls": 2,
+   "usd_estimate": 0.206365
+  },
+  "fidelity_verdict": {
+   "calls": 2,
+   "usd_estimate": 0.28809
+  },
+  "coherence_verdict": {
+   "calls": 1,
+   "usd_estimate": 0.07681
+  }
+ },
+ "reserved": {},
+ "usd_unreported_estimate": 0.052962,
+ "usd_reported": 0.13440447,
+ "late_answers": 1
+}
