@@ -163,6 +163,26 @@ def lock_lines(run_dir, edl):
         + corrected
 
 
+def tenant_lines(run_dir):
+    """RULING 145: one line naming every small foreign tenant the run's GPU leases tolerated (PROVENANCE.json's gpu0
+    swaps, key "small_tenant"): pid, name, MiB. None: no line. Unreadable provenance: no line (it is evidence, not a
+    gate; the lease itself refused anything bigger)."""
+    try:
+        with open(os.path.join(run_dir, "PROVENANCE.json")) as f:
+            swaps = ((json.load(f).get("gpu0") or {}).get("swaps")) or []
+    except (OSError, ValueError, AttributeError):
+        return []
+    seen = []
+    for ev in swaps if isinstance(swaps, list) else []:
+        if isinstance(ev, dict) and ev.get("key") == "small_tenant":
+            for x in ev.get("tenants") or []:
+                if isinstance(x, (list, tuple)) and len(x) == 3:
+                    s = f"GPU{ev.get('gpu')}: pid {x[0]} {x[1]} {x[2]} MiB"
+                    if s not in seen:
+                        seen.append(s)
+    return [f"Shared GPU (ruling 145, a small foreign tenant tolerated): {'; '.join(seen)}."] if seen else []
+
+
 def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
     """The caption of an AUTHORISED run: verdict line first; the MONITORING rows that did not pass are listed as
     reported, not release-deciding (addendum '22:15' item 4). snap: the verified snapshot (deliver_run)."""
@@ -183,7 +203,8 @@ def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
              + (f" | {duration:.1f} s" if duration else ""),
              f"Story: {edl.get('topic', '')}",
              "Clips: " + ", ".join([edl["hook"].get("channel", "?")] + [c.get("channel", "?") for c in edl.get("clips", [])])]
-    lines[2:2] = bar_lines(run_dir, edl) + lock_lines(run_dir, edl)    # rulings 115 (2) / 116 / 119 / 131: one plain
+    lines[2:2] = bar_lines(run_dir, edl) + lock_lines(run_dir, edl) + tenant_lines(run_dir)   # 115 (2) / 116 / 119 /
+    #                                                                     131 / 145: one plain
                                              # line per mark, under the run line (never cut by _fit)
     if mon:                                # claude-fable audit batch 16 #1: never 'all passed' with a failure unsaid
         lines.insert(1, "Monitoring (reported, not release-deciding): " + "; ".join(f"{k} {v}" for k, v in mon.items()))

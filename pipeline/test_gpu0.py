@@ -30,10 +30,12 @@ class Box(unittest.TestCase):
             p.start()
             self.addCleanup(p.stop)
         self.used = [100]                 # MiB used on the fake GPU0 (a list: tests change it)
+        self.util = [0]                   # its utilisation, percent (ruling 145)
         self.procs = []                   # fake GPU0 compute processes
         self.ollama = []                  # fake resident Ollama models
         self.unloaded = []
         for name, fn in (("memory", lambda: (self.used[0], 24564)), ("processes", lambda: list(self.procs)),
+                         ("utilisation", lambda: self.util[0]),
                          ("_ollama", lambda path, body=None, timeout=30: {"models": [{"name": n, "size_vram": 0}
                                                                                      for n in self.ollama]}),
                          ("_ollama_pids", lambda: {999999}),
@@ -163,6 +165,52 @@ class TestForeignWaitedOut(Box):
         self.assertEqual(self.procs, [(424242, "python3", 4000)])          # nothing killed
 
 
+class TestSmallTenant(Box):
+    """RULING 145 (orchestrator 07:32 ET Nov 18): a foreign process is tolerated on the GPU when it holds under 2 GiB,
+    the GPU keeps the caller's measured need plus 4 GiB free of everything not this run's, and its utilisation is under
+    10 percent; the tenant is logged in the lease events and the run's note; anything bigger or busier is refused as
+    before. The Nov 17 case: DaVinci Resolve headless, 404 MiB on GPU0, 0 percent. must-fail on the code before it."""
+    RESOLVE = (1073512, "resolve", 404)
+
+    def test_resolves_shape_is_tolerated_and_logged(self):
+        self.procs[:] = [self.RESOLVE]
+        self.used[0] = 404 + 100
+        with gpu0.lease("t"):
+            gpu0.swap_to("whisper:large-v3")
+            gpu0.release_all()
+        ev = [e for e in gpu0.events() if e.get("key") == "small_tenant"]
+        self.assertEqual(ev[0]["tenants"], [list(self.RESOLVE)])
+        self.assertEqual((ev[0]["need_mib"], ev[0]["utilisation_pct"], ev[0]["rule"]),
+                         (gpu0.REQUIREMENT_MIB["whisper:large-v3"], 0, "ruling 145"))
+        self.assertEqual(ev[-1]["need_mib"], 0)                            # release_all: nothing to load
+        self.assertFalse([e for e in gpu0.events() if e.get("key") == "foreign_wait"])
+        self.assertEqual(self.procs, [self.RESOLVE])                       # nothing killed
+
+    def test_bigger_tighter_or_busier_is_refused_as_before(self):
+        need = gpu0.REQUIREMENT_MIB["whisper:large-v3"]
+        for label, procs, used, util in (("2 GiB", [(1073512, "resolve", 2048)], 2148, 0),
+                                         ("no headroom", [self.RESOLVE], 24564 - need - gpu0.SMALL_TENANT_HEADROOM_MIB + 1, 0),
+                                         ("busy", [self.RESOLVE], 504, 10),
+                                         ("unaccounted", [(None, "resolve", 404)], 504, 0)):
+            with self.subTest(label):
+                self.procs[:], self.used[0], self.util[0] = procs, used, util
+                with gpu0.lease("t"), mock.patch.object(gpu0, "FOREIGN_WAIT_S", 0.1), \
+                        mock.patch.object(gpu0, "FOREIGN_POLL_S", 0.05):
+                    with self.assertRaises(gpu0.Gpu0Foreign):
+                        gpu0.swap_to("whisper:large-v3")
+
+    def test_the_note_names_the_tenant(self):
+        import json
+        import telegram
+        d = tempfile.mkdtemp(prefix="tenant_note_", dir=self.tmp)
+        with open(os.path.join(d, "PROVENANCE.json"), "w") as f:
+            json.dump({"gpu0": {"swaps": [{"key": "small_tenant", "gpu": 0, "tenants": [list(self.RESOLVE)]},
+                                          {"key": "small_tenant", "gpu": 0, "tenants": [list(self.RESOLVE)]}]}}, f)
+        self.assertEqual(telegram.tenant_lines(d), ["Shared GPU (ruling 145, a small foreign tenant tolerated): GPU0: "
+                                                    "pid 1073512 resolve 404 MiB."])
+        self.assertEqual(telegram.tenant_lines(self.tmp), [])                # no provenance: no line
+
+
 class TestSwap(Box):
     def test_a_foreign_process_is_refused_and_named(self):
         self.procs[:] = [(424242, "python3", 4000)]
@@ -260,7 +308,7 @@ class TestSwap(Box):
 
     def test_a_newcomer_is_never_unloaded_and_an_unreported_memory_proves_nothing(self):
         self.ollama[:] = ["qwen3-coder:30b"]                             # appeared after the foreign check
-        with gpu0.lease("t"), mock.patch.object(gpu0, "_refuse_foreign", lambda what: None):
+        with gpu0.lease("t"), mock.patch.object(gpu0, "_refuse_foreign", lambda what, need_mib=None: None):
             gpu0.release_all(wait_s=0)
             self.assertEqual(self.unloaded, [])                          # not this run's: never unloaded
             self.procs[:] = [(os.getpid(), "python3", None)]
