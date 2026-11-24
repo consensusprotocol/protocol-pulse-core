@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 940,
+ "system": null,
+ "prompt": "You judge JOINS between clips of 60-second videos made of other channels' own words (each clip is a\nperson's own words from a show; the shows were not in one conversation). In each PAIR, clip A plays and clip B follows\nit at once, with NO narration between them. Judge each pair ALONE: the pairs are not one video, and nothing else plays\nbefore or between A and B.\n\nTHE CLIPS:\nCLIP id=\"c1\" (on screen: Natalie Brunell): \"Analysts say that the amount of money sitting at a loss in Bitcoin has never been higher.\"\nCLIP id=\"c2\" (on screen: Coin Bureau): \"Now, to be clear, these weren't people deciding that Bitcoin was dead. This was forced selling, positions closed by an exchange, and not by their owners.\"\nCLIP id=\"c3\" (on screen: Scott Melker): \"Bitcoin's short -term holders sold $11.3 billion worth of Bitcoin right at the bottom before, of course, it immediately bounced 10%, and now is pumping up to around $64,000.\"\nCLIP id=\"c4\" (on screen: Coin Bureau): \"Bitcoin's keenest buyers that afternoon were actually people who had bet against it.\"\n\nTHE PAIRS (A -> B):\nPAIR id=\"p1\": c1 -> c2\nPAIR id=\"p2\": c1 -> c3\nPAIR id=\"p3\": c1 -> c4\nPAIR id=\"p4\": c2 -> c3\nPAIR id=\"p5\": c2 -> c4\nPAIR id=\"p6\": c3 -> c2\nPAIR id=\"p7\": c3 -> c4\nPAIR id=\"p8\": c4 -> c2\nPAIR id=\"p9\": c4 -> c3\n\nFor EACH pair, the join question (the previous clip is A, the next clip is B): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming from the previous clip's ending? Answer\n\"followable\": true or false, and \"why\": a few words.\nReturn ONLY this JSON object: {\"pairs\": {\"p1\": {\"followable\": true, \"why\": \"...\"}, \"p2\": {\"followable\": true, \"why\": \"...\"}, \"p3\": {\"followable\": true, \"why\": \"...\"}, \"p4\": {\"followable\": true, \"why\": \"...\"}, \"p5\": {\"followable\": true, \"why\": \"...\"}, \"p6\": {\"followable\": true, \"why\": \"...\"}, \"p7\": {\"followable\": true, \"why\": \"...\"}, \"p8\": {\"followable\": true, \"why\": \"...\"}, \"p9\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\n\"pairs\": {\n\"p1\": {\"followable\": true, \"why\": \"losses context for forced selling\"},\n\"p2\": {\"followable\": true, \"why\": \"connects to selling at bottom\"},\n\"p3\": {\"followable\": false, \"why\": \"no setup for that afternoon\"},\n\"p4\": {\"followable\": true, \"why\": \"adds detail to selling\"},\n\"p5\": {\"followable\": true, \"why\": \"moves from selling to buyers\"},\n\"p6\": {\"followable\": true, \"why\": \"clarifies previous selling\"},\n\"p7\": {\"followable\": true, \"why\": \"explains buyers in bounce\"},\n\"p8\": {\"followable\": false, \"why\": \"unclear referent after buyers\"},\n\"p9\": {\"followable\": true, \"why\": \"adds sellers to buyers mention\"}\n}\n}",
+ "usage": {
+  "in": 802,
+  "out": 7353,
+  "usd_reported": 0.0192506
+ },
+ "usd": 0.187835,
+ "seconds": 53.84,
+ "recorded_at": "2026-11-24T00:42:04Z"
+}

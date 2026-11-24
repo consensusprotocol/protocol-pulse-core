@@ -1,0 +1,146 @@
+{
+ "d30e46b6f64728dee3b8:9d43580c729b": {
+  "label": "d30e46b6f64728dee3b8",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "now",
+    "refers_to": "The time of speaking",
+    "inside": false,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Short-term Bitcoin holders sold $11.3 billion worth of Bitcoin at the recent market bottom, just before the price rebounded 10% and rose to approximately $64,000.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "today is going to be very, very interesting with Mike, Dave, and Peter Cheer. Let's go.",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b7f2a0b8c15e22a1ef3b:9d43580c729b": {
+  "label": "b7f2a0b8c15e22a1ef3b",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that afternoon",
+    "refers_to": "The Saturday afternoon when Bitcoin bounced back above 60K",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The most active buyers of Bitcoin during its price rebound on a particular afternoon were actually people who had bet against it (i.e., short sellers closing their positions).",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "And that is exactly what the Coin Bureau newsletter is for.",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2b87c34f72374e502109:9d43580c729b": {
+  "label": "2b87c34f72374e502109",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that's",
+    "refers_to": "short-term holders in Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "those lows",
+    "refers_to": "The recent massive low in Bitcoin's price",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "which",
+    "refers_to": "The $11.3 billion capitulation by short-term holders",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "My guests on Macro Monday thought that that was likely to happen, that we'll probably uh be, you know, right back down to these lows next week.",
+  "time_ok": "yes",
+  "proposition": "A historically high amount of Bitcoin, $11.3 billion, was sold by short-term retail holders at the recent lows, which is a pattern that aligns with all previous market bottoms.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "15b194bd551e34372802:9d43580c729b": {
+  "label": "15b194bd551e34372802",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "According to analysts, the total value of Bitcoin holdings that are currently at an unrealized loss has reached an all-time high.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2a7edb8683e457965ee3:9d43580c729b": {
+  "label": "2a7edb8683e457965ee3",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "these",
+    "refers_to": "The sellers during the recent liquidation cascade",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "This",
+    "refers_to": "The recent selling event",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "their",
+    "refers_to": "the owners of the positions being closed",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The recent large-scale selling of Bitcoin was not caused by people deciding the asset was dead, but rather was forced selling where exchanges automatically closed leveraged positions.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "My name is Lewis and this is the Coin Bureau.",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

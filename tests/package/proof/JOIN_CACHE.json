@@ -1867,5 +1867,82 @@
    "why": "shared Bitcoin decentralization theme",
    "backend": "xai:grok-4.20-0309-reasoning"
   }
+ },
+ "8b48773f359f65d8ab145ab3ef33fc020fecc80dd27d59c5c23a6a9c1a149c12:493b165b63ec108bb069d05e197c524c73de2561fabedac2241d9fe03c2b9a1f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "losses context for forced selling",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "8b48773f359f65d8ab145ab3ef33fc020fecc80dd27d59c5c23a6a9c1a149c12:6f4863b544b9700037f1150bf13bb07487edd573542da7385cff04be46ee1ed4:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "connects to selling at bottom",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "8b48773f359f65d8ab145ab3ef33fc020fecc80dd27d59c5c23a6a9c1a149c12:79603bce2e83efaa3761a77de6e06c2bfc47cfb16cbc492b08207f06a939db5b:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no setup for that afternoon",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "493b165b63ec108bb069d05e197c524c73de2561fabedac2241d9fe03c2b9a1f:6f4863b544b9700037f1150bf13bb07487edd573542da7385cff04be46ee1ed4:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "adds detail to selling",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "493b165b63ec108bb069d05e197c524c73de2561fabedac2241d9fe03c2b9a1f:79603bce2e83efaa3761a77de6e06c2bfc47cfb16cbc492b08207f06a939db5b:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "moves from selling to buyers",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "6f4863b544b9700037f1150bf13bb07487edd573542da7385cff04be46ee1ed4:493b165b63ec108bb069d05e197c524c73de2561fabedac2241d9fe03c2b9a1f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "clarifies previous selling",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "6f4863b544b9700037f1150bf13bb07487edd573542da7385cff04be46ee1ed4:79603bce2e83efaa3761a77de6e06c2bfc47cfb16cbc492b08207f06a939db5b:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "explains buyers in bounce",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "79603bce2e83efaa3761a77de6e06c2bfc47cfb16cbc492b08207f06a939db5b:493b165b63ec108bb069d05e197c524c73de2561fabedac2241d9fe03c2b9a1f:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "unclear referent after buyers",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "79603bce2e83efaa3761a77de6e06c2bfc47cfb16cbc492b08207f06a939db5b:6f4863b544b9700037f1150bf13bb07487edd573542da7385cff04be46ee1ed4:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "adds sellers to buyers mention",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "79603bce2e83efaa3761a77de6e06c2bfc47cfb16cbc492b08207f06a939db5b:8b48773f359f65d8ab145ab3ef33fc020fecc80dd27d59c5c23a6a9c1a149c12:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin market context continues",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "6f4863b544b9700037f1150bf13bb07487edd573542da7385cff04be46ee1ed4:8b48773f359f65d8ab145ab3ef33fc020fecc80dd27d59c5c23a6a9c1a149c12:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "pumping to losses jars",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
  }
 }

@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 520,
+ "system": null,
+ "prompt": "You judge JOINS between clips of 60-second videos made of other channels' own words (each clip is a\nperson's own words from a show; the shows were not in one conversation). In each PAIR, clip A plays and clip B follows\nit at once, with NO narration between them. Judge each pair ALONE: the pairs are not one video, and nothing else plays\nbefore or between A and B.\n\nTHE CLIPS:\nCLIP id=\"c1\" (on screen: Coin Bureau): \"Bitcoin's keenest buyers that afternoon were actually people who had bet against it.\"\nCLIP id=\"c2\" (on screen: Natalie Brunell): \"Analysts say that the amount of money sitting at a loss in Bitcoin has never been higher.\"\nCLIP id=\"c3\" (on screen: Scott Melker): \"Bitcoin's short -term holders sold $11.3 billion worth of Bitcoin right at the bottom before, of course, it immediately bounced 10%, and now is pumping up to around $64,000.\"\n\nTHE PAIRS (A -> B):\nPAIR id=\"p1\": c1 -> c2\nPAIR id=\"p2\": c3 -> c2\n\nFor EACH pair, the join question (the previous clip is A, the next clip is B): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming from the previous clip's ending? Answer\n\"followable\": true or false, and \"why\": a few words.\nReturn ONLY this JSON object: {\"pairs\": {\"p1\": {\"followable\": true, \"why\": \"...\"}, \"p2\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"pairs\": {\"p1\": {\"followable\": true, \"why\": \"Bitcoin market context continues\"}, \"p2\": {\"followable\": false, \"why\": \"pumping to losses jars\"}}}",
+ "usage": {
+  "in": 566,
+  "out": 2970,
+  "usd_reported": 0.0079981
+ },
+ "usd": 0.07708,
+ "seconds": 21.82,
+ "recorded_at": "2026-11-24T00:42:26Z"
+}
