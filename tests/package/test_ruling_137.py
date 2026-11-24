@@ -1181,15 +1181,18 @@ class TestRuling161SponsorOnlySeenIsInformation(unittest.TestCase):
     first line of The Bitcoin Way's read)."""
     KRAKEN = {"kind": "ticker", "text": "TRADE CRYPTOS & STOCKS IN 190+ COUNTRIES KRAKEN $25 SIGN UP BONUS",
               "whole_in_16x9": True, "in_9x16": "whole", "covers_speaker": False}
+    LISTED = [{"text": "TRADE CRYPTOS & STOCKS IN 190+ COUNTRIES - KRAKEN - $25 SIGN UP BONUS",   # question 5's own
+               "what": "Kraken crypto exchange ($25 sign-up bonus offer)"}]                      # listing (DAN, Nov 23)
     BRUNELL = ("If your Bitcoin can be frozen or monitored by an exchange, a custodial provider, or anyone else, it's "
                "not yours.")                                    # 6e79ceaa8e76f34f4117 (RsCi56hEriU, 1590.9-1597.2 s)
 
-    def run_rig(self, item, never_empty=True):
+    def run_rig(self, item, never_empty=True, listed=None):
         import test_medley as TM
         from test_moments import pm
         ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
         r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE), (True, [], None, TM.Rig.LINE)], [None] * 2,
-                   follow_up={"angles": [TM.angle(["h", "x", "y"], "h")]}, visuals={"x": {"burned_in": [dict(item)]}})
+                   follow_up={"angles": [TM.angle(["h", "x", "y"], "h")]},
+                   visuals={"x": {"burned_in": [dict(item)], **({"advertising": listed} if listed else {})}})
         r.build_kw = {"never_empty": never_empty}
         return r.run()
 
@@ -1197,19 +1200,20 @@ class TestRuling161SponsorOnlySeenIsInformation(unittest.TestCase):
         import package_pin
         import test_medley as TM
         for never_empty in (False, True):                       # the clean pass too: no refusal, no flag
-            out = self.run_rig(self.KRAKEN, never_empty)
+            out = self.run_rig(self.KRAKEN, never_empty, self.LISTED)
             pk = out["package"]
             self.assertIsNotNone(pk, out.get("why_none"))
             x = next(sg for sg in pk["segments"] if sg["moment_id"] == "x")
-            self.assertIn("SIGN UP BONUS", x["visible_sponsor_graphics"])
+            self.assertIn("Kraken crypto exchange", x["visible_sponsor_graphics"])
             self.assertNotIn("graphics", pk["gates"])           # never ruling 146 (1)'s flag, never 16:9 only
             self.assertEqual(pk["gates"]["visual"]["status"], "PASS")
-            self.assertTrue(all("SIGN UP" not in f for f in package_pin.review_flags_of(pk["gates"])))
+            self.assertTrue(all("Kraken" not in f and "SIGN UP" not in f
+                                for f in package_pin.review_flags_of(pk["gates"])))
             self.assertEqual([sg.get("visible_sponsor_graphics") for sg in pk["segments"] if sg["moment_id"] != "x"],
                              [None, None])
         pin = package_pin.to_pin(TM.spk(pk), "test")              # sealed on the pin's segment
         seg = next(sg for sg in pin["segments"] if sg["video_id"] == x["video_id"] and sg["start"] == x["start"])
-        self.assertIn("SIGN UP BONUS", seg["visible_sponsor_graphics"])
+        self.assertIn("Kraken crypto exchange", seg["visible_sponsor_graphics"])
         mp = pin["moments_package"]
         self.assertEqual(package_pin.seal(pin["segments"], mp["edl_vo"], mp["signoff_expected"], mp["title"],
                                           mp["caption"], mp["gates"], mp.get("btc_screen")), mp["package_sha256"])
@@ -1227,11 +1231,11 @@ class TestRuling161SponsorOnlySeenIsInformation(unittest.TestCase):
         base = TestTheStepARow().base()
         row = PK.inventory(**base, visual=[clean, clean])["visual"]
         self.assertEqual((row["status"], row.get("sponsor_info")), ("PASS", None))
-        ad = dict(clean, burned_in=[dict(self.KRAKEN)])
+        ad = dict(clean, burned_in=[dict(self.KRAKEN)], advertising=self.LISTED)
         row = PK.inventory(**base, visual=[clean, ad], soft=True)["visual"]
         self.assertEqual(row["status"], "PASS")
         self.assertEqual(len(row["sponsor_info"]), 1)
-        self.assertIn("clip_01: visible sponsor graphics: TRADE CRYPTOS", row["sponsor_info"][0])
+        self.assertIn("clip_01: visible sponsor graphics: Kraken crypto exchange", row["sponsor_info"][0])
 
     def test_sponsor_words_in_the_clip_and_an_ad_read_still_refuse(self):
         import context_integrity as CI

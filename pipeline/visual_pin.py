@@ -325,13 +325,14 @@ def _norm(t):
 def sponsor_item(x, rec):
     """RULING 161 (orchestrator 07:36 ET Nov 24): a burned-in item that is sponsor or advertiser material, only VISIBLE
     (a banner, a panel, a bug, a logo wall, a graphic that flashes on screen). Its text is one that question 5 listed
-    (the Kraken banner of Nov 23 came back as a "ticker" AND as the ad), or it carries the offer words (AD_WORDS; "IRA"
-    on a bug, ticker or crawl: AD_CAPS). Never a caption: a caption is the spoken words, which the exclusion screen and
-    step A judge."""
+    (the Kraken banner of Nov 23 came back as a "ticker" AND as the ad), or, for an item that does not run (a bug, a
+    lower third), it carries the offer words (AD_WORDS; "IRA" on a bug: AD_CAPS). Running text (a ticker or a crawl:
+    ruling 93's "not eligible") is freed ONLY by question 5's own listing: a news ticker can carry such words ("... 10%
+    OFF ITS HIGHS"). Never a caption: a caption is the spoken words, which the exclusion screen and step A judge."""
     if not isinstance(x, dict) or x.get("kind") == CAPTION:
         return False
     t = x.get("text") or ""
-    if AD_WORDS.search(t) or (x.get("kind") in ("bug", "ticker", "crawl") and AD_CAPS.search(t)):
+    if x.get("kind") not in RUNNING and (AD_WORDS.search(t) or (x.get("kind") == "bug" and AD_CAPS.search(t))):
         return True
     n = _norm(t)
     for a in (rec or {}).get("advertising") or []:

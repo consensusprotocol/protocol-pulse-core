@@ -294,11 +294,12 @@ class TestRuling161VisibleSponsorIsInformation(unittest.TestCase):
         self.assertIn("Kraken", info)
         self.assertIn("CRYPTO IRA", info)                                             # the panel, by its bug
         self.assertEqual([f for f in VP.flags(v4) if f["kind"] == "burned_in"], [])   # never a flag
-        banner = dict(v4, advertising=[], burned_in=[x for x in v4["burned_in"] if x["kind"] == "ticker"])
         panel = dict(v4, advertising=[], burned_in=[x for x in v4["burned_in"] if x["kind"] == "bug"])
-        for one, words in ((banner, "SIGN UP BONUS"), (panel, "CRYPTO IRA")):      # each alone, known by its words
-            self.assertIsNone(VP.layout_block(one), words)
-            self.assertIn(words, VP.sponsor_graphics(one))
+        self.assertIsNone(VP.layout_block(panel))                                   # a bug known by its words
+        self.assertIn("CRYPTO IRA", VP.sponsor_graphics(panel))
+        banner = dict(v4, advertising=[], burned_in=[x for x in v4["burned_in"] if x["kind"] == "ticker"])
+        self.assertIn("a ticker", VP.layout_block(banner))      # running text is freed only by question 5's listing:
+        self.assertIsNone(VP.sponsor_graphics(banner))          # a news ticker can carry offer words (ruled as one)
         v3 = fixture("v3_ad47eab4.json")["record"]                                  # the record that sealed afd8977d
         self.assertIn("never asked for", VP.layout_block(v3))                       # never asked question 5: asked
         for f in ("dan_ad47eab4_575.61s.jpg", "dan_ad47eab4_581.61s.jpg"):          # again (the information line)
@@ -348,6 +349,10 @@ class TestRuling161VisibleSponsorIsInformation(unittest.TestCase):
                                       "whole_in_16x9": True, "in_9x16": "whole", "covers_speaker": False}],
                     advertising=[{"text": "Kraken", "what": "Kraken"}])           # an ad's name inside news text:
         self.assertIn("a ticker", VP.layout_block(news))                           # still news, still ruled
+        for words in ("BREAKING: BITCOIN 10% OFF ITS HIGHS", "SEC OPENS REFERRAL TO DOJ", "SCAN THE QR: ETF FLOWS"):
+            crawl = dict(tick, advertising=[], burned_in=[{"kind": "crawl", "text": words, "whole_in_16x9": True,
+                                                           "in_9x16": "whole", "covers_speaker": False}])
+            self.assertIn("a crawl", VP.layout_block(crawl), words)               # offer words never free news
         for words in ("THE BLOCK REWARD HALVES", "GBTC TRADES AT A DISCOUNT", "SOLD MY ROTH IRA",
                       "BITCOIN 2024 NASHVILLE"):                                   # content, not sponsor material
             self.assertIsNone(VP.sponsor_graphics(dict(tick, burned_in=[], on_screen_text=[
