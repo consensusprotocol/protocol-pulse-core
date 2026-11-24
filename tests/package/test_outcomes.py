@@ -228,6 +228,10 @@ class TestExactlyOneLine(unittest.TestCase):
             self.assertEqual((e["ok"], e["under_test"], e["driver"], inp["build_no"]),
                              (True, True, "tests/package/proof_ledger.py", 9))
             self.assertRegex(e["code"], r"^[0-9a-f]{40}$")
+            blob = subprocess.run(["git", "-C", REPO, "hash-object", "tests/package/proof_ledger.py"],
+                                  capture_output=True, text=True).stdout.strip()
+            self.assertEqual(e["driver_sha"], blob)                  # RULING 163 (5): the driver that ran, by sha
+            self.assertIsInstance(e["driver_committed"], bool)
             ls = OC.lines(p)
             self.assertEqual([(x["outcome"], x["build"], x["run"]) for x in ls], [("INDETERMINATE", 9, runs[0])])
             self.assertEqual(ls[0]["gate"], "the build crashed: Stop")
