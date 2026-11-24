@@ -196,30 +196,38 @@ class TestRuling84b(unittest.TestCase):
 @unittest.skipUnless(os.path.isdir(os.path.join(NOV12, "transcripts")) and os.path.exists(FIX),
                      "the Nov 12 moments run not on this machine")
 class TestNov12Clip01Head(unittest.TestCase):
-    def test_scribe_reads_i_think_so_both_readings_are_recorded(self):                # ruling 18
+    def test_ruling_143_settles_the_pair_two_of_three(self):
+        """RULING 143 (2) superseded ruling 18's 'both readings recorded' (this test failed on the live code from the
+        ruling 153 lockstep, a94c182e4, until it was rewritten): the run decode and the second recogniser both read
+        'think' against the approved 'mean', a non-material pair: the lock takes 'think' and records no alternatives."""
         edl = json.load(open(os.path.join(NOV12, "edl.json")))
         lock = edl["clips"][0]["selection_lock"]
         words = json.load(open(os.path.join(NOV12, "transcripts", "c1JGheQBPH4.json")))["words"]
         sw = [{"word": x["text"], "start": x["start"], "end": x["end"]}
               for x in json.load(open(FIX))["words"] if x.get("type") == "word"]
         new = P.adjudicate_lock(lock, "unused.mp4", words, recognise=lambda src: (sw, 0.008), log=lambda *_: None)
-        alt, = new["alternatives"]
-        self.assertEqual(alt["readings"], ["think", "mean"])
-        self.assertEqual(alt["source_span"], [14.84, 15.32])
-        self.assertEqual(alt["word_index"], lock["i0"] + 1)
+        adj = new["adjudication"]
+        self.assertEqual(adj["verdict"], "settled")
+        self.assertEqual([(x["run"], x["approved"], x["material"], x["took"]) for x in adj["pairs"]],
+                         [("think", "mean", False, "run")])
+        self.assertNotIn("alternatives", new)
+        self.assertTrue(new["text"].startswith("I think the good news about Bitcoin"), new["text"])
 
 
 @unittest.skipUnless(os.path.isdir(os.path.join(NOV12, "sources")) and os.path.exists(FIX),
                      "the Nov 12 moments run not on this machine")
-class TestG18WithAttestedReadings(unittest.TestCase):
-    """Ruling 18 on the real Nov 12 clip_01 (its source and prepared clip); the final's decode is supplied."""
+class TestG18OnTheSettledLock(unittest.TestCase):
+    """Rulings 143 + 159 (b) on the real Nov 12 clip_01 (its source and prepared clip); the final's decode is supplied.
+    A small-word difference between the final's decode and the lock never holds when the clip plays the speaker's own
+    audio; it fails when the audio around the word is not the source's. (Was ruling 18's alternatives test.)"""
+    TOKEN = (14.84, 15.32)                     # 'think' in the source (the transcript's word times)
 
     @classmethod
     def setUpClass(cls):
         import shutil
         import subprocess
         import tempfile
-        cls.tmp = tempfile.mkdtemp(prefix="r18_")
+        cls.tmp = tempfile.mkdtemp(prefix="r143g18_")
         edl = json.load(open(os.path.join(NOV12, "edl.json")))
         words = json.load(open(os.path.join(NOV12, "transcripts", "c1JGheQBPH4.json")))["words"]
         sw = [{"word": x["text"], "start": x["start"], "end": x["end"]}
@@ -230,7 +238,7 @@ class TestG18WithAttestedReadings(unittest.TestCase):
         cls.cut = cut
         cls.src = os.path.join(NOV12, "sources", "c1JGheQBPH4.mp4")
         cls.prepared = os.path.join(NOV12, "qa", "final_clip_01.mp4")
-        a, b = (x - cut["cut_in"] for x in cls.lock["alternatives"][0]["source_span"])
+        a, b = (x - cut["cut_in"] for x in cls.TOKEN)
         cls.attenuated = os.path.join(cls.tmp, "attenuated.mp4")       # the token's audio 3 dB down
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", cls.prepared, "-c:v", "copy", "-af",
                         f"volume=enable='between(t,{a:.3f},{b:.3f})':volume=0.708", "-c:a", "aac", "-b:a", "192k",
@@ -247,31 +255,27 @@ class TestG18WithAttestedReadings(unittest.TestCase):
 
     def _g18(self, heard, prepared=None):
         clips = {"clip_01": {"lock_text": self.lock["text"], "source": self.src, "cut_in": self.cut["cut_in"],
-                             "cut_out": self.cut["cut_out"], "pad_s": 0.0, "alternatives": self.lock["alternatives"],
-                             "prepared": prepared or self.prepared}}
+                             "cut_out": self.cut["cut_out"], "pad_s": 0.0, "adjudicated": True,
+                             "alternatives": self.lock.get("alternatives"), "prepared": prepared or self.prepared}}
         segs = [{"label": "clip_01", "type": "talking_head", "start": 0.0,
                  "end": self.cut["cut_out"] - self.cut["cut_in"]}]
         tr = _Tr(heard, "The good news about Bitcoin.")
         tr.span = lambda media, t0, t1: heard if media == self.prepared else "The good news about Bitcoin."
         return WD.gate_g18(self.prepared, segs, clips, transcriber=tr)
 
-    def test_either_attested_reading_passes_on_the_untouched_audio(self):
-        for head in ("I mean,", "I think"):
-            heard = self.lock["text"].replace("I think", head, 1)
-            ok, rows = self._g18(heard)
-            self.assertTrue(ok, rows)
-            self.assertTrue(rows[0]["alternatives"][0]["acoustic_prepared"]["ok"], rows)
-
-    def test_a_third_word_fails(self):
-        ok, rows = self._g18(self.lock["text"].replace("I think", "I guess", 1))
-        self.assertFalse(ok)
+    def test_the_lock_and_a_small_word_pass_on_the_untouched_audio(self):
+        for head in ("I think", "I mean,", "I guess"):
+            with self.subTest(head=head):
+                ok, rows = self._g18(self.lock["text"].replace("I think", head, 1))
+                self.assertTrue(ok, rows)
 
     def test_the_tokens_audio_attenuated_or_replaced_fails(self):
         heard = self.lock["text"].replace("I think", "I mean,", 1)
         for bad in (self.attenuated, self.replaced):
-            ok, rows = self._g18(heard, prepared=bad)
-            self.assertFalse(ok, rows)
-            self.assertTrue(rows[0].get("acoustic_mismatch"), rows)
+            with self.subTest(prepared=os.path.basename(bad)):
+                ok, rows = self._g18(heard, prepared=bad)
+                self.assertFalse(ok, rows)
+                self.assertFalse(rows[0]["omission_adjudication"]["same_audio"], rows)
 
 
 class _Tr:
