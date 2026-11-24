@@ -137,7 +137,10 @@
    "usd_estimate": 0.525129
   }
  },
- "reserved": {},
+ "reserved": {
+  "3139629:7cefd4cd23": 0.105313,
+  "3139629:8bf3fd3888": 0.103311
+ },
  "usd_reported": 0.41855981,
  "usd_unreported_estimate": 0.117832
 }
