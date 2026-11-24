@@ -1,0 +1,19 @@
+{
+ "role": "coherence_panel",
+ "backend": "heimdall:minimax/minimax-m3.1-flash",
+ "model": "minimax/minimax-m3.1-flash",
+ "vendor": "heimdall/minimax",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": "Answer with the JSON object only: no code fences and no text before or after it.",
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words; the first clip, label \"hook\", opens the video and is shown for context only: it is NOT\nrated here, its own job was judged on its own).\n\nTITLE: Bitcoin, in their words\nCAPTION: bitcoin, in the words of simply bitcoin, digital asset news and yahoo finance.\nCLIP label=\"hook\" (on screen: Simply Bitcoin): \"Stocks had fallen seven days in a row, Bitcoin was on its way to 55K, and everybody had the same story.\"\nCLIP label=\"clip_01\" (on screen: Digital Asset News): \"He said, over the weekend, we hit a new low. Bitcoin bottom four years ago to the exact day. Let me read that again.\"\nCLIP label=\"clip_02\" (on screen: Yahoo Finance): \"Bitcoin swept those lows. Late in the middle of the night this weekend, I woke up, Bitcoin had gone to $55,000 and had bounced. Now, this was basically a historic sell -off. You had one, two, three, four, five, six, seven red weeks in a row. And then this very, very long wick on serious volume.\"\nVOICE-OVER: Bitcoin, in the words of Simply Bitcoin, Digital Asset News and Yahoo Finance, in their own clips.\nVOICE-OVER: Clips today from Simply Bitcoin, Digital Asset News, and Yahoo Finance. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"clip_01\": 1, \"clip_02\": 1}, \"vo_point\": 1}",
+ "text": "{\"through_line\": \"Bitcoin's historic seven-week selloff to roughly $55,000 and the debate over whether it marked a four-year cycle bottom, as narrated by three different crypto/finance outlets.\", \"clips\": {\"clip_01\": 4, \"clip_02\": 5}, \"vo_point\": 2}",
+ "usage": {
+  "in": 682,
+  "out": 249,
+  "usd_reported": 0.0002517
+ },
+ "usd": 0.005781,
+ "seconds": 6.18,
+ "recorded_at": "2026-11-24T03:30:02Z"
+}
