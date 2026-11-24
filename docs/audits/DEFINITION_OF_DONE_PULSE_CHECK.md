@@ -6,6 +6,31 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 23:38 DELIVERED ON THE REVIEW PATH (ruling 158 (1); NOT FOR PUBLISHING): Telegram 68164 (16:9), 68165 (9:16) and the note 68166, after the standalone DO NOT PUBLISH line 68162 (23:19). Pin afd8977d143e, run /home/ultron/protocol_pulse/runs/pinned_20261124_033952.
+- THE RENDER PATH RAN END TO END, for the first time since Nov 13:
+  - Every stage ran: env, pinned, review, validate, cut, sentence_law, voice, prepare, layout, render, gates, attestation.
+  - Both finals: out/segment.mp4 (16:9, 58.33 s, 11.3 MB) and out/segment_vertical.mp4 (9:16, 58.33 s); loudness corrected.
+  - The new parts ran live for the first time: ruling 143's lock, ruling 139's edge flag, ruling 148's runtime row, and the review flags in plain words (8 of them). The pinned stage took 137 s.
+- THE RELEASE VERDICT WAS HOLD: G18_word_for_word FAIL (HARD), in both formats, on clip 1, Digital Asset News, the clip ruling 158 (3) puts OUT anyway.
+  - The final is heard as "Bitcoin bottom four years ago"; the source span is heard as "Bitcoin bottomed four years ago"; the lock text says "bottom".
+  - G18's identity check treats that inflection of one non-material word as a different word. Ruling 143 says a non-material pair never holds, and G18 does not follow it yet. That is a render-side gap, proposed below; nothing is changed tonight.
+- Soft rows, flagged, not deciding: G3c acoustic tail (clip 2, Yahoo Finance); G14 AV alignment (16:9) and audio offset (9:16) on clip 1; G10 chyron (16:9, MONITORING).
+- WHICH WAS DELIVERED: both formats and the note, on the review path. Its head is "REVIEW ONLY - NOT A PASS - not for publishing", then "OPEN INTEGRITY POINT: DO NOT PUBLISH: the Digital Asset News clip shows paid ads on screen ..." (the orchestrator's exact line), then the G18 point. A stub dry run came first. The release path (deliver_run) did not run, because release_auth passes only ALL_PASS / PASS_WITH_FLAGS.
+- Integrator outside spend for this run: the render's G18 Scribe calls are in data/spend/integrator_outside.jsonl (service render).
+- PROPOSED FOR TOMORROW, audit-first, with the verifier's report:
+  - G18's identity check follows ruling 143: a non-material inflection like this one is recorded, never a hold; a number, negation, name, ticker or amount still holds.
+  - Ruling 158 (2) on the render side: check which render step asks a vision model about on-screen graphics, and add the ad question there with the two frames from this run as fixtures.
+
+## 23:19 RULING 158 (1): DO NOT PUBLISH SENT FIRST, Telegram message 68162 (23:19:29 ET). The render goes on to its delivery; the same line follows as a reply to the delivered note.
+- The note's own text cannot carry a first line. deliver_run's caption and note are bound to the run's ATTESTATION (the review flags must equal the attested ones), and any code change would break release_auth's binding of this run to its code. So the line went to the approval chat ahead of the videos, and it is sent again as a reply to the delivered note.
+- The launcher was paused (SIGSTOP) during the gates stage at 23:17 so nothing could be delivered before the line, and resumed at 23:19. run_fresh was never stopped.
+
+## 22:39 PIN RECEIVED AND RENDERING: the builder's SEALED pin afd8977d143e (ruling 157, relayed by the builder: "ship this package; PBX judges it"). Run pulse_check_run 20261124_033913, launched 22:39 ET, log logs/pulse_check/run_20261124_033913.log.
+- Story: 'Bitcoin hits two-year low, then bounces off the bottom'. Hook Simply Bitcoin 0shaXx_n870 93.15-99.17; Digital Asset News vX2WKBOua8w 575.61-586.56; Yahoo Finance duqpCH2snqE 202.47-221.11. 35.6 s of clips; formats 16:9 + 9:16.
+- The 12 h check at 22:39:11 ET: ages 5.43 h, 5.05 h and 9.64 h; Yahoo Finance expires at 01:00 ET.
+- check_pin_only: READY (pin only) afd8977d143eb66a; the takeaway carries its sealed value verdict; "hook passed on the calibrated bar".
+- The builder's 5 review flags will lead the Telegram note (REVIEW FLAGS:), on the review path.
+
 ## 20:39 RE-JUDGE DONE (DECODER 9326604699a7): all 24 spans answered.
 - MicroStrategy: 11 of 12 pass (4c8a1d87, 64b8fc3b, 72fbbf81, 8c60556a, ae49f0e8, afc71c91, b9acd2c7, c467bae8, c5b136cd, e3bde2f2, f4aa3aed). c90facab holds: the two audio readings disagree on a material word (ruling 143).
 - FTX 4 of 7 and liquidations 2 of 4 stand as at 20:31.
