@@ -339,7 +339,8 @@ def out_edges(run, edl, router=None, cuts=None, frozen=False):
     return out
 
 
-OUT_EDGE_CACHE = os.path.join(REPO, "data", "out_edge", "answers")   # the answers, keyed (owner_rules.answer_key)
+OUT_EDGE_CACHE = os.environ.get("PP_OUT_EDGE_CACHE") or os.path.join(REPO, "data", "out_edge", "answers")  # keyed
+#   (owner_rules.answer_key); pipeline/conftest.py points a test session at a temp folder and sets PP_OUT_EDGE_FROZEN
 
 
 def check_out_edges(run, edl=None, cuts=None, router=None, frozen=False):
@@ -351,6 +352,8 @@ def check_out_edges(run, edl=None, cuts=None, router=None, frozen=False):
     if edl is None:
         with open(os.path.join(run.dir, "edl.json")) as f:
             edl = json.load(f)
+    if os.environ.get("PP_OUT_EDGE_FROZEN") == "1":      # a test session: stored answers only, never a live model
+        frozen = True
     edges = out_edges(run, edl, router=router, cuts=cuts, frozen=frozen)
     run.prov["out_edge"] = edges
     open_ = [f"{e['segment']} ({e['why']})" for e in edges if e["complete"] is False]

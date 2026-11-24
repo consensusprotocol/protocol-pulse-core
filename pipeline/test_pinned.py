@@ -308,6 +308,9 @@ class TestRunFreshUsesSharedCutAcceptance(Fixture):
             shutil.copyfile(self.src[vid]["path"], os.path.join(self.run_dir, "sources", f"{vid}.mp4"))
         calls = []
         orig_cut, orig_acc = cut.compute_all_cuts, cut_accept.check_cut_acoustics
+        q = mock.patch.object(rf, "check_out_edges", return_value=[])    # the out-edge question is not this test's
+        q.start()
+        self.addCleanup(q.stop)
         cut.compute_all_cuts = lambda *a, **k: (_ for _ in ()).throw(AssertionError("acoustic cutter must not run"))
         cut_accept.check_cut_acoustics = lambda src, a, b: (calls.append((os.path.basename(src), a, b)) or
                                                              (True, {"in": {"pass": True}, "out": {"pass": True}}))

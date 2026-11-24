@@ -17,6 +17,12 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))     # gpu0 lives 
 if "PP_HEARTBEAT_DIR" not in os.environ:
     import tempfile as _tf
     os.environ["PP_HEARTBEAT_DIR"] = _tf.mkdtemp(prefix="pp_heartbeat_")
+# the out-edge question (run_fresh.check_out_edges, 09:45 ET Nov 24): a test session never asks a live model and never
+# writes the live answer store; unanswered there is UNVERIFIED (a hold), so a test that is not about it stubs it
+if "PP_OUT_EDGE_CACHE" not in os.environ:
+    import tempfile as _tf
+    os.environ["PP_OUT_EDGE_CACHE"] = _tf.mkdtemp(prefix="pp_out_edge_")
+os.environ.setdefault("PP_OUT_EDGE_FROZEN", "1")
 
 _CVD = os.environ.get("CUDA_VISIBLE_DEVICES")
 _CPU = _CVD in (None, "", "-1")
