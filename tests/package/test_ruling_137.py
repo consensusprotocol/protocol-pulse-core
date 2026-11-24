@@ -315,8 +315,8 @@ class TestRuling162NoPlainLines(unittest.TestCase):
     """RULING 162 (2) (orchestrator 07:45 ET Nov 24, from PBX's review of afd8977d: "my VO, which is literally just me
     saying all the clips that were featured, which is not a value added comment at all. Let's never do that again"):
     ruling 156's plain fallback lines are WITHDRAWN and their templates deleted; ruling 150 is REVERSED (the closing
-    line's value grade is a requirement again); "up to 4 writes" a line stands (the write, then the line alone three
-    times, each told why); no line passing means NO closing line, with ONE flag."""
+    line's value grade is a requirement again); no line passing means NO closing line, with ONE flag. ITEM 2 (orchestrator
+    09:35 ET Nov 24: "One write, one judge ... no retry loop") withdraws "up to 4 writes" for the closing line."""
 
     def test_the_templates_and_their_soft_rows_are_gone(self):
         for name in ("fallback_fields", "fallback_subject", "fallback_vo_soft", "FALLBACK_CLOSING", "FALLBACK_FLAG",
@@ -328,21 +328,20 @@ class TestRuling162NoPlainLines(unittest.TestCase):
         self.assertFalse(PP.flagged_ok("takeaway_value", {"status": "FLAGGED", "flags": ["The closing line may mostly "
                                                                                        "restate the clips."]}))
 
-    def test_a_line_is_written_alone_three_times_after_its_write(self):
-        """RULING 156 (1): up to 4 writes a line: its write, then the line ALONE three times (LINE_ONLY_WRITES), each
-        told its refusal; the fourth reply offered is never asked for. (The verifier, Nov 23: with two alone writes
-        every test still passed.)"""
+    def test_a_refused_closing_line_is_never_written_alone(self):
+        """REPLACES 'a line is written alone three times after its write' (ruling 156 (1)'s up-to-4 writes, withdrawn for
+        the closing line by ITEM 2, orchestrator 09:35 ET Nov 24: "One write ... no retry loop"): the four replies
+        offered for the line alone are never asked for, no prompt tells a refusal, no verdict judges one."""
         import test_medley as TM
         T = TM.TestRuling66Amended()
         texts = [f"Nobody bends these rules, and that is exactly why they keep working for everyone who holds them {w}."
                  for w in ("anywhere", "everywhere", "still", "here")]             # 18 words each: the 39 s budget
-        rig, out, seen, avoid = T.run_rig([T.failing(), T.failing()],
+        rig, out, seen, avoid = T.run_rig([T.failing()],
                                           [{"takeaway": {"text": x, "cites": []}} for x in texts], alone_ok=(False,) * 4)
         alone = [p for r, p in rig.prompts if r == "angle_write" and "Your takeaway was refused" in p]
-        self.assertEqual((len(alone), seen), (3, [[x] for x in texts[:3]]))
-        self.assertTrue(all(texts[i] in alone[i + 1] for i in range(2)))         # each told the one refused before
-
-
+        self.assertEqual((alone, seen, avoid, len(rig.write_calls)), ([], [], {}, 1))
+        self.assertEqual(len(rig.router.answers["angle_write"]), 4)               # all four offered: none asked for
+        self.assertIsNone(out["package"])
 
 class TestStage2aAtTheLineUp(unittest.TestCase):
     """RULING 137 stage 2a, the line-up stage (build 164, 22:11 ET Nov 23): a clip whose CUTTABLE failure is only a

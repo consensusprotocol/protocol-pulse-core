@@ -1006,12 +1006,10 @@ class TestRuling85NoXai(unittest.TestCase):
                        "heimdall:z-ai/glm-5.3-flash", "heimdall:qwen/qwen3.8-27b")
         GEM = "google:gemini-2.5-pro"
         ch = PL.chains("heimdall_first")
-        self.assertEqual(ch["fidelity_verdict"], [X, Q, DS, "heimdall:openai/gpt-oss-20b",   # RULING 162 (2): the
-                                                   "heimdall:google/gemma-4-31b-it",      # paid model first, then
-                                                   "heimdall:minimax/minimax-m3.1-flash"])   # every Heimdall family
-        #   (was 96's qwen -> Grok: with the paid model writing the closing line first and qwen writing the angle, L-x
-        #   left no judge; "a Heimdall family judges fidelity and value when the paid model wrote, and the reverse")
-        self.assertEqual(ch["angle_write:closing"][0], X)                         # RULING 162 (2): paid first
+        self.assertEqual(ch["fidelity_verdict"], [Q, X])                          # 96 without glm: qwen -> Grok
+        #   (ITEM 2, 09:35 ET Nov 24: 162 (2)'s chain extension reverted: no paid model writes the closing line)
+        self.assertEqual(ch["angle_write:closing"], [w for w in PL.WRITERS if w.startswith("heimdall:")])   # ITEM 2:
+        self.assertNotIn(X, ch["angle_write:closing"])                            # in-house writers, no paid rescue
         self.assertEqual(ch["exclusion_verdict"], [DS, X])                         # 96 without glm: deepseek -> Grok
         self.assertEqual(ch["context_verdict:step_a_first"], [DS, X])              # 06:12 (2) without glm; no qwen
         self.assertEqual(ch["context_verdict:step_a_second"], [X, DS, GEM, "local_judge:gemma3:27b"])   # (c) Grok
@@ -1019,7 +1017,7 @@ class TestRuling85NoXai(unittest.TestCase):
         self.assertEqual(ch["context_verdict"], [DS, X])                           # the role's default: no qwen either
         self.assertNotIn(G, [b for k, v in list(ch.items()) + list(PL.chains("today").items()) for b in v
                              if not k.startswith("angle_write")])   # 119; RULING 152 (1): glm writes only when it
-        #   answers the probe (RULING 162 (2): "angle_write:closing" is the writer chain too, the paid model first)
+        #   answers the probe ("angle_write:closing" is the writer chain's in-house part, ITEM 2)
         self.assertNotIn(Q, [b for k, v in ch.items() if k.startswith("context_verdict:step_a") for b in v])
         self.assertEqual(ch["coherence_verdict:hook"], [X])                        # RULING 115 (amends 88 (b) / 96 for
         #   the hook): Grok ALONE, the rater the calibrated floors are measured on (qwen in shadow, never deciding)
