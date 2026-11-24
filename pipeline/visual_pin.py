@@ -88,10 +88,11 @@ Answer four questions from the frames only:
    a side panel, a corner box, a ticker, a card), however small: an advertiser's name or logo shown AS AN AD (any
    company or product that is not the show itself), a sign-up bonus, a reward, a promo or referral code ("use code
    ..."), an affiliate link, a QR code, "sponsored by", a paid-partner banner or panel, and any OFFER of a product or
-   service (open an account, an IRA, an exchange, a wallet, a card, a loan, a funding reward). Read the small print of
-   every box and panel at the sides and corners. Copy its text exactly and name what it advertises. An item may ALSO be
-   listed under question 4. IF YOU ARE UNSURE whether something is an ad, LIST IT. An empty list means you saw NO
-   advertising in any frame.
+   service (open an account, an IRA, an exchange, a wallet, a card, a loan, a funding reward). SPONSOR MATERIAL TOO: a
+   stage backdrop, banner or wall of sponsor logos at an event ("powered by", "presented by", a row of company logos
+   behind a speaker). Read the small print of every box and panel at the sides and corners. Copy its text exactly and
+   name what it advertises. An item may ALSO be listed under question 4. IF YOU ARE UNSURE whether something is an ad,
+   LIST IT. An empty list means you saw NO advertising in any frame.
 
 Return ONLY this JSON object:
 {{"third_person": {{"shown": true or false, "how": "still|photo|graphic|none", "words_negative": true or false,
@@ -109,7 +110,9 @@ AD_WORDS = re.compile(
     r"\breferral\b|\buse\s+(?:my\s+|the\s+|our\s+)?code\b|\bdiscount\s+code\b|\baffiliate\s+link\b|\bsponsored\s+by\b|"
     r"\b(?:today'?s|our|this\s+episode'?s)\s+sponsor\b|\bbrought\s+to\s+you\s+by\b|\bQR\b|"
     r"\bpaid\s+(?:partner|partnership|promotion)\b|\b\d+\s*%\s+off\b|\bfree\s+trial\b|\bcoupon\b|"
-    r"\bopen\s+an?\s+(?:\w+\s+)?(?:account|wallet|IRA)\b", re.I)
+    r"\bopen\s+an?\s+(?:\w+\s+)?(?:account|wallet|IRA)\b|\bpowered\s+by\b|\bpresented\s+by\b|"
+    r"\bofficial\s+(?:sponsor|partner)\b|\bin\s+partnership\s+with\b", re.I)   # the event sponsor walls (the
+#   integrator's V1, 02:0x ET Nov 24: a Bitcoin Magazine stage clip, "Powered by Cash App", bitkey, SALT)
 #   RULING 158 (2): offer phrases that make a copied text an ad, whatever kind the check filed it under (the Kraken
 #   banner of Nov 23 came back as a "ticker": "... KRAKEN $25 SIGN UP BONUS ..."). Never bare words that Bitcoin talk
 #   uses for itself ("block reward", "trading at a discount", "an affiliate"): those are content, not ads.

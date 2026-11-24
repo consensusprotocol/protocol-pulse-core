@@ -314,8 +314,12 @@ class TestRuling158OnScreenAdvertising(unittest.TestCase):
             self.assertIsNone(VP.ad_block(dict(tick, burned_in=[], on_screen_text=[
                 {"text": words, "asserts_beyond_words": False, "why": ""}])), words)
         for words in ("GET A SIGN-UP BONUS AT KRAKEN", "USE CODE SATS FOR 10% OFF", "SPONSORED BY BITKEY",
-                      "OPEN A CRYPTO IRA TODAY", "$100 FUNDING REWARD"):                   # ad words, any kind
-            self.assertTrue(VP.ad_block(dict(tick, burned_in=[], on_screen_text=[
+                      "OPEN A CRYPTO IRA TODAY", "$100 FUNDING REWARD",                    # ad words, any kind;
+                      "POWERED BY CASH APP", "Presented by Bitkey", "OFFICIAL PARTNER"):   # an event's sponsor wall
+            self.assertTrue(VP.ad_block(dict(tick, burned_in=[], on_screen_text=[         # (the integrator's V1,
+                {"text": words, "asserts_beyond_words": False, "why": ""}])), words)       # Nov 24: the Nov 11 stage)
+        for words in ("BITCOIN 2024 NASHVILLE", "THE BLOCK REWARD HALVES"):                # an event's own name: not
+            self.assertIsNone(VP.ad_block(dict(tick, burned_in=[], on_screen_text=[        # an ad by its words alone
                 {"text": words, "asserts_beyond_words": False, "why": ""}])), words)
         cap = dict(tick, burned_in=[{"kind": "caption", "text": "OPEN A ROTH IRA", "whole_in_16x9": True,
                                      "in_9x16": "whole", "covers_speaker": False}])

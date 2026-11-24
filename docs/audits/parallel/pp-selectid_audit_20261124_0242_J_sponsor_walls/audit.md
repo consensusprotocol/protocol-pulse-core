@@ -1,0 +1,14 @@
+# Heimdall audit
+
+**Question:** pp-selectid (Protocol Pulse clip-video builder), RULING 158 (2) (STANDING, HARD: "on-screen advertising refuses a clip in every format ... When unsure, treat it as an ad"; PBX: "we never include any sponsor material, ever"), uncommitted (diff below). The integrator's render-side vision check found a clip from a conference stage with a sponsor logo wall ("Powered by Cash App", bitkey, SALT) and holds it; this side must agree. THE CHANGE: visual_pin's vision question 5 now names sponsor material at events (a stage backdrop, banner or wall of sponsor logos, "powered by", "presented by", a row of company logos behind a speaker), and AD_WORDS (the code's own rule on every text the check copied, except the source's burned captions of the spoken words) adds "powered by", "presented by", "official sponsor/partner", "in partnership with". visual_pin.ad_block refuses on anything question 5 lists or on AD_WORDS; layout_block puts that first (every role and format). The prompt is part of the cache key (visual_pin.key digests PROMPT), so every clip is asked the new question.
+CHECK, quoting the code: can a clip whose frames or copied texts show event sponsor material still pass; can an event's own name ("BITCOIN 2024 NASHVILLE") or ordinary Bitcoin words now be refused as ads by AD_WORDS; did the edit break the regex or the prompt's JSON template. Report only what the code shows.
+
+**Panel:** qwen27b, gptoss, gemma  |  **Cost:** $0.0385
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none
