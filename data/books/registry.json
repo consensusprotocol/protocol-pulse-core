@@ -205,7 +205,7 @@
    "pub_year_source": "Open Library edition record (2023), checked 2026-11-24",
    "free_resources": [
     {
-     "label": "Read free in the authors' repository",
+     "label": "Free on GitHub",
      "url": "https://github.com/bitcoinbook/bitcoinbook",
      "verified": "2026-11-24: HTTP 200 from Ultron (https://github.com/bitcoinbook/bitcoinbook)"
     }
@@ -380,7 +380,7 @@
    "pub_year_source": "Open Library edition record (Dec 18, 2019), checked 2026-11-24",
    "free_resources": [
     {
-     "label": "Read free at 21lessons.com",
+     "label": "Free at 21lessons.com",
      "url": "https://21lessons.com/",
      "verified": "2026-11-24: HTTP 200 from Ultron (https://21lessons.com/)"
     }
@@ -454,7 +454,7 @@
    "pub_year_source": "Amazon US product page (February 18, 2023), checked 2026-11-24",
    "free_resources": [
     {
-     "label": "Read the MIT thesis (free)",
+     "label": "MIT thesis (free)",
      "url": "https://hdl.handle.net/1721.1/153030",
      "verified": "2026-11-24: HTTP 200 from Ultron (https://dspace.mit.edu/entities/publication/8ac6037b-efd6-4ecd-a57f-2b75c965c889)"
     }

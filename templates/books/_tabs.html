@@ -1,0 +1,12 @@
+{# Library | Book Market switch shared by /books and /books/market. active: 'library' or 'market'.
+   Literal paths: both routes live in core/routes_books.py. #}
+<nav class="bt-tabs" aria-label="Book Terminal">
+  <a class="bt-tab{% if active == 'library' %} is-active{% endif %}" href="/books"{% if active == 'library' %} aria-current="page"{% endif %}>
+    <svg class="bt-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5zM20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5z"/></svg>
+    Library
+  </a>
+  <a class="bt-tab{% if active == 'market' %} is-active{% endif %}" href="/books/market"{% if active == 'market' %} aria-current="page"{% endif %}>
+    <svg class="bt-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+    Book Market
+  </a>
+</nav>

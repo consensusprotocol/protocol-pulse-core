@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{# /books: The Sovereign Library. Registry data only (core/books_registry.library()): no rank
+   numbers, no sales wording. Prototype: noindex (meta here + X-Robots-Tag from the blueprint). #}
+{% block title %}The Sovereign Library: Bitcoin books worth owning | Protocol Pulse{% endblock %}
+{% block meta_description %}A curated library of essential books on Bitcoin, money, history and strategy, with Protocol Pulse original series and guided reading pathways.{% endblock %}
+{% block head %}
+<meta name="robots" content="noindex">
+<meta name="googlebot" content="noindex">
+<link rel="preload" href="{{ url_for('static', filename='fonts/fraunces/fraunces-roman.woff2') }}" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/books.css') }}?v={{ asset_version }}">
+{% endblock %}
+
+{% macro book_card(b, heading='h3') %}
+<li class="bt-book" id="book-{{ b.slug }}" data-search="{{ b.search }}" data-cats="{{ b.categories|join('|') }}"{% if not b.match %} hidden{% endif %}>
+  <article class="bt-card" aria-labelledby="t-{{ b.slug }}">
+    <div class="bt-cover">
+      <img src="{{ b.cover_url }}" alt="Cover of {{ b.title }}" loading="lazy" decoding="async">
+      <span class="bt-cover-fallback" aria-hidden="true">{{ b.title }}</span>
+    </div>
+    <div class="bt-card-body">
+      <div class="bt-head">
+        <{{ heading }} class="bt-title" id="t-{{ b.slug }}">{{ b.title }}</{{ heading }}>
+        <p class="bt-author">{{ b.author }}</p>
+      </div>
+      <p class="bt-desc">{{ b.description }}</p>
+      <p class="bt-meta">
+        {%- for c in b.categories %}<span class="bt-tag">{{ c }}</span>{% endfor -%}
+        {%- if b.format_note %}<span class="bt-tag bt-tag-format">{{ b.format_note }}</span>{% endif -%}
+      </p>
+      <div class="bt-actions">
+        <a class="bt-btn bt-btn-buy" href="{{ b.amazon_url }}" target="_blank" rel="noopener sponsored">{{ b.purchase_label }}<span class="bt-sr"> (opens in a new tab)</span></a>
+        {%- for r in b.free_resources %}
+        <a class="bt-link bt-link-free" href="{{ r.url }}" target="_blank" rel="noopener">{{ r.label }}<span class="bt-sr"> (opens in a new tab)</span></a>
+        {%- endfor %}
+        {%- if b.series_url %}
+        <a class="bt-link bt-link-series" href="{{ b.series_url }}" target="_blank" rel="noopener"><svg class="bt-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5v14l11-7z"/></svg>Watch the series<span class="bt-sr">: {{ b.series_label }} (opens in a new tab)</span></a>
+        {%- endif %}
+      </div>
+    </div>
+  </article>
+</li>
+{% endmacro %}
+
+{% block content %}
+<div class="bt bt-library{% if view == 'list' %} is-list{% endif %}" id="btLibrary">
+  <div class="bt-wrap">
+    {% with active='library' %}{% include 'books/_tabs.html' %}{% endwith %}
+
+    <div class="bt-top">
+      <header class="bt-hero">
+        <p class="bt-kicker">The Sovereign Library</p>
+        <h1 class="bt-h1">The Sovereign Library</h1>
+        <p class="bt-tagline">Ideas worth owning.</p>
+        <p class="bt-dek">A curated collection of books on Bitcoin, money, history and power: our original series, essential reading and guided pathways.</p>
+        <ul class="bt-facts" aria-label="In this library">
+          <li><strong>{{ lib.count }}</strong> books</li>
+          <li><strong>{{ lib.series|length }}</strong> original series</li>
+          <li><strong>{{ lib.pathways|length }}</strong> reading pathways</li>
+        </ul>
+      </header>
+
+      {% set f = lib.featured %}
+      {% if f %}
+      <section class="bt-feature" aria-labelledby="btFeatureTitle">
+        <div class="bt-feature-cover">
+          <img src="{{ f.cover_url }}" alt="Cover of {{ f.title }}" decoding="async">
+        </div>
+        <div class="bt-feature-body">
+          <p class="bt-eyebrow">Featured original series</p>
+          <h2 class="bt-feature-title" id="btFeatureTitle">{{ f.title }}</h2>
+          <p class="bt-author">by {{ f.author }}</p>
+          <p class="bt-feature-desc">{{ f.description }}</p>
+          <div class="bt-feature-actions">
+            {% if f.series_url %}
+            <a class="bt-btn bt-btn-primary" href="{{ f.series_url }}" target="_blank" rel="noopener"><svg class="bt-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5v14l11-7z"/></svg>{{ f.series_label }}<span class="bt-sr"> (opens in a new tab)</span></a>
+            {% endif %}
+            <a class="bt-btn bt-btn-ghost" href="{{ f.amazon_url }}" target="_blank" rel="noopener sponsored">{{ f.purchase_label }}<span class="bt-sr"> (opens in a new tab)</span></a>
+          </div>
+        </div>
+      </section>
+      {% endif %}
+    </div>
+
+    <form class="bt-tools" id="btTools" role="search" action="/books" method="get" aria-label="Search and filter the library">
+      {# Enter in the search box submits with this button (no name): q plus the current category. #}
+      <button type="submit" class="bt-sr" tabindex="-1">Search</button>
+      <input type="hidden" name="cat" value="{{ cat }}">
+      <div class="bt-search">
+        <label class="bt-sr" for="btSearch">Search the library</label>
+        <svg class="bt-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+        <input id="btSearch" type="search" name="q" value="{{ q }}" placeholder="Search title, author or topic" autocomplete="off" enterkeyhint="search">
+      </div>
+      <div class="bt-chips" role="group" aria-label="Category">
+        <button type="submit" name="cat" value="" class="bt-chip" aria-pressed="{{ 'true' if not cat else 'false' }}">All</button>
+        {%- for c in lib.categories %}
+        <button type="submit" name="cat" value="{{ c }}" class="bt-chip" aria-pressed="{{ 'true' if cat == c else 'false' }}">{{ c }}</button>
+        {%- endfor %}
+      </div>
+      <div class="bt-viewbar">
+        <p class="bt-count" id="btCount" role="status">Showing {{ shown }} of {{ lib.series|length + lib.essential|length }} books</p>
+        <div class="bt-toggle" role="group" aria-label="Layout" hidden>
+          <button type="button" class="bt-toggle-btn" data-view="grid" aria-pressed="{{ 'false' if view == 'list' else 'true' }}"><svg class="bt-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>Grid</button>
+          <button type="button" class="bt-toggle-btn" data-view="list" aria-pressed="{{ 'true' if view == 'list' else 'false' }}"><svg class="bt-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"/></svg>List</button>
+        </div>
+      </div>
+    </form>
+
+    <p class="bt-empty" id="btEmpty"{% if shown %} hidden{% endif %}>No books match. <a href="/books" class="bt-reset" data-reset>Show all books</a></p>
+
+    {% set series_shown = lib.series|selectattr('match')|list|length %}
+    <section class="bt-section bt-series" id="series" aria-labelledby="btSeriesH"{% if not series_shown %} hidden{% endif %}>
+      <div class="bt-section-head">
+        <h2 class="bt-h2" id="btSeriesH">Protocol Pulse Original Series</h2>
+        <p class="bt-section-dek">Books with a Protocol Pulse original video series on Cypherpunk'd.</p>
+      </div>
+      <ul class="bt-shelf" role="list">
+        {% for b in lib.series %}{{ book_card(b) }}{% endfor %}
+      </ul>
+    </section>
+
+    {% set essential_shown = lib.essential|selectattr('match')|list|length %}
+    <section class="bt-section" id="essential" aria-labelledby="btEssentialH"{% if not essential_shown %} hidden{% endif %}>
+      <div class="bt-section-head">
+        <h2 class="bt-h2" id="btEssentialH">Essential Reading</h2>
+        <p class="bt-section-dek">Foundational books on Bitcoin, money, technology, history and strategy.</p>
+      </div>
+      <ul class="bt-shelf" role="list">
+        {% for b in lib.essential %}{{ book_card(b) }}{% endfor %}
+      </ul>
+    </section>
+
+    <section class="bt-section bt-pathways" id="pathways" aria-labelledby="btPathH">
+      <div class="bt-section-head">
+        <h2 class="bt-h2" id="btPathH">Reading Pathways</h2>
+        <p class="bt-section-dek">Short reading lists in a deliberate order. Each note says why a book sits where it does.</p>
+      </div>
+      <div class="bt-path-grid">
+        {% for p in lib.pathways %}
+        <article class="bt-path" aria-labelledby="path-{{ p.id }}">
+          <div class="bt-path-head">
+            <h3 class="bt-path-title" id="path-{{ p.id }}">{{ p.title }}</h3>
+            <span class="bt-path-count">{{ p.steps|length }} books</span>
+          </div>
+          <p class="bt-path-summary">{{ p.summary }}</p>
+          <ol class="bt-steps">
+            {% for s in p.steps %}
+            <li class="bt-step">
+              <span class="bt-step-n" aria-hidden="true">{{ s.step }}</span>
+              <img class="bt-step-cover" src="{{ s.book.cover_url }}" alt="" loading="lazy" decoding="async">
+              <div class="bt-step-body">
+                <a class="bt-step-title" href="#book-{{ s.book.slug }}" data-book="{{ s.book.slug }}">{{ s.book.title }}</a>
+                <span class="bt-step-author">{{ s.book.author }}</span>
+                <p class="bt-step-note">{{ s.note }}</p>
+              </div>
+            </li>
+            {% endfor %}
+          </ol>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <p class="bt-footnote">Amazon links carry the Protocol Pulse affiliate tag. Free editions link to the authors' or the institution's own pages.</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/books.js') }}?v={{ asset_version }}" defer></script>
+{% endblock %}

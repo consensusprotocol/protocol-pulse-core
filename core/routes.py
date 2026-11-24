@@ -29,6 +29,7 @@ app.register_blueprint(admin_bp)
 app.register_blueprint(api_bp)
 app.register_blueprint(auth_bp)
 app.register_blueprint(pages_bp)
+from routes_books import books_bp; app.register_blueprint(books_bp)  # Book Terminal: /books, /books/market
 
 logging.info("All route blueprints registered: admin, api, auth, pages")
 
