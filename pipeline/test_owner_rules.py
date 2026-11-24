@@ -177,6 +177,25 @@ class TestItem2Lexical(unittest.TestCase):
             self.assertEqual(O.line_faults(text, [], clip_texts=clips), [], text)   # number WORDS are not digits
 
 
+class TestLineRules(unittest.TestCase):
+    """The categories in one place (orchestrator 11:20 ET Nov 24): LISTING fires only on a credited channel's name or a
+    listing phrase. Must-not-fire: 'The floor held. Watch Monday.' is two sentences and nothing else."""
+    NAMES = ["Simply Bitcoin", "Natalie Brunell", "Yahoo Finance"]
+
+    def test_listing_fires_only_on_a_name_or_a_listing_phrase(self):
+        self.assertEqual(O.line_faults("The floor held. Watch Monday.", self.NAMES), ["more than one sentence"])
+        self.assertEqual(O.line_rules("The floor held. Watch Monday.", self.NAMES), ["ONE_SENTENCE"])
+        self.assertEqual(O.line_rules("The floor held. Watch Monday.", self.NAMES, clip_texts=["Bitcoin held."]),
+                         ["ONE_SENTENCE"])
+        self.assertEqual(O.line_rules("The floor held because sellers ran out of reasons to sell.", self.NAMES), [])
+        for text in ("Simply Bitcoin saw the floor hold.", "Bitcoin, in their own words.",
+                     "Natalie Brunell's warning is the one to watch.", "As these clips show, the floor held."):
+            self.assertEqual(O.line_rules(text, self.NAMES), ["LISTING"], text)
+        self.assertEqual(O.line_rules("It fell 12 percent.", self.NAMES, clip_texts=["It fell 20%."]), ["DIGIT"])
+        self.assertEqual(O.line_rules("Next, Yahoo Finance. Then it broke.", self.NAMES),
+                         ["LISTING", "ONE_SENTENCE"])
+
+
 class TestAnswerCache(unittest.TestCase):
     """The out-edge answer (orchestrator 09:45 ET Nov 24): cached against the exact transcript, cut coordinates and
     prompt version; a changed cut or transcript voids it; the replay serves frozen answers only; no answer is never

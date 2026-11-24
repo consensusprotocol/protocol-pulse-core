@@ -295,6 +295,25 @@ def line_faults(text, names, clip_texts=None):
     return faults
 
 
+DIGIT_FAULT = "which no clip says"
+
+
+def line_rules(text, names, clip_texts=None):
+    """ITEM 2's categories, decided HERE once for both sides (orchestrator 11:20 ET Nov 24: a side that mapped every
+    fault to LISTING read 'The floor held. Watch Monday.' as a listing): "LISTING" only for a credited channel's name or
+    a listing phrase; "ONE_SENTENCE" for more than one sentence; "DIGIT" for a number no clip says. -> the codes found,
+    in that order; [] for a clean line."""
+    f = line_faults(text, names, clip_texts=clip_texts)
+    codes = []
+    if any(x.startswith("names '") or (x.startswith("says '") and not x.endswith(DIGIT_FAULT)) for x in f):
+        codes.append("LISTING")
+    if "more than one sentence" in f:
+        codes.append("ONE_SENTENCE")
+    if any(x.endswith(DIGIT_FAULT) for x in f):
+        codes.append("DIGIT")
+    return codes
+
+
 class HeimdallText:
     """The render's router for out_edge: ONE Heimdall gateway model, temperature 0 (free). The key is read by NAME
     from the repo .env and never printed. .call() raises on any route error (out_edge: measured False)."""
