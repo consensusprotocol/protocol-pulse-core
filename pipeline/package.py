@@ -111,6 +111,38 @@ def flag_sentence(label, channel, code):
            f"{STEP_A_SOFT.get(code) or EDGE_WORDS[code]}."
 
 
+COUNT_WORDS = {2: "Two", 3: "Three", 4: "Four", 5: "Five"}
+STEP_A_SOFT_MANY = {"NOT_OWN_SINCERE": "the checker doubted each is the speaker's own sincere view (they may be quoting "
+                                       "someone or joking)",
+                    "REFERENT_OUTSIDE": "the checker thought each points back to something said before the clip starts",
+                    "CONDITION_OUTSIDE": "the checker thought each claim depends on a condition said outside the clip",
+                    "UNCERTAIN": "the checker was not sure what each speaker means"}
+EDGE_WORDS_MANY = {"EDGE_IN": "the checker heard the sentence run on into each clip's first word, so each may start "
+                              "mid-sentence",
+                   "EDGE_OUT": "the checker heard the sentence carry on past each clip's last word, so each may end "
+                               "mid-sentence"}
+
+
+def kind_sentences(pairs, who):
+    """RULING 155 (1) (orchestrator 21:06 ET Nov 23: "THE CAP COUNTS KINDS OF FLAG, NOT CLIPS: the same soft code on
+    several clips is ONE flag in PBX's note, written once with the clips named"): [(label, code)] -> one sentence per
+    code, in first-seen order: one clip's flag_sentence, or for a code on several clips ONE sentence naming them all
+    ('Three clips (Strategy, Natalie Brunell, Yahoo Finance): the checker thought each points back ...')."""
+    by = {}
+    for lb, c in pairs:
+        if lb not in by.setdefault(c, []):
+            by[c].append(lb)
+    out = []
+    for c, lbs in by.items():
+        if len(lbs) == 1:
+            out.append(flag_sentence(lbs[0], (who or {}).get(lbs[0]), c))
+        else:
+            chans = ", ".join(str((who or {}).get(lb) or "its channel") for lb in lbs)
+            out.append(f"{COUNT_WORDS.get(len(lbs), str(len(lbs)))} clips ({chans}): "
+                       f"{STEP_A_SOFT_MANY.get(c) or EDGE_WORDS_MANY[c]}.")
+    return out
+
+
 def soft_edges(t):
     """RULING 137 stage 2a: a moment's CUTTABLE failure is soft only when its words match (law L-v 2 ok, measured, no
     error) and EVERY failing edge failed for the sentence running on at a word boundary (EDGE_SOFT); a word not found,
@@ -2299,8 +2331,9 @@ def seg_marks(segs):
     """RULING 141 (3): the flags a line-up's clips already carry from the never-empty pass's per-clip gates, one sentence
     each as the inventory writes them: step A's soft codes (context_a), a sentence edge (cuttable), STAND_ALONE
     (stand_alone), the hook under the calibrated bar (the medley row's hook sentence)."""
-    n = sum(len(set(m.get("step_a_flags") or [])) + len(m.get("edge_flags") or []) + bool(m.get("stand_soft"))
-            for m in segs or [])
+    segs = list(segs or [])                         # RULING 155 (1): KINDS, not clips: a code on several clips is one
+    n = len({c for m in segs for c in (m.get("step_a_flags") or [])}) + \
+        len({c for m in segs for c in (m.get("edge_flags") or [])}) + any(bool(m.get("stand_soft")) for m in segs)
     return n + bool((hook_own(segs[0]) or {}).get("flagged")) if segs else n
 
 
@@ -4668,8 +4701,9 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
         (chain_sentences(chain, who) if chain else [])
     coh_fl = coherence_sentences(coh["soft"], chain, who) if soft and coh_ok and (coh or {}).get("soft") else []
     lab = lambda mid: (mids or {}).get(mid, mid)                      # truth is by moment id; flags name the clip
-    edge_fl = [flag_sentence(lab(mid), (who or {}).get(lab(mid)), c) for mid, t in (truth or {}).items()   # RULING
-               if soft and (t.get("edges") or {}).get("cuttable") is not True for c in (soft_edges(t) or [])]   # 137 2a
+    edge_fl = kind_sentences([(lab(mid), c) for mid, t in (truth or {}).items()   # RULING 137 2a; 155 (1): kinds
+                              if soft and (t.get("edges") or {}).get("cuttable") is not True
+                              for c in (soft_edges(t) or [])], who)
     a_rows = list((a_by or {}).values())
     lab_codes = {lb: sorted({str(c) for c in CI.a_failures(a)} | set((seg_flags or {}).get(lb) or []))   # RULING 137:
                  for lb, a in (a_by or {}).items()}       # each clip's step-A codes, its verdict's and every screen's soft
@@ -4692,8 +4726,8 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
                               sorted({str(a.get("backend")) for a in a_rows}), rep(a.get("replayed") for a in a_rows),
                               n=len(a_rows)),
                           **({"status": "FLAGGED",            # RULING 137 stage 1; 138 (3): a sentence a clip
-                              "flags": [flag_sentence(lb, (who or {}).get(lb), c) for lb in (a_by or {})
-                                        for c in lab_codes[lb]]}
+                              "flags": kind_sentences([(lb, c) for lb in (a_by or {}) for c in lab_codes[lb]],
+                                                      who)}                  # RULING 155 (1): one sentence a kind
                              if soft_a and len(a_rows) >= 1 else {}),
                           **({"last_resort": last_resort} if last_resort else {})),   # RULING 102: the local judge
         "context_b": dict(row(ctx_.get("ok") is True, (ctx_.get("backends") or {}).get("B"), ctx_.get("replayed"),

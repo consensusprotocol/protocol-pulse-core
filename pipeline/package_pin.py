@@ -428,7 +428,7 @@ def review_problems(mp):
     want, got = review_flags_of(mp.get("gates")), mp.get("review_flags") or []
     out = [] if got == want else [f"review_flags {got} are not the sealed gates' flags {want}"]
     n, cap = content_flags(mp.get("gates")), flags_cap(mp.get("gates"))
-    return out + ([f"{n} review flags, over {cap} (ruling 136 (2) / 147)"] if n > cap else [])
+    return out + ([f"{n} kinds of review flag, over {cap} (rulings 136 (2) / 147 / 155 (1))"] if n > cap else [])
 
 
 def flags_cap(gates):
@@ -437,10 +437,26 @@ def flags_cap(gates):
     return PBX_EXCEPTION_CAP if isinstance(gates, dict) and EXCEPTION_GATE in gates else REVIEW_FLAGS_MAX
 
 
+PER_CLIP_KIND = frozenset({"stand_alone", "sponsor", "graphics"})   # RULING 155 (1): one kind said once per clip
+_CLIP_REF = re.compile(r"^(?:The (?:opening|second|third|fourth|fifth) clip|A clip|The clip|[A-Z][a-z]+ clips) "
+                       r"\([^)]*\):?\s*")
+
+
+def flag_kind(gate, flag):
+    """RULING 155 (1): the KIND of one review flag: the row for a row that says one kind once per clip
+    (PER_CLIP_KIND: STAND_ALONE's per-clip sentences keep the prefix the integrator matches), else the row and the
+    sentence without the clip it names ('The second clip (Strategy): ...' and 'Three clips (...): ...' read alike)."""
+    return gate if gate in PER_CLIP_KIND else f"{gate}: {_CLIP_REF.sub('', flag).strip()}"
+
+
 def content_flags(gates):
-    """RULING 136 (2) / 144: the flags that count toward REVIEW_FLAGS_MAX: every review flag except an exception's."""
-    exc = ((gates or {}).get(EXCEPTION_GATE) or {}).get("flags") or [] if isinstance(gates, dict) else []
-    return len([f for f in review_flags_of(gates) if f not in exc])
+    """RULING 136 (2) / 144 / 155 (1) (orchestrator 21:06 ET Nov 23: "THE CAP COUNTS KINDS OF FLAG, NOT CLIPS ... At
+    most 3 KINDS per package, standing"): the KINDS of flag (flag_kind) on the FLAGGED rows that count toward the cap;
+    an exception's row never counts."""
+    if not isinstance(gates, dict):
+        return 0
+    return len({flag_kind(g, f) for g, row in gates.items() if g != EXCEPTION_GATE and isinstance(row, dict)
+                and row.get("status") == "FLAGGED" for f in row.get("flags") or [] if isinstance(f, str)})
 
 
 def gate_problems(gates, required=REQUIRED_GATES):

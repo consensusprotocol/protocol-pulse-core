@@ -208,6 +208,57 @@ class TestStage2a(unittest.TestCase):
                                                    "flags": ["a word differs"]}), "r")
 
 
+class TestRuling155FlagKinds(unittest.TestCase):
+    """RULING 155 (1) (orchestrator 21:06 ET Nov 23): "THE CAP COUNTS KINDS OF FLAG, NOT CLIPS: the same soft code on
+    several clips is ONE flag in PBX's note, written once with the clips named ... At most 3 KINDS per package,
+    standing." Build 159's MicroStrategy line-ups carried REFERENT_OUTSIDE on nearly every clip."""
+    WHO = {"hook": "Natalie Brunell", "clip_01": "Strategy", "clip_02": "Yahoo Finance"}
+    MERGED = ("Three clips (Natalie Brunell, Strategy, Yahoo Finance): the checker thought each points back to "
+              "something said before the clip starts.")
+    SINCERE3 = ("The third clip (Yahoo Finance): the checker doubted this is the speaker's own sincere view (they may "
+                "be quoting someone or joking).")
+
+    def inv(self, seg_flags):
+        b = TestTheStepARow().base()
+        b["a_by"] = {lb: answer() for lb in self.WHO}
+        return PK.inventory(**b, soft=True, seg_flags=seg_flags, who=self.WHO)
+
+    def test_one_code_on_several_clips_is_one_sentence_naming_them(self):
+        a = self.inv({"hook": ["REFERENT_OUTSIDE"], "clip_01": ["REFERENT_OUTSIDE"],
+                      "clip_02": ["REFERENT_OUTSIDE", "NOT_OWN_SINCERE"]})["context_a"]
+        self.assertEqual((a["status"], a["flags"]), ("FLAGGED", [self.MERGED, self.SINCERE3]))
+        one = self.inv({"clip_01": ["REFERENT_OUTSIDE"]})["context_a"]
+        self.assertEqual(one["flags"], ["The second clip (Strategy): the checker thought it points back to something "
+                                        "said before the clip starts."])                  # one clip: as before
+
+    def gates(self):
+        stand = [PK.STAND_SOFT_PREFIX.format(channel=c) + f"it opens on '{w}'." for c, w in zip(self.WHO.values(),
+                                                                                                ("and", "so", "but"))]
+        return {"context_a": {"status": "FLAGGED", "flags": [self.MERGED, self.SINCERE3]},
+                "stand_alone": {"status": "FLAGGED", "flags": stand},       # one kind, said once per clip (prefix kept)
+                "medley": {"status": "FLAGGED", "flags": ["The opening clip (Natalie Brunell): the checker rated it "
+                                                          "under the hook bar (stopping the scroll 2 of 5, needs 3)."]}}
+
+    def test_the_cap_counts_kinds(self):
+        g = self.gates()
+        self.assertEqual(PP.content_flags(g), 4)                     # REFERENT_OUTSIDE, NOT_OWN_SINCERE, STAND_ALONE, hook
+        mp = {"gates": g, "review_flags": PP.review_flags_of(g)}
+        self.assertIn("4 kinds of review flag, over 3", " ".join(PP.review_problems(mp)))
+        g.pop("medley")
+        self.assertEqual(PP.content_flags(g), 3)
+        self.assertEqual(PP.review_problems({"gates": g, "review_flags": PP.review_flags_of(g)}), [])
+        per_clip = {"context_a": {"status": "FLAGGED", "flags": [   # the old per-clip sentences of one code: one kind
+            "The second clip (A): the checker thought it points back to something said before the clip starts.",
+            "The third clip (B): the checker thought it points back to something said before the clip starts."]}}
+        self.assertEqual(PP.content_flags(per_clip), 1)
+
+    def test_the_line_up_search_counts_kinds_too(self):
+        segs = [{"step_a_flags": ["REFERENT_OUTSIDE"]}, {"step_a_flags": ["REFERENT_OUTSIDE"], "stand_soft": True},
+                {"step_a_flags": ["REFERENT_OUTSIDE", "NOT_OWN_SINCERE"], "stand_soft": True,
+                 "edge_flags": ["EDGE_OUT"]}, {"edge_flags": ["EDGE_OUT"]}]
+        self.assertEqual(PK.seg_marks(segs), 4)        # REFERENT_OUTSIDE, NOT_OWN_SINCERE, EDGE_OUT, STAND_ALONE
+
+
 class TestStage2bHookBar(unittest.TestCase):
     """RULING 137 STAGE 2b (1) (line 1, 13:20 ET): the calibrated hook bar is SOFT in the never-empty pass. A hook its
     own rater rated UNDER a floor opens, flagged in plain words (the best HOOK_SOFT_MAX of them); no calibration,
