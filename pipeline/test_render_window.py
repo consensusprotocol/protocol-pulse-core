@@ -109,28 +109,54 @@ class TestRenderClock(unittest.TestCase):
         with self.assertRaises(ValueError):
             RF.window_problems(self.CASES[0], self.NOW.replace(tzinfo=None))
 
-    def test_stage_pinned_holds_an_expired_pin_before_any_download(self):
+    def stage(self, pin_body, ready=(True, "READY (stub)")):
+        """stage_pinned on a pin file with pin_ready stubbed; -> the Hold's text, or 'reached GPU0'."""
         d = tempfile.mkdtemp(prefix="r160_stage_")
         self.addCleanup(shutil.rmtree, d, True)
         pin = os.path.join(d, "pin.json")
+        with open(pin, "w") as f:
+            f.write(pin_body if isinstance(pin_body, str) else json.dumps(pin_body))
         run = types.SimpleNamespace(dir=d, prov={}, status={})
 
         class Reached(Exception):
             pass
-        for segs, held in ((self.CASES[1], True), (self.CASES[0], False)):
-            with open(pin, "w") as f:
-                json.dump({"segments": segs}, f)
-            with mock.patch.object(RF, "free_gpu0_for_whisper", side_effect=Reached), \
-                    mock.patch("datetime.datetime", wraps=dt.datetime) as clock:
-                clock.now.return_value = self.NOW
-                if held:
-                    with self.assertRaises(RF.Hold) as cm:
-                        RF.stage_pinned(run, pin)
-                    self.assertIn("ruling 76, the render clock", str(cm.exception))
-                    self.assertIn("b was published", str(cm.exception))
-                else:
-                    with self.assertRaises(Reached):                 # in time: on to GPU0 and the download
-                        RF.stage_pinned(run, pin)
+        with mock.patch.object(RF, "free_gpu0_for_whisper", side_effect=Reached), \
+                mock.patch.object(RF, "pin_ready", return_value=ready), \
+                mock.patch("datetime.datetime", wraps=dt.datetime) as clock:
+            clock.now.return_value = self.NOW
+            try:
+                RF.stage_pinned(run, pin)
+            except RF.Hold as h:
+                return str(h)
+            except Reached:
+                return "reached GPU0"
+        return "returned"
+
+    def test_stage_pinned_holds_before_gpu0_and_any_download(self):
+        self.assertEqual(self.stage({"segments": self.CASES[0]}), "reached GPU0")      # ready and in time
+        got = self.stage({"segments": self.CASES[1]})
+        self.assertTrue(got.startswith("pinned decision rejected: ruling 76, the render clock: ruling 76: b was"), got)
+        got = self.stage({"segments": self.CASES[0]}, ready=(False, "review flags: 5 kinds of review flag, over 3"))
+        self.assertEqual(got, "pinned decision rejected: not READY (scripts/integrator/check_pin_only.py): review "
+                              "flags: 5 kinds of review flag, over 3")
+        got = self.stage("{not json")
+        self.assertTrue(got.startswith("pinned decision rejected: the pin is not readable (JSONDecodeError"), got)
+
+    @unittest.skipUnless(os.path.exists(PIN) and os.path.exists(BUILDER), "afd8977d's pin or the builder's package_pin")
+    def test_the_render_runs_the_readiness_check_itself(self):
+        """run_fresh.py started without the launcher: pin_ready runs check_pin_only in its own process on the real pin
+        (the builder's package_pin, the real clock): afd8977d's sources are past 12 h."""
+        ok, why = RF.pin_ready(PIN)
+        self.assertFalse(ok)
+        self.assertTrue(why.startswith("window: ruling 76: 0shaXx_n870 was published"), why)
+        d = tempfile.mkdtemp(prefix="r160_real_")
+        self.addCleanup(shutil.rmtree, d, True)
+        with mock.patch.object(RF, "free_gpu0_for_whisper", side_effect=AssertionError("GPU0 reached")):
+            with self.assertRaises(RF.Hold) as cm:
+                RF.stage_pinned(types.SimpleNamespace(dir=d, prov={}, status={}), PIN)
+        self.assertIn("not READY (scripts/integrator/check_pin_only.py): window: ruling 76", str(cm.exception))
+        ok, why = RF.pin_ready(os.path.join(d, "no_such_pin.json"))
+        self.assertFalse(ok)
 
 
 if __name__ == "__main__":

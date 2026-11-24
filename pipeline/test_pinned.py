@@ -590,8 +590,10 @@ class TestPinnedStageFreesGpu0First(Fixture):
         def refuse(run, stage, **kw):
             events.append(("release", stage))
             raise rf.Hold(f"infrastructure: {stage}: GPU0 release not proven")
+        orig_adm = rf.pin_admissible
         try:
             rf.free_gpu0_for_whisper, pinned.prepare = release, prep
+            rf.pin_admissible = lambda pin_path: (True, "stub: the readiness is not this test's")
             run = rf.Run(self.run_dir)
             with self.assertRaisesRegex(rf.Hold, "pinned decision rejected"):
                 rf.stage_pinned(run, self.write(self.pin()))
@@ -604,6 +606,7 @@ class TestPinnedStageFreesGpu0First(Fixture):
             self.assertEqual(events, [("release", "pinned")])        # nothing downloaded or transcribed after it
         finally:
             rf.free_gpu0_for_whisper, pinned.prepare = orig_free, orig_prep
+            rf.pin_admissible = orig_adm
 
 
 @unittest.skipUnless(HAVE_REF, "v2f reference sources not present")

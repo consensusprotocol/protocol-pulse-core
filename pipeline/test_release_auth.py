@@ -434,14 +434,15 @@ class TestRunFreshFormats(Base):
         def fake_prepare(pin_path, run_dir, log=print):
             json.dump({"topic": "Blockware", "hook": {}, "clips": []}, open(os.path.join(run_dir, "edl.json"), "w"))
             return {"pin": pin, "pin_sha256": "0" * 64, "validation": {}}
-        saved = pinned.prepare, rf.free_gpu0_for_whisper
+        saved = pinned.prepare, rf.free_gpu0_for_whisper, rf.pin_admissible
         pinned.prepare, rf.free_gpu0_for_whisper = fake_prepare, (lambda run, stage, **kw: None)
+        rf.pin_admissible = lambda pin_path: (True, "stub: the readiness is not this test's")
         try:
             run = self.run_obj(rd)
             rf.stage_pinned(run, "pin.json")
             return run, json.load(open(os.path.join(rd, "edl.json")))
         finally:
-            pinned.prepare, rf.free_gpu0_for_whisper = saved
+            pinned.prepare, rf.free_gpu0_for_whisper, rf.pin_admissible = saved
 
     def test_the_pinned_stage_writes_the_sealed_formats_into_the_edl(self):
         import run_fresh as rf
