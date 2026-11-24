@@ -1,0 +1,123 @@
+{
+ "key": "ad47eab4a19c2324a9eb:575.606-586.556:visual-3:05c54e79d3a82661",
+ "record": {
+  "backend": "heimdall:qwen/qwen3.8-27b",
+  "burned_in": [
+   {
+    "at": [
+     5761.1,
+     5761.6,
+     5801.1,
+     5861.1,
+     5861.6
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "ticker",
+    "text": "TRADE CRYPTOS & STOCKS IN 190+ COUNTRIES  KRAKEN  $25 SIGN UP BONUS. ESTABLISHED 2011",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     5761.1,
+     5761.6,
+     5801.1,
+     5861.1,
+     5861.6
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "bug",
+    "text": "CRYPTO IRA",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "kind": "third_person",
+    "name_on_screen": "The Bitcoin Therapist",
+    "text": "A still photo of a man in a suit (the 'The Bitcoin Therapist' account) is shown in the post, overlaid with the negative graphic 'IT'S ALL GONE 100% SCAMS', while the speaker says they 'hit a new low'."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "Bitcoin bottomed 4 years ago to the exact day. Seriously, what are the odds of this?",
+    "why": "The rhetorical 'Seriously, what are the odds of this?' is on screen but not spoken."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "November 21, 2022 \u2014 $15,479",
+    "why": "Gives an exact date and price that the spoken words do not state."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "November 21, 2020 \u2014 $8,527",
+    "why": "Gives an exact date and price that the spoken words do not state."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "IT'S ALL GONE 100% SCAMS 0% LEVERAGE 100% VOLUME",
+    "why": "Asserts 'IT'S ALL GONE' and '100% SCAMS', which the spoken words never say."
+   },
+   {
+    "in_9x16": "whole",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "CRYPTO IRA"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "Bitcoin bottomed 4 years ago to the exact day. Seriously, what are the odds of this?",
+    "why": "The rhetorical 'Seriously, what are the odds of this?' is on screen but not spoken."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "November 21, 2022 \u2014 $15,479",
+    "why": "Gives an exact date and price that the spoken words do not state."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "November 21, 2020 \u2014 $8,527",
+    "why": "Gives an exact date and price that the spoken words do not state."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "IT'S ALL GONE 100% SCAMS 0% LEVERAGE 100% VOLUME",
+    "why": "Asserts 'IT'S ALL GONE' and '100% SCAMS', which the spoken words never say."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_bcc818fa469e20a9.jpg",
+   "sha256": "bcc818fa469e20a9e9d105cdbdb51c5fc08f331048e73324d84a4713ceb3f7cf",
+   "times": [
+    575.61,
+    576.61,
+    577.61,
+    578.61,
+    579.61,
+    580.61,
+    581.61,
+    582.61,
+    583.61,
+    584.61,
+    585.61,
+    586.51
+   ]
+  },
+  "third_person": {
+   "finding": "A still photo of a man in a suit (the 'The Bitcoin Therapist' account) is shown in the post, overlaid with the negative graphic 'IT'S ALL GONE 100% SCAMS', while the speaker says they 'hit a new low'.",
+   "how": "photo",
+   "name_on_screen": "The Bitcoin Therapist",
+   "shown": true,
+   "words_negative": true
+  },
+  "version": "visual-3"
+ }
+}

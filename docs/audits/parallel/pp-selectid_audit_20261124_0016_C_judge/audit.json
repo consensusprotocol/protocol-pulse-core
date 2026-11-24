@@ -1,0 +1,134 @@
+{
+ "question": "pp-selectid (Protocol Pulse clip-video builder), RULINGS 154 (1) and 152 (2), uncommitted (diff below). THE RULINGS: \"'every back-end unavailable ... same vendor' must never be an outcome. Judge order: a Heimdall family that did not write, then any Heimdall family, then the paid model, with ONE flag\" and \"L-x soft: a Heimdall panel with a flag\". THE CODE: providers.Router.call (line 1386) wraps the old loop, now Router._call (line 1406, its body unchanged but for the optional `_names` list); ONLY when router.lx_soft is True (package.build sets it for the never-empty pass alone, line 4848), the call carried a writer to avoid (avoid_vendor or avoid_family), and the role is not in LX_SOFT_NEVER (line 696: the writer, a probe, a panel seat), a call whose own chain gave no answer tries Router._lx_steps (line 1371) in order and marks the reply (Reply.lx_soft). Router._skip (line 1349, unchanged) still refuses a back-end that is down. vo_fidelity / context_integrity / package copy the mark into their verdict records; package.stand_in_checks (line 4894) names those checks in ONE soft \"judge\" row (package_pin SOFT_GATES, line 37; gate_problems, line 460, refuses a FLAGGED row on any gate outside SOFT_GATES). package.coherence_by_panel (line 2253): in the never-empty pass, when the writers left the panel under min_members, the next Heimdall families of the writer chain (glm out, ruling 119; never the writers' family) sit, each asked BY NAME through its own one-model list, only until enough members answered; a reply from another model is no vote.\nCHECK, quoting the code: can a stand-in judge answer in the CLEAN pass, for a writer's call, a probe or a panel seat; can the order differ from the ruling's (1) not-the-writer Heimdall, (2) any Heimdall, (3) paid; can a stand-in verdict reach the pin WITHOUT the one flag (a record that drops the mark); can a panel vote be counted for the wrong member, or the writers' family sit; can lx_soft leak past the never-empty pass (an exception inside _build); can the ReplayMiss / ProviderError handling swallow a SpendLimit or another error it must raise. Report only what the code shows.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "gptoss": "openai/gpt-oss-20b",
+  "gemma": "google/gemma-4-31b-it"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 805.6,
+   "cost": 0.0216195,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 3,
+   "parse_ok": true
+  },
+  {
+   "name": "gptoss",
+   "model": "openai/gpt-oss-20b",
+   "status": 200,
+   "latency_s": 212.5,
+   "cost": 0.003068728,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "gemma",
+   "model": "google/gemma-4-31b-it",
+   "status": 200,
+   "latency_s": 2138.2,
+   "cost": 0.0020819,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 741.5,
+   "cost": 0.02036625,
+   "parse_ok": true
+  },
+  {
+   "name": "gptoss",
+   "status": 200,
+   "latency_s": 213.9,
+   "cost": 0.003076024,
+   "parse_ok": false
+  },
+  {
+   "name": "gemma",
+   "status": 200,
+   "latency_s": 170.8,
+   "cost": 0.00147255,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "high",
+   "file": "pipeline/package.py",
+   "line": 4848,
+   "issue": "build() enables lx_soft for the pass without checking never_empty, so a clean pass through build() can activate stand-in judges.",
+   "evidence": "def build(*args, never_empty=False, flagged_today=0, **kw): | lx_mark(True)",
+   "fix": "Gate the mark on the never-empty pass, e.g. if never_empty: lx_mark(True), or ensure build() is only invoked for the never-empty pass.",
+   "agree": [
+    "qwen27b",
+    "gemma"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "high",
+   "file": "pipeline/package.py",
+   "line": 2253,
+   "issue": "coherence_by_panel() catches P.SpendLimit and records it as a miss, so a spend-limit error is swallowed and the loop can continue to further calls.",
+   "evidence": "except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:",
+   "fix": "Re-raise P.SpendLimit (or handle it outside the per-seat loop) instead of appending it to misses.",
+   "agree": [
+    "qwen27b",
+    "gemma"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F3",
+   "severity": "medium",
+   "file": "pipeline/package.py",
+   "line": 2253,
+   "issue": "The one-model list for an extra panel seat is registered under a family key, not a backend-name key; if two extra seats share a Heimdall family, the second seat's list is not set to its name and the r.backend != n check will reject the answer, so the seat is not asked by name.",
+   "evidence": "router.chains.setdefault(f\"coherence_panel:seat_{fams[n]}\", [n])",
+   "fix": "Key the one-model list by backend name (e.g. f\"coherence_panel:seat_{n}\") or pass _names=[n] to the call.",
+   "agree": [
+    "qwen27b",
+    "gemma"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "qwen27b",
+   "severity": "high",
+   "file": "pipeline/providers.py",
+   "line": 1386,
+   "issue": "If every stand-in step fails, `Router.call` re-raises the original error, so the forbidden 'every back-end unavailable ... same vendor' outcome can still occur.",
+   "evidence": "`first = e` ... `raise first` after the `for step, names, v, f in self._lx_steps(...)` loop.",
+   "fix": "Raise a new error describing that the stand-in judges also failed, or otherwise ensure the original same-vendor unavailable error is not the final outcome."
+  },
+  {
+   "by": "qwen27b",
+   "severity": "high",
+   "file": "pipeline/package.py",
+   "line": 2278,
+   "issue": "The one-model list is stored on `router.chains` with `setdefault` and a family-keyed name, so a stale list from an earlier panel can make a later seat ask a different backend.",
+   "evidence": "`router.chains.setdefault(f'coherence_panel:seat_{fams[n]}', [n])`",
+   "fix": "Key the list by backend name and assign it directly, e.g. `router.chains[f'coherence_panel:seat_{n}'] = [n]`, or pass `_names=[n]` to the call."
+  }
+ ],
+ "total_cost": 0.051684952000000006,
+ "out_dir": "docs/audits/parallel/pp-selectid_audit_20261124_0016_C_judge"
+}

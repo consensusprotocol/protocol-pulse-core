@@ -1,0 +1,150 @@
+{
+ "question": "pp-selectid (Protocol Pulse clip-video builder), RULING 156's PLAIN FALLBACK LINES and RULING 157 (2)(b), as pushed in 71d3d0363 (diff below, from 591403d71). Context you cannot see in the hunks: pipeline/package_pin.py gate_problems (line 458) refuses any FLAGGED row whose gate is not in SOFT_GATES with a non-empty list of plain-word flags (flagged_ok, line 403); review_problems (line 419) refuses a pin whose review_flags differ from its FLAGGED rows' flags or whose KINDS of flag (content_flags, line 449) exceed flags_cap (line 428, always REVIEW_FLAGS_MAX = 3). Fidelity (our lines must state nothing the clips do not say) is a HARD gate elsewhere in package.py and is NOT changed here.\nWHAT THE CODE MUST DO: (a) when every writer fails a line after its retries, fallback_fields builds the closing line, title, caption and bridges from fixed templates that state NO fact (only the subject said in two or more clips, or 'Bitcoin', and channel names); (b) that fallback is gated like any line (fidelity still HARD) and is ALWAYS flagged on the pin with FALLBACK_FLAG naming the line; (c) package_pin.OUR_LINES_KIND makes the fallback row and the closing line's value row ONE kind; (d) fallback_vo_soft (package.py line 616) lets a coherence verdict pass ONLY when the sealed closing line IS the fallback, the pass is the never-empty pass, the verdict is measured, a through-line exists, every clip rating is at its floor and the hook passes its own bar.\nCHECK, quoting the code: can a fallback line or title state a number, a claim or a name not in the clips; can the fallback be sealed WITHOUT its flag or without passing fidelity; can fallback_vo_soft pass an unmeasured verdict, a clip under its floor, a missing through-line, a model-written line, or the clean pass; can OUR_LINES_KIND or flag_kind merge two flags that are NOT about our lines into one kind; can any input make fallback_fields raise or return text with an empty name list. Report only what the code shows.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "gptoss": "openai/gpt-oss-20b",
+  "gemma": "google/gemma-4-31b-it"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 1233.5,
+   "cost": 0.06069275,
+   "provider": "ImpCC",
+   "verdict": "FAIL",
+   "n_findings": 3,
+   "parse_ok": true
+  },
+  {
+   "name": "gptoss",
+   "model": "openai/gpt-oss-20b",
+   "status": 200,
+   "latency_s": 213.7,
+   "cost": 0.003046228,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "gemma",
+   "model": "google/gemma-4-31b-it",
+   "status": 200,
+   "latency_s": 645.6,
+   "cost": 0.00188535,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 801.2,
+   "cost": 0.02110215,
+   "parse_ok": true
+  },
+  {
+   "name": "gptoss",
+   "status": 200,
+   "latency_s": 217.6,
+   "cost": 0.00305872,
+   "parse_ok": false
+  },
+  {
+   "name": "gemma",
+   "status": 200,
+   "latency_s": 201.0,
+   "cost": 0.001468,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "medium",
+   "file": "pipeline/package.py",
+   "line": 0,
+   "issue": "fallback_fields can raise IndexError when join is not None and join[0] + 1 is not a valid index into segs, including when segs is empty.",
+   "evidence": "nxt = segs[join[0] + 1]",
+   "fix": "Guard the index before building the bridge, e.g. only use segs[join[0] + 1] when join is not None and 0 <= join[0] + 1 < len(segs); otherwise set bridge to None.",
+   "agree": [
+    "qwen27b",
+    "gemma"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "high",
+   "file": "pipeline/package.py",
+   "line": 0,
+   "issue": "fallback_fields can put a raw channel_id into the generated title/caption when channel_name is absent; the code does not verify that channel_id is a display name or appears in the clips, so an opaque or numeric channel_id can make the fallback state a number/name not in the clips.",
+   "evidence": "c = m.get(\"channel_name\") or m.get(\"channel_id\")",
+   "fix": "Use only channel_name for names; if no channel_name is available, fall back to a safe generic such as 'the channels' or validate that channel_id is a known display name before using it.",
+   "agree": [
+    "qwen27b",
+    "gemma"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F3",
+   "severity": "medium",
+   "file": "pipeline/package.py",
+   "line": 0,
+   "issue": "The shortened fallback title is not re-checked, so a long subject can make 'subject, in their words' still exceed HS.TITLE_MAX_WORDS or LINE_CHARS['title'].",
+   "evidence": "title = f\"{subject}: {names}\"\nif len(title.split()) > HS.TITLE_MAX_WORDS or len(title) > LINE_CHARS[\"title\"]:\n    title = f\"{subject}, in their words\"",
+   "fix": "After choosing the shortened title, verify it fits the same limits and, if not, use a further safe truncation or a fixed short title that cannot exceed the limits.",
+   "agree": [
+    "qwen27b",
+    "gemma"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "gemma:F1",
+   "severity": "critical",
+   "file": "pipeline/package.py",
+   "line": 4678,
+   "issue": "UnboundLocalError: local variable 'fields' referenced before assignment. The variable 'fields' is only defined within the 'if fb_state == \"due\":' block inside the 'while True' loop. If the loop terminates without 'fb_state' ever becoming 'due' (e.g., if 'soft' is False or the loop breaks early due to 'over_budget'), 'fields' remains unbound, causing a crash when passed to 'fallback_vo_soft'.",
+   "evidence": "if fallback_vo_soft(ok_c, coh, soft, fb_text, fields, segs):",
+   "fix": "Initialize 'fields = None' at the start of the _build function alongside 'fb_state, fb_text = None, None'.",
+   "agree": [
+    "gemma"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "qwen27b",
+   "severity": "medium",
+   "file": "pipeline/package.py",
+   "line": 0,
+   "issue": "fallback_fields does not enforce the character limits for the takeaway or caption; it only checks the takeaway word budget and the first title's word/char limits.",
+   "evidence": "take = next((t for t in ... if budget is not None and budget[0] <= len(t.split()) <= budget[1]), None); caption text is f\"{subject}, in the words of {names}.\".lower() with no len(...) <= LINE_CHARS[\"takeaway\"] or LINE_CHARS[\"caption\"] check.",
+   "fix": "Before returning, verify len(take) <= LINE_CHARS[\"takeaway\"] and len(caption) <= LINE_CHARS[\"caption\"]; if not, return None or choose a shorter safe variant."
+  },
+  {
+   "by": "qwen27b",
+   "severity": "low",
+   "file": "pipeline/package.py",
+   "line": 0,
+   "issue": "fallback_fields can raise KeyError if a segment dict lacks moment_id or duration_s.",
+   "evidence": "ids = [m[\"moment_id\"] for m in segs] and budget = takeaway_budget(sum(m[\"duration_s\"] for m in segs), ...).",
+   "fix": "Use .get with validation or ensure segs items contain moment_id and duration_s before calling fallback_fields."
+  }
+ ],
+ "total_cost": 0.091253198,
+ "out_dir": "docs/audits/parallel/pp-selectid_audit_20261124_0016_71d_A2"
+}

@@ -1,0 +1,178 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index cb4d752d9..6d405b00c 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -223,6 +223,7 @@ SWAP_TOP = 10                      # candidates read per swapped place, best by
+                                    # rules (a short clip only at the last place): audit 0510 C1, glm P1-3
+ NO_VOICE_AFTER = 2                 # ruling 3 (22:40): the takeaway failing its gates this many times ships no VO line
+-WRITER_DEADLINE_S = 300.0          # ruling 5: one writer call never waits more than 5 min; it fails over (deepseek ->
+-                                   # qwen -> xAI in the writer chain) and the failover is recorded
++WRITER_DEADLINE_S = 120.0          # RULING 152 (1) (orchestrator 19:36 ET Nov 23; was ruling 5's 5 min): one writer call
++                                   # waits at most 120 s, then fails over to the next family of the writer chain
++                                   # (proof_ly.WRITERS: every Heimdall family that answers the probe, then Grok)
+ VO_DEPENDENT = ("NOT_ENTAILED", "POLARITY", "STRONGER", "FALSE_RELATION")   # context failures the VO's framing causes
+ VO_FIX = {"NOT_ENTAILED": "the viewer would take this clip to assert more than its speaker said in context: do not "
+@@ -1895,4 +1896,23 @@ def hook_bar_under(m):
+ 
+ 
++def hook_unrated(m):
++    """RULING 154 (2) (orchestrator 20:36 ET Nov 23): "In the never-empty pass the hook bar is soft; an unrated opener
++    opens flagged." The plain reason a hook has NO rating ON the calibrated bar: no valid calibration today, no rating
++    at all (its rater did not answer, or the only rater wrote our lines), or a rating by another back-end than the bar's
++    own rater (ruling 154 (1)'s stand-in judge); None when the bar's own rater rated it (hook_bar_under then says
++    whether it is under the bar)."""
++    r = (m or {}).get("hook_rating") or {}
++    live, _ = _live_bar()
++    if live is None:
++        return "the hook bar has no valid calibration today"
++    if not all(isinstance(r.get(k), int) and not isinstance(r.get(k), bool) for k in HOOK_PARTS):
++        w = str(r.get("why") or "")
++        return "its only rater wrote our lines" if "same vendor" in w or "same model" in w else \
++            "its rater did not answer"
++    if r.get("backend") != live.get("rater"):
++        return "a stand-in model rated it, not the hook bar's own rater"
++    return None
++
++
+ def hook_own(m):
+     """RULING 61 / RULING 115: a hook's OWN-JOB rating, the cached one ruling 59 gave it ("hook_rating"): {"scroll",
+@@ -1903,13 +1923,17 @@ def hook_own(m):
+     r = (m or {}).get("hook_rating") or {}
+     parts = {k: r.get(k) for k in HOOK_PARTS}
+-    if not all(isinstance(x, int) and not isinstance(x, bool) for x in parts.values()):
+-        return None
+     live, why = _live_bar()
++    if not all(isinstance(x, int) and not isinstance(x, bool) for x in parts.values()):
++        un = hook_unrated(m) if (m or {}).get("hook_bar_soft") else None   # RULING 154 (2): an UNRATED opener the
++        return None if un is None else dict(parts, rating=0, passes=True, short=un, bar=HB.text(live),   # never-empty
++                                            source="no rating on the calibrated bar (ruling 154 (2))",   # pass marked
++                                            rule=HOOK_OWN_RULE, flagged=un, unrated=True)            # opens, flagged
+     ok, short = HB.passes(dict(parts, backend=r.get("backend")), live)
+     flag = hook_bar_under(m) if not ok and m.get("hook_bar_soft") else None    # RULING 137 stage 2b: a hook the
+-    return dict(parts, rating=min(parts[k] for k in HOOK_OWN), passes=ok or bool(flag),   # never-empty pass marked
+-                short=why if live is None else short,                                    # opens, flagged
++    un = hook_unrated(m) if not ok and m.get("hook_bar_soft") and flag is None else None   # never-empty pass marked
++    return dict(parts, rating=min(parts[k] for k in HOOK_OWN), passes=ok or bool(flag or un),   # opens, flagged;
++                short=why if live is None else short,                     # RULING 154 (2): rated off the bar too
+                 bar=HB.text(live), source="the hook's cached own-job rating (ruling 61), on the calibrated bar (ruling 115)",
+-                rule=HOOK_OWN_RULE, **({"flagged": flag} if flag else {}))
++                rule=HOOK_OWN_RULE, **({"flagged": flag or un} if flag or un else {}), **({"unrated": True} if un else {}))
+ 
+ 
+@@ -3747,12 +3784,14 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                                                                       "cannot open (hook eligibility, G17a or the "
+                                                                       "render's hook rule)")}
+-    under = hook_order([m for mid, m in openers.items() if mid in rated and hook_bar_under(m)])[:HOOK_SOFT_MAX] \
+-        if soft else []                                                   # RULING 137 stage 2b: the hook bar is SOFT
+-    for m in under:                                                       # in the never-empty pass: the best
+-        m["hook_bar_soft"] = True                                         # HOOK_SOFT_MAX hooks under it open, flagged
++    under = (hook_order([m for mid, m in openers.items() if mid in rated and hook_bar_under(m)]) +    # RULING 137
++             hook_order([m for mid, m in openers.items() if hook_unrated(m)]))[:HOOK_SOFT_MAX] \
++        if soft else []          # stage 2b: the hook bar is SOFT in the never-empty pass: the best HOOK_SOFT_MAX hooks
++    for m in under:              # under it open, flagged; RULING 154 (2): then the openers with NO rating on the bar
++        m["hook_bar_soft"] = True
+     if under:
+-        out["prescreen"]["soft_hook_bar"] = {m["moment_id"]: hook_bar_under(m) for m in under}
+-        log(f"  RULING 137 NEVER EMPTY (stage 2b): {len(under)} hook(s) rated under the calibrated bar by its own rater "
+-            f"open, flagged: " + ", ".join(f"{m['moment_id'][:8]} ({hook_bar_under(m)})" for m in under))
++        out["prescreen"]["soft_hook_bar"] = {m["moment_id"]: hook_bar_under(m) or hook_unrated(m) for m in under}
++        log(f"  RULING 137 / 154 (2) NEVER EMPTY (stage 2b): {len(under)} hook(s) under the calibrated bar or with no "
++            f"rating on it open, flagged: " + ", ".join(f"{m['moment_id'][:8]} ({hook_bar_under(m) or hook_unrated(m)})"
++                                                        for m in under))
+     for m in cleared.values():
+         m.pop("visual_hook_block", None)
+@@ -3851,6 +3890,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                       for m in sorted(cleared.values(), key=lambda m: (-m["rank_score"], m["moment_id"])))
+     offered = passing[:max_angles]                      # RULING 64: an angle for each passing hook (k at most)
+-    hooks_txt = lambda hs: "\n".join(f'id={m["moment_id"]} | rated {hook_own(m)["rating"]} on its own job: '
+-                                     f'"{quote_data(m["hook_rating"].get("why") or "", 200)}"' for m in hs)
++    hooks_txt = lambda hs: "\n".join(f'id={m["moment_id"]} | ' + ("not rated on its own job (ruling 154 (2))"
++                                     if hook_own(m).get("unrated") else f'rated {hook_own(m)["rating"]} on its own job') +
++                                     f': "{quote_data(m["hook_rating"].get("why") or "", 200)}"' for m in hs)
+     per = max(1, max_angles // len(offered))
+     lo, hi = medley_content_range()
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 551e0681c..32aa0c512 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -313,4 +312,44 @@ def build_router(routing, shadow, shadow_log, limit=None):
+ 
+ 
++WRITER_PROBE_S = 45.0                            # RULING 152 (1): one probe answer waits at most this long
++
++
++def writer_probe(router, timeout_s=WRITER_PROBE_S):
++    """RULING 152 (1) (orchestrator 19:36 ET Nov 23): "Probe which families answer BEFORE the build and skip the ones
++    that do not." Every Heimdall leg of the router's writer chain (proof_ly.WRITERS) is asked a one-word question, all
++    at once, timeout_s each, as a ruling-87 probe (role "probe87:<name>": live, never recorded nor served from a
++    recording). A family that does not answer is marked down for this run, so no writer call waits out its deadline on
++    it; Grok (the chain's non-Heimdall leg) is never probed and stays last. A replayed run (router.replay) probes
++    nothing: its recordings decide. -> {name: {"answers": bool, "seconds": float[, "why": str]}}."""
++    import threading
++    if getattr(router, "replay", False):
++        return {}
++    names = [n for n in router.chain("angle_write") if P.gateway(router.backends[n]) == "heimdall"]
++    out, lock = {}, threading.Lock()
++
++    def ask(n):
++        router.chains.setdefault(f"probe87:{n}", [n])
++        t0 = time.time()
++        try:
++            r = router.call(f"probe87:{n}", "Reply with the single word OK.", 64, 7, deadline_s=timeout_s)
++            text = (getattr(r, "text", "") or "").strip()
++            v = {"answers": bool(text), "seconds": round(time.time() - t0, 1), **({} if text else {"why": "empty"})}
++        except Exception as e:                             # noqa: BLE001  any failure: not answering today
++            v = {"answers": False, "seconds": round(time.time() - t0, 1), "why": f"{type(e).__name__}: {str(e)[:120]}"}
++        with lock:
++            out[n] = v
++    ts = [threading.Thread(target=ask, args=(n,), daemon=True) for n in names]
++    for t in ts:
++        t.start()
++    for t in ts:
++        t.join(timeout_s + 15)
++    with lock:
++        for n in names:
++            v = out.setdefault(n, {"answers": False, "seconds": timeout_s, "why": "no answer in time"})
++            if not v["answers"]:
++                router.down[n] = f"did not answer the writer probe (ruling 152 (1)): {v.get('why', '')}"[:200]
++        return dict(out)
++
++
+ def applied(router):
+     """RULING 100: which rows of the deadline table the build's router uses: a verdict pair on which a deadline applies
+@@ -570,4 +592,9 @@ def main(argv=None):
+     say(f"  routing (ruling 85): {router.routing}; now {router.mode()} (ruling 87: the shared Heimdall health)"
+         + (f"; SHADOW (ruling 86 / 115): {shadow}" if shadow else ""))
++    wprobe = writer_probe(router)                # RULING 152 (1): the writers that answer, in order, then Grok
++    say("  RULING 152 (1): the writers " + " -> ".join(n for n in router.chain("angle_write") if n not in router.down)
++        + f", {PK.WRITER_DEADLINE_S:g} s each; probe: " + ("; ".join(
++            f"{n.split(':', 1)[1]} {'answers' if v['answers'] else 'SKIPPED (' + str(v.get('why')) + ')'} {v['seconds']} s"
++            for n, v in wprobe.items()) or "none (a replayed run)"))
+     live, live_why = PK.hook_live_bar()          # RULING 115: the bar in every build line, its floors and its sha
+     say(f"  RULING 115: {HB.text(live)}; the hook list {router.chain('coherence_verdict', 'hook')}"
+diff --git a/tests/package/proof_ly.py b/tests/package/proof_ly.py
+index 90de567dc..bf8bc6b1f 100644
+--- a/tests/package/proof_ly.py
++++ b/tests/package/proof_ly.py
+@@ -88,12 +88,17 @@ RUNS = ("fresh_20261112_050611", "fresh_20261112_013452", "fresh_20261112_001448
+ NEWEST = RUNS[0]
+ FROZEN = ("local:", "anthropic:", "openai:", "openai_stt:")         # GPU0 (never this builder's); out of credit 20:32
+-WRITERS = ["heimdall:deepseek/deepseek-v4.1-flash", "heimdall:qwen/qwen3.8-27b",      # ruling 5 (22:40): a writer
+-           "xai:grok-4.20-0309-reasoning"]       # call over 5 min fails over deepseek -> qwen -> xAI; the writes then
+-                                                 # stay on the angle's vendor and every verdict avoids it (L-x)
++WRITERS = ["heimdall:qwen/qwen3.8-27b", "heimdall:deepseek/deepseek-v4.1-flash", "heimdall:openai/gpt-oss-20b",
++           "heimdall:google/gemma-4-31b-it", "heimdall:minimax/minimax-m3.1-flash", "heimdall:z-ai/glm-5.3-flash",
++           "xai:grok-4.20-0309-reasoning"]
++#   RULING 152 (1) (orchestrator 19:36 ET Nov 23; amends ruling 5's deepseek -> qwen -> xAI): the angle and every line
++#   of ours go to every Heimdall family that answers, in this order, each with package.WRITER_DEADLINE_S (120 s), then
++#   Grok; glm only when it answers the day's probe (ruling 119 keeps it out of every other chain);
++#   proof_ledger.writer_probe marks the families that do not answer down before the build. The writes stay on the
++#   angle's vendor and every verdict avoids it (L-x; ruling 154 (1): the never-empty pass's stand-in judges).
+ SCRATCH = "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad"
+ 
+ 
+ def chains(routing=None):
+-    """Every role's chain for the routing without the frozen legs; the writer = two Heimdall families, then Grok.
++    """Every role's chain for the routing without the frozen legs; the writer chain = WRITERS (ruling 152 (1)).
+     RULING 85: routing "today" (the chains under roles) or "heimdall_first" (model_providers.json routing.heimdall_first,
+     Grok last); default: the config's routing.mode."""

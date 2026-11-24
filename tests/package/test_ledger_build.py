@@ -904,6 +904,77 @@ class TestRuling85NoXai(unittest.TestCase):
                 return name
         return None
 
+    def test_ruling_152_the_writers_that_answer_in_order_then_grok(self):
+        """RULING 152 (1) (orchestrator 19:36 ET Nov 23): the angle and every line of ours go to every Heimdall family
+        that answers the pre-build probe, in order (qwen, deepseek, gpt-oss, gemma, minimax, glm), then Grok; a family
+        that does not answer is skipped, never waited for; with no Heimdall family answering, Grok writes. A replayed
+        run probes nothing. Build 152: deepseek HTTP 503 and qwen past its deadline put the angle on Grok."""
+        import types
+        import proof_ledger as PLG
+        PL = self.pl()
+        X = "xai:grok-4.20-0309-reasoning"
+        Q, DS, GO, GE, MM, GL = ("heimdall:qwen/qwen3.8-27b", "heimdall:deepseek/deepseek-v4.1-flash",
+                                 "heimdall:openai/gpt-oss-20b", "heimdall:google/gemma-4-31b-it",
+                                 "heimdall:minimax/minimax-m3.1-flash", "heimdall:z-ai/glm-5.3-flash")
+
+        def router(down, replay=False):
+            r = PL.P.Router(env_path="/nonexistent", routing="heimdall_first", chains=PL.chains("heimdall_first"))
+            r.replay = replay
+            asked = []
+
+            def call(role, prompt, max_tokens=2000, seed=7, deadline_s=None, **k):
+                asked.append((role, deadline_s))
+                if role.split(":", 1)[1] in down:
+                    raise PL.P.ProviderError("HTTP 503 (the test)")
+                return types.SimpleNamespace(text="OK")
+            r.call = call
+            return r, asked
+        r, _ = router(set())
+        PLG.writer_probe(r)
+        self.assertEqual([n for n in r.chain("angle_write") if n not in r.down], [Q, DS, GO, GE, MM, GL, X])
+        r, asked = router({DS})
+        got = PLG.writer_probe(r)
+        self.assertEqual(sorted(asked), sorted((f"probe87:{n}", PLG.WRITER_PROBE_S) for n in (Q, DS, GO, GE, MM, GL)))
+        self.assertEqual({n: v["answers"] for n, v in got.items()}, {Q: True, DS: False, GO: True, GE: True, MM: True,
+                                                                      GL: True})
+        self.assertEqual(self.pick(r, "angle_write"), Q)                          # qwen first
+        r.down[Q] = "missed its deadline mid-build (the test)"
+        self.assertEqual(self.pick(r, "angle_write"), GO)                         # deepseek skipped: gpt-oss next
+        r, _ = router({Q, DS, GO, GE, MM})
+        PLG.writer_probe(r)
+        self.assertEqual(self.pick(r, "angle_write"), GL)                         # glm only because it answered
+        r, _ = router({Q, DS, GO, GE, MM, GL})
+        PLG.writer_probe(r)
+        self.assertEqual(self.pick(r, "angle_write"), X)                          # no Heimdall family: Grok writes
+        r, asked = router({Q, DS, GO, GE, MM, GL}, replay=True)
+        self.assertEqual((PLG.writer_probe(r), asked, r.down), ({}, [], {}))     # a replayed run: nothing probed
+
+    def test_ruling_152_every_write_waits_120_s_at_most(self):
+        """RULING 152 (1): each writer call (the angle's full write and a line written alone) is sent with a 120 s
+        deadline, after which the router fails over to the next family of the chain."""
+        import package as PK
+        import test_medley as TM
+        from test_moments import pm
+        seen = []
+
+        class Stop(Exception):
+            pass
+
+        class R:
+            def call(self, role, prompt, max_tokens=2000, seed=7, deadline_s=None, **k):
+                seen.append((role, deadline_s))
+                raise Stop()
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        a_by = {m["moment_id"]: {"backend": "xai:grok"} for m in ms}
+        ctx = TM.ctx()
+        for f in (lambda: PK.write_takeaway(R(), {"angle": "a", "moments": ["h", "x", "y"]}, ms, ctx, a_by),
+                  lambda: PK.write_line(R(), {"angle": "a", "moments": ["h", "x", "y"]}, ms, ctx, a_by, "takeaway",
+                                        {"takeaway": {"text": "x", "cites": []}, "title": {"text": "t", "cites": []},
+                                         "caption": {"text": "c", "cites": []}}, [], limit="18-24 words")):
+            with self.assertRaises(Stop):
+                f()
+        self.assertEqual(seen, [("angle_write", 120.0)] * 2)
+
     def test_ruling_115_qwen_shadows_every_hook_in_every_build(self):
         """RULING 115: qwen answers every hook in shadow (recorded, never deciding), with ruling 86's Grok shadow on the
         first heimdall_first pins and without it after; the streak is read only under heimdall_first."""
@@ -941,7 +1012,8 @@ class TestRuling85NoXai(unittest.TestCase):
         self.assertEqual(ch["context_verdict:step_a_second"], [X, DS, GEM, "local_judge:gemma3:27b"])   # (c) Grok
         #   confirms; RULING 102 (13:02 Nov 14): then deepseek, Gemini, the local judge (ruling 87's last resort)
         self.assertEqual(ch["context_verdict"], [DS, X])                           # the role's default: no qwen either
-        self.assertNotIn(G, [b for v in list(ch.values()) + list(PL.chains("today").values()) for b in v])   # 119
+        self.assertNotIn(G, [b for k, v in list(ch.items()) + list(PL.chains("today").items()) for b in v
+                             if k != "angle_write"])   # 119; RULING 152 (1): glm writes only when it answers the probe
         self.assertNotIn(Q, [b for k, v in ch.items() if k.startswith("context_verdict:step_a") for b in v])
         self.assertEqual(ch["coherence_verdict:hook"], [X])                        # RULING 115 (amends 88 (b) / 96 for
         #   the hook): Grok ALONE, the rater the calibrated floors are measured on (qwen in shadow, never deciding)

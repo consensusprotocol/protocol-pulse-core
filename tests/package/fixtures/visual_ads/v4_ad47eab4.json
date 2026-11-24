@@ -1,0 +1,95 @@
+{
+ "moment": "ad47eab4",
+ "sheet": "visual_bcc818fa469e20a9.jpg",
+ "backend": "heimdall:qwen/qwen3.8-27b",
+ "reply_text": "\n\n{\"third_person\": {\"shown\": false, \"how\": \"none\", \"words_negative\": false, \"name_on_screen\": null, \"finding\": \"The clip has no spoken words, so no negative claim is made, and the only person visible is inside the poster's own on-screen graphic, not a third party shown with an accusation.\"}, \"on_screen_text\": [{\"text\": \"The Bitcoin Therapist \u2014 Bitcoin bottomed 4 years ago to the exact day. Seriously, what are the odds of this? November 21, 2022 \u2014 $15,479 / November 21, 2026 \u2014 $85,027\", \"asserts_beyond_words\": true, \"why\": \"The clip's spoken words are empty, so this post text asserts a claim (a 4-year price bottom) that is not spoken.\"}, {\"text\": \"IT'S ALL COME FULL CIRCLE 100% SCAMS 0% LEVERAGE 100% VOLUME\", \"asserts_beyond_words\": true, \"why\": \"Headline graphic overlaid on the post image; no spoken words exist to match it.\"}], \"lower_third\": {\"name\": null, \"text\": null}, \"burned_in\": [{\"kind\": \"bug\", \"text\": \"CRYPTO IRA\", \"whole_in_16x9\": true, \"in_9x16\": \"whole\", \"covers_speaker\": false, \"at\": [576.91, 576.91, 577.61, 578.61, 579.61, 580.61, 581.61, 582.61, 583.61, 584.61, 585.61, 586.91]}, {\"kind\": \"ticker\", \"text\": \"TRADE CRYPTOS & STOCKS IN 190+ COUNTRIES \u2014 KRAKEN \u2014 $25 SIGN UP BONUS. ESTABLISHED 2011\", \"whole_in_16x9\": true, \"in_9x16\": \"whole\", \"covers_speaker\": false, \"at\": [576.91, 576.91, 577.61, 578.61, 579.61, 580.61, 581.61, 582.61, 583.61, 584.61, 585.61, 586.91]}], \"advertising\": [{\"text\": \"TRADE CRYPTOS & STOCKS IN 190+ COUNTRIES \u2014 KRAKEN \u2014 $25 SIGN UP BONUS. ESTABLISHED 2011\", \"what\": \"Kraken crypto exchange ($25 sign-up bonus offer)\", \"at\": [576.91, 576.91, 577.61, 578.61, 579.61, 580.61, 581.61, 582.61, 583.61, 584.61, 585.61, 586.91]}]}",
+ "record": {
+  "third_person": {
+   "shown": false,
+   "how": "none",
+   "words_negative": false,
+   "name_on_screen": null,
+   "finding": "The clip has no spoken words, so no negative claim is made, and the only person visible is inside the poster's own on-screen graphic, not a third party shown with an accusation."
+  },
+  "on_screen_text": [
+   {
+    "text": "The Bitcoin Therapist \u2014 Bitcoin bottomed 4 years ago to the exact day. Seriously, what are the odds of this? November 21, 2022 \u2014 $15,479 / November 21, 2026 \u2014 $85,027",
+    "asserts_beyond_words": true,
+    "why": "The clip's spoken words are empty, so this post text asserts a claim (a 4-year price bottom) that is not spoken."
+   },
+   {
+    "text": "IT'S ALL COME FULL CIRCLE 100% SCAMS 0% LEVERAGE 100% VOLUME",
+    "asserts_beyond_words": true,
+    "why": "Headline graphic overlaid on the post image; no spoken words exist to match it."
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "burned_in": [
+   {
+    "kind": "ticker",
+    "text": "TRADE CRYPTOS & STOCKS IN 190+ COUNTRIES \u2014 KRAKEN \u2014 $25 SIGN UP BONUS. ESTABLISHED 2011",
+    "whole_in_16x9": true,
+    "in_9x16": "whole",
+    "covers_speaker": false,
+    "at": [
+     576.91,
+     577.61,
+     578.61,
+     579.61,
+     580.61,
+     581.61,
+     582.61,
+     583.61,
+     584.61,
+     585.61,
+     586.91
+    ]
+   },
+   {
+    "kind": "bug",
+    "text": "CRYPTO IRA",
+    "whole_in_16x9": true,
+    "in_9x16": "whole",
+    "covers_speaker": false,
+    "at": [
+     576.91,
+     577.61,
+     578.61,
+     579.61,
+     580.61,
+     581.61,
+     582.61,
+     583.61,
+     584.61,
+     585.61,
+     586.91
+    ]
+   }
+  ],
+  "advertising": [
+   {
+    "text": "TRADE CRYPTOS & STOCKS IN 190+ COUNTRIES \u2014 KRAKEN \u2014 $25 SIGN UP BONUS. ESTABLISHED 2011",
+    "what": "Kraken crypto exchange ($25 sign-up bonus offer)",
+    "at": [
+     576.91,
+     577.61,
+     578.61,
+     579.61,
+     580.61,
+     581.61,
+     582.61,
+     583.61,
+     584.61,
+     585.61,
+     586.91
+    ]
+   }
+  ],
+  "version": "visual-4",
+  "measured": true,
+  "backend": "heimdall:qwen/qwen3.8-27b"
+ }
+}

@@ -1,0 +1,66 @@
+{
+ "moment_id": "513842ff9c091700dbb8",
+ "video_id": "0shaXx_n870",
+ "start": 435.58,
+ "end": 452.2,
+ "text": "Bitcoin bottomed at about $15,000 and a half thousand dollars on November 21st, 2022. On November 21st, 2026, We finished seven weeks straight of red candles with a wick down to $55,000. That's four years to the day. You can't make this up.",
+ "how": "transcript_truth.verify_segment replayed offline (Router replay=True) from the recorded Scribe reading of the cached audio window 0shaXx_n870_431580_453700.wav, 01:0x ET Nov 24",
+ "record": {
+  "video_id": "0shaXx_n870",
+  "start": 435.58,
+  "end": 452.2,
+  "model": "elevenlabs_stt:scribe_v1",
+  "replayed": true,
+  "second_pass_text": "Bitcoin bottomed at about $15,500 on November 21st, 2022. On November 21st, 2026, we finished seven weeks straight of red candles with a wick down to $55,000. That's four years to the day. You can't make this up.",
+  "self_repair": null,
+  "transcript_ok": false,
+  "disagree": {
+   "numbers": [
+    "15000500",
+    "15500"
+   ],
+   "negations": [],
+   "names": []
+  },
+  "critical": {
+   "numbers": [
+    "15000500",
+    "2022",
+    "2026",
+    "7",
+    "55000",
+    "4"
+   ],
+   "negations": [
+    "can't"
+   ],
+   "names": [
+    "November"
+   ]
+  },
+  "speakers": {
+   "labels": [
+    "speaker_0"
+   ],
+   "turn_change_inside": false
+  },
+  "audio": "0shaXx_n870_431580_453700.wav",
+  "edges": {
+   "in": {
+    "ok": true,
+    "word": "Bitcoin",
+    "before": "wild.",
+    "pause_ms": 600,
+    "why": "a sentence ends before the clip"
+   },
+   "out": {
+    "ok": true,
+    "word": "up.",
+    "after": "The",
+    "why": "a sentence ends at the clip's last word"
+   },
+   "cuttable": true
+  },
+  "ok": false
+ }
+}

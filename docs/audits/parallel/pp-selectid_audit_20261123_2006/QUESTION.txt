@@ -1,0 +1,30 @@
+pp-selectid: RULING 143's MIRROR on the builder's side (orchestrator ruling 153, 20:03 ET Nov 23: "RULING 143 LANDS
+NOW ... when the TWO AUDIO READINGS agree with each other, the sealed text takes the audio's reading and the
+transcript is corrected; only when the two audio readings DISAGREE on a material word does it hold"), in ONE decoder
+lockstep with the integrator's batch 113 (pinned.adjudicate_lock under ruling 143: branch r143-material 36896978e).
+pinned.py, sentence_law.py and gpu0.py are copied byte-identical (not part of this review).
+THE CHANGE (pipeline/attest.py, pipeline/lock_precheck.py, tests/package/test_lock_precheck.py):
+- attest.critical (attest.py:61): the render's _lv2_critical now also takes a TICKER (a word of two or more capitals,
+  wherever it stands, a sentence opener included).
+- attest.audio_share / wrong_audio / material_pair (attest.py:~290-310): pinned's, re-implemented: share = matched run
+  tokens / len(run); wrong audio = share < 0.85 AND more than 3 run tokens missing; material = not canon.word_form and
+  any critical token.
+- attest.class_143 (attest.py:312): this side's re-check of a settlement from the lock record (run_decode, approved,
+  second_recogniser, pairs), never from the record's classes: the ruling-17 diff (unchanged attest.diff, :78); currency
+  (unchanged currency_pair, :155) and spelling pairs are no difference; the wrong audio holds; per pair (unchanged
+  attest.reads, :389, pinned's test): material -> the run's reading only when the second recogniser reads it, else
+  HOLD; small -> the approved reading when the second reads it, else the run's (never a hold); the record's pairs
+  must equal this side's (words, materiality, reading taken), or the render's fallback (every pair 'run', the spoken
+  text the run decode's); the spoken text must be the settled reading.
+- lock_precheck.decide (lock_precheck.py:172, branch :194): an adopt_spoken whose adjudication rule starts
+  "ruling 143" goes to class_143: any class None holds; no run-taken pair = pass (the approved text stands); else
+  adopt with transcript_corrected = the material pairs taken from the audio. attested (:324): the sealed record's rule
+  and carried text for a 143 adoption. RULES gains rulings 139 and 143; DECODER 9326604699a7 (the integrator's).
+TESTS (TestRuling143): the FTX-bottom case ('FDX' in the transcript, both audio readings 'FTX') adopts, is sealed by
+apply with its attested record, pin_problems none; a number format and a sentence-opening ticker settle the same
+way; a small word never holds; holds: the second reads 'FDX', the wrong audio, a record that lies, an empty record,
+a spoken text that is not the settled reading, a record without the readings; a 131 record is not class_143's; an
+answer under the old decoder is never read. Mutations 9 of 9 killed.
+PLEASE CHECK: (1) can a material word the two AUDIO readings disagree on reach a sealed text? (2) can a record that
+lies (pairs, readings, spoken text) pass? (3) does class_143 match pinned.adjudicate_lock's ruling 143 (incl. the
+fallback when the settled words cannot be written into the approved text)? (4) is the ticker rule the render's?

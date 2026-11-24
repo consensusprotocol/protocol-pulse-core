@@ -85,7 +85,8 @@ PRICE_PREDICTIONS_MAX = 1          # L-u: at most one per video
 # gate with its soft flags in plain words (the pin's moments_package "review_flags"; the integrator's note opens
 # "REVIEW FLAGS: ..."); at most FLAGGED_DAY_MAX flagged packages a day, a clean one always first. STAGE 1 (line 1, 11:29
 # ET Nov 17): step A only. Its SOFT codes, each with the plain words PBX reads; STALE_TIME (stale time), SPEAKER_CHANGE
-# (speaker credit) and RETRACTION (factual) stay HARD, even from one family, until stage 2 asks the second family.
+# (speaker credit), RETRACTION (factual) and AD_READ (sponsor material, ruling 159 (3)(a)) stay HARD, even from one
+# family, until stage 2 asks the second family (AD_READ always).
 # RULING 138 (3): in the note each flag is ONE plain sentence PBX can judge in five seconds: what the checker doubted,
 # about which clip, no codes (flag_sentence).
 STEP_A_SOFT = {"NOT_OWN_SINCERE": "the checker doubted this is the speaker's own sincere view (they may be quoting "
@@ -117,6 +118,18 @@ STEP_A_PHRASE = {"CONDITION_OUTSIDE": "depends on a condition stated before it",
                  "REFERENT_OUTSIDE": "refers to something said earlier",
                  "UNCERTAIN": "may be unclear in what it means"}
 STEP_A_SCOPE = None      # the driver's measured scope ('20 of the 21 clips it checked tonight'), or None
+
+
+def referent_flag(a, seg_ctx):
+    """RULING 155 (2) (orchestrator 23:42 ET Nov 23, the builder's recommendation ADOPTED: REFERENT_OUTSIDE fired on 18
+    of tonight's 21 clips): step A's REFERENT_OUTSIDE on a clip is a FLAG only when the checker says resolving the
+    referent CHANGES what the clip asserts (an explicit "yes": "uncertain" or a missing answer is not enough here) AND
+    the package's own context check (step C: the clip in its line-up, with our lines) does not find the clip's
+    assertion entailed, so nothing else in the line-up or our lines resolves it. Otherwise it is INFORMATION on the pin:
+    out of PBX's note and out of the cap. -> True (a flag) or False (information)."""
+    changes = any(isinstance(r, dict) and r.get("inside") is not True and r.get("changes_assertion") == "yes"
+                  for r in (a or {}).get("referents") or [])
+    return changes and ((seg_ctx or {}).get("C") or {}).get("entails") != "yes"
 
 
 def step_a_sentence(lab_codes, who):
@@ -222,8 +235,9 @@ TRIMMED_PER_LINEUP_MAX = 1         # ruling 49 (b): at most ONE trimmed clip per
 SWAP_TOP = 10                      # candidates read per swapped place, best by score first, after the place's own
                                    # rules (a short clip only at the last place): audit 0510 C1, glm P1-3
 NO_VOICE_AFTER = 2                 # ruling 3 (22:40): the takeaway failing its gates this many times ships no VO line
-WRITER_DEADLINE_S = 300.0          # ruling 5: one writer call never waits more than 5 min; it fails over (deepseek ->
-                                   # qwen -> xAI in the writer chain) and the failover is recorded
+WRITER_DEADLINE_S = 120.0          # RULING 152 (1) (orchestrator 19:36 ET Nov 23; was ruling 5's 5 min): one writer call
+                                   # waits at most 120 s, then fails over to the next family of the writer chain
+                                   # (proof_ly.WRITERS: every Heimdall family that answers the probe, then Grok)
 VO_DEPENDENT = ("NOT_ENTAILED", "POLARITY", "STRONGER", "FALSE_RELATION")   # context failures the VO's framing causes
 VO_FIX = {"NOT_ENTAILED": "the viewer would take this clip to assert more than its speaker said in context: do not "
                           "frame or restate it",
@@ -1894,6 +1908,25 @@ def hook_bar_under(m):
     return "; ".join(f"{HOOK_PART_WORDS[p]} {parts[p]} of 5, needs {live['floors'][p]}" for p in under) or None
 
 
+def hook_unrated(m):
+    """RULING 154 (2) (orchestrator 20:36 ET Nov 23): "In the never-empty pass the hook bar is soft; an unrated opener
+    opens flagged." The plain reason a hook has NO rating ON the calibrated bar: no valid calibration today, no rating
+    at all (its rater did not answer, or the only rater wrote our lines), or a rating by another back-end than the bar's
+    own rater (ruling 154 (1)'s stand-in judge); None when the bar's own rater rated it (hook_bar_under then says
+    whether it is under the bar)."""
+    r = (m or {}).get("hook_rating") or {}
+    live, _ = _live_bar()
+    if live is None:
+        return "the hook bar has no valid calibration today"
+    if not all(isinstance(r.get(k), int) and not isinstance(r.get(k), bool) for k in HOOK_PARTS):
+        w = str(r.get("why") or "")
+        return "its only rater wrote our lines" if "same vendor" in w or "same model" in w else \
+            "its rater did not answer"
+    if r.get("backend") != live.get("rater"):
+        return "a stand-in model rated it, not the hook bar's own rater"
+    return None
+
+
 def hook_own(m):
     """RULING 61 / RULING 115: a hook's OWN-JOB rating, the cached one ruling 59 gave it ("hook_rating"): {"scroll",
     "alone", "setup", "rating": the lower of scroll and alone (it ORDERS hooks), "passes": RULING 115, every part at
@@ -1902,15 +1935,19 @@ def hook_own(m):
     import hook_bar as HB
     r = (m or {}).get("hook_rating") or {}
     parts = {k: r.get(k) for k in HOOK_PARTS}
-    if not all(isinstance(x, int) and not isinstance(x, bool) for x in parts.values()):
-        return None
     live, why = _live_bar()
+    if not all(isinstance(x, int) and not isinstance(x, bool) for x in parts.values()):
+        un = hook_unrated(m) if (m or {}).get("hook_bar_soft") else None   # RULING 154 (2): an UNRATED opener the
+        return None if un is None else dict(parts, rating=0, passes=True, short=un, bar=HB.text(live),   # never-empty
+                                            source="no rating on the calibrated bar (ruling 154 (2))",   # pass marked
+                                            rule=HOOK_OWN_RULE, flagged=un, unrated=True)            # opens, flagged
     ok, short = HB.passes(dict(parts, backend=r.get("backend")), live)
     flag = hook_bar_under(m) if not ok and m.get("hook_bar_soft") else None    # RULING 137 stage 2b: a hook the
-    return dict(parts, rating=min(parts[k] for k in HOOK_OWN), passes=ok or bool(flag),   # never-empty pass marked
-                short=why if live is None else short,                                    # opens, flagged
+    un = hook_unrated(m) if not ok and m.get("hook_bar_soft") and flag is None else None   # never-empty pass marked
+    return dict(parts, rating=min(parts[k] for k in HOOK_OWN), passes=ok or bool(flag or un),   # opens, flagged;
+                short=why if live is None else short,                     # RULING 154 (2): rated off the bar too
                 bar=HB.text(live), source="the hook's cached own-job rating (ruling 61), on the calibrated bar (ruling 115)",
-                rule=HOOK_OWN_RULE, **({"flagged": flag} if flag else {}))
+                rule=HOOK_OWN_RULE, **({"flagged": flag or un} if flag or un else {}), **({"unrated": True} if un else {}))
 
 
 GRAPHIC_WORDS = {"ticker": "ticker", "crawl": "crawl", "lower_third": "lower third", "bug": "channel bug"}
@@ -2239,23 +2276,37 @@ def coherence_by_panel(router, pk, spec, parse, prompt, labs, own, writer_vendor
     wv, wf = P._as_set(writer_vendor), P._as_set(writer_family)
     names = [n for n in spec["members"] if n in router.backends and router.backends[n].vendor not in wv
              and router.backends[n].family not in wf]
-    fams = {n: router.backends[n].family for n in names}
-    votes, misses = {}, {}
-    for n in names:
-        others = {fams[o] for o in names if o != n} | wf
+    k = int(spec.get("min_members") or 3)
+    extra = [n for n in (getattr(router, "chains", None) or {}).get("angle_write") or []   # RULING 152 (2) (19:36 ET
+             if n in router.backends and n not in spec["members"] and n not in getattr(router, "down", {}) and   # Nov
+             P.gateway(router.backends[n]) == "heimdall" and router.backends[n].family != "glm" and   # 23): "L-x soft:
+             router.backends[n].vendor not in wv and router.backends[n].family not in wf] \
+        if getattr(router, "lx_soft", False) and len(names) < k else []   # a Heimdall panel with a flag": the
+    fams = {n: router.backends[n].family for n in names + extra}         # never-empty pass fills the seats the
+    votes, misses = {}, {}                                                # writers emptied, the next families of the
+    for n in names + extra:                                               # writer chain (glm out, ruling 119), only
+        if n in extra and len(votes) >= k:                                # until enough members answered, each seat
+            break                                                         # asked by name (its own one-model list)
+        if n in extra:                                   # keyed by the model (audit 20261124_0016 C, qwen F3:
+            router.chains.setdefault(f"coherence_panel:seat_{n}", [n])   # two seats of one family never collide)
+        pin = {"kind": f"seat_{n}", "avoid_family": wf} if n in extra else \
+            {"avoid_family": {fams[o] for o in names if o != n} | wf}
         for sd in spec.get("seeds") or (7,):
             for s in (sd, sd + 100):                     # the replay's rule: a malformed answer is asked once more
                 try:
                     r, v = P.call_parsed(router, "coherence_panel", prompt, parse, 1200, s, system=PANEL_CONTRACT,
-                                         avoid_vendor=writer_vendor, avoid_family=others,
-                                         deadline_s=spec.get("deadline_s"))
+                                         avoid_vendor=writer_vendor, deadline_s=spec.get("deadline_s"), **pin)
+                    if r.backend != n:                   # a seat is that model's vote or none (a plan B list)
+                        raise P.ProviderError(f"{r.backend} answered for the seat of {n}")
                 except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
                     misses.setdefault(n, []).append(f"seed {s}: {type(e).__name__}: {str(e)[:160]}")
                     continue
                 votes.setdefault(n, []).append(dict(v, backend=r.backend, seed=s,
                                                     replayed=bool(getattr(r, "replayed", False))))
                 break
+    seated = [n for n in extra if n in votes]
     rec = {"members": spec["members"], "answered": sorted(votes), "misses": misses,
+           **({"stand_in": seated} if seated else {}),
            "rule": "ruling 118 (2): fewer than %d members answering is no verdict; more than half of all answers pass"
                    % int(spec.get("min_members") or 3)}
     if len(votes) < int(spec.get("min_members") or 3):
@@ -2277,7 +2328,9 @@ def coherence_by_panel(router, pk, spec, parse, prompt, labs, own, writer_vendor
          "panel": rec}
     ok = own is not None and own["passes"] and ok_panel
     return ok, dict(v, backend="panel:" + "+".join(sorted(votes)), measured=True, bar=which, floors=fl,
-                    calibration_sha256=csha, replayed=any(a["replayed"] for a in answers))
+                    calibration_sha256=csha, replayed=any(a["replayed"] for a in answers),
+                    **({"lx_soft": {"step": 1, "judge": "+".join(seated), "why": f"the coherence panel had fewer "
+                                    f"than {k} members off the writers"}} if seated else {}))   # RULING 152 (2)
 
 
 def coherence(router, pk, writer_vendor, seed=7, writer_family=None, hook=None):
@@ -2316,7 +2369,7 @@ def coherence(router, pk, writer_vendor, seed=7, writer_family=None, hook=None):
     ok = own is not None and own["passes"] and _line_ok(v["through_line"]) and \
         min(x for lb, x in v["clips"].items() if lb != labs[0]) >= fl["clip"] and v["vo_point"] >= fl["vo_point"]
     #   ruling 115: the hook's slot is its calibrated bar; the clips after it and the VO point the line-up bar's
-    return ok, dict(v, backend=r.backend, measured=True, bar=which, floors=fl, calibration_sha256=csha,
+    return ok, dict(v, backend=r.backend, measured=True, bar=which, floors=fl, calibration_sha256=csha, **({"lx_soft": r.lx_soft} if getattr(r, "lx_soft", None) else {}),
                     replayed=bool(getattr(r, "replayed", False)))
 
 
@@ -2380,29 +2433,34 @@ def medley(router, segs, ctx, writer_vendor, seed=7, writer_family=None):
     ok = own is not None and own["passes"] and _line_ok(v["through_line"]) and \
         min(x for lb, x in v["clips"].items() if lb != labs[0]) >= fl["clip"] and len(flagged) <= LY_MAX_BRIDGES
     #   ruling 115: the hook's slot is its calibrated bar; every clip after it the line-up bar's floor (ruling 116)
-    return ok, dict(v, flagged=flagged, backend=r.backend, measured=True, bar=which, floors=fl,
+    return ok, dict(v, flagged=flagged, backend=r.backend, measured=True, bar=which, floors=fl, **({"lx_soft": r.lx_soft} if getattr(r, "lx_soft", None) else {}),
                     calibration_sha256=csha, replayed=bool(getattr(r, "replayed", False)),
                     cached=bool(getattr(r, "cached", False)))
 
 
-KINDS_CAP = None         # the 22:21 question's default, set by the driver for ONE build: this package's cap of kinds
-KINDS_CAP_WHY = None     # ... and why, in words (sealed on the pin's kinds_cap row; package_pin.flags_cap reads it)
-
-
 def chain_cap():
-    """RULING 136 (2) / 141 (1): the most flags a package may carry (package_pin.REVIEW_FLAGS_MAX: one source), or this
-    build's raised cap of kinds (KINDS_CAP, the 22:21 question's default) when the driver set one."""
+    """RULING 136 (2) / 141 (1) / 159 (3)(a): the most KINDS of flag a package may carry: package_pin.flags_cap, one
+    source (REVIEW_FLAGS_MAX; nothing raises it)."""
     import package_pin
-    return max(package_pin.REVIEW_FLAGS_MAX, KINDS_CAP or 0)
+    return package_pin.flags_cap({})
 
 
-def seg_marks(segs):
+def seg_marks(segs, a_by=None):
     """RULING 141 (3): the flags a line-up's clips already carry from the never-empty pass's per-clip gates, one sentence
     each as the inventory writes them: step A's soft codes (context_a), a sentence edge (cuttable), STAND_ALONE
     (stand_alone), the hook under the calibrated bar (the medley row's hook sentence)."""
     segs = list(segs or [])                         # RULING 155 (1): KINDS, not clips: a code on several clips is one
-    n = len({c for m in segs for c in (m.get("step_a_flags") or [])}) + \
+    def step_a_kind(m):                             # RULING 155 (2) (audit F, qwen F3): a REFERENT_OUTSIDE whose
+        codes = m.get("step_a_flags") or []         # step-A record (a_by, the one the pin's row reads) has no
+        if not codes or any(c != "REFERENT_OUTSIDE" for c in codes):   # "changes the claim: yes" can only end as
+            return bool(codes)                                         # information: no kind; without a record,
+        a = (a_by or {}).get(m.get("moment_id")) if a_by is not None else None   # counted (the safe side)
+        return a is None or any(isinstance(r, dict) and r.get("inside") is not True and
+                                r.get("changes_assertion") == "yes" for r in a.get("referents") or [])
+    n = any(step_a_kind(m) for m in segs) + \
         len({c for m in segs for c in (m.get("edge_flags") or [])}) + any(bool(m.get("stand_soft")) for m in segs)
+    #   RULING 157 (5) (standing): step A's soft codes are ONE kind, as the pin counts them (step_a_sentence); with
+    #   ruling 155 (2) a REFERENT_OUTSIDE may end as information only: counted here, the search stays on the safe side
     return n + bool((hook_own(segs[0]) or {}).get("flagged")) if segs else n
 
 
@@ -2881,12 +2939,18 @@ def fallback_fields(angle, segs, join=None, other=()):
     the closing line (the shortest FALLBACK_CLOSING variant inside takeaway_budget), a title ('<Subject>: <names>', or
     '<Subject>, in their words' past ruling 6's 8 words), a caption ('<Subject>, in the words of <names>.') and, only
     where a join needs one, a bridge ('Next, <channel>.'). -> write_takeaway's fields, or None when no closing variant
-    lands the budget."""
+    lands the budget, a clip has no channel name to say (audit 20261124_0016 A2: never a raw channel id on screen), or
+    the join is not between two of the line-up's clips (A2: never an IndexError)."""
     chans = []
     for m in segs:
-        c = m.get("channel_name") or m.get("channel_id")
-        if c and c not in chans:
+        c = m.get("channel_name")
+        if not (isinstance(c, str) and c.strip()):
+            return None
+        if c not in chans:
             chans.append(c)
+    if join is not None and not (isinstance(join, (list, tuple)) and join and isinstance(join[0], int) and
+                                 not isinstance(join[0], bool) and 0 <= join[0] < len(segs) - 1):   # audit F (qwen F1)
+        return None
     names = chans[0] if len(chans) == 1 else (", ".join(chans[:-1]) + " and " + chans[-1] if chans else
                                               "the channels")   # audit 20261123_2143 C1 (glm F1): never an IndexError
     subject, ids = fallback_subject(segs, chans), [m["moment_id"] for m in segs]
@@ -2900,9 +2964,9 @@ def fallback_fields(angle, segs, join=None, other=()):
                  if budget is not None and budget[0] <= len(t.split()) <= budget[1]), None)
     if take is None:
         return None
-    title = f"{subject}: {names}"
-    if len(title.split()) > HS.TITLE_MAX_WORDS or len(title) > LINE_CHARS["title"]:
-        title = f"{subject}, in their words"
+    fits = lambda t: len(t.split()) <= HS.TITLE_MAX_WORDS and len(t) <= LINE_CHARS["title"]
+    title = next((t for t in (f"{subject}: {names}", f"{subject}, in their words", "Bitcoin, in their words")
+                  if fits(t)), "Bitcoin, in their words")   # audit 20261124_0016 A2: the short title re-checked too
     return {"takeaway": {"text": take, "cites": ids}, "title": {"text": title, "cites": ids},
             "caption": {"text": f"{subject}, in the words of {names}.".lower(), "cites": ids},   # house style:
             "bridge": bridge,                                                          # a caption is all lowercase
@@ -3032,6 +3096,7 @@ def takeaway_value(router, segs, ctx, line, writers_v, writers_f, seed=7):
         return dict(base, measured=False, ok=False, why=f"{type(e).__name__}: {str(e)[:200]}",
                     backend=getattr(r, "backend", None), replayed=False)
     return dict(base, **v, measured=True, backend=r.backend, replayed=bool(getattr(r, "replayed", False)),
+                **({"lx_soft": r.lx_soft} if getattr(r, "lx_soft", None) else {}),
                 ok=all(v[k] == "yes" for k in SPOT.VALUE_KEYS) and base["words"] <= LY_TAKEAWAY_MAX_WORDS)
 
 
@@ -3357,6 +3422,41 @@ def with_votes(results, votes, passed, seeds=MAJORITY_SEEDS):
         out["majority"] = {"votes": votes, "seeds": list(seeds[:len(results)]), "runs": results}
         out["replayed"] = None if any(not isinstance(x, bool) for x in reps) else any(reps)
     return out
+
+
+def words_only(t):
+    """RULING 159 (3)(a) (orchestrator 23:42 ET Nov 23: "your selection-side word check takes ruling 143 so it agrees
+    with the render's lock"): True when a moment's L-v 2 record (transcript_truth.verify_segment) fails ONLY its word
+    check (a number, negation or name the transcript and the second recogniser read differently), measured, with one
+    speaker inside: the disagreement the render's lock settles under ruling 143 (the two audio readings agree: the
+    transcript corrected; they do not: a hold). Simply Bitcoin 513842ff ("$15,000 and a half thousand" against
+    "15,500") and Scott Melker's "FDX"/"FTX" failed here on Nov 23 while the lock adopted them."""
+    return isinstance(t, dict) and "error" not in t and t.get("transcript_ok") is False and \
+        (t.get("speakers") or {}).get("turn_change_inside") is False
+
+
+def lv2_settled(t, verdict):
+    """RULING 143 at selection: the L-v 2 record as the gates read it. A words-only disagreement (words_only) the render's
+    lock settled for this span (the lock pre-check's verdict "pass" or "adopt") reads as passed, the settlement named in
+    "word_check"; anything else unchanged (a hold, an error, no verdict, a speaker change, an unmeasured record)."""
+    if not (words_only(t) and verdict in ("pass", "adopt")):
+        return t
+    return dict(t, ok=True, word_check=f"settled by the render's lock (ruling 143): {verdict}")
+
+
+def lv2_pending(t, has_lock):
+    """RULING 143 at selection, the PRESCREEN only (audit 20261124_0101 F, qwen F2: never a line-up's reading): a
+    words-only disagreement stays in the pool, read as passed there, only when the build has the render's lock to settle
+    it at its line-up (lv2_settled); else unchanged (refused, as before)."""
+    return dict(t, ok=True, word_check="pending the render's lock (ruling 143)") if has_lock and words_only(t) else t
+
+
+def lock_verdicts(pre, segs):
+    """{moment id: the lock pre-check's verdict} for a line-up whose pre-check answered (else {})."""
+    rows = pre.get("segments") if isinstance(pre, dict) and not pre.get("error") else None   # audit F (qwen, cycle 2):
+    if not isinstance(rows, list) or not segs or len(rows) != len(segs):                    # never a KeyError
+        return {}
+    return {m["moment_id"]: x.get("verdict") for m, x in zip(segs, rows) if isinstance(x, dict)}
 
 
 def truth_for(router, m, work_dir, cache):
@@ -3699,13 +3799,20 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
     with ThreadPoolExecutor(max_workers=8) as pre:     # L-v 2 + CUTTABLE per moment, before the angles (L-y 3)
         futs = {mid: pre.submit(truth_for, router, m, work_dir, tru) for mid, m in cleared.items()}
         tru.update({mid: f.result() for mid, f in futs.items()})
+    tru_v = {mid: lv2_pending(t, lock_check is not None) for mid, t in tru.items()}                          # RULING
+    pend = sorted(mid for mid, t in tru_v.items() if t is not tru[mid])          # 143 at selection: kept for the lock
+    if pend:
+        out["prescreen"]["words_pending_lock"] = {mid: tru[mid].get("disagree") for mid in pend}
+        log(f"  RULING 143 AT SELECTION (ruling 159): {len(pend)} moment(s) whose only L-v 2 failure is a word the two "
+            f"recognisers read differently go to their line-up's lock pre-check, which settles it: "
+            + ", ".join(f"{mid[:8]} {tru[mid].get('disagree')}" for mid in pend)[:600])
     cut_ok = lambda t: bool(t.get("ok")) and (t.get("edges") or {}).get("cuttable") is True
     out["prescreen"]["second_pass"] = {
         mid: "PASS" if cut_ok(t) else ("NOT MEASURED: " + t["error"] if t.get("error") else
                                        "L-v 2 FAIL" if not t.get("ok") else "not cuttable at an edge (ruling C / 7)")
-        for mid, t in tru.items()}
-    cut_soft = {mid: e for mid in cleared if not cut_ok(tru.get(mid) or {})       # RULING 137 stage 2a: a sentence
-                for e in [soft_edges(tru.get(mid) or {})] if e} if soft else {}    # edge at a word boundary flags
+        for mid, t in tru_v.items()}
+    cut_soft = {mid: e for mid in cleared if not cut_ok(tru_v.get(mid) or {})     # RULING 137 stage 2a: a sentence
+                for e in [soft_edges(tru_v.get(mid) or {})] if e} if soft else {}  # edge at a word boundary flags
     for mid, e in cut_soft.items():
         cleared[mid]["edge_flags"] = e
     if cut_soft:
@@ -3713,7 +3820,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
         log(f"  RULING 137 NEVER EMPTY (stage 2a): {len(cut_soft)} moment(s) whose words match fail CUTTABLE only at a "
             f"sentence edge (the recogniser runs on at a word boundary) stay, flagged: "
             + ", ".join(f"{mid[:8]} {e}" for mid, e in cut_soft.items()))
-    cleared = {mid: m for mid, m in cleared.items() if cut_ok(tru.get(mid) or {}) or mid in cut_soft}
+    cleared = {mid: m for mid, m in cleared.items() if cut_ok(tru_v.get(mid) or {}) or mid in cut_soft}
     out["prescreen"]["cuttable"] = len(cleared)
     log(f"  {len(cleared)} of them pass the second recognition pass and CUTTABLE ({time.time() - t0:.0f} s)")
     hk = {}
@@ -3746,14 +3853,16 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
         m["hook_rating"] = rated.get(mid) or {"rating": None, "why": (f"not rated: {hook_err}" if mid in openers else
                                                                       "cannot open (hook eligibility, G17a or the "
                                                                       "render's hook rule)")}
-    under = hook_order([m for mid, m in openers.items() if mid in rated and hook_bar_under(m)])[:HOOK_SOFT_MAX] \
-        if soft else []                                                   # RULING 137 stage 2b: the hook bar is SOFT
-    for m in under:                                                       # in the never-empty pass: the best
-        m["hook_bar_soft"] = True                                         # HOOK_SOFT_MAX hooks under it open, flagged
+    under = (hook_order([m for mid, m in openers.items() if mid in rated and hook_bar_under(m)]) +    # RULING 137
+             hook_order([m for mid, m in openers.items() if hook_unrated(m)]))[:HOOK_SOFT_MAX] \
+        if soft else []          # stage 2b: the hook bar is SOFT in the never-empty pass: the best HOOK_SOFT_MAX hooks
+    for m in under:              # under it open, flagged; RULING 154 (2): then the openers with NO rating on the bar
+        m["hook_bar_soft"] = True
     if under:
-        out["prescreen"]["soft_hook_bar"] = {m["moment_id"]: hook_bar_under(m) for m in under}
-        log(f"  RULING 137 NEVER EMPTY (stage 2b): {len(under)} hook(s) rated under the calibrated bar by its own rater "
-            f"open, flagged: " + ", ".join(f"{m['moment_id'][:8]} ({hook_bar_under(m)})" for m in under))
+        out["prescreen"]["soft_hook_bar"] = {m["moment_id"]: hook_bar_under(m) or hook_unrated(m) for m in under}
+        log(f"  RULING 137 / 154 (2) NEVER EMPTY (stage 2b): {len(under)} hook(s) under the calibrated bar or with no "
+            f"rating on it open, flagged: " + ", ".join(f"{m['moment_id'][:8]} ({hook_bar_under(m) or hook_unrated(m)})"
+                                                        for m in under))
     for m in cleared.values():
         m.pop("visual_hook_block", None)
     rated_open = [m for m in cleared.values() if can_open(m)]              # RULING 70: the hooks that would open,
@@ -3850,8 +3959,9 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                       f'"{quote_data(m["text"], 600)}"'
                       for m in sorted(cleared.values(), key=lambda m: (-m["rank_score"], m["moment_id"])))
     offered = passing[:max_angles]                      # RULING 64: an angle for each passing hook (k at most)
-    hooks_txt = lambda hs: "\n".join(f'id={m["moment_id"]} | rated {hook_own(m)["rating"]} on its own job: '
-                                     f'"{quote_data(m["hook_rating"].get("why") or "", 200)}"' for m in hs)
+    hooks_txt = lambda hs: "\n".join(f'id={m["moment_id"]} | ' + ("not rated on its own job (ruling 154 (2))"
+                                     if hook_own(m).get("unrated") else f'rated {hook_own(m)["rating"]} on its own job') +
+                                     f': "{quote_data(m["hook_rating"].get("why") or "", 200)}"' for m in hs)
     per = max(1, max_angles // len(offered))
     lo, hi = medley_content_range()
     angles, angle_reply, errs = None, None, []
@@ -4111,6 +4221,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
             bg2 = {m["moment_id"]: (nv_pool.submit(exclusion_for, router, m, sources, exc),
                                     nv_pool.submit(truth_for, router, m, work_dir, tru)) for m in order}
             got = {mid: (f[0].result(), f[1].result()) for mid, f in bg2.items()}
+            nv_lv = lock_verdicts(nv_pre, order)            # RULING 143 at selection, as a voiced line-up
+            got = {mid: (e, lv2_settled(t, nv_lv.get(mid))) for mid, (e, t) in got.items()}
             if any(e.get("verdict") != "keep" or not t.get("ok") or (t.get("edges") or {}).get("cuttable") is not True
                    for e, t in got.values()):
                 note["why_not"] = "a clip fails exclusion, the second pass or CUTTABLE"
@@ -4299,8 +4411,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                 if soft and candidate is None and key != accept_key and med.get("measured") and \
                         (not ok_m or (question_hook(segs) and joins(labs)[0] in (med.get("flagged") or []))):
                     ks = lineup_soft(segs, med)             # RULING 141 (3): soft failures only: KEPT (the search goes
-                    if ks is not None and seg_marks(segs) + ks["n"] <= chain_cap():   # on, a clean line-up first)
-                        kept.append({"segs": list(segs), "key": key, "soft": ks, "n": seg_marks(segs) + ks["n"],
+                    if ks is not None and seg_marks(segs, a_by) + ks["n"] <= chain_cap():   # on, a clean line-up
+                        kept.append({"segs": list(segs), "key": key, "soft": ks, "n": seg_marks(segs, a_by) + ks["n"],
                                      "low": min(med["clips"][lb] for lb in labs[1:])})
                         rec["kept"] = ks
                 if not ok_m and jt and med.get("measured"):   # RULING 117: the search over the table picks the next
@@ -4423,8 +4535,10 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                     lone = w_used >= writes or v_redo      # takeaway alone failed, the takeaway ALONE, up to twice
                     if lone and not v_redo and not (alone_n < LINE_ONLY_WRITES and t_alone and last_fields is not None
                                                     and not last_rw65):
-                        if not (soft and fb_state is None and w_used >= writes):
-                            break
+                        if not (soft and fb_state is None and w_used >= writes and not relined and not no_verdict):
+                            break                          # (RULING 159: never for a line-up the lock held, its
+                            #   frames refused, or no lock verdict judged: those set w_used = writes with NO write
+                            #   made, and the plain lines would seal the refused line-up)
                         fb_state = "due"                   # never-empty pass: every write failed: the template lines
                     if over_budget(ai):
                         break
@@ -4555,6 +4669,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                         ("cheap gates fail " + ", ".join(sorted({v["rule"] for v in cheap})) if cheap else "cheap PASS")
                         + f" ({time.time() - t0:.0f} s)")
                     got = {mid: (f[0].result(), f[1].result()) for mid, f in bg.items()}   # the clips' own gates first
+                    lv = lock_verdicts(pre, segs)            # RULING 143 at selection: the lock's settlement of a
+                    got = {mid: (e, lv2_settled(t, lv.get(mid))) for mid, (e, t) in got.items()}   # words-only L-v 2
                     lost = {mid for mid, (e, t) in got.items() if e.get("verdict") != "keep" or not t.get("ok")
                             or ((t.get("edges") or {}).get("cuttable") is not True     # CUTTABLE is a required gate;
                                 and not (soft and soft_edges(t)))}   # RULING 137 2a: a sentence edge at a word boundary
@@ -4679,7 +4795,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                                           hook=segs[0])     # then on the takeaway; ruling 61: the hook's cached
                     cs_ = coherence_soft(coh, segs, (accept_soft or {}).get("weak") or ()) \
                         if not ok_c and key == accept_key else None   # RULING 141 (3): the accepted candidate only
-                    if cs_ is not None and seg_marks(segs) + accept_soft["n"] + cs_["n"] <= chain_cap():
+                    if cs_ is not None and seg_marks(segs, a_by) + accept_soft["n"] + cs_["n"] <= chain_cap():
                         ok_c, coh = True, dict(coh, soft=cs_)     # its clip ratings under coherence's floor: flagged
                     if fallback_vo_soft(ok_c, coh, soft, fb_text, fields, segs):   # RULING 156 / 157 (2)(b): the plain
                         ok_c, coh = True, dict(coh, soft_vo=True)  # line makes no point by design: its VO-point rating
@@ -4818,10 +4934,20 @@ def build(*args, never_empty=False, flagged_today=0, **kw):
                              f"the second pass lets step A's soft refusals back, flagged (stage 1)")
     global _FLOOR
     _FLOOR = LY_FLOOR_S                                  # RULINGS 148 (1) / 149: the floor, in this pass only
+    router = args[0] if args else kw.get("router")
+    lx_saved = getattr(router, "lx_soft", False)
+
+    def lx_mark(v):                                      # RULING 154 (1) / 152 (2): stand-in judges in this pass only
+        try:                                             # (a stand-in router that takes no attribute: nothing to mark)
+            router.lx_soft = v
+        except (AttributeError, TypeError):
+            pass
     try:
+        lx_mark(True)
         soft = _build(*args, soft=True, **kw)
     finally:
         _FLOOR = None
+        lx_mark(lx_saved)
     info = {"stage": "2b", "clean_why_none": out.get("why_none"), "soft_why_none": soft.get("why_none"),
             "soft_back": (soft.get("prescreen") or {}).get("soft_back"),
             "soft_record": {k: soft.get(k) for k in ("prescreen", "hook_pool", "tried", "soft_stand")}}   # its record
@@ -4835,6 +4961,25 @@ def _spent(spend):
         return 0.0, 0.0
     v = spend()
     return (float(v[0]), float(v[1])) if isinstance(v, (tuple, list)) else (float(v), float(v))
+
+
+JUDGE_FLAG = ("Some checks were made by a stand-in model, because the usual checker wrote our lines or did not "
+              "answer: {checks}.")       # RULING 154 (1) / 152 (2): ONE flag, the checks named
+
+
+def stand_in_checks(fid, ctx_, a_by, coh, medley, value, who=None):
+    """RULING 154 (1) / 152 (2): the plain names of the package's checks a stand-in judge made (providers.Router.call's
+    fallback in the never-empty pass, or the coherence panel's extra seats: the verdict's "lx_soft"), in a fixed
+    order; [] when none."""
+    lx = lambda x: isinstance(x, dict) and bool(x.get("lx_soft"))
+    out = (["the fact check of our lines"] if lx(fid) else []) + \
+        (["the viewer's-takeaway check"] if ((ctx_ or {}).get("lx_soft") or {}).get("B") else []) + \
+        (["the context check"] if ((ctx_ or {}).get("lx_soft") or {}).get("C") else []) + \
+        (["the clips-alone check"] if medley is not None and lx(medley[1]) else []) + \
+        (["the coherence check"] if lx(coh) else []) + (["the closing line's value check"] if lx(value) else [])
+    clips = [f"{CLIP_PLACE.get(lb, lb)[0].lower()}{CLIP_PLACE.get(lb, lb)[1:]} ({(who or {}).get(lb) or lb})"
+             for lb, a in sorted((a_by or {}).items()) if lx(a)]
+    return out + ([f"step A's check of {', '.join(clips)}"] if clips else [])
 
 
 def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None, short=None,
@@ -4863,9 +5008,13 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
     det = fid["deterministic"]
     viol = {v["rule"] for v in ctx_.get("violations") or []}
     hook_fl = ((medley[1].get("hook_own") or {}).get("flagged") if soft and medley is not None else None)   # 2b
+    lx_checks = stand_in_checks(fid, ctx_, a_by, coh, medley, value, who)          # RULING 154 (1) / 152 (2)
+    import visual_pin as VP                                                         # RULING 158 (2): the visual row
+    un = soft and medley is not None and (medley[1].get("hook_own") or {}).get("unrated") is True   # RULING 154 (2)
     chain = medley[1].get("soft") if soft and medley is not None and medley[0] else None   # RULING 141 (3)
-    med_fl = ([f"{CLIP_PLACE['hook']} ({(who or {}).get('hook') or 'its channel'}): the checker rated it under the "
-               f"hook bar ({hook_fl})."] if hook_fl and medley is not None and medley[0] else []) + \
+    med_fl = ([f"{CLIP_PLACE['hook']} ({(who or {}).get('hook') or 'its channel'}): " +
+               ("no checker rated it on the hook bar" if un else "the checker rated it under the hook bar") +
+               f" ({hook_fl})."] if hook_fl and medley is not None and medley[0] else []) + \
         (chain_sentences(chain, who) if chain else [])
     coh_fl = coherence_sentences(coh["soft"], chain, who) if soft and coh_ok and (coh or {}).get("soft") else []
     lab = lambda mid: (mids or {}).get(mid, mid)                      # truth is by moment id; flags name the clip
@@ -4877,6 +5026,10 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
                  for lb, a in (a_by or {}).items()}       # each clip's step-A codes, its verdict's and every screen's soft
     a_codes = sorted({c for cs in lab_codes.values() for c in cs})   # ones (stage 2a); in the never-empty pass, soft
     soft_a = bool(soft and a_codes and all(c in STEP_A_SOFT for c in a_codes))   # ones FLAG
+    ref_info = sorted(lb for lb, cs in lab_codes.items() if soft_a and "REFERENT_OUTSIDE" in cs and   # RULING 155 (2):
+                      not referent_flag(a_by[lb], ((ctx_ or {}).get("segments") or {}).get(lb)))   # information only
+    a_sentence = step_a_sentence({lb: [c for c in cs if not (c == "REFERENT_OUTSIDE" and lb in ref_info)]
+                                  for lb, cs in lab_codes.items()}, who) if soft_a else None
     return {
         "vo_fidelity_deterministic": row(det["ok"], "code (vo_fidelity.check_deterministic)"),
         "vo_fidelity_verdict": dict(row(bool((fid.get("verdict") or {}).get("ok")), fid.get("backend"),
@@ -4893,11 +5046,11 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
         "context_a": dict(row(bool(a_rows) and (not a_codes or soft_a),
                               sorted({str(a.get("backend")) for a in a_rows}), rep(a.get("replayed") for a in a_rows),
                               n=len(a_rows)),
-                          **({"status": "FLAGGED",            # RULING 137 stage 1; 138 (3): a sentence a clip
-                              "flags": [x for x in [step_a_sentence({lb: lab_codes[lb] for lb in (a_by or {})},
-                                                                    who)] if x]}   # audit 2240 (qwen F2): never None
-                                                                             # RULING 157 (2)(a) / (5): ONE kind
-                             if soft_a and len(a_rows) >= 1 else {}),
+                          **({"status": "FLAGGED", "flags": [a_sentence]}   # RULING 137 stage 1; 138 (3); 157 (2)(a)
+                             if soft_a and a_sentence else {}),                # / (5): ONE kind, never a None flag
+                          **({"info": {"referent_outside": {           # RULING 155 (2): on the pin, not in the note
+                              lb: "refers to something said earlier; the checker did not say it changes the claim, "
+                                  "or the line-up and our lines resolve it" for lb in ref_info}}} if ref_info else {}),
                           **({"last_resort": last_resort} if last_resort else {})),   # RULING 102: the local judge
         "context_b": dict(row(ctx_.get("ok") is True, (ctx_.get("backends") or {}).get("B"), ctx_.get("replayed"),
                               measured=bool(ctx_.get("measured"))), **votes_of(ctx_)),
@@ -4940,9 +5093,9 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
                                **({"status": "FLAGGED", "flags": ["The opening clip may start abruptly."]}   # RULING
                                   if soft and hook.get("soft") is True and hook.get("pass") is not True else {}))}   # 146
            if hook is not None else {}),                                                                      # (2)
-        **({"kinds_cap": {"status": "PASS", "cap": KINDS_CAP, "why": KINDS_CAP_WHY, "replayed": False, "n": 1,
-                          "by": "the driver (the 22:21 ET Nov 23 question's default; package_pin.flags_cap)"}}
-           if soft and KINDS_CAP and KINDS_CAP_WHY else {}),
+        **({"judge": {"status": "FLAGGED", "flags": [JUDGE_FLAG.format(checks="; ".join(lx_checks))],
+                      "by": "providers.Router.call's stand-in judges (ruling 154 (1)) and the coherence panel's extra "
+                            "seats (ruling 152 (2))", "replayed": False, "n": len(lx_checks)}} if lx_checks else {}),
         **({"fallback_line": {"status": "FLAGGED", "by": "package.fallback_fields (ruling 156 (2)): the plain lines "
                                                          "built by code from fixed templates that state no fact, gated "
                                                          "as any line", "replayed": False, "n": 1,
@@ -4973,13 +5126,16 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
                                     STAND_SOFT_PREFIX.format(channel=(who or {}).get(lb) or "its channel") + f"{why}."
                                     for lb, why in stand["soft_rows"].items()]} if soft and stand.get("soft_rows") else {}))}
            if stand is not None else {}),
-        **({"visual": dict(row(bool(visual) and all((v or {}).get("measured") is True for v in visual),
+        **({"visual": dict(row(bool(visual) and all((v or {}).get("measured") is True for v in visual) and
+                               not any(VP.ad_block(v) for v in visual),    # RULING 158 (2): an ad never passes
                                sorted({str((v or {}).get("backend")) for v in visual}) or None,
                                rep((v or {}).get("replayed") for v in visual), n=len(visual or []),
                                measured=bool(visual) and all((v or {}).get("measured") is True for v in visual)),
                            flags=[{"segment": i, **f} for i, v in enumerate(visual) for f in (v or {}).get("flags") or []],
                            by_rule="visual_pin (ruling 70): one contact sheet per clip; a finding is a FLAG, sealed, "
-                                   "never a reject by itself")}
+                                   "never a reject by itself; on-screen advertising refuses (ruling 158 (2))",
+                           **({"ads": [a for v in visual for a in [VP.ad_block(v)] if a]}
+                              if any(VP.ad_block(v) for v in visual) else {}))}
            if visual is not None else {}),
         **({"takeaway_value": dict(row(value.get("ok") is True, value.get("backend"), value.get("replayed"),
                                        measured=value.get("measured") is True),

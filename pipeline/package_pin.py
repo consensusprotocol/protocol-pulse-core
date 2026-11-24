@@ -43,7 +43,6 @@ SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's sof
                         #   ratings and unbridged joins of a kept candidate (the through-line and every other L-y check
                         #   stay HARD; the takeaway's value rows are not soft)
                         "stand_alone",                     # RULING 141 (2): a clip's STAND_ALONE opener (the topic
-                        "pbx_exception",                   # RULING 144: EXCEPTION_GATE, only on the one excepted pin
                         "hook_onset",                      # RULING 146 (2): G17a's quiet shortfall (a cut mid-word stays
                         #   HARD)
                         "graphics",                        # RULING 146 (1): the show's own graphics, 16:9 only
@@ -52,15 +51,13 @@ SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's sof
                         "fallback_line",                   # RULING 156 (2): our plain lines built by code, gated
                         "sponsor",                         # RULING 146 (3): a sponsor mention in the sentence before
                         #   a clip only, the clip kept by the exclusion model (its ad_read risk stays HARD)
+                        "judge",                           # RULINGS 154 (1) / 152 (2): checks made by a stand-in
+                        #   judge in the never-empty pass (the writer was the usual checker, or it did not answer)
                         "runtime"})                        # RULINGS 148 (1) / 149: a medley under 60 s, its clips at
 #   package.LY_FLOOR_S (30 s) or more, never-empty pass only (the render's G5 follows this sealed row)
 #   rule, ruling 34, and the medley naming Bitcoin stay HARD)
-REVIEW_FLAGS_MAX = 3
-PBX_EXCEPTION_CAP = 5   # RULING 147 (orchestrator 08:20 ET Nov 18): the excepted pin's cap (the exception line itself
-#   never counts); every other pin keeps REVIEW_FLAGS_MAX
-EXCEPTION_GATE = "pbx_exception"   # RULING 144 (PBX 07:05 ET Nov 18): a named, logged exception to a HARD rule for ONE
-#   package. Its row is FLAGGED with the exception in plain words; its sentence opens the review flags (the note's top
-#   line) and is not a doubt about the content, so it never counts toward REVIEW_FLAGS_MAX.
+REVIEW_FLAGS_MAX = 3   # RULING 159 (3)(a): ruling 144's one-pin exception (its FLAGGED "pbx_exception" row, now on no
+#   soft gate, so gate_problems refuses it) and ruling 147's cap of 5 for it are removed
 
 
 # RULING 90 (orchestrator 22:40 ET Nov 13; LAW since 22:52, amended by 91 and 92): the SPOTLIGHT, a second pin kind.
@@ -413,11 +410,9 @@ def flagged_ok(g, row):
 
 
 def review_flags_of(gates):
-    """RULING 137: the plain-word flags of the inventory's FLAGGED rows, in gate order, each once; RULING 144: an
-    exception's row first (the note's top line)."""
+    """RULING 137: the plain-word flags of the inventory's FLAGGED rows, in gate order, each once."""
     out = []
-    items = list(gates.items()) if isinstance(gates, dict) else []
-    for _g, row in sorted(items, key=lambda kv: kv[0] != EXCEPTION_GATE):
+    for _g, row in (gates.items() if isinstance(gates, dict) else ()):
         if isinstance(row, dict) and row.get("status") == "FLAGGED":
             out += [f for f in row.get("flags") or [] if isinstance(f, str) and f not in out]
     return out
@@ -429,25 +424,12 @@ def review_problems(mp):
     want, got = review_flags_of(mp.get("gates")), mp.get("review_flags") or []
     out = [] if got == want else [f"review_flags {got} are not the sealed gates' flags {want}"]
     n, cap = content_flags(mp.get("gates")), flags_cap(mp.get("gates"))
-    return out + ([f"{n} kinds of review flag, over {cap} (rulings 136 (2) / 147 / 155 (1))"] if n > cap else [])
-
-
-CAP_GATE = "kinds_cap"   # one package's cap raised, named on its pin (the 22:21 ET Nov 23 question's default)
-KINDS_CAP_MAX = 8        # never above this many kinds, whatever a row says
+    return out + ([f"{n} kinds of review flag, over {cap} (rulings 136 (2) / 155 (1) / 159)"] if n > cap else [])
 
 
 def flags_cap(gates):
-    """RULINGS 136 (2) / 147: the most content flags a pin may carry: PBX_EXCEPTION_CAP on the one pin that carries a
-    ruling-144 exception row, REVIEW_FLAGS_MAX on every other; THE 22:21 ET Nov 23 QUESTION'S DEFAULT (the
-    orchestrator's 18:18 order: "where one of MY counts or caps blocks a through-lined, hard-gated package, raise it by
-    what is needed, write what you did"): a sealed CAP_GATE row (status PASS, an int cap above REVIEW_FLAGS_MAX and at
-    most KINDS_CAP_MAX, and its reason in words) raises THAT package's cap to it."""
-    if isinstance(gates, dict) and EXCEPTION_GATE in gates:
-        return PBX_EXCEPTION_CAP
-    row = gates.get(CAP_GATE) if isinstance(gates, dict) else None
-    if isinstance(row, dict) and row.get("status") == "PASS" and type(row.get("cap")) is int and \
-            REVIEW_FLAGS_MAX < row["cap"] <= KINDS_CAP_MAX and str(row.get("why") or "").strip():
-        return row["cap"]
+    """RULINGS 136 (2) / 155 (1) / 159 (3)(a): the most KINDS of flag a pin may carry: REVIEW_FLAGS_MAX, for every pin.
+    Nothing raises it: ruling 144's exception cap and the per-package kinds_cap row (Nov 23) are removed."""
     return REVIEW_FLAGS_MAX
 
 
@@ -467,12 +449,11 @@ def flag_kind(gate, flag):
 
 
 def content_flags(gates):
-    """RULING 136 (2) / 144 / 155 (1) (orchestrator 21:06 ET Nov 23: "THE CAP COUNTS KINDS OF FLAG, NOT CLIPS ... At
-    most 3 KINDS per package, standing"): the KINDS of flag (flag_kind) on the FLAGGED rows that count toward the cap;
-    an exception's row never counts."""
+    """RULING 136 (2) / 155 (1) (orchestrator 21:06 ET Nov 23: "THE CAP COUNTS KINDS OF FLAG, NOT CLIPS ... At
+    most 3 KINDS per package, standing"): the KINDS of flag (flag_kind) on every FLAGGED row."""
     if not isinstance(gates, dict):
         return 0
-    return len({flag_kind(g, f) for g, row in gates.items() if g != EXCEPTION_GATE and isinstance(row, dict)
+    return len({flag_kind(g, f) for g, row in gates.items() if isinstance(row, dict)
                 and row.get("status") == "FLAGGED" for f in row.get("flags") or [] if isinstance(f, str)})
 
 

@@ -1,0 +1,191 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index cb4d752d9..bd0220293 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -86,5 +86,6 @@ PRICE_PREDICTIONS_MAX = 1          # L-u: at most one per video
+ # "REVIEW FLAGS: ..."); at most FLAGGED_DAY_MAX flagged packages a day, a clean one always first. STAGE 1 (line 1, 11:29
+ # ET Nov 17): step A only. Its SOFT codes, each with the plain words PBX reads; STALE_TIME (stale time), SPEAKER_CHANGE
+-# (speaker credit) and RETRACTION (factual) stay HARD, even from one family, until stage 2 asks the second family.
++# (speaker credit), RETRACTION (factual) and AD_READ (sponsor material, ruling 159 (3)(a)) stay HARD, even from one
++# family, until stage 2 asks the second family (AD_READ always).
+ # RULING 138 (3): in the note each flag is ONE plain sentence PBX can judge in five seconds: what the checker doubted,
+ # about which clip, no codes (flag_sentence).
+@@ -120,4 +121,16 @@ STEP_A_SCOPE = None      # the driver's measured scope ('20 of the 21 clips it c
+ 
+ 
++def referent_flag(a, seg_ctx):
++    """RULING 155 (2) (orchestrator 23:42 ET Nov 23, the builder's recommendation ADOPTED: REFERENT_OUTSIDE fired on 18
++    of tonight's 21 clips): step A's REFERENT_OUTSIDE on a clip is a FLAG only when the checker says resolving the
++    referent CHANGES what the clip asserts (an explicit "yes": "uncertain" or a missing answer is not enough here) AND
++    the package's own context check (step C: the clip in its line-up, with our lines) does not find the clip's
++    assertion entailed, so nothing else in the line-up or our lines resolves it. Otherwise it is INFORMATION on the pin:
++    out of PBX's note and out of the cap. -> True (a flag) or False (information)."""
++    changes = any(isinstance(r, dict) and r.get("inside") is not True and r.get("changes_assertion") == "yes"
++                  for r in (a or {}).get("referents") or [])
++    return changes and ((seg_ctx or {}).get("C") or {}).get("entails") != "yes"
++
++
+ def step_a_sentence(lab_codes, who):
+     """RULING 157 (2)(a) / (5) (orchestrator 22:27 ET Nov 23; standing from the next build): ONE flag for all of step
+@@ -2402,6 +2451,8 @@ def seg_marks(segs):
+     (stand_alone), the hook under the calibrated bar (the medley row's hook sentence)."""
+     segs = list(segs or [])                         # RULING 155 (1): KINDS, not clips: a code on several clips is one
+-    n = len({c for m in segs for c in (m.get("step_a_flags") or [])}) + \
++    n = any(bool(m.get("step_a_flags")) for m in segs) + \
+         len({c for m in segs for c in (m.get("edge_flags") or [])}) + any(bool(m.get("stand_soft")) for m in segs)
++    #   RULING 157 (5) (standing): step A's soft codes are ONE kind, as the pin counts them (step_a_sentence); with
++    #   ruling 155 (2) a REFERENT_OUTSIDE may end as information only: counted here, the search stays on the safe side
+     return n + bool((hook_own(segs[0]) or {}).get("flagged")) if segs else n
+ 
+@@ -2882,10 +2933,15 @@ def fallback_fields(angle, segs, join=None, other=()):
+     '<Subject>, in their words' past ruling 6's 8 words), a caption ('<Subject>, in the words of <names>.') and, only
+     where a join needs one, a bridge ('Next, <channel>.'). -> write_takeaway's fields, or None when no closing variant
+-    lands the budget."""
++    lands the budget, a clip has no channel name to say (audit 20261124_0016 A2: never a raw channel id on screen), or
++    the join is not between two of the line-up's clips (A2: never an IndexError)."""
+     chans = []
+     for m in segs:
+-        c = m.get("channel_name") or m.get("channel_id")
+-        if c and c not in chans:
++        c = m.get("channel_name")
++        if not (isinstance(c, str) and c.strip()):
++            return None
++        if c not in chans:
+             chans.append(c)
++    if join is not None and not (isinstance(join[0], int) and 0 <= join[0] < len(segs) - 1):
++        return None
+     names = chans[0] if len(chans) == 1 else (", ".join(chans[:-1]) + " and " + chans[-1] if chans else
+                                               "the channels")   # audit 20261123_2143 C1 (glm F1): never an IndexError
+@@ -2901,7 +2957,7 @@ def fallback_fields(angle, segs, join=None, other=()):
+     if take is None:
+         return None
+-    title = f"{subject}: {names}"
+-    if len(title.split()) > HS.TITLE_MAX_WORDS or len(title) > LINE_CHARS["title"]:
+-        title = f"{subject}, in their words"
++    fits = lambda t: len(t.split()) <= HS.TITLE_MAX_WORDS and len(t) <= LINE_CHARS["title"]
++    title = next((t for t in (f"{subject}: {names}", f"{subject}, in their words", "Bitcoin, in their words")
++                  if fits(t)), "Bitcoin, in their words")   # audit 20261124_0016 A2: the short title re-checked too
+     return {"takeaway": {"text": take, "cites": ids}, "title": {"text": title, "cites": ids},
+             "caption": {"text": f"{subject}, in the words of {names}.".lower(), "cites": ids},   # house style:
+@@ -3360,4 +3417,33 @@ def with_votes(results, votes, passed, seeds=MAJORITY_SEEDS):
+ 
+ 
++def words_only(t):
++    """RULING 159 (3)(a) (orchestrator 23:42 ET Nov 23: "your selection-side word check takes ruling 143 so it agrees
++    with the render's lock"): True when a moment's L-v 2 record (transcript_truth.verify_segment) fails ONLY its word
++    check (a number, negation or name the transcript and the second recogniser read differently), measured, with one
++    speaker inside: the disagreement the render's lock settles under ruling 143 (the two audio readings agree: the
++    transcript corrected; they do not: a hold). Simply Bitcoin 513842ff ("$15,000 and a half thousand" against
++    "15,500") and Scott Melker's "FDX"/"FTX" failed here on Nov 23 while the lock adopted them."""
++    return isinstance(t, dict) and "error" not in t and t.get("transcript_ok") is False and \
++        (t.get("speakers") or {}).get("turn_change_inside") is False
++
++
++def lv2_settled(t, verdict):
++    """RULING 143 at selection: the L-v 2 record as the gates read it. A words-only disagreement (words_only) the render's
++    lock settled for this span ("pass" or "adopt", the lock pre-check's verdict; "pending": the prescreen, which keeps
++    it for its line-up's pre-check) reads as passed, the settlement named in "word_check"; anything else unchanged (a
++    hold, no verdict, a speaker change, an unmeasured record: as before)."""
++    if not (words_only(t) and verdict in ("pass", "adopt", "pending")):
++        return t
++    return dict(t, ok=True, word_check=("pending the render's lock (ruling 143)" if verdict == "pending" else
++                                        f"settled by the render's lock (ruling 143): {verdict}"))
++
++
++def lock_verdicts(pre, segs):
++    """{moment id: the lock pre-check's verdict} for a line-up whose pre-check answered (else {})."""
++    if not isinstance(pre, dict) or pre.get("error") or len(pre.get("segments") or []) != len(segs):
++        return {}
++    return {m["moment_id"]: x.get("verdict") for m, x in zip(segs, pre["segments"])}
++
++
+ def truth_for(router, m, work_dir, cache):
+     if m["moment_id"] not in cache:
+@@ -3700,11 +3786,18 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+         futs = {mid: pre.submit(truth_for, router, m, work_dir, tru) for mid, m in cleared.items()}
+         tru.update({mid: f.result() for mid, f in futs.items()})
++    tru_v = {mid: lv2_settled(t, "pending" if lock_check is not None else None) for mid, t in tru.items()}   # RULING
++    pend = sorted(mid for mid, t in tru_v.items() if t is not tru[mid])          # 143 at selection: kept for the lock
++    if pend:
++        out["prescreen"]["words_pending_lock"] = {mid: tru[mid].get("disagree") for mid in pend}
++        log(f"  RULING 143 AT SELECTION (ruling 159): {len(pend)} moment(s) whose only L-v 2 failure is a word the two "
++            f"recognisers read differently go to their line-up's lock pre-check, which settles it: "
++            + ", ".join(f"{mid[:8]} {tru[mid].get('disagree')}" for mid in pend)[:600])
+     cut_ok = lambda t: bool(t.get("ok")) and (t.get("edges") or {}).get("cuttable") is True
+     out["prescreen"]["second_pass"] = {
+         mid: "PASS" if cut_ok(t) else ("NOT MEASURED: " + t["error"] if t.get("error") else
+                                        "L-v 2 FAIL" if not t.get("ok") else "not cuttable at an edge (ruling C / 7)")
+-        for mid, t in tru.items()}
+-    cut_soft = {mid: e for mid in cleared if not cut_ok(tru.get(mid) or {})       # RULING 137 stage 2a: a sentence
+-                for e in [soft_edges(tru.get(mid) or {})] if e} if soft else {}    # edge at a word boundary flags
++        for mid, t in tru_v.items()}
++    cut_soft = {mid: e for mid in cleared if not cut_ok(tru_v.get(mid) or {})     # RULING 137 stage 2a: a sentence
++                for e in [soft_edges(tru_v.get(mid) or {})] if e} if soft else {}  # edge at a word boundary flags
+     for mid, e in cut_soft.items():
+         cleared[mid]["edge_flags"] = e
+@@ -3714,5 +3807,5 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+             f"sentence edge (the recogniser runs on at a word boundary) stay, flagged: "
+             + ", ".join(f"{mid[:8]} {e}" for mid, e in cut_soft.items()))
+-    cleared = {mid: m for mid, m in cleared.items() if cut_ok(tru.get(mid) or {}) or mid in cut_soft}
++    cleared = {mid: m for mid, m in cleared.items() if cut_ok(tru_v.get(mid) or {}) or mid in cut_soft}
+     out["prescreen"]["cuttable"] = len(cleared)
+     log(f"  {len(cleared)} of them pass the second recognition pass and CUTTABLE ({time.time() - t0:.0f} s)")
+@@ -4112,4 +4208,6 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                                     nv_pool.submit(truth_for, router, m, work_dir, tru)) for m in order}
+             got = {mid: (f[0].result(), f[1].result()) for mid, f in bg2.items()}
++            nv_lv = lock_verdicts(nv_pre, order)            # RULING 143 at selection, as a voiced line-up
++            got = {mid: (e, lv2_settled(t, nv_lv.get(mid))) for mid, (e, t) in got.items()}
+             if any(e.get("verdict") != "keep" or not t.get("ok") or (t.get("edges") or {}).get("cuttable") is not True
+                    for e, t in got.values()):
+@@ -4556,4 +4656,6 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                         + f" ({time.time() - t0:.0f} s)")
+                     got = {mid: (f[0].result(), f[1].result()) for mid, f in bg.items()}   # the clips' own gates first
++                    lv = lock_verdicts(pre, segs)            # RULING 143 at selection: the lock's settlement of a
++                    got = {mid: (e, lv2_settled(t, lv.get(mid))) for mid, (e, t) in got.items()}   # words-only L-v 2
+                     lost = {mid for mid, (e, t) in got.items() if e.get("verdict") != "keep" or not t.get("ok")
+                             or ((t.get("edges") or {}).get("cuttable") is not True     # CUTTABLE is a required gate;
+@@ -4878,4 +5013,8 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+     a_codes = sorted({c for cs in lab_codes.values() for c in cs})   # ones (stage 2a); in the never-empty pass, soft
+     soft_a = bool(soft and a_codes and all(c in STEP_A_SOFT for c in a_codes))   # ones FLAG
++    ref_info = sorted(lb for lb, cs in lab_codes.items() if soft_a and "REFERENT_OUTSIDE" in cs and   # RULING 155 (2):
++                      not referent_flag(a_by[lb], ((ctx_ or {}).get("segments") or {}).get(lb)))   # information only
++    a_sentence = step_a_sentence({lb: [c for c in cs if not (c == "REFERENT_OUTSIDE" and lb in ref_info)]
++                                  for lb, cs in lab_codes.items()}, who) if soft_a else None
+     return {
+         "vo_fidelity_deterministic": row(det["ok"], "code (vo_fidelity.check_deterministic)"),
+@@ -4894,9 +5033,9 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+                               sorted({str(a.get("backend")) for a in a_rows}), rep(a.get("replayed") for a in a_rows),
+                               n=len(a_rows)),
+-                          **({"status": "FLAGGED",            # RULING 137 stage 1; 138 (3): a sentence a clip
+-                              "flags": [x for x in [step_a_sentence({lb: lab_codes[lb] for lb in (a_by or {})},
+-                                                                    who)] if x]}   # audit 2240 (qwen F2): never None
+-                                                                             # RULING 157 (2)(a) / (5): ONE kind
+-                             if soft_a and len(a_rows) >= 1 else {}),
++                          **({"status": "FLAGGED", "flags": [a_sentence]}   # RULING 137 stage 1; 138 (3); 157 (2)(a)
++                             if soft_a and a_sentence else {}),                # / (5): ONE kind, never a None flag
++                          **({"info": {"referent_outside": {           # RULING 155 (2): on the pin, not in the note
++                              lb: "refers to something said earlier; the checker did not say it changes the claim, "
++                                  "or the line-up and our lines resolve it" for lb in ref_info}}} if ref_info else {}),
+                           **({"last_resort": last_resort} if last_resort else {})),   # RULING 102: the local judge
+         "context_b": dict(row(ctx_.get("ok") is True, (ctx_.get("backends") or {}).get("B"), ctx_.get("replayed"),
+diff --git a/pipeline/context_integrity.py b/pipeline/context_integrity.py
+index ec86be764..1929565ec 100644
+--- a/pipeline/context_integrity.py
++++ b/pipeline/context_integrity.py
+@@ -396,6 +397,8 @@ def a_failures(a):
+     if a.get("speaker_changes_inside") != "no":
+         out.append("SPEAKER_CHANGE")
+-    if a.get("view") != "own_sincere":
+-        out.append("NOT_OWN_SINCERE")
++    if a.get("view") == "ad_read":                  # RULING 159 (3)(a) (orchestrator 23:42 ET Nov 23): "a clip that is
++        out.append("AD_READ")                       # the first line of an ad read (Natalie Brunell 6e79ceaa) must be
++    elif a.get("view") != "own_sincere":            # REFUSED ... step A calling the surrounding read an ad read is HARD
++        out.append("NOT_OWN_SINCERE")               # for the clip": its own code, never in package.STEP_A_SOFT
+     refs, conds = a.get("referents"), a.get("conditions")
+     if not isinstance(refs, list) or any(referent_outside(r) for r in refs):
+@@ -582,4 +589,5 @@ def check_contexts(router, package, contexts, writer_vendor, seed=7, a_by=None,
+                 V(lb, rule, {"SPEAKER_CHANGE": f"speaker change inside: {a.get('speaker_changes_inside')}",
+                              "NOT_OWN_SINCERE": f"view: {a.get('view')}",
++                             "AD_READ": "view: ad_read (sponsor material: HARD, ruling 159)",
+                              "RETRACTION": str(a.get("retraction"))[:200],
+                              "STALE_TIME": f"time words stale on the show date: {a.get('time_ok')}",

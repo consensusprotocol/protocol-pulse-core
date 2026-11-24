@@ -1,6 +1,44 @@
-# pp-selectid HANDOFF (updated 22:42 ET Nov 23; the Nov 18 text below is history)
+# pp-selectid HANDOFF (updated 01:10 ET Nov 24; Nov 23's text below is history)
 
-## TONIGHT, NOV 23 (updated 22:42 ET): THE FIRST VIDEO SINCE NOV 13 IS SEALED AND RENDERING
+## RULING 159 (23:42 ET Nov 23): THE VERIFIER'S ROWS, NIGHT OF NOV 23-24
+0. NO PAID BUILD TONIGHT. Pin afd8977d143e is NOT TO BE PUBLISHED (ruling 158: the Digital Asset News clip shows the Kraken
+   banner and the iTrustCapital panel). The verifier re-runs its whole table and the end-to-end drill at 10:30 ET on the
+   PUSHED code; the 12:00 build runs only on code it re-checked. Its report: /home/ultron/protocol_pulse/docs/audits/
+   FIX_VERIFICATION_2026-11-23.md.
+1. ROWS BUILT TONIGHT (each with tests that fail without it; every mutation killed; suites 42 files, 0 failing):
+   - the 12 h exception switch REMOVED (driver: no --pbx-exception, --hours <= 12, the adapter on the render clock;
+     package_pin: no pbx_exception soft gate, no cap of 5); the per-package kinds_cap row REMOVED (flags_cap = 3);
+   - TestRuling121Reserve: checks the reserve the guard really holds against every recorded Grok bill (895, none over);
+   - 156's 4 writes: a test that fails at 3 and 5; the trim come-back: a build-level test;
+   - RULING 152 (1): proof_ly.WRITERS qwen, deepseek, gpt-oss, gemma, minimax, glm, then Grok; WRITER_DEADLINE_S 120;
+     proof_ledger.writer_probe before every build (a replayed run probes nothing);
+   - RULING 154 (2): an unrated opener (no rating ON the calibrated bar) opens flagged in the never-empty pass, at most 2;
+   - RULINGS 154 (1) / 152 (2): providers.Router.call's stand-in judges in the never-empty pass (a Heimdall family that
+     did not write, then any Heimdall family, then Grok; never a writer, a probe or a panel seat; glm never judges), the
+     reply marked lx_soft, ONE soft "judge" row naming the checks; coherence_by_panel fills the seats a writer emptied;
+   - RULING 158 (2): visual_pin visual-4 (question 5, advertising, on every clip), ad_block (question 5, offer phrases,
+     "IRA" on a logo or banner; never a caption), HARD in every role and format, never 146 (1)'s 16:9 softening; the
+     inventory's visual row FAILS an ad; fixtures tests/package/fixtures/visual_ads (the DAN frames, real answers);
+   - THE AD-READ GAP: step A's view "ad_read" is its own HARD code AD_READ (never soft);
+   - RULING 155 (2) ADOPTED: REFERENT_OUTSIDE is information on the pin unless the referent changes the claim
+     (explicit "yes") AND step C does not find it entailed; the search counts step A's soft codes as ONE kind (157 (5));
+   - RULING 143 AT SELECTION: a words-only L-v 2 failure waits for its line-up's lock pre-check (pass / adopt settles
+     it; a hold drops it); Simply Bitcoin 513842ff (fixtures/lv2_513842ff.json) is the real case;
+   - A BUG FOUND AND FIXED: ruling 156's plain lines sealed a line-up the lock held, whose frames were refused, or with no
+     lock verdict (the write count set spent with no write made); audit A2's three fallback_fields findings fixed.
+   - A SECOND ONE: a stand-in judge for step A's second screen could only be the first screen's own family (a hold made
+     a refusal): step A takes only step 1 (a family that did not write or judge). And ruling 107 (1): a build whose word
+     checks, hook onsets or trimmed cuts were NOT MEASURED leaves that work undone (never NOTHING NEW after it).
+2. AUDITS (heimdall-audit, effort HIGH, 65,536 tokens; gpt-oss never answers in contract at that effort: 2 of 3 seats):
+   docs/audits/parallel/pp-selectid_audit_20261124_0016_* (71d A2 / B2, C_judge, D_writers_hooks), _0047_E_ads,
+   _0101_F_rows, _0106_G_c2fix, _0109_H_undone, _0129_I_fixes (cycle 2 of every fix); refutations in each folder's
+   REFUTED.md. The 23:48 runs (32,768 tokens) were void: 1 seat answered.
+4. THE VERIFIER'S OFFLINE DRILL: visual-4 asks every clip again, so a replay holds no recorded vision answer until a live
+   build records them (a replayed run stops at vision); the writer probe does nothing in a replayed run.
+3. NOT IN CODE: ruling 127 (1)'s by_hand_build.py (Nov 16, a Heimdall-only second screen); no build uses it. The record
+   script build_and_record.sh and the three daily windows are still scratch tools, outside git.
+
+## (history) TONIGHT, NOV 23 (updated 22:42 ET): THE FIRST VIDEO SINCE NOV 13 WAS SEALED (NOW: DO NOT PUBLISH)
 1. SEALED: pin moments-ledger_20261124_033614-afd8977d (package_sha256 afd8977d143e), build 167, story 'Bitcoin hits
    two-year low, then bounces off the bottom': Simply Bitcoin (hook) + Digital Asset News + Yahoo Finance, 35.6 s of
    clips; our lines the plain fallback; 5 flag kinds (this pin's cap 5 by ruling 157 (1)). The integrator renders it

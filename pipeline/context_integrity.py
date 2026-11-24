@@ -365,7 +365,8 @@ def step_a(router, contexts, writer_vendor, seed=7, writer_family=None, deadline
             skip.add(ra.backend)                         # ruling 82: the next model in the chain
     for lb in labels:
         a_by[lb] = dict(a_by[lb], backend=ra.backend, replayed=bool(getattr(ra, "replayed", False)),
-                        speaker_verified=speaker_verified(a_by[lb], contexts[lb]["text"]))
+                        speaker_verified=speaker_verified(a_by[lb], contexts[lb]["text"]),
+                        **({"lx_soft": ra.lx_soft} if getattr(ra, "lx_soft", None) else {}))   # RULING 154 (1)
     return a_by, ra.backend
 
 
@@ -395,8 +396,10 @@ def a_failures(a):
     out = []
     if a.get("speaker_changes_inside") != "no":
         out.append("SPEAKER_CHANGE")
-    if a.get("view") != "own_sincere":
-        out.append("NOT_OWN_SINCERE")
+    if a.get("view") == "ad_read":                  # RULING 159 (3)(a) (orchestrator 23:42 ET Nov 23): "a clip that is
+        out.append("AD_READ")                       # the first line of an ad read (Natalie Brunell 6e79ceaa) must be
+    elif a.get("view") != "own_sincere":            # REFUSED ... step A calling the surrounding read an ad read is HARD
+        out.append("NOT_OWN_SINCERE")               # for the clip": its own code, never in package.STEP_A_SOFT
     refs, conds = a.get("referents"), a.get("conditions")
     if not isinstance(refs, list) or any(referent_outside(r) for r in refs):
         out.append("REFERENT_OUTSIDE")
@@ -540,6 +543,8 @@ def check_contexts(router, package, contexts, writer_vendor, seed=7, a_by=None, 
                                       STEP_B.format(package=package_view(package), labels=lab_list), parse_b, 3000,
                                       seed, avoid_vendor=writer_vendor, avoid_family=writer_family)
         out["backends"]["B"] = rb.backend
+        if getattr(rb, "lx_soft", None):                 # RULING 154 (1): a stand-in judge's step (one flag)
+            out.setdefault("lx_soft", {})["B"] = rb.lx_soft
         text_of = {sg["label"]: sg["text"] for sg in segs}
         pairs = "\n".join(f'<pair label="{lb}"><A>{_q(a_by[lb]["proposition"], 400)} (certainty: '
                           f'{a_by[lb]["certainty"]})</A><CLIP>{_q(text_of[lb], 900)}</CLIP><B>{_q(b_by[lb]["asserts"], 400)}'
@@ -554,6 +559,8 @@ def check_contexts(router, package, contexts, writer_vendor, seed=7, a_by=None, 
         rc, c_by = P.call_parsed(router, "context_verdict", STEP_C.format(pairs=pairs, vo=vo_words(package)), parse_c,
                                  2000, seed, avoid_vendor=writer_vendor, avoid_family=writer_family, kind="step_c")
         out["backends"]["C"] = rc.backend
+        if getattr(rc, "lx_soft", None):                 # RULING 154 (1)
+            out.setdefault("lx_soft", {})["C"] = rc.lx_soft
     except (P.ProviderError, P.SpendLimit, ValueError, KeyError, TypeError) as e:
         for r_ in (r0, rb, rc):
             if r_ is not None and isinstance(e, (ValueError, KeyError, TypeError)) and hasattr(router, "reject"):
@@ -581,6 +588,7 @@ def check_contexts(router, package, contexts, writer_vendor, seed=7, a_by=None, 
             else:
                 V(lb, rule, {"SPEAKER_CHANGE": f"speaker change inside: {a.get('speaker_changes_inside')}",
                              "NOT_OWN_SINCERE": f"view: {a.get('view')}",
+                             "AD_READ": "view: ad_read (sponsor material: HARD, ruling 159)",
                              "RETRACTION": str(a.get("retraction"))[:200],
                              "STALE_TIME": f"time words stale on the show date: {a.get('time_ok')}",
                              "UNCERTAIN": f"certainty A {a.get('certainty')}"}.get(rule, rule))

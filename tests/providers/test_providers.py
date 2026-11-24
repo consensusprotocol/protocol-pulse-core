@@ -797,9 +797,26 @@ class TestRuling121Reserve(unittest.TestCase):
         for d in calls:
             if d["usage"]["out"] <= 12000:
                 self.assertLessEqual(usd(d), new.upper_usd(d["prompt"], d["max_tokens"], d.get("system")))
-        self.assertEqual(len(cut), 4)                    # one Nov 12, three Nov 13, none since: under the cap they would
-        self.assertTrue(all(str(d["recorded_at"]) < "2026-11-14" for d in cut))   # have been cut at 12,000 (out of
-        #   contract: no verdict, held), never billed past the reserve
+        self.assertTrue(cut)            # RULING 159 (3)(a), the verifier's row: this counted them ("4: none since the
+        #   cap"); builds 164-167 recorded more, so it broke with no change in the guard. xAI's reasoning model can
+        #   return MORE output than the max_tokens it is sent (14,411 and 12,949 on Nov 23 with 12,000 sent): the cap
+        #   does not bound a call. What must hold is the next test's: no vendor-reported cost above its reserve.
+
+    def test_every_vendor_reported_grok_cost_fits_its_reserve(self):
+        """RULING 121 / 123 (1), on every recorded Grok call of every role that carries the vendor's own cost: the
+        reserve the guard really holds (the router's reserve_list_fraction of the list reserve with the 12,000 cap, x
+        1.25) is at or above that cost, the calls that ran past the cap included (tightest: $0.042 left, Nov 13)."""
+        new, n, over = self.xai(), 0, 0
+        frac = float(new.spec["reserve_list_fraction"])
+        for root, _, files in os.walk(self.REPLIES):
+            for f in files:
+                d = json.load(open(os.path.join(root, f))) if f.endswith(".json") else {}
+                if not (str(d.get("backend")).startswith("xai:grok") and "usd_reported" in (d.get("usage") or {})):
+                    continue
+                n, over = n + 1, over + (d["usage"]["out"] > 12000)
+                self.assertLessEqual(d["usage"]["usd_reported"], frac * new.upper_usd(d["prompt"], d["max_tokens"],
+                                                                                      d.get("system")), f)
+        self.assertGreaterEqual((n, over > 0), (895, True))
 
     def test_a_step_a_call_fits_what_the_day_has_left(self):
         """The Fox step A of 11:03 ET: two excerpts, about 7,800 characters, max_tokens 4,000; $0.5835 spent of the
@@ -818,6 +835,97 @@ class TestRuling121Reserve(unittest.TestCase):
                 else:
                     with self.assertRaises(P.SpendLimit):
                         r.call("context_verdict", "p" * 7800, 4000)
+
+
+class TestRuling154StandInJudge(unittest.TestCase):
+    """RULING 154 (1) / 152 (2) (orchestrator Nov 23): in the never-empty pass (router.lx_soft) a verdict whose own
+    list gives no answer (its judges the writer's vendor or family, or not answering) goes to (1) a Heimdall family
+    that did not write, (2) any Heimdall family, (3) the paid model, the reply marked (ONE flag on the pin); never
+    "every back-end unavailable ... same vendor". Never a writer's call, a probe or a panel seat; glm never judges
+    (ruling 119); the clean pass: as before."""
+
+    def rig(self, d, down=()):
+        def mk(name, vendor, fam, gw):
+            b = Fake(name, vendor, answer='{"ok": 1}', family=fam, fail="down (the test)" if fam in down else None)
+            b.gateway = gw
+            return b
+        hs = [mk(f"heimdall:{f}", f"heimdall/{f}", f, "heimdall") for f in ("qwen", "deepseek", "gpt-oss", "glm")]
+        x = mk("xai:grok", "xai", "grok", "xai")
+        writers = [b.name for b in hs] + [x.name]
+        r = router(d, hs + [x], {"coherence_verdict": [x.name], "angle_write": writers,
+                                 "coherence_panel": [hs[0].name]})
+        r.chains["angle_write"] = writers
+        return r
+
+    def ask(self, r, role="coherence_verdict", wrote=("xai", "grok")):
+        return r.call(role, "p", avoid_vendor={wrote[0]}, avoid_family={wrote[1]})
+
+    def test_the_ruled_order_and_the_mark(self):
+        with tempfile.TemporaryDirectory() as d:
+            r = self.rig(d)
+            with self.assertRaises(P.ProviderError):                   # the clean pass: as before
+                self.ask(r)
+            r.lx_soft = True
+            a = self.ask(r)                                             # Grok wrote; its own list is Grok alone
+            self.assertEqual((a.backend, a.lx_soft["step"]), ("heimdall:qwen", 1))
+            self.assertIn("same vendor as the text it judges", a.lx_soft["why"])
+            b = self.ask(r, wrote=("heimdall/qwen", "qwen"))            # qwen wrote: Grok, its own judge, answers
+            self.assertEqual((b.backend, b.lx_soft), ("xai:grok", None))
+        with tempfile.TemporaryDirectory() as d:
+            r = self.rig(d, down=("grok",))
+            r.lx_soft = True
+            b = self.ask(r, wrote=("heimdall/qwen", "qwen"))            # its judge down: a family that did not write
+            self.assertEqual((b.backend, b.lx_soft["step"]), ("heimdall:deepseek", 1))
+        with tempfile.TemporaryDirectory() as d:
+            r = self.rig(d, down=("grok", "deepseek", "gpt-oss"))
+            r.lx_soft = True
+            c = self.ask(r, wrote=("heimdall/qwen", "qwen"))            # (2): any Heimdall family, the writer's too
+            self.assertEqual((c.backend, c.lx_soft["step"]), ("heimdall:qwen", 2))
+        with tempfile.TemporaryDirectory() as d:
+            r = self.rig(d, down=("qwen", "deepseek", "gpt-oss"))
+            r.lx_soft = True
+            e = self.ask(r)                                             # (3): the paid model, though it wrote
+            self.assertEqual((e.backend, e.lx_soft["step"]), ("xai:grok", 3))
+        with tempfile.TemporaryDirectory() as d:
+            r = self.rig(d, down=("deepseek", "gpt-oss"))               # Grok AND qwen wrote; both answer: (2) first
+            r.lx_soft = True
+            f = r.call("coherence_verdict", "p", avoid_vendor={"xai", "heimdall/qwen"}, avoid_family={"grok", "qwen"})
+            self.assertEqual((f.backend, f.lx_soft["step"]), ("heimdall:qwen", 2))
+
+    def test_step_a_takes_only_a_family_that_did_not_judge(self):
+        """Step A's second screen must come from another family (package.second_screen; ruling 102 holds a clip with
+        no verdict): only step (1) stands in there, never the first screen's own family or the paid model it is."""
+        with tempfile.TemporaryDirectory() as d:
+            r = self.rig(d, down=("deepseek", "gpt-oss"))               # only qwen (it screened first) and Grok up
+            r.chains["context_verdict:step_a_second"] = ["xai:grok"]
+            r.lx_soft = True
+            with self.assertRaises(P.ProviderError):                   # no verdict: held, never a same-family answer
+                r.call("context_verdict", "p", avoid_vendor={"heimdall/qwen", "xai"}, avoid_family={"qwen", "grok"},
+                       kind="step_a_second")
+        with tempfile.TemporaryDirectory() as d:
+            r = self.rig(d, down=("deepseek",))
+            r.chains["context_verdict:step_a_second"] = ["xai:grok"]
+            r.lx_soft = True
+            a = r.call("context_verdict", "p", avoid_vendor={"heimdall/qwen", "xai"}, avoid_family={"qwen", "grok"},
+                       kind="step_a_second")
+            self.assertEqual((a.backend, a.lx_soft["step"]), ("heimdall:gpt-oss", 1))   # an independent family
+
+    def test_never_glm_a_writer_a_probe_or_a_panel_seat(self):
+        with tempfile.TemporaryDirectory() as d:
+            r = self.rig(d, down=("grok", "qwen", "deepseek", "gpt-oss"))   # glm alone answers
+            r.lx_soft = True
+            with self.assertRaises(P.ProviderError) as cm:
+                self.ask(r)
+            self.assertIn("NO JUDGE ANSWERED, the stand-in judges included", str(cm.exception))   # never silent
+        with tempfile.TemporaryDirectory() as d:
+            r = self.rig(d)
+            r.lx_soft = True
+            r.chains["probe87:x"] = ["xai:grok"]
+            for role in ("angle_write", "probe87:x", "coherence_panel"):
+                with self.assertRaises(P.ProviderError, msg=role):
+                    r.call(role, "p", avoid_vendor={"xai", "heimdall/qwen", "heimdall/deepseek", "heimdall/gpt-oss",
+                                                    "heimdall/glm"}, avoid_family={"qwen"})
+            self.assertIsNone(r.call("coherence_verdict", "p").lx_soft)    # no writer to avoid: never a stand-in
 
 
 class TestRuling123Reserve(unittest.TestCase):

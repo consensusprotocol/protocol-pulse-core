@@ -1,0 +1,55 @@
+{
+ "moment": "96056caa",
+ "sheet": "visual_a5146fcfca70a60f.jpg",
+ "backend": "heimdall:qwen/qwen3.8-27b",
+ "reply_text": "\n\n{\"third_person\": {\"shown\": false, \"how\": \"none\", \"words_negative\": false, \"name_on_screen\": null, \"finding\": \"Only the single speaking host appears in every frame and the clip has no spoken words, so no still, photo or graphic of another person is shown alongside any negative claim.\"}, \"on_screen_text\": [], \"lower_third\": {\"name\": null, \"text\": null}, \"burned_in\": [{\"kind\": \"bug\", \"text\": \"THE DAILY WOLF\", \"whole_in_16x9\": true, \"in_9x16\": \"cut\", \"covers_speaker\": false, \"at\": [202.47, 203.47, 204.47, 205.47, 206.47, 207.47, 208.47, 209.47, 210.47, 211.47, 212.47, 213.47, 214.47, 215.47, 216.47, 217.47, 218.47, 219.47, 220.47, 221.06]}], \"advertising\": []}",
+ "record": {
+  "third_person": {
+   "shown": false,
+   "how": "none",
+   "words_negative": false,
+   "name_on_screen": null,
+   "finding": "Only the single speaking host appears in every frame and the clip has no spoken words, so no still, photo or graphic of another person is shown alongside any negative claim."
+  },
+  "on_screen_text": [],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "burned_in": [
+   {
+    "kind": "bug",
+    "text": "THE DAILY WOLF",
+    "whole_in_16x9": true,
+    "in_9x16": "cut",
+    "covers_speaker": false,
+    "at": [
+     202.47,
+     203.47,
+     204.47,
+     205.47,
+     206.47,
+     207.47,
+     208.47,
+     209.47,
+     210.47,
+     211.47,
+     212.47,
+     213.47,
+     214.47,
+     215.47,
+     216.47,
+     217.47,
+     218.47,
+     219.47,
+     220.47,
+     221.06
+    ]
+   }
+  ],
+  "advertising": [],
+  "version": "visual-4",
+  "measured": true,
+  "backend": "heimdall:qwen/qwen3.8-27b"
+ }
+}

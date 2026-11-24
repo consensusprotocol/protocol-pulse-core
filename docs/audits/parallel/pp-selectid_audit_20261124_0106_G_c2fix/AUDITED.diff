@@ -1,0 +1,105 @@
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+index 0372f2870..32e701a1f 100644
+--- a/pipeline/providers.py
++++ b/pipeline/providers.py
+@@ -1365,11 +1368,50 @@ class Router:
+             json.dump(dict(rec, recorded_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())), f, indent=1)
+         os.replace(tmp, path)
+ 
++    def _lx_steps(self, role, kind, av, af):
++        """RULING 154 (1) (orchestrator 20:36 ET Nov 23; with 152 (2), 19:36: "L-x soft: a Heimdall panel with a
++        flag"): the stand-in judges, in the ruled order, for a verdict whose own chain gave no answer: (1) a Heimdall
++        family that did not write, (2) any Heimdall family, (3) the paid model. The Heimdall families are those of the
++        role's own list, then of the writer chain (proof_ly.WRITERS), glm excepted (ruling 119 keeps it out of every
++        verdict); the paid legs those lists hold off Heimdall. -> [(step, names, avoid_vendor, avoid_family)]."""
++        heim, paid, seen = [], [], set()
++        for name in list(self.chain(role, kind)) + list(self.chains.get("angle_write") or []):
++            b = self.backends.get(name)
++            if b is None or name in seen or getattr(b, "family", "") == "glm":
++                continue
++            seen.add(name)
++            (heim if gateway(b) == "heimdall" else paid).append(name)
++        return [(1, heim, av, af), (2, heim, None, None), (3, paid, None, None)]
++
+     def call(self, role, prompt, max_tokens=2000, seed=7, system=None, avoid_vendor=None, avoid_model=None,
+-             avoid_family=None, deadline_s=None, kind=None):
++             avoid_family=None, deadline_s=None, kind=None, _names=None):
++        try:
++            return self._call(role, prompt, max_tokens, seed, system, avoid_vendor, avoid_model, avoid_family,
++                              deadline_s, kind, _names)
++        except (ProviderError, ReplayMiss) as e:
++            av, af = _as_set(avoid_vendor), _as_set(avoid_family)
++            if _names is not None or not getattr(self, "lx_soft", False) or not (av or af) or \
++                    role.startswith(LX_SOFT_NEVER):
++                raise
++            first = e                                 # RULING 154 (1): never "every back-end unavailable ... same
++        stand_ins = []
++        for step, names, v, f in self._lx_steps(role, kind, av, af):   # vendor" in the never-empty pass: the stand-in
++            try:                                                       # judges, the reply marked (ONE flag on the pin)
++                r = self._call(role, prompt, max_tokens, seed, system, v, avoid_model, f, deadline_s, kind, names)
++            except (ProviderError, ReplayMiss) as e:
++                stand_ins.append(f"step {step}: {str(e)[:200]}")
++                continue
++            r.lx_soft = {"step": step, "judge": r.backend, "why": str(first)[:240]}
++            return r
++        raise type(first)(f"{role}: NO JUDGE ANSWERED, the stand-in judges included (ruling 154 (1)): no verdict, so "  # audit
++                          f"nothing is judged (never a pass); its own list: {str(first)[:300]}; the stand-ins: " +   # C:
++                          "; ".join(stand_ins)[:700]) from first          # never silent, never 'same vendor' alone
++
++    def _call(self, role, prompt, max_tokens=2000, seed=7, system=None, avoid_vendor=None, avoid_model=None,
++              avoid_family=None, deadline_s=None, kind=None, _names=None):
+         av, am, af = _as_set(avoid_vendor), _as_set(avoid_model), _as_set(avoid_family)
+         tried, notices = [], []
+-        for name in self.chain(role, kind):           # ruling 88: the verdict type's own list when it has one
++        for name in (self.chain(role, kind) if _names is None else _names):   # ruling 88: the verdict type's own list
+             b = self.backends.get(name)
+             why = self._skip(name, b, av, am, af)
+             if why is None and isinstance(b, STTBackend):
+diff --git a/pipeline/package.py b/pipeline/package.py
+index cb4d752d9..49af048bb 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -2239,23 +2276,37 @@ def coherence_by_panel(router, pk, spec, parse, prompt, labs, own, writer_vendor
+     wv, wf = P._as_set(writer_vendor), P._as_set(writer_family)
+     names = [n for n in spec["members"] if n in router.backends and router.backends[n].vendor not in wv
+              and router.backends[n].family not in wf]
+-    fams = {n: router.backends[n].family for n in names}
+-    votes, misses = {}, {}
+-    for n in names:
+-        others = {fams[o] for o in names if o != n} | wf
++    k = int(spec.get("min_members") or 3)
++    extra = [n for n in (getattr(router, "chains", None) or {}).get("angle_write") or []   # RULING 152 (2) (19:36 ET
++             if n in router.backends and n not in spec["members"] and n not in getattr(router, "down", {}) and   # Nov
++             P.gateway(router.backends[n]) == "heimdall" and router.backends[n].family != "glm" and   # 23): "L-x soft:
++             router.backends[n].vendor not in wv and router.backends[n].family not in wf] \
++        if getattr(router, "lx_soft", False) and len(names) < k else []   # a Heimdall panel with a flag": the
++    fams = {n: router.backends[n].family for n in names + extra}         # never-empty pass fills the seats the
++    votes, misses = {}, {}                                                # writers emptied, the next families of the
++    for n in names + extra:                                               # writer chain (glm out, ruling 119), only
++        if n in extra and len(votes) >= k:                                # until enough members answered, each seat
++            break                                                         # asked by name (its own one-model list)
++        if n in extra:                                   # keyed by the model (audit 20261124_0016 C, qwen F3:
++            router.chains.setdefault(f"coherence_panel:seat_{n}", [n])   # two seats of one family never collide)
++        pin = {"kind": f"seat_{n}", "avoid_family": wf} if n in extra else \
++            {"avoid_family": {fams[o] for o in names if o != n} | wf}
+         for sd in spec.get("seeds") or (7,):
+             for s in (sd, sd + 100):                     # the replay's rule: a malformed answer is asked once more
+                 try:
+                     r, v = P.call_parsed(router, "coherence_panel", prompt, parse, 1200, s, system=PANEL_CONTRACT,
+-                                         avoid_vendor=writer_vendor, avoid_family=others,
+-                                         deadline_s=spec.get("deadline_s"))
++                                         avoid_vendor=writer_vendor, deadline_s=spec.get("deadline_s"), **pin)
++                    if r.backend != n:                   # a seat is that model's vote or none (a plan B list)
++                        raise P.ProviderError(f"{r.backend} answered for the seat of {n}")
+                 except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
+                     misses.setdefault(n, []).append(f"seed {s}: {type(e).__name__}: {str(e)[:160]}")
+                     continue
+                 votes.setdefault(n, []).append(dict(v, backend=r.backend, seed=s,
+                                                     replayed=bool(getattr(r, "replayed", False))))
+                 break
++    seated = [n for n in extra if n in votes]
+     rec = {"members": spec["members"], "answered": sorted(votes), "misses": misses,
++           **({"stand_in": seated} if seated else {}),
+            "rule": "ruling 118 (2): fewer than %d members answering is no verdict; more than half of all answers pass"
+                    % int(spec.get("min_members") or 3)}
+     if len(votes) < int(spec.get("min_members") or 3):

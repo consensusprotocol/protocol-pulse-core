@@ -21,7 +21,7 @@ CLEAN = {"third_person": {"shown": False, "how": "none", "words_negative": False
                           "finding": "only the host on camera"},
          "on_screen_text": [{"text": "SIMPLY BITCOIN", "asserts_beyond_words": False, "why": "the show's name"}],
          "lower_third": {"name": "Mark W. Yusko", "text": "Mark W. Yusko, Morgan Creek Capital"},
-         "burned_in": []}                                                        # ruling 93: question 4
+         "burned_in": [], "advertising": []}         # ruling 93: question 4; RULING 158 (2): question 5
 STILL = dict(CLEAN, third_person={"shown": True, "how": "photo", "words_negative": True, "name_on_screen": "null",
                                   "finding": "a photo of a man beside the host while he says a CEO made a mistake"},
              on_screen_text=[{"text": "NVIDIA CEO SCANDAL", "asserts_beyond_words": True,
@@ -96,7 +96,8 @@ class TestContract(unittest.TestCase):
         v = VP.check(dict(CLEAN, burned_in=many))                                       # the ticker listed last
         self.assertEqual((len(v["burned_in"]), v["burned_in_truncated"]), (VP.TEXTS_MAX, 4))
         self.assertIn("a ticker", VP.layout_block(dict(v, measured=True, version=VP.VERSION)))   # never cut away
-        self.assertEqual(VP.VERSION, "visual-3")                                        # every clip asked again
+        self.assertIn("never asked for the source's burned captions or on-screen advertising",   # RULING 158 (2):
+                      VP.layout_block(dict(v, measured=True, version="visual-3")))   # every clip asked again
 
     def test_ruling_93_amended_the_sources_burned_captions(self):
         """21:10 Nov 14: Blockware's captions ('SOLD MY ROTH IRA', '26 NO ROTH IRA NO 401K') were on the sheet, and
@@ -258,6 +259,78 @@ class TestVisionPrompt(unittest.TestCase):
         self.assertFalse(sent[1][1]["store"])
         self.assertEqual(sent[1][1]["input"][1]["content"][1],
                          {"type": "input_image", "image_url": "data:image/jpeg;base64,QUJD", "detail": "high"})
+
+
+
+
+FIX = os.path.join(HERE, "fixtures", "visual_ads")
+
+
+def fixture(name):
+    with open(os.path.join(FIX, name)) as f:
+        return json.load(f)
+
+
+class TestRuling158OnScreenAdvertising(unittest.TestCase):
+    """RULING 158 (2) (orchestrator 23:12 ET Nov 23, STANDING, HARD, both sides): on-screen advertising refuses a clip in
+    every format and role; the vision check asks it of every clip (question 5) and names what it saw; the show's own
+    branding, ticker and lower third stay a 16:9 flag; unsure is an ad. Fixtures (fixtures/visual_ads): the Digital Asset
+    News sheet of Nov 23 (ad47eab4, 575.6-586.6 s: the Kraken banner and the iTrustCapital panel; two of its frames),
+    the model's real answers to visual-3 (it filed the banner as a 'ticker') and to visual-4 (Heimdall qwen), and two
+    clean sheets' visual-4 answers (Yahoo Finance 96056caa, Simply Bitcoin 1cb16751)."""
+
+    def test_the_kraken_banner_and_the_itrust_panel_refuse_in_every_format_and_role(self):
+        v4 = fixture("v4_ad47eab4.json")["record"]
+        why = VP.ad_block(v4)
+        self.assertIn("KRAKEN", why)
+        self.assertIn("CRYPTO IRA", why)
+        self.assertIn("ruling 158 (2): on-screen advertising", VP.layout_block(v4))     # every role
+        self.assertEqual((VP.graphics_only(v4), VP.crop_only(v4)), (None, None))      # never the 16:9 exception
+        banner = dict(v4, advertising=[], burned_in=[x for x in v4["burned_in"] if x["kind"] == "ticker"])
+        panel = dict(v4, advertising=[], burned_in=[x for x in v4["burned_in"] if x["kind"] == "bug"])
+        self.assertIn("SIGN UP BONUS", VP.ad_block(banner))                            # each one alone refuses
+        self.assertIn("CRYPTO IRA", VP.ad_block(panel))
+        self.assertEqual((VP.graphics_only(panel), VP.layout_block(panel)[:9]), (None, "ruling 93"))
+        bug = next(x for x in v4["burned_in"] if x["kind"] == "bug")
+        cut = dict(panel, burned_in=[dict(bug, in_9x16="cut")])                        # the 9:16 crop's exception
+        plain = dict(cut, burned_in=[dict(bug, in_9x16="cut", text="DIGITAL ASSET NEWS")])   # (ruling 123 (2))
+        self.assertEqual((VP.crop_only(cut), bool(VP.crop_only(plain))), (None, True))   # never for an ad
+        v3 = fixture("v3_ad47eab4.json")["record"]                                     # the record that sealed
+        self.assertIn("never asked for", VP.layout_block(v3))                          # afd8977d: asked again now,
+        self.assertIn("SIGN UP BONUS", VP.ad_block(v3))                                # and refused on its words
+        for f in ("dan_ad47eab4_575.61s.jpg", "dan_ad47eab4_581.61s.jpg"):
+            self.assertGreater(os.path.getsize(os.path.join(FIX, f)), 1000)
+
+    def test_a_plain_price_ticker_and_the_shows_own_bug_only_flag(self):
+        yahoo, sb = fixture("v4_96056caa.json")["record"], fixture("v4_1cb16751.json")["record"]
+        self.assertEqual((VP.ad_block(yahoo), VP.graphics_only(yahoo)), (None, ["bug"]))   # 'THE DAILY WOLF': the
+        self.assertEqual((VP.ad_block(sb), VP.layout_block(sb)), (None, None))             # show's own, a 16:9 flag
+        tick = dict(fixture("v4_96056caa.json")["record"], burned_in=[{
+            "kind": "ticker", "text": "S&P 500  Nasdaq  Bitcoin  Ethereum", "whole_in_16x9": True, "in_9x16": "cut",
+            "covers_speaker": False}])
+        self.assertIsNone(VP.ad_block(tick))
+        self.assertEqual(VP.graphics_only(tick), ["ticker"])                           # a 16:9 flag (146 (1))
+        for words in ("THE BLOCK REWARD HALVES", "GBTC TRADES AT A DISCOUNT", "SOLD MY ROTH IRA"):   # content
+            self.assertIsNone(VP.ad_block(dict(tick, burned_in=[], on_screen_text=[
+                {"text": words, "asserts_beyond_words": False, "why": ""}])), words)
+        for words in ("GET A SIGN-UP BONUS AT KRAKEN", "USE CODE SATS FOR 10% OFF", "SPONSORED BY BITKEY",
+                      "OPEN A CRYPTO IRA TODAY", "$100 FUNDING REWARD"):                   # ad words, any kind
+            self.assertTrue(VP.ad_block(dict(tick, burned_in=[], on_screen_text=[
+                {"text": words, "asserts_beyond_words": False, "why": ""}])), words)
+        cap = dict(tick, burned_in=[{"kind": "caption", "text": "OPEN A ROTH IRA", "whole_in_16x9": True,
+                                     "in_9x16": "whole", "covers_speaker": False}])
+        self.assertIsNone(VP.ad_block(cap))                    # a caption is the spoken words (the ad read's model)
+
+    def test_every_clip_is_asked_and_an_answer_without_question_5_is_out_of_contract(self):
+        with self.assertRaises(ValueError):
+            VP.check({k: v for k, v in CLEAN.items() if k != "advertising"})
+        for bad in ([{"text": "", "what": ""}], [{"text": 3, "what": "x"}], "none", [{"text": "x", "at": "1"}]):
+            with self.assertRaises(ValueError):
+                VP.check(dict(CLEAN, advertising=bad))
+        v = VP.check(dict(CLEAN, advertising=[{"text": "", "what": "a QR code to an exchange", "at": [1.0]}]))
+        rec = dict(v, measured=True, version=VP.VERSION)
+        self.assertIn("a QR code to an exchange", VP.ad_block(rec))                    # unsure, listed: refused
+        self.assertEqual(VP.sealed(rec)["advertising"], v["advertising"])             # named on the pin
 
 
 if __name__ == "__main__":

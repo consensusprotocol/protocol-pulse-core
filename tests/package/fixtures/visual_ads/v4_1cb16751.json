@@ -1,0 +1,53 @@
+{
+ "moment": "1cb16751",
+ "sheet": "visual_d7d635e7cf12daa2.jpg",
+ "backend": "heimdall:qwen/qwen3.8-27b",
+ "reply_text": "\n\n{\"third_person\": {\"shown\": false, \"how\": \"none\", \"words_negative\": false, \"name_on_screen\": null, \"finding\": \"No person appears as a still, photo, or graphic, and the clip has no spoken words, so no negative claim is paired with a person.\"}, \"on_screen_text\": [{\"text\": \"OCTOBER 2025 RECORD HIGH FROM JANUARY 2025 TRUMP WING 2024 ELECTION TRADE WAR BITCOIN ERASES ALL POST-ELECTION GAINS\", \"asserts_beyond_words\": true, \"why\": \"Chart annotations shown on screen; the clip has no spoken words, so these claims are not stated verbally.\"}, {\"text\": \"$6 Trillion in 45 Days: Is This A 'Bubble' Or An Opportunity?\", \"asserts_beyond_words\": true, \"why\": \"Headline shown on screen; the clip has no spoken words to match it.\"}], \"lower_third\": {\"name\": null, \"text\": null}, \"burned_in\": [{\"kind\": \"bug\", \"text\": \"SIMPLY BITCOIN\", \"whole_in_16x9\": true, \"in_9x16\": \"whole\", \"covers_speaker\": false, \"at\": [83.15, 84.15, 85.15, 86.15, 87.15, 88.15, 89.15]}], \"advertising\": []}",
+ "record": {
+  "third_person": {
+   "shown": false,
+   "how": "none",
+   "words_negative": false,
+   "name_on_screen": null,
+   "finding": "No person appears as a still, photo, or graphic, and the clip has no spoken words, so no negative claim is paired with a person."
+  },
+  "on_screen_text": [
+   {
+    "text": "OCTOBER 2025 RECORD HIGH FROM JANUARY 2025 TRUMP WING 2024 ELECTION TRADE WAR BITCOIN ERASES ALL POST-ELECTION GAINS",
+    "asserts_beyond_words": true,
+    "why": "Chart annotations shown on screen; the clip has no spoken words, so these claims are not stated verbally."
+   },
+   {
+    "text": "$6 Trillion in 45 Days: Is This A 'Bubble' Or An Opportunity?",
+    "asserts_beyond_words": true,
+    "why": "Headline shown on screen; the clip has no spoken words to match it."
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "burned_in": [
+   {
+    "kind": "bug",
+    "text": "SIMPLY BITCOIN",
+    "whole_in_16x9": true,
+    "in_9x16": "whole",
+    "covers_speaker": false,
+    "at": [
+     83.15,
+     84.15,
+     85.15,
+     86.15,
+     87.15,
+     88.15,
+     89.15
+    ]
+   }
+  ],
+  "advertising": [],
+  "version": "visual-4",
+  "measured": true,
+  "backend": "heimdall:qwen/qwen3.8-27b"
+ }
+}

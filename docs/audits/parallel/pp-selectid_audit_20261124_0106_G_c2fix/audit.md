@@ -1,0 +1,14 @@
+# Heimdall audit
+
+**Question:** pp-selectid (Protocol Pulse clip-video builder): cycle 2 of audit 20261124_0016_C_judge, its fixes only (uncommitted). (a) qwen F3: package.coherence_by_panel's extra panel seat (RULING 152 (2): in the never-empty pass, a Heimdall family that did not write sits where a writer emptied a seat) is asked by NAME through a one-model list router.chains["coherence_panel:seat_<model>"] and kind "seat_<model>" (was keyed by family, so two seats of one family could collide); a reply from any other model is no vote (unchanged: `if r.backend != n: raise P.ProviderError(...)`). (b) qwen's cycle-2 note: when a verdict's own list AND every stand-in step (RULING 154 (1): a Heimdall family that did not write, any Heimdall family, the paid model) give no answer, providers.Router.call now raises the SAME exception type as the original (ProviderError or ReplayMiss) with an explicit message "NO JUDGE ANSWERED, the stand-in judges included (ruling 154 (1)) ..." and each step's reason, chained from the original. Callers catch ProviderError / ReplayMiss as before (no verdict = not measured, never a pass). The rest of the diff hunks shown are context from the same functions.
+CHECK, quoting the code: can (a) still let one model answer for another's seat, or ask a writer's family; can (b) change the exception type a caller catches, swallow a SpendLimit, or lose the original reason. Report only what the code shows.
+
+**Panel:** qwen27b, gptoss, gemma  |  **Cost:** $0.0238
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none

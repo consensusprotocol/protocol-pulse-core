@@ -1,0 +1,140 @@
+{
+ "question": "pp-selectid (Protocol Pulse clip-video builder), RULING 156's PLAIN FALLBACK LINES and RULING 157 (2)(b), as pushed in 71d3d0363 (diff below, from 591403d71). Context you cannot see in the hunks: pipeline/package_pin.py gate_problems (line 458) refuses any FLAGGED row whose gate is not in SOFT_GATES with a non-empty list of plain-word flags (flagged_ok, line 403); review_problems (line 419) refuses a pin whose review_flags differ from its FLAGGED rows' flags or whose KINDS of flag (content_flags, line 449) exceed flags_cap (line 428, always REVIEW_FLAGS_MAX = 3). Fidelity (our lines must state nothing the clips do not say) is a HARD gate elsewhere in package.py and is NOT changed here.\nWHAT THE CODE MUST DO: (a) when every writer fails a line after its retries, fallback_fields builds the closing line, title, caption and bridges from fixed templates that state NO fact (only the subject said in two or more clips, or 'Bitcoin', and channel names); (b) that fallback is gated like any line (fidelity still HARD) and is ALWAYS flagged on the pin with FALLBACK_FLAG naming the line; (c) package_pin.OUR_LINES_KIND makes the fallback row and the closing line's value row ONE kind; (d) fallback_vo_soft (package.py line 616) lets a coherence verdict pass ONLY when the sealed closing line IS the fallback, the pass is the never-empty pass, the verdict is measured, a through-line exists, every clip rating is at its floor and the hook passes its own bar.\nCHECK, quoting the code: can a fallback line or title state a number, a claim or a name not in the clips; can the fallback be sealed WITHOUT its flag or without passing fidelity; can fallback_vo_soft pass an unmeasured verdict, a clip under its floor, a missing through-line, a model-written line, or the clean pass; can OUR_LINES_KIND or flag_kind merge two flags that are NOT about our lines into one kind; can any input make fallback_fields raise or return text with an empty name list. Report only what the code shows.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "gptoss": "openai/gpt-oss-20b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 713.7,
+   "cost": 0.01953165,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 3,
+   "parse_ok": true
+  },
+  {
+   "name": "gptoss",
+   "model": "openai/gpt-oss-20b",
+   "status": 200,
+   "latency_s": 209.6,
+   "cost": 0.0030448,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 440.5,
+   "cost": 0.00520458,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 431.8,
+   "cost": 0.07552075,
+   "parse_ok": true
+  },
+  {
+   "name": "gptoss",
+   "status": 200,
+   "latency_s": 212.4,
+   "cost": 0.003055076,
+   "parse_ok": false
+  },
+  {
+   "name": "glm",
+   "status": 0,
+   "latency_s": 2732.1,
+   "cost": null,
+   "parse_ok": false
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "high",
+   "file": "pipeline/package.py",
+   "line": 0,
+   "issue": "fallback_fields can raise KeyError/ValueError from str.format when a channel name contains braces, because channel names are used directly as the names argument.",
+   "evidence": "c = m.get(\"channel_name\") or m.get(\"channel_id\")\nnames = chans[0] if len(chans) == 1 else (\", \".join(chans[:-1]) + \" and \" + chans[-1] if chans else\ntake = next((t for t in (f.format(subject=subject, names=names) for f in FALLBACK_CLOSING)",
+   "fix": "Escape braces in subject/names before .format or build the templates without str.format.",
+   "agree": [],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "high",
+   "file": "pipeline/package.py",
+   "line": 0,
+   "issue": "fallback_fields can raise IndexError if join is not None and join[0] + 1 is outside segs.",
+   "evidence": "nxt = segs[join[0] + 1]",
+   "fix": "Validate 0 <= join[0] + 1 < len(segs) before indexing; otherwise omit the bridge or return None.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F3",
+   "severity": "medium",
+   "file": "pipeline/package.py",
+   "line": 0,
+   "issue": "fallback_fields can raise KeyError if a segment lacks moment_id or duration_s, or angle lacks angle.",
+   "evidence": "subject, ids = fallback_subject(segs, chans), [m[\"moment_id\"] for m in segs]\nbudget = takeaway_budget(sum(m[\"duration_s\"] for m in segs), list(other) + ([bridge[\"text\"]] if bridge else []))\n\"angle\": angle[\"angle\"]",
+   "fix": "Use .get with validation or require well-formed inputs before calling.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "qwen27b",
+   "severity": "high",
+   "file": "pipeline/package.py",
+   "line": 0,
+   "issue": "fallback_fields can put a channel_id into viewer-facing text when channel_name is missing, so a title/caption/closing line can state a numeric or otherwise non-clip name/ID, violating the requirement that fallback text use only the subject and channel names.",
+   "evidence": "c = m.get(\"channel_name\") or m.get(\"channel_id\") ... names = chans[0] if len(chans) == 1 else ... title = f\"{subject}: {names}\" ... caption = f\"{subject}, in the words of {names}.\".lower()",
+   "fix": "Use only a validated channel_name for names; if no channel_name is available, fall back to 'the channels' (or omit names) instead of channel_id."
+  },
+  {
+   "by": "qwen27b",
+   "severity": "medium",
+   "file": "pipeline/package.py",
+   "line": 0,
+   "issue": "fallback_fields does not enforce LINE_CHARS for the takeaway, caption, or the second title form; it only checks the takeaway word budget and checks the first title, so long subject/names can return over-length fields that fail hard length gates.",
+   "evidence": "take = next((t for t in (f.format(subject=subject, names=names) for f in FALLBACK_CLOSING) if budget is not None and budget[0] <= len(t.split()) <= budget[1]), None) ... if len(title.split()) > HS.TITLE_MAX_WORDS or len(title) > LINE_CHARS[\"title\"]: title = f\"{subject}, in their words\" ... caption = f\"{subject}, in the words of {names}.\".lower()",
+   "fix": "Before returning, verify len(take) <= LINE_CHARS['takeaway'], len(caption) <= LINE_CHARS['caption'], and len(title) <= LINE_CHARS['title'] for both title forms; return None or shorten if not."
+  },
+  {
+   "by": "qwen27b",
+   "severity": "low",
+   "file": "pipeline/package.py",
+   "line": 0,
+   "issue": "A whitespace-only channel_name is treated as a non-empty name, so fallback text can contain an effectively empty name.",
+   "evidence": "c = m.get(\"channel_name\") or m.get(\"channel_id\")\nif c and c not in chans:\n    chans.append(c)\nnames = chans[0] if len(chans) == 1 else ...",
+   "fix": "Strip channel names and ignore blank values before building names."
+  }
+ ],
+ "total_cost": 0.106356856,
+ "out_dir": "docs/audits/parallel/pp-selectid_audit_20261123_2348_71d_A"
+}

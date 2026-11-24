@@ -177,15 +177,23 @@ def open_work(res, sp, refused=()):
     any visual check left unmeasured; and every paid call the build's router refused for money (`refused`:
     Router.spend_refused; build 133's two clips-alone verdicts at its $0.00 stop, 12:56 ET Nov 17, left the kept
     line-up unjudged, and build 134 then asked nothing). -> int (0: nothing left)."""
-    pre, sp = (res or {}).get("prescreen") or {}, sp or {}
-    h = pre.get("held_102") or {}
-    held = len(h.get("first") or []) + len(h.get("second") or []) + len(sp.get("held_102") or [])
-    s = ((((res or {}).get("never_empty") or {}).get("soft_record") or {}).get("prescreen") or {}).get("held_102") or {}
-    held += len(set((s.get("first") or []) + (s.get("second") or [])) -
-                set((h.get("first") or []) + (h.get("second") or [])))
+    d = lambda x: x if isinstance(x, dict) else {}       # audit 20261124_0109 H (qwen F1): a malformed record is read
+    ls = lambda x: list(x) if isinstance(x, (list, tuple, set)) else []   # as empty, never a crash
+    res, sp = d(res), d(sp)
+    pre = d(res.get("prescreen"))
+    h = d(pre.get("held_102"))
+    held = len(ls(h.get("first"))) + len(ls(h.get("second"))) + len(ls(sp.get("held_102")))
+    soft_pre = d(d(d(res.get("never_empty")).get("soft_record")).get("prescreen"))
+    s = d(soft_pre.get("held_102"))
+    held += len(set(ls(s.get("first")) + ls(s.get("second"))) - set(ls(h.get("first")) + ls(h.get("second"))))
     no_verdict = _errors(res) + _errors(sp)        # by structure, never a string search (audit 2155g C1, qwen)
-    vis = (res or {}).get("visual") or {}
-    return held + no_verdict + int(vis.get("unmeasured") or 0) + len(refused or ())
+    vis = d(res.get("visual"))
+    unmeasured = {(k, mid) for p in (pre, soft_pre) for k in ("second_pass", "hook_onset", "trim_cut")   # the
+                  for mid, v in d(p.get(k)).items() if str(v).startswith("NOT MEASURED")}   # verifier, Nov 23: a build
+    #   whose word checks, hook onsets or trimmed cuts were never measured (its downloads failed) left that work undone:
+    #   its identical re-run is a build, never NOTHING NEW (its drill recorded '0 items left undone' with every L-v 2
+    #   unmeasured, and the re-run was skipped)
+    return held + no_verdict + int(vis.get("unmeasured") or 0) + len(refused or ()) + len(unmeasured)
 
 
 HOOK_SHADOW = {"coherence_verdict:hook": "heimdall:qwen/qwen3.8-27b"}   # RULING 115: recorded, never deciding
@@ -249,7 +257,6 @@ def delivered_pins(paths):
     return spans, newest, pins
 
 
-PBX_EXCEPTION_MAX_H = 30.0     # RULING 144 (PBX 07:05 ET Nov 18): yesterday's batch, for one package only
 STOP_CEILING_USD = 1.50          # RULING 137 (3) (orchestrator 11:05 ET Nov 17): the day cap is $1.50 all-in from the
 #   21:10 ET day of Nov 17 (today's stop $1.40, given as --stop-usd); --stop-usd at most this. Was 1.25 (ORDER 17:50 ET
 #   Nov 16, 'ADD 25 CENTS').
@@ -310,6 +317,46 @@ def build_router(routing, shadow, shadow_log, limit=None):
                     deadlines=DT.load(DT.STATE, PL.REPLIES),                                   # ruling 100
                     reserve_wait_s=PL.RESERVE_WAIT_S,          # batch 3: a call that fits waits for calls in flight
                     uncapped=PL.UNCAPPED)                      # ruling 118 (b): Heimdall recorded, never capped
+
+
+WRITER_PROBE_S = 45.0                            # RULING 152 (1): one probe answer waits at most this long
+
+
+def writer_probe(router, timeout_s=WRITER_PROBE_S):
+    """RULING 152 (1) (orchestrator 19:36 ET Nov 23): "Probe which families answer BEFORE the build and skip the ones
+    that do not." Every Heimdall leg of the router's writer chain (proof_ly.WRITERS) is asked a one-word question, all
+    at once, timeout_s each, as a ruling-87 probe (role "probe87:<name>": live, never recorded nor served from a
+    recording). A family that does not answer is marked down for this run, so no writer call waits out its deadline on
+    it; Grok (the chain's non-Heimdall leg) is never probed and stays last. A replayed run (router.replay) probes
+    nothing: its recordings decide. -> {name: {"answers": bool, "seconds": float[, "why": str]}}."""
+    import threading
+    if getattr(router, "replay", False):
+        return {}
+    names = [n for n in router.chain("angle_write") if P.gateway(router.backends[n]) == "heimdall"]
+    out, lock = {}, threading.Lock()
+
+    def ask(n):
+        router.chains.setdefault(f"probe87:{n}", [n])
+        t0 = time.time()
+        try:
+            r = router.call(f"probe87:{n}", "Reply with the single word OK.", 64, 7, deadline_s=timeout_s)
+            text = (getattr(r, "text", "") or "").strip()
+            v = {"answers": bool(text), "seconds": round(time.time() - t0, 1), **({} if text else {"why": "empty"})}
+        except Exception as e:                             # noqa: BLE001  any failure: not answering today
+            v = {"answers": False, "seconds": round(time.time() - t0, 1), "why": f"{type(e).__name__}: {str(e)[:120]}"}
+        with lock:
+            out[n] = v
+    ts = [threading.Thread(target=ask, args=(n,), daemon=True) for n in names]
+    for t in ts:
+        t.start()
+    for t in ts:
+        t.join(timeout_s + 15)
+    with lock:
+        for n in names:
+            v = out.setdefault(n, {"answers": False, "seconds": timeout_s, "why": "no answer in time"})
+            if not v["answers"]:
+                router.down[n] = f"did not answer the writer probe (ruling 152 (1)): {v.get('why', '')}"[:200]
+        return dict(out)
 
 
 def applied(router):
@@ -444,26 +491,14 @@ def main(argv=None):
                     "build takes only those moments of the pool, every gate as before (one line-up at a time)")
     ap.add_argument("--stop-usd", type=float, default=None, help="ORDER 17:50 ET Nov 16: this build's outside-dollar "
                     f"limit (no build starts at it; the router stops outside calls at it), in (0, {STOP_CEILING_USD}]")
-    ap.add_argument("--pbx-exception", metavar="TEXT", default=None,
-                    help="RULING 144 (PBX 07:05 ET Nov 18): this ONE build's 12 h window is waived, named and logged "
-                         "(TEXT starts 'PBX exception'): --hours may reach PBX_EXCEPTION_MAX_H, every 12 h check of "
-                         "this process reads it, and the package carries TEXT as its first review flag")
     ap.add_argument("--from-candidate", metavar="BUILD_DIR[:N]",
                     help="RULING 66: try ONLY the line-up that passed the clips-alone verdict in this earlier build's "
                          "record (its tried[N]; default the first that passed), as it was judged")
     a = ap.parse_args(argv)
     now = datetime.now(timezone.utc)
-    if a.pbx_exception is not None and not (isinstance(a.pbx_exception, str) and
-                                            a.pbx_exception.startswith("PBX exception") and a.pbx_exception.strip()):
-        print("REFUSED (ruling 144): --pbx-exception must name the exception ('PBX exception ...')", file=sys.stderr)
-        return 2
-    cap = PBX_EXCEPTION_MAX_H if a.pbx_exception else package_pin.WINDOW_H
-    if not 0 < a.hours <= cap:                           # ruling 76: "rather than widen the window" (144: one exception)
-        print(f"REFUSED (ruling 76): --hours {a.hours} is outside (0, {cap:g}]", file=sys.stderr)
-        return 2
-    base_h = package_pin.WINDOW_H                        # 12: the rule (rulings 76 + 77) the exception widens
-    if a.pbx_exception:                                  # RULING 144: this process only; every later build is 12 h
-        package_pin.WINDOW_H = float(a.hours)            # (package.expired, window_problems and the registry read it)
+    if not 0 < a.hours <= package_pin.WINDOW_H:          # ruling 76: "rather than widen the window"; RULING 159 (3)(a):
+        print(f"REFUSED (ruling 76): --hours {a.hours} is outside (0, {package_pin.WINDOW_H:g}]", file=sys.stderr)
+        return 2                                         # ruling 144's one-build exception switch is removed
     try:                                                 # read before anything is written (glm C2 N-4)
         delivered, last, pins = delivered_pins(a.delivered)
         since = datetime.fromisoformat(a.since.replace("Z", "+00:00")) if a.since else last
@@ -523,12 +558,7 @@ def main(argv=None):
         f"{len(delivered)} clip spans out")
     say(f"  RULING 76: {len(gone)} candidate(s) expired (over {package_pin.WINDOW_H:g} h on the render clock)" +
         (f": {gone}" if gone else ""))
-    a_now = now - timedelta(hours=a.hours - base_h) if a.pbx_exception else now   # RULING 144: the ingest adapter
-    rows, rep = LB.rows(since, a_now, horizon_h=a.hours)   # (pp-ingest's; its own 12 h expiry, rulings 76 + 77) is read
-    if a.pbx_exception:                                  # as of this earlier clock, so it admits moments up to --hours
-        say(f"  RULING 144 ({a.pbx_exception}): the ingest adapter read as of {a_now.isoformat(timespec='seconds')} "
-            f"({a.hours - base_h:g} h before the render clock), so its own {base_h:g} h expiry admits moments up to "
-            f"{a.hours:g} h old; every other check runs on the render clock with a {a.hours:g} h window")
+    rows, rep = LB.rows(since, now, horizon_h=a.hours)   # pp-ingest's adapter, its own 12 h expiry (rulings 76 + 77)
     say(f"  adapter: {len(rows)} rows ({json.dumps(rep.get('excluded'))})")
     wp, wp_rep = LB.word_pass_index(a.word_pass)
     wp_refused = wp_rep.get("refused") or []             # final: the worker never re-works them (the inputs keep ids);
@@ -569,6 +599,11 @@ def main(argv=None):
     router = build_router(routing, shadow, os.path.join(out_dir, "SHADOW86.jsonl"), limit=limit)
     say(f"  routing (ruling 85): {router.routing}; now {router.mode()} (ruling 87: the shared Heimdall health)"
         + (f"; SHADOW (ruling 86 / 115): {shadow}" if shadow else ""))
+    wprobe = writer_probe(router)                # RULING 152 (1): the writers that answer, in order, then Grok
+    say("  RULING 152 (1): the writers " + " -> ".join(n for n in router.chain("angle_write") if n not in router.down)
+        + f", {PK.WRITER_DEADLINE_S:g} s each; probe: " + ("; ".join(
+            f"{n.split(':', 1)[1]} {'answers' if v['answers'] else 'SKIPPED (' + str(v.get('why')) + ')'} {v['seconds']} s"
+            for n, v in wprobe.items()) or "none (a replayed run)"))
     live, live_why = PK.hook_live_bar()          # RULING 115: the bar in every build line, its floors and its sha
     say(f"  RULING 115: {HB.text(live)}; the hook list {router.chain('coherence_verdict', 'hook')}"
         + (f" [{live_why}]" if live_why else ""))
@@ -659,11 +694,6 @@ def main(argv=None):
     if res["package"]:
         SP.attribute_package(router, res["package"], sources, log=say)     # 00:05 ET Nov 13 item 3: sealed in the pin
         try:
-            if a.pbx_exception:                          # RULING 144: the exception's row, its plain words first
-                res["package"]["gates"][package_pin.EXCEPTION_GATE] = {
-                    "status": "FLAGGED", "flags": [a.pbx_exception], "by": "ruling 144 (PBX 07:05 ET Nov 18)",
-                    "replayed": False, "n": len(res["package"]["segments"]), "window_h": a.hours}
-                res["pbx_exception"] = {"text": a.pbx_exception, "window_h": a.hours}
             lock = LP.pin_problems(res["package"]) + \
                 package_pin.window_problems(res["package"]["segments"])   # ruling 68; ruling 76 (c), render clock
             if lock:

@@ -763,6 +763,8 @@ def check(router, segments, lines, writer_vendor, seed=7, manifest=None, current
                                           lambda t: check_verdict(t, segments, lines, manifest), 2500, seed,
                                           avoid_vendor=writer_vendor, avoid_family=writer_family)
         out["backend"], out["replayed"] = r.backend, bool(getattr(r, "replayed", False))
+        if getattr(r, "lx_soft", None):                # RULING 154 (1): a stand-in judge's verdict (one flag)
+            out["lx_soft"] = r.lx_soft
         out["measured"] = True
     except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
         out["verdict"] = {"ok": False, "claims": [], "violations": [{"slot": "-", "rule": "VERDICT_UNAVAILABLE",

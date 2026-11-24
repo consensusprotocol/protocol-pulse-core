@@ -108,6 +108,7 @@ class Reply:
     family: str = ""                              # the model family (law L-x: generator and judge differ)
     cached: bool = False                          # a live run served this model's recorded reply to the same bytes
     record_path: str = ""                         # where the exchange is recorded (Router.reject removes it)
+    lx_soft: dict = None                          # RULING 154 (1): a stand-in judge's answer (Router.call's fallback)
 
 
 def env_value(path, name):
@@ -692,6 +693,8 @@ VENDORS = {"local": LocalBackend, "xai_search": XAISearchBackend, "xai_vision": 
 
 
 ROUTINGS = ("today", "heimdall_first")    # RULING 85 (21:15 Nov 13): the switch (model_providers.json "routing")
+LX_SOFT_NEVER = ("angle_write", "probe87:", "coherence_panel")   # RULING 154 (1): a writer, a probe and a panel seat
+#   (each asked by name: package.coherence_by_panel fills its own seats, ruling 152 (2)) never take a stand-in judge
 SHADOW_ROLES = ("context_verdict", "coherence_verdict", "fidelity_verdict", "exclusion_verdict", "speaker_verdict",
                 "viewer_takeaway", "visual_check")      # RULING 86: the verdicts a shadow back-end is asked again
 
@@ -1365,11 +1368,54 @@ class Router:
             json.dump(dict(rec, recorded_at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())), f, indent=1)
         os.replace(tmp, path)
 
+    def _lx_steps(self, role, kind, av, af):
+        """RULING 154 (1) (orchestrator 20:36 ET Nov 23; with 152 (2), 19:36: "L-x soft: a Heimdall panel with a
+        flag"): the stand-in judges, in the ruled order, for a verdict whose own chain gave no answer: (1) a Heimdall
+        family that did not write, (2) any Heimdall family, (3) the paid model. The Heimdall families are those of the
+        role's own list, then of the writer chain (proof_ly.WRITERS), glm excepted (ruling 119 keeps it out of every
+        verdict); the paid legs those lists hold off Heimdall. -> [(step, names, avoid_vendor, avoid_family)]."""
+        heim, paid, seen = [], [], set()
+        for name in list(self.chain(role, kind)) + list(self.chains.get("angle_write") or []):
+            b = self.backends.get(name)
+            if b is None or name in seen or getattr(b, "family", "") == "glm":
+                continue
+            seen.add(name)
+            (heim if gateway(b) == "heimdall" else paid).append(name)
+        return [(1, heim, av, af), (2, heim, None, None), (3, paid, None, None)]
+
     def call(self, role, prompt, max_tokens=2000, seed=7, system=None, avoid_vendor=None, avoid_model=None,
-             avoid_family=None, deadline_s=None, kind=None):
+             avoid_family=None, deadline_s=None, kind=None, _names=None):
+        try:
+            return self._call(role, prompt, max_tokens, seed, system, avoid_vendor, avoid_model, avoid_family,
+                              deadline_s, kind, _names)
+        except (ProviderError, ReplayMiss) as e:
+            av, af = _as_set(avoid_vendor), _as_set(avoid_family)
+            if _names is not None or not getattr(self, "lx_soft", False) or not (av or af) or \
+                    role.startswith(LX_SOFT_NEVER):
+                raise
+            first = e                                 # RULING 154 (1): never "every back-end unavailable ... same
+        stand_ins, steps = [], self._lx_steps(role, kind, av, af)
+        if role == "context_verdict" and str(kind or "").startswith("step_a"):   # step A's two families are a law of
+            steps = steps[:1]          # their own (package.second_screen): only a family that did not judge or write
+            #   may stand in; the writer's or the first screen's own family would be refused there as
+            #   STEP_A_SAME_VENDOR, where no verdict is HELD and retried next build (ruling 102)
+        for step, names, v, f in steps:                                # vendor" in the never-empty pass: the stand-in
+            try:                                                       # judges, the reply marked (ONE flag on the pin)
+                r = self._call(role, prompt, max_tokens, seed, system, v, avoid_model, f, deadline_s, kind, names)
+            except (ProviderError, ReplayMiss) as e:
+                stand_ins.append(f"step {step}: {str(e)[:200]}")
+                continue
+            r.lx_soft = {"step": step, "judge": r.backend, "why": str(first)[:240]}
+            return r
+        raise type(first)(f"{role}: NO JUDGE ANSWERED, the stand-in judges included (ruling 154 (1)): no verdict, so "  # audit
+                          f"nothing is judged (never a pass); its own list: {str(first)[:300]}; the stand-ins: " +   # C:
+                          "; ".join(stand_ins)[:700]) from first          # never silent, never 'same vendor' alone
+
+    def _call(self, role, prompt, max_tokens=2000, seed=7, system=None, avoid_vendor=None, avoid_model=None,
+              avoid_family=None, deadline_s=None, kind=None, _names=None):
         av, am, af = _as_set(avoid_vendor), _as_set(avoid_model), _as_set(avoid_family)
         tried, notices = [], []
-        for name in self.chain(role, kind):           # ruling 88: the verdict type's own list when it has one
+        for name in (self.chain(role, kind) if _names is None else _names):   # ruling 88: the verdict type's own list
             b = self.backends.get(name)
             why = self._skip(name, b, av, am, af)
             if why is None and isinstance(b, STTBackend):

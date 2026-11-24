@@ -87,14 +87,19 @@ RUNS = ("fresh_20261112_050611", "fresh_20261112_013452", "fresh_20261112_001448
         "fresh_20261107_065702", "fresh_20261106_213852")           # newest first: the first is tonight's
 NEWEST = RUNS[0]
 FROZEN = ("local:", "anthropic:", "openai:", "openai_stt:")         # GPU0 (never this builder's); out of credit 20:32
-WRITERS = ["heimdall:deepseek/deepseek-v4.1-flash", "heimdall:qwen/qwen3.8-27b",      # ruling 5 (22:40): a writer
-           "xai:grok-4.20-0309-reasoning"]       # call over 5 min fails over deepseek -> qwen -> xAI; the writes then
-                                                 # stay on the angle's vendor and every verdict avoids it (L-x)
+WRITERS = ["heimdall:qwen/qwen3.8-27b", "heimdall:deepseek/deepseek-v4.1-flash", "heimdall:openai/gpt-oss-20b",
+           "heimdall:google/gemma-4-31b-it", "heimdall:minimax/minimax-m3.1-flash", "heimdall:z-ai/glm-5.3-flash",
+           "xai:grok-4.20-0309-reasoning"]
+#   RULING 152 (1) (orchestrator 19:36 ET Nov 23; amends ruling 5's deepseek -> qwen -> xAI): the angle and every line
+#   of ours go to every Heimdall family that answers, in this order, each with package.WRITER_DEADLINE_S (120 s), then
+#   Grok; glm only when it answers the day's probe (ruling 119 keeps it out of every other chain);
+#   proof_ledger.writer_probe marks the families that do not answer down before the build. The writes stay on the
+#   angle's vendor and every verdict avoids it (L-x; ruling 154 (1): the never-empty pass's stand-in judges).
 SCRATCH = "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad"
 
 
 def chains(routing=None):
-    """Every role's chain for the routing without the frozen legs; the writer = two Heimdall families, then Grok.
+    """Every role's chain for the routing without the frozen legs; the writer chain = WRITERS (ruling 152 (1)).
     RULING 85: routing "today" (the chains under roles) or "heimdall_first" (model_providers.json routing.heimdall_first,
     Grok last); default: the config's routing.mode."""
     cfg = json.load(open(P.CONFIG))

@@ -34,10 +34,12 @@ import base64
 import hashlib
 import json
 import os
+import re
 import subprocess
 import threading
 
-VERSION = "visual-3"                     # RULING 93 AMENDED (21:10 ET Nov 14): the source's burned captions asked for
+VERSION = "visual-4"                     # RULING 158 (2) (orchestrator 23:12 ET Nov 23): question 5, on-screen
+#   ADVERTISING, asked of every clip (visual-3: RULING 93 AMENDED, 21:10 ET Nov 14: the source's burned captions asked for
 ROLE = "visual_check"                    #   explicitly, one frame a second (visual-2: ruling 93, 23:58 ET Nov 13)
 TILES, EVERY_S, TILE_W, COLS = 40, 1.0, 320, 6   # 21:10 Nov 14: "at least one frame a second across the span" (the
 #   35 s ceiling takes 36; 40 leaves room); 6 x 320 px across keeps the sheet 1920 px wide (visual-2 sampled 8 at 480 px:
@@ -82,6 +84,14 @@ Answer four questions from the frames only:
    width from either edge): "whole" if ONE such position shows the caption whole, "cut" if every such position cuts it
    mid-word, "out" if it lies outside every such position. "covers_speaker": does it cover the speaking person's face
    or mouth? An empty list means you read NO text at all burned into any frame.
+5. advertising: EVERY piece of paid advertising or sponsor material any frame shows, anywhere in the picture (a banner,
+   a side panel, a corner box, a ticker, a card), however small: an advertiser's name or logo shown AS AN AD (any
+   company or product that is not the show itself), a sign-up bonus, a reward, a promo or referral code ("use code
+   ..."), an affiliate link, a QR code, "sponsored by", a paid-partner banner or panel, and any OFFER of a product or
+   service (open an account, an IRA, an exchange, a wallet, a card, a loan, a funding reward). Read the small print of
+   every box and panel at the sides and corners. Copy its text exactly and name what it advertises. An item may ALSO be
+   listed under question 4. IF YOU ARE UNSURE whether something is an ad, LIST IT. An empty list means you saw NO
+   advertising in any frame.
 
 Return ONLY this JSON object:
 {{"third_person": {{"shown": true or false, "how": "still|photo|graphic|none", "words_negative": true or false,
@@ -90,7 +100,22 @@ Return ONLY this JSON object:
  "lower_third": {{"name": "<the name on the strap> or null", "text": "<the strap's full text> or null"}},
  "burned_in": [{{"kind": "ticker|crawl|lower_third|bug|caption", "text": "<its text, copied>",
    "whole_in_16x9": true or false, "in_9x16": "whole|out|cut", "covers_speaker": true or false,
+   "at": [<the frame times it shows in, seconds>]}}],
+ "advertising": [{{"text": "<its text, copied>", "what": "<the advertiser or product>",
    "at": [<the frame times it shows in, seconds>]}}]}}"""
+AD_WORDS = re.compile(
+    r"sign[\s-]*up\s+(?:bonus|reward|offer)|\$\s?\d[\d,]*\s+(?:sign[\s-]*up\s+)?(?:bonus|reward|credit)\b|"
+    r"\b(?:welcome|deposit|funding|referral)\s+(?:bonus|reward)\b|\bbonus\s+code\b|\bpromo(?:tion(?:al)?)?\s+code\b|"
+    r"\breferral\b|\buse\s+(?:my\s+|the\s+|our\s+)?code\b|\bdiscount\s+code\b|\baffiliate\s+link\b|\bsponsored\s+by\b|"
+    r"\b(?:today'?s|our|this\s+episode'?s)\s+sponsor\b|\bbrought\s+to\s+you\s+by\b|\bQR\b|"
+    r"\bpaid\s+(?:partner|partnership|promotion)\b|\b\d+\s*%\s+off\b|\bfree\s+trial\b|\bcoupon\b|"
+    r"\bopen\s+an?\s+(?:\w+\s+)?(?:account|wallet|IRA)\b", re.I)
+#   RULING 158 (2): offer phrases that make a copied text an ad, whatever kind the check filed it under (the Kraken
+#   banner of Nov 23 came back as a "ticker": "... KRAKEN $25 SIGN UP BONUS ..."). Never bare words that Bitcoin talk
+#   uses for itself ("block reward", "trading at a discount", "an affiliate"): those are content, not ads.
+AD_CAPS = re.compile(r"\bIRA\b")      # RULING 158 (2): a retirement-account offer on a LOGO or BANNER (a bug, ticker or
+#   crawl: the iTrustCapital "OPEN A CRYPTO IRA" panel of Nov 23, copied as a bug "CRYPTO IRA"); never a caption or a
+#   headline, where an IRA is what the speaker talks about
 
 
 def load_cache(path):
@@ -226,10 +251,18 @@ def _opt_str(x):
 
 
 def check(v):
-    """The verdict, in contract or ValueError -> {"third_person", "on_screen_text", "lower_third", "burned_in"}."""
-    if not isinstance(v, dict) or set(v) != {"third_person", "on_screen_text", "lower_third", "burned_in"}:
-        raise ValueError("keys must be exactly third_person, on_screen_text, lower_third, burned_in")
-    tp, ost, lt, bi = v["third_person"], v["on_screen_text"], v["lower_third"], v["burned_in"]
+    """The verdict, in contract or ValueError -> {"third_person", "on_screen_text", "lower_third", "burned_in",
+    "advertising"} (RULING 158 (2): question 5, every item kept: one is enough to refuse the clip)."""
+    if not isinstance(v, dict) or set(v) != {"third_person", "on_screen_text", "lower_third", "burned_in", "advertising"}:
+        raise ValueError("keys must be exactly third_person, on_screen_text, lower_third, burned_in, advertising")
+    tp, ost, lt, bi, ad = v["third_person"], v["on_screen_text"], v["lower_third"], v["burned_in"], v["advertising"]
+    if not isinstance(ad, list) or any(
+            not isinstance(x, dict) or not isinstance(x.get("text"), (str, type(None))) or
+            not isinstance(x.get("what"), (str, type(None))) or
+            not ((x.get("text") or "").strip() or (x.get("what") or "").strip()) or
+            not isinstance(x.get("at", []), list) or any(type(a) not in (int, float) for a in x.get("at") or [])
+            for x in ad):
+        raise ValueError("advertising out of contract (ruling 158 (2))")
     if not isinstance(bi, list) or any(
             not isinstance(x, dict) or x.get("kind") not in BURNED or not isinstance(x.get("text"), (str, type(None)))
             or type(x.get("whole_in_16x9")) is not bool or x.get("in_9x16") not in IN_9X16 or
@@ -264,7 +297,29 @@ def check(v):
             **({"on_screen_text_truncated": len(texts) - len(keep)} if len(texts) > len(keep) else {}),
             "lower_third": {"name": _opt_str(lt.get("name")), "text": _opt_str(lt.get("text"))},
             "burned_in": items[:TEXTS_MAX],
-            **({"burned_in_truncated": len(items) - TEXTS_MAX} if len(items) > TEXTS_MAX else {})}
+            **({"burned_in_truncated": len(items) - TEXTS_MAX} if len(items) > TEXTS_MAX else {}),
+            "advertising": [{"text": (x.get("text") or "").strip()[:TEXT_CHARS],
+                             "what": (x.get("what") or "").strip()[:TEXT_CHARS],
+                             **({"at": sorted({round(float(a), 2) for a in x["at"]})[:TILES]} if x.get("at") else {})}
+                            for x in ad]}
+
+
+def ad_block(rec):
+    """RULING 158 (2) (orchestrator 23:12 ET Nov 23: "STANDING, HARD, BOTH SIDES: on-screen advertising refuses a clip in
+    every format ... When unsure, treat it as an ad"): why a MEASURED record refuses its clip, in every role and format,
+    or None. Anything question 5 listed (the check is told to list what it is unsure of), and AD_WORDS in ANY text the
+    record copied: a burned-in item of any kind, an on-screen text, the lower third. A record without question 5 (an
+    earlier version) is layout_block's (never a pass)."""
+    if not (rec or {}).get("measured"):
+        return None
+    ads = [f"{x.get('text') or 'a logo'} ({x.get('what') or 'an advertiser'})" for x in rec.get("advertising") or []]
+    shown = [x for x in rec.get("burned_in") or [] if x.get("kind") != CAPTION]   # a caption is the spoken words (an
+    texts = [x.get("text") for x in shown] + \
+        [x.get("text") for x in rec.get("on_screen_text") or []] + [(rec.get("lower_third") or {}).get("text")]
+    ads += [f"{t} (ad words)" for t in texts if isinstance(t, str) and AD_WORDS.search(t)]   # ad read is the exclusion
+    ads += [f"{x.get('text')} (an IRA offer on a {x.get('kind')})" for x in shown          # model's, ruling 146 (3))
+            if x.get("kind") in ("bug", "ticker", "crawl") and AD_CAPS.search(x.get("text") or "")]
+    return ("ruling 158 (2): on-screen advertising: " + "; ".join(a[:140] for a in ads))[:600] if ads else None
 
 
 def flags(v):
@@ -318,9 +373,11 @@ def layout_block(rec):
         return "its visual check is not measured (law L-m)"
     if not isinstance(rec.get("burned_in"), list):
         return "ruling 93: the burned-in text question was not asked (an earlier visual record)"
-    if rec.get("version") != VERSION:            # 21:10 Nov 14: visual-2 never asked for the source's captions
-        return f"its visual record is {rec.get('version')!r}, which never asked for the source's burned captions"
-    why = [w for w in (burned_block(x) for x in rec["burned_in"]) if w]
+    if rec.get("version") != VERSION:            # 21:10 Nov 14: visual-2 never asked for the source's captions;
+        return (f"its visual record is {rec.get('version')!r}, which never asked for the source's burned captions or "
+                f"on-screen advertising")      # RULING 158 (2): visual-3 never asked for advertising
+    ad = ad_block(rec)                           # RULING 158 (2): HARD, first, in every role and format
+    why = ([ad] if ad else []) + [w for w in (burned_block(x) for x in rec["burned_in"]) if w]
     if formats(rec) and not RENDER_16X9_ONLY:    # ruling 93 amended: 16:9-only, which the render cannot pass yet
         why.append("16:9-only (a burned caption the 9:16 crop cuts mid-word, ruling 93 amended), and the integrator's "
                    "render cannot pass a 16:9-only pin until its format-aware release lands: held")
@@ -335,8 +392,8 @@ def crop_only(rec):
     person (ruling 70) or an unmeasured or older record: None."""
     if not ((rec or {}).get("measured") is True and rec.get("version") == VERSION and
             isinstance(rec.get("burned_in"), list)) or hook_block(rec) is not None or \
-            not RENDER_16X9_ONLY:                # the exception makes a 16:9-only pin: only when the render can pass one
-        return None
+            not RENDER_16X9_ONLY or ad_block(rec):   # the exception makes a 16:9-only pin: only when the render can pass
+        return None                                  # one; RULING 158 (2): never for an ad
     why = [burned_block(x) for x in rec["burned_in"]]
     cut = [x for x, w in zip(rec["burned_in"], why) if w]
     if not cut or any(x["kind"] in RUNNING or x["kind"] == CAPTION or not x["whole_in_16x9"] or x["in_9x16"] != "cut"
@@ -352,7 +409,8 @@ def graphics_only(rec):
     are SOFT. A third person (ruling 70), an unmeasured or older record, or a render that cannot pass a 16:9-only pin:
     None."""
     if not ((rec or {}).get("measured") is True and rec.get("version") == VERSION and
-            isinstance(rec.get("burned_in"), list)) or hook_block(rec) is not None or not RENDER_16X9_ONLY:
+            isinstance(rec.get("burned_in"), list)) or hook_block(rec) is not None or not RENDER_16X9_ONLY or \
+            ad_block(rec):                       # RULING 158 (2): advertising is never the show's own graphics
         return None
     return sorted({x["kind"] for x in rec["burned_in"] if burned_block(x)}) or None
 
@@ -374,7 +432,8 @@ def sealed(rec):
     """The part of a visual record a pin seals (package_pin.SEALED_LATER "visual"): the findings, the flags, the sheet's
     name, sha256 and times (the sheet itself is copied beside the pin), the back-end. Never a scratch path or a cost."""
     out = {k: rec[k] for k in ("version", "measured", "flags", "third_person", "on_screen_text", "lower_third",
-                               "burned_in", "burned_in_truncated", "formats", "backend", "replayed", "why") if k in rec}
+                               "burned_in", "burned_in_truncated", "advertising", "formats", "backend", "replayed",
+                               "why") if k in rec}
     if isinstance(rec.get("sheet"), dict):
         out["sheet"] = {k: rec["sheet"][k] for k in ("name", "sha256", "times") if k in rec["sheet"]}
     return out

@@ -1,0 +1,25 @@
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 551e0681c..0e5011cba 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -182,13 +182,19 @@ def open_work(res, sp, refused=()):
+     held = len(h.get("first") or []) + len(h.get("second") or []) + len(sp.get("held_102") or [])
+     s = ((((res or {}).get("never_empty") or {}).get("soft_record") or {}).get("prescreen") or {}).get("held_102") or {}
+     held += len(set((s.get("first") or []) + (s.get("second") or [])) -
+                 set((h.get("first") or []) + (h.get("second") or [])))
+     no_verdict = _errors(res) + _errors(sp)        # by structure, never a string search (audit 2155g C1, qwen)
+     vis = (res or {}).get("visual") or {}
+-    return held + no_verdict + int(vis.get("unmeasured") or 0) + len(refused or ())
++    soft_pre = (((res or {}).get("never_empty") or {}).get("soft_record") or {}).get("prescreen") or {}
++    unmeasured = {(k, mid) for p in (pre, soft_pre) for k in ("second_pass", "hook_onset", "trim_cut")   # the verifier,
++                  for mid, v in ((p or {}).get(k) or {}).items() if str(v).startswith("NOT MEASURED")}   # Nov 23: a build
++    #   whose word checks, hook onsets or trimmed cuts were never measured (its downloads failed) left that work undone:
++    #   its identical re-run is a build, never NOTHING NEW (its drill recorded '0 items left undone' with every L-v 2
++    #   unmeasured, and the re-run was skipped)
++    return held + no_verdict + int(vis.get("unmeasured") or 0) + len(refused or ()) + len(unmeasured)
+ 
+ 
+ HOOK_SHADOW = {"coherence_verdict:hook": "heimdall:qwen/qwen3.8-27b"}   # RULING 115: recorded, never deciding
+ 
+ 
+ def build_shadow(routing, rt, streak):

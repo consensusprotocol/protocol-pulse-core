@@ -188,7 +188,8 @@ SDESC = {"REFERENT_OUTSIDE": "a word refers to something outside the clip AND re
          "NOT_OWN_SINCERE": "not the speaker's own sincere view (quoting, hypothetical, sarcasm, a read, ...)",
          "STALE_TIME": "time words stale on the show date (L-v 3)", "CONDITION_OUTSIDE": "a condition outside the clip",
          "SPEAKER_CHANGE": "a speaker change inside", "RETRACTION": "retracted or corrected later",
-         "UNCERTAIN": "the judge is not certain", "CONTEXT_UNAVAILABLE": "no source context to judge"}
+         "UNCERTAIN": "the judge is not certain", "CONTEXT_UNAVAILABLE": "no source context to judge",
+         "AD_READ": "part of an ad read (sponsor material, HARD: ruling 159)"}
 print(f"\n**Stage 2: {pk.get('usable')} usable -> {pre.get('cleared')} cleared step A** (L-s on the moment's own "
       f"context; {pre.get('screened')} screened, {len(failed)} failed)")
 emit(f"Stage 2: step A rules ({len(failed)} moments)",

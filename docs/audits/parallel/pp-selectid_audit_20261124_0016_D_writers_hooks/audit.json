@@ -1,0 +1,97 @@
+{
+ "question": "pp-selectid (Protocol Pulse clip-video builder), RULINGS 152 (1) and 154 (2), uncommitted (diff below). THE RULINGS: \"the writer chain: every answering Heimdall family (qwen, deepseek, gpt-oss, gemma, minimax; glm only if probed), 120 s each, then Grok. Probe before the build.\" and \"In the never-empty pass the hook bar is soft; an unrated opener opens flagged.\" THE CODE: proof_ly.WRITERS (the writer chain), package.WRITER_DEADLINE_S = 120 (every writer call passes it as deadline_s), proof_ledger.writer_probe (probes every Heimdall writer at once, marks the ones that do not answer down for the run; Grok never probed; a replayed run probes nothing). package.hook_unrated (line 1898): the plain reason a hook has no rating ON the calibrated bar (no valid calibration, no rating, or a rating by another back-end than the bar's rater); hook_own (line 1917) lets such a hook pass, flagged and marked \"unrated\", ONLY when the never-empty pass marked it (hook_bar_soft); the stage 2b block marks at most HOOK_SOFT_MAX (2, line 1111) openers: first those its own rater rated under the bar (hook_bar_under, line 1883, unchanged), then unrated ones. _can_open (line 1989, unchanged) reads hook_own's \"passes\"; _live_bar (line 1809) is the calibration.\nCHECK, quoting the code: can an unrated or off-bar hook open in the CLEAN pass or without its flag; can more than HOOK_SOFT_MAX hooks be marked; can a hook that cannot open for another reason (G17a onset, the STAND_ALONE hook rule, its frames) open now; can hook_own's new branch break a caller that reads its \"rating\" as an int; can the probe mark a family down that answered, keep one up that did not, run against recordings, or block the build past its timeout; does every writer call keep the 120 s deadline. Report only what the code shows.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "gptoss": "openai/gpt-oss-20b",
+  "gemma": "google/gemma-4-31b-it"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 838.6,
+   "cost": 0.02202655,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 1,
+   "parse_ok": true
+  },
+  {
+   "name": "gptoss",
+   "model": "openai/gpt-oss-20b",
+   "status": 200,
+   "latency_s": 208.7,
+   "cost": 0.003037624,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "gemma",
+   "model": "google/gemma-4-31b-it",
+   "status": 200,
+   "latency_s": 396.2,
+   "cost": 0.00201245,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 556.0,
+   "cost": 0.01609725,
+   "parse_ok": true
+  },
+  {
+   "name": "gptoss",
+   "status": 200,
+   "latency_s": 212.4,
+   "cost": 0.003047784,
+   "parse_ok": false
+  },
+  {
+   "name": "gemma",
+   "status": 200,
+   "latency_s": 209.8,
+   "cost": 0.00145865,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "high",
+   "file": "pipeline/package.py",
+   "line": 1917,
+   "issue": "A hook that stage 2b marks soft because hook_unrated() is truthy can still open unflagged when its cached rating passes the bar (ok true), because hook_own only computes un when not ok; the code's own comment/log says such openers open flagged.",
+   "evidence": "    under = (hook_order([m for mid, m in openers.items() if mid in rated and hook_bar_under(m)]) +    # RULING 137\n             hook_order([m for mid, m in openers.items() if hook_unrated(m)]))[:HOOK_SOFT_MAX] \\\n        if soft else []          # stage 2b: the hook bar is SOFT in the never-empty pass: the best HOOK_SOFT_MAX hooks\n    for m in under:              # under it open, flagged; RULING 154 (2): then the openers with NO rating on the bar\n        m[\"hook_bar_soft\"] = True\n    un = hook_unrated(m) if not ok and m.get(\"hook_bar_soft\") and flag is None else None   # never-empty pass marked\n    return dict(parts, rating=min(parts[k] for k in HOOK_OWN), passes=ok or bool(flag or un),   # opens, flagged;\n                short=why if live is None else short,                     # RULING 154 (2): rated off the bar too\n                bar=HB.text(live), source=\"the hook's cached own-job rating (ruling 61), on the calibrated bar (ruling 115)\",\n                rule=HOOK_OWN_RULE, **({\"flagged\": flag or un} if flag or un else {}), **({\"unrated\": True} if un else {}))",
+   "fix": "In hook_own, compute the unrated reason whenever the moment is marked soft and no under-bar flag applies, not only when ok is false; e.g. `un = hook_unrated(m) if m.get(\"hook_bar_soft\") and flag is None else None`, and set `flagged`/`unrated` when `un` is not None even if `ok` is true.",
+   "agree": [
+    "qwen27b",
+    "gemma"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "qwen27b",
+   "severity": "medium",
+   "file": "pipeline/package.py",
+   "line": 3892,
+   "issue": "hooks_txt assumes m['hook_rating'] exists, but RULING 154 (2) can offer an opener with no hook_rating; hook_unrated and hook_own defensively use (m or {}).get('hook_rating') or {}, so formatting such an offered hook can raise KeyError or AttributeError.",
+   "evidence": "hooks_txt uses m['hook_rating'].get('why') while hook_unrated uses r = (m or {}).get('hook_rating') or {}",
+   "fix": "Use (m.get('hook_rating') or {}).get('why') in hooks_txt."
+  }
+ ],
+ "total_cost": 0.047680308,
+ "out_dir": "docs/audits/parallel/pp-selectid_audit_20261124_0016_D_writers_hooks"
+}

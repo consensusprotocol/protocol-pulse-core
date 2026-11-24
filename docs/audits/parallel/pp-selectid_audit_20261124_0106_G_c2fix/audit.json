@@ -1,0 +1,50 @@
+{
+ "question": "pp-selectid (Protocol Pulse clip-video builder): cycle 2 of audit 20261124_0016_C_judge, its fixes only (uncommitted). (a) qwen F3: package.coherence_by_panel's extra panel seat (RULING 152 (2): in the never-empty pass, a Heimdall family that did not write sits where a writer emptied a seat) is asked by NAME through a one-model list router.chains[\"coherence_panel:seat_<model>\"] and kind \"seat_<model>\" (was keyed by family, so two seats of one family could collide); a reply from any other model is no vote (unchanged: `if r.backend != n: raise P.ProviderError(...)`). (b) qwen's cycle-2 note: when a verdict's own list AND every stand-in step (RULING 154 (1): a Heimdall family that did not write, any Heimdall family, the paid model) give no answer, providers.Router.call now raises the SAME exception type as the original (ProviderError or ReplayMiss) with an explicit message \"NO JUDGE ANSWERED, the stand-in judges included (ruling 154 (1)) ...\" and each step's reason, chained from the original. Callers catch ProviderError / ReplayMiss as before (no verdict = not measured, never a pass). The rest of the diff hunks shown are context from the same functions.\nCHECK, quoting the code: can (a) still let one model answer for another's seat, or ask a writer's family; can (b) change the exception type a caller catches, swallow a SpendLimit, or lose the original reason. Report only what the code shows.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "gptoss": "openai/gpt-oss-20b",
+  "gemma": "google/gemma-4-31b-it"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 752.7,
+   "cost": 0.01997445,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "gptoss",
+   "model": "openai/gpt-oss-20b",
+   "status": 200,
+   "latency_s": 203.6,
+   "cost": 0.002999004,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "gemma",
+   "model": "google/gemma-4-31b-it",
+   "status": 200,
+   "latency_s": 210.5,
+   "cost": 0.00079115,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.023764604,
+ "out_dir": "docs/audits/parallel/pp-selectid_audit_20261124_0106_G_c2fix"
+}
