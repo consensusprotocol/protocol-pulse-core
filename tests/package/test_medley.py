@@ -801,7 +801,30 @@ class Rig:
     def out_edges(self, router, ms, sources, ctx_, cache_path=None, log=print, delivered=(), optout=frozenset(),
                   seg_max=None, admit=None):
         """RULING 162 (1) as package.out_edges answers: every moment ends a thought (OUT_EDGE_OK), unless
-        self.out_edge_refused / self.out_edge_unverified name it (out of the pool, recorded)."""
+        self.out_edge_refused / self.out_edge_unverified name it (out of the pool, recorded). ITEM 3: the moments it
+        is asked about are recorded (out_edge_asked); self.out_edge_extend {parent: extension id} makes the extension
+        (the parent's span under a new id) and puts it through the build's admit() as the real pool does, recorded
+        in self.admitted [(id, ok, why)]."""
+        self.__dict__.setdefault("out_edge_asked", []).append([m["moment_id"] for m in ms])
+        ext, admitted = getattr(self, "out_edge_extend", {}), self.__dict__.setdefault("admitted", [])
+        if ext:
+            got, rec = [], {"ruling": "162 (1)", "version": self.OUT_EDGE_OK["version"],
+                            "sha256": self.OUT_EDGE_OK["sha256"], "asked": len(ms), "complete": [], "extended": {},
+                            "refused": {}, "unverified": {}}
+            for m in ms:
+                if m["moment_id"] not in ext:
+                    got.append(dict(m, out_edge=dict(self.OUT_EDGE_OK)))
+                    rec["complete"].append(m["moment_id"])
+                    continue
+                v = dict(m, moment_id=ext[m["moment_id"]], derived_from={"ruling": "162 (1)", "from": m["moment_id"]})
+                ok, why = admit(v) if admit is not None else (False, "no admit")
+                admitted.append((v["moment_id"], ok, why))
+                if ok:
+                    got.append(dict(v, out_edge=dict(self.OUT_EDGE_OK)))
+                    rec["extended"][m["moment_id"]] = v["moment_id"]
+                else:
+                    rec["refused"][m["moment_id"]] = f"its extension {v['moment_id']} fails before its question: {why}"
+            return got, rec
         bad, un = set(getattr(self, "out_edge_refused", ())), set(getattr(self, "out_edge_unverified", ()))
         rec = {"ruling": "162 (1)", "version": self.OUT_EDGE_OK["version"], "sha256": self.OUT_EDGE_OK["sha256"],
                "asked": len(ms), "complete": [m["moment_id"] for m in ms if m["moment_id"] not in bad | un],

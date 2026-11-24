@@ -95,10 +95,13 @@ class TestTheRulesFile(unittest.TestCase):
 class TestTheOutEdge(unittest.TestCase):
     def test_the_afd8977d_opener_is_extended_to_the_sentence_that_finishes_it(self):
         src, m, sources = case()
-        r = Fake(NO0, YES)
-        kept, rec = OE.pool(r, [m], sources, CTX)
+        r, seen = Fake(NO0, YES), []
+        kept, rec = OE.pool(r, [m], sources, CTX,
+                            admit=lambda v: seen.append((v["moment_id"], len(r.calls))) or (True, None))
         self.assertEqual(len(kept), 1)
         x = kept[0]
+        self.assertEqual(seen, [(x["moment_id"], 1)])          # ITEM 3: admitted after its parent's question and
+        #   BEFORE its own (the pool's rules, step A and the deterministic edge check, in the build)
         self.assertNotEqual(x["moment_id"], m["moment_id"])                    # a new span, its own id
         self.assertEqual((x["sentences"], x["start"]), ([1, 2], m["start"]))   # the IN edge unchanged
         self.assertEqual(x["text"], OPENER + " " + SENTENCES[2])
@@ -128,6 +131,20 @@ class TestTheOutEdge(unittest.TestCase):
         self.assertTrue(again["cached"])
         self.assertEqual(again["complete"], v["complete"])
 
+    def test_a_changed_cut_or_transcript_voids_the_answer(self):
+        """ITEM 3 (09:45 ET Nov 24): the answer is cached against the exact transcript, cut coordinates and prompt
+        version (the rules file's sha: its prompt); a changed cut or transcript is asked again."""
+        src, m, sources = case(k1=2)
+        cache = {}
+        OE.ask(Fake(YES), m, src, cache)
+        for changed in (dict(m, end=m["end"] + 0.25), dict(m, start=m["start"] - 0.25), dict(m, text=m["text"] + " x")):
+            r = Fake(YES)
+            self.assertFalse(OE.ask(r, changed, src, cache)["cached"])
+            self.assertEqual(len(r.calls), 1)
+        r = Fake(YES)
+        self.assertTrue(OE.ask(r, m, src, cache)["cached"])                  # the very same: no call
+        self.assertEqual(r.calls, [])
+
     def test_no_answer_is_unverified_never_cached_never_a_refusal(self):
         src, m, sources = case()
         for err in (P.ProviderError("every back-end unavailable"), P.ReplayMiss("not recorded")):
@@ -147,11 +164,17 @@ class TestTheOutEdge(unittest.TestCase):
         kept, rec = OE.pool(Fake(NO_NONE), [m], sources, CTX)
         self.assertEqual(kept, [])
         self.assertIn("no following sentence", rec["refused"][m["moment_id"]])
-        kept, rec = OE.pool(Fake(NO0, NO_NONE), [m], sources, CTX)
+        ok = lambda v: (True, None)
+        kept, rec = OE.pool(Fake(NO0, NO_NONE), [m], sources, CTX, admit=ok)
         self.assertEqual(kept, [])
         self.assertIn("runs on too", rec["refused"][m["moment_id"]])
-        kept, rec = OE.pool(Fake(NO0, P.ProviderError("down")), [m], sources, CTX)
+        kept, rec = OE.pool(Fake(NO0, P.ProviderError("down")), [m], sources, CTX, admit=ok)
         self.assertEqual((kept, list(rec["unverified"])), ([], [m["moment_id"]]))   # its extension unanswered
+        for admit in (None, lambda v: (False, "the second recogniser: the OUT edge")):   # ITEM 3: no extension is
+            r = Fake(NO0, YES)                                                    # asked without its own checks
+            kept, rec = OE.pool(r, [m], sources, CTX, admit=admit)
+            self.assertEqual((kept, len(r.calls)), ([], 1))                       # its question never asked
+            self.assertIn("fails before its question", rec["refused"][m["moment_id"]])
 
     def test_a_clip_cut_inside_a_sentence_is_never_extended(self):
         src, m, sources = case()
@@ -170,7 +193,7 @@ class TestTheOutEdge(unittest.TestCase):
     def test_the_extension_meets_the_pool_rules_or_its_parent_is_refused(self):
         long_next = " ".join(["and the selling went on"] * 14) + " until Monday."   # ~21 s more: past the 20 s clip
         src, m, sources = case(SENTENCES[:2] + [long_next[0].upper() + long_next[1:]] + SENTENCES[3:])
-        kept, rec = PK.out_edges(Fake(NO0, YES), [m], sources, CTX)
+        kept, rec = PK.out_edges(Fake(NO0, YES), [m], sources, CTX, admit=lambda v: (True, None))
         self.assertEqual(kept, [])
         self.assertIn("breaks a pool rule", rec["refused"][m["moment_id"]])
         self.assertEqual(rec["extended"], {})
@@ -222,6 +245,42 @@ class TestTheBuild(unittest.TestCase):
         for kw in ({"out_edge_refused": {"x"}}, {"out_edge_unverified": {"x"}}):
             out = self.rig(**kw).run()
             self.assertIsNone(out["package"], kw)                         # x was the third channel
+
+    def test_the_question_comes_after_the_deterministic_edge_check(self):
+        """ITEM 3 (09:45 ET Nov 24): "the deterministic edge check runs first": a clip the second recogniser's OUT edge
+        refuses (CUTTABLE) is never asked the question."""
+        import test_medley as TM
+        from test_moments import pm
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
+        r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE)] * 2, [None] * 2, uncuttable={"z"})
+        out = r.run()
+        self.assertIsNotNone(out["package"], out.get("why_none"))
+        self.assertTrue(r.out_edge_asked)
+        self.assertNotIn("z", [mid for asked in r.out_edge_asked for mid in asked])
+
+    def ext_rig(self, **kw):
+        import test_medley as TM
+        from test_moments import pm
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        r = TM.Rig(ms, ["h", "x~ext", "y"], [(True, [], None, TM.Rig.LINE)] * 2, [None] * 2, **kw)
+        r.out_edge_extend = {"x": "x~ext"}
+        return r
+
+    def test_an_extension_passes_step_a_and_the_edge_check_before_its_question(self):
+        r = self.ext_rig()
+        out = r.run()
+        pk = out["package"]
+        self.assertIsNotNone(pk, out.get("why_none"))
+        self.assertEqual(r.admitted, [("x~ext", True, None)])
+        self.assertIn("x~ext", [sg["moment_id"] for sg in pk["segments"]])
+        self.assertNotIn("x", [sg["moment_id"] for sg in pk["segments"]])
+        self.assertIn(["x~ext"], [ids for _, ids in r.screens])                 # step A asked of the extension
+        r = self.ext_rig(uncuttable={"x~ext"})
+        out = r.run()
+        self.assertIsNone(out["package"])                                       # x was the third channel
+        self.assertEqual(r.admitted[0][:2], ("x~ext", False))
+        self.assertTrue(r.admitted[0][2].startswith("the second recogniser"), r.admitted[0][2])
+        self.assertIn("fails before its question", out["out_edge"]["refused"]["x"])
 
     def test_a_package_without_the_verdicts_never_seals(self):
         r = self.rig()
