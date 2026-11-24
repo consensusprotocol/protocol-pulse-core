@@ -18,7 +18,7 @@ BUILDS = range(152, 169)
 OVERRIDE = {156: {"outcome": "NO_ELIGIBLE_STORY", "stage": "start", "clip": "f47662e48ecb4dc31582",
                   "gate": "a clip of the set (Scott Melker f47662e4) passed 12 h before a sealed pin could reach the "
                           "render (ruling 76): stopped by the builder at its start",
-                  "note": "the record holds no package.json (terminated, exit 143, before step A: no paid call); "
+                  "detail": "the record holds no package.json (terminated, exit 143, before step A: no paid call); "
                           "STATE 20:29 ET Nov 23: 'BUILD 156 STOPPED BY ME AT ITS START (no paid call made: it was "
                           "before step A): its set held Scott Melker f47662e4, which passes 12 h at about 21:00 ET, "
                           "before a sealed pin could reach the render.' Build 157 retried without it."}}
@@ -50,6 +50,7 @@ def main(argv):
     for n in BUILDS:
         line = OC.outcome_of(os.path.join(proof, rs[n]), build_no=n, backfilled=True, titles=titles)
         line.update(OVERRIDE.get(n, {}))
+        line["note"] = OC.plain_note(line["outcome"], line["stage"], line.get("gate"))   # PBX's one sentence
         wrote = "dry" if "--dry-run" in argv else OC.write_once(line)
         print(f"{n} {line['run']} {line['outcome']} at {line['stage']}: {line['gate'][:110]}"
               + (f" (clip {line['clip']})" if line.get("clip") else "") + f" [{wrote}]")

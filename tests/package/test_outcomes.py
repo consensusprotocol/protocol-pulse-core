@@ -250,6 +250,10 @@ class TestExactlyOneLine(unittest.TestCase):
                                   capture_output=True, text=True).stdout.strip()
             self.assertEqual(e["driver_sha"], blob)                  # RULING 163 (5): the driver that ran, by sha
             self.assertIsInstance(e["driver_committed"], bool)
+            heads = {n: t["head"] for n, t in e["trees"].items()}    # the acceptance test, item 1: both commits
+            self.assertEqual(sorted(heads), ["the integrator's tree", "this builder's tree"])
+            for h in heads.values():
+                self.assertRegex(h, r"^[0-9a-f]{40}$")
             ls = OC.lines(p)
             self.assertEqual([(x["outcome"], x["build"], x["run"]) for x in ls], [("INDETERMINATE", 9, runs[0])])
             self.assertEqual(ls[0]["gate"], "the build crashed: Stop")
@@ -305,6 +309,115 @@ class TestRuling163NothingNewAfterAnOutage(unittest.TestCase):
         sealed = {"package": {"x": 1}, "never_empty": {"soft_record": {"hook_pool": {"visual_blocked": {
             "a": "its visual check is not measured (law L-m)"}}}}}
         self.assertEqual(PLG.open_work(sealed, {}), 0)      # a sealed pass counts its own sheets in "visual"
+
+
+class TestAcceptanceItem1BothTreesClean(unittest.TestCase):
+    """THE ACCEPTANCE TEST, item 1 (orchestrator 08:50 ET Nov 24): "The build refuses to start if either tree is dirty,
+    and the record names the commit it ran." Either tree: this builder's and the integrator's (the build reads code
+    from it). Dirty: a tracked code file changed or staged, or an untracked .py in the code folders; data, caches,
+    proof records, logs and lock files are not code."""
+
+    def repo(self, d):
+        r = os.path.join(d, "t")
+        os.makedirs(os.path.join(r, "pipeline"))
+        os.makedirs(os.path.join(r, "data"))
+        subprocess.run(["git", "init", "-q", r], check=True)
+        open(os.path.join(r, "pipeline", "a.py"), "w").write("A = 1\n")
+        open(os.path.join(r, "data", "cache.json"), "w").write("{}\n")
+        TestOneEntryOneLauncher.git(r, "add", "-A")
+        TestOneEntryOneLauncher.git(r, "commit", "-q", "-m", "c1")
+        return r
+
+    def test_what_makes_a_tree_dirty(self):
+        import proof_ledger as PLG
+        with tempfile.TemporaryDirectory() as d:
+            r = self.repo(d)
+            st = PLG.tree_state(r, ("pipeline",))
+            self.assertEqual(st["dirty"], [])
+            self.assertRegex(st["head"], r"^[0-9a-f]{40}$")
+            open(os.path.join(r, "data", "cache.json"), "w").write('{"x": 1}\n')        # data: never code
+            open(os.path.join(r, "pipeline", "x.log"), "w").write("log\n")
+            open(os.path.join(r, "pipeline", "y.json.lock"), "w").write("")
+            self.assertEqual(PLG.tree_state(r, ("pipeline", "data"))["dirty"], [])
+            open(os.path.join(r, "pipeline", "a.py"), "a").write("B = 2\n")
+            self.assertEqual(PLG.tree_state(r, ("pipeline",))["dirty"], ["pipeline/a.py (changed, not committed)"])
+            TestOneEntryOneLauncher.git(r, "add", "pipeline/a.py")                     # the integrator's usual case
+            self.assertEqual(PLG.tree_state(r, ("pipeline",))["dirty"], ["pipeline/a.py (staged, not committed)"])
+            open(os.path.join(r, "pipeline", "new.py"), "w").write("N = 1\n")
+            self.assertIn("pipeline/new.py (not committed, not tracked)", PLG.tree_state(r, ("pipeline",))["dirty"])
+            gone = PLG.tree_state(os.path.join(d, "nowhere"), ("pipeline",))
+            self.assertTrue(gone["dirty"])                                              # unreadable: never clean
+
+    def test_the_refusal_is_one_plain_line_naming_the_files(self):
+        import proof_ledger as PLG
+        clean = {"root": "/a", "head": "1" * 40, "dirty": []}
+        self.assertIsNone(PLG.dirty_refusal([("this builder's tree", clean), ("the integrator's tree", clean)]))
+        line = PLG.dirty_refusal([("this builder's tree", clean), ("the integrator's tree", dict(
+            clean, root="/home/ultron/protocol_pulse", dirty=["pipeline/edl_rules.py (staged, not committed)"]))])
+        self.assertTrue(line.startswith("REFUSED: the build did not start because code was changed and not committed"))
+        self.assertIn("in the integrator's tree (/home/ultron/protocol_pulse): pipeline/edl_rules.py (staged", line)
+        self.assertNotIn("\n", line)
+
+    def test_a_dirty_tree_refuses_the_build_before_any_record(self):
+        """The driver's real path (its entry taken as its own file run as __main__, not a test), with the integrator's
+        tree staged: exit 2, the one line on stderr, no record folder."""
+        import io
+        import proof_ledger as PLG
+        pins = [os.path.join(PROOF, "fresh_20261112_050611", "MOMENTS_PIN.json")]
+        real = dict(PLG.entry_of(), ok=True, why=None, under_test=False)
+        dirty = [("this builder's tree", {"root": REPO, "head": "1" * 40, "dirty": []}),
+                 ("the integrator's tree", {"root": "/home/ultron/protocol_pulse", "head": "2" * 40,
+                                            "dirty": ["pipeline/owner_rules.py (staged, not committed)"]})]
+        with tempfile.TemporaryDirectory() as d:
+            err = io.StringIO()
+            with mock.patch.object(PLG, "entry_of", lambda: real), mock.patch.object(PLG, "trees_state", lambda: dirty), \
+                    mock.patch.object(PLG, "HERE", d), mock.patch.object(PLG.signal, "signal", lambda *a: None), \
+                    mock.patch.object(OC, "OUTCOMES", os.path.join(d, "o.jsonl")), mock.patch.object(sys, "stderr", err):
+                self.assertEqual(PLG.main(["--delivered", *pins]), 2)
+            self.assertIn("pipeline/owner_rules.py (staged, not committed)", err.getvalue())
+            self.assertFalse(os.path.exists(os.path.join(d, "proof")))                  # no record folder
+            self.assertEqual(OC.lines(os.path.join(d, "o.jsonl")), [])                  # and no outcome line: no build
+
+    def test_a_run_that_only_claims_a_test_writes_no_real_record(self):
+        """Audit L2 (qwen, cycle 2): a wrapper can set the test variable and import pytest; its run is then refused
+        before it can write into the real build records."""
+        import io
+        import proof_ledger as PLG
+        pins = [os.path.join(PROOF, "fresh_20261112_050611", "MOMENTS_PIN.json")]
+        before = set(os.listdir(PROOF))
+        err = io.StringIO()
+        with mock.patch.object(sys, "stderr", err):
+            self.assertEqual(PLG.main(["--delivered", *pins]), 2)                       # HERE is the real folder
+        self.assertIn("never writes into the real build records", err.getvalue())
+        self.assertEqual(set(os.listdir(PROOF)), before)
+
+
+class TestAcceptanceItem2bPlainNotes(unittest.TestCase):
+    """THE ACCEPTANCE TEST, item 2 (b): every outcome's note is "a reason PBX can read in one sentence": plain words,
+    no ruling numbers, no ids; the technical reason is the line's detail."""
+    BAD = __import__("re").compile(r"\bruling\b|\b[0-9a-f]{20}\b|\bS-[0-9a-f]{8}\b|\d|_")
+
+    def plain(self, note, ctx):
+        self.assertTrue(note and note.endswith(".") and ". " not in note.strip(".") and "\n" not in note, (note, ctx))
+        self.assertIsNone(self.BAD.search(note), (note, ctx))
+
+    def test_every_note(self):
+        for o in OC.KINDS:
+            self.plain(OC.plain_note(o, "nowhere"), o)
+        for (o, st), n in OC.NOTES.items():
+            self.plain(n, (o, st))
+        self.plain(OC.NOTE_LOCK_OFF, "lock off")
+        for why, pre, *_ in TestEveryReasonOneOutcome.CASES:
+            c = OC.classify(why, pre)
+            self.plain(OC.plain_note(c["outcome"], c["stage"], c["gate"]), why)
+        for run in ("ledger_20261124_000525", "ledger_20261124_003124", "ledger_20261124_004415",
+                    "ledger_20261124_012843", "ledger_20261124_012928", "ledger_20261124_032741",
+                    "ledger_20261124_033614"):
+            x = OC.outcome_of(os.path.join(PROOF, run))
+            self.plain(x["note"], run)
+            self.assertNotEqual(x["note"], x["detail"])
+        for x in OC.lines(os.path.join(REPO, "data", "builds", "outcomes.jsonl")):     # the backfilled lines
+            self.plain(x["note"], x["run"])
 
 
 class TestOneEntryOneLauncher(unittest.TestCase):

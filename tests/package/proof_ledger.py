@@ -118,6 +118,54 @@ NOTHING_NEW = "NOTHING_NEW.json"     # RULING 107 (1): a build that found nothin
 
 
 UNDER_TEST = "PP_SELECTID_DRIVER_UNDER_TEST"   # set only by tests/package/conftest.py, inside pytest
+MAIN_TREE = os.environ.get("PP_MAIN_TREE", "/home/ultron/protocol_pulse")   # the integrator's tree: the build reads
+#   code from it (the render scorer's files, owner_rules, the lock pre-check's service) and its results
+TREES = (("this builder's tree", REPO, ("pipeline", "tests/package", "tests/select_by_id", "tests/moments",
+                                        "tests/eligibility", "tests/providers")),
+         ("the integrator's tree", MAIN_TREE, ("pipeline", "video_pipeline_v3")))
+CODE_FILES = (".py", ".sh")
+
+
+def tree_state(root, dirs):
+    """THE ACCEPTANCE TEST, item 1 (orchestrator 08:50 ET Nov 24: "The build refuses to start if either tree is dirty,
+    and the record names the commit it ran"): one git tree -> {"root", "head", "dirty"}. Dirty: a tracked code file
+    (.py / .sh) in its code folders modified or staged, or an untracked .py / .sh there; data, caches, proof records,
+    logs and lock files are not code. "head": its HEAD commit, or None when git cannot read it (then it is dirty: an
+    unreadable tree is never clean)."""
+    try:
+        head = subprocess.run(["git", "-C", root, "rev-parse", "HEAD"], capture_output=True, text=True,
+                              timeout=30).stdout.strip() or None
+        st = subprocess.run(["git", "-C", root, "status", "--porcelain=v1", "-uall", "--", *dirs], capture_output=True,
+                            text=True, timeout=120)
+    except (OSError, subprocess.SubprocessError) as e:
+        return {"root": root, "head": None, "dirty": [f"(git could not read it: {type(e).__name__})"]}
+    if st.returncode != 0 or not head:
+        return {"root": root, "head": head, "dirty": [f"(git could not read it: {st.stderr.strip()[:120]})"]}
+    dirty = []
+    for line in st.stdout.splitlines():
+        xy, path = line[:2], line[3:].split(" -> ")[-1].strip('"')
+        if not path.endswith(CODE_FILES):
+            continue
+        how = ("not committed, not tracked" if xy == "??" else "staged, not committed" if xy[1] == " " else
+               "changed, not committed")
+        dirty.append(f"{path} ({how})")
+    return {"root": root, "head": head, "dirty": dirty}
+
+
+def trees_state():
+    """-> [(name, tree_state)] of both trees the build runs on."""
+    return [(name, tree_state(root, dirs)) for name, root, dirs in TREES]
+
+
+def dirty_refusal(states):
+    """The one plain line a dirty tree refuses the build with, for a person to read, or None when both are clean."""
+    bad = [(n, st) for n, st in states if st["dirty"]]
+    if not bad:
+        return None
+    return ("REFUSED: the build did not start because code was changed and not committed: " + "; ".join(
+        f"in {n} ({st['root']}): {', '.join(st['dirty'][:12])}" + (f" and {len(st['dirty']) - 12} more"
+                                                                    if len(st["dirty"]) > 12 else "")
+        for n, st in bad) + ". Commit (and push) or put away those changes, then start the build again.")
 
 
 def entry_of():
@@ -595,7 +643,17 @@ def _main(argv, box):
         print(f"REFUSED: the delivered pins, 'since', the candidate or the candidate registry cannot be read "
               f"({type(e).__name__}: {e})", file=sys.stderr)
         return 2
+    trees = trees_state()                                # THE ACCEPTANCE TEST, item 1: both trees clean, or no build
+    refusal = dirty_refusal(trees)
+    if refusal and not entry["under_test"]:
+        print(refusal, file=sys.stderr)
+        return 2
+    entry = dict(entry, trees={n: {"root": st["root"], "head": st["head"], "dirty": st["dirty"]} for n, st in trees})
     out_dir = os.path.join(HERE, "proof", f"ledger_{now.strftime('%Y%m%d_%H%M%S')}")
+    if entry["under_test"] and os.path.realpath(os.path.dirname(out_dir)) == \
+            os.path.realpath(os.path.join(REPO, "tests", "package", "proof")):   # audit L2 (qwen, cycle 2): a run
+        print("REFUSED: a run under test never writes into the real build records", file=sys.stderr)   # that only
+        return 2                                                                  # claims to be a test makes none
     try:
         os.makedirs(out_dir)                     # never into an earlier run's evidence (glm C3 P2-1)
     except FileExistsError:
@@ -609,6 +667,9 @@ def _main(argv, box):
         f"{now.isoformat(timespec='seconds')}, since {since.isoformat(timespec='seconds')} "
         f"({'--since' if a.since else 'the newest delivered pin'}), publish window {a.hours} h" +
         (f"; RULING 66: ONLY the candidate {cand['source']} tried[{cand['index']}] {cand['lineup']}" if cand else ""))
+    say("  commits (the acceptance test, item 1): " + "; ".join(
+        f"{n} {t['root']} at {str(t['head'])[:12]}" + (f" (UNDER TEST, changed: {t['dirty']})" if t["dirty"] else "")
+        for n, t in entry["trees"].items()))
     say(f"  entry (verifier rows 12 / 16, ruling 163 (5)): {entry['driver']} (git sha {str(entry['driver_sha'])[:12]}, "
         f"{'the committed one' if entry['driver_committed'] else 'NOT the committed one'}) as __main__ (argv0 "
         f"{entry['argv0']}), HEAD {str(entry['code'])[:12]}, changed code files {entry['dirty'] or 'none'}")

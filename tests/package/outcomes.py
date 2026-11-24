@@ -53,6 +53,68 @@ STORY_ID = re.compile(r"\bS-[0-9a-f]{8}\b")
 RUN = re.compile(r"^ledger_(\d{8})_(\d{6})$")
 
 
+NOTES = {   # THE ACCEPTANCE TEST, item 2 (b) (orchestrator 08:50 ET Nov 24): every outcome carries "a reason PBX can read
+    #   in one sentence": the line's "note", plain words, no ruling numbers, no ids (the technical reason is "detail")
+    ("SEALED", "seal"): "The video passed every check and was sealed for review.",
+    ("NO_ELIGIBLE_STORY", "inputs"): "Nothing had changed since the last attempt, so the build did not run again.",
+    ("NO_ELIGIBLE_STORY", "pool"): "There were not enough usable clips from three different channels to make a video.",
+    ("NO_ELIGIBLE_STORY", "start"): "A clip in the set would have been too old by the time the video reached the render, "
+                                    "so the build was stopped before it began.",
+    ("HARD_REJECTED", "step A"): "Our fact-check turned down too many clips, leaving fewer than three channels.",
+    ("HARD_REJECTED", "step A, second family"): "A second fact-check turned down the clips that could open the video.",
+    ("HARD_REJECTED", "second pass + CUTTABLE"): "A second listen to the audio turned down clips (words heard "
+                                                 "differently, or a cut in the middle of a sentence), leaving too few "
+                                                 "to make a video.",
+    ("HARD_REJECTED", "hook onset"): "No clip could open the video with a clean start.",
+    ("HARD_REJECTED", "hooks"): "None of the clips was strong enough to open the video.",
+    ("HARD_REJECTED", "visual"): "Something on screen in a clip made it unusable, such as a news ticker or text our "
+                                 "cut would slice.",
+    ("HARD_REJECTED", "lock pre-check"): "The render's word check would not accept the words of a clip.",
+    ("HARD_REJECTED", "line-ups"): "The clips that passed could not be arranged into a video of the right length from "
+                                   "three channels.",
+    ("HARD_REJECTED", "writes"): "Our writers could not produce lines that passed the fact and quality checks.",
+    ("HARD_REJECTED", "seal"): "The finished package failed its final check before sealing.",
+    ("HARD_REJECTED", "out edge"): "A clip ended in the middle of a sentence and could not be extended.",
+    ("INDETERMINATE", "visual"): "A model did not answer the picture check of some clips, so the build stopped "
+                                 "without a decision.",
+    ("INDETERMINATE", "hooks"): "A model did not answer the rating of the opening clips, so the build stopped "
+                                "without a decision.",
+    ("INDETERMINATE", "step A"): "A model did not answer the fact-check of some clips, so the build stopped without a "
+                                 "decision.",
+    ("INDETERMINATE", "step A, second family"): "A model did not answer the second fact-check of some clips, so the "
+                                                "build stopped without a decision.",
+    ("INDETERMINATE", "second pass + CUTTABLE"): "The second listen to the audio could not be made for some clips, so "
+                                                 "the build stopped without a decision.",
+    ("INDETERMINATE", "hook onset"): "The start of some clips could not be measured, so the build stopped without a "
+                                     "decision.",
+    ("INDETERMINATE", "lock pre-check"): "The render's word check gave no answer in time, so the build stopped "
+                                         "without a decision.",
+    ("INDETERMINATE", "gates"): "A model did not answer a check of our lines, so the build stopped without a decision.",
+    ("INDETERMINATE", "out edge"): "A model did not answer whether a clip ends on a complete thought, so the build "
+                                   "stopped without a decision.",
+    ("INDETERMINATE", "line-ups"): "Our writers did not produce a usable plan for the video, so the build stopped "
+                                   "without a decision.",
+    ("INDETERMINATE", "start"): "The build stopped before it finished, so nothing was decided.",
+    ("BUDGET_STOPPED", "start"): "The day's spending limit had already been reached, so the build did not start.",
+    ("BUDGET_STOPPED", "spend"): "The day's spending limit was reached before all the checks could run.",
+    ("BUDGET_STOPPED", "line-ups"): "The build used up its time or money for trying line-ups before finding a video.",
+}
+NOTE_LOCK_OFF = "The render's word check was not asked, to save money, so no video could be sealed."
+NOTE_DEFAULT = {"SEALED": NOTES[("SEALED", "seal")],
+                "HARD_REJECTED": "The clips were turned down by our checks, so no video was made.",
+                "NO_ELIGIBLE_STORY": "There was no story with enough usable clips to make a video.",
+                "INDETERMINATE": "A check could not be answered, so the build stopped without a decision.",
+                "BUDGET_STOPPED": "The spending limit stopped the build before it could finish.",
+                "RENDER_FAILED": "The render did not finish."}
+
+
+def plain_note(outcome, stage, gate=""):
+    """The outcome's one plain sentence for PBX (no ruling numbers, no ids)."""
+    if outcome == "BUDGET_STOPPED" and "not asked" in str(gate or ""):
+        return NOTE_LOCK_OFF
+    return NOTES.get((outcome, stage)) or NOTE_DEFAULT.get(outcome) or "The build ended without a video."
+
+
 def _load(path):
     try:
         with open(path) as f:
@@ -312,7 +374,13 @@ def yield_of(pk, inp=None):
 
 def outcome_of(build_dir, rc=None, error=None, refused=None, build_no=None, backfilled=False, titles=None):
     """One build record -> its ONE outcome line (the agreed schema). rc / error / refused: how the driver ended
-    (its exit code, the exception that ended it, its start refusal's words)."""
+    (its exit code, the exception that ended it, its start refusal's words). Its "note" is PBX's one plain sentence
+    (plain_note); the technical reason is its "detail"."""
+    line = _outcome_of(build_dir, rc, error, refused, build_no, backfilled, titles)
+    return dict(line, detail=line.get("note"), note=plain_note(line["outcome"], line["stage"], line.get("gate")))
+
+
+def _outcome_of(build_dir, rc=None, error=None, refused=None, build_no=None, backfilled=False, titles=None):
     run = os.path.basename(os.path.normpath(build_dir))
     pk = _load(os.path.join(build_dir, "package.json"))
     inp = _load(os.path.join(build_dir, "inputs.json")) or {}
