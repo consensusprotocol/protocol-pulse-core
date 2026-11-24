@@ -2329,5 +2329,40 @@
    "why": "from acquisition to scale",
    "backend": "xai:grok-4.20-0309-reasoning"
   }
+ },
+ "1774deb49754e4077db0ad2c8c10fa1c36fb7058b410d7e9880e0a7eed1bdc8b:fe4ffcf17524005119d62a4866da3dc7e47448441805865dffba23a0cd8344be:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "same story into what he said",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "1774deb49754e4077db0ad2c8c10fa1c36fb7058b410d7e9880e0a7eed1bdc8b:96aa144f037b4146e577fd2296da8c362f918779863db1122f08f9cf09b34c76:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "same story detailed with 55K & 7 weeks",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "fe4ffcf17524005119d62a4866da3dc7e47448441805865dffba23a0cd8344be:96aa144f037b4146e577fd2296da8c362f918779863db1122f08f9cf09b34c76:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "those lows refers to 4yr bottom",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "96aa144f037b4146e577fd2296da8c362f918779863db1122f08f9cf09b34c76:fe4ffcf17524005119d62a4866da3dc7e47448441805865dffba23a0cd8344be:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "unclear 'he', no link from wick",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "76878073e0fd626817cea1d031d669f47eaa5c6cca36e99b0032c835a5dc04ca:96aa144f037b4146e577fd2296da8c362f918779863db1122f08f9cf09b34c76:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Bitcoin price action continues",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
  }
 }

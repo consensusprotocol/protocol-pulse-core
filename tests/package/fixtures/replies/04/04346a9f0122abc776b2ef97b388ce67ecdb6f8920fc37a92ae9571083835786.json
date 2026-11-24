@@ -1,0 +1,254 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "4263f717f16c2d48da9822faa34abdcea1dbb0299b844e686f6719381868a9a1",
+ "result": {
+  "text": "No way they're not considering it. We're not taking him back. A little bit suspicious there. We've got Bitcoin surged above 64,000 as Nvidia reinstates the CEO. Like, the market just went crazy. The opening candle when this",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 12.94,
+    "text": "No way they're not considering it. We're not taking him back. A little bit suspicious there. We've got Bitcoin surged above 64,000 as Nvidia reinstates the CEO. Like, the market just went crazy. The opening candle when this"
+   }
+  ],
+  "words": [
+   {
+    "text": "No",
+    "start": 0.0,
+    "end": 0.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 0.08,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they're",
+    "start": 0.22,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 0.34,
+    "end": 0.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "considering",
+    "start": 0.52,
+    "end": 0.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 0.94,
+    "end": 1.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We're",
+    "start": 1.02,
+    "end": 1.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 1.2,
+    "end": 1.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "taking",
+    "start": 1.46,
+    "end": 1.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "him",
+    "start": 1.74,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "back.",
+    "start": 1.86,
+    "end": 2.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "A",
+    "start": 2.1,
+    "end": 2.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "little",
+    "start": 2.14,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bit",
+    "start": 2.32,
+    "end": 2.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "suspicious",
+    "start": 2.46,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there.",
+    "start": 3.2,
+    "end": 3.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We've",
+    "start": 3.9,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "got",
+    "start": 4.28,
+    "end": 4.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.4,
+    "end": 5.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "surged",
+    "start": 5.9,
+    "end": 6.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "above",
+    "start": 6.24,
+    "end": 6.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "64,000",
+    "start": 6.72,
+    "end": 7.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 7.74,
+    "end": 7.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Nvidia",
+    "start": 7.88,
+    "end": 8.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reinstates",
+    "start": 8.3,
+    "end": 8.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.86,
+    "end": 8.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "CEO.",
+    "start": 9.06,
+    "end": 9.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 9.86,
+    "end": 9.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.06,
+    "end": 10.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 10.18,
+    "end": 10.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 10.48,
+    "end": 10.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "went",
+    "start": 10.66,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crazy.",
+    "start": 10.96,
+    "end": 11.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 11.62,
+    "end": 11.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "opening",
+    "start": 11.84,
+    "end": 12.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "candle",
+    "start": 12.28,
+    "end": 12.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 12.72,
+    "end": 12.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 12.84,
+    "end": 12.94,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 13.0
+ },
+ "usd": 0.0026,
+ "seconds": 0.84,
+ "recorded_at": "2026-11-24T02:53:31Z"
+}

@@ -1,0 +1,242 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "25da7fd0445a56c905db928091db61124217682a5d2b662a4235c98293583c88",
+ "result": {
+  "text": "Over $64,000. And think about where we were on Friday. Stocks had fallen seven days in a row, Bitcoin was on its way to 55K, and everybody had the same story: the AI bubble had finally-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 11.5,
+    "text": "Over $64,000. And think about where we were on Friday. Stocks had fallen seven days in a row, Bitcoin was on its way to 55K, and everybody had the same story: the AI bubble had finally-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Over",
+    "start": 0.0,
+    "end": 0.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$64,000.",
+    "start": 0.12,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 1.86,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 1.94,
+    "end": 2.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 2.1,
+    "end": 2.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 2.3,
+    "end": 2.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 2.48,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "were",
+    "start": 2.58,
+    "end": 2.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 2.74,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Friday.",
+    "start": 2.94,
+    "end": 3.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Stocks",
+    "start": 4.019,
+    "end": 4.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 4.34,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fallen",
+    "start": 4.52,
+    "end": 4.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seven",
+    "start": 4.88,
+    "end": 5.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "days",
+    "start": 5.12,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 5.32,
+    "end": 5.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 5.42,
+    "end": 5.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "row,",
+    "start": 5.52,
+    "end": 5.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.32,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 6.66,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 6.78,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 6.9,
+    "end": 7.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 7.02,
+    "end": 7.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 7.14,
+    "end": 7.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "55K,",
+    "start": 7.24,
+    "end": 8.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 8.52,
+    "end": 8.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everybody",
+    "start": 8.68,
+    "end": 9.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 9.08,
+    "end": 9.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.22,
+    "end": 9.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "same",
+    "start": 9.38,
+    "end": 9.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "story:",
+    "start": 9.7,
+    "end": 10.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.54,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI",
+    "start": 10.7,
+    "end": 10.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bubble",
+    "start": 11.02,
+    "end": 11.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 11.28,
+    "end": 11.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "finally-",
+    "start": 11.44,
+    "end": 11.5,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.52
+ },
+ "usd": 0.002304,
+ "seconds": 0.6,
+ "recorded_at": "2026-11-24T02:53:35Z"
+}

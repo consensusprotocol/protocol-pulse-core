@@ -564,6 +564,139 @@
   },
   "version": "visual-3"
  },
+ "1cb1675158fd53f1033a:93.149-99.169:visual-3:d2e9f93b71edac57": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     93.15,
+     94.15,
+     95.15,
+     96.15,
+     97.15,
+     98.15
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "bug",
+    "text": "SIMPLY BITCOIN",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "kind": "on_screen_text",
+    "text": "TRUMP LAUNCHES MEMECOIN",
+    "why": "The narration never mentions Trump or a memecoin."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "OCTOBER 2025 RECORD HIGH",
+    "why": "The narration does not mention an October 2025 record high."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "IRAN WAR",
+    "why": "The narration does not mention any war."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "TRADE WAR",
+    "why": "The narration does not mention a trade war."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "TRUMP WINS 2024 ELECTION",
+    "why": "The narration does not mention Trump or an election result."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "BITCOIN ERASES ALL POST-ELECTION GAINS",
+    "why": "The narration only says Bitcoin was heading toward 55K, not that it erased all post-election gains."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "2024 ELECTION",
+    "why": "The narration does not mention the 2024 election."
+   },
+   {
+    "in_9x16": "whole",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "SIMPLY BITCOIN"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "TRUMP LAUNCHES MEMECOIN",
+    "why": "The narration never mentions Trump or a memecoin."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "OCTOBER 2025 RECORD HIGH",
+    "why": "The narration does not mention an October 2025 record high."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "IRAN WAR",
+    "why": "The narration does not mention any war."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "TRADE WAR",
+    "why": "The narration does not mention a trade war."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "TRUMP WINS 2024 ELECTION",
+    "why": "The narration does not mention Trump or an election result."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "BITCOIN ERASES ALL POST-ELECTION GAINS",
+    "why": "The narration only says Bitcoin was heading toward 55K, not that it erased all post-election gains."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "2024 ELECTION",
+    "why": "The narration does not mention the 2024 election."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_d7d635e7cf12daa2.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_d7d635e7cf12daa2.jpg",
+   "sha256": "d7d635e7cf12daa2e2b640831ecebce607664a501351e03b3cb7837013dafd50",
+   "times": [
+    93.15,
+    94.15,
+    95.15,
+    96.15,
+    97.15,
+    98.15,
+    99.12
+   ]
+  },
+  "third_person": {
+   "finding": "No person other than the unseen narrator appears as a still, photo, or graphic; the frames show only annotated price charts and tweet screenshots, and the narration describes market declines rather th",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2947,
+   "out": 17066,
+   "usd_reported": 0.106562
+  },
+  "version": "visual-3"
+ },
  "20cac687560642251d37:5409.960-5420.320:visual-3:6c6f9bdfb6d25b8e": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [
@@ -2343,6 +2476,95 @@
   },
   "version": "visual-3"
  },
+ "96056caa002021fd9a1d:202.473-221.113:visual-3:12383b2cda393608": {
+  "backend": "heimdall:nvidia/nemotron-3.5-super-vl",
+  "burned_in": [
+   {
+    "at": [
+     202.47,
+     203.47,
+     204.47,
+     205.47,
+     206.47,
+     207.47,
+     208.47,
+     209.47,
+     210.47,
+     211.47,
+     212.47,
+     213.47,
+     214.47,
+     215.47,
+     216.47,
+     217.47,
+     218.47,
+     219.47,
+     220.47,
+     221.08
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "bug",
+    "text": "THE DAILY WOLF",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "whole",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "THE DAILY WOLF"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_a5146fcfca70a60f.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_a5146fcfca70a60f.jpg",
+   "sha256": "a5146fcfca70a60fae55bcddcc7cc2a2c1b24ff10fdea2fed3e00201487c15d0",
+   "times": [
+    202.47,
+    203.47,
+    204.47,
+    205.47,
+    206.47,
+    207.47,
+    208.47,
+    209.47,
+    210.47,
+    211.47,
+    212.47,
+    213.47,
+    214.47,
+    215.47,
+    216.47,
+    217.47,
+    218.47,
+    219.47,
+    220.47,
+    221.06
+   ]
+  },
+  "third_person": {
+   "finding": "No non-speaker person is shown as a still, photo, or graphic in any frame; only the speaker appears.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 2400,
+   "out": 11834,
+   "usd_reported": 0.006277
+  },
+  "version": "visual-3"
+ },
  "9a3597d470232a515e09:3164.658-3181.158:visual-3:345c92b2c606dd3c": {
   "backend": "heimdall:qwen/qwen3.8-27b",
   "burned_in": [
@@ -2715,6 +2937,195 @@
    "usd_reported": 0.017004
   },
   "version": "visual-1"
+ },
+ "aaf91c675142516b3b1f:86.834-92.394:visual-3:da6655e57e76fa83": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     86.83,
+     87.83,
+     88.83,
+     89.83,
+     90.83,
+     91.83,
+     92.34
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "SIMPLY BITCOIN",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "SIMPLY BITCOIN"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_ca5be40bbdf81ad1.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_ca5be40bbdf81ad1.jpg",
+   "sha256": "ca5be40bbdf81ad1297d4384666740040a86c48ed323ec668eed01dc4123e9ed",
+   "times": [
+    86.83,
+    87.83,
+    88.83,
+    89.83,
+    90.83,
+    91.83,
+    92.34
+   ]
+  },
+  "third_person": {
+   "finding": "No person other than the live speaker is shown as a still, photo, or graphic, and the words about Bitcoin rising make no negative claim.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2944,
+   "out": 10211,
+   "usd_reported": 0.065426
+  },
+  "version": "visual-3"
+ },
+ "ad47eab4a19c2324a9eb:575.606-586.556:visual-3:05c54e79d3a82661": {
+  "backend": "heimdall:qwen/qwen3.8-27b",
+  "burned_in": [
+   {
+    "at": [
+     5761.1,
+     5761.6,
+     5801.1,
+     5861.1,
+     5861.6
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "ticker",
+    "text": "TRADE CRYPTOS & STOCKS IN 190+ COUNTRIES  KRAKEN  $25 SIGN UP BONUS. ESTABLISHED 2011",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     5761.1,
+     5761.6,
+     5801.1,
+     5861.1,
+     5861.6
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "bug",
+    "text": "CRYPTO IRA",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "kind": "third_person",
+    "name_on_screen": "The Bitcoin Therapist",
+    "text": "A still photo of a man in a suit (the 'The Bitcoin Therapist' account) is shown in the post, overlaid with the negative graphic 'IT'S ALL GONE 100% SCAMS', while the speaker says they 'hit a new low'."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "Bitcoin bottomed 4 years ago to the exact day. Seriously, what are the odds of this?",
+    "why": "The rhetorical 'Seriously, what are the odds of this?' is on screen but not spoken."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "November 21, 2022 \u2014 $15,479",
+    "why": "Gives an exact date and price that the spoken words do not state."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "November 21, 2020 \u2014 $8,527",
+    "why": "Gives an exact date and price that the spoken words do not state."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "IT'S ALL GONE 100% SCAMS 0% LEVERAGE 100% VOLUME",
+    "why": "Asserts 'IT'S ALL GONE' and '100% SCAMS', which the spoken words never say."
+   },
+   {
+    "in_9x16": "whole",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "CRYPTO IRA"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "Bitcoin bottomed 4 years ago to the exact day. Seriously, what are the odds of this?",
+    "why": "The rhetorical 'Seriously, what are the odds of this?' is on screen but not spoken."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "November 21, 2022 \u2014 $15,479",
+    "why": "Gives an exact date and price that the spoken words do not state."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "November 21, 2020 \u2014 $8,527",
+    "why": "Gives an exact date and price that the spoken words do not state."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "IT'S ALL GONE 100% SCAMS 0% LEVERAGE 100% VOLUME",
+    "why": "Asserts 'IT'S ALL GONE' and '100% SCAMS', which the spoken words never say."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_bcc818fa469e20a9.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_bcc818fa469e20a9.jpg",
+   "sha256": "bcc818fa469e20a9e9d105cdbdb51c5fc08f331048e73324d84a4713ceb3f7cf",
+   "times": [
+    575.61,
+    576.61,
+    577.61,
+    578.61,
+    579.61,
+    580.61,
+    581.61,
+    582.61,
+    583.61,
+    584.61,
+    585.61,
+    586.51
+   ]
+  },
+  "third_person": {
+   "finding": "A still photo of a man in a suit (the 'The Bitcoin Therapist' account) is shown in the post, overlaid with the negative graphic 'IT'S ALL GONE 100% SCAMS', while the speaker says they 'hit a new low'.",
+   "how": "photo",
+   "name_on_screen": "The Bitcoin Therapist",
+   "shown": true,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 1644,
+   "out": 9681,
+   "usd_reported": 0.00742515
+  },
+  "version": "visual-3"
  },
  "ae49f0e88243e485ba44:422.840-428.860:visual-3:030a55a6a9f24295": {
   "backend": "heimdall:nvidia/nemotron-3.5-super-vl",

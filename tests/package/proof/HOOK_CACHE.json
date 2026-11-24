@@ -1036,5 +1036,38 @@
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
    "answer_note": "1 trailing closing brace(s) dropped (STATE Q2, 15:04 ET Nov 15)"
   }
+ },
+ "1cb1675158fd53f1033a:1774deb49754e4077db0ad2c8c10fa1c36fb7058b410d7e9880e0a7eed1bdc8b:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 5,
+   "setup": 4,
+   "rating": 3,
+   "why": "first seconds lack drama",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "96056caa002021fd9a1d:96aa144f037b4146e577fd2296da8c362f918779863db1122f08f9cf09b34c76:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 3,
+   "setup": 4,
+   "rating": 3,
+   "why": "abrupt start refers to unspecified 'those lows'",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "aaf91c675142516b3b1f:76878073e0fd626817cea1d031d669f47eaa5c6cca36e99b0032c835a5dc04ca:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 1,
+   "setup": 3,
+   "rating": 1,
+   "why": "assumes prior context with referential phrasing",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

@@ -1,0 +1,188 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "1fc2984da65dde1fc068a0f203aa919b114defbabb083f8cafa317d4d368b76b",
+ "result": {
+  "text": "Let's get to work. Now, what does this mean for Bitcoin? Well, originally, Bitcoin ripped to $63,644 as NVIDIA reinstated their founder. But since then, looking-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 1.4,
+    "end": 2.1,
+    "text": "Let's get to work."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 4.36,
+    "end": 15.34,
+    "text": "Now, what does this mean for Bitcoin? Well, originally, Bitcoin ripped to $63,644 as NVIDIA reinstated their founder. But since then, looking-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Let's",
+    "start": 1.4,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 1.52,
+    "end": 1.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 1.68,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "work.",
+    "start": 1.82,
+    "end": 2.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Now,",
+    "start": 4.36,
+    "end": 4.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "what",
+    "start": 4.56,
+    "end": 4.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "does",
+    "start": 4.74,
+    "end": 4.92,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "this",
+    "start": 4.96,
+    "end": 5.12,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "mean",
+    "start": 5.18,
+    "end": 5.36,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "for",
+    "start": 5.4,
+    "end": 5.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin?",
+    "start": 5.58,
+    "end": 6.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Well,",
+    "start": 6.66,
+    "end": 6.82,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "originally,",
+    "start": 6.98,
+    "end": 7.58,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.06,
+    "end": 8.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "ripped",
+    "start": 8.62,
+    "end": 9.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "to",
+    "start": 9.06,
+    "end": 9.18,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "$63,644",
+    "start": 9.2,
+    "end": 11.9,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "as",
+    "start": 11.98,
+    "end": 12.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "NVIDIA",
+    "start": 12.1,
+    "end": 12.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "reinstated",
+    "start": 12.54,
+    "end": 13.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "their",
+    "start": 13.42,
+    "end": 13.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "founder.",
+    "start": 13.58,
+    "end": 13.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "But",
+    "start": 14.26,
+    "end": 14.42,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "since",
+    "start": 14.5,
+    "end": 14.74,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "then,",
+    "start": 14.8,
+    "end": 15.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "looking-",
+    "start": 15.16,
+    "end": 15.34,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.38
+ },
+ "usd": 0.003076,
+ "seconds": 1.57,
+ "recorded_at": "2026-11-24T02:53:31Z"
+}

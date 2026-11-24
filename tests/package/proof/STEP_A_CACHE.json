@@ -33896,6 +33896,40 @@
    "backend": "google:gemini-2.5-pro",
    "replayed": false,
    "speaker_verified": false
+  },
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "ad47eab4a19c2324a9eb",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "He",
+     "refers_to": "Bitcoin therapist",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "the statement about Bitcoin bottoming four years ago to the exact day",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "over the weekend",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The Bitcoin therapist said that over the weekend Bitcoin hit a new low exactly four years to the day after its prior bottom.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I didn't realize this until I read Tristan what he was talking about.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
   }
  },
  "579ef25c705b2591cd59:d7afc9a698c9d8b21a37929145e17cbed6822be4779f450f8551980bed427a01:4aab9f7a154119b8be485ba4299064abf0dc82e7267e8df7e410ec57c6fcf0ba:9d43580c729b": {
@@ -34619,6 +34653,288 @@
    "certainty": "certain",
    "speaker_is": "host",
    "speaker_evidence": "I hosted the company's post Q3 investor Q&A session last week with Michael Sailor and Fong Lee...",
+   "backend": "google:gemini-2.5-pro",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "96056caa002021fd9a1d:96aa144f037b4146e577fd2296da8c362f918779863db1122f08f9cf09b34c76:6c9656ef8b81d17a6b116405c885f98329c2cd7172e40ca5b378cff8d0a79bbf:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "96056caa002021fd9a1d",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "those lows",
+     "refers_to": "the lows from uh back earlier in the year",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "Bitcoin going to $55,000 and bouncing",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "the very very long wick on serious volume",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "this weekend / late in the middle of the night",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin swept its earlier lows by falling to $55,000 this weekend after seven straight red weeks, ending in a historic sell-off with a very long wick on serious volume.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Four years ago today, I tweeted this on Saturday.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "google:gemini-2.5-pro": {
+   "label": "96056caa002021fd9a1d",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "those lows",
+     "refers_to": "The lows from earlier in the year",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this weekend",
+     "refers_to": "The weekend immediately preceding the show date of November 23, 2026",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "The sell-off to $55,000 and subsequent bounce",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "The very, very long wick on the chart being shown",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Over the weekend, Bitcoin swept its previous lows by dropping to $55,000 and then bouncing, which concluded a seven-week sell-off and created a long wick on high volume.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "And I do want to talk about whether the Bitcoin bottom is in next. So, first I want to just show you this quick chart.",
+   "backend": "google:gemini-2.5-pro",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "3af93d112aa2b5904957:58887e205e905c1378dd70e4ca356d9ea02ef8e564ddfc84f1a8e800929b545d:8ef4cb0d7436d436c7e7cc45e45f67039c75285828428d2d9c5ba686e4f0eada:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "3af93d112aa2b5904957",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "the CEO",
+     "refers_to": "Jensen Wang / Wong (Huang)",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin surged above $64,000 as Nvidia reinstated the CEO and the market went crazy.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I am Nathan with the BTC sessions. And this is Bitcast.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "aaf91c675142516b3b1f:76878073e0fd626817cea1d031d669f47eaa5c6cca36e99b0032c835a5dc04ca:cad6982dab11ddb570d2064b993951082b80ca267c2e52460a48ecd1007b031a:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "aaf91c675142516b3b1f",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "the stock market rally (Nvidia up 30%, NASDAQ and S&P ripping)",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "on Friday",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin rose with the surging markets to just over $64,000, in contrast to the situation on Friday.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "This is Truth Block. I'm Hurley. Let's mine truth.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "google:gemini-2.5-pro": {
+   "label": "aaf91c675142516b3b1f",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "The broader market rally, including Nvidia, the NASDAQ, and the S&P 500",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin's price rose to over $64,000, participating in the broader market rally.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Today, I'll connect all the dots and I'll show you why I think this shakeout is over and the bottom is finally in for Bitcoin. This is Truth Block. I'm Hurley.",
+   "backend": "google:gemini-2.5-pro",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "1cb1675158fd53f1033a:1774deb49754e4077db0ad2c8c10fa1c36fb7058b410d7e9880e0a7eed1bdc8b:32f3fd167bc4887a6e5b5a431ad13469bc7f8300ea242ad4cc1365cced9276f9:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "1cb1675158fd53f1033a",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "its",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "seven days in a row",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Before the reversal, stocks had dropped for seven straight days with Bitcoin heading toward $55K while everyone shared the same bearish narrative.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "This is Truth Block. I'm Hurley. Let's mine truth.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "google:gemini-2.5-pro": {
+   "label": "1cb1675158fd53f1033a",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [
+    {
+     "text": "The description applies to the market state on the Friday before the show.",
+     "inside": false
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Prior to the market reversal, stocks had fallen for seven days in a row, Bitcoin was declining towards $55,000, and the prevailing market sentiment was bearish.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Today, I'll connect all the dots and I'll show you why I think this shakeout is over and the bottom is finally in for Bitcoin. This is Truth Block. I'm Hurley.",
+   "backend": "google:gemini-2.5-pro",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "62670a616b36be0c6fef:2784c4e1435ba40dbf3fa869c8bbcfdfe618e1a7f41aa26a49632f734a273df4:2fa21c4c7439bf9be5c6706826c65c16688f6a0996b5f3e196ef44551ea88e6f:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "62670a616b36be0c6fef",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "reinstatement of Jensen Wong as Nvidia CEO",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "their",
+     "refers_to": "NVIDIA",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "originally",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin initially rose sharply to $63,644 in conjunction with NVIDIA reinstating its founder.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Watch today's whole video.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "google:gemini-2.5-pro": {
+   "label": "62670a616b36be0c6fef",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "The news that Nvidia's founder, Jensen Huang, was reinstated as CEO",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "The price rip happened as NVIDIA reinstated their founder.",
+     "inside": true
+    }
+   ],
+   "retraction": "The speaker immediately follows this by stating, \"But since then, looking at Bitcoin on the day chart, it's not a great sign that we retraced the entire Nvidia pump,\" which materially limits the significance of the initial price increase.",
+   "time_ok": "yes",
+   "proposition": "Initially, Bitcoin's price surged to $63,644 in reaction to the news that Nvidia had reinstated its founder.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Of course, I'll share with you big news for altcoins. Watch today's whole video.",
    "backend": "google:gemini-2.5-pro",
    "replayed": false,
    "speaker_verified": false

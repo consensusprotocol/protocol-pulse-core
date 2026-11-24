@@ -1,0 +1,236 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "41cb90ab86ed6c93773df1a39bcc8a854bbb467d9edcbe96fbd604605078b831",
+ "result": {
+  "text": "And the S&P 500 is having its biggest day since April of last year. Bitcoin popped right along with it, hitting just over $64,000. And think about where we were on Friday. Stocks had fallen-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.16,
+    "end": 11.02,
+    "text": "And the S&P 500 is having its biggest day since April of last year. Bitcoin popped right along with it, hitting just over $64,000. And think about where we were on Friday. Stocks had fallen-"
+   }
+  ],
+  "words": [
+   {
+    "text": "And",
+    "start": 0.16,
+    "end": 0.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.26,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "S&P",
+    "start": 0.36,
+    "end": 0.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "500",
+    "start": 0.96,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 1.24,
+    "end": 1.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "having",
+    "start": 1.36,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 1.56,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "biggest",
+    "start": 1.78,
+    "end": 2.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "day",
+    "start": 2.1,
+    "end": 2.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "since",
+    "start": 2.34,
+    "end": 2.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "April",
+    "start": 2.62,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.98,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "last",
+    "start": 3.1,
+    "end": 3.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year.",
+    "start": 3.38,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.0,
+    "end": 4.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "popped",
+    "start": 4.46,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right",
+    "start": 4.76,
+    "end": 4.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "along",
+    "start": 4.9,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 5.2,
+    "end": 5.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it,",
+    "start": 5.42,
+    "end": 5.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hitting",
+    "start": 5.84,
+    "end": 6.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 6.08,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 6.26,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$64,000.",
+    "start": 6.44,
+    "end": 7.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 8.18,
+    "end": 8.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 8.26,
+    "end": 8.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 8.42,
+    "end": 8.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 8.62,
+    "end": 8.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 8.8,
+    "end": 8.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "were",
+    "start": 8.9,
+    "end": 9.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 9.06,
+    "end": 9.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Friday.",
+    "start": 9.26,
+    "end": 9.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Stocks",
+    "start": 10.34,
+    "end": 10.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 10.66,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fallen-",
+    "start": 10.84,
+    "end": 11.02,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.06
+ },
+ "usd": 0.002212,
+ "seconds": 0.61,
+ "recorded_at": "2026-11-24T02:53:31Z"
+}

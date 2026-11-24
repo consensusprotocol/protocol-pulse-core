@@ -1,94 +1,141 @@
 {
- "usd_estimate": 1.419999,
- "calls": 17,
+ "usd_estimate": 3.704743,
+ "calls": 50,
  "by_backend": {
   "heimdall:qwen/qwen3.8-27b": {
-   "calls": 2,
-   "in": 67,
-   "out": 30,
-   "usd_estimate": 0.016494,
+   "calls": 7,
+   "in": 2984,
+   "out": 10907,
+   "usd_estimate": 0.1884,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 2.92e-05,
-   "reported_calls": 1,
-   "in_reported": 67
+   "usd_reported": 0.0086506,
+   "reported_calls": 6,
+   "in_reported": 2984
   },
   "heimdall:deepseek/deepseek-v4.1-flash": {
-   "calls": 4,
+   "calls": 6,
    "in": 0,
    "out": 0,
-   "usd_estimate": 0.037119,
+   "usd_estimate": 0.050133,
    "price_usd_per_1m": [
     3,
     15
    ]
   },
   "xai:grok-4.20-0309-reasoning": {
-   "calls": 9,
-   "in": 9486,
-   "out": 49194,
-   "usd_estimate": 1.27728,
+   "calls": 22,
+   "in": 24409,
+   "out": 78024,
+   "usd_estimate": 2.072645,
    "price_usd_per_1m": [
     5,
     25
    ],
-   "usd_reported": 0.1336329,
-   "reported_calls": 9,
-   "in_reported": 9486
+   "usd_reported": 0.22261445,
+   "reported_calls": 22,
+   "in_reported": 24409
   },
   "heimdall:z-ai/glm-5.3-flash": {
-   "calls": 1,
-   "in": 27,
-   "out": 3653,
-   "usd_estimate": 0.054876,
+   "calls": 2,
+   "in": 54,
+   "out": 3656,
+   "usd_estimate": 0.055002,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.00054957,
-   "reported_calls": 1,
-   "in_reported": 27
+   "usd_reported": 0.00055164,
+   "reported_calls": 2,
+   "in_reported": 54
   },
   "heimdall:openai/gpt-oss-20b": {
-   "calls": 1,
-   "in": 1540,
-   "out": 1974,
-   "usd_estimate": 0.03423,
+   "calls": 3,
+   "in": 3662,
+   "out": 8824,
+   "usd_estimate": 0.143346,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.0001928,
-   "reported_calls": 1,
-   "in_reported": 1540
+   "usd_reported": 0.0008454,
+   "reported_calls": 3,
+   "in_reported": 3662
+  },
+  "elevenlabs_stt:scribe_v1": {
+   "calls": 5,
+   "in": 0,
+   "out": 0,
+   "usd_estimate": 0.01502,
+   "price_usd_per_1m": [
+    0.0,
+    0.0
+   ],
+   "audio_s": 75.1
+  },
+  "heimdall:nvidia/nemotron-3.5-super-vl": {
+   "calls": 2,
+   "in": 4086,
+   "out": 27834,
+   "usd_estimate": 0.429768,
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "usd_reported": 0.0145299,
+   "reported_calls": 2,
+   "in_reported": 4086
+  },
+  "xai_vision:grok-4.7": {
+   "calls": 2,
+   "in": 5891,
+   "out": 27277,
+   "usd_estimate": 0.71138,
+   "price_usd_per_1m": [
+    5,
+    25
+   ],
+   "usd_reported": 0.171988,
+   "reported_calls": 2,
+   "in_reported": 5891
+  },
+  "google:gemini-2.5-pro": {
+   "calls": 1,
+   "in": 3519,
+   "out": 3465,
+   "usd_estimate": 0.039049,
+   "price_usd_per_1m": [
+    1.25,
+    10
+   ]
   }
  },
  "by_role": {
   "angle_write": {
-   "calls": 2,
-   "usd_estimate": 0.050073
+   "calls": 4,
+   "usd_estimate": 0.159189
   },
   "probe87:heimdall:qwen/qwen3.8-27b": {
-   "calls": 1,
-   "usd_estimate": 0.000651
+   "calls": 2,
+   "usd_estimate": 0.002388
   },
   "exclusion_verdict": {
-   "calls": 3,
-   "usd_estimate": 0.036429
+   "calls": 7,
+   "usd_estimate": 0.122943
   },
   "probe87:heimdall:deepseek/deepseek-v4.1-flash": {
-   "calls": 1,
-   "usd_estimate": 0.00069
+   "calls": 2,
+   "usd_estimate": 0.00138
   },
   "context_verdict": {
-   "calls": 4,
-   "usd_estimate": 0.706015
+   "calls": 9,
+   "usd_estimate": 1.134079
   },
   "probe87:heimdall:z-ai/glm-5.3-flash": {
-   "calls": 1,
-   "usd_estimate": 0.054876
+   "calls": 2,
+   "usd_estimate": 0.055002
   },
   "viewer_takeaway": {
    "calls": 2,
@@ -99,12 +146,24 @@
    "usd_estimate": 0.28809
   },
   "coherence_verdict": {
-   "calls": 1,
-   "usd_estimate": 0.07681
+   "calls": 7,
+   "usd_estimate": 0.40897
+  },
+  "transcribe": {
+   "calls": 5,
+   "usd_estimate": 0.01502
+  },
+  "shadow86:coherence_verdict:hook": {
+   "calls": 3,
+   "usd_estimate": 0.020022
+  },
+  "visual_check": {
+   "calls": 5,
+   "usd_estimate": 1.291295
   }
  },
  "reserved": {},
- "usd_unreported_estimate": 0.052962,
- "usd_reported": 0.13440447,
+ "usd_unreported_estimate": 0.120045,
+ "usd_reported": 0.41917999,
  "late_answers": 1
 }
