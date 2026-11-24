@@ -139,15 +139,21 @@ class TestMeaningPair(unittest.TestCase):
 
 
 class TestItem7Sizes(unittest.TestCase):
-    """ITEM 7 on numbers (the builder, 10:1x ET Nov 24): canon folds 'ten million' to 10000000, so a size swap is two
-    numbers with the same significant digits at least 100 times apart; ruling 143's own correction is not one."""
+    """ITEM 7 on numbers (orchestrator 10:50 ET Nov 24: "thousand/million/billion/trillion in general"): canon folds
+    'ten million' to 10000000, so a size swap is two numbers whose scale words differ (one a thousand or more), or
+    with the same significant digits at least 100 times apart. One definition: the builder calls this too."""
 
-    def test_a_size_swap_is_a_meaning_pair_and_a_correction_is_not(self):
+    def test_a_size_swap_is_a_meaning_pair(self):
         for x, y in ((["ten", "million"], ["ten", "billion"]), (["1.5", "million"], ["1.5", "billion"]),
-                     (["two", "million"], ["two", "hundred", "million"]), (["$4", "billion"], ["$4", "trillion"])):
+                     (["two", "million"], ["two", "hundred", "million"]), (["$4", "billion"], ["$4", "trillion"]),
+                     (["12", "billion"], ["15", "trillion"]),
+                     (["$15,000", "and", "a", "half", "thousand"], ["fifteen", "and", "a", "half", "thousand"])):
             self.assertTrue(O.meaning_pair(x, y), (x, y))
-        for x, y in ((["$15,000", "and", "a", "half", "thousand"], ["fifteen", "and", "a", "half", "thousand"]),
-                     (["twenty"], ["two"]), (["fifteen"], ["fifty"]), (["55,000"], ["$55k"]), (["0"], ["00"])):
+            self.assertTrue(O.meaning_pair(y, x), (y, x))
+
+    def test_an_ordinary_number_pair_is_not(self):
+        for x, y in ((["twenty"], ["two"]), (["fifteen"], ["fifty"]), (["55,000"], ["$55k"]), (["15,500"], ["55,000"]),
+                     (["0"], ["00"]), (["third"], ["3rd"])):
             self.assertFalse(O.meaning_pair(x, y), (x, y))
 
 
@@ -167,6 +173,8 @@ class TestItem2Lexical(unittest.TestCase):
                          ["says '30', which no clip says"])
         self.assertEqual(O.line_faults("A 20 percent drop to 55,000 is the pattern to watch.", [], clip_texts=clips), [])
         self.assertEqual(O.line_faults("Bitcoin fell 30 percent.", []), [])        # no clips given: not judged
+        for text in ("First, why the rules hold.", "No one saw it coming.", "The one to watch is the wick."):
+            self.assertEqual(O.line_faults(text, [], clip_texts=clips), [], text)   # number WORDS are not digits
 
 
 class TestAnswerCache(unittest.TestCase):

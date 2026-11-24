@@ -18,7 +18,7 @@ import os
 import re
 import urllib.request
 
-VERSION = "owner_rules 3 (ruling 162 + items 2, 7, 2026-11-24)"
+VERSION = "owner_rules 4 (ruling 162 + items 2, 7, 2026-11-24)"
 
 OUT_EDGE_PROMPT = """You check where a short video clip ENDS. The clip is cut from a longer recording of one speaker. It
 must never stop while the speaker's thought is unfinished: a viewer must never feel the speaker was cut off in the
@@ -203,14 +203,26 @@ def _scale(tok):
     return t.digits, len(t.digits) + t.exponent
 
 
+def _scale_word(tok):
+    """The scale word a canon number reads with: 0 under a thousand, 1 thousand, 2 million, 3 billion, 4 trillion or
+    more; None for a token that is not a number."""
+    v = _scale(tok)
+    if v is None:
+        return None
+    return min(4, max(0, (v[1] - 1) // 3))
+
+
 def size_pair(xs, ys):
-    """ITEM 7's sizes on NUMBERS (the builder, 10:1x ET Nov 24: canon folds 'ten million' / 'ten billion' to
-    10000000 / 10000000000, so the size words are gone): two numbers with the SAME significant digits at least 100
-    times apart (a hundred, thousand, million, billion swapped). 15,000,500 against 15,500 (different digits: ruling
-    143's own transcript correction) and 20 against 2 (ten times) are not: they stay ordinary number pairs."""
-    a = [v for v in (_scale(t) for t in xs) if v]
-    b = [v for v in (_scale(t) for t in ys) if v]
-    return any(da == db and abs(pa - pb) >= 2 for da, pa in a for db, pb in b)
+    """ITEM 7's sizes on NUMBERS (orchestrator 10:50 ET Nov 24: "thousand/million/billion/trillion in general"; canon
+    folds 'ten million' / 'ten billion' to 10000000 / 10000000000, so the size words are gone): two numbers whose scale
+    words differ, one of them a thousand or more ('ten million' / 'ten billion', '12 billion' / '15 trillion',
+    15,000,500 / 15,500: million against thousand), or with the SAME significant digits at least 100 times apart
+    ('two million' / 'two hundred million'). 20 against 2 and 15,500 against 55,000 are not: ordinary number pairs.
+    One definition: the builder's selection calls this function too."""
+    a = [(_scale(t), _scale_word(t)) for t in xs if _scale(t)]
+    b = [(_scale(t), _scale_word(t)) for t in ys if _scale(t)]
+    return any((wa != wb and max(wa, wb) >= 1) or (va[0] == vb[0] and abs(va[1] - vb[1]) >= 2)
+               for va, wa in a for vb, wb in b)
 
 
 def meaning_pair(x, y):
@@ -258,8 +270,8 @@ def line_faults(text, names, clip_texts=None):
     allowed, and "says '<phrase>'" for each LISTING_PHRASES phrase in it. [] when nothing makes it one. A one-word
     channel name that is also a plain word ('Strike', 'Unchained') is matched as that word: such a line is held.
     ITEM 2 (orchestrator 09:20 ET Nov 24), checked before any model: "more than one sentence" (sentence_count), and,
-    when clip_texts (the clips' own words) are given, "says '<n>', which no clip says" for each number in the line
-    that no clip's canon tokens carry."""
+    when clip_texts (the clips' own words) are given, "says '<n>', which no clip says" for each number the line WRITES
+    WITH DIGITS ('$55,000', '20%') that no clip's canon tokens carry; a number word ('one', 'first') is not a digit."""
     import canon
     line = canon.canon_tokens(str(text or ""))
     faults = []
@@ -272,11 +284,14 @@ def line_faults(text, names, clip_texts=None):
             faults.append(f"says '{p}'")
     if sentence_count(text) > 1:
         faults.append("more than one sentence")
-    if clip_texts is not None:
-        said = {t for c in clip_texts for t in canon.canon_tokens(str(c or ""))}
-        for t in line:
-            if any(ch.isdigit() for ch in t) and t not in said and f"says '{t}', which no clip says" not in faults:
-                faults.append(f"says '{t}', which no clip says")
+    if clip_texts is not None:                       # numbers the line WRITES with digits only (the builder, 11:0x
+        said = {t for c in clip_texts for t in canon.canon_tokens(str(c or ""))}   # ET: canon folds 'one', 'first',
+        for w in str(text or "").split():                                          # 'three' to digits: never theirs)
+            if not any(ch.isdigit() for ch in w):
+                continue
+            for t in canon.canon_tokens(w):
+                if any(ch.isdigit() for ch in t) and t not in said and f"says '{t}', which no clip says" not in faults:
+                    faults.append(f"says '{t}', which no clip says")
     return faults
 
 
