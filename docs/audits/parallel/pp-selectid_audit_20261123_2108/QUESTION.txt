@@ -1,0 +1,22 @@
+pp-selectid: RULING 155 (1) (orchestrator 21:06 ET Nov 23): "THE CAP COUNTS KINDS OF FLAG, NOT CLIPS: the same soft code
+on several clips is ONE flag in PBX's note, written once with the clips named ('Three clips refer to something said
+before them: Strategy, Natalie Brunell, Yahoo Finance'). At most 3 KINDS per package, standing."
+THE CHANGE (pipeline/package.py, pipeline/package_pin.py, tests/package/test_ruling_137.py):
+- package.kind_sentences: [(label, code)] -> one sentence per code: a single clip keeps the unchanged flag_sentence; a
+  code on several clips is ONE sentence naming their channels ('Three clips (A, B, C): the checker thought each ...').
+  inventory uses it for context_a (step A's soft codes) and cuttable (the sentence-edge codes EDGE_IN / EDGE_OUT).
+- package.seg_marks (the line-up search's own count of the flags a line-up's clips carry, read against chain_cap, the
+  unchanged package.py:2324): distinct step A codes + distinct edge codes + 1 if ANY clip is STAND_ALONE-soft + the hook.
+- package_pin.content_flags (read by the unchanged review_problems, package_pin.py:425, the pin's cap check, which the
+  integrator's check_pin_only calls LIVE from this file): the number of distinct KINDS (flag_kind) over the FLAGGED
+  rows, the exception row excluded as before; flag_kind = the row for a row that says one kind once per clip
+  (PER_CLIP_KIND: stand_alone, sponsor, graphics; STAND_ALONE's per-clip sentences keep the exact prefix the
+  integrator's batch 107 matches, package.py:4796), else the row plus the sentence with the clip reference stripped.
+  review_flags_of (package_pin.py:414, the note's list) is unchanged.
+TESTS (TestRuling155FlagKinds): one code on three clips is one sentence naming them, one clip as before; the cap counts
+kinds (4 kinds over 3 refuse; 3 pass; the old per-clip sentences of one code count once); the search counts kinds.
+Mutations 5 of 5 killed.
+PLEASE CHECK: (1) can a package now carry more than 3 KINDS of flag? (2) can two DIFFERENT kinds be counted as one
+(a wrong merge, or flag_kind collapsing different doubts)? (3) does anything the integrator matches by exact text change
+(STAND_ALONE's prefix, the review_flags list equal to the sealed gates' flags)? (4) is the merged sentence correct for
+every soft code and edge code?

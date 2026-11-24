@@ -1,0 +1,184 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index dfe1255..a2a3077 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -111,6 +111,39 @@ def flag_sentence(label, channel, code):
+            f"{STEP_A_SOFT.get(code) or EDGE_WORDS[code]}."
+ 
+ 
++COUNT_WORDS = {2: "Two", 3: "Three", 4: "Four", 5: "Five"}
++STEP_A_SOFT_MANY = {"NOT_OWN_SINCERE": "the checker doubted each is the speaker's own sincere view (they may be quoting "
++                                       "someone or joking)",
++                    "REFERENT_OUTSIDE": "the checker thought each points back to something said before the clip starts",
++                    "CONDITION_OUTSIDE": "the checker thought each claim depends on a condition said outside the clip",
++                    "UNCERTAIN": "the checker was not sure what each speaker means"}
++EDGE_WORDS_MANY = {"EDGE_IN": "the checker heard the sentence run on into each clip's first word, so each may start "
++                              "mid-sentence",
++                   "EDGE_OUT": "the checker heard the sentence carry on past each clip's last word, so each may end "
++                               "mid-sentence"}
++
++
++def kind_sentences(pairs, who):
++    """RULING 155 (1) (orchestrator 21:06 ET Nov 23: "THE CAP COUNTS KINDS OF FLAG, NOT CLIPS: the same soft code on
++    several clips is ONE flag in PBX's note, written once with the clips named"): [(label, code)] -> one sentence per
++    code, in first-seen order: one clip's flag_sentence, or for a code on several clips ONE sentence naming them all
++    ('Three clips (Strategy, Natalie Brunell, Yahoo Finance): the checker thought each points back ...')."""
++    by = {}
++    for lb, c in pairs:
++        if lb not in by.setdefault(c, []):
++            by[c].append(lb)
++    out = []
++    for c, lbs in by.items():
++        if len(lbs) == 1:
++            out.append(flag_sentence(lbs[0], (who or {}).get(lbs[0]), c))
++        else:
++            chans = ", ".join(str((who or {}).get(lb) or "its channel") for lb in lbs)
++            out.append(f"{COUNT_WORDS.get(len(lbs), str(len(lbs)))} clips ({chans}): "
++                       f"{STEP_A_SOFT_MANY.get(c) or EDGE_WORDS_MANY.get(c) or STEP_A_SOFT.get(c) or EDGE_WORDS.get(c) or c}.")
++            #   audit 20261123_2108 C1 (qwen P1): never a KeyError, even for a code no table words for several clips
++    return out
++
++
+ def soft_edges(t):
+     """RULING 137 stage 2a: a moment's CUTTABLE failure is soft only when its words match (law L-v 2 ok, measured, no
+     error) and EVERY failing edge failed for the sentence running on at a word boundary (EDGE_SOFT); a word not found,
+@@ -2299,8 +2332,9 @@ def seg_marks(segs):
+     """RULING 141 (3): the flags a line-up's clips already carry from the never-empty pass's per-clip gates, one sentence
+     each as the inventory writes them: step A's soft codes (context_a), a sentence edge (cuttable), STAND_ALONE
+     (stand_alone), the hook under the calibrated bar (the medley row's hook sentence)."""
+-    n = sum(len(set(m.get("step_a_flags") or [])) + len(m.get("edge_flags") or []) + bool(m.get("stand_soft"))
+-            for m in segs or [])
++    segs = list(segs or [])                         # RULING 155 (1): KINDS, not clips: a code on several clips is one
++    n = len({c for m in segs for c in (m.get("step_a_flags") or [])}) + \
++        len({c for m in segs for c in (m.get("edge_flags") or [])}) + any(bool(m.get("stand_soft")) for m in segs)
+     return n + bool((hook_own(segs[0]) or {}).get("flagged")) if segs else n
+ 
+ 
+@@ -4668,8 +4702,9 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+         (chain_sentences(chain, who) if chain else [])
+     coh_fl = coherence_sentences(coh["soft"], chain, who) if soft and coh_ok and (coh or {}).get("soft") else []
+     lab = lambda mid: (mids or {}).get(mid, mid)                      # truth is by moment id; flags name the clip
+-    edge_fl = [flag_sentence(lab(mid), (who or {}).get(lab(mid)), c) for mid, t in (truth or {}).items()   # RULING
+-               if soft and (t.get("edges") or {}).get("cuttable") is not True for c in (soft_edges(t) or [])]   # 137 2a
++    edge_fl = kind_sentences([(lab(mid), c) for mid, t in (truth or {}).items()   # RULING 137 2a; 155 (1): kinds
++                              if soft and (t.get("edges") or {}).get("cuttable") is not True
++                              for c in (soft_edges(t) or [])], who)
+     a_rows = list((a_by or {}).values())
+     lab_codes = {lb: sorted({str(c) for c in CI.a_failures(a)} | set((seg_flags or {}).get(lb) or []))   # RULING 137:
+                  for lb, a in (a_by or {}).items()}       # each clip's step-A codes, its verdict's and every screen's soft
+@@ -4692,8 +4727,8 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+                               sorted({str(a.get("backend")) for a in a_rows}), rep(a.get("replayed") for a in a_rows),
+                               n=len(a_rows)),
+                           **({"status": "FLAGGED",            # RULING 137 stage 1; 138 (3): a sentence a clip
+-                              "flags": [flag_sentence(lb, (who or {}).get(lb), c) for lb in (a_by or {})
+-                                        for c in lab_codes[lb]]}
++                              "flags": kind_sentences([(lb, c) for lb in (a_by or {}) for c in lab_codes[lb]],
++                                                      who)}                  # RULING 155 (1): one sentence a kind
+                              if soft_a and len(a_rows) >= 1 else {}),
+                           **({"last_resort": last_resort} if last_resort else {})),   # RULING 102: the local judge
+         "context_b": dict(row(ctx_.get("ok") is True, (ctx_.get("backends") or {}).get("B"), ctx_.get("replayed"),
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index bbbba23..dd8f4bd 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -428,7 +428,7 @@ def review_problems(mp):
+     want, got = review_flags_of(mp.get("gates")), mp.get("review_flags") or []
+     out = [] if got == want else [f"review_flags {got} are not the sealed gates' flags {want}"]
+     n, cap = content_flags(mp.get("gates")), flags_cap(mp.get("gates"))
+-    return out + ([f"{n} review flags, over {cap} (ruling 136 (2) / 147)"] if n > cap else [])
++    return out + ([f"{n} kinds of review flag, over {cap} (rulings 136 (2) / 147 / 155 (1))"] if n > cap else [])
+ 
+ 
+ def flags_cap(gates):
+@@ -437,10 +437,26 @@ def flags_cap(gates):
+     return PBX_EXCEPTION_CAP if isinstance(gates, dict) and EXCEPTION_GATE in gates else REVIEW_FLAGS_MAX
+ 
+ 
++PER_CLIP_KIND = frozenset({"stand_alone", "sponsor", "graphics"})   # RULING 155 (1): one kind said once per clip
++_CLIP_REF = re.compile(r"^(?:The (?:opening|second|third|fourth|fifth) clip|A clip|The clip|[A-Z][a-z]+ clips) "
++                       r"\([^)]*\):?\s*")
++
++
++def flag_kind(gate, flag):
++    """RULING 155 (1): the KIND of one review flag: the row for a row that says one kind once per clip
++    (PER_CLIP_KIND: STAND_ALONE's per-clip sentences keep the prefix the integrator matches), else the row and the
++    sentence without the clip it names ('The second clip (Strategy): ...' and 'Three clips (...): ...' read alike)."""
++    return gate if gate in PER_CLIP_KIND else f"{gate}: {_CLIP_REF.sub('', flag).strip()}"
++
++
+ def content_flags(gates):
+-    """RULING 136 (2) / 144: the flags that count toward REVIEW_FLAGS_MAX: every review flag except an exception's."""
+-    exc = ((gates or {}).get(EXCEPTION_GATE) or {}).get("flags") or [] if isinstance(gates, dict) else []
+-    return len([f for f in review_flags_of(gates) if f not in exc])
++    """RULING 136 (2) / 144 / 155 (1) (orchestrator 21:06 ET Nov 23: "THE CAP COUNTS KINDS OF FLAG, NOT CLIPS ... At
++    most 3 KINDS per package, standing"): the KINDS of flag (flag_kind) on the FLAGGED rows that count toward the cap;
++    an exception's row never counts."""
++    if not isinstance(gates, dict):
++        return 0
++    return len({flag_kind(g, f) for g, row in gates.items() if g != EXCEPTION_GATE and isinstance(row, dict)
++                and row.get("status") == "FLAGGED" for f in row.get("flags") or [] if isinstance(f, str)})
+ 
+ 
+ def gate_problems(gates, required=REQUIRED_GATES):
+diff --git a/tests/package/test_ruling_137.py b/tests/package/test_ruling_137.py
+index fee382c..2c50916 100644
+--- a/tests/package/test_ruling_137.py
++++ b/tests/package/test_ruling_137.py
+@@ -208,6 +208,57 @@ class TestStage2a(unittest.TestCase):
+                                                    "flags": ["a word differs"]}), "r")
+ 
+ 
++class TestRuling155FlagKinds(unittest.TestCase):
++    """RULING 155 (1) (orchestrator 21:06 ET Nov 23): "THE CAP COUNTS KINDS OF FLAG, NOT CLIPS: the same soft code on
++    several clips is ONE flag in PBX's note, written once with the clips named ... At most 3 KINDS per package,
++    standing." Build 159's MicroStrategy line-ups carried REFERENT_OUTSIDE on nearly every clip."""
++    WHO = {"hook": "Natalie Brunell", "clip_01": "Strategy", "clip_02": "Yahoo Finance"}
++    MERGED = ("Three clips (Natalie Brunell, Strategy, Yahoo Finance): the checker thought each points back to "
++              "something said before the clip starts.")
++    SINCERE3 = ("The third clip (Yahoo Finance): the checker doubted this is the speaker's own sincere view (they may "
++                "be quoting someone or joking).")
++
++    def inv(self, seg_flags):
++        b = TestTheStepARow().base()
++        b["a_by"] = {lb: answer() for lb in self.WHO}
++        return PK.inventory(**b, soft=True, seg_flags=seg_flags, who=self.WHO)
++
++    def test_one_code_on_several_clips_is_one_sentence_naming_them(self):
++        a = self.inv({"hook": ["REFERENT_OUTSIDE"], "clip_01": ["REFERENT_OUTSIDE"],
++                      "clip_02": ["REFERENT_OUTSIDE", "NOT_OWN_SINCERE"]})["context_a"]
++        self.assertEqual((a["status"], a["flags"]), ("FLAGGED", [self.MERGED, self.SINCERE3]))
++        one = self.inv({"clip_01": ["REFERENT_OUTSIDE"]})["context_a"]
++        self.assertEqual(one["flags"], ["The second clip (Strategy): the checker thought it points back to something "
++                                        "said before the clip starts."])                  # one clip: as before
++
++    def gates(self):
++        stand = [PK.STAND_SOFT_PREFIX.format(channel=c) + f"it opens on '{w}'." for c, w in zip(self.WHO.values(),
++                                                                                                ("and", "so", "but"))]
++        return {"context_a": {"status": "FLAGGED", "flags": [self.MERGED, self.SINCERE3]},
++                "stand_alone": {"status": "FLAGGED", "flags": stand},       # one kind, said once per clip (prefix kept)
++                "medley": {"status": "FLAGGED", "flags": ["The opening clip (Natalie Brunell): the checker rated it "
++                                                          "under the hook bar (stopping the scroll 2 of 5, needs 3)."]}}
++
++    def test_the_cap_counts_kinds(self):
++        g = self.gates()
++        self.assertEqual(PP.content_flags(g), 4)                     # REFERENT_OUTSIDE, NOT_OWN_SINCERE, STAND_ALONE, hook
++        mp = {"gates": g, "review_flags": PP.review_flags_of(g)}
++        self.assertIn("4 kinds of review flag, over 3", " ".join(PP.review_problems(mp)))
++        g.pop("medley")
++        self.assertEqual(PP.content_flags(g), 3)
++        self.assertEqual(PP.review_problems({"gates": g, "review_flags": PP.review_flags_of(g)}), [])
++        per_clip = {"context_a": {"status": "FLAGGED", "flags": [   # the old per-clip sentences of one code: one kind
++            "The second clip (A): the checker thought it points back to something said before the clip starts.",
++            "The third clip (B): the checker thought it points back to something said before the clip starts."]}}
++        self.assertEqual(PP.content_flags(per_clip), 1)
++
++    def test_the_line_up_search_counts_kinds_too(self):
++        segs = [{"step_a_flags": ["REFERENT_OUTSIDE"]}, {"step_a_flags": ["REFERENT_OUTSIDE"], "stand_soft": True},
++                {"step_a_flags": ["REFERENT_OUTSIDE", "NOT_OWN_SINCERE"], "stand_soft": True,
++                 "edge_flags": ["EDGE_OUT"]}, {"edge_flags": ["EDGE_OUT"]}]
++        self.assertEqual(PK.seg_marks(segs), 4)        # REFERENT_OUTSIDE, NOT_OWN_SINCERE, EDGE_OUT, STAND_ALONE
++
++
+ class TestStage2bHookBar(unittest.TestCase):
+     """RULING 137 STAGE 2b (1) (line 1, 13:20 ET): the calibrated hook bar is SOFT in the never-empty pass. A hook its
+     own rater rated UNDER a floor opens, flagged in plain words (the best HOOK_SOFT_MAX of them); no calibration,
