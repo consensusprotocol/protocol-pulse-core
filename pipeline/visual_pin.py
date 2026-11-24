@@ -374,16 +374,21 @@ def sponsor_graphics(rec):
 
 
 def current(rec):
-    """A measured record of this VERSION read again under today's rules (RULING 161): its flags and formats are
-    derived from its answers, so a record cached before a rule changed is judged as a fresh one would be."""
+    """A measured record of this VERSION read under today's rules (RULING 161; audit 0814 cycle 2, qwen F4): a flag on
+    a burned-in item that is now sponsor material (listed by question 5, or a bug named by its offer words) is dropped,
+    and a 16:9-only reason of today's formats() is added. Nothing else changes: a 16:9-only decision the build made
+    (ruling 146 (1)'s graphics, ruling 123 (2)'s hook) is never undone, and every other flag stays as recorded."""
     if not ((rec or {}).get("measured") is True and rec.get("version") == VERSION and
-            isinstance(rec.get("burned_in"), list) and isinstance(rec.get("third_person"), dict) and
-            isinstance(rec.get("on_screen_text"), list)):    # only a whole answer of check() is read again
+            isinstance(rec.get("burned_in"), list)):
         return rec
-    out = {k: v for k, v in rec.items() if k != "formats"}
-    out["flags"] = flags(rec)
-    return dict(out, **({"formats": formats(rec)} if formats(rec) else {}))
-
+    gone = {(x.get("kind"), _text(x)) for x in rec["burned_in"]
+            if isinstance(x, dict) and (sponsor_item(x, rec) or offer_named(x))}
+    out = dict(rec, flags=[f for f in rec.get("flags") or []
+                           if not (isinstance(f, dict) and f.get("kind") == "burned_in" and
+                                   (f.get("item"), f.get("text") if isinstance(f.get("text"), str) else "") in gone)])
+    if formats(rec) and out.get("formats") != ["16x9"]:
+        out["formats"] = formats(rec)
+    return out
 
 def flags(v):
     """RULING 70: the findings sealed as FLAGS (never a reject by themselves)."""

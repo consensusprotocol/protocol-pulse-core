@@ -331,11 +331,13 @@ class TestRuling161VisibleSponsorIsInformation(unittest.TestCase):
         cut = dict(v4, burned_in=[dict(x, in_9x16="cut") if x["kind"] == "ticker" else x for x in v4["burned_in"]])
         self.assertIsNone(VP.layout_block(cut))                                     # the listed Kraken banner cut:
         self.assertEqual((VP.formats(cut), VP.graphics_only(cut)), (["16x9"], None))   # 16:9 only, no flag
-        old = dict(cut, flags=[{"kind": "burned_in", "text": "TRADE CRYPTOS", "item": "ticker", "in_9x16": "cut"}])
-        now = VP.current(old)
-        self.assertEqual(now["formats"], ["16x9"])
-        self.assertEqual([f for f in now["flags"] if f["kind"] == "burned_in"], [])
-        self.assertEqual(VP.current(dict(v4, formats=["16x9"])).get("formats"), None)   # stale both ways
+        kraken = next(x for x in v4["burned_in"] if x["kind"] == "ticker")["text"]
+        keep = {"kind": "on_screen_text", "text": "CEO SAYS", "why": "x"}
+        old = dict(cut, flags=[{"kind": "burned_in", "text": kraken, "item": "ticker", "in_9x16": "cut"}, keep])
+        old.pop("formats", None)
+        now = VP.current(old)                                        # a record cached before today's rule
+        self.assertEqual((now["formats"], now["flags"]), (["16x9"], [keep]))   # its sponsor flag gone, the rest kept
+        self.assertEqual(VP.current(dict(v4, formats=["16x9"]))["formats"], ["16x9"])   # a 16:9 decision never undone
         panel = dict(v4, burned_in=[dict(x, in_9x16="cut") if x["kind"] == "bug" else x for x in v4["burned_in"]])
         self.assertIn("9:16 crop would cut", VP.layout_block(panel))   # NOT listed by question 5: ruled as the show's
         self.assertEqual(VP.graphics_only(panel), ["bug"])             # own graphics (146 (1)), named all the same
