@@ -435,6 +435,8 @@ def small_tenants(f, need_mib):
         return False, "no measured need for this caller"
     if any(pid is None or mib is None or mib >= SMALL_TENANT_MAX_MIB for pid, _, mib in f):
         return False, f"a foreign user of {SMALL_TENANT_MAX_MIB} MiB or more, or unaccounted"
+    if any(pid in _ollama_pids() for pid, _, _ in f):                 # another client's Ollama model: waited out, as before
+        return False, "an Ollama model this run did not request"
     used, total = memory()
     ours = {os.getpid()} | _descendants() | _lease_holders() | _ollama_pids()
     mine = sum(m for pid, _, m in processes() if pid in ours and m)

@@ -308,7 +308,7 @@ class TestSwap(Box):
 
     def test_a_newcomer_is_never_unloaded_and_an_unreported_memory_proves_nothing(self):
         self.ollama[:] = ["qwen3-coder:30b"]                             # appeared after the foreign check
-        with gpu0.lease("t"), mock.patch.object(gpu0, "_refuse_foreign", lambda what: None):
+        with gpu0.lease("t"), mock.patch.object(gpu0, "_refuse_foreign", lambda what, need_mib=None: None):
             gpu0.release_all(wait_s=0)
             self.assertEqual(self.unloaded, [])                          # not this run's: never unloaded
             self.procs[:] = [(os.getpid(), "python3", None)]
