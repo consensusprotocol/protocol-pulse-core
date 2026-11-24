@@ -559,6 +559,8 @@ def _package(segs, ctx, fields, vo_kind, vo, lines):
                         "url_30s_before": f"https://www.youtube.com/watch?v={m['video_id']}&t={max(0, int(m['start']) - 30)}s",
                         **({"trimmed_leading": m["trimmed_leading"], "untrimmed_start": m["untrimmed_start"]}
                            if m.get("trimmed_leading") else {}),
+                        **({"heard": m["heard"]} if m.get("heard") else {}),   # RULING 163 (2)(b): the context checks
+                        #   read a corrected clip's words, never the transcript's (context_integrity._window_text)
                         **({"visual": __import__("visual_pin").sealed(__import__("visual_pin").current(
                             m["visual"]))}         # ruling 70: sealed; RULING 161: under today's rules (audit 0814 C2)
                            if m.get("visual") else {}),
@@ -833,7 +835,8 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
     a_by, fails, vendors, families, todo, contexts, keys = {}, {}, set(), set(), [], {}, {}
     for m in order:
         mid = m["moment_id"]
-        text, win = CI._window_text(src_of(m, sources), m["sentences"][0], m["sentences"][1], *m["words"])
+        text, win = CI._window_text(src_of(m, sources), m["sentences"][0], m["sentences"][1], *m["words"],
+                                    selected=(m.get("heard") or {}).get("text"))   # RULING 163 (2)(b): its words
         if text is None:            # no L-s context (a window record without its caption record, short coverage, an
             fails[mid] = ["CONTEXT_UNAVAILABLE: no L-s context for this moment (law L-s)"]     # unclocked moment): THIS
             continue                # moment is not cleared; it never poisons its batch's call
@@ -3463,6 +3466,32 @@ def lv2_pending(t, has_lock):
     return dict(t, ok=True, word_check="pending the render's lock (ruling 143)") if has_lock and words_only(t) else t
 
 
+HEARD = "~heard"                   # RULING 163 (2): the id of a clip on the words the render's lock corrected
+
+
+def heard(m, row):
+    """RULING 163 (2) (orchestrator 08:22 ET Nov 24): "when the lock replaces ANY word of the transcript with the
+    audio's reading, material or not ... every verdict made on that clip's old text (step A, context, fidelity of our
+    lines, value) is RE-MADE on the corrected text before sealing: a verdict on words the clip does not say is not a
+    verdict." -> the clip on the words the lock pre-check adopted for it (`row`: its decided row, verdict "adopt"),
+    under an id of its own (its id + HEARD, so no verdict cached under the old id or text answers for it), carrying
+    "heard" (the words, read by step A and the context checks in place of the transcript's: context_integrity.
+    _window_text) and none of the verdicts made on the old words (step A's flags, vision, the hook rating and its soft
+    mark, the OUT-edge verdict); or None when the row adopts nothing that changes a word of this clip's text."""
+    import lock_precheck as LP
+    if not isinstance(row, dict) or row.get("verdict") != "adopt" or row.get("approved_text") != m.get("text") or \
+            not isinstance(row.get("spoken_text"), str):
+        return None
+    cw = LP.corrected_words(row["approved_text"], row["spoken_text"])
+    if not cw:
+        return None
+    cm = {k: v for k, v in m.items() if k not in ("visual", "visual_hook_block", "step_a_flags", "hook_rating",
+                                                  "hook_bar_soft", "out_edge", "sixteen_nine_only")}
+    cm.update(moment_id=m["moment_id"] + HEARD, text=row["spoken_text"],
+              heard={"from": m["moment_id"], "text": row["spoken_text"], "was": m["text"], "corrected": cw})
+    return cm
+
+
 def lock_verdicts(pre, segs):
     """{moment id: the lock pre-check's verdict} for a line-up whose pre-check answered (else {})."""
     rows = pre.get("segments") if isinstance(pre, dict) and not pre.get("error") else None   # audit F (qwen, cycle 2):
@@ -4210,7 +4239,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
         if plan["order"] is None:
             note["why_not"] = plan["why_not"]
             return None
-        order, added, nv_med = plan["order"], plan["added"], med
+        order, added, nv_med = untouched(plan["order"]), plan["added"], med   # RULING 163 (2): the lock is asked on
+        #   the transcript's words, as for any clip; what it corrects is judged again (rejudge_heard)
         if added is not None:                                # its new line-up, judged on the clips alone again
             ok2, nv_med = medley(router, order, ctx, writers_v, seed=50 + n_lineup + 10 * ai, writer_family=writers_f)
             note["medley"] = nv_med
@@ -4242,6 +4272,11 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
             if nv_pre.get("error") or not nv_pre.get("segments"):
                 out["lock_stop"] = note["why_not"]        # no verdict: the search stops, as for a voiced line-up
             return None
+        if nv_pre is not None:                            # RULING 163 (2)(b): its corrected clips, judged again
+            order, why_h, nv_med = rejudge_heard(order, nv_pre, note, nv_med, 50 + n_lineup + 10 * ai)
+            if why_h:
+                note["why_not"] = why_h
+                return None
         see(order)                                        # RULING 70: the added clip is seen too
         vbad = {m["moment_id"]: VP.layout_block(m.get("visual")) for m in order      # ruling 93 (not measured
                 if VP.layout_block(m.get("visual")) and not (m is order[0] and opens_16x9(m))   # included, law L-m)
@@ -4324,6 +4359,112 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
         log(f"  angle {ai + 1} line-up {n_lineup}: NO-VOICE package, ruling {note['ruling']} ({len(order)} clips, "
             f"{sum(m['duration_s'] for m in order):.1f} s, added {added}) ({time.time() - t0:.0f} s)")
         return pk
+
+    def untouched(ms_):
+        """RULING 163 (2): a line-up with each corrected clip (heard()) back on its transcript's words, so the lock
+        pre-check is asked as for any clip and its correction is written and judged again (never lost: a lock asked on
+        words it corrected itself finds no difference)."""
+        return [cleared.get((m.get("heard") or {}).get("from"), m) for m in ms_]
+
+    def rejudge_heard(segs_, pre_, rec_, med_, seed_):
+        """RULING 163 (2)(b): the clips of this line-up whose words the lock pre-check corrected (heard()), judged
+        AGAIN on the words they say, before any write or verdict: step A on both families (as the pool: the first
+        screen off the writers, the second off the first's family; its soft codes flag in the never-empty pass), the
+        OUT edge (ruling 162 (1), never extended here: the lock's span stands), the exclusion screen and the second
+        pass (L-v 2, CUTTABLE; the lock's own settlement as ruled, lv2_settled), vision (and, for the hook, its
+        rating on the calibrated bar and ruling 70's third-person rule), then the line-up's clips-alone verdict. The
+        writes, the context checks, fidelity, value and coherence run on them by construction (their segments' text
+        and "heard"). -> (the line-up, why it cannot go on or None, the clips-alone verdict to use). A clip that fails
+        is out for good under BOTH its ids (doomed)."""
+        rows = (pre_ or {}).get("segments") or []
+        if not (isinstance(pre_, dict) and pre_.get("ok") is True and len(rows) == len(segs_)):
+            return segs_, None, med_
+        swap = {i: cm for i, (m, r) in enumerate(zip(segs_, rows)) for cm in [heard(m, r)] if cm is not None}
+        if not swap:
+            return segs_, None, med_
+        cms = list(swap.values())
+        try:
+            a1, f1, _, _ = prescreen(router, cms, sources, ctx, writers_v, writers_f, n=len(cms), store=None, log=log,
+                                     cache=step_a_cache, kind="step_a_first", **first_bounds(router))
+        except Exception as e:                            # noqa: BLE001  no verdict is never a pass (law L-m)
+            a1, f1 = {}, {cm["moment_id"]: [held_why(e)] for cm in cms}
+        c1, _back = cleared_pool(cms, a1, f1, soft)       # RULING 137 stage 1: soft codes back, flagged (copies)
+        two, f2 = second_screen(router, c1, a1, sources, ctx, log=log, cache=step_a_cache) if c1 else ({}, {})
+        soft2 = soft_second(c1, two, f2) if soft else {}
+        bad, lv = {}, lock_verdicts(pre_, [swap.get(i, m) for i, m in enumerate(segs_)])
+        for i, cm0 in swap.items():
+            cid = cm0["moment_id"]
+            if cid not in c1:
+                bad[cid] = "step A on the corrected words: " + "; ".join(f1.get(cid) or ["no verdict (law L-m)"])
+                continue
+            if cid not in two and cid not in soft2:
+                bad[cid] = "step A's second family on the corrected words: " + \
+                    "; ".join(f2.get(cid) or ["no verdict (law L-m)"])
+                continue
+            cm = c1[cid]
+            swap[i] = cm
+            a_by[cid] = a1[cid]
+            if cid in two:
+                a_two[cid] = two[cid]
+            e_ = exclusion_for(router, cm, sources, exc)
+            t_ = lv2_settled(truth_for(router, cm, work_dir, tru), lv.get(cid))
+            if e_.get("verdict") != "keep":
+                bad[cid] = f"the exclusion screen on the corrected words: {e_.get('why')}"
+                continue
+            if not t_.get("ok") or (t_.get("edges") or {}).get("cuttable") is not True and not (soft and
+                                                                                                 soft_edges(t_)):
+                bad[cid] = "the second pass (L-v 2) or CUTTABLE on the corrected words"
+                continue
+            kept_oe, rec_oe = out_edges(router, [cm], sources, ctx, out_edge_cache, log)   # RULING 162 (1) on its
+            #   words; ITEM 3: only after the deterministic edge check above; cached by its own (corrected) text
+            v = next((x.get("out_edge") for x in kept_oe if x["moment_id"] == cid), None)
+            if not isinstance(v, dict) or v.get("measured") is not True or v.get("complete") is not True:
+                bad[cid] = ("the OUT edge of the corrected words (ruling 162 (1)): " +   # an extension moves the
+                            str((rec_oe.get("unverified") or {}).get(cid) or (rec_oe.get("refused") or {}).get(cid) or
+                                "the thought runs on: the lock's span is never extended here"))[:300]   # lock's span
+                continue
+            cm["out_edge"] = v
+            if i == 0:                                    # the hook: its own rating on the corrected words
+                rated, herr = hook_ratings(router, [cm], ctx, writers_v, writers_f, cache=hook_cache)
+                cm["hook_rating"] = rated.get(cid) or {"rating": None, "why": f"not rated: {herr}"}
+                if soft and (hook_bar_under(cm) or hook_unrated(cm)) and segs_[0].get("hook_bar_soft"):
+                    cm["hook_bar_soft"] = True            # RULING 137 2b / 154 (2): as the original opened
+            see([cm])                                     # RULING 70: its frames with its own words
+            if i == 0:
+                hb = VP.hook_block(cm.get("visual"))
+                if hb:
+                    cm["visual_hook_block"] = hb
+                if not can_open(cm):
+                    bad[cid] = ("the corrected hook may not open: " + (cm.get("visual_hook_block") or
+                                str((cm.get("hook_rating") or {}).get("why") or "its rating or the render's hook "
+                                                                                 "rule")))[:300]
+                    continue
+        if not bad:
+            new = [swap.get(i, m) for i, m in enumerate(segs_)]
+            ok2, med2 = medley(router, new, ctx, writers_v, seed=seed_, writer_family=writers_f)
+            if not ok2:
+                bad = {cm["moment_id"]: "the clips-alone verdict on the corrected words fails" for cm in swap.values()}
+            elif sorted(med2.get("flagged") or []) != sorted((med_ or {}).get("flagged") or []):
+                bad = {cm["moment_id"]: "the clips-alone verdict on the corrected words flags other joins"
+                       for cm in swap.values()}
+        rec_["heard"] = {cm["heard"]["from"]: {"id": cm["moment_id"], "corrected": cm["heard"]["corrected"],
+                                               **({"out": bad[cm["moment_id"]]} if cm["moment_id"] in bad else {})}
+                         for cm in swap.values()}
+        log(f"    RULING 163 (2)(b): the lock corrected {len(swap)} clip(s) from the audio: " + "; ".join(
+            f"{cm['heard']['from'][:8]} ({cm['heard']['corrected'][:80]}): " +
+            (f"OUT, {bad[cm['moment_id']][:120]}" if cm["moment_id"] in bad else "judged again on its words, PASS")
+            for cm in swap.values()))
+        if bad:
+            for cm in swap.values():
+                if cm["moment_id"] in bad:
+                    for x in (cm["moment_id"], cm["heard"]["from"]):
+                        dropped.add(x)
+                        doomed.add(x)
+            return segs_, ("ruling 163 (2)(b): judged again on the words the lock corrected: " +
+                           "; ".join(f"{k}: {v}" for k, v in bad.items()))[:500], med_
+        for cm in swap.values():
+            cleared[cm["moment_id"]] = cm
+        return new, None, (dict(med2, soft=med_["soft"]) if isinstance(med_, dict) and "soft" in med_ else med2)
 
     wseed = int((candidate or {}).get("write_seed") or 0)  # ruling 66 (14:02): a candidate's fresh writes
     total = 0                                             # ruling 41: line-ups judged in this build, over every angle
@@ -4529,6 +4670,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                 if lock_check is not None:                  # RULINGS 68 / 72: the render's own lock, before any write;
                     #   RULING 130 (2) (orchestrator 23:00 ET Nov 16): and FIRST, before the paid checks of the clips
                     #   (vision, exclusion, the second pass), so a clip the render cannot cut never costs money
+                    segs = untouched(segs)                  # RULING 163 (2): always asked on the transcript's words
                     try:
                         pre = lock_check(segs)
                     except Exception as e:                # noqa: BLE001  audit 1744 C1: no verdict, never a pass
@@ -4550,6 +4692,11 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                         rec["why"] = ("ruling 72: the render's lock holds " +
                                       "; ".join(f"{k}: {v}" for k, v in held.items()))[:500] + ": re-lined"
                         relined, w_used = True, writes
+                    else:                                  # RULING 163 (2)(b): a clip whose words the lock corrected
+                        segs, why_h, med = rejudge_heard(segs, pre, rec, med, 7 + n_lineup + 10 * ai)   # is judged
+                        if why_h:                          # again on them before any write; out for good if it fails
+                            rec["why"] = why_h + ": re-lined"
+                            relined, w_used = True, writes
                 bg = {}                                     # ruling 130 (2): only for a line-up the lock let through
                 if not relined and not no_verdict:
                     bg = {m["moment_id"]: (pool.submit(exclusion_for, router, m, sources, exc),
