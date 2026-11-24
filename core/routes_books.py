@@ -8,6 +8,9 @@ purchase and free links. No rank numbers and no sales wording. Search (?q=) and 
 (?cat=) filter on the server too, so the page works without JavaScript; static/js/books.js
 applies the same rules in the browser (fold() below is the shared normalisation).
 
+/books/market renders data/books/market_illustrative.json through core/book_market.py.
+Every value there is synthetic; the page says so in a banner that stays on screen.
+
 Registered with one line in core/routes.py.
 """
 import os
@@ -15,6 +18,7 @@ import unicodedata
 
 from flask import Blueprint, render_template, request
 
+import book_market
 import books_registry
 
 books_bp = Blueprint('books', __name__)
@@ -65,3 +69,9 @@ def library():
         shown += entry['match']
     return render_template('books/library.html', lib=lib, q=q, cat=cat, view=view, shown=shown,
                            asset_version=ASSET_VERSION)
+
+
+@books_bp.route('/books/market')
+def market():
+    m = book_market.view(books_registry.load_registry(), book_market.load(), _tag())
+    return render_template('books/market.html', m=m, asset_version=ASSET_VERSION)

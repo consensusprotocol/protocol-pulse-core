@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{# /books/market: Book Market, PRIVATE ILLUSTRATIVE PROTOTYPE. Every rank, change, state and
+   trend comes from data/books/market_illustrative.json (synthetic, core/book_market.py).
+   The banner below stays on screen. noindex: meta here + X-Robots-Tag from the blueprint. #}
+{% block title %}Book Market (illustrative prototype) | Protocol Pulse{% endblock %}
+{% block meta_description %}Illustrative prototype of the Book Terminal market view. Not live data.{% endblock %}
+{% block head %}
+<meta name="robots" content="noindex">
+<meta name="googlebot" content="noindex">
+<link rel="preload" href="{{ url_for('static', filename='fonts/fraunces/fraunces-roman.woff2') }}" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/books.css') }}?v={{ asset_version }}">
+{% endblock %}
+
+{% macro momentum(v) -%}
+  {%- if v is none -%}<span class="bt-mom bt-mom-none" title="Not enough observed history">—</span>
+  {%- elif v > 0 -%}<span class="bt-mom bt-mom-up"><span aria-hidden="true">▲</span> {{ '%.1f'|format(v) }}%<span class="bt-sr"> improving</span></span>
+  {%- elif v < 0 -%}<span class="bt-mom bt-mom-down"><span aria-hidden="true">▼</span> {{ '%.1f'|format(-v) }}%<span class="bt-sr"> cooling</span></span>
+  {%- else -%}<span class="bt-mom">0.0%</span>
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro state_badge(r) -%}
+  {%- if r.state == 'live' -%}<span class="bt-state bt-state-live"><span class="bt-state-mark" aria-hidden="true"></span>Live</span>
+  {%- elif r.state == 'stale' -%}<span class="bt-state bt-state-stale"><span class="bt-state-mark" aria-hidden="true"></span>Stale</span>
+  {%- else -%}<span class="bt-state bt-state-none"><span class="bt-state-mark" aria-hidden="true"></span>Unavailable</span>
+  {%- endif -%}
+{%- endmacro %}
+
+{% block content %}
+<div class="bt bt-market" id="btMarket">
+  <p class="bt-proto" role="note"><svg class="bt-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2 1 21h22L12 2zm0 6 .01 0M12 9v5m0 3v.01"/></svg><strong>Illustrative prototype — not live data.</strong> <span>Not for publication.</span></p>
+  <div class="bt-wrap">
+    {% with active='market' %}{% include 'books/_tabs.html' %}{% endwith %}
+
+    <div class="bt-mtop">
+      <header class="bt-hero">
+        <p class="bt-kicker">Book Terminal · Market</p>
+        <h1 class="bt-h1 bt-h1-market">The market for Bitcoin <em>ideas.</em></h1>
+        <p class="bt-dek">Rank strength, momentum and recency for the books in the library, on one map. Every value on this page is illustrative.</p>
+        <p class="bt-asof">Illustrative dataset for {{ m.as_of }} · seeded generator · not observed</p>
+      </header>
+      <ul class="bt-stats" aria-label="Dataset status (illustrative)">
+        <li class="bt-stat"><span class="bt-stat-n">{{ m.stats.tracked }}</span><span class="bt-stat-l">Tracked books</span></li>
+        <li class="bt-stat bt-stat-live"><span class="bt-stat-n">{{ m.stats.live }}</span><span class="bt-stat-l">With live rank</span></li>
+        <li class="bt-stat bt-stat-stale"><span class="bt-stat-n">{{ m.stats.stale }}</span><span class="bt-stat-l">Stale</span></li>
+        <li class="bt-stat bt-stat-none"><span class="bt-stat-n">{{ m.stats.unavailable }}</span><span class="bt-stat-l">Awaiting data</span></li>
+      </ul>
+    </div>
+
+    <section class="bt-mapcard" aria-labelledby="btMapH">
+      <div class="bt-mapcard-head">
+        <div>
+          <h2 class="bt-h2" id="btMapH">Book Market Map</h2>
+          <p class="bt-section-dek">{{ m.map.books|length }} books ranked in Amazon US {{ m.map.list }} (print). Illustrative values.</p>
+        </div>
+        <div class="bt-toggle" role="group" aria-label="Map or table" id="btMapToggle" hidden>
+          <button type="button" class="bt-toggle-btn" data-show="map" aria-pressed="true" aria-controls="btMapPanel">Map</button>
+          <button type="button" class="bt-toggle-btn" data-show="table" aria-pressed="false" aria-controls="btMapTable">Table</button>
+        </div>
+      </div>
+      <div class="bt-mapgrid">
+        <div class="bt-mapmain">
+          <div class="bt-map-panel" id="btMapPanel">
+            <div class="bt-map" id="btMap" role="group" aria-label="Cover map of {{ m.map.books|length }} books: horizontal position is publication year, vertical position is 7-day rank momentum, cover area is rank strength. Illustrative values; the Table view lists them.">
+              <svg class="bt-map-svg" id="btMapSvg" aria-hidden="true" focusable="false"></svg>
+              <div class="bt-map-nodes" id="btMapNodes"></div>
+              <div class="bt-tip" id="btTip" role="tooltip" hidden></div>
+            </div>
+            <noscript><p class="bt-noscript">The cover map needs JavaScript. The table below lists every tracked book.</p></noscript>
+          </div>
+          <div class="bt-map-table" id="btMapTable">
+            <table class="bt-table bt-table-compact">
+              <caption class="bt-sr">Books on the map (illustrative values)</caption>
+              <thead><tr><th scope="col">Book</th><th scope="col">Published</th><th scope="col">7-day momentum</th><th scope="col">Illustrative rank</th><th scope="col">Rank strength</th></tr></thead>
+              <tbody>
+                {% for b in m.map.books %}
+                <tr><th scope="row">{{ b.title }}</th><td>{{ b.pub_year }}</td><td>{{ momentum(b.momentum) }}</td><td class="bt-num">#{{ '{:,}'.format(b.rank) }}</td><td class="bt-num">{{ '%.2f'|format(b.strength) }}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <aside class="bt-key" aria-labelledby="btKeyH">
+          <h3 class="bt-key-h" id="btKeyH">How to read the map</h3>
+          <p class="bt-key-legend">Cover area = normalized rank strength · Horizontal = publication recency · Vertical = momentum</p>
+          <ul class="bt-key-list">
+            <li><svg class="bt-key-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="7" width="7" height="10" rx="1"/><rect x="12" y="3" width="9" height="16" rx="1"/></svg><span><strong>Cover area</strong> grows with rank strength: the best illustrative rank on the map is the largest cover. Covers keep their own shape.</span></li>
+            <li><svg class="bt-key-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12h18M17 8l4 4-4 4"/></svg><span><strong>Left to right</strong>: publication year of the tracked edition, established to newer. Recent years get more room (log scale of age).</span></li>
+            <li><svg class="bt-key-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21V3M8 7l4-4 4 4"/></svg><span><strong>Up</strong>: rank improved over 7 days. <strong>Down</strong>: rank cooled.</span></li>
+            <li><svg class="bt-key-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="12" y="3" width="8" height="11" rx="1"/><path d="M12 12 6 18"/><circle cx="5" cy="19" r="2" class="bt-key-dot"/></svg><span>A thin line marks a cover moved aside to avoid an overlap; the dot is its true position.</span></li>
+            <li><svg class="bt-key-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg><span>Only print editions ranked in Amazon US Books are plotted. Different lists are never mixed.</span></li>
+          </ul>
+          {% if m.excluded_lists %}
+          <p class="bt-guard"><strong>Not plotted:</strong>
+            {% for e in m.excluded_lists %}{{ e.title }} ({{ e.format }} edition, {{ e.rank_list }} rank){{ ', ' if not loop.last }}{% endfor %}. Its rank belongs to a different Amazon list.</p>
+          {% endif %}
+          {% if m.not_plotted %}
+          <details class="bt-more">
+            <summary>{{ m.not_plotted|length }} more tracked books are not on the map</summary>
+            <ul>{% for n in m.not_plotted %}<li>{{ n.title }}: {{ n.reason }}</li>{% endfor %}</ul>
+          </details>
+          {% endif %}
+          <button type="button" class="bt-debug-btn" id="btDebugBtn" aria-pressed="false" aria-controls="btDebug" hidden>Layout debug</button>
+          <p class="bt-debug" id="btDebug" hidden></p>
+        </aside>
+      </div>
+      <script type="application/json" id="btMapData">{{ m.map|tojson }}</script>
+    </section>
+
+    <section class="bt-section bt-rising" aria-labelledby="btRisingH">
+      <div class="bt-section-head">
+        <h2 class="bt-h2" id="btRisingH">Rising Stars <span class="bt-illus">Illustrative</span></h2>
+        <p class="bt-section-dek"><strong>Rule:</strong> sustained 7-day improvement &ge; 20% with sufficient history. Rank at least {{ m.rules.rising_min_improvement_pct|int }}% better than 7 days earlier, never worse than that starting rank in between, observed on {{ m.rules.rising_min_recent[0] }} of the last {{ m.rules.rising_min_recent[1] }} days and {{ m.rules.rising_min_window }} of the last {{ m.window_days }}. Applied to illustrative data only.</p>
+      </div>
+      {% if m.rising %}
+      <ul class="bt-rise-list" role="list">
+        {% for r in m.rising %}
+        <li class="bt-rise">
+          <img class="bt-rise-cover" src="{{ r.cover_url }}" alt="" loading="lazy" decoding="async">
+          <div class="bt-rise-body">
+            <h3 class="bt-rise-title">{{ r.title }}</h3>
+            <p class="bt-author">{{ r.author }}</p>
+            <p class="bt-rise-figs">{{ momentum(r.momentum) }} <span class="bt-rise-in">in 7 days</span> <span class="bt-tag">{{ r.rank_list }}</span></p>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="bt-empty">No book meets the rule in this illustrative dataset.</p>
+      {% endif %}
+    </section>
+
+    <section class="bt-section" aria-labelledby="btTableH">
+      <div class="bt-section-head">
+        <h2 class="bt-h2" id="btTableH">Market Table</h2>
+        <p class="bt-section-dek">All {{ m.stats.tracked }} tracked books. Sort by any column. Illustrative values.</p>
+      </div>
+      <div class="bt-table-wrap" role="region" aria-labelledby="btTableH" tabindex="0">
+        <table class="bt-table" id="btTable">
+          <caption class="bt-sr">All tracked books with illustrative rank, 7-day momentum, observation history and status. Column headers sort the table.</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="bt-col-book" aria-sort="none"><button type="button" class="bt-sort" data-key="title" data-type="text">Book</button></th>
+              <th scope="col" aria-sort="none"><button type="button" class="bt-sort" data-key="format" data-type="text">Format</button></th>
+              <th scope="col" aria-sort="none"><button type="button" class="bt-sort" data-key="list" data-type="text">List</button></th>
+              <th scope="col" aria-sort="ascending"><button type="button" class="bt-sort" data-key="rank" data-type="num">Illustrative rank</button></th>
+              <th scope="col" aria-sort="none"><button type="button" class="bt-sort" data-key="momentum" data-type="num">7-day change</button></th>
+              <th scope="col" aria-sort="none"><button type="button" class="bt-sort" data-key="observed" data-type="num">Observed / {{ m.window_days }}</button></th>
+              <th scope="col" aria-sort="none"><button type="button" class="bt-sort" data-key="last" data-type="text">Last observed</button></th>
+              <th scope="col">Trend, {{ m.window_days }} days</th>
+              <th scope="col" aria-sort="none"><button type="button" class="bt-sort" data-key="state" data-type="num">Status</button></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in m.rows %}
+            <tr data-title="{{ r.title|lower }}" data-format="{{ r.format|lower }}" data-list="{{ r.rank_list|lower }}"
+                data-rank="{{ r.rank if r.rank is not none else '' }}" data-momentum="{{ r.momentum if r.momentum is not none else '' }}"
+                data-observed="{{ r.observed_days }}" data-last="{{ r.last_observed or '' }}" data-state="{{ r.state_order }}">
+              <th scope="row" class="bt-col-book">
+                <span class="bt-cell-book">
+                  <img src="{{ r.cover_url }}" alt="" loading="lazy" decoding="async">
+                  <span><span class="bt-cell-title">{{ r.title }}</span><span class="bt-cell-author">{{ r.author }}</span></span>
+                </span>
+              </th>
+              <td>{{ 'Kindle' if r.format == 'Kindle' else 'Print' }}</td>
+              <td>{{ r.rank_list }}</td>
+              <td class="bt-num">{% if r.rank is not none %}#{{ '{:,}'.format(r.rank) }}{% if r.state == 'stale' %}<span class="bt-cell-note">last seen</span>{% endif %}{% else %}<span class="bt-mom-none">—</span>{% endif %}</td>
+              <td class="bt-num">{{ momentum(r.momentum) }}</td>
+              <td class="bt-num">{{ r.observed_days }}<span class="bt-cell-of">/{{ m.window_days }}</span></td>
+              <td>{{ r.last_label or '—' }}</td>
+              <td class="bt-spark-cell">
+                {% if r.spark_path or r.spark_points %}
+                <svg class="bt-spark" viewBox="0 0 120 30" width="120" height="30" role="img" aria-label="{{ r.observed_days }} observed days of {{ m.window_days }}; gaps are days without an observation">
+                  <path d="{{ r.spark_path }}"/>
+                  {% for x, y in r.spark_points %}<circle cx="{{ x }}" cy="{{ y }}" r="1.8"/>{% endfor %}
+                </svg>
+                {% else %}<span class="bt-mom-none">No observations</span>{% endif %}
+              </td>
+              <td>{{ state_badge(r) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p class="bt-footnote">▲ rank improved over 7 days (the number fell), ▼ rank cooled. “—” means not enough observed history. Sparklines draw observed days only; a gap is a day without an observation. Lower rank numbers are better. Live: observed on the dataset date or the day before. Stale: last observation older than that. Every value here is synthetic, generated by scripts/books/make_illustrative_market.py.</p>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/book_market.js') }}?v={{ asset_version }}" defer></script>
+{% endblock %}
