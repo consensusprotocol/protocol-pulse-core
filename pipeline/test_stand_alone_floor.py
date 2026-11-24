@@ -274,6 +274,7 @@ class TestStageValidate(unittest.TestCase):
             with mock.patch.object(edl_rules, "validate_edl", return_value=rules), \
                     mock.patch.object(edl_rules, "takeaway_value", return_value=(True, "stub")), \
                     mock.patch.object(run_fresh, "out_edges", return_value=[]), \
+                    mock.patch.object(run_fresh, "our_line_faults", return_value=[]), \
                     mock.patch.object(editorial_gate, "run_gate", return_value=gate or {"verdict": "READY_FOR_RENDER",
                                                                                        "laws": {}}), \
                     mock.patch.object(SA, "clip_scorer", return_value=rate or rate_of(score)), \

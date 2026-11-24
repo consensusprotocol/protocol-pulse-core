@@ -138,6 +138,37 @@ class TestMeaningPair(unittest.TestCase):
             self.assertFalse(O.meaning_pair(x, y), (x, y))
 
 
+class TestItem7Sizes(unittest.TestCase):
+    """ITEM 7 on numbers (the builder, 10:1x ET Nov 24): canon folds 'ten million' to 10000000, so a size swap is two
+    numbers with the same significant digits at least 100 times apart; ruling 143's own correction is not one."""
+
+    def test_a_size_swap_is_a_meaning_pair_and_a_correction_is_not(self):
+        for x, y in ((["ten", "million"], ["ten", "billion"]), (["1.5", "million"], ["1.5", "billion"]),
+                     (["two", "million"], ["two", "hundred", "million"]), (["$4", "billion"], ["$4", "trillion"])):
+            self.assertTrue(O.meaning_pair(x, y), (x, y))
+        for x, y in ((["$15,000", "and", "a", "half", "thousand"], ["fifteen", "and", "a", "half", "thousand"]),
+                     (["twenty"], ["two"]), (["fifteen"], ["fifty"]), (["55,000"], ["$55k"]), (["0"], ["00"])):
+            self.assertFalse(O.meaning_pair(x, y), (x, y))
+
+
+class TestItem2Lexical(unittest.TestCase):
+    """ITEM 2 (orchestrator 09:20 ET Nov 24), before any model: one sentence; no number the clips do not say."""
+
+    def test_one_sentence(self):
+        for text, n in (("One sentence here.", 1), ("No ruler. Just rules nobody gets to bend.", 2),
+                        ("The U.S. approved it.", 1), ("Dr. Smith said so.", 1), ("Prices rose. 20 percent held.", 2),
+                        ("Is it over? Nobody knows", 2), ("", 0)):
+            self.assertEqual(O.sentence_count(text), n, text)
+        self.assertEqual(O.line_faults("No ruler. Just rules nobody gets to bend.", []), ["more than one sentence"])
+
+    def test_a_number_no_clip_says(self):
+        clips = ["Bitcoin hit $55k and fell 20% on Friday."]
+        self.assertEqual(O.line_faults("Bitcoin fell 30 percent to 55,000 dollars.", [], clip_texts=clips),
+                         ["says '30', which no clip says"])
+        self.assertEqual(O.line_faults("A 20 percent drop to 55,000 is the pattern to watch.", [], clip_texts=clips), [])
+        self.assertEqual(O.line_faults("Bitcoin fell 30 percent.", []), [])        # no clips given: not judged
+
+
 class TestAnswerCache(unittest.TestCase):
     """The out-edge answer (orchestrator 09:45 ET Nov 24): cached against the exact transcript, cut coordinates and
     prompt version; a changed cut or transcript voids it; the replay serves frozen answers only; no answer is never

@@ -62,8 +62,8 @@ class TestReadiness(unittest.TestCase):
         self.addCleanup(stub.stop)
         with mock.patch.object(C, "builder_pin", return_value=sealed):
             ok, msg = C.main(PIN, now=SEALED)
-        self.assertEqual((ok, msg), (False, "review flags: 5 kinds of review flag, over 3 (rulings 136 (2) / 155 (1) "
-                                            "/ 159)"))
+        self.assertFalse(ok)                          # the count is the builder's flag_kind (5 kinds on Nov 23, 6 since
+        self.assertRegex(msg, r"^review flags: ([4-9]|\d{2,}) kinds of review flag, over 3 ")   # its 4f1c85435)
         quiet = types.SimpleNamespace(**vars(sealed))
         quiet.review_problems = lambda mp: []
         with mock.patch.object(C, "builder_pin", return_value=quiet):    # control: the kinds alone refused it

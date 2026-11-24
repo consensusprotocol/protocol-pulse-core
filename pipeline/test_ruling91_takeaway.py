@@ -17,7 +17,7 @@ import edl_rules  # noqa: E402
 import editorial_gate  # noqa: E402
 import run_fresh  # noqa: E402
 
-TAKE = "No ruler. Just rules nobody gets to bend."
+TAKE = "No ruler, just rules nobody gets to bend."         # item 2 (Nov 24): one sentence
 
 
 class Reached(Exception):
@@ -77,8 +77,9 @@ class TestStageValidateRuling91(unittest.TestCase):
         e = medley(live(text=line), bridges=[{"text": line, "after_clip": 2}])
         e["clips"] = [{"index": 1, "channel": "Simply Bitcoin"}, {"index": 2, "channel": "Yahoo Finance"}]
         got, prov = self.run_stage(e)
-        self.assertTrue(got.startswith("HOLD: ruling 162 (2): a voiceover line of ours lists the sources instead of "
-                                       "adding value: the closing line 'Bitcoin, in the words of"), got)
+        self.assertTrue(got.startswith("HOLD: ruling 162 (2) / item 2: a voiceover line of ours fails the lexical "
+                                       "check"), got)
+        self.assertIn("the closing line 'Bitcoin, in the words of", got)
         for part in ("names 'Simply Bitcoin'", "names 'Yahoo Finance'", "says 'in the words of'"):
             self.assertIn(part, got)
         self.assertEqual(prov["our_lines"]["pass"], False)

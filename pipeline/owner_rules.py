@@ -18,7 +18,7 @@ import os
 import re
 import urllib.request
 
-VERSION = "owner_rules 2 (ruling 162 + item 7, 2026-11-24)"
+VERSION = "owner_rules 3 (ruling 162 + items 2, 7, 2026-11-24)"
 
 OUT_EDGE_PROMPT = """You check where a short video clip ENDS. The clip is cut from a longer recording of one speaker. It
 must never stop while the speaker's thought is unfinished: a viewer must never feel the speaker was cut off in the
@@ -189,15 +189,41 @@ def _meaning(tokens):
     return out
 
 
+def _scale(tok):
+    """(significant digits, power of ten) of a canon number token ('10000000' -> ((1,), 7); '1500000' -> ((1, 5), 5)),
+    or None (not a number, or zero)."""
+    from decimal import Decimal, InvalidOperation
+    try:
+        d = Decimal(str(tok))
+    except (InvalidOperation, ValueError):
+        return None
+    if not d.is_finite() or d == 0:
+        return None
+    t = d.normalize().as_tuple()
+    return t.digits, len(t.digits) + t.exponent
+
+
+def size_pair(xs, ys):
+    """ITEM 7's sizes on NUMBERS (the builder, 10:1x ET Nov 24: canon folds 'ten million' / 'ten billion' to
+    10000000 / 10000000000, so the size words are gone): two numbers with the SAME significant digits at least 100
+    times apart (a hundred, thousand, million, billion swapped). 15,000,500 against 15,500 (different digits: ruling
+    143's own transcript correction) and 20 against 2 (ten times) are not: they stay ordinary number pairs."""
+    a = [v for v in (_scale(t) for t in xs) if v]
+    b = [v for v in (_scale(t) for t in ys) if v]
+    return any(da == db and abs(pa - pb) >= 2 for da, pa in a for db, pb in b)
+
+
 def meaning_pair(x, y):
     """ITEM 7: True when the two sides of a differing pair (x, y: lists of words; read as canon tokens) put a word on
     the same meaning axis with a DIFFERENT value: buy / sell, up / down, approved / rejected, million / billion, doubled
-    / halved and the rest of MEANING_PAIRS and SIZE_WORDS. A word form of the same word ('bottom' / 'bottomed') or a
-    word on one side only is not one. Such a pair is material: it holds, and is never adopted silently."""
+    / halved and the rest of MEANING_PAIRS and SIZE_WORDS, or two numbers of one size apart (size_pair). A word form of
+    the same word ('bottom' / 'bottomed') or a word on one side only is not one. Such a pair is material: it holds,
+    and is never adopted silently."""
     import canon
-    xs = _meaning(canon.canon_tokens(" ".join(str(t) for t in x or [])))
-    ys = _meaning(canon.canon_tokens(" ".join(str(t) for t in y or [])))
-    return any(a == b and v != w for a, v in xs for b, w in ys)
+    tx = canon.canon_tokens(" ".join(str(t) for t in x or []))
+    ty = canon.canon_tokens(" ".join(str(t) for t in y or []))
+    xs, ys = _meaning(tx), _meaning(ty)
+    return any(a == b and v != w for a, v in xs for b, w in ys) or size_pair(tx, ty)
 
 
 def _stands_in(line, sub):
@@ -212,12 +238,28 @@ def _stands_in(line, sub):
     return False
 
 
-def line_faults(text, names):
+ABBREVIATION = re.compile(r"^(?:[A-Za-z]\.){2,}$|^(?:mr|mrs|ms|dr|vs|etc|inc|jr|sr|st|no)\.$", re.I)
+
+
+def sentence_count(text):
+    """ITEM 2: the sentences of one line of ours: a word ending in . ? or ! (closing quotes or brackets after it) ends
+    one when another word follows it and that word opens with a capital or a digit; an abbreviation ('U.S.', 'Dr.')
+    ends none."""
+    ws = str(text or "").split()
+    ends = sum(1 for i, w in enumerate(ws[:-1]) if SENTENCE_END.search(w) and not ABBREVIATION.match(w.strip("\"')]"))
+               and (ws[i + 1][:1].isupper() or ws[i + 1][:1].isdigit()))
+    return ends + 1 if ws else 0
+
+
+def line_faults(text, names, clip_texts=None):
     """RULING 162 (2): what makes `text`, one line of ours, a listing: "names '<name>'" for each of `names` (the
     credited channels' display names and aliases) whose canon tokens stand in the line's (canon.canon_tokens: case,
     punctuation and number words folded) in order and side by side, a possessive or plural ending on the last word
     allowed, and "says '<phrase>'" for each LISTING_PHRASES phrase in it. [] when nothing makes it one. A one-word
-    channel name that is also a plain word ('Strike', 'Unchained') is matched as that word: such a line is held."""
+    channel name that is also a plain word ('Strike', 'Unchained') is matched as that word: such a line is held.
+    ITEM 2 (orchestrator 09:20 ET Nov 24), checked before any model: "more than one sentence" (sentence_count), and,
+    when clip_texts (the clips' own words) are given, "says '<n>', which no clip says" for each number in the line
+    that no clip's canon tokens carry."""
     import canon
     line = canon.canon_tokens(str(text or ""))
     faults = []
@@ -228,6 +270,13 @@ def line_faults(text, names):
     for p in LISTING_PHRASES:
         if _stands_in(line, canon.canon_tokens(p)):
             faults.append(f"says '{p}'")
+    if sentence_count(text) > 1:
+        faults.append("more than one sentence")
+    if clip_texts is not None:
+        said = {t for c in clip_texts for t in canon.canon_tokens(str(c or ""))}
+        for t in line:
+            if any(ch.isdigit() for ch in t) and t not in said and f"says '{t}', which no clip says" not in faults:
+                faults.append(f"says '{t}', which no clip says")
     return faults
 
 

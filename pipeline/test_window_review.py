@@ -296,7 +296,8 @@ class TestLocalReviewAndGate(unittest.TestCase):
         er.write_review(FakeReviewer(good_review(edl, progresses=False)), edl, self.tmp)
         run = rf.Run(self.tmp)
         with self.assertRaises(rf.Hold) as cm, \
-                mock.patch.object(rf, "out_edges", return_value=[]):   # ruling 162 (1)'s re-ask: not this test's
+                mock.patch.object(rf, "out_edges", return_value=[]), \
+                mock.patch.object(rf, "our_line_faults", return_value=[]):   # 162's checks: not this test's
             rf.stage_validate(run)      # validate runs before cut; this v2f EDL holds on a HARD rule later in validate
             #                             (its hook does not name Bitcoin)
         self.assertNotIn("LAW_4", str(cm.exception))
