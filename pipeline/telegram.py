@@ -246,7 +246,8 @@ def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
              f"Story: {edl.get('topic', '')}",
              "Clips: " + ", ".join([edl["hook"].get("channel", "?")] + [c.get("channel", "?") for c in edl.get("clips", [])])]
     lines[2:2] = bar_lines(run_dir, edl) + lock_lines(run_dir, edl) + tenant_lines(run_dir) + \
-        sponsor_lines(run_dir, edl, snap["report"], limit=SPONSOR_CAPTION_MAX)      # 161: information, not a flag
+        sponsor_lines(run_dir, edl, snap.get("report"), limit=SPONSOR_CAPTION_MAX)  # 161: information, not a flag
+    #                                       (a caller's snap may carry the edl alone: test_spotlight's pass-path kit)
     #                                                                     115 (2) / 116 / 119 /
     #                                                                     131 / 145: one plain
                                              # line per mark, under the run line (never cut by _fit)
