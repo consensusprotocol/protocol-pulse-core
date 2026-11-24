@@ -113,7 +113,9 @@ class TestLineFaults(unittest.TestCase):
             self.assertTrue(O.line_faults(text, []), text)
         self.assertEqual(O.line_faults("YAHOO FINANCE's call aged well.", self.NAMES), ["names 'Yahoo Finance'"])
         self.assertEqual(O.line_faults("Finance at Yahoo is busy.", self.NAMES), [])        # not side by side, in order
-        self.assertEqual(O.line_faults("Yahoo’s finance desk", self.NAMES), ["names 'Yahoo Finance'"])   # ’s dropped
+        self.assertEqual(O.line_faults("Yahoo\u2019s finance desk", self.NAMES), [])     # a possessive INSIDE a name is
+        self.assertEqual(O.line_faults("Natalie Brunell\u2019s point stands.", ["Natalie Brunell"]),   # not the name;
+                         ["names 'Natalie Brunell'"])                                              # on its last word, it is
         self.assertEqual(O.line_faults("Dan was right.", self.NAMES), ["names 'DAN'"])
 
     def test_a_line_that_adds_value_passes(self):
