@@ -183,12 +183,54 @@ def tenant_lines(run_dir):
     return [f"Shared GPU (ruling 145, a small foreign tenant tolerated): {'; '.join(seen)}."] if seen else []
 
 
+SPONSOR_HEAD = "Visible sponsor graphics (information, ruling 161: not a flag, not a hold): "
+SPONSOR_WHAT_MAX = 160      # one thing seen, as recorded
+SPONSOR_CAPTION_MAX = 240   # the release caption's line (the review note carries it whole)
+
+
+def sponsor_lines(run_dir, edl, report, limit=TEXT_MAX):
+    """RULING 161 (orchestrator 07:36 ET Nov 24, from PBX): sponsor or advertiser material that is only VISIBLE on
+    screen (a logo wall or backdrop behind a speaker, a banner, a panel, a bug, a graphic that flashes on) is
+    information, never a flag or a hold: ONE plain line naming what was seen, or none. Read from the pin's per-segment
+    "visible_sponsor_graphics" (the builder's sealed record in PINNED_DECISION.json, read only when its package is the
+    EDL's, as lock_lines binds it) and the render's own V1 answers on the final's contact sheets (report["V1"][fmt]
+    ["sponsor_graphics"], visual_check.sponsor_seen). A record that cannot be read is said, never a stop: this line
+    decides nothing."""
+    seen = []
+
+    def add(what):
+        w = " ".join(str(what or "").split())[:SPONSOR_WHAT_MAX]
+        if w and w not in seen:
+            seen.append(w)
+    path = os.path.join(run_dir, "PINNED_DECISION.json")
+    if os.path.exists(path):
+        try:
+            with open(path) as f:
+                pin = json.load(f)["pin"]
+            if (pin.get("moments_package") or {}).get("package_sha256") != edl.get("moments_package_sha256"):
+                add("the pin record is not this EDL's (not read)")
+            else:
+                for seg in pin.get("segments") or []:
+                    if isinstance(seg, dict) and seg.get("visible_sponsor_graphics"):
+                        add(f"{seg.get('channel') or '?'}: {seg['visible_sponsor_graphics']}")
+        except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
+            add(f"the pin record is not readable ({type(e).__name__})")
+    v1 = (report or {}).get("V1") if isinstance(report, dict) else None
+    for fmt in ("16x9", "9x16"):
+        vis = (v1 or {}).get(fmt) if isinstance(v1, dict) else None
+        for s in ((vis or {}).get("sponsor_graphics") or []) if isinstance(vis, dict) else []:
+            if isinstance(s, dict):
+                add(f"{fmt.replace('x', ':')} sheet, {str(s.get('model') or '?').split('/')[-1]}: {s.get('what')}")
+    return [_fit(SPONSOR_HEAD + "; ".join(seen), limit)] if seen else []
+
+
 def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
     """The caption of an AUTHORISED run: verdict line first; the MONITORING rows that did not pass are listed as
     reported, not release-deciding (addendum '22:15' item 4). snap: the verified snapshot (deliver_run)."""
     import release_auth
     import vertical_layout
-    edl = (snap or snapshot(run_dir, att))["edl"]
+    snap = snap or snapshot(run_dir, att)
+    edl = snap["edl"]
     mon = release_auth.monitoring_report(att.get("rows") or {}).get(fmt) or {}
     flagged = att.get("review_flags") or []             # rulings 136 / 137: PBX reads the soft flags first
     head = (HOLD_FLAGGED if flagged else HOLD_OK) + (
@@ -203,7 +245,9 @@ def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
              + (f" | {duration:.1f} s" if duration else ""),
              f"Story: {edl.get('topic', '')}",
              "Clips: " + ", ".join([edl["hook"].get("channel", "?")] + [c.get("channel", "?") for c in edl.get("clips", [])])]
-    lines[2:2] = bar_lines(run_dir, edl) + lock_lines(run_dir, edl) + tenant_lines(run_dir)   # 115 (2) / 116 / 119 /
+    lines[2:2] = bar_lines(run_dir, edl) + lock_lines(run_dir, edl) + tenant_lines(run_dir) + \
+        sponsor_lines(run_dir, edl, snap["report"], limit=SPONSOR_CAPTION_MAX)      # 161: information, not a flag
+    #                                                                     115 (2) / 116 / 119 /
     #                                                                     131 / 145: one plain
                                              # line per mark, under the run line (never cut by _fit)
     if mon:                                # claude-fable audit batch 16 #1: never 'all passed' with a failure unsaid
@@ -831,7 +875,13 @@ def review_texts(run_dir, nonpass, digests, withheld=None, points=()):
     segs = [("hook", edl.get("hook") or {})] + [(f"clip {c.get('index', i + 1)}", c)
                                                  for i, c in enumerate(edl.get("clips") or [])]
     links = edl.get("moments_sources_30s_before") or []
-    lines = [REVIEW_HEAD, ""] + ([*added, ""] if added else []) + \
+    try:                                              # ruling 161: the note alone carries the line (information)
+        with open(os.path.join(run_dir, "GATE_REPORT.json")) as f:
+            rep = json.load(f)
+    except (OSError, ValueError):
+        rep = {}
+    sponsor = sponsor_lines(run_dir, edl, rep)
+    lines = [REVIEW_HEAD, ""] + ([*added, ""] if added else []) + ([*sponsor, ""] if sponsor else []) + \
         ["Required rows NOT passing (verbatim, with the measured reason):"]
     lines += [f"- {fmt} {k} {v}: {why}" for fmt, k, v, why in nonpass] or ["- none"]
     lines += ["", f"Run {run_id} | HEAD {head or 'not recorded'}"]

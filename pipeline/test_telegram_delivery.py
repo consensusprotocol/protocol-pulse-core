@@ -258,6 +258,34 @@ class TestReviewFlags(Base):
                 self.assertTrue(s[2]["caption"].startswith(TG.HOLD_OK), s[2]["caption"][:80])
 
 
+class TestRuling161SponsorLine(Base):
+    """RULING 161 (orchestrator 07:36 ET Nov 24, from PBX): an authorised run's captions carry what V1 saw on screen as
+    ONE short information line; the head stays HOLD_OK (it is not a flag) and the line is cut at SPONSOR_CAPTION_MAX."""
+
+    def test_the_line_is_information_not_a_flag(self):
+        rd = make_run(self.tmp, attest=False)
+        what = "a 'Powered by Cash App' logo wall behind the speaker " + "x" * 300
+        edit_json(os.path.join(rd, "GATE_REPORT.json"), lambda d: d.setdefault("V1", {}).setdefault("9x16", {}).update(
+            {"sponsor_graphics": [{"model": "nvidia/nemotron-3.5-super-vl", "what": what}]}))
+        RA.attest(rd, {"ok": True, "why": []})
+        _, sent = self.deliver(rd)
+        vids = [s for s in sent if s[0] == "video"]
+        self.assertEqual(len(vids), 2)
+        for s in vids:
+            cap = s[2]["caption"]
+            self.assertTrue(cap.startswith(TG.HOLD_OK), cap[:80])
+            line = [x for x in cap.split("\n") if x.startswith(TG.SPONSOR_HEAD)]
+            self.assertEqual(len(line), 1, cap)
+            self.assertLessEqual(len(line[0]), TG.SPONSOR_CAPTION_MAX)
+            self.assertIn("9:16 sheet, nemotron-3.5-super-vl: a 'Powered by Cash App' logo wall", line[0])
+
+    def test_a_clean_sheet_adds_no_line(self):
+        _, sent = self.deliver(make_run(self.tmp))
+        for s in sent:
+            if s[0] == "video":
+                self.assertNotIn(TG.SPONSOR_HEAD, s[2]["caption"])
+
+
 class TestBarLines(Base):
     """Rulings 115 (2) / 116 (orchestrator 13:24 ET Nov 15; the builder's Q3 on ruling 106's default, 15:54): a package
     sealed on a calibrated bar (the hook's, the line-up's) says so in the Telegram note, one plain line per mark. The
