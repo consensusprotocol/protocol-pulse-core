@@ -1,0 +1,236 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "ff77488d84ffb51372a8c3419685bede758734bcd8615864794d6e5f4b8dfdbf",
+ "result": {
+  "text": "It happens, but a lot of encouraging signs here for Bitcoin. Another encouraging sign for Bitcoin always is when this guy decides to buy some. Strategy has acquired 457 Bitcoin. What is this, a Bitcoin",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 11.5,
+    "text": "It happens, but a lot of encouraging signs here for Bitcoin. Another encouraging sign for Bitcoin always is when this guy decides to buy some. Strategy has acquired 457 Bitcoin. What is this, a Bitcoin"
+   }
+  ],
+  "words": [
+   {
+    "text": "It",
+    "start": 0.0,
+    "end": 0.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "happens,",
+    "start": 0.1,
+    "end": 0.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 1.02,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.44,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot",
+    "start": 1.54,
+    "end": 1.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 1.74,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "encouraging",
+    "start": 1.86,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "signs",
+    "start": 2.58,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here",
+    "start": 2.98,
+    "end": 3.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 3.4,
+    "end": 3.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 3.54,
+    "end": 3.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Another",
+    "start": 3.94,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "encouraging",
+    "start": 4.22,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sign",
+    "start": 4.78,
+    "end": 4.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 5.0,
+    "end": 5.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.14,
+    "end": 5.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "always",
+    "start": 5.58,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.94,
+    "end": 6.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 6.08,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 6.4,
+    "end": 6.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "guy",
+    "start": 6.64,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "decides",
+    "start": 6.88,
+    "end": 7.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 7.3,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buy",
+    "start": 7.4,
+    "end": 7.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some.",
+    "start": 7.64,
+    "end": 7.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Strategy",
+    "start": 7.84,
+    "end": 8.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 8.26,
+    "end": 8.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "acquired",
+    "start": 8.4,
+    "end": 8.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "457",
+    "start": 8.92,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 9.84,
+    "end": 10.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "What",
+    "start": 10.3,
+    "end": 10.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 10.44,
+    "end": 10.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this,",
+    "start": 10.56,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 10.68,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 11.2,
+    "end": 11.5,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.52
+ },
+ "usd": 0.002304,
+ "seconds": 0.75,
+ "recorded_at": "2026-11-24T01:46:09Z"
+}

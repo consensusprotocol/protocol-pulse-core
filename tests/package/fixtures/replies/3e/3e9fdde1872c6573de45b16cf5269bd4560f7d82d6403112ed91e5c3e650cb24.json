@@ -1,0 +1,320 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "295d5659022e8eaa6ff314f9c3e1c2b1c085c4320075b64831890a7ebd149f60",
+ "result": {
+  "text": "Which he said would be big enough to make Strategy a trillion-dollar company. He also said the company has more than three years of cash to cover dividends and interest, and that the only real threat to its existence is Bitcoin going to zero overnight. So just remember this",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.32,
+    "end": 14.36,
+    "text": "Which he said would be big enough to make Strategy a trillion-dollar company. He also said the company has more than three years of cash to cover dividends and interest, and that the only real threat to its existence is Bitcoin going to zero overnight. So just remember this"
+   }
+  ],
+  "words": [
+   {
+    "text": "Which",
+    "start": 0.32,
+    "end": 0.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "he",
+    "start": 0.54,
+    "end": 0.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "said",
+    "start": 0.72,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 0.88,
+    "end": 1.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 1.04,
+    "end": 1.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "big",
+    "start": 1.2,
+    "end": 1.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "enough",
+    "start": 1.34,
+    "end": 1.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 1.56,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "make",
+    "start": 1.66,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Strategy",
+    "start": 1.86,
+    "end": 2.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 2.42,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trillion-dollar",
+    "start": 2.62,
+    "end": 3.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "company.",
+    "start": 3.44,
+    "end": 3.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "He",
+    "start": 4.0,
+    "end": 4.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "also",
+    "start": 4.12,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "said",
+    "start": 4.38,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.52,
+    "end": 4.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "company",
+    "start": 4.64,
+    "end": 4.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 4.96,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 5.1,
+    "end": 5.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 5.26,
+    "end": 5.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "three",
+    "start": 5.46,
+    "end": 5.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years",
+    "start": 5.68,
+    "end": 5.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 5.9,
+    "end": 5.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cash",
+    "start": 6.06,
+    "end": 6.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 6.32,
+    "end": 6.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cover",
+    "start": 6.44,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dividends",
+    "start": 6.7,
+    "end": 7.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 7.08,
+    "end": 7.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "interest,",
+    "start": 7.2,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 7.96,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 8.06,
+    "end": 8.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.18,
+    "end": 8.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "only",
+    "start": 8.46,
+    "end": 8.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "real",
+    "start": 8.8,
+    "end": 9.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "threat",
+    "start": 9.06,
+    "end": 9.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 9.36,
+    "end": 9.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 9.46,
+    "end": 9.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "existence",
+    "start": 9.6,
+    "end": 10.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 10.52,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 10.78,
+    "end": 11.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 11.46,
+    "end": 11.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 11.7,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "zero",
+    "start": 11.92,
+    "end": 12.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "overnight.",
+    "start": 12.72,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 13.5,
+    "end": 13.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 13.64,
+    "end": 13.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "remember",
+    "start": 13.84,
+    "end": 14.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 14.2,
+    "end": 14.36,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.55
+ },
+ "usd": 0.00291,
+ "seconds": 0.84,
+ "recorded_at": "2026-11-24T01:45:59Z"
+}

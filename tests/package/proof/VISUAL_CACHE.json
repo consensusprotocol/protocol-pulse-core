@@ -1292,6 +1292,142 @@
   },
   "version": "visual-3"
  },
+ "4c8a1d8773fa4e831c19:330.339-336.599:visual-3:0f862c90e5a96a09": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     334.34
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "caption",
+    "text": "\u201cA LONG BITCOIN DRAWDOWN WON'T",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     335.34,
+     336.34,
+     336.55
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "caption",
+    "text": "\u201cA LONG BITCOIN DRAWDOWN WON'T BREAK THE COMPANY\u201d",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     331.34,
+     332.34,
+     333.34,
+     334.34,
+     335.34,
+     336.34,
+     336.55
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "NATALIE BRUNELL",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     333.34
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "caption",
+    "text": "\u201cA",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "kind": "on_screen_text",
+    "text": "Strategy shares fall 30% in a week as bitcoin drops about 20% below the company's average purchase price",
+    "why": "The spoken words only say the stock fell 30% last week and that a long Bitcoin drawdown will not break the company; the card adds that bitcoin dropped about 20% below the company's average purchase pr"
+   },
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "NATALIE BRUNELL"
+   },
+   {
+    "at": [
+     334.34
+    ],
+    "in_9x16": "cut",
+    "kind": "burned_caption",
+    "text": "\u201cA LONG BITCOIN DRAWDOWN WON'T"
+   },
+   {
+    "at": [
+     335.34,
+     336.34,
+     336.55
+    ],
+    "in_9x16": "cut",
+    "kind": "burned_caption",
+    "text": "\u201cA LONG BITCOIN DRAWDOWN WON'T BREAK THE COMPANY\u201d"
+   },
+   {
+    "at": [
+     333.34
+    ],
+    "in_9x16": "whole",
+    "kind": "burned_caption",
+    "text": "\u201cA"
+   }
+  ],
+  "formats": [
+   "16x9"
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "Strategy shares fall 30% in a week as bitcoin drops about 20% below the company's average purchase price",
+    "why": "The spoken words only say the stock fell 30% last week and that a long Bitcoin drawdown will not break the company; the card adds that bitcoin dropped about 20% below the company's average purchase pr"
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_8af371a8e111747e.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_8af371a8e111747e.jpg",
+   "sha256": "8af371a8e111747ee3d1070977894dc39de7574e928867e6d7beadb1a7f53139",
+   "times": [
+    330.34,
+    331.34,
+    332.34,
+    333.34,
+    334.34,
+    335.34,
+    336.34,
+    336.55
+   ]
+  },
+  "third_person": {
+   "finding": "No non-speaking person is shown as a still, photo, or graphic; the only person on camera is the speaker, and the negative stock-drop claim appears only as a headline card.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 2945,
+   "out": 19572,
+   "usd_reported": 0.121594
+  },
+  "version": "visual-3"
+ },
  "4d14201f553f57dc7672:0.000-7.340:visual-3:dc3219cf124a69f7": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [
@@ -2613,6 +2749,94 @@
    "usd_reported": 0.015924
   },
   "version": "visual-1"
+ },
+ "c467bae85f80f5dadd14:433.608-446.588:visual-3:b98a2f0290188946": {
+  "backend": "heimdall:qwen/qwen3.8-27b",
+  "burned_in": [
+   {
+    "at": [
+     438.1,
+     438.4,
+     438.5,
+     438.6,
+     438.7,
+     438.8,
+     439.1,
+     440.1,
+     441.1,
+     442.1,
+     443.1,
+     444.1,
+     445.1,
+     445.4
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "bug",
+    "text": "SeekingAlpha",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "kind": "on_screen_text",
+    "text": "Structural Catalysts for Bitcoin Adoption",
+    "why": "The spoken words only outline a plan to sell digital credit and buy Bitcoin to drive the price up; they never state or enumerate 'structural catalysts for Bitcoin adoption,' so the slide's heading (an"
+   },
+   {
+    "in_9x16": "whole",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "SeekingAlpha"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "Structural Catalysts for Bitcoin Adoption",
+    "why": "The spoken words only outline a plan to sell digital credit and buy Bitcoin to drive the price up; they never state or enumerate 'structural catalysts for Bitcoin adoption,' so the slide's heading (an"
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_6448c4db59bd2a96.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_6448c4db59bd2a96.jpg",
+   "sha256": "6448c4db59bd2a96183a3d900a0d670f071544d4ac926f579419b7cb6ed0d28c",
+   "times": [
+    433.61,
+    434.61,
+    435.61,
+    436.61,
+    437.61,
+    438.61,
+    439.61,
+    440.61,
+    441.61,
+    442.61,
+    443.61,
+    444.61,
+    445.61,
+    446.54
+   ]
+  },
+  "third_person": {
+   "finding": "The only person visible is the speaker in a small live-video inset, and the spoken words describe a sales-and-buying plan rather than any negative claim, so no non-speaking person is shown as a still,",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2043,
+   "out": 7285,
+   "usd_reported": 0.00566805
+  },
+  "version": "visual-3"
  },
  "c5746c57869f9bc2ca60:4156.871-4164.311:visual-3:b01fce9f2217fb58": {
   "backend": "xai_vision:grok-4.7",

@@ -1,0 +1,404 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "1886dd684b7913b48ae906293e378be731e164603636a533d5e1a83f8cef300e",
+ "result": {
+  "text": "Credit, like, uh, STRC is another big deal, right? Uh, we sold, you know, I think there's 15 billion of digital credit outstanding. We intend to sell 15 billion a year, then we're gonna sell 100 billion, then we're gonna sell a trillion, and when we sell that, we buy the Bitcoin, we drive up the price of Bitcoin. So we're actually creating-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 18.42,
+    "text": "Credit, like, uh, STRC is another big deal, right? Uh, we sold, you know, I think there's 15 billion of digital credit outstanding. We intend to sell 15 billion a year, then we're gonna sell 100 billion, then we're gonna sell a trillion, and when we sell that, we buy the Bitcoin, we drive up the price of Bitcoin. So we're actually creating-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Credit,",
+    "start": 0.0,
+    "end": 0.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 0.56,
+    "end": 0.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 0.92,
+    "end": 0.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "STRC",
+    "start": 1.16,
+    "end": 1.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 1.74,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "another",
+    "start": 1.86,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "big",
+    "start": 2.18,
+    "end": 2.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "deal,",
+    "start": 2.42,
+    "end": 2.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 2.92,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Uh,",
+    "start": 3.24,
+    "end": 3.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 4.12,
+    "end": 4.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sold,",
+    "start": 4.3,
+    "end": 4.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 5.18,
+    "end": 5.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 5.26,
+    "end": 5.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 5.44,
+    "end": 5.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 5.5,
+    "end": 5.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 5.64,
+    "end": 5.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "15",
+    "start": 5.82,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 6.26,
+    "end": 6.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 6.56,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "digital",
+    "start": 6.68,
+    "end": 6.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "credit",
+    "start": 7.0,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outstanding.",
+    "start": 7.28,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 8.24,
+    "end": 8.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "intend",
+    "start": 8.36,
+    "end": 8.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 8.62,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sell",
+    "start": 8.76,
+    "end": 9.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "15",
+    "start": 9.28,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 9.74,
+    "end": 9.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 10.04,
+    "end": 10.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year,",
+    "start": 10.14,
+    "end": 10.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 10.44,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 10.56,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 10.66,
+    "end": 10.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sell",
+    "start": 10.9,
+    "end": 11.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "100",
+    "start": 11.26,
+    "end": 11.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion,",
+    "start": 11.58,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 11.86,
+    "end": 11.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 11.96,
+    "end": 12.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 12.02,
+    "end": 12.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sell",
+    "start": 12.2,
+    "end": 12.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 12.34,
+    "end": 12.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trillion,",
+    "start": 12.46,
+    "end": 12.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 13.32,
+    "end": 13.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 13.54,
+    "end": 13.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 13.72,
+    "end": 13.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sell",
+    "start": 13.98,
+    "end": 14.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that,",
+    "start": 14.36,
+    "end": 14.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 15.0,
+    "end": 15.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buy",
+    "start": 15.14,
+    "end": 15.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 15.32,
+    "end": 15.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 15.42,
+    "end": 15.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 15.86,
+    "end": 15.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "drive",
+    "start": 15.94,
+    "end": 16.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 16.14,
+    "end": 16.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 16.239,
+    "end": 16.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 16.34,
+    "end": 16.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 16.58,
+    "end": 16.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 16.68,
+    "end": 17.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 17.16,
+    "end": 17.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 17.66,
+    "end": 17.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "actually",
+    "start": 17.86,
+    "end": 18.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "creating-",
+    "start": 18.16,
+    "end": 18.42,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 18.48
+ },
+ "usd": 0.003696,
+ "seconds": 0.83,
+ "recorded_at": "2026-11-24T01:46:13Z"
+}

@@ -33953,5 +33953,588 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "4c8a1d8773fa4e831c19:bd3077a19769888c6fa43a73f2024fde526e913b0a05ea81b1e7f13f70855f0f:66f12cb35b0db2bf50bd1c0e4f19c90ffc82e7282af1fd29a7945bb92465bc5e:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "4c8a1d8773fa4e831c19",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "the company",
+     "refers_to": "Strategy (MicroStrategy)",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "last week",
+     "refers_to": "the week preceding the narration/show date",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "last week",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MicroStrategy stock fell 30% last week, but Michael Saylor says a long Bitcoin drawdown will not break the company.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I hosted the company's post Q3 investor Q&A session last week with Michael Sailor and Fong Lee",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "google:gemini-2.5-pro": {
+   "label": "4c8a1d8773fa4e831c19",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "last week",
+     "refers_to": "The week before the show date of 2026-11-23",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "the company",
+     "refers_to": "Strategy (MicroStrategy)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MicroStrategy's stock fell 30% last week, but Michael Saylor says the company will not be broken by a long Bitcoin price drawdown.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I hosted the company's post Q3 investor Q&A session last week with Michael Sailor and Fong Lee...",
+   "backend": "google:gemini-2.5-pro",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "b9acd2c7db932773f9c5:ea420b1e90fd070ef7e51dfd8e35a449602689f8290719df2ed2e49f8cd1e56b:2d92bbdda7325fef76772240a11fe7ac24d1b8a9ec7e3fb1b7a7b67e91da8241:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b9acd2c7db932773f9c5",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Gold",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "Mag 7 or tech stocks",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "They",
+     "refers_to": "Mag 7 or tech stocks",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "gold, the S&P, Mag 7 or tech stocks",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "we",
+     "refers_to": "MicroStrategy/Saylor's company and team",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "at the beginning of the week, not so good later in the week",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Gold is dead money because it performs worse than the S&P, Mag 7 or tech stocks that looked good early in the week but not later, while Bitcoin is beating them and the approach is simply to lever Bitcoin with intelligent credit.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "c467bae85f80f5dadd14:4ca96a91556a952f5a81dcbd16b209353f9838e03b43796b0e7e209e1e7f8741:8ac236625ed833fc3dcb90bcc5616300aa7c7daee53504c893719b5288b5583b:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "c467bae85f80f5dadd14",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "We",
+     "refers_to": "MicroStrategy/Saylor's company",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "I",
+     "refers_to": "Michael Saylor",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "the digital credit they intend to sell",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "when we sell that",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The company currently has about 15 billion of digital credit outstanding, intends to sell 15 billion per year then scale up to 100 billion and then a trillion, using proceeds to buy Bitcoin and thereby drive up its price.",
+   "certainty": "speculative",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "google:gemini-2.5-pro": {
+   "label": "c467bae85f80f5dadd14",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "We",
+     "refers_to": "MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "The large amounts of digital credit the speaker intends to sell (up to a trillion).",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "The price of Bitcoin will be driven up when they sell the digital credit and buy Bitcoin.",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MicroStrategy plans to sell escalating amounts of digital credit, up to a trillion dollars, and use the proceeds to buy Bitcoin, which will drive up Bitcoin's price.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Michael Saylor Keynote at ITC Conference 2026",
+   "backend": "google:gemini-2.5-pro",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "e3bde2f205e66f8e4906:a0ffb78aec5906516756cfefa0c4f7be771cfcee69f230ee4dffec923e35d992:80fd3ab21dfa1cf4adecbeb5d8dbff5ed73e6ff578d7d3a638e2f0d8a823e8f3:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "e3bde2f205e66f8e4906",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "He",
+     "refers_to": "Michael Saylor",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "its",
+     "refers_to": "the company's",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "more than three years of cash to cover dividends and interest",
+     "inside": true
+    },
+    {
+     "text": "Bitcoin going to zero overnight",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Michael Saylor also said that the company has more than three years of cash to cover dividends and interest and that the only real threat to its existence is Bitcoin going to zero overnight.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I hosted the company's post Q3 investor Q&A session last week with Michael Sailor and Fong Lee",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "google:gemini-2.5-pro": {
+   "label": "e3bde2f205e66f8e4906",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "He",
+     "refers_to": "Michael Saylor",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "the company",
+     "refers_to": "MicroStrategy",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "its",
+     "refers_to": "the company (MicroStrategy)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "The only real threat to the company's existence is if Bitcoin goes to zero overnight.",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Michael Saylor said that MicroStrategy has over three years of cash to cover its obligations and that the only existential threat to the company is Bitcoin's price going to zero overnight.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I hosted the company's post Q3 investor Q&A session last week with Michael Sailor and Fong Lee...",
+   "backend": "google:gemini-2.5-pro",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "c5b136cd68da788fb670:23f4e3d49fc6e6a8490756c945af81840dd13702573404229ed88888ad66eafc:f31591df6e31e27b73f027e64eb0320c6a6344785093d73bcc6c7033e2ff0a91:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "c5b136cd68da788fb670",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "He",
+     "refers_to": "Michael Saylor",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Strategy",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "gold",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Michael Saylor said Strategy is building the bank of Bitcoin, a company that holds Bitcoin the same way a central bank holds gold and issues credit on top of it.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I hosted the company's post Q3 investor Q&A session last week with Michael Sailor and Fong Lee, and a lot of the questions came from shareholders asking why Strategy keeps selling shares to buy back its preferred stock, STRC. And I hope you get a chance to listen to that show because Sailor was very direct.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "google:gemini-2.5-pro": {
+   "label": "c5b136cd68da788fb670",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "He",
+     "refers_to": "Michael Saylor",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "The bank that Strategy is building.",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Michael Saylor described MicroStrategy's business model as building a 'bank of Bitcoin' that would hold Bitcoin and issue credit against it, similar to how a central bank holds gold.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I hosted the company's post Q3 investor Q&A session last week with Michael Sailor and Fong Lee...",
+   "backend": "google:gemini-2.5-pro",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "f4aa3aed9e3732216a2d:0af9b23e23a51a6df038705c9cec05f6afb58e9c24df1e03f1629e95d20aff69:5ea3914e45ade04e69846e508184b96932f99911f137133465c29ac38567ecd4:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "f4aa3aed9e3732216a2d",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "we",
+     "refers_to": "Saylor's company (MicroStrategy)",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It",
+     "refers_to": "the idea of reaching the top 10 at Bitcoin $1 million",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "at Bitcoin a million",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "When Bitcoin reaches a million dollars, Saylor's company will be crawling into the top 10 central banks, and it is not complicated.",
+   "certainty": "speculative",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "72fbbf8137925c139e16:574aa379796643d1f53775a5265936ad8e23500dd2cc5f45f52b93c0bffad217:cf8ab49f7799383e6e026deff5f3dc991c7481004574d62c6e28e6a11b6050c7:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "72fbbf8137925c139e16",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "They",
+     "refers_to": "MicroStrategy/company behind the Bitcoin buys",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "MicroStrategy/company behind the Bitcoin buys",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "STRC",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "the plan of buying a hell of a lot of Bitcoin using STRC at $100",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "the higher Bitcoin rises, the easier all of that will become",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MicroStrategy wants STRC back at $100 so it can be used to buy a lot more Bitcoin, which is not happening yet but is getting much closer, and higher Bitcoin prices will make this easier.",
+   "certainty": "likely",
+   "speaker_is": "host",
+   "speaker_evidence": "My guests on Macro Monday thought that that was likely to happen",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "google:gemini-2.5-pro": {
+   "label": "72fbbf8137925c139e16",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "They",
+     "refers_to": "MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "STRC (MicroStrategy's preferred stock)",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "The process of getting STRC to $100 and using it to buy Bitcoin.",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "The higher Bitcoin rises, the easier it will be for MicroStrategy to achieve its goal.",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MicroStrategy wants its preferred stock (STRC) to get back to $100 so they can use it to buy a lot of Bitcoin, and this goal will become easier as Bitcoin's price rises.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "My guests on Macro Monday thought that that was likely to happen...",
+   "backend": "google:gemini-2.5-pro",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "ae49f0e88243e485ba44:fa85bcb68d540cd291b28cf82de5314a1770bc103c93d83fd78843651084182f:3898879dbd95241d7c3847997bf813adaa538e7de6481447843d30fe74166b48:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "ae49f0e88243e485ba44",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "the person/company (MicroStrategy/Michael Saylor) who buys Bitcoin",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Another encouraging sign for Bitcoin is when this guy decides to buy some, as MicroStrategy has just acquired 457 Bitcoin.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "My guests on Macro Monday thought that that was likely to happen",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "google:gemini-2.5-pro": {
+   "label": "ae49f0e88243e485ba44",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this guy",
+     "refers_to": "Michael Saylor",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "some",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "It is an encouraging sign for Bitcoin when Michael Saylor/MicroStrategy buys it.",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "It is always an encouraging sign for Bitcoin when Michael Saylor's company, MicroStrategy, buys more, and they have recently acquired another 457 Bitcoin.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "My guests on Macro Monday thought that that was likely to happen...",
+   "backend": "google:gemini-2.5-pro",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "afc71c91ac7dd87d4ec6:6116b1da9ed1603602321e7122c1fab53e9cd842a6537436c3185254e519239a:daa27bbc3bb250b16f270bce743e5aa65d155d79978f81690da57106fe2985e3:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "afc71c91ac7dd87d4ec6",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "its",
+     "refers_to": "the stock (Strategy stock)",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "At $60K, Bitcoin is about 20% below Strategy's average cost of roughly $75,500, and Strategy's stock closed Friday at its lowest level since early 2024.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I hosted the company's post Q3 investor Q&A session last week with Michael Sailor and Fong Lee",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "google:gemini-2.5-pro": {
+   "label": "afc71c91ac7dd87d4ec6",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "strategy's",
+     "refers_to": "MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "The statement about Bitcoin's price relative to the average cost is true at a price of 60K.",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "At a Bitcoin price of $60,000, it is about 20% below MicroStrategy's average cost basis, and MicroStrategy's stock closed last Friday at its lowest level since early 2024.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I hosted the company's post Q3 investor Q&A session last week with Michael Sailor and Fong Lee...",
+   "backend": "google:gemini-2.5-pro",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

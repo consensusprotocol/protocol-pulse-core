@@ -1,42 +1,114 @@
 {
- "generated_at": "2026-11-24T01:29:43+00:00",
- "build": "ledger_20261124_012928",
+ "generated_at": "2026-11-24T01:42:52+00:00",
+ "build": "ledger_20261124_014236",
  "kind": "moments",
  "candidates": [
   {
-   "pid": "ad47eab4a19c2324a9eb",
-   "video_id": "vX2WKBOua8w",
-   "channel": "Digital Asset News",
-   "duration": 10.95,
-   "text": "He said, over the weekend, we hit a new low. Bitcoin bottom four years ago to the exact day. Let me read that again.",
-   "text_sha256": "fe4ffcf17524005119d62a4866da3dc7e47448441805865dffba23a0cd8344be",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "513842ff9c091700dbb8",
-   "video_id": "0shaXx_n870",
-   "channel": "Simply Bitcoin",
-   "duration": 16.62,
-   "text": "Bitcoin bottomed at about $15,000 and a half thousand dollars on November 21st, 2022. On November 21st, 2026, We finished seven weeks straight of red candles with a wick down to $55,000. That's four years to the day. You can't make this up.",
-   "text_sha256": "61debb42a57e83f54702f2d9b4ab889f521bafdd30b6975a43d310ac26c9acc3",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "b37fdbe20c4ce28f6067",
-   "video_id": "vX2WKBOua8w",
-   "channel": "Digital Asset News",
-   "duration": 15.58,
-   "text": "He said, over the weekend, we hit a new low. Bitcoin bottom four years ago to the exact day. Let me read that again. Bitcoin bottom four years ago to the exact day.",
-   "text_sha256": "835c9290d7cb9e1fb40708c5504a206543c9fb6066d240ae0469474a268ac3f7",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "5f1456a7f32e60f52817",
+   "pid": "e3bde2f205e66f8e4906",
    "video_id": "sT-54695UcU",
    "channel": "Natalie Brunell",
-   "duration": 19.62,
-   "text": "Bitcoin's last bare market bottomed on November 21st of 2022. The price was about 15,500. And this low came four years later almost to the day. Now, Bitcoin has tended to move in these four -year cycles. And in each of the last three, the price fell around 70 to 80 % from its peak before it turned around.",
-   "text_sha256": "5cc43c9bf9cb7750e5fd9b812087300bbcb5bd26971a1df6a633a289e1f2a520",
+   "duration": 9.05,
+   "text": "He also said the company has more than three years of cash to cover dividends and interest and that the only real threat to its existence is Bitcoin going to zero. overnight.",
+   "text_sha256": "a0ffb78aec5906516756cfefa0c4f7be771cfcee69f230ee4dffec923e35d992",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "c5b136cd68da788fb670",
+   "video_id": "sT-54695UcU",
+   "channel": "Natalie Brunell",
+   "duration": 10.27,
+   "text": "He said, strategy is building a bank. He called it the bank of Bitcoin, a company that holds Bitcoin the same way that a central bank would hold gold and issue credit on top of it.",
+   "text_sha256": "23f4e3d49fc6e6a8490756c945af81840dd13702573404229ed88888ad66eafc",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "72fbbf8137925c139e16",
+   "video_id": "duqpCH2snqE",
+   "channel": "Yahoo Finance",
+   "duration": 12.82,
+   "text": "They want STRC back at $100 so they can use it to start buying a hell of a lot of Bitcoin. Not happening yet, but getting, getting much closer. And obviously, the higher Bitcoin rises, the easier all of that will become.",
+   "text_sha256": "574aa379796643d1f53775a5265936ad8e23500dd2cc5f45f52b93c0bffad217",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a378f74a92e9bdacfb8d",
+   "video_id": "sT-54695UcU",
+   "channel": "Natalie Brunell",
+   "duration": 16.64,
+   "text": "Strategy stock fell 30 % last week, but Michael Saylor says a long Bitcoin drawdown will not break the company. At 60K, Bitcoin is about 20 % below strategy's average cost of roughly 75,500. And the stock closed Friday at its lowest level since early 2024.",
+   "text_sha256": "a33b52b5d3e773293de781bb471a460cc0293562845fb42c88650e20f2f8c68a",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b9acd2c7db932773f9c5",
+   "video_id": "8iPdQNLJv38",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 15.4,
+   "text": "Gold's dead money because it's not better than the S &P. Mag 7 or tech stocks, they can look good. They looked really good at the beginning of the week, not so good later in the week. Bitcoin is beating that, and then all we're doing is just levering the Bitcoin with intelligent credit.",
+   "text_sha256": "ea420b1e90fd070ef7e51dfd8e35a449602689f8290719df2ed2e49f8cd1e56b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "bc0681119d8a8af76dca",
+   "video_id": "8iPdQNLJv38",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 14.76,
+   "text": "We sold... I think there's 15 billion of digital credit outstanding. We intend to sell 15 billion a year, then we're going to sell 100 billion, then we're going to sell a trillion. And when we sell that, we buy the Bitcoin, we'll drive up the price of Bitcoin. So we're actually creating credit.",
+   "text_sha256": "563485f2fb1635c3c62d1b9b439f0ff3b2825e8e94f378aa959bd3f6a213fc07",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a889f8c5632fa8f3c2c0",
+   "video_id": "sT-54695UcU",
+   "channel": "Natalie Brunell",
+   "duration": 15.27,
+   "text": "He also said the company has more than three years of cash to cover dividends and interest and that the only real threat to its existence is Bitcoin going to zero. overnight. So just remember, the stock will keep swinging harder than Bitcoin in both directions because that's how it's built.",
+   "text_sha256": "80c34b4da6cd71c3ad584bed326646fc7f6c34ea9f0d2c8c5be89577d84d8e4d",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "3a30db9e93497d02f9ff",
+   "video_id": "sT-54695UcU",
+   "channel": "Natalie Brunell",
+   "duration": 16.57,
+   "text": "He said, strategy is building a bank. He called it the bank of Bitcoin, a company that holds Bitcoin the same way that a central bank would hold gold and issue credit on top of it. He said that if the credit doesn't work, it's simply a holding company. And that's why protecting the credit comes first for him.",
+   "text_sha256": "752781bee90f35903d6374dc715084f9e31102381e225d723b89abe52913a7bd",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "60e6a778f71cdd02bbc3",
+   "video_id": "8iPdQNLJv38",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 17.71,
+   "text": "I mean, at Bitcoin a million, you know, we're crawling, you know, we're crawling into the top 10 at Bitcoin a million. It's not complicated. It's a very simple thing. This is the capital chart, right?",
+   "text_sha256": "336f27776b255a7683149489aba30f70495cba0f29bab436a019180db143004d",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d1a37915aaab7d48760f",
+   "video_id": "duqpCH2snqE",
+   "channel": "Yahoo Finance",
+   "duration": 17.06,
+   "text": "They want STRC back at $100 so they can use it to start buying a hell of a lot of Bitcoin. Not happening yet, but getting, getting much closer. And obviously, the higher Bitcoin rises, the easier all of that will become. Now some news because this is just happening right now in real time.",
+   "text_sha256": "d55cd1e670d2117aee55afb78de31947e3798552e0bc4a6c08cf4ca9fbc42dc8",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "92fa27f0d420aec71914",
+   "video_id": "duqpCH2snqE",
+   "channel": "Yahoo Finance",
+   "duration": 18.66,
+   "text": "Another encouraging sign for Bitcoin always is when this guy decides to buy some strategy has acquired 457 Bitcoin. What is this? Bitcoin buy for ants. And repurchase $212 million of STRC. We increased our digital credit securities repurchase program by a billion and reallocated $1 billion from our USD reserve to USD cash.",
+   "text_sha256": "792581964664fa96d5a0cb01a76de3096eb61c3ec024e8b2b4954188c5a6d993",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "67ae3e67d892f676cded",
+   "video_id": "sT-54695UcU",
+   "channel": "Natalie Brunell",
+   "duration": 15.33,
+   "text": "At 60K, Bitcoin is about 20 % below strategy's average cost of roughly 75,500. And the stock closed Friday at its lowest level since early 2024. Plus, at the end of this month, it comes out of the MSCI indexes. which will force them to sell.",
+   "text_sha256": "83deec4b4693526f83c5b2dd73267c3b884df4f4ec78f1ca880a2f936de16991",
    "trimmed_leading": null
   }
  ]
