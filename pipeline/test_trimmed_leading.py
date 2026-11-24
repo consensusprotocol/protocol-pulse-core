@@ -213,11 +213,11 @@ class TestTrimmedCutTableAndG16(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("IN: trimmed leading word (ruling 33 part 2): 'But' cannot be cut cleanly", " ".join(table[1]["errors"]))
 
-    def test_the_same_lock_without_trimmed_leading_holds_as_before(self):
+    def test_the_same_lock_without_trimmed_leading_is_a_flagged_sentence_edge(self):   # ruling 139 / 147 (3): it held
         self.build(trimmed=False)
         c = {c["clip_id"]: c for c in L.write_lock_cut_table(self.run)}["clip_01"]
-        self.assertFalse(c["verified"])
-        self.assertIn("'But' does not end a sentence", c["error"])
+        self.assertTrue(c["verified"], c.get("error"))
+        self.assertIn("'But' does not end a sentence", c["sentence_edge"]["in"])
 
 
 class TestPinFields(unittest.TestCase):
@@ -267,9 +267,9 @@ class TestPinFields(unittest.TestCase):
         with self.assertRaisesRegex(pinned.PinError, r"trimmed_leading 'And' is not the word before the lock .*'But,'"):
             pinned.trimmed_lock(lock, {"trimmed_leading": "And", "untrimmed_start": 29.6}, words)
         # batch 58 cycle 2 (glm F1, 1 vote): ruling 17's adjudication rewrites the lock and keeps the record in its digest
-        # (ruling 84 '20:40': 'this' / 'these' is one function word now, so the example's difference is a content word;
-        # ruling 84 (b)'s record keeps the trimmed word too)
-        for heard, text in (("heard", "we have rarely heard this."), ("these.", "we have rarely seen this.")):
+        # (RULING 143 (2) supersedes ruling 84 (b) here: 'this' / 'these' is a small word, so the approved text and the
+        # second recogniser, two of three, settle it; the trimmed word's record survives either way)
+        for heard, text in (("heard", "we have rarely heard this."), ("these.", "we have rarely seen these.")):
             approved = dict(new, selected_text=text if heard == "heard" else "we have rarely seen these.")
             approved["sha256"] = L._lock_digest(approved)
             said = ["Six", "weeks.", "But,", "we", "have", "rarely"] + (["heard", "this."] if heard == "heard" else
@@ -279,7 +279,7 @@ class TestPinFields(unittest.TestCase):
                                          log=lambda *a: None)
             self.assertEqual(adj["trimmed_leading"], new["trimmed_leading"])
             self.assertEqual((adj["text"], L.verify_lock(adj)), (text, []))
-            self.assertEqual("alternatives" in adj, heard == "these.")
+            self.assertTrue(adj["adjudication"]["rule"].startswith("ruling 143"), adj.get("adjudication"))
         head = L.make_lock("BBBBBBBBBBB", words, 0, 1, "ab" * 32, "Six weeks.")
         with self.assertRaisesRegex(pinned.PinError, "<file head>"):
             pinned.trimmed_lock(head, {"trimmed_leading": "But", "untrimmed_start": 0}, words)
@@ -361,7 +361,8 @@ class TestFadeRetryPlansTheTrimmedEdge(unittest.TestCase):
         run.mode, run.machine_cuts = "pinned", True
         c = {"clip_id": "clip_01", "video_id": "V", "cut_in": 3.0, "cut_out": 6.0, "cut_duration": 3.0}
         seen = []
-        with mock.patch.object(rf.L, "edge_plan", lambda sa, w, i0, i1, trimmed=None: seen.append((i0, i1, trimmed)) or {}), \
+        with mock.patch.object(rf.L, "edge_plan", lambda sa, w, i0, i1, trimmed=None, sentence_soft=False:
+                               seen.append((i0, i1, trimmed)) or {}), \
                 mock.patch.object(rf.L, "cut_candidates", return_value={"in": [], "out": []}), \
                 mock.patch.object(rf.L, "SourceAudio", return_value=None):
             rf._retry_fade_edges(run, c, {"errors": ["fade-in missing (x)"]}, lambda *a: None,

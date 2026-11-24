@@ -271,6 +271,22 @@ def flag_short_hook_cut(run, cuts):
             flag(run, HOOK_ABRUPT, f"G17a at the cut (ruling 146 (2)): {c['hook_lead']['short']}")
 
 
+def flag_sentence_edges(run, cuts):
+    """RULING 139 at the cut (binding the render's lock, ruling 147 (3)): a lock edge that sits at a word boundary but
+    is not a sentence edge (lock_cut's "sentence_edge") is flagged in R10's / R9's plain sentence for that clip, never
+    held. No audio between the words stays a refusal (lock_cut keeps it unverified)."""
+    marked = [c for c in cuts if isinstance(c.get("sentence_edge"), dict) and c["sentence_edge"]]
+    if not marked:
+        return
+    with open(os.path.join(run.dir, "edl.json")) as f:
+        edl = json.load(f)
+    for c in marked:
+        for side, rule in (("in", "rule_r10"), ("out", "rule_r9")):
+            if c["sentence_edge"].get(side):
+                flag(run, sentence(EDL_SOFT[rule], edl, c["clip_id"]),
+                     f"ruling 139 at the cut, {side.upper()} of {c['clip_id']}: {c['sentence_edge'][side]}")
+
+
 def snap_verdict(run, clip_id, snap):
     """Ruling 71: a shot snap that cannot keep the required quiet HOLDS; RULING 146 (2): one that keeps it but not
     the hook's 80 ms (shot_snap's "hook_lead_short") is flagged HOOK_ABRUPT."""
@@ -473,11 +489,29 @@ def stage_editorial(run):
     return keyword
 
 
+def prefetch_post_live(run, pin_path):
+    """RULING 142 (3) (post_live_prefetch): each YouTube window of the pin, fetched before pinned.acquire asks for it, so a
+    post_live stream whose section download times out is cut from the whole stream (its HARD clock guard still runs in
+    acquire). An unreadable pin is left to prepare, which refuses it."""
+    import post_live_prefetch
+    try:
+        with open(pin_path) as f:
+            segs = [s for s in json.load(f)["segments"]       # a segment without a source is YouTube (pinned.acquire's
+                    if (s.get("source") or {}).get("kind", "youtube") == "youtube"]   # model: only local_file is not)
+        wins = {v: (min(s["start"] for s in segs if s["video_id"] == v), max(s["end"] for s in segs if s["video_id"] == v))
+                for v in dict.fromkeys(s["video_id"] for s in segs)}
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        return
+    for vid, (lo, hi) in wins.items():
+        post_live_prefetch.prefetch(vid, lo, hi, run.dir, log=lambda s: print(s, flush=True))
+
+
 def stage_pinned(run, pin_path):
     """PINNED entry point: validate the human decision and write the canonical EDL. Replaces
     stage_editorial + stage_select only; everything downstream is shared."""
     from pinned import prepare, PinError
     free_gpu0_for_whisper(run, "pinned")   # pinned.acquire runs Whisper on GPU0 (E-FAIL-052: the preflight's model OOM'd it)
+    prefetch_post_live(run, pin_path)
     try:
         rec = prepare(pin_path, run.dir, log=lambda s: print(s, flush=True))
     except PinError as e:
@@ -591,6 +625,12 @@ def stage_validate(run):
     if hard:
         raise Hold("EDL rejected by edl_rules: " + "; ".join(f"{r['rule']}: {r.get('reason', '')}" for r in hard))
     flag_soft_rules(run, edl, results)
+    for seg in [edl.get("hook") or {}] + list(edl.get("clips") or []):  # ruling 143 (2): ONE soft flag a clip whose
+        lk = seg.get("selection_lock") if isinstance(seg, dict) else None    # small words all three readings differ on
+        n = lk.get("small_words_unsettled") if isinstance(lk, dict) else None  # number more than 3
+        if isinstance(n, int) and not isinstance(n, bool) and n > 3:
+            flag(run, f"The clip ({seg.get('channel') or 'channel unknown'}): the transcript and the audio readers "
+                      f"differ on a few small words.", f"{n} small words all three readings differ on (ruling 143 (2))")
     ok91, why91 = takeaway_value(edl)          # ruling 91's MEDLEY half: the live path only (the references predate it)
     print(f"  {why91}")
     run.prov["takeaway_value"] = {"pass": ok91, "reason": why91}
@@ -705,6 +745,7 @@ def stage_cut(run):
     with open(os.path.join(run.dir, "cuts_final.json")) as f:
         cuts = json.load(f)
     flag_short_hook_cut(run, cuts)
+    flag_sentence_edges(run, cuts)
     report, fails = [], []
     for c in cuts:
         src = os.path.join(run.dir, "sources", f"{c['video_id']}.mp4")
@@ -844,7 +885,8 @@ def _retry_fade_edges(run, c, d1, prerender_clips, check_clip, fps, qp):
         words = json.load(f)["words"]
     src = os.path.join(run.dir, "sources", f"{c['video_id']}.mp4")
     cand = L.cut_candidates(src, L.edge_plan(L.SourceAudio(src), words, lock["i0"], lock["i1"],
-                                             trimmed=lock.get("trimmed_leading")))    # ruling 33 part 2
+                                             trimmed=lock.get("trimmed_leading"),     # ruling 33 part 2
+                                             sentence_soft=True))                       # ruling 139 / 147 (3)
     from cut_accept import check_cut_acoustics
     pad = float(c.get("lead_in_pad_s") or 0)
     tried = c.setdefault("contract_retries", [])

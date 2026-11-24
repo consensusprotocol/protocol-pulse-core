@@ -6,6 +6,30 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 20:19 RULING 153 LOCKSTEP LIVE: DECODER 9326604699a7 (RULES unchanged, they already named 139 and 143), merge of r143-material (36896978e). It lands in lockstep with the builder's 703903e8d, which pushes after this push.
+- Batch 113, RULING 143: the lock's one principle.
+  - A non-material pair never holds.
+  - A material pair (number, negation, name, ticker, amount) is corrected when the two audio readings agree against the transcript, and holds when they disagree.
+  - HARD: the second reading hears under 85 % of the run's words, or misses more than 3 (the wrong audio).
+- Batch 116, RULING 139 on the render lock: a lock edge at a word boundary that fails only on sentence evidence is planned as a sentence boundary and FLAGGED, with R10's / R9's plain sentence. A cut mid-word, no audio between the words, a trimmed word's edge and ruling 73's bounds stay HARD. N6 is now killed (a stage_cut test), so mutations are 9 of 9.
+- RULING 145's ALLOWANCE (gpu0.py): a foreign process under 2 GiB on a GPU under 10 % use is tolerated and logged (lease events, PROVENANCE, one line in the note). Anything bigger or busier, a foreign Ollama model and unaccounted memory are refused as before.
+- Batch 119 (no decoder file), the BMTV answer:
+  - Bitcoin Magazine U7X6kReXets is post_live (7134 s, DASH only). Its --download-sections ran past 120 s twice (19:03 and 19:48 ET).
+  - select_passages._download_window returned None on that timeout, BEFORE its whole-stream route. That route was entered only when a section download completed without media, as MeC8YEmUx_w's did on Nov 17. So the fallback never ran for it.
+  - Now post_live_prefetch (called by the render's stage_pinned and the pre-check's prefetch) cuts a failed post_live window from the whole stream. pinned.acquire's HARD clock guard still decides.
+  - The whole stream is cached: audio 115 MB, video 930 MB, 1015 s to download.
+- Audits as ruled ("audit already done where done"):
+  - 113: two cycles, every finding disproved.
+  - 116: cycle 1 half (gpt-oss), its own tests and mutations.
+  - 119: cycle 1 (qwen27b F1 and F2 applied; gpt-oss PASS).
+  - The 145 allowance: no Heimdall cycle yet. A follow-up, not a gate.
+- Tests on the merged tree (61 importing files, 7 groups), each failure compared with the live tree:
+  - test_dec10_edges x2, test_edge_words l_b_fade, test_replay, test_ruling73 x2 and test_word_diff x4 fail the same on the live code (purged media, GPU-only).
+  - Worktree-only, with the files absent: TestNatalieTail and the v2f tests (untracked references), test_preflight (music asset).
+  - The adversarial suite run alone: 383 passed, merged tree and live alike. No new failure.
+- Staged merge: regression_test.sh 26 PASS / 0 FAIL / 4 WARN; pipeline/regression.sh exit 0 (every reference reproduced).
+- NEXT: re-judge FREE under the new DECODER, by clearing their pre-check markers (Scribe readings reused): the FTX story's 7 spans, the liquidations story's 4 held spans and the MicroStrategy story's 12. The scorer, judge and word pass restart on gpu0.py's allowance between their passes.
+
 ## 19:49 BATCH 118 LIVE (ruling 145, the word pass's half; no hashed file, DECODER stays 50fa01b400bd): merge of r145-wordpass (29cd76d96).
 - Another program on GPU1 (Gpu0Foreign, GpuOOM or Gpu0NotFree out of a cycle) now ends the cycle as "blocked". The worker logs it, sleeps and picks those moments again. On Nov 17, Resolve's Gpu0Foreign left main() and kept the worker down 14 h. LeaseMissing (a host misconfiguration) still stops the worker, and the R16 heartbeat now reports that within 20 min.
 - Evidence:

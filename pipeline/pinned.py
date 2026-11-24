@@ -447,8 +447,9 @@ def _with_token(text, k, tok):
 
 
 def _lv2_critical(tok, texts):
-    """Law L-v 2: a number, a negation, or a name (in either text, a capitalised word that does not open a
-    sentence; 'I' excepted). Conservative: a doubtful token is critical (it holds)."""
+    """Law L-v 2 / ruling 143 (1)'s MATERIAL word: a number, a negation, a name (in either text, a capitalised word
+    that does not open a sentence; 'I' excepted) or a ticker (in either text, a word of two or more capitals, wherever
+    it stands: 'IBIT'). Conservative: a doubtful token is critical."""
     if re.search(r"\d", tok) or tok in LV2_NEGATIONS or tok.endswith("n't") or tok in LV2_ORDINALS:
         return True                                    # any digit ('2nd', '1,000', '15%') or an ordinal is a number
     for t in texts:
@@ -456,9 +457,46 @@ def _lv2_critical(tok, texts):
             w = m.group(0)
             if w.lower() == tok and w[0].isupper() and w != "I":
                 before = t[:m.start()].rstrip()
-                if before and before[-1] not in ".!?":
+                if (before and before[-1] not in ".!?") or (len(w) >= 2 and w.isupper()):
                     return True
     return False
+
+
+AUDIO_SHARE_MIN = 0.85     # ruling 143 (4): two audio readings sharing less than this are the wrong audio (HARD)
+AUDIO_APART_MIN = 3        # ... and only when more than this many words apart: a short span's one or two small words
+#                            are not the wrong audio (the integrator's proposal; today's records span 27-75 words)
+
+
+def audio_share(x, y):
+    """Ruling 143 (4): the share of the run decode's words (x, canonical tokens) the second reading (y) heard, in
+    order: matched / len(x). The second recogniser also writes the speaker's repeats and false starts ('When, when',
+    'that's, that's why the bull- that's why') and the neighbouring sentence's words its window catches: none of that
+    is the wrong audio, so the second reading's extra words never lower the share; the run's words it did not hear
+    (another clip, truncated audio) do. Today's spans: 0.93-1.00; Scott Melker 1b4a63d0's disfluent hook 0.82 on the
+    old two-way measure, all of it the speaker's repeats."""
+    from difflib import SequenceMatcher
+    x, y = list(x or []), list(y or [])
+    if not x or not y:
+        return 0.0
+    return sum(m.size for m in SequenceMatcher(None, x, y, autojunk=False).get_matching_blocks()) / len(x)
+
+
+def wrong_audio(x, y):
+    """Ruling 143 (4) as applied: the second reading heard under AUDIO_SHARE_MIN of the run decode's words AND more
+    than AUDIO_APART_MIN of them are missing (from 20 words up this is the 85 % rule itself). -> the share, or None
+    (the same audio)."""
+    x, y = list(x or []), list(y or [])
+    share = audio_share(x, y)
+    apart = len(x) - round(share * len(x))
+    return share if share < AUDIO_SHARE_MIN and apart > AUDIO_APART_MIN else None
+
+
+def material_pair(x, y, texts):
+    """RULING 143 (1) (orchestrator 2026-11-17 '15:55'): a differing pair is MATERIAL when either side holds a
+    number, a negation, a name whose letters differ after the canon, a ticker or a currency amount; a word-form
+    pair (ruling 142 (2)) is not. Everything else is NON-MATERIAL: it never holds."""
+    import canon
+    return not canon.word_form(x, y) and any(_lv2_critical(t, texts) for t in list(x) + list(y))
 
 
 RELISTEN_PAD_S = 1.5        # ruling 103: the token's word times, 1.5 s either side
@@ -642,7 +680,16 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
         from both ends of the span. Anything else HOLDS: all three differ, or a run-side pair near an edge (ruling 18's
         one-token record stays for that case alone). A number, a name or a negation still holds before any vote (L-v 2).
         The lock text takes each pair's reading, and the adjudication records every pair's three readings, which two
-        agreed and its distance from the nearest edge."""
+        agreed and its distance from the nearest edge.
+    RULING 143 (orchestrator 2026-11-17 '15:55') SUPERSEDES the L-v 2 hold before the vote, (A)'s edge rule and ruling
+    18 / 84 (b)'s one-token records, pair by pair (material_pair):
+    (2) a NON-MATERIAL pair never holds: the approved reading where the second recogniser reads it, else the run
+        decode's (two of three, or all three differing: the run's, what the render cuts); more than 3 all-differing
+        pairs in a clip add ONE soft flag (lock["small_words_unsettled"], read at validate);
+    (3) a MATERIAL pair (a number, a negation, a name, a ticker or an amount): the two AUDIO readings (run decode and
+        second recogniser) agreeing against the transcript seal the audio's reading (lock["transcript_corrected"], said
+        in the note); disagreeing, HOLD;
+    (4) HARD: the run decode and the second recogniser sharing under AUDIO_SHARE_MIN of their words (the wrong audio)."""
     import canon
     from difflib import SequenceMatcher
     run_t, pin_t = lock["text"], lock["selected_text"]
@@ -673,16 +720,17 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
             return lock
     tag = f"{lock['video_id']} words {lock['i0']}-{lock['i1']}"
     diffs = [[" ".join(r[a:b]), " ".join(p[c:d])] for _, a, b, c, d in ops]
-    crit = sorted({t for _, a, b, c, d in ops if not canon.word_form(r[a:b], p[c:d])   # ruling 142 (2): a word-form
-                   for t in r[a:b] + p[c:d] if _lv2_critical(t, (run_t, pin_t))})   # pair goes to 131 (A)
-    if crit:
-        raise PinError(f"{tag}: the run's decode and the approved text differ on a number, name or negation {crit} "
-                       f"(law L-v 2: always holds) | run decode: {run_t!r} | approved: {pin_t!r}")
     t0, t1 = words[lock["i0"]]["start"] - 0.3, words[lock["i1"]]["end"] + 0.3
     sw, usd = (recognise or _second_recogniser_words)(src_path)
     sec_t = " ".join(str(w["word"]).strip() for w in sw
                      if t0 <= (float(w["start"]) + float(w["end"])) / 2 <= t1)
-    s = canon.canon_tokens(sec_t)
+    s = [x for x in canon.canon_tokens(sec_t) if not canon.nonlexical(x)]      # ruling 135 (d): fillers are not words
+    readings = {"run_decode": run_t, "approved": pin_t, "second_recogniser": sec_t}
+    share = audio_share(r, s)
+    if wrong_audio(r, s) is not None:                  # ruling 143 (4): the wrong audio, not small words: HARD
+        raise PinError(f"{tag}: the run decode and the second recogniser share {share:.0%} of their words (ruling 143 "
+                       f"(4): under {AUDIO_SHARE_MIN:.0%} is the wrong audio) | " +
+                       " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
 
     def amap(x, y):                                    # x index -> the y index the in-order alignment reads it as
         return {a + k: b + k for op, a, a2, b, _ in SequenceMatcher(None, x, y, autojunk=False).get_opcodes()
@@ -698,100 +746,45 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
         # cycle-2 F1: at the span's start / end there is no neighbour: nothing may precede / follow it in the reading
         return (lo > 0 or xmap[idx[0]] == 0) and (hi < len(x) or xmap[idx[-1]] == len(s) - 1)
     pmap, rmap = amap(p, s), amap(r, s)
-    pin_side = all(reads(p, pmap, c, d) for _, a, b, c, d in ops)
-    run_side = all(reads(r, rmap, a, b) for _, a, b, c, d in ops)
-    readings = {"run_decode": run_t, "approved": pin_t, "second_recogniser": sec_t}
-    if not pin_side:                                   # ruling 131 (A): two of the three readings decide each pair
-        pairs, held = [], []
-        for _, a, b, c, d in ops:
-            pin_ok, run_ok = reads(p, pmap, c, d), reads(r, rmap, a, b)
-            dist = _edge_distance(r, p, (_, a, b, c, d))
-            took = "approved" if pin_ok else "run" if run_ok and dist >= MAJORITY_EDGE else None    # as ruling 17: the
-            # approved reading first wherever the second recogniser reads it (pin_side takes it the same way)
-            pair = {"run": " ".join(r[a:b]), "approved": " ".join(p[c:d]),
-                    "second_reads": "both" if pin_ok and run_ok else "approved" if pin_ok else "run" if run_ok
-                    else "neither", "took": took,
-                    "agreed": {"approved": ["approved", "second"], "run": ["run", "second"]}.get(took),
-                    "edge_distance": dist}
-            pairs.append(pair)
-            if took is None:
-                held.append(pair)
-        merged = None if held else _majority_text(r, p, ops, pairs, run_t, pin_t)
-        if merged is not None:
-            new = {k: v for k, v in lock.items() if k != "sha256"}
-            new.update(text=merged, adjudication={"rule": "ruling 131 (A) (orchestrator 2026-11-17 '08:25')",
-                                                  "verdict": "approved", "pairs": pairs, "differences": diffs,
-                                                  "recogniser": "elevenlabs:scribe_v1", "usd": usd, **readings})
-            new["sha256"] = L._lock_digest(new)
-            log(f"  lock {tag}: two of three readings settle {[[x['run'], x['approved'], x['took']] for x in pairs]}: "
-                f"the lock takes each pair's reading (ruling 131 (A))")
-            return new
-    if not pin_side and run_side and len(ops) == 1 and ops[0][0] == "replace" and ops[0][2] - ops[0][1] == 1 \
-            and ops[0][4] - ops[0][3] == 1:
-        # ruling 18 ('10:36'): the decodes split on ONE non-critical token: the lock records both attested readings;
-        # G18 passes the token only when the final reads one of them AND the clip's audio there is the source's
-        _, a, _, c, _ = ops[0]
-        wi = _token_word(words, lock["i0"], lock["i1"], a)
-        if wi is None:
-            raise PinError(f"{tag}: the ambiguous token cannot be located in the run's words (ruling 18: HOLD) | " +
-                           " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
-        new = {k: v for k, v in lock.items() if k != "sha256"}
-        new["alternatives"] = [{"rule": "ruling 18 (orchestrator 2026-11-12 '10:36')", "token_index": a,
-                                "readings": [r[a], p[c]], "word_index": wi,
-                                "source_span": [round(float(words[wi]["start"]), 3), round(float(words[wi]["end"]), 3)],
-                                "recogniser": "elevenlabs:scribe_v1", "usd": usd, **readings}]
-        new["sha256"] = L._lock_digest(new)
-        log(f"  lock {tag}: one token heard as {r[a]!r} (run decode, second recogniser) or {p[c]!r} (approved): both "
-            f"readings recorded (ruling 18)")
-        return new
-    if not pin_side:
-        why = [f"{x['run']!r}/{x['approved']!r}: " + {
-            "neither": "all three readings differ",
-            "run": f"the second reads the run's, but only {x['edge_distance']} from an edge (ruling 131 (A) needs "
-                   f"{MAJORITY_EDGE})"}.get(x["second_reads"], "no majority") for x in held] \
-            if held else ["the settled reading cannot be written"]
-        raise PinError(f"{tag}: lock text not adjudicated (ruling 17): at {diffs} the second recogniser reads "
-                       f"{'the run decode' if run_side else 'neither'}; ruling 131 (A): {'; '.join(why)} | " +
+    pairs, held = [], []
+    for _, a, b, c, d in ops:                          # RULING 143 (orchestrator 2026-11-17 '15:55'), pair by pair
+        pin_ok, run_ok = reads(p, pmap, c, d), reads(r, rmap, a, b)
+        material = material_pair(r[a:b], p[c:d], (run_t, pin_t, sec_t))
+        if material:                                   # (3): the two AUDIO readings agree -> the audio's reading (the
+            took = "run" if run_ok else None           # transcript was wrong); they disagree -> HOLD
+        else:                                          # (2): never holds: two of three, else the run decode's (what
+            took = "approved" if pin_ok else "run"     # the render cuts)
+        pairs.append({"run": " ".join(r[a:b]), "approved": " ".join(p[c:d]), "material": material,
+                      "second_reads": "both" if pin_ok and run_ok else "approved" if pin_ok else "run" if run_ok
+                      else "neither", "took": took,
+                      "agreed": (["approved", "second"] if took == "approved" else ["run", "second"] if run_ok
+                                 else ["run"]) if took else None})
+        if took is None:
+            held.append(pairs[-1])
+    if held:
+        raise PinError(f"{tag}: lock text not adjudicated (ruling 143 (3)): at {[[x['run'], x['approved']] for x in held]} "
+                       f"a material word (a number, a negation, a name, a ticker or an amount) on which the two audio "
+                       f"readings disagree (the run decode against the second recogniser): HOLD | " +
                        " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
-    # ruling 84 (b) ('20:40'): where the second recogniser reads ONE function word against the decode's one (its
-    # fillers aside), the lock keeps the decode's word and records the other reading (ruling 18's record: G18 passes
-    # either with the acoustic check); two or more such in one span hold; every other difference is ruling 17's
-    fw = [(a, k[0]) for _, a, b, c, d in ops for k in [[j for j in range(c, d) if p[j] not in FILLERS]]
-          if len(k) == 1 and one_function_word(r[a:b], [p[k[0]]])]
-    if len(fw) > 1:
-        raise PinError(f"{tag}: the run decode and the second recogniser split on {len(fw)} function words "
-                       f"{[[r[a], p[c]] for a, c in fw]} (ruling 84 (b): two or more in one span hold) | " +
-                       " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
-    if fw:
-        (a, c), = fw
-        n = p[:c] + [r[a]] + p[c + 1:]
-        text, wi = run_t if n == r else _with_token(pin_t, c, r[a]), _token_word(words, lock["i0"], lock["i1"], a)
-        if text is None or wi is None:
-            raise PinError(f"{tag}: the split function word cannot be located (ruling 84 (b): HOLD) | " +
-                           " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
-        new = {k: v for k, v in lock.items() if k != "sha256"}
-        kept = [[" ".join(r[a2:b2]), " ".join(n[c2:d2])]
-                for op, a2, b2, c2, d2 in SequenceMatcher(None, r, n, autojunk=False).get_opcodes() if op != "equal"
-                and not canon.same_words(r[a2:b2], n[c2:d2])]      # ruling 135: spelling is not a difference
-        new["text"] = text
-        if kept:                                       # the rest is ruling 17's: the approved words, read by it
-            new["adjudication"] = {"rule": "ruling 17 (orchestrator 2026-11-12 '10:20')", "verdict": "approved",
-                                   "differences": kept, "recogniser": "elevenlabs:scribe_v1", "usd": usd, **readings}
-        new["alternatives"] = [{"rule": "ruling 84 (b) (orchestrator 2026-11-13 '20:40')", "token_index": c,
-                                "readings": [r[a], p[c]], "word_index": wi,
-                                "source_span": [round(float(words[wi]["start"]), 3), round(float(words[wi]["end"]), 3)],
-                                "recogniser": "elevenlabs:scribe_v1", "usd": usd, **readings}]
-        new["sha256"] = L._lock_digest(new)
-        log(f"  lock {tag}: one function word heard as {r[a]!r} (run decode) or {p[c]!r} (second recogniser): the "
-            f"lock keeps the decode's word and records both (ruling 84 (b)){'; ruling 17 at ' + str(kept) if kept else ''}")
-        return new
+    merged = _majority_text(r, p, ops, pairs, run_t, pin_t)
+    if merged is None:                                 # (2): the settled small words cannot be written into the
+        merged = run_t                                 # approved text: the run decode's text, what the render cuts
+        for x in pairs:                                # (every material pair already took the run's reading)
+            x["took"] = "run"
+    corrected = [[x["approved"], x["run"]] for x in pairs if x["material"]]
+    unsettled = sum(1 for x in pairs if not x["material"] and x["second_reads"] == "neither")
     new = {k: v for k, v in lock.items() if k != "sha256"}
-    new.update(text=pin_t, adjudication={"rule": "ruling 17 (orchestrator 2026-11-12 '10:20')", "verdict": "approved",
-                                         "differences": diffs, "recogniser": "elevenlabs:scribe_v1", "usd": usd,
-                                         **readings})
+    new.update(text=merged, adjudication={"rule": "ruling 143 (orchestrator 2026-11-17 '15:55')", "verdict": "settled",
+                                          "pairs": pairs, "differences": diffs, "audio_share": round(share, 3),
+                                          "recogniser": "elevenlabs:scribe_v1", "usd": usd, **readings})
+    if corrected:                                      # (3): the note says it ('transcript corrected from the audio')
+        new["transcript_corrected"] = corrected
+    if unsettled:                                      # (2): more than 3 in one clip adds ONE soft flag (validate)
+        new["small_words_unsettled"] = unsettled
     new["sha256"] = L._lock_digest(new)
-    log(f"  lock {tag}: run decode and approved text differ at {diffs}; the second recogniser reads the approved "
-        f"words: the lock takes the approved text (ruling 17)")
+    log(f"  lock {tag}: ruling 143 settles {[[x['run'], x['approved'], x['took']] for x in pairs]}"
+        + (f"; transcript corrected from the audio at {corrected}" if corrected else "")
+        + (f"; {unsettled} small word(s) all three readings differ on (the run decode's taken)" if unsettled else ""))
     return new
 
 

@@ -360,6 +360,17 @@ class TestStageValidate(unittest.TestCase):
         self.assertEqual(run_fresh.alone_reason(r), "the clip scorer rated it 3 of 5 (Fault starts mid thought: opens on "
                                                     "'Now')")                  # Heimdall batch 107 c1 F2: its echo of a label
 
+    def test_ruling_143_many_unsettled_small_words_add_one_flag(self):
+        e = edl_with()
+        e["clips"][1]["selection_lock"] = {"text": "x", "small_words_unsettled": 4}
+        got, prov = self.run_stage(e)
+        self.assertEqual(got, "passed the stand-alone check")
+        self.assertIn("The clip (Scott Melker): the transcript and the audio readers differ on a few small words.",
+                      [f["flag"] for f in prov.get("review_flags", [])])
+        e["clips"][1]["selection_lock"]["small_words_unsettled"] = 3      # three: no flag
+        got, prov = self.run_stage(e)
+        self.assertFalse(any("audio readers differ" in f["flag"] for f in prov.get("review_flags", [])))
+
     def test_ruling_136_the_editorial_laws_flag(self):
         got, prov = self.run_stage(edl_with(), gate={"verdict": "HOLD", "laws": {
             "LAW_1_NEW_INFORMATION": {"pass": False}, "LAW_2_VO_HAS_A_JOB": {"pass": True}}})

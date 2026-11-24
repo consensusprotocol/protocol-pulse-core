@@ -1,0 +1,23 @@
+# batch 113 (ruling 143): the NEW tests on the OLD code (5e5ea999: batches 110-112 live), network blocked
+E       AssertionError: "Clip 1 (Natalie Brunell): transcript corrected from the audio: '2250000000' is '2350000000'." not found in 'HOLD FOR APPROVAL
+        self.assertEqual(got, "passed the stand-alone check")
+PASSED pipeline/test_ruling17_lock.py::TestRuling143::test_fillers_of_any_length_never_hold
+PASSED pipeline/test_word_diff.py::TestRuling143G18::test_a_material_word_still_fails_on_text
+PASSED pipeline/test_word_diff.py::TestRuling143G18::test_an_unadjudicated_lock_is_judged_as_before
+PASSED pipeline/test_telegram_delivery.py::TestRuling143Note::test_a_pin_sealed_on_two_of_three_says_so
+PASSED pipeline/test_telegram_delivery.py::TestRuling143Note::test_a_render_lock_settled_two_of_three_says_so_under_the_run_line
+PASSED pipeline/test_telegram_delivery.py::TestRuling143Note::test_a_sealed_pin_that_is_not_the_edls_stops
+PASSED pipeline/test_telegram_delivery.py::TestRuling143Note::test_an_unreadable_attested_record_stops
+PASSED pipeline/test_telegram_delivery.py::TestRuling143Note::test_currency_format_says_so_after_the_majority_line
+PASSED pipeline/test_telegram_delivery.py::TestRuling143Note::test_no_line_when_neither_is_used
+PASSED pipeline/test_telegram_delivery.py::TestRuling143Note::test_ruling_135_a_span_the_canon_settled_says_spelling_only
+FAILED pipeline/test_ruling17_lock.py::TestRuling143::test_a_material_word_both_audio_readings_agree_on_corrects_the_transcript
+FAILED pipeline/test_ruling17_lock.py::TestRuling143::test_a_ticker_holds_unless_both_audio_readings_agree
+FAILED pipeline/test_ruling17_lock.py::TestRuling143::test_all_differing_small_words_are_counted_for_the_flag
+FAILED pipeline/test_ruling17_lock.py::TestRuling143::test_another_clips_audio_is_the_wrong_audio
+SUBFAILED(pin='Bitcoin is, you know, the hardest money we have ever had in our lives.') pipeline/test_ruling17_lock.py::TestRuling143::test_fillers_of_any_length_never_hold
+SUBFAILED(pin='Bitcoin is sort of like the hardest money we have ever had in our lives.') pipeline/test_ruling17_lock.py::TestRuling143::test_fillers_of_any_length_never_hold
+FAILED pipeline/test_word_diff.py::TestRuling143G18::test_a_small_word_is_decided_by_the_audio
+FAILED pipeline/test_telegram_delivery.py::TestRuling143Note::test_a_corrected_transcript_is_said
+FAILED pipeline/test_stand_alone_floor.py::TestStageValidate::test_ruling_143_many_unsettled_small_words_add_one_flag
+9 failed, 10 passed, 123 deselected in 7.00s

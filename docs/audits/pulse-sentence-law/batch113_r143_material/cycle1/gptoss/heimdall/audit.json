@@ -1,0 +1,61 @@
+{
+ "question": "Review this diff. ORCHESTRATOR RULING 143 (15:55 ET Nov 17), verbatim in part: \"(1) MATERIAL = a number, a negation, a name (letters differ after the canon), a ticker or a currency amount. Everything else is NON-MATERIAL. (2) NON-MATERIAL disagreement NEVER holds. The sealed text takes the two-of-three reading; if all three differ, the run decode's (it is what the render will cut). Sound-alikes (ad/add), fillers of any length (you know, I mean, sort of like), word forms: all here. More than 3 unsettled non-material pairs in one clip adds ONE soft flag: 'The clip (X): the transcript and the audio readers differ on a few small words.' (3) MATERIAL disagreement: if the TWO AUDIO READINGS (the run decode and the second recogniser) AGREE with each other against the transcript, the transcript was wrong: the sealed text takes the audio's reading, numbers included ('$2.35 billion') ... mark it in the note ('transcript corrected from the audio: ...'). If the two audio readings DISAGREE with each other on a material word, HOLD ... 'i've' / 'IBIT' is a ticker: material: holds unless both audio readings agree. (4) Unchanged and HARD: a cut mid-word, an empty or shifted source (the offset guard), a span whose audio readings share under 85 percent of their words (wrong audio, not small words; propose a better number from the records if you have one).\"\nThe integrator's reading of (4), recorded: the share is the run decode's words the second reading heard, in order (the second recogniser also writes the speaker's repeats, false starts and the window's spill: those are not the wrong audio), and a hold needs more than 3 words missing (a short span's one or two small words are not the wrong audio). G18 (a HARD render gate comparing the final's audio decode with the lock text when the lock was adjudicated) decides small-word-only differences by the audio, as ruling 22 already decides omissions, so that (2) holds at render too.\nFACTS (unchanged code): reads(x, xmap, lo, hi) is True when the second reading reads x's tokens lo..hi-1 at that position (with one aligned neighbour each side, nothing between); _majority_text writes the settled text from the approved text and the pairs that took 'run', or returns None; _lv2_critical(tok, texts) marks digits, negations, ordinals and capitalised mid-sentence words; canon.word_form marks a possessive / plural / contraction pair; lock_precheck answers outcome 'hold' (final for the builder), 'error' (no verdict) or a pass; G18's ruling 22 block runs span_fidelity (the prepared clip's interior against the source span) and clears the identity difference only when the audio is the same.\nReport ONLY defects you can prove by quoting the diff's code. Keep each \"issue\" under 60 words. If every check holds, answer PASS with no findings.\nCHECKS:\nH1. Can a MATERIAL pair be sealed without both audio readings agreeing on it (run decode and second recogniser), or a material disagreement between them pass (adjudicate_lock, as_spoken, G18)?\nH2. Can a NON-MATERIAL difference still hold anywhere (adjudicate_lock, as_spoken, G18 against an adjudicated lock), other than through the wrong-audio rule?\nH3. Is the wrong-audio rule as recorded (share of the run's words heard in order; < 0.85 and more than 3 missing), and can it hold the right audio or pass the wrong one?\nH4. Can any input raise uncaught, or does anything else change behaviour (the note, the flag text and count, _majority's re-lock, ruling 103's re-listen)?",
+ "files": [],
+ "panel": {
+  "gptoss": "openai/gpt-oss-20b"
+ },
+ "cycle1": [
+  {
+   "name": "gptoss",
+   "model": "openai/gpt-oss-20b",
+   "status": 200,
+   "latency_s": 18.8,
+   "cost": 0.000678125,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "gptoss",
+   "status": 200,
+   "latency_s": 5.8,
+   "cost": 0.000423801,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "gptoss:F1",
+   "severity": "high",
+   "file": "pipeline/pinned.py",
+   "line": 0,
+   "issue": "`material_pair` is called with string substrings instead of token lists in `adjudicate_lock`, causing incorrect material classification and potential sealing of material pairs without both audio readings agreeing.",
+   "evidence": "```\n    for _, a, b, c, d in ops:                          # RULING 143 (orchestrator 2026-11-17 '15:55'), pair by pair\n        pin_ok, run_ok = reads(p, pmap, c, d), reads(r, rmap, a, b)\n        material = material_pair(r[a:b], p[c:d], (run_t, pin_t, sec_t))\n        if material:                                   # (3): the two AUDIO readings agree -> the audio's reading (the\n            took = \"run\" if run_ok else None           # transcript was wrong); they disagree -> HOLD\n        else:                                          # (2): never holds: two of three, else the run decode's (what\n            took = \"approved\" if pin_ok else \"run\"     # the render cuts)\n```",
+   "fix": "Pass token lists to `material_pair` by splitting the substrings: `material_pair(r[a:b].split(), p[c:d].split(), (run_t, pin_t, sec_t))`. Additionally, check that both audio readings agree before sealing: set `took = \"run\" if run_ok and pin_ok else None` for material pairs.",
+   "agree": [
+    "gptoss"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "gptoss:F2",
+   "severity": "high",
+   "file": "pipeline/pinned.py",
+   "line": 0,
+   "issue": "`audio_share` and `wrong_audio` are invoked with a string (`run_t`) instead of a list of tokens, leading to character\u2011level comparison and incorrect wrong\u2011audio detection.",
+   "evidence": "```\n    s = [x for x in canon.canon_tokens(sec_t) if not canon.nonlexical(x)]      # ruling 135 (d): fillers are not words\n    readings = {\"run_decode\": run_t, \"approved\": pin_t, \"second_recogniser\": sec_t}\n    share = audio_share(r, s)\n    if wrong_audio(r, s) is not None:                  # ruling 143 (4): the wrong audio, not small words: HARD\n        raise PinError(f\"{tag}: the run decode and the second recogniser share {share:.0%} of their words (ruling 143 \"\n                       f\"(4): under {AUDIO_SHARE_MIN:.0%} is the wrong audio) | \" +\n                       \" | \".join(f\"{k}: {v!r}\" for k, v in readings.items()))\n```",
+   "fix": "Pass token lists to `audio_share` and `wrong_audio` by converting `run_t` to a list of tokens: `share = audio_share(r.split(), s)` and `if wrong_audio(r.split(), s) is not None:`. Ensure `r` is a token list before calling these functions.",
+   "agree": [
+    "gptoss"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.001101926,
+ "out_dir": "heimdall"
+}

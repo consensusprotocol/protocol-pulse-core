@@ -176,43 +176,37 @@ class TestOutcomes(Base):
         self.assertEqual((e["outcome"], e["as_spoken"]["verdict"]), ("no_difference", "same"), e)
         self.assertEqual((e["scribe_usd"], len(self.heard)), (0.0078, 1))
 
-    def test_the_word_pass_text_is_settled_by_two_of_three_readings(self):     # ruling 131 (A); held before it
+    def test_the_word_pass_text_is_settled_by_two_of_three_readings(self):     # ruling 143 (was 131 (A))
         self.request(approved_text=WORD_PASS)
         LP.serve_once(log=self.log)
         e = self.entry(WORD_PASS)
         self.assertEqual((e["outcome"], e["spoken_text"]), ("adopt_spoken", ATTESTED), e.get("reason"))
-        self.assertTrue(e["adjudication"]["rule"].startswith("ruling 131 (A)"))
-        self.assertEqual([(x["run"], x["approved"], x["took"], x["edge_distance"]) for x in e["adjudication"]["pairs"]],
-                         [("in", "you", "run", 13), ("that's why", "", "run", 4)])     # the copy 4 from the end
+        self.assertTrue(e["adjudication"]["rule"].startswith("ruling 143"))
+        self.assertEqual([(x["run"], x["approved"], x["took"]) for x in e["adjudication"]["pairs"]],
+                         [("in", "you", "run"), ("that's why", "", "run")])
         self.assertEqual(e["lock"]["text"], ATTESTED)            # the lock the sealed text makes: nothing to settle
         self.assertIsNone(e["relock_adjudication"])
         self.assertEqual((e["scribe_usd"], len(self.heard)), (0.0078, 1))     # ONE paid reading, cached for the re-lock
-
-
 class TestAdoption(Base):
     run_text = ATTESTED.replace("punch in", "punch you")         # the decoder mishears one function word
 
     def test_adopted_when_the_second_recogniser_reads_the_approved_words(self):
-        self.run_text = ATTESTED.replace("owns the money", "holds the money")   # a content word: ruling 17's
+        self.run_text = ATTESTED.replace("owns the money", "holds the money")   # a small word: two of three
         self.scribe_text = ATTESTED                               # the second recogniser reads the approved words
         self.request(approved_text=ATTESTED)
         LP.serve_once(log=self.log)
         e = self.entry(ATTESTED)
         self.assertEqual(e["outcome"], "adopted", e)
         self.assertEqual(e["lock"]["text"], ATTESTED)             # the lock takes the approved text
-        self.assertEqual(e["adjudication"]["verdict"], "approved")
-
-    def test_ruling_84_b_one_function_word_the_lock_keeps_the_decodes_and_records_the_other(self):
+        self.assertEqual(e["adjudication"]["verdict"], "settled")
+    def test_one_function_word_takes_the_two_of_three_reading(self):         # ruling 143 (84 (b) kept the decode's)
         self.scribe_text = ATTESTED                               # it reads 'in' where the decode reads 'you'
         self.request(approved_text=ATTESTED)
         LP.serve_once(log=self.log)
         e = self.entry(ATTESTED)
-        self.assertEqual((e["outcome"], e["spoken_text"]), ("adopt_spoken", ATTESTED), e)
-        self.assertEqual(e["lock"]["text"], self.run_text)        # the render decode's word stays in the lock
-        alt, = e["alternatives"]
-        self.assertEqual((alt["readings"], alt["rule"][:13]), (["you", "in"], "ruling 84 (b)"))
-        self.assertEqual((e["as_spoken"]["differences"], e["as_spoken"]["classes"]), ([["you", "in"]], [LP.ONE_FW]))
-
+        self.assertEqual(e["outcome"], "adopted", e)
+        self.assertEqual(e["lock"]["text"], ATTESTED)             # approved + second against the decode
+        self.assertIsNone(e.get("alternatives"))
     def test_one_mid_span_token_both_recognisers_read_is_settled(self):          # ruling 131 (A) (ruling 18's
         self.scribe_text = self.run_text                                          # record before it)
         self.request(approved_text=ATTESTED)
@@ -367,52 +361,43 @@ SPOKEN = "When, when Bitcoin and, and an asset is going up, everyone loves it."
 class TestRuling72(Base):
     """RULING 72 (orchestrator '15:45'): the second recogniser against the lock on EVERY span."""
 
-    def test_the_speakers_repeats_adopt_the_spoken_text(self):
+    def test_the_speakers_repeats_never_hold_and_the_lock_stands(self):      # ruling 143 (2)
         self.run_words = spread(LOCKED)
         self.scribe_words = spread(SPOKEN, before=("markets.", 14.3, 14.8))   # the last sentence, outside the window
         self.request(approved_text=LOCKED)
         LP.serve_once(log=self.log)
         e = self.entry(LOCKED)
-        self.assertEqual((e["outcome"], e["spoken_text"]), ("adopt_spoken", SPOKEN), e)
-        self.assertEqual(e["lock"]["text"], SPOKEN)               # the render's own ruling 17 adopted it
-        self.assertEqual(e["adjudication"]["verdict"], "approved")
+        self.assertEqual(e["outcome"], "no_difference", e)
+        self.assertEqual(e["lock"]["text"], LOCKED)
         self.assertEqual(sorted(d[1] for d in e["as_spoken"]["differences"]), ["and", "when"])
+        self.assertEqual(e["as_spoken"]["classes"], ["small", "small"])
         self.assertEqual((e["scribe_usd"], len(self.heard)), (0.0078, 1))
-
-    def test_spill_is_not_a_difference_but_the_render_must_still_adopt(self):
+    def test_spill_is_not_a_difference_and_the_repeats_never_hold(self):    # ruling 143 (2)
         self.run_words = spread(LOCKED)
         self.scribe_words = spread(SPOKEN, before=("markets.", 15.2, 15.4))   # inside adjudicate_lock's 0.3 s window
         self.request(approved_text=LOCKED)
         LP.serve_once(log=self.log)
         e = self.entry(LOCKED)
-        self.assertEqual(e["as_spoken"]["verdict"], "adopt")      # 'markets.' left out as the neighbouring sentence
-        self.assertEqual(e["as_spoken"]["text"], SPOKEN)
-        self.assertEqual(e["outcome"], "hold")                    # ... but the render's ruling 17 refuses the edge
-        self.assertIn("is not adopted by the render's ruling 17", e["reason"])
-        self.assertIn("lock text not adjudicated (ruling 17)", e["reason"])
-
-    def test_a_content_difference_holds_before_the_seal(self):
+        self.assertEqual(e["as_spoken"]["verdict"], "same")       # 'markets.' left out as the neighbouring sentence
+        self.assertEqual(e["outcome"], "no_difference")
+        self.assertEqual(e["lock"]["text"], LOCKED)
+    def test_a_false_start_is_the_speakers_not_the_wrong_audio(self):        # ruling 143 (2) / (4) (it held)
         self.run_words = spread("And that's why the price got high.")
         self.scribe_words = spread("And that's, that's why the bull, that's why the price got high.")
         self.request(approved_text="And that's why the price got high.")
         LP.serve_once(log=self.log)
         e = self.entry("And that's why the price got high.")
-        self.assertEqual(e["outcome"], "hold")
-        self.assertIn("ruling 72/84: the second recogniser reads the span differently", e["reason"])
-        self.assertIn("bull", e["reason"])
-        self.assertIsNone(e["lock"])
-
-    def test_one_function_word_adopts_as_ruling_84_b_says(self):
+        self.assertEqual(e["outcome"], "no_difference", e.get("reason"))   # every decoded word heard, in order
+        self.assertEqual(set(e["as_spoken"]["classes"]), {"small"})
+    def test_one_function_word_never_holds_and_the_lock_stands(self):        # ruling 143 (2)
         self.run_words = spread("I go to the bank and I punch in my code.")
         self.scribe_words = spread("I go to a bank and I punch in my code.")
         self.request(approved_text="I go to the bank and I punch in my code.")
         LP.serve_once(log=self.log)
         e = self.entry("I go to the bank and I punch in my code.")
-        self.assertEqual((e["outcome"], e["spoken_text"]), ("adopt_spoken", "I go to a bank and I punch in my code."))
-        self.assertEqual(e["as_spoken"]["differences"], [["the", "a"]])
-        self.assertEqual(e["lock"]["text"], "I go to the bank and I punch in my code.")   # the decode's word kept
-        self.assertEqual(e["alternatives"][0]["readings"], ["the", "a"])                 # the other recorded
-
+        self.assertEqual(e["outcome"], "no_difference")           # the decode and the transcript against one reader
+        self.assertEqual((e["as_spoken"]["differences"], e["as_spoken"]["classes"]), ([["the", "a"]], ["small"]))
+        self.assertEqual(e["lock"]["text"], "I go to the bank and I punch in my code.")
     def test_one_paid_reading_per_acquisition(self):
         self.run_words = spread(ATTESTED)
         self.scribe_words = spread(ATTESTED)
@@ -494,41 +479,34 @@ class TestRuling84(Base):
         self.assertEqual(e["lock"]["text"], "So over time I came to the conclusion.")     # the decode's words stand
         self.assertIsNone(e["spoken_text"])
 
-    def test_a_and_b_together_the_2012_builds_shape(self):
+    def test_a_and_b_together_the_2012_builds_shape(self):                   # ruling 143 (2)
         e = self.ask(RUN84, SPOKEN84)
-        self.assertEqual((e["outcome"], e["spoken_text"]), ("adopt_spoken", SPOKEN84), e)
-        self.assertEqual(e["as_spoken"]["classes"], [LP.ONE_FW])      # ruling 135 (d): the fillers are not words
-        self.assertEqual(e["lock"]["text"], SPOKEN84.replace("replaced, or it", "replaced, so it"))
-        alt, = e["alternatives"]
-        self.assertEqual(alt["readings"], ["so", "or"])
-        self.assertEqual(canon_tokens(e["lock"]["text"])[alt["token_index"]], "so")
-        self.assertEqual(e["spelling_only"], [["", "um"], ["", "uh"]])      # ruling 135 (d): not words (was 17's part)
-
-    def test_b_two_function_words_in_one_span_hold(self):
+        self.assertNotEqual(e["outcome"], "hold", e)
+        self.assertEqual(e["as_spoken"]["classes"], ["small"])         # ruling 135 (d): the fillers are not words
+    def test_b_two_function_words_in_one_span_never_hold(self):              # ruling 143 (2) (84 (b) held them)
         e = self.ask("I go to the bank and I punch in my code.", "I go to a bank and I punch on my code.")
-        self.assertEqual((e["outcome"], e["lock"]), ("hold", None), e)
-        self.assertEqual(e["as_spoken"]["classes"], [LP.ONE_FW, LP.ONE_FW])
-        self.assertIn("ruling 84 (b): two or more in one span hold", e["reason"])
-
-    def test_any_other_substitution_holds(self):
-        for run, heard in (("I went in the house today.", "I went into a house today."),     # two for two
-                           ("The bank owns the money.", "The bank holds the money."),          # a content word
-                           ("It took 15 years.", "It took 50 years."),                         # a number
+        self.assertNotEqual(e["outcome"], "hold", e)
+        self.assertEqual(e["as_spoken"]["classes"], ["small", "small"])
+    def test_a_material_substitution_holds_and_a_small_one_never(self):      # ruling 143 (2) / (3)
+        for run, heard in (("It took 15 years.", "It took 50 years."),                         # a number
                            ("You can do it.", "You can't do it.")):                            # a negation
             with self.subTest(run=run):
+                e = self.ask(run, heard)                       # the decode (= the transcript) against the second:
+                self.assertEqual((e["outcome"], e["as_spoken"]["classes"]), ("hold", ["material"]), e)   # disagree
+        for run, heard in (("I went in the house today.", "I went into a house today."),     # two small words
+                           ("The bank owns the money.", "The bank holds the money.")):        # a content word
+            with self.subTest(run=run):
                 e = self.ask(run, heard)
-                self.assertEqual((e["outcome"], e["as_spoken"]["classes"]), ("hold", ["hold"]), e)
-
+                self.assertEqual((e["outcome"], e["as_spoken"]["classes"]), ("no_difference", ["small"]), e)
     def test_a_filler_only_the_lock_has_is_not_a_difference(self):     # ruling 135 (d) (it held under ruling 84)
         e = self.ask("So um I came here today.", "So I came here today.")
         self.assertEqual((e["outcome"], e["as_spoken"]["verdict"], e["as_spoken"]["classes"]),
                          ("no_difference", "same", []), e)
 
-    def test_a_filler_between_the_speakers_repeat_is_his_repetition(self):
+    def test_a_filler_between_the_speakers_repeat_never_holds(self):         # ruling 143 (2)
         e = self.ask("Bitcoin and an asset is going up.", "Bitcoin and, uh, and an asset is going up.")
-        self.assertEqual(e["outcome"], "adopt_spoken", e)
-        self.assertEqual(e["as_spoken"]["classes"], ["immediate repetition"])
-
+        self.assertNotEqual(e["outcome"], "hold", e)
+        self.assertEqual(e["as_spoken"]["classes"], ["small"])
     def test_the_class_of_one_difference(self):
         c = LP.ruling84_class
         t = ("x", "x")
@@ -564,7 +542,6 @@ class TestRuling84MustFail(unittest.TestCase):
                                        log=lambda *_: None)
 
     def test_6058ee58_holds_on_the_old_rules_and_passes_on_the_new(self):
-        import word_diff as WD
         s, a, sw, fx = real_span("uaHNzi-Kgr8_153.250-165.890.json")
         old = fx["old_entry"]                                     # the live service's answer at 01:28:05Z
         self.assertEqual((old["outcome"], old["rules"]), ("hold", "ruling 17 + ruling 72 + ruling 73"))
@@ -575,30 +552,17 @@ class TestRuling84MustFail(unittest.TestCase):
         ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != "equal"]
         self.assertEqual([LP.carry_class(L, S2, o, (lock["text"], spoken)) for o in ops],
                          [None, None, "function word"])           # um, uh outside it: HOLD
-        verdict, diffs, cls, text = LP.as_spoken(lock, words, sw)  # RULING 84, and ruling 135 (d): fillers are not words
-        self.assertEqual((verdict, diffs, cls), ("adopt", [["so", "or"]], [LP.ONE_FW]))
-        s2 = dict(s, approved_text=text)                          # the pre-check's adoption: the render's own lock
-        new = self.lock(s2, a, sw)
-        alt, = new["alternatives"]
-        self.assertEqual((alt["readings"], canon_tokens(new["text"])[alt["token_index"]]), (["so", "or"], "so"))
-        self.assertNotIn("adjudication", new)                     # ruling 135 (d): the fillers are not words, so
-        self.assertEqual(new["spelling_only"], [["", "um"], ["", "uh"]])   # nothing is left for ruling 17 to adjudicate
-        self.assertEqual(SL.verify_lock(new), [])
-        self.assertEqual(WD.diff(new["text"], text, alts=new["alternatives"]), [])   # G18 reads 'or': attested
-        self.assertEqual(WD.diff(new["text"], lock["text"], alts=new["alternatives"]), [])   # fillers dropped (135)
-
-    def test_1b4a63d0s_hook_still_holds_as_ruling_67s_class_says(self):
+        verdict, diffs, cls, text = LP.as_spoken(lock, words, sw)  # RULING 143: a small word never holds, the lock
+        self.assertEqual((verdict, diffs, cls), ("same", [["so", "or"]], ["small"]))      # text stands
+    def test_1b4a63d0s_hook_passes_under_ruling_143(self):                    # it held under rulings 67 / 84
         s, a, sw, _ = real_span("Sjb6lUiL0m4_3090.750-3109.870.json")
         words, lock = a["transcript"]["words"], self.lock(s, a, sw)
-        verdict, diffs, cls, _ = LP.as_spoken(lock, words, sw)
-        got = {d[1] or d[0]: k for d, k in zip(diffs, cls)}
-        self.assertEqual(verdict, "hold")
-        self.assertEqual((got["when"], got["and"]), ("immediate repetition", "immediate repetition"))
-        self.assertEqual(got["that's why the bull that's"], "hold")   # a false start with a content word
-        self.assertNotIn("filler", cls)
-        self.assertNotIn(LP.ONE_FW, cls)
-
-
+        L, S2, _ = LP.reading(lock, words, sw)
+        self.assertGreaterEqual(pinned.audio_share(L, S2), pinned.AUDIO_SHARE_MIN)   # the right audio: its repeats
+        verdict, diffs, cls, _ = LP.as_spoken(lock, words, sw)                       # are the speaker's
+        self.assertEqual(verdict, "same")
+        self.assertEqual(set(cls), {"small"})
+        self.assertIn(["", "that's why the bull that's"], diffs)  # a false start with a content word: small
 class TestBuildersDirectory(Base):
     """The builder may not write under the main tree: its requests are READ from its own directory, never touched."""
 
@@ -701,15 +665,16 @@ class TestRuling103(Base):
         self.assertEqual((e["outcome"], e["relisten"]["verdict"]), ("no_difference", "pass"), e)  # the lock's number
 
     def test_no_relisten_beyond_one_number_or_name_token(self):
-        for run, heard in (("It took 15 years in the house.", "It took 50 years into a house."),   # two differences
-                           ("You can do it.", "You can't do it."),                                  # a negation
-                           ("The bank owns the money.", "The bank holds the money.")):              # a content word
-            with self.subTest(run=run):
+        e = self.ask("It took 15 years in the house.", "It took 50 years into a house.")   # ruling 143: the small words
+        self.assertEqual((e["outcome"], (e["relisten"] or {}).get("token")), ("hold", "15"), e)   # beside it never
+        for run, heard in (("You can do it.", "You can't do it."),):                               # count: ONE number
+            with self.subTest(run=run):                                                           # is re-listened
                 e = self.ask(run, heard)
-                self.assertEqual((e["outcome"], e["relisten"]), ("hold", None), e)
+                self.assertEqual((e["outcome"], e["relisten"]), ("hold", None), e)         # a negation: never
                 self.assertEqual(self.relistened, [])
                 self.assertNotIn("ruling 103", e["reason"])
-
+        e = self.ask("The bank owns the money.", "The bank holds the money.")             # a small word: no hold at all
+        self.assertEqual((e["outcome"], e["relisten"]), ("no_difference", None), e)
     def test_no_gpu0_for_the_relisten_is_no_verdict_never_a_final_hold(self):
         self.wants.side_effect = lambda: bool(self.windows)              # a render asks once the window is cut
         e = self.ask(self.RUN, self.HEARD, "have a 401k. I don't", "have a 401k. I don't")
@@ -820,14 +785,13 @@ class TestRuling131(Base):
                          [("bunch of", "budget", "run", ["run", "second"])])
         self.assertEqual(e["lock"]["text"], self.RUN)
 
-    def test_a_third_reading_holds(self):
+    def test_a_third_reading_takes_the_run_decode(self):                     # ruling 143 (2) (it held)
         self.run_text, self.scribe_text = self.RUN, self.RUN.replace("bunch of", "punch of")
         self.request(approved_text=self.PIN)
         LP.serve_once(log=self.log)
         e = self.entry(self.PIN)
-        self.assertEqual(e["outcome"], "hold")
-        self.assertIn("all three readings differ", e["reason"])
-
+        self.assertNotEqual(e["outcome"], "hold", e.get("reason"))
+        self.assertEqual(e["adjudication"]["pairs"][0]["second_reads"], "neither")
     def test_a_currency_symbol_in_the_approved_text_is_no_difference(self):
         self.run_text = ATTESTED.replace("the money's not there", "the 2 billion is not there")
         self.scribe_text = self.run_text
@@ -929,13 +893,11 @@ class TestRuling135(Base):
         e = self.entry(pin)
         self.assertEqual((e["outcome"], e["spelling_only"]), ("no_difference", [["itrust", "i trust"]]), e.get("reason"))
 
-    def test_a_word_the_second_recogniser_alone_hears_still_holds(self):
+    def test_a_small_word_the_second_recogniser_alone_hears_never_holds(self):   # ruling 143 (2)
         self.scribe_text = ATTESTED.replace("punch in my code", "punch in my secret code")
         self.request(approved_text=ATTESTED)
         LP.serve_once(log=self.log)
-        self.assertEqual(self.entry(ATTESTED)["outcome"], "hold")
-
-
+        self.assertNotEqual(self.entry(ATTESTED)["outcome"], "hold")
 class TestRuling135LoneLetter(Base):
     """Ruling 135 (d) + Heimdall batch 104 c2: a lone letter the LOCK carries (the decode and the approved text both hear
     it) is a word, not a stray sound: the second recogniser missing it is still a difference."""
@@ -1000,3 +962,16 @@ class TestRuling146(Base):
         self.request(approved_text=ATTESTED)
         LP.serve_once(log=self.log)
         self.assertIsNone(self.entry(ATTESTED)["cut"]["hook_lead_short"])
+
+
+class TestRuling139(Base):
+    """RULING 139 / 147 (3): a lock edge at a word boundary that is not a sentence edge passes the render's cut, marked;
+    the pre-check records it for the builder's flag and never holds on it."""
+
+    def test_a_sentence_edge_passes_and_is_recorded(self):
+        self.cut = {**self.cut, "sentence_edge": {"in": "'not' does not end a sentence"}}
+        self.request(approved_text=ATTESTED)
+        LP.serve_once(log=self.log)
+        e = self.entry(ATTESTED)
+        self.assertEqual(e["outcome"], "no_difference", e)
+        self.assertEqual(e["cut"]["sentence_edge"], {"in": "'not' does not end a sentence"})

@@ -81,7 +81,8 @@ SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
 VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
 CODE = ("select_passages.py", "punctuation.py", "pinned.py", "sentence_law.py", "canon.py", "gpu0.py")
 KEY = ("role", "approved_text", "trimmed_leading", "untrimmed_start")   # the request fields an answer depends on
-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131 + ruling 135 + ruling 142 + ruling 146"   # what an entry's verdict judged; others never reused
+RULES = ("ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131 + ruling 135 + ruling 139 "
+         "+ ruling 142 + ruling 143 + ruling 146")   # what an entry's verdict judged; others never reused
 EXTRA = os.environ.get("PP_LOCK_PRECHECK_EXTRA", "/home/ultron/worktrees/pp-selectid/tests/package/proof/lock_requests")
 # RULING 67's class, as the builder's pipeline/attest.py defines it (FUNCTION_WORDS and carry_class, copied in
 # behaviour): English closed-class words; NO negation, number or ordinal (those are law L-v 2's critical tokens).
@@ -180,12 +181,12 @@ def _cached(r, sha):
 def prefetch(r, sha):
     """Every video's window downloaded BEFORE the lease (the call pinned.acquire makes; it caches by path, so acquire
     under the lease finds the file). -> {vid: seconds}."""
-    from select_passages import _download_window
+    import post_live_prefetch                  # ruling 142 (3): a post_live section that times out is cut from the stream
     out = {}
     for vid in _videos(r):
         lo, hi = window(r["segments"], vid)
         t = time.time()
-        _download_window(vid, lo, hi, work_dir(vid, lo, hi, sha))
+        post_live_prefetch.prefetch(vid, lo, hi, work_dir(vid, lo, hi, sha))
         out[vid] = round(time.time() - t, 1)
     return out
 
@@ -350,14 +351,19 @@ def ruling84_class(r, p, op, texts):
 
 
 def as_spoken(lock, words, sw):
-    """RULING 72 as RULING 84 classes it: the lock against the second recogniser's reading of its own words ([i0
-    start - 0.3, i1 end + 0.3], adjudicate_lock's window, the spill left out). -> (verdict "same" | "adopt" | "hold",
-    differences, their classes ("hold" for a difference out of every class), spoken text). Adopt: every difference
-    is in a class and at most one is ONE_FW."""
+    """RULING 72 under RULING 143 (orchestrator 2026-11-17 '15:55'): the lock against the second recogniser's reading
+    of its own words ([i0 start - 0.3, i1 end + 0.3], adjudicate_lock's window, the spill left out). -> (verdict "same"
+    | "hold", differences, their classes, spoken text). HOLD only when the two readings share under
+    pinned.AUDIO_SHARE_MIN of their words (143 (4): the wrong audio) or differ on a MATERIAL word (143 (3): the lock's
+    word is the run decode's, so the two audio readings disagree). A non-material difference never holds (143 (2)):
+    the lock text stands (two readings, the decode and the transcript, against one), class "small"."""
     from difflib import SequenceMatcher
     L, S2, spoken = reading(lock, words, sw)
     if not S2:
         return "hold", [[lock["text"], ""]], ["hold"], ""
+    share = pinned.wrong_audio(L, S2)
+    if share is not None:
+        return "hold", [[lock["text"], spoken]], [f"wrong audio: the readings share {share:.0%} (ruling 143 (4))"], spoken
     import canon
     ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != "equal"
            and not canon.same_words(L[o[1]:o[2]], S2[o[3]:o[4]], stray="y")                  # ruling 135: spelling
@@ -366,8 +372,9 @@ def as_spoken(lock, words, sw):
     diffs = [[" ".join(L[a:b]), " ".join(S2[c:d])] for _, a, b, c, d in ops]                  # formatting
     if not ops:
         return "same", [], [], spoken
-    cls = [ruling84_class(L, S2, op, (lock["text"], spoken)) or "hold" for op in ops]
-    return ("adopt" if "hold" not in cls and cls.count(ONE_FW) <= 1 else "hold"), diffs, cls, spoken
+    cls = ["material" if pinned.material_pair(L[a:b], S2[c:d], (lock["text"], spoken)) else "small"
+           for _, a, b, c, d in ops]
+    return ("hold" if "material" in cls else "same"), diffs, cls, spoken
 
 
 def relisten_clip(src, t0, t1, rdir):
@@ -395,10 +402,11 @@ def relisten(a, wd, lock, sw, spent, log=print):
     import gpu0
     words = a["transcript"]["words"]
     L, S2, spoken = reading(lock, words, sw)                       # as as_spoken compares them
-    ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != "equal"]
-    diffs = [[" ".join(L[x:y]), " ".join(S2[c:d])] for _, x, y, c, d in ops]
-    cls = [ruling84_class(L, S2, op, (lock["text"], spoken)) or "hold" for op in ops]
-    tok = pinned.relisten_candidate(diffs, cls, (lock["text"], spoken))
+    ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != "equal"
+           and not canon.same_words(L[o[1]:o[2]], S2[o[3]:o[4]], stray="y")
+           and pinned.material_pair(L[o[1]:o[2]], S2[o[3]:o[4]], (lock["text"], spoken))]   # ruling 143: the material
+    diffs = [[" ".join(L[x:y]), " ".join(S2[c:d])] for _, x, y, c, d in ops]                # differences alone (small
+    tok = pinned.relisten_candidate(diffs, ["hold"] * len(diffs), (lock["text"], spoken))   # words never hold)
     if tok is None:
         return None
     rec = {"token": tok, "against": diffs[0][1]}
@@ -481,7 +489,11 @@ def unstable(a, lock, spoken, heard, vid, start, end):
 def _majority(lock):
     """Ruling 131 (A): the lock's two-of-three record, or None (no lock, or another rule's adjudication)."""
     adj = (lock or {}).get("adjudication")
-    return adj if isinstance(adj, dict) and str(adj.get("rule", "")).startswith("ruling 131 (A)") else None
+    if not (isinstance(adj, dict) and str(adj.get("rule", "")).startswith(("ruling 131 (A)", "ruling 143"))):
+        return None                                    # ruling 143's settlement seals the same way, unless it settled
+    if str(adj["rule"]).startswith("ruling 143") and lock.get("text") == lock.get("selected_text"):
+        return None                                    # on the approved text itself (ruling 17's case: "adopted")
+    return adj
 
 
 def _outcome(s, lock):
@@ -551,12 +563,13 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                             outcome, lock = "hold", None
                             reason = f"ruling 72: the spoken text {text!r} is not adopted by the render's ruling 17: {e}"
                     elif verdict == "hold":
-                        bad = [d for d, k in zip(diffs, cls) if k == "hold"]
-                        why = (f"beyond the speaker's own repetitions, function words dropped or added, fillers and "
-                               f"one function word, at {bad}" if bad else
-                               f"on {cls.count(ONE_FW)} function words (ruling 84 (b): two or more in one span hold)")
-                        reason = (f"ruling 72/84: the second recogniser reads the span differently {why} | all: "
-                                  f"{[d + [k] for d, k in zip(diffs, cls)]} | lock: {lock['text']!r} | spoken: {text!r}")
+                        bad = [d for d, k in zip(diffs, cls) if k == "material"]
+                        why = (f"on a material word (a number, a negation, a name, a ticker or an amount) where the two "
+                               f"audio readings disagree, at {bad} (ruling 143 (3))" if bad else
+                               f"({'; '.join(cls) or 'no reading of the span'})")
+                        reason = (f"ruling 72/84 under ruling 143: the second recogniser reads the span differently "
+                                  f"{why} | all: {[d + [k] for d, k in zip(diffs, cls)]} | lock: {lock['text']!r} | "
+                                  f"spoken: {text!r}")
                         if usr and usr["verdict"] == "hold":     # ruling 105: the same audio's readings across passes
                             reason = (f"ruling 105: the readings of {usr.get('token') or usr.get('tokens')!r} on this "
                                       f"audio do not adjudicate it ({usr.get('tests') or usr.get('why')}): decoder "
@@ -605,7 +618,8 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                      "relisten": spoken.get("relisten") if spoken else None,      # ruling 103: both short readings
                      "unstable_second_reading": spoken.get("unstable_second_reading") if spoken else None,   # 105
                      "cut": {**{k: cut.get(k) for k in ("cut_in", "cut_out", "cut_duration", "lead_in_pad_s", "error")},
-                             "hook_lead_short": (cut.get("hook_lead") or {}).get("short")}   # ruling 146 (2): a flag
+                             "hook_lead_short": (cut.get("hook_lead") or {}).get("short"),   # ruling 146 (2): a flag
+                             "sentence_edge": cut.get("sentence_edge")}                       # ruling 139: a flag
                      if cut else None,
                      "rules": RULES, "scribe_usd": round(sum(spent), 4), "reused": False,
                      "timing": {"download_s": dl.get(vid, 0.0), "decode_s": dsec, "lock_s": round(time.time() - t, 1)},
