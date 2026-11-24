@@ -511,13 +511,13 @@ def main(argv=None):
         if box.get("out_dir"):
             try:
                 line = OC.record_build(box["out_dir"], rc=rc, error=err, refused=box.get("refused"),
-                                       build_no=box.get("build_no"), path=box.get("outcomes"))
+                                       build_no=box.get("build_no"))     # outcomes.OUTCOMES (audit L2, qwen F1)
                 if line:
                     print(f"  RULING 160 (2b): outcome {line['outcome']} at {line['stage']}: {line['gate']}",
                           flush=True)
-            except Exception as e:                       # noqa: BLE001  never masks the build's own end
-                print(f"  RULING 160 (2b): the outcome line was NOT written: {type(e).__name__}: {e}",
-                      file=sys.stderr, flush=True)
+            except BaseException as e:                   # noqa: BLE001  never masks the build's own end; a stop or
+                print(f"  RULING 160 (2b): the outcome line was NOT written: {type(e).__name__}: {e}",   # an interrupt
+                      file=sys.stderr, flush=True)       # inside the write is said too (audit L2, qwen F3)
 
 
 def _main(argv, box):

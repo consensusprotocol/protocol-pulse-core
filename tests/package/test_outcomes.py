@@ -202,6 +202,24 @@ class TestExactlyOneLine(unittest.TestCase):
             self.assertEqual([(x["outcome"], x["gate"]) for x in OC.lines(p)],
                              [("INDETERMINATE", "the build was stopped (SystemExit, exit 143)")])
 
+    def test_a_stop_inside_the_write_is_said_and_never_masks_the_end(self):
+        """Audit L2 (qwen F3): an interrupt while the line is written is reported, and the build's own end stands."""
+        import io
+        import proof_ledger as PLG
+        with tempfile.TemporaryDirectory() as d:
+            out = os.path.join(d, "ledger_20261124_120002")
+
+            def fake(a, box):
+                os.makedirs(out)
+                box["out_dir"] = out
+                return 0
+            err = io.StringIO()
+            with mock.patch.object(PLG, "_main", fake), \
+                    mock.patch.object(OC, "record_build", mock.Mock(side_effect=KeyboardInterrupt())), \
+                    mock.patch.object(sys, "stderr", err):
+                self.assertEqual(PLG.main([]), 0)
+            self.assertIn("the outcome line was NOT written: KeyboardInterrupt", err.getvalue())
+
     def test_the_real_driver_records_its_entry_and_its_crash(self):
         """main() run for real, up to the inputs (no model, no network): inputs.json carries the entry; a failure after
         that writes ONE line, INDETERMINATE."""
