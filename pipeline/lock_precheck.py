@@ -181,12 +181,12 @@ def _cached(r, sha):
 def prefetch(r, sha):
     """Every video's window downloaded BEFORE the lease (the call pinned.acquire makes; it caches by path, so acquire
     under the lease finds the file). -> {vid: seconds}."""
-    from select_passages import _download_window
+    import post_live_prefetch                  # ruling 142 (3): a post_live section that times out is cut from the stream
     out = {}
     for vid in _videos(r):
         lo, hi = window(r["segments"], vid)
         t = time.time()
-        _download_window(vid, lo, hi, work_dir(vid, lo, hi, sha))
+        post_live_prefetch.prefetch(vid, lo, hi, work_dir(vid, lo, hi, sha))
         out[vid] = round(time.time() - t, 1)
     return out
 

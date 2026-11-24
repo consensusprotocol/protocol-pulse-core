@@ -489,11 +489,29 @@ def stage_editorial(run):
     return keyword
 
 
+def prefetch_post_live(run, pin_path):
+    """RULING 142 (3) (post_live_prefetch): each YouTube window of the pin, fetched before pinned.acquire asks for it, so a
+    post_live stream whose section download times out is cut from the whole stream (its HARD clock guard still runs in
+    acquire). An unreadable pin is left to prepare, which refuses it."""
+    import post_live_prefetch
+    try:
+        with open(pin_path) as f:
+            segs = [s for s in json.load(f)["segments"]       # a segment without a source is YouTube (pinned.acquire's
+                    if (s.get("source") or {}).get("kind", "youtube") == "youtube"]   # model: only local_file is not)
+        wins = {v: (min(s["start"] for s in segs if s["video_id"] == v), max(s["end"] for s in segs if s["video_id"] == v))
+                for v in dict.fromkeys(s["video_id"] for s in segs)}
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        return
+    for vid, (lo, hi) in wins.items():
+        post_live_prefetch.prefetch(vid, lo, hi, run.dir, log=lambda s: print(s, flush=True))
+
+
 def stage_pinned(run, pin_path):
     """PINNED entry point: validate the human decision and write the canonical EDL. Replaces
     stage_editorial + stage_select only; everything downstream is shared."""
     from pinned import prepare, PinError
     free_gpu0_for_whisper(run, "pinned")   # pinned.acquire runs Whisper on GPU0 (E-FAIL-052: the preflight's model OOM'd it)
+    prefetch_post_live(run, pin_path)
     try:
         rec = prepare(pin_path, run.dir, log=lambda s: print(s, flush=True))
     except PinError as e:
