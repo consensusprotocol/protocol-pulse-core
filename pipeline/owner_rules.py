@@ -162,7 +162,7 @@ class HeimdallText:
         env = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
         with open(env) as f:
             for line in f:
-                if line.startswith("HEIMDALL_API_KEY"):
+                if "=" in line and line.split("=", 1)[0].strip() == "HEIMDALL_API_KEY":   # the exact NAME (c2, glm F2)
                     return line.split("=", 1)[1].strip().strip('"\'')
         raise RuntimeError("HEIMDALL_API_KEY not found in the repo .env")
 
