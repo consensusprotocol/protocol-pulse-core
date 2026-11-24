@@ -304,6 +304,47 @@ class TestRuling143G18(unittest.TestCase):
         self.assertFalse(ok, rows)                                     # a number still fails on text
         self.assertNotIn("omission_adjudication", rows[0])
 
+    def test_an_edge_substitution_is_the_decoders_reading_a_clipped_edge_is_not(self):
+        """Batch 124 (ruling 159 (b) at the edges): the Nov 12 clip_01 head, 'I think' locked (ruling 143 took the run's
+        reading), the final heard 'I mean': a one-for-one non-material substitution at the first words is decided by
+        the audio. A first word OMITTED (a clipped cut), an added word, or a number at the edge stays HARD."""
+        lock = "I think the good news about Bitcoin is it's not dependent upon us."
+        for heard, same, adjudicated, want in (
+                ("I mean the good news about Bitcoin is it's not dependent upon us.", True, True, True),
+                ("I mean the good news about Bitcoin is it's not dependent upon us.", True, False, True),
+                ("I mean the good news about Bitcoin is it's not dependent upon us.", False, True, False),
+                ("think the good news about Bitcoin is it's not dependent upon us.", True, True, False),
+                ("And I think the good news about Bitcoin is it's not dependent upon us.", True, True, False),
+                ("I think the good news about Bitcoin is it's not dependent upon us all.", True, True, False)):
+            with self.subTest(heard=heard[:22], same=same, adjudicated=adjudicated):
+                ok, rows = self.g18(lock, heard, same=same, adjudicated=adjudicated)
+                self.assertEqual(ok, want, rows)
+        ok, rows = self.g18("It took 15 years and I punch in my code.", "It took 50 years and I punch in my code.")
+        self.assertFalse(ok, rows)                                     # a number inside the edge words: HARD
+        self.assertFalse(W._edges_substituted_only("15 people came here today", "50 people came here today"))
+        self.assertTrue(W._edges_substituted_only("I think it is", "I mean it is"))
+        self.assertFalse(W._edges_substituted_only("I think it is", "think it is"))
+
+    def test_an_edge_only_difference_is_still_decided_by_the_audio(self):
+        """The edge rule alone: an unadjudicated lock whose source decode already reads like the final ('I mean ...')
+        has no identity difference, only the edge against the lock text ('I think ...'): the audio decides it."""
+        lock = "I think the good news about Bitcoin is it's not dependent upon us."
+        heard = "I mean the good news about Bitcoin is it's not dependent upon us."
+        clips = {"clip_01": {"lock_text": lock, "source": "src.mp4", "cut_in": 0.0, "cut_out": 5.0, "pad_s": 0.0,
+                             "prepared": "prep.mp4", "adjudicated": False, "alternatives": None}}
+        segs = [{"label": "clip_01", "type": "talking_head", "start": 0.0, "end": 5.0}]
+
+        class Tr:
+            def span(self, media, t0, t1):
+                return heard                                         # the final and the source span read alike
+        import sentence_law as SLW
+        for same in (True, False):
+            with self.subTest(same_audio=same), mock.patch.object(SLW, "span_fidelity", return_value=(same, {"stub": True})), \
+                    mock.patch.object(SLW, "span_matches", return_value=(False, {"stub": True})):
+                ok, rows = W.gate_g18("final.mp4", segs, clips, transcriber=Tr())
+            self.assertEqual(ok, same, rows)
+            self.assertEqual(rows[0]["identity"], [])
+
     def test_tonights_word_form_passes_on_the_audio(self):
         """Pin afd8977d143e, run pinned_20261124_033952, clip_01 (Digital Asset News vX2WKBOua8w), G18 FAIL at 23:3x
         ET Nov 23: the source span read 'bottomed', the final 'bottom', the no_difference lock 'bottom'."""
