@@ -335,9 +335,22 @@ class TestWatchdogRestarts(TestWatchdogReads):
             status = W.run_pass({}, now=night, paths=self.paths, send=lambda *a: 1, dry_run=True)
         self.assertEqual((dry, status.get("restarts")), ([], None))       # a dry run starts nothing
 
-    def test_the_only_write_is_a_new_window_or_session_with_the_fixed_line(self):
+    def test_a_test_session_or_another_tree_never_starts_a_service(self):
         calls = []
         with mock.patch.object(W.subprocess, "run", lambda argv, **kw: calls.append(argv) or types_ok()):
+            with self.assertRaises(RuntimeError):                   # this session: conftest set PP_HEARTBEAT_DIR
+                W.start_service("lock_precheck", "pipeline_pp_lockcheck", True)
+            with mock.patch.dict(os.environ, {}, clear=False):
+                os.environ.pop("PP_HEARTBEAT_DIR", None)
+                with mock.patch.object(W, "REPO", "/home/ultron/worktrees/elsewhere"), self.assertRaises(RuntimeError):
+                    W.start_service("lock_precheck", "pipeline_pp_lockcheck", True)
+        self.assertEqual(calls, [])
+
+    def test_the_only_write_is_a_new_window_or_session_with_the_fixed_line(self):
+        calls = []
+        env = {k: v for k, v in os.environ.items() if k != "PP_HEARTBEAT_DIR"}
+        with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(W, "REPO", W.MAIN_TREE), \
+                mock.patch.object(W.subprocess, "run", lambda argv, **kw: calls.append(argv) or types_ok()):
             W.start_service("word_pass", "pipeline_pp_wordpass", True)
             W.start_service("judge", "pipeline_pp_judge", False)
         self.assertEqual(calls[0][:6], ["tmux", "new-window", "-t", "=pipeline_pp_wordpass:", "-n", "word_pass-restarted"])

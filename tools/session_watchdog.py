@@ -111,6 +111,7 @@ LAUNCH = {
                   f"logs/word_pass_worker.log; exec sh"),
 }
 RESTART_GAP_S = 30 * 60
+MAIN_TREE = "/home/ultron/protocol_pulse"               # the only tree whose watchdog may start a service
 
 BORDER = re.compile(r"^\s*─{8,}")
 PROMPT = re.compile(r"^\s*❯(?:\s|$)")
@@ -531,7 +532,11 @@ def running(markers):
 
 def start_service(name, session, present):
     """The ONE write the watchdog makes (ruling 159 (b)): the service's fixed launch line in a new window of its
-    session, or a new detached session when the session is gone. Never a kill, a signal or keys."""
+    session, or a new detached session when the session is gone. Never a kill, a signal or keys.
+    Refused in a test session (pipeline/conftest.py sets PP_HEARTBEAT_DIR) and from any tree but the main one: on
+    23:44 ET Nov 23 a test whose patch missed this function started a live pre-check loop from a worktree."""
+    if os.environ.get("PP_HEARTBEAT_DIR") or os.path.realpath(REPO) != MAIN_TREE:
+        raise RuntimeError(f"refused: only the main tree's live watchdog starts a service ({REPO})")
     cmd = LAUNCH[name][1]
     argv = (["tmux", "new-window", "-t", f"={session}:", "-n", f"{name}-restarted", cmd] if present
             else ["tmux", "new-session", "-d", "-s", session, cmd])
