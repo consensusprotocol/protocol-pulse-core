@@ -6,6 +6,27 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 08:23 RULINGS 160-163, THE INTEGRATOR'S HALF: WHERE EACH ROW STANDS AND WHEN I EXPECT IT (nothing below is pushed yet unless a commit is named on the release line)
+- RULING 161, THE RENDER'S SIDE (batch 126, branch r161-v1info a7e7da5b1): V1's sponsor question no longer holds; what a vision model sees goes on ONE information line ('Visible sponsor graphics (information, ruling 161: not a flag, not a hold): ...'), in the review note whole and in the release caption cut at 240 characters, never under REVIEW FLAGS; the pin's per-segment visible_sponsor_graphics (the builder's field) prints on it too. Tests: 83 in the delivery / review-drop suites and 24 offline in the visual suite pass on the branch. Cycle 1: gemma and qwen27b at effort medium answered PASS with no finding (glm's 4-second answer at effort none is not counted). Mutations so far: 4 of 4 killed; 1 ended in a timeout under load, not counted as a kill; 2 still running. Cycle 2 (traced questions) running since 08:22.
+- RULING 162, THE RENDER'S SIDE (batch 127, branch r162-render 8d852b6bf):
+  - (1) an OUT sentence edge HOLDS at the render's cut and is an outcome 'hold' at the lock pre-check, a reused pre-162 verdict included; every segment's OUT edge is re-asked at validate with the shared question owner_rules.out_edge (the builder loads the same file). Not complete HOLDS; no answer HOLDS as UNVERIFIED (ruling 160 (2a)).
+  - Measured live (free, qwen27b, 3 asks each): afd8977d's opener 'and everybody had the same story.' NOT complete 3 of 3 (the prompt carries no example from it); its clip 2 complete; its clip 1 (ends 'let me read that again.') NOT complete; the PBX-approved Nov 11 preview 4 of 4 complete.
+  - (2) the closing line's value verdict must be exactly PASS (FLAGGED no longer counts) or the run HOLDS; any line of ours naming a credited channel or saying a listing phrase HOLDS (owner_rules.line_faults, the builder's rule too); a package with no closing line already renders (the Nov 11 preview had none).
+  - Cycle 1: 3 seats answered with 10 findings: 5 fixed, 4 disproved in writing, 1 not a defect (cycle1/CONSENSUS.md). Cycle 2 running since 08:22.
+- WHEN (ruling 163 (1), my half of the first build): 161 + 162 merged, the merged tree's suites by exit code, pushed in the builder's window: 08:50 ET if cycle 2 needs no code change, 09:20 ET if it does.
+- ROW 20 (G18 on afd8977d clip 1): built on branch r160-g18floor. G18's whole-span audio check compares speech frames only (within 30 dB of the span's median; 1 dB, +-2 hops unchanged). The three failing frames were -82, -73 and -80 dBFS (speech median -33.6).
+  - Replayed on run pinned_20261124_033952 with the recorded decodes and the REAL audio: the pushed code HOLDS clip 1 at 4.83 dB in both formats; the branch PASSES G18 in both (clip 1 0.41 dB, clip 2 0.31 dB).
+  - Tests on the real files: the clip as rendered passes; a lossless copy passes; 'bottom' 3 dB down or silenced HOLDS.
+  - The replay itself becomes a test before it lands (ruling 163 (3)). Expected 09:40 ET, after two cycles.
+- ROWS 13 AND 18 (branch r160-readiness):
+  - check_pin_only now judges the 12 hours on the render clock and the 3 kinds with the builder's own window_problems / review_problems.
+  - The launcher runs it before anything is locked or started, for every pinned run.
+  - stage_pinned re-checks the 12 hours on its own clock before any download.
+  - On afd8977d's pin: refused now (all 3 sources expired); refused at its own seal time (5 kinds over 3); READY with only the kinds check removed (control).
+  - Expected 09:40 ET, after two cycles.
+- ROW 21 (watchdog): its guard gets a real second cycle, and the lock pre-check loop gets a command line the watchdog can see. Expected 10:15 ET.
+- ROW 23 (c)-(e) (content words, amount words, one materiality function for both sides): touches pinned.py, a decoder lockstep with the builder after the first build. Its measurement on last night's lock verdicts comes before it lands.
+
 ## 02:40 RULING 159 (b), INTEGRATOR ROWS, SECOND MERGE (r143-tests). Staged: regression_test.sh 26 PASS / 0 FAIL, pipeline/regression.sh exit 0. One line per row:
 - ROW THE RULING 17/18 TESTS THAT FAILED SINCE THE LOCKSTEP, CLOSED (a75962a5a).
   - test_ruling17_lock's Nov 12 tests are rewritten to ruling 143, on the same real audio:
