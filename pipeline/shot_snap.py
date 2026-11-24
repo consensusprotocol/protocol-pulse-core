@@ -17,7 +17,10 @@ vertical_layout.classify's plan). Pin 0c68b589's hook frame 406: the source's pu
 0.2718 in 16:9 and 0.3172 in the 9:16 crop, so prepare kept it and G19 held the vertical. The snap must keep the
 required quiet of the speaker's own shot after the last word (sentence_law.TAIL_MIN_S) and before the first
 (HEAD_LEAD_MIN_S for the hook, which starts playback; LEAD_MIN_S otherwise). If it cannot, the clip is refused
-with that reason (a HOLD in prepare)."""
+with that reason (a HOLD in prepare).
+RULING 146 (orchestrator 2026-11-18 '07:55') (2): the hook's HEAD_LEAD_MIN_S is SOFT. A snap that keeps LEAD_MIN_S but
+not HEAD_LEAD_MIN_S before the hook's first word is applied and marked "hook_lead_short" (prepare flags 'The opening
+clip may start abruptly.'); below LEAD_MIN_S, and every tail rule, it is refused as before."""
 import os
 import re
 import subprocess
@@ -84,7 +87,7 @@ def apply(clip, cut, fps, qp):
     if head == 0 and tail == n:
         return rec
     import sentence_law as SL
-    lead_min = SL.HEAD_LEAD_MIN_S if cut.get("clip_id") == "hook" else SL.LEAD_MIN_S
+    lead_min = SL.LEAD_MIN_S                   # ruling 146 (2): the hook's HEAD_LEAD_MIN_S is soft (marked below)
     short = ([f"the speaker's own shot starts {on - head / fps:.3f} s before the first word (< {lead_min:.3f} s)"]
              if head and on - head / fps < lead_min else []) + \
             ([f"the speaker's own shot ends {tail / fps - off:.3f} s after the last word (< {SL.TAIL_MIN_S:.3f} s)"]
@@ -92,6 +95,9 @@ def apply(clip, cut, fps, qp):
     if short:                                  # ruling 71: the snap cannot keep the required quiet: refused, a HOLD
         rec["refused"] = "; ".join(short)
         return rec
+    if cut.get("clip_id") == "hook" and head and on - head / fps < SL.HEAD_LEAD_MIN_S:     # ruling 146 (2): SOFT
+        rec["hook_lead_short"] = (f"the speaker's own shot starts {on - head / fps:.3f} s before the hook's first word "
+                                  f"(< {SL.HEAD_LEAD_MIN_S:.3f} s): flagged, not refused (ruling 146 (2))")
     import gpu0
     gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident (an encode follows)
     vf = f"trim=start_frame={head}:end_frame={tail},setpts=PTS-STARTPTS,tpad=start_mode=clone:start={head}:" \

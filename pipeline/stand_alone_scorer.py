@@ -40,6 +40,7 @@ import time
 PIPELINE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(PIPELINE)
 sys.path.insert(0, PIPELINE)
+import heartbeat  # noqa: E402  (ruling 133 R16)
 import local_judge as LJ  # noqa: E402  (the yield flag)
 import stand_alone as SA  # noqa: E402
 
@@ -290,6 +291,8 @@ def main(argv=None):
     sha, seen, open_ = scorer_sha(), None, None
     log = lambda m: print(time.strftime("%H:%M:%S"), m, flush=True)
     print(f"pin-stage scorer: {ROOT} | scorer_sha {sha[:12]}", flush=True)
+    if a.cmd == "serve":
+        heartbeat.start("scorer")                              # ruling 133 R16
     while True:
         if a.candidates and os.path.exists(a.candidates):
             try:
@@ -303,6 +306,8 @@ def main(argv=None):
                 log(f"candidates {gen}: {len(c.get('candidates') or [])}, refused {len(refused)}, queued "
                     f"{len(pending())}")
         n = serve_once(log=log)
+        if a.cmd == "serve":
+            heartbeat.mark_pass("scorer", served=n)
         if open_ is not None and not any(os.path.basename(p).startswith("cand.") for p in pending()):
             path = write_verdicts(*open_, sha, a.candidates)
             log(f"verdicts written: {path} (affirmed {json.load(open(path))['affirmed']} of "

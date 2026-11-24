@@ -1,0 +1,250 @@
+diff --git a/pipeline/edl_rules.py b/pipeline/edl_rules.py
+index f92207a0..d13c33e0 100644
+--- a/pipeline/edl_rules.py
++++ b/pipeline/edl_rules.py
+@@ -95,6 +95,24 @@ def sealed_ok(row):
+         and all(isinstance(x, str) and x.strip() for x in f)
+ 
+ 
++RUNTIME_FLAG_FLOOR_S = 30.0       # RULING 148 (1) (orchestrator 2026-11-18 '09:38'): a line-up of 30.0 s or more may seal;
++#                                   between 30.0 and 36.7 s the builder seals its "runtime" row FLAGGED ('This video
++#                                   runs NN seconds, shorter than usual.'); under 30 s it is still refused (the seal)
++
++
++def flagged_runtime_row(run_dir):
++    """RULING 148 (1): the sealed pin's gates["runtime"] row (run_dir/PINNED_DECISION.json, as pinned.prepare wrote the
++    pin) when it is FLAGGED by sealed_ok's rule (plain-word flags, never replayed): the builder sealed a line-up of 30.0 s
++    or more that is shorter than usual, and PBX reads its sentence. None otherwise: no pinned decision, a PASS or a
++    malformed row (fail closed: the render's usual runtime rules stand)."""
++    try:
++        with open(os.path.join(run_dir, "PINNED_DECISION.json")) as f:
++            row = ((json.load(f).get("pin") or {}).get("moments_package") or {}).get("gates", {}).get("runtime")
++    except (OSError, TypeError, ValueError, AttributeError):
++        return None
++    return row if sealed_ok(row) and row.get("status") == "FLAGGED" else None
++
++
+ def question_hook_join(edl):
+     """Ruling 37 (orchestrator 2026-11-13 '03:42'): (ok, why) for the join that follows a question hook, from the
+     package's SEALED gate rows (moments_gates): the clips-alone verdict (gates.medley) measured, exactly PASS, not
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 86ebaff7..588801a6 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -189,6 +189,34 @@ LAW_TEXT = {"LAW_1_NEW_INFORMATION": "every clip adds something new",
+ _LABEL = re.compile(r"(?<![-\w])(hook|clip[_ ]\d+)\b")
+ 
+ 
++R4_RUNTIME = "The video's estimated length is outside the usual 60 to 70 seconds."   # ruling 138 (3): R4's runtime
++_R4_RUNTIME = re.compile(r"estimated runtime [\d.]+ s outside [^;]*")
++
++
++def r4_sentences(run_dir, reason):
++    """Ruling 138 (3) for R4, which judges two things: the voiceover (its share, slots and word caps) and the estimated
++    runtime (60-70 s). Each kind found gets its own plain sentence. A runtime the sealed pin already flags (RULING 148
++    (1): its FLAGGED "runtime" row, the builder's 'This video runs NN seconds, shorter than usual.') adds none."""
++    reason = reason if isinstance(reason, str) else ""
++    body = reason.split(":", 1)[1] if reason.startswith("R4 FAIL") and ":" in reason else reason
++    runtime = bool(_R4_RUNTIME.search(body))
++    rest = _R4_RUNTIME.sub("", body).replace(";", "").strip()
++    out = [EDL_SOFT["rule_r4"]] if rest or not runtime else []
++    import edl_rules
++    if runtime and edl_rules.flagged_runtime_row(run_dir) is None:
++        out.append(R4_RUNTIME)
++    return out
++
++
++def flag_soft_rules(run, edl, results):
++    """Rulings 136 / 137 / 138 (3): every failing SOFT edl_rules row flagged in plain words (R4: r4_sentences)."""
++    for r in results:
++        if not r["pass"]:
++            for s in (r4_sentences(run.dir, r.get("reason", "")) if r["rule"] == "rule_r4"
++                      else [sentence(EDL_SOFT[r["rule"]], edl, r.get("reason", ""))]):
++                flag(run, s, f"{r['rule']}: {r.get('reason', '')}")
++
++
+ def who(edl, text, default="a clip"):
+     """The clips a check's words name ('hook', 'clip_02', 'clip_2', 'clip 2'; never 'non-hook'), as PBX reads them
+     (ruling 138 (3)): 'the opening clip (Channel)', 'clip 2 (Channel)', joined; the default when it names none."""
+@@ -562,9 +590,7 @@ def stage_validate(run):
+     hard = [r for r in results if not r["pass"] and r["rule"] not in EDL_SOFT]       # rulings 136 / 137
+     if hard:
+         raise Hold("EDL rejected by edl_rules: " + "; ".join(f"{r['rule']}: {r.get('reason', '')}" for r in hard))
+-    for r in results:
+-        if not r["pass"]:
+-            flag(run, sentence(EDL_SOFT[r["rule"]], edl, r.get("reason", "")), f"{r['rule']}: {r.get('reason', '')}")
++    flag_soft_rules(run, edl, results)
+     ok91, why91 = takeaway_value(edl)          # ruling 91's MEDLEY half: the live path only (the references predate it)
+     print(f"  {why91}")
+     run.prov["takeaway_value"] = {"pass": ok91, "reason": why91}
+diff --git a/pipeline/test_ruling148_runtime.py b/pipeline/test_ruling148_runtime.py
+new file mode 100644
+index 00000000..e48e64d8
+--- /dev/null
++++ b/pipeline/test_ruling148_runtime.py
+@@ -0,0 +1,128 @@
++#!/usr/bin/env python3
++"""RULING 148 (1) (orchestrator 2026-11-18 '09:38'): "a line-up of 30.0 s or more may seal; between 30.0 and 36.7 s it
++carries the flag 'This video runs NN seconds, shorter than usual.' ... Under 30 s still refused." The builder seals that
++as a FLAGGED gates.runtime row. The render:
++G5        a moments run whose sealed pin carries that row is accepted from 44.3 s (the 30.0 s line-up floor + the format's
++          14.3 s tail) to 72 s; every other run keeps ruling 12's 58-72 s; a spotlight keeps 28-50 s
++R4        its runtime finding adds no second sentence where the pin flags it; elsewhere it is named as the length, never
++          as the voiceover; a voiceover finding keeps its sentence"""
++import json
++import os
++import shutil
++import sys
++import tempfile
++import types
++import unittest
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++sys.path.insert(0, os.path.join(REPO, "segment_v1"))
++import edl_rules  # noqa: E402
++import qa_gates  # noqa: E402
++import run_fresh as RF  # noqa: E402
++
++SENT = "This video runs 57 seconds, shorter than usual."
++FLAGGED = {"status": "FLAGGED", "flags": [SENT], "replayed": False, "runtime_s_estimate": 56.8}
++VOICE = "The voiceover runs over its length limit."
++LENGTH = "The video's estimated length is outside the usual 60 to 70 seconds."
++RUNTIME = "estimated runtime 56.800 s outside 60-70 s (hook + clips 33.89 + VO 8.61 + tail 14.3)"
++
++
++class Base(unittest.TestCase):
++    def setUp(self):
++        self.root = tempfile.mkdtemp(prefix="r148_")
++        self.addCleanup(shutil.rmtree, self.root, True)
++
++    def run_dir(self, row=None, raw=None, edl=None):
++        d = tempfile.mkdtemp(dir=self.root)
++        with open(os.path.join(d, "edl.json"), "w") as f:
++            json.dump({"package_type": "moments"} if edl is None else edl, f)
++        if raw is None and row is not None:
++            raw = json.dumps({"pin": {"moments_package": {"gates": {"runtime": row, "hook_onset": {"status": "PASS"}}}}})
++        if raw is not None:
++            with open(os.path.join(d, "PINNED_DECISION.json"), "w") as f:
++                f.write(raw)
++        return d
++
++
++class TestTheSealedRow(Base):
++    def test_a_flagged_row_is_read(self):
++        self.assertEqual(edl_rules.flagged_runtime_row(self.run_dir(FLAGGED)), FLAGGED)
++
++    def test_anything_else_reads_none(self):
++        for label, kw in (("PASS", {"row": {"status": "PASS", "replayed": False}}),
++                          ("replayed", {"row": {**FLAGGED, "replayed": True}}),
++                          ("replay unknown", {"row": {k: v for k, v in FLAGGED.items() if k != "replayed"}}),
++                          ("no flags", {"row": {**FLAGGED, "flags": []}}),
++                          ("a blank flag", {"row": {**FLAGGED, "flags": [" "]}}),
++                          ("no pinned decision", {}),
++                          ("unreadable", {"raw": "{not json"}),
++                          ("gates not an object", {"raw": json.dumps({"pin": {"moments_package": {"gates": ["x"]}}})}),
++                          ("no pin", {"raw": json.dumps({"mode": "pinned"})})):
++            with self.subTest(label):
++                self.assertIsNone(edl_rules.flagged_runtime_row(self.run_dir(**kw)))
++
++
++class TestG5Window(Base):
++    NORMAL = ((58.0, 72.0), (60.0, 70.0))
++
++    def window(self, d):
++        return qa_gates.g5_window(os.path.join(d, "edl.json"))
++
++    def test_a_flagged_runtime_accepts_from_44_3_s(self):
++        (lo, hi), target = self.window(self.run_dir(FLAGGED))
++        self.assertAlmostEqual(lo, 44.3, places=6)
++        self.assertEqual((hi, target), (72.0, (60.0, 70.0)))
++        self.assertTrue(lo <= 56.8 <= hi)                       # this morning's 33.89 s line-up, about 57 s
++        self.assertFalse(lo <= 44.0 <= hi)                       # under a 30 s line-up's final: still refused
++
++    def test_every_other_run_keeps_58_to_72_s(self):
++        for label, d in (("no row", self.run_dir()),
++                         ("a PASS row", self.run_dir({"status": "PASS", "replayed": False})),
++                         ("a replayed row", self.run_dir({**FLAGGED, "replayed": True})),
++                         ("not a moments EDL", self.run_dir(FLAGGED, edl={"package_type": "story"}))):
++            with self.subTest(label):
++                self.assertEqual(self.window(d), self.NORMAL)
++
++    def test_a_spotlight_keeps_its_own_window(self):
++        d = self.run_dir(FLAGGED, edl={"package_type": "moments", "package_shape": "spotlight"})
++        self.assertEqual(self.window(d), (qa_gates.G5_SPOTLIGHT_S, qa_gates.G5_SPOTLIGHT_S))
++
++
++class TestR4Sentences(Base):
++    def reason(self, *f):
++        return "R4 FAIL (moments): " + "; ".join(f)
++
++    def test_a_flagged_short_runtime_adds_no_sentence(self):
++        self.assertEqual(RF.r4_sentences(self.run_dir(FLAGGED), self.reason(RUNTIME)), [])
++
++    def test_an_unflagged_runtime_is_named_as_the_length(self):
++        self.assertEqual(RF.r4_sentences(self.run_dir(), self.reason(RUNTIME)), [LENGTH])
++
++    def test_a_voiceover_finding_keeps_its_sentence(self):
++        vo = "VO=46.10% of total runtime (max 45%, moments)"
++        slot = "VO line 2 has no slot (after_clip 5: one line after each clip index)"
++        for label, d, reason, want in (
++                ("share alone", self.run_dir(), self.reason(vo), [VOICE]),
++                ("share + flagged runtime", self.run_dir(FLAGGED), self.reason(vo, RUNTIME), [VOICE]),
++                ("slot + flagged runtime", self.run_dir(FLAGGED), self.reason(slot, RUNTIME), [VOICE]),
++                ("share + unflagged runtime", self.run_dir(), self.reason(vo, RUNTIME), [VOICE, LENGTH]),
++                ("a story pin's R4", self.run_dir(), "VO=31% of runtime (max 25%)", [VOICE])):
++            with self.subTest(label):
++                self.assertEqual(RF.r4_sentences(d, reason), want)
++
++    def test_validate_flags_through_r4_sentences(self):
++        run = types.SimpleNamespace(dir=self.run_dir(FLAGGED), status={}, prov={})
++        RF.flag_soft_rules(run, {"package_type": "moments"},
++                           [{"rule": "rule_r4", "pass": False, "reason": self.reason(RUNTIME)},
++                            {"rule": "rule_r1", "pass": True, "reason": "R1 PASS"}])
++        self.assertEqual(run.status.get("review_flags"), None)        # the pin's own sentence is the one PBX reads
++        run2 = types.SimpleNamespace(dir=self.run_dir(), status={}, prov={})
++        RF.flag_soft_rules(run2, {"package_type": "moments"},
++                           [{"rule": "rule_r4", "pass": False, "reason": self.reason(RUNTIME)}])
++        self.assertEqual(run2.status["review_flags"], [LENGTH])
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/segment_v1/qa_gates.py b/segment_v1/qa_gates.py
+index 5cbee00f..d2d6737f 100644
+--- a/segment_v1/qa_gates.py
++++ b/segment_v1/qa_gates.py
+@@ -42,11 +42,16 @@ G5_TRUE_PEAK_MAX_DBFS = {"16x9": -2.0, "9x16": -1.3}    # 9x16 was -2.0: v2f seg
+ G5_DURATION_ACCEPT_S = (58.0, 72.0)   # ruling 12 ('09:32'): the measured final's accepted runtime, both aspects
+ G5_DURATION_TARGET_S = (60.0, 70.0)   # law L-o: PBX's format target; outside it = a recorded deviation
+ G5_SPOTLIGHT_S = (28.0, 50.0)         # law L-ab (ruling 90): a spotlight's format, accepted = target, both aspects
++G5_RUNTIME_FLAGGED_MAX_S = 72.0       # RULING 148 (1): a FLAGGED runtime row keeps ruling 12's ceiling; its floor is the
++#                                       30.0 s line-up floor plus the format's tail (edl_rules.RUNTIME_FLAG_FLOOR_S +
++#                                       FINAL_TAIL_S = 44.3 s), the 60-70 s target unchanged (a recorded deviation)
+ 
+ 
+ def g5_window(edl_path):
+     """(accepted, target) runtime for G5: a spotlight EDL (law L-ab: package_type 'moments', package_shape
+-    'spotlight') is 28-50 s; every other EDL, or none, keeps ruling 12's 58-72 s accepted / 60-70 s target."""
++    'spotlight') is 28-50 s; a moments EDL whose run's sealed pin carries a FLAGGED runtime row (ruling 148 (1):
++    edl_rules.flagged_runtime_row) is accepted from 44.3 s (the 30.0 s line-up floor + the format's 14.3 s tail) to
++    72 s; every other EDL, or none, keeps ruling 12's 58-72 s accepted / 60-70 s target."""
+     try:
+         with open(edl_path) as f:
+             edl = json.load(f)
+@@ -54,6 +59,14 @@ def g5_window(edl_path):
+         return G5_DURATION_ACCEPT_S, G5_DURATION_TARGET_S
+     if isinstance(edl, dict) and edl.get("package_type") == "moments" and edl.get("package_shape") == "spotlight":
+         return G5_SPOTLIGHT_S, G5_SPOTLIGHT_S
++    if isinstance(edl, dict) and edl.get("package_type") == "moments":      # ruling 148 (1): a sealed, FLAGGED runtime
++        pipe = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "pipeline")
++        if pipe not in sys.path:
++            sys.path.insert(0, pipe)
++        import edl_rules
++        if edl_rules.flagged_runtime_row(os.path.dirname(os.path.abspath(edl_path))) is not None:
++            return ((edl_rules.RUNTIME_FLAG_FLOOR_S + edl_rules.FINAL_TAIL_S, G5_RUNTIME_FLAGGED_MAX_S),
++                    G5_DURATION_TARGET_S)
+     return G5_DURATION_ACCEPT_S, G5_DURATION_TARGET_S
+ G8_SHARPNESS_FLOOR = {"16x9": 27.56, "9x16": 10.84}     # was 60: v2f worst segment medians (16x9 hook 27.56, 9x16 clip_03 10.84)
+ G9_V2F_LUMA = {"16x9": 14.3357, "9x16": 14.7715}       # DEC-1: v2f's own tail luma (the locked outro ends on black)

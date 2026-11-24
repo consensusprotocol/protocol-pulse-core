@@ -1,0 +1,48 @@
+{
+ "question": "TASK: audit batch 115 of the Protocol Pulse video pipeline (Python). You are reviewing a diff. Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.\n\nTHE RULING (orchestrator 2026-11-18 09:38, ruling 148 (1)), verbatim: \"THE RUNTIME FLOOR: 36.7 s is a calibration, not a law of PBX's. For this exception pin a line-up of 30.0 s or more may seal; between 30.0 and 36.7 s it carries the flag 'This video runs NN seconds, shorter than usual.' (it counts toward the 5). Under 30 s still refused.\" Its last part makes this standing for later builds too: \"the 30 s floor with its flag\".\n\nThe builder seals such a line-up with a gate row moments_package.gates.runtime = {\"status\": \"FLAGGED\", \"flags\": [\"This video runs NN seconds, shorter than usual.\"], \"replayed\": false, ...}. The render must then deliver it. Before this diff it could not:\n- G5_tech is a REQUIRED release row (pipeline/release_auth.py:36). It accepted a final of 58-72 s only (segment_v1/qa_gates.py gate_g5 :707, window from g5_window :50).\n- edl_rules R4 is SOFT (pipeline/run_fresh.py:180, in EDL_SOFT), but it flagged a short runtime as \"The voiceover runs over its length limit.\", the wrong sentence.\n\nWHAT THE DIFF DOES:\n1. edl_rules.flagged_runtime_row(run_dir) (pipeline/edl_rules.py:103) reads run_dir/PINNED_DECISION.json (pin -> moments_package -> gates -> runtime). It returns the row only when sealed_ok (:85, unchanged: PASS, or FLAGGED with non-empty string flags; replayed must be False) says so AND the status is FLAGGED. Otherwise it returns None.\n2. qa_gates.g5_window: for a moments EDL whose run has that row, G5 accepts 44.3-72 s. 44.3 = RUNTIME_FLAG_FLOOR_S 30.0 + FINAL_TAIL_S 14.30 (edl_rules :229, the format's credits/outro/pads). The target stays 60-70, and the spotlight branch comes first, unchanged. gates.run_gates passes edl_path = <run dir>/edl.json (pipeline/gates.py:599), so dirname is the run dir.\n3. run_fresh.r4_sentences (:196) splits R4's reason. Any non-runtime finding gets the old voiceover sentence. A runtime finding gets none when the row is flagged, else \"The video's estimated length is outside the usual 60 to 70 seconds.\"\n4. run_fresh.flag_soft_rules (:211) is the old inline loop of stage_validate (:593) with R4 routed through r4_sentences.\n\nCHECK, each with file:line and a concrete failure scenario:\n(a) Can the G5 relaxation apply to a run whose sealed row is NOT FLAGGED, is replayed or malformed, or to a non-moments or spotlight EDL?\n(b) Can a final under 44.3 s, or over 72 s, pass G5 now? Is anything else in G5 (loudness, dims, fps) changed?\n(c) r4_sentences: can a real voiceover finding lose its sentence, or a runtime finding be missed? The regex is r\"estimated runtime [\\d.]+ s outside [^;]*\", and _r4_moments joins findings with \"; \" under the prefix \"R4 FAIL (moments): \". Check against the failure strings in pipeline/edl_rules.py _r4_moments.\n(d) Is anything else in stage_validate changed by moving the loop into flag_soft_rules (hard rules still HOLD first)?\n(e) Any crash: an unreadable PINNED_DECISION.json, gates not a dict, reason not a string, edl_path None?\n\nOUTPUT: findings, each <severity: critical|high|medium|low> <file:line> <what fails, with inputs>; \"(x): no finding\" with what you traced otherwise.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 302.2,
+   "cost": 0.0100980702,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 107.2,
+   "cost": 0.0040313454,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "low",
+   "file": "pipeline/edl_rules.py",
+   "line": 113,
+   "issue": "flagged_runtime_row calls sealed_ok(row) and row.get(\"status\") outside the try/except. If PINNED_DECISION.json contains a valid structure where gates is a dict but runtime is a non-dict, non-None scalar (e.g. a string), row is that scalar and sealed_ok(row) executes unguarded. The test suite covers row=None (passes) and gates-as-list (AttributeError caught in try), but not gates-as-dict-with-runtime-as-string. Whether this crashes depends on sealed_ok's first-line guard (likely isinstance check, inferred from the None test passing), which is not visible in the diff.",
+   "evidence": "    return row if sealed_ok(row) and row.get(\"status\") == \"FLAGGED\" else None",
+   "fix": "Move the sealed_ok check inside the try block, or add an isinstance(row, dict) guard before calling sealed_ok: `if not isinstance(row, dict): return None`.",
+   "agree": [],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0141294156,
+ "out_dir": "/home/ultron/worktrees/r148-runtime/docs/audits/pulse-sentence-law/batch115_r148_runtime/cycle1/qwen27b/heimdall"
+}

@@ -54,6 +54,8 @@ from zoneinfo import ZoneInfo
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PIPELINE = os.path.join(REPO, "pipeline")
 ET = ZoneInfo("America/New_York")
+sys.path.insert(0, PIPELINE)
+import heartbeat  # noqa: E402  (ruling 133 R16)
 
 PREFIX = "pipeline_"
 PASS_S = 300
@@ -80,7 +82,14 @@ PATHS = {
     "builds": os.path.join(BUILDER_ROOT, "tests", "package", "proof", "ledger_*"),
     "spend": os.path.join(BUILDER_ROOT, "tests", "package", "proof", "DAY118_LEDGER.json"),
     "wordpass_log": os.path.join(REPO, "logs", "word_pass_worker.log"),
+    "heartbeats": heartbeat.DIR,
+    "transcript_log": os.path.join(REPO, "logs", "transcript_ingest.log"),
 }
+# ruling 133 R16: the kept-alive services (heartbeat name, its tmux session) and the transcript run (cron */30), whose
+# sign of life is its log: stale after two missed runs
+HEARTBEATS = (("scorer", "pipeline_pp_scorer"), ("judge", "pipeline_pp_judge"),
+              ("lock_precheck", "pipeline_pp_lockcheck"), ("word_pass", WORDPASS_SESSION))
+TRANSCRIPT_KEY, TRANSCRIPT_STALE_S = "transcript_ingest", 65 * 60
 
 BORDER = re.compile(r"^\s*─{8,}")
 PROMPT = re.compile(r"^\s*❯(?:\s|$)")
@@ -430,6 +439,57 @@ def spend_findings(state, now, paths):
 
 # ── a pass ──
 
+def _alive(pid):
+    try:
+        os.kill(int(pid), 0)                       # signal 0: nothing is sent, the pid is only looked up
+        return True
+    except PermissionError:
+        return True
+    except (OSError, TypeError, ValueError):
+        return False
+
+
+def heartbeat_findings(state, now, paths):
+    """R16 (ruling 133): a service whose heartbeat is older than heartbeat.STALE_S, or missing that long, or alive
+    with no finished pass for heartbeat.PASS_STALE_S; the transcript run's log older than TRANSCRIPT_STALE_S.
+    -> (findings, the view for the status)."""
+    out, view, miss = [], {}, state.setdefault("heartbeat_missing", {})
+    for name, session in (HEARTBEATS if paths.get("heartbeats") else ()):     # a paths map without them checks none
+        try:
+            with open(os.path.join(paths["heartbeats"], f"{name}.json")) as f:
+                rec = json.load(f)
+            at, pid = float(rec["at"]), rec.get("pid")
+            pass_at = None if rec.get("pass_at") is None else float(rec["pass_at"])
+            if not all(0 < t < 1e11 for t in (at, pass_at) if t is not None):     # NaN, inf, out of range (cycle 2)
+                raise ValueError("a time out of range")
+        except (OSError, ValueError, KeyError, TypeError, AttributeError):
+            since = miss.setdefault(name, now)
+            view[name] = {"missing_since": hm(since)}
+            if now - since > heartbeat.STALE_S:
+                out.append(finding(session, "HEARTBEAT", f"{name}: no heartbeat written", since))
+            continue
+        miss.pop(name, None)
+        alive = _alive(pid)
+        view[name] = {"pid": pid, "alive": alive, "age_s": round(now - at),
+                      "pass_age_s": round(now - pass_at) if pass_at is not None else None,
+                      "passes": rec.get("passes")}
+        if now - at > heartbeat.STALE_S:
+            out.append(finding(session, "HEARTBEAT", f"{name}: no heartbeat since {hm(at)} (pid {pid} "
+                                                     f"{'still there' if alive else 'gone'})", at))
+        elif pass_at is not None and now - pass_at > heartbeat.PASS_STALE_S:
+            out.append(finding(session, "HEARTBEAT", f"{name}: alive (pid {pid}) but no finished pass since "
+                                                     f"{hm(pass_at)}", pass_at))
+    if not paths.get("transcript_log"):
+        return out, view
+    last = mtime(paths["transcript_log"])
+    view[TRANSCRIPT_KEY] = {"log_age_s": round(now - last) if last is not None else None}
+    if last is None or now - last > TRANSCRIPT_STALE_S:
+        out.append(finding(TRANSCRIPT_KEY, "HEARTBEAT",
+                           f"the transcript run (cron */30) last wrote its log {hm(last) if last else 'never'}",
+                           last if last is not None else now))
+    return out, view
+
+
 def default_send(key, kinds, line, now):
     if PIPELINE not in sys.path:
         sys.path.insert(0, PIPELINE)
@@ -515,6 +575,11 @@ def run_pass(state, now=None, paths=None, send=default_send, waiting=rows_waitin
         findings += f
     except Exception as e:
         status["errors"].append(f"spend: {type(e).__name__}: {e}")
+    try:
+        f, status["heartbeats"] = heartbeat_findings(state, now, paths)
+        findings += f
+    except Exception as e:
+        status["errors"].append(f"heartbeats: {type(e).__name__}: {e}")
     status["findings"] = findings
     for f in findings:
         log_line(paths["log"], f"{f['session']} {f['kind']}: {f['what']} (since {f['since_et']})")

@@ -95,6 +95,24 @@ def sealed_ok(row):
         and all(isinstance(x, str) and x.strip() for x in f)
 
 
+RUNTIME_FLAG_FLOOR_S = 30.0       # RULING 148 (1) (orchestrator 2026-11-18 '09:38'): a line-up of 30.0 s or more may seal;
+#                                   between 30.0 and 36.7 s the builder seals its "runtime" row FLAGGED ('This video
+#                                   runs NN seconds, shorter than usual.'); under 30 s it is still refused (the seal)
+
+
+def flagged_runtime_row(run_dir):
+    """RULING 148 (1): the sealed pin's gates["runtime"] row (run_dir/PINNED_DECISION.json, as pinned.prepare wrote the
+    pin) when it is FLAGGED by sealed_ok's rule (plain-word flags, never replayed): the builder sealed a line-up of 30.0 s
+    or more that is shorter than usual, and PBX reads its sentence. None otherwise: no pinned decision, a PASS or a
+    malformed row (fail closed: the render's usual runtime rules stand)."""
+    try:
+        with open(os.path.join(run_dir, "PINNED_DECISION.json")) as f:
+            row = ((json.load(f).get("pin") or {}).get("moments_package") or {}).get("gates", {}).get("runtime")
+    except (OSError, TypeError, ValueError, AttributeError):
+        return None
+    return row if sealed_ok(row) and row.get("status") == "FLAGGED" else None
+
+
 def question_hook_join(edl):
     """Ruling 37 (orchestrator 2026-11-13 '03:42'): (ok, why) for the join that follows a question hook, from the
     package's SEALED gate rows (moments_gates): the clips-alone verdict (gates.medley) measured, exactly PASS, not

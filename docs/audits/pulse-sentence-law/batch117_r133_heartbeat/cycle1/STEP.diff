@@ -1,0 +1,267 @@
+diff --git a/pipeline/conftest.py b/pipeline/conftest.py
+index d2221e5db..a7b5dd3fb 100644
+--- a/pipeline/conftest.py
++++ b/pipeline/conftest.py
+@@ -15,2 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))     # gpu0 lives
+ 
++# ruling 133 R16: a test never writes the services' live heartbeats (pipeline/heartbeat.py reads this at import)
++if "PP_HEARTBEAT_DIR" not in os.environ:
++    import tempfile as _tf
++    os.environ["PP_HEARTBEAT_DIR"] = _tf.mkdtemp(prefix="pp_heartbeat_")
++
+ _CVD = os.environ.get("CUDA_VISIBLE_DEVICES")
+diff --git a/pipeline/heartbeat.py b/pipeline/heartbeat.py
+new file mode 100644
+index 000000000..1f4a60293
+--- /dev/null
++++ b/pipeline/heartbeat.py
+@@ -0,0 +1,75 @@
++"""Ruling 133 R16: a heartbeat for every kept-alive service, read by tools/session_watchdog.py.
++
++Each service writes <DIR>/<service>.json: {service, pid, at, pass_at, passes, info}.
++- `at` is the process's last sign of life. start() refreshes it every BEAT_S from a daemon thread, so a long lease wait
++  or a render's 50 minutes never reads as death. A process that exits or is frozen stops beating.
++- `pass_at` is the end of the service's last loop pass (mark_pass). A process that beats but finishes no pass for
++  PASS_STALE_S is stuck in a pass.
++A heartbeat never stops its service: a failed write is printed once and the service goes on.
++"""
++import json
++import os
++import threading
++import time
++
++DIR = os.environ.get("PP_HEARTBEAT_DIR", "/tmp/pulse_heartbeats")
++BEAT_S = 60
++STALE_S = 20 * 60          # R16: a heartbeat older than 20 minutes is a Telegram line
++PASS_STALE_S = 90 * 60     # alive, but no finished pass: longer than a render (about 50 min) plus a lease wait
++
++_state = {}                # service -> {"pass_at", "passes", "info"} of this process
++_lock = threading.Lock()
++_warned = set()
++
++
++def path(service):
++    return os.path.join(DIR, f"{service}.json")
++
++
++def _write(service, now=None):
++    with _lock:
++        s = _state.setdefault(service, {"pass_at": None, "passes": 0, "info": {}})
++        rec = {"service": service, "pid": os.getpid(), "at": time.time() if now is None else now, **s}
++    try:
++        os.makedirs(DIR, exist_ok=True)
++        tmp = f"{path(service)}.tmp{os.getpid()}.{threading.get_ident()}"
++        with open(tmp, "w") as f:
++            json.dump(rec, f, default=str)
++        os.replace(tmp, path(service))
++    except OSError as e:
++        if service not in _warned:
++            _warned.add(service)
++            print(f"heartbeat {service}: cannot write {path(service)}: {e} (the service goes on)", flush=True)
++    return rec
++
++
++def mark_pass(service, now=None, **info):
++    """The end of one loop pass: pass_at, the pass count and this pass's info, written at once."""
++    t = time.time() if now is None else now
++    with _lock:
++        s = _state.setdefault(service, {"pass_at": None, "passes": 0, "info": {}})
++        s.update(pass_at=t, passes=s["passes"] + 1, info=info)
++    return _write(service, now=t)
++
++
++def start(service, beat_s=BEAT_S, stop=None):
++    """Write now, then every beat_s from a daemon thread while the process lives (or until `stop`, an Event, is set)."""
++    _write(service)
++    stop = stop or threading.Event()
++
++    def loop():
++        while not stop.wait(beat_s):
++            _write(service)
++    t = threading.Thread(target=loop, name=f"heartbeat-{service}", daemon=True)
++    t.start()
++    return t
++
++
++def read(service):
++    """The service's last record, or None (missing or unreadable)."""
++    try:
++        with open(path(service)) as f:
++            rec = json.load(f)
++        return rec if isinstance(rec, dict) else None
++    except (OSError, ValueError):
++        return None
+diff --git a/pipeline/judge_serve.py b/pipeline/judge_serve.py
+new file mode 100644
+index 000000000..bf60d731c
+--- /dev/null
++++ b/pipeline/judge_serve.py
+@@ -0,0 +1,32 @@
++"""Ruling 133 R16: the judge service (ruling 87) with its heartbeat.
++
++local_judge.py is not edited: judge_sha hashes it, and any change would re-ask every judge verdict. This launcher
++runs local_judge.main(["serve"]) unchanged, with a heartbeat thread and a pass mark after each serve_once.
++    cd /home/ultron/protocol_pulse && CUDA_VISIBLE_DEVICES=0 python3 pipeline/judge_serve.py 2>&1 | tee -a data/local_judge/serve.log
++"""
++import os
++import sys
++
++sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
++import heartbeat  # noqa: E402
++import local_judge  # noqa: E402
++
++_serve_once = local_judge.serve_once
++
++
++def serve_once(log=print):
++    n = _serve_once(log=log)
++    heartbeat.mark_pass("judge", served=n)
++    return n
++
++
++def main():
++    if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":       # refused before any heartbeat, as local_judge refuses
++        sys.exit("the local judge runs on GPU0: CUDA_VISIBLE_DEVICES=0 (law L-r)")
++    local_judge.serve_once = serve_once                     # main() looks serve_once up at call time
++    heartbeat.start("judge")
++    return local_judge.main(["serve"])
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+index 3bb4cb093..e5a6e6004 100644
+--- a/pipeline/lock_precheck.py
++++ b/pipeline/lock_precheck.py
+@@ -70,2 +70,3 @@ REPO = os.path.dirname(PIPELINE)
+ sys.path.insert(0, PIPELINE)
++import heartbeat  # noqa: E402  (ruling 133 R16)
+ import local_judge as LJ  # noqa: E402  (the yield flag)
+@@ -751,2 +752,3 @@ def main(argv=None):
+         n = serve_once(log=log)
++        heartbeat.mark_pass("lock_precheck", served=n)       # ruling 133 R16 (the service is a once-loop)
+         if a.mode == "once":
+diff --git a/pipeline/stand_alone_scorer.py b/pipeline/stand_alone_scorer.py
+index 23dc60891..fc96001c6 100644
+--- a/pipeline/stand_alone_scorer.py
++++ b/pipeline/stand_alone_scorer.py
+@@ -42,2 +42,3 @@ REPO = os.path.dirname(PIPELINE)
+ sys.path.insert(0, PIPELINE)
++import heartbeat  # noqa: E402  (ruling 133 R16)
+ import local_judge as LJ  # noqa: E402  (the yield flag)
+@@ -292,2 +293,4 @@ def main(argv=None):
+     print(f"pin-stage scorer: {ROOT} | scorer_sha {sha[:12]}", flush=True)
++    if a.cmd == "serve":
++        heartbeat.start("scorer")                              # ruling 133 R16
+     while True:
+@@ -305,2 +308,4 @@ def main(argv=None):
+         n = serve_once(log=log)
++        if a.cmd == "serve":
++            heartbeat.mark_pass("scorer", served=n)
+         if open_ is not None and not any(os.path.basename(p).startswith("cand.") for p in pending()):
+diff --git a/pipeline/telegram.py b/pipeline/telegram.py
+index be9a54bcc..a054b8914 100644
+--- a/pipeline/telegram.py
++++ b/pipeline/telegram.py
+@@ -998,3 +998,3 @@ WATCHDOG_HEAD = "WATCHDOG "
+ WATCHDOG_GAP_S = 3600
+-WATCHDOG_KINDS = ("STUCK", "LOOP", "LONG_TURN", "IDLE_WITH_WORK", "CONTEXT", "SPEND")
++WATCHDOG_KINDS = ("STUCK", "LOOP", "LONG_TURN", "IDLE_WITH_WORK", "CONTEXT", "SPEND", "HEARTBEAT")   # R16: 133
+ WATCHDOG_NIGHT_KINDS = ("IDLE_WITH_WORK", "SPEND")      # the order's (4) and (6): the only lines sent 00:00-07:00 ET
+diff --git a/pipeline/word_pass_worker.py b/pipeline/word_pass_worker.py
+index 1d906d0f7..d8b9a4359 100644
+--- a/pipeline/word_pass_worker.py
++++ b/pipeline/word_pass_worker.py
+@@ -53,2 +53,3 @@ PIPELINE = os.path.dirname(os.path.abspath(__file__))
+ sys.path.insert(0, PIPELINE)
++import heartbeat  # noqa: E402  (ruling 133 R16)
+ import transcript_store as ts  # noqa: E402
+@@ -494,2 +495,4 @@ def main(argv=None):
+         sys.exit("the word-pass worker runs on GPU1: CUDA_VISIBLE_DEVICES=1 (law L-r)")
++    if not a.once:
++        heartbeat.start("word_pass")                           # ruling 133 R16
+     while True:
+@@ -500,2 +503,4 @@ def main(argv=None):
+             rep = {"picked": 0}
++        if not a.once:
++            heartbeat.mark_pass("word_pass", picked=rep.get("picked"), blocked=rep.get("blocked"))
+         if a.once:
+diff --git a/tools/session_watchdog.py b/tools/session_watchdog.py
+index 5f755760d..b9b19693b 100644
+--- a/tools/session_watchdog.py
++++ b/tools/session_watchdog.py
+@@ -56,2 +56,4 @@ PIPELINE = os.path.join(REPO, "pipeline")
+ ET = ZoneInfo("America/New_York")
++sys.path.insert(0, PIPELINE)
++import heartbeat  # noqa: E402  (ruling 133 R16)
+ 
+@@ -82,3 +84,10 @@ PATHS = {
+     "wordpass_log": os.path.join(REPO, "logs", "word_pass_worker.log"),
++    "heartbeats": heartbeat.DIR,
++    "transcript_log": os.path.join(REPO, "logs", "transcript_ingest.log"),
+ }
++# ruling 133 R16: the kept-alive services (heartbeat name, its tmux session) and the transcript run (cron */30), whose
++# sign of life is its log: stale after two missed runs
++HEARTBEATS = (("scorer", "pipeline_pp_scorer"), ("judge", "pipeline_pp_judge"),
++              ("lock_precheck", "pipeline_pp_lockcheck"), ("word_pass", WORDPASS_SESSION))
++TRANSCRIPT_KEY, TRANSCRIPT_STALE_S = "transcript_ingest", 65 * 60
+ 
+@@ -432,2 +441,50 @@ def spend_findings(state, now, paths):
+ 
++def _alive(pid):
++    try:
++        os.kill(int(pid), 0)                       # signal 0: nothing is sent, the pid is only looked up
++        return True
++    except PermissionError:
++        return True
++    except (OSError, TypeError, ValueError):
++        return False
++
++
++def heartbeat_findings(state, now, paths):
++    """R16 (ruling 133): a service whose heartbeat is older than heartbeat.STALE_S, or missing that long, or alive
++    with no finished pass for heartbeat.PASS_STALE_S; the transcript run's log older than TRANSCRIPT_STALE_S.
++    -> (findings, the view for the status)."""
++    out, view, miss = [], {}, state.setdefault("heartbeat_missing", {})
++    for name, session in (HEARTBEATS if paths.get("heartbeats") else ()):     # a paths map without them checks none
++        try:
++            with open(os.path.join(paths["heartbeats"], f"{name}.json")) as f:
++                rec = json.load(f)
++            at, pass_at, pid = float(rec["at"]), rec.get("pass_at"), rec.get("pid")
++        except (OSError, ValueError, KeyError, TypeError):
++            since = miss.setdefault(name, now)
++            view[name] = {"missing_since": hm(since)}
++            if now - since > heartbeat.STALE_S:
++                out.append(finding(session, "HEARTBEAT", f"{name}: no heartbeat written", since))
++            continue
++        miss.pop(name, None)
++        alive = _alive(pid)
++        view[name] = {"pid": pid, "alive": alive, "age_s": round(now - at),
++                      "pass_age_s": round(now - float(pass_at)) if pass_at is not None else None,
++                      "passes": rec.get("passes")}
++        if now - at > heartbeat.STALE_S:
++            out.append(finding(session, "HEARTBEAT", f"{name}: no heartbeat since {hm(at)} (pid {pid} "
++                                                     f"{'still there' if alive else 'gone'})", at))
++        elif pass_at is not None and now - float(pass_at) > heartbeat.PASS_STALE_S:
++            out.append(finding(session, "HEARTBEAT", f"{name}: alive (pid {pid}) but no finished pass since "
++                                                     f"{hm(float(pass_at))}", float(pass_at)))
++    if not paths.get("transcript_log"):
++        return out, view
++    last = mtime(paths["transcript_log"])
++    view[TRANSCRIPT_KEY] = {"log_age_s": round(now - last) if last is not None else None}
++    if last is None or now - last > TRANSCRIPT_STALE_S:
++        out.append(finding(TRANSCRIPT_KEY, "HEARTBEAT",
++                           f"the transcript run (cron */30) last wrote its log {hm(last) if last else 'never'}",
++                           last if last is not None else now))
++    return out, view
++
++
+ def default_send(key, kinds, line, now):
+@@ -517,2 +574,7 @@ def run_pass(state, now=None, paths=None, send=default_send, waiting=rows_waitin
+         status["errors"].append(f"spend: {type(e).__name__}: {e}")
++    try:
++        f, status["heartbeats"] = heartbeat_findings(state, now, paths)
++        findings += f
++    except Exception as e:
++        status["errors"].append(f"heartbeats: {type(e).__name__}: {e}")
+     status["findings"] = findings

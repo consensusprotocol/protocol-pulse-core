@@ -1,0 +1,46 @@
+{
+ "question": "TASK: cycle 2 of the audit of batch 117 (Protocol Pulse, Python): service heartbeats for ruling 133 R16 (\"the watchdog heartbeat on every kept-alive service\": a Telegram line when a service's heartbeat is stale more than 20 min). Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.\n\nCYCLE 1 FOUND (qwen27b), NOW FIXED, SHOWN IN THIS DIFF:\n- F1: tools/session_watchdog.py heartbeat_findings converted pass_at with float() outside its guarded read, so one corrupted heartbeat file would have ended every heartbeat check of that watchdog pass. Now pass_at is parsed inside the try, and a record that is not a dict (AttributeError) reads as missing too. New test: test_an_unreadable_record_reads_as_missing_and_never_ends_the_check.\n- F2: judge_serve.py patches local_judge.serve_once; that works only if local_judge.main looks serve_once up at call time. Verified in the unchanged code: local_judge.py:330 is `n = serve_once(log=lambda m: ...)` inside main's `while True` loop, a module-global name read each pass. New test: test_the_real_local_judge_main_calls_the_wrapped_serve_once runs the REAL local_judge.main through the launcher.\n\nTHIS DIFF: the whole of heartbeat_findings as it now stands (session_watchdog.py, its constants HEARTBEATS / TRANSCRIPT_KEY / TRANSCRIPT_STALE_S, its call from run_pass inside its own try), and the heartbeat tests added since cycle 1. heartbeat.STALE_S = 1200 s, heartbeat.PASS_STALE_S = 5400 s (pipeline/heartbeat.py, unchanged since cycle 1).\n\nCHECK, AND ANSWER EACH:\nQ1. Is F1 fixed: can any content of a heartbeat file (any JSON, a list, strings in at / pass_at / pid, an empty file) raise out of heartbeat_findings?\nQ2. Does a fresh heartbeat with pass_at null (the thread has beaten, no pass finished yet) ever produce a finding before the record's `at` is 20 min old?\nQ3. Do the new tests prove what they claim (would each fail if its fix were reverted)?\nQ4. Any other defect in the shown code.\n\nOUTPUT: for each finding, severity (critical|high|medium|low), file:line, the concrete failure (inputs -> wrong result), and the fix. If none, say NONE for that question.\nREMINDER: only what the diff and the cited lines show; say when uncertain.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 251.8,
+   "cost": 0.0071719,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 258.0,
+   "cost": 0.0075343,
+   "parse_ok": false
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "medium",
+   "file": "tools/session_watchdog.py",
+   "line": 462,
+   "issue": "round(now - at) and round(now - pass_at) execute OUTSIDE the try/except. Python's json module accepts the tokens NaN and Infinity, so a heartbeat file containing {\"at\": NaN} or {\"at\": Infinity} (or the same in pass_at) parses successfully, exits the try block, then round(float('nan')) raises ValueError or round(float('inf')) raises OverflowError. Neither is caught by the inner except (they occur after it), so the exception propagates out of the for-loop and aborts the entire heartbeat_findings call for every service in that pass \u2014 the same failure mode F1 was meant to eliminate. It is only caught by the outer try in run_pass, which records an error but skips all remaining services.",
+   "evidence": "at, pid = float(rec[\"at\"]), rec.get(\"pid\")\n            pass_at = None if rec.get(\"pass_at\") is None else float(rec[\"pass_at\"])\n        except (OSError, ValueError, KeyError, TypeError, AttributeError):\n            ...\n            continue\n        miss.pop(name, None)\n        alive = _alive(pid)\n        view[name] = {\"pid\": pid, \"alive\": alive, \"age_s\": round(now - at),\n                      \"pass_age_s\": round(now - pass_at) if pass_at is not None else None,",
+   "fix": "After the except/continue block, add a finiteness guard before the arithmetic: import math at the top, then insert  if not math.isfinite(at) or (pass_at is not None and not math.isfinite(pass_at)):  and treat the record as missing (same setdefault/continue path as the except block). Alternatively, move the view[name] = {...} construction inside the try block so that any exception from round() or hm() is caught by the existing except clause.",
+   "agree": [],
+   "disagree": []
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0147062,
+ "out_dir": "cycle2/qwen27b/heimdall"
+}

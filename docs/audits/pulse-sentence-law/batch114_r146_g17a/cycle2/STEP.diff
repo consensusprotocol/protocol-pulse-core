@@ -1,0 +1,406 @@
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+index 6f02ff97..3bb4cb09 100644
+--- a/pipeline/lock_precheck.py
++++ b/pipeline/lock_precheck.py
+@@ -80,7 +80,7 @@ SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
+ VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
+ CODE = ("select_passages.py", "punctuation.py", "pinned.py", "sentence_law.py", "canon.py", "gpu0.py")
+ KEY = ("role", "approved_text", "trimmed_leading", "untrimmed_start")   # the request fields an answer depends on
+-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131 + ruling 135 + ruling 142"   # what an entry's verdict judged; others never reused
++RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + ruling 131 + ruling 135 + ruling 142 + ruling 146"   # what an entry's verdict judged; others never reused
+ EXTRA = os.environ.get("PP_LOCK_PRECHECK_EXTRA", "/home/ultron/worktrees/pp-selectid/tests/package/proof/lock_requests")
+ # RULING 67's class, as the builder's pipeline/attest.py defines it (FUNCTION_WORDS and carry_class, copied in
+ # behaviour): English closed-class words; NO negation, number or ordinal (those are law L-v 2's critical tokens).
+@@ -603,7 +603,8 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
+                      "as_spoken": spoken, "spoken_text": sealed if outcome == "adopt_spoken" else None,
+                      "relisten": spoken.get("relisten") if spoken else None,      # ruling 103: both short readings
+                      "unstable_second_reading": spoken.get("unstable_second_reading") if spoken else None,   # 105
+-                     "cut": {k: cut.get(k) for k in ("cut_in", "cut_out", "cut_duration", "lead_in_pad_s", "error")}
++                     "cut": {**{k: cut.get(k) for k in ("cut_in", "cut_out", "cut_duration", "lead_in_pad_s", "error")},
++                             "hook_lead_short": (cut.get("hook_lead") or {}).get("short")}   # ruling 146 (2): a flag
+                      if cut else None,
+                      "rules": RULES, "scribe_usd": round(sum(spent), 4), "reused": False,
+                      "timing": {"download_s": dl.get(vid, 0.0), "decode_s": dsec, "lock_s": round(time.time() - t, 1)},
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 067a3b42..49a20818 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -173,6 +173,7 @@ class Capture(io.TextIOBase):
+ # the top of the Telegram note) instead of holding; a HARD one holds as before. edl_rules: a failing rule holds unless
+ # it is named here (an unknown or new rule fails closed as HARD); R2 (a passage twice), R5 (clip length), R6 (credits)
+ # and R7 (a layout that can render) stay HARD.
++HOOK_ABRUPT = "The opening clip may start abruptly."   # ruling 146 (2) (orchestrator 2026-11-18 '07:55'), verbatim
+ EDL_SOFT = {      # ruling 138 (3): what the check doubted, about which clip ({Who}: the clips its reason names)
+     "rule_r1": "{Who} ends on a question rather than a statement.",
+     "rule_r3": "A voiceover line follows {who}, which ends on a question.",
+@@ -234,6 +235,37 @@ def flag(run, text, detail=None):
+     run.prov.setdefault("review_flags", []).append({"flag": text, "detail": detail})
+ 
+ 
++def flag_short_hook_cut(run, cuts):
++    """RULING 146 (2) at the cut: a hook whose cut keeps under 80 ms of quiet before its first word (lock_cut's
++    hook_lead "short") is flagged HOOK_ABRUPT, never held."""
++    for c in cuts:
++        if isinstance(c.get("hook_lead"), dict) and c["hook_lead"].get("short"):
++            flag(run, HOOK_ABRUPT, f"G17a at the cut (ruling 146 (2)): {c['hook_lead']['short']}")
++
++
++def snap_verdict(run, clip_id, snap):
++    """Ruling 71: a shot snap that cannot keep the required quiet HOLDS; RULING 146 (2): one that keeps it but not
++    the hook's 80 ms (shot_snap's "hook_lead_short") is flagged HOOK_ABRUPT."""
++    if snap.get("refused"):
++        raise Hold(f"{clip_id}: shot snap refused (ruling 71): {snap['refused']}")
++    if snap.get("hook_lead_short"):
++        flag(run, HOOK_ABRUPT, f"shot snap (ruling 146 (2)): {snap['hook_lead_short']}")
++
++
++def g17a_hook_lead_soft(run, ok, table):
++    """RULING 146 (2) in the G17 row: G17a's table (sentence_law.gate_g17_prepared, unchanged) with the HOOK's lead
++    alone SOFT: a hook row failing only on its lead is marked lead_soft and flagged HOOK_ABRUPT, and the row's G17a
++    part judges every other row (each tail, every other lead) as before. -> that part's ok."""
++    soft = [r for r in table if r["segment"] == "hook" and not r["lead_ok"] and r["tail_ok"]]
++    if not soft:
++        return ok
++    for r in soft:
++        r["lead_soft"] = "ruling 146 (2)"
++    flag(run, HOOK_ABRUPT, f"G17a (ruling 146 (2)): the hook keeps {soft[0]['lead_ms']} ms of quiet before its first "
++                           f"word (< {int(round(L.HEAD_LEAD_MIN_S * 1000))} ms)")
++    return all(r["pass"] for r in table if r["segment"] != "hook")
++
++
+ class Run:
+     def __init__(self, run_dir):
+         self.dir = run_dir
+@@ -645,6 +677,7 @@ def stage_cut(run):
+         L.write_lock_cut_table(run.dir)
+     with open(os.path.join(run.dir, "cuts_final.json")) as f:
+         cuts = json.load(f)
++    flag_short_hook_cut(run, cuts)
+     report, fails = [], []
+     for c in cuts:
+         src = os.path.join(run.dir, "sources", f"{c['video_id']}.mp4")
+@@ -920,8 +953,7 @@ def stage_prepare(run, cuts):
+         if ok1 and ok2:                         # V1 (run 6): no frame of a neighbouring shot outside the speech
+             import shot_snap
+             snap = shot_snap.apply(clip, c, FPS, NVENC_QP_INTERMEDIATE)
+-            if snap.get("refused"):             # ruling 71: a snap that cannot keep the required quiet
+-                raise Hold(f"{c['clip_id']}: shot snap refused (ruling 71): {snap['refused']}")
++            snap_verdict(run, c["clip_id"], snap)
+             if snap["snapped"]:
+                 print(f"  {c['clip_id']}: shot snap: {snap['why']}")
+         rec = {"clip_id": c["clip_id"], "sha256": sha256(clip), "contract": d1,
+@@ -1318,6 +1350,7 @@ def stage_gates(run, final16, man16, final9, man9):
+     # G17 ONSET/TAIL: prepared clips (>= 80 ms genuine lead-in/tail) + each final (edge words >= 85 %)
+     g17a_ok, g17a = L.gate_g17_prepared({c["clip_id"]: os.path.join(qa, f"final_{c['clip_id']}.mp4")
+                                           for c in cuts})
++    g17a_ok = g17a_hook_lead_soft(run, g17a_ok, g17a)
+     g17b16_ok, g17b16 = L.gate_g17_output(final16, segs16, cuts, run.dir)
+     g17b9_ok, g17b9 = L.gate_g17_output(final9, segs9, cuts, run.dir) if final9 else (None, None)
+     # G17c (law L-b): the first and last word of every prepared clip, with their decay, at full level
+diff --git a/pipeline/sentence_law.py b/pipeline/sentence_law.py
+index 55e4c630..678dd58a 100644
+--- a/pipeline/sentence_law.py
++++ b/pipeline/sentence_law.py
+@@ -810,8 +810,8 @@ def hook_lead(src, plan, pick, sa=None):
+     3. the D1 room-tone pad (LEAD_PAD_S) before a candidate whose quiet is genuine ALL the way from the cut to the
+        first word, and only when the padded head itself measures >= 80 ms by G17a's measure (padded_lead_ms): the
+        source's own room tone must count as genuine quiet.
+-    4. otherwise no legal cut can open this hook: the entry is refused here, before any render, with the measured
+-       reason. (Pin #1: digital zeros up to about 40 ms before the first word, and the word record puts the word's
++    4. otherwise no legal cut can open this hook: "refused" with the measured reason. RULING 146 (2) (orchestrator
++       2026-11-18 '07:55'): lock_cut then keeps the planned cut, marked "short" (SOFT, flagged), never a refusal. (Pin #1: digital zeros up to about 40 ms before the first word, and the word record puts the word's
+        start before the zeros end, so no legal cut lies after them.)
+     Only a hook that is not at a file head comes here (a file head has its own D1 rule in edge_plan). Returns the
+     record the cut table keeps; "refused" carries why."""
+@@ -882,7 +882,11 @@ def lock_cut(src, words, lock, label):
+     """One locked segment's cut, exactly as the render places it: edge_plan (ruling 73's edges included),
+     accepted_cut, ruling 28's hook_lead for the hook, ruling 33's onset rule for a trimmed word. -> the fields the
+     cut table records ('error', verified False, when the segment cannot be cut). The one code path of
+-    write_lock_cut_table and the pin-stage pre-check (ruling 73 (c), pipeline/lock_precheck.py)."""
++    write_lock_cut_table and the pin-stage pre-check (ruling 73 (c), pipeline/lock_precheck.py).
++    RULING 146 (2) (orchestrator 2026-11-18 '07:55'): G17a's quiet before the hook's first word is SOFT. A hook that
++    hook_lead cannot give 80 ms keeps the planned cut (accepted_cut's, as any clip), its record marked "short" with
++    the measured reason; the render flags 'The opening clip may start abruptly.' It is never refused for that. A cut
++    mid-word stays HARD (accepted_cut, G17b, G17c)."""
+     plan = edge_plan(SourceAudio(src), words, lock["i0"], lock["i1"], trimmed=lock.get("trimmed_leading"))
+     out = {"pause_in": plan["in"].get("pause"), "pause_out": plan["out"].get("pause")}
+     if not plan["ok"]:
+@@ -898,8 +902,11 @@ def lock_cut(src, words, lock, label):
+     fade_in_ms, pad_s, hook, valley_in = pick["fade_in_ms"], plan["in"]["lead_in_pad_s"], None, pick["valley_in"]
+     if label == "hook" and not plan["in"].get("file_head"):         # ruling 28: the hook keeps 80 ms (D1)
+         hook = hook_lead(src, plan, pick)
+-        if hook.get("refused"):                                    # fail closed BEFORE any render (G17a)
+-            return {**out, "verified": False, "error": f"hook lead (ruling 28): {hook['refused']}", "hook_lead": hook}
++        if hook.get("refused"):                                    # ruling 146 (2): SOFT, the planned cut stands
++            hook = {**{k: v for k, v in hook.items() if k != "refused"}, "short": hook["refused"],
++                    "cut_in": pick["cut_in"], "fade_in_ms": pick["fade_in_ms"], "pad_s": plan["in"]["lead_in_pad_s"],
++                    "lead_ms": hook["planned_lead_ms"], "rule": "ruling 146 (2)",
++                    "how": "the planned cut stands under 80 ms: flagged, not refused (ruling 146 (2))"}
+         if hook["cut_in"] != pick["cut_in"]:          # a moved cut is a cut_accept-clean candidate, never a
+             valley_in = False                          # valley (audit batch 56 C1)
+         cut_in, fade_in_ms, pad_s = hook["cut_in"], hook["fade_in_ms"], hook["pad_s"]
+diff --git a/pipeline/shot_snap.py b/pipeline/shot_snap.py
+index cf96e1e3..a730dcd6 100644
+--- a/pipeline/shot_snap.py
++++ b/pipeline/shot_snap.py
+@@ -17,7 +17,10 @@ vertical_layout.classify's plan). Pin 0c68b589's hook frame 406: the source's pu
+ 0.2718 in 16:9 and 0.3172 in the 9:16 crop, so prepare kept it and G19 held the vertical. The snap must keep the
+ required quiet of the speaker's own shot after the last word (sentence_law.TAIL_MIN_S) and before the first
+ (HEAD_LEAD_MIN_S for the hook, which starts playback; LEAD_MIN_S otherwise). If it cannot, the clip is refused
+-with that reason (a HOLD in prepare)."""
++with that reason (a HOLD in prepare).
++RULING 146 (orchestrator 2026-11-18 '07:55') (2): the hook's HEAD_LEAD_MIN_S is SOFT. A snap that keeps LEAD_MIN_S but
++not HEAD_LEAD_MIN_S before the hook's first word is applied and marked "hook_lead_short" (prepare flags 'The opening
++clip may start abruptly.'); below LEAD_MIN_S, and every tail rule, it is refused as before."""
+ import os
+ import re
+ import subprocess
+@@ -84,7 +87,7 @@ def apply(clip, cut, fps, qp):
+     if head == 0 and tail == n:
+         return rec
+     import sentence_law as SL
+-    lead_min = SL.HEAD_LEAD_MIN_S if cut.get("clip_id") == "hook" else SL.LEAD_MIN_S
++    lead_min = SL.LEAD_MIN_S                   # ruling 146 (2): the hook's HEAD_LEAD_MIN_S is soft (marked below)
+     short = ([f"the speaker's own shot starts {on - head / fps:.3f} s before the first word (< {lead_min:.3f} s)"]
+              if head and on - head / fps < lead_min else []) + \
+             ([f"the speaker's own shot ends {tail / fps - off:.3f} s after the last word (< {SL.TAIL_MIN_S:.3f} s)"]
+@@ -92,6 +95,9 @@ def apply(clip, cut, fps, qp):
+     if short:                                  # ruling 71: the snap cannot keep the required quiet: refused, a HOLD
+         rec["refused"] = "; ".join(short)
+         return rec
++    if cut.get("clip_id") == "hook" and head and on - head / fps < SL.HEAD_LEAD_MIN_S:     # ruling 146 (2): SOFT
++        rec["hook_lead_short"] = (f"the speaker's own shot starts {on - head / fps:.3f} s before the hook's first word "
++                                  f"(< {SL.HEAD_LEAD_MIN_S:.3f} s): flagged, not refused (ruling 146 (2))")
+     import gpu0
+     gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident (an encode follows)
+     vf = f"trim=start_frame={head}:end_frame={tail},setpts=PTS-STARTPTS,tpad=start_mode=clone:start={head}:" \
+diff --git a/pipeline/test_hook_lead.py b/pipeline/test_hook_lead.py
+index 40e0499c..3332aaec 100644
+--- a/pipeline/test_hook_lead.py
++++ b/pipeline/test_hook_lead.py
+@@ -1,8 +1,9 @@
+ #!/usr/bin/env python3
+ """Ruling 28 (orchestrator 2026-11-13 '01:55'): the hook's lead decided at the cut by G17a's own measure.
+ real fixtures  pin #1's hook (Sjb6lUiL0m4: digital zeros of a hard edit up to ~40 ms before the first word; a gated
+-               source whose room tone dips to digital silence) is REFUSED before any render, with the measured reason,
+-               and its clips keep their cuts; the medley reference's hook (260 ms of lead) keeps its planned cut
++               source whose room tone dips to digital silence) keeps its planned cut, marked "short" with the measured
++               reason (RULING 146 (2), orchestrator 2026-11-18 '07:55': SOFT, flagged; it was refused), and its clips
++               keep their cuts; the medley reference's hook (260 ms of lead) keeps its planned cut
+ logic          a planned cut with >= 80 ms stands; else the first legal, neighbour-clear candidate with >= 80 ms; else
+                the D1 pad only where the padded head measures >= 80 ms; else refused"""
+ import json
+@@ -32,15 +33,17 @@ def scratch(run):
+ 
+ class TestHookLeadReal(unittest.TestCase):
+     @unittest.skipUnless(os.path.isdir(os.path.join(PIN1, "sources")), "pin #1's run is not on this machine")
+-    def test_pin1s_hook_is_refused_before_any_render_and_its_clips_keep_their_cuts(self):
++    def test_pin1s_hook_keeps_its_planned_cut_marked_short_and_its_clips_keep_their_cuts(self):   # ruling 146 (2)
+         d = scratch(PIN1)
+         self.addCleanup(shutil.rmtree, d)
+         old = {c["clip_id"]: c for c in json.load(open(os.path.join(PIN1, "cuts_final.json")))}
+         new = {c["clip_id"]: c for c in L.write_lock_cut_table(d)}
+         h = new["hook"]
+-        self.assertFalse(h["verified"])
+-        self.assertIn("hook lead (ruling 28): no legal cut in the pause keeps 80 ms", h["error"])
+-        self.assertIn("the D1 room-tone pad does not give it either: G17a measures 20 ms at 14.810", h["error"])
++        self.assertTrue(h["verified"], h.get("error"))
++        self.assertNotIn("error", h)
++        self.assertEqual(h["cut_in"], h["hook_lead"]["planned_cut_in"])
++        self.assertIn("no legal cut in the pause keeps 80 ms", h["hook_lead"]["short"])
++        self.assertIn("the D1 room-tone pad does not give it either: G17a measures 20 ms at 14.810", h["hook_lead"]["short"])
+         for k in ("clip_01", "clip_02"):
+             self.assertEqual((new[k]["cut_in"], new[k]["cut_out"]), (old[k]["cut_in"], old[k]["cut_out"]))
+ 
+diff --git a/pipeline/test_lock_precheck.py b/pipeline/test_lock_precheck.py
+index 9afe99e9..15e5fef7 100644
+--- a/pipeline/test_lock_precheck.py
++++ b/pipeline/test_lock_precheck.py
+@@ -981,3 +981,22 @@ class TestBatch109EmptySource(Base):
+         self.assertEqual(e["outcome"], "hold")
+         self.assertIn("range outside the source file", e["reason"])
+ 
++
++class TestRuling146(Base):
++    """RULING 146 (2) (orchestrator 2026-11-18 '07:55'): G17a's quiet before the hook's first word is SOFT. The render's
++    cut keeps a hook it cannot give 80 ms (lock_cut's hook_lead "short"); the pre-check records it for the builder's
++    flag and never holds on it."""
++    SHORT = "no legal cut in the pause keeps 80 ms of genuine quiet before the hook's first word (best 30 ms)"
++
++    def test_a_hook_cut_short_of_80_ms_passes_and_is_recorded(self):
++        self.cut = {**self.cut, "hook_lead": {"short": self.SHORT, "lead_ms": 30, "rule": "ruling 146 (2)"}}
++        self.request(approved_text=ATTESTED, role="hook")
++        LP.serve_once(log=self.log)
++        e = self.entry(ATTESTED)
++        self.assertEqual(e["outcome"], "no_difference", e)
++        self.assertEqual((e["cut"]["cut_in"], e["cut"]["hook_lead_short"]), (15.2, self.SHORT))
++
++    def test_a_clip_records_no_short_lead(self):
++        self.request(approved_text=ATTESTED)
++        LP.serve_once(log=self.log)
++        self.assertIsNone(self.entry(ATTESTED)["cut"]["hook_lead_short"])
+diff --git a/pipeline/test_ruling146_g17a.py b/pipeline/test_ruling146_g17a.py
+new file mode 100644
+index 00000000..020387ed
+--- /dev/null
++++ b/pipeline/test_ruling146_g17a.py
+@@ -0,0 +1,126 @@
++#!/usr/bin/env python3
++"""RULING 146 (2) (orchestrator 2026-11-18 '07:55'): G17a, the quiet before the hook's first word, is SOFT: the render
++flags 'The opening clip may start abruptly.' and never holds on it. A cut mid-word stays HARD.
++lock_cut     a hook hook_lead cannot give 80 ms keeps the planned cut (accepted_cut's), marked "short"; a segment
++             with no clean cut is still refused
++run_fresh    the cut table's short hook, a shot snap short of the hook's 80 ms and G17a's hook row each flag (one
++             flag in all); every other G17a row, every tail and a refused snap judge as before"""
++import os
++import sys
++import types
++import unittest
++from unittest import mock
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++import run_fresh as RF  # noqa: E402
++import sentence_law as L  # noqa: E402
++
++ABRUPT = "The opening clip may start abruptly."          # the ruling's words
++SHORT = ("no legal cut in the pause keeps 80 ms of genuine quiet before the hook's first word (best 30 ms), and no "
++         "legal cut has genuine quiet from the cut to the word for a D1 pad to join (digital zeros lie between)")
++
++
++class TestLockCut(unittest.TestCase):
++    PLAN = {"ok": True, "in": {"pause": [1.0, 1.3], "lead_in_pad_s": 0.0, "cut_lo": 1.0, "cut_hi": 1.3},
++            "out": {"pause": [9.0, 9.4], "cut_lo": 9.0, "cut_hi": 9.4}}
++    PICK = {"cut_in": 1.02, "cut_out": 9.1, "fade_in_ms": 20, "fade_out_ms": 30, "valley_in": True,
++            "valley_out": False}
++
++    def cut(self, hook, label="hook", pick=True):
++        calls = []
++
++        def lead(src, plan, p):
++            calls.append(p["cut_in"])
++            return dict(hook)
++        with mock.patch.object(L, "SourceAudio", lambda src: None), \
++                mock.patch.object(L, "edge_plan", lambda *a, **k: self.PLAN), \
++                mock.patch.object(L, "accepted_cut", lambda src, plan: dict(self.PICK) if pick else None), \
++                mock.patch.object(L, "hook_lead", lead):
++            return L.lock_cut("src.mp4", [], {"i0": 0, "i1": 3}, label), calls
++
++    def test_a_hook_short_of_80_ms_keeps_the_planned_cut_marked_short(self):
++        r, calls = self.cut({"need_ms": 80, "planned_cut_in": 1.02, "planned_lead_ms": 30, "refused": SHORT,
++                             "tried": [{"cut_in": 1.05, "lead_ms": 30}]})
++        self.assertEqual(calls, [1.02])
++        self.assertTrue(r["verified"], r)
++        self.assertNotIn("error", r)
++        self.assertEqual((r["cut_in"], r["cut_out"], r["fade_in_ms"], r["lead_in_pad_s"], r["valley_in"]),
++                         (1.02, 9.1, 20, 0.0, True))
++        self.assertEqual((r["hook_lead"]["short"], r["hook_lead"]["lead_ms"]), (SHORT, 30))
++        self.assertNotIn("refused", r["hook_lead"])          # nothing downstream reads it as a refusal
++
++    def test_a_hook_hook_lead_can_open_is_unchanged(self):
++        r, _ = self.cut({"need_ms": 80, "planned_cut_in": 1.02, "planned_lead_ms": 30, "cut_in": 1.0, "fade_in_ms": 10,
++                         "pad_s": 0.0, "lead_ms": 90, "how": "moved inside the pause to keep 80 ms"})
++        self.assertEqual((r["cut_in"], r["fade_in_ms"], r["valley_in"]), (1.0, 10, False))
++        self.assertNotIn("short", r["hook_lead"])
++
++    def test_a_clip_never_asks_the_hook_rule(self):
++        r, calls = self.cut({"refused": SHORT}, label="clip_01")
++        self.assertEqual((calls, r["cut_in"], r.get("hook_lead")), ([], 1.02, None))
++
++    def test_a_segment_with_no_clean_cut_is_still_refused(self):      # HARD: never a cut through a word
++        r, calls = self.cut({"refused": SHORT}, pick=False)
++        self.assertIn("no cut inside the locked pauses keeps the neighbour words inaudible", r["error"])
++        self.assertNotIn("cut_in", r)
++
++
++def run():
++    return types.SimpleNamespace(status={}, prov={})
++
++
++class TestRenderFlags(unittest.TestCase):
++    def table(self, hook_lead_ok=False, hook_tail_ok=True, clip_ok=True):
++        return [{"segment": "hook", "lead_ms": 30, "tail_ms": 200, "lead_ok": hook_lead_ok, "tail_ok": hook_tail_ok,
++                 "pass": hook_lead_ok and hook_tail_ok},
++                {"segment": "clip_01", "lead_ms": 0, "tail_ms": 90, "lead_ok": True, "tail_ok": clip_ok,
++                 "pass": clip_ok}]
++
++    def test_g17a_a_hook_short_of_80_ms_passes_the_row_and_is_flagged(self):
++        r, t = run(), self.table()
++        self.assertTrue(RF.g17a_hook_lead_soft(r, False, t))
++        self.assertEqual(r.status["review_flags"], [ABRUPT])
++        self.assertIn("the hook keeps 30 ms of quiet before its first word (< 80 ms)", r.prov["review_flags"][0]["detail"])
++        self.assertEqual(t[0]["lead_soft"], "ruling 146 (2)")
++
++    def test_g17a_every_other_failure_still_fails_the_row(self):
++        for label, t in (("the hook's tail", self.table(hook_tail_ok=False)),
++                         ("another clip", self.table(clip_ok=False))):
++            with self.subTest(label):
++                self.assertFalse(RF.g17a_hook_lead_soft(run(), False, t))
++
++    def test_g17a_a_passing_table_is_untouched(self):
++        r = run()
++        self.assertTrue(RF.g17a_hook_lead_soft(r, True, self.table(hook_lead_ok=True)))
++        self.assertEqual(r.status.get("review_flags"), None)
++
++    def test_the_cut_tables_short_hook_is_flagged(self):
++        r = run()
++        RF.flag_short_hook_cut(r, [{"clip_id": "hook", "hook_lead": {"short": SHORT}}, {"clip_id": "clip_01"},
++                                   {"clip_id": "clip_02", "hook_lead": {"lead_ms": 120}}])
++        self.assertEqual(r.status["review_flags"], [ABRUPT])
++        self.assertEqual(len(r.prov["review_flags"]), 1)                # the short hook alone
++        self.assertIn(SHORT, r.prov["review_flags"][0]["detail"])
++
++    def test_a_snap_short_of_the_hooks_80_ms_is_flagged_a_refused_snap_holds(self):
++        r = run()
++        RF.snap_verdict(r, "hook", {"snapped": True, "hook_lead_short": "the speaker's own shot starts 0.050 s"})
++        self.assertEqual(r.status["review_flags"], [ABRUPT])
++        with self.assertRaisesRegex(RF.Hold, r"clip_01: shot snap refused \(ruling 71\): the speaker's own shot ends"):
++            RF.snap_verdict(run(), "clip_01", {"refused": "the speaker's own shot ends 0.010 s after the last word"})
++        r2 = run()
++        RF.snap_verdict(r2, "clip_01", {"snapped": True})
++        self.assertEqual(r2.status.get("review_flags"), None)
++
++    def test_three_findings_make_one_flag(self):
++        r = run()
++        RF.flag_short_hook_cut(r, [{"clip_id": "hook", "hook_lead": {"short": SHORT}}])
++        RF.snap_verdict(r, "hook", {"hook_lead_short": "the speaker's own shot starts 0.050 s"})
++        RF.g17a_hook_lead_soft(r, False, self.table())
++        self.assertEqual(r.status["review_flags"], [ABRUPT])
++        self.assertEqual(len(r.prov["review_flags"]), 3)            # each finding's detail kept
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/test_shot_snap.py b/pipeline/test_shot_snap.py
+index f152ca61..613b052f 100644
+--- a/pipeline/test_shot_snap.py
++++ b/pipeline/test_shot_snap.py
+@@ -127,15 +127,21 @@ class TestRuling71Parity(unittest.TestCase):
+         self.assertFalse(rec["snapped"])
+         self.assertNotIn("refused", rec)
+ 
+-    def test_a_snap_that_cannot_keep_the_hooks_lead_is_refused(self):
++    def test_ruling_146_a_snap_short_of_the_hooks_80_ms_is_applied_and_marked(self):   # ruling 71 refused it
+         self.hook["pause_in"] = {"end": 14.6 + 2 / 24 + 0.05}    # the first word 50 ms after a change at frame 2
+         rec = self._apply([], [(2, 0.5)])
+-        self.assertEqual(rec.get("refused"),
+-                         "the speaker's own shot starts 0.050 s before the first word (< 0.080 s)")
+-        self.assertFalse(rec["snapped"])
+-        self.assertEqual(open(self.clip, "rb").read(), b"x")     # refused: nothing re-encoded
+-        self.hook["clip_id"] = "clip_01"                         # not the hook: LEAD_MIN_S, snapped
+-        self.assertTrue(self._apply([], [(2, 0.5)])["snapped"])
++        self.assertTrue(rec["snapped"], rec)
++        self.assertNotIn("refused", rec)
++        self.assertEqual(rec["hook_lead_short"], "the speaker's own shot starts 0.050 s before the hook's first word "
++                                                 "(< 0.080 s): flagged, not refused (ruling 146 (2))")
++        self.hook["clip_id"] = "clip_01"                         # not the hook: snapped, never marked
++        rec = self._apply([], [(2, 0.5)])
++        self.assertTrue(rec["snapped"])
++        self.assertNotIn("hook_lead_short", rec)
++        self.hook.update(clip_id="hook", pause_in={"end": 14.6 + 2 / 24 + 0.1})   # 100 ms: the hook's lead kept
++        rec = self._apply([], [(2, 0.5)])
++        self.assertTrue(rec["snapped"])
++        self.assertNotIn("hook_lead_short", rec)
+ 
+ 
+ HOOK_0C68 = "/home/ultron/protocol_pulse/runs/pinned_20261113_191409"

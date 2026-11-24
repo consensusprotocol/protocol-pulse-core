@@ -1017,7 +1017,7 @@ def send_alarm(issue, sentence, waiting_since, send=None, now=None, log_path=Non
 
 WATCHDOG_HEAD = "WATCHDOG "
 WATCHDOG_GAP_S = 3600
-WATCHDOG_KINDS = ("STUCK", "LOOP", "LONG_TURN", "IDLE_WITH_WORK", "CONTEXT", "SPEND")
+WATCHDOG_KINDS = ("STUCK", "LOOP", "LONG_TURN", "IDLE_WITH_WORK", "CONTEXT", "SPEND", "HEARTBEAT")   # R16: 133
 WATCHDOG_NIGHT_KINDS = ("IDLE_WITH_WORK", "SPEND")      # the order's (4) and (6): the only lines sent 00:00-07:00 ET
 WATCHDOG_MAX = 600
 WATCHDOG_LOG = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "pulse_check",

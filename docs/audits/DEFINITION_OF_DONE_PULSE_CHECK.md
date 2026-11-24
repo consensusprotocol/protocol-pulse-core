@@ -6,6 +6,71 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 19:03 BATCH 117 LIVE (ruling 133 R16, service heartbeats; no decoder change, DECODER stays 50fa01b400bd): merge of r133-heartbeat (ad0016c95).
+- Every kept-alive service writes /tmp/pulse_heartbeats/<service>.json: a beat every 60 s while the process lives, and a mark at the end of each loop pass. The services are the scorer, the judge, the lock pre-check (each `once` pass) and the word pass.
+- The session watchdog reads the beats every 5 min. It sends a HEARTBEAT line (one per service per hour; held 00:00-07:00 ET like every line but IDLE_WITH_WORK and SPEND) in three cases:
+  - a beat older than 20 min, or none for 20 min;
+  - a process alive with no finished pass for 90 min;
+  - the transcript run (cron */30) with its log older than 65 min.
+- The judge now runs through pipeline/judge_serve.py. local_judge.py is untouched, so judge_sha (37c0f8a5e49e) and every cached verdict stand.
+- Evidence:
+  - 18 new tests; they cannot be collected on the old code.
+  - Mutations: 14 of 15 killed; the 15th is an equivalent mutant.
+  - Heimdall: qwen27b raised 2 findings in cycle 1 and 1 in cycle 2. All were fixed and tested, or verified in the code. gpt-oss gave a bare PASS twice, with no trace, so it carries no weight.
+  - Staged merge: regression_test.sh 26 PASS / 0 FAIL / 4 WARN; pipeline/regression.sh exit 0, every reference reproduced; touched suites 256 passed.
+  - Worktree suites (19 importing files): 595 passed. One failure (test_fresh v2f voice) passes on the live tree; the worktree lacks the untracked v2f files.
+- AT THE BUILDER'S ASK (18:58 ET): I stopped the scorer so its 9 story23.liq1 lock pre-check spans run first. The scorer's 340-candidate routine backlog was not needed tonight; the Coin Bureau and Scott Melker clips pass 12 h at about 21:00 ET.
+  - The scorer, judge, word pass and watchdog restart on this code once those spans have answered.
+  - So far: 3 spans pass, 1 is held by ruling 73's sentence edges (ruling 139 is not landed on the render lock), and 1 source window did not download.
+
+## 18:23 RESUMED 18:23 ET Nov 23 (PBX 18:18 ET: "fire up the pulse check pipeline again, pick up where we left off"). THE RENDER PATH IS CLEAR: the render's own preflight (pipeline/preflight.py, free calls only) passed every check at 18:23 ET in 39 s.
+- Preflight: GPU0 24,546 MiB free; gemma3:27b a418f5838eaf answered; yt-dlp read metadata; ElevenLabs 352,087 characters left; the Telegram bot answers; 359 GB free; HEAD ae05cb2e0 pushed; no other run; assets present; GPU0 left as found (18 MiB).
+- Services, all UP, none restarted:
+  - Scorer: pid 542044 since 10:01 ET Nov 17; scorer_sha edd54964a5ab, no commit to its code since it started; last verdicts 10:06 ET Nov 18.
+  - Judge: pid 85991 since Nov 14; judge_sha 37c0f8a5e49e, unchanged.
+  - Lock pre-check: the once-loop turns; it loads the live code each pass (DECODER 50fa01b400bd).
+  - Word pass (GPU1): last cycle done 18:15:44 ET, 566 ledger rows in 12 h, 3 picked; none of its imports changed since its 07:34 ET Nov 18 start.
+  - Watchdog: pass 2162 at 18:16 ET. Transcript ingest (cron */30): last wrote 18:04 ET.
+  - No service writes a heartbeat yet: ruling 133 R16 is not landed, so "alive" above is the process plus fresh log lines, not a heartbeat.
+- GPUs: GPU0 idle (18 MiB, lease free). GPU1 903 MiB: the word pass 394 MiB and the site's Waitress (pid 1454880) 480 MiB. The */15 cron `local_watchdog --mode health` (not ours) holds the GPU1 lease a few minutes each run; the word pass waits 111-234 s for it and completes its cycles.
+- NEXT: render the builder's pin the minute it arrives. Ruling 145 changes gpu0.py, which is a DECODER file, so it lands with 113 + 116 (rulings 143 / 139) in ONE decoder lockstep with the builder, never between a seal and its render. R16's heartbeats touch no decoder file; they are being built now, audit-first.
+
+## 10:43 BATCH 115 LIVE (ruling 148 (1), render side; no decoder change, DECODER stays 50fa01b4): merge 0bcb87d11.
+- With the builder's sealed FLAGGED gates.runtime row (its d0147dc6e: a 30.0-36.7 s line-up), G5 (REQUIRED) accepts a final from 44.3 s to 72 s instead of 58-72 s. 44.3 s = the 30 s floor + the format's 14.3 s tail.
+- R4's runtime finding no longer appears as "The voiceover runs over its length limit.". It adds nothing where the pin flags the runtime, and elsewhere it names the length.
+- Evidence: 19 failures on the live code; mutations 9 of 9 killed; two audit cycles (6 findings disproved in the code, 1 traced and tested; one seat hit its token limit, recorded).
+  - Merged tree: no new failure. The credits test that timed out under load passes on the live code.
+  - Staged merge: regression_test.sh 26 PASS / 0 FAIL, pipeline/regression.sh exit 0, suites 183 passed.
+- RULING 150 (2), render side: the render re-judges no takeaway. It follows the sealed takeaway_value row; a FLAGGED one passes when its text is the closing line exactly.
+- NEXT: render build 150's pin on READY, 16:9 only. Batches 113 (ruling 143) and 116 (ruling 139, the render lock) are built and land together in one decoder lockstep AFTER that render, before the 12:00 build.
+
+## 08:57 BATCH 114 LIVE (ruling 146 (2), G17a soft): merge 6f3e6be5, in lockstep with the builder's ed9df3f2 (DECODER 50fa01b4, RULES "... + ruling 146").
+- A hook with under 80 ms of quiet before its first word keeps its planned cut. The note says "The opening clip may start abruptly." once. A cut mid-word stays HARD.
+- On the staged merge: regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0 (references reproduce); touched suites 99 passed. The 31 importing suites ran on the merged tree: no new failure after the 7c1bed55 fix.
+- NEXT: the builder runs (B) self-custody (16:9 only, not time-sensitive). I render the pin the minute it arrives.
+
+## 08:21 RULING 147 (3), INTEGRATOR: BATCH 114 (G17a soft) LANDS IN LOCKSTEP on the builder's READY.
+- DECODER 50fa01b4 (sentence_law.py sha256 48e5b639), RULES "... + ruling 146".
+- The merged-tree run found one defect of mine: the soft G17 row assumed G17a's own rows, and test_render16only's stub fails it. Fixed (7c1bed55), with a test.
+- The other 11 failures and setup errors fail the same on the live code: purged media, known.
+- The regression scripts run now; the official run is on the staged merge.
+- **CHOSEN (147 (5)):**
+  - The self-custody pin is sealed NOT time-sensitive, so law L-v 3's 24 h marks (09:56 / 10:02 ET) do not apply to it, and ruling 146 (6)'s exception is not needed for (B).
+  - That exception would need a pinned.py change, a DECODER file. So it cannot reach a pin after its seal: for (A) it would have to land BEFORE that seal.
+  - Rulings 139 and 143 land right after this video.
+
+## 08:14 RULING 146, INTEGRATOR (render side):
+- **(1) and (3) are not re-asked by the render:** no change is needed. The ticker rule lives only in the 9:16 crop, and nothing checks for a sponsor mention.
+- **(2) G17a is held in four places in the render:** the cut, the shot snap, the G17 row and my lock pre-check. It is built as batch 114: the hook keeps its planned cut and the note says "The opening clip may start abruptly." Cutting into a word stays refused.
+  - Evidence: 89 tests pass; 12 failures on the live code; 11 of 11 mutations killed; audit cycle 1 PASS from both reviewers. Cycle 2 and the merged-tree run are in progress.
+  - It moves the DECODER to 50fa01b4, so it lands in lockstep, only when the builder's hook needs it or after this video.
+- **TREASURY, FOR YOUR 10-MIN DEFAULT:** none of its 5 refusals is G17a. Two are sentence edges (HARD).
+  - Ruling 143 (batch 113: built, not landed) would settle aea77d5e ("it's"/"is", "and"/nothing) and c81d9c9a ("strategies"/"strategy's", "part"/"par"). Both are small words.
+  - c79b7f6d ("sat"/"SEDA", a name) passes only if the second recogniser also reads SEDA.
+  - Landing 113 needs about 30 min plus the builder's lockstep. Per 144 (4) it waits unless you rule otherwise.
+
+## 07:37 RENDER PATH CLEAR (rulings 144/145, the 07:36 note): Resolve (pid 1073512) left at 07:32 ET. The word pass restarted at 07:34:52 ET and is working (its Whisper holds 2420 MiB on GPU1). The judge, scorer, lock pre-check loop and watchdog are up, and the render lock is free. GPU0 holds only the transcript ingest's Whisper, which yields to a render. ONE DEADLINE ON THE RENDER CLOCK (law L-v 3, 24 h): a segment sealed time_sensitive true is refused after 09:56 ET from RsCi56hEriU, after 10:02 ET from MeC8YEmUx_w, and after 13:00 ET from F536pi4mr7Y; a segment sealed time_sensitive false has no age limit. Ruling 145's allowance (worktree r145-tenant) and the word-pass heartbeat land after this video.
+
 ## 07:07 RULING 144, INTEGRATOR: ready to render on READY, with ONE HARD BLOCKER for you.
 - **The blocker:** DaVinci Resolve headless (/opt/resolve/bin/resolve -nogui, pid 1073512, started 16:59 ET Nov 17; no pipeline session started it) holds GPU0 (404 MiB) and GPU1 (678 MiB).
   - The render's GPU0 lease (law L-r) refuses a foreign GPU user after a 600 s wait. That is how the word pass died at 17:23 ET.
