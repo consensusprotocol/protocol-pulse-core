@@ -238,5 +238,20 @@ class TestTheBuild(unittest.TestCase):
         self.assertNotIn("out_edge", PK.inventory(**base))                 # the row only where the build asked
 
 
+class TestTheSpotlight(unittest.TestCase):
+    """RULING 162 (1) holds for a spotlight too: its pool passes out_edges (seg_max 35 s), and a spotlight whose clip
+    carries no complete verdict is refused at its gates (package.OWN_REQUIRED)."""
+
+    def test_no_verdict_no_spotlight(self):
+        import test_spotlight as TS
+        pk, why, *_ = TS.package(m=TS.moment())
+        self.assertIsNotNone(pk, why)
+        self.assertEqual(pk["gates"]["out_edge"]["status"], "PASS")
+        for v in (None, dict(TS.OUT_EDGE_OK, complete=False), dict(TS.OUT_EDGE_OK, measured=False)):
+            pk, why, *_ = TS.package(m=TS.moment(out_edge=v))
+            self.assertIsNone(pk, v)
+            self.assertIn("out_edge", why)
+
+
 if __name__ == "__main__":
     unittest.main()
