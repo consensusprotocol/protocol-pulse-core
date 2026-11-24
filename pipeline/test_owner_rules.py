@@ -124,5 +124,56 @@ class TestLineFaults(unittest.TestCase):
             self.assertEqual(O.line_faults(text, self.NAMES), [], text)
 
 
+class TestMeaningPair(unittest.TestCase):
+    """ITEM 7 (orchestrator 09:20 / 09:35 ET Nov 24): one list of meaning pairs, both sides."""
+
+    def test_a_swap_of_meaning_is_a_pair_and_a_word_form_is_not(self):
+        for x, y in ((["approved"], ["rejected"]), (["bought"], ["sold"]), (["million"], ["billion"]),
+                     (["doubled"], ["halved"]), (["rose"], ["fell"]), (["up"], ["down"]), (["bullish"], ["bearish"]),
+                     (["went", "higher"], ["went", "lower"]), (["inflows"], ["outflows"]), (["Approves."], ["denies"])):
+            self.assertTrue(O.meaning_pair(x, y), (x, y))
+            self.assertTrue(O.meaning_pair(y, x), (y, x))
+        for x, y in ((["bottomed"], ["bottom"]), (["the", "rally"], ["a", "rally"]), (["Up"], ["up."]), (["a"], ["the"]),
+                     (["approved"], ["approval"]), (["sold"], []), ([], [])):
+            self.assertFalse(O.meaning_pair(x, y), (x, y))
+
+
+class TestAnswerCache(unittest.TestCase):
+    """The out-edge answer (orchestrator 09:45 ET Nov 24): cached against the exact transcript, cut coordinates and
+    prompt version; a changed cut or transcript voids it; the replay serves frozen answers only; no answer is never
+    stored (open work)."""
+
+    def setUp(self):
+        import tempfile
+        import shutil
+        self.d = tempfile.mkdtemp(prefix="out_edge_cache_")
+        self.addCleanup(shutil.rmtree, self.d, True)
+
+    def test_an_answer_is_served_again_only_for_the_same_words_and_cut(self):
+        coords = {"video_id": "0shaXx_n870", "i0": 48, "i1": 68, "cut_out": 21.169}
+        r = Router('{"complete": "no", "finishes_at": 0, "why": "w"}')
+        a = O.out_edge(r, HOOK, "", AFTER, cache_dir=self.d, coords=coords)
+        b = O.out_edge(r, HOOK, "", AFTER, cache_dir=self.d, coords=coords)
+        self.assertEqual((len(r.calls), a.get("cached"), b.get("cached"), a["key"]), (1, None, True, b["key"]))
+        self.assertEqual((b["complete"], b["finishes_at"]), (False, 0))
+        O.out_edge(r, HOOK, "", AFTER, cache_dir=self.d, coords=dict(coords, cut_out=21.4))     # another cut
+        O.out_edge(r, HOOK + " The AI bubble", "", AFTER, cache_dir=self.d, coords=coords)     # another transcript
+        self.assertEqual(len(r.calls), 3)
+
+    def test_the_replay_serves_frozen_answers_only_and_no_answer_is_open_work(self):
+        coords = {"video_id": "v", "i0": 1, "i1": 9}
+        r = Router(exc=ProviderError("down"))
+        got = O.out_edge(r, HOOK, "", AFTER, cache_dir=self.d, coords=coords, no_answer=(ProviderError,))
+        self.assertEqual((got["measured"], len(os.listdir(self.d))), (False, 0))             # not stored
+        r2 = Router('{"complete": "yes", "finishes_at": null, "why": "w"}')
+        frozen = O.out_edge(r2, HOOK, "", AFTER, cache_dir=self.d, coords=coords, frozen=True)
+        self.assertEqual((frozen["measured"], len(r2.calls)), (False, 0))                    # never asks
+        self.assertIn("open work", frozen["why"])
+        O.out_edge(r2, HOOK, "", AFTER, cache_dir=self.d, coords=coords)                     # recorded live once
+        frozen = O.out_edge(Router(exc=AssertionError("asked")), HOOK, "", AFTER, cache_dir=self.d, coords=coords,
+                            frozen=True)
+        self.assertEqual((frozen["measured"], frozen["complete"], frozen["cached"]), (True, True, True))
+
+
 if __name__ == "__main__":
     unittest.main()

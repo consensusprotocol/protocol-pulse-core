@@ -18,7 +18,7 @@ import os
 import re
 import urllib.request
 
-VERSION = "owner_rules 1 (ruling 162, 2026-11-24)"
+VERSION = "owner_rules 2 (ruling 162 + item 7, 2026-11-24)"
 
 OUT_EDGE_PROMPT = """You check where a short video clip ENDS. The clip is cut from a longer recording of one speaker. It
 must never stop while the speaker's thought is unfinished: a viewer must never feel the speaker was cut off in the
@@ -85,29 +85,53 @@ def _unmeasured(why, backend=None):
             "version": VERSION}
 
 
+def answer_key(prompt, coords):
+    """The out-edge answer's cache key (orchestrator 09:45 ET Nov 24): this file's VERSION, the exact prompt (the clip's
+    words, the words before and after it: the transcript) and the caller's cut coordinates. A changed cut, transcript
+    or prompt version is another key: the old answer is void."""
+    import hashlib
+    return hashlib.sha256(json.dumps({"version": VERSION, "prompt": prompt, "coords": coords}, sort_keys=True,
+                                     default=str).encode()).hexdigest()
+
+
 def out_edge(router, clip_text, before_text, next_sentences, seed=7, role="out_edge", max_tokens=2000,
-             no_answer=(Exception,), **call_kw):
+             no_answer=(Exception,), cache_dir=None, coords=None, frozen=False, **call_kw):
     """RULING 162 (1): does the clip's last sentence finish the speaker's thought? router.call(role, prompt,
     max_tokens=, seed=, **call_kw) -> a reply with .text and .backend (the builder's providers.Router, or the render's
     HeimdallText). -> {"complete": True / False / None, "finishes_at": the 0-based index into next_sentences of the
     sentence that finishes the thought, or None, "why", "backend", "measured", "version"}.
     measured False (an exception of the `no_answer` kinds, a reply that is not the JSON asked for): the edge is
     UNVERIFIED (ruling 160 (2a)): never a pass, never a refusal; the caller says which check could not be answered.
-    An exception of any other kind propagates (the builder's spend stop, a kill)."""
+    An exception of any other kind propagates (the builder's spend stop, a kill).
+    cache_dir (orchestrator 09:45 ET Nov 24): a measured answer is stored under answer_key(prompt, coords) and served
+    again for the same key ("cached": True); frozen=True (the replay) serves stored answers only and never asks: a key
+    with no stored answer is measured False, open work, never a pass."""
     after = [str(s).strip() for s in next_sentences or [] if str(s).strip()]
     prompt = OUT_EDGE_PROMPT.format(
         before=" ".join(str(before_text or "").split()) or "(the clip starts the recording)",
         clip=" ".join(str(clip_text or "").split()),
         after="\n".join(f"[{i}] {s}" for i, s in enumerate(after)) or "(none: the recording ends with the clip)")
+    key = answer_key(prompt, coords)
+    path = os.path.join(cache_dir, key[:2], f"{key}.json") if cache_dir else None
+    if path and os.path.exists(path):
+        try:
+            with open(path) as f:
+                stored = json.load(f)
+            if stored.get("key") == key and stored.get("measured") is True:
+                return dict(stored, cached=True)
+        except (OSError, ValueError, AttributeError):
+            pass                                                     # unreadable: asked again (or open work)
+    if frozen:
+        return dict(_unmeasured("no frozen answer for this edge: open work"), key=key)
     try:
         rep = router.call(role, prompt, max_tokens=max_tokens, seed=seed, **call_kw)
     except no_answer as e:
-        return _unmeasured(f"no answer: {type(e).__name__}: {str(e)[:300]}")
+        return dict(_unmeasured(f"no answer: {type(e).__name__}: {str(e)[:300]}"), key=key)
     backend = getattr(rep, "backend", None)
     obj = _first_json(getattr(rep, "text", "") or "", "complete") or {}
     a = str(obj.get("complete", "")).strip().lower()
     if a not in ("yes", "no"):
-        return _unmeasured(f"unreadable reply: {str(getattr(rep, 'text', ''))[:300]!r}", backend)
+        return dict(_unmeasured(f"unreadable reply: {str(getattr(rep, 'text', ''))[:300]!r}", backend), key=key)
     fin = obj.get("finishes_at")
     if isinstance(fin, str) and fin.strip().isdigit():
         fin = int(fin.strip())
@@ -115,8 +139,65 @@ def out_edge(router, clip_text, before_text, next_sentences, seed=7, role="out_e
         fin = int(fin)
     if a == "yes" or isinstance(fin, bool) or not isinstance(fin, int) or not 0 <= fin < len(after):
         fin = None
-    return {"complete": a == "yes", "finishes_at": fin, "why": " ".join(str(obj.get("why") or "").split())[:300],
-            "backend": backend, "measured": True, "version": VERSION}
+    out = {"complete": a == "yes", "finishes_at": fin, "why": " ".join(str(obj.get("why") or "").split())[:300],
+           "backend": backend, "measured": True, "version": VERSION, "key": key}
+    if path:                                                         # a measured answer only (no answer = open work)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path + ".tmp", "w") as f:
+            json.dump(dict(out, coords=coords), f, default=str)
+        os.replace(path + ".tmp", path)
+    return out
+
+
+# ITEM 7 (orchestrator 09:20 / 09:35 ET Nov 24, "NO SILENT MEANING SWAP"): a differing pair whose two sides sit on one
+# meaning axis with different values changes what was said ('approved' / 'rejected', 'million' / 'billion'). ONE list,
+# both sides: the builder's attest.critical and the render's G18 and lock pre-check call meaning_pair.
+MEANING_PAIRS = (
+    ("trade", ("buy", "buys", "buying", "bought", "buyer", "buyers"),
+              ("sell", "sells", "selling", "sold", "seller", "sellers")),
+    ("direction", ("up", "higher", "rise", "rises", "rising", "rose", "risen", "gain", "gains", "gained", "rally",
+                   "rallies", "rallied", "surge", "surges", "surged", "climb", "climbs", "climbed", "jump", "jumps",
+                   "jumped", "increase", "increases", "increased", "above", "inflow", "inflows", "pump", "pumped"),
+                  ("down", "lower", "fall", "falls", "falling", "fell", "fallen", "loss", "losses", "lost", "drop",
+                   "drops", "dropped", "plunge", "plunges", "plunged", "decline", "declines", "declined", "decrease",
+                   "decreases", "decreased", "below", "outflow", "outflows", "dump", "dumped", "crash", "crashed")),
+    ("sentiment", ("bull", "bulls", "bullish"), ("bear", "bears", "bearish")),
+    ("position", ("long", "longs"), ("short", "shorts")),
+    ("quantity", ("more", "most", "many"), ("less", "least", "fewer", "few")),
+    ("approval", ("approve", "approves", "approved", "approval", "approving", "accept", "accepts", "accepted", "allow",
+                  "allows", "allowed", "pass", "passes", "passed", "win", "wins", "won", "yes"),
+                 ("reject", "rejects", "rejected", "rejection", "rejecting", "deny", "denies", "denied", "denial",
+                  "block", "blocks", "blocked", "fail", "fails", "failed", "lose", "loses", "lost", "no")),
+    ("factor", ("double", "doubles", "doubled", "doubling", "triple", "tripled"), ("half", "halve", "halves", "halved",
+                                                                                      "halving")),
+)
+SIZE_WORDS = {"hundred": 2, "hundreds": 2, "thousand": 3, "thousands": 3, "million": 6, "millions": 6, "billion": 9,
+              "billions": 9, "trillion": 12, "trillions": 12}
+
+
+def _meaning(tokens):
+    """{(axis, value)} of the words among `tokens` (canon tokens) that sit on a meaning axis."""
+    out = set()
+    for t in tokens:
+        for axis, plus, minus in MEANING_PAIRS:
+            if t in plus:
+                out.add((axis, "+"))
+            if t in minus:
+                out.add((axis, "-"))
+        if t in SIZE_WORDS:
+            out.add(("size", SIZE_WORDS[t]))
+    return out
+
+
+def meaning_pair(x, y):
+    """ITEM 7: True when the two sides of a differing pair (x, y: lists of words; read as canon tokens) put a word on
+    the same meaning axis with a DIFFERENT value: buy / sell, up / down, approved / rejected, million / billion, doubled
+    / halved and the rest of MEANING_PAIRS and SIZE_WORDS. A word form of the same word ('bottom' / 'bottomed') or a
+    word on one side only is not one. Such a pair is material: it holds, and is never adopted silently."""
+    import canon
+    xs = _meaning(canon.canon_tokens(" ".join(str(t) for t in x or [])))
+    ys = _meaning(canon.canon_tokens(" ".join(str(t) for t in y or [])))
+    return any(a == b and v != w for a, v in xs for b, w in ys)
 
 
 def _stands_in(line, sub):

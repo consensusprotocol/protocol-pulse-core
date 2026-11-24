@@ -126,6 +126,29 @@ class TestRenderStage(unittest.TestCase):
             self.assertEqual(self.stage((False, why)),
                              f"pinned decision rejected: not READY (scripts/integrator/check_pin_only.py): {why}")
 
+    def test_item_7_the_renders_own_lock_swapping_a_meaning_word_holds(self):
+        """ITEM 7: the render's lock (pinned.prepare) adopting the audio's word on a meaning pair ('bought' read as
+        'sold'): what the seal refuses, the render refuses, at the pin stage."""
+        import pinned
+        d = tempfile.mkdtemp(prefix="r160_item7_")
+        self.addCleanup(shutil.rmtree, d, True)
+        swapped = {"hook": {"selection_lock": {"adjudication": {"pairs": [{"run": "sold", "approved": "bought",
+                                                                            "took": "run", "material": False}]}}},
+                   "clips": [{"index": 1, "selection_lock": {}}]}
+
+        def prepare(pin_path, run_dir, log=print):
+            with open(os.path.join(run_dir, "edl.json"), "w") as f:
+                json.dump(swapped, f)
+            return {"pin": {"moments_package": {}}, "pin_sha256": "0" * 64, "validation": {}}
+        run = types.SimpleNamespace(dir=d, prov={}, status={})
+        with mock.patch.object(RF, "pin_admissible", return_value=(True, "READY")), \
+                mock.patch.object(RF, "free_gpu0_for_whisper"), mock.patch.object(RF, "prefetch_post_live"), \
+                mock.patch.object(pinned, "prepare", prepare):
+            with self.assertRaises(RF.Hold) as cm:
+                RF.stage_pinned(run, os.path.join(d, "pin.json"))
+        self.assertIn("item 7 (no silent meaning swap)", str(cm.exception))
+        self.assertIn("'hook': [['bought', 'sold']]", str(cm.exception))
+
     @unittest.skipUnless(os.path.exists(PIN) and os.path.exists(BUILDER), "afd8977d's pin or the builder's package_pin")
     def test_the_render_runs_the_readiness_check_itself(self):
         """run_fresh.py started without the launcher: pin_ready runs check_pin_only in its own process on the real pin

@@ -372,8 +372,10 @@ def as_spoken(lock, words, sw):
     diffs = [[" ".join(L[a:b]), " ".join(S2[c:d])] for _, a, b, c, d in ops]                  # formatting
     if not ops:
         return "same", [], [], spoken
-    cls = ["material" if pinned.material_pair(L[a:b], S2[c:d], (lock["text"], spoken)) else "small"
-           for _, a, b, c, d in ops]
+    import owner_rules
+    cls = ["material" if pinned.material_pair(L[a:b], S2[c:d], (lock["text"], spoken))
+           or owner_rules.meaning_pair(L[a:b], S2[c:d]) else "small" for _, a, b, c, d in ops]   # item 7: the ears'
+    #                                                                     meaning pair holds as a material word does
     return ("hold" if "material" in cls else "same"), diffs, cls, spoken
 
 
@@ -502,6 +504,17 @@ def _outcome(s, lock):
     return "adopted" if "adjudication" in lock else "two_readings" if "alternatives" in lock else "no_difference"
 
 
+def meaning_swaps(lock):
+    """ITEM 7 (orchestrator 09:20 / 09:35 ET Nov 24): the [[transcript word(s), audio word(s)]] of a lock's adjudicated
+    pairs (ruling 143's record) that are a MEANING pair (owner_rules.meaning_pair): the lock would adopt one reading of
+    'approved' / 'rejected' and every verdict made on the other words would stand. [] when none (or no adjudication)."""
+    import owner_rules
+    pairs = ((lock or {}).get("adjudication") or {}).get("pairs") if isinstance((lock or {}).get("adjudication"),
+                                                                                 dict) else None
+    return [[x.get("approved"), x.get("run")] for x in pairs or [] if isinstance(x, dict)
+            and owner_rules.meaning_pair(str(x.get("approved") or "").split(), str(x.get("run") or "").split())]
+
+
 OUT_EDGE_HOLD = ("ruling 162 (1): the span ends while the speaker is still mid-sentence (its OUT edge is not the end "
                  "of a sentence: {}); the render holds it: extend the out point to the sentence's end (ruling 104's "
                  "tail)")
@@ -591,6 +604,12 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                                        f"{heard.get('second_reading')!r}: the hold is final"
                                        + (f" ({heard['why']})" if heard.get("why") else ""))
                         outcome, lock = "hold", None
+                    swap = meaning_swaps(first) or (meaning_swaps(lock) if lock is not None else [])   # first: the
+                    #     lock made with the pin's own text, whose pairs are the transcript against the audio
+                    if swap:                                     # ITEM 7: the lock would adopt the audio's word on a
+                        outcome, lock = "hold", None             # meaning pair: the clip does not seal
+                        reason = (f"item 7 (no silent meaning swap): the transcript and the audio differ on a meaning "
+                                  f"pair at {swap}: the clip does not seal")
                     if lock is not None:                         # ruling 73 (c): the render's own cut placement
                         cut = sentence_law.lock_cut(a["path"], a["transcript"]["words"], lock,
                                                     "hook" if s["role"] == "hook" else "clip")

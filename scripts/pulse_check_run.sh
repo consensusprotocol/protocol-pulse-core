@@ -87,8 +87,17 @@ fi
 GPU0_LEASE="${PP_GPU0_LEASE:-/tmp/pulse_gpu0.lease}"
 exec 8>>"$GPU0_LEASE"
 if ! flock -n 8; then
-  echo "pulse_check_run: the GPU0 lease is held: $(cat "$GPU0_LEASE" 2>/dev/null)" | tee -a "$LOG" >&2
-  exit 75
+  # item 9 (Nov 24): the builder's launcher calls this right after a seal, with no session in between; a kept-alive
+  # service (judge, scorer, lock pre-check) may hold GPU0 between its passes: raise the yield flag they obey and wait
+  # for the lease, up to PP_GPU0_WAIT_S (240 s); the flag is lowered once the lease is ours (or on the refusal)
+  YIELD="${PP_GPU0_YIELD:-/tmp/pulse_gpu0.yield}"
+  touch "$YIELD"
+  if ! flock -w "${PP_GPU0_WAIT_S:-240}" 8; then
+    rm -f "$YIELD"
+    echo "pulse_check_run: the GPU0 lease is still held after ${PP_GPU0_WAIT_S:-240} s: $(cat "$GPU0_LEASE" 2>/dev/null)" | tee -a "$LOG" >&2
+    exit 75
+  fi
+  rm -f "$YIELD"
 fi
 python3 -c 'import json, sys, time; json.dump({"pid": int(sys.argv[1]), "owner": "pulse_check_run " + sys.argv[2] + " (" + sys.argv[3] + ")", "since": time.time()}, open(sys.argv[4], "w"))' \
   "$$" "$STAMP" "${ARGS[*]:-auto}" "$GPU0_LEASE"

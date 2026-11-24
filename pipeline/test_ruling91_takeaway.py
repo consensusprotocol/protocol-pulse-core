@@ -88,23 +88,31 @@ class TestStageValidateRuling91(unittest.TestCase):
         self.assertEqual(prov["our_lines"], {"pass": True, "faults": []})
 
     def test_ruling_162_an_open_out_edge_holds_and_an_unanswered_one_is_unverified(self):
+        """The question runs at the cut now (orchestrator 09:45 ET Nov 24: after the deterministic edge check):
+        check_out_edges holds on its answers."""
         def edge(seg, complete, measured=True, why="w"):
             return {"segment": seg, "complete": complete, "finishes_at": None, "why": why, "measured": measured}
+        run = types.SimpleNamespace(dir="/nonexistent", prov={})
         for edges, want in (([edge("hook", False, why="the same story is told next"), edge("clip_01", True)],
-                             "HOLD: ruling 162 (1): a clip ends while the speaker's thought carries on: hook (the same "
+                             "ruling 162 (1): a clip ends while the speaker's thought carries on: hook (the same "
                              "story is told next)"),
                             ([edge("hook", True), edge("clip_01", None, False, "no answer: URLError")],
-                             "HOLD: UNVERIFIED (ruling 160 (2a)): the OUT-edge check (ruling 162 (1)) could not be "
+                             "UNVERIFIED (ruling 160 (2a)): the OUT-edge check (ruling 162 (1)) could not be "
                              "answered for clip_01 (no answer: URLError)"),
                             ([edge("hook", False, why="w0"), edge("clip_01", None, False, "no answer: URLError")],
-                             "HOLD: ruling 162 (1): a clip ends while the speaker's thought carries on: hook (w0); "
+                             "ruling 162 (1): a clip ends while the speaker's thought carries on: hook (w0); "
                              "and UNVERIFIED (ruling 160 (2a)), the check could not be answered for clip_01 (no "
-                             "answer: URLError)"),
-                            ([edge("hook", True), edge("clip_01", True)], "reached the editorial gate")):
-            self.edges = edges
-            got, prov = self.run_stage(medley(live()))
-            self.assertEqual(got, want)
-            self.assertEqual(prov["out_edge"], edges)
+                             "answer: URLError)")):
+            with mock.patch.object(run_fresh, "out_edges", return_value=edges):
+                with self.assertRaises(run_fresh.Hold) as cm:
+                    run_fresh.check_out_edges(run, medley(live()), [])
+            self.assertEqual(str(cm.exception), want)
+            self.assertEqual(run.prov["out_edge"], edges)
+        with mock.patch.object(run_fresh, "out_edges", return_value=[edge("hook", True), edge("clip_01", True)]):
+            self.assertEqual(len(run_fresh.check_out_edges(run, medley(live()), [])), 2)
+        got, prov = self.run_stage(medley(live()))                       # validate no longer asks it
+        self.assertEqual(got, "reached the editorial gate")
+        self.assertNotIn("out_edge", prov)
 
     def test_with_its_verdict_or_no_takeaway_the_stage_goes_on(self):
         for edl in (medley(live()), medley(None, bridges=[])):

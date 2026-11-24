@@ -287,6 +287,13 @@ class TestRuling143G18(unittest.TestCase):
         ok, rows = self.g18(self.LOCK, "I go to the bank today and I punch in my code.", same=False)
         self.assertFalse(ok, rows)                                     # not the source's audio: it stands
 
+    def test_item_7_a_meaning_pair_fails_on_text_and_is_never_settled_by_the_audio(self):
+        ok, rows = self.g18("The regulator approved the fund and I punch in my code.",
+                            "The regulator rejected the fund and I punch in my code.")
+        self.assertFalse(ok, rows)
+        self.assertNotIn("omission_adjudication", rows[0])
+        self.assertEqual(rows[0]["identity"], [("replace", "approved", "rejected")])
+
     def test_a_material_word_still_fails_on_text(self):
         ok, rows = self.g18("It took 15 years and I punch in my code.", "It took 50 years and I punch in my code.")
         self.assertFalse(ok, rows)

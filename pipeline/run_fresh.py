@@ -301,7 +301,7 @@ def our_line_faults(edl, registry):
     return out
 
 
-def out_edges(run, edl, router=None):
+def out_edges(run, edl, router=None, cuts=None, frozen=False):
     """RULING 162 (1) (orchestrator 07:45 ET Nov 24, from PBX's review of afd8977d's opener): every segment's OUT edge
     re-asked at validate with owner_rules.out_edge, the builder's own question: the locked words (selection_lock i0..i1
     of the run's decode in transcripts/<video_id>.json), OUT_EDGE_BEFORE sentences before them and OUT_EDGE_AFTER after.
@@ -325,14 +325,40 @@ def out_edges(run, edl, router=None):
                         "finishes_at": None, "why": f"the lock or the decode is not readable ({type(e).__name__}: {e})",
                         "backend": None, "measured": False, "version": owner_rules.VERSION})
             continue
+        cut = next((c for c in cuts or [] if isinstance(c, dict) and c.get("clip_id") == label), {})
         r = owner_rules.out_edge(router, " ".join(str(w["word"]).strip() for w in words[i0:i1 + 1]),
                                  " ".join(owner_rules.sentences(words[max(0, i0 - 80):i0], OUT_EDGE_BEFORE,
                                                                 forward=False)),
-                                 owner_rules.sentences(words[i1 + 1:], OUT_EDGE_AFTER))
+                                 owner_rules.sentences(words[i1 + 1:], OUT_EDGE_AFTER), cache_dir=OUT_EDGE_CACHE,
+                                 coords={"video_id": seg.get("video_id"), "i0": i0, "i1": i1,
+                                         "transcript_sha256": (lk or {}).get("transcript_sha256"),
+                                         "cut_in": cut.get("cut_in"), "cut_out": cut.get("cut_out")}, frozen=frozen)
         out.append({"segment": label, "video_id": seg.get("video_id"), **r})
         print(f"  out edge {label}: {'complete' if r['complete'] else 'NOT complete' if r['measured'] else 'no answer'}"
               f" ({r['backend']}): {r['why']}")
     return out
+
+
+OUT_EDGE_CACHE = os.path.join(REPO, "data", "out_edge", "answers")   # the answers, keyed (owner_rules.answer_key)
+
+
+def check_out_edges(run, edl, cuts, router=None, frozen=False):
+    """RULING 162 (1) as settled (orchestrator 09:45 ET Nov 24): AFTER the deterministic edge check (flag_sentence_edges:
+    an OUT sentence edge has already HELD) and the cut acceptance, every segment's OUT edge is asked once whether the
+    thought is complete (out_edges). Not complete HOLDS; no answer HOLDS as UNVERIFIED (ruling 160 (2a)): open work,
+    never a pass. The answers are cached against the exact transcript, cut coordinates and prompt version."""
+    edges = out_edges(run, edl, router=router, cuts=cuts, frozen=frozen)
+    run.prov["out_edge"] = edges
+    open_ = [f"{e['segment']} ({e['why']})" for e in edges if e["complete"] is False]
+    unanswered = [f"{e['segment']} ({e['why']})" for e in edges if not e["measured"]]
+    if open_:                                  # c1 (glm F4): the unanswered ones are named in the same hold
+        raise Hold("ruling 162 (1): a clip ends while the speaker's thought carries on: " + "; ".join(open_)
+                   + ("; and UNVERIFIED (ruling 160 (2a)), the check could not be answered for " + "; ".join(unanswered)
+                      if unanswered else ""))
+    if unanswered:                             # RULING 160 (2a): a HARD check with no answer is UNVERIFIED
+        raise Hold("UNVERIFIED (ruling 160 (2a)): the OUT-edge check (ruling 162 (1)) could not be answered for "
+                   + "; ".join(unanswered))
+    return edges
 
 
 def flag_sentence_edges(run, cuts):
@@ -613,6 +639,16 @@ def stage_pinned(run, pin_path):
     except PinError as e:
         raise Hold(f"pinned decision rejected: {e}")
     pin = rec["pin"]
+    import lock_precheck                   # ITEM 7 (Nov 24): the render's own lock adopting the audio's word on a
+    with open(os.path.join(run.dir, "edl.json")) as f:    # meaning pair: what the seal refuses, the render refuses
+        edl0 = json.load(f)
+    swaps = {label: lock_precheck.meaning_swaps(seg.get("selection_lock")) for label, seg in
+             [("hook", edl0.get("hook") or {})] + [(f"clip_{c.get('index', 0):02d}", c) for c in edl0.get("clips") or []
+                                                   if isinstance(c, dict)]}
+    swaps = {k: v for k, v in swaps.items() if v}
+    if swaps:
+        raise Hold(f"pinned decision rejected: item 7 (no silent meaning swap): the transcript and the audio differ on "
+                   f"a meaning pair: {swaps}")
     import release_auth                    # ruling 93 as amended: the SEALED formats ride in the EDL (bound by the
     try:                                   # attestation); a malformed value is a rejected pin, never a guess
         formats = release_auth.package_formats(pin.get("moments_package"))
@@ -737,17 +773,6 @@ def stage_validate(run):
     if listing:
         raise Hold("ruling 162 (2): a voiceover line of ours lists the sources instead of adding value: "
                    + "; ".join(listing))
-    edges = out_edges(run, edl)                # RULING 162 (1): no clip ends mid-thought (the opener above all)
-    run.prov["out_edge"] = edges
-    open_ = [f"{e['segment']} ({e['why']})" for e in edges if e["complete"] is False]
-    unanswered = [f"{e['segment']} ({e['why']})" for e in edges if not e["measured"]]
-    if open_:                                  # c1 (glm F4): the unanswered ones are named in the same hold
-        raise Hold("ruling 162 (1): a clip ends while the speaker's thought carries on: " + "; ".join(open_)
-                   + ("; and UNVERIFIED (ruling 160 (2a)), the check could not be answered for " + "; ".join(unanswered)
-                      if unanswered else ""))
-    if unanswered:                             # RULING 160 (2a): a HARD check with no answer is UNVERIFIED
-        raise Hold("UNVERIFIED (ruling 160 (2a)): the OUT-edge check (ruling 162 (1)) could not be answered for "
-                   + "; ".join(unanswered))
 
     # Shared AUTO/PIN editorial law gate. This is the last editorial acceptance
     # point before cutting. It always writes STORYBOARD.md + EDITORIAL_GATE.json
@@ -890,6 +915,8 @@ def stage_cut(run):
     jdump(os.path.join(run.dir, "CUT_ACCEPTANCE.json"), report)
     if fails:
         raise Hold(f"cut acceptance rejected {fails} (see CUT_ACCEPTANCE.json)")
+    with open(os.path.join(run.dir, "edl.json")) as f:     # orchestrator 09:45 ET Nov 24: the deterministic edge check
+        check_out_edges(run, json.load(f), cuts)           # (flag_sentence_edges) and the cut first, then the question
     return cuts
 
 

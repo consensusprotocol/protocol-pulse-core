@@ -496,6 +496,41 @@ class TestRuling162(Base):
         self.assertEqual((self.entry(ATTESTED)["request_id"], self.entry(ATTESTED)["outcome"]), ("r3", "no_difference"))
 
 
+class TestItem7MeaningSwap(Base):
+    """ITEM 7 (orchestrator 09:20 / 09:35 ET Nov 24): the transcript says one side of a meaning pair and both ears say
+    the other: the lock would adopt the ears' word with every verdict made on the transcript's: the pre-check HOLDS (the
+    clip does not seal). The ears disagreeing with each other on a meaning pair holds as a material word does. A
+    benign word two of three still settles."""
+    APPROVED = ATTESTED.replace("owns the money", "bought the money")
+    HEARD = ATTESTED.replace("owns the money", "sold the money")
+
+    def test_both_ears_against_the_transcript_on_a_meaning_pair_hold(self):
+        self.run_text = self.scribe_text = self.HEARD
+        self.request(approved_text=self.APPROVED)
+        LP.serve_once(log=self.log)
+        e = self.entry(self.APPROVED)
+        self.assertEqual((e["outcome"], e["lock"]), ("hold", None), e)
+        self.assertTrue(e["reason"].startswith("item 7 (no silent meaning swap)"), e["reason"])
+        self.assertIn("['bought', 'sold']", e["reason"])
+
+    def test_the_ears_disagreeing_on_a_meaning_pair_hold(self):
+        self.run_text, self.scribe_text = self.APPROVED, self.HEARD        # the decoder 'bought', the second 'sold'
+        self.request(approved_text=self.APPROVED)
+        LP.serve_once(log=self.log)
+        e = self.entry(self.APPROVED)
+        self.assertEqual(e["outcome"], "hold", e)
+        self.assertIn("material", e["as_spoken"]["classes"])
+
+    def test_a_benign_word_heard_by_both_ears_still_settles(self):
+        heard = ATTESTED.replace("owns the money", "holds the money")
+        self.run_text = self.scribe_text = heard
+        self.request(approved_text=ATTESTED)
+        LP.serve_once(log=self.log)
+        e = self.entry(ATTESTED)
+        self.assertNotEqual(e["outcome"], "hold", e)
+        self.assertEqual(e["lock"]["text"], heard)
+
+
 RUN84 = "I came to the conclusion that it will replace or will be replaced. So it will be replaced by Bitcoin."
 SPOKEN84 = ("I came to the conclusion that, um, it will replace, uh, or will be replaced, or it will be replaced "
             "by Bitcoin.")

@@ -82,9 +82,12 @@ def diff(expected, heard, collapse=False, alts=None):
 
 def _material(diffs, texts):
     """RULING 143 (1): True when any of G18's differences [(op, expected words, heard words)] is MATERIAL (a number, a
-    negation, a name, a ticker or an amount: pinned.material_pair, the lock's own classifier)."""
+    negation, a name, a ticker or an amount: pinned.material_pair, the lock's own classifier), or ITEM 7 (Nov 24) a
+    meaning pair (owner_rules.meaning_pair, the builder's list too: 'approved' / 'rejected', 'million' / 'billion')."""
+    import owner_rules
     import pinned
-    return any(pinned.material_pair(str(e).split(), str(h).split(), texts) for _, e, h in diffs)
+    return any(pinned.material_pair(str(e).split(), str(h).split(), texts)
+               or owner_rules.meaning_pair(str(e).split(), str(h).split()) for _, e, h in diffs)
 
 
 def _edges_substituted_only(expected, heard, n=EDGE_WORDS):

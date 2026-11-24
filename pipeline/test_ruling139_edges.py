@@ -157,5 +157,28 @@ class TestRenderFlags(unittest.TestCase):
         self.assertTrue(flags[0].endswith("might start in the middle of a sentence."), flags)
 
 
+class TestQuestionAfterTheEdge(unittest.TestCase):
+    """Orchestrator 09:45 ET Nov 24: the deterministic edge check runs first; the out-edge question is asked only of a
+    run whose edges and cuts passed: an OUT sentence edge holds at the cut and the question is never asked."""
+
+    def test_an_out_sentence_edge_holds_before_any_question(self):
+        d = tempfile.mkdtemp(prefix="r162q_")
+        self.addCleanup(shutil.rmtree, d, True)
+        with open(os.path.join(d, "edl.json"), "w") as f:
+            json.dump({"hook": {"channel": "A"}, "clips": []}, f)
+        run = types.SimpleNamespace(dir=d, status={}, prov={}, mode="pinned", machine_cuts=True)
+
+        def table(run_dir):
+            with open(os.path.join(run_dir, "cuts_final.json"), "w") as f:
+                json.dump([{"clip_id": "hook", "video_id": "v0", "verified": True, "cut_in": 1.0, "cut_out": 5.0,
+                            "sentence_edge": {"out": "'and' does not end a sentence"}}], f)
+        asked = mock.Mock()
+        with mock.patch.object(RF.L, "write_lock_cut_table", table), mock.patch.object(RF, "check_out_edges", asked):
+            with self.assertRaises(RF.Hold) as cm:
+                RF.stage_cut(run)
+        self.assertIn("ruling 162 (1)", str(cm.exception))
+        asked.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()
