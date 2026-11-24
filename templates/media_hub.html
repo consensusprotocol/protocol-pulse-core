@@ -247,6 +247,82 @@
 }
 
 @media(max-width:768px){.matrix{display:flex!important;flex-direction:column!important}#vidCol{order:-1!important}#podCol{order:0!important}.kol-col{order:1!important}}
+/* ── BOOK LIBRARY (#books) ──
+   Text colours measured >= 4.5:1 on their backgrounds; buttons and links are >= 44 px tall
+   with a visible focus ring. --mut (rgba 255,255,255,.25) is about 2:1 on black, so the
+   section uses its own text tokens instead. */
+.bk{padding:48px 0 0;--bk-text2:#b8b8b8;--bk-text3:#a3a3a3;--bk-author:#d6d6d6}
+.bk-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* static/css/pp-style.css:1486 styles .fab as a 56 px floating action button; Font Awesome uses
+   .fab for brand icons (fa-amazon). Keep brand icons icon-sized inside this section. */
+.bk i.fab{width:auto;height:auto;display:inline-block;box-shadow:none;transition:none}
+.bk i.fab:hover{transform:none;box-shadow:none}
+.bk-head{text-align:center;margin-bottom:2rem}
+.bk-pill{display:inline-flex;align-items:center;gap:.6rem;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.3);padding:.5rem 1.4rem;border-radius:999px;color:#ff6b6b;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;margin-bottom:1rem}
+.bk-h2{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;color:var(--bright);letter-spacing:-0.03em;margin-bottom:.5rem}
+.bk-dek{font-size:.95rem;color:var(--bk-text2);max-width:600px;margin:0 auto;line-height:1.5}
+.bk-status{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--bk-text3);margin-top:.5rem}
+.bk-dot{display:inline-block;width:6px;height:6px;background:#888;border-radius:50%;margin-right:4px;animation:tagPulse 2s infinite;vertical-align:middle}
+.bk-feature{display:grid;grid-template-columns:140px minmax(0,1fr);gap:2rem;align-items:center;background:linear-gradient(135deg,var(--card) 0%,rgba(220,38,38,0.06) 100%);border:1px solid rgba(220,38,38,0.2);border-left:4px solid var(--red);border-radius:12px;padding:2rem;margin-bottom:2.5rem}
+.bk-feature-cover img{display:block;width:140px;height:auto;border-radius:6px;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.bk-feature-body{min-width:0}
+.bk-badge{display:inline-flex;align-items:center;gap:.4rem;background:#b91c1c;color:#fff;font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;padding:.3rem .8rem;border-radius:4px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem}
+.bk-feature-title{font-size:1.4rem;font-weight:700;color:var(--bright);margin:0 0 .5rem;letter-spacing:-0.02em;overflow-wrap:anywhere}
+.bk-feature-text{font-size:.9rem;color:var(--bk-text2);line-height:1.6;margin:0 0 1rem;overflow-wrap:anywhere}
+.bk-actions{display:flex;gap:.75rem;flex-wrap:wrap}
+.bk-btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:44px;padding:.6rem 1.25rem;border-radius:8px;font-weight:600;font-size:.85rem;line-height:1.2;text-decoration:none;color:#fff;border:1px solid transparent;transition:background .2s,border-color .2s}
+.bk-btn:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.bk-btn-primary{background:#c40000}
+.bk-btn-primary:hover{background:#a30000;color:#fff}
+.bk-btn-ghost{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.22)}
+.bk-btn-ghost:hover{background:rgba(255,255,255,0.14);color:#fff}
+.bk-btn-buy{width:100%;margin-top:.75rem;background:transparent;border-color:rgba(255,255,255,0.28);color:#f2f2f2;font-size:.8rem;padding:.5rem .75rem}
+.bk-btn-buy:hover{border-color:#ff5c5c;background:rgba(220,38,38,0.12);color:#fff}
+.bk-btn-link{padding:0;justify-content:flex-start;color:#f2f2f2;text-decoration:underline;text-underline-offset:3px;font-size:.8rem}
+.bk-btn-link:hover{color:#fff}
+.bk-panel{background:var(--card);border:1px solid var(--border-h);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem}
+.bk-panel-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border-h)}
+.bk-label{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--bk-text3);text-transform:uppercase;letter-spacing:.1em}
+.bk-legend{display:flex;gap:1rem;list-style:none;margin:0;padding:0;font-size:.72rem;font-family:'JetBrains Mono',monospace;color:var(--bk-text2)}
+.bk-swatch{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.bk-chart{position:relative;height:420px}
+.bk-note{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--bk-text3);margin-top:.75rem;line-height:1.5}
+.bk-rising{margin-bottom:2.5rem}
+.bk-label-row{display:flex;align-items:center;gap:.5rem;margin-bottom:1rem}
+.bk-rising-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
+.bk-rise{display:flex;gap:1rem;background:var(--card);border:1px solid var(--border-h);border-radius:12px;padding:1rem}
+.bk-rise-cover{width:56px;flex-shrink:0}
+.bk-rise-cover img{display:block;width:56px;height:auto;border-radius:4px}
+.bk-rise-body{min-width:0;display:flex;flex-direction:column;gap:.25rem}
+.bk-rise-title{font-size:.88rem;font-weight:600;color:var(--bright);margin:0;line-height:1.3}
+.bk-rise-chip{display:inline-flex;align-items:center;gap:.3rem;font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:600;color:#4ade80;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);padding:.2rem .5rem;border-radius:4px;width:fit-content}
+.bk-library{margin-top:2rem}
+.bk-library-head{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem}
+.bk-h3{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:700;color:var(--bright);text-transform:uppercase;letter-spacing:.1em;margin:0}
+.bk-count{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#fbbf6a;background:rgba(247,147,26,0.1);border:1px solid rgba(247,147,26,0.3);padding:.15rem .5rem;border-radius:4px}
+.bk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.25rem}
+.bk-card{background:var(--card);border:1px solid var(--border-h);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .25s}
+.bk-card:hover,.bk-card:focus-within{border-color:rgba(247,147,26,0.35)}
+.bk-card-cover{height:220px;background:var(--elevated);display:flex;align-items:center;justify-content:center;padding:12px}
+.bk-card-cover img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
+.bk-card-body{padding:1rem;flex:1;display:flex;flex-direction:column}
+.bk-card-title{font-size:.9rem;font-weight:600;color:var(--bright);margin:0 0 .3rem;line-height:1.25}
+.bk-card-author{font-size:.78rem;color:var(--bk-author);margin-bottom:.5rem}
+.bk-card-rank{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--bk-text2);margin-top:auto}
+.bk-empty{grid-column:1/-1;padding:2rem;text-align:center;color:var(--bk-text3);font-family:'JetBrains Mono',monospace;font-size:.75rem;border:1px dashed var(--border-h);border-radius:12px}
+@media(max-width:640px){
+  .bk-feature{grid-template-columns:minmax(0,1fr);padding:1.25rem;gap:1.25rem}
+  .bk-feature-cover img{width:120px;margin:0 auto}
+  .bk-actions{flex-direction:column}
+  .bk-actions .bk-btn{width:100%}
+  .bk-panel{padding:1rem}
+  .bk-chart{height:320px}
+  .bk-legend{gap:.75rem;flex-wrap:wrap}
+  .bk-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem}
+  .bk-card-cover{height:180px;padding:10px}
+  .bk-card-body{padding:.75rem}
+}
+@media(prefers-reduced-motion:reduce){.bk-dot{animation:none}.bk-card,.bk-btn{transition:none}}
 </style>
 {% endblock %}
 
@@ -433,46 +509,46 @@
   </div>
 
   <!-- Live signal terminal removed from /media — use /terminal instead -->
-  <div id="books" style="padding:48px 0 0;">
+  <div id="books" class="bk">
     <!-- Header -->
-    <div style="text-align:center;margin-bottom:2rem;">
-      <div style="display:inline-flex;align-items:center;gap:0.6rem;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);padding:0.5rem 1.4rem;border-radius:999px;color:var(--red);font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:1rem;"><i class="fas fa-chart-line"></i> SOVEREIGN LIBRARY</div>
-      <h2 style="font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;color:var(--bright);letter-spacing:-0.03em;margin-bottom:0.5rem;">Live Book Metrics</h2>
-      <p style="font-size:0.95rem;color:var(--mut);max-width:600px;margin:0 auto;line-height:1.5;">Amazon US Best Sellers Rank, relative and per format. Not sales counts.</p>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--mut);margin-top:0.5rem;"><span id="bookMetricsDot" style="display:inline-block;width:6px;height:6px;background:#888888;border-radius:50%;margin-right:4px;animation:tagPulse 2s infinite;vertical-align:middle;"></span> <span id="bookMetricsUpdated">Loading rank data…</span></div>
+    <div class="bk-head">
+      <div class="bk-pill"><i class="fas fa-chart-line" aria-hidden="true"></i> SOVEREIGN LIBRARY</div>
+      <h2 class="bk-h2">Live Book Metrics</h2>
+      <p class="bk-dek">Amazon US Best Sellers Rank, relative and per format. Not sales counts.</p>
+      <div class="bk-status"><span id="bookMetricsDot" class="bk-dot"></span> <span id="bookMetricsUpdated">Loading rank data…</span></div>
     </div>
 
-    <!-- Featured Book Banner -->
-    <div id="featuredBookBanner" style="display:none;"></div>
+    <!-- Featured book: the series button renders only when the payload has a series_url -->
+    <div id="featuredBookBanner" hidden></div>
 
-    <!-- Rank momentum chart: hidden when Chart.js did not load -->
-    <div id="bookChartCard" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border);">
-        <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--mut);text-transform:uppercase;letter-spacing:0.1em;"><i class="fas fa-circle" style="color:#22c55e;font-size:6px;vertical-align:middle;margin-right:4px;"></i> RANK MOMENTUM</span>
-        <div style="display:flex;gap:1rem;font-size:0.7rem;font-family:'JetBrains Mono',monospace;color:var(--mut);">
-          <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-right:4px;vertical-align:middle;"></span>Rising</span>
-          <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f7931a;margin-right:4px;vertical-align:middle;"></span>Other</span>
-          <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#dc2626;margin-right:4px;vertical-align:middle;"></span>PP Series</span>
-        </div>
+    <!-- Rank momentum chart: hidden when Chart.js did not load. One legend: this list. -->
+    <div id="bookChartCard" class="bk-panel">
+      <div class="bk-panel-head">
+        <span class="bk-label"><i class="fas fa-circle" aria-hidden="true" style="color:#22c55e;font-size:6px;vertical-align:middle;margin-right:4px;"></i> RANK MOMENTUM</span>
+        <ul class="bk-legend" aria-label="Chart legend">
+          <li><span class="bk-swatch" style="background:#dc2626"></span>PP Series</li>
+          <li><span class="bk-swatch" style="background:#22c55e"></span>Rising</li>
+          <li><span class="bk-swatch" style="background:#f7931a"></span>Other</li>
+        </ul>
       </div>
-      <div style="position:relative;height:420px;"><canvas id="bookBubbleChart"></canvas></div>
-      <div id="bookChartNote" style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--mut);margin-top:0.75rem;line-height:1.5;"></div>
+      <div class="bk-chart"><canvas id="bookBubbleChart" role="img" aria-label="Rank momentum: each book's rank change since the last fetch against its rank score"></canvas></div>
+      <div id="bookChartNote" class="bk-note"></div>
     </div>
 
     <!-- Rising Stars -->
-    <div id="risingStarsSection" style="display:none;margin-bottom:2.5rem;">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--mut);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-arrow-trend-up" style="color:#22c55e;"></i> RISING STARS — rank improved more than 10% since the last fetch</div>
-      <div id="risingStarsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;"></div>
+    <div id="risingStarsSection" class="bk-rising" hidden>
+      <div class="bk-label bk-label-row"><i class="fas fa-arrow-trend-up" aria-hidden="true" style="color:#22c55e;"></i> RISING STARS — rank improved more than 10% since the last fetch</div>
+      <div id="risingStarsGrid" class="bk-rising-grid"></div>
     </div>
 
-    <!-- Bestsellers Grid -->
-    <div style="margin-top:2rem;">
-      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;">
-        <span style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--mut);text-transform:uppercase;letter-spacing:0.1em;"><i class="fab fa-amazon" style="color:var(--btc);margin-right:4px;"></i> SOVEREIGN MONEY BESTSELLERS</span>
-        <span id="bestsellersCount" style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--btc);background:rgba(247,147,26,0.1);border:1px solid rgba(247,147,26,0.2);padding:0.15rem 0.5rem;border-radius:4px;">LOADING</span>
+    <!-- The Library: every registry book. Ranked books show their rank; the rest say they have none. -->
+    <section class="bk-library" aria-labelledby="libraryHeading">
+      <div class="bk-library-head">
+        <h3 id="libraryHeading" class="bk-h3">The Library</h3>
+        <span id="libraryCount" class="bk-count">Loading</span>
       </div>
-      <div id="bestsellersGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.25rem;"><div style="grid-column:1/-1;padding:2rem;text-align:center;color:var(--mut);font-family:'JetBrains Mono',monospace;font-size:0.75rem;border:1px dashed var(--border);border-radius:12px;">Loading books…</div></div>
-    </div>
+      <div id="libraryGrid" class="bk-grid"><div class="bk-empty">Loading books…</div></div>
+    </section>
   </div>
 
 </div><!-- /wrap -->
@@ -711,12 +787,15 @@ function mhNlSub(e){
 /* Amazon US Best Sellers Rank per book from /api/books/metrics.
    Count, grid and timestamp render first, each step on its own, so a failure in the
    chart (or a missing Chart.js) can never leave the grid empty. A book shows a rank
-   only when the API has one: no_data -> "No rank yet", stale -> "as of <date>". */
+   only when the API has one: no_data -> "No rank yet", stale -> "as of <date>".
+   Every book has a text purchase button (label from the API: "Buy on Amazon" or
+   "Kindle on Amazon"). Unranked books are never given a rank or a sales label. */
 (function(){
     var bookChart=null;
     var shown=false;      // a response has rendered at least once
     var lastGood=null;    // last_updated of the last good response
     var DOT={ok:'#22c55e',stale:'#F8C15C',error:'#CC0000',idle:'#888888'};
+    var NEW_TAB='<span class="bk-sr"> (opens in a new tab)</span>';
 
     function byId(id){return document.getElementById(id);}
     function fmtDate(iso){var d=new Date(iso);return isNaN(d)?'':d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
@@ -733,8 +812,23 @@ function mhNlSub(e){
         if(t)t.textContent=text;
         if(d)d.style.background=DOT[state]||DOT.idle;
     }
-    function notice(text){return '<div style="grid-column:1/-1;padding:2rem;text-align:center;color:var(--mut);font-family:JetBrains Mono,monospace;font-size:0.75rem;border:1px dashed var(--border);border-radius:12px;">'+_esc(text)+'</div>';}
+    function notice(text){return '<div class="bk-empty">'+_esc(text)+'</div>';}
     function step(name,fn){try{fn();}catch(e){console.error('Book library: '+name+' failed',e);}}
+    function buyLink(url,label,cls){
+        return '<a class="bk-btn '+cls+'" href="'+_esc(url)+'" target="_blank" rel="noopener sponsored">'+
+            '<i class="fab fa-amazon" aria-hidden="true"></i> '+_esc(label||'Buy on Amazon')+NEW_TAB+'</a>';
+    }
+    function cover(b){
+        return '<img src="'+_esc(b.cover_url)+'" alt="Cover of '+_esc(b.title)+'" data-asin="'+_esc(b.asin||'')+'" loading="lazy" decoding="async">';
+    }
+    // A cover that fails: try Amazon's image for the ID once, then hide it (no broken icon).
+    var root=byId('books');
+    if(root)root.addEventListener('error',function(e){
+        var img=e.target;
+        if(!img||img.tagName!=='IMG')return;
+        if(!img.dataset.r&&img.dataset.asin){img.dataset.r='1';img.src='https://m.media-amazon.com/images/P/'+img.dataset.asin+'.01.L.jpg';}
+        else{img.style.visibility='hidden';}
+    },true);
 
     function fetchBookMetrics(){
         fetch('/api/books/metrics').then(function(r){
@@ -745,7 +839,7 @@ function mhNlSub(e){
             if(!res.ok||!data||!Array.isArray(data.books))throw new Error((data&&data.error)||('HTTP '+res.status));
             var books=data.books;
             step('count',function(){renderCount(books);});
-            step('grid',function(){renderBestsellersGrid(books);});
+            step('grid',function(){renderLibraryGrid(books);});
             step('timestamp',function(){renderTimestamp(data);});
             step('featured',function(){renderFeaturedBook(data.featured);});
             step('rising',function(){renderRisingStars(data.rising);});
@@ -756,16 +850,16 @@ function mhNlSub(e){
             console.warn('Book metrics unavailable:',e);
             setStatus(lastGood?'Rank data unavailable, last good '+fmtStamp(lastGood):'Rank data unavailable','error');
             if(!shown){
-                var c=byId('bestsellersCount');if(c)c.textContent='UNAVAILABLE';
-                var g=byId('bestsellersGrid');if(g)g.innerHTML=notice('Book data is unavailable right now.');
+                var c=byId('libraryCount');if(c)c.textContent='Unavailable';
+                var g=byId('libraryGrid');if(g)g.innerHTML=notice('Book data is unavailable right now.');
                 var card=byId('bookChartCard');if(card)card.style.display='none';
             }
         });
     }
 
     function renderCount(books){
-        var c=byId('bestsellersCount');
-        if(c)c.textContent=books.length+(books.length===1?' BOOK':' BOOKS');
+        var c=byId('libraryCount');
+        if(c)c.textContent=books.length+(books.length===1?' book':' books');
     }
 
     function renderTimestamp(data){
@@ -779,20 +873,24 @@ function mhNlSub(e){
 
     function renderFeaturedBook(f){
         var el=byId('featuredBookBanner');
-        if(!f||!el){if(el)el.style.display='none';return;}
-        el.style.display='block';
-        el.innerHTML='<div style="display:grid;grid-template-columns:auto 1fr;gap:2rem;background:linear-gradient(135deg,var(--card) 0%,rgba(220,38,38,0.06) 100%);border:1px solid rgba(220,38,38,0.2);border-radius:12px;padding:2rem;margin-bottom:2.5rem;position:relative;overflow:hidden;border-left:4px solid var(--red);">'+
-            '<div style="width:140px;height:200px;border-radius:8px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.4);flex-shrink:0;"><img src="'+_esc(f.cover_url)+'" alt="'+_esc(f.title)+'" style="width:100%;height:100%;object-fit:cover;" loading="lazy"></div>'+
-            '<div style="display:flex;flex-direction:column;justify-content:center;">'+
-                '<div style="display:inline-flex;align-items:center;gap:0.4rem;background:var(--red);color:#fff;font-family:JetBrains Mono,monospace;font-size:0.65rem;font-weight:700;padding:0.3rem 0.8rem;border-radius:4px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.75rem;width:fit-content;"><i class="fas fa-star"></i> '+_esc(f.badge||'FEATURED')+'</div>'+
-                '<div style="font-size:1.4rem;font-weight:700;color:var(--bright);margin-bottom:0.5rem;letter-spacing:-0.02em;">'+_esc(f.headline||f.title)+'</div>'+
-                '<div style="font-size:0.9rem;color:var(--sec);line-height:1.6;margin-bottom:1rem;">'+_esc(f.body_text||'')+'</div>'+
-                '<div style="display:flex;gap:0.75rem;flex-wrap:wrap;">'+
-                    '<a href="'+_esc(f.amazon_url)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--red);color:#fff;padding:0.7rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.85rem;"><i class="fab fa-amazon"></i> Get on Amazon</a>'+
-                    (f.series_url?'<a href="'+_esc(f.series_url)+'" style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.7rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.85rem;"><i class="fas fa-play-circle"></i> Watch the Series</a>':'')+
-                    '<a href="https://www.youtube.com/@ProtocolPulse" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.7rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.85rem;"><i class="fab fa-youtube"></i> Big Print Series</a>'+
-                '</div>'+
+        if(!el)return;
+        if(!f){el.hidden=true;el.innerHTML='';return;}
+        // Series button only when the data has a series link; its label comes from the data too.
+        var series='';
+        if(f.series_url){
+            var external=/^https?:/i.test(f.series_url);
+            series='<a class="bk-btn bk-btn-ghost" href="'+_esc(f.series_url)+'"'+(external?' target="_blank" rel="noopener"':'')+'>'+
+                '<i class="fas fa-play-circle" aria-hidden="true"></i> '+_esc(f.series_label||((f.title||'')+' series'))+(external?NEW_TAB:'')+'</a>';
+        }
+        el.innerHTML='<div class="bk-feature">'+
+            '<div class="bk-feature-cover"><img src="'+_esc(f.cover_url)+'" alt="Cover of '+_esc(f.title)+'" loading="lazy" decoding="async"></div>'+
+            '<div class="bk-feature-body">'+
+                '<div class="bk-badge"><i class="fas fa-star" aria-hidden="true"></i> '+_esc(f.badge||'FEATURED')+'</div>'+
+                '<h3 class="bk-feature-title">'+_esc(f.headline||f.title)+'</h3>'+
+                '<p class="bk-feature-text">'+_esc(f.body_text||'')+'</p>'+
+                '<div class="bk-actions">'+buyLink(f.amazon_url,f.purchase_label,'bk-btn-primary')+series+'</div>'+
             '</div></div>';
+        el.hidden=false;
     }
 
     function renderBubbleChart(books){
@@ -823,8 +921,8 @@ function mhNlSub(e){
             {label:'Rising',data:mkPts(risingBooks),backgroundColor:'rgba(34,197,94,0.45)',borderColor:'rgba(34,197,94,0.8)',borderWidth:2,hoverBackgroundColor:'rgba(34,197,94,0.7)'},
             {label:'Other',data:mkPts(otherBooks),backgroundColor:'rgba(247,147,26,0.35)',borderColor:'rgba(247,147,26,0.6)',borderWidth:2,hoverBackgroundColor:'rgba(247,147,26,0.55)'}
         ];
-        var axisTitle={color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:10,weight:'600'}};
-        var axisTicks={color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:9}};
+        var axisTitle={color:'rgba(255,255,255,0.72)',font:{family:'JetBrains Mono',size:11,weight:'600'}};
+        var axisTicks={color:'rgba(255,255,255,0.72)',font:{family:'JetBrains Mono',size:10}};
         var firstDraw=!bookChart;
         if(bookChart)bookChart.destroy();
         bookChart=new Chart(canvas.getContext('2d'),{
@@ -837,28 +935,25 @@ function mhNlSub(e){
                     x:{
                         title:Object.assign({display:true,text:'Rank change since last fetch %'},axisTitle),
                         suggestedMin:-25,suggestedMax:25,
-                        grid:{color:'rgba(255,255,255,0.05)'},
+                        grid:{color:'rgba(255,255,255,0.06)'},
                         ticks:Object.assign({callback:function(v){return pct(v);}},axisTicks)
                     },
                     y:{
                         title:Object.assign({display:true,text:'Rank score (from rank)'},axisTitle),
                         min:0,max:105,
-                        grid:{color:'rgba(255,255,255,0.05)'},
+                        grid:{color:'rgba(255,255,255,0.06)'},
                         ticks:axisTicks
                     }
                 },
                 plugins:{
-                    legend:{
-                        display:true,
-                        position:'top',
-                        labels:{color:'rgba(255,255,255,0.6)',font:{family:'JetBrains Mono',size:9},boxWidth:10,padding:16}
-                    },
+                    // The card header carries the legend (same colours, same order): no second one here.
+                    legend:{display:false},
                     tooltip:{
                         backgroundColor:'#0d0d0d',
                         borderColor:'rgba(255,255,255,0.12)',borderWidth:1,
                         titleFont:{family:'JetBrains Mono',size:12,weight:'700'},
                         bodyFont:{family:'JetBrains Mono',size:10},
-                        titleColor:'#fff',bodyColor:'rgba(255,255,255,0.65)',
+                        titleColor:'#fff',bodyColor:'rgba(255,255,255,0.78)',
                         padding:14,cornerRadius:8,
                         callbacks:{
                             title:function(items){return items[0].raw.book.title;},
@@ -885,40 +980,39 @@ function mhNlSub(e){
     function renderRisingStars(rising){
         var section=byId('risingStarsSection');
         var grid=byId('risingStarsGrid');
+        if(!section||!grid)return;
         var list=(rising||[]).filter(function(b){return hasRank(b)&&typeof b.bsr_change==='number';});
-        if(!list.length||!grid){if(section)section.style.display='none';return;}
-        section.style.display='block';
+        if(!list.length){section.hidden=true;return;}
         grid.innerHTML=list.map(function(b){
-            return '<a href="'+_esc(b.amazon_url)+'" target="_blank" rel="noopener" style="display:flex;gap:1rem;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;text-decoration:none;color:inherit;transition:border-color 0.2s,transform 0.2s;" onmouseover="this.style.borderColor=\'rgba(34,197,94,0.4)\';this.style.transform=\'translateY(-3px)\'" onmouseout="this.style.borderColor=\'\';this.style.transform=\'\'">'+
-                '<div style="width:55px;height:80px;border-radius:6px;overflow:hidden;flex-shrink:0;"><img src="'+_esc(b.cover_url)+'" alt="'+_esc(b.title)+'" data-asin="'+_esc(b.asin||'')+'" onerror="if(!this.dataset.r){this.dataset.r=1;var a=this.dataset.asin;this.src=a?(\'https://m.media-amazon.com/images/P/\'+a+\'.01.L.jpg\'):\'\';}else{this.style.display=\'none\';}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"></div>'+
-                '<div style="display:flex;flex-direction:column;justify-content:center;min-width:0;">'+
-                    '<div style="font-size:0.85rem;font-weight:600;color:var(--bright);margin-bottom:0.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_esc(b.title)+'</div>'+
-                    '<div style="font-size:0.72rem;color:var(--mut);margin-bottom:0.4rem;">'+_esc(b.author)+'</div>'+
-                    '<div style="display:inline-flex;align-items:center;gap:0.3rem;font-family:JetBrains Mono,monospace;font-size:0.65rem;font-weight:600;color:#22c55e;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);padding:0.2rem 0.5rem;border-radius:4px;width:fit-content;"><i class="fas fa-arrow-trend-up"></i> RISING '+Math.abs(b.bsr_change).toFixed(1)+'%</div>'+
-                    '<div style="font-family:JetBrains Mono,monospace;font-size:0.65rem;color:var(--mut);margin-top:0.25rem;">'+_esc(rankLine(b))+'</div>'+
-                '</div></a>';
+            return '<article class="bk-rise">'+
+                '<div class="bk-rise-cover">'+cover(b)+'</div>'+
+                '<div class="bk-rise-body">'+
+                    '<h4 class="bk-rise-title">'+_esc(b.title)+'</h4>'+
+                    '<div class="bk-card-author">'+_esc(b.author)+'</div>'+
+                    '<div class="bk-rise-chip"><i class="fas fa-arrow-trend-up" aria-hidden="true"></i> RISING '+Math.abs(b.bsr_change).toFixed(1)+'%</div>'+
+                    '<div class="bk-card-rank">'+_esc(rankLine(b))+'</div>'+
+                    buyLink(b.amazon_url,b.purchase_label,'bk-btn-link')+
+                '</div></article>';
         }).join('');
+        section.hidden=false;
     }
 
-    function renderBestsellersGrid(books){
-        var grid=byId('bestsellersGrid');
+    function renderLibraryGrid(books){
+        var grid=byId('libraryGrid');
         if(!grid)return;
         if(!books.length){grid.innerHTML=notice('No books to show yet.');return;}
         // Ranked books by rank, then the books without a rank: never a made-up position.
         var ranked=books.filter(hasRank).sort(function(a,b){return a.bsr-b.bsr;});
         var unranked=books.filter(function(b){return !hasRank(b);});
-        grid.innerHTML=ranked.concat(unranked).map(function(b,idx){
-            var pos=hasRank(b)?'<span style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.7);border:1px solid var(--border);color:var(--btc);font-family:JetBrains Mono,monospace;font-size:0.6rem;font-weight:700;padding:0.2rem 0.4rem;border-radius:4px;">#'+(idx+1)+'</span>':'';
-            return '<a href="'+_esc(b.amazon_url)+'" target="_blank" rel="noopener" data-status="'+_esc(b.data_status||'')+'" style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;transition:border-color 0.25s,transform 0.25s;display:flex;flex-direction:column;" onmouseover="this.style.borderColor=\'rgba(247,147,26,0.3)\';this.style.transform=\'translateY(-6px)\'" onmouseout="this.style.borderColor=\'\';this.style.transform=\'\'">'+
-                '<div style="height:220px;background:var(--elevated);display:flex;align-items:center;justify-content:center;padding:12px;position:relative;">'+
-                    pos+
-                    '<img src="'+_esc(b.cover_url)+'" alt="'+_esc(b.title)+'" data-asin="'+_esc(b.asin||'')+'" onerror="if(!this.dataset.r){this.dataset.r=1;var a=this.dataset.asin;this.src=a?(\'https://m.media-amazon.com/images/P/\'+a+\'.01.L.jpg\'):\'\';}else{this.style.display=\'none\';}" style="max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;" loading="lazy">'+
-                '</div>'+
-                '<div style="padding:1rem;flex:1;display:flex;flex-direction:column;">'+
-                    '<div style="font-size:0.9rem;font-weight:600;color:var(--bright);margin-bottom:0.3rem;line-height:1.25;">'+_esc(b.title)+'</div>'+
-                    '<div style="font-size:0.75rem;color:var(--red);font-family:JetBrains Mono,monospace;margin-bottom:0.5rem;">'+_esc(b.author)+'</div>'+
-                    '<span style="font-size:0.75rem;color:var(--mut);margin-top:auto;display:flex;align-items:center;gap:0.35rem;"><i class="fab fa-amazon"></i> '+_esc(rankLine(b))+'</span>'+
-                '</div></a>';
+        grid.innerHTML=ranked.concat(unranked).map(function(b){
+            return '<article class="bk-card" data-status="'+_esc(b.data_status||'')+'">'+
+                '<div class="bk-card-cover">'+cover(b)+'</div>'+
+                '<div class="bk-card-body">'+
+                    '<h4 class="bk-card-title">'+_esc(b.title)+'</h4>'+
+                    '<div class="bk-card-author">'+_esc(b.author)+'</div>'+
+                    '<div class="bk-card-rank">'+_esc(rankLine(b))+'</div>'+
+                    buyLink(b.amazon_url,b.purchase_label,'bk-btn-buy')+
+                '</div></article>';
         }).join('');
     }
 
