@@ -49,6 +49,7 @@ class TestStageValidateRuling91(unittest.TestCase):
                 json.dump(edl, f)
             run = types.SimpleNamespace(dir=d, prov={})
             with mock.patch.object(edl_rules, "validate_edl", return_value=(True, [])), \
+                    mock.patch.object(run_fresh, "out_edges", side_effect=lambda run, edl: self.edges), \
                     mock.patch.object(editorial_gate, "run_gate", side_effect=Reached):
                 try:
                     run_fresh.stage_validate(run)
@@ -58,13 +59,52 @@ class TestStageValidateRuling91(unittest.TestCase):
                     return f"HOLD: {h}", run.prov
             return "returned", run.prov
 
-    def test_a_takeaway_without_its_verdict_is_flagged_and_the_stage_goes_on(self):     # rulings 136 / 137: SOFT
-        for gates in (None, {}, live(status="FAIL"), live(replayed=True), live(text="Another draft of the line.")):
+    edges = []                                       # ruling 162 (1)'s re-ask, stubbed: no segment asked
+
+    def test_ruling_162_a_takeaway_without_its_live_pass_holds(self):
+        """RULING 162 (2) (orchestrator 07:45 ET Nov 24): the closing line's VALUE is a requirement again (ruling 150
+        reversed): no row, a non-PASS (FLAGGED included), a replayed verdict or one on another draft HOLDS before the
+        editorial gate; it is no longer a flag."""
+        for gates in (None, {}, live(status="FAIL"), live(replayed=True), live(text="Another draft of the line."),
+                      live(status="FLAGGED", flags=["The closing line may not say much."])):
             got, prov = self.run_stage(medley(gates))
-            self.assertEqual(got, "reached the editorial gate", gates)
+            self.assertTrue(got.startswith("HOLD: ruling 162 (2): the closing voiceover line may not be voiced"), got)
             self.assertIs(prov.get("takeaway_value", {}).get("pass"), False, got)
-            self.assertEqual([f["flag"] for f in prov["review_flags"]],
-                             ["The checker doubted that the closing voiceover line gives a takeaway worth saying."])
+            self.assertNotIn("review_flags", prov)
+
+    def test_ruling_162_a_line_of_ours_that_lists_the_sources_holds(self):
+        line = "Bitcoin, in the words of Simply Bitcoin and Yahoo Finance, in their own clips."
+        e = medley(live(text=line), bridges=[{"text": line, "after_clip": 2}])
+        e["clips"] = [{"index": 1, "channel": "Simply Bitcoin"}, {"index": 2, "channel": "Yahoo Finance"}]
+        got, prov = self.run_stage(e)
+        self.assertTrue(got.startswith("HOLD: ruling 162 (2): a voiceover line of ours lists the sources instead of "
+                                       "adding value: the closing line 'Bitcoin, in the words of"), got)
+        for part in ("names 'Simply Bitcoin'", "names 'Yahoo Finance'", "says 'in the words of'"):
+            self.assertIn(part, got)
+        self.assertEqual(prov["our_lines"]["pass"], False)
+        e["vo"]["bridges"] = [{"text": "Same question, from a miner's side.", "after_clip": 1}]     # a clean bridge,
+        got, prov = self.run_stage(e)                                                          # no takeaway
+        self.assertEqual(got, "reached the editorial gate")
+        self.assertEqual(prov["our_lines"], {"pass": True, "faults": []})
+
+    def test_ruling_162_an_open_out_edge_holds_and_an_unanswered_one_is_unverified(self):
+        def edge(seg, complete, measured=True, why="w"):
+            return {"segment": seg, "complete": complete, "finishes_at": None, "why": why, "measured": measured}
+        for edges, want in (([edge("hook", False, why="the same story is told next"), edge("clip_01", True)],
+                             "HOLD: ruling 162 (1): a clip ends while the speaker's thought carries on: hook (the same "
+                             "story is told next)"),
+                            ([edge("hook", True), edge("clip_01", None, False, "no answer: URLError")],
+                             "HOLD: UNVERIFIED (ruling 160 (2a)): the OUT-edge check (ruling 162 (1)) could not be "
+                             "answered for clip_01 (no answer: URLError)"),
+                            ([edge("hook", False, why="w0"), edge("clip_01", None, False, "no answer: URLError")],
+                             "HOLD: ruling 162 (1): a clip ends while the speaker's thought carries on: hook (w0); "
+                             "and UNVERIFIED (ruling 160 (2a)), the check could not be answered for clip_01 (no "
+                             "answer: URLError)"),
+                            ([edge("hook", True), edge("clip_01", True)], "reached the editorial gate")):
+            self.edges = edges
+            got, prov = self.run_stage(medley(live()))
+            self.assertEqual(got, want)
+            self.assertEqual(prov["out_edge"], edges)
 
     def test_with_its_verdict_or_no_takeaway_the_stage_goes_on(self):
         for edl in (medley(live()), medley(None, bridges=[])):

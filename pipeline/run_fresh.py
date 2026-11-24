@@ -271,20 +271,89 @@ def flag_short_hook_cut(run, cuts):
             flag(run, HOOK_ABRUPT, f"G17a at the cut (ruling 146 (2)): {c['hook_lead']['short']}")
 
 
+OUT_EDGE_BEFORE = 2        # ruling 162 (1): sentences of the run's own decode shown before the clip ...
+OUT_EDGE_AFTER = 3         # ... and after it (what the speaker says next)
+
+
+def our_line_faults(edl, registry):
+    """RULING 162 (2) (orchestrator 07:45 ET Nov 24, from PBX): every line of OURS in the video (the intro, each bridge,
+    the closing line; never the sign-off, the outro tag's credits by law L-a) through owner_rules.line_faults, the one
+    rule the builder seals with: a credited channel's display name or alias, or a listing phrase. -> ["<where>
+    '<text>': <faults>"], [] when every line is clean. A malformed vo object is no line here (R11 judges it)."""
+    import credit_rings
+    import owner_rules
+    vo = edl.get("vo") if isinstance(edl.get("vo"), dict) else {}
+    reg = {e.get("display_name"): e for e in registry or [] if isinstance(e, dict)}
+    names = []
+    for ch in credit_rings.credit_channels(edl):
+        names += [ch] + list((reg.get(ch) or {}).get("aliases") or [])
+    idx = [c.get("index") for c in edl.get("clips") or [] if isinstance(c, dict)]
+    last = max([i for i in idx if type(i) is int], default=None)            # the closing line is the line after the
+    lines = ([("the intro", vo["intro"])] if isinstance(vo.get("intro"), str) else []) + \
+        [("the closing line" if b.get("after_clip") == last else f"the line after clip {b.get('after_clip')}",
+          b.get("text")) for b in vo.get("bridges") or []                   # LAST clip (edl_rules.takeaway_value)
+         if isinstance(b, dict) and isinstance(b.get("text"), str)]
+    out = []
+    for where, text in lines:
+        bad = owner_rules.line_faults(text, names)
+        if bad:
+            out.append(f"{where} {text!r}: {', '.join(bad)}")
+    return out
+
+
+def out_edges(run, edl, router=None):
+    """RULING 162 (1) (orchestrator 07:45 ET Nov 24, from PBX's review of afd8977d's opener): every segment's OUT edge
+    re-asked at validate with owner_rules.out_edge, the builder's own question: the locked words (selection_lock i0..i1
+    of the run's decode in transcripts/<video_id>.json), OUT_EDGE_BEFORE sentences before them and OUT_EDGE_AFTER after.
+    -> [{"segment", "video_id", "complete", "finishes_at", "why", "backend", "measured", "version"}]. A segment whose
+    lock or decode cannot be read is measured False with the reason (never a pass)."""
+    import owner_rules
+    router = router or owner_rules.HeimdallText()
+    out = []
+    hook = [("hook", edl["hook"])] if isinstance(edl.get("hook"), dict) and edl["hook"] else []   # c1 (qwen F2)
+    for label, seg in hook + [(f"clip_{c.get('index', 0):02d}", c) for c in edl.get("clips") or []
+                              if isinstance(c, dict)]:
+        lk = seg.get("selection_lock") if isinstance(seg, dict) else None
+        try:
+            with open(os.path.join(run.dir, "transcripts", f"{seg['video_id']}.json")) as f:
+                words = json.load(f)["words"]
+            i0, i1 = int(lk["i0"]), int(lk["i1"])
+            if not 0 <= i0 <= i1 < len(words):
+                raise ValueError(f"lock words {i0}-{i1} outside the decode's {len(words)} words")
+        except (OSError, ValueError, KeyError, TypeError) as e:
+            out.append({"segment": label, "video_id": (seg or {}).get("video_id"), "complete": None,
+                        "finishes_at": None, "why": f"the lock or the decode is not readable ({type(e).__name__}: {e})",
+                        "backend": None, "measured": False, "version": owner_rules.VERSION})
+            continue
+        r = owner_rules.out_edge(router, " ".join(str(w["word"]).strip() for w in words[i0:i1 + 1]),
+                                 " ".join(owner_rules.sentences(words[max(0, i0 - 80):i0], OUT_EDGE_BEFORE,
+                                                                forward=False)),
+                                 owner_rules.sentences(words[i1 + 1:], OUT_EDGE_AFTER))
+        out.append({"segment": label, "video_id": seg.get("video_id"), **r})
+        print(f"  out edge {label}: {'complete' if r['complete'] else 'NOT complete' if r['measured'] else 'no answer'}"
+              f" ({r['backend']}): {r['why']}")
+    return out
+
+
 def flag_sentence_edges(run, cuts):
-    """RULING 139 at the cut (binding the render's lock, ruling 147 (3)): a lock edge that sits at a word boundary but
-    is not a sentence edge (lock_cut's "sentence_edge") is flagged in R10's / R9's plain sentence for that clip, never
-    held. No audio between the words stays a refusal (lock_cut keeps it unverified)."""
+    """RULING 139 at the cut (binding the render's lock, ruling 147 (3)), as RULING 162 (1) (orchestrator 07:45 ET Nov 24,
+    from PBX) leaves it: a lock edge that sits at a word boundary but is not a sentence edge (lock_cut's "sentence_edge")
+    is flagged in R10's plain sentence for that clip at the IN edge, never held there; at the OUT edge it HOLDS (a clip
+    never ends while the speaker is still mid-sentence; the render cannot extend a sealed span). No audio between the
+    words stays a refusal at either edge (lock_cut keeps it unverified)."""
     marked = [c for c in cuts if isinstance(c.get("sentence_edge"), dict) and c["sentence_edge"]]
+    outs = [f"{c['clip_id']}: {c['sentence_edge']['out']}" for c in marked if c["sentence_edge"].get("out")]
+    if outs:
+        raise Hold("ruling 162 (1): a clip ends while the speaker is still mid-sentence (its OUT edge is not the end of a "
+                   "sentence): " + "; ".join(outs))
     if not marked:
         return
     with open(os.path.join(run.dir, "edl.json")) as f:
         edl = json.load(f)
     for c in marked:
-        for side, rule in (("in", "rule_r10"), ("out", "rule_r9")):
-            if c["sentence_edge"].get(side):
-                flag(run, sentence(EDL_SOFT[rule], edl, c["clip_id"]),
-                     f"ruling 139 at the cut, {side.upper()} of {c['clip_id']}: {c['sentence_edge'][side]}")
+        if c["sentence_edge"].get("in"):
+            flag(run, sentence(EDL_SOFT["rule_r10"], edl, c["clip_id"]),
+                 f"ruling 139 at the cut, IN of {c['clip_id']}: {c['sentence_edge']['in']}")
 
 
 def snap_verdict(run, clip_id, snap):
@@ -634,8 +703,24 @@ def stage_validate(run):
     ok91, why91 = takeaway_value(edl)          # ruling 91's MEDLEY half: the live path only (the references predate it)
     print(f"  {why91}")
     run.prov["takeaway_value"] = {"pass": ok91, "reason": why91}
-    if not ok91:
-        flag(run, "The checker doubted that the closing voiceover line gives a takeaway worth saying.", why91)
+    if not ok91:                               # RULING 162 (2): the closing line's value is a requirement again
+        raise Hold(f"ruling 162 (2): the closing voiceover line may not be voiced: {why91}")
+    listing = our_line_faults(edl, reg)        # RULING 162 (2): never a list of the channels, in any line of ours
+    run.prov["our_lines"] = {"pass": not listing, "faults": listing}
+    if listing:
+        raise Hold("ruling 162 (2): a voiceover line of ours lists the sources instead of adding value: "
+                   + "; ".join(listing))
+    edges = out_edges(run, edl)                # RULING 162 (1): no clip ends mid-thought (the opener above all)
+    run.prov["out_edge"] = edges
+    open_ = [f"{e['segment']} ({e['why']})" for e in edges if e["complete"] is False]
+    unanswered = [f"{e['segment']} ({e['why']})" for e in edges if not e["measured"]]
+    if open_:                                  # c1 (glm F4): the unanswered ones are named in the same hold
+        raise Hold("ruling 162 (1): a clip ends while the speaker's thought carries on: " + "; ".join(open_)
+                   + ("; and UNVERIFIED (ruling 160 (2a)), the check could not be answered for " + "; ".join(unanswered)
+                      if unanswered else ""))
+    if unanswered:                             # RULING 160 (2a): a HARD check with no answer is UNVERIFIED
+        raise Hold("UNVERIFIED (ruling 160 (2a)): the OUT-edge check (ruling 162 (1)) could not be answered for "
+                   + "; ".join(unanswered))
 
     # Shared AUTO/PIN editorial law gate. This is the last editorial acceptance
     # point before cutting. It always writes STORYBOARD.md + EDITORIAL_GATE.json
