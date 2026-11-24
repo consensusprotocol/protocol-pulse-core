@@ -64,7 +64,7 @@ class TestOutEdge(unittest.TestCase):
             self.assertEqual((got["complete"], got["finishes_at"], got["measured"]), (True, None, True), reply)
 
     def test_a_finishing_index_outside_the_sentences_given_is_none(self):
-        for fin, want in (("2", 2), (3, None), (-1, None), (True, None), ("x", None), (1.0, None)):
+        for fin, want in (("2", 2), (3, None), (-1, None), (True, None), ("x", None), (1.0, 1), (1.5, None)):
             got = O.out_edge(Router('{"complete": "no", "finishes_at": %s, "why": "w"}' % (
                 f'"{fin}"' if isinstance(fin, str) else str(fin).lower())), HOOK, "", AFTER)
             self.assertEqual((got["complete"], got["finishes_at"], got["measured"]), (False, want, True), fin)

@@ -77,7 +77,8 @@ class TestStageValidateRuling91(unittest.TestCase):
         e = medley(live(text=line), bridges=[{"text": line, "after_clip": 2}])
         e["clips"] = [{"index": 1, "channel": "Simply Bitcoin"}, {"index": 2, "channel": "Yahoo Finance"}]
         got, prov = self.run_stage(e)
-        self.assertTrue(got.startswith("HOLD: ruling 162 (2): a voiceover line of ours lists the sources"), got)
+        self.assertTrue(got.startswith("HOLD: ruling 162 (2): a voiceover line of ours lists the sources instead of "
+                                       "adding value: the closing line 'Bitcoin, in the words of"), got)
         for part in ("names 'Simply Bitcoin'", "names 'Yahoo Finance'", "says 'in the words of'"):
             self.assertIn(part, got)
         self.assertEqual(prov["our_lines"]["pass"], False)
@@ -95,6 +96,10 @@ class TestStageValidateRuling91(unittest.TestCase):
                             ([edge("hook", True), edge("clip_01", None, False, "no answer: URLError")],
                              "HOLD: UNVERIFIED (ruling 160 (2a)): the OUT-edge check (ruling 162 (1)) could not be "
                              "answered for clip_01 (no answer: URLError)"),
+                            ([edge("hook", False, why="w0"), edge("clip_01", None, False, "no answer: URLError")],
+                             "HOLD: ruling 162 (1): a clip ends while the speaker's thought carries on: hook (w0); "
+                             "and UNVERIFIED (ruling 160 (2a)), the check could not be answered for clip_01 (no "
+                             "answer: URLError)"),
                             ([edge("hook", True), edge("clip_01", True)], "reached the editorial gate")):
             self.edges = edges
             got, prov = self.run_stage(medley(live()))

@@ -485,6 +485,8 @@ class TestRuling162(Base):
         LP.serve_once(log=self.log)
         e = self.entry(ATTESTED)
         self.assertEqual((e["request_id"], e["reused"], e["outcome"], e["lock"]), ("r2", True, "hold", None), e)
+        for k in ("transcript_sha256", "adjudication", "relock_adjudication", "alternatives", "spoken_text"):
+            self.assertIsNone(e[k], k)                               # as a fresh hold carries them (c1, glm F6)
         self.assertIn(self.OUT, e["reason"])
         self.assertEqual((len(self.decodes), len(self.heard)), (decodes, heard))    # no new spend
         es[-1]["cut"]["sentence_edge"] = {"in": "'not' does not end a sentence"}    # an IN edge alone stays a pass

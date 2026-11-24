@@ -287,8 +287,11 @@ def our_line_faults(edl, registry):
     names = []
     for ch in credit_rings.credit_channels(edl):
         names += [ch] + list((reg.get(ch) or {}).get("aliases") or [])
+    idx = [c.get("index") for c in edl.get("clips") or [] if isinstance(c, dict)]
+    last = max([i for i in idx if type(i) is int], default=None)            # the closing line is the line after the
     lines = ([("the intro", vo["intro"])] if isinstance(vo.get("intro"), str) else []) + \
-        [(f"the line after clip {b.get('after_clip')}", b.get("text")) for b in vo.get("bridges") or []
+        [("the closing line" if b.get("after_clip") == last else f"the line after clip {b.get('after_clip')}",
+          b.get("text")) for b in vo.get("bridges") or []                   # LAST clip (edl_rules.takeaway_value)
          if isinstance(b, dict) and isinstance(b.get("text"), str)]
     out = []
     for where, text in lines:
@@ -307,8 +310,9 @@ def out_edges(run, edl, router=None):
     import owner_rules
     router = router or owner_rules.HeimdallText()
     out = []
-    for label, seg in [("hook", edl.get("hook") or {})] + [(f"clip_{c.get('index', 0):02d}", c)
-                                                            for c in edl.get("clips") or [] if isinstance(c, dict)]:
+    hook = [("hook", edl["hook"])] if isinstance(edl.get("hook"), dict) and edl["hook"] else []   # c1 (qwen F2)
+    for label, seg in hook + [(f"clip_{c.get('index', 0):02d}", c) for c in edl.get("clips") or []
+                              if isinstance(c, dict)]:
         lk = seg.get("selection_lock") if isinstance(seg, dict) else None
         try:
             with open(os.path.join(run.dir, "transcripts", f"{seg['video_id']}.json")) as f:
@@ -709,9 +713,11 @@ def stage_validate(run):
     edges = out_edges(run, edl)                # RULING 162 (1): no clip ends mid-thought (the opener above all)
     run.prov["out_edge"] = edges
     open_ = [f"{e['segment']} ({e['why']})" for e in edges if e["complete"] is False]
-    if open_:
-        raise Hold("ruling 162 (1): a clip ends while the speaker's thought carries on: " + "; ".join(open_))
     unanswered = [f"{e['segment']} ({e['why']})" for e in edges if not e["measured"]]
+    if open_:                                  # c1 (glm F4): the unanswered ones are named in the same hold
+        raise Hold("ruling 162 (1): a clip ends while the speaker's thought carries on: " + "; ".join(open_)
+                   + ("; and UNVERIFIED (ruling 160 (2a)), the check could not be answered for " + "; ".join(unanswered)
+                      if unanswered else ""))
     if unanswered:                             # RULING 160 (2a): a HARD check with no answer is UNVERIFIED
         raise Hold("UNVERIFIED (ruling 160 (2a)): the OUT-edge check (ruling 162 (1)) could not be answered for "
                    + "; ".join(unanswered))

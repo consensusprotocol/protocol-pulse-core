@@ -110,6 +110,8 @@ def out_edge(router, clip_text, before_text, next_sentences, seed=7, role="out_e
     fin = obj.get("finishes_at")
     if isinstance(fin, str) and fin.strip().isdigit():
         fin = int(fin.strip())
+    elif isinstance(fin, float) and fin.is_integer():           # batch 127 c1 (glm F1): 2.0 is sentence 2
+        fin = int(fin)
     if a == "yes" or isinstance(fin, bool) or not isinstance(fin, int) or not 0 <= fin < len(after):
         fin = None
     return {"complete": a == "yes", "finishes_at": fin, "why": " ".join(str(obj.get("why") or "").split())[:300],
@@ -163,7 +165,10 @@ class HeimdallText:
                                      headers={"Authorization": f"Bearer {self._key()}",
                                               "Content-Type": "application/json"})
         raw = json.loads(urllib.request.urlopen(req, timeout=self.timeout).read())
-        text = ((raw.get("choices") or [{}])[0].get("message") or {}).get("content") or ""
+        first = (raw.get("choices") or [{}])[0] if isinstance(raw, dict) else {}       # batch 127 c1 (glm F2):
+        msg = first.get("message") if isinstance(first, dict) else None               # a malformed body reads as
+        text = msg.get("content") if isinstance(msg, dict) else ""                    # no text (no answer)
+        text = text if isinstance(text, str) else ""
 
         class Reply:
             pass

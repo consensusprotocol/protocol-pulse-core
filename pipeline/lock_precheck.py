@@ -519,7 +519,9 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                          at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
             edge = ((entry.get("cut") or {}).get("sentence_edge") or {}).get("out")
             if edge and entry["outcome"] != "hold":              # RULING 162 (1) on a verdict made before it: no
-                entry.update(outcome="hold", lock=None, reason=OUT_EDGE_HOLD.format(edge))   # new spend, held
+                entry.update(outcome="hold", reason=OUT_EDGE_HOLD.format(edge), lock=None,   # new spend, held as a
+                             transcript_sha256=None, adjudication=None, relock_adjudication=None,  # fresh hold is
+                             alternatives=None, spoken_text=None)                                  # (c1, glm F6)
         else:
             a, err, dsec = dec.get(vid, (None, "not decoded", 0.0))
             spent, lock, reason, t, spoken, cut = [], None, err, time.time(), None, None
