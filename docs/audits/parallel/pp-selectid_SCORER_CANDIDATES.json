@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-24T02:52:51+00:00",
- "build": "ledger_20261124_025241",
+ "generated_at": "2026-11-24T04:37:35+00:00",
+ "build": "ledger_20261124_043726",
  "kind": "moments",
  "candidates": [
   {
@@ -13,30 +13,12 @@
    "trimmed_leading": "Now"
   },
   {
-   "pid": "ad47eab4a19c2324a9eb",
-   "video_id": "vX2WKBOua8w",
-   "channel": "Digital Asset News",
-   "duration": 10.95,
-   "text": "He said, over the weekend, we hit a new low. Bitcoin bottom four years ago to the exact day. Let me read that again.",
-   "text_sha256": "fe4ffcf17524005119d62a4866da3dc7e47448441805865dffba23a0cd8344be",
-   "trimmed_leading": null
-  },
-  {
    "pid": "513842ff9c091700dbb8",
    "video_id": "0shaXx_n870",
    "channel": "Simply Bitcoin",
    "duration": 16.62,
    "text": "Bitcoin bottomed at about $15,000 and a half thousand dollars on November 21st, 2022. On November 21st, 2026, We finished seven weeks straight of red candles with a wick down to $55,000. That's four years to the day. You can't make this up.",
    "text_sha256": "61debb42a57e83f54702f2d9b4ab889f521bafdd30b6975a43d310ac26c9acc3",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "b37fdbe20c4ce28f6067",
-   "video_id": "vX2WKBOua8w",
-   "channel": "Digital Asset News",
-   "duration": 15.58,
-   "text": "He said, over the weekend, we hit a new low. Bitcoin bottom four years ago to the exact day. Let me read that again. Bitcoin bottom four years ago to the exact day.",
-   "text_sha256": "835c9290d7cb9e1fb40708c5504a206543c9fb6066d240ae0469474a268ac3f7",
    "trimmed_leading": null
   },
   {

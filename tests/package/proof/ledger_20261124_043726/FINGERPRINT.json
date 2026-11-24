@@ -1,0 +1,57 @@
+{
+ "fingerprint": "8ab715be26342cd842812b8d323d11518b7ece63713481f700b387498d3270d5",
+ "parts": {
+  "moments": "b20c2cd74206cd23602cffec9023fd35b410cff7525f0de13c1b7752fed998b8",
+  "delivered": "63756e8a811fada028028d28149726fcb15a4efc7c259263c2249aeb733c8434",
+  "day_et": "2026-11-23",
+  "code": "0bb59bad1694b94e73fd33c2ece830d4cd4992bbbc4d3295ad6268636a11709e",
+  "candidates": "9897f14f4b9490374f2e19d914d23d02ab61ea8b21bf3e3cf68f438de9700dac",
+  "due": [],
+  "spotlights": "710d9f9fa4d4b706be1e5ca7bfef3a8b6718df17570f4d75ffb197143d6420ae",
+  "directives": "a1caab6e5bbbf60ae9677b272d4fc9c9f7f5a01558b962ead2932db5416f81cd",
+  "precheck_results": "faccb9951923d34f6965c7a34bfd22f91ad4fbbb793edba7ae9cd272904da5ab",
+  "scorer_verdicts": "448caad03dfb0f4a671bbfb6d27254ef83d560eefb8d6fe7daaaada1b59e887a",
+  "routing": "heimdall_first",
+  "by_hand_152": {
+   "writers": [
+    "heimdall:qwen/qwen3.8-27b",
+    "heimdall:openai/gpt-oss-20b",
+    "heimdall:minimax/minimax-m3.1-flash",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:google/gemma-4-31b-it",
+    "xai:grok-4.20-0309-reasoning"
+   ],
+   "writer_deadline_s": 120.0,
+   "probe": {
+    "heimdall:deepseek/deepseek-v4.1-flash": {
+     "answers": false,
+     "seconds": 0.3,
+     "why": "HTTPError: HTTP Error 503: Service Unavailable"
+    },
+    "heimdall:openai/gpt-oss-20b": {
+     "answers": true,
+     "seconds": 0.8
+    },
+    "heimdall:minimax/minimax-m3.1-flash": {
+     "answers": true,
+     "seconds": 1.1
+    },
+    "heimdall:qwen/qwen3.8-27b": {
+     "answers": true,
+     "seconds": 1.3
+    },
+    "heimdall:z-ai/glm-5.3-flash": {
+     "answers": true,
+     "seconds": 1.8
+    },
+    "heimdall:google/gemma-4-31b-it": {
+     "answers": true,
+     "seconds": 6.3
+    }
+   }
+  }
+ },
+ "open_work": 0,
+ "spend_refused": [],
+ "build": "tests/package/proof/ledger_20261124_043726"
+}
