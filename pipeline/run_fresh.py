@@ -506,10 +506,49 @@ def prefetch_post_live(run, pin_path):
         post_live_prefetch.prefetch(vid, lo, hi, run.dir, log=lambda s: print(s, flush=True))
 
 
+WINDOW_H = 12.0             # RULING 76 (orchestrator 18:08 Nov 13): a clip only while its source is <= 12 h old on the
+#                             RENDER clock (the builder's package_pin.WINDOW_H; test_render_window pins the two together)
+
+
+def window_problems(segments, now=None):
+    """RULING 76 on the render clock, as the builder's package_pin.window_problems judges it: every segment's
+    source_published_at (or published_at) within WINDOW_H of `now` (default: this moment, UTC); an unreadable or
+    zoneless publish time is a problem, never assumed fresh. -> [why]."""
+    from datetime import datetime, timezone
+    now = now or datetime.now(timezone.utc)
+    if now.tzinfo is None:
+        raise ValueError("the render clock needs a zone")
+    out = []
+    for s in segments or []:
+        p = s.get("source_published_at") or s.get("published_at") if isinstance(s, dict) else None
+        try:
+            t = datetime.fromisoformat(str(p).replace("Z", "+00:00"))
+        except (TypeError, ValueError):
+            out.append(f"ruling 76: {s.get('video_id') if isinstance(s, dict) else repr(s)}: no readable publish "
+                       f"time ({p!r})")
+            continue
+        if t.tzinfo is None:
+            out.append(f"ruling 76: {s.get('video_id')}: a publish time without a zone ({p!r}) is no measurement")
+            continue
+        age = (now - t).total_seconds() / 3600.0
+        if age > WINDOW_H:
+            out.append(f"ruling 76: {s.get('video_id')} was published {p}, {age:.1f} h before the render clock (over "
+                       f"{WINDOW_H:g} h): expired")
+    return out
+
+
 def stage_pinned(run, pin_path):
     """PINNED entry point: validate the human decision and write the canonical EDL. Replaces
     stage_editorial + stage_select only; everything downstream is shared."""
     from pinned import prepare, PinError
+    try:                                   # RULING 76 on the RENDER clock, before any download (the verifier's row 13,
+        with open(pin_path) as f:          # Nov 24); an unreadable pin is prepare's to reject
+            segs = json.load(f).get("segments")
+    except (OSError, ValueError, AttributeError):
+        segs = None
+    expired = window_problems(segs) if segs is not None else []
+    if expired:
+        raise Hold("pinned decision rejected (ruling 76, the render clock): " + "; ".join(expired))
     free_gpu0_for_whisper(run, "pinned")   # pinned.acquire runs Whisper on GPU0 (E-FAIL-052: the preflight's model OOM'd it)
     prefetch_post_live(run, pin_path)
     try:
