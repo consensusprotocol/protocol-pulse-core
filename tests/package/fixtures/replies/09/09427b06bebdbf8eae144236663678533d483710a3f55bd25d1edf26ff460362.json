@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 640,
+ "system": null,
+ "prompt": "You judge JOINS between clips of 60-second videos made of other channels' own words (each clip is a\nperson's own words from a show; the shows were not in one conversation). In each PAIR, clip A plays and clip B follows\nit at once, with NO narration between them. Judge each pair ALONE: the pairs are not one video, and nothing else plays\nbefore or between A and B.\n\nTHE CLIPS:\nCLIP id=\"c1\" (on screen: Yahoo Finance): \"Bitcoin swept those lows. Late in the middle of the night this weekend, I woke up, Bitcoin had gone to $55,000 and had bounced. Now, this was basically a historic sell -off. You had one, two, three, four, five, six, seven red weeks in a row. And then this very, very long wick on serious volume.\"\nCLIP id=\"c2\" (on screen: Simply Bitcoin): \"Stocks had fallen seven days in a row, Bitcoin was on its way to 55K, and everybody had the same story.\"\nCLIP id=\"c3\" (on screen: Simply Bitcoin): \"Bitcoin popped right along with it, hitting just over $64,000. And think about where we were on Friday.\"\n\nTHE PAIRS (A -> B):\nPAIR id=\"p1\": c1 -> c2\nPAIR id=\"p2\": c1 -> c3\nPAIR id=\"p3\": c2 -> c3\nPAIR id=\"p4\": c3 -> c2\n\nFor EACH pair, the join question (the previous clip is A, the next clip is B): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming from the previous clip's ending? Answer\n\"followable\": true or false, and \"why\": a few words.\nReturn ONLY this JSON object: {\"pairs\": {\"p1\": {\"followable\": true, \"why\": \"...\"}, \"p2\": {\"followable\": true, \"why\": \"...\"}, \"p3\": {\"followable\": true, \"why\": \"...\"}, \"p4\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"pairs\": {\"p1\": {\"followable\": true, \"why\": \"connects on 7 in a row to 55k\"}, \"p2\": {\"followable\": false, \"why\": \"jumps from 55k selloff to 64k pop\"}, \"p3\": {\"followable\": false, \"why\": \"no link from 55k story to 64k\"}, \"p4\": {\"followable\": true, \"why\": \"clarifies 'where we were on Friday'\"}}}",
+ "usage": {
+  "in": 666,
+  "out": 3510,
+  "usd_reported": 0.0094731
+ },
+ "usd": 0.09108,
+ "seconds": 22.06,
+ "recorded_at": "2026-11-24T03:20:28Z"
+}

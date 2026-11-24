@@ -1,0 +1,19 @@
+{
+ "role": "viewer_takeaway",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 3000,
+ "system": null,
+ "prompt": "You are an ordinary viewer of a 60-second video. Here is everything the video shows and says, in order.\n\nTITLE: \nCAPTION: \nCLIP label=\"hook\" (on screen: Simply Bitcoin): \"Stocks had fallen seven days in a row, Bitcoin was on its way to 55K, and everybody had the same story.\"\nCLIP label=\"clip_01\" (on screen: Digital Asset News): \"He said, over the weekend, we hit a new low. Bitcoin bottom four years ago to the exact day. Let me read that again.\"\nCLIP label=\"clip_02\" (on screen: Yahoo Finance): \"Bitcoin swept those lows. Late in the middle of the night this weekend, I woke up, Bitcoin had gone to $55,000 and had bounced. Now, this was basically a historic sell -off. You had one, two, three, four, five, six, seven red weeks in a row. And then this very, very long wick on serious volume.\"\n\nFor each clip say what you conclude its speaker asserts, how certain they sound, and whether it is positive, negative\nor neutral about its subject. What you conclude a speaker asserts INCLUDES whatever the title, the caption or the\nvoice-over ATTRIBUTES to that speaker (\"X: Y\" or \"X says Y\" tells you that X asserts Y). The voice-over's own opinion,\nframing, question or takeaway, attributed to nobody, is the host's, not the speaker's. Each clip's label is the text inside label=\"...\" after the word CLIP: use exactly that\nlabel in \"label\" and in \"labels\", never the speakers' names. Labels: hook, clip_01, clip_02. Then, for each pair of clips, say whether the video presents their speakers as RELATED TO EACH\nOTHER: one answering the other, one rebutting the other, one agreeing WITH the other (\"X agrees\", \"Y backs that up\",\n\"both say\"), or the two being in one conversation. Two speakers who each state their own view on the same subject,\neach credited, are NOT related (\"none\") unless the video says or implies that they respond to each other.\nReturn ONLY this JSON object: {\"takeaways\": [{\"label\": \"...\", \"asserts\": \"...\", \"certainty\": \"certain\" | \"likely\" |\n\"possible\" | \"speculative\" | \"uncertain\", \"polarity\": \"positive\" | \"negative\" | \"neutral\"}], \"relations\":\n[{\"labels\": [\"...\", \"...\"], \"relation\": \"none\" | \"agreeing\" | \"answering\" | \"rebutting\" | \"same_conversation\" |\n\"uncertain\"}]}",
+ "text": "{\n  \"takeaways\": [\n    {\n      \"label\": \"hook\",\n      \"asserts\": \"Stocks had fallen seven days in a row, Bitcoin was on its way to 55K, and everybody had the same story\",\n      \"certainty\": \"certain\",\n      \"polarity\": \"negative\"\n    },\n    {\n      \"label\": \"clip_01\",\n      \"asserts\": \"Over the weekend we hit a new low and Bitcoin bottomed four years ago to the exact day\",\n      \"certainty\": \"certain\",\n      \"polarity\": \"positive\"\n    },\n    {\n      \"label\": \"clip_02\",\n      \"asserts\": \"Bitcoin swept those lows, went to $55,000 and bounced after seven red weeks in a row with a very long wick on serious volume in a historic sell-off\",\n      \"certainty\": \"certain\",\n      \"polarity\": \"neutral\"\n    }\n  ],\n  \"relations\": [\n    {\n      \"labels\": [\"hook\", \"clip_01\"],\n      \"relation\": \"none\"\n    },\n    {\n      \"labels\": [\"hook\", \"clip_02\"],\n      \"relation\": \"none\"\n    },\n    {\n      \"labels\": [\"clip_01\", \"clip_02\"],\n      \"relation\": \"none\"\n    }\n  ]\n}",
+ "usage": {
+  "in": 766,
+  "out": 4750,
+  "usd_reported": 0.0126981
+ },
+ "usd": 0.12258,
+ "seconds": 32.4,
+ "recorded_at": "2026-11-24T03:17:52Z"
+}
