@@ -227,6 +227,8 @@ class TestExactlyOneLine(unittest.TestCase):
 
         class Stop(Exception):
             pass
+        PIN = {"ref": "origin/combo-letterbox-quoteonly-v2", "rev": "c" * 40, "sha256": "d" * 64,
+               "version": "owner_rules 2", "live_sha256": "d" * 64}           # 10:55 ET Nov 24: the pinned revision
         pins = [os.path.join(PROOF, "fresh_20261112_050611", "MOMENTS_PIN.json")]
         with tempfile.TemporaryDirectory() as d:
             p = os.path.join(d, "outcomes.jsonl")
@@ -236,7 +238,8 @@ class TestExactlyOneLine(unittest.TestCase):
                     mock.patch.object(PLG.LB, "build_inputs", lambda *a, **k: ([], {}, {})), \
                     mock.patch.object(PLG.SPOT, "next_attempt", lambda *a, **k: {}), \
                     mock.patch.object(PLG, "with_variants", lambda m, *a, **k: m), \
-                    mock.patch.object(PLG, "fingerprint", mock.Mock(side_effect=Stop("after the inputs"))):
+                    mock.patch.object(PLG, "fingerprint", mock.Mock(side_effect=Stop("after the inputs"))), \
+                    mock.patch.object(PLG.OE, "pin", lambda: dict(PIN)):
                 with self.assertRaises(Stop):
                     PLG.main(["--delivered", *pins, "--build-no", "9", "--out-dir-file", os.path.join(d, "out.txt")])
             runs = [x for x in os.listdir(os.path.join(d, "proof")) if x.startswith("ledger_")]
@@ -250,6 +253,7 @@ class TestExactlyOneLine(unittest.TestCase):
             blob = subprocess.run(["git", "-C", REPO, "hash-object", "tests/package/proof_ledger.py"],
                                   capture_output=True, text=True).stdout.strip()
             self.assertEqual(e["driver_sha"], blob)                  # RULING 163 (5): the driver that ran, by sha
+            self.assertEqual(e["owner_rules"], PIN)                  # 10:55 ET Nov 24: the release revision, recorded
             self.assertIsInstance(e["driver_committed"], bool)
             heads = {n: t["head"] for n, t in e["trees"].items()}    # the acceptance test, item 1: both commits
             self.assertEqual(sorted(heads), ["the integrator's tree", "this builder's tree"])
@@ -412,6 +416,33 @@ class TestAcceptanceItem1BothTreesClean(unittest.TestCase):
                     mock.patch.object(OC, "OUTCOMES", os.path.join(d, "o.jsonl")), mock.patch.object(sys, "stderr", err):
                 self.assertEqual(PLG.main(["--delivered", *pins]), 2)
             self.assertIn("pipeline/owner_rules.py (staged, not committed)", err.getvalue())
+            self.assertFalse(os.path.exists(os.path.join(d, "proof")))                  # no record folder
+            self.assertEqual(OC.lines(os.path.join(d, "o.jsonl")), [])                  # and no outcome line: no build
+
+    def test_an_owner_rules_mismatch_refuses_the_build_before_any_record(self):
+        """ORCHESTRATOR 10:55 ET Nov 24: the integrator's owner_rules come from the pushed release revision; the live
+        copy differing from it (out_edge.pin raises) aborts the real driver: exit 2, the line on stderr, no record
+        folder, no outcome line, so no model call."""
+        import io
+        import out_edge as OE
+        import proof_ledger as PLG
+        pins = [os.path.join(PROOF, "fresh_20261112_050611", "MOMENTS_PIN.json")]
+        real = dict(PLG.entry_of(), ok=True, why=None, under_test=False)
+        clean = [("this builder's tree", {"root": REPO, "head": "1" * 40, "dirty": []}),
+                 ("the integrator's tree", {"root": "/home/ultron/protocol_pulse", "head": "2" * 40, "dirty": []})]
+
+        def mismatch():
+            raise OSError("owner_rules mismatch: the live /x/pipeline/owner_rules.py (sha 92324ae0e44f) is not the "
+                          "pushed release revision 2c50bad756ab's pipeline/owner_rules.py (sha b263139ade7c): no build")
+        with tempfile.TemporaryDirectory() as d:
+            err = io.StringIO()
+            with mock.patch.object(PLG, "entry_of", lambda: real), mock.patch.object(PLG, "trees_state", lambda: clean), \
+                    mock.patch.object(OE, "pin", mismatch), \
+                    mock.patch.object(PLG, "HERE", d), mock.patch.object(PLG.signal, "signal", lambda *a: None), \
+                    mock.patch.object(OC, "OUTCOMES", os.path.join(d, "o.jsonl")), mock.patch.object(sys, "stderr", err), \
+                    mock.patch("urllib.request.urlopen", side_effect=AssertionError("a refused run reached the network")):
+                self.assertEqual(PLG.main(["--delivered", *pins]), 2)
+            self.assertIn("REFUSED: owner_rules mismatch", err.getvalue())
             self.assertFalse(os.path.exists(os.path.join(d, "proof")))                  # no record folder
             self.assertEqual(OC.lines(os.path.join(d, "o.jsonl")), [])                  # and no outcome line: no build
 

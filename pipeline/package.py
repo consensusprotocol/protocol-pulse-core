@@ -3322,9 +3322,6 @@ def fidelity_segments(pk, a_by):
     return out
 
 
-DIGITS = re.compile(r"\d[\d,]*(?:\.\d+)?")   # ITEM 2: a run of digits as a clip or a line writes it
-
-
 def owner_line_faults(pk):
     """RULING 162 (2) (orchestrator 07:45 ET Nov 24): "NEVER A LIST OF THE CHANNELS OR A RESTATEMENT OF WHAT WAS
     SOURCED ... it never names the channels and never says 'in their words', 'as these clips show', 'three takes on'";
@@ -3344,18 +3341,18 @@ def owner_line_faults(pk):
         return [{"slot": x["slot"], "rule": "LISTING", "detail": f"ruling 162 (2): the owner's line rules are not "
                                                                   f"available ({type(e).__name__})"} for x in spoken]
     names = sorted({str(sg.get("channel")) for sg in pk.get("segments") or [] if sg.get("channel")})
+    clips = [str(sg.get("text") or "") for sg in pk.get("segments") or []]   # the clips' own words (item 2's digits)
     out = []
-    for x in spoken:
-        f = OR.line_faults(x["text"], names)
-        if f:
-            out.append({"slot": x["slot"], "rule": "LISTING", "detail": "; ".join(f)[:300]})
-        if x["slot"] == "takeaway" and len(OR.sentences(x["text"].split(), 99)) != 1:
-            out.append({"slot": "takeaway", "rule": "ONE_SENTENCE", "detail": "the closing line is ONE sentence"})
-        if x["slot"] == "takeaway":                    # ITEM 2: "no digit that is not in the clips"
-            said = {d.replace(",", "") for sg in pk.get("segments") or [] for d in DIGITS.findall(str(sg.get("text") or ""))}
-            new = [d for d in DIGITS.findall(x["text"]) if d.replace(",", "") not in said]
-            if new:
-                out.append({"slot": "takeaway", "rule": "DIGIT", "detail": f"digits no clip says: {sorted(set(new))}"})
+    for x in spoken:                                   # ITEM 2: the render's own call (run_fresh.our_line_faults,
+        f = OR.line_faults(x["text"], names, clip_texts=clips)   # owner_rules 3): every spoken line, one function
+        digit = [y for y in f if y.endswith("which no clip says")]
+        listing = [y for y in f if y not in digit and y != "more than one sentence"]   # a name, a listing phrase,
+        if listing:                                    # or a fault this side has no name for: fails closed as one
+            out.append({"slot": x["slot"], "rule": "LISTING", "detail": "; ".join(listing)[:300]})
+        if "more than one sentence" in f:
+            out.append({"slot": x["slot"], "rule": "ONE_SENTENCE", "detail": "a line of ours is ONE sentence"})
+        if digit:                                      # "no digit that is not in the clips"
+            out.append({"slot": x["slot"], "rule": "DIGIT", "detail": "; ".join(digit)[:300]})
     return out
 
 

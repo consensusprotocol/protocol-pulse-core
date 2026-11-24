@@ -75,14 +75,77 @@ NO_NONE = {"complete": "no", "finishes_at": None, "why": "the thought runs on pa
 
 
 class TestTheRulesFile(unittest.TestCase):
-    def test_it_is_loaded_by_path_from_the_bytes_hashed(self):
+    def test_it_is_loaded_from_the_pushed_release_revision_from_the_bytes_hashed(self):
+        import subprocess
         mod, sha = OE.rules()
-        with open(OE.OWNER_RULES, "rb") as f:
-            self.assertEqual(sha, hashlib.sha256(f.read()).hexdigest())
+        rev = OE._PIN.get("rev") or OE._PIN.get("resolved")
+        raw = subprocess.run(["git", "-C", OE.RELEASE_REPO, "show", f"{rev}:{OE.RULES_FILE}"], capture_output=True,
+                             check=True).stdout                             # the PUSHED file, never the live copy
+        self.assertEqual(sha, hashlib.sha256(raw).hexdigest())
         self.assertTrue(mod.VERSION.startswith("owner_rules"))
         self.assertEqual(mod.__name__, f"owner_rules_{sha[:12]}")          # never the name of a module of this tree
         self.assertIs(OE.rules()[0], mod)                                     # loaded once per file content
         self.assertNotIn("owner_rules", sys.modules)
+
+
+class TestTheReleaseRevision(unittest.TestCase):
+    """ORCHESTRATOR 10:55 ET Nov 24 (the verifier's finding: out_edge read the integrator's owner_rules from the live
+    main tree by path, so these checks followed its uncommitted edits): the rules come from the PUSHED release
+    revision; a build pins ONE revision and records it; the live copy differing from it aborts the build. On a
+    repository of its own: a release branch at v1, the working copy edited to v2 and not committed."""
+    RULES = 'VERSION = "{v}"\n\ndef meaning_pair(x, y):\n    return False\n'
+
+    def setUp(self):
+        import subprocess
+        import tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+        d = self.tmp.name
+        self.git = lambda *a: subprocess.run(["git", "-C", d, *a], capture_output=True, text=True, check=True).stdout
+        self.git("init", "-q")
+        self.git("config", "user.email", "t@t")
+        self.git("config", "user.name", "t")
+        os.makedirs(os.path.join(d, "pipeline"))
+        self.write("v1")
+        self.git("add", "pipeline/owner_rules.py")
+        self.git("commit", "-qm", "v1")
+        self.git("update-ref", "refs/remotes/origin/release", "HEAD")      # the pushed release branch
+        self.v1 = self.git("rev-parse", "HEAD").strip()
+        self.patches = [unittest.mock.patch.object(OE, "RELEASE_REPO", d),
+                        unittest.mock.patch.object(OE, "RELEASE_REF", "origin/release"),
+                        unittest.mock.patch.object(OE, "LIVE_RULES", os.path.join(d, "pipeline", "owner_rules.py")),
+                        unittest.mock.patch.dict(OE._PIN, clear=True)]
+        for x in self.patches:
+            x.start()
+
+    def tearDown(self):
+        for x in reversed(self.patches):
+            x.stop()
+        self.tmp.cleanup()
+
+    def write(self, v):
+        with open(os.path.join(self.tmp.name, "pipeline", "owner_rules.py"), "w") as f:
+            f.write(self.RULES.format(v=v))
+
+    def test_the_live_edit_is_never_read_and_a_mismatch_aborts(self):
+        self.write("v2 (staged in the live tree, not pushed)")
+        self.assertEqual(OE.rules()[0].VERSION, "v1")                        # the pushed revision, never the edit
+        with self.assertRaises(OSError) as e:
+            OE.pin()
+        self.assertIn("owner_rules mismatch", str(e.exception))
+        self.assertNotIn("rev", OE._PIN)                                     # nothing pinned
+
+    def test_a_build_pins_one_revision_and_records_it(self):
+        rec = OE.pin()
+        raw = open(os.path.join(self.tmp.name, "pipeline", "owner_rules.py"), "rb").read()
+        self.assertEqual(rec, {"ref": "origin/release", "rev": self.v1, "sha256": hashlib.sha256(raw).hexdigest(),
+                               "version": "v1", "live_sha256": hashlib.sha256(raw).hexdigest()})
+        self.write("v3")                                                     # a later push: the build keeps its pin
+        self.git("commit", "-qam", "v3")
+        self.git("update-ref", "refs/remotes/origin/release", "HEAD")
+        self.assertEqual(OE.rules()[0].VERSION, "v1")
+        with self.assertRaises(OSError):                                     # no release branch: nothing to pin
+            with unittest.mock.patch.object(OE, "RELEASE_REF", "origin/none"):
+                OE.pin()
 
     def test_no_file_no_question_every_clip_unverified(self):
         src, m, sources = case()
@@ -493,9 +556,12 @@ class TestTheClosingLine(unittest.TestCase):
         for text in ("Simply Bitcoin saw the floor hold.", "Bitcoin, in their own words.",
                      "Natalie Brunell's warning is the one to watch.", "Three takes on the same bottom.",
                      "As these clips show, the floor held."):
-            self.assertEqual(rules("takeaway", text), ["LISTING"], text)
+            self.assertIn("LISTING", rules("takeaway", text), text)   # (canon reads 'one' / 'Three' as numbers:
+            #   owner_rules 3's digit rule may add DIGIT, as the render's own call does)
         self.assertEqual(rules("takeaway", "The floor held. Watch Monday."), ["ONE_SENTENCE"])
         self.assertEqual(rules("bridge", "Next, Yahoo Finance."), ["LISTING"])          # the old plain bridge
+        self.assertEqual(rules("bridge", "The floor held. Then it broke."), ["ONE_SENTENCE"])   # every spoken line,
+        self.assertEqual(rules("intro", "It fell 12 percent."), ["DIGIT"])               # as run_fresh.our_line_faults
         self.assertEqual(rules("intro", "In the words of Simply Bitcoin."), ["LISTING"])
         self.assertEqual(rules("title", "Simply Bitcoin on the bottom"), [])            # never spoken: not checked
         with unittest.mock.patch.object(OE, "OWNER_RULES", "/nonexistent/owner_rules.py"):
@@ -547,8 +613,9 @@ class TestTheClosingLine(unittest.TestCase):
         rules = lambda text: [v["rule"] for v in faults(text)]
         self.assertEqual(rules("The floor held, and a 1000 dollar drop did not break it."), [])
         self.assertEqual(rules("The floor held after 3.5 billion left in 2 days."), [])
-        for text, new in (("The floor held at 55 thousand.", "55"), ("Watch 1,001 next.", "1,001"),
-                          ("The floor held for 7 days.", "7"), ("Outflows of 3.6 billion did not break it.", "3.6")):
+        for text, new in (("The floor held at 55 thousand.", "55000"), ("Watch 1,001 next.", "1001"),   # as canon
+                          ("The floor held for 7 days.", "7"),                       # writes them (owner_rules 3's
+                          ("Outflows of 3.6 billion did not break it.", "3600000000")):   # line_faults, the render's)
             self.assertEqual(rules(text), ["DIGIT"], text)
             self.assertIn(f"'{new}'", faults(text)[0]["detail"], text)
         self.assertEqual([v["rule"] for v in PK.owner_line_faults({"segments": segs, "lines": [

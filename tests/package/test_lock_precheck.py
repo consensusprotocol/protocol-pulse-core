@@ -659,6 +659,31 @@ class TestItem7NoSilentMeaningSwap(Dirs):
         self.assertEqual([(x["class"], x["material"]) for x in diffs if x["spoken"] == "rejected"], [(None, True)])
         self.assertTrue(AT.material_pair(["rejected"], ["approved"], (self.HEARD, self.APPROVED, self.HEARD)))
 
+    def test_a_size_pair_written_as_digits_holds_even_when_both_ears_agree(self):
+        """10:50 ET Nov 24: 'ten million' against 'ten billion' (10000000 / 10000000000 after canon), and thousand /
+        million / billion / trillion in general, HOLDS like buy / sell on every adoption path; numbers of one scale
+        are still ruling 143's to settle."""
+        app = "They said the fund took in ten million dollars on its first day, and the rest of the market noticed."
+        heard = app.replace("ten million", "ten billion")
+        seg = dict(self.SEG, text=app)
+        r, p, ops = AT.diff(heard, app)
+        pairs = [{"run": " ".join(r[a:b]), "approved": " ".join(p[c:d]), "material": True, "second_reads": "run",
+                  "took": "run"} for _, a, b, c, d in ops]
+        for rule in ("ruling 143 (orchestrator 2026-11-17 '15:55')", "ruling 131 (A) (orchestrator 2026-11-17 '08:25')",
+                     None):
+            adj = None if rule is None else {"rule": rule, "verdict": "settled", "pairs": pairs, "run_decode": heard,
+                                             "approved": app, "second_recogniser": heard}   # both ears: 'billion'
+            s_ = LP.segments_of([seg])[0]
+            d = LP.decide(s_, entry(s_, "adopt_spoken", spoken_text=heard, adjudication=adj))
+            self.assertEqual((d["verdict"], d.get("meaning_swaps")), ("hold", [["10000000000", "10000000"]]), rule)
+            self.assertIn("item 7", d["why"])
+        for a, b in (("55 thousand", "55 million"), ("3.6 billion", "3.6 trillion"), ("$10B", "$10M"),
+                     ("about 15,000,500 dollars", "about 15,500 dollars"), ("500 coins", "500,000 coins"),
+                     ("12 billion", "15 trillion")):   # scale words apart, leading digits too: this side's rule
+            self.assertTrue(AT.meaning_swaps(f"It was {a} that day.", f"It was {b} that day."), (a, b))
+        for a, b in (("55,000", "56,000"), ("2022", "2023"), ("ten million", "eleven million")):
+            self.assertEqual(AT.meaning_swaps(f"It was {a} that day.", f"It was {b} that day."), [], (a, b))
+
     def test_every_axis_and_what_is_not_a_swap(self):
         for a, b in (("buy", "sell"), ("rose", "fell"), ("bullish", "bearish"), ("long", "short"), ("more", "fewer"),
                      ("doubled", "halved"), ("million", "billion"), ("approved", "denied")):
@@ -719,8 +744,10 @@ class TestRuling143(Dirs):
         self.assertEqual(LP.pin_problems(pk), [])
 
     def test_a_number_and_a_ticker_are_settled_the_same_way(self):
-        for app, run in (("Bitcoin bottomed at about 15,000,500 dollars on November 21st of 2022, a deep low.",
+        for app, run in (("Bitcoin bottomed at about 15,700 dollars on November 21st of 2022, a deep low.",
                           "Bitcoin bottomed at about 15,500 dollars on November 21st of 2022, a deep low."),
+                         #   one scale (thousand): ruling 143 settles it; a SIZE pair (15,000,500 / 15,500) holds
+                         #   since item 7's 10:50 ET Nov 24 order (TestItem7NoSilentMeaningSwap)
                          ("IBIT saw its largest outflow since the launch in January of last year, the data shows.",
                           "IBTC saw its largest outflow since the launch in January of last year, the data shows.")):
             #   a sentence-opening ticker: only the ticker rule makes it material (the integrator's batch 113)

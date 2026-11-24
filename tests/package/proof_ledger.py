@@ -109,6 +109,7 @@ import spotlight as SPOT  # noqa: E402
 import lock_precheck as LP  # noqa: E402
 import tail_variant as TV  # noqa: E402
 import outcomes as OC  # noqa: E402
+import out_edge as OE  # noqa: E402
 
 REGISTRY = os.path.join(HERE, "proof", "CANDIDATES.json")     # ruling 66: the candidates, kept
 SPOTLIGHTS = os.path.join(HERE, "proof", "SPOTLIGHTS.json")   # ruling 90: one spotlight per channel per ET day
@@ -693,6 +694,13 @@ def _main(argv, box):
         print(refusal, file=sys.stderr)
         return 2
     entry = dict(entry, trees={n: {"root": st["root"], "head": st["head"], "dirty": st["dirty"]} for n, st in trees})
+    try:                                                 # ORCHESTRATOR 10:55 ET Nov 24: the integrator's owner_rules
+        entry["owner_rules"] = OE.pin()                  # from the PUSHED release revision, pinned and recorded; the
+    except OSError as e:                                 # live copy differing from it (a mismatch) aborts, before any
+        if not entry["under_test"]:                      # record or model call
+            print(f"REFUSED: {e}", file=sys.stderr)
+            return 2
+        entry["owner_rules"] = {"error": str(e)[:300]}   # a test run records it, as a dirty tree
     out_dir = os.path.join(HERE, "proof", f"ledger_{now.strftime('%Y%m%d_%H%M%S')}")
     if entry["under_test"] and os.path.realpath(os.path.dirname(out_dir)) == \
             os.path.realpath(os.path.join(REPO, "tests", "package", "proof")):   # audit L2 (qwen, cycle 2): a run
@@ -718,6 +726,9 @@ def _main(argv, box):
     say("  commits (the acceptance test, item 1): " + "; ".join(
         f"{n} {t['root']} at {str(t['head'])[:12]}" + (f" (UNDER TEST, changed: {t['dirty']})" if t["dirty"] else "")
         for n, t in entry["trees"].items()))
+    say("  owner_rules (10:55 ET Nov 24): " + (f"{entry['owner_rules']['ref']} at {entry['owner_rules']['rev'][:12]}, "
+                                            f"sha {entry['owner_rules']['sha256'][:12]}, {entry['owner_rules']['version']}"
+                                            if "rev" in entry["owner_rules"] else str(entry["owner_rules"])))
     say(f"  entry (verifier rows 12 / 16, ruling 163 (5)): {entry['driver']} (git sha {str(entry['driver_sha'])[:12]}, "
         f"{'the committed one' if entry['driver_committed'] else 'NOT the committed one'}) as __main__ (argv0 "
         f"{entry['argv0']}), HEAD {str(entry['code'])[:12]}, changed code files {entry['dirty'] or 'none'}")

@@ -317,7 +317,8 @@ def meaning_swaps(spoken, approved):
     put a word on ONE meaning axis with a DIFFERENT value, by the integrator's one list (owner_rules.meaning_pair,
     loaded from its file and sha as out_edge loads it) -> [[spoken words, approved words], ...] ([] when none). None
     when the rules cannot be loaded or have no meaning_pair: the caller holds (fail closed). Such a pair is never
-    adopted, whatever the two ears say: transcript 'approved', both ears 'rejected' holds the clip."""
+    adopted, whatever the two ears say: transcript 'approved', both ears 'rejected' holds the clip. A SIZE pair written
+    as digits after canon (size_pair: 'ten million' / 'ten billion') is one too (10:50 ET Nov 24)."""
     try:
         import out_edge as OE
         mp = OE.rules()[0].meaning_pair
@@ -325,7 +326,31 @@ def meaning_swaps(spoken, approved):
         return None
     s, a = canon.canon_tokens(spoken or ""), canon.canon_tokens(approved or "")
     return [[" ".join(s[i:j]), " ".join(a[k:l])] for tag, i, j, k, l in
-            SequenceMatcher(None, s, a, autojunk=False).get_opcodes() if tag != "equal" and mp(s[i:j], a[k:l])]
+            SequenceMatcher(None, s, a, autojunk=False).get_opcodes()
+            if tag != "equal" and (mp(s[i:j], a[k:l]) or size_pair(s[i:j], a[k:l]))]
+
+
+SCALES = ((10 ** 12, "trillion"), (10 ** 9, "billion"), (10 ** 6, "million"), (10 ** 3, "thousand"))
+
+
+def size_of(tok):
+    """ITEM 7 (orchestrator 10:50 ET Nov 24): the scale word a number is said with, read off its canon token (canon
+    writes 'ten million' as '10000000', '$10B' as '10000000000'): 'trillion', 'billion', 'million', 'thousand', or ''
+    under a thousand. None when the token is not a number."""
+    if not re.fullmatch(r"\d+(?:\.\d+)?", tok or ""):
+        return None
+    v = float(tok)
+    return next((w for n, w in SCALES if v >= n), "")
+
+
+def size_pair(x, y):
+    """ITEM 7 (10:50 ET Nov 24): a SIZE pair written as digits after canon: the two sides of a differing pair (canon
+    tokens) each carry a number, said with different scale words ('ten million' / 'ten billion'; thousand / million
+    / billion / trillion in general). It holds the clip like buy / sell, even when both ears agree. Numbers of one
+    scale ('55,000' / '56,000') are not one: ruling 143 settles those."""
+    xs = {z for z in map(size_of, x) if z is not None}
+    ys = {z for z in map(size_of, y) if z is not None}
+    return bool(xs and ys and xs != ys)
 
 
 def class_143(spoken, approved, adj):

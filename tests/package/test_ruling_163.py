@@ -275,17 +275,18 @@ class TestItem7TheClipNeverSeals(unittest.TestCase):
     APPROVED = MELKER.replace("when Bitcoin hit 55,000", "when the fund was approved")   # the rig's own clip, its
     HEARD = APPROVED.replace("approved", "rejected")                                       # fact made a verdict
 
-    def check(self, segs):
+    def check(self, segs, app=None, heard=None):
         from test_lock_precheck import entry
+        app, heard = app or self.APPROVED, heard or self.HEARD
         rows = []
         for m, s in zip(segs, LP.segments_of(segs)):
             if m["moment_id"] == "x":
-                r_, p_, ops = AT.diff(self.HEARD, self.APPROVED)
+                r_, p_, ops = AT.diff(heard, app)
                 adj = {"rule": "ruling 143 (orchestrator 2026-11-17 '15:55')", "verdict": "settled",
-                       "run_decode": self.HEARD, "approved": self.APPROVED, "second_recogniser": self.HEARD,
+                       "run_decode": heard, "approved": app, "second_recogniser": heard,
                        "pairs": [{"run": " ".join(r_[a:b]), "approved": " ".join(p_[c:d]), "material": False,
                                   "second_reads": "run", "took": "run"} for _, a, b, c, d in ops]}
-                e = entry(s, "adopt_spoken", spoken_text=self.HEARD, adjudication=adj)
+                e = entry(s, "adopt_spoken", spoken_text=heard, adjudication=adj)
                 rows.append(dict(s, **LP.decide(s, e), entry={"request_id": "r", "outcome": "adopt_spoken"}))
             else:
                 rows.append(dict(s, verdict="pass", outcome="no_difference", why="",
@@ -295,8 +296,17 @@ class TestItem7TheClipNeverSeals(unittest.TestCase):
                 "error": None}
 
     def test_transcript_approved_both_ears_rejected_the_clip_never_seals(self):
+        self.never_seals(self.APPROVED, self.HEARD)
+
+    def test_ten_million_against_ten_billion_on_both_ears_the_clip_never_seals(self):
+        """10:50 ET Nov 24: a size pair written as digits after canon holds like buy / sell."""
+        app = MELKER.replace("when Bitcoin hit 55,000", "when the fund took in ten million")
+        self.never_seals(app, app.replace("ten million", "ten billion"))
+
+    def never_seals(self, app, heard):
+        self.APPROVED, self.HEARD = app, heard
         self.answers = []
-        ms = [pm("h", "A", 12.0), dict(pm("x", "B", 14.0), text=self.APPROVED), pm("y", "C", 13.0),
+        ms = [pm("h", "A", 12.0), dict(pm("x", "B", 14.0), text=app), pm("y", "C", 13.0),
               pm("z", "D", 14.0)]
         r = TM.Rig(ms, ["h", "x", "y", "z"], [(True, [], None, TM.Rig.LINE)] * 3, [None] * 3, lock_check=self.check)
         out = r.run()

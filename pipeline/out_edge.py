@@ -20,38 +20,111 @@ it), on the render's model and settings (role "out_edge": heimdall qwen at effor
 import hashlib
 import json
 import os
+import subprocess
 import threading
 import types
 from concurrent.futures import ThreadPoolExecutor
 
 import eligibility as E
 
-OWNER_RULES = "/home/ultron/protocol_pulse/pipeline/owner_rules.py"   # the integrator's file, read only
+OWNER_RULES = None                # a FILE to load instead of the release revision: tests only (None in every build)
+RELEASE_REPO = "/home/ultron/protocol_pulse"          # the integrator's repository: read through git, never its files
+RELEASE_REF = "origin/combo-letterbox-quoteonly-v2"   # its PUSHED release branch (the integrator's push moves it)
+RULES_FILE = "pipeline/owner_rules.py"
+LIVE_RULES = os.path.join(RELEASE_REPO, RULES_FILE)   # the render's live copy: compared by pin(), never loaded
 ROLE = "out_edge"                 # model_providers.json: the render's model, the render's way (no other model)
 BEFORE_N, AFTER_N = 2, 3          # what the render asks with: the 2 sentences before the clip, the 3 after it
 DEADLINE_S = 300.0                # the render's HeimdallText timeout
 SEED = 7
 RULING = "162 (1)"
 _LOCK = threading.Lock()
-_RULES = {}
+_RULES = {}                       # sha256 -> the module made from those bytes
+_PIN = {}                         # {"rev": the release revision a build pinned} (pin()); else the ref resolved once
+_AT = {}                          # commit -> (module, sha256) of its rules file
+
+
+def _git(*args, binary=False):
+    """git in the integrator's repository -> its stdout. OSError when git fails (nothing read: the caller fails
+    closed)."""
+    try:
+        r = subprocess.run(["git", "-C", RELEASE_REPO, *args], capture_output=True, timeout=60)
+    except (subprocess.SubprocessError, OSError) as e:
+        raise OSError(f"git {' '.join(args)}: {type(e).__name__}: {e}") from e
+    if r.returncode != 0:
+        raise OSError(f"git {' '.join(args)}: {r.stderr.decode(errors='replace').strip()[:200]}")
+    return r.stdout if binary else r.stdout.decode().strip()
+
+
+def release_rev():
+    """The PUSHED release revision: the commit RELEASE_REF names now -> its 40-hex sha. OSError when it cannot be
+    resolved."""
+    return _git("rev-parse", "--verify", RELEASE_REF + "^{commit}")
+
+
+def _load(raw, label):
+    """The module made from these very bytes, under a name of its own (this tree has modules of its own names), so
+    the sha sealed is the code that asked -> (module, sha256 hex)."""
+    sha = hashlib.sha256(raw).hexdigest()
+    with _LOCK:
+        mod = _RULES.get(sha)
+        if mod is None:
+            mod = types.ModuleType(f"owner_rules_{sha[:12]}")
+            mod.__file__ = label
+            exec(compile(raw, label, "exec"), mod.__dict__)          # noqa: S102  the integrator's file, as hashed
+            _RULES[sha] = mod
+    return mod, sha
+
+
+def _at(rev):
+    """The rules file at one commit (a commit's content never changes: read once per process)."""
+    with _LOCK:
+        got = _AT.get(rev)
+    if got is None:
+        got = _load(_git("show", f"{rev}:{RULES_FILE}", binary=True), f"{RELEASE_REF}@{rev[:12]}:{RULES_FILE}")
+        with _LOCK:
+            _AT[rev] = got
+    return got
+
+
+def pin(rev=None):
+    """ORCHESTRATOR 10:55 ET Nov 24 (the verifier's finding: these checks followed the live main tree's uncommitted
+    edits): a build reads the integrator's owner_rules from the PUSHED release revision and pins ONE revision before
+    any model call; every later rules() reads that revision. -> the build record's {"ref", "rev", "sha256",
+    "version", "live_sha256"}. OSError, so the build aborts, when the revision or its file cannot be read, or when the
+    render's live copy (LIVE_RULES) is not that revision's file: a mismatch (the render would judge by other rules)."""
+    rev = rev or release_rev()
+    mod, sha = _at(rev)
+    try:
+        with open(LIVE_RULES, "rb") as f:
+            live = hashlib.sha256(f.read()).hexdigest()
+    except OSError:
+        live = None
+    if live != sha:
+        raise OSError(f"owner_rules mismatch: the live {LIVE_RULES} (sha {str(live)[:12]}) is not the pushed release "
+                      f"revision {rev[:12]}'s {RULES_FILE} (sha {sha[:12]}): no build")
+    with _LOCK:
+        _PIN.clear()
+        _PIN["rev"] = rev
+    return {"ref": RELEASE_REF, "rev": rev, "sha256": sha, "version": getattr(mod, "VERSION", None),
+            "live_sha256": live}
 
 
 def rules(path=None):
-    """The integrator's owner_rules, loaded by FILE PATH under a name of its own (this tree has modules of its own
-    names) from the very bytes hashed, so the sha sealed is the code that asked. -> (module, sha256 hex). OSError when
-    the file is missing: no question, so every clip is UNVERIFIED (pool())."""
+    """The integrator's owner_rules -> (module, sha256 of the bytes loaded): the revision the build pinned (pin()),
+    else RELEASE_REF resolved once for this process; NEVER the live tree's working copy (10:55 ET Nov 24). path (or
+    OWNER_RULES) loads that file instead (tests). OSError when nothing can be read: no question, so every clip is
+    UNVERIFIED (pool()); attest.meaning_swaps holds."""
     p = path or OWNER_RULES
-    with open(p, "rb") as f:
-        raw = f.read()
-    sha = hashlib.sha256(raw).hexdigest()
+    if p:
+        with open(p, "rb") as f:
+            return _load(f.read(), p)
     with _LOCK:
-        mod = _RULES.get((p, sha))
-        if mod is None:
-            mod = types.ModuleType(f"owner_rules_{sha[:12]}")
-            mod.__file__ = p
-            exec(compile(raw, p, "exec"), mod.__dict__)              # noqa: S102  the integrator's file, as hashed
-            _RULES[(p, sha)] = mod
-    return mod, sha
+        rev = _PIN.get("rev") or _PIN.get("resolved")
+    if not rev:
+        rev = release_rev()
+        with _LOCK:
+            _PIN.setdefault("resolved", rev)
+    return _at(rev)
 
 
 def around(m, src):
