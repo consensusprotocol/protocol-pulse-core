@@ -160,6 +160,51 @@ class Transcriber:
             return " ".join(w.word.strip() for s in segs for w in (s.words or []))
 
 
+SPEECH_RANGE_DB = 45.0     # the verifier's row 20 (Nov 24): G18's whole-span audio check compares the frames of SPEECH:
+SPEECH_LEVEL_PCT = 90      # those above the span's LOUD speech level (this percentile of its audible frames) less
+#                            SPEECH_RANGE_DB (batch 129 c1: a median sinks in a span that is mostly pause)
+
+
+def same_speech_audio(src_path, clip_path, t0, t1, cut_in, pad_s=0.0):
+    """Ruling 22 / 143 at G18: the prepared clip plays the source span [t0, t1] (its interior between the edge fades),
+    judged on its SPEECH: sentence_law.span_fidelity's comparison (every kept 10 ms frame within EDGE_WORD_MAX_DB, at
+    the best of +-2 hops, every source speech frame compared) over the frames where the SOURCE or the CLIP is above the
+    floor max(EDGE_WORD_FLOOR_DBFS, the span's SPEECH_LEVEL_PCT percentile level less SPEECH_RANGE_DB): a word the clip
+    adds where the source is quiet is compared too (batch 129 c1, gemma). The verifier's row 20 (Nov 24): afd8977d clip
+    1's AAC clip matched its source within 1 dB on every frame of speech, and three near-silent frames between words
+    (-82, -73 and -80 dBFS; its 90th percentile -15.0) were 1.0 to 4.8 dB apart: codec noise, not words, and G18 held
+    the clip on them. A word 3 dB off, dropped, repeated or inserted still fails: its frames are speech in the source or
+    in the clip. A word more than SPEECH_RANGE_DB under the span's loud speech is not compared (a limit, said here). G17c's
+    edge words and ruling 18's token checks keep span_fidelity unchanged. -> (ok, detail)."""
+    import numpy as np
+    import sentence_law as L
+    sa, ca = L.SourceAudio(src_path), L.SourceAudio(clip_path)
+    base = -cut_in + pad_s
+    _, ds = sa.sl(t0, t1)
+    audible = ds > L.EDGE_WORD_FLOOR_DBFS
+    if not audible.any():
+        return False, {"span": [round(t0, 3), round(t1, 3)], "why": "no audible source frame in the span"}
+    floor = max(L.EDGE_WORD_FLOOR_DBFS, float(np.percentile(ds[audible], SPEECH_LEVEL_PCT)) - SPEECH_RANGE_DB)
+    speech = ds > floor
+    best, kept = None, 0
+    for k in range(-2, 3):
+        _, dc = ca.sl(t0 + base + k * L.HOP_S, t1 + base + k * L.HOP_S)
+        n = min(len(dc), len(ds))
+        if n == 0 or speech[n:].any():                               # a speech frame left uncompared: no proof
+            continue
+        keep = speech[:n] | (dc[:n] > floor)                         # ... and the clip's own speech where the
+        worst = float(np.max(np.abs(dc[:n] - ds[:n])[keep]))         # source is quiet (an insertion)
+        if best is None or worst < best[0]:
+            best, kept = (worst, k), int(keep.sum())
+    ok = best is not None and best[0] <= L.EDGE_WORD_MAX_DB
+    detail = {"span": [round(t0, 3), round(t1, 3)], "worst_db": None if best is None else round(best[0], 2),
+              "shift_hops": None if best is None else best[1], "compared_frames": kept, "floor_dbfs": round(floor, 1),
+              "rule": f"speech frames: above the span's {SPEECH_LEVEL_PCT}th percentile level less {SPEECH_RANGE_DB:g} dB"}
+    if best is None:                                                 # batch 129 c1 (glm): say why
+        detail["why"] = "at every shift the clip ends before a source speech frame: not compared"
+    return ok, detail
+
+
 def gate_g18(final_path, segments, clips, transcriber=None):
     """segments: the final's manifest entries. clips: {label: {"lock_text", "source", "cut_in", "cut_out"}}.
     Returns (ok, rows); each row carries the gated edge + identity diffs and the reported lock diff."""
@@ -237,8 +282,8 @@ def gate_g18(final_path, segments, clips, transcriber=None):
             t0 = float(c["cut_in"]) + float(c.get("fade_in_s") or 0.0)
             t1 = float(c["cut_out"]) - float(c.get("fade_out_s") or 0.0)
             try:
-                same, det = L.span_fidelity(c["source"], c["prepared"], t0, t1, float(c["cut_in"]),
-                                            float(c.get("pad_s") or 0.0))
+                same, det = same_speech_audio(c["source"], c["prepared"], t0, t1, float(c["cut_in"]),
+                                              float(c.get("pad_s") or 0.0))
             except Exception as e:                   # not measurable: the difference stands
                 same, det = False, {"why": f"{type(e).__name__}: {e}"}
             row["omission_adjudication"] = {"same_audio": same, **det}
@@ -252,8 +297,8 @@ def gate_g18(final_path, segments, clips, transcriber=None):
                 t0 = float(c["cut_in"]) + float(c.get("fade_in_s") or 0.0)
                 t1 = float(c["cut_out"]) - float(c.get("fade_out_s") or 0.0)
                 try:
-                    same, det = L.span_fidelity(c["source"], c["prepared"], t0, t1, float(c["cut_in"]),
-                                                float(c.get("pad_s") or 0.0))
+                    same, det = same_speech_audio(c["source"], c["prepared"], t0, t1, float(c["cut_in"]),
+                                                  float(c.get("pad_s") or 0.0))
                 except Exception as e:               # not measurable: the edge difference stands
                     same, det = False, {"why": f"{type(e).__name__}: {e}"}
                 row["omission_adjudication"] = {"same_audio": same, **det}

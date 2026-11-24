@@ -274,6 +274,7 @@ class TestRuling143G18(unittest.TestCase):
                 return heard if media == "final.mp4" else lock_text
         import sentence_law as SLW
         with mock.patch.object(SLW, "span_fidelity", return_value=(same, {"stub": True})), \
+                mock.patch.object(W, "same_speech_audio", return_value=(same, {"stub": True})), \
                 mock.patch.object(SLW, "span_matches", return_value=(False, {"stub": True})):
             return W.gate_g18("final.mp4", segs, clips, transcriber=Tr())
 
@@ -340,6 +341,7 @@ class TestRuling143G18(unittest.TestCase):
         import sentence_law as SLW
         for same in (True, False):
             with self.subTest(same_audio=same), mock.patch.object(SLW, "span_fidelity", return_value=(same, {"stub": True})), \
+                mock.patch.object(W, "same_speech_audio", return_value=(same, {"stub": True})), \
                     mock.patch.object(SLW, "span_matches", return_value=(False, {"stub": True})):
                 ok, rows = W.gate_g18("final.mp4", segs, clips, transcriber=Tr())
             self.assertEqual(ok, same, rows)
@@ -360,6 +362,7 @@ class TestRuling143G18(unittest.TestCase):
         import sentence_law as SLW
         for same in (True, False):
             with self.subTest(same_audio=same), mock.patch.object(SLW, "span_fidelity", return_value=(same, {"stub": True})), \
+                mock.patch.object(W, "same_speech_audio", return_value=(same, {"stub": True})), \
                     mock.patch.object(SLW, "span_matches", return_value=(False, {"stub": True})):
                 ok, rows = W.gate_g18("final.mp4", segs, clips, transcriber=Tr())
             self.assertEqual(ok, same, rows)
