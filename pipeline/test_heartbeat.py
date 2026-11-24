@@ -255,5 +255,109 @@ class TestWatchdogReads(Base):
                                    now=night, log_path=os.path.join(self.d, "l.jsonl"))
 
 
+class TestWatchdogRestarts(TestWatchdogReads):
+    """RULING 159 (b) (23:42 ET Nov 23): quiet hours stay for PBX's phone, but the watchdog STARTS a dead kept-alive
+    service itself at any hour and logs it; a service whose process still runs is never touched."""
+
+    def stale(self, name="scorer", age_min=25):
+        self.all_fresh()
+        self.write(name, DAY - age_min * 60, DAY - age_min * 60, pid=2 ** 22 + 7)
+
+    def restart(self, st, now=DAY, running=False, sessions=("pipeline_pp_scorer",)):
+        f, _ = W.heartbeat_findings(st, now, self.paths)
+        started = []
+        done = W.restart_dead(f, st, now, self.paths, sessions, is_running=lambda markers: running,
+                              start=lambda name, session, present: started.append((name, session, present)))
+        return f, done, started
+
+    def test_a_dead_service_is_started_once_and_logged(self):
+        self.stale()
+        st = {}
+        f, done, started = self.restart(st)
+        self.assertEqual(started, [("scorer", "pipeline_pp_scorer", True)])
+        self.assertIn("restarted by the watchdog at 18:00 ET", f[0]["what"])
+        self.assertIn("RESTARTED scorer", open(self.paths["log"]).read())
+        f, done, started = self.restart(st, now=DAY + 300)               # the next pass, still stale: held
+        self.assertEqual(started, [])
+        self.assertIn("held", done[0])
+        later = DAY + W.RESTART_GAP_S + 1
+        for name, _ in W.HEARTBEATS:                                     # the others beat on; the scorer stays dead
+            if name != "scorer":
+                self.write(name, later - 60, later - 60)
+        os.utime(self.paths["transcript_log"], (later - 60, later - 60))
+        f, done, started = self.restart(st, now=later)                   # past the gap: once more
+        self.assertEqual(started, [("scorer", "pipeline_pp_scorer", True)])
+
+    def test_a_service_whose_process_still_runs_is_never_touched(self):
+        self.stale()
+        f, done, started = self.restart({}, running=True)
+        self.assertEqual(started, [])
+        self.assertEqual(done, [{"service": "scorer", "held": "a process of it still runs: never touched"}])
+
+    def test_alive_with_no_finished_pass_is_not_restarted(self):
+        self.all_fresh()
+        self.write("word_pass", DAY - 30, DAY - 91 * 60)
+        f, done, started = self.restart({})
+        self.assertEqual((len(f), f[0]["service"], f[0]["dead"], started), (1, "word_pass", False, []))
+
+    def test_a_missing_heartbeat_starts_the_service_after_the_grace(self):
+        self.all_fresh()
+        os.remove(os.path.join(self.paths["heartbeats"], "judge.json"))
+        st = {}
+        self.assertEqual(self.restart(st)[2], [])
+        for name, _ in W.HEARTBEATS:
+            if name != "judge":
+                self.write(name, DAY + 20 * 60, DAY + 20 * 60)
+        os.utime(self.paths["transcript_log"], (DAY + 20 * 60, DAY + 20 * 60))
+        self.assertEqual(self.restart(st, now=DAY + 21 * 60, sessions=())[2], [("judge", "pipeline_pp_judge", False)])
+
+    def test_at_night_a_dead_service_is_started_and_no_line_is_sent(self):
+        night = datetime(2026, 11, 24, 3, 0, tzinfo=ZoneInfo("America/New_York")).timestamp()
+        for name, _ in W.HEARTBEATS:
+            self.write(name, night - 60, night - 60)
+        self.write("lock_precheck", night - 30 * 60, night - 30 * 60, pid=2 ** 22 + 7)
+        os.utime(self.paths["transcript_log"], (night - 60, night - 60))
+        started, sent = [], []
+        with mock.patch.object(W, "list_sessions", return_value={"pipeline_pp_lockcheck": "sh"}), \
+                mock.patch.object(W, "idle_with_work", return_value=[]), \
+                mock.patch.object(W, "running", return_value=False), \
+                mock.patch.object(W, "start_service", lambda n, s, p: started.append((n, s, p))):
+            status = W.run_pass({}, now=night, paths=self.paths, send=lambda *a: sent.append(a) or 1)
+        self.assertEqual(started, [("lock_precheck", "pipeline_pp_lockcheck", True)])
+        self.assertEqual(sent, [])                                        # quiet hours: logged, no Telegram line
+        self.assertEqual(status["restarts"][0]["restarted"], "03:00 ET")
+        dry = []
+        with mock.patch.object(W, "list_sessions", return_value={}), mock.patch.object(W, "idle_with_work", return_value=[]), \
+                mock.patch.object(W, "running", return_value=False), \
+                mock.patch.object(W, "start_service", lambda n, s, p: dry.append(n)):
+            status = W.run_pass({}, now=night, paths=self.paths, send=lambda *a: 1, dry_run=True)
+        self.assertEqual((dry, status.get("restarts")), ([], None))       # a dry run starts nothing
+
+    def test_the_only_write_is_a_new_window_or_session_with_the_fixed_line(self):
+        calls = []
+        with mock.patch.object(W.subprocess, "run", lambda argv, **kw: calls.append(argv) or types_ok()):
+            W.start_service("word_pass", "pipeline_pp_wordpass", True)
+            W.start_service("judge", "pipeline_pp_judge", False)
+        self.assertEqual(calls[0][:6], ["tmux", "new-window", "-t", "=pipeline_pp_wordpass:", "-n", "word_pass-restarted"])
+        self.assertEqual(calls[0][6], W.LAUNCH["word_pass"][1])
+        self.assertEqual(calls[1][:5], ["tmux", "new-session", "-d", "-s", "pipeline_pp_judge"])
+        self.assertIn("pipeline/judge_serve.py", calls[1][5])
+        for name, (markers, line) in W.LAUNCH.items():
+            self.assertTrue(any(m in line for m in markers), name)        # a started service is seen as running
+
+    def test_running_sees_a_real_process_by_its_command_line(self):
+        import subprocess
+        p = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)", "pipeline/lock_precheck.py once"])
+        self.addCleanup(p.wait)
+        self.addCleanup(p.kill)
+        self.assertTrue(W.running(("lock_precheck.py once",)))
+        self.assertFalse(W.running(("no_such_service_marker_7f3a.py",)))
+
+
+def types_ok():
+    import types
+    return types.SimpleNamespace(returncode=0, stderr="")
+
+
 if __name__ == "__main__":
     unittest.main()
