@@ -127,10 +127,14 @@ def sealed(v):
     return {k: v.get(k) for k in ("complete", "why", "backend", "measured", "version", "sha256")}
 
 
-def pool(router, ms, sources, ctx, cache_path=None, log=print, extend=None, workers=4, path=None):
+def pool(router, ms, sources, ctx, cache_path=None, log=print, extend=None, workers=4, path=None, admit=None):
     """RULING 162 (1) on a build's pool (see the module). -> (the moments that may play, each carrying "out_edge", the
     extensions in their parents' places; the record {"version", "sha256", "asked", "complete", "extended": {parent:
-    extension}, "refused": {id: why}, "unverified": {id: why}}). extend(m, src, k, ctx, why): tail_variant.extend."""
+    extension}, "refused": {id: why}, "unverified": {id: why}}). extend(m, src, k, ctx, why): tail_variant.extend.
+    ITEM 3 (orchestrator 09:45 ET Nov 24, final): "the deterministic edge check runs first": the caller passes only
+    moments the second recogniser's OUT edge already passed, and admit(extension) -> (ok, why) puts every extension
+    through the pool's rules, step A and that deterministic check BEFORE its own question (None: refused, no
+    extension is made without them)."""
     import context_integrity as CI
     if extend is None:
         import tail_variant as TV
@@ -174,7 +178,7 @@ def pool(router, ms, sources, ctx, cache_path=None, log=print, extend=None, work
         else:
             todo.append((m, src, v))
     ext = []
-    for m, src, v in todo:                            # the extension, asked again on its own new edge
+    for m, src, v in todo:                            # the extension: admitted (ITEM 3), then asked on its own edge
         mid, k = m["moment_id"], v["ks"][v["finishes_at"]]
         try:
             x = extend(m, src, k, ctx, f"ruling 162 (1): the thought runs on past the clip's last word; it ends at "
@@ -182,6 +186,10 @@ def pool(router, ms, sources, ctx, cache_path=None, log=print, extend=None, work
                                        f"({str(v.get('why'))[:160]})")
         except ValueError as e:
             rec["refused"][mid] = f"the thought runs on and the clip cannot be extended: {str(e)[:200]}"
+            continue
+        ok, why = admit(x) if admit is not None else (False, "no extension is admitted without its own checks")
+        if not ok:
+            rec["refused"][mid] = f"its extension {x['moment_id']} fails before its question: {str(why)[:200]}"
             continue
         ext.append((m, src, x))
 

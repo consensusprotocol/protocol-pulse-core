@@ -373,11 +373,12 @@ def exclusion_verdict(router, moment_text, before_text="", after_text="", seed=7
     verdict (role "exclusion_verdict", never on the moment's own miner: avoid_model; audit p2 C3); any hard risk, a
     moment not about Bitcoin, an unreadable or uncertain verdict excludes (law L-m). An unreadable or unavailable verdict
     is also NOT measured (the exam adapter reports it as such).
-    before_marker_soft (RULING 146 (3), orchestrator 07:55 ET Nov 18; PBX 08:34: 'we never include any sponsor material
-    ever, but if it doesn't have any in it then it is fine to use'; the never-empty pass only): a marker ONLY in the
+    before_marker_soft (RULING 146 (3); ITEM 1, orchestrator 09:50 ET Nov 24, BOTH passes: PBX: sponsor material is
+    fine "so long as it is not actually an ad that the entire segment is being cut from"): a marker ONLY in the
     sentence before the moment no longer excludes by itself; the model reads the moment with its context, and its
-    'ad_read' risk (the moment's own words in the ad, e.g. an ad read's opening line) excludes as always. Kept, the
-    verdict carries "ad_before" (the screen's reason) for the package's flag. A marker in the moment stays HARD."""
+    'ad_read' risk (the moment's own words in the ad, e.g. an ad read's opening line) excludes as always; no answer
+    excludes, NOT measured (UNVERIFIED: held, never a pass). Kept, the verdict carries "ad_before" (the screen's reason):
+    the judgment is recorded on the exclusion row, never a flag. A marker in the moment stays HARD."""
     import providers as P
     from story_semantics import quote_data
     why = ad_read_marker(moment_text, before_text)
@@ -408,4 +409,4 @@ def exclusion_verdict(router, moment_text, before_text="", after_text="", seed=7
         return dict(meas, verdict="exclude", why=f"about Bitcoin: {obj['about_bitcoin']}: {str(obj['why'])[:200]}",
                     risks=[], backend=r.backend)
     return dict(meas, verdict="keep", why=str(obj["why"])[:200], risks=[], backend=r.backend,
-                **({"ad_before": soft_why} if soft_why else {}))           # RULING 146 (3): the package flags it
+                **({"ad_before": soft_why} if soft_why else {}))           # ITEM 1: the package records it

@@ -697,7 +697,10 @@ VENDORS = {"local": LocalBackend, "xai_search": XAISearchBackend, "xai_vision": 
 
 
 ROUTINGS = ("today", "heimdall_first")    # RULING 85 (21:15 Nov 13): the switch (model_providers.json "routing")
-LX_SOFT_NEVER = ("angle_write", "probe87:", "coherence_panel")   # RULING 154 (1): a writer, a probe and a panel seat
+LX_SOFT_NEVER = ("angle_write", "probe87:", "coherence_panel")
+LX_SOFT_NEVER_KINDS = ("value", "closing")   # ITEM 2 (orchestrator 09:20 / 09:35 ET Nov 24): our closing line's judges
+#   (its value grade, kind "value"; fidelity over a package that carries it, kind "closing") are never a stand-in: "No
+#   judge from another family awake means no line"   # RULING 154 (1): a writer, a probe and a panel seat
 #   (each asked by name: package.coherence_by_panel fills its own seats, ruling 152 (2)) never take a stand-in judge
 SHADOW_ROLES = ("context_verdict", "coherence_verdict", "fidelity_verdict", "exclusion_verdict", "speaker_verdict",
                 "viewer_takeaway", "visual_check")      # RULING 86: the verdicts a shadow back-end is asked again
@@ -1395,7 +1398,7 @@ class Router:
         except (ProviderError, ReplayMiss) as e:
             av, af = _as_set(avoid_vendor), _as_set(avoid_family)
             if _names is not None or not getattr(self, "lx_soft", False) or not (av or af) or \
-                    role.startswith(LX_SOFT_NEVER):
+                    role.startswith(LX_SOFT_NEVER) or str(kind or "") in LX_SOFT_NEVER_KINDS:
                 raise
             first = e                                 # RULING 154 (1): never "every back-end unavailable ... same
         stand_ins, steps = [], self._lx_steps(role, kind, av, af)

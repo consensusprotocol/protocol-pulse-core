@@ -799,7 +799,7 @@ class Rig:
                    "measured": True, "version": "owner_rules 1 (ruling 162, 2026-11-24)", "sha256": "e" * 64}
 
     def out_edges(self, router, ms, sources, ctx_, cache_path=None, log=print, delivered=(), optout=frozenset(),
-                  seg_max=None):
+                  seg_max=None, admit=None):
         """RULING 162 (1) as package.out_edges answers: every moment ends a thought (OUT_EDGE_OK), unless
         self.out_edge_refused / self.out_edge_unverified name it (out of the pool, recorded)."""
         bad, un = set(getattr(self, "out_edge_refused", ())), set(getattr(self, "out_edge_unverified", ()))

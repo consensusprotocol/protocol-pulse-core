@@ -52,8 +52,6 @@ SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's sof
                         "no_closing_line",                 # RULING 162 (2): no closing line passed fidelity and value
                         #   in its writes; the video goes from the last clip to the outro tag (ruling 150's soft value
                         #   grade REVERSED: "takeaway_value" is HARD again; ruling 156's plain lines WITHDRAWN)
-                        "sponsor",                         # RULING 146 (3): a sponsor mention in the sentence before
-                        #   a clip only, the clip kept by the exclusion model (its ad_read risk stays HARD)
                         "judge",                           # RULINGS 154 (1) / 152 (2): checks made by a stand-in
                         #   judge in the never-empty pass (the writer was the usual checker, or it did not answer)
                         "runtime"})                        # RULINGS 148 (1) / 149: a medley under 60 s, its clips at
@@ -439,7 +437,8 @@ def flags_cap(gates):
     return REVIEW_FLAGS_MAX
 
 
-PER_CLIP_KIND = frozenset({"stand_alone", "sponsor", "graphics"})   # RULING 155 (1): one kind said once per clip
+PER_CLIP_KIND = frozenset({"stand_alone", "graphics"})   # RULING 155 (1): one kind said once per clip (ITEM 1: no
+#   "sponsor" flag: a clip after a sponsor sentence passes with the judgment recorded, or is refused, or held)
 _CLIP_REF = re.compile(r"^(?:The (?:opening|second|third|fourth|fifth) clip|A clip|The clip|[A-Z][a-z]+ clips) "
                        r"\([^)]*\):?\s*")
 

@@ -835,8 +835,6 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         out["why_none"] = "no work_dir: L-v 2's second pass cannot run (fail closed)"
         return out
     ms, why = pool(moments, sources, ctx, delivered, optout, spotlit, captions_for)
-    ms, out["out_edge"] = P.out_edges(router, ms, sources, ctx, out_edge_cache, log, delivered, optout,
-                                      seg_max=SPOT_S[1])   # RULING 162 (1): every clip ends a thought (or is extended)
     out["pool"] = {"may": len(ms), "out": why,
                    "snapped": {m["moment_id"]: m["spotlight_snap"] for m in ms if m.get("spotlight_snap")}}
     log(f"  SPOTLIGHT (rulings 90-92): {len(ms)} moment(s) may be one ({len(out['pool']['snapped'])} snapped outward "
@@ -890,6 +888,13 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                               "the second pass disagrees" if not t.get("ok") else
                                               "not cuttable at an edge"))
     passed(cut, 2)
+    kept, out["out_edge"] = P.out_edges(       # ITEM 3 (09:45 ET Nov 24): the question only after the deterministic
+        router, list(cut.values()), sources, ctx, out_edge_cache, log, delivered, optout, seg_max=SPOT_S[1],
+        admit=lambda v: (False, "a spotlight is never extended: its span is judged as it stands"))   # edge check
+    for mid in sorted(set(cut) - {m["moment_id"] for m in kept}):
+        stop(mid, "the out-edge question (item 3): " + str((out["out_edge"].get("refused") or {}).get(mid) or
+                                                            (out["out_edge"].get("unverified") or {}).get(mid))[:200])
+    cut = {m["moment_id"]: m for m in kept}
     openers = {}
     for mid, m in cut.items():
         m["hook_onset"] = P.hook_onset_for(m, sources, work_dir, hk)
