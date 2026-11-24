@@ -293,9 +293,11 @@ def our_line_faults(edl, registry):
         [("the closing line" if b.get("after_clip") == last else f"the line after clip {b.get('after_clip')}",
           b.get("text")) for b in vo.get("bridges") or []                   # LAST clip (edl_rules.takeaway_value)
          if isinstance(b, dict) and isinstance(b.get("text"), str)]
+    clips = [((seg.get("selection_lock") or {}).get("text") or seg.get("text") or "")   # the clips' own words: item
+             for seg in [edl.get("hook") or {}] + list(edl.get("clips") or []) if isinstance(seg, dict)]   # 2's numbers
     out = []
     for where, text in lines:
-        bad = owner_rules.line_faults(text, names)
+        bad = owner_rules.line_faults(text, names, clip_texts=clips)
         if bad:
             out.append(f"{where} {text!r}: {', '.join(bad)}")
     return out
@@ -778,8 +780,8 @@ def stage_validate(run):
     listing = our_line_faults(edl, reg)        # RULING 162 (2): never a list of the channels, in any line of ours
     run.prov["our_lines"] = {"pass": not listing, "faults": listing}
     if listing:
-        raise Hold("ruling 162 (2): a voiceover line of ours lists the sources instead of adding value: "
-                   + "; ".join(listing))
+        raise Hold("ruling 162 (2) / item 2: a voiceover line of ours fails the lexical check (a credited channel, a "
+                   "listing phrase, more than one sentence, or a number no clip says): " + "; ".join(listing))
 
     # Shared AUTO/PIN editorial law gate. This is the last editorial acceptance
     # point before cutting. It always writes STORYBOARD.md + EDITORIAL_GATE.json
