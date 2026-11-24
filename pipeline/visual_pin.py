@@ -39,7 +39,9 @@ import subprocess
 import threading
 
 VERSION = "visual-4"                     # RULING 158 (2) (orchestrator 23:12 ET Nov 23): question 5, on-screen
-#   ADVERTISING, asked of every clip (visual-3: RULING 93 AMENDED, 21:10 ET Nov 14: the source's burned captions asked for
+#   ADVERTISING, asked of every clip; RULING 161 (07:36 ET Nov 24) made its answer INFORMATION (sponsor_graphics), never
+#   a refusal: the same prompt, so every recorded visual-4 answer stands
+#   (visual-3: RULING 93 AMENDED, 21:10 ET Nov 14: the source's burned captions asked for
 ROLE = "visual_check"                    #   explicitly, one frame a second (visual-2: ruling 93, 23:58 ET Nov 13)
 TILES, EVERY_S, TILE_W, COLS = 40, 1.0, 320, 6   # 21:10 Nov 14: "at least one frame a second across the span" (the
 #   35 s ceiling takes 36; 40 leaves room); 6 x 320 px across keeps the sheet 1920 px wide (visual-2 sampled 8 at 480 px:
@@ -119,6 +121,13 @@ AD_WORDS = re.compile(
 AD_CAPS = re.compile(r"\bIRA\b")      # RULING 158 (2): a retirement-account offer on a LOGO or BANNER (a bug, ticker or
 #   crawl: the iTrustCapital "OPEN A CRYPTO IRA" panel of Nov 23, copied as a bug "CRYPTO IRA"); never a caption or a
 #   headline, where an IRA is what the speaker talks about
+#   RULING 161 (orchestrator 07:36 ET Nov 24, from PBX 07:28: "If there's a sponsor banner or something flashes on the
+#   screen, that's totally fine ... So long as it is not actually an ad that the entire segment is being cut from"):
+#   AD_WORDS and AD_CAPS no longer refuse anything. They name what a clip SHOWS (sponsor_graphics: the pin's
+#   information line, out of the cap) and mark a burned-in item as sponsor material (sponsor_item), which ruling 93's
+#   item rules then leave alone. What refuses a clip for a sponsor is its WORDS or its SEGMENT: moments.ad_read_marker
+#   and the exclusion model's ad_read risk, step A's AD_READ code.
+SPONSOR_INFO_CHARS = 400                 # the information line, at most this long on the pin
 
 
 def load_cache(path):
@@ -255,7 +264,7 @@ def _opt_str(x):
 
 def check(v):
     """The verdict, in contract or ValueError -> {"third_person", "on_screen_text", "lower_third", "burned_in",
-    "advertising"} (RULING 158 (2): question 5, every item kept: one is enough to refuse the clip)."""
+    "advertising"} (RULING 158 (2): question 5, every item kept; RULING 161: the pin's information, never a refusal)."""
     if not isinstance(v, dict) or set(v) != {"third_person", "on_screen_text", "lower_third", "burned_in", "advertising"}:
         raise ValueError("keys must be exactly third_person, on_screen_text, lower_third, burned_in, advertising")
     tp, ost, lt, bi, ad = v["third_person"], v["on_screen_text"], v["lower_third"], v["burned_in"], v["advertising"]
@@ -278,7 +287,7 @@ def check(v):
               "whole_in_16x9": x["whole_in_16x9"], "in_9x16": x["in_9x16"], "covers_speaker": x["covers_speaker"],
               **({"at": sorted({round(float(a), 2) for a in x["at"]})[:TILES]} if x.get("at") else {})}
              for x in bi]
-    items = sorted(items, key=lambda x: (burned_block(x) is None,              # the blocking ones first, then a
+    items = sorted(items, key=lambda x: (burned_block(x, v) is None,           # the blocking ones first, then a
                                          not (x["kind"] == CAPTION and x["in_9x16"] == "cut")))   # cut caption (audit
     #   2131 C1, glm: the 16:9-only decision must survive TEXTS_MAX), so a cut never hides
     #   one (audit 0003 C1, glm: a ticker listed 13th would otherwise pass)
@@ -307,22 +316,65 @@ def check(v):
                             for x in ad]}
 
 
-def ad_block(rec):
-    """RULING 158 (2) (orchestrator 23:12 ET Nov 23: "STANDING, HARD, BOTH SIDES: on-screen advertising refuses a clip in
-    every format ... When unsure, treat it as an ad"): why a MEASURED record refuses its clip, in every role and format,
-    or None. Anything question 5 listed (the check is told to list what it is unsure of), and AD_WORDS in ANY text the
-    record copied: a burned-in item of any kind, an on-screen text, the lower third. A record without question 5 (an
-    earlier version) is layout_block's (never a pass)."""
+def _norm(t):
+    """Text compared loosely: lower case, letters, digits and the offer signs only (the check copies one banner as
+    '... COUNTRIES — KRAKEN — $25 ...' in one list and '... COUNTRIES  KRAKEN  $25 ...' in another)."""
+    return " ".join(re.findall(r"[a-z0-9$%+&]+", str(t or "").lower()))
+
+
+def sponsor_item(x, rec):
+    """RULING 161 (orchestrator 07:36 ET Nov 24): a burned-in item that is sponsor or advertiser material, only VISIBLE
+    (a banner, a panel, a bug, a logo wall, a graphic that flashes on screen). Its text is one that question 5 listed
+    (the Kraken banner of Nov 23 came back as a "ticker" AND as the ad), or it carries the offer words (AD_WORDS; "IRA"
+    on a bug, ticker or crawl: AD_CAPS). Never a caption: a caption is the spoken words, which the exclusion screen and
+    step A judge."""
+    if not isinstance(x, dict) or x.get("kind") == CAPTION:
+        return False
+    t = x.get("text") or ""
+    if AD_WORDS.search(t) or (x.get("kind") in ("bug", "ticker", "crawl") and AD_CAPS.search(t)):
+        return True
+    n = _norm(t)
+    for a in (rec or {}).get("advertising") or []:
+        m = _norm((a or {}).get("text"))
+        if n and m and (n == m or (min(len(n), len(m)) >= 8 and (n in m or m in n))):
+            return True
+    return False
+
+
+def sponsor_graphics(rec):
+    """RULING 161 (orchestrator 07:36 ET Nov 24, PBX 07:28: "If there's a sponsor behind the speaker, that's totally
+    fine as long as the sponsor isn't being mentioned verbally"): the sponsor or advertiser material a MEASURED record
+    shows -> "<what>; <what>" for the pin's information line ("visible sponsor graphics: <what>"), or None. NEVER a
+    refusal and NEVER a flag that counts toward the cap, in any format. Named: what question 5 listed (its advertiser),
+    each burned-in sponsor item it did not list, and any on-screen text or name strap carrying the offer words."""
     if not (rec or {}).get("measured"):
         return None
-    ads = [f"{x.get('text') or 'a logo'} ({x.get('what') or 'an advertiser'})" for x in rec.get("advertising") or []]
-    shown = [x for x in rec.get("burned_in") or [] if x.get("kind") != CAPTION]   # a caption is the spoken words (an
-    texts = [x.get("text") for x in shown] + \
-        [x.get("text") for x in rec.get("on_screen_text") or []] + [(rec.get("lower_third") or {}).get("text")]
-    ads += [f"{t} (ad words)" for t in texts if isinstance(t, str) and AD_WORDS.search(t)]   # ad read is the exclusion
-    ads += [f"{x.get('text')} (an IRA offer on a {x.get('kind')})" for x in shown          # model's, ruling 146 (3))
-            if x.get("kind") in ("bug", "ticker", "crawl") and AD_CAPS.search(x.get("text") or "")]
-    return ("ruling 158 (2): on-screen advertising: " + "; ".join(a[:140] for a in ads))[:600] if ads else None
+    out = [(a.get("what") or a.get("text") or "").strip() for a in rec.get("advertising") or [] if isinstance(a, dict)]
+    listed = [_norm((a or {}).get("text")) for a in rec.get("advertising") or [] if isinstance(a, dict)]
+    for x in rec.get("burned_in") or []:
+        n = _norm(x.get("text"))
+        if sponsor_item(x, rec) and not any(n and m and (n == m or n in m or m in n) for m in listed):
+            out.append((x.get("text") or "").strip())
+    texts = [x.get("text") for x in rec.get("on_screen_text") or [] if isinstance(x, dict)] + \
+        [(rec.get("lower_third") or {}).get("text")]
+    out += [t.strip() for t in texts if isinstance(t, str) and AD_WORDS.search(t)]
+    seen, keep = set(), []
+    for w in out:
+        if w and w.lower() not in seen:
+            seen.add(w.lower())
+            keep.append(w[:160])
+    return "; ".join(keep)[:SPONSOR_INFO_CHARS] or None
+
+
+def current(rec):
+    """A measured record of this VERSION read again under today's rules (RULING 161): its flags and formats are
+    derived from its answers, so a record cached before a rule changed is judged as a fresh one would be."""
+    if not ((rec or {}).get("measured") is True and rec.get("version") == VERSION and
+            isinstance(rec.get("burned_in"), list)):
+        return rec
+    out = {k: v for k, v in rec.items() if k != "formats"}
+    out["flags"] = flags(rec)
+    return dict(out, **({"formats": formats(rec)} if formats(rec) else {}))
 
 
 def flags(v):
@@ -334,7 +386,8 @@ def flags(v):
     out += [{"kind": "on_screen_text", "text": x["text"], "why": x["why"]} for x in v["on_screen_text"]
             if x["asserts_beyond_words"]]
     out += [{"kind": "burned_in", "text": x["text"], "item": x["kind"], "in_9x16": x["in_9x16"]}   # ruling 93: an
-            for x in v.get("burned_in") or [] if not burned_block(x) and x["kind"] != CAPTION]   # eligible lower
+            for x in v.get("burned_in") or [] if not burned_block(x, v) and x["kind"] != CAPTION   # eligible lower
+            and not sponsor_item(x, v)]          # RULING 161: sponsor material is the information line's, no flag
     out += [{"kind": "burned_caption", "text": x["text"], "in_9x16": x["in_9x16"],              # third or bug, and
              **({"at": x["at"]} if x.get("at") else {})}                                          # (ruling 93 amended)
             for x in v.get("burned_in") or [] if x["kind"] == CAPTION]                            # each burned caption,
@@ -348,16 +401,21 @@ def formats(rec):
     measured record is "cut" in the 9:16, else None (both formats, as before)."""
     if not (rec or {}).get("measured"):
         return None
-    cut = [x for x in rec.get("burned_in") or [] if x.get("kind") == CAPTION and x.get("in_9x16") == "cut"]
-    return ["16x9"] if cut else None
+    cut = [x for x in rec.get("burned_in") or [] if x.get("in_9x16") == "cut" and
+           (x.get("kind") == CAPTION or sponsor_item(x, rec))]   # RULING 161: OUR 9:16 crop may not slice through
+    return ["16x9"] if cut else None                             # sponsor text either: never a refusal, 16:9 only
 
 
-def burned_block(x):
+def burned_block(x, rec=None):
     """RULING 93 on one burned-in item -> why it makes the clip NOT eligible, or None (eligible, flagged): a ticker or
     a crawl; a lower third or bug that is not wholly inside the 16:9, that the 9:16 edge would cut through mid-word, or
-    that covers the speaker."""
+    that covers the speaker. RULING 161: an item of sponsor material (sponsor_item, read against its record rec) is
+    never a refusal: the pin's information line names it; OUR 9:16 crop cutting it makes the clip 16:9 only
+    (formats()), as for a caption."""
     if x["kind"] == CAPTION:                     # ruling 93 amended: a burned caption never makes a clip ineligible;
         return None                              # cut by the 9:16 it makes it 16:9-only (formats())
+    if rec is not None and sponsor_item(x, rec):
+        return None
     if x["kind"] in RUNNING:
         return f"a {x['kind']} ({x['text'][:80]!r}): not eligible"
     if not x["whole_in_16x9"]:
@@ -378,9 +436,8 @@ def layout_block(rec):
         return "ruling 93: the burned-in text question was not asked (an earlier visual record)"
     if rec.get("version") != VERSION:            # 21:10 Nov 14: visual-2 never asked for the source's captions;
         return (f"its visual record is {rec.get('version')!r}, which never asked for the source's burned captions or "
-                f"on-screen advertising")      # RULING 158 (2): visual-3 never asked for advertising
-    ad = ad_block(rec)                           # RULING 158 (2): HARD, first, in every role and format
-    why = ([ad] if ad else []) + [w for w in (burned_block(x) for x in rec["burned_in"]) if w]
+                f"the sponsor material it shows")   # visual-3 never asked question 5 (ruling 161's information)
+    why = [w for w in (burned_block(x, rec) for x in rec["burned_in"]) if w]   # RULING 161: no ad refusal
     if formats(rec) and not RENDER_16X9_ONLY:    # ruling 93 amended: 16:9-only, which the render cannot pass yet
         why.append("16:9-only (a burned caption the 9:16 crop cuts mid-word, ruling 93 amended), and the integrator's "
                    "render cannot pass a 16:9-only pin until its format-aware release lands: held")
@@ -395,9 +452,9 @@ def crop_only(rec):
     person (ruling 70) or an unmeasured or older record: None."""
     if not ((rec or {}).get("measured") is True and rec.get("version") == VERSION and
             isinstance(rec.get("burned_in"), list)) or hook_block(rec) is not None or \
-            not RENDER_16X9_ONLY or ad_block(rec):   # the exception makes a 16:9-only pin: only when the render can pass
-        return None                                  # one; RULING 158 (2): never for an ad
-    why = [burned_block(x) for x in rec["burned_in"]]
+            not RENDER_16X9_ONLY:                    # the exception makes a 16:9-only pin: only when the render can pass
+        return None                                  # one
+    why = [burned_block(x, rec) for x in rec["burned_in"]]
     cut = [x for x, w in zip(rec["burned_in"], why) if w]
     if not cut or any(x["kind"] in RUNNING or x["kind"] == CAPTION or not x["whole_in_16x9"] or x["in_9x16"] != "cut"
                       or x["covers_speaker"] for x in cut):
@@ -412,10 +469,9 @@ def graphics_only(rec):
     are SOFT. A third person (ruling 70), an unmeasured or older record, or a render that cannot pass a 16:9-only pin:
     None."""
     if not ((rec or {}).get("measured") is True and rec.get("version") == VERSION and
-            isinstance(rec.get("burned_in"), list)) or hook_block(rec) is not None or not RENDER_16X9_ONLY or \
-            ad_block(rec):                       # RULING 158 (2): advertising is never the show's own graphics
+            isinstance(rec.get("burned_in"), list)) or hook_block(rec) is not None or not RENDER_16X9_ONLY:
         return None
-    return sorted({x["kind"] for x in rec["burned_in"] if burned_block(x)}) or None
+    return sorted({x["kind"] for x in rec["burned_in"] if burned_block(x, rec)}) or None
 
 
 def hook_block(rec):
@@ -464,13 +520,13 @@ def visual_for(router, m, work_dir, cache, seed=7, log=print):
     hit = cache.get(k) if cache is not None and (cache.get(k) or {}).get("measured") else None
     if hit is not None:                              # the judged sheet, still on disk with the judged bytes
         p = os.path.join(work_dir, "visual", (hit.get("sheet") or {}).get("name") or "-")
-        if _sha_of(p) == (hit.get("sheet") or {}).get("sha256"):
-            return dict(hit, cached=True, usd=0.0, usd_basis="cached", sheet=dict(hit["sheet"], path=p))
+        if _sha_of(p) == (hit.get("sheet") or {}).get("sha256"):     # RULING 161: today's rules on its answers
+            return dict(current(hit), cached=True, usd=0.0, usd_basis="cached", sheet=dict(hit["sheet"], path=p))
     try:
         video = fetch(m["video_id"], float(m["start"]), float(m["end"]), work_dir)
         path, sha, ts = sheet(video, float(m["start"]), float(m["end"]), work_dir)
         if hit is not None and sha == hit["sheet"]["sha256"]:        # rebuilt, the same bytes: the same verdict
-            return dict(hit, cached=True, usd=0.0, usd_basis="cached", sheet=dict(hit["sheet"], path=path))
+            return dict(current(hit), cached=True, usd=0.0, usd_basis="cached", sheet=dict(hit["sheet"], path=path))
         with open(path, "rb") as f:
             b64 = base64.b64encode(f.read()).decode()
     except Exception as e:                       # noqa: BLE001  no sheet: not measured (law L-m), never a crash

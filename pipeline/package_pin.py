@@ -175,7 +175,9 @@ SEALED_LATER = ("time_sensitive", "source_published_at",   # ruling 1 (22:40): t
                 "attested",                                # ruling 67: the attested-text re-seal's record (re-sealed)
                 "visual",                                  # ruling 70: the clip's visual record (flags, sheet sha)
                 "relisten",                                # ruling 103: the targeted re-listen's two short readings
-                "unstable_second_reading")                 # ruling 105: every reading across the passes, when it ran
+                "unstable_second_reading",                 # ruling 105: every reading across the passes, when it ran
+                "visible_sponsor_graphics")                # RULING 161: the sponsor material a clip only SHOWS (info,
+#                                                            never a flag, never counted; only on a segment that shows it)
 TRIMMED_PER_PIN_MAX = 1                                    # ruling 49 (b): package.TRIMMED_PER_LINEUP_MAX. Kept a
                                                            # separate constant (a test holds them equal): the
                                                            # integrator's check_pin_only imports this module, which
@@ -563,7 +565,8 @@ def to_pin(pk, run_name):
                      **{k: s[k] for k in ("trimmed_leading", "untrimmed_start", "scorer_verdict", "visual",
                                           "attested",      # rulings 68 / 72: an adopted spoken text, sealed
                                           "relisten",      # ruling 103: only when a re-listen ran, sealed
-                                          "unstable_second_reading")   # ruling 105: only when it ran, sealed
+                                          "unstable_second_reading",   # ruling 105: only when it ran, sealed
+                                          "visible_sponsor_graphics")  # RULING 161: information, sealed
                         if k in s},
                      "time_coords": "youtube", "source": {"kind": "youtube"}})
     edl_vo = {"intro": pk["vo"]["intro"],

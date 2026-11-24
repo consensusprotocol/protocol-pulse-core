@@ -96,8 +96,8 @@ class TestContract(unittest.TestCase):
         v = VP.check(dict(CLEAN, burned_in=many))                                       # the ticker listed last
         self.assertEqual((len(v["burned_in"]), v["burned_in_truncated"]), (VP.TEXTS_MAX, 4))
         self.assertIn("a ticker", VP.layout_block(dict(v, measured=True, version=VP.VERSION)))   # never cut away
-        self.assertIn("never asked for the source's burned captions or on-screen advertising",   # RULING 158 (2):
-                      VP.layout_block(dict(v, measured=True, version="visual-3")))   # every clip asked again
+        self.assertIn("never asked for the source's burned captions or the sponsor material it shows",   # RULING
+                      VP.layout_block(dict(v, measured=True, version="visual-3")))   # 161's information: asked again
 
     def test_ruling_93_amended_the_sources_burned_captions(self):
         """21:10 Nov 14: Blockware's captions ('SOLD MY ROTH IRA', '26 NO ROTH IRA NO 401K') were on the sheet, and
@@ -271,70 +271,104 @@ def fixture(name):
         return json.load(f)
 
 
-class TestRuling158OnScreenAdvertising(unittest.TestCase):
-    """RULING 158 (2) (orchestrator 23:12 ET Nov 23, STANDING, HARD, both sides): on-screen advertising refuses a clip in
-    every format and role; the vision check asks it of every clip (question 5) and names what it saw; the show's own
-    branding, ticker and lower third stay a 16:9 flag; unsure is an ad. Fixtures (fixtures/visual_ads): the Digital Asset
-    News sheet of Nov 23 (ad47eab4, 575.6-586.6 s: the Kraken banner and the iTrustCapital panel; two of its frames),
-    the model's real answers to visual-3 (it filed the banner as a 'ticker') and to visual-4 (Heimdall qwen), and two
+class TestRuling161VisibleSponsorIsInformation(unittest.TestCase):
+    """RULING 161 (orchestrator 07:36 ET Nov 24, from PBX 07:28: "If there's a sponsor banner or something flashes on the
+    screen, that's totally fine ... So long as it is not actually an ad that the entire segment is being cut from"; it
+    replaces ruling 158 (2)): sponsor or advertiser material that is only VISIBLE (a logo wall or backdrop, a banner, a
+    panel, a bug, a graphic that flashes on screen) never refuses a clip and is never a flag, in any format: it is the
+    pin's information line. OUR 9:16 crop may still not slice through burned text. Fixtures (fixtures/visual_ads): the
+    Digital Asset News sheet of Nov 23 (ad47eab4, 575.6-586.6 s: the Kraken banner, which the check filed as a
+    'ticker', and the iTrustCapital panel; two of its frames), the model's real visual-3 and visual-4 answers, and two
     clean sheets' visual-4 answers (Yahoo Finance 96056caa, Simply Bitcoin 1cb16751)."""
+    WALL = [{"text": "Powered by Cash App", "what": "Cash App (an event's sponsor wall)"},
+            {"text": "SQUARE  bitkey  SALT  VerifiedX  PLAUD", "what": "the event's sponsors' logo wall"}]
 
-    def test_the_kraken_banner_and_the_itrust_panel_refuse_in_every_format_and_role(self):
+    def rec(self, **kw):
+        return dict(VP.check(dict(CLEAN, **kw)), measured=True, version=VP.VERSION)
+
+    def test_the_kraken_banner_and_the_itrust_panel_pass_with_the_information_line(self):
         v4 = fixture("v4_ad47eab4.json")["record"]
-        why = VP.ad_block(v4)
-        self.assertIn("KRAKEN", why)
-        self.assertIn("CRYPTO IRA", why)
-        self.assertIn("ruling 158 (2): on-screen advertising", VP.layout_block(v4))     # every role
-        self.assertEqual((VP.graphics_only(v4), VP.crop_only(v4)), (None, None))      # never the 16:9 exception
+        self.assertEqual((VP.layout_block(v4), VP.hook_block(v4)), (None, None))      # every role: nothing refuses
+        self.assertEqual((VP.graphics_only(v4), VP.crop_only(v4), VP.formats(v4)), (None, None, None))   # both formats
+        info = VP.sponsor_graphics(v4)
+        self.assertIn("Kraken", info)
+        self.assertIn("CRYPTO IRA", info)                                             # the panel, by its bug
+        self.assertEqual([f for f in VP.flags(v4) if f["kind"] == "burned_in"], [])   # never a flag
         banner = dict(v4, advertising=[], burned_in=[x for x in v4["burned_in"] if x["kind"] == "ticker"])
         panel = dict(v4, advertising=[], burned_in=[x for x in v4["burned_in"] if x["kind"] == "bug"])
-        self.assertIn("SIGN UP BONUS", VP.ad_block(banner))                            # each one alone refuses
-        self.assertIn("CRYPTO IRA", VP.ad_block(panel))
-        self.assertEqual((VP.graphics_only(panel), VP.layout_block(panel)[:9]), (None, "ruling 93"))
-        bug = next(x for x in v4["burned_in"] if x["kind"] == "bug")
-        cut = dict(panel, burned_in=[dict(bug, in_9x16="cut")])                        # the 9:16 crop's exception
-        plain = dict(cut, burned_in=[dict(bug, in_9x16="cut", text="DIGITAL ASSET NEWS")])   # (ruling 123 (2))
-        self.assertEqual((VP.crop_only(cut), bool(VP.crop_only(plain))), (None, True))   # never for an ad
-        v3 = fixture("v3_ad47eab4.json")["record"]                                     # the record that sealed
-        self.assertIn("never asked for", VP.layout_block(v3))                          # afd8977d: asked again now,
-        self.assertIn("SIGN UP BONUS", VP.ad_block(v3))                                # and refused on its words
-        for f in ("dan_ad47eab4_575.61s.jpg", "dan_ad47eab4_581.61s.jpg"):
+        for one, words in ((banner, "SIGN UP BONUS"), (panel, "CRYPTO IRA")):      # each alone, known by its words
+            self.assertIsNone(VP.layout_block(one), words)
+            self.assertIn(words, VP.sponsor_graphics(one))
+        v3 = fixture("v3_ad47eab4.json")["record"]                                  # the record that sealed afd8977d
+        self.assertIn("never asked for", VP.layout_block(v3))                       # never asked question 5: asked
+        for f in ("dan_ad47eab4_575.61s.jpg", "dan_ad47eab4_581.61s.jpg"):          # again (the information line)
             self.assertGreater(os.path.getsize(os.path.join(FIX, f)), 1000)
 
-    def test_a_plain_price_ticker_and_the_shows_own_bug_only_flag(self):
-        yahoo, sb = fixture("v4_96056caa.json")["record"], fixture("v4_1cb16751.json")["record"]
-        self.assertEqual((VP.ad_block(yahoo), VP.graphics_only(yahoo)), (None, ["bug"]))   # 'THE DAILY WOLF': the
-        self.assertEqual((VP.ad_block(sb), VP.layout_block(sb)), (None, None))             # show's own, a 16:9 flag
-        tick = dict(fixture("v4_96056caa.json")["record"], burned_in=[{
-            "kind": "ticker", "text": "S&P 500  Nasdaq  Bitcoin  Ethereum", "whole_in_16x9": True, "in_9x16": "cut",
-            "covers_speaker": False}])
-        self.assertIsNone(VP.ad_block(tick))
-        self.assertEqual(VP.graphics_only(tick), ["ticker"])                           # a 16:9 flag (146 (1))
-        for words in ("THE BLOCK REWARD HALVES", "GBTC TRADES AT A DISCOUNT", "SOLD MY ROTH IRA"):   # content
-            self.assertIsNone(VP.ad_block(dict(tick, burned_in=[], on_screen_text=[
-                {"text": words, "asserts_beyond_words": False, "why": ""}])), words)
-        for words in ("GET A SIGN-UP BONUS AT KRAKEN", "USE CODE SATS FOR 10% OFF", "SPONSORED BY BITKEY",
-                      "OPEN A CRYPTO IRA TODAY", "$100 FUNDING REWARD",                    # ad words, any kind;
-                      "POWERED BY CASH APP", "Presented by Bitkey", "OFFICIAL PARTNER"):   # an event's sponsor wall
-            self.assertTrue(VP.ad_block(dict(tick, burned_in=[], on_screen_text=[         # (the integrator's V1,
-                {"text": words, "asserts_beyond_words": False, "why": ""}])), words)       # Nov 24: the Nov 11 stage)
-        for words in ("BITCOIN 2024 NASHVILLE", "THE BLOCK REWARD HALVES"):                # an event's own name: not
-            self.assertIsNone(VP.ad_block(dict(tick, burned_in=[], on_screen_text=[        # an ad by its words alone
-                {"text": words, "asserts_beyond_words": False, "why": ""}])), words)
-        cap = dict(tick, burned_in=[{"kind": "caption", "text": "OPEN A ROTH IRA", "whole_in_16x9": True,
-                                     "in_9x16": "whole", "covers_speaker": False}])
-        self.assertIsNone(VP.ad_block(cap))                    # a caption is the spoken words (the ad read's model)
+    def test_the_cash_app_stage_wall_passes_with_the_information_line(self):
+        """The integrator's V1 finding (02:29 ET Nov 24): the PBX-approved Nov 11 preview's Bitcoin Magazine stage clip,
+        a conference sponsor wall behind the speaker ('Powered by Cash App', Square, bitkey, SALT, VerifiedX, PLAUD).
+        Built in the check's contract from that finding (this side holds no visual-4 answer for that clip); the check
+        may also file a sign of the wall as a bug or as running text, off the frame's edge or behind the speaker."""
+        rec = self.rec(advertising=self.WALL)
+        self.assertIsNone(VP.layout_block(rec))
+        self.assertIn("Cash App", VP.sponsor_graphics(rec))
+        for sign in ({"kind": "bug", "text": "POWERED BY CASH APP", "whole_in_16x9": False, "in_9x16": "out",
+                      "covers_speaker": True},
+                     {"kind": "crawl", "text": "SQUARE bitkey SALT VerifiedX PLAUD", "whole_in_16x9": False,
+                      "in_9x16": "out", "covers_speaker": False}):
+            one = self.rec(advertising=self.WALL, burned_in=[sign])
+            self.assertIsNone(VP.layout_block(one), sign)
+            self.assertEqual((VP.graphics_only(one), VP.formats(one)), (None, None), sign)
+            self.assertEqual([f for f in VP.flags(one) if f["kind"] == "burned_in"], [], sign)
+            self.assertIn("Cash App", VP.sponsor_graphics(one))
 
-    def test_every_clip_is_asked_and_an_answer_without_question_5_is_out_of_contract(self):
+    def test_our_9x16_crop_still_never_slices_sponsor_text(self):
+        """'The 9:16 crop rule is unchanged: OUR crop may not slice through burned text or a face.' A sponsor item the
+        9:16 crop would cut makes the clip 16:9 only (as a source caption does, ruling 93 amended): never a refusal,
+        never a flag. A record cached before today is read under today's rules (current())."""
+        v4 = fixture("v4_ad47eab4.json")["record"]
+        cut = dict(v4, burned_in=[dict(x, in_9x16="cut") for x in v4["burned_in"]])
+        self.assertIsNone(VP.layout_block(cut))
+        self.assertEqual((VP.formats(cut), VP.graphics_only(cut)), (["16x9"], None))
+        old = dict(cut, flags=[{"kind": "burned_in", "text": "CRYPTO IRA", "item": "bug", "in_9x16": "cut"}])
+        now = VP.current(old)
+        self.assertEqual(now["formats"], ["16x9"])
+        self.assertEqual([f for f in now["flags"] if f["kind"] == "burned_in"], [])
+        self.assertEqual(VP.current(dict(v4, formats=["16x9"])).get("formats"), None)   # stale both ways
+
+    def test_the_shows_own_graphics_and_news_text_are_ruled_as_before(self):
+        yahoo, sb = fixture("v4_96056caa.json")["record"], fixture("v4_1cb16751.json")["record"]
+        self.assertEqual((VP.sponsor_graphics(yahoo), VP.graphics_only(yahoo)), (None, ["bug"]))   # 'THE DAILY WOLF'
+        self.assertEqual((VP.sponsor_graphics(sb), VP.layout_block(sb)), (None, None))
+        tick = dict(yahoo, burned_in=[{"kind": "ticker", "text": "S&P 500  Nasdaq  Bitcoin  Ethereum",
+                                       "whole_in_16x9": True, "in_9x16": "cut", "covers_speaker": False}])
+        self.assertIn("a ticker", VP.layout_block(tick))                           # ruling 93: a ticker refuses
+        self.assertEqual(VP.graphics_only(tick), ["ticker"])                       # a 16:9 flag (146 (1))
+        news = dict(tick, burned_in=[{"kind": "ticker", "text": "KRAKEN HACKED, CUSTOMER FUNDS SAFE",
+                                      "whole_in_16x9": True, "in_9x16": "whole", "covers_speaker": False}],
+                    advertising=[{"text": "Kraken", "what": "Kraken"}])           # an ad's name inside news text:
+        self.assertIn("a ticker", VP.layout_block(news))                           # still news, still ruled
+        for words in ("THE BLOCK REWARD HALVES", "GBTC TRADES AT A DISCOUNT", "SOLD MY ROTH IRA",
+                      "BITCOIN 2024 NASHVILLE"):                                   # content, not sponsor material
+            self.assertIsNone(VP.sponsor_graphics(dict(tick, burned_in=[], on_screen_text=[
+                {"text": words, "asserts_beyond_words": False, "why": ""}])), words)
+        for words in ("USE CODE SATS FOR 10% OFF", "SPONSORED BY BITKEY", "Presented by Bitkey"):
+            self.assertIn(words, VP.sponsor_graphics(dict(tick, burned_in=[], on_screen_text=[
+                {"text": words, "asserts_beyond_words": False, "why": ""}])))    # named, never refused
+        cap = dict(tick, burned_in=[{"kind": "caption", "text": "THIS EPISODE IS SPONSORED BY BITKEY",
+                                     "whole_in_16x9": True, "in_9x16": "whole", "covers_speaker": False}])
+        self.assertIsNone(VP.sponsor_graphics(cap))     # a caption is the spoken words: moments.ad_read_marker's
+
+    def test_every_clip_is_still_asked_and_an_answer_without_question_5_is_out_of_contract(self):
         with self.assertRaises(ValueError):
             VP.check({k: v for k, v in CLEAN.items() if k != "advertising"})
         for bad in ([{"text": "", "what": ""}], [{"text": 3, "what": "x"}], "none", [{"text": "x", "at": "1"}]):
             with self.assertRaises(ValueError):
                 VP.check(dict(CLEAN, advertising=bad))
-        v = VP.check(dict(CLEAN, advertising=[{"text": "", "what": "a QR code to an exchange", "at": [1.0]}]))
-        rec = dict(v, measured=True, version=VP.VERSION)
-        self.assertIn("a QR code to an exchange", VP.ad_block(rec))                    # unsure, listed: refused
-        self.assertEqual(VP.sealed(rec)["advertising"], v["advertising"])             # named on the pin
+        rec = self.rec(advertising=[{"text": "", "what": "a QR code to an exchange", "at": [1.0]}])
+        self.assertIsNone(VP.layout_block(rec))                                    # unsure, listed: information
+        self.assertEqual(VP.sponsor_graphics(rec), "a QR code to an exchange")
+        self.assertEqual(VP.sealed(rec)["advertising"], rec["advertising"])        # and sealed on the pin
 
 
 if __name__ == "__main__":

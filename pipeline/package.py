@@ -532,6 +532,9 @@ def _package(segs, ctx, fields, vo_kind, vo, lines):
                            if m.get("trimmed_leading") else {}),
                         **({"visual": __import__("visual_pin").sealed(m["visual"])}    # ruling 70: sealed
                            if m.get("visual") else {}),
+                        **({"visible_sponsor_graphics": __import__("visual_pin").sponsor_graphics(m["visual"])}
+                           if __import__("visual_pin").sponsor_graphics(m.get("visual")) else {}),   # RULING 161:
+                        #   information, sealed (package_pin.SEALED_LATER), never a flag, never counted
                         **({"scorer_verdict": verdict_of(m)}  # ruling 56: "seal only what it affirms" (the pin
                            if (verdict_of(m) or {}).get("affirmed") is True else {})}   # refuses any other)
                        for lb, m in zip(labels(len(segs)), segs)],
@@ -5009,7 +5012,7 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
     viol = {v["rule"] for v in ctx_.get("violations") or []}
     hook_fl = ((medley[1].get("hook_own") or {}).get("flagged") if soft and medley is not None else None)   # 2b
     lx_checks = stand_in_checks(fid, ctx_, a_by, coh, medley, value, who)          # RULING 154 (1) / 152 (2)
-    import visual_pin as VP                                                         # RULING 158 (2): the visual row
+    import visual_pin as VP                                                         # RULING 161: the visual row's info
     un = soft and medley is not None and (medley[1].get("hook_own") or {}).get("unrated") is True   # RULING 154 (2)
     chain = medley[1].get("soft") if soft and medley is not None and medley[0] else None   # RULING 141 (3)
     med_fl = ([f"{CLIP_PLACE['hook']} ({(who or {}).get('hook') or 'its channel'}): " +
@@ -5126,16 +5129,18 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
                                     STAND_SOFT_PREFIX.format(channel=(who or {}).get(lb) or "its channel") + f"{why}."
                                     for lb, why in stand["soft_rows"].items()]} if soft and stand.get("soft_rows") else {}))}
            if stand is not None else {}),
-        **({"visual": dict(row(bool(visual) and all((v or {}).get("measured") is True for v in visual) and
-                               not any(VP.ad_block(v) for v in visual),    # RULING 158 (2): an ad never passes
+        **({"visual": dict(row(bool(visual) and all((v or {}).get("measured") is True for v in visual),
                                sorted({str((v or {}).get("backend")) for v in visual}) or None,
                                rep((v or {}).get("replayed") for v in visual), n=len(visual or []),
                                measured=bool(visual) and all((v or {}).get("measured") is True for v in visual)),
                            flags=[{"segment": i, **f} for i, v in enumerate(visual) for f in (v or {}).get("flags") or []],
                            by_rule="visual_pin (ruling 70): one contact sheet per clip; a finding is a FLAG, sealed, "
-                                   "never a reject by itself; on-screen advertising refuses (ruling 158 (2))",
-                           **({"ads": [a for v in visual for a in [VP.ad_block(v)] if a]}
-                              if any(VP.ad_block(v) for v in visual) else {}))}
+                                   "never a reject by itself; sponsor material only VISIBLE is information on the pin, "
+                                   "never a refusal and never a flag (ruling 161)",
+                           **({"sponsor_info": [f"{lb}: visible sponsor graphics: {VP.sponsor_graphics(v)}"
+                                                for lb, v in zip(labels(len(visual)), visual)
+                                                if VP.sponsor_graphics(v)]}
+                              if any(VP.sponsor_graphics(v) for v in visual) else {}))}
            if visual is not None else {}),
         **({"takeaway_value": dict(row(value.get("ok") is True, value.get("backend"), value.get("replayed"),
                                        measured=value.get("measured") is True),
