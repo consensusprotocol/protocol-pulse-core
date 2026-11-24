@@ -114,7 +114,8 @@ def chains(routing=None):
         if ":" in k and isinstance(ch, list):
             out[k] = [b for b in ch if not b.startswith(FROZEN)]
     out["angle_write"] = list(WRITERS)
-    return out
+    out["angle_write:closing"] = WRITERS[-1:] + WRITERS[:-1]   # RULING 162 (2): our closing line, the PAID model
+    return out                                                 # first, then every Heimdall family of the writer chain
 
 
 def plan_b_chains():

@@ -311,95 +311,22 @@ class TestRuling155FlagKinds(unittest.TestCase):
 FAILING = 2
 
 
-class TestRuling156FallbackLines(unittest.TestCase):
-    """RULING 156 (2) (orchestrator 21:34 ET Nov 23): when every write fails, the never-empty pass gates ONE set of plain
-    lines built by code from fixed templates that state no fact (the subject in the clips' own words and the channels'
-    names); a package on them carries the one flag 'A line of ours is the plain fallback: "<line>"'. The clean pass never
-    uses them; fidelity stays HARD (they are gated as any write)."""
-    def segs(self, total=39.0):
-        from test_moments import pm
-        ms = [pm("h", "Natalie Brunell", total / 3), pm("x", "Strategy", total / 3), pm("y", "Yahoo Finance", total / 3)]
-        for m, t in zip(ms, ("Analysts say Michael Saylor will keep buying Bitcoin.",
-                             "We sold credit, and Michael Saylor said we buy more Bitcoin.",
-                             "This guy, Michael Saylor, is buying again.")):
-            m["text"] = t
-        return ms
+class TestRuling162NoPlainLines(unittest.TestCase):
+    """RULING 162 (2) (orchestrator 07:45 ET Nov 24, from PBX's review of afd8977d: "my VO, which is literally just me
+    saying all the clips that were featured, which is not a value added comment at all. Let's never do that again"):
+    ruling 156's plain fallback lines are WITHDRAWN and their templates deleted; ruling 150 is REVERSED (the closing
+    line's value grade is a requirement again); "up to 4 writes" a line stands (the write, then the line alone three
+    times, each told why); no line passing means NO closing line, with ONE flag."""
 
-    def test_the_templates_state_no_fact_fit_the_budget_and_pass_house_style(self):
-        import house_style as HS
-        for total in (31.5, 34.5, 39.0, 45.0):
-            with mock.patch.object(PK, "_FLOOR", PK.LY_FLOOR_S):           # the never-empty pass's budget
-                f = PK.fallback_fields({"angle": "a"}, self.segs(total))
-            lo, hi = f["takeaway_budget"]
-            words = f["takeaway"]["text"].split()
-            self.assertTrue(lo <= len(words) <= hi, (total, f["takeaway"]["text"]))
-            self.assertIn(f["takeaway"]["text"], [v.format(subject="Michael Saylor and Bitcoin",
-                                                           names="Natalie Brunell, Strategy and Yahoo Finance")
-                                                  for v in PK.FALLBACK_CLOSING])
-            self.assertEqual(HS.lint_lines([{"slot": k, "text": f[k]["text"]} for k in ("takeaway", "title", "caption")]),
-                             [], total)
-            self.assertEqual((f["title"]["text"], f["caption"]["text"]), (
-                "Michael Saylor and Bitcoin, in their words",
-                "michael saylor and bitcoin, in the words of natalie brunell, strategy and yahoo finance."))
-        one = self.segs()
-        one[1]["text"] = "We sold credit."
-        self.assertEqual(PK.fallback_subject(one, ["Natalie Brunell", "Strategy", "Yahoo Finance"]),
-                         "Michael Saylor and Bitcoin")                 # still two clips say it
-        one[2]["text"] = "This guy is buying again."
-        self.assertEqual(PK.fallback_subject(one, ["Natalie Brunell"]), "Bitcoin")   # one clip only: Bitcoin alone
-
-    def test_audit_a2_no_raw_id_no_bad_join_and_a_title_that_fits(self):
-        """Audit 20261124_0016 A2 (qwen, gemma): a clip with no channel name builds no fallback (never a raw channel id
-        on screen); a join outside the line-up builds none (never an IndexError); a subject too long for the title
-        falls back to 'Bitcoin, in their words'."""
-        import house_style as HS
-        with mock.patch.object(PK, "_FLOOR", PK.LY_FLOOR_S):
-            segs = self.segs()
-            segs[1] = {k: v for k, v in segs[1].items() if k != "channel_name"}
-            self.assertIsNone(PK.fallback_fields({"angle": "a"}, segs))
-            for j in ((2, "x"), (-1, "x"), (5, "x"), (), [], "x", (True, "x"), ("0", "x")):   # audit F (qwen F1)
-                self.assertIsNone(PK.fallback_fields({"angle": "a"}, self.segs(), join=j), j)
-            long_ = self.segs()
-            for m in long_:
-                m["text"] = "Michael Saylor Strategy Executive Chairman Founder said it again about Bitcoin."
-            with mock.patch.object(PK, "fallback_subject", lambda segs, chans: "Michael Saylor Strategy Chairman "
-                                   "and Bitcoin"):                         # 6 words: ', in their words' makes 9
-                f = PK.fallback_fields({"angle": "a"}, long_)
-            self.assertEqual(f["title"]["text"], "Bitcoin, in their words")
-            self.assertTrue(len(f["title"]["text"].split()) <= HS.TITLE_MAX_WORDS)
-
-    def test_a_join_that_needs_a_bridge_gets_the_plain_one(self):
-        with mock.patch.object(PK, "_FLOOR", PK.LY_FLOOR_S):
-            f = PK.fallback_fields({"angle": "a"}, self.segs(), join=(1, "x"))
-        self.assertEqual((f["bridge"]["text"], f["bridge_after"]), ("Next, Yahoo Finance.", 1))
-
-    def run_rig(self, never_empty, failing=FAILING, a_fail=True):
-        import test_medley as TM
-        from test_moments import pm
-        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
-        bad = TM.TestRuling66Amended().failing()
-        r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE)] * 2, [None] * 2,
-                   fids=[dict(bad) for _ in range(failing)],         # every model write fails fidelity (COMMENTARY)
-                   a_fail={("xai", "y"): ["REFERENT_OUTSIDE"]} if a_fail else None)   # the clean pass stops at 2
-        #   channels, before any
-        #   write; the never-empty pass takes y back, flagged (stage 1), and writes
-        if never_empty:
-            r.build_kw = {"never_empty": True}
-        return r, r.run()
-
-    def test_every_write_failing_seals_on_the_plain_lines_flagged(self):
-        r, out = self.run_rig(True)
-        pk = out["package"]
-        self.assertIsNotNone(pk, out.get("why_none"))
-        take = next(x["text"] for x in pk["lines"] if x["slot"] == "takeaway")
-        self.assertEqual(pk["gates"]["fallback_line"]["flags"], [PK.FALLBACK_FLAG.format(line=take)])
-        self.assertTrue(any(take == v.format(subject="Bitcoin", names="A, B and C") for v in PK.FALLBACK_CLOSING))
-        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])
-
-    def test_the_clean_pass_never_uses_them(self):
-        r, out = self.run_rig(False, a_fail=False)                   # the clean pass reaches the writes, all fail
-        self.assertIsNone(out["package"])
-        self.assertNotIn("fallback_line", out["tried"][0])
+    def test_the_templates_and_their_soft_rows_are_gone(self):
+        for name in ("fallback_fields", "fallback_subject", "fallback_vo_soft", "FALLBACK_CLOSING", "FALLBACK_FLAG",
+                     "VALUE_FLAG"):
+            self.assertFalse(hasattr(PK, name), name)
+        self.assertFalse({"fallback_line", "takeaway_value"} & PP.SOFT_GATES)
+        self.assertIn("no_closing_line", PP.SOFT_GATES)
+        self.assertEqual(PK.NO_LINE_FLAG, "No closing line: our writers did not produce one that adds value.")
+        self.assertFalse(PP.flagged_ok("takeaway_value", {"status": "FLAGGED", "flags": ["The closing line may mostly "
+                                                                                       "restate the clips."]}))
 
     def test_a_line_is_written_alone_three_times_after_its_write(self):
         """RULING 156 (1): up to 4 writes a line: its write, then the line ALONE three times (LINE_ONLY_WRITES), each
@@ -415,10 +342,6 @@ class TestRuling156FallbackLines(unittest.TestCase):
         self.assertEqual((len(alone), seen), (3, [[x] for x in texts[:3]]))
         self.assertTrue(all(texts[i] in alone[i + 1] for i in range(2)))         # each told the one refused before
 
-    def test_fidelity_stays_hard_for_the_plain_lines(self):
-        r, out = self.run_rig(True, failing=FAILING + 1)             # the plain lines' own verdict fails too
-        self.assertIsNone(out["package"])
-        self.assertIn("fallback_line", ((out.get("never_empty") or {}).get("soft_record") or {})["tried"][0])
 
 
 class TestStage2aAtTheLineUp(unittest.TestCase):
@@ -506,34 +429,6 @@ class TestRuling159NothingRaisesTheCap(unittest.TestCase):
         self.assertEqual(PP.review_flags_of(dict({"pbx_exception": exc}, **self.gates(1))),
                          [exc["flags"][0], "Kind 0."])                       # gate order: no row jumps the queue
         self.assertEqual(PP.review_flags_of(dict(self.gates(1), pbx_exception=exc)), ["Kind 0.", exc["flags"][0]])
-
-
-class TestFallbackVoPoint(unittest.TestCase):
-    """RULINGS 156 / 157 (2)(b) (after build 166): the plain fallback line makes no point by design; a coherence verdict
-    that fails ONLY on its VO-point rating passes in the never-empty pass, the through-line, every clip rating and the
-    hook's own bar still required."""
-    LINE = "Bitcoin, in the words of A, B and C, in their own clips."
-
-    def case(self, **kw):
-        coh = {"measured": True, "through_line": "The market fell to a two-year low and then bounced back.",
-               "clips": {"hook": 3, "clip_01": 4, "clip_02": 5}, "vo_point": 2, "floors": {"clip": 3, "vo_point": 3}}
-        coh.update(kw.pop("coh", {}))
-        args = dict(ok_c=False, coh=coh, soft=True, fb_text=self.LINE, fields={"takeaway": {"text": self.LINE}},
-                    segs=[{"moment_id": "h"}])
-        args.update(kw)
-        with mock.patch.object(PK, "hook_own", lambda m: {"passes": kw.get("hook_passes", True)}):
-            args.pop("hook_passes", None)
-            return PK.fallback_vo_soft(**args)
-
-    def test_only_the_vo_point_of_the_plain_line(self):
-        self.assertTrue(self.case())
-        self.assertFalse(self.case(soft=False))                                     # the clean pass: as ruled
-        self.assertFalse(self.case(fields={"takeaway": {"text": "A model's line."}}))   # not the fallback line
-        self.assertFalse(self.case(coh={"clips": {"hook": 3, "clip_01": 2, "clip_02": 5}}))   # a clip under the floor
-        self.assertFalse(self.case(coh={"through_line": None}))                     # no through-line: HARD
-        self.assertFalse(self.case(coh={"measured": False}))                        # no verdict: never a pass
-        self.assertFalse(self.case(hook_passes=False))                               # the hook's own bar
-        self.assertFalse(self.case(ok_c=True))                                       # nothing to soften
 
 
 class TestStage2bHookBar(unittest.TestCase):
@@ -1149,10 +1044,9 @@ class TestRuling159NoExceptionSwitch(unittest.TestCase):
 
 
 class TestRuling150ValueSoft(unittest.TestCase):
-    """RULING 150 (standing; orchestrator 18:18 ET Nov 23: 'the value grade of our closing line' is SOFT): in the
-    never-empty pass a closing line whose MEASURED value verdict (ruling 91) is not a clear yes keeps its place, flagged
-    'The closing line may mostly restate the clips: "<line>"', and goes on to fidelity. An unmeasured verdict, and the
-    clean pass: unchanged (HARD)."""
+    """RULING 150 REVERSED by RULING 162 (2) (07:45 ET Nov 24): the closing line's value grade is a requirement again,
+    in every pass, never a flag. A loss is told to the next write; after the four writes, no line (here no no-voice
+    line-up exists: 39 s of clips and nothing to add, so no package). TICKER: the show's own ticker (ruling 146 (1))."""
     TICKER = {"kind": "ticker", "text": "S&P 500 Nasdaq Bitcoin", "whole_in_16x9": True, "in_9x16": "cut",
               "covers_speaker": False}
 
@@ -1163,19 +1057,16 @@ class TestRuling150ValueSoft(unittest.TestCase):
         lost = {"adds": "yes", "no_restate": "no", "why": "it restates the clips"} if measured else {"measured": False}
         kw = {"visuals": {"x": {"burned_in": [dict(self.TICKER)]}}} if ticker else {}
         r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE), (True, [], None, TM.Rig.LINE)], [None],
-                   values=[dict(lost) for _ in range(6)], follow_up={"angles": [TM.angle(["h", "x", "y"], "h")]}, **kw)
+                   values=[dict(lost) for _ in range(6)], follow_up={"angles": [TM.angle(["h", "x", "y"], "h")]},
+                   lines=TM.TestRuling91MedleyHalf.ALONE, **kw)
         if never_empty:
             r.build_kw = {"never_empty": True}
         return r, r.run()["package"]
 
-    def test_a_measured_loss_seals_flagged(self):
-        import test_medley as TM
-        _, pk = self.run_rig()
-        self.assertIsNotNone(pk)
-        row = pk["gates"]["takeaway_value"]
-        self.assertEqual((row["status"], row["flags"], row["text"]), (
-            "FLAGGED", [f'The closing line may mostly restate the clips: "{TM.Rig.LINE}"'], TM.Rig.LINE))
-        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])
+    def test_a_measured_loss_is_never_a_flag(self):
+        r, pk = self.run_rig()
+        self.assertIsNone(pk)                                      # losses: no line; no no-voice line-up exists
+        self.assertTrue(r.value_calls)                             # the value grade was asked, and never flagged
 
     def test_the_clean_pass_never_takes_it(self):
         _, pk = self.run_rig(never_empty=False, ticker=False)      # reaches the value gate: HARD
@@ -1184,6 +1075,8 @@ class TestRuling150ValueSoft(unittest.TestCase):
     def test_no_verdict_stays_hard(self):
         _, pk = self.run_rig(measured=False)
         self.assertIsNone(pk)
+
+
 class TestRuling161SponsorOnlySeenIsInformation(unittest.TestCase):
     """RULING 161 (orchestrator 07:36 ET Nov 24, from PBX 07:28; it replaces ruling 158 (2)): a clip whose frames only
     SHOW sponsor material (the Kraken banner, filed by the check as a 'ticker') plays in any pass and any format, with

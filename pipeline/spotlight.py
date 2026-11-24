@@ -1170,7 +1170,7 @@ def package_for(router, m, ctx, sources, a_two, truth, exc, pre, facts, log=prin
         pk = LP.apply(pk, pre)
     except Exception as e:                               # noqa: BLE001  never a crash, never a pin
         return None, f"rulings 68 / 72: {e}"[:400]
-    problems = PP.gate_problems(pk["gates"], PP.required_gates(pk) + P.OWN_REQUIRED) + \
+    problems = PP.gate_problems(pk["gates"], PP.required_gates(pk)) + \
         [f"{x}: the gated line differs from the one shipped" for x in PP.line_problems(pk)] + \
         PP.spotlight_problems(pk) + [f"{v['slot']}: {v['rule']}" for v in v_all]
     if problems:

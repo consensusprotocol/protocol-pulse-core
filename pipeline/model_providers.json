@@ -386,11 +386,19 @@
    ],
    "coherence_verdict": [
     "xai:grok-4.20-0309-reasoning",
-    "heimdall:deepseek/deepseek-v4.1-flash"
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:qwen/qwen3.8-27b",
+    "heimdall:openai/gpt-oss-20b",
+    "heimdall:google/gemma-4-31b-it",
+    "heimdall:minimax/minimax-m3.1-flash"
    ],
    "fidelity_verdict": [
+    "xai:grok-4.20-0309-reasoning",
     "heimdall:qwen/qwen3.8-27b",
-    "xai:grok-4.20-0309-reasoning"
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:openai/gpt-oss-20b",
+    "heimdall:google/gemma-4-31b-it",
+    "heimdall:minimax/minimax-m3.1-flash"
    ],
    "exclusion_verdict": [
     "heimdall:deepseek/deepseek-v4.1-flash",
@@ -433,6 +441,14 @@
    "coherence_verdict:coherence": [
     "xai:grok-4.20-0309-reasoning",
     "heimdall:deepseek/deepseek-v4.1-flash"
+   ],
+   "angle_write:closing": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:qwen/qwen3.8-27b",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:openai/gpt-oss-20b",
+    "heimdall:google/gemma-4-31b-it",
+    "heimdall:minimax/minimax-m3.1-flash"
    ]
   },
   "plan_b": {
@@ -526,6 +542,7 @@
   "ruling_96": "RULING 96 (orchestrator 01:40 ET Nov 14), FINAL until re-measured: HOOK qwen -> glm -> deepseek -> Grok; FIDELITY glm -> qwen -> Grok; EXCLUSION glm -> deepseek -> Grok; STEP A the Heimdall verdict first as the filter (glm first for speed: 45 s median against deepseek's 277 s; deepseek second; qwen third as failover, before Grok), Grok confirms what passes; STEP C, CLIPS-ALONE, COHERENCE, STEP B, SPEAKER, VISION: Grok first. qwen is never first where it failed an anchor. Re-run the replay monthly or when a Heimdall model changes; a type goes back to Grok first if its agreement falls under Grok's own self-agreement.",
   "ruling_0612": "ORCHESTRATOR RULINGS 06:12 ET Nov 14 (the builder's two routing questions): (1) THE COHERENCE GAP: glm is coherence's LAST fallback, after Grok and after ruling 96's deepseek, which stays second (glm agreed with Grok on 94 % of the replay's coherence decisions, with one anchor failure in the whole table); an out-of-contract glm answer is no verdict (providers.call_parsed moves on, and after glm the chain is spent: fail closed). CLIPS-ALONE has NO Heimdall fallback (52-62 % on the replay): with Grok down it goes to Plan B's other outside family (Gemini's fenced key; OpenAI and Anthropic are frozen legs here; in Plan B mode the router already reads Plan B's coherence list, Grok -> Gemini -> OpenAI -> Anthropic), else it fails closed. (2) QWEN IS STRUCK FROM STEP A (mostly errors; 9 of 43 refusals let through): the first screen glm -> deepseek -> Grok, Grok's confirmation Grok -> glm -> deepseek, and the role's default list (no live caller: every step-A call names its kind) as the first screen. NOT CHANGED: the coherence role's default list (Grok -> deepseek), which the spotlight's closing-line and the medley's takeaway value verdicts use: the replay has no data for them (the orchestrator is asked, STATE 06:14, question B). Every other list is ruling 96's, unchanged.",
   "ruling_102": "RULING 102 (orchestrator 13:02 ET Nov 14): STEP_A_UNAVAILABLE MUST NEVER END A CLIP. Step A's second family, in order: Heimdall deepseek (its own deadline, ruling 100) -> Heimdall glm -> GEMINI through the fenced key -> the local gemma3:27b on GPU0 through the integrator's judge service (ruling 87's last resort, recorded as such on the pin and on STATE line 1). Grok stays first (ruling 88 (c): Grok confirms a Heimdall pass); the second verdict is still off the first verdict's vendor and family. The first leg that ANSWERS gives the second verdict; an unavailable leg moves on at once, it is never a refusal and never cached. Only if no leg answers is the clip held for THIS build (STEP_A_HELD, not refused), and retried next build.",
-  "ruling_119": "RULING 119 (3) (orchestrator 08:25 ET Nov 16): glm-5.3-flash is overloaded on the gateway (the Heimdall team confirmed a worker shortage): OUT OF EVERY CHAIN until the orchestrator says; each list closes up, so the next member takes glm's place (no model is added: qwen stays struck from step A by the 06:12 Nov 14 rulings, and ruling 96's other lists are kept as they stand). A held moment moves to the next member at once inside the router (a missed deadline or an open breaker is never a refusal); step A's first screen is now deepseek -> Grok."
+  "ruling_119": "RULING 119 (3) (orchestrator 08:25 ET Nov 16): glm-5.3-flash is overloaded on the gateway (the Heimdall team confirmed a worker shortage): OUT OF EVERY CHAIN until the orchestrator says; each list closes up, so the next member takes glm's place (no model is added: qwen stays struck from step A by the 06:12 Nov 14 rulings, and ruling 96's other lists are kept as they stand). A held moment moves to the next member at once inside the router (a missed deadline or an open breaker is never a refusal); step A's first screen is now deepseek -> Grok.",
+  "ruling_162": "RULING 162 (2) (07:45 ET Nov 24): 'a Heimdall family judges fidelity and value when the paid model wrote, and the reverse': fidelity_verdict and coherence_verdict (the value grade's role) ask the paid model first, then every Heimdall family; L-x (never a model that wrote a line judged) picks the other side"
  }
 }
