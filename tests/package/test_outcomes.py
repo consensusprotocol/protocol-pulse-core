@@ -238,9 +238,10 @@ class TestExactlyOneLine(unittest.TestCase):
                     mock.patch.object(PLG, "with_variants", lambda m, *a, **k: m), \
                     mock.patch.object(PLG, "fingerprint", mock.Mock(side_effect=Stop("after the inputs"))):
                 with self.assertRaises(Stop):
-                    PLG.main(["--delivered", *pins, "--build-no", "9"])
+                    PLG.main(["--delivered", *pins, "--build-no", "9", "--out-dir-file", os.path.join(d, "out.txt")])
             runs = [x for x in os.listdir(os.path.join(d, "proof")) if x.startswith("ledger_")]
             self.assertEqual(len(runs), 1)
+            self.assertEqual(open(os.path.join(d, "out.txt")).read().strip(), os.path.join(d, "proof", runs[0]))
             inp = json.load(open(os.path.join(d, "proof", runs[0], "inputs.json")))
             e = inp["entry"]
             self.assertEqual((e["ok"], e["under_test"], e["driver"], inp["build_no"]),
