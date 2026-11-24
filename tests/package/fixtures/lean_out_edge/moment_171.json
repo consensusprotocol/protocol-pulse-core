@@ -1,0 +1,143 @@
+{
+ "why": "build 171 (ledger_20261124_175601): CoinTelegraph 16473cca, refused by the out-edge question as 'cannot be extended (cut inside a sentence, or a window record)'; its window record frozen read-only from the live store; its answer as OUT_EDGE_CACHE.json holds it (qwen@low, recorded live by build 171)",
+ "moment": {
+  "schema": "pp.moment/1",
+  "moment_id": "16473ccae3baf3b8d118",
+  "video_id": "YIK0rTBJOjM",
+  "channel_id": "UCRqBu-grVX1p97WaX4d-OuQ",
+  "channel_name": "CoinTelegraph",
+  "published_at": "2026-11-24T16:00:00+00:00",
+  "title": "Bitcoin, Stocks and Gold: Best Opportunities in 2027 | Lyn Alden",
+  "transcript_sha256": "9d91750bc772786dac13a20ec0c190f2e6e4b1c72e51801893b9e9b84c93419c",
+  "transcript_method": "whisper_words_punct",
+  "timing": "word",
+  "words": [
+   145,
+   193
+  ],
+  "sentences": [
+   13,
+   14
+  ],
+  "text": "I probably agree with a third of that and disagree with two thirds, which is that so I do think money should be boring. And, you know, when Bitcoin was a five -year -old asset and people didn't even know if it was going to continue working properly, right?",
+  "start": 1092.2,
+  "end": 1102.85,
+  "duration_s": 10.65,
+  "duration_estimate_s": null,
+  "speaker": {
+   "turn_change_inside": null,
+   "label": null,
+   "confidence": null,
+   "named": null,
+   "named_source": null
+  },
+  "scores": {
+   "contempt_outrage": 0,
+   "hook_first_2s": 3,
+   "quotable": 5,
+   "stakes": 4,
+   "stance": 5,
+   "stands_alone": 4,
+   "surprising_fact": 2
+  },
+  "names_person": false,
+  "risk": [],
+  "topics": [],
+  "reason": "Strong, quotable stance that boringness is a feature of mature money, not a bug. Clear opinion on Bitcoin's nature.",
+  "eligibility": {
+   "hook": {
+    "ok": true,
+    "reasons": [],
+    "targets_missed": []
+   },
+   "clip": {
+    "ok": false,
+    "reasons": [
+     "not_statement"
+    ],
+    "targets_missed": [
+     "10.65 s outside the clip target 12.0-20.0 s"
+    ]
+   }
+  },
+  "on_screen_ok": true,
+  "excluded": [],
+  "mined": {
+   "at": "2026-11-24T16:05:26.711986+00:00",
+   "attempt": 2,
+   "backend": "heimdall_qwen27b",
+   "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+   "cached": false,
+   "contract_fp": "40f1d65a6e12a70cf0175254",
+   "cycle": "ingest-20261124T1603Z",
+   "model": "qwen/qwen3.8-27b",
+   "observations": 1,
+   "pass": "moment",
+   "prompt_sha256": "ca8e15f8d1f8c4f27217600c91d6530347cf89a4eafe7e6a5c8402199bae5938",
+   "prompt_version": "mine/2",
+   "provider": "Consensus Protocol",
+   "reply_sha256": "b34d64dec5dcf5aec5a8b28bd40019aaee5d8eb0686365523b910e4a86a22258",
+   "window": {
+    "start_s": 1050.47,
+    "end_s": 1148.118,
+    "record": "transcripts/YIK0rTBJOjM/windows/1050.470-1148.118.whisper_words_punct.json",
+    "words_sha256": "6acf482beac4db8b1307cb0acfc94b9c37a2c9fefbafc1c3677b9907104de389",
+    "record_sha256": "5a82a5aa79dbc03dccd3a07a4e44febc44c68d57b788bf2bef05a686dc124206",
+    "context_record": "yt_manual:en"
+   },
+   "ledger_moment_id": "f9bfabb142a7e16a37a5",
+   "reanchored": {
+    "anchor_ratio": 0.985,
+    "snapped_words": [
+     16,
+     0
+    ],
+    "sentences": [
+     13,
+     14
+    ],
+    "added": {
+     "before": "I probably agree with a third of that and disagree with two thirds, which is that",
+     "after": ""
+    },
+    "offset_s": [
+     -0.31,
+     -0.27
+    ]
+   },
+   "ledger_text": "So I do think money should be boring. Um, and you know, when Bitcoin was a five year old asset and people didn't even know if it was going to continue working properly, right."
+  },
+  "rank_score": 23,
+  "source_key": "YIK0rTBJOjM@1050.470-1148.118"
+ },
+ "word_pass": {
+  "moment_id": "f9bfabb142a7e16a37a5",
+  "video_id": "YIK0rTBJOjM",
+  "window_record": "transcripts/YIK0rTBJOjM/windows/1050.470-1148.118.whisper_words_punct.json",
+  "record_sha256": "5a82a5aa79dbc03dccd3a07a4e44febc44c68d57b788bf2bef05a686dc124206",
+  "sentence_ready": true,
+  "window": [
+   1050.47,
+   1148.118
+  ],
+  "at": "2026-11-24T16:21:19.113311+00:00"
+ },
+ "out_edge_cache": {
+  "16473ccae3baf3b8d118:1092.200-1102.850:d509ad194f42834e:fe61490efbd8cc40": {
+   "backend": "heimdall:qwen/qwen3.8-27b@low",
+   "complete": false,
+   "finishes_at": 0,
+   "key": "e9654f09c6f3546e6e4159c107b20f228bb88952e7521dd621d7353fb08d1bd8",
+   "ks": [],
+   "measured": true,
+   "next": [
+    "It's not boring then.",
+    "And it's tiny and volatile.",
+    "The larger it gets, the more boring you should want it to be."
+   ],
+   "sha256": "d509ad194f42834eb5b4813c79498dcb332b7eb2367017c37f1227f3dc017903",
+   "version": "owner_rules 4 (ruling 162 + items 2, 7, 2026-11-24)",
+   "why": "The clip ends on an unfinished 'when' clause ('when Bitcoin was a five-year-old asset...') that requires the main clause delivered by sentence [0] 'It's not boring then.' to complete the thought."
+  }
+ }
+}

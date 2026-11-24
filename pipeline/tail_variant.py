@@ -60,14 +60,16 @@ def extend(m, src, k, ctx, why):
     the end of its source's sentence k (k after its last sentence), its first sentence and its IN edge unchanged, made
     by the miner's own machinery (eligibility judged afresh, its id the span's own), recorded as derived from its parent
     ("derived_from": ruling "162 (1)", the words "added"). A new span: every gate judges it from the start. -> the new
-    moment record. ValueError for any other k, or for a parent cut inside a sentence (no whole-sentence span keeps its
-    IN edge and its words)."""
+    moment record. ValueError for any other k, or for a parent cut inside its FIRST sentence (no whole-sentence span
+    keeps its IN edge and its words). LEAN (2): a parent cut inside its LAST sentence may end at that sentence's own
+    end (k == its last sentence: the OUT edge re-anchored to the sentence end) or a later one; the IN edge stays."""
     k0, k1 = m["sentences"]
-    if not (isinstance(k, int) and not isinstance(k, bool) and k1 < k < len(src.sentences)):
-        raise ValueError(f"an extension ends at a later sentence of the source: {k!r} is not in ({k1}, "
-                         f"{len(src.sentences)})")
     w0, w1 = m["words"]
-    if w0 != src.sentences[k0][0] or w1 != src.sentences[k1][1]:
+    if not (isinstance(k, int) and not isinstance(k, bool) and k1 <= k < len(src.sentences) and
+            src.sentences[k][1] > w1):
+        raise ValueError(f"an extension ends at the end of a sentence after the clip's last word: {k!r} is not in "
+                         f"[{k1}, {len(src.sentences)}) ending after word {w1}")
+    if w0 != src.sentences[k0][0]:
         raise ValueError("the parent is cut inside a sentence: an extension of whole sentences would move its IN edge")
     sp = E.Span(src, k0, k)
     derived = {"ruling": "162 (1)", "from": m["moment_id"],

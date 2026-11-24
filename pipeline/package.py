@@ -287,23 +287,25 @@ def expired(m, now):
 
 
 def out_edges(router, ms, sources, ctx, cache_path=None, log=print, delivered=(), optout=frozenset(),
-              seg_max=SEG_MAX_S, admit=None):
+              seg_max=SEG_MAX_S, admit=None, recover=False):
     """RULING 162 (1) (orchestrator 07:45 ET Nov 24; pipeline/out_edge.py): the OUT edge of every moment of the pool,
     on the integrator's one question (owner_rules.out_edge). A moment whose thought runs on is REPLACED by its extension
     to the sentence that finishes it, which must also meet the pool's own rules (usable(): the 20 s clip, the 12 h
     window, never delivered); a moment that cannot be extended inside them is REFUSED; no answer is UNVERIFIED
     (ruling 160 (2a)). Every moment that may play carries its verdict (m["out_edge"]), which the pin's "out_edge" row
-    seals. -> (the moments, the record)."""
+    seals. LEAN (2): recover=True adds the bounded recovery of out_edge.pool (window records, the re-anchored OUT edge,
+    one shortening to a clip of at least SHORT_CLIP_S). -> (the moments, the record)."""
     import out_edge as OE
-    kept, rec = OE.pool(router, ms, sources, ctx, cache_path=cache_path, log=log, admit=admit)
+    kept, rec = OE.pool(router, ms, sources, ctx, cache_path=cache_path, log=log, admit=admit, recover=recover,
+                        floor_s=SHORT_CLIP_S if recover else None)
     ext = [m for m in kept if (m.get("derived_from") or {}).get("ruling") == OE.RULING]
     if ext:
         ok, why = usable(ext, ctx, delivered, optout, seg_max)
         good = {m["moment_id"] for m in ok}
-        for parent, vid in list(rec["extended"].items()):
-            if vid not in good:                          # the extension breaks a pool rule: the parent is refused
+        for parent, vid in list(rec["extended"].items()) + list((rec.get("shortened") or {}).items()):
+            if vid not in good:                          # the new span breaks a pool rule: the parent is refused
                 rec["refused"][parent] = f"its extension {vid} breaks a pool rule: {str(why.get(vid))[:200]}"
-                del rec["extended"][parent]
+                (rec["extended"] if parent in rec["extended"] else rec["shortened"]).pop(parent, None)
         ext_ids = {m["moment_id"] for m in ext}
         kept = [m for m in kept if m["moment_id"] not in ext_ids or m["moment_id"] in good]
     return kept, rec
@@ -3881,6 +3883,12 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
         ok_u, why_u = usable([v], ctx, delivered, optout)   # step A's first screen and the second recogniser's
         if not ok_u:                                   # deterministic check, before its own question
             return False, f"the pool's rules: {str(why_u.get(v['moment_id']) or why_u)[:160]}"
+        if lean:                                       # LEAN (2): the exclusion screen's free part on the new span's
+            why_ad = ad_read_out([v], sources).get(v["moment_id"])   # own words (an added sentence may be the ad)
+            if why_ad and not why_ad.endswith("in the sentence before it"):
+                return False, f"the exclusion screen's free part: {why_ad[:160]}"
+            if why_ad:                                 # a sponsor sentence before it only: the model judges it with
+                v["ad_before"] = why_ad                # the context, as for its parent (ITEM 1)
         got_v, fl_v, _, _ = prescreen(router, [v], sources, ctx, wv, wf, store=store, log=log, cache=step_a_cache,
                                       kind="step_a_first", **fb)
         vid = v["moment_id"]
@@ -3895,7 +3903,9 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                                                        "L-v 2" if not tv.get("ok") else "the OUT edge")
         return True, None
     kept, out_edge = out_edges(router, list(cleared.values()), sources, ctx, out_edge_cache, log, delivered, optout,
-                               admit=admit)            # ITEM 3: the question, only after the deterministic check
+                               admit=admit, **({"recover": True} if lean else {}))   # ITEM 3: the question, only
+    #   after the deterministic
+    #   check; LEAN (2): a clip whose thought runs on is extended, re-anchored or shortened inside its bounds
     cleared = {m["moment_id"]: m for m in kept}
     out["out_edge"] = out_edge
     hk = {}

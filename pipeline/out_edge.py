@@ -149,11 +149,17 @@ def release_json(path):
     return got
 
 
-def around(m, src):
+def around(m, src, recover=False):
     """What the question is asked with, from the moment's own Source: (the text before the clip: up to BEFORE_N
     sentences, [up to AFTER_N following sentences, each its own text], [the source sentence index each of those ends
     with, or [] when no extension can follow them]). An extension keeps the IN edge, so it exists only for a moment of
-    whole sentences on a Source of its own (not a window record: its sentences stop at the window)."""
+    whole sentences on a Source of its own (not a window record: its sentences stop at the window).
+    LEAN (2) (recover=True, the owner's assignment issue 2: "certain transcript representations prohibit extension
+    despite available following context"): the indices are aligned with the texts, one per text, None where that text
+    cannot end an extension; a clip whose IN edge is a sentence start may end at the end of any listed text: its own
+    last sentence when it is cut inside it (the OUT edge RE-ANCHORED to that sentence's end), or a following sentence,
+    on a window record too, never the window record's LAST sentence (the decode window may have cut it short, so its
+    end is not known to be the sentence's). The texts asked with are the same either way (the cache key keeps)."""
     k0, k1 = m["sentences"]
     w0, w1 = m["words"]
     S, T = src.sentences, src.tokens
@@ -162,14 +168,19 @@ def around(m, src):
     if whole:
         ks = list(range(k1 + 1, min(len(S), k1 + 1 + AFTER_N)))
         return before, [E.spoken(T[S[k][0]:S[k][1] + 1]) for k in ks], ks
-    nxt = []                                          # cut inside a sentence, or a window record: the words after the
+    nxt, kk = [], []                                  # cut inside a sentence, or a window record: the words after the
     if w1 < S[k1][1]:                                 # clip as far as its sentence goes, then whole sentences; no
-        nxt.append(E.spoken(T[w1 + 1:S[k1][1] + 1]))   # extension is made from them
+        nxt.append(E.spoken(T[w1 + 1:S[k1][1] + 1]))   # extension is made from them (LEAN (2): see above)
+        kk.append(k1)
     k = k1 + 1
     while len(nxt) < AFTER_N and k < len(S):
         nxt.append(E.spoken(T[S[k][0]:S[k][1] + 1]))
+        kk.append(k)
         k += 1
-    return before, nxt, []
+    if not recover:
+        return before, nxt, []
+    last = len(S) - 1 if getattr(src, "window", None) is not None else None
+    return before, nxt, [k if w0 == S[k0][0] and k != last else None for k in kk]
 
 
 def _key(m, sha, before, nxt):
@@ -196,18 +207,20 @@ def save_cache(path, cache):
         os.replace(tmp, path)
 
 
-def ask(router, m, src, cache=None, path=None):
+def ask(router, m, src, cache=None, path=None, recover=False):
     """The out-edge verdict on ONE moment (cached by moment, span, the rules file's sha and the texts asked with): the
     integrator's out_edge() on this router's role "out_edge". -> {"complete", "finishes_at", "why", "backend",
     "measured", "version", "sha256", "next": the sentences asked with, "ks": their source indices, "cached"}. Only
-    the router's no-answer errors are unmeasured; any other error propagates (the spend stop)."""
+    the router's no-answer errors are unmeasured; any other error propagates (the spend stop). LEAN (2): a cached
+    verdict answers the very same question (its key: moment, span, rules sha, texts asked with); where its sentences
+    may end an extension is read from the source again (around(), recover), never from the cache."""
     import providers as P
     OR, sha = rules(path)
-    before, nxt, ks = around(m, src)
+    before, nxt, ks = around(m, src, recover)
     key = _key(m, sha, before, nxt)
     hit = (cache or {}).get(key) if cache is not None else None
     if isinstance(hit, dict) and hit.get("measured") is True:
-        return dict(hit, cached=True)
+        return dict(hit, cached=True, next=nxt, ks=ks)
     v = OR.out_edge(router, m.get("text") or "", before, nxt, seed=SEED, role=ROLE,
                     no_answer=(P.ProviderError, P.ReplayMiss), deadline_s=DEADLINE_S)
     out = dict(v, sha256=sha, next=nxt, ks=ks, cached=False)
@@ -222,20 +235,28 @@ def sealed(v):
     return {k: v.get(k) for k in ("complete", "why", "backend", "measured", "version", "sha256")}
 
 
-def pool(router, ms, sources, ctx, cache_path=None, log=print, extend=None, workers=4, path=None, admit=None):
+def pool(router, ms, sources, ctx, cache_path=None, log=print, extend=None, workers=4, path=None, admit=None,
+         recover=False, floor_s=None):
     """RULING 162 (1) on a build's pool (see the module). -> (the moments that may play, each carrying "out_edge", the
     extensions in their parents' places; the record {"version", "sha256", "asked", "complete", "extended": {parent:
     extension}, "refused": {id: why}, "unverified": {id: why}}). extend(m, src, k, ctx, why): tail_variant.extend.
     ITEM 3 (orchestrator 09:45 ET Nov 24, final): "the deterministic edge check runs first": the caller passes only
     moments the second recogniser's OUT edge already passed, and admit(extension) -> (ok, why) puts every extension
     through the pool's rules, step A and that deterministic check BEFORE its own question (None: refused, no
-    extension is made without them)."""
+    extension is made without them).
+    LEAN (2) (recover=True): BOUNDED RECOVERY of a clip whose thought runs on, every new span a new moment through
+    admit() and asked this question on its own edge again (unanswered: UNVERIFIED, never a pass): (a) EXTENDED or
+    RE-ANCHORED to the end of the listed sentence that finishes the thought (around(): its own cut sentence's end or a
+    following sentence, on a window record too, never the window's last sentence; at most AFTER_N sentences: only what
+    the checker read; the pool's 20 s clip through admit); else (b) SHORTENED, once, to the end of its own previous
+    sentence, when its IN edge is a sentence start and the shorter clip keeps floor_s seconds; else REFUSED (dropped).
+    The record adds "shortened": {parent: span}."""
     import context_integrity as CI
+    import tail_variant as TV
     if extend is None:
-        import tail_variant as TV
         extend = TV.extend
     rec = {"ruling": RULING, "version": None, "sha256": None, "asked": 0, "complete": [], "extended": {},
-           "refused": {}, "unverified": {}}
+           "refused": {}, "unverified": {}, **({"shortened": {}} if recover else {})}
     try:
         OR, sha = rules(path)
     except OSError as e:                              # no question: no clip passes, none is refused (ruling 160 (2a))
@@ -251,11 +272,17 @@ def pool(router, ms, sources, ctx, cache_path=None, log=print, extend=None, work
             src = CI.source_for(m, sources)
         except KeyError:
             return m, None, None, "its word record is not in this build: the question cannot be asked"
-        return m, src, ask(router, m, src, cache, path), None
+        return m, src, ask(router, m, src, cache, path, recover), None
     with ThreadPoolExecutor(max_workers=workers) as ex:
         got = list(ex.map(one, ms))
     rec["asked"] = sum(1 for _, _, v, _ in got if v is not None)
-    keep, todo = [], []
+    keep, todo, short = [], [], []
+
+    def runs_on(m, src, why):                         # LEAN (2): a clip that cannot be extended may be shortened
+        if recover:                                   # (below); else it is refused, as before
+            short.append((m, src, why))
+        else:
+            rec["refused"][m["moment_id"]] = why
     for m, src, v, err in got:
         mid = m["moment_id"]
         if v is None or v.get("measured") is not True:
@@ -265,48 +292,81 @@ def pool(router, ms, sources, ctx, cache_path=None, log=print, extend=None, work
             keep.append(dict(m, out_edge=sealed(v)))
             rec["complete"].append(mid)
         elif v.get("finishes_at") is None:
-            rec["refused"][mid] = f"the thought runs on past its last word and no following sentence asked finishes " \
-                                  f"it ({str(v.get('why'))[:160]})"
-        elif not v.get("ks"):
-            rec["refused"][mid] = f"the thought runs on past its last word and the clip cannot be extended (cut " \
-                                  f"inside a sentence, or a window record) ({str(v.get('why'))[:160]})"
+            runs_on(m, src, f"the thought runs on past its last word and no following sentence asked finishes it "
+                            f"({str(v.get('why'))[:160]})")
         else:
-            todo.append((m, src, v))
+            fa, ks = v.get("finishes_at"), v.get("ks") or []
+            k = ks[fa] if type(fa) is int and 0 <= fa < len(ks) else None
+            if k is None:
+                runs_on(m, src, f"the thought runs on past its last word and the clip cannot be extended (cut "
+                                f"inside a sentence, or a window record" + (": its IN edge inside a sentence, or the "
+                                f"window record's last sentence" if recover else "") +
+                                f") ({str(v.get('why'))[:160]})")
+            else:
+                todo.append((m, src, v, k))
     ext = []
-    for m, src, v in todo:                            # the extension: admitted (ITEM 3), then asked on its own edge
-        mid, k = m["moment_id"], v["ks"][v["finishes_at"]]
+    for m, src, v, k in todo:                         # the extension: admitted (ITEM 3), then asked on its own edge
+        mid = m["moment_id"]
         try:
             x = extend(m, src, k, ctx, f"ruling 162 (1): the thought runs on past the clip's last word; it ends at "
                                        f"the end of the following sentence {v['finishes_at'] + 1} "
                                        f"({str(v.get('why'))[:160]})")
         except ValueError as e:
-            rec["refused"][mid] = f"the thought runs on and the clip cannot be extended: {str(e)[:200]}"
+            runs_on(m, src, f"the thought runs on and the clip cannot be extended: {str(e)[:200]}")
             continue
         ok, why = admit(x) if admit is not None else (False, "no extension is admitted without its own checks")
         if not ok:
-            rec["refused"][mid] = f"its extension {x['moment_id']} fails before its question: {str(why)[:200]}"
+            runs_on(m, src, f"its extension {x['moment_id']} fails before its question: {str(why)[:200]}")
             continue
         ext.append((m, src, x))
 
     def again(t):
         m, src, x = t
-        return m, x, ask(router, x, src, cache, path)
+        return m, src, x, ask(router, x, src, cache, path, recover)
     with ThreadPoolExecutor(max_workers=workers) as ex:
-        for m, x, v2 in ex.map(again, ext):
+        for m, src, x, v2 in ex.map(again, ext):
             mid = m["moment_id"]
             rec["asked"] += 1
             if v2.get("measured") is not True:
                 rec["unverified"][mid] = f"its extension {x['moment_id']} got no answer: {str(v2.get('why'))[:200]}"
             elif v2.get("complete") is not True:
-                rec["refused"][mid] = f"its extension {x['moment_id']} runs on too ({str(v2.get('why'))[:160]})"
+                runs_on(m, src, f"its extension {x['moment_id']} runs on too ({str(v2.get('why'))[:160]})")
             else:
                 keep.append(dict(x, out_edge=sealed(v2)))
                 rec["extended"][mid] = x["moment_id"]
+    for m, src, why in short:                         # LEAN (2) (b): ONE shortening, to its own previous sentence
+        mid = m["moment_id"]
+        (k0, k1), w0 = m["sentences"], m["words"][0]
+        if admit is None or k1 <= k0 or w0 != src.sentences[k0][0]:
+            rec["refused"][mid] = why + ("; it cannot be shortened (one sentence, or its IN edge inside a sentence)"
+                                         if admit is not None else "")
+            continue
+        x = TV.variant(m, src, k1 - 1, ctx, f"lean (2): its thought runs on past its last word ({why[:160]}); "
+                                            f"shortened to the end of its previous sentence")
+        x["derived_from"] = dict(x["derived_from"], ruling=RULING, how="shortened (lean 2)")
+        if floor_s is not None and float(x.get("duration_s") or 0.0) < float(floor_s):
+            rec["refused"][mid] = f"{why}; shortened it keeps {x.get('duration_s')} s, under the {floor_s:g} s floor"
+            continue
+        ok, why2 = admit(x)
+        if not ok:
+            rec["refused"][mid] = f"{why}; shortened ({x['moment_id']}) it fails before its question: {str(why2)[:160]}"
+            continue
+        v2 = ask(router, x, src, cache, path, recover)
+        rec["asked"] += 1
+        if v2.get("measured") is not True:
+            rec["unverified"][mid] = f"shortened ({x['moment_id']}) it got no answer: {str(v2.get('why'))[:200]}"
+        elif v2.get("complete") is not True:
+            rec["refused"][mid] = f"{why}; shortened ({x['moment_id']}) it runs on too ({str(v2.get('why'))[:120]})"
+        else:
+            keep.append(dict(x, out_edge=sealed(v2)))
+            rec["shortened"][mid] = x["moment_id"]
     if cache_path:
         save_cache(cache_path, cache)
     log(f"  RULING 162 (1) (the OUT edge, {OR.VERSION}, sha {sha[:12]}): {rec['asked']} asked; "
         f"{len(rec['complete'])} end a thought, {len(rec['extended'])} extended to its end, "
+        + (f"{len(rec['shortened'])} shortened (lean 2), " if recover else "") +
         f"{len(rec['refused'])} refused, {len(rec['unverified'])} UNVERIFIED (no answer)"
         + "".join(f"; {k[:8]} -> {v[:8]}" for k, v in rec["extended"].items())
+        + "".join(f"; {k[:8]} => {v[:8]}" for k, v in (rec.get("shortened") or {}).items())
         + "".join(f"; {k[:8]}: {w[:120]}" for k, w in list(rec["refused"].items())[:6]))
     return keep, rec

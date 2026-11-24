@@ -1,0 +1,3778 @@
+{
+ "schema": 1,
+ "video_id": "YIK0rTBJOjM",
+ "canonical_url": "https://www.youtube.com/watch?v=YIK0rTBJOjM",
+ "channel_id": "UCRqBu-grVX1p97WaX4d-OuQ",
+ "channel_name": "Cointelegraph",
+ "exact_title": "Bitcoin, Stocks and Gold: Best Opportunities in 2027 | Lyn Alden",
+ "published_at": "2026-11-24T16:00:00+00:00",
+ "duration": 1842,
+ "transcript_method": "whisper_words_punct",
+ "transcript_model": "faster-whisper 1.2.1 distil-large-v3 float16 batched16 lang=en word_timestamps + punctuation reference (window)",
+ "language": "en",
+ "acquired_at": "2026-11-24T16:21:19.032868+00:00",
+ "media_sha256": "df333ff07c99014fab8ba4b6e63f60689cbbfc9a5edace777287ebaeecb4d567",
+ "segments": [
+  {
+   "start": 1050.47,
+   "end": 1054.81,
+   "text": "you know, in theory they could have, you know, kind of timed the bottom slightly better."
+  },
+  {
+   "start": 1055.25,
+   "end": 1061.45,
+   "text": "I just saw another interesting statement by Jeff Dorman, that contradicts a bit your take."
+  },
+  {
+   "start": 1061.71,
+   "end": 1070.29,
+   "text": "I'm sure you probably want to agree with this, but his point is that Bitcoin has become like a very boring type of asset and that people should just stop talking about it."
+  },
+  {
+   "start": 1070.82,
+   "end": 1073.02,
+   "text": "Because, quote, Bitcoin does nothing."
+  },
+  {
+   "start": 1073.24,
+   "end": 1074.02,
+   "text": "It has no properties."
+  },
+  {
+   "start": 1074.24,
+   "end": 1075.18,
+   "text": "It has no cash flows."
+  },
+  {
+   "start": 1075.36,
+   "end": 1076.5,
+   "text": "It failed as a medium exchange."
+  },
+  {
+   "start": 1077.1,
+   "end": 1078.26,
+   "text": "It failed as an inflation hedge."
+  },
+  {
+   "start": 1078.48,
+   "end": 1082.68,
+   "text": "It doesn't even respond to stress in banking or government anymore like it used to."
+  },
+  {
+   "start": 1083.12,
+   "end": 1084.82,
+   "text": "It's a boring store of value at best."
+  },
+  {
+   "start": 1085.24,
+   "end": 1085.68,
+   "text": "And that's fine."
+  },
+  {
+   "start": 1085.86,
+   "end": 1091.08,
+   "text": "Let it be boring and check back in 10 years from now and see if it's higher or if people want to spend it."
+  },
+  {
+   "start": 1091.36,
+   "end": 1092.08,
+   "text": "What's your take on this?"
+  },
+  {
+   "start": 1092.2,
+   "end": 1096.8,
+   "text": "I probably agree with a third of that and disagree with two thirds, which is that so I do think money should be boring."
+  },
+  {
+   "start": 1097.73,
+   "end": 1102.85,
+   "text": "And, you know, when Bitcoin was a five -year -old asset and people didn't even know if it was going to continue working properly, right?"
+  },
+  {
+   "start": 1102.99,
+   "end": 1103.81,
+   "text": "It's not boring then."
+  },
+  {
+   "start": 1103.89,
+   "end": 1104.81,
+   "text": "And it's tiny and volatile."
+  },
+  {
+   "start": 1105.27,
+   "end": 1108.15,
+   "text": "The larger it gets, the more boring you should want it to be."
+  },
+  {
+   "start": 1108.43,
+   "end": 1110.37,
+   "text": "You know, if your money's not boring, then that's a problem."
+  },
+  {
+   "start": 1111.99,
+   "end": 1113.43,
+   "text": "Or at least, you know, one of the monies you use."
+  },
+  {
+   "start": 1114.01,
+   "end": 1119.93,
+   "text": "As far, the parts I would disagree with is to say that, to say that it has no properties or kind of no intrinsic capabilities."
+  },
+  {
+   "start": 1120.19,
+   "end": 1123.51,
+   "text": "I mean, it allows you to self -custody a bare asset."
+  },
+  {
+   "start": 1123.83,
+   "end": 1131.09,
+   "text": "So without kind of direct centralized counterparty risk, you can hold it, which only handful of assets really let you do."
+  },
+  {
+   "start": 1131.45,
+   "end": 1134.77,
+   "text": "You know, you can do that with physical cash, but that gets debased over time."
+  },
+  {
+   "start": 1135.31,
+   "end": 1136.99,
+   "text": "You can do it with gold and silver, right?"
+  },
+  {
+   "start": 1137.17,
+   "end": 1140.81,
+   "text": "But you can't really, you know, you can't fly around the world with a large amount of that."
+  },
+  {
+   "start": 1141.17,
+   "end": 1142.65,
+   "text": "And you can do it with Bitcoin."
+  },
+  {
+   "start": 1143.47,
+   "end": 1147.23,
+   "text": "And, you know, in theory, other other kind of large cryptos as well."
+  },
+  {
+   "start": 1147.65,
+   "end": 1148.01,
+   "text": "If you bullish."
+  }
+ ],
+ "transcript_sha256": "9d91750bc772786dac13a20ec0c190f2e6e4b1c72e51801893b9e9b84c93419c",
+ "words": [
+  {
+   "word": "you",
+   "start": 1050.47,
+   "end": 1050.79
+  },
+  {
+   "word": "know,",
+   "start": 1050.79,
+   "end": 1050.89
+  },
+  {
+   "word": "in",
+   "start": 1051.27,
+   "end": 1051.27
+  },
+  {
+   "word": "theory",
+   "start": 1051.27,
+   "end": 1051.57
+  },
+  {
+   "word": "they",
+   "start": 1051.57,
+   "end": 1051.73
+  },
+  {
+   "word": "could",
+   "start": 1051.73,
+   "end": 1051.87
+  },
+  {
+   "word": "have,",
+   "start": 1051.87,
+   "end": 1052.13
+  },
+  {
+   "word": "you",
+   "start": 1052.27,
+   "end": 1052.69
+  },
+  {
+   "word": "know,",
+   "start": 1052.69,
+   "end": 1052.81
+  },
+  {
+   "word": "kind",
+   "start": 1053.05,
+   "end": 1053.05
+  },
+  {
+   "word": "of",
+   "start": 1053.05,
+   "end": 1053.23
+  },
+  {
+   "word": "timed",
+   "start": 1053.23,
+   "end": 1053.55
+  },
+  {
+   "word": "the",
+   "start": 1053.55,
+   "end": 1053.87
+  },
+  {
+   "word": "bottom",
+   "start": 1053.87,
+   "end": 1054.17
+  },
+  {
+   "word": "slightly",
+   "start": 1054.17,
+   "end": 1054.49
+  },
+  {
+   "word": "better.",
+   "start": 1054.49,
+   "end": 1054.81
+  },
+  {
+   "word": "I",
+   "start": 1055.25,
+   "end": 1055.33
+  },
+  {
+   "word": "just",
+   "start": 1055.33,
+   "end": 1055.49
+  },
+  {
+   "word": "saw",
+   "start": 1055.49,
+   "end": 1055.73
+  },
+  {
+   "word": "another",
+   "start": 1055.73,
+   "end": 1056.01
+  },
+  {
+   "word": "interesting",
+   "start": 1056.01,
+   "end": 1056.57
+  },
+  {
+   "word": "statement",
+   "start": 1056.57,
+   "end": 1057.19
+  },
+  {
+   "word": "by",
+   "start": 1057.19,
+   "end": 1057.45
+  },
+  {
+   "word": "Jeff",
+   "start": 1057.45,
+   "end": 1057.73
+  },
+  {
+   "word": "Dorman,",
+   "start": 1057.73,
+   "end": 1058.21
+  },
+  {
+   "word": "that",
+   "start": 1059.43,
+   "end": 1059.47
+  },
+  {
+   "word": "contradicts",
+   "start": 1059.47,
+   "end": 1060.25
+  },
+  {
+   "word": "a",
+   "start": 1060.25,
+   "end": 1060.41
+  },
+  {
+   "word": "bit",
+   "start": 1060.41,
+   "end": 1060.59
+  },
+  {
+   "word": "your",
+   "start": 1060.59,
+   "end": 1061.21
+  },
+  {
+   "word": "take.",
+   "start": 1061.21,
+   "end": 1061.45
+  },
+  {
+   "word": "I'm",
+   "start": 1061.71,
+   "end": 1061.83
+  },
+  {
+   "word": "sure",
+   "start": 1061.83,
+   "end": 1062.01
+  },
+  {
+   "word": "you",
+   "start": 1062.01,
+   "end": 1062.27
+  },
+  {
+   "word": "probably",
+   "start": 1062.27,
+   "end": 1062.71
+  },
+  {
+   "word": "want",
+   "start": 1062.71,
+   "end": 1062.93
+  },
+  {
+   "word": "to",
+   "start": 1062.93,
+   "end": 1062.99
+  },
+  {
+   "word": "agree",
+   "start": 1062.99,
+   "end": 1063.15
+  },
+  {
+   "word": "with",
+   "start": 1063.15,
+   "end": 1063.31
+  },
+  {
+   "word": "this,",
+   "start": 1063.31,
+   "end": 1063.53
+  },
+  {
+   "word": "but",
+   "start": 1063.67,
+   "end": 1063.77
+  },
+  {
+   "word": "his",
+   "start": 1063.77,
+   "end": 1064.63
+  },
+  {
+   "word": "point",
+   "start": 1064.63,
+   "end": 1064.91
+  },
+  {
+   "word": "is",
+   "start": 1064.91,
+   "end": 1065.09
+  },
+  {
+   "word": "that",
+   "start": 1065.09,
+   "end": 1065.29
+  },
+  {
+   "word": "Bitcoin",
+   "start": 1065.29,
+   "end": 1065.73
+  },
+  {
+   "word": "has",
+   "start": 1065.73,
+   "end": 1065.95
+  },
+  {
+   "word": "become",
+   "start": 1065.95,
+   "end": 1066.27
+  },
+  {
+   "word": "like",
+   "start": 1066.27,
+   "end": 1066.51
+  },
+  {
+   "word": "a",
+   "start": 1066.51,
+   "end": 1066.63
+  },
+  {
+   "word": "very",
+   "start": 1066.63,
+   "end": 1066.79
+  },
+  {
+   "word": "boring",
+   "start": 1066.79,
+   "end": 1067.31
+  },
+  {
+   "word": "type",
+   "start": 1067.31,
+   "end": 1067.65
+  },
+  {
+   "word": "of",
+   "start": 1067.65,
+   "end": 1067.81
+  },
+  {
+   "word": "asset",
+   "start": 1067.81,
+   "end": 1068.15
+  },
+  {
+   "word": "and",
+   "start": 1068.15,
+   "end": 1068.41
+  },
+  {
+   "word": "that",
+   "start": 1068.41,
+   "end": 1068.53
+  },
+  {
+   "word": "people",
+   "start": 1068.53,
+   "end": 1068.73
+  },
+  {
+   "word": "should",
+   "start": 1068.73,
+   "end": 1068.95
+  },
+  {
+   "word": "just",
+   "start": 1068.95,
+   "end": 1069.13
+  },
+  {
+   "word": "stop",
+   "start": 1069.13,
+   "end": 1069.41
+  },
+  {
+   "word": "talking",
+   "start": 1069.41,
+   "end": 1069.71
+  },
+  {
+   "word": "about",
+   "start": 1069.71,
+   "end": 1070.01
+  },
+  {
+   "word": "it.",
+   "start": 1070.01,
+   "end": 1070.29
+  },
+  {
+   "word": "Because,",
+   "start": 1070.82,
+   "end": 1071.26
+  },
+  {
+   "word": "quote,",
+   "start": 1071.46,
+   "end": 1071.62
+  },
+  {
+   "word": "Bitcoin",
+   "start": 1071.82,
+   "end": 1072.14
+  },
+  {
+   "word": "does",
+   "start": 1072.14,
+   "end": 1072.6
+  },
+  {
+   "word": "nothing.",
+   "start": 1072.6,
+   "end": 1073.02
+  },
+  {
+   "word": "It",
+   "start": 1073.24,
+   "end": 1073.24
+  },
+  {
+   "word": "has",
+   "start": 1073.24,
+   "end": 1073.38
+  },
+  {
+   "word": "no",
+   "start": 1073.38,
+   "end": 1073.54
+  },
+  {
+   "word": "properties.",
+   "start": 1073.54,
+   "end": 1074.02
+  },
+  {
+   "word": "It",
+   "start": 1074.24,
+   "end": 1074.24
+  },
+  {
+   "word": "has",
+   "start": 1074.24,
+   "end": 1074.44
+  },
+  {
+   "word": "no",
+   "start": 1074.44,
+   "end": 1074.62
+  },
+  {
+   "word": "cash",
+   "start": 1074.62,
+   "end": 1074.94
+  },
+  {
+   "word": "flows.",
+   "start": 1074.94,
+   "end": 1075.18
+  },
+  {
+   "word": "It",
+   "start": 1075.36,
+   "end": 1075.36
+  },
+  {
+   "word": "failed",
+   "start": 1075.36,
+   "end": 1075.62
+  },
+  {
+   "word": "as",
+   "start": 1075.62,
+   "end": 1075.78
+  },
+  {
+   "word": "a",
+   "start": 1075.78,
+   "end": 1075.88
+  },
+  {
+   "word": "medium",
+   "start": 1075.88,
+   "end": 1076.04
+  },
+  {
+   "word": "exchange.",
+   "start": 1076.04,
+   "end": 1076.5
+  },
+  {
+   "word": "It",
+   "start": 1077.1,
+   "end": 1077.1
+  },
+  {
+   "word": "failed",
+   "start": 1077.1,
+   "end": 1077.36
+  },
+  {
+   "word": "as",
+   "start": 1077.36,
+   "end": 1077.48
+  },
+  {
+   "word": "an",
+   "start": 1077.48,
+   "end": 1077.58
+  },
+  {
+   "word": "inflation",
+   "start": 1077.58,
+   "end": 1077.9
+  },
+  {
+   "word": "hedge.",
+   "start": 1077.9,
+   "end": 1078.26
+  },
+  {
+   "word": "It",
+   "start": 1078.48,
+   "end": 1078.48
+  },
+  {
+   "word": "doesn't",
+   "start": 1078.48,
+   "end": 1078.82
+  },
+  {
+   "word": "even",
+   "start": 1078.82,
+   "end": 1078.96
+  },
+  {
+   "word": "respond",
+   "start": 1078.96,
+   "end": 1079.34
+  },
+  {
+   "word": "to",
+   "start": 1079.34,
+   "end": 1079.48
+  },
+  {
+   "word": "stress",
+   "start": 1079.48,
+   "end": 1079.92
+  },
+  {
+   "word": "in",
+   "start": 1079.92,
+   "end": 1080.2
+  },
+  {
+   "word": "banking",
+   "start": 1080.2,
+   "end": 1080.62
+  },
+  {
+   "word": "or",
+   "start": 1080.62,
+   "end": 1080.98
+  },
+  {
+   "word": "government",
+   "start": 1080.98,
+   "end": 1081.4
+  },
+  {
+   "word": "anymore",
+   "start": 1081.4,
+   "end": 1081.82
+  },
+  {
+   "word": "like",
+   "start": 1081.82,
+   "end": 1082.1
+  },
+  {
+   "word": "it",
+   "start": 1082.1,
+   "end": 1082.24
+  },
+  {
+   "word": "used",
+   "start": 1082.24,
+   "end": 1082.46
+  },
+  {
+   "word": "to.",
+   "start": 1082.46,
+   "end": 1082.68
+  },
+  {
+   "word": "It's",
+   "start": 1083.12,
+   "end": 1083.24
+  },
+  {
+   "word": "a",
+   "start": 1083.24,
+   "end": 1083.32
+  },
+  {
+   "word": "boring",
+   "start": 1083.32,
+   "end": 1083.56
+  },
+  {
+   "word": "store",
+   "start": 1083.56,
+   "end": 1083.78
+  },
+  {
+   "word": "of",
+   "start": 1083.78,
+   "end": 1083.92
+  },
+  {
+   "word": "value",
+   "start": 1083.92,
+   "end": 1084.16
+  },
+  {
+   "word": "at",
+   "start": 1084.16,
+   "end": 1084.34
+  },
+  {
+   "word": "best.",
+   "start": 1084.34,
+   "end": 1084.82
+  },
+  {
+   "word": "And",
+   "start": 1085.24,
+   "end": 1085.24
+  },
+  {
+   "word": "that's",
+   "start": 1085.24,
+   "end": 1085.42
+  },
+  {
+   "word": "fine.",
+   "start": 1085.42,
+   "end": 1085.68
+  },
+  {
+   "word": "Let",
+   "start": 1085.86,
+   "end": 1085.9
+  },
+  {
+   "word": "it",
+   "start": 1085.9,
+   "end": 1086.0
+  },
+  {
+   "word": "be",
+   "start": 1086.0,
+   "end": 1086.14
+  },
+  {
+   "word": "boring",
+   "start": 1086.14,
+   "end": 1086.48
+  },
+  {
+   "word": "and",
+   "start": 1086.48,
+   "end": 1086.68
+  },
+  {
+   "word": "check",
+   "start": 1086.68,
+   "end": 1086.84
+  },
+  {
+   "word": "back",
+   "start": 1086.84,
+   "end": 1087.08
+  },
+  {
+   "word": "in",
+   "start": 1087.08,
+   "end": 1087.26
+  },
+  {
+   "word": "10",
+   "start": 1087.26,
+   "end": 1087.48
+  },
+  {
+   "word": "years",
+   "start": 1087.48,
+   "end": 1087.72
+  },
+  {
+   "word": "from",
+   "start": 1087.72,
+   "end": 1087.88
+  },
+  {
+   "word": "now",
+   "start": 1087.88,
+   "end": 1088.16
+  },
+  {
+   "word": "and",
+   "start": 1088.16,
+   "end": 1088.36
+  },
+  {
+   "word": "see",
+   "start": 1088.36,
+   "end": 1088.58
+  },
+  {
+   "word": "if",
+   "start": 1088.58,
+   "end": 1088.78
+  },
+  {
+   "word": "it's",
+   "start": 1088.78,
+   "end": 1088.96
+  },
+  {
+   "word": "higher",
+   "start": 1088.96,
+   "end": 1089.2
+  },
+  {
+   "word": "or",
+   "start": 1089.2,
+   "end": 1089.4
+  },
+  {
+   "word": "if",
+   "start": 1089.4,
+   "end": 1089.52
+  },
+  {
+   "word": "people",
+   "start": 1089.52,
+   "end": 1089.8
+  },
+  {
+   "word": "want",
+   "start": 1089.8,
+   "end": 1090.1
+  },
+  {
+   "word": "to",
+   "start": 1090.1,
+   "end": 1090.38
+  },
+  {
+   "word": "spend",
+   "start": 1090.38,
+   "end": 1090.82
+  },
+  {
+   "word": "it.",
+   "start": 1090.82,
+   "end": 1091.08
+  },
+  {
+   "word": "What's",
+   "start": 1091.36,
+   "end": 1091.5
+  },
+  {
+   "word": "your",
+   "start": 1091.5,
+   "end": 1091.62
+  },
+  {
+   "word": "take",
+   "start": 1091.62,
+   "end": 1091.76
+  },
+  {
+   "word": "on",
+   "start": 1091.76,
+   "end": 1091.9
+  },
+  {
+   "word": "this?",
+   "start": 1091.9,
+   "end": 1092.08
+  },
+  {
+   "word": "I",
+   "start": 1092.2,
+   "end": 1092.42
+  },
+  {
+   "word": "probably",
+   "start": 1092.42,
+   "end": 1092.64
+  },
+  {
+   "word": "agree",
+   "start": 1092.64,
+   "end": 1092.92
+  },
+  {
+   "word": "with",
+   "start": 1092.92,
+   "end": 1093.06
+  },
+  {
+   "word": "a",
+   "start": 1093.06,
+   "end": 1093.16
+  },
+  {
+   "word": "third",
+   "start": 1093.16,
+   "end": 1093.38
+  },
+  {
+   "word": "of",
+   "start": 1093.38,
+   "end": 1093.5
+  },
+  {
+   "word": "that",
+   "start": 1093.5,
+   "end": 1093.64
+  },
+  {
+   "word": "and",
+   "start": 1093.64,
+   "end": 1093.78
+  },
+  {
+   "word": "disagree",
+   "start": 1093.78,
+   "end": 1094.0
+  },
+  {
+   "word": "with",
+   "start": 1094.0,
+   "end": 1094.2
+  },
+  {
+   "word": "two",
+   "start": 1094.2,
+   "end": 1094.38
+  },
+  {
+   "word": "thirds,",
+   "start": 1094.38,
+   "end": 1094.66
+  },
+  {
+   "word": "which",
+   "start": 1094.8,
+   "end": 1094.84
+  },
+  {
+   "word": "is",
+   "start": 1094.84,
+   "end": 1094.98
+  },
+  {
+   "word": "that",
+   "start": 1094.98,
+   "end": 1095.16
+  },
+  {
+   "word": "so",
+   "start": 1095.16,
+   "end": 1095.42
+  },
+  {
+   "word": "I",
+   "start": 1095.42,
+   "end": 1095.6
+  },
+  {
+   "word": "do",
+   "start": 1095.6,
+   "end": 1095.78
+  },
+  {
+   "word": "think",
+   "start": 1095.78,
+   "end": 1095.94
+  },
+  {
+   "word": "money",
+   "start": 1095.94,
+   "end": 1096.16
+  },
+  {
+   "word": "should",
+   "start": 1096.16,
+   "end": 1096.36
+  },
+  {
+   "word": "be",
+   "start": 1096.36,
+   "end": 1096.48
+  },
+  {
+   "word": "boring.",
+   "start": 1096.48,
+   "end": 1096.8
+  },
+  {
+   "word": "And,",
+   "start": 1097.73,
+   "end": 1098.05
+  },
+  {
+   "word": "you",
+   "start": 1098.05,
+   "end": 1098.19
+  },
+  {
+   "word": "know,",
+   "start": 1098.19,
+   "end": 1098.29
+  },
+  {
+   "word": "when",
+   "start": 1098.47,
+   "end": 1098.57
+  },
+  {
+   "word": "Bitcoin",
+   "start": 1098.57,
+   "end": 1098.79
+  },
+  {
+   "word": "was",
+   "start": 1098.79,
+   "end": 1098.95
+  },
+  {
+   "word": "a",
+   "start": 1098.95,
+   "end": 1099.07
+  },
+  {
+   "word": "five",
+   "start": 1099.07,
+   "end": 1099.31
+  },
+  {
+   "word": "-year",
+   "start": 1099.31,
+   "end": 1099.43
+  },
+  {
+   "word": "-old",
+   "start": 1099.43,
+   "end": 1099.59
+  },
+  {
+   "word": "asset",
+   "start": 1099.59,
+   "end": 1100.03
+  },
+  {
+   "word": "and",
+   "start": 1100.03,
+   "end": 1100.39
+  },
+  {
+   "word": "people",
+   "start": 1100.39,
+   "end": 1100.63
+  },
+  {
+   "word": "didn't",
+   "start": 1100.63,
+   "end": 1100.79
+  },
+  {
+   "word": "even",
+   "start": 1100.79,
+   "end": 1100.93
+  },
+  {
+   "word": "know",
+   "start": 1100.93,
+   "end": 1101.03
+  },
+  {
+   "word": "if",
+   "start": 1101.03,
+   "end": 1101.13
+  },
+  {
+   "word": "it",
+   "start": 1101.13,
+   "end": 1101.25
+  },
+  {
+   "word": "was",
+   "start": 1101.25,
+   "end": 1101.25
+  },
+  {
+   "word": "going",
+   "start": 1101.25,
+   "end": 1101.33
+  },
+  {
+   "word": "to",
+   "start": 1101.33,
+   "end": 1101.47
+  },
+  {
+   "word": "continue",
+   "start": 1101.47,
+   "end": 1101.67
+  },
+  {
+   "word": "working",
+   "start": 1101.67,
+   "end": 1102.01
+  },
+  {
+   "word": "properly,",
+   "start": 1102.01,
+   "end": 1102.53
+  },
+  {
+   "word": "right?",
+   "start": 1102.75,
+   "end": 1102.85
+  },
+  {
+   "word": "It's",
+   "start": 1102.99,
+   "end": 1103.05
+  },
+  {
+   "word": "not",
+   "start": 1103.05,
+   "end": 1103.19
+  },
+  {
+   "word": "boring",
+   "start": 1103.19,
+   "end": 1103.47
+  },
+  {
+   "word": "then.",
+   "start": 1103.47,
+   "end": 1103.81
+  },
+  {
+   "word": "And",
+   "start": 1103.89,
+   "end": 1103.89
+  },
+  {
+   "word": "it's",
+   "start": 1103.89,
+   "end": 1104.07
+  },
+  {
+   "word": "tiny",
+   "start": 1104.07,
+   "end": 1104.39
+  },
+  {
+   "word": "and",
+   "start": 1104.39,
+   "end": 1104.55
+  },
+  {
+   "word": "volatile.",
+   "start": 1104.55,
+   "end": 1104.81
+  },
+  {
+   "word": "The",
+   "start": 1105.27,
+   "end": 1105.59
+  },
+  {
+   "word": "larger",
+   "start": 1105.59,
+   "end": 1105.87
+  },
+  {
+   "word": "it",
+   "start": 1105.87,
+   "end": 1106.07
+  },
+  {
+   "word": "gets,",
+   "start": 1106.07,
+   "end": 1106.31
+  },
+  {
+   "word": "the",
+   "start": 1106.53,
+   "end": 1106.57
+  },
+  {
+   "word": "more",
+   "start": 1106.57,
+   "end": 1106.77
+  },
+  {
+   "word": "boring",
+   "start": 1106.77,
+   "end": 1107.15
+  },
+  {
+   "word": "you",
+   "start": 1107.15,
+   "end": 1107.27
+  },
+  {
+   "word": "should",
+   "start": 1107.27,
+   "end": 1107.43
+  },
+  {
+   "word": "want",
+   "start": 1107.43,
+   "end": 1107.67
+  },
+  {
+   "word": "it",
+   "start": 1107.67,
+   "end": 1107.79
+  },
+  {
+   "word": "to",
+   "start": 1107.79,
+   "end": 1107.89
+  },
+  {
+   "word": "be.",
+   "start": 1107.89,
+   "end": 1108.15
+  },
+  {
+   "word": "You",
+   "start": 1108.43,
+   "end": 1108.43
+  },
+  {
+   "word": "know,",
+   "start": 1108.43,
+   "end": 1108.49
+  },
+  {
+   "word": "if",
+   "start": 1108.53,
+   "end": 1108.61
+  },
+  {
+   "word": "your",
+   "start": 1108.61,
+   "end": 1108.71
+  },
+  {
+   "word": "money's",
+   "start": 1108.71,
+   "end": 1108.99
+  },
+  {
+   "word": "not",
+   "start": 1108.99,
+   "end": 1109.15
+  },
+  {
+   "word": "boring,",
+   "start": 1109.15,
+   "end": 1109.51
+  },
+  {
+   "word": "then",
+   "start": 1109.75,
+   "end": 1109.75
+  },
+  {
+   "word": "that's",
+   "start": 1109.75,
+   "end": 1109.93
+  },
+  {
+   "word": "a",
+   "start": 1109.93,
+   "end": 1110.01
+  },
+  {
+   "word": "problem.",
+   "start": 1110.01,
+   "end": 1110.37
+  },
+  {
+   "word": "Or",
+   "start": 1111.99,
+   "end": 1111.99
+  },
+  {
+   "word": "at",
+   "start": 1111.99,
+   "end": 1112.11
+  },
+  {
+   "word": "least,",
+   "start": 1112.11,
+   "end": 1112.17
+  },
+  {
+   "word": "you",
+   "start": 1112.25,
+   "end": 1112.25
+  },
+  {
+   "word": "know,",
+   "start": 1112.25,
+   "end": 1112.33
+  },
+  {
+   "word": "one",
+   "start": 1112.39,
+   "end": 1112.49
+  },
+  {
+   "word": "of",
+   "start": 1112.49,
+   "end": 1112.57
+  },
+  {
+   "word": "the",
+   "start": 1112.57,
+   "end": 1112.63
+  },
+  {
+   "word": "monies",
+   "start": 1112.63,
+   "end": 1112.87
+  },
+  {
+   "word": "you",
+   "start": 1112.87,
+   "end": 1113.05
+  },
+  {
+   "word": "use.",
+   "start": 1113.05,
+   "end": 1113.43
+  },
+  {
+   "word": "As",
+   "start": 1114.01,
+   "end": 1114.11
+  },
+  {
+   "word": "far,",
+   "start": 1114.11,
+   "end": 1114.25
+  },
+  {
+   "word": "the",
+   "start": 1114.39,
+   "end": 1114.47
+  },
+  {
+   "word": "parts",
+   "start": 1114.47,
+   "end": 1114.81
+  },
+  {
+   "word": "I",
+   "start": 1114.81,
+   "end": 1114.95
+  },
+  {
+   "word": "would",
+   "start": 1114.95,
+   "end": 1115.03
+  },
+  {
+   "word": "disagree",
+   "start": 1115.03,
+   "end": 1115.33
+  },
+  {
+   "word": "with",
+   "start": 1115.33,
+   "end": 1115.57
+  },
+  {
+   "word": "is",
+   "start": 1115.57,
+   "end": 1115.73
+  },
+  {
+   "word": "to",
+   "start": 1115.73,
+   "end": 1115.83
+  },
+  {
+   "word": "say",
+   "start": 1115.83,
+   "end": 1116.01
+  },
+  {
+   "word": "that,",
+   "start": 1116.01,
+   "end": 1116.23
+  },
+  {
+   "word": "to",
+   "start": 1116.53,
+   "end": 1117.11
+  },
+  {
+   "word": "say",
+   "start": 1117.11,
+   "end": 1117.25
+  },
+  {
+   "word": "that",
+   "start": 1117.25,
+   "end": 1117.35
+  },
+  {
+   "word": "it",
+   "start": 1117.35,
+   "end": 1117.43
+  },
+  {
+   "word": "has",
+   "start": 1117.43,
+   "end": 1117.57
+  },
+  {
+   "word": "no",
+   "start": 1117.57,
+   "end": 1117.69
+  },
+  {
+   "word": "properties",
+   "start": 1117.69,
+   "end": 1118.21
+  },
+  {
+   "word": "or",
+   "start": 1118.21,
+   "end": 1118.45
+  },
+  {
+   "word": "kind",
+   "start": 1118.45,
+   "end": 1118.61
+  },
+  {
+   "word": "of",
+   "start": 1118.61,
+   "end": 1118.71
+  },
+  {
+   "word": "no",
+   "start": 1118.71,
+   "end": 1118.87
+  },
+  {
+   "word": "intrinsic",
+   "start": 1118.87,
+   "end": 1119.29
+  },
+  {
+   "word": "capabilities.",
+   "start": 1119.29,
+   "end": 1119.93
+  },
+  {
+   "word": "I",
+   "start": 1120.19,
+   "end": 1120.21
+  },
+  {
+   "word": "mean,",
+   "start": 1120.21,
+   "end": 1120.33
+  },
+  {
+   "word": "it",
+   "start": 1121.03,
+   "end": 1121.21
+  },
+  {
+   "word": "allows",
+   "start": 1121.21,
+   "end": 1121.51
+  },
+  {
+   "word": "you",
+   "start": 1121.51,
+   "end": 1121.65
+  },
+  {
+   "word": "to",
+   "start": 1121.65,
+   "end": 1121.77
+  },
+  {
+   "word": "self",
+   "start": 1121.77,
+   "end": 1122.11
+  },
+  {
+   "word": "-custody",
+   "start": 1122.11,
+   "end": 1122.63
+  },
+  {
+   "word": "a",
+   "start": 1122.63,
+   "end": 1122.87
+  },
+  {
+   "word": "bare",
+   "start": 1122.87,
+   "end": 1123.09
+  },
+  {
+   "word": "asset.",
+   "start": 1123.09,
+   "end": 1123.51
+  },
+  {
+   "word": "So",
+   "start": 1123.83,
+   "end": 1124.09
+  },
+  {
+   "word": "without",
+   "start": 1124.09,
+   "end": 1124.81
+  },
+  {
+   "word": "kind",
+   "start": 1124.81,
+   "end": 1124.99
+  },
+  {
+   "word": "of",
+   "start": 1124.99,
+   "end": 1125.13
+  },
+  {
+   "word": "direct",
+   "start": 1125.13,
+   "end": 1125.33
+  },
+  {
+   "word": "centralized",
+   "start": 1125.33,
+   "end": 1126.31
+  },
+  {
+   "word": "counterparty",
+   "start": 1126.31,
+   "end": 1126.89
+  },
+  {
+   "word": "risk,",
+   "start": 1126.89,
+   "end": 1127.11
+  },
+  {
+   "word": "you",
+   "start": 1127.25,
+   "end": 1127.25
+  },
+  {
+   "word": "can",
+   "start": 1127.25,
+   "end": 1127.37
+  },
+  {
+   "word": "hold",
+   "start": 1127.37,
+   "end": 1127.63
+  },
+  {
+   "word": "it,",
+   "start": 1127.63,
+   "end": 1127.85
+  },
+  {
+   "word": "which",
+   "start": 1128.71,
+   "end": 1128.89
+  },
+  {
+   "word": "only",
+   "start": 1128.89,
+   "end": 1129.57
+  },
+  {
+   "word": "handful",
+   "start": 1129.57,
+   "end": 1129.95
+  },
+  {
+   "word": "of",
+   "start": 1129.95,
+   "end": 1130.13
+  },
+  {
+   "word": "assets",
+   "start": 1130.13,
+   "end": 1130.33
+  },
+  {
+   "word": "really",
+   "start": 1130.33,
+   "end": 1130.57
+  },
+  {
+   "word": "let",
+   "start": 1130.57,
+   "end": 1130.75
+  },
+  {
+   "word": "you",
+   "start": 1130.75,
+   "end": 1130.87
+  },
+  {
+   "word": "do.",
+   "start": 1130.87,
+   "end": 1131.09
+  },
+  {
+   "word": "You",
+   "start": 1131.45,
+   "end": 1131.81
+  },
+  {
+   "word": "know,",
+   "start": 1131.81,
+   "end": 1131.85
+  },
+  {
+   "word": "you",
+   "start": 1131.97,
+   "end": 1131.97
+  },
+  {
+   "word": "can",
+   "start": 1131.97,
+   "end": 1132.09
+  },
+  {
+   "word": "do",
+   "start": 1132.09,
+   "end": 1132.19
+  },
+  {
+   "word": "that",
+   "start": 1132.19,
+   "end": 1132.31
+  },
+  {
+   "word": "with",
+   "start": 1132.31,
+   "end": 1132.49
+  },
+  {
+   "word": "physical",
+   "start": 1132.49,
+   "end": 1132.99
+  },
+  {
+   "word": "cash,",
+   "start": 1132.99,
+   "end": 1133.47
+  },
+  {
+   "word": "but",
+   "start": 1133.55,
+   "end": 1133.61
+  },
+  {
+   "word": "that",
+   "start": 1133.61,
+   "end": 1133.75
+  },
+  {
+   "word": "gets",
+   "start": 1133.75,
+   "end": 1133.93
+  },
+  {
+   "word": "debased",
+   "start": 1133.93,
+   "end": 1134.25
+  },
+  {
+   "word": "over",
+   "start": 1134.25,
+   "end": 1134.41
+  },
+  {
+   "word": "time.",
+   "start": 1134.41,
+   "end": 1134.77
+  },
+  {
+   "word": "You",
+   "start": 1135.31,
+   "end": 1135.35
+  },
+  {
+   "word": "can",
+   "start": 1135.35,
+   "end": 1135.47
+  },
+  {
+   "word": "do",
+   "start": 1135.47,
+   "end": 1135.59
+  },
+  {
+   "word": "it",
+   "start": 1135.59,
+   "end": 1135.67
+  },
+  {
+   "word": "with",
+   "start": 1135.67,
+   "end": 1135.75
+  },
+  {
+   "word": "gold",
+   "start": 1135.75,
+   "end": 1135.99
+  },
+  {
+   "word": "and",
+   "start": 1135.99,
+   "end": 1136.19
+  },
+  {
+   "word": "silver,",
+   "start": 1136.19,
+   "end": 1136.51
+  },
+  {
+   "word": "right?",
+   "start": 1136.85,
+   "end": 1136.99
+  },
+  {
+   "word": "But",
+   "start": 1137.17,
+   "end": 1137.27
+  },
+  {
+   "word": "you",
+   "start": 1137.27,
+   "end": 1137.43
+  },
+  {
+   "word": "can't",
+   "start": 1137.43,
+   "end": 1137.75
+  },
+  {
+   "word": "really,",
+   "start": 1137.75,
+   "end": 1137.95
+  },
+  {
+   "word": "you",
+   "start": 1138.13,
+   "end": 1138.47
+  },
+  {
+   "word": "know,",
+   "start": 1138.47,
+   "end": 1138.49
+  },
+  {
+   "word": "you",
+   "start": 1138.59,
+   "end": 1138.59
+  },
+  {
+   "word": "can't",
+   "start": 1138.59,
+   "end": 1138.81
+  },
+  {
+   "word": "fly",
+   "start": 1138.81,
+   "end": 1139.01
+  },
+  {
+   "word": "around",
+   "start": 1139.01,
+   "end": 1139.19
+  },
+  {
+   "word": "the",
+   "start": 1139.19,
+   "end": 1139.33
+  },
+  {
+   "word": "world",
+   "start": 1139.33,
+   "end": 1139.55
+  },
+  {
+   "word": "with",
+   "start": 1139.55,
+   "end": 1139.91
+  },
+  {
+   "word": "a",
+   "start": 1139.91,
+   "end": 1140.05
+  },
+  {
+   "word": "large",
+   "start": 1140.05,
+   "end": 1140.27
+  },
+  {
+   "word": "amount",
+   "start": 1140.27,
+   "end": 1140.51
+  },
+  {
+   "word": "of",
+   "start": 1140.51,
+   "end": 1140.61
+  },
+  {
+   "word": "that.",
+   "start": 1140.61,
+   "end": 1140.81
+  },
+  {
+   "word": "And",
+   "start": 1141.17,
+   "end": 1141.25
+  },
+  {
+   "word": "you",
+   "start": 1141.25,
+   "end": 1141.37
+  },
+  {
+   "word": "can",
+   "start": 1141.37,
+   "end": 1141.49
+  },
+  {
+   "word": "do",
+   "start": 1141.49,
+   "end": 1141.65
+  },
+  {
+   "word": "it",
+   "start": 1141.65,
+   "end": 1141.77
+  },
+  {
+   "word": "with",
+   "start": 1141.77,
+   "end": 1142.03
+  },
+  {
+   "word": "Bitcoin.",
+   "start": 1142.03,
+   "end": 1142.65
+  },
+  {
+   "word": "And,",
+   "start": 1143.47,
+   "end": 1143.83
+  },
+  {
+   "word": "you",
+   "start": 1143.87,
+   "end": 1143.97
+  },
+  {
+   "word": "know,",
+   "start": 1143.97,
+   "end": 1144.07
+  },
+  {
+   "word": "in",
+   "start": 1144.87,
+   "end": 1144.97
+  },
+  {
+   "word": "theory,",
+   "start": 1144.97,
+   "end": 1145.45
+  },
+  {
+   "word": "other",
+   "start": 1145.61,
+   "end": 1145.91
+  },
+  {
+   "word": "other",
+   "start": 1145.91,
+   "end": 1146.01
+  },
+  {
+   "word": "kind",
+   "start": 1146.01,
+   "end": 1146.15
+  },
+  {
+   "word": "of",
+   "start": 1146.15,
+   "end": 1146.25
+  },
+  {
+   "word": "large",
+   "start": 1146.25,
+   "end": 1146.47
+  },
+  {
+   "word": "cryptos",
+   "start": 1146.47,
+   "end": 1146.85
+  },
+  {
+   "word": "as",
+   "start": 1146.85,
+   "end": 1146.97
+  },
+  {
+   "word": "well.",
+   "start": 1146.97,
+   "end": 1147.23
+  },
+  {
+   "word": "If",
+   "start": 1147.65,
+   "end": 1147.73
+  },
+  {
+   "word": "you",
+   "start": 1147.73,
+   "end": 1147.81
+  },
+  {
+   "word": "bullish.",
+   "start": 1147.81,
+   "end": 1148.01
+  }
+ ],
+ "verbatim_words": [
+  {
+   "word": "you",
+   "start": 1050.47,
+   "end": 1050.79
+  },
+  {
+   "word": "know,",
+   "start": 1050.79,
+   "end": 1050.89
+  },
+  {
+   "word": "in",
+   "start": 1051.27,
+   "end": 1051.27
+  },
+  {
+   "word": "theory",
+   "start": 1051.27,
+   "end": 1051.57
+  },
+  {
+   "word": "they",
+   "start": 1051.57,
+   "end": 1051.73
+  },
+  {
+   "word": "could",
+   "start": 1051.73,
+   "end": 1051.87
+  },
+  {
+   "word": "have,",
+   "start": 1051.87,
+   "end": 1052.13
+  },
+  {
+   "word": "you",
+   "start": 1052.27,
+   "end": 1052.69
+  },
+  {
+   "word": "know,",
+   "start": 1052.69,
+   "end": 1052.81
+  },
+  {
+   "word": "kind",
+   "start": 1053.05,
+   "end": 1053.05
+  },
+  {
+   "word": "of",
+   "start": 1053.05,
+   "end": 1053.23
+  },
+  {
+   "word": "timed",
+   "start": 1053.23,
+   "end": 1053.55
+  },
+  {
+   "word": "the",
+   "start": 1053.55,
+   "end": 1053.87
+  },
+  {
+   "word": "bottom",
+   "start": 1053.87,
+   "end": 1054.17
+  },
+  {
+   "word": "slightly",
+   "start": 1054.17,
+   "end": 1054.49
+  },
+  {
+   "word": "better.",
+   "start": 1054.49,
+   "end": 1054.81
+  },
+  {
+   "word": "I",
+   "start": 1055.25,
+   "end": 1055.33
+  },
+  {
+   "word": "just",
+   "start": 1055.33,
+   "end": 1055.49
+  },
+  {
+   "word": "saw",
+   "start": 1055.49,
+   "end": 1055.73
+  },
+  {
+   "word": "another",
+   "start": 1055.73,
+   "end": 1056.01
+  },
+  {
+   "word": "interesting",
+   "start": 1056.01,
+   "end": 1056.57
+  },
+  {
+   "word": "statement",
+   "start": 1056.57,
+   "end": 1057.19
+  },
+  {
+   "word": "by",
+   "start": 1057.19,
+   "end": 1057.45
+  },
+  {
+   "word": "Jeff",
+   "start": 1057.45,
+   "end": 1057.73
+  },
+  {
+   "word": "Dorman,",
+   "start": 1057.73,
+   "end": 1058.21
+  },
+  {
+   "word": "that",
+   "start": 1059.43,
+   "end": 1059.47
+  },
+  {
+   "word": "contradicts",
+   "start": 1059.47,
+   "end": 1060.25
+  },
+  {
+   "word": "a",
+   "start": 1060.25,
+   "end": 1060.41
+  },
+  {
+   "word": "bit",
+   "start": 1060.41,
+   "end": 1060.59
+  },
+  {
+   "word": "your",
+   "start": 1060.59,
+   "end": 1061.21
+  },
+  {
+   "word": "take.",
+   "start": 1061.21,
+   "end": 1061.45
+  },
+  {
+   "word": "I'm",
+   "start": 1061.71,
+   "end": 1061.83
+  },
+  {
+   "word": "sure",
+   "start": 1061.83,
+   "end": 1062.01
+  },
+  {
+   "word": "you",
+   "start": 1062.01,
+   "end": 1062.27
+  },
+  {
+   "word": "probably",
+   "start": 1062.27,
+   "end": 1062.71
+  },
+  {
+   "word": "want",
+   "start": 1062.71,
+   "end": 1062.93
+  },
+  {
+   "word": "to",
+   "start": 1062.93,
+   "end": 1062.99
+  },
+  {
+   "word": "agree",
+   "start": 1062.99,
+   "end": 1063.15
+  },
+  {
+   "word": "with",
+   "start": 1063.15,
+   "end": 1063.31
+  },
+  {
+   "word": "this,",
+   "start": 1063.31,
+   "end": 1063.53
+  },
+  {
+   "word": "but",
+   "start": 1063.67,
+   "end": 1063.77
+  },
+  {
+   "word": "his",
+   "start": 1063.77,
+   "end": 1064.63
+  },
+  {
+   "word": "point",
+   "start": 1064.63,
+   "end": 1064.91
+  },
+  {
+   "word": "is",
+   "start": 1064.91,
+   "end": 1065.09
+  },
+  {
+   "word": "that",
+   "start": 1065.09,
+   "end": 1065.29
+  },
+  {
+   "word": "Bitcoin",
+   "start": 1065.29,
+   "end": 1065.73
+  },
+  {
+   "word": "has",
+   "start": 1065.73,
+   "end": 1065.95
+  },
+  {
+   "word": "become",
+   "start": 1065.95,
+   "end": 1066.27
+  },
+  {
+   "word": "like",
+   "start": 1066.27,
+   "end": 1066.51
+  },
+  {
+   "word": "a",
+   "start": 1066.51,
+   "end": 1066.63
+  },
+  {
+   "word": "very",
+   "start": 1066.63,
+   "end": 1066.79
+  },
+  {
+   "word": "boring",
+   "start": 1066.79,
+   "end": 1067.31
+  },
+  {
+   "word": "type",
+   "start": 1067.31,
+   "end": 1067.65
+  },
+  {
+   "word": "of",
+   "start": 1067.65,
+   "end": 1067.81
+  },
+  {
+   "word": "asset",
+   "start": 1067.81,
+   "end": 1068.15
+  },
+  {
+   "word": "and",
+   "start": 1068.15,
+   "end": 1068.41
+  },
+  {
+   "word": "that",
+   "start": 1068.41,
+   "end": 1068.53
+  },
+  {
+   "word": "people",
+   "start": 1068.53,
+   "end": 1068.73
+  },
+  {
+   "word": "should",
+   "start": 1068.73,
+   "end": 1068.95
+  },
+  {
+   "word": "just",
+   "start": 1068.95,
+   "end": 1069.13
+  },
+  {
+   "word": "stop",
+   "start": 1069.13,
+   "end": 1069.41
+  },
+  {
+   "word": "talking",
+   "start": 1069.41,
+   "end": 1069.71
+  },
+  {
+   "word": "about",
+   "start": 1069.71,
+   "end": 1070.01
+  },
+  {
+   "word": "it.",
+   "start": 1070.01,
+   "end": 1070.29
+  },
+  {
+   "word": "Because,",
+   "start": 1070.82,
+   "end": 1071.26
+  },
+  {
+   "word": "quote,",
+   "start": 1071.46,
+   "end": 1071.62
+  },
+  {
+   "word": "Bitcoin",
+   "start": 1071.82,
+   "end": 1072.14
+  },
+  {
+   "word": "does",
+   "start": 1072.14,
+   "end": 1072.6
+  },
+  {
+   "word": "nothing.",
+   "start": 1072.6,
+   "end": 1073.02
+  },
+  {
+   "word": "It",
+   "start": 1073.24,
+   "end": 1073.24
+  },
+  {
+   "word": "has",
+   "start": 1073.24,
+   "end": 1073.38
+  },
+  {
+   "word": "no",
+   "start": 1073.38,
+   "end": 1073.54
+  },
+  {
+   "word": "properties.",
+   "start": 1073.54,
+   "end": 1074.02
+  },
+  {
+   "word": "It",
+   "start": 1074.24,
+   "end": 1074.24
+  },
+  {
+   "word": "has",
+   "start": 1074.24,
+   "end": 1074.44
+  },
+  {
+   "word": "no",
+   "start": 1074.44,
+   "end": 1074.62
+  },
+  {
+   "word": "cash",
+   "start": 1074.62,
+   "end": 1074.94
+  },
+  {
+   "word": "flows.",
+   "start": 1074.94,
+   "end": 1075.18
+  },
+  {
+   "word": "It",
+   "start": 1075.36,
+   "end": 1075.36
+  },
+  {
+   "word": "failed",
+   "start": 1075.36,
+   "end": 1075.62
+  },
+  {
+   "word": "as",
+   "start": 1075.62,
+   "end": 1075.78
+  },
+  {
+   "word": "a",
+   "start": 1075.78,
+   "end": 1075.88
+  },
+  {
+   "word": "medium",
+   "start": 1075.88,
+   "end": 1076.04
+  },
+  {
+   "word": "exchange.",
+   "start": 1076.04,
+   "end": 1076.5
+  },
+  {
+   "word": "It",
+   "start": 1077.1,
+   "end": 1077.1
+  },
+  {
+   "word": "failed",
+   "start": 1077.1,
+   "end": 1077.36
+  },
+  {
+   "word": "as",
+   "start": 1077.36,
+   "end": 1077.48
+  },
+  {
+   "word": "an",
+   "start": 1077.48,
+   "end": 1077.58
+  },
+  {
+   "word": "inflation",
+   "start": 1077.58,
+   "end": 1077.9
+  },
+  {
+   "word": "hedge.",
+   "start": 1077.9,
+   "end": 1078.26
+  },
+  {
+   "word": "It",
+   "start": 1078.48,
+   "end": 1078.48
+  },
+  {
+   "word": "doesn't",
+   "start": 1078.48,
+   "end": 1078.82
+  },
+  {
+   "word": "even",
+   "start": 1078.82,
+   "end": 1078.96
+  },
+  {
+   "word": "respond",
+   "start": 1078.96,
+   "end": 1079.34
+  },
+  {
+   "word": "to",
+   "start": 1079.34,
+   "end": 1079.48
+  },
+  {
+   "word": "stress",
+   "start": 1079.48,
+   "end": 1079.92
+  },
+  {
+   "word": "in",
+   "start": 1079.92,
+   "end": 1080.2
+  },
+  {
+   "word": "banking",
+   "start": 1080.2,
+   "end": 1080.62
+  },
+  {
+   "word": "or",
+   "start": 1080.62,
+   "end": 1080.98
+  },
+  {
+   "word": "government",
+   "start": 1080.98,
+   "end": 1081.4
+  },
+  {
+   "word": "anymore",
+   "start": 1081.4,
+   "end": 1081.82
+  },
+  {
+   "word": "like",
+   "start": 1081.82,
+   "end": 1082.1
+  },
+  {
+   "word": "it",
+   "start": 1082.1,
+   "end": 1082.24
+  },
+  {
+   "word": "used",
+   "start": 1082.24,
+   "end": 1082.46
+  },
+  {
+   "word": "to.",
+   "start": 1082.46,
+   "end": 1082.68
+  },
+  {
+   "word": "It's",
+   "start": 1083.12,
+   "end": 1083.24
+  },
+  {
+   "word": "a",
+   "start": 1083.24,
+   "end": 1083.32
+  },
+  {
+   "word": "boring",
+   "start": 1083.32,
+   "end": 1083.56
+  },
+  {
+   "word": "store",
+   "start": 1083.56,
+   "end": 1083.78
+  },
+  {
+   "word": "of",
+   "start": 1083.78,
+   "end": 1083.92
+  },
+  {
+   "word": "value",
+   "start": 1083.92,
+   "end": 1084.16
+  },
+  {
+   "word": "at",
+   "start": 1084.16,
+   "end": 1084.34
+  },
+  {
+   "word": "best.",
+   "start": 1084.34,
+   "end": 1084.82
+  },
+  {
+   "word": "And",
+   "start": 1085.24,
+   "end": 1085.24
+  },
+  {
+   "word": "that's",
+   "start": 1085.24,
+   "end": 1085.42
+  },
+  {
+   "word": "fine.",
+   "start": 1085.42,
+   "end": 1085.68
+  },
+  {
+   "word": "Let",
+   "start": 1085.86,
+   "end": 1085.9
+  },
+  {
+   "word": "it",
+   "start": 1085.9,
+   "end": 1086.0
+  },
+  {
+   "word": "be",
+   "start": 1086.0,
+   "end": 1086.14
+  },
+  {
+   "word": "boring",
+   "start": 1086.14,
+   "end": 1086.48
+  },
+  {
+   "word": "and",
+   "start": 1086.48,
+   "end": 1086.68
+  },
+  {
+   "word": "check",
+   "start": 1086.68,
+   "end": 1086.84
+  },
+  {
+   "word": "back",
+   "start": 1086.84,
+   "end": 1087.08
+  },
+  {
+   "word": "in",
+   "start": 1087.08,
+   "end": 1087.26
+  },
+  {
+   "word": "10",
+   "start": 1087.26,
+   "end": 1087.48
+  },
+  {
+   "word": "years",
+   "start": 1087.48,
+   "end": 1087.72
+  },
+  {
+   "word": "from",
+   "start": 1087.72,
+   "end": 1087.88
+  },
+  {
+   "word": "now",
+   "start": 1087.88,
+   "end": 1088.16
+  },
+  {
+   "word": "and",
+   "start": 1088.16,
+   "end": 1088.36
+  },
+  {
+   "word": "see",
+   "start": 1088.36,
+   "end": 1088.58
+  },
+  {
+   "word": "if",
+   "start": 1088.58,
+   "end": 1088.78
+  },
+  {
+   "word": "it's",
+   "start": 1088.78,
+   "end": 1088.96
+  },
+  {
+   "word": "higher",
+   "start": 1088.96,
+   "end": 1089.2
+  },
+  {
+   "word": "or",
+   "start": 1089.2,
+   "end": 1089.4
+  },
+  {
+   "word": "if",
+   "start": 1089.4,
+   "end": 1089.52
+  },
+  {
+   "word": "people",
+   "start": 1089.52,
+   "end": 1089.8
+  },
+  {
+   "word": "want",
+   "start": 1089.8,
+   "end": 1090.1
+  },
+  {
+   "word": "to",
+   "start": 1090.1,
+   "end": 1090.38
+  },
+  {
+   "word": "spend",
+   "start": 1090.38,
+   "end": 1090.82
+  },
+  {
+   "word": "it.",
+   "start": 1090.82,
+   "end": 1091.08
+  },
+  {
+   "word": "What's",
+   "start": 1091.36,
+   "end": 1091.5
+  },
+  {
+   "word": "your",
+   "start": 1091.5,
+   "end": 1091.62
+  },
+  {
+   "word": "take",
+   "start": 1091.62,
+   "end": 1091.76
+  },
+  {
+   "word": "on",
+   "start": 1091.76,
+   "end": 1091.9
+  },
+  {
+   "word": "this?",
+   "start": 1091.9,
+   "end": 1092.08
+  },
+  {
+   "word": "I",
+   "start": 1092.2,
+   "end": 1092.42
+  },
+  {
+   "word": "probably",
+   "start": 1092.42,
+   "end": 1092.64
+  },
+  {
+   "word": "agree",
+   "start": 1092.64,
+   "end": 1092.92
+  },
+  {
+   "word": "with",
+   "start": 1092.92,
+   "end": 1093.06
+  },
+  {
+   "word": "a",
+   "start": 1093.06,
+   "end": 1093.16
+  },
+  {
+   "word": "third",
+   "start": 1093.16,
+   "end": 1093.38
+  },
+  {
+   "word": "of",
+   "start": 1093.38,
+   "end": 1093.5
+  },
+  {
+   "word": "that",
+   "start": 1093.5,
+   "end": 1093.64
+  },
+  {
+   "word": "and",
+   "start": 1093.64,
+   "end": 1093.78
+  },
+  {
+   "word": "disagree",
+   "start": 1093.78,
+   "end": 1094.0
+  },
+  {
+   "word": "with",
+   "start": 1094.0,
+   "end": 1094.2
+  },
+  {
+   "word": "two",
+   "start": 1094.2,
+   "end": 1094.38
+  },
+  {
+   "word": "thirds,",
+   "start": 1094.38,
+   "end": 1094.66
+  },
+  {
+   "word": "which",
+   "start": 1094.8,
+   "end": 1094.84
+  },
+  {
+   "word": "is",
+   "start": 1094.84,
+   "end": 1094.98
+  },
+  {
+   "word": "that",
+   "start": 1094.98,
+   "end": 1095.16
+  },
+  {
+   "word": "so",
+   "start": 1095.16,
+   "end": 1095.42
+  },
+  {
+   "word": "I",
+   "start": 1095.42,
+   "end": 1095.6
+  },
+  {
+   "word": "do",
+   "start": 1095.6,
+   "end": 1095.78
+  },
+  {
+   "word": "think",
+   "start": 1095.78,
+   "end": 1095.94
+  },
+  {
+   "word": "money",
+   "start": 1095.94,
+   "end": 1096.16
+  },
+  {
+   "word": "should",
+   "start": 1096.16,
+   "end": 1096.36
+  },
+  {
+   "word": "be",
+   "start": 1096.36,
+   "end": 1096.48
+  },
+  {
+   "word": "boring.",
+   "start": 1096.48,
+   "end": 1096.8
+  },
+  {
+   "word": "And,",
+   "start": 1097.73,
+   "end": 1098.05
+  },
+  {
+   "word": "you",
+   "start": 1098.05,
+   "end": 1098.19
+  },
+  {
+   "word": "know,",
+   "start": 1098.19,
+   "end": 1098.29
+  },
+  {
+   "word": "when",
+   "start": 1098.47,
+   "end": 1098.57
+  },
+  {
+   "word": "Bitcoin",
+   "start": 1098.57,
+   "end": 1098.79
+  },
+  {
+   "word": "was",
+   "start": 1098.79,
+   "end": 1098.95
+  },
+  {
+   "word": "a",
+   "start": 1098.95,
+   "end": 1099.07
+  },
+  {
+   "word": "five",
+   "start": 1099.07,
+   "end": 1099.31
+  },
+  {
+   "word": "-year",
+   "start": 1099.31,
+   "end": 1099.43
+  },
+  {
+   "word": "-old",
+   "start": 1099.43,
+   "end": 1099.59
+  },
+  {
+   "word": "asset",
+   "start": 1099.59,
+   "end": 1100.03
+  },
+  {
+   "word": "and",
+   "start": 1100.03,
+   "end": 1100.39
+  },
+  {
+   "word": "people",
+   "start": 1100.39,
+   "end": 1100.63
+  },
+  {
+   "word": "didn't",
+   "start": 1100.63,
+   "end": 1100.79
+  },
+  {
+   "word": "even",
+   "start": 1100.79,
+   "end": 1100.93
+  },
+  {
+   "word": "know",
+   "start": 1100.93,
+   "end": 1101.03
+  },
+  {
+   "word": "if",
+   "start": 1101.03,
+   "end": 1101.13
+  },
+  {
+   "word": "it",
+   "start": 1101.13,
+   "end": 1101.25
+  },
+  {
+   "word": "was",
+   "start": 1101.25,
+   "end": 1101.25
+  },
+  {
+   "word": "going",
+   "start": 1101.25,
+   "end": 1101.33
+  },
+  {
+   "word": "to",
+   "start": 1101.33,
+   "end": 1101.47
+  },
+  {
+   "word": "continue",
+   "start": 1101.47,
+   "end": 1101.67
+  },
+  {
+   "word": "working",
+   "start": 1101.67,
+   "end": 1102.01
+  },
+  {
+   "word": "properly,",
+   "start": 1102.01,
+   "end": 1102.53
+  },
+  {
+   "word": "right?",
+   "start": 1102.75,
+   "end": 1102.85
+  },
+  {
+   "word": "It's",
+   "start": 1102.99,
+   "end": 1103.05
+  },
+  {
+   "word": "not",
+   "start": 1103.05,
+   "end": 1103.19
+  },
+  {
+   "word": "boring",
+   "start": 1103.19,
+   "end": 1103.47
+  },
+  {
+   "word": "then.",
+   "start": 1103.47,
+   "end": 1103.81
+  },
+  {
+   "word": "And",
+   "start": 1103.89,
+   "end": 1103.89
+  },
+  {
+   "word": "it's",
+   "start": 1103.89,
+   "end": 1104.07
+  },
+  {
+   "word": "tiny",
+   "start": 1104.07,
+   "end": 1104.39
+  },
+  {
+   "word": "and",
+   "start": 1104.39,
+   "end": 1104.55
+  },
+  {
+   "word": "volatile.",
+   "start": 1104.55,
+   "end": 1104.81
+  },
+  {
+   "word": "The",
+   "start": 1105.27,
+   "end": 1105.59
+  },
+  {
+   "word": "larger",
+   "start": 1105.59,
+   "end": 1105.87
+  },
+  {
+   "word": "it",
+   "start": 1105.87,
+   "end": 1106.07
+  },
+  {
+   "word": "gets,",
+   "start": 1106.07,
+   "end": 1106.31
+  },
+  {
+   "word": "the",
+   "start": 1106.53,
+   "end": 1106.57
+  },
+  {
+   "word": "more",
+   "start": 1106.57,
+   "end": 1106.77
+  },
+  {
+   "word": "boring",
+   "start": 1106.77,
+   "end": 1107.15
+  },
+  {
+   "word": "you",
+   "start": 1107.15,
+   "end": 1107.27
+  },
+  {
+   "word": "should",
+   "start": 1107.27,
+   "end": 1107.43
+  },
+  {
+   "word": "want",
+   "start": 1107.43,
+   "end": 1107.67
+  },
+  {
+   "word": "it",
+   "start": 1107.67,
+   "end": 1107.79
+  },
+  {
+   "word": "to",
+   "start": 1107.79,
+   "end": 1107.89
+  },
+  {
+   "word": "be.",
+   "start": 1107.89,
+   "end": 1108.15
+  },
+  {
+   "word": "You",
+   "start": 1108.43,
+   "end": 1108.43
+  },
+  {
+   "word": "know,",
+   "start": 1108.43,
+   "end": 1108.49
+  },
+  {
+   "word": "if",
+   "start": 1108.53,
+   "end": 1108.61
+  },
+  {
+   "word": "your",
+   "start": 1108.61,
+   "end": 1108.71
+  },
+  {
+   "word": "money's",
+   "start": 1108.71,
+   "end": 1108.99
+  },
+  {
+   "word": "not",
+   "start": 1108.99,
+   "end": 1109.15
+  },
+  {
+   "word": "boring,",
+   "start": 1109.15,
+   "end": 1109.51
+  },
+  {
+   "word": "then",
+   "start": 1109.75,
+   "end": 1109.75
+  },
+  {
+   "word": "that's",
+   "start": 1109.75,
+   "end": 1109.93
+  },
+  {
+   "word": "a",
+   "start": 1109.93,
+   "end": 1110.01
+  },
+  {
+   "word": "problem.",
+   "start": 1110.01,
+   "end": 1110.37
+  },
+  {
+   "word": "Or",
+   "start": 1111.99,
+   "end": 1111.99
+  },
+  {
+   "word": "at",
+   "start": 1111.99,
+   "end": 1112.11
+  },
+  {
+   "word": "least,",
+   "start": 1112.11,
+   "end": 1112.17
+  },
+  {
+   "word": "you",
+   "start": 1112.25,
+   "end": 1112.25
+  },
+  {
+   "word": "know,",
+   "start": 1112.25,
+   "end": 1112.33
+  },
+  {
+   "word": "one",
+   "start": 1112.39,
+   "end": 1112.49
+  },
+  {
+   "word": "of",
+   "start": 1112.49,
+   "end": 1112.57
+  },
+  {
+   "word": "the",
+   "start": 1112.57,
+   "end": 1112.63
+  },
+  {
+   "word": "monies",
+   "start": 1112.63,
+   "end": 1112.87
+  },
+  {
+   "word": "you",
+   "start": 1112.87,
+   "end": 1113.05
+  },
+  {
+   "word": "use.",
+   "start": 1113.05,
+   "end": 1113.43
+  },
+  {
+   "word": "As",
+   "start": 1114.01,
+   "end": 1114.11
+  },
+  {
+   "word": "far,",
+   "start": 1114.11,
+   "end": 1114.25
+  },
+  {
+   "word": "the",
+   "start": 1114.39,
+   "end": 1114.47
+  },
+  {
+   "word": "parts",
+   "start": 1114.47,
+   "end": 1114.81
+  },
+  {
+   "word": "I",
+   "start": 1114.81,
+   "end": 1114.95
+  },
+  {
+   "word": "would",
+   "start": 1114.95,
+   "end": 1115.03
+  },
+  {
+   "word": "disagree",
+   "start": 1115.03,
+   "end": 1115.33
+  },
+  {
+   "word": "with",
+   "start": 1115.33,
+   "end": 1115.57
+  },
+  {
+   "word": "is",
+   "start": 1115.57,
+   "end": 1115.73
+  },
+  {
+   "word": "to",
+   "start": 1115.73,
+   "end": 1115.83
+  },
+  {
+   "word": "say",
+   "start": 1115.83,
+   "end": 1116.01
+  },
+  {
+   "word": "that,",
+   "start": 1116.01,
+   "end": 1116.23
+  },
+  {
+   "word": "to",
+   "start": 1116.53,
+   "end": 1117.11
+  },
+  {
+   "word": "say",
+   "start": 1117.11,
+   "end": 1117.25
+  },
+  {
+   "word": "that",
+   "start": 1117.25,
+   "end": 1117.35
+  },
+  {
+   "word": "it",
+   "start": 1117.35,
+   "end": 1117.43
+  },
+  {
+   "word": "has",
+   "start": 1117.43,
+   "end": 1117.57
+  },
+  {
+   "word": "no",
+   "start": 1117.57,
+   "end": 1117.69
+  },
+  {
+   "word": "properties",
+   "start": 1117.69,
+   "end": 1118.21
+  },
+  {
+   "word": "or",
+   "start": 1118.21,
+   "end": 1118.45
+  },
+  {
+   "word": "kind",
+   "start": 1118.45,
+   "end": 1118.61
+  },
+  {
+   "word": "of",
+   "start": 1118.61,
+   "end": 1118.71
+  },
+  {
+   "word": "no",
+   "start": 1118.71,
+   "end": 1118.87
+  },
+  {
+   "word": "intrinsic",
+   "start": 1118.87,
+   "end": 1119.29
+  },
+  {
+   "word": "capabilities.",
+   "start": 1119.29,
+   "end": 1119.93
+  },
+  {
+   "word": "I",
+   "start": 1120.19,
+   "end": 1120.21
+  },
+  {
+   "word": "mean,",
+   "start": 1120.21,
+   "end": 1120.33
+  },
+  {
+   "word": "it",
+   "start": 1121.03,
+   "end": 1121.21
+  },
+  {
+   "word": "allows",
+   "start": 1121.21,
+   "end": 1121.51
+  },
+  {
+   "word": "you",
+   "start": 1121.51,
+   "end": 1121.65
+  },
+  {
+   "word": "to",
+   "start": 1121.65,
+   "end": 1121.77
+  },
+  {
+   "word": "self",
+   "start": 1121.77,
+   "end": 1122.11
+  },
+  {
+   "word": "-custody",
+   "start": 1122.11,
+   "end": 1122.63
+  },
+  {
+   "word": "a",
+   "start": 1122.63,
+   "end": 1122.87
+  },
+  {
+   "word": "bare",
+   "start": 1122.87,
+   "end": 1123.09
+  },
+  {
+   "word": "asset.",
+   "start": 1123.09,
+   "end": 1123.51
+  },
+  {
+   "word": "So",
+   "start": 1123.83,
+   "end": 1124.09
+  },
+  {
+   "word": "without",
+   "start": 1124.09,
+   "end": 1124.81
+  },
+  {
+   "word": "kind",
+   "start": 1124.81,
+   "end": 1124.99
+  },
+  {
+   "word": "of",
+   "start": 1124.99,
+   "end": 1125.13
+  },
+  {
+   "word": "direct",
+   "start": 1125.13,
+   "end": 1125.33
+  },
+  {
+   "word": "centralized",
+   "start": 1125.33,
+   "end": 1126.31
+  },
+  {
+   "word": "counterparty",
+   "start": 1126.31,
+   "end": 1126.89
+  },
+  {
+   "word": "risk,",
+   "start": 1126.89,
+   "end": 1127.11
+  },
+  {
+   "word": "you",
+   "start": 1127.25,
+   "end": 1127.25
+  },
+  {
+   "word": "can",
+   "start": 1127.25,
+   "end": 1127.37
+  },
+  {
+   "word": "hold",
+   "start": 1127.37,
+   "end": 1127.63
+  },
+  {
+   "word": "it,",
+   "start": 1127.63,
+   "end": 1127.85
+  },
+  {
+   "word": "which",
+   "start": 1128.71,
+   "end": 1128.89
+  },
+  {
+   "word": "only",
+   "start": 1128.89,
+   "end": 1129.57
+  },
+  {
+   "word": "handful",
+   "start": 1129.57,
+   "end": 1129.95
+  },
+  {
+   "word": "of",
+   "start": 1129.95,
+   "end": 1130.13
+  },
+  {
+   "word": "assets",
+   "start": 1130.13,
+   "end": 1130.33
+  },
+  {
+   "word": "really",
+   "start": 1130.33,
+   "end": 1130.57
+  },
+  {
+   "word": "let",
+   "start": 1130.57,
+   "end": 1130.75
+  },
+  {
+   "word": "you",
+   "start": 1130.75,
+   "end": 1130.87
+  },
+  {
+   "word": "do.",
+   "start": 1130.87,
+   "end": 1131.09
+  },
+  {
+   "word": "You",
+   "start": 1131.45,
+   "end": 1131.81
+  },
+  {
+   "word": "know,",
+   "start": 1131.81,
+   "end": 1131.85
+  },
+  {
+   "word": "you",
+   "start": 1131.97,
+   "end": 1131.97
+  },
+  {
+   "word": "can",
+   "start": 1131.97,
+   "end": 1132.09
+  },
+  {
+   "word": "do",
+   "start": 1132.09,
+   "end": 1132.19
+  },
+  {
+   "word": "that",
+   "start": 1132.19,
+   "end": 1132.31
+  },
+  {
+   "word": "with",
+   "start": 1132.31,
+   "end": 1132.49
+  },
+  {
+   "word": "physical",
+   "start": 1132.49,
+   "end": 1132.99
+  },
+  {
+   "word": "cash,",
+   "start": 1132.99,
+   "end": 1133.47
+  },
+  {
+   "word": "but",
+   "start": 1133.55,
+   "end": 1133.61
+  },
+  {
+   "word": "that",
+   "start": 1133.61,
+   "end": 1133.75
+  },
+  {
+   "word": "gets",
+   "start": 1133.75,
+   "end": 1133.93
+  },
+  {
+   "word": "debased",
+   "start": 1133.93,
+   "end": 1134.25
+  },
+  {
+   "word": "over",
+   "start": 1134.25,
+   "end": 1134.41
+  },
+  {
+   "word": "time.",
+   "start": 1134.41,
+   "end": 1134.77
+  },
+  {
+   "word": "You",
+   "start": 1135.31,
+   "end": 1135.35
+  },
+  {
+   "word": "can",
+   "start": 1135.35,
+   "end": 1135.47
+  },
+  {
+   "word": "do",
+   "start": 1135.47,
+   "end": 1135.59
+  },
+  {
+   "word": "it",
+   "start": 1135.59,
+   "end": 1135.67
+  },
+  {
+   "word": "with",
+   "start": 1135.67,
+   "end": 1135.75
+  },
+  {
+   "word": "gold",
+   "start": 1135.75,
+   "end": 1135.99
+  },
+  {
+   "word": "and",
+   "start": 1135.99,
+   "end": 1136.19
+  },
+  {
+   "word": "silver,",
+   "start": 1136.19,
+   "end": 1136.51
+  },
+  {
+   "word": "right?",
+   "start": 1136.85,
+   "end": 1136.99
+  },
+  {
+   "word": "But",
+   "start": 1137.17,
+   "end": 1137.27
+  },
+  {
+   "word": "you",
+   "start": 1137.27,
+   "end": 1137.43
+  },
+  {
+   "word": "can't",
+   "start": 1137.43,
+   "end": 1137.75
+  },
+  {
+   "word": "really,",
+   "start": 1137.75,
+   "end": 1137.95
+  },
+  {
+   "word": "you",
+   "start": 1138.13,
+   "end": 1138.47
+  },
+  {
+   "word": "know,",
+   "start": 1138.47,
+   "end": 1138.49
+  },
+  {
+   "word": "you",
+   "start": 1138.59,
+   "end": 1138.59
+  },
+  {
+   "word": "can't",
+   "start": 1138.59,
+   "end": 1138.81
+  },
+  {
+   "word": "fly",
+   "start": 1138.81,
+   "end": 1139.01
+  },
+  {
+   "word": "around",
+   "start": 1139.01,
+   "end": 1139.19
+  },
+  {
+   "word": "the",
+   "start": 1139.19,
+   "end": 1139.33
+  },
+  {
+   "word": "world",
+   "start": 1139.33,
+   "end": 1139.55
+  },
+  {
+   "word": "with",
+   "start": 1139.55,
+   "end": 1139.91
+  },
+  {
+   "word": "a",
+   "start": 1139.91,
+   "end": 1140.05
+  },
+  {
+   "word": "large",
+   "start": 1140.05,
+   "end": 1140.27
+  },
+  {
+   "word": "amount",
+   "start": 1140.27,
+   "end": 1140.51
+  },
+  {
+   "word": "of",
+   "start": 1140.51,
+   "end": 1140.61
+  },
+  {
+   "word": "that.",
+   "start": 1140.61,
+   "end": 1140.81
+  },
+  {
+   "word": "And",
+   "start": 1141.17,
+   "end": 1141.25
+  },
+  {
+   "word": "you",
+   "start": 1141.25,
+   "end": 1141.37
+  },
+  {
+   "word": "can",
+   "start": 1141.37,
+   "end": 1141.49
+  },
+  {
+   "word": "do",
+   "start": 1141.49,
+   "end": 1141.65
+  },
+  {
+   "word": "it",
+   "start": 1141.65,
+   "end": 1141.77
+  },
+  {
+   "word": "with",
+   "start": 1141.77,
+   "end": 1142.03
+  },
+  {
+   "word": "Bitcoin.",
+   "start": 1142.03,
+   "end": 1142.65
+  },
+  {
+   "word": "And,",
+   "start": 1143.47,
+   "end": 1143.83
+  },
+  {
+   "word": "you",
+   "start": 1143.87,
+   "end": 1143.97
+  },
+  {
+   "word": "know,",
+   "start": 1143.97,
+   "end": 1144.07
+  },
+  {
+   "word": "in",
+   "start": 1144.87,
+   "end": 1144.97
+  },
+  {
+   "word": "theory,",
+   "start": 1144.97,
+   "end": 1145.45
+  },
+  {
+   "word": "other",
+   "start": 1145.61,
+   "end": 1145.91
+  },
+  {
+   "word": "other",
+   "start": 1145.91,
+   "end": 1146.01
+  },
+  {
+   "word": "kind",
+   "start": 1146.01,
+   "end": 1146.15
+  },
+  {
+   "word": "of",
+   "start": 1146.15,
+   "end": 1146.25
+  },
+  {
+   "word": "large",
+   "start": 1146.25,
+   "end": 1146.47
+  },
+  {
+   "word": "cryptos",
+   "start": 1146.47,
+   "end": 1146.85
+  },
+  {
+   "word": "as",
+   "start": 1146.85,
+   "end": 1146.97
+  },
+  {
+   "word": "well.",
+   "start": 1146.97,
+   "end": 1147.23
+  },
+  {
+   "word": "If",
+   "start": 1147.65,
+   "end": 1147.73
+  },
+  {
+   "word": "you",
+   "start": 1147.73,
+   "end": 1147.81
+  },
+  {
+   "word": "bullish.",
+   "start": 1147.81,
+   "end": 1148.01
+  }
+ ],
+ "words_sha256": "6acf482beac4db8b1307cb0acfc94b9c37a2c9fefbafc1c3677b9907104de389",
+ "punctuation": {
+  "source": "none needed",
+  "still_unpunctuated": false
+ },
+ "window": {
+  "start_s": 1050.47,
+  "end_s": 1148.118,
+  "clock": "youtube",
+  "offset_s": 1050.47
+ }
+}

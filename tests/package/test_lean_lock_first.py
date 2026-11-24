@@ -33,6 +33,8 @@ X = "x" + PK.HEARD
 def rig(lean, lock, n=2, **kw):
     r = T163.rig(n=n, lock_check=lock, **kw)
     r.build_kw = {"lean": lean}
+    oe = r.out_edges                                     # the rig's OUT edge: every clip ends a thought (lean (2)'s
+    r.out_edges = lambda *a, recover=False, **k: oe(*a, **k)   # recovery is test_lean_out_edge's)
     seq = r.__dict__.setdefault("seq", [])
     med = r.medley
 
