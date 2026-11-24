@@ -52,15 +52,21 @@ CHECKLIST = [
     ("watermark_present", "The channel watermark / logo is visible on the content stills before the credits."),
     ("no_next_shot_before_transition", "In the '-3f' still before every boundary nothing from the NEXT shot is "
                                        "already visible."),
-    ("no_on_screen_advertising", "RULING 158: no still, in ANY clip (not only the first), shows PAID ADVERTISING on "
-                                 "screen, however small: an advertiser's or sponsor's name or logo presented as an ad, "
-                                 "a sign-up bonus or any bonus / reward offer, a promo, referral or discount code, "
-                                 "'use code', an affiliate link, a QR code, 'sponsored by' or 'brought to you by', a "
-                                 "paid-partner banner or panel, an 'open an account / IRA' offer. Look at banners, "
-                                 "crawls, corner panels and overlays. The show's OWN branding, its own ticker of "
-                                 "headlines or prices and its own lower third are NOT advertising. Answer 'yes' only "
-                                 "if there is none; when you cannot tell an ad from the show's own graphic, answer "
-                                 "'no'. Name what you saw."),
+]
+
+
+# RULING 161 (orchestrator 07:36 ET Nov 24, PBX's words: "If there's a sponsor behind the speaker, that's totally fine as
+# long as the sponsor isn't being mentioned verbally ... a sponsor banner or something flashes on the screen, that's
+# totally fine"): sponsor or advertiser material that is only VISIBLE is NOT a refusal and NOT a flag. It replaces
+# ruling 158 (2)'s hold (batch 125's checklist line). The question is asked with the checklist and its answer is
+# recorded as information (sponsor_seen, the note's line); verdict() never reads it. A clip whose own WORDS mention or
+# promote a sponsor, or that is cut from an ad, is refused at selection (step A / the exclusion model), not here.
+INFO = [
+    ("visible_sponsor_graphics", "INFORMATION ONLY, never a fault: is any sponsor or advertiser material VISIBLE on "
+                                 "screen in any clip: a logo wall or backdrop behind a speaker, a banner, a panel, a "
+                                 "corner bug, a graphic that flashes on screen, an offer, a promo code, a QR code? The "
+                                 "show's OWN branding, its own ticker and its own lower third do not count. Answer "
+                                 "'yes' and name each thing you saw and its time on the sheet, or 'no'."),
 ]
 
 
@@ -240,9 +246,9 @@ def _call_any(image_path, text, model, timeout):
 def ask_vision(sheet_path, fmt, layout_note="", model=VISION_MODELS[0], timeout=600, attempts=2, channels_note=""):
     """The checklist answered by ONE Heimdall vision model from the sheet image: (answers, raw). An
     unparseable reply or a route error is retried, then answers = {} (every line missing = HOLD, never a crash)."""
-    qs = "\n".join(f"- {k}: {q}" for k, q in CHECKLIST)
+    qs = "\n".join(f"- {k}: {q}" for k, q in CHECKLIST + INFO)          # ruling 161: INFO asked, never judged
     text = PROMPT.format(fmt=fmt, layout_note=layout_note or "", channels_note=channels_note or "", questions=qs,
-                         keys=[k for k, _ in CHECKLIST])
+                         keys=[k for k, _ in CHECKLIST + INFO])
     tries = []
     for _ in range(attempts):
         try:
@@ -258,10 +264,32 @@ def ask_vision(sheet_path, fmt, layout_note="", model=VISION_MODELS[0], timeout=
 
 
 def ask_panel(sheet_path, fmt, layout_note="", channels_note=""):
-    """Every VISION_MODEL answers; a line passes only if no model says no (fail closed)."""
+    """Every VISION_MODEL answers; a line passes only if no model says no (fail closed). Each model's INFO answers
+    (ruling 161) ride along under "info", outside the verdict."""
     per = {m: ask_vision(sheet_path, fmt, layout_note, model=m, channels_note=channels_note) for m in VISION_MODELS}
     oks = {m: verdict(a, fmt) for m, (a, _) in per.items()}
-    return all(ok for ok, _ in oks.values()), {m: {"rows": rows, "raw": per[m][1]} for m, (ok, rows) in oks.items()}
+    return all(ok for ok, _ in oks.values()), {m: {"rows": rows, "raw": per[m][1], "info": info(per[m][0])}
+                                               for m, (ok, rows) in oks.items()}
+
+
+def info(answers):
+    """Ruling 161: one model's INFO answers {key: {"answer", "why"}} ("missing" when it gave none). Never a verdict."""
+    out = {}
+    for k, _ in INFO:
+        val = answers.get(k) if isinstance(answers, dict) and isinstance(answers.get(k), dict) else {}
+        out[k] = {"answer": str(val.get("answer", "")).strip().lower() or "missing", "why": str(val.get("why", ""))}
+    return out
+
+
+def sponsor_seen(per):
+    """Ruling 161: [{"model", "what"}] for every model that answered 'yes' to visible_sponsor_graphics (information
+    for the note; an empty list when none did or none answered: it is never a pass, a refusal or a flag)."""
+    seen = []
+    for m, d in (per or {}).items():
+        a = ((d or {}).get("info") or {}).get("visible_sponsor_graphics") or {} if isinstance(d, dict) else {}
+        if a.get("answer") == "yes":
+            seen.append({"model": m, "what": " ".join(str(a.get("why") or "seen, not named").split())})
+    return seen
 
 
 def verdict(answers, fmt):

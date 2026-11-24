@@ -169,8 +169,7 @@ class TestV1Robustness(unittest.TestCase):
         """Replay of run 6, 16:9: qwen gave all six answers and stopped before the last '}' (6 x 'missing')."""
         a = V._parse(QWEN_REPLAY_REPLY)
         self.assertEqual(len(a), 6)
-        self.assertFalse(V.verdict(a, "16x9")[0])          # recorded before ruling 158's line: its answer is missing
-        self.assertTrue(V.verdict(dict(a, no_on_screen_advertising={"answer": "yes", "why": "none"}), "16x9")[0])
+        self.assertTrue(V.verdict(a, "16x9")[0])           # ruling 161: the information line is never judged
         self.assertIsNone(V._parse('{"answers": {"credits_round_and_match": {"answer": "yes", "why": "cut off'))
         two = QWEN_REPLAY_REPLY[:-1]                            # two closing braces missing: still closed
         self.assertEqual(len(V._parse(two)), 6)
@@ -383,56 +382,112 @@ class TestVisionMustPass(unittest.TestCase):
         verify_pack._sheets_and_checklist(rd, {}, pack, vision=True)
         out = json.load(open(os.path.join(rd, "GATE_REPORT.json")))
         for fmt in ("16x9", "9x16"):
-            # RULING 158 (2) (23:12 ET Nov 23) postdates this approval: the preview's Bitcoin Magazine clip shows an
-            # event's sponsor logo wall ('Powered by Cash App', bitkey, SALT ...), which the advertising line may hold
-            # (24 Nov 02:2x ET: qwen 'no' 2 of 2 on its 9:16 sheet). Every OTHER line must still pass.
-            if out["rows"][fmt]["V1_visual_checklist"] != "PASS":
-                self.assertEqual((out.get("notes", {}).get(fmt) or {}).get("V1_visual_checklist"),
-                                 "no/missing: no_on_screen_advertising",
-                                 f"{fmt}: " + json.dumps(pack["visual"].get(fmt), default=str)[:3000])
+            # RULING 161 (07:36 ET Nov 24): the Bitcoin Magazine clip's event sponsor wall ('Powered by Cash App',
+            # bitkey, SALT ...) is information, never a hold: the whole V1 row passes, as approved
+            self.assertEqual(out["rows"][fmt]["V1_visual_checklist"], "PASS",
+                             f"{fmt}: {out.get('notes', {}).get(fmt)} | " + json.dumps(pack["visual"].get(fmt), default=str)[:3000])
+            self.assertIsInstance(out["V1"][fmt]["sponsor_graphics"], list)       # recorded, whatever was seen
 
 
 if __name__ == "__main__":
     unittest.main()
 
 
-class TestRuling158Advertising(unittest.TestCase):
-    """RULING 158 (2) (orchestrator 23:12 ET Nov 23), the render's side: V1 asks, on the final's contact sheet of every
-    format, whether ANY clip shows paid advertising on screen; a "no" (an ad seen, or one it cannot tell from the
-    show's own graphic), a missing answer or "n/a" holds. Afd8977d's Digital Asset News clip carried a Kraken sign-up
-    banner and an iTrustCapital panel through its whole length."""
+class TestRuling161SponsorInformation(unittest.TestCase):
+    """RULING 161 (orchestrator 07:36 ET Nov 24, from PBX), the render's side; it replaces ruling 158 (2)'s hold (batch
+    125): sponsor or advertiser material that is only VISIBLE (a logo wall or backdrop behind a speaker, a banner, a
+    panel, a bug, a graphic that flashes on screen) is NOT a refusal and NOT a flag. V1 still asks every vision model
+    about it and records what a model saw as information (visual_check.sponsor_seen -> GATE_REPORT V1
+    "sponsor_graphics" -> the note's line); the verdict never reads it, and the checklist's own lines still hold."""
 
-    def yes(self):
-        return {k: {"answer": "yes", "why": "w"} for k, _ in V.CHECKLIST}
+    def reply(self, info=None, **lines):
+        a = {k: {"answer": "yes", "why": "w"} for k, _ in V.CHECKLIST}
+        for k, v in lines.items():
+            a[k] = {"answer": v, "why": "w"}
+        if info is not None:
+            a["visible_sponsor_graphics"] = info
+        return a
 
-    def test_an_ad_seen_holds_in_both_formats(self):
-        for fmt in ("16x9", "9x16"):
-            for ans in ("no", "n/a", ""):
-                with self.subTest(fmt=fmt, answer=ans):
-                    a = self.yes()
-                    a["no_on_screen_advertising"] = {"answer": ans, "why": "a Kraken '$25 sign-up bonus' banner"}
-                    ok, rows = V.verdict(a, fmt)
-                    self.assertFalse(ok)
-                    self.assertFalse(rows["no_on_screen_advertising"]["ok"])
-            self.assertTrue(V.verdict(self.yes(), fmt)[0])
-
-    def test_the_question_reaches_every_vision_model_and_either_no_holds(self):
+    def panel(self, replies, fmt="16x9"):
         from unittest import mock
         texts = []
 
         def call(path, text, model, timeout):
             texts.append(text)
-            a = self.yes()
-            if model == V.VISION_MODELS[1]:
-                a["no_on_screen_advertising"] = {"answer": "no", "why": "iTrustCapital 'OPEN A CRYPTO IRA' panel"}
-            import json
-            return json.dumps({"answers": a}), {"choices": [{"finish_reason": "stop"}]}
+            return json.dumps({"answers": replies[model]}), {"choices": [{"finish_reason": "stop"}]}
         with mock.patch.object(V, "_call_any", side_effect=call):
-            ok, per = V.ask_panel("sheet.jpg", "16x9")
-        self.assertFalse(ok)                                           # one model saw an ad: HOLD
-        self.assertEqual(len(texts), len(V.VISION_MODELS))
-        for t in texts:
-            self.assertIn("no_on_screen_advertising", t)
-            self.assertIn("PAID ADVERTISING", t)
-            self.assertIn("cannot tell an ad from the show's own graphic, answer 'no'", t)
+            ok, per = V.ask_panel("sheet.jpg", fmt)
+        return ok, per, texts
 
+    CASH = "a 'Powered by Cash App' logo wall behind the speaker at 12.0 s"
+    KRAKEN = "a Kraken sign-up banner and an iTrustCapital 'OPEN A CRYPTO IRA' panel, 30-46 s"
+
+    def test_visible_sponsor_material_passes_and_is_recorded(self):
+        import verify_pack
+        m1, m2 = V.VISION_MODELS
+        for fmt in ("16x9", "9x16"):
+            with self.subTest(fmt=fmt):
+                ok, per, texts = self.panel({m1: self.reply({"answer": "yes", "why": self.CASH}),
+                                             m2: self.reply({"answer": "Yes", "why": self.KRAKEN})}, fmt)
+                self.assertTrue(ok)
+                self.assertTrue(verify_pack.panel_ok(per))
+                self.assertEqual([(x["model"], x["what"]) for x in V.sponsor_seen(per)],
+                                 [(m1, self.CASH), (m2, self.KRAKEN)])
+                self.assertEqual(len(texts), len(V.VISION_MODELS))             # every model is asked
+                for t in texts:
+                    self.assertIn("visible_sponsor_graphics", t)
+                    self.assertIn("INFORMATION ONLY, never a fault", t)
+
+    def test_an_unanswered_information_line_records_nothing_and_holds_nothing(self):
+        m1, m2 = V.VISION_MODELS
+        for info in (None, {"answer": "n/a", "why": ""}, {"answer": "no", "why": "none"}, {"answer": ""}, "yes"):
+            with self.subTest(info=info):
+                ok, per, _ = self.panel({m1: self.reply(info), m2: self.reply(info)})
+                self.assertTrue(ok)
+                self.assertEqual(V.sponsor_seen(per), [])
+
+    def test_the_checklist_still_holds_beside_it(self):
+        m1, m2 = V.VISION_MODELS
+        ok, per, _ = self.panel({m1: self.reply({"answer": "yes", "why": self.CASH}),
+                                 m2: self.reply({"answer": "no", "why": "none"}, watermark_present="no")})
+        self.assertFalse(ok)                                                   # the watermark line holds
+        self.assertEqual([x["model"] for x in V.sponsor_seen(per)], [m1])
+
+    def test_the_verdict_never_reads_the_information_line(self):
+        for fmt in ("16x9", "9x16"):
+            a = _all("yes")
+            for info in ({"answer": "yes", "why": self.KRAKEN}, {"answer": "no"}, None):
+                ok, rows = V.verdict(dict(a, visible_sponsor_graphics=info) if info else a, fmt)
+                self.assertTrue(ok, (fmt, info))
+                self.assertNotIn("visible_sponsor_graphics", rows)
+
+    def test_the_gate_report_carries_what_was_seen_and_the_row_passes(self):
+        from unittest import mock
+        import verify_pack
+        rd = tempfile.mkdtemp(prefix="r161wire_")
+        self.addCleanup(shutil.rmtree, rd, True)
+        os.makedirs(os.path.join(rd, "qa"))
+        json.dump({"hook": {"channel": "A", "vertical_layout": {"shots": [], "flagged": False}}, "clips": []},
+                  open(os.path.join(rd, "edl.json"), "w"))
+        for fmt in ("16x9", "9x16"):
+            json.dump({"segments": [{"label": "hook", "type": "talking_head", "start": 0.0, "end": 4.0},
+                                    {"label": "outro", "type": "outro", "start": 4.0, "end": 8.0}]},
+                      open(os.path.join(rd, "qa", f"concat_manifest_{fmt}.json"), "w"))
+        json.dump({"rows": {}}, open(os.path.join(rd, "GATE_REPORT.json"), "w"))
+        m1, m2 = V.VISION_MODELS
+        replies = {m1: self.reply({"answer": "yes", "why": self.KRAKEN}), m2: self.reply({"answer": "no", "why": "-"})}
+
+        def call(path, text, model, timeout):
+            return json.dumps({"answers": replies[model]}), {"choices": [{"finish_reason": "stop"}]}
+        with mock.patch.object(V, "contact_sheet", return_value={"path": "s.jpg"}), \
+                mock.patch.object(V, "_call_any", side_effect=call), \
+                mock.patch.object(V, "shot_frames", return_value=[]), \
+                mock.patch.object(V, "letterbox_check", return_value=(True, [{"label": "hook", "shot": 0, "ok": True}])), \
+                mock.patch.object(V, "boundary_pairs", return_value=[]), \
+                mock.patch.object(V, "boundary_check", return_value=(True, [{"boundary": "hook|outro", "ok": True}])):
+            verify_pack._sheets_and_checklist(rd, {}, {}, vision=True)
+        out = json.load(open(os.path.join(rd, "GATE_REPORT.json")))
+        for fmt in ("16x9", "9x16"):
+            self.assertEqual(out["rows"][fmt]["V1_visual_checklist"], "PASS")
+            self.assertEqual(out["V1"][fmt]["sponsor_graphics"], [{"model": m1, "what": self.KRAKEN}])
+            self.assertNotIn("V1_visual_checklist", out.get("notes", {}).get(fmt, {}))

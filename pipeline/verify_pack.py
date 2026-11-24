@@ -199,7 +199,9 @@ def _sheets_and_checklist(run_dir, rep, pack, vision, formats=("16x9", "9x16")):
                 ok = panel_ok(per)
                 pack["visual"][fmt] = {"ok": ok, "per_model": per,
                                        "sheet_next_shot_advisory": {m: ((d or {}).get("rows") or {}).get(NEXT_SHOT)
-                                                                    for m, d in (per or {}).items()}}
+                                                                    for m, d in (per or {}).items()},
+                                       # ruling 161: visible sponsor material, information only (never in "ok")
+                                       "sponsor_graphics": VC.sponsor_seen(per)}
             except Exception as e:
                 pack["visual"][fmt] = {"ok": False, "error": f"vision route: {type(e).__name__}: {e}"}
         v = pack["visual"][fmt]

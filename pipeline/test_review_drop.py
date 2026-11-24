@@ -80,6 +80,41 @@ class TestReviewDrop(unittest.TestCase):
         self.assertEqual(self.sent, [])
         self.assertFalse(os.path.exists(os.path.join(self.run, "REVIEW_DROP.json")))
 
+    def test_ruling_161_visible_sponsor_graphics_are_one_information_line_in_the_note(self):
+        """RULING 161 (07:36 ET Nov 24, from PBX): what the pin (the builder's per-segment record) and the render's V1
+        saw on screen is ONE plain line in the note, never a flag and never a refusal; the captions stay as they were."""
+        pkg = "a" * 64
+        self.edl["moments_package_sha256"] = pkg
+        self._write("edl.json", self.edl)
+        self._write("PINNED_DECISION.json", {"pin": {"moments_package": {"package_sha256": pkg}, "segments": [
+            {"channel": "Digital Asset News", "visible_sponsor_graphics": "Kraken sign-up banner; iTrustCapital panel"},
+            {"channel": "What Bitcoin Did"}]}})
+        self.report["V1"] = {"16x9": {"sponsor_graphics": [{"model": "qwen/qwen3.8-27b", "what": "a Kraken banner"}]},
+                             "9x16": {"ok": True}}
+        self._write("GATE_REPORT.json", self.report)
+        T.review_drop(self.run, send=self._send)
+        note = self.sent[-1][2]["text"]
+        self.assertEqual([x for x in note.split("\n") if x.startswith(T.SPONSOR_HEAD)],
+                         [T.SPONSOR_HEAD + "Digital Asset News: Kraken sign-up banner; iTrustCapital panel; "
+                                           "16:9 sheet, qwen3.8-27b: a Kraken banner"])
+        self.assertNotIn("REVIEW FLAGS", note)
+        vids = [x for x in self.sent if x[0] == "video"]
+        self.assertEqual(len(vids), 2)
+        for x in vids:
+            self.assertNotIn(T.SPONSOR_HEAD, x[2]["caption"])
+
+    def test_ruling_161_nothing_seen_no_line_and_an_unbound_pin_is_said(self):
+        self.assertEqual(T.sponsor_lines(self.run, self.edl, self.report), [])
+        edl = dict(self.edl, moments_package_sha256="a" * 64)
+        self._write("PINNED_DECISION.json", {"pin": {"moments_package": {"package_sha256": "b" * 64},
+                                                     "segments": [{"channel": "X", "visible_sponsor_graphics": "Y"}]}})
+        self.assertEqual(T.sponsor_lines(self.run, edl, self.report),
+                         [T.SPONSOR_HEAD + "the pin record is not this EDL's (not read)"])
+        with open(os.path.join(self.run, "PINNED_DECISION.json"), "w") as f:
+            f.write("{not json")
+        self.assertEqual(T.sponsor_lines(self.run, edl, self.report),
+                         [T.SPONSOR_HEAD + "the pin record is not readable (JSONDecodeError)"])
+
     def test_ruling_93_a_16x9_only_run_drops_its_16x9_alone(self):
         """Ruling 93 as amended: the EDL seals formats ['16x9']: the drop sends the 16:9 final alone (the 9:16 file is
         gone: never read), says so in its caption and note, and judges only the 16:9's rows (a 9:16 content-integrity
