@@ -184,7 +184,8 @@ class TestTheBuild(unittest.TestCase):
         self.assertIn("a -> the", [sg.get("transcript_corrected") for sg in pin["segments"]])
 
     def test_a_hard_step_a_on_the_heard_words_puts_the_clip_out_under_both_ids(self):
-        r = rig(n=2, lock_check=melker_lock(), a_fail={("xai", "x" + PK.HEARD): ["SPEAKER_CHANGE"]})
+        calls = []
+        r = rig(n=2, lock_check=melker_lock(calls=calls), a_fail={("xai", "x" + PK.HEARD): ["SPEAKER_CHANGE"]})
         out = r.run()
         pk = out["package"]
         ids = [sg["moment_id"] for sg in (pk or {}).get("segments") or []]
@@ -193,8 +194,8 @@ class TestTheBuild(unittest.TestCase):
         self.assertTrue(tried)
         self.assertIn("SPEAKER_CHANGE", tried[0]["heard"]["x"]["out"])
         self.assertIn("ruling 163 (2)(b)", tried[0]["why"])
-        later = [ids for ids in r.medley_calls[2:]]                        # out for good under BOTH ids: no later
-        self.assertFalse([ids for ids in later if "x" in ids or "x" + PK.HEARD in ids])   # line-up takes it again
+        self.assertTrue(len(calls) >= 2, calls)                             # out for good under BOTH ids: no later
+        self.assertFalse([ids for ids in calls[1:] if "x" in ids or "x" + PK.HEARD in ids], calls)   # line-up
 
     def test_no_correction_nothing_is_asked_again_and_no_field_is_sealed(self):
         r = rig(lock_check=TM.lock_stub())
@@ -220,9 +221,29 @@ class TestEveryPathAndCheck(unittest.TestCase):
         self.assertIsNotNone(pk, out.get("why_none"))
         self.assertIn("ruling 91", pk["no_voice"]["why"])
         self.assertEqual(calls, [["h", "x", "y"], ["h", "x", "y"]])         # both pre-checks on the transcript's words
+        x = next(sg for sg in pk["segments"] if sg["moment_id"].startswith("x"))
+        self.assertEqual((x["moment_id"], x["heard"]["text"]), ("x" + PK.HEARD, HEARD_FTX))   # judged again there too
+        pin = package_pin.to_pin(TM.spk(pk), "test")
+        seg = next(sg for sg in pin["segments"] if sg["video_id"] == x["video_id"])
+        self.assertEqual((seg["transcript_corrected"], seg["approved_text"]), ("fdx -> ftx", HEARD_FTX))
+        self.assertIn("rejudged", seg["attested"])
+
+    def test_a_line_up_re_formed_with_a_corrected_clip_asks_the_lock_on_the_transcript_s_words(self):
+        """A re-screen after the write fails y (the rig's third vendor): the line-up is re-formed by a swap that keeps
+        x on its corrected words; its new lock pre-check is asked with x on the transcript's words, adopts again, and
+        the pin keeps the correction (a lock asked on FTX itself would find no difference: the record lost)."""
+        calls = []
+        ms = [pm("h", "A", 12.0), dict(pm("x", "B", 14.0), text=MELKER), pm("y", "C", 13.0), pm("z", "D", 14.0)]
+        r = TM.Rig(ms, ["h", "x", "y", "z"], [(True, [], None, TM.Rig.LINE)] * 2, [None] * 2,
+                   angle_from=("xai:grok", "xai", "grok"), a_fail={("openai", "y"): ["REFERENT_OUTSIDE"]},
+                   lock_check=melker_lock(calls=calls))
+        out = r.run()
+        pk = out["package"]
+        self.assertIsNotNone(pk, out.get("why_none"))
+        self.assertEqual([sg["moment_id"] for sg in pk["segments"]], ["h", "x" + PK.HEARD, "z"])
+        self.assertEqual(calls, [["h", "x", "y"], ["h", "x", "z"]])
         pin = package_pin.to_pin(TM.spk(pk), "test")
         self.assertIn("fdx -> ftx", [sg.get("transcript_corrected") for sg in pin["segments"]])
-        self.assertIn(HEARD_FTX, [sg["approved_text"] for sg in pin["segments"]])
 
     def test_a_corrected_hook_is_rated_again_on_its_words(self):
         said = "Bitcoin h the x."                                         # one function word more: ruling 84's class
