@@ -190,6 +190,11 @@ def decide(seg, e):
     spoken, approved = e.get("spoken_text"), seg["approved_text"]
     if not isinstance(spoken, str) or not spoken.strip():
         return {"verdict": "error", "outcome": out, "why": "adopt_spoken without a spoken_text"}
+    swaps = AT.meaning_swaps(spoken, approved)        # ITEM 7 (09:20 / 09:35 ET Nov 24): NO SILENT MEANING SWAP, on
+    if swaps != []:                                   # every adoption path (rulings 143, 131 (A), 84): held
+        return {"verdict": "hold", "outcome": out, "meaning_swaps": swaps,
+                "why": ("item 7: the meaning check (owner_rules.meaning_pair) cannot be read: no adoption"
+                        if swaps is None else f"item 7: a meaning swap is never adopted silently: {swaps}")[:300]}
     adj = e.get("adjudication")
     if isinstance(adj, dict) and str(adj.get("rule") or "").startswith(AT.RULE_143):   # RULING 143: the settlement
         diffs = AT.class_143(spoken, approved, adj)

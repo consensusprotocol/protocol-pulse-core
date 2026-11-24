@@ -268,6 +268,47 @@ class TestEveryPathAndCheck(unittest.TestCase):
             self.assertIn("exclusion" if kw else "OUT edge", heard_[0])
 
 
+class TestItem7TheClipNeverSeals(unittest.TestCase):
+    """ITEM 7 (orchestrator 09:20 / 09:35 ET Nov 24), its test: transcript 'approved', both ears 'rejected': the lock's
+    answer goes through this side's real decide() (the meaning swap holds on every adoption path), so the clip is out
+    of every line-up and never sealed, under either id; the line-up carries on without it."""
+    APPROVED = MELKER.replace("when Bitcoin hit 55,000", "when the fund was approved")   # the rig's own clip, its
+    HEARD = APPROVED.replace("approved", "rejected")                                       # fact made a verdict
+
+    def check(self, segs):
+        from test_lock_precheck import entry
+        rows = []
+        for m, s in zip(segs, LP.segments_of(segs)):
+            if m["moment_id"] == "x":
+                r_, p_, ops = AT.diff(self.HEARD, self.APPROVED)
+                adj = {"rule": "ruling 143 (orchestrator 2026-11-17 '15:55')", "verdict": "settled",
+                       "run_decode": self.HEARD, "approved": self.APPROVED, "second_recogniser": self.HEARD,
+                       "pairs": [{"run": " ".join(r_[a:b]), "approved": " ".join(p_[c:d]), "material": False,
+                                  "second_reads": "run", "took": "run"} for _, a, b, c, d in ops]}
+                e = entry(s, "adopt_spoken", spoken_text=self.HEARD, adjudication=adj)
+                rows.append(dict(s, **LP.decide(s, e), entry={"request_id": "r", "outcome": "adopt_spoken"}))
+            else:
+                rows.append(dict(s, verdict="pass", outcome="no_difference", why="",
+                                 entry={"request_id": "r", "outcome": "no_difference"}))
+        self.answers.append([(x["verdict"], x.get("why")) for x in rows])
+        return {"ok": all(x["verdict"] in ("pass", "adopt") for x in rows), "request_id": "r", "segments": rows,
+                "error": None}
+
+    def test_transcript_approved_both_ears_rejected_the_clip_never_seals(self):
+        self.answers = []
+        ms = [pm("h", "A", 12.0), dict(pm("x", "B", 14.0), text=self.APPROVED), pm("y", "C", 13.0),
+              pm("z", "D", 14.0)]
+        r = TM.Rig(ms, ["h", "x", "y", "z"], [(True, [], None, TM.Rig.LINE)] * 3, [None] * 3, lock_check=self.check)
+        out = r.run()
+        self.assertTrue(any(v == "hold" and "item 7" in str(w) for a in self.answers for v, w in a),
+                        (self.answers, out.get("why_none"), {k: str(v)[:300] for k, v in out.items() if "x" in str(v)
+                                                             and k not in ("tried",)}))
+        pk = out["package"]
+        sealed = [] if pk is None else [sg["moment_id"] for sg in pk["segments"]]
+        self.assertFalse([mid for mid in sealed if mid.startswith("x")], sealed)
+        self.assertFalse([sg for sg in (pk or {}).get("segments") or [] if self.HEARD in str(sg.get("text"))])
+
+
 class TestApply(unittest.TestCase):
     def rows(self, spoken=HEARD_FTX):
         seg = {"video_id": "DVKuBD7WB6Y", "start": 1549.673, "end": 1564.313}

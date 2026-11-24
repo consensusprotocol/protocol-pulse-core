@@ -305,8 +305,27 @@ def wrong_audio(x, y):
 
 def material_pair(x, y, texts):
     """RULING 143 (1) as pinned.material_pair: a differing pair is MATERIAL when either side holds a number, a negation,
-    a name, a ticker or an amount (critical); a word-form pair (ruling 142 (2)) is not."""
-    return not canon.word_form(x, y) and any(critical(t, texts) for t in list(x) + list(y))
+    a name, a ticker or an amount (critical); a word-form pair (ruling 142 (2)) is not. ITEM 7 (orchestrator 09:20 /
+    09:35 ET Nov 24): a MEANING pair (owner_rules.meaning_pair: buy / sell, up / down, approved / rejected, million /
+    billion, doubled / halved ...) is material too; class_143 and lock_precheck.decide HOLD it (meaning_swaps)."""
+    return (not canon.word_form(x, y) and any(critical(t, texts) for t in list(x) + list(y))) or \
+        bool(meaning_swaps(" ".join(x), " ".join(y)) != [])
+
+
+def meaning_swaps(spoken, approved):
+    """ITEM 7, "NO SILENT MEANING SWAP": the differing pairs of two readings (canon tokens, the ruling-17 diff) that
+    put a word on ONE meaning axis with a DIFFERENT value, by the integrator's one list (owner_rules.meaning_pair,
+    loaded from its file and sha as out_edge loads it) -> [[spoken words, approved words], ...] ([] when none). None
+    when the rules cannot be loaded or have no meaning_pair: the caller holds (fail closed). Such a pair is never
+    adopted, whatever the two ears say: transcript 'approved', both ears 'rejected' holds the clip."""
+    try:
+        import out_edge as OE
+        mp = OE.rules()[0].meaning_pair
+    except Exception:                                  # noqa: BLE001  no rules file, or no meaning_pair in it
+        return None
+    s, a = canon.canon_tokens(spoken or ""), canon.canon_tokens(approved or "")
+    return [[" ".join(s[i:j]), " ".join(a[k:l])] for tag, i, j, k, l in
+            SequenceMatcher(None, s, a, autojunk=False).get_opcodes() if tag != "equal" and mp(s[i:j], a[k:l])]
 
 
 def class_143(spoken, approved, adj):
@@ -355,7 +374,10 @@ def class_143(spoken, approved, adj):
             continue
         material = material_pair(r[a:b], p[c:d], texts)
         pin_ok, run_ok = reads(p, s, c, d), reads(r, s, a, b)
-        if material and run_ok:
+        if meaning_swaps(" ".join(r[a:b]), " ".join(p[c:d])) != []:   # ITEM 7: a meaning swap (or no rules) holds,
+            out.append(dict(row, took=None, material=True, **{"class": None},   # even when both ears agree
+                            why="item 7: a meaning swap is never adopted silently (owner_rules.meaning_pair)"))
+        elif material and run_ok:
             out.append(dict(row, took="run", material=True, **{"class": "ruling 143 (3): the two audio readings "
                                                                          "agree: the transcript corrected"}))
         elif material:
