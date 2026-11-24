@@ -824,7 +824,8 @@ def _main(argv, box):
               visual_cache=os.path.join(HERE, "proof", "VISUAL_CACHE.json"),       # ruling 70
               out_edge_cache=os.path.join(HERE, "proof", "OUT_EDGE_CACHE.json"),   # ITEM 3: the question's answers,
               #   keyed by the exact transcript, cut and prompt version (out_edge._key); the replay's frozen answers
-              lock_check=lock_for(a.lock_precheck, out_dir, say))    # rulings 68 / 72 / 130 (2): off sends nothing
+              lock_check=lock_for(a.lock_precheck, out_dir, say),    # rulings 68 / 72 / 130 (2): off sends nothing
+              lean=True)                                 # LEAN (1) (2) (4): the bounded path (package._build)
     name, at = os.path.relpath(out_dir, REPO), now.isoformat()
     if cand is not None:                                 # --from-candidate: that candidate alone (ruling 66, 13:18)
         res = PK.build(router, moments, sources, ctx, candidate=cand, **kw)

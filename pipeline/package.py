@@ -3645,8 +3645,13 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
           hook_cache=None, scorer_verdicts_path=None, scorer_candidates_path=None, build_name="", candidate=None,
           join_cache=None,
           visual_cache=None, registered=None, lock_check=None, scorer_extra=(), stories_path=None,
-          ledger_aliases=None, soft=False, out_edge_cache=None):
-    """RULING 137: soft=True is the never-empty pass (build() calls it): step A's soft refusals are let back, flagged.
+          ledger_aliases=None, soft=False, out_edge_cache=None, lean=False):
+    """LEAN (the owner's assignment, 13:37 ET Nov 24; lean=True, passed by the driver): (1) the render's lock asked for
+    each angle's clips before any line-up of it is judged (lock_first), so the join table, the clips-alone verdict and
+    coherence judge the final words once; (2) a clip whose thought runs on is extended, re-anchored or shortened inside
+    stated bounds, every new span gated again (out_edge.pool recover=True); (4) story angles go without the angle writer.
+    lean=False is the path as it was (the tests' rigs). (5) and (3) hold on both paths.
+    RULING 137: soft=True is the never-empty pass (build() calls it): step A's soft refusals are let back, flagged.
     RULING 162 (1): out_edges() at the pool stage, its verdicts cached in out_edge_cache (None: this build's only).
     L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
@@ -4244,7 +4249,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
         order, added, nv_med = untouched(plan["order"]), plan["added"], med   # RULING 163 (2): the lock is asked on
         #   the transcript's words, as for any clip; what it corrects is judged again (rejudge_heard)
         if added is not None:                                # its new line-up, judged on the clips alone again
-            ok2, nv_med = medley(router, order, ctx, writers_v, seed=50 + n_lineup + 10 * ai, writer_family=writers_f)
+            ok2, nv_med = medley(router, list(plan["order"]) if lean else order, ctx, writers_v,   # LEAN (1): on the
+                                 seed=50 + n_lineup + 10 * ai, writer_family=writers_f)          # final words
             note["medley"] = nv_med
             if not ok2 or nv_med["flagged"]:
                 note["why_not"] = "the line-up with the added clip fails on the clips alone (or has a join to bridge)"
@@ -4274,7 +4280,10 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
             if nv_pre.get("error") or not nv_pre.get("segments"):
                 out["lock_stop"] = note["why_not"]        # no verdict: the search stops, as for a voiced line-up
             return None
-        if nv_pre is not None:                            # RULING 163 (2)(b): its corrected clips, judged again
+        if nv_pre is not None and lean and lock_settled(plan["order"], nv_pre):
+            order = list(plan["order"])                   # LEAN (1): judged on these words already (lock_first)
+            note["lock_settled"] = True
+        elif nv_pre is not None:                          # RULING 163 (2)(b): its corrected clips, judged again
             order, why_h, nv_med = rejudge_heard(order, nv_pre, note, nv_med, 50 + n_lineup + 10 * ai)
             if why_h:
                 note["why_not"] = why_h
@@ -4362,13 +4371,18 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
             f"{sum(m['duration_s'] for m in order):.1f} s, added {added}) ({time.time() - t0:.0f} s)")
         return pk
 
+    lock_src, renamed = {}, {}                             # LEAN (1): the originals the lock corrected before any
+    #   line-up was judged (out of the pool, kept for the lock's own requests), and their ids -> the corrected clips'
+
     def untouched(ms_):
         """RULING 163 (2): a line-up with each corrected clip (heard()) back on its transcript's words, so the lock
         pre-check is asked as for any clip and its correction is written and judged again (never lost: a lock asked on
-        words it corrected itself finds no difference)."""
-        return [cleared.get((m.get("heard") or {}).get("from"), m) for m in ms_]
+        words it corrected itself finds no difference). LEAN (1): an original the lock corrected before coherence is
+        out of the pool (lock_src keeps it for this)."""
+        return [lock_src.get((m.get("heard") or {}).get("from")) or cleared.get((m.get("heard") or {}).get("from"), m)
+                for m in ms_]
 
-    def rejudge_heard(segs_, pre_, rec_, med_, seed_):
+    def rejudge_heard(segs_, pre_, rec_, med_, seed_, clips_only=False):
         """RULING 163 (2)(b): the clips of this line-up whose words the lock pre-check corrected (heard()), judged
         AGAIN on the words they say, before any write or verdict: step A on both families (as the pool: the first
         screen off the writers, the second off the first's family; its soft codes flag in the never-empty pass), the
@@ -4431,8 +4445,9 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                 cm["hook_rating"] = rated.get(cid) or {"rating": None, "why": f"not rated: {herr}"}
                 if soft and (hook_bar_under(cm) or hook_unrated(cm)) and segs_[0].get("hook_bar_soft"):
                     cm["hook_bar_soft"] = True            # RULING 137 2b / 154 (2): as the original opened
-            see([cm])                                     # RULING 70: its frames with its own words
-            if i == 0:
+            if i == 0 or not clips_only:                  # LEAN (1): before any line-up only the hook is seen now (it
+                see([cm])                                 # may not open otherwise); every clip of a line-up that passes
+            if i == 0:                                    # is seen before any write (see(segs)), on these words, once
                 hb = VP.hook_block(cm.get("visual"))
                 if hb:
                     cm["visual_hook_block"] = hb
@@ -4441,6 +4456,22 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                                 str((cm.get("hook_rating") or {}).get("why") or "its rating or the render's hook "
                                                                                  "rule")))[:300]
                     continue
+        if clips_only:                                    # LEAN (1): no line-up yet, so no clips-alone verdict: each
+            rec_["heard"] = {cm["heard"]["from"]: {"id": cm["moment_id"], "corrected": cm["heard"]["corrected"],   # clip
+                                                   **({"out": bad[cm["moment_id"]]} if cm["moment_id"] in bad else {})}
+                             for cm in swap.values()}     # stands or falls on its own gates; the line-ups that are
+            for cm in swap.values():                      # formed afterwards are judged on these words, once
+                if cm["moment_id"] in bad:
+                    for x in (cm["moment_id"], cm["heard"]["from"]):
+                        dropped.add(x)
+                        doomed.add(x)
+                else:
+                    cleared[cm["moment_id"]] = cm
+            log(f"    LEAN (1): the lock corrected {len(swap)} clip(s) before any line-up: " + "; ".join(
+                f"{cm['heard']['from'][:8]} ({cm['heard']['corrected'][:80]}): " +
+                (f"OUT, {bad[cm['moment_id']][:120]}" if cm["moment_id"] in bad else "judged again on its words, PASS")
+                for cm in swap.values()))
+            return [swap.get(i, m) for i, m in enumerate(segs_)], None, med_
         if not bad:
             new = [swap.get(i, m) for i, m in enumerate(segs_)]
             ok2, med2 = medley(router, new, ctx, writers_v, seed=seed_, writer_family=writers_f)
@@ -4477,6 +4508,89 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
             cleared[cm["moment_id"]] = cm
         return new, None, (dict(med2, soft=med_["soft"]) if isinstance(med_, dict) and "soft" in med_ else med2)
 
+    def lock_first(angle, ai):
+        """LEAN (1) (the owner's assignment, issue 1: "line-up coherence is evaluated before final audio-lock
+        resolution. Corrected speech triggers expensive downstream rejudgment"): the render's lock asked for the
+        angle's own moments (its hook first, so it is asked as the hook) BEFORE its join table and any clips-alone
+        verdict, as ONE request (lock_check; an answer already on file for the exact span, transcript text, trim and
+        rules/decoder is used and nothing is sent: lock_precheck.answer). Then, before any line-up is judged:
+          - a clip the lock holds is out (doomed), as at the line-up stage; a held hook ends the angle;
+          - a clip the lock corrected (heard()) is judged again on its words, ONCE, by its own gates (rejudge_heard
+            clips_only: step A on both families, the exclusion screen, the second pass, the OUT edge; the hook's
+            rating and vision): it passes into the pool under its own id in its original's place (the original out
+            of the pool, kept for the lock's requests), or it is out for good under both ids;
+          - no verdict (an error, no answer in time): nothing changes; the line-up stage asks again.
+        Every later verdict (the join table, the clips-alone verdict, the writes, the gates, coherence) is judged on the
+        final words, once. -> the angle with its ids renamed."""
+        hook = renamed.get(angle["hook"], angle["hook"])
+        ids = list(dict.fromkeys([hook] + [renamed.get(x, x) for x in angle["moments"]]))
+        ids = [x for x in ids if x in cleared and x not in doomed]
+        rec0 = {"angle": ai + 1, "asked": [], "verdicts": {}, "corrected": {}, "held": {}, "out": {}}
+        out.setdefault("lock_first", []).append(rec0)
+        if hook not in ids:
+            rec0["why"] = "its hook is out: nothing asked"
+            return dict(angle, hook=hook, moments=[renamed.get(x, x) for x in angle["moments"]])
+        req = untouched([cleared[x] for x in ids])        # the transcript's words: what the lock compares
+        rec0["asked"] = [m["moment_id"] for m in req]
+        try:
+            pre0 = lock_check(req)
+        except Exception as e:                            # noqa: BLE001  no verdict, never a pass (law L-m)
+            pre0 = LP.failed(e)
+        rows = pre0.get("segments") or []
+        rec0.update(request_id=pre0.get("request_id"), error=pre0.get("error"))
+        if len(rows) != len(req):
+            rec0["why"] = "no verdict for the request: the line-up stage asks again"
+            log(f"  LEAN (1): angle {ai + 1}: the lock gave no verdict before coherence ({str(pre0.get('error'))[:160]})"
+                f"; its line-ups ask it again ({time.time() - t0:.0f} s)")
+            return dict(angle, hook=hook, moments=[renamed.get(x, x) for x in angle["moments"]])
+        rec0["verdicts"] = {m["moment_id"]: r.get("verdict") for m, r in zip(req, rows)}
+        held_ = {m["moment_id"]: r.get("why") for m, r in zip(req, rows) if r.get("verdict") == "hold"}
+        for k, w in held_.items():                        # the render would hold it: out, under both ids
+            for x in (k, renamed.get(k)):
+                if x:
+                    dropped.add(x)
+                    doomed.add(x)
+        rec0["held"] = held_
+        keep = [i for i, r in enumerate(rows) if r.get("verdict") in ("pass", "adopt")]
+        if keep and keep[0] == 0:                         # the hook answered: its line-ups' clips, judged once
+            sub = {"ok": True, "segments": [rows[i] for i in keep], "request_id": pre0.get("request_id")}
+            rejudge_heard([req[i] for i in keep], sub, rec0, None, 0, clips_only=True)
+        else:                                             # no verdict on the hook: nothing is passed on it (law L-m)
+            rec0["why"] = ("its hook gave no verdict (" + str(rows[0].get("verdict")) + "): nothing changes; the "
+                           "line-up stage asks again")
+        for orig, h in (rec0.get("heard") or {}).items():
+            if "out" in h:
+                rec0["out"][orig] = h["out"]
+            elif h["id"] in cleared:                       # the corrected clip takes its original's place
+                rec0["corrected"][orig] = h["id"]
+                renamed[orig] = h["id"]
+                lock_src[orig] = cleared.pop(orig, None) or lock_src.get(orig)
+        for s in stories:                                 # RULING 118 (4): a story keeps its corrected clips
+            by_story[s["story_id"]] = [renamed.get(x, x) for x in by_story.get(s["story_id"], [])]
+        log(f"  LEAN (1): angle {ai + 1}: the render's lock asked before coherence on {len(req)} clip(s): "
+            f"{sum(v == 'pass' for v in rec0['verdicts'].values())} pass, {len(rec0['corrected'])} corrected and "
+            f"judged again on their words, {len(held_)} held, {len(rec0['out'])} out on their corrected words "
+            f"({time.time() - t0:.0f} s)")
+        return dict(angle, hook=renamed.get(hook, hook), moments=[renamed.get(x, x) for x in angle["moments"]])
+
+    def lock_settled(judged_, pre_):
+        """LEAN (1): the line-up stage's lock answer is the one this line-up was judged on: every clip the lock corrects
+        is already its corrected clip in the line-up as judged (lock_first), and no other clip carries corrected words.
+        Then nothing is judged again (the clips-alone verdict was made on these words)."""
+        rows = (pre_ or {}).get("segments") or []
+        if not (isinstance(pre_, dict) and pre_.get("ok") is True and len(rows) == len(judged_)):
+            return False
+        for m, r in zip(judged_, rows):
+            h = m.get("heard") or {}
+            sp = r.get("spoken_text")
+            if r.get("verdict") == "adopt" and isinstance(sp, str) and \
+                    LP.corrected_words(r.get("approved_text") or "", sp):
+                if not (h.get("text") == sp == m.get("text") and h.get("was") == r.get("approved_text")):
+                    return False
+            elif h:
+                return False
+        return True
+
     wseed = int((candidate or {}).get("write_seed") or 0)  # ruling 66 (14:02): a candidate's fresh writes
     total = 0                                             # ruling 41: line-ups judged in this build, over every angle
     judged, bad_pairs, spins = {}, set(), 0               # 12:00: verdicts by line-up; ruling 63's unfollowable pairs
@@ -4485,6 +4599,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
             dropped, n_lineup, swapped, filled = set(), 0, None, None
             kept, retried, accept_key, accept_soft = [], False, None, None   # RULING 141 (3): the never-empty pass's
             #   kept candidates (soft failures only), and the one retried accepting
+            if lean and lock_check is not None and candidate is None:   # LEAN (1): the lock settles the angle's
+                angle = lock_first(angle, ai)             # clips' words before any line-up of it is judged
             sel = story_pool(angle, cleared, by_story)    # RULING 118 (4): a story's angle chooses inside its story
             #   (its join table, the fill, every swap; lineup_for and the search choose only among the angle's own and
             #   its join table's moments, so the story holds there by construction)
@@ -4697,6 +4813,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                 if lock_check is not None:                  # RULINGS 68 / 72: the render's own lock, before any write;
                     #   RULING 130 (2) (orchestrator 23:00 ET Nov 16): and FIRST, before the paid checks of the clips
                     #   (vision, exclusion, the second pass), so a clip the render cannot cut never costs money
+                    judged_segs = list(segs)                # LEAN (1): the line-up as its clips-alone verdict judged it
                     segs = untouched(segs)                  # RULING 163 (2): always asked on the transcript's words
                     try:
                         pre = lock_check(segs)
@@ -4714,11 +4831,15 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                         rec["budget"], out["lock_stop"] = True, rec["why"]   # search stops, the line-up stays a
                         w_used, no_verdict = writes, True                   # candidate (class "budget")
                     elif held:                             # the render would hold these clips: out, re-lined
-                        dropped |= set(held)
-                        doomed |= set(held)
+                        dropped |= set(held) | {renamed[k] for k in held if k in renamed}   # LEAN (1): and the
+                        doomed |= set(held) | {renamed[k] for k in held if k in renamed}    # corrected clip
                         rec["why"] = ("ruling 72: the render's lock holds " +
                                       "; ".join(f"{k}: {v}" for k, v in held.items()))[:500] + ": re-lined"
                         relined, w_used = True, writes
+                    elif lean and lock_settled(judged_segs, pre):   # LEAN (1): every clip the lock corrects was judged
+                        segs = judged_segs                 # on its words before this line-up was formed, and its
+                        rec["lock_settled"] = ("lean (1): the lock's answer is the one this line-up was judged on: "   # clips-
+                                               "nothing is judged again")   # alone verdict judged these words: once
                     else:                                  # RULING 163 (2)(b): a clip whose words the lock corrected
                         segs, why_h, med = rejudge_heard(segs, pre, rec, med, 7 + n_lineup + 10 * ai)   # is judged
                         if why_h and rec.get("unmeasured"):   # LEAN (3): its verdict on the corrected words was not
