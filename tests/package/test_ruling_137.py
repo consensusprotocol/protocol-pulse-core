@@ -1186,13 +1186,14 @@ class TestRuling161SponsorOnlySeenIsInformation(unittest.TestCase):
     BRUNELL = ("If your Bitcoin can be frozen or monitored by an exchange, a custodial provider, or anyone else, it's "
                "not yours.")                                    # 6e79ceaa8e76f34f4117 (RsCi56hEriU, 1590.9-1597.2 s)
 
-    def run_rig(self, item, never_empty=True, listed=None):
+    def run_rig(self, item, never_empty=True, listed=None, flags=None):
         import test_medley as TM
         from test_moments import pm
         ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
         r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE), (True, [], None, TM.Rig.LINE)], [None] * 2,
                    follow_up={"angles": [TM.angle(["h", "x", "y"], "h")]},
-                   visuals={"x": {"burned_in": [dict(item)], **({"advertising": listed} if listed else {})}})
+                   visuals={"x": {"burned_in": [dict(item)], **({"advertising": listed} if listed else {}),
+                                  **({"flags": flags} if flags else {})}})
         r.build_kw = {"never_empty": never_empty}
         return r.run()
 
@@ -1211,6 +1212,12 @@ class TestRuling161SponsorOnlySeenIsInformation(unittest.TestCase):
                                 for f in package_pin.review_flags_of(pk["gates"])))
             self.assertEqual([sg.get("visible_sponsor_graphics") for sg in pk["segments"] if sg["moment_id"] != "x"],
                              [None, None])
+        stale = self.run_rig(dict(self.KRAKEN), True, self.LISTED,
+                             flags=[{"kind": "burned_in", "text": self.KRAKEN["text"], "item": "ticker",
+                                     "in_9x16": "whole"}])["package"]      # a record that carries an older rule's flag
+        xs = next(sg for sg in stale["segments"] if sg["moment_id"] == "x")
+        self.assertEqual(xs["visual"]["flags"], [])                        # sealed under today's rules (C2 F4)
+        self.assertEqual(stale["gates"]["visual"]["flags"], [])
         pin = package_pin.to_pin(TM.spk(pk), "test")              # sealed on the pin's segment
         seg = next(sg for sg in pin["segments"] if sg["video_id"] == x["video_id"] and sg["start"] == x["start"])
         self.assertIn("Kraken crypto exchange", seg["visible_sponsor_graphics"])

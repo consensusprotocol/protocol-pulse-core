@@ -328,14 +328,18 @@ class TestRuling161VisibleSponsorIsInformation(unittest.TestCase):
         9:16 crop would cut makes the clip 16:9 only (as a source caption does, ruling 93 amended): never a refusal,
         never a flag. A record cached before today is read under today's rules (current())."""
         v4 = fixture("v4_ad47eab4.json")["record"]
-        cut = dict(v4, burned_in=[dict(x, in_9x16="cut") for x in v4["burned_in"]])
-        self.assertIsNone(VP.layout_block(cut))
-        self.assertEqual((VP.formats(cut), VP.graphics_only(cut)), (["16x9"], None))
-        old = dict(cut, flags=[{"kind": "burned_in", "text": "CRYPTO IRA", "item": "bug", "in_9x16": "cut"}])
+        cut = dict(v4, burned_in=[dict(x, in_9x16="cut") if x["kind"] == "ticker" else x for x in v4["burned_in"]])
+        self.assertIsNone(VP.layout_block(cut))                                     # the listed Kraken banner cut:
+        self.assertEqual((VP.formats(cut), VP.graphics_only(cut)), (["16x9"], None))   # 16:9 only, no flag
+        old = dict(cut, flags=[{"kind": "burned_in", "text": "TRADE CRYPTOS", "item": "ticker", "in_9x16": "cut"}])
         now = VP.current(old)
         self.assertEqual(now["formats"], ["16x9"])
         self.assertEqual([f for f in now["flags"] if f["kind"] == "burned_in"], [])
         self.assertEqual(VP.current(dict(v4, formats=["16x9"])).get("formats"), None)   # stale both ways
+        panel = dict(v4, burned_in=[dict(x, in_9x16="cut") if x["kind"] == "bug" else x for x in v4["burned_in"]])
+        self.assertIn("9:16 crop would cut", VP.layout_block(panel))   # NOT listed by question 5: ruled as the show's
+        self.assertEqual(VP.graphics_only(panel), ["bug"])             # own graphics (146 (1)), named all the same
+        self.assertIn("CRYPTO IRA", VP.sponsor_graphics(panel))
 
     def test_the_shows_own_graphics_and_news_text_are_ruled_as_before(self):
         yahoo, sb = fixture("v4_96056caa.json")["record"], fixture("v4_1cb16751.json")["record"]
@@ -358,8 +362,21 @@ class TestRuling161VisibleSponsorIsInformation(unittest.TestCase):
             self.assertIsNone(VP.sponsor_graphics(dict(tick, burned_in=[], on_screen_text=[
                 {"text": words, "asserts_beyond_words": False, "why": ""}])), words)
         for words in ("USE CODE SATS FOR 10% OFF", "SPONSORED BY BITKEY", "Presented by Bitkey"):
-            self.assertIn(words, VP.sponsor_graphics(dict(tick, burned_in=[], on_screen_text=[
-                {"text": words, "asserts_beyond_words": False, "why": ""}])))    # named, never refused
+            self.assertIsNone(VP.sponsor_graphics(dict(tick, burned_in=[], on_screen_text=[     # a headline is never
+                {"text": words, "asserts_beyond_words": False, "why": ""}])))    # named by its words alone (C2 F3)
+        inside = dict(tick, advertising=[{"text": "TRADE CRYPTOS & STOCKS KRAKEN $25 SIGN UP BONUS", "what": "Kraken"}],
+                      burned_in=[{"kind": "ticker", "text": "KRAKEN $25 SIGN UP BONUS", "whole_in_16x9": True,
+                                  "in_9x16": "whole", "covers_speaker": False}])
+        self.assertIn("a ticker", VP.layout_block(inside))             # inside a listed text is not that text (C2 F1)
+        strap = dict(tick, advertising=[], burned_in=[{"kind": "lower_third", "text": "JANE DOE, REFERRAL PARTNER",
+                                                       "whole_in_16x9": False, "in_9x16": "whole",
+                                                       "covers_speaker": False}])
+        self.assertIn("not wholly inside", VP.layout_block(strap))     # offer words never free a name strap (C2 F2)
+        self.assertIsNone(VP.sponsor_graphics(strap))
+        odd = dict(tick, burned_in=["x", None, {"kind": "bug", "text": None}], advertising=["y", None, {"text": 3}],
+                   lower_third="z")
+        self.assertIsNone(VP.sponsor_graphics(odd))                    # never a crash on a malformed entry (C2 F5)
+        self.assertIsNone(VP.formats(odd))
         cap = dict(tick, burned_in=[{"kind": "caption", "text": "THIS EPISODE IS SPONSORED BY BITKEY",
                                      "whole_in_16x9": True, "in_9x16": "whole", "covers_speaker": False}])
         self.assertIsNone(VP.sponsor_graphics(cap))     # a caption is the spoken words: moments.ad_read_marker's

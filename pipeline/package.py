@@ -530,7 +530,8 @@ def _package(segs, ctx, fields, vo_kind, vo, lines):
                         "url_30s_before": f"https://www.youtube.com/watch?v={m['video_id']}&t={max(0, int(m['start']) - 30)}s",
                         **({"trimmed_leading": m["trimmed_leading"], "untrimmed_start": m["untrimmed_start"]}
                            if m.get("trimmed_leading") else {}),
-                        **({"visual": __import__("visual_pin").sealed(m["visual"])}    # ruling 70: sealed
+                        **({"visual": __import__("visual_pin").sealed(__import__("visual_pin").current(
+                            m["visual"]))}         # ruling 70: sealed; RULING 161: under today's rules (audit 0814 C2)
                            if m.get("visual") else {}),
                         **({"visible_sponsor_graphics": __import__("visual_pin").sponsor_graphics(m["visual"])}
                            if __import__("visual_pin").sponsor_graphics(m.get("visual")) else {}),   # RULING 161:
@@ -5133,7 +5134,8 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
                                sorted({str((v or {}).get("backend")) for v in visual}) or None,
                                rep((v or {}).get("replayed") for v in visual), n=len(visual or []),
                                measured=bool(visual) and all((v or {}).get("measured") is True for v in visual)),
-                           flags=[{"segment": i, **f} for i, v in enumerate(visual) for f in (v or {}).get("flags") or []],
+                           flags=[{"segment": i, **f} for i, v in enumerate(visual)   # RULING 161: today's rules
+                                  for f in (VP.current(v) or {}).get("flags") or []],         # (audit 0814 C2, qwen F4)
                            by_rule="visual_pin (ruling 70): one contact sheet per clip; a finding is a FLAG, sealed, "
                                    "never a reject by itself; sponsor material only VISIBLE is information on the pin, "
                                    "never a refusal and never a flag (ruling 161)",
