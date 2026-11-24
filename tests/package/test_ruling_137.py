@@ -1172,41 +1172,92 @@ class TestRuling150ValueSoft(unittest.TestCase):
     def test_no_verdict_stays_hard(self):
         _, pk = self.run_rig(measured=False)
         self.assertIsNone(pk)
-class TestRuling158AdsNeverSoft(unittest.TestCase):
-    """RULING 158 (2) (orchestrator 23:12 ET Nov 23: "on-screen advertising refuses a clip in every format ... ruling
-    146 (1) is narrowed"): in the never-empty pass a clip whose frames show an ad (the Kraken banner, filed by the check
-    as a 'ticker') is REFUSED; the same place with a plain price ticker plays 16:9 only, flagged (ruling 146 (1))."""
+class TestRuling161SponsorOnlySeenIsInformation(unittest.TestCase):
+    """RULING 161 (orchestrator 07:36 ET Nov 24, from PBX 07:28; it replaces ruling 158 (2)): a clip whose frames only
+    SHOW sponsor material (the Kraken banner, filed by the check as a 'ticker') plays in any pass and any format, with
+    no flag: the pin names it as information on the segment ("visible_sponsor_graphics", sealed); a plain price ticker
+    in the same place is ruled as before (16:9 only, flagged: ruling 146 (1)). HARD as always: the clip's OWN WORDS
+    in an ad ('this episode is sponsored by'), and a clip that is part of an ad read (Natalie Brunell 6e79ceaa, the
+    first line of The Bitcoin Way's read)."""
     KRAKEN = {"kind": "ticker", "text": "TRADE CRYPTOS & STOCKS IN 190+ COUNTRIES KRAKEN $25 SIGN UP BONUS",
               "whole_in_16x9": True, "in_9x16": "whole", "covers_speaker": False}
+    LISTED = [{"text": "TRADE CRYPTOS & STOCKS IN 190+ COUNTRIES - KRAKEN - $25 SIGN UP BONUS",   # question 5's own
+               "what": "Kraken crypto exchange ($25 sign-up bonus offer)"}]                      # listing (DAN, Nov 23)
+    BRUNELL = ("If your Bitcoin can be frozen or monitored by an exchange, a custodial provider, or anyone else, it's "
+               "not yours.")                                    # 6e79ceaa8e76f34f4117 (RsCi56hEriU, 1590.9-1597.2 s)
 
-    def run_rig(self, item):
+    def run_rig(self, item, never_empty=True, listed=None, flags=None):
         import test_medley as TM
         from test_moments import pm
         ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
         r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE), (True, [], None, TM.Rig.LINE)], [None] * 2,
-                   follow_up={"angles": [TM.angle(["h", "x", "y"], "h")]}, visuals={"x": {"burned_in": [dict(item)]}})
-        r.build_kw = {"never_empty": True}
+                   follow_up={"angles": [TM.angle(["h", "x", "y"], "h")]},
+                   visuals={"x": {"burned_in": [dict(item)], **({"advertising": listed} if listed else {}),
+                                  **({"flags": flags} if flags else {})}})
+        r.build_kw = {"never_empty": never_empty}
         return r.run()
 
-    def test_an_ad_refuses_where_a_plain_ticker_flags(self):
-        out = self.run_rig(self.KRAKEN)
-        self.assertIsNone(out["package"])                       # x was the third channel: no package without it
-        tried = (out.get("never_empty") or {}).get("soft_record", {}).get("tried") or out.get("tried") or []
-        self.assertTrue(any("ruling 158 (2): on-screen advertising" in str(t.get("why")) for t in tried), tried)
+    def test_a_sponsor_banner_plays_named_where_a_plain_ticker_flags(self):
+        import package_pin
+        import test_medley as TM
+        for never_empty in (False, True):                       # the clean pass too: no refusal, no flag
+            out = self.run_rig(self.KRAKEN, never_empty, self.LISTED)
+            pk = out["package"]
+            self.assertIsNotNone(pk, out.get("why_none"))
+            x = next(sg for sg in pk["segments"] if sg["moment_id"] == "x")
+            self.assertIn("Kraken crypto exchange", x["visible_sponsor_graphics"])
+            self.assertNotIn("graphics", pk["gates"])           # never ruling 146 (1)'s flag, never 16:9 only
+            self.assertEqual(pk["gates"]["visual"]["status"], "PASS")
+            self.assertTrue(all("Kraken" not in f and "SIGN UP" not in f
+                                for f in package_pin.review_flags_of(pk["gates"])))
+            self.assertEqual([sg.get("visible_sponsor_graphics") for sg in pk["segments"] if sg["moment_id"] != "x"],
+                             [None, None])
+        stale = self.run_rig(dict(self.KRAKEN), True, self.LISTED,
+                             flags=[{"kind": "burned_in", "text": self.KRAKEN["text"], "item": "ticker",
+                                     "in_9x16": "whole"}])["package"]      # a record that carries an older rule's flag
+        xs = next(sg for sg in stale["segments"] if sg["moment_id"] == "x")
+        self.assertEqual(xs["visual"]["flags"], [])                        # sealed under today's rules (C2 F4)
+        self.assertEqual(stale["gates"]["visual"]["flags"], [])
+        pin = package_pin.to_pin(TM.spk(pk), "test")              # sealed on the pin's segment
+        seg = next(sg for sg in pin["segments"] if sg["video_id"] == x["video_id"] and sg["start"] == x["start"])
+        self.assertIn("Kraken crypto exchange", seg["visible_sponsor_graphics"])
+        mp = pin["moments_package"]
+        self.assertEqual(package_pin.seal(pin["segments"], mp["edl_vo"], mp["signoff_expected"], mp["title"],
+                                          mp["caption"], mp["gates"], mp.get("btc_screen")), mp["package_sha256"])
+        bare = [{k: v for k, v in sg.items() if k != "visible_sponsor_graphics"} for sg in pin["segments"]]
+        self.assertNotEqual(package_pin.seal(bare, mp["edl_vo"], mp["signoff_expected"], mp["title"], mp["caption"],
+                                             mp["gates"], mp.get("btc_screen")), mp["package_sha256"])
         pk = self.run_rig(TestRuling150ValueSoft.TICKER)["package"]
         self.assertIsNotNone(pk)
         self.assertEqual(pk["gates"]["graphics"]["status"], "FLAGGED")      # the show's own graphics: 16:9 only
 
-    def test_the_inventory_never_passes_a_clip_with_an_ad(self):
+    def test_the_inventory_passes_and_names_it(self):
         import visual_pin as VP
         clean = {"version": VP.VERSION, "measured": True, "flags": [], "burned_in": [], "on_screen_text": [],
                  "lower_third": {"name": None, "text": None}, "advertising": [], "backend": "b", "replayed": False}
         base = TestTheStepARow().base()
-        self.assertEqual(PK.inventory(**base, visual=[clean, clean])["visual"]["status"], "PASS")
-        ad = dict(clean, burned_in=[dict(self.KRAKEN)])
+        row = PK.inventory(**base, visual=[clean, clean])["visual"]
+        self.assertEqual((row["status"], row.get("sponsor_info")), ("PASS", None))
+        ad = dict(clean, burned_in=[dict(self.KRAKEN)], advertising=self.LISTED)
         row = PK.inventory(**base, visual=[clean, ad], soft=True)["visual"]
-        self.assertEqual(row["status"], "FAIL")                               # the backstop: the pin refuses it
-        self.assertIn("SIGN UP BONUS", row["ads"][0])
+        self.assertEqual(row["status"], "PASS")
+        self.assertEqual(len(row["sponsor_info"]), 1)
+        self.assertIn("clip_01: visible sponsor graphics: Kraken crypto exchange", row["sponsor_info"][0])
+
+    def test_sponsor_words_in_the_clip_and_an_ad_read_still_refuse(self):
+        import context_integrity as CI
+        keep = {"risks": [], "about_bitcoin": "yes", "why": "x"}
+        for soft in (False, True):
+            v, calls = TestRuling146SponsorBefore().verdict(
+                "This episode is sponsored by BitKey, the simplest way to hold your own Bitcoin.", "", soft, keep)
+            self.assertEqual((v["verdict"], v["backend"], v["risks"], calls), ("exclude", "deterministic",
+                                                                                 ["ad_read"], []), soft)
+        ad = {"risks": ["ad_read"], "about_bitcoin": "yes", "why": "the opening line of The Bitcoin Way's read"}
+        v, _ = TestRuling146SponsorBefore().verdict(self.BRUNELL, TestRuling146SponsorBefore.BEFORE, True, ad)
+        self.assertEqual(v["verdict"], "exclude")                                 # the exclusion model: HARD
+        x = {"view": "ad_read", "own_sincere": False, "excerpt": self.BRUNELL}
+        self.assertIn("AD_READ", CI.a_failures(x))                                # step A: HARD, never soft
+        self.assertIsNone(PK.soft_codes(CI.a_failures(x)))
 
 
 class TestRuling159NoPlainLinesForARefusedLineUp(unittest.TestCase):
