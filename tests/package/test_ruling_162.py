@@ -227,7 +227,7 @@ class TestTheBuild(unittest.TestCase):
         r = self.rig()
         r.out_edges = lambda router, ms, *a, **k: (list(ms), {"asked": 0, "complete": [], "extended": {},
                                                               "refused": {}, "unverified": {}})
-        self.assertIsNone(r.run()["package"])                             # the row NOT RUN: OWN_REQUIRED refuses it
+        self.assertIsNone(r.run()["package"])                             # the row NOT RUN: package_pin.REQUIRED_GATES refuses it
 
     def test_the_row(self):
         ok = dict(__import__("test_medley").Rig.OUT_EDGE_OK)
@@ -240,7 +240,7 @@ class TestTheBuild(unittest.TestCase):
 
 class TestTheSpotlight(unittest.TestCase):
     """RULING 162 (1) holds for a spotlight too: its pool passes out_edges (seg_max 35 s), and a spotlight whose clip
-    carries no complete verdict is refused at its gates (package.OWN_REQUIRED)."""
+    carries no complete verdict is refused at its gates (package_pin.SPOTLIGHT_GATES)."""
 
     def test_no_verdict_no_spotlight(self):
         import test_spotlight as TS
@@ -251,6 +251,113 @@ class TestTheSpotlight(unittest.TestCase):
             pk, why, *_ = TS.package(m=TS.moment(out_edge=v))
             self.assertIsNone(pk, v)
             self.assertIn("out_edge", why)
+
+
+
+class TestTheClosingLine(unittest.TestCase):
+    """RULING 162 (2) (orchestrator 07:45 ET Nov 24, from PBX's review of afd8977d: "my VO ... is literally just me
+    saying all the clips that were featured ... Let's never do that again"): OUR CLOSING VO LINE MUST ADD VALUE, never a
+    list of the channels. The paid model writes it first, then the Heimdall families, up to 4 writes, each told why; a
+    Heimdall family judges fidelity and value when the paid model wrote, and the reverse; no line passing both means NO
+    closing line, one flag. Any spoken line of ours (intro, bridge, closing) never names a channel or lists."""
+    GROK = "xai:grok-4.20-0309-reasoning"
+    HEIM = ["heimdall:qwen/qwen3.8-27b", "heimdall:deepseek/deepseek-v4.1-flash", "heimdall:openai/gpt-oss-20b",
+            "heimdall:google/gemma-4-31b-it", "heimdall:minimax/minimax-m3.1-flash"]
+
+    def test_the_paid_model_writes_it_first_and_each_rewrite_goes_down_the_chain(self):
+        import proof_ly as PL
+        import test_medley as TM
+        ch = PL.chains("heimdall_first")
+        self.assertEqual(ch["angle_write:closing"], PL.WRITERS[-1:] + PL.WRITERS[:-1])
+        self.assertEqual(ch["angle_write:closing"][0], self.GROK)
+        self.assertEqual(ch["angle_write"], PL.WRITERS)                      # the angle itself: Heimdall first
+        seen = []
+
+        class R:
+            def call(self, role, prompt, max_tokens=2000, seed=7, **k):
+                seen.append((role, k.get("kind"), k.get("avoid_model")))
+                raise P.ProviderError("stop")
+        segs, ctx = TM.TestWriteTakeaway.SEGS, E.Context(NOW, REG)
+        fields = {"takeaway": {"text": "x", "cites": []}, "title": {"text": "t", "cites": []},
+                  "caption": {"text": "c", "cites": []}}
+        for f in (lambda: PK.write_takeaway(R(), TM.angle(["h", "x", "y"], "h"), segs, ctx, {},
+                                            avoid_model={self.GROK}),
+                  lambda: PK.write_line(R(), TM.angle(["h", "x", "y"], "h"), segs, ctx, {}, "takeaway", fields, [],
+                                        avoid_model={self.GROK, "heimdall:qwen/qwen3.8-27b"}, limit="12-16 words"),
+                  lambda: PK.write_line(R(), TM.angle(["h", "x", "y"], "h"), segs, ctx, {}, "title", fields, [])):
+            with self.assertRaises(P.ProviderError):
+                f()
+        self.assertEqual(seen, [("angle_write", "closing", {self.GROK}),
+                                ("angle_write", "closing", {self.GROK, "heimdall:qwen/qwen3.8-27b"}),
+                                ("angle_write", None, None)])                # the title: the writer chain as before
+
+    def test_a_heimdall_family_judges_when_the_paid_model_wrote_and_the_reverse(self):
+        import proof_ly as PL
+        ch = PL.chains("heimdall_first")
+        for role in ("fidelity_verdict", "coherence_verdict"):              # fidelity, and the value grade's role
+            self.assertEqual(ch[role][0], self.GROK, role)
+            self.assertEqual(set(ch[role][1:]), set(self.HEIM), role)
+        r = P.Router(chains=ch, routing="heimdall_first")              # each family its own maker
+        for role in ("fidelity_verdict", "coherence_verdict"):
+            names = r.chain(role)
+            off = lambda av, af: [n for n in names if r.backends[n].vendor not in av and r.backends[n].family not in af]
+            self.assertEqual(r.backends[off({"xai"}, set())[0]].vendor.split("/")[0], "heimdall")   # paid wrote
+            self.assertEqual(off({"heimdall/deepseek"}, {"deepseek"})[0], self.GROK)               # the reverse
+
+    def test_the_prompts_ask_for_one_sentence_that_names_no_one(self):
+        for t in (PK.WRITE_LY, PK.TAKEAWAY_LIMIT):
+            self.assertIn("ONE sentence", t)
+            self.assertIn("the pattern across the clips", t)
+            self.assertIn("what to watch", t)
+        self.assertIn("NEVER names a\n  channel, a show or a speaker", PK.WRITE_LY)
+        self.assertIn("never names a channel, a show or a speaker", PK.TAKEAWAY_LIMIT)
+
+    def test_our_spoken_lines_never_name_a_channel_or_list(self):
+        segs = [{"channel": "Simply Bitcoin"}, {"channel": "Natalie Brunell"}, {"channel": "Yahoo Finance"}]
+        ok = "The floor held because sellers ran out of reasons to sell."
+        rules = lambda slot, text: [v["rule"] for v in PK.owner_line_faults({"segments": segs, "lines": [
+            {"slot": slot, "text": text}]})]
+        self.assertEqual(rules("takeaway", ok), [])
+        for text in ("Simply Bitcoin saw the floor hold.", "Bitcoin, in their own words.",
+                     "Natalie Brunell's warning is the one to watch.", "Three takes on the same bottom.",
+                     "As these clips show, the floor held."):
+            self.assertEqual(rules("takeaway", text), ["LISTING"], text)
+        self.assertEqual(rules("takeaway", "The floor held. Watch Monday."), ["ONE_SENTENCE"])
+        self.assertEqual(rules("bridge", "Next, Yahoo Finance."), ["LISTING"])          # the old plain bridge
+        self.assertEqual(rules("intro", "In the words of Simply Bitcoin."), ["LISTING"])
+        self.assertEqual(rules("title", "Simply Bitcoin on the bottom"), [])            # never spoken: not checked
+        with unittest.mock.patch.object(OE, "OWNER_RULES", "/nonexistent/owner_rules.py"):
+            self.assertEqual(rules("takeaway", ok), ["LISTING"])                         # no rules file: fails closed
+
+    def test_no_line_passing_means_no_closing_line_and_one_flag(self):
+        import test_medley as TM
+        T = TM.TestRuling91MedleyHalf
+        rig = TM.Rig(T.FITS, ["h", "x", "y"], T.MED, [None], values=T.LOST4, lines=T.ALONE)
+        out = rig.run()
+        pk = out["package"]
+        self.assertIsNotNone(pk, out.get("why_none"))
+        self.assertEqual([x["slot"] for x in pk["lines"]], ["title", "caption"])          # no closing line at all
+        self.assertTrue(TM.NV_FLAG_OK(pk["gates"]), pk["gates"])
+        self.assertEqual(len(rig.value_calls), 4)                                         # the write and 3 alone
+        self.assertFalse([x for x in pk["lines"] if "in the words of" in x["text"].lower()])   # no plain line, ever
+        import package_pin
+        mp = package_pin.to_pin(TM.spk(pk), "test")["moments_package"]
+        self.assertEqual(mp["review_flags"], [PK.NO_LINE_FLAG])
+        self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": []})
+
+    def test_a_closing_line_that_lists_is_written_again_told_why(self):
+        import test_medley as TM
+        listing = "Bitcoin at the bottom, in the words of A, B and C, in their own clips here."
+        rig = TM.Rig(TM.TestRuling91MedleyHalf.SHORT, ["h", "x", "y"], TM.TestRuling91MedleyHalf.MED, [None, None],
+                     takeaways=[listing])
+        out = rig.run()
+        pk = out["package"]
+        self.assertIsNotNone(pk, out.get("why_none"))
+        self.assertEqual(next(x["text"] for x in pk["lines"] if x["slot"] == "takeaway"), TM.Rig.LINE)
+        first = out["tried"][0]["attempts"][0]
+        self.assertTrue([v for v in first.get("violations") or [] if v["rule"] == "LISTING"], first)
+        self.assertNotIn("no_closing_line", pk["gates"])
+        self.assertEqual(pk["gates"]["takeaway_value"]["status"], "PASS")
 
 
 if __name__ == "__main__":

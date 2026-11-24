@@ -214,8 +214,9 @@ class TestInventory(unittest.TestCase):
         exc = {"m": {"verdict": "keep", "backend": "b", "replayed": False, "measured": True}}
         tru = {"m": {"ok": True, "model": "s", "replayed": False, "edges": {"cuttable": True}}}
         coh = {"backend": "b", "replayed": False, "measured": True}
+        oe = [{"complete": True, "why": "w", "backend": "b", "measured": True, "version": "v", "sha256": "s"}]
         return dict(fid=fid, dup=[], rt_ok=True, r4_res=(True, "ok"), ctx_=ctx, a_by=a, exc=exc, truth=tru,
-                    coh_ok=True, coh=coh)
+                    coh_ok=True, coh=coh, out_edge=oe)                  # RULING 162 (1): the clip ends a thought
 
     def test_a_clean_inventory_passes_and_every_failure_is_not_pass(self):
         g = PK.inventory(**self.base())
@@ -232,7 +233,9 @@ class TestInventory(unittest.TestCase):
                  ("cuttable", lambda b: b["truth"]["m"].update(edges={"cuttable": False})),
                  ("cuttable", lambda b: b["truth"]["m"].pop("edges")),
                  ("coherence", lambda b: b["coh"].update(measured=False)),
-                 ("exclusion", lambda b: b["exc"].clear())]
+                 ("exclusion", lambda b: b["exc"].clear()),
+                 ("out_edge", lambda b: b["out_edge"][0].update(complete=False)),     # RULING 162 (1)
+                 ("out_edge", lambda b: b["out_edge"][0].update(measured=False))]
         for row, mutate in cases:
             b = self.base()
             mutate(b)
