@@ -153,23 +153,42 @@ def context_around(src, k0, k1, w0=None, w1=None):
     return E.spoken(T[S[a][0]:lo]), E.spoken(T[hi + 1:S[b][1] + 1])
 
 
-def _window_text(src, k0, k1, w0=None, w1=None):
+def _heard(parts, selected):
+    """RULING 163 (2)(b) (orchestrator 08:22 ET Nov 24): the window's parts with the selection as the render's lock
+    corrected it from the audio: the selected parts become ONE selected part holding `selected` (the words the clip
+    says), the context around it unchanged. selected None: the parts as they are."""
+    if selected is None:
+        return parts
+    out, done = [], False
+    for t, sel in parts:
+        if not sel:
+            out.append((t, sel))
+        elif not done:
+            out.append((selected, True))
+            done = True
+    return out
+
+
+def _window_text(src, k0, k1, w0=None, w1=None, selected=None):
     """The window's text with the selection marked. With word indices w0..w1 the selection is marked by WORDS (a
     moment cut inside a store sentence, ruling 7 / orchestrator 06:45), else by sentences k0..k1. A moment on a WINDOW
-    word record takes its context from its caption record (caption_parts)."""
+    word record takes its context from its caption record (caption_parts). RULING 163 (2)(b): `selected` (a clip the
+    render's lock corrected from the audio: its "heard" text) stands in the <selected> marks in place of the
+    transcript's words, so every verdict on the clip reads the words it says."""
     if getattr(src, "window", None) is not None:
         parts, win = caption_parts(src, k0, k1, w0, w1)
-        return (mark(parts), win) if parts is not None else (None, None)
+        return (mark(_heard(parts, selected)), win) if parts is not None else (None, None)
     win = window(src, k0, k1)
     if win is None:
         return None, None
     a, b = win
     S, T = src.sentences, src.tokens
     if w0 is None or w1 is None:
-        return mark([(E.spoken(T[S[k][0]:S[k][1] + 1]), k0 <= k <= k1) for k in range(a, b + 1)]), (a, b)
+        return mark(_heard([(E.spoken(T[S[k][0]:S[k][1] + 1]), k0 <= k <= k1) for k in range(a, b + 1)],
+                           selected)), (a, b)
     lo, hi = S[a][0], S[b][1]
     parts = [(E.spoken(T[lo:w0]), False), (E.spoken(T[w0:w1 + 1]), True), (E.spoken(T[w1 + 1:hi + 1]), False)]
-    return mark([(t, sel) for t, sel in parts if t.strip()]), (a, b)
+    return mark(_heard([(t, sel) for t, sel in parts if t.strip()], selected)), (a, b)
 
 
 STEP_A = """You read transcripts of Bitcoin videos. For each EXCERPT below, the sentences inside <selected> are a clip
@@ -314,7 +333,8 @@ def contexts_from_sources(package, sources, now=None):
     for seg in package["segments"]:
         src = source_for(seg, sources)                              # a window segment's own Source (one per moment)
         w = seg.get("words") or (None, None)
-        text, win = _window_text(src, seg["k0"], seg["k1"], w[0], w[1])
+        text, win = _window_text(src, seg["k0"], seg["k1"], w[0], w[1],    # RULING 163 (2)(b): a corrected clip's
+                                 selected=(seg.get("heard") or {}).get("text"))   # words, as the lock heard them
         if text is None:
             continue                                # judged as unavailable (require_all)
         out[seg["label"]] = {"text": text, "title": src.title or "", "channel": seg["channel"], "window": win,

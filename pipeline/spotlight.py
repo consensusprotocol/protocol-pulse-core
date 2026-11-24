@@ -1016,6 +1016,12 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                 out["lock_stop"] = rec[mid]["out"]       # no verdict: the search stops (as a medley build)
                 break
             continue
+        hd = next((cm for r in pre.get("segments") or [] for cm in [P.heard(m, r)] if cm is not None), None)
+        if hd is not None:                               # RULING 163 (2)(b): every verdict of this spotlight (step A on
+            stop(mid, f"ruling 163 (2)(b): the render's lock corrected its words from the audio "   # both families, the
+                      f"({hd['heard']['corrected'][:160]}); a spotlight's verdicts are made on the transcript's words "
+                      f"and are never made again in place: not a spotlight this build")   # ALONE scorer, the hook
+            continue                                     # rating, vision) is on the old words: fail closed
         day = et_day(ctx.now)                            # the one day pool() measured (audit 2322 C2, grok)
         facts = {"now": ctx.now, "day": day,                             # measured again right before the package:
                  "never_delivered": bool(P.usable([m], ctx, delivered, optout, seg_max=SPOT_S[1])[0]),   # no

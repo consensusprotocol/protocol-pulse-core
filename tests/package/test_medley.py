@@ -670,6 +670,7 @@ class Rig:
         self.a_fail, self.unavailable = dict(a_fail or {}), set(unavailable)   # step A per (vendor, moment id)
         self.screens, self.events, self.a_seen, self.screen_deadlines = [], [], [], []
         self.write_from = write_from or ("heimdall:deepseek", "heimdall", "deepseek")
+        self.paid_seen, self.write_texts = [], []          # RULING 163 (2)(b): what the verdicts and the writer read
         many = angle_moments if isinstance(angle_moments[0], list) else [angle_moments]
         self.router = Canned(angle_write=[{"angles": [angle(a, a[0]) for a in many]}] + ([follow_up] if follow_up else [])
                              + list(lines or []))                  # ruling 65: the replies for a line written alone
@@ -724,7 +725,8 @@ class Rig:
             return {}, self.hook_err
         out = {}
         for m in ms:
-            sc, al, se = self.hooks.get(m["moment_id"], (5, 5, 5) if m["moment_id"] in self.angle_hooks else (3, 3, 3))
+            mid0 = m["moment_id"].split(PK.HEARD)[0]                   # RULING 163 (2)(b): its corrected words, rated
+            sc, al, se = self.hooks.get(mid0, (5, 5, 5) if mid0 in self.angle_hooks else (3, 3, 3))
             out[m["moment_id"]] = {"scroll": sc, "alone": al, "setup": se, "rating": min(sc, al),   # ruling 61
                                    "why": f"why {m['moment_id']}", "backend": "xai:grok", "cached": False}
         return out, None
@@ -760,7 +762,12 @@ class Rig:
         the line-up bar it was judged on (ruling 116: the rigs' rater, so the calibrated floors)."""
         self.medley_calls.append([m["moment_id"] for m in segs])
         self.seeds.append(("medley", seed))
-        ok, flagged, ratings, line = self.medleys.pop(0)
+        base = [m["moment_id"].split(PK.HEARD)[0] for m in segs]       # RULING 163 (2)(b): a line-up judged again on
+        if any(PK.HEARD in m["moment_id"] for m in segs) and getattr(self, "last_medley", (None,))[0] == base:
+            ok, flagged, ratings, line = self.last_medley[1]          # its corrected words: the same clips' verdict
+        else:
+            ok, flagged, ratings, line = self.medleys.pop(0)
+            self.last_medley = (base, (ok, flagged, ratings, line))
         labs = PK.labels(len(segs))
         v = verdict(labs, flagged, ratings, line)
         own = PK.hook_own(segs[0])
@@ -775,6 +782,7 @@ class Rig:
         if join is not None and not other and PK.bridge_budget(sum(m["duration_s"] for m in segs)) is None:
             raise PK.NoBridgeFits("no bridge of 3-12 words fits (the real write_takeaway's precondition)")
         self.write_calls.append(([m["moment_id"] for m in segs], join))
+        self.write_texts.append([m["text"] for m in segs])
         self.seeds.append(("write", seed))
         self.write_avoid.append(avoid_vendor)
         self.a_seen.append({m["moment_id"]: a_by[m["moment_id"]]["backend"] for m in segs})
@@ -802,7 +810,8 @@ class Rig:
     def value(self, router, segs, ctx_, line, wv, wf, seed=7):
         """RULING 91 (medley half): package.takeaway_value as the build calls it. A clear yes on all four unless
         self.values gives the next answers ({"adds": "no", ...}; {"measured": False} = no verdict)."""
-        self.value_calls.append({"line": line, "segs": [m["moment_id"] for m in segs], "wv": set(wv), "wf": set(wf)})
+        self.value_calls.append({"line": line, "segs": [m["moment_id"] for m in segs], "wv": set(wv), "wf": set(wf),
+                                 "texts": [m["text"] for m in segs]})
         got = self.values.pop(0) if self.values else {}
         base = {"text": line, "words": len(line.split()), "cap": PK.LY_TAKEAWAY_MAX_WORDS}
         if got.get("measured") is False:
@@ -845,7 +854,8 @@ class Rig:
             "prescreen": self.prescreen,
             "current_levels": lambda *a, **k: [],
             "medley": self.medley, "write_takeaway": self.write,
-            "paid_gates": lambda *a, **k: (self.fids.pop(0) if self.fids else fid, cx),
+            "paid_gates": lambda router, pk, *a, **k: (self.paid_seen.append(   # RULING 163 (2)(b): the texts the
+                [dict(sg) for sg in pk["segments"]]) or (self.fids.pop(0) if self.fids else fid), cx),   # verdicts read
             "exclusion_for": lambda router, m, *a, **k: {"verdict": "drop" if m["moment_id"] in self.excluded else
                                                          "keep", "measured": True, "replayed": False,
                                                          "backend": "xai:grok",     # RULING 146 (3): as the real one

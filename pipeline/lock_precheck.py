@@ -349,6 +349,28 @@ def attested(row, run_rule=None):
             "render": {"precheck": row["entry"], "spoken_text": row["spoken_text"]}}
 
 
+REJUDGED = ("RULING 163 (2)(b) (orchestrator 08:22 ET Nov 24): every verdict on this clip and on our lines was made "
+            "again on the corrected words before sealing (step A on both families, the exclusion screen, the second "
+            "pass and the OUT edge, vision, the clips-alone verdict, the context, fidelity and value)")
+
+
+def corrected_words(approved, spoken):
+    """RULING 163 (2)(a) (orchestrator 08:22 ET Nov 24: "when the lock replaces ANY word of the transcript with the
+    audio's reading, material or not: it is always written on the pin ('transcript corrected from the audio: X -> Y')"):
+    every word the adopted text changes, on the render's own canonical tokens (attest.diff, what the lock compares):
+    the transcript's words, then the audio's ("(nothing)" for an insert or a drop). -> "X -> Y; ..." or None."""
+    r, p, ops = AT.diff(spoken, approved)
+    return "; ".join(f"{' '.join(p[c:d]) or '(nothing)'} -> {' '.join(r[a:b]) or '(nothing)'}"
+                     for _tag, a, b, c, d in ops) or None
+
+
+def heard_ok(row, seg):
+    """RULING 163 (2)(b): a package segment already on the text the lock adopted for it (the build judged it again on
+    those words, package.heard), not on the transcript's."""
+    return row.get("verdict") == "adopt" and isinstance(row.get("spoken_text"), str) and \
+        row["spoken_text"] == seg.get("text") and row.get("approved_text") != seg.get("text")
+
+
 def quoting_lines(lines, row):
     """The lines that quote an adopted segment's changed words (ruling 67: such a line is re-gated first)."""
     r, p, ops = AT.diff(row["spoken_text"], row["approved_text"])
@@ -359,13 +381,17 @@ def apply(pk, pre):
     """The package as it will be sealed, from this line-up's pre-check: each adopted segment's text is the spoken text
     with its "attested" record, and the hook's first words follow its text. Refuses (ValueError) unless the pre-check
     passed and covers exactly the package's segments (video, start, end, approved text, in order), and when a line
-    quotes an adopted segment's changed words (ruling 67: re-gated first). -> pk (its segments are its own)."""
+    quotes an adopted segment's changed words (ruling 67: re-gated first). RULING 163 (2): a segment may already be on
+    its adopted text (heard_ok: the build judged it again on those words; its record says so, "rejudged"), and every
+    adopted segment carries "transcript_corrected" (corrected_words: sealed, package_pin.SEALED_LATER). -> pk (its
+    segments are its own)."""
     rows, segs = pre.get("segments") or [], pk["segments"]
     if pre.get("ok") is not True:
         raise ValueError(f"the render's lock pre-check did not pass: {pre.get('error') or 'a segment holds'}")
     if len(rows) != len(segs) or any(
             r["video_id"] != s["video_id"] or r["start"] != round(float(s["start"]), 3) or
-            r["end"] != round(float(s["end"]), 3) or r["approved_text"] != s["text"] for r, s in zip(rows, segs)):
+            r["end"] != round(float(s["end"]), 3) or (r["approved_text"] != s["text"] and not heard_ok(r, s))
+            for r, s in zip(rows, segs)):
         raise ValueError("the lock pre-check does not cover exactly this package's segments")
     lines = [x["text"] for x in pk.get("lines") or []]
     for r, s in zip(rows, segs):
@@ -373,7 +399,11 @@ def apply(pk, pre):
             q = quoting_lines(lines, r)
             if q:
                 raise ValueError(f"ruling 67: these lines quote the changed words of {s['video_id']}: {q}")
-            s["text"], s["attested"] = r["spoken_text"], attested(r)
+            again = heard_ok(r, s)
+            s["text"], s["attested"] = r["spoken_text"], dict(attested(r), **({"rejudged": REJUDGED} if again else {}))
+            cw = corrected_words(r["approved_text"], r["spoken_text"])
+            if cw:                                       # RULING 163 (2)(a): always on the pin
+                s["transcript_corrected"] = cw
         if isinstance(r.get("relisten"), dict):          # RULING 103: "Record both short readings on the pin"
             s["relisten"] = json.loads(json.dumps(r["relisten"]))   # a copy as it stands (sealed: SEALED_LATER)
         if isinstance(r.get("unstable_second_reading"), dict):     # RULING 105: "All readings are recorded on the
