@@ -222,6 +222,37 @@ class TestTheRenderSWay(unittest.TestCase):
         self.assertEqual((old["messages"][0]["role"], "reasoning" in old), ("system", False))
 
 
+class TestItem3MustFailFixtures(unittest.TestCase):
+    """ITEM 3 (orchestrator 09:45 ET Nov 24, final): the three must-fail OUT edges, each DROPPED and by which check.
+    'we hit a new' (Digital Asset News, cut at 578.95 s) and '...and everybody had the same story.' (Simply Bitcoin
+    1cb16751: the second recogniser wrote 'story:') are DROPPED by EDGE_OUT, the deterministic check that runs first
+    (docs/audits/parallel/item3_edge_out_fixtures: the real audio, recorded second-ear replies, replayed).
+    'Let me read that again.' (ad47eab4) has a real full stop then 'Bitcoin', so EDGE_OUT passes it; the QUESTION,
+    asked the build's way on its own window record and FROZEN here (the reply recorded at 09:55 ET Nov 24 from qwen@low,
+    replayed: nothing is asked), answers that it runs on ("a setup that explicitly promises the re-reading delivered
+    in sentence [0]"); a window record cannot be extended: REFUSED. A changed prompt (owner_rules) misses the frozen
+    reply: no answer, UNVERIFIED, never a pass."""
+    D = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures", "item3_question")
+
+    def test_let_me_read_that_again_is_refused_by_the_question_on_its_frozen_answer(self):
+        import ledger_build as LB
+        import proof_ly as PL
+        fx = json.load(open(os.path.join(self.D, "moment.json")))
+        m, wp = fx["moment"], fx["word_pass"]
+        src, _, why = LB.window_source(m, wp, CTX, store=os.path.join(self.D, "store"))
+        self.assertIsNotNone(src, why)
+        self.assertTrue(m["text"].endswith("Let me read that again."))
+        r = P.Router(chains=PL.chains("heimdall_first"), routing="heimdall_first",
+                     record_dir=os.path.join(self.D, "replies"), replay=True)
+        v = OE.ask(r, m, src, {})
+        self.assertEqual((v["measured"], v["complete"], v["finishes_at"], v["backend"]),
+                         (True, False, 0, "heimdall:qwen/qwen3.8-27b@low"), v)
+        self.assertEqual(v["ks"], [])                                     # a window record: no extension
+        kept, rec = OE.pool(r, [m], {m["source_key"]: src, m["video_id"]: src}, CTX, admit=lambda x: (True, None))
+        self.assertEqual(kept, [])
+        self.assertIn("cannot be extended", rec["refused"][m["moment_id"]])
+        self.assertEqual(rec["unverified"], {})
+
 class TestTheBuild(unittest.TestCase):
     def rig(self, **kw):
         import test_medley as TM

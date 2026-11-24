@@ -1,0 +1,19 @@
+{
+ "role": "out_edge",
+ "backend": "heimdall:qwen/qwen3.8-27b@low",
+ "model": "qwen/qwen3.8-27b",
+ "vendor": "heimdall/qwen",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "You check where a short video clip ENDS. The clip is cut from a longer recording of one speaker. It\nmust never stop while the speaker's thought is unfinished: a viewer must never feel the speaker was cut off in the\nmiddle of saying something.\n\nWHAT THE SPEAKER SAID JUST BEFORE THE CLIP (context only):\n<before>So we have this. And again, you can follow Tristan link in the description, but Bitcoin therapist laid it out just as easily.</before>\n\nTHE CLIP (judge its LAST sentence):\n<clip>He said, over the weekend, we hit a new low. Bitcoin bottom four years ago to the exact day. Let me read that again.</clip>\n\nWHAT THE SPEAKER SAYS RIGHT AFTER THE CLIP, sentence by sentence (a transcript: its full stops can be wrong):\n[0] Bitcoin bottom four years ago to the exact day.\n[1] I'm not saying the four -year cycles are going to last forever, but that's kind of uncanny.\n[2] November 21st, 2222 was 15,479.\n\nQUESTION: does the clip's last sentence FINISH the speaker's thought as it stands?\nAnswer \"no\" only when a viewer hearing the clip alone would feel the speaker was cut off: the clip's last words set up\nsomething that a following sentence delivers (for example \"and the reason is simple.\" followed by the reason; \"here\nis what nobody tells you.\" followed by it; \"there were three warning signs.\" followed by them), a following sentence\nis really the rest of the same sentence, or the clip stops on an unfinished clause.\nAnswer \"yes\" when the last sentence is complete in itself, even when the speaker goes on to explain it, give an\nexample, interpret it or start a new point on the same topic.\nIf \"no\": \"finishes_at\" is the number in brackets of the FIRST following sentence at whose end the thought is finished,\nor null when none of the listed sentences finishes it.\nReply with JSON only: {\"complete\": \"yes|no\", \"finishes_at\": <number or null>, \"why\": \"<one short sentence>\"}",
+ "text": "\n\n{\"complete\": \"no\", \"finishes_at\": 0, \"why\": \"The clip ends on 'Let me read that again,' which is a setup that explicitly promises the re-reading delivered in sentence [0].\"}",
+ "usage": {
+  "in": 508,
+  "out": 359,
+  "usd_reported": 0.00032005
+ },
+ "usd": 0.006909,
+ "seconds": 12.14,
+ "recorded_at": "2026-11-24T14:37:37Z"
+}
