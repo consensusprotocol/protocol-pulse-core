@@ -1,0 +1,283 @@
+{
+ "reserve": {
+  "usd": 0.8193,
+  "segments": 3,
+  "parts": [
+   {
+    "what": "vision: the clips after the hook",
+    "calls": 2,
+    "backend": "xai_vision:grok-4.7",
+    "usd_each": 0.180101,
+    "usd": 0.360202
+   },
+   {
+    "what": "step A's appeals on the line-up's clips",
+    "calls": 2,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "usd_each": 0.102397,
+    "usd": 0.204794
+   },
+   {
+    "what": "the closing line's value verdict",
+    "calls": 1,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "usd_each": 0.102397,
+    "usd": 0.102397
+   },
+   {
+    "what": "the line-up's coherence verdict",
+    "calls": 1,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "usd_each": 0.102397,
+    "usd": 0.102397
+   },
+   {
+    "what": "the second ear (L-v 2) on every span",
+    "calls": 3,
+    "backend": "elevenlabs_stt:scribe_v1",
+    "usd_each": 0.005,
+    "usd": 0.015
+   },
+   {
+    "what": "the lock pre-check's Scribe per span (outside the router)",
+    "calls": 3,
+    "backend": null,
+    "usd_each": 0.01,
+    "usd": 0.03
+   },
+   {
+    "what": "the render's sign-off check (outside the router)",
+    "calls": 1,
+    "backend": null,
+    "usd_each": 0.0045,
+    "usd": 0.0045
+   }
+  ],
+  "unpriced": [
+   "the voice (ElevenLabs TTS at the render) is not in dollars: ElevenLabs bills its characters against the plan's monthly quota and the code holds no USD rate (ruling 131's open question)"
+  ]
+ },
+ "day_start": 0.832,
+ "cap": 1.5,
+ "spent_in_171": 0.5985,
+ "stages": {
+  "finish line-up 1 / exclusion": {
+   "calls": 1,
+   "bill": 0.002786
+  },
+  "finish line-up 1 / out-edge question": {
+   "calls": 1,
+   "bill": 0.0
+  },
+  "finish line-up 1 / step A": {
+   "calls": 2,
+   "bill": 0.029263
+  },
+  "finish line-up 1 / vision": {
+   "calls": 1,
+   "bill": 0.12305
+  },
+  "search / angle writer": {
+   "calls": 1,
+   "bill": 0.0
+  },
+  "search / clips-alone verdict": {
+   "calls": 1,
+   "bill": 0.010752
+  },
+  "search / hook rating": {
+   "calls": 4,
+   "bill": 0.019063
+  },
+  "search / hook shadow": {
+   "calls": 4,
+   "bill": 0.0
+  },
+  "search / join table": {
+   "calls": 3,
+   "bill": 0.036216
+  },
+  "search / out-edge question": {
+   "calls": 12,
+   "bill": 0.0
+  },
+  "search / second ear": {
+   "calls": 25,
+   "bill": 0.085456
+  },
+  "search / step A": {
+   "calls": 10,
+   "bill": 0.22268
+  },
+  "search / vision": {
+   "calls": 2,
+   "bill": 0.06945
+  }
+ },
+ "refused_in_171": [
+  {
+   "at": "18:16:15",
+   "what": "clips-alone verdict on the corrected words (line-up 1)",
+   "phase": "finish line-up 1",
+   "res": 0.08,
+   "named_by": "spend_refused's 4th; no reply recorded; the record says 'fails'"
+  },
+  {
+   "at": "18:16:20",
+   "what": "clips-alone verdict, line-up 2",
+   "phase": "search",
+   "res": 0.08,
+   "named_by": "SpendLimit: spend (reported) 1.42 USD + reserved 0.00 + this call's upper bound 0.08 > the limit 1.5 USD"
+  },
+  {
+   "at": "18:16:40",
+   "what": "clips-alone verdict, line-up 3",
+   "phase": "search",
+   "res": 0.08,
+   "named_by": "SpendLimit: spend (reported) 1.43 USD + reserved 0.00 + this call's upper bound 0.08 > the limit 1.5 USD"
+  },
+  {
+   "at": "18:17:00",
+   "what": "the spotlight's step A",
+   "phase": "search",
+   "res": 0.1,
+   "named_by": "step A: STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.43 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.5 USD); "
+  }
+ ],
+ "lineups": {
+  "line-up 1": {
+   "actual": {
+    "spent_before": 1.2581,
+    "reservation": 0.076339,
+    "asked": true,
+    "speculative_money_left": 0.2419
+   },
+   "lean_171_day": {
+    "reached": false,
+    "speculative_money_left": -0.1513,
+    "why": "the search's first paid call (step A, 17:57:29 UTC) is refused by the reserve: the day's $0.668 is under one package's $0.8193"
+   },
+   "lean_fresh_day": {
+    "spent_before": 0.4261,
+    "reservation": 0.076339,
+    "asked": true,
+    "speculative_money_left": 0.2546
+   }
+  },
+  "line-up 2": {
+   "actual": {
+    "spent_before": 1.424,
+    "reservation": 0.08,
+    "asked": false,
+    "speculative_money_left": 0.076
+   },
+   "lean_171_day": {
+    "reached": false,
+    "speculative_money_left": -0.1513,
+    "why": "the search's first paid call (step A, 17:57:29 UTC) is refused by the reserve: the day's $0.668 is under one package's $0.8193"
+   },
+   "lean_fresh_day": {
+    "spent_before": 0.592,
+    "reservation": 0.08,
+    "asked": true,
+    "speculative_money_left": 0.0887
+   }
+  },
+  "line-up 3": {
+   "actual": {
+    "spent_before": 1.4307,
+    "reservation": 0.08,
+    "asked": false,
+    "speculative_money_left": 0.0693
+   },
+   "lean_171_day": {
+    "reached": false,
+    "speculative_money_left": -0.1513,
+    "why": "the search's first paid call (step A, 17:57:29 UTC) is refused by the reserve: the day's $0.668 is under one package's $0.8193"
+   },
+   "lean_fresh_day": {
+    "spent_before": 0.5987,
+    "reservation": 0.08,
+    "asked": true,
+    "speculative_money_left": 0.082
+   }
+  }
+ },
+ "lean_171_day": {
+  "first_refused": {
+   "at": "17:57:29",
+   "what": "step A",
+   "res": 0.0993,
+   "spent_before": 0.832
+  },
+  "spent_before_it": 0.0,
+  "after_it": "not computed: the stages after a refused step A run on HELD moments (ruling 102), not as recorded; only a re-run shows them"
+ },
+ "lean_fresh_day": {
+  "spent": 0.5987
+ },
+ "corrected_words_calls": [
+  {
+   "at": "18:11:25",
+   "what": "step A",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "bill": 0.011011
+  },
+  {
+   "at": "18:11:38",
+   "what": "step A",
+   "backend": "google:gemini-2.5-pro",
+   "bill": 0.018252
+  },
+  {
+   "at": "18:11:43",
+   "what": "exclusion",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "bill": 0.002786
+  },
+  {
+   "at": "18:11:54",
+   "what": "out-edge question",
+   "backend": "heimdall:qwen/qwen3.8-27b@low",
+   "bill": 0.0
+  },
+  {
+   "at": "18:16:14",
+   "what": "vision",
+   "backend": "xai_vision:grok-4.7",
+   "bill": 0.12305
+  }
+ ],
+ "rerun": {
+  "recorded_calls_in_171": 67,
+  "recorded_before_its_start_not_counted": 6,
+  "served_from_recordings": 64,
+  "asked_again_on_the_corrected_words": [
+   {
+    "at": "18:06:48",
+    "what": "join table",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   },
+   {
+    "at": "18:07:20",
+    "what": "join table",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   },
+   {
+    "at": "18:07:55",
+    "what": "clips-alone verdict",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  ],
+  "never_made_in_171_asked": [
+   "clips-alone verdict, line-up 2",
+   "clips-alone verdict, line-up 3",
+   "the spotlight's step A"
+  ],
+  "not_needed_under_lean": [
+   "clips-alone verdict on the corrected words (line-up 1)"
+  ],
+  "new_spans_of_lean_2": "16473cca's extension: its step A first screen, its second ear and its own out-edge question (3 calls; their answers need a live model)",
+  "writer_probes": "12 probe calls each build (Heimdall, free, never recorded: proof_ledger.writer_probe)"
+ }
+}

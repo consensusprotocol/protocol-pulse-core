@@ -1,0 +1,57 @@
+build 171: the day at $0.832 of $1.50 at its start; it spent $0.5985; 67 live calls recorded (48 billed on the cap's basis)
+the lean completion reserve: $0.8193 (vision: the clips after the hook 2 x $0.1801; step A's appeals on the line-up's clips 2 x $0.1024; the closing line's value verdict 1 x $0.1024; the line-up's coherence verdict 1 x $0.1024; the second ear (L-v 2) on every span 3 x $0.0050; the lock pre-check's Scribe per span (outside the router) 3 x $0.0100; the render's sign-off check (outside the router) 1 x $0.0045)
+  finish line-up 1 / exclusion: 1 call(s), $0.0028
+  finish line-up 1 / out-edge question: 1 call(s), $0.0000
+  finish line-up 1 / step A: 2 call(s), $0.0293
+  finish line-up 1 / vision: 1 call(s), $0.1231
+  search / angle writer: 1 call(s), $0.0000
+  search / clips-alone verdict: 1 call(s), $0.0108
+  search / hook rating: 4 call(s), $0.0191
+  search / hook shadow: 4 call(s), $0.0000
+  search / join table: 3 call(s), $0.0362
+  search / out-edge question: 12 call(s), $0.0000
+  search / second ear: 25 call(s), $0.0855
+  search / step A: 10 call(s), $0.2227
+  search / vision: 2 call(s), $0.0694
+  REFUSED in 171 at 18:16:15 (finish line-up 1): clips-alone verdict on the corrected words (line-up 1), reservation $0.08
+  REFUSED in 171 at 18:16:20 (search): clips-alone verdict, line-up 2, reservation $0.08
+  REFUSED in 171 at 18:16:40 (search): clips-alone verdict, line-up 3, reservation $0.08
+  REFUSED in 171 at 18:17:00 (search): the spotlight's step A, reservation $0.10
+line-up 1: actual: spent $1.2581 before it, ASKED (speculative money left $0.2419); lean_171_day: NOT REACHED (speculative money left $-0.1513); lean_fresh_day: spent $0.4261 before it, ASKED (speculative money left $0.2546)
+line-up 2: actual: spent $1.4240 before it, REFUSED (speculative money left $0.0760); lean_171_day: NOT REACHED (speculative money left $-0.1513); lean_fresh_day: spent $0.5920 before it, ASKED (speculative money left $0.0887)
+line-up 3: actual: spent $1.4307 before it, REFUSED (speculative money left $0.0693); lean_171_day: NOT REACHED (speculative money left $-0.1513); lean_fresh_day: spent $0.5987 before it, ASKED (speculative money left $0.0820)
+lean on build 171's day: the first refusal {'at': '17:57:29', 'what': 'step A', 'res': 0.0993, 'spent_before': 0.832}; spent before it $0.00; after it: not computed: the stages after a refused step A run on HELD moments (ruling 102), not as recorded; only a re-run shows them
+lean on a fresh day: spent $0.5987
+the corrected words were judged by: 18:11:25 step A, 18:11:38 step A, 18:11:43 exclusion, 18:11:54 out-edge question, 18:16:14 vision
+re-run: {
+ "recorded_calls_in_171": 67,
+ "recorded_before_its_start_not_counted": 6,
+ "served_from_recordings": 64,
+ "asked_again_on_the_corrected_words": [
+  {
+   "at": "18:06:48",
+   "what": "join table",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  },
+  {
+   "at": "18:07:20",
+   "what": "join table",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  },
+  {
+   "at": "18:07:55",
+   "what": "clips-alone verdict",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ ],
+ "never_made_in_171_asked": [
+  "clips-alone verdict, line-up 2",
+  "clips-alone verdict, line-up 3",
+  "the spotlight's step A"
+ ],
+ "not_needed_under_lean": [
+  "clips-alone verdict on the corrected words (line-up 1)"
+ ],
+ "new_spans_of_lean_2": "16473cca's extension: its step A first screen, its second ear and its own out-edge question (3 calls; their answers need a live model)",
+ "writer_probes": "12 probe calls each build (Heimdall, free, never recorded: proof_ledger.writer_probe)"
+}
