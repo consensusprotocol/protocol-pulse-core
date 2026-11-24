@@ -6,6 +6,25 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 19:49 BATCH 118 LIVE (ruling 145, the word pass's half; no hashed file, DECODER stays 50fa01b400bd): merge of r145-wordpass (29cd76d96).
+- Another program on GPU1 (Gpu0Foreign, GpuOOM or Gpu0NotFree out of a cycle) now ends the cycle as "blocked". The worker logs it, sleeps and picks those moments again. On Nov 17, Resolve's Gpu0Foreign left main() and kept the worker down 14 h. LeaseMissing (a host misconfiguration) still stops the worker, and the R16 heartbeat now reports that within 20 min.
+- Evidence:
+  - New tests: 3 subtests fail on the old code. Mutations: 5 of 5 killed.
+  - Heimdall, two cycles: qwen27b PASS with traced reasoning; gpt-oss a bare PASS.
+  - Staged merge: regression_test.sh 26 PASS / 0 FAIL / 4 WARN; pipeline/regression.sh exit 0; word-pass and heartbeat suites 53 passed.
+- RULING 145's ALLOWANCE (a foreign program under 2 GiB and under 10 % use tolerated and logged) is built and green (test_gpu0 48 passed; foreign Ollama models and unaccounted memory stay foreign). It changes gpu0.py, a DECODER file, so it lands with 113 + 116 in ONE lockstep with the builder after tonight's video.
+
+## 19:08 R16 HEARTBEATS LIVE: every service runs batch 117 (206c12187, pushed). The watchdog's first pass on it (pass 2173, 19:07:46 ET) reads all four beats fresh and the transcript log 311 s old: 0 findings, 0 errors.
+- Scorer: restarted at 19:04 ET in its restart loop. scorer_sha edd54964a5ab is unchanged, so ruling 119's floor binding stands. 132 candidates are queued from the builder's 18:28 build.
+- Judge: restarted at 19:04 ET through judge_serve.py. judge_sha 37c0f8a5e49e is unchanged.
+- Word pass: restarted at 19:07 ET between cycles, in a new window of pipeline_pp_wordpass.
+- Lock pre-check: its once-loop loaded the new code by itself.
+- The builder's 9 story23.liq1 spans have all answered:
+  - 5 pass (no_difference).
+  - 3 hold: ruling 73's sentence edges (DVKuBD7WB6Y 1602.8); a number/name/negation difference (0shaXx_n870 533.8); approved_text edges not found (RUn3GEd3Oro 0.11).
+  - 1 error: U7X6kReXets did not download.
+- GPU1: since 19:00 ET `services/stage_broadcast_service.py` (pid 2276620, not ours) holds the GPU1 lease with no GPU memory. The word pass waits it out (up to 1800 s, then "blocked"). It is not killed.
+
 ## 19:03 BATCH 117 LIVE (ruling 133 R16, service heartbeats; no decoder change, DECODER stays 50fa01b400bd): merge of r133-heartbeat (ad0016c95).
 - Every kept-alive service writes /tmp/pulse_heartbeats/<service>.json: a beat every 60 s while the process lives, and a mark at the end of each loop pass. The services are the scorer, the judge, the lock pre-check (each `once` pass) and the word pass.
 - The session watchdog reads the beats every 5 min. It sends a HEARTBEAT line (one per service per hour; held 00:00-07:00 ET like every line but IDLE_WITH_WORK and SPEND) in three cases:

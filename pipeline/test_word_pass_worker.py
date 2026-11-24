@@ -501,6 +501,45 @@ class TestLeaseBusy(unittest.TestCase):
                 W.cycle()
 
 
+class TestForeignGpu1User(unittest.TestCase):
+    """Ruling 145 (orchestrator 18:18 ET Nov 23: "so a stray program never kills the word pass again"): on Nov 17 a
+    foreign program on the GPUs (DaVinci Resolve) raised gpu0.Gpu0Foreign out of a cycle and the worker stayed down
+    14 h. Another program on GPU1 ends the cycle, never the worker; a configuration refusal still stops it."""
+
+    def run_main(self, exc):
+        import gpu0
+        sleeps = []
+
+        def stop(s):
+            sleeps.append(s)
+            raise KeyboardInterrupt
+
+        def cycle(limit=None):
+            raise exc
+        with mock.patch.dict(os.environ, {"CUDA_VISIBLE_DEVICES": "1"}), mock.patch.object(W, "cycle", cycle), \
+                mock.patch.object(W.time, "sleep", stop), mock.patch.object(W, "log") as log:
+            with self.assertRaises(KeyboardInterrupt):
+                W.main(["--sleep", "7"])
+        return sleeps, [c.args[0] for c in log.call_args_list]
+
+    def test_a_foreign_user_an_oom_or_a_full_gpu_ends_the_cycle_and_the_worker_sleeps(self):
+        import gpu0
+        for exc in (gpu0.Gpu0Foreign("GPU1 is used by pid 1073512 resolve (678 MiB)"), gpu0.GpuOOM("CUDA out of memory"),
+                    gpu0.Gpu0NotFree("GPU1 not free within 600 s")):
+            with self.subTest(exc=type(exc).__name__):
+                sleeps, lines = self.run_main(exc)
+                self.assertEqual(sleeps, [7.0])                                # blocked: the idle sleep, then again
+                self.assertTrue(any(type(exc).__name__ in l and "cycle stopped" in l for l in lines), lines)
+
+    def test_a_missing_lease_still_stops_the_worker(self):
+        import gpu0
+        with mock.patch.dict(os.environ, {"CUDA_VISIBLE_DEVICES": "1"}), \
+                mock.patch.object(W, "cycle", mock.Mock(side_effect=gpu0.LeaseMissing("no GPU1 on this host"))), \
+                mock.patch.object(W.time, "sleep", mock.Mock(side_effect=AssertionError("caught LeaseMissing and slept"))):
+            with self.assertRaises(gpu0.LeaseMissing):
+                W.main(["--sleep", "7"])
+
+
 class TestGpu1Only(unittest.TestCase):
     def test_the_worker_refuses_any_gpu_but_gpu1(self):
         for v in ("0", "", "0,1"):
