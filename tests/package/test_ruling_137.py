@@ -1361,6 +1361,69 @@ class TestRuling143AtSelection(unittest.TestCase):
         self.assertIs(PK.lv2_settled(ok, "adopt"), ok)                         # nothing to settle
 
 
+class TestItem1RealClips(unittest.TestCase):
+    """ITEM 1 (orchestrator 09:50 ET Nov 24) on three REAL clips, each asked the build's way (ad_read_out ->
+    ad_before_soft -> exclusion_for on the clip's own word record and caption context) with the checker's real replies
+    FROZEN (recorded 09:55 ET Nov 24 from the in-house checker, minimax; replayed here: nothing is asked):
+      ad47eab4 (Digital Asset News, the news read after 'link in the description'): PASSES, the judgment recorded;
+      6e79ceaa (Natalie Brunell, the first line of The Bitcoin Way's read, no magic word): REFUSED (ad_read);
+      41e3bcce ('no one has made it easier than our friends over at Bitkey'): REFUSED (ad_read).
+    A dead checker (no recorded reply) HOLDS: never a pass, never a flag."""
+    D = os.path.join(HERE, "fixtures", "item1_sponsor")
+
+    def setUp(self):
+        import ledger_build as LB
+        import eligibility as E
+        self.LB, self.ctx = LB, E.Context(datetime(2026, 11, 24, 15, 0, tzinfo=timezone.utc), {})
+        self.cases = json.load(open(os.path.join(self.D, "cases.json")))["cases"]
+
+    def source(self, c):
+        m, store = c["moment"], os.path.join(self.D, "store")
+        if m.get("source_key"):
+            src, _, why = self.LB.window_source(m, c["word_pass"], self.ctx, store)
+            self.assertIsNotNone(src, why)
+            src.context_source, why = self.LB.caption_source(dict(m, transcript_sha256=c["caption_sha256"]), self.ctx,
+                                                             store, os.path.join(self.D, "ledger"))
+            self.assertIsNotNone(src.context_source, why)
+        else:
+            src, _, why = self.LB.word_source(m, self.ctx, store)
+            self.assertIsNotNone(src, why)
+        return {m.get("source_key") or m["video_id"]: src}
+
+    def judge(self, c, replies):
+        import proof_ly as PL
+        import providers as P
+        ch = PL.chains("heimdall_first")
+        ch["exclusion_verdict"] = ["heimdall:google/gemma-4-31b-it", "heimdall:minimax/minimax-m3.1-flash"]
+        r = P.Router(chains=ch, routing="heimdall_first", record_dir=replies, replay=True)
+        m = dict(c["moment"])
+        sources = self.source(c)
+        ad_read = PK.ad_read_out([m], sources)
+        PK.ad_before_soft([m], ad_read, False)               # the clean pass: ITEM 1 reads the same in both passes
+        if m["moment_id"] in ad_read and not m.get("ad_before"):
+            return m, {"verdict": "exclude", "backend": "deterministic", "measured": True}
+        return m, PK.exclusion_for(r, m, sources, {})
+
+    def test_the_news_read_passes_recorded_and_both_ad_reads_refuse(self):
+        got = {}
+        for c in self.cases:
+            m, v = self.judge(c, os.path.join(self.D, "replies"))
+            got[m["moment_id"][:8]] = (v["verdict"], v.get("risks"), v["measured"], v.get("replayed"),
+                                       bool(m.get("ad_before")))
+        self.assertEqual(got, {
+            "ad47eab4": ("keep", [], True, True, True),            # (c) a sponsor sentence before, editorial words
+            "6e79ceaa": ("exclude", ["ad_read"], True, True, True),   # (b) part of the ad read: its first line
+            "41e3bcce": ("exclude", ["ad_read"], True, True, False)})   # the BitKey read in its own words
+
+    def test_a_dead_checker_holds_the_clip(self):
+        import providers as P
+        with tempfile.TemporaryDirectory() as empty, \
+                mock.patch.object(P, "ReplayMiss", P.ProviderError):   # no reply recorded: the checker never answers
+            for c in self.cases:                                       # (the replay's miss as a live outage raises it)
+                m, v = self.judge(c, empty)
+                self.assertEqual((v["verdict"], v["measured"], v.get("ad_before")), ("exclude", False, None),
+                                 m["moment_id"])
+
 class TestRuling146SponsorBefore(unittest.TestCase):
     """ITEM 1 (orchestrator 09:50 ET Nov 24, PBX's rule: sponsor material is fine "so long as it is not actually an ad
     that the entire segment is being cut from", and a sponsor is never "mentioned verbally" in the clip), IN BOTH
