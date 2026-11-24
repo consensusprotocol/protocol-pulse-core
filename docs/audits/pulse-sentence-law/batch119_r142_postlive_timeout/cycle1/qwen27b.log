@@ -1,0 +1,40 @@
+# Heimdall audit
+
+**Question:** TASK: audit batch 119 of the Protocol Pulse video pipeline (Python). You are reviewing a diff. Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.
+
+CONTEXT. RULING 142 (3) (Nov 17): a post_live YouTube stream (ended live, still processing; DASH formats only) cannot be cut by yt-dlp --download-sections; the pipeline fetches the WHOLE stream once (select_passages._post_live_window, cached per video) and cuts the window locally, writing <out>.post_live.json; pinned.acquire then runs a HARD clock guard on such a source (pinned.py:286-288 post_live_offset: the decode's word times must match the transcript's, else PinError). Today that route is entered in ONE place only: select_passages._download_window (select_passages.py:~95-135, unchanged) calls _post_live_window when the section download COMPLETES with a file that has no media. FAILURE TONIGHT: Bitcoin Magazine U7X6kReXets (post_live, 7134 s) did not complete: the section download ran past its 120 s timeout twice (19:03, 19:48 ET); _download_window printed "download timeout" and returned None before the whole-stream route was tried, so the lock pre-check had no window and the render would fail the same way (pinned.acquire raises "source download failed"). select_passages.py and pinned.py are hashed into the lock pre-check's DECODER sha (a change there needs a lockstep with another session), so they are not touched.
+
+WHAT THE DIFF DOES:
+1. New pipeline/post_live_prefetch.py: prefetch(video_id, start, end, run_dir) calls _download_window first (unchanged behaviour when it returns a window). Only when it returns nothing AND yt-dlp reports live_status == "post_live" does it call _post_live_window(video_id, dl_start, end + 15, run_dir/sources/<id>.mp4, cookies) with dl_start = round(max(0, start - 15)), the exact start _download_window uses (pad 15 s), and return (path, dl_start). Any other status: None, as before.
+2. run_fresh.stage_pinned calls prefetch_post_live(run, pin_path) before pinned.prepare: for each YouTube video of the pin, prefetch over [min start, max end] of its segments (pinned.acquire's own window, pinned.py:277). Then pinned.acquire's own _download_window call is a cache hit on that file (select_passages: `if os.path.exists(out_path) and os.path.getsize(out_path) > 100_000: return out_path, dl_start`) and, the .post_live.json being there, the HARD clock guard runs.
+3. lock_precheck.prefetch (runs before the GPU lease) calls post_live_prefetch.prefetch instead of _download_window directly, into the same work_dir.
+
+CHECK, AND ANSWER EACH:
+Q1. Is the window cut through this new entry the same window, with the same start offset, that _download_window and pinned.acquire use (so the clock guard and the cut tables read it correctly)?
+Q2. Can this route admit a source the old route would have refused: a non-post_live video, a failed or partial whole-stream download, a file without media, a window without the .post_live.json record (which would skip the clock guard)?
+Q3. Failure handling: an unreadable pin, a yt-dlp probe that fails or hangs, _post_live_window returning False: does anything crash the stage or the pre-check, or hang it longer than the existing timeouts?
+Q4. Any other defect.
+
+OUTPUT: for each finding, severity (critical|high|medium|low), file:line, the concrete failure (inputs -> wrong result), and the fix. If none, say NONE for that question.
+REMINDER: only what the diff and the cited lines show; say when uncertain.
+
+**Panel:** qwen27b  |  **Cost:** $0.0104
+## Consensus findings (majority of panel agrees)
+- **[low] pipeline/post_live_prefetch.py:29** The live_status() yt-dlp probe (timeout=90 s) runs AFTER _download_window has already exhausted its 120 s section-download timeout, extending the worst-case per-video wall time in the lock pre-check from 120 s to 210 s (a 75 % increase). For a pin with N YouTube videos the pre-check can now take up to 210 N seconds instead of 120 N seconds before the GPU lease is granted. It is bounded and does not crash, but it lengthens the pre-check window.
+  - evidence: `r = subprocess.run(cmd, capture_output=True, text=True, timeout=90)`
+  - fix: Reduce the live_status probe timeout to 30 s (a --skip-download -J probe on a reachable video returns in <5 s; 30 s is generous for a slow network) or cache the live_status from the _download_window yt-dlp invocation if it is exposed, to avoid a second full yt-dlp startup.
+  - raised by qwen27b:F1; agree: qwen27b
+- **[low] pipeline/run_fresh.py:481** Segments that lack a 'source' key are silently classified as YouTube: (s.get("source") or {}).get("kind", "youtube") defaults to "youtube". If the pin format ever contains a non-YouTube segment without an explicit source field, it will be passed to post_live_prefetch.prefetch (and thus to yt-dlp) as if it were a YouTube video_id, producing a spurious yt-dlp call and a confusing log line rather than a clean skip.
+  - evidence: `segs = [s for s in json.load(f)["segments"] if (s.get("source") or {}).get("kind", "youtube") == "youtube"]`
+  - fix: Change the default to a sentinel that is never a valid kind, e.g. .get("kind", "") == "youtube", so only segments that explicitly declare kind=="youtube" (or have no source at all AND the pipeline guarantees all source-less segments are YouTube) are included. If the data model guarantees source-less segments are always YouTube, add a comment documenting that invariant.
+  - raised by qwen27b:F2; agree: qwen27b
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- qwen27b: [medium] _post_live_window is called without any exception handling. If it raises (e.g. a subprocess error inside yt-dlp, a disk-full on the output file, or an internal assertion), the exception propagates uncaught through prefetch() into lock_precheck.prefetch (crashing the pre-check before the GPU lease) or into run_fresh.prefetch_post_live (crashing stage_pinned before prepare can produce a clean PinError). The old code path inside _download_window may have wrapped its _post_live_window call in a try/except (we cannot see select_passages.py in the diff), so this could be a new unhandled failure mode.
+
+
+saved: cycle1/qwen27b/heimdall
+exit 0
