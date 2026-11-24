@@ -126,6 +126,23 @@ class TestRenderFlags(unittest.TestCase):
         RF.flag_sentence_edges(run, [{"clip_id": "hook"}, {"clip_id": "clip_01", "sentence_edge": {}}])
         self.assertEqual(run.status.get("review_flags"), None)
 
+    def test_stage_cut_flags_the_lock_tables_edges(self):
+        """N6 (batch 116's mutation run): the stage's own call, not only the helper. The machine-placed table marks
+        clip_01's IN; the run is flagged before the cut acceptance looks at any cut (here an unverified cut HOLDS)."""
+        run = types.SimpleNamespace(dir=self.d, status={}, prov={}, mode="pinned", machine_cuts=True)
+
+        def table(run_dir):
+            with open(os.path.join(run_dir, "cuts_final.json"), "w") as f:
+                json.dump([{"clip_id": "hook", "video_id": "v0", "verified": False},
+                           {"clip_id": "clip_01", "video_id": "v1", "verified": False, "sentence_edge": {"in": NOT_END}}], f)
+        with mock.patch.object(RF.L, "write_lock_cut_table", table):
+            with self.assertRaises(RF.Hold):                       # the unverified cuts: the acceptance still decides
+                RF.stage_cut(run)
+        flags = run.status.get("review_flags") or []
+        self.assertEqual(len(flags), 1, flags)
+        self.assertIn("Yahoo Finance", flags[0])
+        self.assertTrue(flags[0].endswith("might start in the middle of a sentence."), flags)
+
 
 if __name__ == "__main__":
     unittest.main()
