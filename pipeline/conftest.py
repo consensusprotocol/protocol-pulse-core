@@ -23,6 +23,16 @@ if "PP_OUT_EDGE_CACHE" not in os.environ:
     import tempfile as _tf
     os.environ["PP_OUT_EDGE_CACHE"] = _tf.mkdtemp(prefix="pp_out_edge_")
 os.environ.setdefault("PP_OUT_EDGE_FROZEN", "1")
+# R1 (build 172, lean-release): a test never writes the spend day's one ledger (pipeline/spend_ceiling.py, read at call
+# time): a session folder here, and each test its own (the voice's characters are counted per build)
+if "PP_SPEND_LEDGER_DIR" not in os.environ:
+    import tempfile as _tf
+    os.environ["PP_SPEND_LEDGER_DIR"] = _tf.mkdtemp(prefix="pp_spend_")
+
+
+@pytest.fixture(autouse=True)
+def _own_spend_ledger(tmp_path, monkeypatch):
+    monkeypatch.setenv("PP_SPEND_LEDGER_DIR", str(tmp_path / "pp_spend"))
 
 _CVD = os.environ.get("CUDA_VISIBLE_DEVICES")
 _CPU = _CVD in (None, "", "-1")

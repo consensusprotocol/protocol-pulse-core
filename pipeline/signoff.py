@@ -202,20 +202,24 @@ Return ONLY 5 lines, numbered 1-5. No commentary."""
     for round_num in range(max_rounds):
         print(f"  Signoff generation round {round_num + 1}/{max_rounds}")
 
-        resp = requests.post(
-            "https://api.x.ai/v1/chat/completions",
-            headers={"Authorization": f"Bearer {api_key}"},
-            json={
-                "model": "grok-3-mini",
-                "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0.9,
-                "max_tokens": 500,
-            },
-            timeout=30,
-        )
-        resp.raise_for_status()
-        body = resp.json()
-        _spent(body, segment_id)                         # ruling 131: the day ledger, before anything can fail
+        import spend_ceiling                             # R1 (build 172): the day's one ledger, a round at a time
+        with spend_ceiling.charge("xai:grok-3-mini", spend_ceiling.SIGNOFF_RESERVE_USD, role="sign-off " +
+                                  str(segment_id)) as _c:
+            resp = requests.post(
+                "https://api.x.ai/v1/chat/completions",
+                headers={"Authorization": f"Bearer {api_key}"},
+                json={
+                    "model": "grok-3-mini",
+                    "messages": [{"role": "user", "content": prompt}],
+                    "temperature": 0.9,
+                    "max_tokens": 500,
+                },
+                timeout=30,
+            )
+            resp.raise_for_status()
+            body = resp.json()
+            _spent(body, segment_id)                     # ruling 131: the day ledger, before anything can fail
+            _c.cost(spend_ceiling.xai_reported_usd(body))   # xAI's own figure; none: unknown, the ledger stops
         content = body["choices"][0]["message"]["content"].strip()
 
         # Parse numbered lines

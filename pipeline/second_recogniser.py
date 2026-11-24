@@ -55,7 +55,11 @@ def scribe_words(src_mp4, timeout=300):
                      f"Content-Type: audio/wav\r\n\r\n").encode() + f.read() + f"\r\n--{boundary}--\r\n".encode()
     req = urllib.request.Request(URL, data=body, headers={"xi-api-key": key,
                                                           "Content-Type": f"multipart/form-data; boundary={boundary}"})
-    d = json.loads(urllib.request.urlopen(req, timeout=timeout).read())
+    import spend_ceiling                                 # R1 (build 172): the day's one ledger, reserved before the call
+    _usd = round(max(seconds, len(body) / 32000.0) / 60 * spend_ceiling.SCRIBE_USD_PER_MIN, 6)   # its own audio bytes
+    with spend_ceiling.charge("elevenlabs_stt:scribe_v1", _usd + 0.0001, role="scribe " + os.path.basename(src_mp4)) as _c:
+        d = json.loads(urllib.request.urlopen(req, timeout=timeout).read())
+        _c.cost(_usd, reported=False, usage={"audio_s": round(seconds, 2)})      # metered (ElevenLabs reports no cost)
     import outside_spend                                 # ruling 131: the day ledger, at the one vendor call
     outside_spend.record("elevenlabs:scribe_v1", round(seconds / 60 * 0.012, 4),
                          "estimate: the code's rate, $0.012 per audio minute (ElevenLabs reports no cost per call)",

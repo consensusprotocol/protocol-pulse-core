@@ -229,7 +229,11 @@ def _call_xai(image_path, text, model, timeout):
                                                        "image_url": {"url": f"data:image/jpeg;base64,{img}"}}]}]}
     req = urllib.request.Request(f"{XAI_BASE}/chat/completions", data=json.dumps(body).encode(),
                                  headers={"Authorization": f"Bearer {_xai_key()}", "Content-Type": "application/json"})
-    raw = json.loads(urllib.request.urlopen(req, timeout=timeout).read())
+    import spend_ceiling                                 # R1 (build 172): the day's one ledger, reserved before the call
+    with spend_ceiling.charge("xai_vision:" + model.split(":", 1)[1], spend_ceiling.VISION_RESERVE_USD,
+                              role="V1 vision") as _c:
+        raw = json.loads(urllib.request.urlopen(req, timeout=timeout).read())
+        _c.cost(spend_ceiling.xai_reported_usd(raw))     # xAI's own figure; none: unknown, the ledger stops
     return (raw.get("choices") or [{}])[0].get("message", {}).get("content") or "", raw
 
 

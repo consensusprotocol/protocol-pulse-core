@@ -73,17 +73,21 @@ def generate_vo(segment_dir, voice_key="ELEVENLABS_VOICE_ID_PP2",
                     "text": text, "key": key}
         print(f"  Generating: {stem_name} ({len(text.split())} words)")
 
-        audio_gen = client.text_to_speech.convert(
-            voice_id=voice_id,
-            text=text,
-            model_id=model_id,
-            voice_settings=voice_settings,
-            output_format="pcm_22050",
-        )
+        import spend_ceiling                             # R1 (build 172): characters, held to the per-build cap
+        with spend_ceiling.charge(f"elevenlabs_tts:{model_id}", spend_ceiling.voice_usd(len(text)),
+                                  role=f"vo {stem_name}", chars=len(text)) as _c:
+            audio_gen = client.text_to_speech.convert(
+                voice_id=voice_id,
+                text=text,
+                model_id=model_id,
+                voice_settings=voice_settings,
+                output_format="pcm_22050",
+            )
 
-        import struct
-        import wave
-        pcm_data = b"".join(audio_gen)                   # the call is made (and billed) as the stream is read
+            import struct
+            import wave
+            pcm_data = b"".join(audio_gen)               # the call is made (and billed) as the stream is read
+            _c.cost(spend_ceiling.voice_usd(len(text)), reported=False, usage={"characters": len(text)})
         import outside_spend                             # ruling 131: the day ledger, at the call itself
         outside_spend.record(f"elevenlabs:tts:{model_id}", None,
                              "unpriced: ElevenLabs bills the input text's characters against the plan's monthly "
