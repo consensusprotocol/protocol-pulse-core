@@ -34,6 +34,9 @@ MUTS = [
     ("R6 the missing-heartbeat restart is not marked dead", WD,
      '''                out.append(finding(session, "HEARTBEAT", f"{name}: no heartbeat written", since, service=name,\n                                   dead=True))''',
      '''                out.append(finding(session, "HEARTBEAT", f"{name}: no heartbeat written", since, service=name))''', HB),
+    ("R7 the test-session guard removed", WD,
+     '    if os.environ.get("PP_HEARTBEAT_DIR") or os.path.realpath(REPO) != MAIN_TREE:\n',
+     '    if False:\n', HB),
 ]
 
 
