@@ -1,0 +1,332 @@
+diff --git a/tests/package/conftest.py b/tests/package/conftest.py
+index 09cdbb754..5c0609b24 100644
+--- a/tests/package/conftest.py
++++ b/tests/package/conftest.py
+@@ -38,3 +38,11 @@ def _rig_hook_bar(request, monkeypatch):
+     monkeypatch.setattr(PK, "_live_bar", lambda: (bar, None))
+     monkeypatch.setattr(PK, "_live_lineup_bar", lambda: (lbar, None))   # ruling 116: the rigs' line-up bar
+     yield
++
++
++@pytest.fixture(autouse=True)
++def _driver_under_test(monkeypatch):
++    """VERIFIER ROWS 12 / 16 (Nov 24): proof_ledger.main refuses any entry but its own file run as __main__; inside
++    pytest, with this variable set here, the tests may call main() (the build record then says under_test)."""
++    monkeypatch.setenv("PP_SELECTID_DRIVER_UNDER_TEST", "1")
++    yield
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 47d8ba6a2..fbf7cfb39 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -51,6 +51,8 @@ import glob
+ import hashlib
+ import json
+ import os
++import signal
++import subprocess
+ import sys
+ import time
+ from datetime import datetime, timedelta, timezone
+@@ -105,6 +107,7 @@ import speakers as SP  # noqa: E402
+ import spotlight as SPOT  # noqa: E402
+ import lock_precheck as LP  # noqa: E402
+ import tail_variant as TV  # noqa: E402
++import outcomes as OC  # noqa: E402
+ 
+ REGISTRY = os.path.join(HERE, "proof", "CANDIDATES.json")     # ruling 66: the candidates, kept
+ SPOTLIGHTS = os.path.join(HERE, "proof", "SPOTLIGHTS.json")   # ruling 90: one spotlight per channel per ET day
+@@ -114,6 +117,42 @@ FINGERPRINT = "FINGERPRINT.json"     # RULING 107 (1): a finished build's inputs
+ NOTHING_NEW = "NOTHING_NEW.json"     # RULING 107 (1): a build that found nothing new and asked no model
+ 
+ 
++UNDER_TEST = "PP_SELECTID_DRIVER_UNDER_TEST"   # set only by tests/package/conftest.py, inside pytest
++
++
++def entry_of():
++    """VERIFIER ROWS 12 / 16 (FIX_VERIFICATION_2026-11-24: "Nothing in the pushed driver records or refuses another
++    entry point"): how this build was entered. A build runs only as THIS file run as __main__ (the committed launcher,
++    tests/package/record/build_and_record.sh, runs nothing else); a wrapper that imports this module and calls main()
++    (builds 166-168's by_hand_*.py) is refused. Inside pytest, with UNDER_TEST set by the tests' conftest, the tests
++    may call main(); the record says so. -> {"ok", "why", "driver", "argv0", "main", "code", "dirty", "under_test"}:
++    "code" the git HEAD, "dirty" the code files (.py / .sh) git reports changed under pipeline/ and tests/package/."""
++    mm = sys.modules.get("__main__")
++    mf = getattr(mm, "__file__", None)
++    own = bool(mf) and os.path.realpath(mf) == os.path.realpath(os.path.abspath(__file__))
++    test = os.environ.get(UNDER_TEST) == "1" and "_pytest" in sys.modules
++    try:
++        head = subprocess.run(["git", "-C", REPO, "rev-parse", "HEAD"], capture_output=True, text=True,
++                              timeout=30).stdout.strip() or None
++        st = subprocess.run(["git", "-C", REPO, "status", "--porcelain", "--", "pipeline", "tests/package"],
++                            capture_output=True, text=True, timeout=60).stdout.splitlines()
++        dirty = sorted(x[3:] for x in st if not x.startswith("??") and x[3:].endswith((".py", ".sh")))
++        me = os.path.relpath(os.path.abspath(__file__), REPO)
++        blob = subprocess.run(["git", "-C", REPO, "hash-object", me], capture_output=True, text=True,
++                              timeout=30).stdout.strip() or None             # RULING 163 (5): the driver that ran,
++        at_head = subprocess.run(["git", "-C", REPO, "rev-parse", f"HEAD:{me}"], capture_output=True, text=True,
++                                 timeout=30).stdout.strip() or None          # by its git sha, and HEAD's
++    except (OSError, subprocess.SubprocessError) as e:
++        head, dirty, blob, at_head = None, [f"unreadable: {type(e).__name__}"], None, None
++    why = None if own or test else (f"this build was entered through {mf or 'no file (python -c or an import)'}, "
++                                    f"not {os.path.relpath(os.path.abspath(__file__), REPO)} run as __main__: no "
++                                    f"by-hand wrapper builds (verifier rows 12 / 16)")
++    return {"ok": why is None, "why": why, "driver": os.path.relpath(os.path.abspath(__file__), REPO),
++            "driver_sha": blob, "driver_committed": bool(blob) and blob == at_head,
++            "argv0": sys.argv[0] if sys.argv else None, "main": mf, "code": head, "dirty": dirty,
++            "under_test": bool(test and not own)}
++
++
+ def _sha(x):
+     return hashlib.sha256(json.dumps(x, sort_keys=True, default=str).encode()).hexdigest()
+ 
+@@ -160,40 +199,15 @@ def fingerprint(moments, delivered, pins, since, now, reg, routing=None):
+     return _sha(parts), parts
+ 
+ 
+-def _errors(x):
+-    """The number of objects anywhere inside x whose "verdict" is "error" (a segment the render's lock gave no verdict on
+-    in time, wherever the record nests it)."""
+-    if isinstance(x, dict):
+-        return int(x.get("verdict") == "error") + sum(_errors(v) for v in x.values())
+-    if isinstance(x, (list, tuple)):
+-        return sum(_errors(v) for v in x)
+-    return 0
++_errors = OC._errors                               # kept under its old name (moved to outcomes.py)
+ 
+ 
+ def open_work(res, sp, refused=()):
+-    """RULING 107 (1): what a finished build left undone, which the next build must try again whatever its inputs:
+-    the moments ruling 102 held (no leg answered), in the clean pass and, the ones it did not hold too, in the
+-    never-empty pass (its own record, rulings 136 / 137); any segment the render's lock gave no verdict on in time;
+-    any visual check left unmeasured; and every paid call the build's router refused for money (`refused`:
+-    Router.spend_refused; build 133's two clips-alone verdicts at its $0.00 stop, 12:56 ET Nov 17, left the kept
+-    line-up unjudged, and build 134 then asked nothing). -> int (0: nothing left)."""
+-    d = lambda x: x if isinstance(x, dict) else {}       # audit 20261124_0109 H (qwen F1): a malformed record is read
+-    ls = lambda x: list(x) if isinstance(x, (list, tuple, set)) else []   # as empty, never a crash
+-    res, sp = d(res), d(sp)
+-    pre = d(res.get("prescreen"))
+-    h = d(pre.get("held_102"))
+-    held = len(ls(h.get("first"))) + len(ls(h.get("second"))) + len(ls(sp.get("held_102")))
+-    soft_pre = d(d(d(res.get("never_empty")).get("soft_record")).get("prescreen"))
+-    s = d(soft_pre.get("held_102"))
+-    held += len(set(ls(s.get("first")) + ls(s.get("second"))) - set(ls(h.get("first")) + ls(h.get("second"))))
+-    no_verdict = _errors(res) + _errors(sp)        # by structure, never a string search (audit 2155g C1, qwen)
+-    vis = d(res.get("visual"))
+-    unmeasured = {(k, mid) for p in (pre, soft_pre) for k in ("second_pass", "hook_onset", "trim_cut")   # the
+-                  for mid, v in d(p.get(k)).items() if str(v).startswith("NOT MEASURED")}   # verifier, Nov 23: a build
+-    #   whose word checks, hook onsets or trimmed cuts were never measured (its downloads failed) left that work undone:
+-    #   its identical re-run is a build, never NOTHING NEW (its drill recorded '0 items left undone' with every L-v 2
+-    #   unmeasured, and the re-run was skipped)
+-    return held + no_verdict + int(vis.get("unmeasured") or 0) + len(refused or ()) + len(unmeasured)
++    """RULING 107 (1), with RULING 163 (4): how many checks a finished build left undone, which the next build must
++    try again whatever its inputs (outcomes.undone names each: ruling 102's holds, the lock's missing verdicts, vision
++    and word checks never measured, the openers no checker rated, every verdict that was not measured, the money the
++    stop refused). -> int (0: nothing left)."""
++    return len(OC.undone(res, sp, refused))
+ 
+ 
+ HOOK_SHADOW = {"coherence_verdict:hook": "heimdall:qwen/qwen3.8-27b"}   # RULING 115: recorded, never deciding
+@@ -473,6 +487,44 @@ def ruling_101_line(par):
+ 
+ 
+ def main(argv=None):
++    """The build, entered only through this file (entry_of), and RULING 160 (2b): EXACTLY ONE outcome line a build in
++    data/builds/outcomes.jsonl (outcomes.record_build), written here whatever ends the build once its record folder
++    exists: its end, NOTHING NEW, the start refusal, a crash or a stop (SIGTERM is turned into SystemExit, so this
++    finally runs). A refusal before the folder is made (exit 2) is no build and writes no line."""
++    entry = entry_of()
++    if not entry["ok"]:                                  # (and again in _main: a wrapper calling _main is refused)
++        print(f"REFUSED: {entry['why']}", file=sys.stderr)
++        return 2
++    if not entry["under_test"]:
++        try:
++            signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
++        except ValueError:                               # not the main thread: the default stays
++            pass
++    box, rc, err = {}, None, None
++    try:
++        rc = _main(argv, box)
++        return rc
++    except BaseException as e:                           # noqa: BLE001  recorded, then raised as it was
++        err = e
++        raise
++    finally:
++        if box.get("out_dir"):
++            try:
++                line = OC.record_build(box["out_dir"], rc=rc, error=err, refused=box.get("refused"),
++                                       build_no=box.get("build_no"), path=box.get("outcomes"))
++                if line:
++                    print(f"  RULING 160 (2b): outcome {line['outcome']} at {line['stage']}: {line['gate']}",
++                          flush=True)
++            except Exception as e:                       # noqa: BLE001  never masks the build's own end
++                print(f"  RULING 160 (2b): the outcome line was NOT written: {type(e).__name__}: {e}",
++                      file=sys.stderr, flush=True)
++
++
++def _main(argv, box):
++    entry = entry_of()                                   # verifier rows 12 / 16: checked here too, so a wrapper that
++    if not entry["ok"]:                                  # calls _main() directly is refused the same way
++        print(f"REFUSED: {entry['why']}", file=sys.stderr)
++        return 2
+     ap = argparse.ArgumentParser()
+     ap.add_argument("--delivered", nargs="+", required=True, metavar="PIN",
+                     help="every pin already delivered: their clip spans are out (L-p), and 'since' defaults to the "
+@@ -491,6 +543,8 @@ def main(argv=None):
+                     "build takes only those moments of the pool, every gate as before (one line-up at a time)")
+     ap.add_argument("--stop-usd", type=float, default=None, help="ORDER 17:50 ET Nov 16: this build's outside-dollar "
+                     f"limit (no build starts at it; the router stops outside calls at it), in (0, {STOP_CEILING_USD}]")
++    ap.add_argument("--build-no", type=int, default=None, help="RULING 160 (2b): the launcher's build number, on the "
++                    "build's outcome line")
+     ap.add_argument("--from-candidate", metavar="BUILD_DIR[:N]",
+                     help="RULING 66: try ONLY the line-up that passed the clips-alone verdict in this earlier build's "
+                          "record (its tried[N]; default the first that passed), as it was judged")
+@@ -547,6 +601,7 @@ def main(argv=None):
+     except FileExistsError:
+         print(f"REFUSED: {out_dir} exists", file=sys.stderr)
+         return 2
++    box.update(out_dir=out_dir, build_no=a.build_no)     # RULING 160 (2b): from here on, the build has one outcome
+     logf = open(os.path.join(out_dir, "package.log"), "a")
+     say = lambda s: (print(s, flush=True), logf.write(s + "\n"), logf.flush())
+     ctx = E.Context(now, PS.REG, ledger=PS.ledger_entries())
+@@ -554,6 +609,9 @@ def main(argv=None):
+         f"{now.isoformat(timespec='seconds')}, since {since.isoformat(timespec='seconds')} "
+         f"({'--since' if a.since else 'the newest delivered pin'}), publish window {a.hours} h" +
+         (f"; RULING 66: ONLY the candidate {cand['source']} tried[{cand['index']}] {cand['lineup']}" if cand else ""))
++    say(f"  entry (verifier rows 12 / 16, ruling 163 (5)): {entry['driver']} (git sha {str(entry['driver_sha'])[:12]}, "
++        f"{'the committed one' if entry['driver_committed'] else 'NOT the committed one'}) as __main__ (argv0 "
++        f"{entry['argv0']}), HEAD {str(entry['code'])[:12]}, changed code files {entry['dirty'] or 'none'}")
+     say(f"  delivered: {', '.join(p['story_id'] + ' (' + p['approved_at'] + ')' for p in pins)}; "
+         f"{len(delivered)} clip spans out")
+     say(f"  RULING 76: {len(gone)} candidate(s) expired (over {package_pin.WINDOW_H:g} h on the render clock)" +
+@@ -578,7 +636,8 @@ def main(argv=None):
+         next_try = {"error": f"{type(e).__name__}: {str(e)[:200]}"}       # never the build
+     moments = with_variants(moments, sources, ctx, inputs, say)   # RULING 104: beside their parents, every gate again
+     with open(os.path.join(out_dir, "inputs.json"), "w") as f:
+-        json.dump({"since": since.isoformat(), "publish_window_h": a.hours, "delivered_pins": pins,
++        json.dump({"entry": entry, "build_no": a.build_no,          # verifier rows 12 / 16; ruling 160 (2b)
++                   "since": since.isoformat(), "publish_window_h": a.hours, "delivered_pins": pins,
+                    "adapter_report": rep, "inputs": inputs, "delivered": delivered, "moments": moments,
+                    "next_attempt": next_try}, f, indent=1, default=str)
+     pool = json.loads(json.dumps(moments, default=str))   # RULING 107 (1): the pool as it came in, before any stage
+@@ -616,6 +675,7 @@ def main(argv=None):
+     refused = start_refused(spent0, stop)
+     if refused:
+         say(refused)
++        box["refused"] = refused                         # RULING 160 (2b): BUDGET_STOPPED at the start
+         logf.close()
+         return 3
+     say(f"  spend (ruling 48): ${spent0:.2f} of ${limit:.2f} vendor-reported before this build (no build "
+@@ -820,10 +880,11 @@ def main(argv=None):
+     if cand is None:                             # RULING 107 (1): the next build compares its inputs with these, as
+         fp_end, parts_end = fingerprint(pool, delivered, pins, since, now, reg, a.routing)   # at this build's END
+         money = list(router.spend_refused)       # the calls this build's router refused for money: left undone
+-        left = open_work(res, sp, money)
++        items = OC.undone(res, sp, money)         # RULING 163 (4): each named in the record
++        left = len(items)
+         with open(os.path.join(out_dir, FINGERPRINT), "w") as f:
+-            json.dump({"fingerprint": fp_end, "parts": parts_end, "open_work": left, "spend_refused": money,
+-                       "build": name}, f, indent=1)
++            json.dump({"fingerprint": fp_end, "parts": parts_end, "open_work": left, "undone": items,
++                       "spend_refused": money, "build": name}, f, indent=1)
+         say(f"  RULING 107 (1): fingerprint {fp_end[:12]}, {left} item(s) left undone"
+             + (f" ({len(money)} of them paid call(s) the spend stop refused)" if money else ""))
+     logf.close()
+diff --git a/tests/package/record/build_and_record.sh b/tests/package/record/build_and_record.sh
+new file mode 100755
+index 000000000..6bb6dfb9a
+--- /dev/null
++++ b/tests/package/record/build_and_record.sh
+@@ -0,0 +1,94 @@
++#!/bin/bash
++# THE BUILD LAUNCHER (in git since the verifier's rows 12 / 16, Nov 24; it was a scratch script). One build, routine or
++# an ORDER 17:50 attempt; STATE line 1 from the build's own log and record (times and counts from the records, never
++# typed); commit the build's record (never a lock, the health, judge_requests, BREAKERS or DEADLINE_TABLE files) with
++# its pin when it sealed, and its outcome line (RULING 160 (2b): data/builds/outcomes.jsonl); push (a plain push).
++#  - It runs ONE driver: tests/package/proof_ledger.py. There is no override (builds 166-168 ran by-hand wrappers
++#    through a DRIVER= variable); the driver itself refuses any other entry point and records its entry.
++#  - routine (on a ledger change): marks the watcher's baseline BEFORE the build.
++#  - an attempt (--only FILE [--stop-usd X], ORDER 17:50 ET Nov 16): one candidate set; no mark; the set is kept in the
++#    record as ONLY.json; line 1 says what was tried, what stopped it, dollars.
++#  - ORDER 17:50 (3) guard: once the day ledger is no longer SPEND_B4.json (21:10 ET Nov 16), or the day's spend has
++#    reached $1.00 (ORDER 19:28's 25 cents), a build given no --stop-usd gets the day's spend + $0.001 (free screens
++#    only: no paid call fits), and says so.
++#  - refuses while the render lock is held or another build is running.
++# Usage: bash tests/package/record/build_and_record.sh N "WHY" [--only FILE] [--stop-usd X]
++set -u
++R=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)           # tests/package/record
++W=$(cd "$R/../../.." && pwd)                               # the repo
++DRIVER=tests/package/proof_ledger.py                       # the only driver (verifier row 16)
++N=$1; WHY=$2; shift 2
++EXTRA=("$@")
++cd "$W" || exit 2
++LK=$(ls -l /proc/[0-9]*/fd 2>/dev/null | grep -c 'pulse_check_run.lock')
++if [ "$LK" != "0" ]; then echo "render lock held: no build, no commit"; exit 3; fi
++RUN=$(ps -eo args= | awk -v d="$DRIVER" '$1 ~ /python3$/ && $3 == d' | wc -l)
++if [ "$RUN" != "0" ]; then echo "another build is running ($RUN process): no build"; exit 3; fi
++# RULING 163 (5) (08:22 ET Nov 24): the launcher REFUSES any driver that is not the committed one, and (ruling 160 (1))
++# a build runs on committed, pushed code only: the driver as HEAD has it, no changed code file, nothing unpushed
++if ! git diff --quiet HEAD -- "$DRIVER"; then echo "REFUSED (ruling 163 (5)): $DRIVER differs from the committed one: no build"; exit 6; fi
++DIRTY=$(git status --porcelain -- pipeline tests/package | grep -v '^??' | awk '{print $NF}' | grep -E '\.(py|sh)$' | tr '\n' ' ')
++if [ -n "$DIRTY" ]; then echo "REFUSED (ruling 163 (5)): code changed and not committed: $DIRTY: no build"; exit 6; fi
++AHEAD=$(git rev-list --count '@{u}..HEAD' 2>/dev/null || echo "unknown (no upstream)")
++if [ "$AHEAD" != "0" ]; then echo "REFUSED (ruling 160 (1)): commits not pushed: $AHEAD: pushed code only: no build"; exit 6; fi
++ONLY=""; STOP=""
++for ((i=0; i<${#EXTRA[@]}; i++)); do
++  case "${EXTRA[$i]}" in
++    --only) ONLY="${EXTRA[$((i+1))]}";;
++    --stop-usd) STOP="${EXTRA[$((i+1))]}";;
++  esac
++done
++read SP LED <<< "$(python3 -B "$R/day_spent.py")"
++OVER=$(python3 -c "print(1 if $SP >= 1.0 else 0)")
++if [ -z "$STOP" ] && { [ "$LED" != "SPEND_B4.json" ] || [ "$OVER" = "1" ]; }; then
++  STOP=$(python3 -c "print(f'{$SP + 0.001:.6f}')")
++  EXTRA+=(--stop-usd "$STOP")
++  WHY="$WHY; free screens only (ORDER 17:50 (3): --stop-usd $STOP, the day's spend + \$0.001)"
++fi
++LOCKARG=0; for x in "${EXTRA[@]}"; do [ "$x" = "--lock-precheck" ] && LOCKARG=1; done
++if [ "$LOCKARG" = "0" ]; then EXTRA+=(--lock-precheck "${LOCK:-off}"); fi   # RULING 130 (2): no Scribe until released
++echo "day ledger $LED, spend before \$$SP, stop ${STOP:-none given: the ledger limit}, lock pre-check ${LOCK:-off}"
++if [ -z "$ONLY" ]; then python3 -B "$R/watch_ledger.py" --mark 2>&1 | tail -1; fi
++T=$(date '+%H%M')
++LOGS=$W/tests/package/proof/logs                          # *.log: never committed (.gitignore)
++mkdir -p "$LOGS"
++LOG=$LOGS/build${N}_$T.log
++timeout 9000 python3 -B $DRIVER --build-no "$N" --routing heimdall_first --since 2026-11-13T03:01:09Z --delivered tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json tests/package/proof/ledger_20261113_073738/MOMENTS_PIN_LEDGER.json tests/package/proof/ledger_20261113_183302/MOMENTS_PIN_ATTESTED.json tests/package/proof/ledger_20261113_215708/MOMENTS_PIN_LEDGER.json "${EXTRA[@]}" > "$LOG" 2>&1
++X=$?
++echo "build exit $X"
++grep "^no package\|^NOTHING NEW\|spend (ruling 48)\|PACKAGE\|READY\|RULING 76 (d)\|RESERVE BACK\|ORDER 17:50\|^REFUSED\|RULING 160 (2b)" "$LOG" | head -9 | cut -c1-240
++if [ "$X" = "2" ]; then echo "REFUSED: no record, no STATE line, no commit"; tail -3 "$LOG" | cut -c1-300; exit 5; fi
++D=$(ls -td tests/package/proof/ledger_20* | head -1)
++B=$(python3 -B "$R/day118.py" 2>&1 | tail -1)
++SC=$(python3 -B "$R/scorer_stale.py" 2>&1 | tail -1)      # ruling 132: a dead scorer shows on line 1 within one build
++BT=$(date -r "$D" '+%H:%M'); T2=$(date '+%H:%M')
++RES=$(grep -o "^no package ([^)]*)\|^NOTHING NEW[^:]*\|PACKAGE[^;]*" "$LOG" | head -1 | cut -c1-200)
++NE=$(python3 -B -c "import json,sys; r=json.load(open(sys.argv[1]+'/package.json')); ne=r.get('never_empty') or {}; print('' if r.get('package') or not ne.get('soft_why_none') else 'THE NEVER-EMPTY PASS (the one that decides): ' + str(ne['soft_why_none'])[:420])" "$D" 2>/dev/null)
++[ -n "$NE" ] && RES="the clean pass: ${RES:-?}; $NE"     # build 149 / 150: line 1 quoted only the clean pass's reason
++OUT=$(grep -o "RULING 160 (2b): outcome [A-Z_]* at [^:]*" "$LOG" | tail -1)   # the build's one outcome line
++R76=$(grep -o "RULING 76 (d): [^;]*" "$LOG" | head -1 | cut -c1-110)
++H=$(grep -o "HELD for this build[^:]*: [0-9]* at step A" "$LOG" | grep -o "[0-9]* at step A" | head -1)
++DOL=$(grep -o "spend (ruling 48): [^ ]* of \$[0-9.]* vendor-reported after this build (before it: \$[0-9.]*)" "$LOG" | tail -1)
++TXT=$(mktemp "$LOGS/state_b${N}_XXXXXX.txt")
++if [ -n "$ONLY" ]; then
++  cp "$ONLY" "$D/ONLY.json"
++  SUM=$(python3 -B "$R/attempt_summary.py" "$D" 2>&1 | tail -1 | cut -c1-900)
++  printf '%s\n' "{T} ET: $B ORDER 17:50 ATTEMPT, BUILD $N ($(basename "$D"), $BT ET). TRIED: $WHY. ${SUM}. RESULT: ${RES:-?}; ${OUT:-RULING 160 (2b): no outcome line}; held at Grok's first screen: ${H:-none}.${SC:+ $SC} DOLLARS: ${DOL:-?} (this build's stop \$${STOP:-1.00})." > "$TXT"
++else
++  printf '%s\n' "{T} ET: $B BUILD $N ($(basename "$D"), $BT ET; $WHY): ${RES:-?}; ${OUT:-RULING 160 (2b): no outcome line}; ${R76:-?}; held at Grok's first screen: ${H:-none}.${SC:+ $SC}" > "$TXT"
++fi
++python3 -B "$R/state_line.py" "$T2" "$TXT"
++rm -f "$TXT"
++LK=$(ls -l /proc/[0-9]*/fd 2>/dev/null | grep -c 'pulse_check_run.lock')
++if [ "$LK" != "0" ]; then echo "render lock held: no commit"; exit 3; fi
++for f in "$D/FINGERPRINT.json" "$D/inputs.json" "$D/package.json" "$D/SHADOW86.md" "$D/step_a.json" "$D/NOTHING_NEW.json" "$D/ONLY.json" "$D/MOMENTS_PIN_LEDGER.json" "$D/SPOTLIGHT_PIN.json"; do [ -f "$f" ] && git add "$f"; done
++for f in "$D/MOMENTS_PIN_LEDGER.json" "$D/SPOTLIGHT_PIN.json"; do [ -f "$f" ] && echo "PIN WRITTEN: $f: PIN IT TO THE INTEGRATOR NOW (ruling 106)"; done
++git add docs/audits/parallel/pp-selectid_STATE.md tests/package/proof/DAY118_LEDGER.json
++[ -f data/builds/outcomes.jsonl ] && git add data/builds/outcomes.jsonl          # RULING 160 (2b): the build's line
++[ -f tests/package/proof/FLAGGED_DAY.json ] && git add tests/package/proof/FLAGGED_DAY.json   # ruling 136 (2): the day count
++for f in docs/audits/parallel/pp-selectid_HEIMDALL_DEADLINES.jsonl docs/audits/parallel/pp-selectid_SCORER_CANDIDATES.json tests/package/proof/CANDIDATES.json tests/package/proof/HOOK_CACHE.json tests/package/proof/JOIN_CACHE.json tests/package/proof/STEP_A_CACHE.json tests/package/proof/VISUAL_CACHE.json tests/package/proof/SPEND_B4.json tests/package/proof/SPEND_D*.json; do [ -f "$f" ] && { git diff --quiet -- "$f" 2>/dev/null && git ls-files --error-unmatch "$f" >/dev/null 2>&1 || git add "$f"; }; done
++git ls-files --others --exclude-standard tests/package/fixtures/replies | xargs -r git add
++if git diff --cached --name-only | grep -qE "\.lock$|HEIMDALL_HEALTH|judge_requests|BREAKERS|DEADLINE_TABLE"; then echo "FORBIDDEN STAGED: stopping"; exit 4; fi
++git commit -q -m "pp-selectid build $N ($(basename "$D"), $BT ET): $WHY" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>" && git log -1 --oneline | cut -c1-90
++git push -q origin pp-selectid 2>&1 | tail -2
++git status -sb | head -1
