@@ -286,12 +286,11 @@ def line_faults(text, names, clip_texts=None):
         faults.append("more than one sentence")
     if clip_texts is not None:                       # numbers the line WRITES with digits only (the builder, 11:0x
         said = {t for c in clip_texts for t in canon.canon_tokens(str(c or ""))}   # ET: canon folds 'one', 'first',
-        for w in str(text or "").split():                                          # 'three' to digits: never theirs)
-            if not any(ch.isdigit() for ch in w):
-                continue
-            for t in canon.canon_tokens(w):
-                if any(ch.isdigit() for ch in t) and t not in said and f"says '{t}', which no clip says" not in faults:
-                    faults.append(f"says '{t}', which no clip says")
+        ws = str(text or "").split()                                               # 'three' to digits: never theirs);
+        for t, f, l in canon.canon_spans(ws):        # the whole line read by canon ('3.5 billion' is 3500000000),
+            if any(ch.isdigit() for ch in t) and any(ch.isdigit() for w in ws[f:l + 1] for ch in w) \
+                    and t not in said and f"says '{t}', which no clip says" not in faults:   # a token counted only
+                faults.append(f"says '{t}', which no clip says")                         # when its words had a digit
     return faults
 
 

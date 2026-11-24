@@ -175,6 +175,11 @@ class TestItem2Lexical(unittest.TestCase):
         self.assertEqual(O.line_faults("Bitcoin fell 30 percent.", []), [])        # no clips given: not judged
         for text in ("First, why the rules hold.", "No one saw it coming.", "The one to watch is the wick."):
             self.assertEqual(O.line_faults(text, [], clip_texts=clips), [], text)   # number WORDS are not digits
+        clips = ["Outflows hit 3.5 billion in 2 days.", "Bitcoin fell 1,000 dollars below its high."]
+        self.assertEqual(O.line_faults("The floor held after 3.5 billion left in 2 days.", [], clip_texts=clips), [])
+        self.assertEqual(O.line_faults("A 1000 dollar drop did not break it.", [], clip_texts=clips), [])
+        for text, new in (("The floor held at 55 thousand.", "55000"), ("Outflows of 3.6 billion held.", "3600000000")):
+            self.assertEqual(O.line_faults(text, [], clip_texts=clips), [f"says '{new}', which no clip says"], text)
 
 
 class TestLineRules(unittest.TestCase):
