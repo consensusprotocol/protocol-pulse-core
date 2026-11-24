@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-24T01:42:52+00:00",
- "build": "ledger_20261124_014236",
+ "generated_at": "2026-11-24T02:44:08+00:00",
+ "build": "ledger_20261124_024358",
  "kind": "moments",
  "candidates": [
   {
@@ -40,24 +40,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "b9acd2c7db932773f9c5",
-   "video_id": "8iPdQNLJv38",
-   "channel": "Strategy (MicroStrategy)",
-   "duration": 15.4,
-   "text": "Gold's dead money because it's not better than the S &P. Mag 7 or tech stocks, they can look good. They looked really good at the beginning of the week, not so good later in the week. Bitcoin is beating that, and then all we're doing is just levering the Bitcoin with intelligent credit.",
-   "text_sha256": "ea420b1e90fd070ef7e51dfd8e35a449602689f8290719df2ed2e49f8cd1e56b",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "bc0681119d8a8af76dca",
-   "video_id": "8iPdQNLJv38",
-   "channel": "Strategy (MicroStrategy)",
-   "duration": 14.76,
-   "text": "We sold... I think there's 15 billion of digital credit outstanding. We intend to sell 15 billion a year, then we're going to sell 100 billion, then we're going to sell a trillion. And when we sell that, we buy the Bitcoin, we'll drive up the price of Bitcoin. So we're actually creating credit.",
-   "text_sha256": "563485f2fb1635c3c62d1b9b439f0ff3b2825e8e94f378aa959bd3f6a213fc07",
-   "trimmed_leading": null
-  },
-  {
    "pid": "a889f8c5632fa8f3c2c0",
    "video_id": "sT-54695UcU",
    "channel": "Natalie Brunell",
@@ -73,15 +55,6 @@
    "duration": 16.57,
    "text": "He said, strategy is building a bank. He called it the bank of Bitcoin, a company that holds Bitcoin the same way that a central bank would hold gold and issue credit on top of it. He said that if the credit doesn't work, it's simply a holding company. And that's why protecting the credit comes first for him.",
    "text_sha256": "752781bee90f35903d6374dc715084f9e31102381e225d723b89abe52913a7bd",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "60e6a778f71cdd02bbc3",
-   "video_id": "8iPdQNLJv38",
-   "channel": "Strategy (MicroStrategy)",
-   "duration": 17.71,
-   "text": "I mean, at Bitcoin a million, you know, we're crawling, you know, we're crawling into the top 10 at Bitcoin a million. It's not complicated. It's a very simple thing. This is the capital chart, right?",
-   "text_sha256": "336f27776b255a7683149489aba30f70495cba0f29bab436a019180db143004d",
    "trimmed_leading": null
   },
   {
