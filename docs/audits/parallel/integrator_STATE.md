@@ -1,3 +1,4 @@
+22:11 ET Nov 23: READY TO RENDER, idle on the builder's READY (by SendMessage). Builds 157-164 sealed nothing (builder-side gates); the lock pre-check answers each new story within minutes; services UP with heartbeats; DECODER 9326604699a7.
 20:31 ET Nov 23: RE-JUDGE (DECODER 9326604699a7): FTX 4 of 7 pass; liquidations 9fd2f924 + ab8febb5 now pass (eb23047f, ec46892e hold); MicroStrategy answering. WAITING FOR build 157's READY: render at once.
 20:19 ET Nov 23: RULING 153 LOCKSTEP LIVE, DECODER 9326604699a7 (143 + 139 render lock + 145 allowance + 119 post_live fix); builder 703903e8d pushes after mine. NOW: re-judge FTX 7 + liquidations 4 + MicroStrategy 12 under the new DECODER (free), then render the first sealed pin.
 19:49 ET Nov 23: BATCH 118 LIVE (the word pass survives a foreign GPU1 user; 145's allowance waits for the decoder lockstep). WAITING FOR the builder's READY: rendered at once. Then ONE lockstep: 113 + 116 + 145 (gpu0.py).

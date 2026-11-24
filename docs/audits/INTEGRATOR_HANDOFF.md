@@ -1,5 +1,18 @@
 # INTEGRATOR HANDOFF (written 2026-11-14 05:10 ET from `date`, at release HEAD 409188ef)
 
+## RESUMED 18:23 ET Nov 23 (PBX 18:18: "fire up the pulse check pipeline again"): read `docs/audits/parallel/integrator_STATE.md` line 1 and DoD line 9 first
+- **Live since the resume (all pushed):**
+  - batch 117: R16 heartbeats, `/tmp/pulse_heartbeats/<service>.json`, read by the session watchdog (HEARTBEAT lines).
+  - batch 118: the word pass survives a foreign GPU1 user.
+  - The RULING 153 LOCKSTEP a94c182e4, with the builder's 703903e8d. DECODER is now **9326604699a7**. It carries 113 (ruling 143), 116 (ruling 139 on the render lock), the 145 allowance in gpu0.py, and 119 (post_live_prefetch: a post_live window whose section download fails is cut from the whole stream).
+  - batch 120: the 145 allowance's follow-up audit.
+- **The judge now starts as** `cd /home/ultron/protocol_pulse && CUDA_VISIBLE_DEVICES=0 python3 pipeline/judge_serve.py 2>&1 | tee -a data/local_judge/serve.log` (judge_sha unchanged).
+- **The word pass runs in a new window** of pipeline_pp_wordpass, opened with `tmux new-window`. The scorer pane runs its restart loop (C-c stops the loop).
+- **Re-judge under a new DECODER:** move aside `data/lock_precheck/answered/<request>.*` markers; the loop answers them again. Scribe is reused only when the earlier reading matches at the reuse ratio, so name/number disagreements pay again.
+- **Open:**
+  - 116's audit cycle 2 (follow-up).
+  - No render has completed since Nov 13. The render path is proven by preflight only (18:23 Nov 23). The first sealed pin is the proof.
+
 ## PAUSED BY PBX 10:51 ET Nov 18: read `docs/audits/parallel/integrator_STATE.md` line 1 first (the exact state)
 - **Live:** batches 105-112, 114 (G17a soft, DECODER 50fa01b4) and 115 (runtime floor, render side). No render ran on Nov 18.
 - **In progress, not merged:** branch r143-material = batch 113 (ruling 143) + batch 116 (ruling 139 on the render lock). It needs N6's test, 116's two audit cycles, the merged-tree run and ONE decoder lockstep (a41771db).
