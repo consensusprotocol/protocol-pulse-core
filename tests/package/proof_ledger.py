@@ -800,6 +800,12 @@ def _main(argv, box):
         return 3
     say(f"  spend (ruling 48): ${spent0:.2f} of ${limit:.2f} vendor-reported before this build (no build "
         f"starts at ${stop:.2f})")
+    reserve = PK.completion_reserve(router)              # LEAN (5): set aside BEFORE any speculative call is paid: every
+    router.completion_reserve_usd = reserve["usd"]       # paid call outside a line-up's finishing must leave it
+    say(f"  LEAN (5): the completion reserve ${reserve['usd']:.2f} is held back to finish one package of "
+        f"{reserve['segments']} segments (" + "; ".join(f"{p['what']}: {p['calls']} x ${p['usd_each']:.4f}"
+                                                        for p in reserve["parts"]) +
+        f"; {reserve['unpriced'][0]}); the search may spend ${max(0.0, limit - spent0 - reserve['usd']):.2f}")
     own, used = PL.meter(router), PL.reply_meter(router)
     t0 = time.time()
     spotlit = SPOT.load_spotlit(SPOTLIGHTS)              # RULING 90: free; its pool goes to the clip scorer with the
@@ -963,6 +969,8 @@ def _main(argv, box):
     res["spend_ruling_48"] = {"before": round(spent0, 4), "after": after, "cap": limit, "stop": stop,
                               "basis": PL.LY_LIMIT_BASIS, **({"order_17_50_stop": a.stop_usd}
                                                              if a.stop_usd is not None else {})}
+    res["completion_reserve"] = dict(reserve, refused=list(router.reserve_refused))   # LEAN (5): what it held back and
+    #   the speculative calls it refused (each also in spend_refused: BUDGET_STOPPED, never an editorial failure)
     line101 = ruling_101_line((res.get("prescreen") or {}).get("parallel_101"))   # RULING 101: the extra spend
     if line101:
         say(line101)

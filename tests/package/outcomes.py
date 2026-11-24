@@ -103,6 +103,8 @@ NOTES = {   # THE ACCEPTANCE TEST, item 2 (b) (orchestrator 08:50 ET Nov 24): ev
     ("HARD_REJECTED", "render"): "The video was sealed, but the render's final check refused it.",
 }
 NOTE_LOCK_OFF = "The render's word check was not asked, to save money, so no video could be sealed."
+NOTE_RESERVE = ("Money was held back to finish a video, so some speculative checks were not paid for and nothing was "
+                "decided on them.")                 # LEAN (5): the completion reserve refused a speculative call
 NOTE_DEFAULT = {"SEALED": NOTES[("SEALED", "seal")],
                 "HARD_REJECTED": "The clips were turned down by our checks, so no video was made.",
                 "NO_ELIGIBLE_STORY": "There was no story with enough usable clips to make a video.",
@@ -115,7 +117,72 @@ def plain_note(outcome, stage, gate=""):
     """The outcome's one plain sentence for PBX (no ruling numbers, no ids)."""
     if outcome == "BUDGET_STOPPED" and "not asked" in str(gate or ""):
         return NOTE_LOCK_OFF
+    if outcome == "BUDGET_STOPPED" and "completion reserve" in str(gate or ""):
+        return NOTE_RESERVE
     return NOTES.get((outcome, stage)) or NOTE_DEFAULT.get(outcome) or "The build ended without a video."
+
+
+MEASURE_KINDS = ("passed", "measured_failure", "budget_refused", "provider_unavailable", "unmeasured")
+
+
+def measure_class(t):
+    """LEAN (3): one tried line-up's clips-alone verdict, by kind: "passed", "measured_failure" (a verdict that was
+    measured and said no), or why it was NOT measured: "budget_refused" (the spend stop or the completion reserve),
+    "provider_unavailable" (no back-end answered) or "unmeasured" (anything else). The line-up's own "measure" (written
+    by package._build since lean (3)) when present, else read from its verdict record (older records). None for a try
+    that formed no line-up."""
+    if not isinstance(t, dict) or not t.get("lineup"):
+        return None
+    m = t.get("measure")
+    if isinstance(m, str) and m.lower() in MEASURE_KINDS:
+        return m.lower()
+    med = t.get("medley") if isinstance(t.get("medley"), dict) else {}
+    if t.get("medley_ok") is True:
+        return "passed"
+    if med.get("measured") is True:
+        return "measured_failure"
+    return _class_of(str(med.get("error") or ""))
+
+
+PROVIDER = re.compile(r"ProviderError|ReplayMiss|every back-end unavailable|NO JUDGE ANSWERED|gives no answer|"
+                      r"gave no answer|no answer|did not answer", re.I)
+
+
+def _class_of(text):
+    """LEAN (3): why something was not measured, from its reason text: budget_refused / provider_unavailable /
+    unmeasured (package.unmeasured_class's three kinds, read back from a record)."""
+    if BUDGET.search(text) or re.search(r"CompletionReserve|completion reserve", text):
+        return "budget_refused"
+    if PROVIDER.search(text):
+        return "provider_unavailable"
+    return "unmeasured"
+
+
+def verdict_classes(pk, fp=None):
+    """LEAN (3) ("the outcome line keeps measured-failure, unmeasured, provider-unavailable and budget-refused
+    apart"): {"lineups": {kind: n} over every line-up both passes tried (measure_class), "undone": {kind: n} over the
+    checks the build left undone (FINGERPRINT.json's list, else undone()): money and anything refused for money is
+    budget_refused, no answer is provider_unavailable, anything else unmeasured}."""
+    pk = pk if isinstance(pk, dict) else {}
+    soft = ((pk.get("never_empty") or {}).get("soft_record") or {}) if isinstance(pk.get("never_empty"), dict) else {}
+    tried = [t for t in list(pk.get("tried") or []) + list(soft.get("tried") or []) if isinstance(t, dict)]
+    lu = {k: 0 for k in MEASURE_KINDS}
+    for t in tried:
+        k = measure_class(t)
+        if k:
+            lu[k] += 1
+    items = (fp or {}).get("undone") if isinstance((fp or {}).get("undone"), list) else undone(pk, pk.get("spotlight"))
+    fails = {}                                           # a held moment's own reason (its "why" here is generic)
+    for p in (pk.get("prescreen"), soft.get("prescreen")):
+        for mid, f in ((p or {}).get("failed") or {}).items() if isinstance(p, dict) else ():
+            fails.setdefault(mid, " ".join(map(str, f)) if isinstance(f, list) else str(f))
+    ud = {k: 0 for k in MEASURE_KINDS[2:]}
+    for x in items or []:
+        if not isinstance(x, dict):
+            continue
+        ud["budget_refused" if x.get("kind") == "money" else
+           _class_of(str(x.get("why") or "") + " " + fails.get(x.get("id"), ""))] += 1
+    return {"lineups": lu, "undone": ud}
 
 
 def _load(path):
@@ -394,7 +461,8 @@ def _outcome_of(build_dir, rc=None, error=None, refused=None, build_no=None, bac
         isinstance(spend.get(k), (int, float)) and not isinstance(spend.get(k), bool) for k in ("before", "after")) \
         else None
     base = {"time": time_of(run), "build": build_no, "run": run, "story": title, "story_id": sid, "side": "builder",
-            "dollars": usd, "pin": None, "backfilled": bool(backfilled), "note": None, "yield": yield_of(pk, inp)}
+            "dollars": usd, "pin": None, "backfilled": bool(backfilled), "note": None, "yield": yield_of(pk, inp),
+            "verdict_classes": verdict_classes(pk, fp) if pk else None}   # LEAN (3): the four kinds kept apart
     pin = (pk or {}).get("pin") or (pk or {}).get("spotlight_pin")
     for name in ("MOMENTS_PIN_LEDGER.json", "SPOTLIGHT_PIN.json"):
         p = _load(os.path.join(build_dir, name))
@@ -422,9 +490,12 @@ def _outcome_of(build_dir, rc=None, error=None, refused=None, build_no=None, bac
     why, pre, hp, tried = _pass_of(pk)
     money = fp.get("spend_refused") or []
     if money:
+        held = len(((pk.get("completion_reserve") or {}).get("refused") or []) if isinstance(
+            pk.get("completion_reserve"), dict) else [])  # LEAN (5): the ones the completion reserve refused
         return dict(base, outcome="BUDGET_STOPPED", stage="spend",
-                    gate=f"the spend stop refused {len(money)} paid call(s) (ruling 48)", clip=None,
-                    model=sorted(set(map(str, money)))[0], note=str(why or "")[:400] or None)
+                    gate=f"the spend stop refused {len(money)} paid call(s) (ruling 48)" +
+                         (f", {held} of them held back by the completion reserve (lean 5)" if held else ""),
+                    clip=None, model=sorted(set(map(str, money)))[0], note=str(why or "")[:400] or None)
     left = [x for x in (fp["undone"] if isinstance(fp.get("undone"), list) else undone(pk, pk.get("spotlight")))
             if isinstance(x, dict) and x.get("kind") != "money"]   # RULING 163 (4): anything unanswered or unmeasured
     #   (the driver's own list when its FINGERPRINT.json has one; an older record's, read again from package.json)

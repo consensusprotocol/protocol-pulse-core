@@ -63,6 +63,13 @@ class SpendLimit(Exception):
     """The session's spend guard is reached: no further model call."""
 
 
+class CompletionReserve(SpendLimit):
+    """LEAN (5) (the owner's assignment, 13:37 ET Nov 24: "Reserve sufficient completion budget before speculative
+    searches"): a SPECULATIVE paid call refused because it would eat into the money a build holds back to finish one
+    package (Router.completion_reserve_usd). A SpendLimit, so every caller treats it as the spend stop (never a pass,
+    never an editorial failure); its own class so a record can say BUDGET_REFUSED by the reserve."""
+
+
 class ReplayMiss(Exception):
     """Offline replay has no recorded exchange for this call."""
 
@@ -772,6 +779,12 @@ class Router:
         self.uncapped = tuple(uncapped)           # RULING 118 (b): vendors recorded in the ledger but never capped
         self.spend_refused = []                   # RULING 107 (1): the back-end of every paid call _reserve refused for
         #   money (list.append: one per refusal, from any worker thread); a build records them as work left undone
+        self.completion_reserve_usd = 0.0         # LEAN (5): what a SPECULATIVE paid call must leave under limit_usd
+        #   (the money one package needs to finish: package.completion_reserve); 0 (the default): no reserve, as before
+        self.completing = False                   # LEAN (5): True while a line-up that passed its clips-alone verdict is
+        #   being finished (package._build): its calls may spend the reserve; every other call must leave it
+        self.reserve_refused = []                 # LEAN (5): the back-end of every call refused ONLY by the reserve (a
+        #   subset of spend_refused)
         self.reserve_wait_s = float(reserve_wait_s)   # _reserve: 0 (the default) refuses at once, as every caller had
         self.reserve_poll_s = RESERVE_POLL_S          # it; a batch build that may wait for calls in flight opts in
         import threading
@@ -958,24 +971,35 @@ class Router:
             return None
         try:
             return self._reserve_capped(b, upper)
-        except SpendLimit:                        # RULING 107 (1) (build 134, 12:57 ET Nov 17): a call refused for
+        except SpendLimit as e:                   # RULING 107 (1) (build 134, 12:57 ET Nov 17): a call refused for
             self.spend_refused.append(b.name)     # money is work left undone, never "nothing new"
+            if isinstance(e, CompletionReserve):  # LEAN (5): refused only by the completion reserve
+                self.reserve_refused.append(b.name)
             raise
 
     def _reserve_capped(self, b, upper):
-        """_reserve for a capped paid back-end: reserve `upper` or raise SpendLimit (its docstring)."""
+        """_reserve for a capped paid back-end: reserve `upper` or raise SpendLimit (its docstring). LEAN (5): unless
+        the router is `completing` a package, the call must also leave completion_reserve_usd under the limit; a call
+        that fits the limit but not the reserve raises CompletionReserve at once (the reserve is never in flight, so
+        waiting for calls in flight cannot make it fit)."""
         t_end, waited = time.time() + max(0.0, float(self.reserve_wait_s)), False
+        margin = 0.0 if self.completing else max(0.0, float(self.completion_reserve_usd or 0.0))
         while True:
             with self._lock():
                 d = self._ledger()
                 held = sum(float(x) for x in d["reserved"].values())
                 spent = self._basis_total(d)
-                if spent + held + upper <= self.limit_usd:
+                if spent + held + upper + margin <= self.limit_usd:
                     key = f"{os.getpid()}:{uuid.uuid4().hex[:10]}"
                     d["reserved"][key] = round(upper, 6)
                     self._save(d)
                     return key
-                if spent + upper > self.limit_usd or time.time() >= t_end:
+                if margin and spent + upper <= self.limit_usd < spent + upper + margin:
+                    raise CompletionReserve(
+                        f"SpendLimit (the completion reserve, lean (5)): spend ({self.limit_basis}) {spent:.2f} USD + "
+                        f"this call's upper bound {upper:.2f} + the ${margin:.2f} held back to finish one package > "
+                        f"the limit {self.limit_usd} USD: a speculative call never spends the completion's money")
+                if spent + upper + margin > self.limit_usd or time.time() >= t_end:
                     raise SpendLimit(f"spend ({self.limit_basis}) {spent:.2f} USD + reserved {held:.2f} + this call's "
                                      f"upper bound {upper:.2f} > the limit {self.limit_usd} USD" +
                                      (f" (still, after waiting {self.reserve_wait_s:g} s for the calls in flight)"

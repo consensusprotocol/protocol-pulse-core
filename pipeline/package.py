@@ -4444,6 +4444,15 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
         if not bad:
             new = [swap.get(i, m) for i, m in enumerate(segs_)]
             ok2, med2 = medley(router, new, ctx, writers_v, seed=seed_, writer_family=writers_f)
+            if not ok2 and not med2.get("measured"):      # LEAN (3): NO VERDICT on the corrected words is no failure:
+                cls = unmeasured_class(med2.get("error"))    # the clips stay (never doomed), the line-up stays a
+                rec_["heard_medley"], rec_["unmeasured"] = med2, cls   # candidate and the search stops (as a lock
+                rec_["heard"] = {cm["heard"]["from"]: {"id": cm["moment_id"], "corrected": cm["heard"]["corrected"],   # with
+                                                       "not_measured": cls} for cm in swap.values()}   # no verdict)
+                log(f"    RULING 163 (2)(b): the lock corrected {len(swap)} clip(s); the clips-alone verdict on the "
+                    f"corrected words was NOT MEASURED ({cls}: {str(med2.get('error'))[:160]})")
+                return segs_, (f"{cls}: ruling 163 (2)(b): the clips-alone verdict on the words the lock corrected "
+                               f"was not measured ({str(med2.get('error'))[:200]}): no editorial verdict")[:500], med_
             if not ok2:
                 bad = {cm["moment_id"]: "the clips-alone verdict on the corrected words fails" for cm in swap.values()}
             elif sorted(med2.get("flagged") or []) != sorted((med_ or {}).get("flagged") or []):
@@ -4495,7 +4504,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
             if candidate is not None:                     # RULING 66: its own seeds, so its recorded calls are served
                 n_lineup, swapped = candidate["n_lineup"] - 1, cand_segs
             while (total < lineups or (soft and kept and not retried)) and not out["packages"] and \
-                    not out.get("budget_stop") and not out.get("lock_stop"):
+                    not out.get("budget_stop") and not out.get("lock_stop") and not out.get("unmeasured_stop"):
+                _phase(router, False)                     # LEAN (5): searching: every paid call leaves the reserve
                 if candidate is not None and n_lineup >= candidate["n_lineup"]:
                     break                                 # RULING 66: the candidate alone, never re-lined or swapped
                 if over_budget(ai):
@@ -4569,6 +4579,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                     ok_m, med = True, dict(med, soft=accept_soft)   # its cached verdict's soft failures are its flags
                     rec["accepted_soft"] = accept_soft
                 rec["medley"], rec["medley_ok"] = med, ok_m
+                rec["measure"] = ("PASSED" if ok_m else "MEASURED_FAILURE" if med.get("measured") else
+                                  unmeasured_class(med.get("error")))   # LEAN (3): never an unmeasured "failure"
                 if jt and med.get("measured"):            # RULING 117 (3): the table's joins against the verdict's
                     ids_ = [m["moment_id"] for m in segs]
                     cmp_ = {j: {"table": (jt.get((a, b)) or {}).get("followable"),
@@ -4586,9 +4598,18 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                 bad_pairs |= {(segs[labs_.index(a)]["moment_id"], segs[labs_.index(b)]["moment_id"])
                               for a, b in (j.split(" -> ") for j in med.get("flagged") or [])}   # ruling 63
                 log(f"  angle {ai + 1} line-up {n_lineup} ({len(segs)} clips, "
-                    f"{sum(m['duration_s'] for m in segs):.1f} s): clips alone {'PASS' if ok_m else 'FAIL'} "
-                    f"{med.get('clips')} flagged {med.get('flagged')} ({time.time() - t0:.0f} s)")
+                    f"{sum(m['duration_s'] for m in segs):.1f} s): clips alone "
+                    + (f"{'PASS' if ok_m else 'FAIL'} {med.get('clips')} flagged {med.get('flagged')}"
+                       if med.get("measured") or ok_m else f"NOT MEASURED ({rec['measure']}: "
+                                                           f"{str(med.get('error'))[:160]})")
+                    + f" ({time.time() - t0:.0f} s)")
                 labs = labels(len(segs))
+                if not ok_m and not med.get("measured"):  # LEAN (3): no verdict is no failure: BUDGET_REFUSED (the
+                    rec["why"] = (f"{rec['measure']}: the clips-alone verdict was not measured ("   # spend stop or the
+                                  f"{str(med.get('error') or 'no reason recorded')[:220]}): no editorial verdict")[:500]
+                    rec["budget"] = True                  # completion reserve), PROVIDER_UNAVAILABLE or UNMEASURED
+                    break                                 # (rec["measure"]); the angle ends as before; "budget": a
+                    #   registry candidate stays open (candidates' class "budget", as a lock with no verdict)
                 if candidate is not None and not ok_m:    # RULING 66: a candidate failing a gate is closed
                     rec["why"] = "ruling 66: the candidate fails its clips-alone verdict now: closed"
                     break
@@ -4647,7 +4668,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                     if not med.get("measured") or not weak:
                         rec["why"] = ("the hook carries no own-job rating at the bar (ruling 61); the angle is written "
                                       "for this hook (ruling 59 c)" if med.get("measured") and hook_weak else
-                                      "the clips alone have no through-line a viewer can state (or it was not measured)")
+                                      "the clips alone have no through-line a viewer can state")   # LEAN (3): measured
+                    #   (a verdict that was not measured left above, under its own kind)
                         break
                     dropped |= weak
                     swapped, swaps = swap_lineup(segs, weak, sel, frozenset(dropped | doomed), keep_hook=True)
@@ -4662,6 +4684,9 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                     rec["why"] = (f"ruling 37: the join after the question hook must be followable without a bridge, and "
                                   f"the clips alone flag {joins(labs)[0]}: re-lined")
                     continue
+                _phase(router, True)                      # LEAN (5): this line-up passed its clips-alone verdict: its
+                rec["completing"] = True                  # finishing calls (lock, vision, appeals, writes, gates, the
+                #   no-voice shape) may spend the completion reserve; the next line-up's search leaves it again
                 join = None
                 bj = next((j for j in med["flagged"] if j not in soft_joins_of(med)), None)   # 141 (3): soft ones flag
                 if bj is not None:
@@ -4696,7 +4721,11 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                         relined, w_used = True, writes
                     else:                                  # RULING 163 (2)(b): a clip whose words the lock corrected
                         segs, why_h, med = rejudge_heard(segs, pre, rec, med, 7 + n_lineup + 10 * ai)   # is judged
-                        if why_h:                          # again on them before any write; out for good if it fails
+                        if why_h and rec.get("unmeasured"):   # LEAN (3): its verdict on the corrected words was not
+                            rec["why"], rec["budget"] = why_h, True   # measured: nothing is written, the line-up stays
+                            out["unmeasured_stop"] = why_h            # a candidate and the search stops, as for a lock
+                            w_used, no_verdict = writes, True         # with no verdict (never a re-line: no clip failed)
+                        elif why_h:                        # again on them before any write; out for good if it fails
                             rec["why"] = why_h + ": re-lined"
                             relined, w_used = True, writes
                 bg = {}                                     # ruling 130 (2): only for a line-up the lock let through
@@ -5053,8 +5082,10 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                                   (f" ({', '.join(rules)})" if rules else ""))
                 if out["packages"] or not relined:
                     break
-            if out["packages"] or out.get("budget_stop") or out.get("lock_stop") or over_budget(ai):
+            if out["packages"] or out.get("budget_stop") or out.get("lock_stop") or out.get("unmeasured_stop") or \
+                    over_budget(ai):
                 break
+    _phase(router, False)                                # LEAN (5): the search is over: nothing finishes now
     out["package"] = out["packages"][0] if out["packages"] else None
     if out["package"]:                                   # RULING 115 (2): a package sealed on the calibrated bar says so
         out["package"]["hook_bar"] = hook_bar_mark(live)   # the bar its hooks were judged on (the hook stage's)
@@ -5091,7 +5122,10 @@ def build(*args, never_empty=False, flagged_today=0, **kw):
     out today (flagged_today, the caller's count), the never-empty pass: the same search again (_build soft=True) with
     step A's soft refusals back in, flagged (stage 1). Its record names both passes ("never_empty")."""
     kw = {k: v for k, v in kw.items() if k != "soft"}     # audit 1135 C1 (qwen P2): the clean pass is never soft
-    out = _build(*args, **kw)
+    try:
+        out = _build(*args, **kw)
+    finally:                                              # LEAN (5): a pass that raised never leaves the router
+        _phase(args[0] if args else kw.get("router"), False)   # finishing (every later call leaves the reserve)
     if not never_empty or out.get("package") or flagged_today >= FLAGGED_DAY_MAX:
         return out
     (kw.get("log") or print)(f"  RULING 136 (2) NEVER EMPTY: the clean pass sealed nothing ({out.get('why_none')}); "
@@ -5112,9 +5146,11 @@ def build(*args, never_empty=False, flagged_today=0, **kw):
     finally:
         _FLOOR = None
         lx_mark(lx_saved)
+        _phase(router, False)                            # LEAN (5)
     info = {"stage": "2b", "clean_why_none": out.get("why_none"), "soft_why_none": soft.get("why_none"),
             "soft_back": (soft.get("prescreen") or {}).get("soft_back"),
-            "soft_record": {k: soft.get(k) for k in ("prescreen", "hook_pool", "tried", "soft_stand")}}   # its record
+            "soft_record": {k: soft.get(k) for k in ("prescreen", "hook_pool", "tried", "soft_stand",
+                                                     "unmeasured_stop") if k in soft or k != "unmeasured_stop"}}
     return dict(soft, never_empty=info) if soft.get("package") else dict(out, never_empty=info)
 
 
@@ -5125,6 +5161,88 @@ def _spent(spend):
         return 0.0, 0.0
     v = spend()
     return (float(v[0]), float(v[1])) if isinstance(v, (tuple, list)) else (float(v), float(v))
+
+
+COMPLETION_SEGMENTS = LY_CLIPS[0] + 1   # LEAN (5): the smallest medley a package can be: the hook + 2 clips
+VERDICT_PROMPT_CHARS = 16000            # LEAN (5): a completion verdict's prompt, counted from above (its reservation is
+#   ~92 % output: Grok's 12,000-token output cap at 25 % of list)
+LOCK_SCRIBE_USD = 0.01                  # LEAN (5): the render's lock pre-check Scribe per span, OUTSIDE the router: the
+#   largest span on the integrator's outside ledger (65 spans, Nov 17-24, $0.012 a minute)
+RENDER_SIGNOFF_USD = 0.0045             # LEAN (5): the render's sign-off check (xai:grok-3-mini, vendor-reported
+#   $0.004013 on the integrator's outside ledger, Nov 24), OUTSIDE the router
+VOICE_UNPRICED = ("the voice (ElevenLabs TTS at the render) is not in dollars: ElevenLabs bills its characters against "
+                  "the plan's monthly quota and the code holds no USD rate (ruling 131's open question)")
+
+
+def completion_reserve(router, n=COMPLETION_SEGMENTS):
+    """LEAN (5) (the owner's assignment, 13:37 ET Nov 24: "Reserve sufficient completion budget before speculative
+    searches"; the orchestrator: "the build sets aside what one package needs to finish (its vision checks, its
+    second-ear calls, the step A appeals for the clips IN the line-up, the voice)"). The money one package of the
+    smallest shape (n segments) needs AFTER its line-up passed the clips-alone verdict, every capped call counted at the
+    router's OWN reservation for it (what the router demands free before it starts the call; each reservation bounds
+    its call's bill: rulings 121 (1), 123 (1), 130 (3)), so a completion that makes these calls is never refused for
+    money while the reserve is held: vision for the n - 1 clips after the hook (the hook is seen before any line-up),
+    step A's appeals (the re-screen off the writer, item 44, in batches of SECOND_VERDICT_BATCH), the line-up's two
+    Grok-first verdicts (the closing line's value, coherence), the second ear (Scribe) on every span, and what the
+    router never sees but the day's cap counts: the lock pre-check's Scribe per span and the render's sign-off check.
+    -> {"usd", "segments", "parts": [{"what", "calls", "usd_each", "usd", "backend"}], "unpriced": [why]}."""
+    def first_capped(*chain):
+        for name in router.chain(*chain):
+            b = router.backends.get(name)
+            if b is not None and not b.free() and router._capped(name):
+                return name, b
+        return None, None
+
+    def res(name, b, prompt, max_tokens):
+        frac = router._reserve_fraction(b)
+        up = b.upper_usd(prompt, max_tokens)
+        return round(up * frac, 6) if frac is not None else round(up, 6)
+    import visual_pin as VP
+    parts = []
+    vn, vb = first_capped(VP.ROLE)
+    if vb is not None:                                   # one contact sheet a clip (visual_for), its clip's text in it
+        parts.append(("vision: the clips after the hook", n - 1, vn,
+                      res(vn, vb, {"text": VP.PROMPT + "x" * 1000, "images": ["x"]}, 1500)))
+    gn, gb = first_capped("context_verdict", "step_a_second")
+    if gb is not None:
+        parts.append(("step A's appeals on the line-up's clips", -(-n // SECOND_VERDICT_BATCH), gn,
+                      res(gn, gb, "x" * VERDICT_PROMPT_CHARS, 12000)))
+    for what, chain in (("the closing line's value verdict", ("viewer_takeaway",)),
+                        ("the line-up's coherence verdict", ("coherence_verdict", "coherence"))):
+        cn, cb = first_capped(*chain)
+        if cb is not None:
+            parts.append((what, 1, cn, res(cn, cb, "x" * VERDICT_PROMPT_CHARS, 12000)))
+    sn, sb = first_capped("transcribe")
+    if sb is not None:                                   # the second ear: a clip of at most SEG_MAX_S, + 5 s
+        parts.append(("the second ear (L-v 2) on every span", n, sn, sb.usd({"seconds": SEG_MAX_S + 5.0})))
+    parts.append(("the lock pre-check's Scribe per span (outside the router)", n, None, LOCK_SCRIBE_USD))
+    parts.append(("the render's sign-off check (outside the router)", 1, None, RENDER_SIGNOFF_USD))
+    rows = [{"what": w, "calls": c, "backend": bn, "usd_each": round(float(u), 6), "usd": round(c * float(u), 6)}
+            for w, c, bn, u in parts]
+    return {"usd": round(sum(r["usd"] for r in rows), 4), "segments": n, "parts": rows, "unpriced": [VOICE_UNPRICED]}
+
+
+def unmeasured_class(error):
+    """LEAN (3): why a verdict was NOT measured, from its record's error text -> "BUDGET_REFUSED" (the spend stop or
+    the completion reserve refused the call: SpendLimit), "PROVIDER_UNAVAILABLE" (no back-end answered: ProviderError,
+    NO JUDGE ANSWERED, a replay with no recording) or "UNMEASURED" (anything else: an answer out of contract, an
+    unreadable reply). Never an editorial verdict: a line-up whose verdict was not measured has failed nothing."""
+    e = str(error or "")
+    if re.search(r"SpendLimit|CompletionReserve|completion reserve|spend stop", e):
+        return "BUDGET_REFUSED"
+    if re.search(r"ProviderError|ReplayMiss|every back-end unavailable|NO JUDGE ANSWERED|no answer|did not answer", e):
+        return "PROVIDER_UNAVAILABLE"
+    return "UNMEASURED"
+
+
+def _phase(router, completing):
+    """LEAN (5): the router's phase: completing (a line-up that passed its clips-alone verdict is being finished: its
+    calls may spend the completion reserve) or searching (every paid call must leave the reserve). A stand-in router
+    that takes no attribute (the tests' rigs): nothing to mark."""
+    try:
+        router.completing = bool(completing)
+    except (AttributeError, TypeError):
+        pass
 
 
 JUDGE_FLAG = ("Some checks were made by a stand-in model, because the usual checker wrote our lines or did not "
