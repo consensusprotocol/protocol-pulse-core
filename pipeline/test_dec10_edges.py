@@ -225,6 +225,7 @@ class TestCutStageValleyEdges(unittest.TestCase):
         held = None
         with mock.patch.object(L, "write_lock_cut_table", write), \
                 mock.patch.object(rf, "media_summary", return_value={"duration": 100.0}), \
+                mock.patch.object(rf, "check_out_edges", return_value=[]), \
                 mock.patch("cut_accept.check_cut_acoustics", return_value=(m19["in"] and m19["out"], det)) as acc:
             try:
                 rf.stage_cut(run)
