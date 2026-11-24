@@ -66,8 +66,10 @@ class TestHeartbeat(Base):
 class TestServiceWriters(Base):
     def test_lock_precheck_marks_every_once_pass(self):
         import lock_precheck as LP
-        with mock.patch.object(LP, "serve_once", return_value=3), mock.patch.object(LP, "ROOT", self.d):
+        with mock.patch.object(LP, "serve_once", return_value=3), mock.patch.object(LP, "ROOT", self.d), \
+                mock.patch.object(heartbeat, "start") as start:
             self.assertEqual(LP.main(["once"]), 0)
+        start.assert_called_once_with("lock_precheck")        # a long pass (a whole post_live stream) still beats
         r = self.rec("lock_precheck")
         self.assertEqual((r["passes"], r["info"]), (1, {"served": 3}))
 
