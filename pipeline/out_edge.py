@@ -20,6 +20,7 @@ it), on the render's model and settings (role "out_edge": heimdall qwen at effor
 import hashlib
 import json
 import os
+import re
 import subprocess
 import threading
 import types
@@ -43,6 +44,8 @@ _PIN = {}                         # {"rev": the release revision a build pinned}
 _AT = {}                          # commit -> (module, sha256) of its rules file
 _JSON = {}                        # (commit, path) -> a JSON file of the release revision (release_json)
 REGISTRY_FILE = "pipeline/channels.json"   # the render's channel registry (display_name, aliases)
+NO_VERDICT = re.compile(r"STEP_A_HELD|NOT MEASURED|no verdict|NO JUDGE ANSWERED")   # LEAN (2): an admit() that failed
+#   for want of an answer (step A held, the second recogniser not measured): open work (UNVERIFIED), never a refusal
 
 
 def _git(*args, binary=False):
@@ -315,6 +318,10 @@ def pool(router, ms, sources, ctx, cache_path=None, log=print, extend=None, work
             runs_on(m, src, f"the thought runs on and the clip cannot be extended: {str(e)[:200]}")
             continue
         ok, why = admit(x) if admit is not None else (False, "no extension is admitted without its own checks")
+        if not ok and recover and NO_VERDICT.search(str(why or "")):   # LEAN (2): no answer is never a refusal:
+            rec["unverified"][mid] = (f"its extension {x['moment_id']} got no verdict before its question: "   # open
+                                      f"{str(why)[:200]}")   # work, asked again next build (never shortened for it)
+            continue
         if not ok:
             runs_on(m, src, f"its extension {x['moment_id']} fails before its question: {str(why)[:200]}")
             continue
@@ -348,6 +355,9 @@ def pool(router, ms, sources, ctx, cache_path=None, log=print, extend=None, work
             rec["refused"][mid] = f"{why}; shortened it keeps {x.get('duration_s')} s, under the {floor_s:g} s floor"
             continue
         ok, why2 = admit(x)
+        if not ok and NO_VERDICT.search(str(why2 or "")):
+            rec["unverified"][mid] = f"shortened ({x['moment_id']}) it got no verdict before its question: {str(why2)[:200]}"
+            continue
         if not ok:
             rec["refused"][mid] = f"{why}; shortened ({x['moment_id']}) it fails before its question: {str(why2)[:160]}"
             continue

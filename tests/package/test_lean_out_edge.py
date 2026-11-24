@@ -224,6 +224,58 @@ class TestShortened(unittest.TestCase):
         self.assertIn("got no answer", rec["unverified"][m["moment_id"]])
 
 
+class TestAnUnansweredGateIsOpenWork(unittest.TestCase):
+    """Found by the offline replay of build 171's pool through the lean driver (docs/audits/lean/REPLAY_171.txt):
+    16473cca's extension was made, its step A had no answer (HELD), and the clip was REFUSED: no answer is never a
+    refusal (ruling 160 (2a)). Under lean, an admit() that fails for want of an answer leaves the clip UNVERIFIED (open
+    work, asked again next build), never shortened for it."""
+    HELD = "step A: STEP_A_HELD (ruling 102): no step-A verdict (ProviderError: every back-end unavailable)"
+
+    def test_an_unanswered_step_a_on_the_extension_is_unverified(self):
+        """MUST-PASS: UNVERIFIED, nothing refused, no shortening asked."""
+        src, m, sources = window(T162.SENTENCES)
+        adm = Admit(self.HELD)
+        kept, rec = OE.pool(T162.Fake(T162.NO0), [m], sources, CTX, admit=adm, recover=True, path=RULES,
+                            floor_s=PK.SHORT_CLIP_S)
+        self.assertEqual((kept, rec["refused"]), ([], {}))
+        self.assertIn("got no verdict before its question", rec["unverified"][m["moment_id"]])
+        self.assertEqual(len(adm.seen), 1)
+
+    def test_a_second_ear_not_measured_on_the_shortened_span_is_unverified(self):
+        src, m, sources = TestShortened().two()
+        kept, rec = OE.pool(T162.Fake(T162.NO_NONE), [m], sources, CTX, admit=Admit("the second recogniser: NOT MEASURED"),
+                            recover=True, path=RULES, floor_s=PK.SHORT_CLIP_S)
+        self.assertEqual((kept, rec["refused"]), ([], {}))
+        self.assertIn("got no verdict", rec["unverified"][m["moment_id"]])
+
+    def test_an_answered_refusal_is_still_a_refusal(self):
+        """MUST-FAIL: step A ANSWERED with a hard code: refused, as before (after the one shortening it allows)."""
+        src, m, sources = window(T162.SENTENCES)
+        adm = Admit("step A: SPEAKER_CHANGE")
+        kept, rec = OE.pool(T162.Fake(T162.NO0), [m], sources, CTX, admit=adm, recover=True, path=RULES,
+                            floor_s=PK.SHORT_CLIP_S)
+        self.assertEqual((kept, rec["unverified"]), ([], {}))
+        self.assertIn("fails before its question: step A: SPEAKER_CHANGE", rec["refused"][m["moment_id"]])
+
+
+class TestTheNeverEmptyPassKeepsItsOutEdgeRecord(unittest.TestCase):
+    def test_its_unverified_out_edges_are_open_work(self):
+        """MUST-PASS: the never-empty pass's out-edge record is kept (never_empty.soft_record.out_edge), so
+        outcomes.undone counts its UNVERIFIED clips as work left undone (it read that key; build() never wrote it).
+        MUST-FAIL before: no such item, so an identical re-run could be called NOTHING NEW."""
+        import outcomes as OC
+        import test_medley as TM
+        from test_moments import pm
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
+        r = TM.Rig(ms, ["h", "x", "y", "z"], [(False, [], None, "none")] * 8, [])
+        r.out_edge_unverified = {"z"}
+        r.build_kw = {"never_empty": True}
+        out = r.run()
+        self.assertIsNone(out["package"])
+        self.assertIn("z", (out["never_empty"]["soft_record"]["out_edge"] or {}).get("unverified") or {})
+        self.assertIn({"kind": "out edge", "id": "z", "why": "the clip's out edge gave no answer"}, OC.undone(out))
+
+
 class TestTheExclusionScreenOnANewSpan(unittest.TestCase):
     def test_an_extension_that_adds_an_ad_read_is_refused_by_the_free_screen(self):
         """MUST-FAIL: the lean admit() runs the exclusion screen's free part on every new span: an extension whose added

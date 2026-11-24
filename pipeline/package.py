@@ -5293,8 +5293,10 @@ def build(*args, never_empty=False, flagged_today=0, **kw):
         _phase(router, False)                            # LEAN (5)
     info = {"stage": "2b", "clean_why_none": out.get("why_none"), "soft_why_none": soft.get("why_none"),
             "soft_back": (soft.get("prescreen") or {}).get("soft_back"),
-            "soft_record": {k: soft.get(k) for k in ("prescreen", "hook_pool", "tried", "soft_stand",
+            "soft_record": {k: soft.get(k) for k in ("prescreen", "hook_pool", "tried", "soft_stand", "out_edge",
                                                      "unmeasured_stop") if k in soft or k != "unmeasured_stop"}}
+    #   LEAN (3): "out_edge" added: outcomes.undone reads the never-empty pass's unverified OUT edges from here as open
+    #   work, and this record never carried them (found by the offline replay of build 171's pool)
     return dict(soft, never_empty=info) if soft.get("package") else dict(out, never_empty=info)
 
 
