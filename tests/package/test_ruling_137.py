@@ -708,7 +708,8 @@ class TestRuling141LineUpChain(unittest.TestCase):
 
     LINE = "Nobody can change the rules of Bitcoin."
     J2 = (False, ["hook -> clip_01", "clip_01 -> clip_02"], None, LINE)
-    B = {"text": "First, why the rules hold.", "cites": ["x"], "why": "the next speaker's 'it' has no referent"}
+    B = {"text": "Here is why the rules hold.", "cites": ["x"], "why": "the next speaker's 'it' has no referent"}
+    #   (not 'First, ...': owner_rules 3's line_faults reads 'First' as a number no clip says, as the render does)
 
     def test_joins_past_the_one_bridge_flag_and_the_first_keeps_its_bridge(self):
         _, out = self.rig([self.J2] * 8, [self.B])          # each pass: 2 line-ups and ruling 63's reorders
