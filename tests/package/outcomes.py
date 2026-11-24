@@ -39,8 +39,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
 OUTCOMES = os.path.join(REPO, "data", "builds", "outcomes.jsonl")
 ET = ZoneInfo("America/New_York")
-KINDS = ("SEALED", "HARD_REJECTED", "NO_ELIGIBLE_STORY", "INDETERMINATE", "BUDGET_STOPPED", "RENDER_FAILED")
-BUILDER_KINDS = KINDS[:5]                       # RENDER_FAILED is the render's (the integrator's lines)
+KINDS = ("SEALED", "HARD_REJECTED", "NO_ELIGIBLE_STORY", "INDETERMINATE", "BUDGET_STOPPED", "RENDER_FAILED",
+         "DEADLINE_STOPPED")                    # R3 (build 172): the launch's one wall-clock budget ran out
+BUILDER_KINDS = KINDS[:5] + ("DEADLINE_STOPPED",)   # RENDER_FAILED is the render's (the integrator's lines)
 STAGES = ("pool", "step A", "second pass + CUTTABLE", "hook onset", "hooks", "step A, second family", "line-ups",
           "writes", "seal")                     # the yield's stages, in the order a build meets them
 UNANSWERED = re.compile(r"no verdict|not measured|NO JUDGE ANSWERED|STEP_A_HELD|HELD \(ruling 102\)|gives no answer|"
@@ -100,6 +101,9 @@ NOTES = {   # THE ACCEPTANCE TEST, item 2 (b) (orchestrator 08:50 ET Nov 24): ev
     ("BUDGET_STOPPED", "spend"): "The day's spending limit was reached before all the checks could run.",
     ("BUDGET_STOPPED", "line-ups"): "The build used up its time or money for trying line-ups before finding a video.",
     ("RENDER_FAILED", "render"): "The video was sealed, but the render did not start.",
+    ("RENDER_FAILED", "delivery"): "The video was rendered, but its delivery failed.",
+    ("DEADLINE_STOPPED", "render"): "The video was sealed, but the render ran out of its time and was stopped.",
+    ("DEADLINE_STOPPED", "delivery"): "The video was rendered, but its delivery ran out of time and was stopped.",
     ("HARD_REJECTED", "render"): "The video was sealed, but the render's final check refused it.",
 }
 NOTE_LOCK_OFF = "The render's word check was not asked, to save money, so no video could be sealed."
@@ -110,7 +114,9 @@ NOTE_DEFAULT = {"SEALED": NOTES[("SEALED", "seal")],
                 "NO_ELIGIBLE_STORY": "There was no story with enough usable clips to make a video.",
                 "INDETERMINATE": "A check could not be answered, so the build stopped without a decision.",
                 "BUDGET_STOPPED": "The spending limit stopped the build before it could finish.",
-                "RENDER_FAILED": "The render did not finish."}
+                "RENDER_FAILED": "The render did not finish.",
+                "DEADLINE_STOPPED": "The build ran out of its time before it finished, so it was stopped and nothing "
+                                    "was sealed."}
 
 
 def plain_note(outcome, stage, gate=""):
@@ -442,15 +448,16 @@ def yield_of(pk, inp=None):
     return [{"stage": s, "entered": e, "refused": r} for s, e, r in rows]
 
 
-def outcome_of(build_dir, rc=None, error=None, refused=None, build_no=None, backfilled=False, titles=None):
+def outcome_of(build_dir, rc=None, error=None, refused=None, build_no=None, backfilled=False, titles=None,
+               stopped_at=None):
     """One build record -> its ONE outcome line (the agreed schema). rc / error / refused: how the driver ended
     (its exit code, the exception that ended it, its start refusal's words). Its "note" is PBX's one plain sentence
     (plain_note); the technical reason is its "detail"."""
-    line = _outcome_of(build_dir, rc, error, refused, build_no, backfilled, titles)
+    line = _outcome_of(build_dir, rc, error, refused, build_no, backfilled, titles, stopped_at=stopped_at)
     return dict(line, detail=line.get("note"), note=plain_note(line["outcome"], line["stage"], line.get("gate")))
 
 
-def _outcome_of(build_dir, rc=None, error=None, refused=None, build_no=None, backfilled=False, titles=None):
+def _outcome_of(build_dir, rc=None, error=None, refused=None, build_no=None, backfilled=False, titles=None, stopped_at=None):
     run = os.path.basename(os.path.normpath(build_dir))
     pk = _load(os.path.join(build_dir, "package.json"))
     inp = _load(os.path.join(build_dir, "inputs.json")) or {}
@@ -464,12 +471,17 @@ def _outcome_of(build_dir, rc=None, error=None, refused=None, build_no=None, bac
             "dollars": usd, "pin": None, "backfilled": bool(backfilled), "note": None, "yield": yield_of(pk, inp),
             "verdict_classes": verdict_classes(pk, fp) if pk else None}   # LEAN (3): the four kinds kept apart
     pin = (pk or {}).get("pin") or (pk or {}).get("spotlight_pin")
+    deadline = type(error).__name__ == "DeadlineStopped"     # R3: the launch's one budget ran out (providers)
     for name in ("MOMENTS_PIN_LEDGER.json", "SPOTLIGHT_PIN.json"):
         p = _load(os.path.join(build_dir, name))
         if p:
             sha = ((p.get("moments_package") or {}).get("package_sha256") or (pin or {}).get("package_sha256") or "")
             return dict(base, outcome="SEALED", stage="seal", gate="every gate exactly PASS or FLAGGED, sealed",
                         clip=None, model=None, pin=sha[:12] or None, note=p.get("story_id"))
+    if deadline:                                         # R3: after a seal it stays SEALED (the pin was whole)
+        return dict(base, outcome="DEADLINE_STOPPED", stage=stopped_at or "start",
+                    gate=f"the build's deadline: {str(error)[:200]}", clip=None, model=None,
+                    note=NOTE_DEFAULT["DEADLINE_STOPPED"])
     if os.path.exists(os.path.join(build_dir, "NOTHING_NEW.json")) and pk is None:
         nn = _load(os.path.join(build_dir, "NOTHING_NEW.json")) or {}
         return dict(base, outcome="NO_ELIGIBLE_STORY", stage="inputs", gate="nothing new (ruling 107 (1))", clip=None,
@@ -539,11 +551,13 @@ def write_once(line, path=None):
             fcntl.flock(lk, fcntl.LOCK_UN)
 
 
-def record_build(build_dir, rc=None, error=None, refused=None, build_no=None, path=None, build_id=None, seconds=None):
+def record_build(build_dir, rc=None, error=None, refused=None, build_no=None, path=None, build_id=None, seconds=None,
+                 stopped_at=None):
     """The driver's one call at the end of every build (proof_ledger.main's finally), with its wall-clock seconds per
     stage (proof_ledger.StageClock). -> the line written, or None when this run already has one."""
     titles = {x["story_id"]: x["story"] for x in lines(path) if x.get("story_id") and x.get("story")}
-    line = dict(outcome_of(build_dir, rc=rc, error=error, refused=refused, build_no=build_no, titles=titles),
+    line = dict(outcome_of(build_dir, rc=rc, error=error, refused=refused, build_no=build_no, titles=titles,
+                           stopped_at=stopped_at),
                 build_id=build_id, seconds=seconds if isinstance(seconds, dict) else None)
     return line if write_once(line, path) else None
 
@@ -582,6 +596,61 @@ def amend_render(run, exit_code, said="", pin=None, path=None, seconds=None):
                                      detail=str(said or "")[-400:] or None)
                             r["note"] = ("The video was sealed, but the render's final check refused it." if refused
                                          else "The video was sealed, but the render did not start.")
+                        hit = r
+                        rows.append(json.dumps(r))
+                    else:
+                        rows.append(x.rstrip("\n"))
+            if hit is not None:
+                tmp = f"{path}.{os.getpid()}.tmp"
+                with open(tmp, "w") as f:
+                    f.write("\n".join(rows) + "\n")
+                os.replace(tmp, path)
+            return hit
+        finally:
+            fcntl.flock(lk, fcntl.LOCK_UN)
+
+
+DEADLINE_EXIT = 124                          # GNU timeout's exit when it stopped the command (the render's own exits
+#   are 0, 1, 3, 64, 70, 71 and 75: never 124)
+
+
+def amend_stage(run, stage, exit_code, seconds=None, pin=None, said="", path=None):
+    """R3 (build 172): the LEAN launch's render ("render", run with --foreground --no-telegram, so its exit is
+    run_fresh's own) and delivery ("delivery") on the build's ONE line, under the flock, one line a run still:
+    stage: {"exit", "seconds", "pin"} and the time per stage. DEADLINE_EXIT (the launch's one deadline stopped it):
+    DEADLINE_STOPPED at the stage. The render: 0 rendered and 3 held by its own gates (the integrator's verdict) leave
+    the line SEALED; its readiness check refusing the pin is HARD_REJECTED; any other exit RENDER_FAILED. The delivery:
+    0 delivered; any other exit RENDER_FAILED at "delivery". -> the amended line, or None (no builder line)."""
+    path = path or OUTCOMES
+    code = int(exit_code)
+    with open(path + ".lock", "w") as lk:
+        fcntl.flock(lk, fcntl.LOCK_EX)
+        try:
+            rows, hit = [], None
+            with open(path) as f:
+                for x in f:
+                    try:
+                        r = json.loads(x)
+                    except ValueError:
+                        rows.append(x.rstrip("\n"))
+                        continue
+                    if r.get("side") == "builder" and r.get("run") == run and hit is None:
+                        r = dict(r, **{stage: {"exit": code, "pin": pin, "seconds": seconds}})
+                        if isinstance(seconds, (int, float)):
+                            r["seconds"] = dict(r.get("seconds") or {}, **{stage: round(float(seconds), 1)})
+                        new = None
+                        if code == DEADLINE_EXIT:
+                            new = ("DEADLINE_STOPPED", f"the launch's deadline stopped the {stage} after "
+                                                       f"{seconds if seconds is not None else '?'} s")
+                        elif stage == "render" and NOT_READY in str(said or ""):
+                            new = ("HARD_REJECTED", "the render's readiness check refused the pin")
+                        elif stage == "render" and code not in (0, 3):
+                            new = ("RENDER_FAILED", f"the render ended with exit {code}")
+                        elif stage == "delivery" and code != 0:
+                            new = ("RENDER_FAILED", f"the delivery ended with exit {code}")
+                        if new:
+                            r.update(outcome=new[0], stage=stage, gate=new[1], detail=str(said or "")[-400:] or None,
+                                     note=plain_note(new[0], stage, new[1]))
                         hit = r
                         rows.append(json.dumps(r))
                     else:

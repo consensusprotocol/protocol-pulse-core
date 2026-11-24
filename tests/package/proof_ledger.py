@@ -374,13 +374,47 @@ def lock_off(segs):
                      "request is sent until the orchestrator releases it)"}
 
 
-def lock_for(mode, out_dir, say):
+def lock_for(mode, out_dir, say, deadline_at=None):
     """RULING 130 (2): the build's lock pre-check: lock_precheck.check, one numbered request per line-up asked
-    ('pp-selectid.<build>.<n>'), when mode is 'on'; else lock_off (nothing sent). -> the lock_check callable."""
+    ('pp-selectid.<build>.<n>'), when mode is 'on'; else lock_off (nothing sent). -> the lock_check callable.
+    R3 (build 172): with a deadline, each wait is at most the time left; an answer still missing when the deadline has
+    come stops the build (DeadlineStopped): never a pass, never a wait past the budget."""
     if mode != "on":
         return lock_off
     n = iter(range(1, 10 ** 6))
-    return lambda segs: LP.check(segs, f"pp-selectid.{os.path.basename(out_dir)}.{next(n)}", log=say)
+    if deadline_at is None:
+        return lambda segs: LP.check(segs, f"pp-selectid.{os.path.basename(out_dir)}.{next(n)}", log=say)
+
+    def check(segs):
+        past_deadline(deadline_at, "lock pre-check's wait")
+        r = LP.check(segs, f"pp-selectid.{os.path.basename(out_dir)}.{next(n)}", log=say,
+                     timeout_s=min(LP.TIMEOUT_S, max(0.0, deadline_at - time.time())))
+        if r.get("error") and time.time() >= deadline_at:
+            raise P.DeadlineStopped(f"the lock pre-check had no verdict when the build's deadline came ({r['error'][:160]})"
+                                    f": UNVERIFIED")
+        return r
+    return check
+
+
+def past_deadline(at, what):
+    """R3: once the build's deadline has passed, nothing more is started, waited for, or sealed."""
+    if at is not None and time.time() >= at:
+        raise P.DeadlineStopped(f"the build's deadline passed before the {what}")
+
+
+DEADLINE_EXIT = 124                                     # R3: the driver's exit at its deadline (GNU timeout's own)
+
+
+def arm_deadline(at):
+    """R3 (build 172): SIGALRM at `at` (epoch seconds) raises providers.DeadlineStopped in the main thread wherever
+    the build then is (a model call's wait, the lock pre-check's poll): it stops there, and main() writes its one
+    outcome line (DEADLINE_STOPPED, its time per stage) and exits DEADLINE_EXIT. -> at."""
+    def fire(signum, frame):
+        raise P.DeadlineStopped("the build's share of the launch's budget ended at " +
+                                datetime.fromtimestamp(at, timezone.utc).astimezone(PL.DAY_ET).strftime("%H:%M:%S ET"))
+    signal.signal(signal.SIGALRM, fire)
+    signal.setitimer(signal.ITIMER_REAL, max(0.001, at - time.time()))
+    return at
 
 
 def read_only(path):
@@ -418,7 +452,8 @@ def build_router(routing, shadow, shadow_log, limit=None):
                     breakers=CB.STATE,                                                         # ruling 99
                     deadlines=DT.load(DT.STATE, PL.REPLIES),                                   # ruling 100
                     reserve_wait_s=PL.RESERVE_WAIT_S,          # batch 3: a call that fits waits for calls in flight
-                    uncapped=PL.UNCAPPED)                      # ruling 118 (b): Heimdall recorded, never capped
+                    uncapped=PL.UNCAPPED,                      # ruling 118 (b): Heimdall recorded, never capped
+                    ceiling=PL.CEILING)                        # R1: the spend day's one ledger, fail closed
 
 
 WRITER_PROBE_S = 45.0                            # RULING 152 (1): one probe answer waits at most this long
@@ -596,17 +631,27 @@ def main(argv=None):
         err = e
         raise
     finally:
+        if box.get("deadline_at") is not None:          # R3: disarmed FIRST, whatever ended the build: the alarm never
+            signal.setitimer(signal.ITIMER_REAL, 0)      # interrupts the outcome line's write
         if box.get("out_dir"):
             try:
+                if isinstance(err, P.DeadlineStopped):  # R3: the stage in progress keeps its last seconds
+                    box["clock"].mark("")
                 line = OC.record_build(box["out_dir"], rc=rc, error=err, refused=box.get("refused"),
                                        build_no=box.get("build_no"),     # outcomes.OUTCOMES (audit L2, qwen F1)
-                                       build_id=box.get("build_id"), seconds=box["clock"].totals())
+                                       build_id=box.get("build_id"), seconds=box["clock"].totals(),
+                                       stopped_at=box["clock"].stage if isinstance(err, P.DeadlineStopped) else None)
                 if line:
                     print(f"  RULING 160 (2b): outcome {line['outcome']} at {line['stage']}: {line['gate']}",
                           flush=True)
             except BaseException as e:                   # noqa: BLE001  never masks the build's own end; a stop or
                 print(f"  RULING 160 (2b): the outcome line was NOT written: {type(e).__name__}: {e}",   # an interrupt
                       file=sys.stderr, flush=True)       # inside the write is said too (audit L2, qwen F3)
+        if isinstance(err, P.DeadlineStopped):
+            print(f"DEADLINE_STOPPED: {err}", flush=True)
+            if not entry["under_test"]:                  # R3: no thread still waiting (a model call, the lock poll)
+                sys.stderr.flush()                       # keeps the process past its budget
+                os._exit(DEADLINE_EXIT)
 
 
 def _main(argv, box):
@@ -638,11 +683,17 @@ def _main(argv, box):
                     "the outcome line")
     ap.add_argument("--out-dir-file", default=None, help="amendment C: this run writes its own record folder's path here "
                     "the moment it makes it, so the launcher never guesses 'the newest folder'")
+    ap.add_argument("--deadline-at", type=float, default=None, help="R3 (build 172): the epoch second this build's "
+                    "share of the launch's one wall-clock budget ends: no model call starts that could not end before "
+                    "it, the lock pre-check waits at most until it, nothing seals after it; at it the build stops "
+                    "(outcome DEADLINE_STOPPED, exit 124). None: no deadline (as before)")
     ap.add_argument("--from-candidate", metavar="BUILD_DIR[:N]",
                     help="RULING 66: try ONLY the line-up that passed the clips-alone verdict in this earlier build's "
                          "record (its tried[N]; default the first that passed), as it was judged")
     a = ap.parse_args(argv)
     now = datetime.now(timezone.utc)
+    if a.deadline_at is not None:                        # R3 (build 172): the launch's one wall-clock budget
+        box["deadline_at"] = arm_deadline(a.deadline_at)
     if not 0 < a.hours <= package_pin.WINDOW_H:          # ruling 76: "rather than widen the window"; RULING 159 (3)(a):
         print(f"REFUSED (ruling 76): --hours {a.hours} is outside (0, {package_pin.WINDOW_H:g}]", file=sys.stderr)
         return 2                                         # ruling 144's one-build exception switch is removed
@@ -776,6 +827,7 @@ def _main(argv, box):
     limit = PL.LY_LIMIT_USD if a.stop_usd is None else a.stop_usd   # ORDER 17:50 ET Nov 16: --stop-usd
     stop = PL.LY_STOP_USD if a.stop_usd is None else a.stop_usd
     router = build_router(routing, shadow, os.path.join(out_dir, "SHADOW86.jsonl"), limit=limit)
+    router.deadline_at = a.deadline_at                  # R3: no call starts that could not end inside the budget
     say(f"  routing (ruling 85): {router.routing}; now {router.mode()} (ruling 87: the shared Heimdall health)"
         + (f"; SHADOW (ruling 86 / 115): {shadow}" if shadow else ""))
     wprobe = writer_probe(router)                # RULING 152 (1): the writers that answer, in order, then Grok
@@ -824,7 +876,7 @@ def _main(argv, box):
               visual_cache=os.path.join(HERE, "proof", "VISUAL_CACHE.json"),       # ruling 70
               out_edge_cache=os.path.join(HERE, "proof", "OUT_EDGE_CACHE.json"),   # ITEM 3: the question's answers,
               #   keyed by the exact transcript, cut and prompt version (out_edge._key); the replay's frozen answers
-              lock_check=lock_for(a.lock_precheck, out_dir, say),    # rulings 68 / 72 / 130 (2): off sends nothing
+              lock_check=lock_for(a.lock_precheck, out_dir, say, a.deadline_at),    # rulings 68 / 72 / 130 (2): off sends nothing
               lean=True)                                 # LEAN (1) (2) (4): the bounded path (package._build)
     name, at = os.path.relpath(out_dir, REPO), now.isoformat()
     if cand is not None:                                 # --from-candidate: that candidate alone (ruling 66, 13:18)
@@ -887,6 +939,7 @@ def _main(argv, box):
                 package_pin.window_problems(res["package"]["segments"])   # ruling 68; ruling 76 (c), render clock
             if lock:
                 raise package_pin.PinRefused("; ".join(lock))
+            past_deadline(a.deadline_at, "seal")         # R3: nothing seals after the deadline
             path, pin = package_pin.write_pin(res["package"], f"ledger_{now.strftime('%Y%m%d_%H%M%S')}", out_dir,
                                               name="MOMENTS_PIN_LEDGER.json")
             res["pin"] = {"path": os.path.relpath(path, REPO), "story_id": pin["story_id"],
@@ -917,6 +970,7 @@ def _main(argv, box):
                 lock.append(why_place)
             if lock:
                 raise package_pin.PinRefused("; ".join(lock))
+            past_deadline(a.deadline_at, "seal")         # R3: nothing seals after the deadline
             path, pin = package_pin.write_pin(sp["package"], f"ledger_{now.strftime('%Y%m%d_%H%M%S')}", out_dir,
                                               name="SPOTLIGHT_PIN.json")
             res["spotlight_pin"] = {"path": os.path.relpath(path, REPO), "story_id": pin["story_id"],

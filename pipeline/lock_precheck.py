@@ -89,7 +89,9 @@ DECODER = "9326604699a7"                      # side): the render's own cut plac
 #   (ruling 139 on the render lock), the ruling-145 allowance (gpu0.py) and 119 (post_live; no decoder file), ONE
 #   lockstep (branch r143-material 36896978e; pinned.py, sentence_law.py and gpu0.py byte-identical):
 #   9326604699a7756c18d887cd09bdb280f74d9c732bfb0e1235e4a9f3095850c9
-RESULTS = "/home/ultron/protocol_pulse/data/lock_precheck/results"        # the integrator's; read only
+RESULTS = os.environ.get("PP_LOCK_PRECHECK_RESULTS") or \
+    "/home/ultron/protocol_pulse/data/lock_precheck/results"                # the integrator's; read only. R2 (build 172):
+#   the lean launch points it at its experimental lock service's results (unset: the integrator's, as before)
 REQUESTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
                         "lock_requests")      # this worktree's; the service only reads it
 PASS = frozenset(("no_difference", "adopted", "two_readings"))

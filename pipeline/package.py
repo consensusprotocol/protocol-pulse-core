@@ -225,7 +225,9 @@ TRIM_WORDS = ("but", "and", "so", "well", "now", "yeah")   # ruling 33 part 2: t
 # moments=True), as the render's validate reads it.
 STORIES = "/home/ultron/pulse_intel/stories/latest.json"   # RULING 118 (4): the receipts session's stories
 #   (pipeline_pi_receipts; read only), refreshed every 15 minutes: the story-first angles (read_stories)
-SCORER_VERDICTS = "/home/ultron/protocol_pulse/data/stand_alone_scorer/verdicts/latest.json"   # ruling 56: the
+SCORER_VERDICTS = os.environ.get("PP_SCORER_VERDICTS") or \
+    "/home/ultron/protocol_pulse/data/stand_alone_scorer/verdicts/latest.json"   # R2 (build 172): the lean launch's
+#   experimental scorer when set (unset: the integrator's, as before). ruling 56: the
 SCORER_KIND = "moments"            # integrator's verdicts (read only); ruling 60: kind "moments", no event
 RENDER_SCORER_CODE = tuple(f"/home/ultron/protocol_pulse/pipeline/{f}" for f in ("stand_alone.py", "story_semantics.py"))
                                    # ^ read only: the render's scorer code; the integrator's scorer_sha is a sha256 over
@@ -5316,6 +5318,10 @@ LOCK_SCRIBE_USD = 0.01                  # LEAN (5): the render's lock pre-check 
 #   largest span on the integrator's outside ledger (65 spans, Nov 17-24, $0.012 a minute)
 RENDER_SIGNOFF_USD = 0.0045             # LEAN (5): the render's sign-off check (xai:grok-3-mini, vendor-reported
 #   $0.004013 on the integrator's outside ledger, Nov 24), OUTSIDE the router
+if os.environ.get("PP_SPEND_CEILING") == "1":   # R1 (build 172): under the one ledger these two calls RESERVE before
+    import spend_ceiling as _SC                  # they are sent, so the reserve holds what they reserve (not their bills):
+    LOCK_SCRIBE_USD = 0.0101                     # the largest window's metered cost + the reservation's $0.0001
+    RENDER_SIGNOFF_USD = _SC.SIGNOFF_RESERVE_USD     # $0.05 a round (the rounds are one after another)
 VOICE_UNPRICED = ("the voice (ElevenLabs TTS at the render) is not in dollars: ElevenLabs bills its characters against "
                   "the plan's monthly quota and the code holds no USD rate (ruling 131's open question)")
 

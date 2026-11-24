@@ -55,12 +55,38 @@ class RequestRejected(Exception):
     call only; the back-end stays available to other calls."""
 
 
+def _answered(exc, status):
+    """R1: the vendor ANSWERED this request with an HTTP error status (`status`): no completion was made on it."""
+    exc.http_status = int(status)
+    return exc
+
+
+def _not_sent(exc):
+    """R1: raised BEFORE any request was made (a key or an SDK missing, a prompt this back-end does not take)."""
+    exc.not_sent = True
+    return exc
+
+
+def cost_known_zero(e):
+    """R1 (ceiling mode): may this failed call's reservation be released? Only when nothing was sent, or the vendor
+    refused it with a 4xx status (rejected, rate-limited, unauthorised: not processed, not billed). Anything else after a
+    reservation (a transport failure, a reply cut, a 5xx, a 200 reply without an answer) has a cost nobody knows."""
+    return bool(getattr(e, "not_sent", False)) or 400 <= int(getattr(e, "http_status", 0) or 0) < 500
+
+
 class ProviderError(Exception):
     """No back-end of the role's chain answered: the role failed (never a pass)."""
 
 
 class SpendLimit(Exception):
     """The session's spend guard is reached: no further model call."""
+
+
+class DeadlineStopped(BaseException):
+    """R3 (build 172, the owner's 15:25 ET Nov 24 order): the build's ONE wall-clock budget (the launcher's deadline) is
+    used up, or the next call could not end inside it: no such call is started, and the build stops with the outcome
+    DEADLINE_STOPPED. A BaseException, so no `except Exception` on the way can read it as a model's failure, an
+    unanswered check that lets the build go on, or a verdict."""
 
 
 class CompletionReserve(SpendLimit):
@@ -160,13 +186,13 @@ def _with_backoff(fn, final_codes=()):
             code = str(e_obj.get("code") or e_obj.get("type") or err.get("type") or "")
             last = f"HTTP {e.code} {code}".strip()
             if e.code in final_codes or "insufficient_quota" in code or "credit" in code or "billing" in code:
-                raise Unavailable(last + " (final: account)") from None
+                raise _answered(Unavailable(last + " (final: account)"), e.code) from None
             if (e.code == 429 or e.code >= 500) and wait is not None:
                 time.sleep(wait)
                 continue
             if e.code in PER_REQUEST_CODES:
-                raise RequestRejected(last) from None
-            raise Unavailable(last) from None
+                raise _answered(RequestRejected(last), e.code) from None
+            raise _answered(Unavailable(last), e.code) from None
         except (urllib.error.URLError, TimeoutError, ConnectionError, OSError, ValueError, http.client.IncompleteRead,
                 http.client.BadStatusLine) as e:
             last = type(e).__name__
@@ -231,7 +257,7 @@ class Backend:
     def key(self, name):
         k = env_value(self.env_path, name)
         if not k:
-            raise Unavailable(f"{name} not configured")
+            raise _not_sent(Unavailable(f"{name} not configured"))
         return k
 
     def complete(self, prompt, max_tokens, seed, system=None):
@@ -297,7 +323,7 @@ class GeminiBackend(Backend):
 
     def complete(self, prompt, max_tokens, seed, system=None):
         if is_vision(prompt):
-            raise RequestRejected("gemini: no image input on this back-end")
+            raise _not_sent(RequestRejected("gemini: no image input on this back-end"))
         key = self.key(self.spec.get("key_name") or "GEMINI_API_KEY_MEDLEY")
         body = {"contents": [{"role": "user", "parts": [{"text": prompt}]}],
                 "generationConfig": {"maxOutputTokens": self.max_out(max_tokens), "temperature": 0, "seed": seed,
@@ -510,7 +536,7 @@ class AnthropicBackend(Backend):
         try:
             import anthropic
         except ImportError:
-            raise Unavailable("anthropic SDK not installed") from None
+            raise _not_sent(Unavailable("anthropic SDK not installed")) from None
         client = anthropic.Anthropic(api_key=self.key("ANTHROPIC_API_KEY"), max_retries=3, timeout=self.timeout)
         kw = {"model": self.model, "max_tokens": self.max_out(max_tokens),
               "messages": [{"role": "user", "content": prompt}],
@@ -524,8 +550,8 @@ class AnthropicBackend(Backend):
                 msg = s.get_final_message()
         except anthropic.APIStatusError as e:
             if e.status_code in PER_REQUEST_CODES:
-                raise RequestRejected(f"anthropic HTTP {e.status_code}") from None
-            raise Unavailable(f"anthropic HTTP {e.status_code}") from None
+                raise _answered(RequestRejected(f"anthropic HTTP {e.status_code}"), e.status_code) from None
+            raise _answered(Unavailable(f"anthropic HTTP {e.status_code}"), e.status_code) from None
         except anthropic.APIError as e:
             raise Unavailable(f"anthropic {type(e).__name__}") from None
         text = "".join(b.text for b in msg.content if b.type == "text")
@@ -572,7 +598,7 @@ class XAIVisionBackend(Backend):
 
     def complete(self, prompt, max_tokens, seed, system=None):
         if not is_vision(prompt):
-            raise RequestRejected("xai_vision takes a vision prompt only")
+            raise _not_sent(RequestRejected("xai_vision takes a vision prompt only"))
         key = self.key(self.spec.get("key_name", "XAI_API_KEY_MEDLEY"))
         parts = [{"type": "input_text", "text": prompt["text"]}] + [
             {"type": "input_image", "image_url": "data:image/jpeg;base64," + i, "detail": "high"}
@@ -764,7 +790,7 @@ class Router:
     def __init__(self, config=CONFIG, env_path=None, record_dir=None, replay=False, spend_path=None, limit_usd=40.0,
                  local_llm=None, chains=None, limit_basis="estimate", deadline_log=None, slow_log_s=240.0,
                  routing=None, shadow=None, shadow_log=None, health=None, plan_b_chains=None, state_md=None,
-                 breakers=None, deadlines=None, reserve_wait_s=0.0, uncapped=()):
+                 breakers=None, deadlines=None, reserve_wait_s=0.0, uncapped=(), ceiling=False):
         with open(config) as f:
             self.config = json.load(f)
         rt = self.config.get("routing") or {}
@@ -785,6 +811,13 @@ class Router:
         #   being finished (package._build): its calls may spend the reserve; every other call must leave it
         self.reserve_refused = []                 # LEAN (5): the back-end of every call refused ONLY by the reserve (a
         #   subset of spend_refused)
+        self.deadline_at = None                   # R3 (build 172): the build's deadline (epoch seconds), set by the
+        #   driver: a call whose own deadline would pass it is not started (DeadlineStopped); None: no deadline
+        self.ceiling = bool(ceiling)              # R1 (build 172): spend_path is THE day's one ledger (spend_ceiling):
+        #   its lock is taken within a short wait or refused; a reservation is never released for a dead process; a
+        #   stopped ledger refuses every paid call; a call whose cost is unknown after it (abandoned at its deadline,
+        #   unavailable or failing after it may have reached the vendor) keeps its reservation counted and STOPS the
+        #   ledger; a bill above its reservation stops it too; the guard sees the reservation in the call's own thread
         self.reserve_wait_s = float(reserve_wait_s)   # _reserve: 0 (the default) refuses at once, as every caller had
         self.reserve_poll_s = RESERVE_POLL_S          # it; a batch build that may wait for calls in flight opts in
         import threading
@@ -861,8 +894,21 @@ class Router:
         import fcntl
         os.makedirs(os.path.dirname(os.path.abspath(self.spend_path)), exist_ok=True)
         lk = open(self.spend_path + ".lock", "w")
-        fcntl.flock(lk, fcntl.LOCK_EX)
-        return lk
+        if not self.ceiling:
+            fcntl.flock(lk, fcntl.LOCK_EX)
+            return lk
+        import spend_ceiling as SC                # R1: the ONE ledger's lock, within its short wait or refused
+        end = time.time() + SC.LOCK_WAIT_S
+        while True:
+            try:
+                fcntl.flock(lk, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                return lk
+            except BlockingIOError:
+                if time.time() >= end:
+                    lk.close()
+                    raise SpendLimit(f"the spend ledger's lock was not free within {SC.LOCK_WAIT_S:g} s: no paid call "
+                                     f"(fail closed, R1)") from None
+                time.sleep(0.02)
 
     def _ledger(self):
         """The ledger (a missing file is an empty one). An unreadable ledger is a SpendLimit: no paid call runs on a
@@ -879,6 +925,8 @@ class Router:
                              "until it is repaired") from None
         for k, v in (("calls", 0), ("by_backend", {}), ("by_role", {}), ("reserved", {})):
             d.setdefault(k, v)
+        if self.ceiling:                          # R1: a crash between reserve and settle stays counted
+            return d
         live = {}
         for k, v in d["reserved"].items():
             try:
@@ -949,7 +997,9 @@ class Router:
         if not self.spend_path:
             return 0.0
         with self._lock():
-            return self._basis_total(self._ledger())
+            d = self._ledger()
+            return self._basis_total(d) + (sum(float(x) for x in d["reserved"].values()) if self.ceiling else 0.0)
+            #   R1: in the one ledger a held reservation (a crashed call's included) is spent until settled
 
     def _reserve(self, b, upper):
         """Reserve a paid call's upper bound -> a reservation key (None for a free back-end or no ledger); raises
@@ -969,6 +1019,10 @@ class Router:
         after batch while those four ran."""
         if not self.spend_path or b.free() or not self._capped(b.name):     # ruling 118 (b): Heimdall is free
             return None
+        if self.ceiling and b.vendor == "xai_search":   # R1: its live-search fees are not in its reply: a cost no
+            self.spend_refused.append(b.name)           # ledger can settle is never started under the one ledger
+            raise SpendLimit(f"{b.name}: its live-search fees are not reported in its reply: not called under the one "
+                             f"spend ledger (R1)")
         try:
             return self._reserve_capped(b, upper)
         except SpendLimit as e:                   # RULING 107 (1) (build 134, 12:57 ET Nov 17): a call refused for
@@ -987,6 +1041,13 @@ class Router:
         while True:
             with self._lock():
                 d = self._ledger()
+                if self.ceiling:                     # R1: a reservation of a process that ended unsettled stops it
+                    import spend_ceiling as SC
+                    if SC.mark_dead(d):
+                        self._save(d)
+                if self.ceiling and d.get("stop"):   # R1: a stopped ledger refuses every paid call, before the vendor
+                    raise SpendLimit(f"the spend ledger is STOPPED ({(d['stop'] or {}).get('why')}): no paid call "
+                                     f"until the owner clears it (R1)")
                 held = sum(float(x) for x in d["reserved"].values())
                 spent = self._basis_total(d)
                 if spent + held + upper + margin <= self.limit_usd:
@@ -1055,6 +1116,27 @@ class Router:
             d = self._ledger()
         return None if (d.get("reserve_tripped") or {}).get(b.name) else float(f)
 
+    def _deadline_left(self, role, name, dl):
+        """R3: with a deadline set, a call whose own deadline (dl seconds) would end past it is NOT started, and none at
+        all once it has passed: DeadlineStopped (the build stops; an unanswered check is never read as a pass)."""
+        if self.deadline_at is None:
+            return
+        left = self.deadline_at - time.time()
+        if left <= 0 or (dl and dl > left):
+            raise DeadlineStopped(f"the build's deadline: {max(0.0, left):.0f} s left, and the {name} call ({role}) "
+                                  f"may take {dl or 0:g} s: not started")
+
+    def _keep(self, key, why):
+        """R1 (ceiling mode): a call whose cost is unknown after it: its reservation stays counted (never released) and
+        the ledger STOPS: no further paid call by any program until the owner clears it (spend_ceiling.clear_stop)."""
+        if not self.spend_path or key is None:
+            return
+        with self._lock():
+            d = self._ledger()
+            if not d.get("stop"):
+                d["stop"] = {"why": str(why)[:300], "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "key": key}
+            self._save(d)
+
     def _settle(self, key, backend=None, usage=None, usd=0.0, role="", unreported=None):
         """Release a reservation and account the call that answered (a free one too, when the ledger is readable).
         `unreported` (an abandoned call's booking, ruling 107 Q1) is what the cap's unreported estimate takes in place
@@ -1077,6 +1159,10 @@ class Router:
                 over_held = bill is not None and _num(f) and _num(held) and bill > float(held)   # RULING 130 (3): a
                 #   bill above what was RESERVED for the call trips too (a vision reply's usage runs past its output
                 #   cap, so its bill is a small share of the list price of its usage and the first test never fires)
+                if self.ceiling and bill is not None and _num(held) and bill > float(held) + 1e-9 and not d.get("stop"):
+                    d["stop"] = {"why": f"a {backend.name} call billed ${bill:.4f}, above its ${float(held):.4f} "
+                                        f"reservation ({role})", "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                                 "key": key}                     # R1: counted as billed, and no further paid call
                 if (over_list or over_held) and not (d.get("reserve_tripped") or {}).get(backend.name):
                     trip = {"at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "role": role,
                             "billed": round(bill, 6), "list": round(usd, 6),
@@ -1114,6 +1200,14 @@ class Router:
         with none, the estimate from its own token counts. No answer (an error): the booking stands. Either way one
         line goes to the deadline log (item 55). The answer's text is never used or recorded."""
         b, role, booked = ab["backend"], ab["role"], float(ab["usd"])
+        if ab.get("kept"):                             # R1 (ceiling mode): the kept reservation, settled by the late
+            if error is None and isinstance(value, tuple) and len(value) == 3:   # answer's own figure; no answer: it
+                try:                                                             # stays counted (the stop stays)
+                    usage = dict(value[1] or {})
+                    self._settle(ab["kept"], b, usage, b.usd(usage), role)
+                except Exception:                      # noqa: BLE001  the reservation then stays counted
+                    pass
+            return
         on_cap = float(ab.get("usd_unreported", booked))   # ruling 107 Q1: what the cap's basis was booked at
         rec = {"kind": "late_answer" if error is None else "late_error", "role": role, "model": b.name,
                "vendor": b.vendor, "deadline_s": ab.get("deadline_s"),
@@ -1478,6 +1572,7 @@ class Router:
             if bwhy:
                 tried.append((name, bwhy))
                 continue
+            self._deadline_left(role, name, dl)                 # R3: a call that could not end inside the budget
             upper = b.upper_usd(prompt, max_tokens, system)
             frac = self._reserve_fraction(b)          # RULING 123 (1): Grok at 25 % of list until a call bills over it
             key = self._reserve(b, round(upper * frac, 6) if frac is not None else upper)
@@ -1505,16 +1600,24 @@ class Router:
                                 "deadline_s": deadline_s, "seconds": deadline_s,
                                 "prompt_chars": len(prompt_text(prompt)), "max_tokens": max_tokens,
                                 "booked_usd": booked, "booked_basis": basis})   # evidence first (audit 2048 C1)
+                if self.ceiling and key is not None:   # R1: its cost is unknown: the reservation stays, the ledger stops
+                    self._keep(key, f"a {name} call was abandoned at its {deadline_s} s deadline ({role}): its cost is "
+                                    f"unknown")
+                    return {"backend": b, "role": role, "usd": listed, "kept": key, "deadline_s": deadline_s,
+                            "t0": time.time(), "max_out": b.max_out(max_tokens), "basis": "kept (R1)"}
                 self._settle(key, b, {"in": 0, "out": 0}, listed, role, unreported=booked)   # an unreadable ledger
                 return {"backend": b, "role": role, "usd": listed, "usd_unreported": booked, "basis": basis,  # raises
                         "deadline_s": deadline_s, "t0": time.time(),
                         "max_out": b.max_out(max_tokens)}             # ruling 99: a late runaway is measured on it
+            call = (lambda b=b: b.complete(prompt, max_tokens, seed, system))
+            if self.ceiling and key is not None:      # R1: the guard sees this call's reservation in its own thread
+                import spend_ceiling as SC
+                call = SC.bound(key, call)
             try:
                 if dl:                                 # ruling 5 (22:40): fail over instead of waiting
-                    text, usage, secs = _within(dl, lambda: b.complete(prompt, max_tokens, seed, system),
-                                                on_abandon=abandon, on_late=self._late)
+                    text, usage, secs = _within(dl, call, on_abandon=abandon, on_late=self._late)
                 else:
-                    text, usage, secs = b.complete(prompt, max_tokens, seed, system)
+                    text, usage, secs = call()
             except DeadlineExceeded as e:              # abandoned (the vendor may still bill it): booked and logged by
                 self._note(role, b, False)             # abandon(); ruling 87: not answered inside its deadline
                 self._breaker(role, name, "miss", deadline_s=dl, seconds=dl, max_out=b.max_out(max_tokens))
@@ -1524,18 +1627,27 @@ class Router:
                                     "rulings 83 (a) / 107)"))
                 continue
             except RequestRejected as e:
-                self._settle(key)
+                if self.ceiling and key is not None and not cost_known_zero(e):   # R1: a 200 reply without an answer
+                    self._keep(key, f"a {name} reply without an answer ({role}): {str(e)[:120]}: its cost is unknown")
+                else:
+                    self._settle(key)
                 self._note(role, b, False)
                 tried.append((name, f"refused this request: {e}"))
                 continue
             except Unavailable as e:
-                self._settle(key)
+                if self.ceiling and key is not None and not cost_known_zero(e):   # R1: it may have reached the vendor
+                    self._keep(key, f"a {name} call failed after its reservation ({role}): {str(e)[:120]}")
+                else:
+                    self._settle(key)
                 self._note(role, b, False)
                 self.down[name] = str(e)
                 tried.append((name, str(e)))
                 continue
-            except BaseException:
-                self._settle(key)
+            except BaseException as e:
+                if self.ceiling and key is not None:
+                    self._keep(key, f"a {name} call raised after its reservation ({role}): {type(e).__name__}")
+                else:
+                    self._settle(key)
                 raise
             usd = b.usd(usage)
             self._settle(key, b, usage, usd, role)
@@ -1592,20 +1704,34 @@ class Router:
             if self.replay:
                 tried.append((name, "replay: not recorded"))
                 continue
+            self._deadline_left("transcribe", name, None)       # R3
             key = self._reserve(b, b.upper_usd(wav))
+            call = (lambda b=b: b.transcribe(wav))
+            if self.ceiling and key is not None:      # R1: the guard sees this call's reservation
+                import spend_ceiling as SC
+                call = SC.bound(key, call)
             try:
-                result, secs = b.transcribe(wav)
+                result, secs = call()
             except RequestRejected as e:
-                self._settle(key)
+                if self.ceiling and key is not None and not cost_known_zero(e):
+                    self._keep(key, f"a {name} transcription reply without an answer: {str(e)[:120]}")
+                else:
+                    self._settle(key)
                 tried.append((name, f"refused this request: {e}"))
                 continue
             except Unavailable as e:
-                self._settle(key)
+                if self.ceiling and key is not None and not cost_known_zero(e):   # R1: cost unknown: kept, stopped
+                    self._keep(key, f"a {name} transcription failed after its reservation: {str(e)[:120]}")
+                else:
+                    self._settle(key)
                 self.down[name] = str(e)
                 tried.append((name, str(e)))
                 continue
-            except BaseException:
-                self._settle(key)
+            except BaseException as e:
+                if self.ceiling and key is not None:
+                    self._keep(key, f"a {name} transcription raised after its reservation: {type(e).__name__}")
+                else:
+                    self._settle(key)
                 raise
             usage = {"seconds": round(_wav_seconds(wav), 2)}
             usd = b.usd(usage)

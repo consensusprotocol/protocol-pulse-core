@@ -54,10 +54,18 @@ DAY_START = (21, 10)               # RULING 118: a day's dollar runs 21:10 ET to
 FIRST_DAY = "SPEND_B4.json"        # ruling counts batch 4's $0.52 in Nov 16's dollar, so that day's ledger is batch 4's)
 
 
+CEILING = os.environ.get("PP_SPEND_CEILING") == "1"   # R1 (build 172): the spend day's ONE ledger (spend_ceiling), set
+#   by the launch for the builder, the lock service and the render alike; unset: this worktree's own ledger, as before
+
+
 def day_ledger(now=None):
     """RULING 118 (orchestrator 05:40 ET Nov 16): the ledger of the day `now` falls in (default: this moment). A day
     starts at DAY_START ET and is named by the date it starts on; the day that starts 21:10 ET Nov 15 is batch 4's,
-    whose ledger it keeps (FIRST_DAY). -> the ledger's path."""
+    whose ledger it keeps (FIRST_DAY). -> the ledger's path. R1: under CEILING, the one ledger outside every
+    worktree (spend_ceiling.ledger_path), the same day boundary."""
+    if CEILING:
+        import spend_ceiling as SC
+        return SC.ledger_path(now)
     t = (now or datetime.now(timezone.utc)).astimezone(DAY_ET)
     start = t.replace(hour=DAY_START[0], minute=DAY_START[1], second=0, microsecond=0)
     if t < start:
