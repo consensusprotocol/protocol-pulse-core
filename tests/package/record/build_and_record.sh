@@ -24,6 +24,13 @@ LK=$(ls -l /proc/[0-9]*/fd 2>/dev/null | grep -c 'pulse_check_run.lock')
 if [ "$LK" != "0" ]; then echo "render lock held: no build, no commit"; exit 3; fi
 RUN=$(ps -eo args= | awk -v d="$DRIVER" '$1 ~ /python3$/ && $3 == d' | wc -l)
 if [ "$RUN" != "0" ]; then echo "another build is running ($RUN process): no build"; exit 3; fi
+# RULING 163 (5) (08:22 ET Nov 24): the launcher REFUSES any driver that is not the committed one, and (ruling 160 (1))
+# a build runs on committed, pushed code only: the driver as HEAD has it, no changed code file, nothing unpushed
+if ! git diff --quiet HEAD -- "$DRIVER"; then echo "REFUSED (ruling 163 (5)): $DRIVER differs from the committed one: no build"; exit 6; fi
+DIRTY=$(git status --porcelain -- pipeline tests/package | grep -v '^??' | awk '{print $NF}' | grep -E '\.(py|sh)$' | tr '\n' ' ')
+if [ -n "$DIRTY" ]; then echo "REFUSED (ruling 163 (5)): code changed and not committed: $DIRTY: no build"; exit 6; fi
+AHEAD=$(git rev-list --count '@{u}..HEAD' 2>/dev/null || echo "unknown (no upstream)")
+if [ "$AHEAD" != "0" ]; then echo "REFUSED (ruling 160 (1)): commits not pushed: $AHEAD: pushed code only: no build"; exit 6; fi
 ONLY=""; STOP=""
 for ((i=0; i<${#EXTRA[@]}; i++)); do
   case "${EXTRA[$i]}" in

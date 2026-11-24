@@ -193,6 +193,96 @@ def classify(why, pre=None, hook_pool=None, tried=None):
     return out("INDETERMINATE", "unknown", f"a reason this classifier does not know: {w[:160]}")
 
 
+UNDONE_STAGE = {"vision": "visual", "hook rating": "hooks", "held": "step A", "lock": "lock pre-check",
+                "out edge": "out edge", "second_pass": "second pass + CUTTABLE", "trim_cut": "second pass + CUTTABLE",
+                "hook_onset": "hook onset", "verdict": "gates"}   # an undone check's kind -> the yield's stage
+VISION_UNMEASURED = "is not measured (law L-m)"    # visual_pin.layout_block / hook_block: a sheet never judged
+LOCK_OFF = "--lock-precheck off"                  # ruling 130 (2): a lock pre-check not asked by choice, not an outage
+
+
+def _errors(x):
+    """The objects anywhere inside x whose "verdict" is "error" (a segment the render's lock gave no verdict on in
+    time, wherever the record nests it): structure, never a string search (audit 2155g C1)."""
+    if isinstance(x, dict):
+        return int(x.get("verdict") == "error") + sum(_errors(v) for v in x.values())
+    if isinstance(x, (list, tuple)):
+        return sum(_errors(v) for v in x)
+    return 0
+
+
+def _unanswered(x, seen):
+    """Every verdict record anywhere inside x that says it was not measured ({"measured": false}: no model answered,
+    the stand-in judges included, or nothing could be measured), once per distinct record; a lock segment with no
+    verdict is _errors()'s."""
+    out = []
+    if isinstance(x, dict):
+        if x.get("measured") is False and x.get("verdict") != "error":
+            k = json.dumps(x, sort_keys=True, default=str)
+            if k not in seen:
+                seen.add(k)
+                out.append(str(x.get("error") or x.get("why") or "not measured")[:160])
+        for v in x.values():
+            out += _unanswered(v, seen)
+    elif isinstance(x, (list, tuple)):
+        for v in x:
+            out += _unanswered(v, seen)
+    return out
+
+
+def undone(res, sp=None, refused=()):
+    """RULING 107 (1), with RULING 163 (4) (orchestrator 08:22 ET Nov 24: "a build that ended with ANYTHING unmeasured
+    or unanswered records each such item as left undone, so the identical build re-runs when a vendor returns"): every
+    check a finished build left undone -> [{"kind", "id", "why"}] (proof_ledger.open_work counts them; FINGERPRINT.json
+    keeps them). As before: the moments ruling 102 held (the clean pass's, the spotlight's, and the never-empty pass's
+    own), every lock segment with no verdict, the clean record's unmeasured vision sheets, word checks / hook onsets /
+    trimmed cuts NOT MEASURED, and every paid call refused for money (`refused`). Added (the verifier's outage drill,
+    Nov 24: an outage run recorded '0 item(s) left undone' and its re-run 1 s later was refused NOTHING NEW): the
+    never-empty pass's openers whose vision was never measured, the openers no checker rated (the hook pool's error),
+    every verdict record that says it was not measured, the search stopped for the lock's want of a verdict (never
+    one not asked by choice), and the out edge's unverified clips (ruling 162 (1))."""
+    d = lambda x: x if isinstance(x, dict) else {}       # audit 20261124_0109 H (qwen F1): a malformed record is read
+    ls = lambda x: list(x) if isinstance(x, (list, tuple, set)) else []   # as empty, never a crash
+    res, sp = d(res), d(sp)
+    items = []
+    pre = d(res.get("prescreen"))
+    h = d(pre.get("held_102"))
+    items += [{"kind": "held", "id": m, "why": "step A gave no answer (ruling 102 HELD)"}
+              for m in ls(h.get("first")) + ls(h.get("second")) + ls(sp.get("held_102"))]
+    ne = d(res.get("never_empty"))
+    soft = d(ne.get("soft_record"))
+    soft_pre = d(soft.get("prescreen"))
+    s = d(soft_pre.get("held_102"))
+    items += [{"kind": "held", "id": m, "why": "step A gave no answer in the never-empty pass (ruling 102 HELD)"}
+              for m in sorted(set(ls(s.get("first")) + ls(s.get("second"))) - set(ls(h.get("first")) + ls(h.get("second"))))]
+    items += [{"kind": "lock", "id": None, "why": "the render's lock gave no verdict in time"}] * (_errors(res) + _errors(sp))
+    items += [{"kind": "vision", "id": None, "why": "a vision check not measured"}] * int(
+        d(res.get("visual")).get("unmeasured") or 0)
+    items += [{"kind": k, "id": mid, "why": str(v)[:160]} for k, mid, v in sorted(
+        {(k, mid, str(v)) for p in (pre, soft_pre) for k in ("second_pass", "hook_onset", "trim_cut")
+         for mid, v in d(p.get(k)).items() if str(v).startswith("NOT MEASURED")})]
+    items += [{"kind": "money", "id": str(b), "why": "a paid call the spend stop refused"} for b in ls(refused)]
+    # RULING 163 (4): what an outage leaves unmeasured or unanswered
+    if ne and not res.get("package"):            # the never-empty pass decided and its vision is in no counter
+        for mid, why in sorted(d(d(soft.get("hook_pool")).get("visual_blocked")).items()):
+            if VISION_UNMEASURED in str(why):
+                items.append({"kind": "vision", "id": mid, "why": "an opener's vision check not measured"})
+    unrated = [max(0, int(d(hp).get("can_open") or 0) - int(d(hp).get("rated") or 0))
+               for hp in (res.get("hook_pool"), soft.get("hook_pool")) if d(hp).get("error")]
+    items += [{"kind": "hook rating", "id": None, "why": "an opener no checker rated (the hook pool's error)"}] * \
+        (max(unrated) if unrated else 0)
+    seen = set()
+    items += [{"kind": "verdict", "id": None, "why": w} for w in _unanswered(ls(res.get("tried")), seen) +
+              _unanswered(ls(soft.get("tried")), seen)]
+    for stop in (res.get("lock_stop"), sp.get("lock_stop")):
+        if isinstance(stop, str) and stop and LOCK_OFF not in stop:
+            items.append({"kind": "lock", "id": None, "why": stop[:160]})
+    for oe in (res.get("out_edge"), soft.get("out_edge")):
+        uv = d(oe).get("unverified")
+        for mid in sorted(uv if isinstance(uv, (dict, list, tuple, set)) else []):
+            items.append({"kind": "out edge", "id": str(mid), "why": "the clip's out edge gave no answer"})
+    return items
+
+
 def yield_of(pk, inp=None):
     """RULING 160 (2b), the YIELD: per stage of the deciding pass, the moments (line-ups, writes) that entered it and
     how many it refused. From the record only; a stage the pass never reached is 0 / 0."""
@@ -249,9 +339,10 @@ def outcome_of(build_dir, rc=None, error=None, refused=None, build_no=None, back
         return dict(base, outcome="BUDGET_STOPPED", stage="start", gate="no build starts at the stop (ruling 48)",
                     clip=None, model=None, dollars=0.0, note=str(refused or "")[:400] or None)
     if pk is None:
+        code = getattr(error, "code", None)
         why = (f"the build crashed: {type(error).__name__}" if isinstance(error, Exception) else
-               "the build was stopped (exit {})".format(getattr(error, "code", rc)) if error is not None else
-               "the build stopped before writing its record")
+               f"the build was stopped ({type(error).__name__}" + (f", exit {code}" if code is not None else "") + ")"
+               if error is not None else "the build stopped before writing its record")
         return dict(base, outcome="INDETERMINATE", stage="start", gate=why, clip=None, model=None,
                     note=(str(error)[:300] if error is not None else None))
     if pk.get("package") and pk.get("pin_refused"):
@@ -263,6 +354,18 @@ def outcome_of(build_dir, rc=None, error=None, refused=None, build_no=None, back
         return dict(base, outcome="BUDGET_STOPPED", stage="spend",
                     gate=f"the spend stop refused {len(money)} paid call(s) (ruling 48)", clip=None,
                     model=sorted(set(map(str, money)))[0], note=str(why or "")[:400] or None)
+    left = [x for x in (fp["undone"] if isinstance(fp.get("undone"), list) else undone(pk, pk.get("spotlight")))
+            if isinstance(x, dict) and x.get("kind") != "money"]   # RULING 163 (4): anything unanswered or unmeasured
+    #   (the driver's own list when its FINGERPRINT.json has one; an older record's, read again from package.json)
+    if left:
+        kinds = collections.Counter(x["kind"] for x in left)
+        err = next((str(x.get("error")) for x in (hp, (pk.get("hook_pool") or {})) if x.get("error")), "")
+        return dict(base, outcome="INDETERMINATE", stage=UNDONE_STAGE.get(left[0]["kind"], left[0]["kind"]),
+                    gate=(f"{len(left)} check(s) left unanswered or unmeasured: " +
+                          ", ".join(f"{n} {k}" for k, n in kinds.most_common()))[:200],
+                    clip=next((x["id"] for x in left if x.get("id")), None),
+                    model=_first_model(err.split("not rated:", 1)[-1]) if err else None,
+                    note=str(why or "")[:400] or None)
     c = classify(why or pk.get("why_none"), pre, hp, tried)
     return dict(base, **c, note=str(why or pk.get("why_none") or "")[:500] or None)
 

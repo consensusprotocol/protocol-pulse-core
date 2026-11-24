@@ -137,12 +137,18 @@ def entry_of():
         st = subprocess.run(["git", "-C", REPO, "status", "--porcelain", "--", "pipeline", "tests/package"],
                             capture_output=True, text=True, timeout=60).stdout.splitlines()
         dirty = sorted(x[3:] for x in st if not x.startswith("??") and x[3:].endswith((".py", ".sh")))
+        me = os.path.relpath(os.path.abspath(__file__), REPO)
+        blob = subprocess.run(["git", "-C", REPO, "hash-object", me], capture_output=True, text=True,
+                              timeout=30).stdout.strip() or None             # RULING 163 (5): the driver that ran,
+        at_head = subprocess.run(["git", "-C", REPO, "rev-parse", f"HEAD:{me}"], capture_output=True, text=True,
+                                 timeout=30).stdout.strip() or None          # by its git sha, and HEAD's
     except (OSError, subprocess.SubprocessError) as e:
-        head, dirty = None, [f"unreadable: {type(e).__name__}"]
+        head, dirty, blob, at_head = None, [f"unreadable: {type(e).__name__}"], None, None
     why = None if own or test else (f"this build was entered through {mf or 'no file (python -c or an import)'}, "
                                     f"not {os.path.relpath(os.path.abspath(__file__), REPO)} run as __main__: no "
                                     f"by-hand wrapper builds (verifier rows 12 / 16)")
     return {"ok": why is None, "why": why, "driver": os.path.relpath(os.path.abspath(__file__), REPO),
+            "driver_sha": blob, "driver_committed": bool(blob) and blob == at_head,
             "argv0": sys.argv[0] if sys.argv else None, "main": mf, "code": head, "dirty": dirty,
             "under_test": bool(test and not own)}
 
@@ -193,40 +199,15 @@ def fingerprint(moments, delivered, pins, since, now, reg, routing=None):
     return _sha(parts), parts
 
 
-def _errors(x):
-    """The number of objects anywhere inside x whose "verdict" is "error" (a segment the render's lock gave no verdict on
-    in time, wherever the record nests it)."""
-    if isinstance(x, dict):
-        return int(x.get("verdict") == "error") + sum(_errors(v) for v in x.values())
-    if isinstance(x, (list, tuple)):
-        return sum(_errors(v) for v in x)
-    return 0
+_errors = OC._errors                               # kept under its old name (moved to outcomes.py)
 
 
 def open_work(res, sp, refused=()):
-    """RULING 107 (1): what a finished build left undone, which the next build must try again whatever its inputs:
-    the moments ruling 102 held (no leg answered), in the clean pass and, the ones it did not hold too, in the
-    never-empty pass (its own record, rulings 136 / 137); any segment the render's lock gave no verdict on in time;
-    any visual check left unmeasured; and every paid call the build's router refused for money (`refused`:
-    Router.spend_refused; build 133's two clips-alone verdicts at its $0.00 stop, 12:56 ET Nov 17, left the kept
-    line-up unjudged, and build 134 then asked nothing). -> int (0: nothing left)."""
-    d = lambda x: x if isinstance(x, dict) else {}       # audit 20261124_0109 H (qwen F1): a malformed record is read
-    ls = lambda x: list(x) if isinstance(x, (list, tuple, set)) else []   # as empty, never a crash
-    res, sp = d(res), d(sp)
-    pre = d(res.get("prescreen"))
-    h = d(pre.get("held_102"))
-    held = len(ls(h.get("first"))) + len(ls(h.get("second"))) + len(ls(sp.get("held_102")))
-    soft_pre = d(d(d(res.get("never_empty")).get("soft_record")).get("prescreen"))
-    s = d(soft_pre.get("held_102"))
-    held += len(set(ls(s.get("first")) + ls(s.get("second"))) - set(ls(h.get("first")) + ls(h.get("second"))))
-    no_verdict = _errors(res) + _errors(sp)        # by structure, never a string search (audit 2155g C1, qwen)
-    vis = d(res.get("visual"))
-    unmeasured = {(k, mid) for p in (pre, soft_pre) for k in ("second_pass", "hook_onset", "trim_cut")   # the
-                  for mid, v in d(p.get(k)).items() if str(v).startswith("NOT MEASURED")}   # verifier, Nov 23: a build
-    #   whose word checks, hook onsets or trimmed cuts were never measured (its downloads failed) left that work undone:
-    #   its identical re-run is a build, never NOTHING NEW (its drill recorded '0 items left undone' with every L-v 2
-    #   unmeasured, and the re-run was skipped)
-    return held + no_verdict + int(vis.get("unmeasured") or 0) + len(refused or ()) + len(unmeasured)
+    """RULING 107 (1), with RULING 163 (4): how many checks a finished build left undone, which the next build must
+    try again whatever its inputs (outcomes.undone names each: ruling 102's holds, the lock's missing verdicts, vision
+    and word checks never measured, the openers no checker rated, every verdict that was not measured, the money the
+    stop refused). -> int (0: nothing left)."""
+    return len(OC.undone(res, sp, refused))
 
 
 HOOK_SHADOW = {"coherence_verdict:hook": "heimdall:qwen/qwen3.8-27b"}   # RULING 115: recorded, never deciding
@@ -511,7 +492,7 @@ def main(argv=None):
     exists: its end, NOTHING NEW, the start refusal, a crash or a stop (SIGTERM is turned into SystemExit, so this
     finally runs). A refusal before the folder is made (exit 2) is no build and writes no line."""
     entry = entry_of()
-    if not entry["ok"]:
+    if not entry["ok"]:                                  # (and again in _main: a wrapper calling _main is refused)
         print(f"REFUSED: {entry['why']}", file=sys.stderr)
         return 2
     if not entry["under_test"]:
@@ -521,7 +502,7 @@ def main(argv=None):
             pass
     box, rc, err = {}, None, None
     try:
-        rc = _main(argv, box, entry)
+        rc = _main(argv, box)
         return rc
     except BaseException as e:                           # noqa: BLE001  recorded, then raised as it was
         err = e
@@ -539,7 +520,11 @@ def main(argv=None):
                       file=sys.stderr, flush=True)
 
 
-def _main(argv, box, entry):
+def _main(argv, box):
+    entry = entry_of()                                   # verifier rows 12 / 16: checked here too, so a wrapper that
+    if not entry["ok"]:                                  # calls _main() directly is refused the same way
+        print(f"REFUSED: {entry['why']}", file=sys.stderr)
+        return 2
     ap = argparse.ArgumentParser()
     ap.add_argument("--delivered", nargs="+", required=True, metavar="PIN",
                     help="every pin already delivered: their clip spans are out (L-p), and 'since' defaults to the "
@@ -624,8 +609,9 @@ def _main(argv, box, entry):
         f"{now.isoformat(timespec='seconds')}, since {since.isoformat(timespec='seconds')} "
         f"({'--since' if a.since else 'the newest delivered pin'}), publish window {a.hours} h" +
         (f"; RULING 66: ONLY the candidate {cand['source']} tried[{cand['index']}] {cand['lineup']}" if cand else ""))
-    say(f"  entry (verifier rows 12 / 16): {entry['driver']} as __main__ (argv0 {entry['argv0']}), HEAD "
-        f"{str(entry['code'])[:12]}, changed code files {entry['dirty'] or 'none'}")
+    say(f"  entry (verifier rows 12 / 16, ruling 163 (5)): {entry['driver']} (git sha {str(entry['driver_sha'])[:12]}, "
+        f"{'the committed one' if entry['driver_committed'] else 'NOT the committed one'}) as __main__ (argv0 "
+        f"{entry['argv0']}), HEAD {str(entry['code'])[:12]}, changed code files {entry['dirty'] or 'none'}")
     say(f"  delivered: {', '.join(p['story_id'] + ' (' + p['approved_at'] + ')' for p in pins)}; "
         f"{len(delivered)} clip spans out")
     say(f"  RULING 76: {len(gone)} candidate(s) expired (over {package_pin.WINDOW_H:g} h on the render clock)" +
@@ -894,10 +880,11 @@ def _main(argv, box, entry):
     if cand is None:                             # RULING 107 (1): the next build compares its inputs with these, as
         fp_end, parts_end = fingerprint(pool, delivered, pins, since, now, reg, a.routing)   # at this build's END
         money = list(router.spend_refused)       # the calls this build's router refused for money: left undone
-        left = open_work(res, sp, money)
+        items = OC.undone(res, sp, money)         # RULING 163 (4): each named in the record
+        left = len(items)
         with open(os.path.join(out_dir, FINGERPRINT), "w") as f:
-            json.dump({"fingerprint": fp_end, "parts": parts_end, "open_work": left, "spend_refused": money,
-                       "build": name}, f, indent=1)
+            json.dump({"fingerprint": fp_end, "parts": parts_end, "open_work": left, "undone": items,
+                       "spend_refused": money, "build": name}, f, indent=1)
         say(f"  RULING 107 (1): fingerprint {fp_end[:12]}, {left} item(s) left undone"
             + (f" ({len(money)} of them paid call(s) the spend stop refused)" if money else ""))
     logf.close()

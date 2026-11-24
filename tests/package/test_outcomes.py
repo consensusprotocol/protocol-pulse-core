@@ -146,7 +146,7 @@ class TestExactlyOneLine(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             p = os.path.join(d, "outcomes.jsonl")
             out = os.path.join(d, "ledger_20261124_120000")
-            with mock.patch.object(OC, "OUTCOMES", p), mock.patch.object(PLG, "_main", lambda a, box, e: fake(out, box)):
+            with mock.patch.object(OC, "OUTCOMES", p), mock.patch.object(PLG, "_main", lambda a, box: fake(out, box)):
                 try:
                     rc = PLG.main([])
                 except RuntimeError:
@@ -175,6 +175,11 @@ class TestExactlyOneLine(unittest.TestCase):
 
         def no_folder(out, box):
             return 2
+
+        def stopped(out, box):                           # SIGTERM, turned into SystemExit(143) by main()
+            os.makedirs(out)
+            box["out_dir"] = out
+            raise SystemExit(143)
         for fake, rc, kind, gate in ((nothing_new, 0, "NO_ELIGIBLE_STORY", "nothing new"),
                                      (refused, 3, "BUDGET_STOPPED", "no build starts"),
                                      (crash, "raised", "INDETERMINATE", "the build crashed: RuntimeError")):
@@ -185,6 +190,17 @@ class TestExactlyOneLine(unittest.TestCase):
             self.assertIsNone(again)
         got, ls, _ = self.driver(no_folder)
         self.assertEqual((got, ls), (2, []))                 # a refusal before the record folder is no build
+        with self.assertRaises(SystemExit):
+            self.driver(stopped)
+        import proof_ledger as PLG
+        with tempfile.TemporaryDirectory() as d:
+            p, out = os.path.join(d, "o.jsonl"), os.path.join(d, "ledger_20261124_120001")
+            with mock.patch.object(OC, "OUTCOMES", p), \
+                    mock.patch.object(PLG, "_main", lambda a, box: stopped(out, box)):
+                with self.assertRaises(SystemExit):
+                    PLG.main([])
+            self.assertEqual([(x["outcome"], x["gate"]) for x in OC.lines(p)],
+                             [("INDETERMINATE", "the build was stopped (SystemExit, exit 143)")])
 
     def test_the_real_driver_records_its_entry_and_its_crash(self):
         """main() run for real, up to the inputs (no model, no network): inputs.json carries the entry; a failure after
@@ -217,6 +233,58 @@ class TestExactlyOneLine(unittest.TestCase):
             self.assertEqual(ls[0]["gate"], "the build crashed: Stop")
 
 
+class TestRuling163NothingNewAfterAnOutage(unittest.TestCase):
+    """RULING 163 (4) (orchestrator 08:22 ET Nov 24) on the verifier's drill (FIX_VERIFICATION_2026-11-24, end-to-end):
+    its outage run (Heimdall qwen and deepseek forced down; fixture: its record ledger_20261124_044000, package.json and
+    FINGERPRINT.json, copied from its scratch copy d24_c167) recorded '0 item(s) left undone' although 3 openers' vision
+    checks were never measured and 2 hook ratings were never answered, and the vendors-up re-run 1 s later was refused
+    NOTHING NEW. Each such check is now work left undone: the identical re-run is a build, and the outage run's outcome
+    is INDETERMINATE."""
+    REC = os.path.join(HERE, "fixtures", "outage_163", "ledger_20261124_044000")
+
+    def test_the_outage_left_work_undone_and_its_rerun_is_a_build(self):
+        import collections
+        import proof_ledger as PLG
+        pk = json.load(open(os.path.join(self.REC, "package.json")))
+        self.assertEqual(json.load(open(os.path.join(self.REC, PLG.FINGERPRINT)))["open_work"], 0)   # as recorded then
+        items = OC.undone(pk, pk.get("spotlight"))
+        self.assertEqual(collections.Counter(x["kind"] for x in items), {"vision": 3, "hook rating": 2})
+        self.assertEqual(sorted(x["id"] for x in items if x["kind"] == "vision"),
+                         ["1cb1675158fd53f1033a", "96056caa002021fd9a1d", "aaf91c675142516b3b1f"])
+        left = PLG.open_work(pk, pk.get("spotlight") or {})
+        self.assertEqual(left, 5)
+        with tempfile.TemporaryDirectory() as d:                 # the drill: the identical inputs, 1 s later
+            prev = os.path.join(d, "ledger_20261124_044000")
+            os.makedirs(prev)
+            json.dump({"fingerprint": "F", "open_work": left, "undone": items},
+                      open(os.path.join(prev, PLG.FINGERPRINT), "w"))
+            self.assertIsNone(PLG.nothing_new(d, os.path.join(d, "ledger_20261124_044001"), "F"))   # a build again
+        x = OC.outcome_of(self.REC)
+        self.assertEqual((x["outcome"], x["stage"]), ("INDETERMINATE", "visual"))
+        self.assertIn("3 vision, 2 hook rating", x["gate"])
+
+    def test_each_kind_of_unanswered_check_is_undone(self):
+        import proof_ledger as PLG
+        none = {"prescreen": {}, "never_empty": {"soft_record": {"hook_pool": {"can_open": 2, "rated": 2}}}}
+        self.assertEqual(PLG.open_work(none, {}), 0)
+        cases = [
+            ({"hook_pool": {"can_open": 3, "rated": 1, "error": "NO JUDGE ANSWERED"}}, 2),          # unrated openers
+            ({"tried": [{"attempts": [{"value": {"measured": False, "why": "no verdict"}},
+                                      {"value": {"measured": False, "why": "no verdict"}}]}]}, 1),   # once a record
+            ({"tried": [{"attempts": [{"exclusion": {"a": {"verdict": "exclude", "measured": False}}}]}]}, 1),
+            ({"lock_stop": "ruling 68 / 72: the render's lock: no verdict in 900 s"}, 1),
+            ({"lock_stop": "ruling 68 / 72: the render's lock: not asked: --lock-precheck off"}, 0),   # by choice
+            ({"out_edge": {"unverified": ["a", "b"]}}, 2),                                          # ruling 162 (1)
+            ({"never_empty": {"soft_record": {"out_edge": {"unverified": {"c": "no answer"}}}}}, 1),
+            ({"never_empty": {"soft_record": {"hook_pool": {"visual_blocked": {
+                "a": "its visual check is not measured (law L-m)", "b": "ruling 93 (1 item(s)): a ticker"}}}}}, 1)]
+        for rec, n in cases:
+            self.assertEqual(PLG.open_work(rec, {}), n, rec)
+        sealed = {"package": {"x": 1}, "never_empty": {"soft_record": {"hook_pool": {"visual_blocked": {
+            "a": "its visual check is not measured (law L-m)"}}}}}
+        self.assertEqual(PLG.open_work(sealed, {}), 0)      # a sealed pass counts its own sheets in "visual"
+
+
 class TestOneEntryOneLauncher(unittest.TestCase):
     """Verifier rows 12 / 16: builds 166-168 ran by-hand wrappers (an import of the driver and a call of main())
     through the launcher's DRIVER= override, and the record script was outside git."""
@@ -233,7 +301,9 @@ class TestOneEntryOneLauncher(unittest.TestCase):
                         f"sys.exit(PLG.main(['--delivered', 'x.json']))\n")
             before = set(os.listdir(PROOF))
             for args in ([w], ["-c", f"import sys; sys.path.insert(0, {HERE!r}); import proof_ledger as P; "
-                                     f"sys.exit(P.main(['--delivered', 'x.json']))"]):
+                                     f"sys.exit(P.main(['--delivered', 'x.json']))"],
+                         ["-c", f"import sys; sys.path.insert(0, {HERE!r}); import proof_ledger as P; "
+                                f"sys.exit(P._main(['--delivered', 'x.json'], {{}}))"]):   # the body, directly
                 r = self.run_py(args)
                 self.assertEqual(r.returncode, 2, r.stderr[-400:])
                 self.assertIn("REFUSED: this build was entered through", r.stderr)
@@ -243,29 +313,71 @@ class TestOneEntryOneLauncher(unittest.TestCase):
         self.assertIn("REFUSED (ruling 76)", r.stderr)
         self.assertNotIn("entered through", r.stderr)
 
-    def test_the_launcher_runs_only_the_driver(self):
-        """The launcher, run for real with a stand-in python3 that answers the spend probe and logs every call:
-        with DRIVER= set to a wrapper in its environment it still runs tests/package/proof_ledger.py (and passes the
-        build number); the stand-in driver refuses, so nothing is recorded, committed or pushed."""
+    @staticmethod
+    def git(repo, *args):
+        return subprocess.run(["git", "-C", repo, "-c", "user.name=t", "-c", "user.email=t@t", *args],
+                              capture_output=True, text=True, timeout=60, check=True).stdout
+
+    def launch(self, repo, d, log, extra_env=None):
+        fake = os.path.join(d, "bin", "python3")
+        os.makedirs(os.path.dirname(fake), exist_ok=True)
+        with open(fake, "w") as f:
+            f.write("#!/bin/bash\necho \"$@\" >> \"$FAKE_LOG\"\nfor a in \"$@\"; do case \"$a\" in\n"
+                    "  *day_spent.py) echo '0.500000 SPEND_D20261124.json'; exit 0;;\n"
+                    "  *proof_ledger.py|*by_hand*) echo 'REFUSED: stand-in'; exit 2;;\n"
+                    f"esac; done\nexec {sys.executable} \"$@\"\n")
+        os.chmod(fake, 0o755)
+        env = dict(NOENV, PATH=os.path.dirname(fake) + os.pathsep + os.environ.get("PATH", ""), FAKE_LOG=log,
+                   **(extra_env or {}))
+        r = subprocess.run(["bash", os.path.join(repo, "tests", "package", "record", "build_and_record.sh"), "7",
+                            "test", "--only", os.devnull, "--stop-usd", "0.6"], env=env, capture_output=True,
+                           text=True, timeout=120)
+        if r.returncode == 3:
+            self.skipTest(f"the launcher's own guard: {r.stdout.strip()[:200]}")   # a render or build running
+        return r
+
+    def test_the_launcher_runs_only_the_committed_driver(self):
+        """RULING 163 (5) and the verifier's row 16, on a repository of its own (the launcher and a stand-in driver,
+        committed and pushed to a bare remote), with a stand-in python3 that answers the spend probe and logs every
+        call: with DRIVER= set to a wrapper it runs tests/package/proof_ledger.py, passing the build number; with the
+        driver changed and not committed, a code file changed under pipeline/, or a commit not pushed, it REFUSES
+        before any python runs the build. The stand-in driver refuses, so nothing is recorded or committed."""
+        import shutil
         with tempfile.TemporaryDirectory() as d:
-            log = os.path.join(d, "calls.log")
-            fake = os.path.join(d, "python3")
-            with open(fake, "w") as f:
-                f.write("#!/bin/bash\necho \"$@\" >> \"$FAKE_LOG\"\nfor a in \"$@\"; do case \"$a\" in\n"
-                        "  *day_spent.py) echo '0.500000 SPEND_D20261124.json'; exit 0;;\n"
-                        "  *proof_ledger.py|*by_hand*) echo 'REFUSED: stand-in'; exit 2;;\n"
-                        f"esac; done\nexec {sys.executable} \"$@\"\n")
-            os.chmod(fake, 0o755)
-            env = dict(NOENV, PATH=d + os.pathsep + os.environ.get("PATH", ""), FAKE_LOG=log,
-                       DRIVER=os.path.join(d, "by_hand_166.py"))
-            r = subprocess.run(["bash", os.path.join(RECORD, "build_and_record.sh"), "7", "test", "--only",
-                                os.devnull, "--stop-usd", "0.6"], env=env, capture_output=True, text=True, timeout=120)
-            if r.returncode == 3:
-                self.skipTest(f"the launcher's own guard: {r.stdout.strip()[:200]}")   # a render or build running
-            self.assertEqual(r.returncode, 5, r.stdout[-500:] + r.stderr[-500:])
+            repo, bare, log = os.path.join(d, "repo"), os.path.join(d, "bare.git"), os.path.join(d, "calls.log")
+            os.makedirs(os.path.join(repo, "tests", "package", "record"))
+            os.makedirs(os.path.join(repo, "pipeline"))
+            shutil.copy(os.path.join(RECORD, "build_and_record.sh"), os.path.join(repo, "tests", "package", "record"))
+            drv, mod = os.path.join(repo, "tests", "package", "proof_ledger.py"), os.path.join(repo, "pipeline", "m.py")
+            open(drv, "w").write("print('the committed driver')\n")
+            open(mod, "w").write("X = 1\n")
+            subprocess.run(["git", "init", "-q", repo], check=True)
+            subprocess.run(["git", "init", "-q", "--bare", bare], check=True)
+            self.git(repo, "add", "-A")
+            self.git(repo, "commit", "-q", "-m", "c1")
+            self.git(repo, "remote", "add", "origin", bare)
+            self.git(repo, "push", "-q", "-u", "origin", "HEAD")
+            r = self.launch(repo, d, log, {"DRIVER": os.path.join(d, "by_hand_166.py")})
+            self.assertEqual(r.returncode, 5, r.stdout[-500:] + r.stderr[-500:])     # the stand-in driver refused
             calls = open(log).read()
             self.assertIn("tests/package/proof_ledger.py --build-no 7 ", calls)
             self.assertNotIn("by_hand", calls)
+            for change, path, words in ((lambda: open(drv, "a").write("print('by hand')\n"), drv,
+                                         "differs from the committed one"),
+                                        (lambda: open(mod, "a").write("X = 2\n"), mod, "code changed and not committed")):
+                if os.path.exists(log):
+                    os.remove(log)
+                change()
+                r = self.launch(repo, d, log)
+                self.assertEqual(r.returncode, 6, r.stdout[-400:])
+                self.assertIn(words, r.stdout)
+                self.assertFalse(os.path.exists(log) and "proof_ledger.py --build-no" in open(log).read())
+                self.git(repo, "checkout", "-q", "--", path)
+            open(mod, "a").write("X = 3\n")
+            self.git(repo, "commit", "-q", "-am", "c2 (not pushed)")
+            r = self.launch(repo, d, log)
+            self.assertEqual(r.returncode, 6, r.stdout[-400:])
+            self.assertIn("commits not pushed: 1", r.stdout)
 
     def test_the_record_script_reads_a_stopped_and_a_nothing_new_build(self):
         with tempfile.TemporaryDirectory() as d:
