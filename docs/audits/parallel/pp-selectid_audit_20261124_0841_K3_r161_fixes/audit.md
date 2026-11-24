@@ -1,0 +1,20 @@
+# Heimdall audit
+
+**Question:** pp-selectid (Protocol Pulse clip-video builder), RULING 161 (visible sponsor graphics are information, never a refusal or a counted flag; OUR 9:16 crop still never slices burned text), FIX VERIFICATION of cycle 2's findings (audit _0814_K2_r161_cycle2, qwen27b F1-F5, gemma agreeing): F1 a running ticker freed by a containment match; F2 a non-sponsor bug or name strap freed by offer words; F3 a headline or name strap named on the information line by its words; F4 sealed visual records not read under today's rules; F5 malformed entries crash.
+THE FIX (diff below, commit c52d1b0c7 against 67bbbcaa6): listed(x, rec) = the item's normalized text EQUALS a question-5 "advertising" text (never containment; never a caption); sponsor_item = listed only; offer_named(x) = a BUG whose words match AD_WORDS / AD_CAPS: named on the information line and kept out of the visual flags, but still ruled by ruling 93 (burned_block) like the show's own graphics; sponsor_graphics names only question-5 items and offer_named bugs not listed (never on_screen_text or lower_third by words); package._package seals visual_pin.sealed(visual_pin.current(m["visual"])); the inventory's visual row reads flags from VP.current(v); current() re-reads only a whole check() answer (burned_in list, third_person dict, on_screen_text list); _text() guards non-str texts, isinstance guards non-dict entries.
+CHECK, quoting the code: is each of F1-F5 fixed; did the fix break anything else: can a sponsor item that question 5 listed still refuse a clip or add a counted flag; can a caption ever be freed; can current() raise on any record a build can hold (unmeasured, an older version, a "why" record with no answers); does formats() still make a clip 16:9 only for a listed item cut by the 9:16 crop. Report only what the code shows; if unsure, say so.
+
+**Panel:** qwen27b, gptoss, gemma  |  **Cost:** $0.0366
+## Consensus findings (majority of panel agrees)
+- **[high] pipeline/visual_pin.py:396** F5 is not fully fixed: current() can still raise on malformed burned_in entries because flags() indexes x['kind'], x['text'], and x['in_9x16'] without isinstance/key guards.
+  - evidence: `    out["flags"] = flags(rec)
+    out += [{"kind": "burned_in", "text": x["text"], "item": x["kind"], "in_9x16": x["in_9x16"]}   # ruling 93: an
+            for x in v.get("burned_in") or [] if not bu`
+  - fix: Guard each burned_in entry in flags() (skip non-dict entries and use .get with required-key checks) or validate burned_in entries in current() before calling flags().
+  - raised by qwen27b:F1; agree: qwen27b, gemma
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none
