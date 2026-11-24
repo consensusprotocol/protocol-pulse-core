@@ -1,0 +1,32 @@
+{
+ "../runs/pinned_20261113_211048/qa/contact_sheet_16x9.jpg": {
+  "advertising": {
+   "qwen/qwen3.8-27b": {
+    "answer": "yes",
+    "why": "Only the show's own branding, CNBC's own charts/ticker ('STREAM NOW', 'CNBC EXCLUSIVE', MSTR/USD metrics) and lower thirds appear; no sponsor logos, promo/discount codes, QR codes, or 'sponsored by' panels are visible.",
+    "ok": true
+   },
+   "nvidia/nemotron-3.5-super-vl": {
+    "answer": "yes",
+    "why": "No paid advertising, sponsor logos, promo codes, or QR codes are visible. On-screen graphics like 'CNBC STREAM NOW' and stock tickers constitute show branding or data, not third-party ads.",
+    "ok": true
+   }
+  },
+  "s": 83.6
+ },
+ "../runs/pinned_20261113_211048/qa/contact_sheet_9x16.jpg": {
+  "advertising": {
+   "qwen/qwen3.8-27b": {
+    "answer": "yes",
+    "why": "Only the show's own branding and CNBC's own lower thirds ('CRYPTO C\u2026', 'STREAM NOW', 'CNBC EXCLUSIVE') appear; no sponsor logo, promo/discount code, QR code, affiliate link or paid-partner banner is present.",
+    "ok": true
+   },
+   "nvidia/nemotron-3.5-super-vl": {
+    "answer": "yes",
+    "why": "Only the show's own branding (CNBC, Simply Bitcoin, Stream Now) and lower thirds are visible. There are no paid ads, sponsor logos, promo codes, or QR codes.",
+    "ok": true
+   }
+  },
+  "s": 103.4
+ }
+}

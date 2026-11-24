@@ -1,0 +1,27 @@
+# Heimdall audit
+
+**Question:** TASK: audit batch 125 of the Protocol Pulse video pipeline (Python): ruling 158 (2) on the render's side. Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.
+
+RULING 158 (2) (orchestrator 23:12 ET Nov 23), verbatim in part: "STANDING, HARD, BOTH SIDES: ON-SCREEN ADVERTISING REFUSES A CLIP IN EVERY FORMAT: any advertiser's or sponsor's name or logo presented as an ad, a sign-up bonus, promo or referral code, 'use code', affiliate link or QR code, 'sponsored by', a paid-partner banner or panel ... The show's OWN branding, its own ticker of headlines or prices, its own lower third: still a flag in 16:9 as ruled. When the vision model cannot tell an ad from the show's own graphic, it is treated as an ad."
+
+BACKGROUND (unchanged): visual_check.py's V1 asks two Heimdall vision models (VISION_MODELS) every CHECKLIST line about the FINAL video's contact sheet (stills every 2 s, both formats separately); verdict() passes a line only on "yes" (or "n/a" where allowed: two layout lines on 16:9); any "no", missing or malformed answer from EITHER model fails V1, a REQUIRED release row that no review drop may waive.
+
+THE DIFF: one CHECKLIST line, "no_on_screen_advertising", phrased so that "yes" means no ad (the other lines' convention). "n/a" is not allowed for it. Tests: a "no", "n/a" or missing answer fails in both formats; the question reaches every model and either model's "no" fails the panel. LIVE (free Heimdall vision, this line): tonight's DO NOT PUBLISH video's sheets (16:9, 9:16) and two frames of its Digital Asset News clip: both models answered "no" 4 of 4, naming the Kraken "$25 SIGN UP BONUS" banner and the iTrustCapital IRA panel; control, the published 13 Nov video (CNBC's own ticker and lower thirds): both models "yes" 2 of 2.
+
+CHECK, AND ANSWER EACH:
+Q1. Does the line's wording match the ruling (every format, every clip, the listed ad kinds, the show's own graphics excluded, "cannot tell" = ad)? Name any listed kind it misses.
+Q2. Can a model's answer ever make V1 pass while an ad is on a sheet (a "yes" with a reason naming an ad, an answer key spelled differently, "n/a")?
+Q3. Any other defect (prompt length, the other lines' answers, the verify pack's key list).
+
+OUTPUT: for each finding, severity (critical|high|medium|low), file:line, the concrete failure, the fix. If none, say NONE.
+REMINDER: only what the diff and the cited lines show; say when uncertain.
+
+**Panel:** qwen27b  |  **Cost:** $0.0067
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- qwen27b:F1 [low] Interpretive ambiguity on the 16:9 flagging of the show's own graphics. The ruling states: 'The show's OWN branding, its own ticker of headlines or prices, its own lower third: still a flag in 16:9 as ruled.' The diff renders this as 'are NOT advertising' with no 16:9-specific flagging instruction. If 'still a flag in 16:9' means the model must answer 'no' whenever it sees the show's own ticker/lower-third in 16:9 (regardless of whether it can identify them as the show's own), the prompt would lead a model to answer 'yes' and V1 would pass. However, the LIVE control (published 13 Nov video, CNBC's own ticker and lower thirds) returned 'yes' 2 of 2 and was published, which is consistent with the diff's reading that clearly-identifiable show graphics are NOT advertising and only the 'cannot tell' clause triggers a 'no'. I cannot resolve the ruling's phrasing definitively from the text alone; the LIVE test supports the diff's interpretation. (agree: 0)
+
+## Added in cross-examination (not voted on)
+- none

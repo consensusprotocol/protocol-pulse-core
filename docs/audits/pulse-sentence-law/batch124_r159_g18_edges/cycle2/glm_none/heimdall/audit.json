@@ -1,0 +1,61 @@
+{
+ "question": "TASK: cycle 2 of the audit of batch 124 (Protocol Pulse, Python): G18's edge check follows ruling 143 (the same diff as cycle 1). Cycle 1: gemma PASS, glm PASS, qwen PASS; its strongest claim (a shift aligned as replaces) was disproved by running difflib (a shift aligns as delete / equal / insert and stays HARD). Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.\n\nTRACE AND ANSWER:\nT1. Give one concrete (expected, heard) pair of English sentences for which _edges_substituted_only returns True although the CUT is wrong (a clipped, shifted or mid-word cut, not a decoder's reading), and run difflib's opcodes for it by hand. If you cannot construct one, say NONE.\nT2. The edge block runs only when row[\"identity\"] is empty. Can an identity difference that the audio did NOT clear ever coexist with the edge block clearing the edges?\nT3. Any other defect.\n\nOUTPUT: for each finding, severity (critical|high|medium|low), file:line, the concrete failure, the fix. If none, say NONE.\nREMINDER: only what the diff and the cited lines show; say when uncertain.",
+ "files": [],
+ "panel": {
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 29.4,
+   "cost": 0.00021141,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 2,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 57.8,
+   "cost": 0.00039966,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "pipeline/word_diff.py",
+   "line": 90,
+   "issue": "The edge filter uses the expected-side indices only: an opcode qualifies as an edge op when o[1] < n or o[2] > len(e) - n, so a replace whose expected span is entirely interior (i1 >= n and i2 <= len(e)-n) is excluded even when its heard-side span touches the edge (j1 < n or j2 > len(h)-n). Conversely, an interior heard-side difference whose expected-side indices touch the edge is included. With a shifted/clipped cut the heard text can be shorter or longer, so the two sides' edge windows do not coincide and the set of 'edge' ops is not the set of differences touching the first/last n words of the heard text.",
+   "evidence": "edge = [o for o in ops if o[1] < n or o[2] > len(e) - n]",
+   "fix": "Test both sides: o[1] < n or o[2] > len(e) - n or o[3] < n or o[4] > len(h) - n, or document that the expected-side window is the intended ruling-159(b) window.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "low",
+   "file": "pipeline/word_diff.py",
+   "line": 97,
+   "issue": "When every difference is at the edges but the edge list is empty the function returns False, so a heard text identical to the expected (no non-equal ops at all) fails the edge check. In the gate this is harmless because row[\"edges\"] is truthy in that branch, but as a standalone predicate 'no differences at the edges' should arguably be True.",
+   "evidence": "if not edge:\n        return False",
+   "fix": "Return True when ops is empty, or document that the predicate is only meant to be called when a difference exists.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.00061107,
+ "out_dir": "batch124_r159_g18_edges/cycle2/glm_none/heimdall"
+}

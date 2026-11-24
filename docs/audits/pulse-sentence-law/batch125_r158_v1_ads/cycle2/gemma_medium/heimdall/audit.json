@@ -1,0 +1,26 @@
+{
+ "question": "TASK: cycle 2 of the audit of batch 125 (Protocol Pulse, Python): V1's new checklist line \"no_on_screen_advertising\" (ruling 158 (2), the render's side). The same diff. Cycle 1: qwen PASS, glm PASS; gemma's finding (the show's own graphics should fail) was a misreading: the ruling makes the show's own graphics a SOFT 16:9 review flag carried by the pin, and ADVERTISING the hard refusal. Only state what you can verify from the diff. If uncertain, say so. Do not guess.\n\nTRACE AND ANSWER:\nT1. Write the three hardest stills for this line: (a) a real ad that a model could plausibly call the show's own graphic; (b) the show's own graphic a model could plausibly call an ad; (c) an ad visible on only one still of the sheet. For each, say what the line's wording makes the model answer, and whether that is the ruling's outcome.\nT2. The line says \"Answer 'yes' only if there is none\". Is there any wording that makes \"yes\" mean an ad was seen, or \"no\" mean none (a double negative a model could invert)?\nT3. Any other defect.\n\nOUTPUT: for each finding, severity (critical|high|medium|low), the concrete failure, the fix. If none, say NONE.\nREMINDER: only what the diff shows; say when uncertain.",
+ "files": [],
+ "panel": {
+  "gemma": "google/gemma-4-31b-it"
+ },
+ "cycle1": [
+  {
+   "name": "gemma",
+   "model": "google/gemma-4-31b-it",
+   "status": 200,
+   "latency_s": 150.4,
+   "cost": 0.00038505,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.00038505,
+ "out_dir": "batch125_r158_v1_ads/cycle2/gemma_medium/heimdall"
+}

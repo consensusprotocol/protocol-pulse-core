@@ -1,0 +1,67 @@
+{
+ "question": "TASK: audit batch 124 of the Protocol Pulse video pipeline (Python): G18's EDGE check (the first and last EDGE_WORDS canonical words of the final's decode must equal the lock's; word_diff.edges, unchanged) now follows ruling 143. Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.\n\nRULINGS. 143: a non-material differing pair never holds; a material pair (a number, a negation, a name, a ticker or an amount: pinned.material_pair via word_diff._material) holds unless the audio readings agree. 159 (b): \"the lock and the release gate must not disagree\". A cut mid-word, or a clipped or shifted cut, stays HARD. FOUND: on the real Nov 12 clip_01, the lock (ruling 143) took 'I think' (run decode and second recogniser agree); a final decoded 'I mean' failed G18's edge check, because ruling 18's alternatives, which used to excuse it, are gone under 143.\n\nTHE DIFF: _edges_substituted_only(expected, heard) aligns the canonical words (difflib) and returns True only when every difference touching the first or last n words is a 'replace' of equal length whose words are non-material. Then, when the identity check is clear, the edge differences go to the same audio adjudication as the identity's small words (sentence_law.span_fidelity: the prepared clip's interior between the fades must BE the source span) and are cleared (row[\"edges_small_words\"]) only if the audio is the same. Any insert or delete at an edge, or a material word, returns False: the edge stays a FAIL.\n\nCHECK, AND ANSWER EACH:\nQ1. Can a CLIPPED cut (the first word missing, or part of it), a SHIFTED cut (an extra word at an edge) or a cut mid-word now pass G18's edge check? Construct the closest case.\nQ2. difflib aligns words, not audio. Name an input where the alignment calls a shift a one-for-one replace (e.g. a repeated word next to the edge), and say whether the audio check still catches it.\nQ3. The audio check covers the interior between the fades; the edge words' own audio is measured by G17c (REQUIRED, separate). Is there an edge failure that NEITHER catches now?\nQ4. Any other defect.\n\nOUTPUT: for each finding, severity (critical|high|medium|low), file:line, the concrete failure (inputs -> wrong result), and the fix. If none, say NONE for that question.\nREMINDER: only what the diff and the cited lines show; say when uncertain.",
+ "files": [],
+ "panel": {
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 22.8,
+   "cost": 0.00018192,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 32.7,
+   "cost": 0.00025674,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "pipeline/word_diff.py",
+   "line": 90,
+   "issue": "Q1/Q2: _edges_substituted_only only inspects opcodes whose expected-side span touches the first/last n words, but a 'replace' opcode can span beyond the edge window while its differing words sit inside it; conversely an insert/delete entirely inside the window is correctly rejected, but a replace whose expected span starts at index 0 yet extends past n passes even if the differing words are all beyond the edge. Also, the edge filter uses o[1] < n or o[2] > len(e) - n, so an opcode with i1 == i2 (pure insert) at exactly i1 == n is excluded, and a delete/insert at the edge returns False as documented \u2014 but a mid-word cut that difflib renders as a replace of unequal length also returns False, so a clipped/shifted cut cannot pass, matching ruling 159(b). For Q2: with expected ['the','the','cat'] and heard ['the','cat'], difflib yields delete of one 'the' at the edge \u2014 returns False (HARD), correct; but with expected ['a','b','a'] and heard ['a','b','b'], the trailing shift of the repeated 'a'->'b' is a one-for-one replace of non-material words, cleared if the audio matches even though the actual cut shifted \u2014 the audio check (span_fidelity over the interior) may still catch it if the prepared clip's interior differs, but if the shift is within the fades it will not, so the audio check does not always catch it. For Q3: the audio check covers the interior between fades; the edge words' own audio is G17c, separate; an edge substitution whose differing words lie inside the fades (partially) is cleared by the interior check while G17c measures the edge words' own audio \u2014 if G17c's window and the fades overlap differently, an edge failure could slip both, but this cannot be confirmed from the diff alone (G17c not shown).",
+   "evidence": "edge = [o for o in ops if o[1] < n or o[2] > len(e) - n]",
+   "fix": "Filter opcodes by whether their differing words actually lie within the edge windows (e.g. intersect [i1,i2) with [0,n) and [len(e)-n,len(e)) and require the differing words to be inside), and document the G17c/interior coverage gap or extend the audio check to the fades' audio.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "medium",
+   "file": "pipeline/word_diff.py",
+   "line": 247,
+   "issue": "The new G18 edge-clearing branch is gated on `not row[\"identity\"]`, but the identity branch above may have already consumed/cleared adjudication state; more importantly, when `row[\"edges\"]` is true and the identity check also failed, the edge branch is skipped entirely, so a final with BOTH an identity difference and an edge difference never gets its edges adjudicated even if they are one-for-one non-material substitutions \u2014 the edges stay FAIL regardless of audio. Inputs: lock/final where difflib yields both an interior small-word replace and an edge replace, both non-material, same audio -> identity cleared, edges not (because `not row[\"identity\"]` is False at the time of the edge check... actually the identity clearing happens before, setting row[\"identity\"]=[] in the same iteration, so the gate may pass; uncertain \u2014 depends on whether the clearing assignment executes before the edge condition is evaluated, which it does sequentially, so this may be a non-issue).",
+   "evidence": "if row[\"edges\"] and not row[\"identity\"] and c.get(\"prepared\") and _edges_substituted_only(c[\"lock_text\"], heard):",
+   "fix": "None certain; flag for verification. If the identity clearing sets row[\"identity\"]=[] before this line, the gate behaves as intended; if the identity branch did not run (e.g. no prepared clip), the edge branch is also skipped, which may be intended. Cannot confirm a defect from the diff alone."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/word_diff.py",
+   "line": 251,
+   "issue": "The adjudication reuse guard `if \"omission_adjudication\" not in row` shares one adjudication between the identity path and the edge path, but the identity path computes span_fidelity with the same t0/t1/pad; if the identity branch ran and found same_audio=False, the edge branch reuses that False result \u2014 correct \u2014 but if the identity branch ran with a DIFFERENT prepared-clip state (e.g. c[\"prepared\"] falsy then truthy mid-loop, impossible within one iteration) it would be stale. Within a single row iteration this is safe; the only observable consequence is that when the identity adjudication exists but found not-same-audio, the edge check cannot independently re-adjudicate, which matches 'the same audio as above' in the comment. Likely NONE.",
+   "evidence": "if \"omission_adjudication\" not in row:",
+   "fix": "NONE (likely); noted only because the shared-key reuse is implicit and undocumented."
+  }
+ ],
+ "total_cost": 0.00043866,
+ "out_dir": "batch124_r159_g18_edges/cycle1/glm_none/heimdall"
+}

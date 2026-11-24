@@ -87,6 +87,23 @@ def _material(diffs, texts):
     return any(pinned.material_pair(str(e).split(), str(h).split(), texts) for _, e, h in diffs)
 
 
+def _edges_substituted_only(expected, heard, n=EDGE_WORDS):
+    """RULING 159 (b) at G18's edges: True when every difference touching the first or last n words is a ONE-FOR-ONE
+    substitution of non-material words (the decoder's reading of the same word: 'I think' / 'I mean'). An omitted or
+    added word at an edge (a clipped or a shifted cut), or a material word, is False: it stays HARD."""
+    e, h = norm(expected), norm(heard)
+    ops = [o for o in difflib.SequenceMatcher(None, e, h, autojunk=False).get_opcodes() if o[0] != "equal"]
+    edge = [o for o in ops if o[1] < n or o[2] > len(e) - n]
+    if not edge:
+        return False
+    for tag, i1, i2, j1, j2 in edge:
+        if tag != "replace" or i2 - i1 != j2 - j1:
+            return False
+        if _material([("replace", " ".join(e[i1:i2]), " ".join(h[j1:j2]))], (expected, heard)):
+            return False
+    return True
+
+
 def _omitted_or_repeated_only(expected, heard, alts=None):
     """Ruling 22: True when the heard text differs from the expected ONLY by omitted expected words or by repeats of
     the expected words just before them (nothing substituted, nothing added); attested alternatives (ruling 18)
@@ -227,6 +244,21 @@ def gate_g18(final_path, segments, clips, transcriber=None):
             row["omission_adjudication"] = {"same_audio": same, **det}
             if same:                                 # ruling 143: the clip plays the speaker's audio, decided above
                 row["identity_omitted_only" if omitted else "identity_small_words"], row["identity"] = row["identity"], []
+        if row["edges"] and not row["identity"] and c.get("prepared") and _edges_substituted_only(c["lock_text"], heard):
+            # ruling 159 (b): a one-for-one non-material substitution at an edge word is the decoder's reading, decided
+            # by the same audio as above (G17c measures the edge words' own audio, REQUIRED, apart from this)
+            if "omission_adjudication" not in row:
+                import sentence_law as L
+                t0 = float(c["cut_in"]) + float(c.get("fade_in_s") or 0.0)
+                t1 = float(c["cut_out"]) - float(c.get("fade_out_s") or 0.0)
+                try:
+                    same, det = L.span_fidelity(c["source"], c["prepared"], t0, t1, float(c["cut_in"]),
+                                                float(c.get("pad_s") or 0.0))
+                except Exception as e:               # not measurable: the edge difference stands
+                    same, det = False, {"why": f"{type(e).__name__}: {e}"}
+                row["omission_adjudication"] = {"same_audio": same, **det}
+            if row["omission_adjudication"].get("same_audio"):
+                row["edges_small_words"], row["edges"] = row["edges"], []
         row["pass"] = not row["edges"] and not row["identity"] and not row.get("acoustic_mismatch")
         ok_all &= row["pass"]
         rows.append(row)

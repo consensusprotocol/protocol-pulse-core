@@ -1,0 +1,39 @@
+# Heimdall audit
+
+**Question:** TASK: audit batch 124 of the Protocol Pulse video pipeline (Python): G18's EDGE check (the first and last EDGE_WORDS canonical words of the final's decode must equal the lock's; word_diff.edges, unchanged) now follows ruling 143. Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.
+
+RULINGS. 143: a non-material differing pair never holds; a material pair (a number, a negation, a name, a ticker or an amount: pinned.material_pair via word_diff._material) holds unless the audio readings agree. 159 (b): "the lock and the release gate must not disagree". A cut mid-word, or a clipped or shifted cut, stays HARD. FOUND: on the real Nov 12 clip_01, the lock (ruling 143) took 'I think' (run decode and second recogniser agree); a final decoded 'I mean' failed G18's edge check, because ruling 18's alternatives, which used to excuse it, are gone under 143.
+
+THE DIFF: _edges_substituted_only(expected, heard) aligns the canonical words (difflib) and returns True only when every difference touching the first or last n words is a 'replace' of equal length whose words are non-material. Then, when the identity check is clear, the edge differences go to the same audio adjudication as the identity's small words (sentence_law.span_fidelity: the prepared clip's interior between the fades must BE the source span) and are cleared (row["edges_small_words"]) only if the audio is the same. Any insert or delete at an edge, or a material word, returns False: the edge stays a FAIL.
+
+CHECK, AND ANSWER EACH:
+Q1. Can a CLIPPED cut (the first word missing, or part of it), a SHIFTED cut (an extra word at an edge) or a cut mid-word now pass G18's edge check? Construct the closest case.
+Q2. difflib aligns words, not audio. Name an input where the alignment calls a shift a one-for-one replace (e.g. a repeated word next to the edge), and say whether the audio check still catches it.
+Q3. The audio check covers the interior between the fades; the edge words' own audio is measured by G17c (REQUIRED, separate). Is there an edge failure that NEITHER catches now?
+Q4. Any other defect.
+
+OUTPUT: for each finding, severity (critical|high|medium|low), file:line, the concrete failure (inputs -> wrong result), and the fix. If none, say NONE for that question.
+REMINDER: only what the diff and the cited lines show; say when uncertain.
+
+**Panel:** qwen27b  |  **Cost:** $0.0136
+## Consensus findings (majority of panel agrees)
+- **[low] pipeline/word_diff.py:91** Q1 – Mid-word cut can pass G18's edge check if the decoder emits a same-length non-material word; the code relies entirely on G17c (not in this diff) to catch it. Clipped (delete) and shifted (insert) cuts are correctly blocked by the tag check.
+  - evidence: `if tag != "replace" or i2 - i1 != j2 - j1:
+            return False`
+  - fix: No code change needed in this diff. The ruling 159(b) comment already states G17c is REQUIRED and separate. Verify in the G17c module that a mid-word cut (partial phoneme) at the edge produces a measurable audio mismatch. If G17c can only measure whole-word onsets, a cut that removes the first 30 ms of a word may be below its detection threshold; in that case add a minimum-edge-audio-duration guard to G17c.
+  - raised by qwen27b:F1; agree: qwen27b
+- **[low] pipeline/word_diff.py:253** Q3 – From this diff alone I cannot identify a concrete edge failure that neither G18's interior check nor G17c catches. The interior check covers [t0, t1] (post-fade); G17c is stated as REQUIRED and separate for edge-word audio. The only potential gap is an edge word whose audio falls entirely within the fade region (neither in the interior window nor cleanly measurable by G17c), but G17c's implementation is not in this diff so I cannot confirm or deny it.
+  - evidence: `t0 = float(c["cut_in"]) + float(c.get("fade_in_s") or 0.0)
+                t1 = float(c["cut_out"]) - float(c.get("fade_out_s") or 0.0)`
+  - fix: Uncertain – cannot verify from this diff. Recommend: in G17c, assert that the edge-word time window does not fall entirely inside the fade; if it does, mark the edge as UNMEASURABLE (HARD) rather than PASS.
+  - raised by qwen27b:F3; agree: qwen27b
+- **[low] pipeline/word_diff.py:101** Q4 – The material check passes normalised words (from e, h = norm(expected), norm(heard)) but the original (expected, heard) as the texts context. If norm() strips punctuation or lowercases in a way that changes pinned.material_pair's classification (e.g. a ticker 'AAPL' → 'aapl'), the materiality decision could differ from the identity path which may use un-normalised text.
+  - evidence: `if _material([("replace", " ".join(e[i1:i2]), " ".join(h[j1:j2]))], (expected, heard)):`
+  - fix: Pass the normalised texts as the second argument for consistency: _material([...], (e, h)), or confirm that pinned.material_pair is invariant to the normalisation applied by norm(). If norm() is identity for material tokens (tickers, numbers, names), no change is needed; document that assumption.
+  - raised by qwen27b:F4; agree: qwen27b
+
+## Raised but not agreed
+- qwen27b:F2 [medium] Q2 – difflib can align a one-word shift as a chain of one-for-one replaces when a word repeats near the edge, so _edges_substituted_only returns True for what is actually a shifted cut. Example: expected=['the','the','cat','sat'], heard=['the','cat','sat','the'] → opcodes are equal[0:1→0:1], replace[1:2→1:2], replace[2:3→2:3], replace[3:4→3:4]. All are 'replace' of length 1; if 'cat' is not a pinned name, all are non-material → returns True. The interior audio check (span_fidelity) should catch the timing shift, but its sensitivity to sub-word shifts is not verifiable from this diff. (agree: 0)
+
+## Added in cross-examination (not voted on)
+- none

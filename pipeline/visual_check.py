@@ -52,6 +52,15 @@ CHECKLIST = [
     ("watermark_present", "The channel watermark / logo is visible on the content stills before the credits."),
     ("no_next_shot_before_transition", "In the '-3f' still before every boundary nothing from the NEXT shot is "
                                        "already visible."),
+    ("no_on_screen_advertising", "RULING 158: no still, in ANY clip (not only the first), shows PAID ADVERTISING on "
+                                 "screen, however small: an advertiser's or sponsor's name or logo presented as an ad, "
+                                 "a sign-up bonus or any bonus / reward offer, a promo, referral or discount code, "
+                                 "'use code', an affiliate link, a QR code, 'sponsored by' or 'brought to you by', a "
+                                 "paid-partner banner or panel, an 'open an account / IRA' offer. Look at banners, "
+                                 "crawls, corner panels and overlays. The show's OWN branding, its own ticker of "
+                                 "headlines or prices and its own lower third are NOT advertising. Answer 'yes' only "
+                                 "if there is none; when you cannot tell an ad from the show's own graphic, answer "
+                                 "'no'. Name what you saw."),
 ]
 
 

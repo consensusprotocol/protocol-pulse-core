@@ -1,0 +1,48 @@
+{
+ "question": "TASK: cycle 2 of the audit of batch 124 (Protocol Pulse, Python): G18's edge check follows ruling 143 (the same diff as cycle 1). Cycle 1: gemma PASS, glm PASS, qwen PASS; its strongest claim (a shift aligned as replaces) was disproved by running difflib (a shift aligns as delete / equal / insert and stays HARD). Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.\n\nTRACE AND ANSWER:\nT1. Give one concrete (expected, heard) pair of English sentences for which _edges_substituted_only returns True although the CUT is wrong (a clipped, shifted or mid-word cut, not a decoder's reading), and run difflib's opcodes for it by hand. If you cannot construct one, say NONE.\nT2. The edge block runs only when row[\"identity\"] is empty. Can an identity difference that the audio did NOT clear ever coexist with the edge block clearing the edges?\nT3. Any other defect.\n\nOUTPUT: for each finding, severity (critical|high|medium|low), file:line, the concrete failure, the fix. If none, say NONE.\nREMINDER: only what the diff and the cited lines show; say when uncertain.",
+ "files": [],
+ "panel": {
+  "gemma": "google/gemma-4-31b-it"
+ },
+ "cycle1": [
+  {
+   "name": "gemma",
+   "model": "google/gemma-4-31b-it",
+   "status": 200,
+   "latency_s": 454.2,
+   "cost": 0.00214975,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "gemma",
+   "status": 200,
+   "latency_s": 204.4,
+   "cost": 0.0008767,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "gemma:F1",
+   "severity": "high",
+   "file": "pipeline/word_diff.py",
+   "line": 251,
+   "issue": "The edge-clearing block reuses the 'omission_adjudication' result from the identity check, skipping the necessary audio fidelity check for the edges.",
+   "evidence": "if \"omission_adjudication\" not in row:\n                import sentence_law as L\n                # ... (L.span_fidelity call)\n                row[\"omission_adjudication\"] = {\"same_audio\": same, **det}\n            if row[\"omission_adjudication\"].get(\"same_audio\"):\n                row[\"edges_small_words\"], row[\"edges\"] = row[\"edges\"], []",
+   "fix": "Use a distinct key for edge adjudication, such as row[\"edge_omission_adjudication\"], to ensure L.span_fidelity is called specifically for the edge boundaries.",
+   "agree": [],
+   "disagree": [
+    "gemma"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.00302645,
+ "out_dir": "batch124_r159_g18_edges/cycle2/gemma_medium/heimdall"
+}

@@ -1,0 +1,48 @@
+{
+ "question": "TASK: audit batch 125 of the Protocol Pulse video pipeline (Python): ruling 158 (2) on the render's side. Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.\n\nRULING 158 (2) (orchestrator 23:12 ET Nov 23), verbatim in part: \"STANDING, HARD, BOTH SIDES: ON-SCREEN ADVERTISING REFUSES A CLIP IN EVERY FORMAT: any advertiser's or sponsor's name or logo presented as an ad, a sign-up bonus, promo or referral code, 'use code', affiliate link or QR code, 'sponsored by', a paid-partner banner or panel ... The show's OWN branding, its own ticker of headlines or prices, its own lower third: still a flag in 16:9 as ruled. When the vision model cannot tell an ad from the show's own graphic, it is treated as an ad.\"\n\nBACKGROUND (unchanged): visual_check.py's V1 asks two Heimdall vision models (VISION_MODELS) every CHECKLIST line about the FINAL video's contact sheet (stills every 2 s, both formats separately); verdict() passes a line only on \"yes\" (or \"n/a\" where allowed: two layout lines on 16:9); any \"no\", missing or malformed answer from EITHER model fails V1, a REQUIRED release row that no review drop may waive.\n\nTHE DIFF: one CHECKLIST line, \"no_on_screen_advertising\", phrased so that \"yes\" means no ad (the other lines' convention). \"n/a\" is not allowed for it. Tests: a \"no\", \"n/a\" or missing answer fails in both formats; the question reaches every model and either model's \"no\" fails the panel. LIVE (free Heimdall vision, this line): tonight's DO NOT PUBLISH video's sheets (16:9, 9:16) and two frames of its Digital Asset News clip: both models answered \"no\" 4 of 4, naming the Kraken \"$25 SIGN UP BONUS\" banner and the iTrustCapital IRA panel; control, the published 13 Nov video (CNBC's own ticker and lower thirds): both models \"yes\" 2 of 2.\n\nCHECK, AND ANSWER EACH:\nQ1. Does the line's wording match the ruling (every format, every clip, the listed ad kinds, the show's own graphics excluded, \"cannot tell\" = ad)? Name any listed kind it misses.\nQ2. Can a model's answer ever make V1 pass while an ad is on a sheet (a \"yes\" with a reason naming an ad, an answer key spelled differently, \"n/a\")?\nQ3. Any other defect (prompt length, the other lines' answers, the verify pack's key list).\n\nOUTPUT: for each finding, severity (critical|high|medium|low), file:line, the concrete failure, the fix. If none, say NONE.\nREMINDER: only what the diff and the cited lines show; say when uncertain.",
+ "files": [],
+ "panel": {
+  "gemma": "google/gemma-4-31b-it"
+ },
+ "cycle1": [
+  {
+   "name": "gemma",
+   "model": "google/gemma-4-31b-it",
+   "status": 200,
+   "latency_s": 166.2,
+   "cost": 0.0004941,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "gemma",
+   "status": 200,
+   "latency_s": 40.2,
+   "cost": 0.0002859,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "gemma:F1",
+   "severity": "high",
+   "file": "pipeline/visual_check.py",
+   "line": 58,
+   "issue": "The prompt contradicts RULING 158 (2). The ruling states that the show's own branding, ticker of headlines/prices, and lower thirds are 'still a flag in 16:9', meaning they should trigger a failure. However, the prompt explicitly instructs the model that these elements 'are NOT advertising', which will lead the model to answer 'yes' (pass) when it should answer 'no' (fail).",
+   "evidence": "The show's OWN branding, its own ticker of headlines or prices and its own lower third are NOT advertising.",
+   "fix": "Update the prompt to align with the ruling: 'The show's OWN branding, its own ticker of headlines or prices and its own lower third are still considered flags and should be treated as advertising.'",
+   "agree": [
+    "gemma"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0007800000000000001,
+ "out_dir": "batch125_r158_v1_ads/cycle1/gemma_medium/heimdall"
+}

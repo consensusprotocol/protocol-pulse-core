@@ -1,0 +1,62 @@
+{
+ "question": "TASK: cycle 2 of the audit of batch 124 (Protocol Pulse, Python): G18's edge check follows ruling 143 (the same diff as cycle 1). Cycle 1: gemma PASS, glm PASS, qwen PASS; its strongest claim (a shift aligned as replaces) was disproved by running difflib (a shift aligns as delete / equal / insert and stays HARD). Only state what you can verify from the diff and the cited lines. If uncertain, say so. Do not guess.\n\nTRACE AND ANSWER:\nT1. Give one concrete (expected, heard) pair of English sentences for which _edges_substituted_only returns True although the CUT is wrong (a clipped, shifted or mid-word cut, not a decoder's reading), and run difflib's opcodes for it by hand. If you cannot construct one, say NONE.\nT2. The edge block runs only when row[\"identity\"] is empty. Can an identity difference that the audio did NOT clear ever coexist with the edge block clearing the edges?\nT3. Any other defect.\n\nOUTPUT: for each finding, severity (critical|high|medium|low), file:line, the concrete failure, the fix. If none, say NONE.\nREMINDER: only what the diff and the cited lines show; say when uncertain.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 204.7,
+   "cost": 0.0056002,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 89.6,
+   "cost": 0.0027908,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "qwen27b:F2",
+   "severity": "low",
+   "file": "pipeline/word_diff.py",
+   "line": 247,
+   "issue": "T2 answer: No. The guard 'not row[\"identity\"]' on the edge-block entry condition means the block is skipped whenever identity is non-empty. An identity difference the audio did NOT clear (identity remains non-empty) therefore can never coexist with the edge block clearing edges. No defect here.",
+   "evidence": "if row[\"edges\"] and not row[\"identity\"] and c.get(\"prepared\") and _edges_substituted_only(c[\"lock_text\"], heard):",
+   "fix": "NONE \u2013 the guard is correct.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "medium",
+   "file": "pipeline/word_diff.py",
+   "line": 90,
+   "issue": "A mid-word cut that truncates an edge word into a different one-for-one token is indistinguishable from a decoder misreading, so _edges_substituted_only returns True for a physically wrong cut. The docstring promises 'An omitted or added word at an edge (a clipped or a shifted cut) \u2026 is False', but a mid-word clip that yields a one-for-one replace (not an omission or addition) slips through the tag/length checks.",
+   "evidence": "expected = \"I think we should go now\"; heard = \"I think we should go no\" (mid-word cut on 'now'\u2192'no').\n\nnorm \u2192 e=[\"i\",\"think\",\"we\",\"should\",\"go\",\"now\"], h=[\"i\",\"think\",\"we\",\"should\",\"go\",\"no\"]\ndifflib opcodes: ('equal',0,5,0,5), ('replace',5,6,5,6)\nedge filter (n=2): o[2]=6 > len(e)-n=4 \u2192 edge op.\ntag='replace' \u2713, i2-i1=1==j2-j1=1 \u2713, _material('now','no')\u2192False (non-material adverb/determiner).\nFunction returns True, but the difference is a physical mid-word truncation, not a decoder's reading.",
+   "fix": "Add a lexical-similarity or edit-distance guard: reject the replace if the two tokens are not near-synonyms / common ASR confusions (e.g. require Levenshtein distance \u2265 2 or that the tokens share no prefix of length \u2265 len(shorter)-1, which would indicate truncation rather than mishearing). Alternatively, cross-check against the audio boundary: if the cut point falls inside the phoneme span of the edge word (available from c['cut_in']/c['cut_out'] and word-level timestamps), treat it as a clip and return False.",
+   "agree": [],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.008391,
+ "out_dir": "batch124_r159_g18_edges/cycle2/qwen27b_medium/heimdall"
+}

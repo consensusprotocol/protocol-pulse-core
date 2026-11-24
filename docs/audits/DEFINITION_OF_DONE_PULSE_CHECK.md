@@ -6,6 +6,29 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 02:40 RULING 159 (b), INTEGRATOR ROWS, SECOND MERGE (r143-tests). Staged: regression_test.sh 26 PASS / 0 FAIL, pipeline/regression.sh exit 0. One line per row:
+- ROW THE RULING 17/18 TESTS THAT FAILED SINCE THE LOCKSTEP, CLOSED (a75962a5a).
+  - test_ruling17_lock's Nov 12 tests are rewritten to ruling 143, on the same real audio:
+    - the pair 'think'/'mean' is settled two of three, with no alternatives;
+    - a small word passes on the untouched audio;
+    - the word's audio attenuated or replaced still fails.
+  - 46 passed on the merged tree.
+- ROW G18'S EDGES UNDER RULING 143, CLOSED (batch 124, 69f40a5e6). The rewrite exposed it: G18's edge check still held 'I think' read as 'I mean' at a clip's first words once ruling 18's alternatives were gone.
+  - A one-for-one substitution of non-material words at an edge is now decided by the same audio check.
+  - An omitted or added edge word (a clipped or shifted cut) or a material word stays HARD.
+  - Evidence: mutations 4 of 4; the tests fail on batch 121's code.
+  - Heimdall, cycle 1: gemma, glm and qwen PASS. qwen's shift example was disproved by running difflib: a shift aligns as delete/equal/insert and stays HARD.
+  - Heimdall, cycle 2: glm PASS. gemma's "reused audio result" is the identical measurement. qwen's mid-word case is G17c's (REQUIRED, review-blocked).
+- ROW RULING 158 (2) ON THE RENDER'S SIDE, CLOSED (batch 125, 13908dac1, ce32a4572 and the test commit).
+  - What it does: V1 asks both vision models, on the final's contact sheet in both formats, whether ANY clip shows paid advertising. A "no", "n/a" or a missing answer from either model holds; "cannot tell" counts as an ad.
+  - Live, free:
+    - Tonight's afd8977d sheets and the builder's two Digital Asset News frames: "no" 4 of 4 from both models, naming the Kraken banner and the iTrustCapital panel.
+    - Control, the published Nov 13 video: "yes" 2 of 2 from both.
+  - Mutations 3 of 3. Heimdall cycles 1 and 2: qwen, glm and gemma PASS; gemma's cycle-1 reading ("the show's own graphics must fail") was ruling 146's soft flag, not a refusal.
+  - FOUND: the PBX-approved Nov 11 preview now fails this line. Its Bitcoin Magazine clip shows an event's sponsor logo wall ('Powered by Cash App', bitkey, SALT ...). My question with its default is on the state line: refuse.
+  - The live must-pass test now requires every OTHER line to pass on that preview: rerun 1 passed. The live V1 models also flake on old lines (old checklist on the preview's 9:16 sheet: 1 of 2 runs failed 'credits' on nemotron), measured.
+- The merged-tree suites ran one file at a time: canon, failure_blocks, release_auth (49), render16only, review_drop (30), ruling17_lock (46), ruling20_avatars (3, live), ruling23_stack (4, live), rulings21_22, telegram_delivery (49) and v1_local_route all pass; tests/adversarial passes (383, merged tree, earlier tonight). test_word_diff: its 4 GPU-only errors and the purged-media test, as on the live code.
+
 ## 00:30 RULING 159 (b), INTEGRATOR ROWS: merge of r159-g18 (staged: regression_test.sh 26 PASS / 0 FAIL, pipeline/regression.sh exit 0). One line per row, with its commit:
 - ROW G18 UNDER RULING 143, CLOSED (batch 121, 1602034ab).
   - The question: does G18 run ruling 143's principle? It did NOT for a lock that was not adjudicated: its small-word path required `adjudicated`. Tonight's no_difference lock compared the final with the source span's decode and held 'bottomed'/'bottom'.

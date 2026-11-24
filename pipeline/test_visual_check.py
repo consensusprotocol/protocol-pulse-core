@@ -169,7 +169,8 @@ class TestV1Robustness(unittest.TestCase):
         """Replay of run 6, 16:9: qwen gave all six answers and stopped before the last '}' (6 x 'missing')."""
         a = V._parse(QWEN_REPLAY_REPLY)
         self.assertEqual(len(a), 6)
-        self.assertTrue(V.verdict(a, "16x9")[0])
+        self.assertFalse(V.verdict(a, "16x9")[0])          # recorded before ruling 158's line: its answer is missing
+        self.assertTrue(V.verdict(dict(a, no_on_screen_advertising={"answer": "yes", "why": "none"}), "16x9")[0])
         self.assertIsNone(V._parse('{"answers": {"credits_round_and_match": {"answer": "yes", "why": "cut off'))
         two = QWEN_REPLAY_REPLY[:-1]                            # two closing braces missing: still closed
         self.assertEqual(len(V._parse(two)), 6)
@@ -382,9 +383,56 @@ class TestVisionMustPass(unittest.TestCase):
         verify_pack._sheets_and_checklist(rd, {}, pack, vision=True)
         out = json.load(open(os.path.join(rd, "GATE_REPORT.json")))
         for fmt in ("16x9", "9x16"):
-            self.assertEqual(out["rows"][fmt]["V1_visual_checklist"], "PASS",
-                             f"{fmt}: {out.get('notes', {}).get(fmt)} | " + json.dumps(pack["visual"].get(fmt), default=str)[:3000])
+            # RULING 158 (2) (23:12 ET Nov 23) postdates this approval: the preview's Bitcoin Magazine clip shows an
+            # event's sponsor logo wall ('Powered by Cash App', bitkey, SALT ...), which the advertising line may hold
+            # (24 Nov 02:2x ET: qwen 'no' 2 of 2 on its 9:16 sheet). Every OTHER line must still pass.
+            if out["rows"][fmt]["V1_visual_checklist"] != "PASS":
+                self.assertEqual((out.get("notes", {}).get(fmt) or {}).get("V1_visual_checklist"),
+                                 "no/missing: no_on_screen_advertising",
+                                 f"{fmt}: " + json.dumps(pack["visual"].get(fmt), default=str)[:3000])
 
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRuling158Advertising(unittest.TestCase):
+    """RULING 158 (2) (orchestrator 23:12 ET Nov 23), the render's side: V1 asks, on the final's contact sheet of every
+    format, whether ANY clip shows paid advertising on screen; a "no" (an ad seen, or one it cannot tell from the
+    show's own graphic), a missing answer or "n/a" holds. Afd8977d's Digital Asset News clip carried a Kraken sign-up
+    banner and an iTrustCapital panel through its whole length."""
+
+    def yes(self):
+        return {k: {"answer": "yes", "why": "w"} for k, _ in V.CHECKLIST}
+
+    def test_an_ad_seen_holds_in_both_formats(self):
+        for fmt in ("16x9", "9x16"):
+            for ans in ("no", "n/a", ""):
+                with self.subTest(fmt=fmt, answer=ans):
+                    a = self.yes()
+                    a["no_on_screen_advertising"] = {"answer": ans, "why": "a Kraken '$25 sign-up bonus' banner"}
+                    ok, rows = V.verdict(a, fmt)
+                    self.assertFalse(ok)
+                    self.assertFalse(rows["no_on_screen_advertising"]["ok"])
+            self.assertTrue(V.verdict(self.yes(), fmt)[0])
+
+    def test_the_question_reaches_every_vision_model_and_either_no_holds(self):
+        from unittest import mock
+        texts = []
+
+        def call(path, text, model, timeout):
+            texts.append(text)
+            a = self.yes()
+            if model == V.VISION_MODELS[1]:
+                a["no_on_screen_advertising"] = {"answer": "no", "why": "iTrustCapital 'OPEN A CRYPTO IRA' panel"}
+            import json
+            return json.dumps({"answers": a}), {"choices": [{"finish_reason": "stop"}]}
+        with mock.patch.object(V, "_call_any", side_effect=call):
+            ok, per = V.ask_panel("sheet.jpg", "16x9")
+        self.assertFalse(ok)                                           # one model saw an ad: HOLD
+        self.assertEqual(len(texts), len(V.VISION_MODELS))
+        for t in texts:
+            self.assertIn("no_on_screen_advertising", t)
+            self.assertIn("PAID ADVERTISING", t)
+            self.assertIn("cannot tell an ad from the show's own graphic, answer 'no'", t)
+
