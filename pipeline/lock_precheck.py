@@ -502,6 +502,11 @@ def _outcome(s, lock):
     return "adopted" if "adjudication" in lock else "two_readings" if "alternatives" in lock else "no_difference"
 
 
+OUT_EDGE_HOLD = ("ruling 162 (1): the span ends while the speaker is still mid-sentence (its OUT edge is not the end "
+                 "of a sentence: {}); the render holds it: extend the out point to the sentence's end (ruling 104's "
+                 "tail)")
+
+
 def answer(path, r, dl, dec, sha, dg=None, log=print):
     """After the lease: every segment's lock (pinned.segment_lock, with the second recogniser where ruling 17 calls
     it) appended to its result file; the request moved to done/."""
@@ -512,6 +517,9 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
         if prev is not None and prev["outcome"] != "error":
             entry = dict(prev, request_id=r["request_id"], reused=True,
                          at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
+            edge = ((entry.get("cut") or {}).get("sentence_edge") or {}).get("out")
+            if edge and entry["outcome"] != "hold":              # RULING 162 (1) on a verdict made before it: no
+                entry.update(outcome="hold", lock=None, reason=OUT_EDGE_HOLD.format(edge))   # new spend, held
         else:
             a, err, dsec = dec.get(vid, (None, "not decoded", 0.0))
             spent, lock, reason, t, spoken, cut = [], None, err, time.time(), None, None
@@ -587,6 +595,9 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                         if cut.get("error"):
                             outcome, lock = "hold", None
                             reason = f"ruling 73: the render cannot cut this span: {cut['error']}"
+                        elif (cut.get("sentence_edge") or {}).get("out"):   # RULING 162 (1): the render holds it
+                            outcome, lock = "hold", None
+                            reason = OUT_EDGE_HOLD.format(cut["sentence_edge"]["out"])
                 except pinned.PinError as e:                     # what the render's stage pinned would hold on
                     if _empty_source(a):                         # batch 109: no media is no verdict, never a hold
                         outcome, lock = "error", None
@@ -619,7 +630,7 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                      "unstable_second_reading": spoken.get("unstable_second_reading") if spoken else None,   # 105
                      "cut": {**{k: cut.get(k) for k in ("cut_in", "cut_out", "cut_duration", "lead_in_pad_s", "error")},
                              "hook_lead_short": (cut.get("hook_lead") or {}).get("short"),   # ruling 146 (2): a flag
-                             "sentence_edge": cut.get("sentence_edge")}                       # ruling 139: a flag
+                             "sentence_edge": cut.get("sentence_edge")}       # ruling 139: IN a flag; 162 (1): OUT holds
                      if cut else None,
                      "rules": RULES, "scribe_usd": round(sum(spent), 4), "reused": False,
                      "timing": {"download_s": dl.get(vid, 0.0), "decode_s": dsec, "lock_s": round(time.time() - t, 1)},

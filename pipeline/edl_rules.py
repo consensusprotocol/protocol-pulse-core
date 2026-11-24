@@ -872,9 +872,10 @@ def takeaway_value(edl):
     row = gates.get(TAKEAWAY_VALUE_ROW) if isinstance(gates, dict) else None
     if not isinstance(row, dict):
         return False, f"ruling 91 (medley): the takeaway has no sealed value verdict (moments_gates.{TAKEAWAY_VALUE_ROW})"
-    if not sealed_ok(row):                          # ruling 141: a FLAGGED verdict with its flags counts (the pin says it)
-        return False, (f"ruling 91 (medley): the takeaway's value verdict is not exactly PASS and live, nor FLAGGED "
-                       f"with its flags (status {row.get('status')!r}, replayed {row.get('replayed')!r})")
+    if row.get("status") != "PASS" or row.get("replayed") is not False:    # RULING 162 (2): ruling 150 reversed for
+        return False, (f"ruling 91 (medley) / 162 (2): the takeaway's value verdict is not exactly PASS and live "  # this
+                       f"(status {row.get('status')!r}, replayed {row.get('replayed')!r}; a FLAGGED value no longer "  # line
+                       f"counts)")
     if not isinstance(row.get("text"), str) or row["text"].strip() != line.strip():
         return False, "ruling 91 (medley): the value verdict judged another line (its text is not the takeaway)"
     return True, f"ruling 91 (medley): the takeaway carries its sealed value verdict (by {row.get('by')!r})"

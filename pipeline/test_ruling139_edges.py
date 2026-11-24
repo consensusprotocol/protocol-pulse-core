@@ -108,18 +108,31 @@ class TestRenderFlags(unittest.TestCase):
             json.dump({"hook": {"channel": "Bitcoin Magazine"},
                        "clips": [{"index": 1, "channel": "Yahoo Finance"}, {"index": 2, "channel": "Natalie Brunell"}]}, f)
 
-    def test_each_edge_is_flagged_in_plain_words_never_held(self):
+    def test_the_in_edge_is_flagged_in_plain_words_never_held(self):
         run = types.SimpleNamespace(dir=self.d, status={}, prov={})
         RF.flag_sentence_edges(run, [{"clip_id": "hook"},
                                      {"clip_id": "clip_01", "sentence_edge": {"in": NOT_END}},
-                                     {"clip_id": "clip_02", "sentence_edge": {"out": "'it' does not end a sentence"}}])
+                                     {"clip_id": "clip_02", "sentence_edge": {}}])
         flags = run.status["review_flags"]
-        self.assertEqual(len(flags), 2)
+        self.assertEqual(len(flags), 1)
         self.assertIn("Yahoo Finance", flags[0])
         self.assertTrue(flags[0].endswith("might start in the middle of a sentence."), flags)
-        self.assertIn("Natalie Brunell", flags[1])
-        self.assertTrue(flags[1].endswith("might not end cleanly at the end of a sentence."), flags)
         self.assertEqual(run.status.get("holds"), None)
+
+    def test_ruling_162_an_out_edge_holds_whatever_else_is_marked(self):
+        """RULING 162 (1) (orchestrator 07:45 ET Nov 24, from PBX): a clip never ends while the speaker is still
+        mid-sentence; ruling 139's flag applies to the IN edge only. The render cannot extend a sealed span: it holds,
+        naming every such clip, and flags nothing on the way."""
+        for marks in ([{"clip_id": "clip_02", "sentence_edge": {"out": "'it' does not end a sentence"}}],
+                      [{"clip_id": "hook", "sentence_edge": {"in": NOT_END, "out": "'and' does not end a sentence"}},
+                       {"clip_id": "clip_02", "sentence_edge": {"out": "'it' does not end a sentence"}}]):
+            run = types.SimpleNamespace(dir=self.d, status={}, prov={})
+            with self.assertRaises(RF.Hold) as cm:
+                RF.flag_sentence_edges(run, [{"clip_id": "clip_01"}] + marks)
+            self.assertIn("ruling 162 (1)", str(cm.exception))
+            for m in marks:
+                self.assertIn(f"{m['clip_id']}: {m['sentence_edge']['out']}", str(cm.exception))
+            self.assertEqual(run.status.get("review_flags"), None)
 
     def test_no_edge_no_flag(self):
         run = types.SimpleNamespace(dir=self.d, status={}, prov={})

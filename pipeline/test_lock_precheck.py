@@ -454,6 +454,46 @@ class TestRuling72(Base):
         self.assertEqual((e["request_id"], e["reused"], e["rules"]), ("r1", False, LP.RULES))
 
 
+class TestRuling162(Base):
+    """RULING 162 (1) (orchestrator 07:45 ET Nov 24, from PBX): a clip never ends while the speaker is still
+    mid-sentence; ruling 139's flag stays for the IN edge only. The pre-check holds a span whose OUT edge is a sentence
+    edge, with the reason the builder acts on (extend the out point, ruling 104's tail), and a passing verdict made
+    before the ruling is held when it is served again: no new decode, no new second reading."""
+    OUT = "'and' does not end a sentence"
+
+    def test_an_out_sentence_edge_holds_and_an_in_edge_alone_passes(self):
+        self.cut = {**self.cut, "sentence_edge": {"in": "'not' does not end a sentence", "out": self.OUT}}
+        self.request(approved_text=ATTESTED)
+        LP.serve_once(log=self.log)
+        e = self.entry(ATTESTED)
+        self.assertEqual((e["outcome"], e["lock"]), ("hold", None), e)
+        self.assertTrue(e["reason"].startswith("ruling 162 (1): the span ends while the speaker is still mid-sentence"))
+        self.assertIn(self.OUT, e["reason"])
+        self.assertIn("ruling 104's tail", e["reason"])
+        self.assertEqual(e["cut"]["sentence_edge"], {"in": "'not' does not end a sentence", "out": self.OUT})
+
+    def test_a_passing_verdict_made_before_the_ruling_is_held_when_served_again(self):
+        self.request(approved_text=ATTESTED)
+        LP.serve_once(log=self.log)
+        out = LP.result_path(VID, START, END, LP.decoder_sha())
+        es = json.load(open(out))
+        self.assertEqual(es[-1]["outcome"], "no_difference")
+        es[-1]["cut"]["sentence_edge"] = {"out": self.OUT}          # as the pre-check recorded it before ruling 162
+        json.dump(es, open(out, "w"))
+        decodes, heard = len(self.decodes), len(self.heard)
+        self.request("r2", approved_text=ATTESTED)
+        LP.serve_once(log=self.log)
+        e = self.entry(ATTESTED)
+        self.assertEqual((e["request_id"], e["reused"], e["outcome"], e["lock"]), ("r2", True, "hold", None), e)
+        self.assertIn(self.OUT, e["reason"])
+        self.assertEqual((len(self.decodes), len(self.heard)), (decodes, heard))    # no new spend
+        es[-1]["cut"]["sentence_edge"] = {"in": "'not' does not end a sentence"}    # an IN edge alone stays a pass
+        json.dump(es, open(out, "w"))
+        self.request("r3", approved_text=ATTESTED)
+        LP.serve_once(log=self.log)
+        self.assertEqual((self.entry(ATTESTED)["request_id"], self.entry(ATTESTED)["outcome"]), ("r3", "no_difference"))
+
+
 RUN84 = "I came to the conclusion that it will replace or will be replaced. So it will be replaced by Bitcoin."
 SPOKEN84 = ("I came to the conclusion that, um, it will replace, uh, or will be replaced, or it will be replaced "
             "by Bitcoin.")
