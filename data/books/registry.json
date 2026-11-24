@@ -1,0 +1,188 @@
+{
+ "as_of": "2026-11-24",
+ "method": "Each Amazon ID fetched live from Ultron on 2026-11-24; ISBN-13 read from the Amazon product page title; Open Library /isbn API as second source where it had the record. Rank = first Best Sellers Rank on the page (Amazon US), category shown.",
+ "books": [
+  {
+   "slug": "the-big-print",
+   "title": "The Big Print",
+   "author": "Lawrence Lepard",
+   "isbn13": "9798992242508",
+   "amazon_id": "B0DVTCVX8J",
+   "status": "verified",
+   "rank_nov24": "51,009 in Books",
+   "pp_series": true
+  },
+  {
+   "slug": "everything-divided-by-21-million",
+   "title": "Bitcoin: Everything Divided by 21 Million",
+   "author": "Knut Svanholm",
+   "isbn13": "9789916697191",
+   "amazon_id": "9916697191",
+   "status": "verified",
+   "rank_nov24": "3,262,637 in Books",
+   "pp_series": true
+  },
+  {
+   "slug": "daylight-robbery",
+   "title": "Daylight Robbery",
+   "author": "Dominic Frisby",
+   "isbn13": "9780241360842",
+   "amazon_id": "0241360846",
+   "status": "verified",
+   "rank_nov24": "2,078,062 in Books",
+   "pp_series": true,
+   "note": "Penguin UK edition"
+  },
+  {
+   "slug": "the-genesis-book",
+   "title": "The Genesis Book",
+   "author": "Aaron van Wirdum",
+   "isbn13": "9798989132621",
+   "amazon_id": "B0CQLMQRH7",
+   "status": "verified",
+   "rank_nov24": "183,398 in Books",
+   "pp_series": true
+  },
+  {
+   "slug": "the-bitcoin-standard",
+   "title": "The Bitcoin Standard",
+   "author": "Saifedean Ammous",
+   "isbn13": "9781119473862",
+   "amazon_id": "1119473861",
+   "status": "fix",
+   "rank_nov24": "34,197 in Books",
+   "fix": "collector uses dead ASIN B07FCGQ672 (404); site shows fabricated 3,210"
+  },
+  {
+   "slug": "broken-money",
+   "title": "Broken Money",
+   "author": "Lyn Alden",
+   "isbn13": "9798988666318",
+   "amazon_id": "B0CG8985FR",
+   "status": "fix",
+   "rank_nov24": "49,171 in Books",
+   "fix": "collector uses dead ASIN B09WFDTX49 (404); site shows fabricated 5,430"
+  },
+  {
+   "slug": "mastering-bitcoin",
+   "title": "Mastering Bitcoin (3rd ed.)",
+   "author": "Andreas M. Antonopoulos & David A. Harding",
+   "isbn13": "9781098150099",
+   "amazon_id": "1098150090",
+   "status": "verified",
+   "rank_nov24": "148,085 in Books"
+  },
+  {
+   "slug": "the-fiat-standard",
+   "title": "The Fiat Standard",
+   "author": "Saifedean Ammous",
+   "isbn13": "9781544526478",
+   "amazon_id": "B0HR576L3M",
+   "status": "verified",
+   "rank_nov24": "1,540,887 in Kindle Store",
+   "fix": "print ISBN 1544526474 is 404 on Amazon; using verified Kindle edition. Publisher link found on saifedean.com; store page rate-limited (429) from Ultron, availability not yet confirmed",
+   "format": "Kindle",
+   "publisher_link": "https://thesaifhouse.com/products/tfs-hardcover"
+  },
+  {
+   "slug": "the-sovereign-individual",
+   "title": "The Sovereign Individual",
+   "author": "James Dale Davidson & William Rees-Mogg",
+   "isbn13": "9780684832722",
+   "amazon_id": "0684832720",
+   "status": "fix",
+   "rank_nov24": "10,636 in Books",
+   "fix": "collector author omits Rees-Mogg"
+  },
+  {
+   "slug": "digital-gold",
+   "title": "Digital Gold",
+   "author": "Nathaniel Popper",
+   "isbn13": "9780062362506",
+   "amazon_id": "006236250X",
+   "status": "verified",
+   "rank_nov24": "382,113 in Books",
+   "note": "collector only; not on /media list"
+  },
+  {
+   "slug": "layered-money",
+   "title": "Layered Money",
+   "author": "Nik Bhatia",
+   "isbn13": "9781736110515",
+   "amazon_id": "1736110519",
+   "status": "verified",
+   "rank_nov24": "543,923 in Books"
+  },
+  {
+   "slug": "the-price-of-tomorrow",
+   "title": "The Price of Tomorrow",
+   "author": "Jeff Booth",
+   "isbn13": "9781999257408",
+   "amazon_id": "1999257405",
+   "status": "verified",
+   "rank_nov24": "51,925 in Books"
+  },
+  {
+   "slug": "inventing-bitcoin",
+   "title": "Inventing Bitcoin",
+   "author": "Yan Pritzker",
+   "isbn13": "9781794326316",
+   "amazon_id": "1794326316",
+   "status": "fix",
+   "rank_nov24": "565,585 in Books",
+   "fix": "site uses dead 1097476922 (404); fabricated rank 35,200 shown"
+  },
+  {
+   "slug": "21-lessons",
+   "title": "21 Lessons",
+   "author": "Gigi",
+   "isbn13": "9781697526349",
+   "amazon_id": "1697526349",
+   "status": "verified",
+   "rank_nov24": "945,592 in Books"
+  },
+  {
+   "slug": "thank-god-for-bitcoin",
+   "title": "Thank God for Bitcoin",
+   "author": "Jimmy Song et al.",
+   "isbn13": "9781641991216",
+   "amazon_id": "1641991216",
+   "status": "fix",
+   "rank_nov24": "365,096 in Books",
+   "fix": "site uses dead 1642790622 (404)"
+  },
+  {
+   "slug": "the-blocksize-war",
+   "title": "The Blocksize War",
+   "author": "Jonathan Bier",
+   "isbn13": "9798721895609",
+   "amazon_id": "B08YQMC2WM",
+   "status": "fix",
+   "rank_nov24": "928,558 in Books",
+   "fix": "site uses dead 1916294216 (404)"
+  },
+  {
+   "slug": "softwar",
+   "title": "Softwar",
+   "author": "Jason P. Lowery",
+   "isbn13": "9798371524188",
+   "amazon_id": "B0BW358F37",
+   "status": "fix",
+   "rank_nov24": "411,788 in Books",
+   "free_alt": "https://hdl.handle.net/1721.1/153030",
+   "fix": "live entry core/routes_pages.py:1481 is a different book (Larry Ellison, dead 1416532194); templates/media_unified.html:392 links 1544542895 = Spanish Lyme disease book; media_reforge uses dead B0BW3MTQG6"
+  },
+  {
+   "slug": "the-money-revolution",
+   "title": "The Money Revolution",
+   "author": "Richard Duncan",
+   "isbn13": "9781119856269",
+   "amazon_id": "1119856264",
+   "status": "fix",
+   "rank_nov24": "1,285,975 in Books",
+   "fix": "replaces non-existent 'The Truth About Money' (dead 0470181552); verified on Amazon, Open Library and wiley.com",
+   "publisher": "Wiley, 2021"
+  }
+ ],
+ "version": 2
+}

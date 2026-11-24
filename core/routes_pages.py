@@ -1356,145 +1356,18 @@ def media_terminal():
     return redirect(url_for('pages.media_hub'))
 
 def _get_media_hub_books():
-    """Build our_books and recommended_books for Media Hub. Always available (no RSS/API dependency)."""
+    """our_books (registry pp_series) and recommended_books for the Media Hub, from data/books/registry.json.
+
+    The registry (core/books_registry.py) is the single source of titles, authors and Amazon IDs.
+    If it cannot be read, the page still renders without the book lists and the error is logged.
+    """
     affiliate_tag = os.environ.get('AMAZON_AFFILIATE_TAG', 'protocolpulse-20')
-    our_books = [
-        {
-            'title': 'Everything Divided by 21 Million',
-            'author': 'Knut Svanholm',
-            'description': 'A philosophical deep dive into Bitcoin\'s relationship to time, money, freedom, and human progress through mathematical scarcity.',
-            'cover_url': '/static/images/books/everything_21m.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/9916697191?tag={affiliate_tag}'
-        },
-        {
-            'title': 'The Big Print',
-            'author': 'Lawrence Lepard',
-            'description': 'An exposé revealing how the Federal Reserve and financial elites engineered wealth extraction through monetary policy.',
-            'cover_url': '/static/images/books/big_print.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/B0DVTCVX8J?tag={affiliate_tag}'
-        },
-        {
-            'title': 'Daylight Robbery',
-            'author': 'Dominic Frisby',
-            'description': 'The hidden history of how taxation has shaped human civilization from ancient empires to modern governments.',
-            'cover_url': '/static/images/books/daylight_robbery.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/0241360846?tag={affiliate_tag}'
-        },
-        {
-            'title': 'The Genesis Book',
-            'author': 'Aaron van Wirdum',
-            'description': 'The definitive history of Bitcoin\'s ideological origins — from Austrian economics to the cypherpunk movement.',
-            'cover_url': '/static/images/books/genesis_book.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/B0CQLMQRH7?tag={affiliate_tag}'
-        }
-    ]
-    recommended_books = [
-        {
-            'title': 'The Bitcoin Standard',
-            'author': 'Saifedean Ammous',
-            'description': 'The essential guide to understanding Bitcoin as sound money and the history of monetary systems.',
-            'cover_url': '/static/images/books/bitcoin_standard.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1119473861?tag={affiliate_tag}',
-            'bestseller': True
-        },
-        {
-            'title': 'Broken Money',
-            'author': 'Lyn Alden',
-            'description': 'A comprehensive analysis of the global monetary system and why Bitcoin matters.',
-            'cover_url': '/static/images/books/broken_money.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/B0CG8985FR?tag={affiliate_tag}',
-            'bestseller': True
-        },
-        {
-            'title': 'Mastering Bitcoin',
-            'author': 'Andreas Antonopoulos & David Harding',
-            'description': 'The technical guide to understanding and programming Bitcoin at a deep level. Third Edition.',
-            'cover_url': '/static/images/books/mastering_bitcoin.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1098150090?tag={affiliate_tag}',
-            'bestseller': True
-        },
-        {
-            'title': 'The Fiat Standard',
-            'author': 'Saifedean Ammous',
-            'description': 'A companion to The Bitcoin Standard examining our current fiat monetary system.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9781544526478-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1544526474?tag={affiliate_tag}',
-            'bestseller': True
-        },
-        {
-            'title': 'The Price of Tomorrow',
-            'author': 'Jeff Booth',
-            'description': 'Why deflation is the key to an abundant future in a technologically advancing world.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9781999257408-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1999257405?tag={affiliate_tag}',
-            'bestseller': False
-        },
-        {
-            'title': '21 Lessons',
-            'author': 'Gigi',
-            'description': 'What falling down the Bitcoin rabbit hole taught one developer about philosophy, economics, and technology.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9781697526349-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1697526349?tag={affiliate_tag}',
-            'bestseller': False
-        },
-        {
-            'title': 'The Sovereign Individual',
-            'author': 'James Dale Davidson & Lord William Rees-Mogg',
-            'description': 'A prescient 1997 book predicting the rise of digital money and the transformation of society.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9780684832722-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/0684832720?tag={affiliate_tag}',
-            'bestseller': True
-        },
-        {
-            'title': 'Layered Money',
-            'author': 'Nik Bhatia',
-            'description': 'An accessible introduction to how money works in layers, from gold to Bitcoin.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9781736110515-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1736110519?tag={affiliate_tag}',
-            'bestseller': False
-        },
-        {
-            'title': 'Inventing Bitcoin',
-            'author': 'Yan Pritzker',
-            'description': 'A concise technical and economic introduction to how Bitcoin works and why it matters.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9781097476922-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1097476922?tag={affiliate_tag}',
-            'bestseller': True
-        },
-        {
-            'title': 'Thank God for Bitcoin',
-            'author': 'Jimmy Song et al.',
-            'description': 'A faith-oriented perspective on Bitcoin as a tool for freedom and stewardship.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9781642790622-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1642790622?tag={affiliate_tag}',
-            'bestseller': False
-        },
-        {
-            'title': 'The Blocksize War',
-            'author': 'Jonathan Bier',
-            'description': 'The inside story of the battle over Bitcoin\'s block size and the future of the protocol.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9781916294212-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1916294216?tag={affiliate_tag}',
-            'bestseller': False
-        },
-        {
-            'title': 'Softwar',
-            'author': 'Larry Ellison',
-            'description': 'Oracle and the rise of cloud computing — context on tech and power that resonates with Bitcoin\'s story.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9781416532190-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/1416532194?tag={affiliate_tag}',
-            'bestseller': False
-        },
-        {
-            'title': 'The Truth About Money',
-            'author': 'Richard Duncan',
-            'description': 'How fiat money creation drives inequality and instability — essential macro context for Bitcoin.',
-            'cover_url': 'https://covers.openlibrary.org/b/isbn/9780470181553-L.jpg',
-            'amazon_url': f'https://www.amazon.com/dp/0470181552?tag={affiliate_tag}',
-            'bestseller': False
-        },
-    ]
-    return our_books, recommended_books
+    try:
+        import books_registry
+        return books_registry.media_hub_lists(affiliate_tag)
+    except Exception:
+        logging.exception('Media Hub book list unavailable: books registry failed to load')
+        return [], []
 
 @pages_bp.route('/media')
 @pages_bp.route('/media-hub')
