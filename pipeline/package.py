@@ -4087,8 +4087,18 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
         angles = [dict(candidate["angle"])]
         angle_reply = SimpleNamespace(backend=candidate["angle_backend"], vendor=b.vendor, family=b.family,
                                       tried=[list(x) for x in candidate.get("angle_tried") or []])
-    for seed in ((7, 8) if candidate is None else ()):   # one re-ask on an out-of-contract reply (never served again)
-        r = None
+    no_writer = lean and candidate is None and bool(s_angles)   # LEAN (4): the story carries its own angle
+    if no_writer:                                     # (the owner's assignment, issue 4: "The existing story-first path
+        from types import SimpleNamespace             # still invokes the angle writer even when story-specific angles
+        wname = next((n for n in router.chain("angle_write") if n in router.backends and   # exist"): the writer is not
+                      n not in (getattr(router, "down", None) or {})), None)                # called. The lines are
+        wb = router.backends.get(wname)               # written down the writer chain's first back-end that answers, as
+        angles, angle_reply = [], SimpleNamespace(backend=wname, vendor=getattr(wb, "vendor", None),   # the angle's
+                                                  family=getattr(wb, "family", None), tried=[])   # would be (ruling 85);
+        out["angle_writer"] = (f"not asked (lean (4)): {len(s_angles)} story angle(s) carry their own angle; the "
+                               f"lines go to {wname}")   # every verdict avoids it and the grouping models (L-x)
+    for seed in ((7, 8) if candidate is None and not no_writer else ()):   # one re-ask on an out-of-contract reply
+        r = None                                                         # (never served again)
         try:
             r = router.call("angle_write", ANGLE_PROMPT.format(note=UNTRUSTED.replace("<sentences>", "the quotes"),
                                                                clips=clips, hooks=hooks_txt(offered), per=per,
@@ -4105,10 +4115,11 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                 router.reject(r)
             errs.append(f"{type(e).__name__}: {str(e)[:200]}")       # every reason, the first one too
             out["why_none"] = "no readable angles: " + "; then ".join(errs)
-    if not angles:                                    # RULING 118 (4): the story angles go with the writer's only:
+    if not angles and not no_writer:                  # RULING 118 (4): the story angles go with the writer's only:
         return out                                    # its back-end keeps every write on its gateway (ruling 85)
     out.pop("why_none", None)
-    missing = [m for m in offered if m["moment_id"] not in {a["hook"] for a in angles}] if candidate is None else []
+    missing = [m for m in offered if m["moment_id"] not in {a["hook"] for a in angles}] \
+        if candidate is None and not no_writer else []   # LEAN (4): no follow-up writer call either
     if missing and len(angles) < max_angles:            # RULING 64: a passing hook left without an angle is asked
         k2, r = max_angles - len(angles), None          # for, once, written for exactly those hooks (12:00)
         try:
@@ -4165,7 +4176,9 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
     writer_avoid = {P.gateway(router.backends[n]) for n in router.chain("angle_write") if n in router.backends} - \
         {P.gateway(ab) if ab is not None else angle_reply.vendor}   # heimdall_first a family is its own maker, and
     # a write may still fail over deepseek -> qwen as today); the verdicts avoid every writer's maker and family
-    log(f"  {len(angles)} angles from {angle_reply.backend}"
+    log(f"  {len(angles)} story angle(s) from the stories file, the angle writer not asked (lean (4)); the lines go to "
+        f"{angle_reply.backend} ({time.time() - t0:.0f} s)" if no_writer else
+        f"  {len(angles)} angles from {angle_reply.backend}"
         + (f", the first {len(s_angles)} from the stories file (ruling 118 (4))" if s_angles else "")
         + f" ({time.time() - t0:.0f} s)" if candidate is None else
         f"  ruling 66: the candidate {candidate.get('source')} tried[{candidate.get('index')}] (angle "
