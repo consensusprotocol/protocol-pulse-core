@@ -333,11 +333,34 @@ def trimmed_onset(src, cut_in, fade_in_ms):
     return ok, {"cut_in": cut_in, "fade_in_ms": fade_in_ms, "onset_s": onset, "lead_ms": lead, "ok": ok}
 
 
-def edge_plan(sa, words, i0, i1, trimmed=None):
+def soften_sentence_edge(b):
+    """RULING 139 (orchestrator 2026-11-17 '12:28'; binding the render's lock by ruling 147 (3)): a boundary that fails
+    ONLY on sentence evidence ('X' does not end a sentence, an unpunctuated stretch, a file end on a word that ends no
+    sentence) while audio lies between the words (a measured pause: the cut sits at a word boundary) is a SENTENCE EDGE,
+    PBX's call on review: made valid here, marked "sentence_edge" with that reason. No audio between the words (a cut
+    there is mid-word), a missing onset / offset at a file edge and every other reason stay invalid (HARD)."""
+    if b.get("valid") or b.get("pause") is None:
+        return b
+    why = b.get("reason")
+    if b.get("lexical") == "unpunctuated" or (isinstance(why, str) and why.endswith("does not end a sentence")):
+        b.update(valid=True, sentence_edge=why, reason=None)
+    elif b.get("file_end") and why is None:
+        b.update(valid=True, sentence_edge=f"the source file ends on '{b.get('after_word')}', which ends no sentence",
+                 reason=None)
+    return b
+
+
+def edge_plan(sa, words, i0, i1, trimmed=None, sentence_soft=False):
     """Boundaries around words[i0..i1] and the legal cut ranges they allow. trimmed: the lock's trimmed_leading
-    (ruling 33 part 2): the IN edge is the measured pause after that word, and the cut must SIT in its quiet run."""
+    (ruling 33 part 2): the IN edge is the measured pause after that word, and the cut must SIT in its quiet run.
+    sentence_soft (RULING 139 / 147 (3)): a sentence edge at a word boundary is planned like a sentence boundary and
+    marked (soften_sentence_edge); the render's lock, cut table and gates pass True, selection keeps False. A trimmed
+    word's IN edge is never softened (ruling 33 part 2 stays as it is)."""
     bin_ = trimmed_boundary(sa, words, i0, trimmed) if trimmed else boundary(sa, words, i0 - 1)
     bout = boundary(sa, words, i1, tail=True)
+    if sentence_soft:
+        for b in ([] if trimmed else [bin_]) + [bout]:
+            soften_sentence_edge(b)
     plan = {"in": bin_, "out": bout}
     if bin_["valid"]:
         p = bin_["pause"]
@@ -887,8 +910,12 @@ def lock_cut(src, words, lock, label):
     hook_lead cannot give 80 ms keeps the planned cut (accepted_cut's, as any clip), its record marked "short" with
     the measured reason; the render flags 'The opening clip may start abruptly.' It is never refused for that. A cut
     mid-word stays HARD (accepted_cut, G17b, G17c)."""
-    plan = edge_plan(SourceAudio(src), words, lock["i0"], lock["i1"], trimmed=lock.get("trimmed_leading"))
+    plan = edge_plan(SourceAudio(src), words, lock["i0"], lock["i1"], trimmed=lock.get("trimmed_leading"),
+                     sentence_soft=True)                                    # ruling 139 / 147 (3)
     out = {"pause_in": plan["in"].get("pause"), "pause_out": plan["out"].get("pause")}
+    edges = {s: plan[s]["sentence_edge"] for s in ("in", "out") if plan[s].get("sentence_edge")}
+    if edges:                                                              # ruling 139: flagged, never refused
+        out["sentence_edge"] = edges
     if not plan["ok"]:
         why = [f"{s.upper()}: {plan[s].get('reason') or 'not cuttable'}" for s in ("in", "out")
                if not plan[s].get("cuttable")]
@@ -955,7 +982,8 @@ def gate_g16(run_dir, source_path_fn=None):
                 words = json.load(f)["words"]
             src = (source_path_fn or (lambda v: os.path.join(run_dir, "sources", f"{v}.mp4")))(seg["video_id"])
             sa = SourceAudio(src)
-            plan = edge_plan(sa, words, lock["i0"], lock["i1"], trimmed=lock.get("trimmed_leading"))
+            plan = edge_plan(sa, words, lock["i0"], lock["i1"], trimmed=lock.get("trimmed_leading"),
+                             sentence_soft=True)                            # ruling 139 / 147 (3)
             row["in"] = _edge_row(plan["in"], cut["cut_in"], "in", cut)
             row["out"] = _edge_row(plan["out"], cut["cut_out"], "out", cut)
             row["errors"] += [f"IN: {row['in']['why']}"] if not row["in"]["pass"] else []
@@ -980,7 +1008,8 @@ def gate_g16(run_dir, source_path_fn=None):
 
 def _edge_row(b, cut_t, side, cut):
     r = {"cut": cut_t, "boundary_valid": b.get("valid"), "pause": b.get("pause"), "lexical": b.get("lexical"),
-         "after_word": b.get("after_word"), "before_word": b.get("before_word")}
+         "after_word": b.get("after_word"), "before_word": b.get("before_word"),
+         **({"sentence_edge": b["sentence_edge"]} if b.get("sentence_edge") else {})}      # ruling 139: flagged
     if not b.get("valid"):
         what = "trimmed leading word (ruling 33 part 2)" if "trimmed_leading" in b else "no sentence boundary"
         return {**r, "pass": False, "why": f"{what}: {b.get('reason')}"}
@@ -1104,7 +1133,7 @@ def gate_g17_edges(run_dir, source_path_fn=None):
             words = json.load(f)["words"]
         src = (source_path_fn or (lambda v: os.path.join(run_dir, "sources", f"{v}.mp4")))(seg["video_id"])
         sa = SourceAudio(src)
-        plan = edge_plan(sa, words, lock["i0"], lock["i1"])
+        plan = edge_plan(sa, words, lock["i0"], lock["i1"], sentence_soft=True)      # ruling 139 / 147 (3)
         ok, det = edge_word_fidelity(src, clip, plan, cut["cut_in"], cut["cut_out"],
                                      float(cut.get("lead_in_pad_s") or 0), sa=sa)
         table[label] = {"ok": ok, **det}
@@ -1135,7 +1164,7 @@ def edges_on_final(final_path, segments, run_dir, source_path_fn=None):
                 words = json.load(f)["words"]
             src = (source_path_fn or (lambda v: os.path.join(run_dir, "sources", f"{v}.mp4")))(vid)
             sa = SourceAudio(src)
-            plan = edge_plan(sa, words, lock["i0"], lock["i1"])
+            plan = edge_plan(sa, words, lock["i0"], lock["i1"], sentence_soft=True)   # ruling 139 / 147 (3)
             _, det = edge_word_fidelity(src, final_path, plan, cut["cut_in"], cut["cut_out"],
                                         float(cut.get("lead_in_pad_s") or 0), sa=sa, offset_s=float(seg["start"]),
                                         gain_invariant=True)

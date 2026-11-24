@@ -60,7 +60,7 @@ class TestRequest(Dirs):
         self.assertNotIn("trimmed_leading", s[1])                                        # only a trimmed moment
         self.assertEqual((s[2]["trimmed_leading"], s[2]["untrimmed_start"]), ("And", 1690.9))
         self.assertEqual(os.path.basename(LP.result_file(s[0], self.res)),
-                         "DcUbBkyeh9M.216.054-228.674.50fa01b400bd.json")             # batch 114's decoder
+                         "DcUbBkyeh9M.216.054-228.674.9326604699a7.json")             # ruling 153's lockstep
 
     def test_a_request_is_renamed_from_its_tmp_and_never_written_over(self):
         segs = LP.segments_of([HOOK, CLIP])
@@ -138,7 +138,7 @@ class TestRuling84(unittest.TestCase):
         """RULING 103 (14:12 Nov 14), RULING 105 (20:13 Nov 14), RULING 131 (08:25 Nov 17), RULING 135 (10:50 Nov 17) and
         RULING 142 (14:32 Nov 17) joined the integrator's rules string (its batch 110 values, 14:5x ET Nov 17)."""
         self.assertEqual(LP.RULES, "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103 + ruling 105 + "
-                                   "ruling 131 + ruling 135 + ruling 142 + ruling 146")
+                                   "ruling 131 + ruling 135 + ruling 139 + ruling 142 + ruling 143 + ruling 146")
 
     def test_the_held_span_of_the_20_12_build_now_adopts(self):
         spoken = "So over time, um, I came to think, uh, or the money itself was broken."
@@ -627,3 +627,96 @@ class TestApply(Dirs):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestRuling143(Dirs):
+    """RULING 143 (orchestrator 2026-11-17 '15:55'), landed by RULING 153 (20:03 ET Nov 23) in ONE lockstep with the
+    integrator's batch 113: when the TWO AUDIO readings (the run decode and the second recogniser) agree with each other
+    on a material word, the sealed text takes the audio's reading (the transcript is corrected); only when they disagree
+    does it hold; a small word never holds; the wrong audio (under 85 % shared) holds. This side re-derives every pair
+    (attest.class_143) and never trusts the record. The case: the FTX-bottom story's Simply Bitcoin 190beaa7
+    (0shaXx_n870 words 0-30), held at 19:54 on 'fdx' / 'ftx' (the transcript's 'FDX', both audio readings 'FTX')."""
+    APPROVED = ("On Saturday at 1 in the morning, Bitcoin got flushed down to $55,000. That was four years to the day "
+                "after the FDX bottom.")
+    RUN = APPROVED.replace("FDX", "FTX")
+    SB = {"moment_id": "190beaa7", "video_id": "0shaXx_n870", "start": 0.0, "end": 9.76, "text": APPROVED}
+
+    def adj(self, run=None, app=None, sec=None, **kw):
+        run, app = run or self.RUN, app or self.APPROVED
+        sec = run if sec is None else sec
+        r, p, ops = AT.diff(run, app)
+        pairs = [{"run": " ".join(r[a:b]), "approved": " ".join(p[c:d]), "material": True, "second_reads": "run",
+                  "took": "run"} for _, a, b, c, d in ops]
+        return dict({"rule": "ruling 143 (orchestrator 2026-11-17 '15:55')", "verdict": "settled", "pairs": pairs,
+                     "run_decode": run, "approved": app, "second_recogniser": sec}, **kw)
+
+    def decide(self, spoken=None, seg=None, **kw):
+        s = LP.segments_of([seg or self.SB])[0]
+        return LP.decide(s, entry(s, "adopt_spoken", spoken_text=spoken or self.RUN, adjudication=self.adj(**kw)))
+
+    def test_the_two_audio_readings_correct_the_transcript_and_the_pin_says_so(self):
+        d = self.decide()
+        self.assertEqual(d["verdict"], "adopt", d.get("why"))
+        self.assertEqual(d["transcript_corrected"], [["fdx", "ftx"]])
+        s = LP.segments_of([self.SB])[0]
+        self.put(s, entry(s, "adopt_spoken", spoken_text=self.RUN, adjudication=self.adj()))
+        pre = LP.check([self.SB], "r", self.req, self.res, log=lambda m: None)
+        pk = LP.apply({"segments": [{k: self.SB[k] for k in ("video_id", "start", "end", "text")}], "lines": []}, pre)
+        seg = pk["segments"][0]
+        self.assertEqual((seg["text"], seg["attested"]["was"]), (self.RUN, self.APPROVED))
+        self.assertIn("ruling 143", seg["attested"]["rule"])
+        self.assertIn("transcript corrected from the audio", seg["attested"]["carried"])
+        self.assertEqual(LP.pin_problems(pk), [])
+
+    def test_a_number_and_a_ticker_are_settled_the_same_way(self):
+        for app, run in (("Bitcoin bottomed at about 15,000,500 dollars on November 21st of 2022, a deep low.",
+                          "Bitcoin bottomed at about 15,500 dollars on November 21st of 2022, a deep low."),
+                         ("IBIT saw its largest outflow since the launch in January of last year, the data shows.",
+                          "IBTC saw its largest outflow since the launch in January of last year, the data shows.")):
+            #   a sentence-opening ticker: only the ticker rule makes it material (the integrator's batch 113)
+            d = self.decide(spoken=run, seg=dict(self.SB, text=app), run=run, app=app)
+            self.assertEqual(d["verdict"], "adopt", (app, d.get("why")))
+            self.assertTrue(d["transcript_corrected"], app)
+            self.assertTrue(all(x["material"] for x in d["differences"]), app)
+
+    def test_a_small_word_never_holds(self):
+        app = "That was four years to the day after the bottom, and nobody saw it coming at all this time."
+        run, sec = app.replace(", and nobody", ", but nobody"), app.replace(", and nobody", ", so nobody")
+        r, p, ops = AT.diff(run, app)
+        pairs = [{"run": "but", "approved": "and", "material": False, "second_reads": "neither", "took": "run"}]
+        d = self.decide(spoken=run, seg=dict(self.SB, text=app), run=run, app=app, sec=sec, pairs=pairs)
+        self.assertEqual((d["verdict"], [(x["took"], x["material"]) for x in d["differences"]]),
+                         ("adopt", [("run", False)]), d.get("why"))
+        d = self.decide(spoken=app, seg=dict(self.SB, text=app), run=run, app=app, sec=app,
+                        pairs=[dict(pairs[0], second_reads="approved", took="approved")])
+        self.assertEqual(d["verdict"], "pass", d.get("why"))              # the second reads 'and': the approved stands
+
+    def test_what_holds(self):
+        other = ("Gold and the stock market both rallied on Friday while the dollar slid against the yen and the "
+                 "euro after the jobs report.")
+        for spoken, kw, why in (
+                (None, {"sec": APPROVED_SB_FDX}, "the two audio readings disagree"),          # the second reads 'FDX'
+                (None, {"sec": other}, "the wrong audio (ruling 143 (4))"),
+                (None, {"pairs": [{"run": "ftx", "approved": "fdx", "material": True, "took": "approved"}]},
+                 "the lock record's pairs are not this side's"),
+                (None, {"pairs": []}, "the lock record's pairs are not this side's"),
+                (APPROVED_SB_FDX.replace("four years", "five years"), {}, "the spoken text is not the settled reading"),
+                (None, {"second_recogniser": None}, "does not hold the three readings")):
+            d = self.decide(spoken, **kw)
+            self.assertEqual(d["verdict"], "hold", (spoken, kw))
+            self.assertIn(why, d["why"])
+
+    def test_only_a_ruling_143_record_goes_to_class_143(self):
+        d = self.decide(rule="ruling 131 (A) (orchestrator 2026-11-17 '08:25')")     # a 131 record: class_131 decides
+        self.assertNotEqual(d.get("adoption"), AT.RULE_143)
+
+    def test_the_old_decoders_answers_are_never_read(self):
+        s = LP.segments_of([self.SB])[0]
+        name = os.path.basename(LP.result_file(s, self.res)).replace(LP.DECODER, "50fa01b400bd")
+        with open(os.path.join(self.res, name), "w") as f:
+            json.dump([entry(s, "no_difference")], f)
+        self.assertIsNone(LP.answer(s, self.res))                       # batch 114's decoder: never read again
+
+
+APPROVED_SB_FDX = TestRuling143.APPROVED
+

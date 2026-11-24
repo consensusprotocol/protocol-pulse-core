@@ -59,8 +59,10 @@ FILLERS = frozenset(("um", "uh", "er", "ah", "mm", "hmm"))
 
 
 def critical(tok, texts):
-    """Law L-v 2 as the render tests it (pinned._lv2_critical): a number, a negation, or a name (in either text, a
-    capitalised word that does not open a sentence; 'I' excepted). A doubtful token is critical."""
+    """Law L-v 2 / ruling 143 (1)'s MATERIAL word as the render tests it (pinned._lv2_critical): a number, a negation,
+    a name (in either text, a capitalised word that does not open a sentence; 'I' excepted) or a ticker (in either
+    text, a word of two or more capitals, wherever it stands: 'IBIT'; the integrator's batch 113). A doubtful token is
+    critical."""
     if re.search(r"\d", tok) or tok in LV2_NEGATIONS or tok.endswith("n't") or tok in LV2_ORDINALS:
         return True
     for t in texts:
@@ -68,7 +70,7 @@ def critical(tok, texts):
             w = m.group(0)
             if w.lower() == tok and w[0].isupper() and w != "I":
                 before = t[:m.start()].rstrip()
-                if before and before[-1] not in ".!?":
+                if (before and before[-1] not in ".!?") or (len(w) >= 2 and w.isupper()):
                     return True
     return False
 
@@ -276,6 +278,111 @@ def class_131(spoken, approved, adj):
         out.append(dict(x, took="ruling 72", edge_distance=None, **(
             {"why": "the spoken text differs from the merged reading outside ruling 84's class"} if x["class"] is None
             else {})))
+    return out
+
+
+RULE_143 = "ruling 143"
+AUDIO_SHARE_MIN = 0.85     # RULING 143 (4), pinned.AUDIO_SHARE_MIN: two audio readings sharing less are the wrong audio
+AUDIO_APART_MIN = 3        # ... and only when more than this many of the run decode's words are missing (pinned's)
+
+
+def audio_share(x, y):
+    """RULING 143 (4) as pinned.audio_share: the share of the run decode's tokens x the second reading y heard, in
+    order (matched / len(x)); y's extra words (repeats, false starts, the window's spill) never lower it."""
+    x, y = list(x or []), list(y or [])
+    if not x or not y:
+        return 0.0
+    return sum(m.size for m in SequenceMatcher(None, x, y, autojunk=False).get_matching_blocks()) / len(x)
+
+
+def wrong_audio(x, y):
+    """RULING 143 (4) as pinned.wrong_audio: the share when under AUDIO_SHARE_MIN AND more than AUDIO_APART_MIN of the
+    run decode's tokens are missing (HARD), else None (the same audio)."""
+    share = audio_share(x, y)
+    apart = len(list(x or [])) - round(share * len(list(x or [])))
+    return share if share < AUDIO_SHARE_MIN and apart > AUDIO_APART_MIN else None
+
+
+def material_pair(x, y, texts):
+    """RULING 143 (1) as pinned.material_pair: a differing pair is MATERIAL when either side holds a number, a negation,
+    a name, a ticker or an amount (critical); a word-form pair (ruling 142 (2)) is not."""
+    return not canon.word_form(x, y) and any(critical(t, texts) for t in list(x) + list(y))
+
+
+def class_143(spoken, approved, adj):
+    """RULING 143 (orchestrator 2026-11-17 '15:55'; landed by ruling 153, 20:03 ET Nov 23): this side's own re-check of
+    the render lock's settlement, from its record (the pre-check entry's "adjudication": "run_decode", "approved",
+    "second_recogniser", "pairs"), never from the record's own classes. Each step is pinned.adjudicate_lock's, re-run on
+    the recorded readings:
+    1. The ruling-17 diff (canon tokens of the run decode against the approved text); a currency pair (ruling 131 (B))
+       and a spelling-only pair (ruling 135) are no difference.
+    2. HARD (4): the run decode and the second recogniser (its fillers dropped, ruling 135 (d)) sharing under
+       AUDIO_SHARE_MIN of the run's words, more than AUDIO_APART_MIN apart: the wrong audio.
+    3. Per pair (reads: the render's test of the second reading there): a MATERIAL pair (material_pair) takes the run
+       decode's reading only when the second recogniser reads it too (the two audio readings agree: the transcript is
+       corrected), else it holds; a NON-MATERIAL pair never holds: the approved reading where the second recogniser
+       reads it, else the run decode's.
+    4. The record's pairs must be exactly these, in order (the same words, materiality and reading taken); the render's
+       fallback (the settled words cannot be written into the approved text: the run decode's text, every pair
+       'run') is accepted only with every pair settled and the spoken text the run decode's.
+    5. The spoken text's canon tokens are the settled reading (the approved tokens, each run-taken pair as the run's).
+    -> [{"spoken", "approved", "material", "class", "took", "edge_distance"} (+ "why" when it holds)]; a class None
+    holds."""
+    def held(why, **kw):
+        return dict({"spoken": "", "approved": "", "took": None, "edge_distance": None, "material": None}, **kw,
+                    **{"class": None}, why=why)
+    adj = adj if isinstance(adj, dict) else {}
+    run_t, pin_t, sec_t = adj.get("run_decode"), adj.get("approved"), adj.get("second_recogniser")
+    if not all(isinstance(t, str) for t in (run_t, pin_t, sec_t, spoken, approved)) or \
+            canon.canon_tokens(pin_t) != canon.canon_tokens(approved):
+        return [held("the lock record does not hold the three readings of this segment's approved text")]
+    texts = (run_t, pin_t, sec_t)
+    r, p, ops = diff(run_t, pin_t)
+    s = [x for x in canon.canon_tokens(sec_t) if not canon.nonlexical(x)]
+    share = wrong_audio(r, s)
+    if share is not None:
+        return [held(f"the run decode and the second recogniser share {share:.0%} of their words: the wrong audio "
+                     f"(ruling 143 (4))")]
+    out, took_run = [], set()
+    for op in ops:
+        _tag, a, b, c, d = op
+        row = {"spoken": " ".join(r[a:b]), "approved": " ".join(p[c:d]), "edge_distance": None}
+        if currency_pair(r, p, op):
+            out.append(dict(row, took="currency", material=None, **{"class": "currency format (ruling 131 (B))"}))
+            continue
+        if canon.same_words(r[a:b], p[c:d]):
+            out.append(dict(row, took="spelling", material=None, **{"class": "spelling only (ruling 135)"}))
+            continue
+        material = material_pair(r[a:b], p[c:d], texts)
+        pin_ok, run_ok = reads(p, s, c, d), reads(r, s, a, b)
+        if material and run_ok:
+            out.append(dict(row, took="run", material=True, **{"class": "ruling 143 (3): the two audio readings "
+                                                                         "agree: the transcript corrected"}))
+        elif material:
+            out.append(dict(row, took=None, material=True, **{"class": None},
+                            why="a material word (a number, a negation, a name, a ticker or an amount) on which the "
+                                "two audio readings disagree (ruling 143 (3))"))
+        else:
+            out.append(dict(row, took="approved" if pin_ok else "run", material=False, **{"class": (
+                "ruling 143 (2): a small word, the approved reading the second recogniser reads" if pin_ok else
+                "ruling 143 (2): a small word, never a hold: the run decode's reading")}))
+        if out[-1]["took"] == "run":
+            took_run.add((a, c))
+    merged = []
+    for tag, a, b, c, d in SequenceMatcher(None, r, p, autojunk=False).get_opcodes():
+        merged += r[a:b] if (tag != "equal" and (a, c) in took_run) else p[c:d]
+    rec = adj.get("pairs")
+    theirs = [(x.get("run"), x.get("approved"), x.get("material"), x.get("took")) for x in rec] \
+        if isinstance(rec, list) and all(isinstance(x, dict) for x in rec) else None
+    mine = [(x["spoken"], x["approved"], x["material"], x["took"]) for x in out if x["took"] not in ("currency",
+                                                                                                    "spelling")]
+    sp = canon.canon_tokens(spoken)
+    fallback = (theirs is not None and len(theirs) == len(mine) and all(t[3] == "run" for t in theirs) and
+                [t[:3] for t in theirs] == [m[:3] for m in mine] and all(m[3] is not None for m in mine) and sp == r)
+    if theirs != mine and not fallback:
+        out.append(held(f"the lock record's pairs are not this side's: {theirs} against {mine}"[:400]))
+    if sp != merged and not fallback:
+        out.append(held("the spoken text is not the settled reading (ruling 143 seals the settled reading only)"))
     return out
 
 
