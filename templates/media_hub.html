@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Bitcoin Media Command Center — Protocol Pulse<section id="books" style="background:#0a0a0a;border-top:1px solid rgba(220,38,38,0.15);padding:60px 0;"><div style="max-width:1200px;margin:0 auto;padding:0 24px;"><div style="display:flex;align-items:center;gap:12px;margin-bottom:40px;"><div style="width:3px;height:32px;background:#dc2626;border-radius:2px;"></div><div><div style="font-family:JetBrains Mono,monospace;font-size:0.62rem;letter-spacing:0.15em;color:#dc2626;text-transform:uppercase;margin-bottom:4px;">Sovereign Library</div><h2 style="font-family:JetBrains Mono,monospace;font-size:1.5rem;font-weight:800;color:#fff;margin:0;">Book Series</h2></div></div>{% if our_books %}<div style="margin-bottom:48px;"><div style="font-family:JetBrains Mono,monospace;font-size:0.6rem;letter-spacing:0.12em;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:20px;">Protocol Pulse Original Series</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:24px;">{% for book in our_books %}<a href="{{ book.amazon_url }}" target="_blank" rel="noopener" style="text-decoration:none;display:block;background:rgba(255,255,255,0.03);border:1px solid rgba(220,38,38,0.2);border-radius:8px;overflow:hidden;transition:transform 0.2s,border-color 0.2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='rgba(220,38,38,0.5)'" onmouseout="this.style.transform='';this.style.borderColor='rgba(220,38,38,0.2)'"><div style="aspect-ratio:3/4;overflow:hidden;background:#111;"><img src="{{ book.cover_url }}" alt="{{ book.title }}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"></div><div style="padding:12px;"><div style="font-family:JetBrains Mono,monospace;font-size:0.72rem;font-weight:700;color:#fff;margin-bottom:4px;line-height:1.3;">{{ book.title }}</div><div style="font-size:0.65rem;color:rgba(255,255,255,0.4);margin-bottom:8px;">{{ book.author }}</div><div style="font-family:JetBrains Mono,monospace;font-size:0.58rem;color:#dc2626;letter-spacing:0.08em;">GET ON AMAZON &#8594;</div></div></a>{% endfor %}</div></div>{% endif %}{% if recommended_books %}<div><div style="font-family:JetBrains Mono,monospace;font-size:0.6rem;letter-spacing:0.12em;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:20px;">Essential Bitcoin Reading</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px;">{% for book in recommended_books %}<a href="{{ book.amazon_url }}" target="_blank" rel="noopener" style="text-decoration:none;display:block;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''"><div style="aspect-ratio:3/4;overflow:hidden;background:#111;"><img src="{{ book.cover_url }}" alt="{{ book.title }}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"></div><div style="padding:10px;"><div style="font-family:JetBrains Mono,monospace;font-size:0.65rem;font-weight:700;color:#fff;margin-bottom:3px;line-height:1.3;">{{ book.title }}</div><div style="font-size:0.6rem;color:rgba(255,255,255,0.35);">{{ book.author }}</div>{% if book.bestseller %}<div style="margin-top:6px;display:inline-block;padding:2px 6px;background:rgba(247,147,26,0.15);border:1px solid rgba(247,147,26,0.3);border-radius:3px;font-size:0.52rem;color:#f7931a;font-family:JetBrains Mono,monospace;">ESSENTIAL</div>{% endif %}</div></a>{% endfor %}</div></div>{% endif %}</div></section>{% endblock %}
+{% block title %}Bitcoin Media Command Center — Protocol Pulse{% endblock %}
 {% block meta_description %}The definitive Bitcoin media hub. 20+ voices. Live feeds from top podcasts, YouTube channels, and KOL intelligence. One screen.{% endblock %}
 {% block og_meta %}
 <meta property="og:title" content="Bitcoin Media Command Center — Protocol Pulse">
@@ -438,29 +438,30 @@
     <div style="text-align:center;margin-bottom:2rem;">
       <div style="display:inline-flex;align-items:center;gap:0.6rem;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);padding:0.5rem 1.4rem;border-radius:999px;color:var(--red);font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:500;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:1rem;"><i class="fas fa-chart-line"></i> SOVEREIGN LIBRARY</div>
       <h2 style="font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;color:var(--bright);letter-spacing:-0.03em;margin-bottom:0.5rem;">Live Book Metrics</h2>
-      <p style="font-size:0.95rem;color:var(--mut);max-width:600px;margin:0 auto;line-height:1.5;">Bloomberg terminal for sovereign money books. Bubble size = sales velocity. Position = recency vs. rank momentum.</p>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--mut);margin-top:0.5rem;"><span style="display:inline-block;width:6px;height:6px;background:#22c55e;border-radius:50%;margin-right:4px;animation:tagPulse 2s infinite;vertical-align:middle;"></span> <span id="bookMetricsUpdated">Loading...</span></div>
+      <p style="font-size:0.95rem;color:var(--mut);max-width:600px;margin:0 auto;line-height:1.5;">Amazon US Best Sellers Rank, relative and per format. Not sales counts.</p>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--mut);margin-top:0.5rem;"><span id="bookMetricsDot" style="display:inline-block;width:6px;height:6px;background:#888888;border-radius:50%;margin-right:4px;animation:tagPulse 2s infinite;vertical-align:middle;"></span> <span id="bookMetricsUpdated">Loading rank data…</span></div>
     </div>
 
     <!-- Featured Book Banner -->
     <div id="featuredBookBanner" style="display:none;"></div>
 
-    <!-- Bubble Chart -->
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border);">
-        <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--mut);text-transform:uppercase;letter-spacing:0.1em;"><i class="fas fa-circle" style="color:#22c55e;font-size:6px;vertical-align:middle;margin-right:4px;"></i> SALES VELOCITY MAP</span>
+    <!-- Rank momentum chart: hidden when Chart.js did not load -->
+    <div id="bookChartCard" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border);">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--mut);text-transform:uppercase;letter-spacing:0.1em;"><i class="fas fa-circle" style="color:#22c55e;font-size:6px;vertical-align:middle;margin-right:4px;"></i> RANK MOMENTUM</span>
         <div style="display:flex;gap:1rem;font-size:0.7rem;font-family:'JetBrains Mono',monospace;color:var(--mut);">
           <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-right:4px;vertical-align:middle;"></span>Rising</span>
-          <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f7931a;margin-right:4px;vertical-align:middle;"></span>Stable</span>
+          <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f7931a;margin-right:4px;vertical-align:middle;"></span>Other</span>
           <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#dc2626;margin-right:4px;vertical-align:middle;"></span>PP Series</span>
         </div>
       </div>
       <div style="position:relative;height:420px;"><canvas id="bookBubbleChart"></canvas></div>
+      <div id="bookChartNote" style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--mut);margin-top:0.75rem;line-height:1.5;"></div>
     </div>
 
     <!-- Rising Stars -->
     <div id="risingStarsSection" style="display:none;margin-bottom:2.5rem;">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--mut);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-arrow-trend-up" style="color:#22c55e;"></i> RISING STARS — BSR improved &gt;10% in 24h</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--mut);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-arrow-trend-up" style="color:#22c55e;"></i> RISING STARS — rank improved more than 10% since the last fetch</div>
       <div id="risingStarsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;"></div>
     </div>
 
@@ -468,9 +469,9 @@
     <div style="margin-top:2rem;">
       <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;">
         <span style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--mut);text-transform:uppercase;letter-spacing:0.1em;"><i class="fab fa-amazon" style="color:var(--btc);margin-right:4px;"></i> SOVEREIGN MONEY BESTSELLERS</span>
-        <span id="bestsellersCount" style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--btc);background:rgba(247,147,26,0.1);border:1px solid rgba(247,147,26,0.2);padding:0.15rem 0.5rem;border-radius:4px;">0 BOOKS</span>
+        <span id="bestsellersCount" style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--btc);background:rgba(247,147,26,0.1);border:1px solid rgba(247,147,26,0.2);padding:0.15rem 0.5rem;border-radius:4px;">LOADING</span>
       </div>
-      <div id="bestsellersGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.25rem;"></div>
+      <div id="bestsellersGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.25rem;"><div style="grid-column:1/-1;padding:2rem;text-align:center;color:var(--mut);font-family:'JetBrains Mono',monospace;font-size:0.75rem;border:1px dashed var(--border);border-radius:12px;">Loading books…</div></div>
     </div>
   </div>
 
@@ -511,7 +512,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}"></script>
 <script>
 /* ═══════════ AUDIO PLAYER ═══════════ */
 var _audio=document.getElementById('audioEl');
@@ -707,26 +708,77 @@ function mhNlSub(e){
 }
 
 /* ═══════════ SOVEREIGN BOOK LIBRARY ═══════════ */
+/* Amazon US Best Sellers Rank per book from /api/books/metrics.
+   Count, grid and timestamp render first, each step on its own, so a failure in the
+   chart (or a missing Chart.js) can never leave the grid empty. A book shows a rank
+   only when the API has one: no_data -> "No rank yet", stale -> "as of <date>". */
 (function(){
     var bookChart=null;
-    var PP_ASINS=['B0DVTCVX8J','9916697191','0241360846','B0CQLMQRH7'];
+    var shown=false;      // a response has rendered at least once
+    var lastGood=null;    // last_updated of the last good response
+    var DOT={ok:'#22c55e',stale:'#F8C15C',error:'#CC0000',idle:'#888888'};
+
+    function byId(id){return document.getElementById(id);}
+    function fmtDate(iso){var d=new Date(iso);return isNaN(d)?'':d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+    function fmtStamp(iso){var d=new Date(iso);return isNaN(d)?'':fmtDate(iso)+' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});}
+    function hasRank(b){return (b.data_status==='ok'||b.data_status==='stale')&&typeof b.bsr==='number'&&b.bsr>0;}
+    function rankText(b){return '#'+b.bsr.toLocaleString('en-US')+(b.rank_category?' in '+b.rank_category:'');}
+    function rankLine(b){
+        if(!hasRank(b))return 'No rank yet';
+        return 'BSR '+rankText(b)+(b.data_status==='stale'?' · as of '+fmtDate(b.last_successful_fetch):'');
+    }
+    function pct(v){return (v>0?'+':'')+v+'%';}
+    function setStatus(text,state){
+        var t=byId('bookMetricsUpdated'),d=byId('bookMetricsDot');
+        if(t)t.textContent=text;
+        if(d)d.style.background=DOT[state]||DOT.idle;
+    }
+    function notice(text){return '<div style="grid-column:1/-1;padding:2rem;text-align:center;color:var(--mut);font-family:JetBrains Mono,monospace;font-size:0.75rem;border:1px dashed var(--border);border-radius:12px;">'+_esc(text)+'</div>';}
+    function step(name,fn){try{fn();}catch(e){console.error('Book library: '+name+' failed',e);}}
 
     function fetchBookMetrics(){
-        fetch('/api/books/metrics').then(function(r){return r.json()}).then(function(data){
-            renderFeaturedBook(data.featured);
-            renderBubbleChart(data.books);
-            renderRisingStars(data.rising);
-            renderBestsellersGrid(data.books);
-            if(data.last_updated){
-                var d=new Date(data.last_updated);
-                var el=document.getElementById('bookMetricsUpdated');
-                if(el) el.textContent='Updated '+d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+        fetch('/api/books/metrics').then(function(r){
+            return r.json().then(function(d){return {ok:r.ok,status:r.status,data:d};},
+                                 function(){return {ok:false,status:r.status,data:null};});
+        }).then(function(res){
+            var data=res.data;
+            if(!res.ok||!data||!Array.isArray(data.books))throw new Error((data&&data.error)||('HTTP '+res.status));
+            var books=data.books;
+            step('count',function(){renderCount(books);});
+            step('grid',function(){renderBestsellersGrid(books);});
+            step('timestamp',function(){renderTimestamp(data);});
+            step('featured',function(){renderFeaturedBook(data.featured);});
+            step('rising',function(){renderRisingStars(data.rising);});
+            step('chart',function(){renderBubbleChart(books);});
+            shown=true;
+            if(data.last_updated)lastGood=data.last_updated;
+        }).catch(function(e){
+            console.warn('Book metrics unavailable:',e);
+            setStatus(lastGood?'Rank data unavailable, last good '+fmtStamp(lastGood):'Rank data unavailable','error');
+            if(!shown){
+                var c=byId('bestsellersCount');if(c)c.textContent='UNAVAILABLE';
+                var g=byId('bestsellersGrid');if(g)g.innerHTML=notice('Book data is unavailable right now.');
+                var card=byId('bookChartCard');if(card)card.style.display='none';
             }
-        }).catch(function(e){console.warn('Book metrics:',e)});
+        });
+    }
+
+    function renderCount(books){
+        var c=byId('bestsellersCount');
+        if(c)c.textContent=books.length+(books.length===1?' BOOK':' BOOKS');
+    }
+
+    function renderTimestamp(data){
+        var h=data.fetch_health||{};
+        var ranked=(h.ok||0)+(h.stale||0);
+        var of=h.books?' · '+ranked+' of '+h.books+' ranked':'';
+        if(!data.last_updated){setStatus('No rank data yet'+of,'idle');return;}
+        if(data.stale)setStatus('Ranks stale: last updated '+fmtStamp(data.last_updated)+of,'stale');
+        else setStatus('Ranks updated '+fmtStamp(data.last_updated)+of,'ok');
     }
 
     function renderFeaturedBook(f){
-        var el=document.getElementById('featuredBookBanner');
+        var el=byId('featuredBookBanner');
         if(!f||!el){if(el)el.style.display='none';return;}
         el.style.display='block';
         el.innerHTML='<div style="display:grid;grid-template-columns:auto 1fr;gap:2rem;background:linear-gradient(135deg,var(--card) 0%,rgba(220,38,38,0.06) 100%);border:1px solid rgba(220,38,38,0.2);border-radius:12px;padding:2rem;margin-bottom:2.5rem;position:relative;overflow:hidden;border-left:4px solid var(--red);">'+
@@ -744,60 +796,55 @@ function mhNlSub(e){
     }
 
     function renderBubbleChart(books){
-        if(!books||!books.length)return;
-        var canvas=document.getElementById('bookBubbleChart');
+        var card=byId('bookChartCard');
+        if(typeof window.Chart!=='function'){if(card)card.style.display='none';return;}
+        var canvas=byId('bookBubbleChart');
         if(!canvas)return;
-        var ctx=canvas.getContext('2d');
-        var PP_ASINS=['B0DVTCVX8J','9916697191','0241360846','B0CQLMQRH7'];
-        var ppBooks=[],risingBooks=[],stableBooks=[];
-        books.forEach(function(b){
-            if(PP_ASINS.indexOf(b.asin)>=0)ppBooks.push(b);
+        if(card)card.style.display='';
+        // Plot only fresh ranks that have a previous fetch to compare with.
+        var pts=books.filter(function(b){return b.data_status==='ok'&&hasRank(b)&&typeof b.bsr_change==='number'&&typeof b.rank_score==='number';});
+        var note=byId('bookChartNote');
+        if(note)note.textContent=pts.length+' of '+books.length+' books plotted: rank fetched in the last 48 h, compared with the fetch before. Negative change = rank improved. Larger bubble = better rank.';
+        var ppBooks=[],risingBooks=[],otherBooks=[];
+        pts.forEach(function(b){
+            if(b.pp_series)ppBooks.push(b);
             else if(b.is_rising)risingBooks.push(b);
-            else stableBooks.push(b);
+            else otherBooks.push(b);
         });
         function mkPts(arr){
             return arr.map(function(b){
-                var bsr=b.bsr||50000;
-                // Log-scale bubble: lower BSR = bigger bubble
-                var r=Math.max(6,Math.min(32,32-Math.log10(bsr)*5.5));
-                // X: BSR momentum — negative=improving, positive=declining
-                var x=Math.max(-42,Math.min(22,b.bsr_change||0));
-                // Y: velocity score 0-100
-                var y=b.velocity||50;
-                return {x:x,y:y,r:r,book:b};
+                // Log-scale bubble: lower (better) rank = bigger bubble
+                var r=Math.max(6,Math.min(32,32-Math.log10(b.bsr)*5.5));
+                return {x:b.bsr_change,y:b.rank_score,r:r,book:b};
             });
         }
         var datasets=[
             {label:'PP Series',data:mkPts(ppBooks),backgroundColor:'rgba(220,38,38,0.55)',borderColor:'rgba(220,38,38,0.9)',borderWidth:2,hoverBackgroundColor:'rgba(220,38,38,0.8)'},
             {label:'Rising',data:mkPts(risingBooks),backgroundColor:'rgba(34,197,94,0.45)',borderColor:'rgba(34,197,94,0.8)',borderWidth:2,hoverBackgroundColor:'rgba(34,197,94,0.7)'},
-            {label:'Stable',data:mkPts(stableBooks),backgroundColor:'rgba(247,147,26,0.35)',borderColor:'rgba(247,147,26,0.6)',borderWidth:2,hoverBackgroundColor:'rgba(247,147,26,0.55)'}
+            {label:'Other',data:mkPts(otherBooks),backgroundColor:'rgba(247,147,26,0.35)',borderColor:'rgba(247,147,26,0.6)',borderWidth:2,hoverBackgroundColor:'rgba(247,147,26,0.55)'}
         ];
+        var axisTitle={color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:10,weight:'600'}};
+        var axisTicks={color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:9}};
+        var firstDraw=!bookChart;
         if(bookChart)bookChart.destroy();
-        bookChart=new Chart(ctx,{
+        bookChart=new Chart(canvas.getContext('2d'),{
             type:'bubble',data:{datasets:datasets},
             options:{
                 responsive:true,maintainAspectRatio:false,
-                animation:{duration:1200,easing:'easeOutQuart'},
+                // Animate the first draw only: the 60 s refresh redraws without motion.
+                animation:firstDraw?{duration:1200,easing:'easeOutQuart'}:false,
                 scales:{
                     x:{
-                        title:{display:true,text:'BSR MOMENTUM',color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:10,weight:'600'}},
-                        min:-45,max:25,
-                        grid:{color:'rgba(255,255,255,0.05)',drawBorder:false},
-                        ticks:{color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:9},
-                            callback:function(v){
-                                if(v===-40)return 'HOT';
-                                if(v===-20)return 'RISING';
-                                if(v===0)return 'STABLE';
-                                if(v===20)return 'COOLING';
-                                return '';
-                            }
-                        }
+                        title:Object.assign({display:true,text:'Rank change since last fetch %'},axisTitle),
+                        suggestedMin:-25,suggestedMax:25,
+                        grid:{color:'rgba(255,255,255,0.05)'},
+                        ticks:Object.assign({callback:function(v){return pct(v);}},axisTicks)
                     },
                     y:{
-                        title:{display:true,text:'SALES VELOCITY',color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:10,weight:'600'}},
+                        title:Object.assign({display:true,text:'Rank score (from rank)'},axisTitle),
                         min:0,max:105,
-                        grid:{color:'rgba(255,255,255,0.05)',drawBorder:false},
-                        ticks:{color:'rgba(255,255,255,0.4)',font:{family:'JetBrains Mono',size:9}}
+                        grid:{color:'rgba(255,255,255,0.05)'},
+                        ticks:axisTicks
                     }
                 },
                 plugins:{
@@ -817,10 +864,8 @@ function mhNlSub(e){
                             title:function(items){return items[0].raw.book.title;},
                             label:function(item){
                                 var b=item.raw.book;
-                                var lines=['by '+b.author,'BSR: #'+b.bsr.toLocaleString()];
-                                if(b.bsr_change)lines.push('Momentum: '+(b.bsr_change>0?'+':'')+b.bsr_change+'%');
-                                if(b.is_rising)lines.push('RISING STAR');
-                                if(b.is_breakout)lines.push('INITIAL BREAKOUT');
+                                var lines=['by '+b.author,'Amazon US BSR '+rankText(b),'Rank change since last fetch: '+pct(b.bsr_change),'Rank score: '+b.rank_score];
+                                if(b.is_rising)lines.push('RISING');
                                 return lines;
                             }
                         }
@@ -837,40 +882,42 @@ function mhNlSub(e){
         });
     }
 
-
     function renderRisingStars(rising){
-        var section=document.getElementById('risingStarsSection');
-        var grid=document.getElementById('risingStarsGrid');
-        if(!rising||!rising.length){if(section)section.style.display='none';return;}
+        var section=byId('risingStarsSection');
+        var grid=byId('risingStarsGrid');
+        var list=(rising||[]).filter(function(b){return hasRank(b)&&typeof b.bsr_change==='number';});
+        if(!list.length||!grid){if(section)section.style.display='none';return;}
         section.style.display='block';
-        grid.innerHTML=rising.map(function(b){
+        grid.innerHTML=list.map(function(b){
             return '<a href="'+_esc(b.amazon_url)+'" target="_blank" rel="noopener" style="display:flex;gap:1rem;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem;text-decoration:none;color:inherit;transition:border-color 0.2s,transform 0.2s;" onmouseover="this.style.borderColor=\'rgba(34,197,94,0.4)\';this.style.transform=\'translateY(-3px)\'" onmouseout="this.style.borderColor=\'\';this.style.transform=\'\'">'+
                 '<div style="width:55px;height:80px;border-radius:6px;overflow:hidden;flex-shrink:0;"><img src="'+_esc(b.cover_url)+'" alt="'+_esc(b.title)+'" data-asin="'+_esc(b.asin||'')+'" onerror="if(!this.dataset.r){this.dataset.r=1;var a=this.dataset.asin;this.src=a?(\'https://m.media-amazon.com/images/P/\'+a+\'.01.L.jpg\'):\'\';}else{this.style.display=\'none\';}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"></div>'+
                 '<div style="display:flex;flex-direction:column;justify-content:center;min-width:0;">'+
                     '<div style="font-size:0.85rem;font-weight:600;color:var(--bright);margin-bottom:0.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+_esc(b.title)+'</div>'+
                     '<div style="font-size:0.72rem;color:var(--mut);margin-bottom:0.4rem;">'+_esc(b.author)+'</div>'+
                     '<div style="display:inline-flex;align-items:center;gap:0.3rem;font-family:JetBrains Mono,monospace;font-size:0.65rem;font-weight:600;color:#22c55e;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);padding:0.2rem 0.5rem;border-radius:4px;width:fit-content;"><i class="fas fa-arrow-trend-up"></i> RISING '+Math.abs(b.bsr_change).toFixed(1)+'%</div>'+
-                    '<div style="font-family:JetBrains Mono,monospace;font-size:0.65rem;color:var(--mut);margin-top:0.25rem;">BSR #'+b.bsr.toLocaleString()+'</div>'+
+                    '<div style="font-family:JetBrains Mono,monospace;font-size:0.65rem;color:var(--mut);margin-top:0.25rem;">'+_esc(rankLine(b))+'</div>'+
                 '</div></a>';
         }).join('');
     }
 
     function renderBestsellersGrid(books){
-        var grid=document.getElementById('bestsellersGrid');
-        var countEl=document.getElementById('bestsellersCount');
-        if(!books||!books.length)return;
-        var sorted=books.slice().sort(function(a,b){return a.bsr-b.bsr;});
-        if(countEl)countEl.textContent=sorted.length+' BOOKS';
-        grid.innerHTML=sorted.map(function(b,idx){
-            return '<a href="'+_esc(b.amazon_url)+'" target="_blank" rel="noopener" style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;transition:border-color 0.25s,transform 0.25s;display:flex;flex-direction:column;" onmouseover="this.style.borderColor=\'rgba(247,147,26,0.3)\';this.style.transform=\'translateY(-6px)\'" onmouseout="this.style.borderColor=\'\';this.style.transform=\'\'">'+
+        var grid=byId('bestsellersGrid');
+        if(!grid)return;
+        if(!books.length){grid.innerHTML=notice('No books to show yet.');return;}
+        // Ranked books by rank, then the books without a rank: never a made-up position.
+        var ranked=books.filter(hasRank).sort(function(a,b){return a.bsr-b.bsr;});
+        var unranked=books.filter(function(b){return !hasRank(b);});
+        grid.innerHTML=ranked.concat(unranked).map(function(b,idx){
+            var pos=hasRank(b)?'<span style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.7);border:1px solid var(--border);color:var(--btc);font-family:JetBrains Mono,monospace;font-size:0.6rem;font-weight:700;padding:0.2rem 0.4rem;border-radius:4px;">#'+(idx+1)+'</span>':'';
+            return '<a href="'+_esc(b.amazon_url)+'" target="_blank" rel="noopener" data-status="'+_esc(b.data_status||'')+'" style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;transition:border-color 0.25s,transform 0.25s;display:flex;flex-direction:column;" onmouseover="this.style.borderColor=\'rgba(247,147,26,0.3)\';this.style.transform=\'translateY(-6px)\'" onmouseout="this.style.borderColor=\'\';this.style.transform=\'\'">'+
                 '<div style="height:220px;background:var(--elevated);display:flex;align-items:center;justify-content:center;padding:12px;position:relative;">'+
-                    '<span style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.7);border:1px solid var(--border);color:var(--btc);font-family:JetBrains Mono,monospace;font-size:0.6rem;font-weight:700;padding:0.2rem 0.4rem;border-radius:4px;">#'+(idx+1)+'</span>'+
+                    pos+
                     '<img src="'+_esc(b.cover_url)+'" alt="'+_esc(b.title)+'" data-asin="'+_esc(b.asin||'')+'" onerror="if(!this.dataset.r){this.dataset.r=1;var a=this.dataset.asin;this.src=a?(\'https://m.media-amazon.com/images/P/\'+a+\'.01.L.jpg\'):\'\';}else{this.style.display=\'none\';}" style="max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;" loading="lazy">'+
                 '</div>'+
                 '<div style="padding:1rem;flex:1;display:flex;flex-direction:column;">'+
                     '<div style="font-size:0.9rem;font-weight:600;color:var(--bright);margin-bottom:0.3rem;line-height:1.25;">'+_esc(b.title)+'</div>'+
                     '<div style="font-size:0.75rem;color:var(--red);font-family:JetBrains Mono,monospace;margin-bottom:0.5rem;">'+_esc(b.author)+'</div>'+
-                    '<span style="font-size:0.75rem;color:var(--mut);margin-top:auto;display:flex;align-items:center;gap:0.35rem;"><i class="fab fa-amazon"></i> BSR #'+b.bsr.toLocaleString()+'</span>'+
+                    '<span style="font-size:0.75rem;color:var(--mut);margin-top:auto;display:flex;align-items:center;gap:0.35rem;"><i class="fab fa-amazon"></i> '+_esc(rankLine(b))+'</span>'+
                 '</div></a>';
         }).join('');
     }
