@@ -3337,10 +3337,14 @@ def owner_line_faults(pk):
         return []
     try:
         OR, _ = OE.rules()
-    except OSError as e:
-        return [{"slot": x["slot"], "rule": "LISTING", "detail": f"ruling 162 (2): the owner's line rules are not "
-                                                                  f"available ({type(e).__name__})"} for x in spoken]
-    names = sorted({str(sg.get("channel")) for sg in pk.get("segments") or [] if sg.get("channel")})
+        reg = {e.get("display_name"): e for e in OE.release_json(OE.REGISTRY_FILE) if isinstance(e, dict)}
+    except (OSError, ValueError, TypeError, AttributeError) as e:
+        return [{"slot": x["slot"], "rule": "LISTING", "detail": f"ruling 162 (2): the owner's line rules or the "
+                                                                  f"render's registry are not available "
+                                                                  f"({type(e).__name__})"} for x in spoken]
+    names = []                                         # ITEM 2: each credited channel and its registry aliases, as
+    for ch in sorted({str(sg.get("channel")) for sg in pk.get("segments") or [] if sg.get("channel")}):
+        names += [ch] + list((reg.get(ch) or {}).get("aliases") or [])   # run_fresh.our_line_faults names them
     clips = [str(sg.get("text") or "") for sg in pk.get("segments") or []]   # the clips' own words (item 2's digits)
     out = []
     for x in spoken:                                   # ITEM 2: the render's own call (run_fresh.our_line_faults,

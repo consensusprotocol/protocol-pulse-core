@@ -603,6 +603,27 @@ class TestTheClosingLine(unittest.TestCase):
         self.assertEqual([x["slot"] for x in pk["lines"]], ["title", "caption"])    # no line: a valid close
         self.assertTrue(TM.NV_FLAG_OK(pk["gates"]), pk["gates"])
 
+    def test_a_line_naming_a_channels_registry_alias_is_refused_as_the_render_refuses_it(self):
+        """ITEM 2 ("no credited channel name"), both sides one check: each credited channel's display name AND its
+        aliases in the render's registry (pipeline/channels.json at the pinned release revision, never a working tree),
+        as run_fresh.our_line_faults names them. The registry unreadable: every spoken line fails closed."""
+        segs = [{"channel": "Saifedean Ammous", "text": "Bitcoin is hard money."},
+                {"channel": "The Bitcoin Layer", "text": "Rates matter for Bitcoin."}]
+        faults = lambda text: PK.owner_line_faults({"segments": segs, "lines": [{"slot": "takeaway", "text": text}]})
+        self.assertEqual([(v["rule"], v["detail"]) for v in faults("As saifedean amos puts it, the floor held.")],
+                         [("LISTING", "names 'saifedean amos'")])
+        self.assertEqual([(v["rule"], v["detail"]) for v in faults("The bitcoin lair view held up.")],
+                         [("LISTING", "names 'bitcoin lair'")])
+        self.assertEqual(faults("The floor held because sellers ran out of reasons to sell."), [])
+        reg = OE.release_json(OE.REGISTRY_FILE)
+        self.assertIn("saifedean amos", next(e for e in reg if e.get("display_name") == "Saifedean Ammous")["aliases"])
+
+        def unreadable(path):
+            raise OSError("git show: the registry is not at this revision")
+        with unittest.mock.patch.object(OE, "release_json", unreadable):
+            self.assertEqual([v["rule"] for v in faults("The floor held because sellers ran out of reasons to sell.")],
+                             ["LISTING"])                                      # fails closed
+
     def test_a_digit_no_clip_says_is_refused(self):
         """ITEM 2's lexical rule: "no digit not in the clips". A number the closing line says must be one a clip says
         (its commas aside: '1000' is the clips' '1,000'); any other refuses (DIGIT), before any model."""

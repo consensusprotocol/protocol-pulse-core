@@ -41,6 +41,8 @@ _LOCK = threading.Lock()
 _RULES = {}                       # sha256 -> the module made from those bytes
 _PIN = {}                         # {"rev": the release revision a build pinned} (pin()); else the ref resolved once
 _AT = {}                          # commit -> (module, sha256) of its rules file
+_JSON = {}                        # (commit, path) -> a JSON file of the release revision (release_json)
+REGISTRY_FILE = "pipeline/channels.json"   # the render's channel registry (display_name, aliases)
 
 
 def _git(*args, binary=False):
@@ -118,13 +120,33 @@ def rules(path=None):
     if p:
         with open(p, "rb") as f:
             return _load(f.read(), p)
+    return _at(_rev())
+
+
+def _rev():
+    """The release revision every read uses: the one the build pinned, else RELEASE_REF resolved once."""
     with _LOCK:
         rev = _PIN.get("rev") or _PIN.get("resolved")
     if not rev:
         rev = release_rev()
         with _LOCK:
             _PIN.setdefault("resolved", rev)
-    return _at(rev)
+    return rev
+
+
+def release_json(path):
+    """A JSON file of the integrator's repository at the same release revision as rules() (never its working tree):
+    the render's registry pipeline/channels.json, whose "aliases" item 2's names read as run_fresh.our_line_faults
+    does. -> the parsed JSON (once per revision). OSError / ValueError when it cannot be read: the caller fails
+    closed."""
+    rev = _rev()
+    with _LOCK:
+        got = _JSON.get((rev, path))
+    if got is None:
+        got = json.loads(_git("show", f"{rev}:{path}", binary=True))
+        with _LOCK:
+            _JSON[(rev, path)] = got
+    return got
 
 
 def around(m, src):
