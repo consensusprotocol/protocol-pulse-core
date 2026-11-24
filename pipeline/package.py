@@ -1238,8 +1238,12 @@ def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None,
         rec = {**{k: x[k] for k in HOOK_PARTS}, "rating": min(x[k] for k in HOOK_OWN), "why": x["why"][:300],
                "backend": r.backend, "rule": HOOK_OWN_RULE,           # the rating orders hooks; hook_own decides
                **({"answer_note": f"{dropped} {BRACES_NOTE}"} if dropped else {})}   # said, when it was read so
-        out[mid] = dict(rec, cached=False, replayed=bool(getattr(r, "replayed", False)))
-        new[key(m)] = {r.backend: rec}
+        stand_in = getattr(r, "lx_soft", None)               # ACCEPTANCE ITEM 5 (08:50 ET Nov 24; the verifier's row
+        out[mid] = dict(rec, cached=False, replayed=bool(getattr(r, "replayed", False)),     # 10): a stand-in judge's
+                        **({"lx_soft": stand_in} if stand_in else {}))   # rating (ruling 154 (1)), maybe the writer's
+        if not stand_in:                                     # own vendor, is MARKED and never cached as an ordinary
+            new[key(m)] = {r.backend: rec}                   # rating: it is this build's own, and never clears the
+            #   bar silently (hook_own)
     _cache_put(cache, new)
     return out, err
 
@@ -1919,8 +1923,8 @@ def hook_bar_under(m):
     if not all(isinstance(x, int) and not isinstance(x, bool) for x in parts.values()):
         return None
     live, _ = _live_bar()
-    if live is None or r.get("backend") != live.get("rater"):
-        return None
+    if live is None or r.get("backend") != live.get("rater") or r.get("lx_soft"):   # ACCEPTANCE ITEM 5: a stand-in's
+        return None                                      # rating is no rating ON the bar, either way (hook_unrated's)
     under = [p for p in HOOK_PARTS if parts[p] < live["floors"][p]]
     return "; ".join(f"{HOOK_PART_WORDS[p]} {parts[p]} of 5, needs {live['floors'][p]}" for p in under) or None
 
@@ -1941,7 +1945,9 @@ def hook_unrated(m):
             "its rater did not answer"
     if r.get("backend") != live.get("rater"):
         return "a stand-in model rated it, not the hook bar's own rater"
-    return None
+    if r.get("lx_soft"):                                     # ACCEPTANCE ITEM 5: the bar's own rater, as a stand-in
+        return "a stand-in rated it, the bar's own rater standing in for itself after writing our lines"   # judge:
+    return None                                              # its vendor wrote the angle
 
 
 def hook_own(m):
@@ -1959,7 +1965,10 @@ def hook_own(m):
                                             source="no rating on the calibrated bar (ruling 154 (2))",   # pass marked
                                             rule=HOOK_OWN_RULE, flagged=un, unrated=True)            # opens, flagged
     ok, short = HB.passes(dict(parts, backend=r.get("backend")), live)
-    flag = hook_bar_under(m) if not ok and m.get("hook_bar_soft") else None    # RULING 137 stage 2b: a hook the
+    if ok and r.get("lx_soft"):                              # ACCEPTANCE ITEM 5: "when the same vendor wrote the
+        ok, short = False, hook_unrated(m)                   # angle, the rating is marked and never clears the bar
+    flag = hook_bar_under(m) if not ok and m.get("hook_bar_soft") else None    # silently" (hook_bar_under: None)
+    #   RULING 137 stage 2b: a hook the
     un = hook_unrated(m) if not ok and m.get("hook_bar_soft") and flag is None else None   # never-empty pass marked
     return dict(parts, rating=min(parts[k] for k in HOOK_OWN), passes=ok or bool(flag or un),   # opens, flagged;
                 short=why if live is None else short,                     # RULING 154 (2): rated off the bar too

@@ -849,6 +849,74 @@ class TestRuling154UnratedOpener(unittest.TestCase):
         self.assertIn("the checker rated it under the hook bar", pk["gates"]["medley"]["flags"][0])
 
 
+class TestAcceptanceItem5SelfRating(unittest.TestCase):
+    """THE ACCEPTANCE TEST, ITEM 5 (orchestrator 08:50 ET Nov 24; the verifier's row 10): "The opener rating: when the
+    same vendor wrote the angle, the rating is marked and never clears the bar silently." With every Heimdall family
+    down, Grok writes the angle AND is the hook bar's only rater: ruling 154 (1)'s stand-in step 3 is Grok itself. Its
+    rating carries the stand-in mark, is never cached as an ordinary rating, never opens in the clean pass, and opens
+    only FLAGGED in the never-empty pass."""
+    SELF = {"step": 3, "judge": "xai:grok", "why": "same vendor as the text it judges (xai): skipped"}
+
+    def run_rig(self, never_empty, marked=True):
+        import test_medley as TM
+        from test_moments import pm
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE)] * 2, [None] * 2)
+        rate = r.rate_hooks
+        r.rate_hooks = lambda *a, **k: ({mid: dict(v, **({"lx_soft": dict(self.SELF)} if marked else {}))
+                                         for mid, v in rate(*a, **k)[0].items()}, None)
+        r.build_kw = {"never_empty": never_empty}
+        return r.run()
+
+    def test_it_never_clears_the_bar_silently(self):
+        self.assertIsNotNone(self.run_rig(False, marked=False)["package"])     # control: the bar's own rater, unmarked
+        self.assertIsNone(self.run_rig(False)["package"])                      # the clean pass: never opens
+        out = self.run_rig(True)
+        pk = out["package"]
+        self.assertIsNotNone(pk, out.get("why_none"))                          # the never-empty pass: opens, FLAGGED
+        self.assertEqual(pk["gates"]["medley"]["status"], "FLAGGED")
+        self.assertIn("standing in for itself", pk["gates"]["medley"]["flags"][0])
+        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])
+
+    def test_the_rating_is_marked_and_never_cached(self):
+        import json as J
+        import tempfile
+        import types
+
+        class R:
+            backends = {"xai:grok": types.SimpleNamespace(vendor="xai", family="grok")}
+
+            def chain(self, role, kind=None):
+                return ["xai:grok"]
+
+            def call(self, role, prompt, max_tokens=2000, seed=7, **k):
+                r = types.SimpleNamespace(text=J.dumps({"hooks": {"h": {"scroll": 5, "alone": 5, "setup": 5,
+                                                                         "why": "w"}}}),
+                                          backend="xai:grok", replayed=False, lx_soft=dict(TestAcceptanceItem5SelfRating.SELF))
+                return r
+
+            def reject(self, r, why=""):
+                return False
+        from test_moments import pm
+        m = pm("h", "A", 12.0)
+        with tempfile.TemporaryDirectory() as d:
+            cache = d + "/HOOK_CACHE.json"
+            import test_medley as TM
+            got, err = PK.hook_ratings(R(), [m], TM.ctx(), {"heimdall"}, {"qwen"}, cache=cache)
+            self.assertIsNone(err)
+            self.assertEqual(got["h"]["lx_soft"]["step"], 3)                   # marked
+            stored = J.load(open(cache)) if __import__("os").path.exists(cache) else {}
+            self.assertEqual(stored, {})                                       # never cached as an ordinary rating
+        marked = dict(m, hook_rating=got["h"])
+        self.assertFalse(PK.hook_own(marked)["passes"])                        # the clean pass: never on the bar
+        soft = dict(marked, hook_bar_soft=True)
+        own = PK.hook_own(soft)
+        self.assertEqual((own["passes"], own.get("unrated")), (True, True))    # the never-empty pass: flagged
+        self.assertIn("standing in for itself", own["flagged"])
+        plain = dict(m, hook_rating={k: v for k, v in got["h"].items() if k != "lx_soft"})
+        self.assertTrue(PK.hook_own(plain)["passes"])                          # the same rating unmarked: on the bar
+
+
 class TestRuling154OneJudgeFlag(unittest.TestCase):
     """RULING 154 (1) / 152 (2): every check of the package a stand-in judge made (its verdict marked "lx_soft" by the
     router or by the coherence panel's extra seats) is named in ONE flag (one kind); none: no row."""
