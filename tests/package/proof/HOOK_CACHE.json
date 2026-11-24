@@ -913,5 +913,61 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "d30e46b6f64728dee3b8:6f4863b544b9700037f1150bf13bb07487edd573542da7385cff04be46ee1ed4:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 3,
+   "setup": 2,
+   "rating": 3,
+   "why": "feels like mid-story, weak tease for more",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "b7f2a0b8c15e22a1ef3b:79603bce2e83efaa3761a77de6e06c2bfc47cfb16cbc492b08207f06a939db5b:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 2,
+   "setup": 4,
+   "rating": 2,
+   "why": "vague 'that afternoon' lacks context",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+   "answer_note": "1 trailing closing brace(s) dropped (STATE Q2, 15:04 ET Nov 15)"
+  }
+ },
+ "2b87c34f72374e502109:24ba50bf37fd5b1634801dde18204b696ab4877202b8f32b292c831a1d2e1ad6:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 2,
+   "setup": 3,
+   "rating": 2,
+   "why": "starts with 'By the way' needing prior context",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "15b194bd551e34372802:8b48773f359f65d8ab145ab3ef33fc020fecc80dd27d59c5c23a6a9c1a149c12:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 5,
+   "setup": 4,
+   "rating": 3,
+   "why": "first words too generic to stop scroll",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "2a7edb8683e457965ee3:493b165b63ec108bb069d05e197c524c73de2561fabedac2241d9fe03c2b9a1f:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 2,
+   "setup": 3,
+   "rating": 2,
+   "why": "assumes prior context with 'Now, to be clear'",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

@@ -1,0 +1,254 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "25d2eca3b944ef112bdb8cbdd24196797158a5fca1097658f34abaaadde0ae7f",
+ "result": {
+  "text": "On Saturday, Bitcoin bottomed just above 55K. Now, to be clear, these weren't people deciding that Bitcoin was dead. This was forced selling, positions closed by an exchange and not by their owners, and it wasn't as historic",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 15.38,
+    "text": "On Saturday, Bitcoin bottomed just above 55K. Now, to be clear, these weren't people deciding that Bitcoin was dead. This was forced selling, positions closed by an exchange and not by their owners, and it wasn't as historic"
+   }
+  ],
+  "words": [
+   {
+    "text": "On",
+    "start": 0.0,
+    "end": 0.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Saturday,",
+    "start": 0.1,
+    "end": 0.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 0.78,
+    "end": 1.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bottomed",
+    "start": 1.28,
+    "end": 1.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 1.88,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "above",
+    "start": 2.14,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "55K.",
+    "start": 2.62,
+    "end": 3.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Now,",
+    "start": 4.04,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 4.34,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 4.5,
+    "end": 4.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "clear,",
+    "start": 4.66,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "these",
+    "start": 5.18,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "weren't",
+    "start": 5.44,
+    "end": 5.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 5.74,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "deciding",
+    "start": 6.12,
+    "end": 6.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 6.56,
+    "end": 6.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.74,
+    "end": 7.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 7.16,
+    "end": 7.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dead.",
+    "start": 7.38,
+    "end": 7.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "This",
+    "start": 8.14,
+    "end": 8.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 8.5,
+    "end": 8.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "forced",
+    "start": 8.88,
+    "end": 9.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "selling,",
+    "start": 9.34,
+    "end": 9.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "positions",
+    "start": 10.12,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "closed",
+    "start": 10.72,
+    "end": 11.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 11.3,
+    "end": 11.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 11.5,
+    "end": 11.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "exchange",
+    "start": 11.62,
+    "end": 12.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 12.52,
+    "end": 12.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 12.8,
+    "end": 13.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 13.22,
+    "end": 13.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 13.38,
+    "end": 13.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "owners,",
+    "start": 13.6,
+    "end": 14.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 14.3,
+    "end": 14.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 14.42,
+    "end": 14.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wasn't",
+    "start": 14.56,
+    "end": 14.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 14.94,
+    "end": 15.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "historic",
+    "start": 15.06,
+    "end": 15.38,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.4
+ },
+ "usd": 0.00308,
+ "seconds": 0.76,
+ "recorded_at": "2026-11-24T00:06:28Z"
+}

@@ -1,0 +1,218 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "980e9d1772bd76e1e984857113a12a380845ae9a21c7bf9af80bd601ed451a6d",
+ "result": {
+  "text": "Bitcoin's short-term holders sold $11.3 billion worth of Bitcoin right at the bottom before, of course, it immediately bounced 10% and now is pumping up to around $64,000, largely on the news",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 3.16,
+    "end": 16.84,
+    "text": "Bitcoin's short-term holders sold $11.3 billion worth of Bitcoin right at the bottom before, of course, it immediately bounced 10% and now is pumping up to around $64,000, largely on the news"
+   }
+  ],
+  "words": [
+   {
+    "text": "Bitcoin's",
+    "start": 3.16,
+    "end": 3.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "short-term",
+    "start": 3.74,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "holders",
+    "start": 4.36,
+    "end": 4.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sold",
+    "start": 5.06,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$11.3",
+    "start": 5.38,
+    "end": 6.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 6.68,
+    "end": 7.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worth",
+    "start": 7.82,
+    "end": 8.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 8.36,
+    "end": 8.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.56,
+    "end": 9.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right",
+    "start": 9.62,
+    "end": 9.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 10.2,
+    "end": 10.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.36,
+    "end": 10.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bottom",
+    "start": 10.44,
+    "end": 10.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "before,",
+    "start": 10.78,
+    "end": 11.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 11.06,
+    "end": 11.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "course,",
+    "start": 11.2,
+    "end": 11.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 11.48,
+    "end": 11.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "immediately",
+    "start": 11.58,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bounced",
+    "start": 12.08,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "10%",
+    "start": 12.38,
+    "end": 12.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 13.0,
+    "end": 13.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 13.16,
+    "end": 13.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 13.5,
+    "end": 13.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pumping",
+    "start": 13.66,
+    "end": 13.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 14.0,
+    "end": 14.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 14.12,
+    "end": 14.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "around",
+    "start": 14.2,
+    "end": 14.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$64,000,",
+    "start": 14.46,
+    "end": 15.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "largely",
+    "start": 15.82,
+    "end": 16.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 16.239,
+    "end": 16.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 16.36,
+    "end": 16.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "news",
+    "start": 16.48,
+    "end": 16.84,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 17.02
+ },
+ "usd": 0.003404,
+ "seconds": 0.58,
+ "recorded_at": "2026-11-24T00:06:30Z"
+}

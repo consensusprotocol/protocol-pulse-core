@@ -1,0 +1,130 @@
+{
+ "usd_estimate": 2.23246,
+ "calls": 38,
+ "by_backend": {
+  "xai:grok-4.20-0309-reasoning": {
+   "calls": 9,
+   "in": 9608,
+   "out": 31019,
+   "usd_estimate": 0.823515,
+   "price_usd_per_1m": [
+    5,
+    25
+   ],
+   "usd_reported": 0.0883479,
+   "reported_calls": 9,
+   "in_reported": 9608
+  },
+  "elevenlabs_stt:scribe_v1": {
+   "calls": 5,
+   "in": 0,
+   "out": 0,
+   "usd_estimate": 0.01408,
+   "price_usd_per_1m": [
+    0.0,
+    0.0
+   ],
+   "audio_s": 70.4
+  },
+  "heimdall:qwen/qwen3.8-27b": {
+   "calls": 12,
+   "in": 4370,
+   "out": 8881,
+   "usd_estimate": 0.157731,
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "usd_reported": 0.0181403,
+   "reported_calls": 11,
+   "in_reported": 4370
+  },
+  "xai_vision:grok-4.7": {
+   "calls": 3,
+   "in": 8417,
+   "out": 45384,
+   "usd_estimate": 1.176685,
+   "price_usd_per_1m": [
+    5,
+    25
+   ],
+   "usd_reported": 0.283954,
+   "reported_calls": 3,
+   "in_reported": 8417
+  },
+  "google:gemini-2.5-pro": {
+   "calls": 1,
+   "in": 3788,
+   "out": 5245,
+   "usd_estimate": 0.057185,
+   "price_usd_per_1m": [
+    1.25,
+    10
+   ]
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "calls": 4,
+   "in": 0,
+   "out": 0,
+   "usd_estimate": 0.00276,
+   "price_usd_per_1m": [
+    3,
+    15
+   ]
+  },
+  "heimdall:z-ai/glm-5.3-flash": {
+   "calls": 4,
+   "in": 108,
+   "out": 12,
+   "usd_estimate": 0.000504,
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "usd_reported": 8.28e-06,
+   "reported_calls": 4,
+   "in_reported": 108
+  }
+ },
+ "by_role": {
+  "context_verdict": {
+   "calls": 4,
+   "usd_estimate": 0.37121
+  },
+  "transcribe": {
+   "calls": 5,
+   "usd_estimate": 0.01408
+  },
+  "coherence_verdict": {
+   "calls": 5,
+   "usd_estimate": 0.225825
+  },
+  "shadow86:coherence_verdict:hook": {
+   "calls": 5,
+   "usd_estimate": 0.031614
+  },
+  "visual_check": {
+   "calls": 3,
+   "usd_estimate": 1.176685
+  },
+  "probe87:heimdall:qwen/qwen3.8-27b": {
+   "calls": 4,
+   "usd_estimate": 0.002604
+  },
+  "probe87:heimdall:deepseek/deepseek-v4.1-flash": {
+   "calls": 4,
+   "usd_estimate": 0.00276
+  },
+  "probe87:heimdall:z-ai/glm-5.3-flash": {
+   "calls": 4,
+   "usd_estimate": 0.000504
+  },
+  "angle_write": {
+   "calls": 4,
+   "usd_estimate": 0.407178
+  }
+ },
+ "reserved": {},
+ "usd_reported": 0.39045048,
+ "usd_unreported_estimate": 0.086212
+}

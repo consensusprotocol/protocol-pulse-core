@@ -1,0 +1,212 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "94413efa99b71dce18f68296a45607f4d34ad4b59cb6d135378791618aa7a650",
+ "result": {
+  "text": "And IBIT had its biggest one-day outflow since it launched. Analysts say that the amount of money sitting at a loss in Bitcoin has never been higher. Bitcoin's last bear market",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 9.74,
+    "text": "And IBIT had its biggest one-day outflow since it launched. Analysts say that the amount of money sitting at a loss in Bitcoin has never been higher. Bitcoin's last bear market"
+   }
+  ],
+  "words": [
+   {
+    "text": "And",
+    "start": 0.0,
+    "end": 0.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "IBIT",
+    "start": 0.28,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 0.76,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 0.9,
+    "end": 1.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "biggest",
+    "start": 1.26,
+    "end": 1.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one-day",
+    "start": 1.84,
+    "end": 2.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outflow",
+    "start": 2.28,
+    "end": 2.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "since",
+    "start": 2.8,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 3.04,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "launched.",
+    "start": 3.2,
+    "end": 3.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Analysts",
+    "start": 3.98,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say",
+    "start": 4.4,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 4.56,
+    "end": 4.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.68,
+    "end": 4.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "amount",
+    "start": 4.8,
+    "end": 5.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 5.04,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 5.18,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sitting",
+    "start": 5.52,
+    "end": 5.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 5.72,
+    "end": 5.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 5.84,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "loss",
+    "start": 6.0,
+    "end": 6.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 6.34,
+    "end": 6.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.48,
+    "end": 6.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 7.22,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "never",
+    "start": 7.52,
+    "end": 7.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 7.8,
+    "end": 7.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "higher.",
+    "start": 8.02,
+    "end": 8.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 8.66,
+    "end": 9.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "last",
+    "start": 9.1,
+    "end": 9.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bear",
+    "start": 9.44,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 9.64,
+    "end": 9.74,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 9.76
+ },
+ "usd": 0.001952,
+ "seconds": 1.2,
+ "recorded_at": "2026-11-24T00:06:27Z"
+}

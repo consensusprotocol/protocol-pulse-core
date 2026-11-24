@@ -449,6 +449,67 @@
   },
   "version": "visual-3"
  },
+ "15b194bd551e34372802:57.200-61.460:visual-3:34bf070fc2a769fc": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     57.2,
+     58.2,
+     59.2,
+     60.2,
+     61.2,
+     61.41
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "bug",
+    "text": "NATALIE BRUNELL",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "whole",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "NATALIE BRUNELL"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_0c58d1dbb92a6d97.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_0c58d1dbb92a6d97.jpg",
+   "sha256": "0c58d1dbb92a6d9716ff29e670227babd7a7c3383606cdedf95e73390301a3dc",
+   "times": [
+    57.2,
+    58.2,
+    59.2,
+    60.2,
+    61.2,
+    61.41
+   ]
+  },
+  "third_person": {
+   "finding": "No one but the speaker is shown, and no still, photo, or graphic of another person appears while the words state that Bitcoin losses have never been higher.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 2579,
+   "out": 12849,
+   "usd_reported": 0.080524
+  },
+  "version": "visual-3"
+ },
  "185e37a64058e69111ae:0.000-8.680:visual-3:a545f88943ff67a2": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [],
@@ -2435,6 +2496,86 @@
   },
   "version": "visual-1"
  },
+ "b7f2a0b8c15e22a1ef3b:408.059-412.939:visual-3:93bc935e4e087dbe": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [],
+  "flags": [
+   {
+    "kind": "on_screen_text",
+    "text": "Why Crowded Shorts Can Spark A Rebound",
+    "why": "The headline asserts that crowded short positions can spark a price rebound, a causal claim the spoken line \u2014 that Bitcoin's keenest buyers were people who had bet against it \u2014 never makes."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "When too many traders bet on falling prices, the market can become vulnerable to a short squeeze. If Bitcoin bounces even modestly, short sellers are forced to buy back their positions to limit losses",
+    "why": "This on-screen paragraph asserts a short-squeeze mechanism in which a modest bounce forces short sellers to buy back and drive prices higher, none of which the single spoken sentence states."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "The same mechanism that dragged Bitcoin lower this week can work in reverse. With roughly $2.2 billion in long positions already flushed out, there are fewer forced sellers left in the market.",
+    "why": "It asserts Bitcoin was dragged lower this week and that roughly $2.2 billion in long positions were flushed out, specific facts absent from the spoken words."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "The first signs of that are already visible.",
+    "why": "It asserts the reversal is already visibly underway, which the narration does not say; the following line is cut off at the bottom edge of the frame and is not quoted."
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "Why Crowded Shorts Can Spark A Rebound",
+    "why": "The headline asserts that crowded short positions can spark a price rebound, a causal claim the spoken line \u2014 that Bitcoin's keenest buyers were people who had bet against it \u2014 never makes."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "When too many traders bet on falling prices, the market can become vulnerable to a short squeeze. If Bitcoin bounces even modestly, short sellers are forced to buy back their positions to limit losses",
+    "why": "This on-screen paragraph asserts a short-squeeze mechanism in which a modest bounce forces short sellers to buy back and drive prices higher, none of which the single spoken sentence states."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "The same mechanism that dragged Bitcoin lower this week can work in reverse. With roughly $2.2 billion in long positions already flushed out, there are fewer forced sellers left in the market.",
+    "why": "It asserts Bitcoin was dragged lower this week and that roughly $2.2 billion in long positions were flushed out, specific facts absent from the spoken words."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "The first signs of that are already visible.",
+    "why": "It asserts the reversal is already visibly underway, which the narration does not say; the following line is cut off at the bottom edge of the frame and is not quoted."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_cff136aa1a8a97d9.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_cff136aa1a8a97d9.jpg",
+   "sha256": "cff136aa1a8a97d9b82d80f19183166fdd8f4c2600a301c27a28932222c11201",
+   "times": [
+    408.06,
+    409.06,
+    410.06,
+    411.06,
+    412.06,
+    412.89
+   ]
+  },
+  "third_person": {
+   "finding": "No person appears in any frame; the clip shows only a full-screen text article, and the narration makes no negative claim about any individual.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2576,
+   "out": 14881,
+   "usd_reported": 0.09271
+  },
+  "version": "visual-3"
+ },
  "b9f62d9986a3521426b0:897.877-909.447:visual-1:a64dcebc028a0b24": {
   "backend": "xai_vision:grok-4.7",
   "flags": [],
@@ -2816,6 +2957,82 @@
    "in": 1642,
    "out": 5324,
    "usd_reported": 0.0043348
+  },
+  "version": "visual-3"
+ },
+ "d30e46b6f64728dee3b8:3.300-15.520:visual-3:b4ade0be584b8cc0": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     4.3,
+     5.3,
+     6.3,
+     7.3,
+     8.3,
+     9.3,
+     10.3,
+     11.3,
+     12.3,
+     13.3,
+     14.3,
+     15.3,
+     15.47
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "lower_third",
+    "text": "Scott Melker",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "lower_third",
+    "kind": "burned_in",
+    "text": "Scott Melker"
+   }
+  ],
+  "lower_third": {
+   "name": "Scott Melker",
+   "text": "Scott Melker"
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_8bd992c2ec557554.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_8bd992c2ec557554.jpg",
+   "sha256": "8bd992c2ec557554de273c3c9f4d380ab7d38851a564e3a87410e5a4a4979dfa",
+   "times": [
+    3.3,
+    4.3,
+    5.3,
+    6.3,
+    7.3,
+    8.3,
+    9.3,
+    10.3,
+    11.3,
+    12.3,
+    13.3,
+    14.3,
+    15.3,
+    15.47
+   ]
+  },
+  "third_person": {
+   "finding": "Every frame shows only the speaker live on his own set, with no other person presented as a still, photo or graphic, and the line is market commentary rather than a negative claim about anyone depicte",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 3262,
+   "out": 17654,
+   "usd_reported": 0.11072
   },
   "version": "visual-3"
  },

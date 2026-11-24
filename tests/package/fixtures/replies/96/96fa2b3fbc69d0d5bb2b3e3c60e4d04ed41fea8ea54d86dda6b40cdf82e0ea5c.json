@@ -1,0 +1,326 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "abcbd244cdbc9c5f9a07bcc0ec730f05c3ecb910af8173591cf9f5763ffc476a",
+ "result": {
+  "text": "Volume now on the way up. You have it to the day from four years ago. By the way, $11.3 billion of short-term holders in Bitcoin, that's retail holders trading, capitulated on those lows, which is a historically high number and aligns with all the other bottoms. When short-term heller-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 17.26,
+    "text": "Volume now on the way up. You have it to the day from four years ago. By the way, $11.3 billion of short-term holders in Bitcoin, that's retail holders trading, capitulated on those lows, which is a historically high number and aligns with all the other bottoms. When short-term heller-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Volume",
+    "start": 0.0,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 0.32,
+    "end": 0.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 1.04,
+    "end": 1.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.18,
+    "end": 1.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 1.3,
+    "end": 1.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up.",
+    "start": 1.54,
+    "end": 1.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 1.72,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 1.84,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 1.98,
+    "end": 2.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 2.14,
+    "end": 2.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.26,
+    "end": 2.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "day",
+    "start": 2.5,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 3.08,
+    "end": 3.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "four",
+    "start": 3.28,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years",
+    "start": 3.5,
+    "end": 3.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ago.",
+    "start": 3.72,
+    "end": 3.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "By",
+    "start": 3.98,
+    "end": 4.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.12,
+    "end": 4.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way,",
+    "start": 4.18,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$11.3",
+    "start": 4.38,
+    "end": 5.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 5.7,
+    "end": 6.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 6.64,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "short-term",
+    "start": 6.84,
+    "end": 7.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "holders",
+    "start": 8.039,
+    "end": 8.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 8.42,
+    "end": 8.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 8.54,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 9.12,
+    "end": 9.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "retail",
+    "start": 9.38,
+    "end": 9.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "holders",
+    "start": 9.76,
+    "end": 10.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trading,",
+    "start": 10.12,
+    "end": 10.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "capitulated",
+    "start": 11.0,
+    "end": 12.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 12.18,
+    "end": 12.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "those",
+    "start": 12.34,
+    "end": 12.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lows,",
+    "start": 12.62,
+    "end": 12.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "which",
+    "start": 13.16,
+    "end": 13.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 13.32,
+    "end": 13.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 13.42,
+    "end": 13.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "historically",
+    "start": 13.5,
+    "end": 14.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "high",
+    "start": 14.26,
+    "end": 14.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "number",
+    "start": 14.56,
+    "end": 14.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 14.92,
+    "end": 15.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "aligns",
+    "start": 15.06,
+    "end": 15.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 15.42,
+    "end": 15.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 15.58,
+    "end": 15.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 15.72,
+    "end": 15.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "other",
+    "start": 15.86,
+    "end": 16.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bottoms.",
+    "start": 16.079,
+    "end": 16.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "When",
+    "start": 16.42,
+    "end": 16.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "short-term",
+    "start": 16.6,
+    "end": 16.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "heller-",
+    "start": 17.04,
+    "end": 17.26,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 17.84
+ },
+ "usd": 0.003568,
+ "seconds": 0.69,
+ "recorded_at": "2026-11-24T00:06:29Z"
+}
