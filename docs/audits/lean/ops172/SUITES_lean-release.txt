@@ -1,0 +1,90 @@
+suite files 89 of 89, failing 13, tests passed 1256
+pipeline/test_alarm.py	0	11	11 passed, 4 subtests passed in 0.72s
+pipeline/test_acoustic.py	0	7	7 passed in 1.89s
+pipeline/test_caption_entities.py	0	6	6 passed in 0.55s
+pipeline/test_attestation_trees.py	0	10	10 passed, 8 subtests passed in 2.82s
+pipeline/test_canon.py	0	35	35 passed in 3.82s
+pipeline/test_backtest.py	0	4	4 passed in 3.73s
+pipeline/test_check_medley_reference.py	1	2	14 failed, 2 passed in 2.28s
+pipeline/test_check_reference_manifest.py	1	6	1 failed, 6 passed in 0.87s
+pipeline/test_d1_sameday.py	0	7	7 passed in 0.60s
+pipeline/test_bt709.py	0	3	3 passed, 1 skipped, 5 subtests passed in 6.68s
+pipeline/test_dec1_calibration.py	0	3	3 passed, 6 skipped in 0.91s
+pipeline/test_dec10_edges.py	1	6	2 failed, 6 passed, 6 skipped in 3.80s
+pipeline/test_edge_shots.py	0	1	1 passed, 1 skipped in 2.83s
+pipeline/test_editorial_gate.py	0	13	13 passed, 21 subtests passed in 0.92s
+pipeline/test_editorial.py	0	11	11 passed, 4 skipped in 0.68s
+pipeline/test_dec13_clusters.py	0	6	6 passed, 4 skipped in 4.70s
+pipeline/test_edge_words.py	1	3	3 passed, 2 skipped, 3 errors in 4.79s
+pipeline/test_credits_labels.py	0	9	9 passed in 10.05s
+pipeline/test_edl_rules.py	0	104	104 passed, 1 skipped, 26 subtests passed in 1.99s
+pipeline/test_failure_blocks.py	0	5	5 passed in 2.39s
+pipeline/test_g14_sampling.py	0	0	
+pipeline/test_fresh.py	1	13	1 failed, 13 passed, 14 skipped in 3.51s
+pipeline/test_g9_floor.py	0	2	2 passed, 4 skipped in 0.55s
+pipeline/test_editorial_robust.py	0	30	30 passed, 6 skipped in 8.09s
+pipeline/test_g3b_majority.py	1	3	1 failed, 3 passed, 3 skipped in 1.24s
+pipeline/test_g20_signoff.py	1	13	1 failed, 13 passed, 1 skipped in 2.01s
+pipeline/test_gpu0_live.py	0	0	
+pipeline/test_gpu0_want.py	0	3	3 passed, 6 subtests passed in 0.59s
+pipeline/test_hook_lead.py	0	5	5 passed, 2 skipped in 0.50s
+pipeline/test_heartbeat.py	0	34	34 passed in 2.10s
+pipeline/test_local_judge.py	0	15	15 passed in 1.47s
+pipeline/test_gpu_lease.py	0	17	17 passed in 11.70s
+pipeline/test_g18_speech_floor.py	0	7	7 passed in 24.63s
+pipeline/test_lock_precheck.py	0	76	76 passed, 12 subtests passed in 14.14s
+pipeline/test_outside_spend.py	0	9	9 passed in 1.09s
+pipeline/test_owner_rules.py	0	18	18 passed in 0.70s
+pipeline/test_lower_third.py	0	9	9 passed in 22.12s
+pipeline/test_lean_ceiling.py	0	7	7 passed in 41.09s
+pipeline/test_post_live_prefetch.py	0	7	7 passed, 4 subtests passed in 0.58s
+pipeline/test_post_live.py	0	15	15 passed, 3 subtests passed in 0.80s
+pipeline/test_preflight.py	1	6	1 failed, 6 passed in 1.13s
+pipeline/test_prepare_retry.py	0	9	9 passed in 0.82s
+pipeline/test_punct_word_pass.py	0	9	9 passed in 12.40s
+pipeline/test_question_hook.py	0	5	5 passed, 26 subtests passed in 0.56s
+pipeline/test_release_auth.py	0	49	49 passed, 24 subtests passed in 6.06s
+pipeline/test_render16only.py	0	8	8 passed in 1.32s
+pipeline/test_render_window.py	0	7	7 passed in 2.63s
+pipeline/test_replay.py	1	2	1 failed, 2 passed in 1.98s
+pipeline/test_gpu0.py	0	49	49 passed, 21 subtests passed in 109.66s (0:01:49)
+pipeline/test_round2_mustfail.py	0	17	17 passed, 3 warnings in 10.63s
+pipeline/test_ruling139_edges.py	0	11	11 passed, 7 subtests passed in 0.88s
+pipeline/test_ruling146_g17a.py	0	11	11 passed, 5 subtests passed in 0.59s
+pipeline/test_ruling148_runtime.py	0	9	9 passed, 20 subtests passed in 0.70s
+pipeline/test_ruling17_lock.py	0	43	43 passed, 3 skipped, 8 subtests passed in 1.20s
+pipeline/test_ruling20_avatars.py	0	1	1 passed, 2 skipped in 0.76s
+pipeline/test_ruling23_stack.py	0	1	1 passed, 3 skipped in 0.56s
+pipeline/test_pulse_20261110_mustfail.py	1	31	1 failed, 31 passed, 2 skipped in 101.72s (0:01:41)
+pipeline/test_ruling91_takeaway.py	0	4	4 passed in 1.03s
+pipeline/test_rulings21_22.py	0	1	1 passed, 5 skipped in 0.69s
+pipeline/test_run_isolated.py	0	5	5 passed in 1.09s
+pipeline/test_loudness.py	0	9	9 passed in 150.64s (0:02:30)
+pipeline/test_same_event_merge.py	0	7	7 passed in 0.83s
+pipeline/test_ruling73.py	1	5	5 passed, 2 errors in 27.35s
+pipeline/test_scan_fallback.py	0	2	2 passed in 0.63s
+pipeline/test_safe_frame_colour.py	1	2	3 failed, 2 passed in 7.27s
+pipeline/test_session_watchdog.py	0	36	36 passed, 12 subtests passed in 0.92s
+pipeline/test_shot_snap.py	0	4	4 passed, 3 skipped in 0.64s
+pipeline/test_sentence_windows.py	0	8	8 passed in 4.82s
+pipeline/test_stand_alone_floor.py	0	27	27 passed, 67 subtests passed in 1.85s
+pipeline/test_stand_alone.py	0	16	16 passed, 7 subtests passed in 0.70s
+pipeline/test_stand_alone_scorer.py	0	17	17 passed, 8 subtests passed in 0.93s
+pipeline/test_spotlight.py	0	8	8 passed in 6.42s
+pipeline/test_stream_window.py	0	9	9 passed, 3 subtests passed in 0.59s
+pipeline/test_story_ledger.py	0	5	5 passed in 3.87s
+pipeline/test_transcript_store_live.py	0	9	9 passed, 9 subtests passed in 0.60s
+pipeline/test_transcript_ingest.py	0	14	14 passed in 3.77s
+pipeline/test_transitions.py	0	9	9 passed, 4 skipped in 8.86s
+pipeline/test_v1_local_route.py	0	3	3 passed in 0.65s
+pipeline/test_trimmed_leading.py	0	18	18 passed, 16 subtests passed in 34.85s
+pipeline/test_telegram_delivery.py	0	51	51 passed, 39 subtests passed in 46.10s
+pipeline/test_vo_resample.py	0	1	1 passed in 5.41s
+pipeline/test_window_review.py	0	28	28 passed, 7 skipped in 4.32s
+pipeline/test_word_diff.py	1	17	17 passed, 1 skipped, 4 errors, 10 subtests passed in 15.66s
+pipeline/test_pinned.py	0	28	28 passed, 3 skipped, 69 subtests passed in 242.96s (0:04:02)
+pipeline/test_visual_check.py	0	24	24 passed, 3 skipped, 7 subtests passed in 47.42s
+pipeline/test_g14_g15.py	0	8	8 passed in 326.48s (0:05:26)
+pipeline/test_word_pass_worker.py	0	35	35 passed, 6 subtests passed in 68.72s (0:01:08)
+pipeline/test_vertical_layout.py	0	11	11 passed, 1 skipped in 140.40s (0:02:20)
+pipeline/test_review_drop.py	0	32	32 passed, 22 subtests passed in 261.81s (0:04:21)

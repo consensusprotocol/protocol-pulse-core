@@ -1,0 +1,191 @@
+{
+ "at": "2026-11-24T21:25:45.305679+00:00",
+ "processes": {
+  "session_watchdog": [
+   [
+    186952,
+    "150153330",
+    "a614b9f4791618d0"
+   ],
+   [
+    186954,
+    "150153331",
+    "6f1653c8e19ba9af"
+   ]
+  ],
+  "ingest_watch": [
+   [
+    292557,
+    "101849265",
+    "633dfd9d26172aae"
+   ],
+   [
+    292559,
+    "101849266",
+    "7666e7a80744f87e"
+   ]
+  ],
+  "lock_precheck": [
+   [
+    2607642,
+    "153067485",
+    "f4a4e611cd61e818"
+   ]
+  ],
+  "judge": [
+   [
+    3118831,
+    "148649369",
+    "94649260f009777b"
+   ]
+  ],
+  "word_pass": [
+   [
+    3119098,
+    "148649475",
+    "aca5cf8cf80261ef"
+   ],
+   [
+    3119100,
+    "148649476",
+    "c100051ec4a7a9cf"
+   ]
+  ],
+  "scorer": [
+   [
+    3151876,
+    "148712817",
+    "633552b87ea786ef"
+   ]
+  ],
+  "waitress": [
+   [
+    3350531,
+    "154741230",
+    "26fa393d50d7d1f0"
+   ]
+  ]
+ },
+ "sessions": [
+  "book_terminal_r2",
+  "favicon",
+  "golds_research",
+  "golds_site_pipeline",
+  "homepage_reforge",
+  "pipeline_heimdall_agent",
+  "pipeline_pi_receipts",
+  "pipeline_pp_backtest",
+  "pipeline_pp_dod",
+  "pipeline_pp_ingest",
+  "pipeline_pp_ingest_watch",
+  "pipeline_pp_judge",
+  "pipeline_pp_lean",
+  "pipeline_pp_lockcheck",
+  "pipeline_pp_scorer",
+  "pipeline_pp_selectid",
+  "pipeline_pp_sessionwatch",
+  "pipeline_pp_tests",
+  "pipeline_pp_wordpass",
+  "watchdog_llm",
+  "yespbx_site",
+  "yespbx_tunnel"
+ ],
+ "panes": {
+  "book_terminal_r2": [
+   "3914052"
+  ],
+  "favicon": [
+   "3274175"
+  ],
+  "golds_research": [
+   "3286277"
+  ],
+  "golds_site_pipeline": [
+   "3069805"
+  ],
+  "homepage_reforge": [
+   "197932"
+  ],
+  "pipeline_heimdall_agent": [
+   "2873125"
+  ],
+  "pipeline_pi_receipts": [
+   "1282688"
+  ],
+  "pipeline_pp_backtest": [
+   "1426199"
+  ],
+  "pipeline_pp_dod": [
+   "3317951"
+  ],
+  "pipeline_pp_ingest": [
+   "2709825"
+  ],
+  "pipeline_pp_ingest_watch": [
+   "292557"
+  ],
+  "pipeline_pp_judge": [
+   "1936605"
+  ],
+  "pipeline_pp_lean": [
+   "3411644"
+  ],
+  "pipeline_pp_lockcheck": [
+   "2607642"
+  ],
+  "pipeline_pp_scorer": [
+   "2839976"
+  ],
+  "pipeline_pp_selectid": [
+   "1426220"
+  ],
+  "pipeline_pp_sessionwatch": [
+   "186952"
+  ],
+  "pipeline_pp_tests": [
+   "1426209"
+  ],
+  "pipeline_pp_wordpass": [
+   "3119098",
+   "3145581",
+   "3525801"
+  ],
+  "watchdog_llm": [
+   "6336"
+  ],
+  "yespbx_site": [
+   "7302"
+  ],
+  "yespbx_tunnel": [
+   "7505"
+  ]
+ },
+ "trees": {
+  "/home/ultron/protocol_pulse": {
+   "head": "aff5e601b8a2c91e947c6b26cda5d577c726d6a2",
+   "tracked_changes": "03b599c16f0b24ae"
+  },
+  "/home/ultron/worktrees/pp-selectid": {
+   "head": "88ffce7b6e117e8e2c589af0e18d47e208b055ac",
+   "tracked_changes": "e3b0c44298fc1c14"
+  },
+  "/home/ultron/worktrees/book-terminal": {
+   "head": "6c76cafe2b34da813f44185a07a0217292dae164",
+   "tracked_changes": "7d2e4419ad5a25f0"
+  },
+  "/home/ultron/worktrees/pp-ingest": {
+   "head": "922aad686e0578ec24430c350b0ebab78fdac015",
+   "tracked_changes": "d3c3f2c667d8d641"
+  }
+ },
+ "crontab": "cbf924ff9a8ee8ab",
+ "keyfile_stat": [
+  6618,
+  1794259423
+ ],
+ "spend": {
+  "/home/ultron/worktrees/pp-selectid/tests/package/proof/SPEND_D20261122.json": "66cdc0115c42c268",
+  "/home/ultron/worktrees/pp-selectid/tests/package/proof/SPEND_D20261123.json": "0eb3d7d118de5c11",
+  "/home/ultron/protocol_pulse/data/spend/integrator_outside.jsonl": "0e6b16089cd6f756"
+ }
+}

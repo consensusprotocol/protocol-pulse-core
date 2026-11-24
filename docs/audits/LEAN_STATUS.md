@@ -1,3 +1,3 @@
-R1 NOT BUILT | R2 NOT BUILT | R3 NOT BUILT | all three PUSHED by 19:45 ET (set 15:22 ET; the build-172 operations assignment of 15:25 ET) | the lean (1)-(5) work: PUSHED, code 275499e30; end to end: NOT DEMONSTRATED
+R1 PUSHED pp-lean db38b58e7 + lean-release cf2035dad | R2 PUSHED pp-lean db38b58e7 + lean-release cf2035dad | R3 PUSHED pp-lean db38b58e7 | 16:43 ET (the build-172 operations assignment of 15:25 ET; report docs/audits/LEAN_OPS_172.md) | prepared, NOT RUN: no live build, service change or model call; end to end: NOT DEMONSTRATED | owner to weigh: the measured render alone (3488-3951 s) does not fit 2700 s; $1.50 binds every reservation, and a bill above its calibrated reservation stops all paid calls (full-list reservations would need a $2.29 completion reserve)
 
 Started 13:40 ET Nov 24. Branch pp-lean, cut at 88ffce7b6. Line 1 is the status; nothing below it is.

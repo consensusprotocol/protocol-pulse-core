@@ -1,0 +1,4 @@
+RESTORE (DRY RUN: nothing is executed)
+  pipeline_lean_lockcheck: not running (nothing to stop)
+  pipeline_lean_scorer: not running (nothing to stop)
+  no /home/ultron/pp_lean_run/PRODUCTION_BEFORE.json: restore already ran, or start never did; production now: 23 sessions, services ['ingest_watch', 'judge', 'lock_precheck', 'scorer', 'session_watchdog', 'waitress', 'word_pass']
