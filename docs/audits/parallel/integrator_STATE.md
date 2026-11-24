@@ -1,3 +1,4 @@
+11:38 ET Nov 24 (integrator): 1 PUSHED 56df2dbfa | 2 PUSHED 5b22d2a1a | 3 PUSHED 5b22d2a1a | 6 PUSHED 0b4547bd9 | 7 PUSHED 5b22d2a1a | 8 PUSHED 56df2dbfa | 9 PUSHED 56df2dbfa | all mine PUSHED 11:38 ET
 10:50 ET Nov 24 (integrator): 1 PUSHED 56df2dbfa | 2 PUSHED 0b4547bd9 | 3 PUSHED 56df2dbfa | 6 PUSHED 0b4547bd9 | 7 PUSHED 670bb4ae9 | 8 PUSHED 56df2dbfa | 9 PUSHED 56df2dbfa | all mine PUSHED 10:50 ET
 10:09 ET Nov 24 (integrator): 1 PUSHED 56df2dbfa | 2 PUSHED 56df2dbfa | 3 PUSHED 56df2dbfa | 6 PUSHED 56df2dbfa | 7 PUSHED 56df2dbfa | 8 PUSHED 56df2dbfa | 9 PUSHED 56df2dbfa | all mine PUSHED 10:09 ET
 08:23 ET Nov 24: RULING 163 (1), MY HALF OF THE FIRST BUILD: 161 + 162 (render side) pushed at 08:50 ET if their second cycles (running since 08:22) need no code change, 09:20 ET if they do; landed in the builder's window. Rows 20, 13, 18 about 09:40 ET; row 21 about 10:15 ET; row 23 (c)-(e) is a decoder lockstep after the first build. Details: DoD line 9.
