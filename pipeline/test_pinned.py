@@ -308,6 +308,9 @@ class TestRunFreshUsesSharedCutAcceptance(Fixture):
             shutil.copyfile(self.src[vid]["path"], os.path.join(self.run_dir, "sources", f"{vid}.mp4"))
         calls = []
         orig_cut, orig_acc = cut.compute_all_cuts, cut_accept.check_cut_acoustics
+        q = mock.patch.object(rf, "check_out_edges", return_value=[])    # the out-edge question is not this test's
+        q.start()
+        self.addCleanup(q.stop)
         cut.compute_all_cuts = lambda *a, **k: (_ for _ in ()).throw(AssertionError("acoustic cutter must not run"))
         cut_accept.check_cut_acoustics = lambda src, a, b: (calls.append((os.path.basename(src), a, b)) or
                                                              (True, {"in": {"pass": True}, "out": {"pass": True}}))
@@ -590,8 +593,10 @@ class TestPinnedStageFreesGpu0First(Fixture):
         def refuse(run, stage, **kw):
             events.append(("release", stage))
             raise rf.Hold(f"infrastructure: {stage}: GPU0 release not proven")
+        orig_adm = rf.pin_admissible
         try:
             rf.free_gpu0_for_whisper, pinned.prepare = release, prep
+            rf.pin_admissible = lambda pin_path: (True, "stub: the readiness is not this test's")
             run = rf.Run(self.run_dir)
             with self.assertRaisesRegex(rf.Hold, "pinned decision rejected"):
                 rf.stage_pinned(run, self.write(self.pin()))
@@ -604,6 +609,7 @@ class TestPinnedStageFreesGpu0First(Fixture):
             self.assertEqual(events, [("release", "pinned")])        # nothing downloaded or transcribed after it
         finally:
             rf.free_gpu0_for_whisper, pinned.prepare = orig_free, orig_prep
+            rf.pin_admissible = orig_adm
 
 
 @unittest.skipUnless(HAVE_REF, "v2f reference sources not present")

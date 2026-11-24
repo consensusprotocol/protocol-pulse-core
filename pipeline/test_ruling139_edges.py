@@ -108,18 +108,31 @@ class TestRenderFlags(unittest.TestCase):
             json.dump({"hook": {"channel": "Bitcoin Magazine"},
                        "clips": [{"index": 1, "channel": "Yahoo Finance"}, {"index": 2, "channel": "Natalie Brunell"}]}, f)
 
-    def test_each_edge_is_flagged_in_plain_words_never_held(self):
+    def test_the_in_edge_is_flagged_in_plain_words_never_held(self):
         run = types.SimpleNamespace(dir=self.d, status={}, prov={})
         RF.flag_sentence_edges(run, [{"clip_id": "hook"},
                                      {"clip_id": "clip_01", "sentence_edge": {"in": NOT_END}},
-                                     {"clip_id": "clip_02", "sentence_edge": {"out": "'it' does not end a sentence"}}])
+                                     {"clip_id": "clip_02", "sentence_edge": {}}])
         flags = run.status["review_flags"]
-        self.assertEqual(len(flags), 2)
+        self.assertEqual(len(flags), 1)
         self.assertIn("Yahoo Finance", flags[0])
         self.assertTrue(flags[0].endswith("might start in the middle of a sentence."), flags)
-        self.assertIn("Natalie Brunell", flags[1])
-        self.assertTrue(flags[1].endswith("might not end cleanly at the end of a sentence."), flags)
         self.assertEqual(run.status.get("holds"), None)
+
+    def test_ruling_162_an_out_edge_holds_whatever_else_is_marked(self):
+        """RULING 162 (1) (orchestrator 07:45 ET Nov 24, from PBX): a clip never ends while the speaker is still
+        mid-sentence; ruling 139's flag applies to the IN edge only. The render cannot extend a sealed span: it holds,
+        naming every such clip, and flags nothing on the way."""
+        for marks in ([{"clip_id": "clip_02", "sentence_edge": {"out": "'it' does not end a sentence"}}],
+                      [{"clip_id": "hook", "sentence_edge": {"in": NOT_END, "out": "'and' does not end a sentence"}},
+                       {"clip_id": "clip_02", "sentence_edge": {"out": "'it' does not end a sentence"}}]):
+            run = types.SimpleNamespace(dir=self.d, status={}, prov={})
+            with self.assertRaises(RF.Hold) as cm:
+                RF.flag_sentence_edges(run, [{"clip_id": "clip_01"}] + marks)
+            self.assertIn("ruling 162 (1)", str(cm.exception))
+            for m in marks:
+                self.assertIn(f"{m['clip_id']}: {m['sentence_edge']['out']}", str(cm.exception))
+            self.assertEqual(run.status.get("review_flags"), None)
 
     def test_no_edge_no_flag(self):
         run = types.SimpleNamespace(dir=self.d, status={}, prov={})
@@ -142,6 +155,29 @@ class TestRenderFlags(unittest.TestCase):
         self.assertEqual(len(flags), 1, flags)
         self.assertIn("Yahoo Finance", flags[0])
         self.assertTrue(flags[0].endswith("might start in the middle of a sentence."), flags)
+
+
+class TestQuestionAfterTheEdge(unittest.TestCase):
+    """Orchestrator 09:45 ET Nov 24: the deterministic edge check runs first; the out-edge question is asked only of a
+    run whose edges and cuts passed: an OUT sentence edge holds at the cut and the question is never asked."""
+
+    def test_an_out_sentence_edge_holds_before_any_question(self):
+        d = tempfile.mkdtemp(prefix="r162q_")
+        self.addCleanup(shutil.rmtree, d, True)
+        with open(os.path.join(d, "edl.json"), "w") as f:
+            json.dump({"hook": {"channel": "A"}, "clips": []}, f)
+        run = types.SimpleNamespace(dir=d, status={}, prov={}, mode="pinned", machine_cuts=True)
+
+        def table(run_dir):
+            with open(os.path.join(run_dir, "cuts_final.json"), "w") as f:
+                json.dump([{"clip_id": "hook", "video_id": "v0", "verified": True, "cut_in": 1.0, "cut_out": 5.0,
+                            "sentence_edge": {"out": "'and' does not end a sentence"}}], f)
+        asked = mock.Mock()
+        with mock.patch.object(RF.L, "write_lock_cut_table", table), mock.patch.object(RF, "check_out_edges", asked):
+            with self.assertRaises(RF.Hold) as cm:
+                RF.stage_cut(run)
+        self.assertIn("ruling 162 (1)", str(cm.exception))
+        asked.assert_not_called()
 
 
 if __name__ == "__main__":

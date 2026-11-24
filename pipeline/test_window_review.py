@@ -19,6 +19,7 @@ import shutil
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 PIPELINE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(PIPELINE)
@@ -294,8 +295,10 @@ class TestLocalReviewAndGate(unittest.TestCase):
         json.dump(edl, open(os.path.join(self.tmp, "edl.json"), "w"))
         er.write_review(FakeReviewer(good_review(edl, progresses=False)), edl, self.tmp)
         run = rf.Run(self.tmp)
-        with self.assertRaises(rf.Hold) as cm:          # validate runs before cut; this v2f EDL holds on a HARD rule
-            rf.stage_validate(run)                      # later in validate (its hook does not name Bitcoin)
+        with self.assertRaises(rf.Hold) as cm, \
+                mock.patch.object(rf, "out_edges", return_value=[]):   # ruling 162 (1)'s re-ask: not this test's
+            rf.stage_validate(run)      # validate runs before cut; this v2f EDL holds on a HARD rule later in validate
+            #                             (its hook does not name Bitcoin)
         self.assertNotIn("LAW_4", str(cm.exception))
         self.assertIn("The editorial check doubted that the clips build to a payoff.",
                       [f["flag"] for f in run.prov["review_flags"]])

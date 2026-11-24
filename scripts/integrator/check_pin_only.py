@@ -1,6 +1,9 @@
 """A sealed moments-first pin checked on its OWN content (CPU only; orchestrator '06:22': render the instant the pin is
 readable). Ready = type 'moments'; every required gate of the sealed inventory exactly PASS and not replayed
-(pp-selectid's gate_problems); THEIR seal() recomputed over the pin's own bytes equals package_sha256 (and, when given,
+(pp-selectid's gate_problems); every source within ruling 76's 12 hours on the render clock NOW (their window_problems;
+the verifier's row 13, Nov 24); the review flags exactly the sealed gates' and at most 3 kinds (their review_problems;
+rulings 136 (2) / 155 (1) / 159; the verifier's row 18); THEIR seal() recomputed over the pin's own bytes equals
+package_sha256 (and, when given,
 the digest named on the READY line); main's pinned.validate_schema and the strict pinned.moments_vo accept it; and
 main's edl_rules.takeaway_value (ruling 91's medley half, the live path's own check) passes it before launch; and
 every calibrated bar mark the pin carries (hook_bar, ruling 115 (2); lineup_bar, ruling 116; stand_alone_bar, ruling 119)
@@ -16,7 +19,20 @@ import edl_rules  # noqa: E402
 import pinned  # noqa: E402
 
 
-def main(path, want=None):
+PACKAGE_PIN = "/home/ultron/worktrees/pp-selectid/pipeline/package_pin.py"
+
+
+def builder_pin():
+    """The builder's package_pin, loaded read-only from its worktree: the gates, the trim, the 12-hour window, the flag
+    kinds and the seal are judged by its own functions."""
+    spec = importlib.util.spec_from_file_location("pp_pin", PACKAGE_PIN)
+    pp = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(pp)
+    return pp
+
+
+def main(path, want=None, now=None):
+    """now: the render clock (default: this moment, with its zone; tests pass a fixed one)."""
     pin = json.load(open(path))
     mp = pin.get("moments_package") or {}
     if mp.get("type") != "moments":
@@ -26,12 +42,16 @@ def main(path, want=None):
         stand_alone_floor.mark(mp, len(pin.get("segments") or []))
     except ValueError as e:
         return False, f"stand-alone calibrated floor mark: {e}"
-    spec = importlib.util.spec_from_file_location("pp_pin", "/home/ultron/worktrees/pp-selectid/pipeline/package_pin.py")
-    PP = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(PP)
+    PP = builder_pin()
+    problems = PP.window_problems(pin.get("segments"), now)   # RULING 76 on the render clock: checked again whenever a
+    if problems:                                              # pin would go to render (the verifier's row 13, Nov 24)
+        return False, "window: " + "; ".join(problems)
     problems = PP.gate_problems(mp.get("gates"), PP.required_gates(mp))   # the pin's own shape: a spotlight has no
     if problems:                                                          # r4 / coherence rows (found 2026-11-14)
         return False, "gates: " + "; ".join(problems)
+    problems = PP.review_problems(mp)                   # rulings 136 (2) / 155 (1) / 159: the flags are the sealed
+    if problems:                                        # gates' and at most 3 KINDS (the verifier's row 18, Nov 24)
+        return False, "review flags: " + "; ".join(problems)
     problems = PP.trim_problems(pin["segments"])        # ruling 49 (builder 07:19): scorer_pending on, and only on, a
     if problems:                                        # trimmed clip; at most one trimmed clip per pin
         return False, "trim: " + "; ".join(problems)

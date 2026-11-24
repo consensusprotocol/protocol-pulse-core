@@ -372,8 +372,10 @@ def as_spoken(lock, words, sw):
     diffs = [[" ".join(L[a:b]), " ".join(S2[c:d])] for _, a, b, c, d in ops]                  # formatting
     if not ops:
         return "same", [], [], spoken
-    cls = ["material" if pinned.material_pair(L[a:b], S2[c:d], (lock["text"], spoken)) else "small"
-           for _, a, b, c, d in ops]
+    import owner_rules
+    cls = ["material" if pinned.material_pair(L[a:b], S2[c:d], (lock["text"], spoken))
+           or owner_rules.meaning_pair(L[a:b], S2[c:d]) else "small" for _, a, b, c, d in ops]   # item 7: the ears'
+    #                                                                     meaning pair holds as a material word does
     return ("hold" if "material" in cls else "same"), diffs, cls, spoken
 
 
@@ -502,6 +504,22 @@ def _outcome(s, lock):
     return "adopted" if "adjudication" in lock else "two_readings" if "alternatives" in lock else "no_difference"
 
 
+def meaning_swaps(lock):
+    """ITEM 7 (orchestrator 09:20 / 09:35 ET Nov 24): the [[transcript word(s), audio word(s)]] of a lock's adjudicated
+    pairs (ruling 143's record) that are a MEANING pair (owner_rules.meaning_pair): the lock would adopt one reading of
+    'approved' / 'rejected' and every verdict made on the other words would stand. [] when none (or no adjudication)."""
+    import owner_rules
+    pairs = ((lock or {}).get("adjudication") or {}).get("pairs") if isinstance((lock or {}).get("adjudication"),
+                                                                                 dict) else None
+    return [[x.get("approved"), x.get("run")] for x in pairs or [] if isinstance(x, dict)
+            and owner_rules.meaning_pair(str(x.get("approved") or "").split(), str(x.get("run") or "").split())]
+
+
+OUT_EDGE_HOLD = ("ruling 162 (1): the span ends while the speaker is still mid-sentence (its OUT edge is not the end "
+                 "of a sentence: {}); the render holds it: extend the out point to the sentence's end (ruling 104's "
+                 "tail)")
+
+
 def answer(path, r, dl, dec, sha, dg=None, log=print):
     """After the lease: every segment's lock (pinned.segment_lock, with the second recogniser where ruling 17 calls
     it) appended to its result file; the request moved to done/."""
@@ -512,6 +530,11 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
         if prev is not None and prev["outcome"] != "error":
             entry = dict(prev, request_id=r["request_id"], reused=True,
                          at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
+            edge = ((entry.get("cut") or {}).get("sentence_edge") or {}).get("out")
+            if edge and entry["outcome"] != "hold":              # RULING 162 (1) on a verdict made before it: no
+                entry.update(outcome="hold", reason=OUT_EDGE_HOLD.format(edge), lock=None,   # new spend, held as a
+                             transcript_sha256=None, adjudication=None, relock_adjudication=None,  # fresh hold is
+                             alternatives=None, spoken_text=None)                                  # (c1, glm F6)
         else:
             a, err, dsec = dec.get(vid, (None, "not decoded", 0.0))
             spent, lock, reason, t, spoken, cut = [], None, err, time.time(), None, None
@@ -581,12 +604,21 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                                        f"{heard.get('second_reading')!r}: the hold is final"
                                        + (f" ({heard['why']})" if heard.get("why") else ""))
                         outcome, lock = "hold", None
+                    swap = meaning_swaps(first) or (meaning_swaps(lock) if lock is not None else [])   # first: the
+                    #     lock made with the pin's own text, whose pairs are the transcript against the audio
+                    if swap:                                     # ITEM 7: the lock would adopt the audio's word on a
+                        outcome, lock = "hold", None             # meaning pair: the clip does not seal
+                        reason = (f"item 7 (no silent meaning swap): the transcript and the audio differ on a meaning "
+                                  f"pair at {swap}: the clip does not seal")
                     if lock is not None:                         # ruling 73 (c): the render's own cut placement
                         cut = sentence_law.lock_cut(a["path"], a["transcript"]["words"], lock,
                                                     "hook" if s["role"] == "hook" else "clip")
                         if cut.get("error"):
                             outcome, lock = "hold", None
                             reason = f"ruling 73: the render cannot cut this span: {cut['error']}"
+                        elif (cut.get("sentence_edge") or {}).get("out"):   # RULING 162 (1): the render holds it
+                            outcome, lock = "hold", None
+                            reason = OUT_EDGE_HOLD.format(cut["sentence_edge"]["out"])
                 except pinned.PinError as e:                     # what the render's stage pinned would hold on
                     if _empty_source(a):                         # batch 109: no media is no verdict, never a hold
                         outcome, lock = "error", None
@@ -619,7 +651,7 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                      "unstable_second_reading": spoken.get("unstable_second_reading") if spoken else None,   # 105
                      "cut": {**{k: cut.get(k) for k in ("cut_in", "cut_out", "cut_duration", "lead_in_pad_s", "error")},
                              "hook_lead_short": (cut.get("hook_lead") or {}).get("short"),   # ruling 146 (2): a flag
-                             "sentence_edge": cut.get("sentence_edge")}                       # ruling 139: a flag
+                             "sentence_edge": cut.get("sentence_edge")}       # ruling 139: IN a flag; 162 (1): OUT holds
                      if cut else None,
                      "rules": RULES, "scribe_usd": round(sum(spent), 4), "reused": False,
                      "timing": {"download_s": dl.get(vid, 0.0), "decode_s": dsec, "lock_s": round(time.time() - t, 1)},

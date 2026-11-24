@@ -1399,12 +1399,12 @@ class TestRuling141SealedFlagged(unittest.TestCase):
                     "status": "PASS", "replayed": False}}})[0])
         self.assertTrue(sealed_ok({"status": "PASS", "replayed": False}))
 
-    def test_a_flagged_takeaway_value_counts(self):
+    def test_ruling_162_a_flagged_takeaway_value_no_longer_counts(self):
+        """RULING 162 (2) (orchestrator 07:45 ET Nov 24): ruling 150 is reversed for the closing line: its VALUE grade
+        is a requirement again; a FLAGGED value verdict, with its flags or without, fails like any other non-PASS."""
         t = TestRuling91MedleyTakeaway()
-        ok, why = takeaway_value(t.edl(gates=t.row(status="FLAGGED", flags=["The closing line may not say much."])))
-        self.assertTrue(ok, why)
-        for bad in ({"status": "FLAGGED"}, {"status": "FLAGGED", "flags": []}, {"status": "FLAGGED", "flags": self.FL,
-                                                                                "replayed": True}):
+        for bad in ({"status": "FLAGGED", "flags": ["The closing line may not say much."]}, {"status": "FLAGGED"},
+                    {"status": "FLAGGED", "flags": []}, {"status": "FLAGGED", "flags": self.FL, "replayed": True}):
             with self.subTest(bad=bad):
                 ok, why = takeaway_value(t.edl(gates=t.row(**bad)))
                 self.assertFalse(ok)
