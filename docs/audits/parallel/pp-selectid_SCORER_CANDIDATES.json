@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-24T01:28:58+00:00",
- "build": "ledger_20261124_012843",
+ "generated_at": "2026-11-24T01:29:43+00:00",
+ "build": "ledger_20261124_012928",
  "kind": "moments",
  "candidates": [
   {
@@ -28,15 +28,6 @@
    "duration": 15.58,
    "text": "He said, over the weekend, we hit a new low. Bitcoin bottom four years ago to the exact day. Let me read that again. Bitcoin bottom four years ago to the exact day.",
    "text_sha256": "835c9290d7cb9e1fb40708c5504a206543c9fb6066d240ae0469474a268ac3f7",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "f47662e48ecb4dc31582",
-   "video_id": "DVKuBD7WB6Y",
-   "channel": "Scott Melker",
-   "duration": 14.64,
-   "text": "I don't know if you guys realize this, but when Bitcoin hit 55,000 overnight on Saturday was four years to the day of the low of the last Bitcoin bear market for FDX. to the exact day.",
-   "text_sha256": "a9ea2efbe18bc3e74126b1e29fb0ee3ebfd1b8f9ca24a6f52b525c70d646e42f",
    "trimmed_leading": null
   },
   {

@@ -1,0 +1,111 @@
+{
+ "513842ff9c091700dbb8:9d43580c729b": {
+  "label": "513842ff9c091700dbb8",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "That",
+    "refers_to": "The coincidence of the 2022 bottom and the 2026 low both occurring on November 21st.",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "The coincidence of the 2022 bottom and the 2026 low both occurring on November 21st.",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's recent low of $55,000 on November 21, 2026 occurred exactly four years to the day after its 2022 bottom of about $15,500.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Visit the bitcoinway.com/hurly and your first 30-minut consultation is completely free.",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ad47eab4a19c2324a9eb:9d43580c729b": {
+  "label": "ad47eab4a19c2324a9eb",
+  "speaker_changes_inside": "no",
+  "view": "reading_aloud",
+  "referents": [
+   {
+    "word": "He",
+    "refers_to": "Bitcoin therapist",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the weekend",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker is reading a statement from 'Bitcoin therapist' who claimed that the new low hit over the weekend occurred exactly four years to the day after a previous Bitcoin bottom.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is why I love these time frames because I don't have to deal with those people.",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "579ef25c705b2591cd59:9d43580c729b": {
+  "label": "579ef25c705b2591cd59",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this low",
+    "refers_to": "The new low for the current cycle, which dropped to about $55,000 on the Friday night before the show.",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's recent market low occurred almost exactly four years after the previous bear market bottom on November 21, 2022, when the price was about $15,500.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "5f1456a7f32e60f52817:9d43580c729b": {
+  "label": "5f1456a7f32e60f52817",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this low",
+    "refers_to": "The new cycle low of about $55,000 that occurred on the Friday night before the show.",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "the price",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's last bear market bottomed on November 21, 2022, at around $15,500, and the recent low occurred almost exactly four years later, which aligns with a historical pattern of four-year cycles where the price typically fell 70-80% from its peak.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

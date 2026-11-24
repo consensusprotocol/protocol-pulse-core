@@ -1,0 +1,344 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "84ade6e3ff04ed8e26e93a55a340980ce0d321fd75aa03e014f6dab9c91d3763",
+ "result": {
+  "text": "Okay, let's pivot to Bitcoin because this was just wild. Bitcoin bottomed at about $15,500 on November 21st, 2022. On November 21st, 2026, we finished seven weeks straight of red candles with a wick down to $55,000. That's four years to the day. You can't make this up. The last three bear markets-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.9,
+    "end": 22.02,
+    "text": "Okay, let's pivot to Bitcoin because this was just wild. Bitcoin bottomed at about $15,500 on November 21st, 2022. On November 21st, 2026, we finished seven weeks straight of red candles with a wick down to $55,000. That's four years to the day. You can't make this up. The last three bear markets-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Okay,",
+    "start": 0.9,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "let's",
+    "start": 1.06,
+    "end": 1.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pivot",
+    "start": 1.3,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 1.54,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.68,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 2.14,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 2.36,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 2.52,
+    "end": 2.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 2.7,
+    "end": 2.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wild.",
+    "start": 2.98,
+    "end": 3.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 3.96,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bottomed",
+    "start": 4.34,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 4.74,
+    "end": 4.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 4.84,
+    "end": 5.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$15,500",
+    "start": 5.06,
+    "end": 6.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 6.64,
+    "end": 6.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "November",
+    "start": 6.76,
+    "end": 7.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "21st,",
+    "start": 7.3,
+    "end": 7.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2022.",
+    "start": 8.02,
+    "end": 8.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "On",
+    "start": 9.54,
+    "end": 9.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "November",
+    "start": 9.64,
+    "end": 9.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "21st,",
+    "start": 10.14,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2026,",
+    "start": 10.76,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 12.3,
+    "end": 12.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "finished",
+    "start": 12.5,
+    "end": 12.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seven",
+    "start": 12.84,
+    "end": 13.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "weeks",
+    "start": 13.12,
+    "end": 13.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "straight",
+    "start": 13.34,
+    "end": 13.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 13.6,
+    "end": 13.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "red",
+    "start": 13.72,
+    "end": 13.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "candles",
+    "start": 13.96,
+    "end": 14.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 14.36,
+    "end": 14.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 14.48,
+    "end": 14.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wick",
+    "start": 14.58,
+    "end": 14.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down",
+    "start": 14.8,
+    "end": 14.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 15.02,
+    "end": 15.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$55,000.",
+    "start": 15.14,
+    "end": 16.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's",
+    "start": 17.42,
+    "end": 17.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "four",
+    "start": 17.8,
+    "end": 18.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years",
+    "start": 18.06,
+    "end": 18.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 18.34,
+    "end": 18.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 18.46,
+    "end": 18.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "day.",
+    "start": 18.6,
+    "end": 18.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 19.62,
+    "end": 19.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can't",
+    "start": 19.76,
+    "end": 19.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "make",
+    "start": 20.0,
+    "end": 20.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 20.18,
+    "end": 20.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up.",
+    "start": 20.44,
+    "end": 20.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 21.1,
+    "end": 21.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "last",
+    "start": 21.2,
+    "end": 21.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "three",
+    "start": 21.36,
+    "end": 21.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bear",
+    "start": 21.54,
+    "end": 21.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "markets-",
+    "start": 21.72,
+    "end": 22.02,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 22.12
+ },
+ "usd": 0.004424,
+ "seconds": 0.85,
+ "recorded_at": "2026-11-24T01:30:16Z"
+}

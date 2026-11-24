@@ -1,0 +1,242 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "037d58791e96fcaf68cdba5c7df4d15b36d04c458217469ddfd7626cfd262519",
+ "result": {
+  "text": "description, but Bitcoin therapist laid it out as just as easily. He said, \"Over the weekend, we hit a new low. Bitcoin bottomed four years ago to the exact day.\" Let me read that again. Bitcoin",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 16.32,
+    "text": "description, but Bitcoin therapist laid it out as just as easily. He said, \"Over the weekend, we hit a new low. Bitcoin bottomed four years ago to the exact day.\" Let me read that again. Bitcoin"
+   }
+  ],
+  "words": [
+   {
+    "text": "description,",
+    "start": 0.0,
+    "end": 0.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 0.48,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 0.9,
+    "end": 1.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "therapist",
+    "start": 1.28,
+    "end": 1.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "laid",
+    "start": 1.72,
+    "end": 1.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 1.86,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 2.0,
+    "end": 2.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 2.3,
+    "end": 2.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 2.68,
+    "end": 2.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 2.88,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "easily.",
+    "start": 3.02,
+    "end": 3.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "He",
+    "start": 3.96,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "said,",
+    "start": 4.1,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Over",
+    "start": 4.28,
+    "end": 5.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.64,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "weekend,",
+    "start": 5.78,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 6.84,
+    "end": 6.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hit",
+    "start": 6.96,
+    "end": 7.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 7.12,
+    "end": 7.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "new",
+    "start": 7.2,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "low.",
+    "start": 7.4,
+    "end": 7.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.66,
+    "end": 9.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bottomed",
+    "start": 9.12,
+    "end": 9.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "four",
+    "start": 9.58,
+    "end": 9.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years",
+    "start": 9.96,
+    "end": 10.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ago",
+    "start": 10.44,
+    "end": 11.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 11.1,
+    "end": 11.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.4,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "exact",
+    "start": 11.82,
+    "end": 12.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "day.\"",
+    "start": 12.48,
+    "end": 12.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Let",
+    "start": 14.26,
+    "end": 14.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me",
+    "start": 14.36,
+    "end": 14.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "read",
+    "start": 14.44,
+    "end": 14.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 14.54,
+    "end": 14.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "again.",
+    "start": 14.68,
+    "end": 14.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 15.88,
+    "end": 16.32,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 16.45
+ },
+ "usd": 0.00329,
+ "seconds": 0.75,
+ "recorded_at": "2026-11-24T01:30:25Z"
+}
