@@ -729,7 +729,7 @@ def inventory(pk, m, fid, dup, rt_ok, style, cx, a_off, a_two, exc, truth, pre, 
     mid = m["moment_id"]
     rows = P.inventory(fid, dup, rt_ok, (True, "n/a"), cx, {"hook": a_off}, {mid: exc}, {mid: truth}, False,
                        {"measured": False}, style=style, hook=m.get("hook_onset"), stand=P.stand_alone_check([m]),
-                       visual=[m.get("visual")])
+                       visual=[m.get("visual")], out_edge=[m.get("out_edge")])   # RULING 162 (1)
     rows.pop("r4", None)
     rows.pop("coherence", None)
     v = m.get("visual") or {}
@@ -815,7 +815,7 @@ def near(rec, k=3):
 def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, work_dir=None, store=None,
           step_a_cache=None, hook_cache=None, scorer_verdicts_path=None, visual_cache=None, layout_cache=None,
           lock_check=None, spotlit=(), handles_path=HANDLES, wait_s=SCORER_WAIT_S, sleep=time.sleep,
-          captions_for=None, finalists=FINALISTS, attribute=None):
+          captions_for=None, finalists=FINALISTS, attribute=None, out_edge_cache=None):
     """RULINGS 90-92: the best spotlight in the pool, or none -> {"package", "pool", "moments" (each moment's furthest
     stage and why it stopped), "finalists", "near", "why_none", ...}. The stages run cheapest first, each on what the
     one before passed; every verdict is the medley's own and cached or recorded across builds: step A
@@ -835,6 +835,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         out["why_none"] = "no work_dir: L-v 2's second pass cannot run (fail closed)"
         return out
     ms, why = pool(moments, sources, ctx, delivered, optout, spotlit, captions_for)
+    ms, out["out_edge"] = P.out_edges(router, ms, sources, ctx, out_edge_cache, log, delivered, optout,
+                                      seg_max=SPOT_S[1])   # RULING 162 (1): every clip ends a thought (or is extended)
     out["pool"] = {"may": len(ms), "out": why,
                    "snapped": {m["moment_id"]: m["spotlight_snap"] for m in ms if m.get("spotlight_snap")}}
     log(f"  SPOTLIGHT (rulings 90-92): {len(ms)} moment(s) may be one ({len(out['pool']['snapped'])} snapped outward "
@@ -1168,7 +1170,7 @@ def package_for(router, m, ctx, sources, a_two, truth, exc, pre, facts, log=prin
         pk = LP.apply(pk, pre)
     except Exception as e:                               # noqa: BLE001  never a crash, never a pin
         return None, f"rulings 68 / 72: {e}"[:400]
-    problems = PP.gate_problems(pk["gates"], PP.required_gates(pk)) + \
+    problems = PP.gate_problems(pk["gates"], PP.required_gates(pk) + P.OWN_REQUIRED) + \
         [f"{x}: the gated line differs from the one shipped" for x in PP.line_problems(pk)] + \
         PP.spotlight_problems(pk) + [f"{v['slot']}: {v['rule']}" for v in v_all]
     if problems:

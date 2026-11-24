@@ -70,6 +70,23 @@
    "family": "qwen",
    "base_url": "https://api-staging.heimdallm.com/api/v1"
   },
+  "heimdall:qwen/qwen3.8-27b@low": {
+   "vendor": "heimdall",
+   "model": "qwen/qwen3.8-27b",
+   "price_usd_per_1m": [
+    3,
+    15
+   ],
+   "temperature": 0,
+   "min_out": 2000,
+   "family": "qwen",
+   "base_url": "https://api-staging.heimdallm.com/api/v1",
+   "reasoning": {
+    "effort": "low"
+   },
+   "plain": true,
+   "ruling_162": "RULING 162 (1) (07:45 ET Nov 24): the out-edge question asked the render's way (owner_rules.HeimdallText: the user message only, temperature 0, reasoning effort low, 2,000 tokens), so both sides ask one model one way"
+  },
   "heimdall:deepseek/deepseek-v4.1-flash": {
    "vendor": "heimdall",
    "model": "deepseek/deepseek-v4.1-flash",
@@ -291,6 +308,12 @@
     "heimdall:qwen/qwen3.8-27b"
    ],
    "what": "moments.exclusion_verdict: the hard exclusions of law L-u on one moment in its context"
+  },
+  "out_edge": {
+   "chain": [
+    "heimdall:qwen/qwen3.8-27b@low"
+   ],
+   "what": "RULING 162 (1): owner_rules.out_edge, does a clip's last sentence finish the speaker's thought (the integrator's question, the render's model and settings; no other model: a verdict the render would not give is no verdict)"
   },
   "coherence_verdict": {
    "chain": [

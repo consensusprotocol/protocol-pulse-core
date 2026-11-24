@@ -786,6 +786,19 @@ class Rig:
                   "type": "moments", "angle": angle_["angle"], "style": "medley", "takeaway_budget": [10, 30]}
         return self.P.Reply("{}", self.write_from[0], self.write_from[1], family=self.write_from[2]), fields
 
+    OUT_EDGE_OK = {"complete": True, "why": "the thought ends", "backend": "heimdall:qwen/qwen3.8-27b@low",
+                   "measured": True, "version": "owner_rules 1 (ruling 162, 2026-11-24)", "sha256": "e" * 64}
+
+    def out_edges(self, router, ms, sources, ctx_, cache_path=None, log=print, delivered=(), optout=frozenset(),
+                  seg_max=None):
+        """RULING 162 (1) as package.out_edges answers: every moment ends a thought (OUT_EDGE_OK), unless
+        self.out_edge_refused / self.out_edge_unverified name it (out of the pool, recorded)."""
+        bad, un = set(getattr(self, "out_edge_refused", ())), set(getattr(self, "out_edge_unverified", ()))
+        rec = {"ruling": "162 (1)", "version": self.OUT_EDGE_OK["version"], "sha256": self.OUT_EDGE_OK["sha256"],
+               "asked": len(ms), "complete": [m["moment_id"] for m in ms if m["moment_id"] not in bad | un],
+               "extended": {}, "refused": {mid: "runs on" for mid in bad}, "unverified": {mid: "no answer" for mid in un}}
+        return [dict(m, out_edge=dict(self.OUT_EDGE_OK)) for m in ms if m["moment_id"] not in bad | un], rec
+
     def value(self, router, segs, ctx_, line, wv, wf, seed=7):
         """RULING 91 (medley half): package.takeaway_value as the build calls it. A clear yes on all four unless
         self.values gives the next answers ({"adds": "no", ...}; {"measured": False} = no verdict)."""
@@ -844,6 +857,7 @@ class Rig:
             "join_table": self.join_table,
             "takeaway_value": self.value,                  # ruling 91 (medley half)
             "coherence": self.coherence,
+            "out_edges": self.out_edges,                   # RULING 162 (1): every OUT edge ends a thought by default
         }
         if self.real_value:                                # ruling 91: the real verdict, on the fake router
             del stubs["takeaway_value"]

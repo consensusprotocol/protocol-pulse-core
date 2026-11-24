@@ -435,6 +435,10 @@ class HeimdallBackend(OpenAIBackend):
                 "temperature": self.spec.get("temperature", 0),
                 "messages": [{"role": "system", "content": (system or "") + " Reply with one JSON object only."},
                              {"role": "user", "content": content}]}
+        if self.spec.get("plain") and not system:     # RULING 162 (1): a back-end that asks the render's way
+            body["messages"] = [{"role": "user", "content": content}]    # (owner_rules.HeimdallText): the user
+        if isinstance(self.spec.get("reasoning"), dict):                  # message only, its reasoning effort
+            body["reasoning"] = dict(self.spec["reasoning"])
         t0 = time.time()
         base = self._base()
         j = _with_backoff(lambda: _http_json(base + "/chat/completions", body, {"Authorization": "Bearer " + key},

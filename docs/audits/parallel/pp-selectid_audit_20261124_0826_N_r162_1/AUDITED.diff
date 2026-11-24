@@ -1,0 +1,510 @@
+diff --git a/pipeline/model_providers.json b/pipeline/model_providers.json
+index 73dcbf925..5eb6177ec 100644
+--- a/pipeline/model_providers.json
++++ b/pipeline/model_providers.json
+@@ -70,6 +70,23 @@
+    "family": "qwen",
+    "base_url": "https://api-staging.heimdallm.com/api/v1"
+   },
++  "heimdall:qwen/qwen3.8-27b@low": {
++   "vendor": "heimdall",
++   "model": "qwen/qwen3.8-27b",
++   "price_usd_per_1m": [
++    3,
++    15
++   ],
++   "temperature": 0,
++   "min_out": 2000,
++   "family": "qwen",
++   "base_url": "https://api-staging.heimdallm.com/api/v1",
++   "reasoning": {
++    "effort": "low"
++   },
++   "plain": true,
++   "ruling_162": "RULING 162 (1) (07:45 ET Nov 24): the out-edge question asked the render's way (owner_rules.HeimdallText: the user message only, temperature 0, reasoning effort low, 2,000 tokens), so both sides ask one model one way"
++  },
+   "heimdall:deepseek/deepseek-v4.1-flash": {
+    "vendor": "heimdall",
+    "model": "deepseek/deepseek-v4.1-flash",
+@@ -292,6 +309,12 @@
+    ],
+    "what": "moments.exclusion_verdict: the hard exclusions of law L-u on one moment in its context"
+   },
++  "out_edge": {
++   "chain": [
++    "heimdall:qwen/qwen3.8-27b@low"
++   ],
++   "what": "RULING 162 (1): owner_rules.out_edge, does a clip's last sentence finish the speaker's thought (the integrator's question, the render's model and settings; no other model: a verdict the render would not give is no verdict)"
++  },
+   "coherence_verdict": {
+    "chain": [
+     "anthropic:claude-opus-5-5",
+diff --git a/pipeline/out_edge.py b/pipeline/out_edge.py
+new file mode 100644
+index 000000000..3828fd551
+--- /dev/null
++++ b/pipeline/out_edge.py
+@@ -0,0 +1,209 @@
++"""pipeline/out_edge.py -- RULING 162 (1) (orchestrator 07:45 ET Nov 24, from PBX's review of pin afd8977d at 07:37:
++"the first segment cuts off abruptly as the speaker is still saying something"), STANDING, BOTH SIDES, HARD at the OUT
++edge: A CLIP NEVER ENDS WHILE THE SPEAKER IS STILL MID-SENTENCE (or mid-thought). "When the checker hears the sentence
++carry on past the clip's last word: EXTEND the out point to the sentence's end (ruling 104's tail variant; re-check the
++lock and the cut on the extended span; mind the runtime), and if it cannot be extended inside the rules, the clip is
++REFUSED." The IN edge stays a flag as ruled (package.soft_edges).
++
++THE QUESTION is the integrator's, ONE file both sides load (owner_rules.out_edge: "does the clip's last sentence finish
++the speaker's thought, given what the speaker says next?"); the render asks it again at validate and holds. This module
++asks it of every moment of a build's pool on the source's OWN sentences (the BEFORE_N before the clip, the AFTER_N after
++it), on the render's model and settings (role "out_edge": heimdall qwen at effort low, the user message only), and:
++  - complete: the moment stays, its verdict on it (m["out_edge"], sealed on the pin's "out_edge" row);
++  - runs on, a following sentence finishes it: the moment is REPLACED by its extension ending at that sentence's end
++    (tail_variant.extend: a new span, recorded as derived from its parent; every gate judges it again from the start:
++    the pool's own rules (package.usable, the 20 s clip), step A, the second pass and CUTTABLE at the new OUT, vision,
++    the lock pre-check), asked this question again on its own new edge;
++  - runs on and nothing listed finishes it, or its extension runs on too, or it cannot be extended: REFUSED;
++  - no answer (or no word record, or the file missing): UNVERIFIED (ruling 160 (2a)): never a pass, never a refusal;
++    out of this build, asked again next build (an unanswered verdict is never cached)."""
++import hashlib
++import json
++import os
++import threading
++import types
++from concurrent.futures import ThreadPoolExecutor
++
++import eligibility as E
++
++OWNER_RULES = "/home/ultron/protocol_pulse/pipeline/owner_rules.py"   # the integrator's file, read only
++ROLE = "out_edge"                 # model_providers.json: the render's model, the render's way (no other model)
++BEFORE_N, AFTER_N = 2, 3          # what the render asks with: the 2 sentences before the clip, the 3 after it
++DEADLINE_S = 300.0                # the render's HeimdallText timeout
++SEED = 7
++RULING = "162 (1)"
++_LOCK = threading.Lock()
++_RULES = {}
++
++
++def rules(path=None):
++    """The integrator's owner_rules, loaded by FILE PATH under a name of its own (this tree has modules of its own
++    names) from the very bytes hashed, so the sha sealed is the code that asked. -> (module, sha256 hex). OSError when
++    the file is missing: no question, so every clip is UNVERIFIED (pool())."""
++    p = path or OWNER_RULES
++    with open(p, "rb") as f:
++        raw = f.read()
++    sha = hashlib.sha256(raw).hexdigest()
++    with _LOCK:
++        mod = _RULES.get((p, sha))
++        if mod is None:
++            mod = types.ModuleType(f"owner_rules_{sha[:12]}")
++            mod.__file__ = p
++            exec(compile(raw, p, "exec"), mod.__dict__)              # noqa: S102  the integrator's file, as hashed
++            _RULES[(p, sha)] = mod
++    return mod, sha
++
++
++def around(m, src):
++    """What the question is asked with, from the moment's own Source: (the text before the clip: up to BEFORE_N
++    sentences, [up to AFTER_N following sentences, each its own text], [the source sentence index each of those ends
++    with, or [] when no extension can follow them]). An extension keeps the IN edge, so it exists only for a moment of
++    whole sentences on a Source of its own (not a window record: its sentences stop at the window)."""
++    k0, k1 = m["sentences"]
++    w0, w1 = m["words"]
++    S, T = src.sentences, src.tokens
++    before = E.spoken(T[S[max(0, k0 - BEFORE_N)][0]:w0]) if w0 > S[max(0, k0 - BEFORE_N)][0] else ""
++    whole = w0 == S[k0][0] and w1 == S[k1][1] and getattr(src, "window", None) is None
++    if whole:
++        ks = list(range(k1 + 1, min(len(S), k1 + 1 + AFTER_N)))
++        return before, [E.spoken(T[S[k][0]:S[k][1] + 1]) for k in ks], ks
++    nxt = []                                          # cut inside a sentence, or a window record: the words after the
++    if w1 < S[k1][1]:                                 # clip as far as its sentence goes, then whole sentences; no
++        nxt.append(E.spoken(T[w1 + 1:S[k1][1] + 1]))   # extension is made from them
++    k = k1 + 1
++    while len(nxt) < AFTER_N and k < len(S):
++        nxt.append(E.spoken(T[S[k][0]:S[k][1] + 1]))
++        k += 1
++    return before, nxt, []
++
++
++def _key(m, sha, before, nxt):
++    d = hashlib.sha256(json.dumps([m.get("text") or "", before, nxt]).encode()).hexdigest()[:16]
++    return f"{m['moment_id']}:{float(m['start']):.3f}-{float(m['end']):.3f}:{sha[:16]}:{d}"
++
++
++def load_cache(path):
++    try:
++        with open(path) as f:
++            d = json.load(f)
++        return d if isinstance(d, dict) else {}
++    except (OSError, ValueError):
++        return {}
++
++
++def save_cache(path, cache):
++    if not path:
++        return
++    tmp = f"{path}.{os.getpid()}.tmp"
++    with _LOCK:
++        with open(tmp, "w") as f:
++            json.dump(cache, f, indent=1, sort_keys=True)
++        os.replace(tmp, path)
++
++
++def ask(router, m, src, cache=None, path=None):
++    """The out-edge verdict on ONE moment (cached by moment, span, the rules file's sha and the texts asked with): the
++    integrator's out_edge() on this router's role "out_edge". -> {"complete", "finishes_at", "why", "backend",
++    "measured", "version", "sha256", "next": the sentences asked with, "ks": their source indices, "cached"}. Only
++    the router's no-answer errors are unmeasured; any other error propagates (the spend stop)."""
++    import providers as P
++    OR, sha = rules(path)
++    before, nxt, ks = around(m, src)
++    key = _key(m, sha, before, nxt)
++    hit = (cache or {}).get(key) if cache is not None else None
++    if isinstance(hit, dict) and hit.get("measured") is True:
++        return dict(hit, cached=True)
++    v = OR.out_edge(router, m.get("text") or "", before, nxt, seed=SEED, role=ROLE,
++                    no_answer=(P.ProviderError, P.ReplayMiss), deadline_s=DEADLINE_S)
++    out = dict(v, sha256=sha, next=nxt, ks=ks, cached=False)
++    if cache is not None and out.get("measured") is True:          # an unanswered verdict is never cached
++        with _LOCK:
++            cache[key] = {k: x for k, x in out.items() if k != "cached"}
++    return out
++
++
++def sealed(v):
++    """The part of a verdict the pin's "out_edge" row seals: never the texts asked with."""
++    return {k: v.get(k) for k in ("complete", "why", "backend", "measured", "version", "sha256")}
++
++
++def pool(router, ms, sources, ctx, cache_path=None, log=print, extend=None, workers=4, path=None):
++    """RULING 162 (1) on a build's pool (see the module). -> (the moments that may play, each carrying "out_edge", the
++    extensions in their parents' places; the record {"version", "sha256", "asked", "complete", "extended": {parent:
++    extension}, "refused": {id: why}, "unverified": {id: why}}). extend(m, src, k, ctx, why): tail_variant.extend."""
++    import context_integrity as CI
++    if extend is None:
++        import tail_variant as TV
++        extend = TV.extend
++    rec = {"ruling": RULING, "version": None, "sha256": None, "asked": 0, "complete": [], "extended": {},
++           "refused": {}, "unverified": {}}
++    try:
++        OR, sha = rules(path)
++    except OSError as e:                              # no question: no clip passes, none is refused (ruling 160 (2a))
++        why = f"the out-edge question is not available ({type(e).__name__}: {str(e)[:160]}): UNVERIFIED"
++        rec["unverified"] = {m["moment_id"]: why for m in ms}
++        log(f"  RULING 162 (1): {why}: {len(ms)} moment(s) out of this build")
++        return [], rec
++    rec["version"], rec["sha256"] = OR.VERSION, sha
++    cache = load_cache(cache_path) if cache_path else {}
++
++    def one(m):
++        try:
++            src = CI.source_for(m, sources)
++        except KeyError:
++            return m, None, None, "its word record is not in this build: the question cannot be asked"
++        return m, src, ask(router, m, src, cache, path), None
++    with ThreadPoolExecutor(max_workers=workers) as ex:
++        got = list(ex.map(one, ms))
++    rec["asked"] = sum(1 for _, _, v, _ in got if v is not None)
++    keep, todo = [], []
++    for m, src, v, err in got:
++        mid = m["moment_id"]
++        if v is None or v.get("measured") is not True:
++            rec["unverified"][mid] = err or f"no answer from {v.get('backend') or 'the out-edge model'}: " \
++                                            f"{str(v.get('why'))[:200]}"
++        elif v.get("complete") is True:
++            keep.append(dict(m, out_edge=sealed(v)))
++            rec["complete"].append(mid)
++        elif v.get("finishes_at") is None:
++            rec["refused"][mid] = f"the thought runs on past its last word and no following sentence asked finishes " \
++                                  f"it ({str(v.get('why'))[:160]})"
++        elif not v.get("ks"):
++            rec["refused"][mid] = f"the thought runs on past its last word and the clip cannot be extended (cut " \
++                                  f"inside a sentence, or a window record) ({str(v.get('why'))[:160]})"
++        else:
++            todo.append((m, src, v))
++    ext = []
++    for m, src, v in todo:                            # the extension, asked again on its own new edge
++        mid, k = m["moment_id"], v["ks"][v["finishes_at"]]
++        try:
++            x = extend(m, src, k, ctx, f"ruling 162 (1): the thought runs on past the clip's last word; it ends at "
++                                       f"the end of the following sentence {v['finishes_at'] + 1} "
++                                       f"({str(v.get('why'))[:160]})")
++        except ValueError as e:
++            rec["refused"][mid] = f"the thought runs on and the clip cannot be extended: {str(e)[:200]}"
++            continue
++        ext.append((m, src, x))
++
++    def again(t):
++        m, src, x = t
++        return m, x, ask(router, x, src, cache, path)
++    with ThreadPoolExecutor(max_workers=workers) as ex:
++        for m, x, v2 in ex.map(again, ext):
++            mid = m["moment_id"]
++            rec["asked"] += 1
++            if v2.get("measured") is not True:
++                rec["unverified"][mid] = f"its extension {x['moment_id']} got no answer: {str(v2.get('why'))[:200]}"
++            elif v2.get("complete") is not True:
++                rec["refused"][mid] = f"its extension {x['moment_id']} runs on too ({str(v2.get('why'))[:160]})"
++            else:
++                keep.append(dict(x, out_edge=sealed(v2)))
++                rec["extended"][mid] = x["moment_id"]
++    if cache_path:
++        save_cache(cache_path, cache)
++    log(f"  RULING 162 (1) (the OUT edge, {OR.VERSION}, sha {sha[:12]}): {rec['asked']} asked; "
++        f"{len(rec['complete'])} end a thought, {len(rec['extended'])} extended to its end, "
++        f"{len(rec['refused'])} refused, {len(rec['unverified'])} UNVERIFIED (no answer)"
++        + "".join(f"; {k[:8]} -> {v[:8]}" for k, v in rec["extended"].items())
++        + "".join(f"; {k[:8]}: {w[:120]}" for k, w in list(rec["refused"].items())[:6]))
++    return keep, rec
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 35b8b6f58..fc81fb7ec 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -187,12 +187,15 @@ def kind_sentences(pairs, who):
+ def soft_edges(t):
+     """RULING 137 stage 2a: a moment's CUTTABLE failure is soft only when its words match (law L-v 2 ok, measured, no
+     error) and EVERY failing edge failed for the sentence running on at a word boundary (EDGE_SOFT); a word not found,
+-    a trimmed word, an unmeasured edge stay hard. -> ["EDGE_IN" / "EDGE_OUT"] or None."""
++    a trimmed word, an unmeasured edge stay hard. RULING 162 (1) (07:45 ET Nov 24): "Ruling 139's 'a sentence edge
++    flags' now applies to the IN edge only": an OUT edge that fails is HARD, always (the clip is extended at the pool
++    stage, out_edges(), or refused). -> ["EDGE_IN"] or None."""
+     if not isinstance(t, dict) or t.get("error") or t.get("ok") is not True or not isinstance(t.get("edges"), dict):
+         return None
+     e = t["edges"]
+     bad = [k for k in ("in", "out") if (e.get(k) or {}).get("ok") is not True]
+-    if not bad or not all(str((e.get(k) or {}).get("why") or "").startswith(EDGE_SOFT[k]) for k in bad):
++    if not bad or "out" in bad or \
++            not all(str((e.get(k) or {}).get("why") or "").startswith(EDGE_SOFT[k]) for k in bad):
+         return None
+     return ["EDGE_" + k.upper() for k in bad]
+ FLAGGED_DAY_MAX = 2
+@@ -281,6 +284,34 @@ def expired(m, now):
+     return age is None or age > package_pin.WINDOW_H
+ 
+ 
++OWN_REQUIRED = ("out_edge",)   # RULING 162 (1): this side's package needs the row exactly PASS. It is not in
++#   package_pin.REQUIRED_GATES, which the integrator's check_pin_only also reads for pins sealed before it (the render
++#   asks the question again at validate: owner_rules.out_edge)
++
++
++def out_edges(router, ms, sources, ctx, cache_path=None, log=print, delivered=(), optout=frozenset(),
++              seg_max=SEG_MAX_S):
++    """RULING 162 (1) (orchestrator 07:45 ET Nov 24; pipeline/out_edge.py): the OUT edge of every moment of the pool,
++    on the integrator's one question (owner_rules.out_edge). A moment whose thought runs on is REPLACED by its extension
++    to the sentence that finishes it, which must also meet the pool's own rules (usable(): the 20 s clip, the 12 h
++    window, never delivered); a moment that cannot be extended inside them is REFUSED; no answer is UNVERIFIED
++    (ruling 160 (2a)). Every moment that may play carries its verdict (m["out_edge"]), which the pin's "out_edge" row
++    seals. -> (the moments, the record)."""
++    import out_edge as OE
++    kept, rec = OE.pool(router, ms, sources, ctx, cache_path=cache_path, log=log)
++    ext = [m for m in kept if (m.get("derived_from") or {}).get("ruling") == OE.RULING]
++    if ext:
++        ok, why = usable(ext, ctx, delivered, optout, seg_max)
++        good = {m["moment_id"] for m in ok}
++        for parent, vid in list(rec["extended"].items()):
++            if vid not in good:                          # the extension breaks a pool rule: the parent is refused
++                rec["refused"][parent] = f"its extension {vid} breaks a pool rule: {str(why.get(vid))[:200]}"
++                del rec["extended"][parent]
++        ext_ids = {m["moment_id"] for m in ext}
++        kept = [m for m in kept if m["moment_id"] not in ext_ids or m["moment_id"] in good]
++    return kept, rec
++
++
+ def usable(moments, ctx, delivered=(), optout=frozenset(), seg_max=SEG_MAX_S):
+     """delivered: moment ids, or {"video_id", "start", "end"[, "text", "pin"]} of every DELIVERED clip. A moment that
+     overlaps a delivered one in the same video is not novel (audit p2 U2: an id changes when a record is re-punctuated),
+@@ -3605,8 +3636,9 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+           hook_cache=None, scorer_verdicts_path=None, scorer_candidates_path=None, build_name="", candidate=None,
+           join_cache=None,
+           visual_cache=None, registered=None, lock_check=None, scorer_extra=(), stories_path=None,
+-          ledger_aliases=None, soft=False):
++          ledger_aliases=None, soft=False, out_edge_cache=None):
+     """RULING 137: soft=True is the never-empty pass (build() calls it): step A's soft refusals are let back, flagged.
++    RULING 162 (1): out_edges() at the pool stage, its verdicts cached in out_edge_cache (None: this build's only).
+     L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
+     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
+     written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
+@@ -3694,6 +3726,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+     ms, why = usable(moments, ctx, delivered, optout)
+     n_usable = len(ms)                                 # out["usable"] keeps its meaning (audit 0310 C1, glm P2-2)
+     ms, reposted = reposted_once(ms, sources)          # ruling 53: a speech re-posted by a second channel is ONE
++    ms, out_edge = out_edges(router, ms, sources, ctx, out_edge_cache, log, delivered, optout)   # RULING 162 (1):
++    #   every clip ends a thought: extended to the sentence that finishes it, or refused; no answer is UNVERIFIED
+     scorer = scorer_pass(ms, sources, ctx, scorer_verdicts_path, scorer_candidates_path, build_name,   # ruling 56
+                          extra=scorer_extra)                                                       # ruling 90
+     ms = [with_verdict(m, scorer["index"]) for m in ms]
+@@ -3737,6 +3771,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                     f"(ruling 109)")
+         log(f"  {n_usable} usable, {len(ms)} in the pool after the free stages: {why_none}")
+         return {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable,   # out's shape
++                "out_edge": out_edge,                                                                    # RULING 162
+                 "current_levels": current_levels(sources.values(), ctx), "no_role": no_role, "ad_read": ad_read,
+                 "trimmed": {k: v["moment_id"] for k, v in trims.items()}, "reposted": reposted,
+                 "scorer": dict(scorer["record"], admitted=admitted, trims_affirmed=sorted(trims), trims_out=trim_out),
+@@ -3763,6 +3798,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+     cleared, back = cleared_pool(ms, a_by, fails, soft)  # RULING 137 stage 1: the never-empty pass adds back, flagged
+     levels = current_levels(sources.values(), ctx)
+     out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable, "current_levels": levels,
++           "out_edge": out_edge,                                           # RULING 162 (1)
+            **({"soft_stand": stand_back} if stand_back else {}),          # RULING 141 (2): back, flagged
+            "no_role": no_role, "ad_read": ad_read, "trimmed": {k: v["moment_id"] for k, v in trims.items()},
+            "reposted": reposted,
+@@ -4257,6 +4293,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                                 hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
+                                 stand=stand_with_soft([cleared[sg["moment_id"]] for sg in pk["segments"]]),
+                                 visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
++                                out_edge=[cleared[sg["moment_id"]].get("out_edge") for sg in pk["segments"]],
+                                 last_resort=pin_last_resort(pk), soft=soft,   # RULING 102; RULING 137 stage 1
+                                 who={sg["label"]: sg.get("channel") for sg in pk["segments"]},
+                                 chan_of={sg["moment_id"]: sg.get("channel") for sg in pk["segments"]},   # 146 (3)   # RULING 138 (3)
+@@ -4264,7 +4301,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                                            for sg in pk["segments"]},                          # RULING 137 stage 2a
+                                 mids={sg["moment_id"]: sg["label"] for sg in pk["segments"]})
+         import package_pin
+-        problems = package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk))
++        problems = package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk) + OWN_REQUIRED)
+         if problems:
+             note["why_not"] = f"a required gate is not exactly PASS: {problems}"
+             return None
+@@ -4815,6 +4852,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                                             hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
+                                             stand=stand_with_soft([cleared[sg["moment_id"]] for sg in pk["segments"]]),
+                                             visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
++                                            out_edge=[cleared[sg["moment_id"]].get("out_edge")    # RULING 162 (1)
++                                                      for sg in pk["segments"]],
+                                             value=val,                       # ruling 91: the takeaway earned its place
+                                             last_resort=pin_last_resort(pk),      # RULING 102: on the pin
+                                             soft=soft,
+@@ -4851,7 +4890,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                                       (f"dropped {sorted(weak)}, re-lined" if weak else "next angle"))
+                         break
+                     import package_pin
+-                    problems = package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk))
++                    problems = package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk) + OWN_REQUIRED)
+                     if problems:                              # never return a package its pin would refuse (L-j)
+                         rec["why"] = f"a required gate is not exactly PASS: {problems}: next angle"
+                         w_used = writes
+@@ -4988,7 +5027,7 @@ def stand_in_checks(fid, ctx_, a_by, coh, medley, value, who=None):
+ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None, short=None,
+               chan_of=None, fallback_line=None,
+               hook=None, stand=None, visual=None, value=None, last_resort=None, soft=False, who=None,
+-              seg_flags=None, mids=None):
++              seg_flags=None, mids=None, out_edge=None):
+     """The sealed GATE INVENTORY (audit p2 C1; package_pin.required_gates): one row per hard gate, each
+     {"status": "PASS" | "FAIL" | "NOT RUN", "by", "replayed", "n"}. Nothing measured is never a PASS (law L-m).
+     value: ruling 91's value verdict on the medley's takeaway (takeaway_value) -> the "takeaway_value" row, its "text"
+@@ -5129,6 +5168,18 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+                                     STAND_SOFT_PREFIX.format(channel=(who or {}).get(lb) or "its channel") + f"{why}."
+                                     for lb, why in stand["soft_rows"].items()]} if soft and stand.get("soft_rows") else {}))}
+            if stand is not None else {}),
++        **({"out_edge": dict(row(bool(out_edge) and all((v or {}).get("measured") is True and
++                                                        (v or {}).get("complete") is True for v in out_edge),
++                                 sorted({str((v or {}).get("backend")) for v in out_edge}) or None, False,
++                                 n=len(out_edge or []),
++                                 measured=bool(out_edge) and all((v or {}).get("measured") is True for v in out_edge)),
++                             by_rule="owner_rules.out_edge (ruling 162 (1)): every clip ends a thought (the speaker "
++                                     "never cut off mid-sentence); HARD, never soft",
++                             version=sorted({str((v or {}).get("version")) for v in out_edge}),
++                             sha256=sorted({str((v or {}).get("sha256")) for v in out_edge}),
++                             verdicts={lb: {k: (v or {}).get(k) for k in ("complete", "why", "backend")}
++                                       for lb, v in zip(labels(len(out_edge)), out_edge)})}
++           if out_edge is not None else {}),
+         **({"visual": dict(row(bool(visual) and all((v or {}).get("measured") is True for v in visual),
+                                sorted({str((v or {}).get("backend")) for v in visual}) or None,
+                                rep((v or {}).get("replayed") for v in visual), n=len(visual or []),
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+index 3da88e534..63ee02bad 100644
+--- a/pipeline/providers.py
++++ b/pipeline/providers.py
+@@ -435,6 +435,10 @@ class HeimdallBackend(OpenAIBackend):
+                 "temperature": self.spec.get("temperature", 0),
+                 "messages": [{"role": "system", "content": (system or "") + " Reply with one JSON object only."},
+                              {"role": "user", "content": content}]}
++        if self.spec.get("plain") and not system:     # RULING 162 (1): a back-end that asks the render's way
++            body["messages"] = [{"role": "user", "content": content}]    # (owner_rules.HeimdallText): the user
++        if isinstance(self.spec.get("reasoning"), dict):                  # message only, its reasoning effort
++            body["reasoning"] = dict(self.spec["reasoning"])
+         t0 = time.time()
+         base = self._base()
+         j = _with_backoff(lambda: _http_json(base + "/chat/completions", body, {"Authorization": "Bearer " + key},
+diff --git a/pipeline/spotlight.py b/pipeline/spotlight.py
+index 9accfcf2c..9a221407d 100644
+--- a/pipeline/spotlight.py
++++ b/pipeline/spotlight.py
+@@ -729,7 +729,7 @@ def inventory(pk, m, fid, dup, rt_ok, style, cx, a_off, a_two, exc, truth, pre,
+     mid = m["moment_id"]
+     rows = P.inventory(fid, dup, rt_ok, (True, "n/a"), cx, {"hook": a_off}, {mid: exc}, {mid: truth}, False,
+                        {"measured": False}, style=style, hook=m.get("hook_onset"), stand=P.stand_alone_check([m]),
+-                       visual=[m.get("visual")])
++                       visual=[m.get("visual")], out_edge=[m.get("out_edge")])   # RULING 162 (1)
+     rows.pop("r4", None)
+     rows.pop("coherence", None)
+     v = m.get("visual") or {}
+@@ -815,7 +815,7 @@ def near(rec, k=3):
+ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, work_dir=None, store=None,
+           step_a_cache=None, hook_cache=None, scorer_verdicts_path=None, visual_cache=None, layout_cache=None,
+           lock_check=None, spotlit=(), handles_path=HANDLES, wait_s=SCORER_WAIT_S, sleep=time.sleep,
+-          captions_for=None, finalists=FINALISTS, attribute=None):
++          captions_for=None, finalists=FINALISTS, attribute=None, out_edge_cache=None):
+     """RULINGS 90-92: the best spotlight in the pool, or none -> {"package", "pool", "moments" (each moment's furthest
+     stage and why it stopped), "finalists", "near", "why_none", ...}. The stages run cheapest first, each on what the
+     one before passed; every verdict is the medley's own and cached or recorded across builds: step A
+@@ -835,6 +835,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         out["why_none"] = "no work_dir: L-v 2's second pass cannot run (fail closed)"
+         return out
+     ms, why = pool(moments, sources, ctx, delivered, optout, spotlit, captions_for)
++    ms, out["out_edge"] = P.out_edges(router, ms, sources, ctx, out_edge_cache, log, delivered, optout,
++                                      seg_max=SPOT_S[1])   # RULING 162 (1): every clip ends a thought (or is extended)
+     out["pool"] = {"may": len(ms), "out": why,
+                    "snapped": {m["moment_id"]: m["spotlight_snap"] for m in ms if m.get("spotlight_snap")}}
+     log(f"  SPOTLIGHT (rulings 90-92): {len(ms)} moment(s) may be one ({len(out['pool']['snapped'])} snapped outward "
+@@ -1168,7 +1170,7 @@ def package_for(router, m, ctx, sources, a_two, truth, exc, pre, facts, log=prin
+         pk = LP.apply(pk, pre)
+     except Exception as e:                               # noqa: BLE001  never a crash, never a pin
+         return None, f"rulings 68 / 72: {e}"[:400]
+-    problems = PP.gate_problems(pk["gates"], PP.required_gates(pk)) + \
++    problems = PP.gate_problems(pk["gates"], PP.required_gates(pk) + P.OWN_REQUIRED) + \
+         [f"{x}: the gated line differs from the one shipped" for x in PP.line_problems(pk)] + \
+         PP.spotlight_problems(pk) + [f"{v['slot']}: {v['rule']}" for v in v_all]
+     if problems:
+diff --git a/pipeline/tail_variant.py b/pipeline/tail_variant.py
+index 88854f84e..42d976b87 100644
+--- a/pipeline/tail_variant.py
++++ b/pipeline/tail_variant.py
+@@ -53,6 +53,38 @@ def variant(m, src, k, ctx, why):
+     return rec
+ 
+ 
++def extend(m, src, k, ctx, why):
++    """RULING 162 (1) (orchestrator 07:45 ET Nov 24): "When the checker hears the sentence carry on past the clip's last
++    word: EXTEND the out point to the sentence's end (ruling 104's tail variant; re-check the lock and the cut on the
++    extended span; mind the runtime)". The twin of variant() on the other side: the parent moment `m` ENDING LATER, at
++    the end of its source's sentence k (k after its last sentence), its first sentence and its IN edge unchanged, made
++    by the miner's own machinery (eligibility judged afresh, its id the span's own), recorded as derived from its parent
++    ("derived_from": ruling "162 (1)", the words "added"). A new span: every gate judges it from the start. -> the new
++    moment record. ValueError for any other k, or for a parent cut inside a sentence (no whole-sentence span keeps its
++    IN edge and its words)."""
++    k0, k1 = m["sentences"]
++    if not (isinstance(k, int) and not isinstance(k, bool) and k1 < k < len(src.sentences)):
++        raise ValueError(f"an extension ends at a later sentence of the source: {k!r} is not in ({k1}, "
++                         f"{len(src.sentences)})")
++    w0, w1 = m["words"]
++    if w0 != src.sentences[k0][0] or w1 != src.sentences[k1][1]:
++        raise ValueError("the parent is cut inside a sentence: an extension of whole sentences would move its IN edge")
++    sp = E.Span(src, k0, k)
++    derived = {"ruling": "162 (1)", "from": m["moment_id"],
++               "ledger_moment_id": (m.get("mined") or {}).get("ledger_moment_id"),
++               "sentences": [k0, k], "was": [k0, k1], "end_was": m.get("end"), "why": why,
++               "added": E.spoken(src.tokens[w1 + 1:sp.w1 + 1])}
++    rec = M.record(sp, {"scores": m["scores"], "names_person": m.get("names_person", False),
++                        "risk": list(m.get("risk") or []), "topics": list(m.get("topics") or []),
++                        "reason": m.get("reason") or ""}, ctx, M.judge(sp, ctx),
++                   dict(m.get("mined") or {}, derived_from=derived))
++    rec["rank_score"] = M.rank_score(rec)
++    if m.get("source_key"):
++        rec["source_key"] = m["source_key"]
++    rec["derived_from"] = derived
++    return rec
++
++
+ def holds(m, results_dir):
+     """The newest lock pre-check HOLD on the parent's exact span (its video, start and end to the millisecond, its own
+     text as the approved text, its trim fields, as a hook or a clip) under the CURRENT decoder and rules
