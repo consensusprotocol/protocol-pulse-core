@@ -51,6 +51,7 @@ import glob
 import hashlib
 import json
 import os
+import re
 import signal
 import subprocess
 import sys
@@ -201,6 +202,43 @@ def entry_of():
             "under_test": bool(test and not own)}
 
 
+STAGES_TIMED = ("pool", "step A", "second ear", "out-edge question", "hooks", "vision", "line-ups", "writes", "gates",
+                "seal")             # the orchestrator, 09:55 ET Nov 24: "wall-clock time PER STAGE in the build record"
+#   (the render call's own is the launcher's, on the outcome line)
+STAGE_OF = [(st, re.compile(rx)) for st, rx in (    # a log line -> the stage whose work printed it; first match wins
+    ("pool", r"^===|^  entry|^  commits|^  delivered:|^  adapter:|^  word pass:|^  ledger rows|ORDER 17:50|RULING 104|"
+             r"RULING 76: \d|routing \(ruling 85\)|RULING 152 \(1\): the writers|RULING 115:|RULING 116:|RULING 100 |"
+             r"before this build|RULING 66: no candidate|usable, \d+ of them|the clip scorer's verdicts"),
+    ("seal", r"^PACKAGE|PIN REFUSED|^SPOTLIGHT PIN|^no package|^no spotlight|^NOTHING NEW|RULING 76 \(d\)"),
+    ("out-edge question", r"(?i)out[- ]edge|complete thought|ruling 162 \(1\)"),
+    ("vision", r"visual \(ruling 70\)"),
+    ("gates", r"fidelity|context|coherence|value \(ruling 91\)|RULING 150|clips alone|stand.alone|house style"),
+    ("writes", r"write \d|RULING 156|the takeaway alone|writer"),
+    ("line-ups", r"angle \d+ line-up|angles? from|join table|story angle|^  search:|ruling 72: the render's lock|RULING 66"),
+    ("hooks", r"hooks \(ruling 59\)|can open a medley|hook bar|NEVER EMPTY \(stage 2b\)|G17a"),
+    ("second ear", r"second recognition pass|CUTTABLE|L-v 2|stage 2a\): \d+ moment\(s\) whose words"),
+    ("step A", r"step A|RULING 101|NEVER EMPTY \(stage 1\)|second family|HELD|RULING 146 \(3\)"),
+)]
+
+
+class StageClock:
+    """The build's wall-clock seconds per stage (STAGES_TIMED), from its own log: each line's time since the line
+    before is the work of the stage that line reports (STAGE_OF), or of the stage before it when it names none (the
+    start, the inputs and the router's setup are the pool's)."""
+
+    def __init__(self, t0=None):
+        self.last, self.stage, self.secs = (t0 or time.time()), "pool", {}
+
+    def mark(self, line):
+        now = time.time()
+        st = next((s for s, rx in STAGE_OF if rx.search(str(line))), self.stage)
+        self.secs[st] = self.secs.get(st, 0.0) + max(0.0, now - self.last)
+        self.last, self.stage = now, st
+
+    def totals(self):
+        return {s: round(self.secs[s], 1) for s in STAGES_TIMED if s in self.secs}
+
+
 def _sha(x):
     return hashlib.sha256(json.dumps(x, sort_keys=True, default=str).encode()).hexdigest()
 
@@ -319,7 +357,8 @@ def delivered_pins(paths):
     return spans, newest, pins
 
 
-STOP_CEILING_USD = 1.50          # RULING 137 (3) (orchestrator 11:05 ET Nov 17): the day cap is $1.50 all-in from the
+STOP_CEILING_USD = PL.DAY_CAP_USD   # RULING 137 (3); THE ONE SPEND SETTING (amendment C, Nov 24): proof_ly's
+#                                 RULING 137 (3) (orchestrator 11:05 ET Nov 17): the day cap is $1.50 all-in from the
 #   21:10 ET day of Nov 17 (today's stop $1.40, given as --stop-usd); --stop-usd at most this. Was 1.25 (ORDER 17:50 ET
 #   Nov 16, 'ADD 25 CENTS').
 
@@ -548,7 +587,7 @@ def main(argv=None):
             signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
         except ValueError:                               # not the main thread: the default stays
             pass
-    box, rc, err = {}, None, None
+    box, rc, err = {"clock": StageClock()}, None, None      # the time per stage, from the build's very start
     try:
         rc = _main(argv, box)
         return rc
@@ -559,7 +598,8 @@ def main(argv=None):
         if box.get("out_dir"):
             try:
                 line = OC.record_build(box["out_dir"], rc=rc, error=err, refused=box.get("refused"),
-                                       build_no=box.get("build_no"))     # outcomes.OUTCOMES (audit L2, qwen F1)
+                                       build_no=box.get("build_no"),     # outcomes.OUTCOMES (audit L2, qwen F1)
+                                       build_id=box.get("build_id"), seconds=box["clock"].totals())
                 if line:
                     print(f"  RULING 160 (2b): outcome {line['outcome']} at {line['stage']}: {line['gate']}",
                           flush=True)
@@ -593,6 +633,10 @@ def _main(argv, box):
                     f"limit (no build starts at it; the router stops outside calls at it), in (0, {STOP_CEILING_USD}]")
     ap.add_argument("--build-no", type=int, default=None, help="RULING 160 (2b): the launcher's build number, on the "
                     "build's outcome line")
+    ap.add_argument("--build-id", default=None, help="the launcher's unique build id (amendment C), in the record and on "
+                    "the outcome line")
+    ap.add_argument("--out-dir-file", default=None, help="amendment C: this run writes its own record folder's path here "
+                    "the moment it makes it, so the launcher never guesses 'the newest folder'")
     ap.add_argument("--from-candidate", metavar="BUILD_DIR[:N]",
                     help="RULING 66: try ONLY the line-up that passed the clips-alone verdict in this earlier build's "
                          "record (its tried[N]; default the first that passed), as it was judged")
@@ -659,9 +703,13 @@ def _main(argv, box):
     except FileExistsError:
         print(f"REFUSED: {out_dir} exists", file=sys.stderr)
         return 2
-    box.update(out_dir=out_dir, build_no=a.build_no)     # RULING 160 (2b): from here on, the build has one outcome
+    box.update(out_dir=out_dir, build_no=a.build_no, build_id=a.build_id)   # RULING 160 (2b): one outcome from here
+    if a.out_dir_file:                                   # amendment C: the launcher reads THIS run's folder from here
+        with open(a.out_dir_file, "w") as f:
+            f.write(out_dir + "\n")
     logf = open(os.path.join(out_dir, "package.log"), "a")
-    say = lambda s: (print(s, flush=True), logf.write(s + "\n"), logf.flush())
+    clock = box.get("clock") or StageClock()
+    say = lambda s: (clock.mark(s), print(s, flush=True), logf.write(s + "\n"), logf.flush())
     ctx = E.Context(now, PS.REG, ledger=PS.ledger_entries())
     say(f"=== {time.strftime('%H:%M:%S %Z')} LEDGER medley build, code {PL.code_sha()}, now (render clock) "
         f"{now.isoformat(timespec='seconds')}, since {since.isoformat(timespec='seconds')} "
@@ -697,7 +745,7 @@ def _main(argv, box):
         next_try = {"error": f"{type(e).__name__}: {str(e)[:200]}"}       # never the build
     moments = with_variants(moments, sources, ctx, inputs, say)   # RULING 104: beside their parents, every gate again
     with open(os.path.join(out_dir, "inputs.json"), "w") as f:
-        json.dump({"entry": entry, "build_no": a.build_no,          # verifier rows 12 / 16; ruling 160 (2b)
+        json.dump({"entry": entry, "build_no": a.build_no, "build_id": a.build_id,   # rows 12 / 16; 160 (2b)
                    "since": since.isoformat(), "publish_window_h": a.hours, "delivered_pins": pins,
                    "adapter_report": rep, "inputs": inputs, "delivered": delivered, "moments": moments,
                    "next_attempt": next_try}, f, indent=1, default=str)
@@ -936,6 +984,7 @@ def _main(argv, box):
         res["registry"], res["registry_error"] = False, f"{type(e).__name__}: {str(e)[:200]}"   # a later seed
         say(f"  RULING 66: the candidate registry was NOT saved ({res['registry_error']}); the record (package.json) "
             f"is written with registry false")           # applies this record's outcome (CA.seed)
+    res["stage_seconds"] = clock.totals()                # the time per stage (09:55 ET Nov 24), as it stands here
     with open(os.path.join(out_dir, "package.json"), "w") as f:
         json.dump(res, f, indent=1, default=str)
     if cand is None:                             # RULING 107 (1): the next build compares its inputs with these, as

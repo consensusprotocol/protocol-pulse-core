@@ -24,7 +24,8 @@ INDETERMINATE (ruling 160 (2a)) is a hard check that could not be answered decid
 "not measured", "NO JUDGE ANSWERED", a lock pre-check with no verdict, a back-end that never answered; HARD_REJECTED
 is every refusal that was answered; NO_ELIGIBLE_STORY is a pool that could not make a medley before any model judged
 it (ruling 109's free stages) and NOTHING NEW.
-Usage: python3 tests/package/outcomes.py --yield YYYY-MM-DD   (the ET day's YIELD line, from the file)"""
+Usage: python3 tests/package/outcomes.py --yield YYYY-MM-DD   (the ET day's YIELD line, from the file)
+       python3 tests/package/outcomes.py --render RUN EXIT PIN [SAID_FILE [SECONDS]]   (the launcher: the render call)"""
 import collections
 import fcntl
 import json
@@ -98,6 +99,8 @@ NOTES = {   # THE ACCEPTANCE TEST, item 2 (b) (orchestrator 08:50 ET Nov 24): ev
     ("BUDGET_STOPPED", "start"): "The day's spending limit had already been reached, so the build did not start.",
     ("BUDGET_STOPPED", "spend"): "The day's spending limit was reached before all the checks could run.",
     ("BUDGET_STOPPED", "line-ups"): "The build used up its time or money for trying line-ups before finding a video.",
+    ("RENDER_FAILED", "render"): "The video was sealed, but the render did not start.",
+    ("HARD_REJECTED", "render"): "The video was sealed, but the render's final check refused it.",
 }
 NOTE_LOCK_OFF = "The render's word check was not asked, to save money, so no video could be sealed."
 NOTE_DEFAULT = {"SEALED": NOTES[("SEALED", "seal")],
@@ -465,12 +468,61 @@ def write_once(line, path=None):
             fcntl.flock(lk, fcntl.LOCK_UN)
 
 
-def record_build(build_dir, rc=None, error=None, refused=None, build_no=None, path=None):
-    """The driver's one call at the end of every build (proof_ledger.main's finally). -> the line written, or None
-    when this run already has one."""
+def record_build(build_dir, rc=None, error=None, refused=None, build_no=None, path=None, build_id=None, seconds=None):
+    """The driver's one call at the end of every build (proof_ledger.main's finally), with its wall-clock seconds per
+    stage (proof_ledger.StageClock). -> the line written, or None when this run already has one."""
     titles = {x["story_id"]: x["story"] for x in lines(path) if x.get("story_id") and x.get("story")}
-    line = outcome_of(build_dir, rc=rc, error=error, refused=refused, build_no=build_no, titles=titles)
+    line = dict(outcome_of(build_dir, rc=rc, error=error, refused=refused, build_no=build_no, titles=titles),
+                build_id=build_id, seconds=seconds if isinstance(seconds, dict) else None)
     return line if write_once(line, path) else None
+
+
+NOT_READY = "the pin is not READY"           # scripts/pulse_check_run.sh's words when check_pin_only refuses the pin
+
+
+def amend_render(run, exit_code, said="", pin=None, path=None, seconds=None):
+    """THE ACCEPTANCE LIST, item 9 (the render call, the integrator's terms, Nov 24): after the launcher hands the pin
+    this run sealed to /home/ultron/protocol_pulse/scripts/pulse_check_run.sh, the build's ONE line records the call:
+    "render": {"exit", "pin"}. Exit 0: it started (the line stays SEALED; the render's own lines are the integrator's).
+    Any other exit: RENDER_FAILED at "render", unless the script's readiness check (check_pin_only) refused the pin,
+    which is HARD_REJECTED at "render". The line is rewritten in place under the flock (one line a run, still).
+    -> the amended line, or None when the run has no builder line."""
+    path = path or OUTCOMES
+    with open(path + ".lock", "w") as lk:
+        fcntl.flock(lk, fcntl.LOCK_EX)
+        try:
+            rows, hit = [], None
+            with open(path) as f:
+                for x in f:
+                    try:
+                        r = json.loads(x)
+                    except ValueError:
+                        rows.append(x.rstrip("\n"))
+                        continue
+                    if r.get("side") == "builder" and r.get("run") == run and hit is None:
+                        r = dict(r, render={"exit": int(exit_code), "pin": pin})
+                        if isinstance(seconds, (int, float)):        # the time per stage: the render call's own
+                            r["seconds"] = dict(r.get("seconds") or {}, **{"render call": round(float(seconds), 1)})
+                        if int(exit_code) != 0:
+                            refused = NOT_READY in str(said or "")
+                            r.update(outcome="HARD_REJECTED" if refused else "RENDER_FAILED", stage="render",
+                                     gate=("the render's readiness check refused the pin" if refused else
+                                           f"the render did not start (exit {int(exit_code)})"),
+                                     detail=str(said or "")[-400:] or None)
+                            r["note"] = ("The video was sealed, but the render's final check refused it." if refused
+                                         else "The video was sealed, but the render did not start.")
+                        hit = r
+                        rows.append(json.dumps(r))
+                    else:
+                        rows.append(x.rstrip("\n"))
+            if hit is not None:
+                tmp = f"{path}.{os.getpid()}.tmp"
+                with open(tmp, "w") as f:
+                    f.write("\n".join(rows) + "\n")
+                os.replace(tmp, path)
+            return hit
+        finally:
+            fcntl.flock(lk, fcntl.LOCK_UN)
 
 
 def lines(path=None):
@@ -511,5 +563,14 @@ if __name__ == "__main__":
     if len(sys.argv) == 3 and sys.argv[1] == "--yield":
         print(yield_line(sys.argv[2]))
         sys.exit(0)
+    if len(sys.argv) in (5, 6, 7) and sys.argv[1] == "--render":   # --render RUN EXIT PIN [SAID_FILE [SECONDS]]
+        said = open(sys.argv[5]).read() if len(sys.argv) >= 6 and os.path.exists(sys.argv[5]) else ""
+        try:
+            secs = float(sys.argv[6]) if len(sys.argv) == 7 else None
+        except ValueError:
+            secs = None
+        got = amend_render(sys.argv[2], int(sys.argv[3]), said, pin=sys.argv[4], seconds=secs)
+        print(f"outcome line {'amended: ' + got['outcome'] if got else 'NOT FOUND for ' + sys.argv[2]}")
+        sys.exit(0 if got else 1)
     print(__doc__.split("Usage:")[1].strip(), file=sys.stderr)
     sys.exit(2)

@@ -1,64 +1,65 @@
 #!/bin/bash
-# THE BUILD LAUNCHER (in git since the verifier's rows 12 / 16, Nov 24; it was a scratch script). One build, routine or
-# an ORDER 17:50 attempt; STATE line 1 from the build's own log and record (times and counts from the records, never
-# typed); commit the build's record (never a lock, the health, judge_requests, BREAKERS or DEADLINE_TABLE files) with
-# its pin when it sealed, and its outcome line (RULING 160 (2b): data/builds/outcomes.jsonl); push (a plain push).
-#  - It runs ONE driver: tests/package/proof_ledger.py. There is no override (builds 166-168 ran by-hand wrappers
-#    through a DRIVER= variable); the driver itself refuses any other entry point and records its entry.
-#  - routine (on a ledger change): marks the watcher's baseline BEFORE the build.
-#  - an attempt (--only FILE [--stop-usd X], ORDER 17:50 ET Nov 16): one candidate set; no mark; the set is kept in the
-#    record as ONLY.json; line 1 says what was tried, what stopped it, dollars.
-#  - ORDER 17:50 (3) guard: once the day ledger is no longer SPEND_B4.json (21:10 ET Nov 16), or the day's spend has
-#    reached $1.00 (ORDER 19:28's 25 cents), a build given no --stop-usd gets the day's spend + $0.001 (free screens
-#    only: no paid call fits), and says so.
-#  - refuses while the render lock is held or another build is running.
+# THE BUILD LAUNCHER, the one committed command for a build (the orchestrator's acceptance list, 09:20 ET Nov 24, item 9,
+# and its amendment C, 09:35: it replaces the scratch build_and_record.sh, whose defects are each answered here):
+#  - ONE driver, fixed: tests/package/proof_ledger.py. An environment that names another (DRIVER=..., as build 168 was
+#    started) is REFUSED before anything runs; the driver itself refuses any other entry point and any tree with code
+#    changed and not committed (its own and the integrator's), before any model call, and records its path, both
+#    commits and whether a tree was dirty.
+#  - a unique build id (--build-id), and this run's OWN record folder: the driver writes its path into --out-dir-file
+#    (never "the newest folder").
+#  - the lock pre-check ON, always; ONE spend setting: the driver's day cap (proof_ly.DAY_CAP_USD, $1.50 a day), an
+#    optional --stop-usd no higher (the driver checks it); no other spend rule here.
+#  - the outer time limit stays 9000 s (the orchestrator, 09:55 ET Nov 24); at it the driver is stopped (SIGTERM) and
+#    still writes its one outcome line (data/builds/outcomes.jsonl), with its time per stage.
+#  - committed, pushed code only: refuses a changed driver, changed code under pipeline/ or tests/, unpushed commits.
+#  - STATE line 1 from the build's own record (state_line.py, under the file's flock); the record, its outcome line and
+#    its pin committed and pushed; a sealed pin goes straight to the integrator's render, as its own script takes it:
+#    /home/ultron/protocol_pulse/scripts/pulse_check_run.sh --pinned PIN (its readiness check first; it detaches).
 # Usage: bash tests/package/record/build_and_record.sh N "WHY" [--only FILE] [--stop-usd X]
 set -u
+if [ -n "${DRIVER:-}" ]; then   # the acceptance list, item 9: "start it the way build 168 was started; it refuses"
+  echo "REFUSED: DRIVER=${DRIVER} names another driver, and a build runs only tests/package/proof_ledger.py, as committed: nothing was started."
+  exit 2
+fi
 R=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)           # tests/package/record
-W=$(cd "$R/../../.." && pwd)                               # the repo
-DRIVER=tests/package/proof_ledger.py                       # the only driver (verifier row 16)
+W=$(cd "$R/../../.." && pwd)                               # the repository
+THE_DRIVER=tests/package/proof_ledger.py
+RENDER=${PP_RENDER_SCRIPT:-/home/ultron/protocol_pulse/scripts/pulse_check_run.sh}   # the integrator's, unchanged
+if [ $# -lt 2 ]; then echo "usage: bash tests/package/record/build_and_record.sh N \"WHY\" [--only FILE] [--stop-usd X]"; exit 64; fi
 N=$1; WHY=$2; shift 2
 EXTRA=("$@")
+for x in "${EXTRA[@]}"; do
+  case "$x" in --lock-precheck|--build-id|--out-dir-file|--build-no) echo "REFUSED: $x is the launcher's own setting"; exit 64;; esac
+done
 cd "$W" || exit 2
 LK=$(ls -l /proc/[0-9]*/fd 2>/dev/null | grep -c 'pulse_check_run.lock')
 if [ "$LK" != "0" ]; then echo "render lock held: no build, no commit"; exit 3; fi
-RUN=$(ps -eo args= | awk -v d="$DRIVER" '$1 ~ /python3$/ && $3 == d' | wc -l)
+RUN=$(ps -eo args= | awk -v d="$THE_DRIVER" '$1 ~ /python3$/ && $3 == d' | wc -l)
 if [ "$RUN" != "0" ]; then echo "another build is running ($RUN process): no build"; exit 3; fi
-# RULING 163 (5) (08:22 ET Nov 24): the launcher REFUSES any driver that is not the committed one, and (ruling 160 (1))
-# a build runs on committed, pushed code only: the driver as HEAD has it, no changed code file, nothing unpushed
-if ! git diff --quiet HEAD -- "$DRIVER"; then echo "REFUSED (ruling 163 (5)): $DRIVER differs from the committed one: no build"; exit 6; fi
-DIRTY=$(git status --porcelain -- pipeline tests/package | grep -v '^??' | awk '{print $NF}' | grep -E '\.(py|sh)$' | tr '\n' ' ')
+# RULING 163 (5): the launcher REFUSES any driver that is not the committed one; a build runs on committed, pushed code
+if ! git diff --quiet HEAD -- "$THE_DRIVER"; then echo "REFUSED (ruling 163 (5)): $THE_DRIVER differs from the committed one: no build"; exit 6; fi
+DIRTY=$(git status --porcelain -- pipeline tests | grep -v '^??' | awk '{print $NF}' | grep -E '\.(py|sh)$' | tr '\n' ' ')
 if [ -n "$DIRTY" ]; then echo "REFUSED (ruling 163 (5)): code changed and not committed: $DIRTY: no build"; exit 6; fi
 AHEAD=$(git rev-list --count '@{u}..HEAD' 2>/dev/null || echo "unknown (no upstream)")
 if [ "$AHEAD" != "0" ]; then echo "REFUSED (ruling 160 (1)): commits not pushed: $AHEAD: pushed code only: no build"; exit 6; fi
-ONLY=""; STOP=""
-for ((i=0; i<${#EXTRA[@]}; i++)); do
-  case "${EXTRA[$i]}" in
-    --only) ONLY="${EXTRA[$((i+1))]}";;
-    --stop-usd) STOP="${EXTRA[$((i+1))]}";;
-  esac
-done
+ONLY=""
+for ((i=0; i<${#EXTRA[@]}; i++)); do [ "${EXTRA[$i]}" = "--only" ] && ONLY="${EXTRA[$((i+1))]:-}"; done
 read SP LED <<< "$(python3 -B "$R/day_spent.py")"
-OVER=$(python3 -c "print(1 if $SP >= 1.0 else 0)")
-if [ -z "$STOP" ] && { [ "$LED" != "SPEND_B4.json" ] || [ "$OVER" = "1" ]; }; then
-  STOP=$(python3 -c "print(f'{$SP + 0.001:.6f}')")
-  EXTRA+=(--stop-usd "$STOP")
-  WHY="$WHY; free screens only (ORDER 17:50 (3): --stop-usd $STOP, the day's spend + \$0.001)"
-fi
-LOCKARG=0; for x in "${EXTRA[@]}"; do [ "$x" = "--lock-precheck" ] && LOCKARG=1; done
-if [ "$LOCKARG" = "0" ]; then EXTRA+=(--lock-precheck "${LOCK:-off}"); fi   # RULING 130 (2): no Scribe until released
-echo "day ledger $LED, spend before \$$SP, stop ${STOP:-none given: the ledger limit}, lock pre-check ${LOCK:-off}"
+echo "day ledger $LED, spend before \$$SP (the day cap is the driver's), lock pre-check on, time limit 9000 s"
 if [ -z "$ONLY" ]; then python3 -B "$R/watch_ledger.py" --mark 2>&1 | tail -1; fi
 T=$(date '+%H%M')
+STAMP=$(date -u '+%Y%m%dT%H%M%SZ')
+BUILD_ID="b${N}-${STAMP}-$$"                               # unique: the number, the second it starts, this process
 LOGS=$W/tests/package/proof/logs                          # *.log: never committed (.gitignore)
 mkdir -p "$LOGS"
 LOG=$LOGS/build${N}_$T.log
-timeout 9000 python3 -B $DRIVER --build-no "$N" --routing heimdall_first --since 2026-11-13T03:01:09Z --delivered tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json tests/package/proof/ledger_20261113_073738/MOMENTS_PIN_LEDGER.json tests/package/proof/ledger_20261113_183302/MOMENTS_PIN_ATTESTED.json tests/package/proof/ledger_20261113_215708/MOMENTS_PIN_LEDGER.json "${EXTRA[@]}" > "$LOG" 2>&1
+OUTF=$LOGS/${BUILD_ID}.outdir
+timeout --signal=TERM 9000 python3 -B "$THE_DRIVER" --build-no "$N" --build-id "$BUILD_ID" --out-dir-file "$OUTF" --lock-precheck on --routing heimdall_first --since 2026-11-13T03:01:09Z --delivered tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json tests/package/proof/ledger_20261113_073738/MOMENTS_PIN_LEDGER.json tests/package/proof/ledger_20261113_183302/MOMENTS_PIN_ATTESTED.json tests/package/proof/ledger_20261113_215708/MOMENTS_PIN_LEDGER.json "${EXTRA[@]}" > "$LOG" 2>&1
 X=$?
-echo "build exit $X"
-grep "^no package\|^NOTHING NEW\|spend (ruling 48)\|PACKAGE\|READY\|RULING 76 (d)\|RESERVE BACK\|ORDER 17:50\|^REFUSED\|RULING 160 (2b)" "$LOG" | head -9 | cut -c1-240
-if [ "$X" = "2" ]; then echo "REFUSED: no record, no STATE line, no commit"; tail -3 "$LOG" | cut -c1-300; exit 5; fi
-D=$(ls -td tests/package/proof/ledger_20* | head -1)
+echo "build exit $X ($BUILD_ID)"
+grep "^no package\|^NOTHING NEW\|spend (ruling 48)\|PACKAGE\|RULING 76 (d)\|^REFUSED\|RULING 160 (2b)" "$LOG" | head -9 | cut -c1-240
+D=$(cat "$OUTF" 2>/dev/null)                              # this run's own record folder, as the driver made it
+if [ -z "$D" ] || [ ! -d "$D" ]; then echo "REFUSED or stopped before its record (exit $X): no record, no STATE line, no commit"; tail -3 "$LOG" | cut -c1-300; exit 5; fi
 B=$(python3 -B "$R/day118.py" 2>&1 | tail -1)
 SC=$(python3 -B "$R/scorer_stale.py" 2>&1 | tail -1)      # ruling 132: a dead scorer shows on line 1 within one build
 BT=$(date -r "$D" '+%H:%M'); T2=$(date '+%H:%M')
@@ -67,28 +68,38 @@ NE=$(python3 -B -c "import json,sys; r=json.load(open(sys.argv[1]+'/package.json
 [ -n "$NE" ] && RES="the clean pass: ${RES:-?}; $NE"     # build 149 / 150: line 1 quoted only the clean pass's reason
 OUT=$(grep -o "RULING 160 (2b): outcome [A-Z_]* at [^:]*" "$LOG" | tail -1)   # the build's one outcome line
 R76=$(grep -o "RULING 76 (d): [^;]*" "$LOG" | head -1 | cut -c1-110)
-H=$(grep -o "HELD for this build[^:]*: [0-9]* at step A" "$LOG" | grep -o "[0-9]* at step A" | head -1)
 DOL=$(grep -o "spend (ruling 48): [^ ]* of \$[0-9.]* vendor-reported after this build (before it: \$[0-9.]*)" "$LOG" | tail -1)
 TXT=$(mktemp "$LOGS/state_b${N}_XXXXXX.txt")
 if [ -n "$ONLY" ]; then
   cp "$ONLY" "$D/ONLY.json"
   SUM=$(python3 -B "$R/attempt_summary.py" "$D" 2>&1 | tail -1 | cut -c1-900)
-  printf '%s\n' "{T} ET: $B ORDER 17:50 ATTEMPT, BUILD $N ($(basename "$D"), $BT ET). TRIED: $WHY. ${SUM}. RESULT: ${RES:-?}; ${OUT:-RULING 160 (2b): no outcome line}; held at Grok's first screen: ${H:-none}.${SC:+ $SC} DOLLARS: ${DOL:-?} (this build's stop \$${STOP:-1.00})." > "$TXT"
+  printf '%s\n' "{T} ET: $B ATTEMPT, BUILD $N ($BUILD_ID, $(basename "$D"), $BT ET). TRIED: $WHY. ${SUM}. RESULT: ${RES:-?}; ${OUT:-no outcome line}.${SC:+ $SC} DOLLARS: ${DOL:-?}." > "$TXT"
 else
-  printf '%s\n' "{T} ET: $B BUILD $N ($(basename "$D"), $BT ET; $WHY): ${RES:-?}; ${OUT:-RULING 160 (2b): no outcome line}; ${R76:-?}; held at Grok's first screen: ${H:-none}.${SC:+ $SC}" > "$TXT"
+  printf '%s\n' "{T} ET: $B BUILD $N ($BUILD_ID, $(basename "$D"), $BT ET; $WHY): ${RES:-?}; ${OUT:-no outcome line}; ${R76:-?}.${SC:+ $SC}" > "$TXT"
 fi
 python3 -B "$R/state_line.py" "$T2" "$TXT"
 rm -f "$TXT"
 LK=$(ls -l /proc/[0-9]*/fd 2>/dev/null | grep -c 'pulse_check_run.lock')
 if [ "$LK" != "0" ]; then echo "render lock held: no commit"; exit 3; fi
 for f in "$D/FINGERPRINT.json" "$D/inputs.json" "$D/package.json" "$D/SHADOW86.md" "$D/step_a.json" "$D/NOTHING_NEW.json" "$D/ONLY.json" "$D/MOMENTS_PIN_LEDGER.json" "$D/SPOTLIGHT_PIN.json"; do [ -f "$f" ] && git add "$f"; done
-for f in "$D/MOMENTS_PIN_LEDGER.json" "$D/SPOTLIGHT_PIN.json"; do [ -f "$f" ] && echo "PIN WRITTEN: $f: PIN IT TO THE INTEGRATOR NOW (ruling 106)"; done
 git add docs/audits/parallel/pp-selectid_STATE.md tests/package/proof/DAY118_LEDGER.json
 [ -f data/builds/outcomes.jsonl ] && git add data/builds/outcomes.jsonl          # RULING 160 (2b): the build's line
 [ -f tests/package/proof/FLAGGED_DAY.json ] && git add tests/package/proof/FLAGGED_DAY.json   # ruling 136 (2): the day count
-for f in docs/audits/parallel/pp-selectid_HEIMDALL_DEADLINES.jsonl docs/audits/parallel/pp-selectid_SCORER_CANDIDATES.json tests/package/proof/CANDIDATES.json tests/package/proof/HOOK_CACHE.json tests/package/proof/JOIN_CACHE.json tests/package/proof/STEP_A_CACHE.json tests/package/proof/VISUAL_CACHE.json tests/package/proof/SPEND_B4.json tests/package/proof/SPEND_D*.json; do [ -f "$f" ] && { git diff --quiet -- "$f" 2>/dev/null && git ls-files --error-unmatch "$f" >/dev/null 2>&1 || git add "$f"; }; done
+for f in docs/audits/parallel/pp-selectid_HEIMDALL_DEADLINES.jsonl docs/audits/parallel/pp-selectid_SCORER_CANDIDATES.json tests/package/proof/CANDIDATES.json tests/package/proof/HOOK_CACHE.json tests/package/proof/JOIN_CACHE.json tests/package/proof/STEP_A_CACHE.json tests/package/proof/VISUAL_CACHE.json tests/package/proof/SPEND_D*.json; do [ -f "$f" ] && { git diff --quiet -- "$f" 2>/dev/null && git ls-files --error-unmatch "$f" >/dev/null 2>&1 || git add "$f"; }; done
 git ls-files --others --exclude-standard tests/package/fixtures/replies | xargs -r git add
 if git diff --cached --name-only | grep -qE "\.lock$|HEIMDALL_HEALTH|judge_requests|BREAKERS|DEADLINE_TABLE"; then echo "FORBIDDEN STAGED: stopping"; exit 4; fi
-git commit -q -m "pp-selectid build $N ($(basename "$D"), $BT ET): $WHY" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>" && git log -1 --oneline | cut -c1-90
-git push -q origin pp-selectid 2>&1 | tail -2
+git commit -q -m "pp-selectid build $N ($BUILD_ID, $(basename "$D"), $BT ET): $WHY" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>" && git log -1 --oneline | cut -c1-90
+git push -q origin "$(git rev-parse --abbrev-ref HEAD)" 2>&1 | tail -2
 git status -sb | head -1
+for PIN in "$D/MOMENTS_PIN_LEDGER.json" "$D/SPOTLIGHT_PIN.json"; do   # a sealed pin goes to the render itself, after
+  [ -f "$PIN" ] || continue                                           # its commit (no session sits between them)
+  SAID=$(mktemp "$LOGS/render_${BUILD_ID}_XXXXXX.txt")
+  T0=$(date +%s.%N)
+  bash "$RENDER" --pinned "$PIN" > "$SAID" 2>&1; RX=$?
+  RS=$(python3 -c "print(round($(date +%s.%N) - $T0, 1))")   # the render call's own wall-clock seconds
+  tail -3 "$SAID" | cut -c1-240
+  echo "RENDER: $RENDER --pinned $PIN exit $RX ($RS s)"
+  python3 -B tests/package/outcomes.py --render "$(basename "$D")" "$RX" "$PIN" "$SAID" "$RS"   # the build's one line
+  rm -f "$SAID"
+  git add data/builds/outcomes.jsonl && git commit -q -m "pp-selectid build $N ($BUILD_ID): the render call, exit $RX" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>" && git push -q origin "$(git rev-parse --abbrev-ref HEAD)" 2>&1 | tail -2
+done

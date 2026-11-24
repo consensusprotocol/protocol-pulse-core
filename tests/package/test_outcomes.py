@@ -257,6 +257,7 @@ class TestExactlyOneLine(unittest.TestCase):
             ls = OC.lines(p)
             self.assertEqual([(x["outcome"], x["build"], x["run"]) for x in ls], [("INDETERMINATE", 9, runs[0])])
             self.assertEqual(ls[0]["gate"], "the build crashed: Stop")
+            self.assertIn("pool", ls[0]["seconds"])                  # the time per stage, up to where it ended
 
 
 class TestRuling163NothingNewAfterAnOutage(unittest.TestCase):
@@ -288,6 +289,41 @@ class TestRuling163NothingNewAfterAnOutage(unittest.TestCase):
         x = OC.outcome_of(self.REC)
         self.assertEqual((x["outcome"], x["stage"]), ("INDETERMINATE", "visual"))
         self.assertIn("3 vision, 2 hook rating", x["gate"])
+
+    def test_item5_the_rerun_one_second_later_calls_the_models_and_is_not_nothing_new(self):
+        """THE ACCEPTANCE LIST, item 5: "Test: the rerun one second later calls the models; it does not answer NOTHING
+        NEW." The driver itself, run again on the outage run's inputs (the same fingerprint) one second after it: with
+        the outage record's open work counted as now, it goes on to its router (the models: stopped here by a stand-in
+        that raises); with the outage record's own '0 item(s) left undone' (the old count), it answers NOTHING NEW."""
+        import proof_ledger as PLG
+
+        class ModelsCalled(Exception):
+            pass
+        pk = json.load(open(os.path.join(self.REC, "package.json")))
+        pins = [os.path.join(PROOF, "fresh_20261112_050611", "MOMENTS_PIN.json")]
+        for left, expect in ((PLG.open_work(pk, pk.get("spotlight") or {}), "models"), (0, "nothing new")):
+            with tempfile.TemporaryDirectory() as d:
+                prev = os.path.join(d, "proof", "ledger_20261124_044000")
+                os.makedirs(prev)
+                json.dump({"fingerprint": "F", "open_work": left}, open(os.path.join(prev, PLG.FINGERPRINT), "w"))
+                with mock.patch.object(OC, "OUTCOMES", os.path.join(d, "o.jsonl")), mock.patch.object(PLG, "HERE", d), \
+                        mock.patch.object(PLG.LB, "rows", lambda *a, **k: ([], {"excluded": {}})), \
+                        mock.patch.object(PLG.LB, "word_pass_index", lambda *a, **k: ({}, {"refused": []})), \
+                        mock.patch.object(PLG.LB, "build_inputs", lambda *a, **k: ([], {}, {})), \
+                        mock.patch.object(PLG.SPOT, "next_attempt", lambda *a, **k: {}), \
+                        mock.patch.object(PLG, "with_variants", lambda m, *a, **k: m), \
+                        mock.patch.object(PLG, "fingerprint", lambda *a, **k: ("F", {})), \
+                        mock.patch.object(PLG, "build_router", mock.Mock(side_effect=ModelsCalled("the router"))):
+                    if expect == "models":
+                        with self.assertRaises(ModelsCalled):
+                            PLG.main(["--delivered", *pins])
+                    else:
+                        self.assertEqual(PLG.main(["--delivered", *pins]), 0)
+                runs = sorted(x for x in os.listdir(os.path.join(d, "proof")) if x != "ledger_20261124_044000")
+                self.assertEqual(len(runs), 1)
+                self.assertEqual(os.path.exists(os.path.join(d, "proof", runs[0], PLG.NOTHING_NEW)),
+                                 expect == "nothing new", (left, expect))
+        self.assertGreater(PLG.open_work(pk, pk.get("spotlight") or {}), 0)
 
     def test_each_kind_of_unanswered_check_is_undone(self):
         import proof_ledger as PLG
@@ -386,10 +422,46 @@ class TestAcceptanceItem1BothTreesClean(unittest.TestCase):
         pins = [os.path.join(PROOF, "fresh_20261112_050611", "MOMENTS_PIN.json")]
         before = set(os.listdir(PROOF))
         err = io.StringIO()
-        with mock.patch.object(sys, "stderr", err):
+        with mock.patch.object(sys, "stderr", err), \
+                mock.patch("os.makedirs", side_effect=AssertionError("a refused run went on to write a record")), \
+                mock.patch("urllib.request.urlopen", side_effect=AssertionError("a refused run reached the network")):
             self.assertEqual(PLG.main(["--delivered", *pins]), 2)                       # HERE is the real folder
         self.assertIn("never writes into the real build records", err.getvalue())
         self.assertEqual(set(os.listdir(PROOF)), before)
+
+
+class TestTimePerStage(unittest.TestCase):
+    """The orchestrator, 09:55 ET Nov 24: "Record wall-clock time PER STAGE in the build record ... pool, step A, second
+    ear, out-edge question, hooks, vision, line-ups, writes, gates, seal, render call"."""
+
+    def test_the_clock_gives_each_line_s_time_to_its_stage(self):
+        import proof_ledger as PLG
+        t = [100.0]
+        with mock.patch.object(PLG.time, "time", lambda: t[0]):
+            c = PLG.StageClock(100.0)
+            for dt, line in ((2, "  adapter: 287 rows"), (5, "  RULING 137 NEVER EMPTY (stage 1): 5 moment(s) step A refused"),
+                             (3, "  4 of them pass the second recognition pass and CUTTABLE (2 s)"),
+                             (4, "  out edge (ruling 162 (1)): 2 asked"), (1, "  visual (ruling 70): 3 hook(s) seen"),
+                             (2, "  hooks (ruling 59): 3 can open"), (6, "  3 angles from heimdall:qwen (3 s)"),
+                             (7, "  angle 1 line-up 1 write 1 (heimdall:qwen, takeaway 14 words): cheap PASS"),
+                             (8, "    fidelity PASS (takeaway PASS), context PASS"), (1, "an unnamed line"),
+                             (2, "PACKAGE (37.6 s) pin x")):
+                t[0] += dt
+                c.mark(line)
+        self.assertEqual(c.totals(), {"pool": 2.0, "step A": 5.0, "second ear": 3.0, "out-edge question": 4.0,
+                                      "hooks": 2.0, "vision": 1.0, "line-ups": 6.0, "writes": 7.0, "gates": 9.0,
+                                      "seal": 2.0})
+        self.assertEqual(list(c.totals()), [s for s in PLG.STAGES_TIMED if s in c.totals()])   # in the build's order
+
+    def test_the_render_call_s_time_is_on_the_line(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.jsonl")
+            line = dict(OC.outcome_of(os.path.join(PROOF, "ledger_20261124_033614"), build_no=167),
+                        seconds={"pool": 1.0})
+            OC.write_once(line, p)
+            got = OC.amend_render("ledger_20261124_033614", 0, "", pin="x.json", path=p, seconds=12.34)
+            self.assertEqual((got["outcome"], got["seconds"]), ("SEALED", {"pool": 1.0, "render call": 12.3}))
+            self.assertEqual(len(OC.lines(p)), 1)
 
 
 class TestAcceptanceItem2bPlainNotes(unittest.TestCase):
@@ -453,64 +525,151 @@ class TestOneEntryOneLauncher(unittest.TestCase):
         return subprocess.run(["git", "-C", repo, "-c", "user.name=t", "-c", "user.email=t@t", *args],
                               capture_output=True, text=True, timeout=60, check=True).stdout
 
-    def launch(self, repo, d, log, extra_env=None):
-        fake = os.path.join(d, "bin", "python3")
-        os.makedirs(os.path.dirname(fake), exist_ok=True)
-        with open(fake, "w") as f:
-            f.write("#!/bin/bash\necho \"$@\" >> \"$FAKE_LOG\"\nfor a in \"$@\"; do case \"$a\" in\n"
-                    "  *day_spent.py) echo '0.500000 SPEND_D20261124.json'; exit 0;;\n"
-                    "  *proof_ledger.py|*by_hand*) echo 'REFUSED: stand-in'; exit 2;;\n"
-                    f"esac; done\nexec {sys.executable} \"$@\"\n")
-        os.chmod(fake, 0o755)
-        env = dict(NOENV, PATH=os.path.dirname(fake) + os.pathsep + os.environ.get("PATH", ""), FAKE_LOG=log,
-                   **(extra_env or {}))
-        r = subprocess.run(["bash", os.path.join(repo, "tests", "package", "record", "build_and_record.sh"), "7",
-                            "test", "--only", os.devnull, "--stop-usd", "0.6"], env=env, capture_output=True,
-                           text=True, timeout=120)
+    STUB_DRIVER = """import json, os, sys
+if __name__ == "__main__":
+    a = sys.argv[1:]
+    get = lambda k: a[a.index(k) + 1] if k in a else None
+    here = os.path.dirname(os.path.abspath(__file__))
+    open(os.environ["STUB_CALLS"], "a").write(" ".join(a) + "\\n")
+    seal = os.environ.get("STUB_SEAL") == "1"
+    out = os.path.join(here, "proof", "ledger_2099010" + os.environ["STUB_RUN"] + "_000000")
+    os.makedirs(out)
+    open(get("--out-dir-file"), "w").write(out + "\\n")
+    json.dump({"argv": a}, open(os.path.join(out, "inputs.json"), "w"))
+    json.dump({"package": {"x": 1} if seal else None, "usable": 0, "prescreen": {},
+               "why_none": None if seal else "no angle gave a line-up to try",
+               "spend_ruling_48": {"before": 0.0, "after": 0.0}}, open(os.path.join(out, "package.json"), "w"))
+    if seal:
+        json.dump({"story_id": "moments-x", "moments_package": {"package_sha256": "a" * 64}},
+                  open(os.path.join(out, "MOMENTS_PIN_LEDGER.json"), "w"))
+    sys.path.insert(0, here)
+    import outcomes as OC
+    line = OC.outcome_of(out, build_no=int(get("--build-no")))
+    OC.write_once(line)
+    print("RULING 160 (2b): outcome %s at %s: x" % (line["outcome"], line["stage"]))
+"""
+
+    def sandbox(self, d):
+        """A repository of its own: the committed launcher, its record scripts, the outcome module, a stand-in driver
+        (it records its arguments and makes a record, sealing when STUB_SEAL=1) and stand-ins for the spend and
+        scorer probes; committed and pushed to a bare remote."""
+        import shutil
+        repo, bare = os.path.join(d, "repo"), os.path.join(d, "bare.git")
+        rec = os.path.join(repo, "tests", "package", "record")
+        os.makedirs(rec)
+        os.makedirs(os.path.join(repo, "pipeline"))
+        os.makedirs(os.path.join(repo, "docs", "audits", "parallel"))
+        for f in ("build_and_record.sh", "state_line.py", "attempt_summary.py"):
+            shutil.copy(os.path.join(RECORD, f), rec)
+        shutil.copy(os.path.join(HERE, "outcomes.py"), os.path.join(repo, "tests", "package"))
+        open(os.path.join(rec, "day_spent.py"), "w").write("print('0.000000 SPEND_D20261124.json')\n")
+        open(os.path.join(rec, "day118.py"), "w").write("print('TODAY: stand-in')\n")
+        open(os.path.join(rec, "scorer_stale.py"), "w").write("")
+        open(os.path.join(repo, "tests", "package", "proof_ledger.py"), "w").write(self.STUB_DRIVER)
+        open(os.path.join(repo, "pipeline", "m.py"), "w").write("X = 1\n")
+        open(os.path.join(repo, "docs", "audits", "parallel", "pp-selectid_STATE.md"), "w").write("line\n")
+        open(os.path.join(d, "only.json"), "w").write('{"ids": [], "why": "test"}\n')
+        render = os.path.join(d, "render.sh")
+        open(render, "w").write('#!/bin/bash\necho "$@" >> "$STUB_RENDER_CALLS"\n'
+                                '[ -n "${STUB_RENDER_SAYS:-}" ] && echo "$STUB_RENDER_SAYS" >&2\n'
+                                'exit "${STUB_RENDER_EXIT:-0}"\n')
+        os.chmod(render, 0o755)
+        subprocess.run(["git", "init", "-q", repo], check=True)
+        subprocess.run(["git", "init", "-q", "--bare", bare], check=True)
+        self.git(repo, "add", "-A")
+        self.git(repo, "commit", "-q", "-m", "c1")
+        self.git(repo, "remote", "add", "origin", bare)
+        self.git(repo, "push", "-q", "-u", "origin", "HEAD")
+        return repo
+
+    def launch(self, repo, d, run, env=None, n="7"):
+        e = dict(NOENV, STUB_CALLS=os.path.join(d, "driver_calls.log"), STUB_RENDER_CALLS=os.path.join(d, "render.log"),
+                 PP_RENDER_SCRIPT=os.path.join(d, "render.sh"), STUB_RUN=str(run), GIT_AUTHOR_NAME="t",
+                 GIT_AUTHOR_EMAIL="t@t", GIT_COMMITTER_NAME="t", GIT_COMMITTER_EMAIL="t@t", **(env or {}))
+        r = subprocess.run(["bash", os.path.join(repo, "tests", "package", "record", "build_and_record.sh"), n, "test",
+                            "--only", os.path.join(d, "only.json")], env=e, capture_output=True, text=True,
+                           timeout=180)
         if r.returncode == 3:
             self.skipTest(f"the launcher's own guard: {r.stdout.strip()[:200]}")   # a render or build running
         return r
 
-    def test_the_launcher_runs_only_the_committed_driver(self):
-        """RULING 163 (5) and the verifier's row 16, on a repository of its own (the launcher and a stand-in driver,
-        committed and pushed to a bare remote), with a stand-in python3 that answers the spend probe and logs every
-        call: with DRIVER= set to a wrapper it runs tests/package/proof_ledger.py, passing the build number; with the
-        driver changed and not committed, a code file changed under pipeline/, or a commit not pushed, it REFUSES
-        before any python runs the build. The stand-in driver refuses, so nothing is recorded or committed."""
-        import shutil
+    @staticmethod
+    def read(p):
+        return open(p).read() if os.path.exists(p) else ""
+
+    def test_item9_build_168s_start_line_refuses_before_any_model_call(self):
+        """THE ACCEPTANCE LIST, item 9: "start it the way build 168 was started; it refuses". Build 168 was started
+        `DRIVER=$S/by_hand_155.py bash build_and_record.sh 168 "..." --only FILE --stop-usd 1.20` with LOCK=on; the
+        committed launcher, given exactly that, refuses before any python runs (a stand-in python3 logs every call)."""
         with tempfile.TemporaryDirectory() as d:
-            repo, bare, log = os.path.join(d, "repo"), os.path.join(d, "bare.git"), os.path.join(d, "calls.log")
-            os.makedirs(os.path.join(repo, "tests", "package", "record"))
-            os.makedirs(os.path.join(repo, "pipeline"))
-            shutil.copy(os.path.join(RECORD, "build_and_record.sh"), os.path.join(repo, "tests", "package", "record"))
-            drv, mod = os.path.join(repo, "tests", "package", "proof_ledger.py"), os.path.join(repo, "pipeline", "m.py")
-            open(drv, "w").write("print('the committed driver')\n")
-            open(mod, "w").write("X = 1\n")
-            subprocess.run(["git", "init", "-q", repo], check=True)
-            subprocess.run(["git", "init", "-q", "--bare", bare], check=True)
-            self.git(repo, "add", "-A")
-            self.git(repo, "commit", "-q", "-m", "c1")
-            self.git(repo, "remote", "add", "origin", bare)
-            self.git(repo, "push", "-q", "-u", "origin", "HEAD")
-            r = self.launch(repo, d, log, {"DRIVER": os.path.join(d, "by_hand_166.py")})
-            self.assertEqual(r.returncode, 5, r.stdout[-500:] + r.stderr[-500:])     # the stand-in driver refused
-            calls = open(log).read()
-            self.assertIn("tests/package/proof_ledger.py --build-no 7 ", calls)
-            self.assertNotIn("by_hand", calls)
-            for change, path, words in ((lambda: open(drv, "a").write("print('by hand')\n"), drv,
+            log = os.path.join(d, "calls.log")
+            fake = os.path.join(d, "bin", "python3")
+            os.makedirs(os.path.dirname(fake))
+            open(fake, "w").write(f'#!/bin/bash\necho "$@" >> {log}\nexec {sys.executable} "$@"\n')
+            os.chmod(fake, 0o755)
+            wrapper = "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/a80f37a3-3482-4017-9152-9c0c6e2f0dab/" \
+                      "scratchpad/by_hand_155.py"
+            existing = os.path.join(d, "by_hand_155.py")
+            open(existing, "w").write("print('by hand')\n")
+            for drv in (wrapper, existing):
+                env = dict(NOENV, PATH=os.path.dirname(fake) + os.pathsep + os.environ.get("PATH", ""), LOCK="on",
+                           DRIVER=drv)
+                r = subprocess.run(["bash", os.path.join(RECORD, "build_and_record.sh"), "168",
+                                    "RULING 158 (3): 'Bitcoin hits two-year low, then bounces off the bottom' "
+                                    "(S-13ad274d) without Digital Asset News (on-screen ads: OUT)", "--only",
+                                    os.path.join(PROOF, "ledger_20261124_043726", "ONLY.json"), "--stop-usd", "1.20"],
+                                   env=env, capture_output=True, text=True, timeout=60, cwd=REPO)
+                self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                self.assertIn(f"REFUSED: DRIVER={drv} names another driver", r.stdout)
+                self.assertEqual(self.read(log), "")                 # no python at all: no model call, no record
+
+    def test_the_launcher_runs_the_committed_driver_and_hands_the_sealed_pin_to_the_render(self):
+        """Amendment C and item 9, on a repository of its own: the driver gets the lock pre-check ON, a unique build id
+        and a file for its own record folder; the record committed is THIS run's; a sealed pin goes to the render
+        script as exactly `--pinned <this run's pin>` and its exit is on the build's one outcome line (0: SEALED; the
+        readiness check's refusal: HARD_REJECTED at the render; any other: RENDER_FAILED); nothing sealed, no render
+        call. A changed driver, changed code or an unpushed commit refuses before the driver runs."""
+        with tempfile.TemporaryDirectory() as d:
+            repo = self.sandbox(d)
+            out_lines = lambda: [json.loads(x) for x in self.read(os.path.join(repo, "data", "builds",
+                                                                                "outcomes.jsonl")).splitlines()]
+            r = self.launch(repo, d, 1, {"STUB_SEAL": "1"})
+            self.assertEqual(r.returncode, 0, r.stdout[-800:] + r.stderr[-800:])
+            calls = self.read(os.path.join(d, "driver_calls.log")).split()
+            self.assertEqual(calls[calls.index("--lock-precheck") + 1], "on")
+            self.assertRegex(calls[calls.index("--build-id") + 1], r"^b7-\d{8}T\d{6}Z-\d+$")
+            pin = os.path.join(repo, "tests", "package", "proof", "ledger_20990101_000000", "MOMENTS_PIN_LEDGER.json")
+            self.assertEqual(self.read(os.path.join(d, "render.log")).split(), ["--pinned", pin])
+            self.assertEqual([(x["outcome"], (x.get("render") or {}).get("exit")) for x in out_lines()],
+                             [("SEALED", 0)])
+            self.assertIn("render call", out_lines()[0]["seconds"])      # the render call's own time
+            self.assertIn("ledger_20990101_000000/MOMENTS_PIN_LEDGER.json", self.git(repo, "show", "--stat", "HEAD~1"))
+            for run, rx, says, kind in ((2, "3", "pulse_check_run: the pin is not READY (check_pin_only): refused",
+                                         "HARD_REJECTED"), (3, "75", "another run holds the lock", "RENDER_FAILED")):
+                r = self.launch(repo, d, run, {"STUB_SEAL": "1", "STUB_RENDER_EXIT": rx, "STUB_RENDER_SAYS": says})
+                self.assertEqual(r.returncode, 0, r.stdout[-800:])
+                last = out_lines()[-1]
+                self.assertEqual((last["outcome"], last["stage"], last["render"]["exit"]), (kind, "render", int(rx)))
+            os.remove(os.path.join(d, "render.log"))
+            r = self.launch(repo, d, 4)                                  # nothing sealed: no render call
+            self.assertEqual(r.returncode, 0, r.stdout[-800:])
+            self.assertFalse(os.path.exists(os.path.join(d, "render.log")))
+            self.assertEqual(out_lines()[-1]["outcome"], "HARD_REJECTED")
+            drv = os.path.join(repo, "tests", "package", "proof_ledger.py")
+            mod = os.path.join(repo, "pipeline", "m.py")
+            for change, path, words in ((lambda: open(drv, "a").write("# by hand\n"), drv,
                                          "differs from the committed one"),
                                         (lambda: open(mod, "a").write("X = 2\n"), mod, "code changed and not committed")):
-                if os.path.exists(log):
-                    os.remove(log)
+                open(os.path.join(d, "driver_calls.log"), "w").close()
                 change()
-                r = self.launch(repo, d, log)
+                r = self.launch(repo, d, 5)
                 self.assertEqual(r.returncode, 6, r.stdout[-400:])
                 self.assertIn(words, r.stdout)
-                self.assertFalse(os.path.exists(log) and "proof_ledger.py --build-no" in open(log).read())
+                self.assertEqual(self.read(os.path.join(d, "driver_calls.log")), "")    # the driver never ran
                 self.git(repo, "checkout", "-q", "--", path)
             open(mod, "a").write("X = 3\n")
-            self.git(repo, "commit", "-q", "-am", "c2 (not pushed)")
-            r = self.launch(repo, d, log)
+            self.git(repo, "commit", "-q", "-am", "not pushed")
+            r = self.launch(repo, d, 6)
             self.assertEqual(r.returncode, 6, r.stdout[-400:])
             self.assertIn("commits not pushed: 1", r.stdout)
 
@@ -529,8 +688,11 @@ class TestOneEntryOneLauncher(unittest.TestCase):
     def test_the_record_scripts_name_no_scratch_or_other_tree(self):
         for f in sorted(x for x in os.listdir(RECORD) if os.path.isfile(os.path.join(RECORD, x))):
             src = open(os.path.join(RECORD, f)).read()
-            for bad in ("/tmp/claude-1000", "scratchpad", "/home/ultron/worktrees/pp-selectid", "DRIVER=${"):
+            for bad in ("/tmp/claude-1000", "scratchpad", "/home/ultron/worktrees/pp-selectid"):
                 self.assertNotIn(bad, src, f)
+        src = open(os.path.join(RECORD, "build_and_record.sh")).read()   # amendment C's defects, gone
+        for bad in ("DRIVER=${DRIVER:-", "SPEND_B4", "PIN IT TO THE INTEGRATOR", "ls -td", "by_hand", "LOCK:-off"):
+            self.assertNotIn(bad, src)
 
 
 if __name__ == "__main__":

@@ -57,8 +57,7 @@ def day_bounds(now=None):
 def main(argv):
     start, end = day_bounds()
     led = PL.day_ledger()
-    cap = {"SPEND_B4.json": 1.25,                        # ORDER 19:28 ET Nov 16: ADD 25 CENTS to 21:10
-           "SPEND_D20261116.json": 1.40}.get(os.path.basename(led), 1.50)   # RULING 137 (3): today $1.40, then $1.50
+    cap = PL.DAY_CAP_USD                                 # THE ONE SPEND SETTING (amendment C, Nov 24)
     prev = {}
     if os.path.exists(OUT):
         prev = json.load(open(OUT))

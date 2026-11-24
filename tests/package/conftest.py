@@ -46,3 +46,14 @@ def _driver_under_test(monkeypatch):
     pytest, with this variable set here, the tests may call main() (the build record then says under_test)."""
     monkeypatch.setenv("PP_SELECTID_DRIVER_UNDER_TEST", "1")
     yield
+
+
+@pytest.fixture(autouse=True)
+def _outcomes_off_the_real_file(monkeypatch, tmp_path):
+    """RULING 160 (2b): a test's driver run writes its outcome line into a file of its own, never into the real
+    data/builds/outcomes.jsonl (tests that ran main() on a temporary record folder appended lines to it, Nov 24)."""
+    if HERE not in sys.path:
+        sys.path.insert(0, HERE)
+    import outcomes
+    monkeypatch.setattr(outcomes, "OUTCOMES", str(tmp_path / "outcomes.jsonl"))
+    yield
