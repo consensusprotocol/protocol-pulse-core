@@ -1,0 +1,302 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index f4cf9694b..60252bfe0 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -56,6 +56,7 @@ import json
+ import math
+ import os
+ import re
++import types
+ import threading
+ import time
+ from concurrent.futures import ThreadPoolExecutor
+@@ -139,7 +140,8 @@ def kind_sentences(pairs, who):
+         else:
+             chans = ", ".join(str((who or {}).get(lb) or "its channel") for lb in lbs)
+             out.append(f"{COUNT_WORDS.get(len(lbs), str(len(lbs)))} clips ({chans}): "
+-                       f"{STEP_A_SOFT_MANY.get(c) or EDGE_WORDS_MANY[c]}.")
++                       f"{STEP_A_SOFT_MANY.get(c) or EDGE_WORDS_MANY.get(c) or STEP_A_SOFT.get(c) or EDGE_WORDS.get(c) or c}.")
++            #   audit 20261123_2108 C1 (qwen P1): never a KeyError, even for a code no table words for several clips
+     return out
+ 
+ 
+@@ -2776,6 +2778,70 @@ def write_takeaway(router, angle, segs, ctx, a_by, join=None, extra="", seed=7,
+                    type="moments", angle=angle["angle"], style="medley", takeaway_budget=list(budget))
+ 
+ 
++FALLBACK_FLAG = 'A line of ours is the plain fallback: "{line}"'   # RULING 156 (2): one flag kind, the line verbatim
++FALLBACK_CLOSING = ("{subject}, in their own words.",                       # graded lengths, the shortest that
++                    "{subject}, in the words of {names}.",                   # lands takeaway_budget is the line
++                    "{subject}, in the words of {names}, in their own clips.",
++                    "That was {subject}, in the words of {names}, in the clips you just heard.",
++                    "That was {subject}, in the words of {names}, each in their own clip, as you just heard.")
++
++
++def fallback_subject(segs, chans):
++    """RULING 156 (2): the story's subject in the clips' own words: 'Bitcoin', or '<Name> and Bitcoin' where <Name> is
++    the run of capitalised words (its first never opening a sentence; no channel's word, 'I' or 'Bitcoin' in it) the most
++    of the line-up's clips say, at least two of them, in their spelling ('Michael Saylor'); ties: the earliest said."""
++    import collections
++    skip = {"i", "bitcoin"} | {w.lower() for c in chans for w in re.findall(r"[A-Za-z]+", str(c))}
++    count, first = collections.Counter(), {}
++    for i, m in enumerate(segs):
++        t, names = str(m.get("text") or ""), set()
++        for mm in re.finditer(r"[A-Z][A-Za-z]*(?:\s+[A-Z][A-Za-z]*)*", t):
++            run, before = " ".join(mm.group(0).split()), t[:mm.start()].rstrip()   # glm F2: one spelling a run
++            if not before or before[-1] in ".!?" or any(w.lower() in skip for w in run.split()):
++                continue
++            names.add(run)
++            first.setdefault(run, (i, mm.start()))
++        for w in names:
++            count[w] += 1
++    best = sorted((w for w, n in count.items() if n >= 2), key=lambda w: (-count[w], first[w]))
++    return f"{best[0]} and Bitcoin" if best else "Bitcoin"
++
++
++def fallback_fields(angle, segs, join=None, other=()):
++    """RULING 156 (2) (orchestrator 21:34 ET Nov 23): THE SAFE FALLBACK LINES, built by code from fixed templates that
++    state no fact of their own (only the subject in the clips' own words and the channels' names), gated as any write:
++    the closing line (the shortest FALLBACK_CLOSING variant inside takeaway_budget), a title ('<Subject>: <names>', or
++    '<Subject>, in their words' past ruling 6's 8 words), a caption ('<Subject>, in the words of <names>.') and, only
++    where a join needs one, a bridge ('Next, <channel>.'). -> write_takeaway's fields, or None when no closing variant
++    lands the budget."""
++    chans = []
++    for m in segs:
++        c = m.get("channel_name") or m.get("channel_id")
++        if c and c not in chans:
++            chans.append(c)
++    names = chans[0] if len(chans) == 1 else (", ".join(chans[:-1]) + " and " + chans[-1] if chans else
++                                              "the channels")   # audit 20261123_2143 C1 (glm F1): never an IndexError
++    subject, ids = fallback_subject(segs, chans), [m["moment_id"] for m in segs]
++    bridge = None
++    if join is not None:
++        nxt = segs[join[0] + 1]
++        bridge = {"text": f"Next, {nxt.get('channel_name') or 'the next channel'}.", "cites": [nxt["moment_id"]],
++                  "why": "the plain fallback bridge (ruling 156 (2))"}
++    budget = takeaway_budget(sum(m["duration_s"] for m in segs), list(other) + ([bridge["text"]] if bridge else []))
++    take = next((t for t in (f.format(subject=subject, names=names) for f in FALLBACK_CLOSING)
++                 if budget is not None and budget[0] <= len(t.split()) <= budget[1]), None)
++    if take is None:
++        return None
++    title = f"{subject}: {names}"
++    if len(title.split()) > HS.TITLE_MAX_WORDS or len(title) > LINE_CHARS["title"]:
++        title = f"{subject}, in their words"
++    return {"takeaway": {"text": take, "cites": ids}, "title": {"text": title, "cites": ids},
++            "caption": {"text": f"{subject}, in the words of {names}.".lower(), "cites": ids},   # house style:
++            "bridge": bridge,                                                          # a caption is all lowercase
++            "bridge_after": join[0] if bridge else None, "type": "moments", "angle": angle["angle"], "style": "medley",
++            "takeaway_budget": list(budget), "fallback": True}
++
++
+ WRITE_LINE = """You are PBX MAX, the host of a 60-second Bitcoin video made of other channels' own words.
+ THE ANGLE (the point this video makes): "{angle}"
+ The clips play BACK TO BACK as a medley, with no narration between them (verbatim, in play order; the channels were not
+@@ -2798,7 +2864,8 @@ LINE_WHY = {"AGAIN": "your first rewrite of it was refused too",   # 17:20: a ti
+             "STYLE": "it breaks the house style"}
+ LINE_LIMIT = {"caption": "at most 220 characters", "title": "at most 70 characters"}
+ LINE_CHARS = {"caption": 220, "title": 70, "takeaway": 240}
+-LINE_ONLY_WRITES = 2                  # RULING 66 amended (17:02 Nov 13): "up to TWO fresh writes of the failed line only"
++LINE_ONLY_WRITES = 3                  # RULING 156 (1) (21:34 ET Nov 23): up to 4 writes a line per angle (the write and
++#   3 of the line alone, each told its refusal and the words; the other model after a failure); RULING 66 amended had 2
+ TAKEAWAY_LIMIT = ("{lo}-{hi} words, one or two sentences: host commentary attributed to nobody that states no fact, no "
+                   "speaker's view, no advice or prediction and no accusation, and that no viewer could take for a "
+                   "speaker's words")
+@@ -4283,11 +4350,14 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                 v_lost, v_redo, v_novoice, v_plan, val = [], False, None, None, None   # RULING 91 (medley half):
+                 #   the value verdicts the takeaway lost, its ONE rewrite still due, the loss that sends the line-up to
+                 #   the no-voice shape with the plan decided for it (nv_order), and the verdict of the takeaway now written
++                fb_state, fb_text = None, None           # RULING 156 (2): the plain lines, once, after every write
+                 while True:                                # RULING 66 amended (17:02): the writes; then, when the
+                     lone = w_used >= writes or v_redo      # takeaway alone failed, the takeaway ALONE, up to twice
+                     if lone and not v_redo and not (alone_n < LINE_ONLY_WRITES and t_alone and last_fields is not None
+                                                     and not last_rw65):
+-                        break
++                        if not (soft and fb_state is None and w_used >= writes):
++                            break
++                        fb_state = "due"                   # never-empty pass: every write failed: the template lines
+                     if over_budget(ai):
+                         break
+                     w_over = package_over(line)
+@@ -4295,7 +4365,18 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                         rec["why"], rec["budget"] = w_over, True      # ruling 66: a budget, not an outcome
+                         break
+                     redo91 = False
+-                    if lone:                               # the other lines kept as gated; told each refusal and why
++                    if fb_state == "due":                  # RULING 156 (2): built by code, gated as any full write
++                        fields, fb_state = fallback_fields(angle, segs, join, written), "used"
++                        if fields is None:
++                            rec["fallback_line"] = {"why_not": "no closing template lands the takeaway's word budget"}
++                            break
++                        fb_text = fields["takeaway"]["text"]
++                        rec["fallback_line"] = {"text": fb_text, "title": fields["title"]["text"]}
++                        log(f"    RULING 156 (2): every write failed: the plain lines built by code, gated as any: "
++                            f"{fb_text!r} | title {fields['title']['text']!r}")
++                        wr = types.SimpleNamespace(vendor="code", family="code", backend="code:fallback (ruling 156)")
++                        lone = False
++                    elif lone:                             # the other lines kept as gated; told each refusal and why
+                         alone_n += 1
+                         redo91, v_redo = v_redo, False     # ruling 91's one rewrite is spent here, whatever comes of it
+                         b = takeaway_budget(sum(m["duration_s"] for m in segs), written)
+@@ -4533,6 +4614,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
+                                             value=val,                       # ruling 91: the takeaway earned its place
+                                             last_resort=pin_last_resort(pk),      # RULING 102: on the pin
+                                             soft=soft,
++                                            fallback_line=fb_text if fb_text is not None and
++                                            fields["takeaway"]["text"] == fb_text else None,   # RULING 156 (2)
+                                             chan_of={sg["moment_id"]: sg.get("channel") for sg in pk["segments"]},
+                                             who={sg["label"]: sg.get("channel")   # RULING 137 / 138 (3)
+                                                             for sg in pk["segments"]},
+@@ -4670,7 +4753,7 @@ def _spent(spend):
+ 
+ 
+ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None, short=None,
+-              chan_of=None,
++              chan_of=None, fallback_line=None,
+               hook=None, stand=None, visual=None, value=None, last_resort=None, soft=False, who=None,
+               seg_flags=None, mids=None):
+     """The sealed GATE INVENTORY (audit p2 C1; package_pin.required_gates): one row per hard gate, each
+@@ -4771,6 +4854,11 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+                                **({"status": "FLAGGED", "flags": ["The opening clip may start abruptly."]}   # RULING
+                                   if soft and hook.get("soft") is True and hook.get("pass") is not True else {}))}   # 146
+            if hook is not None else {}),                                                                      # (2)
++        **({"fallback_line": {"status": "FLAGGED", "by": "package.fallback_fields (ruling 156 (2)): the plain lines "
++                                                         "built by code from fixed templates that state no fact, gated "
++                                                         "as any line", "replayed": False, "n": 1,
++                              "flags": [FALLBACK_FLAG.format(line=fallback_line)]}}
++           if soft and fallback_line else {}),
+         **({"sponsor": {"status": "FLAGGED", "by": "moments.exclusion_verdict (ruling 146 (3)): a sponsor mention in "
+                                                    "the sentence before the clip only; its own words judged by the "
+                                                    "exclusion model", "replayed": False, "n": len(exc), "flags": [
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index dd8f4bd10..272c8b5ef 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -49,6 +49,7 @@ SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's sof
+                         "graphics",                        # RULING 146 (1): the show's own graphics, 16:9 only
+                         "takeaway_value",                  # RULING 150: the closing line's value verdict (ruling
+                         #   91), a measured one; fidelity, length and the banned words stay HARD
++                        "fallback_line",                   # RULING 156 (2): our plain lines built by code, gated
+                         "sponsor",                         # RULING 146 (3): a sponsor mention in the sentence before
+                         #   a clip only, the clip kept by the exclusion model (its ad_read risk stays HARD)
+                         "runtime"})                        # RULINGS 148 (1) / 149: a medley under 60 s, its clips at
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index f965429b5..30e5a4aaa 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -2860,7 +2860,7 @@ class TestRuling66Amended(unittest.TestCase):
+                                          alone_ok=(False, False))
+         self.assertIsNone(out["package"])
+         self.assertEqual(len(seen), 2)                                         # up to TWO, never more
+-        self.assertIn("2 write(s) and 2 of the takeaway alone (ruling 66, 17:02) failed", out["tried"][0]["why"])
++        self.assertIn("2 write(s) and 3 of the takeaway alone (ruling 66, 17:02) failed", out["tried"][0]["why"])   # 156 (1)
+         self.assertIn("no one clip of the angle lands", out["tried"][0]["no_voice"]["why_not"])   # then rest
+ 
+     def test_a_failure_on_another_line_gets_no_takeaway_alone_write(self):
+@@ -2879,7 +2879,7 @@ class TestRuling66Amended(unittest.TestCase):
+                                                   {"takeaway": {"text": "In the end nobody bends them.", "cites": []}}],
+                                              ms=ms, takeaways=bad,
+                                              medleys=[(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)])
+-        self.assertEqual(len(avoid["takeaway"]), 2)                            # the takeaway alone, twice (STYLE)
++        self.assertEqual(len(avoid["takeaway"]), 3)                            # the takeaway alone, 3 times (156 (1))
+         self.assertEqual(out["tried"][0]["result"], "PACKAGE (no voice, ruling 3)")   # then ruling 3
+         self.assertEqual(rig.medley_calls[-1], ["h", "x", "y", "z"])
+ 
+@@ -2899,7 +2899,7 @@ class TestRuling66Amended(unittest.TestCase):
+         rig, out, seen, avoid = self.run_rig([refused], replies, alone_ok=(False, False))
+         self.assertIsNone(out["package"])                                      # then held (ruling 65 c)
+         self.assertEqual(len(seen), 2)                                          # two writes of the title, no more
+-        self.assertIn("the title failed alone 3 times", out["tried"][0]["why"])
++        self.assertIn("the title failed alone 4 times", out["tried"][0]["why"])   # RULING 156 (1): 4 writes a line
+         self.assertIn("held (ruling 65 c)", out["tried"][0]["why"])
+         rig, out, seen, avoid = self.run_rig([self.failing("caption")], [{"caption": {"text": "anyone can join it.",
+                                                                                       "cites": []}}],
+diff --git a/tests/package/test_ruling_137.py b/tests/package/test_ruling_137.py
+index 2c509168e..e9fede70c 100644
+--- a/tests/package/test_ruling_137.py
++++ b/tests/package/test_ruling_137.py
+@@ -259,6 +259,85 @@ class TestRuling155FlagKinds(unittest.TestCase):
+         self.assertEqual(PK.seg_marks(segs), 4)        # REFERENT_OUTSIDE, NOT_OWN_SINCERE, EDGE_OUT, STAND_ALONE
+ 
+ 
++FAILING = 2
++
++
++class TestRuling156FallbackLines(unittest.TestCase):
++    """RULING 156 (2) (orchestrator 21:34 ET Nov 23): when every write fails, the never-empty pass gates ONE set of plain
++    lines built by code from fixed templates that state no fact (the subject in the clips' own words and the channels'
++    names); a package on them carries the one flag 'A line of ours is the plain fallback: "<line>"'. The clean pass never
++    uses them; fidelity stays HARD (they are gated as any write)."""
++    def segs(self, total=39.0):
++        from test_moments import pm
++        ms = [pm("h", "Natalie Brunell", total / 3), pm("x", "Strategy", total / 3), pm("y", "Yahoo Finance", total / 3)]
++        for m, t in zip(ms, ("Analysts say Michael Saylor will keep buying Bitcoin.",
++                             "We sold credit, and Michael Saylor said we buy more Bitcoin.",
++                             "This guy, Michael Saylor, is buying again.")):
++            m["text"] = t
++        return ms
++
++    def test_the_templates_state_no_fact_fit_the_budget_and_pass_house_style(self):
++        import house_style as HS
++        for total in (31.5, 34.5, 39.0, 45.0):
++            with mock.patch.object(PK, "_FLOOR", PK.LY_FLOOR_S):           # the never-empty pass's budget
++                f = PK.fallback_fields({"angle": "a"}, self.segs(total))
++            lo, hi = f["takeaway_budget"]
++            words = f["takeaway"]["text"].split()
++            self.assertTrue(lo <= len(words) <= hi, (total, f["takeaway"]["text"]))
++            self.assertIn(f["takeaway"]["text"], [v.format(subject="Michael Saylor and Bitcoin",
++                                                           names="Natalie Brunell, Strategy and Yahoo Finance")
++                                                  for v in PK.FALLBACK_CLOSING])
++            self.assertEqual(HS.lint_lines([{"slot": k, "text": f[k]["text"]} for k in ("takeaway", "title", "caption")]),
++                             [], total)
++            self.assertEqual((f["title"]["text"], f["caption"]["text"]), (
++                "Michael Saylor and Bitcoin, in their words",
++                "michael saylor and bitcoin, in the words of natalie brunell, strategy and yahoo finance."))
++        one = self.segs()
++        one[1]["text"] = "We sold credit."
++        self.assertEqual(PK.fallback_subject(one, ["Natalie Brunell", "Strategy", "Yahoo Finance"]),
++                         "Michael Saylor and Bitcoin")                 # still two clips say it
++        one[2]["text"] = "This guy is buying again."
++        self.assertEqual(PK.fallback_subject(one, ["Natalie Brunell"]), "Bitcoin")   # one clip only: Bitcoin alone
++
++    def test_a_join_that_needs_a_bridge_gets_the_plain_one(self):
++        with mock.patch.object(PK, "_FLOOR", PK.LY_FLOOR_S):
++            f = PK.fallback_fields({"angle": "a"}, self.segs(), join=(1, "x"))
++        self.assertEqual((f["bridge"]["text"], f["bridge_after"]), ("Next, Yahoo Finance.", 1))
++
++    def run_rig(self, never_empty, failing=FAILING, a_fail=True):
++        import test_medley as TM
++        from test_moments import pm
++        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
++        bad = TM.TestRuling66Amended().failing()
++        r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE)] * 2, [None] * 2,
++                   fids=[dict(bad) for _ in range(failing)],         # every model write fails fidelity (COMMENTARY)
++                   a_fail={("xai", "y"): ["REFERENT_OUTSIDE"]} if a_fail else None)   # the clean pass stops at 2
++        #   channels, before any
++        #   write; the never-empty pass takes y back, flagged (stage 1), and writes
++        if never_empty:
++            r.build_kw = {"never_empty": True}
++        return r, r.run()
++
++    def test_every_write_failing_seals_on_the_plain_lines_flagged(self):
++        r, out = self.run_rig(True)
++        pk = out["package"]
++        self.assertIsNotNone(pk, out.get("why_none"))
++        take = next(x["text"] for x in pk["lines"] if x["slot"] == "takeaway")
++        self.assertEqual(pk["gates"]["fallback_line"]["flags"], [PK.FALLBACK_FLAG.format(line=take)])
++        self.assertTrue(any(take == v.format(subject="Bitcoin", names="A, B and C") for v in PK.FALLBACK_CLOSING))
++        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])
++
++    def test_the_clean_pass_never_uses_them(self):
++        r, out = self.run_rig(False, a_fail=False)                   # the clean pass reaches the writes, all fail
++        self.assertIsNone(out["package"])
++        self.assertNotIn("fallback_line", out["tried"][0])
++
++    def test_fidelity_stays_hard_for_the_plain_lines(self):
++        r, out = self.run_rig(True, failing=FAILING + 1)             # the plain lines' own verdict fails too
++        self.assertIsNone(out["package"])
++        self.assertIn("fallback_line", ((out.get("never_empty") or {}).get("soft_record") or {})["tried"][0])
++
++
+ class TestStage2bHookBar(unittest.TestCase):
+     """RULING 137 STAGE 2b (1) (line 1, 13:20 ET): the calibrated hook bar is SOFT in the never-empty pass. A hook its
+     own rater rated UNDER a floor opens, flagged in plain words (the best HOOK_SOFT_MAX of them); no calibration,

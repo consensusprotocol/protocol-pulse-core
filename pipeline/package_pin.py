@@ -49,6 +49,7 @@ SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's sof
                         "graphics",                        # RULING 146 (1): the show's own graphics, 16:9 only
                         "takeaway_value",                  # RULING 150: the closing line's value verdict (ruling
                         #   91), a measured one; fidelity, length and the banned words stay HARD
+                        "fallback_line",                   # RULING 156 (2): our plain lines built by code, gated
                         "sponsor",                         # RULING 146 (3): a sponsor mention in the sentence before
                         #   a clip only, the clip kept by the exclusion model (its ad_read risk stays HARD)
                         "runtime"})                        # RULINGS 148 (1) / 149: a medley under 60 s, its clips at
@@ -431,13 +432,27 @@ def review_problems(mp):
     return out + ([f"{n} kinds of review flag, over {cap} (rulings 136 (2) / 147 / 155 (1))"] if n > cap else [])
 
 
+CAP_GATE = "kinds_cap"   # one package's cap raised, named on its pin (the 22:21 ET Nov 23 question's default)
+KINDS_CAP_MAX = 8        # never above this many kinds, whatever a row says
+
+
 def flags_cap(gates):
     """RULINGS 136 (2) / 147: the most content flags a pin may carry: PBX_EXCEPTION_CAP on the one pin that carries a
-    ruling-144 exception row, REVIEW_FLAGS_MAX on every other."""
-    return PBX_EXCEPTION_CAP if isinstance(gates, dict) and EXCEPTION_GATE in gates else REVIEW_FLAGS_MAX
+    ruling-144 exception row, REVIEW_FLAGS_MAX on every other; THE 22:21 ET Nov 23 QUESTION'S DEFAULT (the
+    orchestrator's 18:18 order: "where one of MY counts or caps blocks a through-lined, hard-gated package, raise it by
+    what is needed, write what you did"): a sealed CAP_GATE row (status PASS, an int cap above REVIEW_FLAGS_MAX and at
+    most KINDS_CAP_MAX, and its reason in words) raises THAT package's cap to it."""
+    if isinstance(gates, dict) and EXCEPTION_GATE in gates:
+        return PBX_EXCEPTION_CAP
+    row = gates.get(CAP_GATE) if isinstance(gates, dict) else None
+    if isinstance(row, dict) and row.get("status") == "PASS" and type(row.get("cap")) is int and \
+            REVIEW_FLAGS_MAX < row["cap"] <= KINDS_CAP_MAX and str(row.get("why") or "").strip():
+        return row["cap"]
+    return REVIEW_FLAGS_MAX
 
 
 PER_CLIP_KIND = frozenset({"stand_alone", "sponsor", "graphics"})   # RULING 155 (1): one kind said once per clip
+OUR_LINES_KIND = frozenset({"fallback_line", "takeaway_value"})    # RULING 157 (2)(b): one kind, our lines
 _CLIP_REF = re.compile(r"^(?:The (?:opening|second|third|fourth|fifth) clip|A clip|The clip|[A-Z][a-z]+ clips) "
                        r"\([^)]*\):?\s*")
 
@@ -446,6 +461,8 @@ def flag_kind(gate, flag):
     """RULING 155 (1): the KIND of one review flag: the row for a row that says one kind once per clip
     (PER_CLIP_KIND: STAND_ALONE's per-clip sentences keep the prefix the integrator matches), else the row and the
     sentence without the clip it names ('The second clip (Strategy): ...' and 'Three clips (...): ...' read alike)."""
+    if gate in OUR_LINES_KIND:                       # RULING 157 (2)(b): the plain fallback and the value grade of
+        return "our lines"                           # the closing line are ONE kind (the note lists it once)
     return gate if gate in PER_CLIP_KIND else f"{gate}: {_CLIP_REF.sub('', flag).strip()}"
 
 

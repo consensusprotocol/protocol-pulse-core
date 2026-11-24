@@ -645,7 +645,7 @@ class Rig:
             "referents": [], "conditions": [], "retraction": "none", "time_ok": "yes", "certainty": "certain"}
 
     def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
-                 spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None,
+                 spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None, truths=None,
                  trim_fail=(), hooks=None, hook_err=None, verdicts=None, follow_up=None, fids=None, lines=None,
                  cached=False, candidate=None, visuals=None, registered=None, lock_check=None, values=None,
                  real_value=False, caption=None, coherences=None, joins=None):
@@ -658,6 +658,7 @@ class Rig:
         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
         self.takeaways, self.spend = list(takeaways or []), spend
         self.uncuttable, self.excluded, self.no_hook = set(uncuttable), set(excluded), set(no_hook)
+        self.truths = dict(truths or {})                  # {moment id: the second pass's record} (default: clean)
         self.trim_fail = set(trim_fail)                    # trimmed moments whose trimmed cut fails ruling 33 (a)
         self.verdicts = verdicts                           # ruling 56: {pid: verdict} in the integrator's file shape
         self.hooks, self.hook_err, self.hook_calls = dict(hooks or {}), hook_err, []   # ruling 59 (a): {id: (s, a, u)}
@@ -836,7 +837,7 @@ class Rig:
                                                          "keep", "measured": True, "replayed": False,
                                                          "backend": "xai:grok",     # RULING 146 (3): as the real one
                                                          **({"ad_before": m["ad_before"]} if m.get("ad_before") else {})},
-            "truth_for": lambda router, m, *a, **k: {"ok": True, "replayed": False, "model": "scribe_v1",
+            "truth_for": lambda router, m, *a, **k: dict(self.truths[m["moment_id"]]) if m["moment_id"] in self.truths else {"ok": True, "replayed": False, "model": "scribe_v1",
                                                      "edges": {"cuttable": m["moment_id"] not in self.uncuttable}},
             "hook_onset_for": self.onset,
             "hook_ratings": self.rate_hooks,
@@ -2860,7 +2861,7 @@ class TestRuling66Amended(unittest.TestCase):
                                          alone_ok=(False, False))
         self.assertIsNone(out["package"])
         self.assertEqual(len(seen), 2)                                         # up to TWO, never more
-        self.assertIn("2 write(s) and 2 of the takeaway alone (ruling 66, 17:02) failed", out["tried"][0]["why"])
+        self.assertIn("2 write(s) and 3 of the takeaway alone (ruling 66, 17:02) failed", out["tried"][0]["why"])   # 156 (1)
         self.assertIn("no one clip of the angle lands", out["tried"][0]["no_voice"]["why_not"])   # then rest
 
     def test_a_failure_on_another_line_gets_no_takeaway_alone_write(self):
@@ -2879,7 +2880,7 @@ class TestRuling66Amended(unittest.TestCase):
                                                   {"takeaway": {"text": "In the end nobody bends them.", "cites": []}}],
                                              ms=ms, takeaways=bad,
                                              medleys=[(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)])
-        self.assertEqual(len(avoid["takeaway"]), 2)                            # the takeaway alone, twice (STYLE)
+        self.assertEqual(len(avoid["takeaway"]), 3)                            # the takeaway alone, 3 times (156 (1))
         self.assertEqual(out["tried"][0]["result"], "PACKAGE (no voice, ruling 3)")   # then ruling 3
         self.assertEqual(rig.medley_calls[-1], ["h", "x", "y", "z"])
 
@@ -2899,7 +2900,7 @@ class TestRuling66Amended(unittest.TestCase):
         rig, out, seen, avoid = self.run_rig([refused], replies, alone_ok=(False, False))
         self.assertIsNone(out["package"])                                      # then held (ruling 65 c)
         self.assertEqual(len(seen), 2)                                          # two writes of the title, no more
-        self.assertIn("the title failed alone 3 times", out["tried"][0]["why"])
+        self.assertIn("the title failed alone 4 times", out["tried"][0]["why"])   # RULING 156 (1): 4 writes a line
         self.assertIn("held (ruling 65 c)", out["tried"][0]["why"])
         rig, out, seen, avoid = self.run_rig([self.failing("caption")], [{"caption": {"text": "anyone can join it.",
                                                                                       "cites": []}}],

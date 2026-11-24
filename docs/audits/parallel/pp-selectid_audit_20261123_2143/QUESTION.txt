@@ -1,0 +1,25 @@
+pp-selectid: RULING 156 (orchestrator 21:34 ET Nov 23): "Our writing must never be the reason PBX gets no video."
+(1) each line of ours gets up to 4 writes per angle, every rewrite told the gate's refusal and the words; (2) THE SAFE
+FALLBACK LINE: when the writes fail, a PLAIN line built by code from a fixed template that states no fact of its own
+(only the story's subject in the clips' own words and the channels' names), gated as any line, the package flagged
+'A line of ours is the plain fallback: "<line>"'; (3) fidelity stays HARD.
+THE CHANGE (pipeline/package.py, pipeline/package_pin.py; tests in tests/package/test_ruling_137.py, test_medley.py):
+- LINE_ONLY_WRITES 2 -> 3 (the write and 3 of the line alone = 4; the alone writes are unchanged code: told the refused
+  sentence and why, the other model after a failure).
+- fallback_subject / fallback_fields (package.py:2810): FALLBACK_CLOSING's 5 graded variants, the shortest inside the
+  unchanged takeaway_budget; title '<Subject>: <names>' or '<Subject>, in their words' past 8 words; caption lowercase
+  (house style); a bridge 'Next, <channel>.' only for a join that needs one; cites = the line-up's ids.
+- The write loop (package.py:4367): ONLY in the never-empty pass (soft), once, when every write is spent
+  (w_used >= writes and no takeaway-alone write left): fields = fallback_fields(...), a writer namespace 'code' (no
+  judge's vendor), lone = False, so the plain lines go through the SAME full paid gates as a model write
+  (paid_gates, package.py:3237, unchanged: fidelity, context) and every later gate (value, coherence, the lock).
+- inventory: a FLAGGED 'fallback_line' row (its sentence quotes the closing line) when the sealed takeaway is the
+  fallback's text; package_pin.SOFT_GATES += 'fallback_line' (gate_problems, package_pin.py:463, accepts a FLAGGED row
+  only on a soft gate; the integrator's pin check reads this file live).
+Also in this diff: one line from ruling 155's audit C1 (kind_sentences never raises KeyError).
+TESTS: the templates fit the budget at 31.5-45 s and pass house style; the subject rule; the plain bridge; every write
+failing seals on the plain lines with the flag and gate_problems none; the clean pass never uses them; the plain lines
+failing fidelity refuse (HARD). Mutations 7 of 7 killed.
+PLEASE CHECK: (1) can the clean pass, or a line-up whose failure is a CLIP's (not our line's), reach a sealed package
+through the fallback without every gate? (2) do the templates ever state a fact or a claim? (3) can the fallback loop
+run more than once or never end? (4) is the flag on the package exactly when the sealed closing line is the fallback?

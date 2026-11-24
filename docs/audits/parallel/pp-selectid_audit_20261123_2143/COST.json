@@ -1,0 +1,34 @@
+{
+ "ruling": "118 (Heimdall seats only; not capped)",
+ "changed_lines": 184,
+ "seats_answered": 2,
+ "seats": [
+  "gpt-oss-20b",
+  "glm-5.3-flash"
+ ],
+ "cap_usd": 1.0,
+ "usd_reported": 0.00457,
+ "usd_upper_bound_unreported": 0.0,
+ "reviews": [
+  {
+   "review": "C1_glm-5.3-flash.md",
+   "usd_reported": 0.001976,
+   "usd_upper_bound": 0.164
+  },
+  {
+   "review": "C1_gpt-oss-20b.md",
+   "usd_reported": 0.000707,
+   "usd_upper_bound": 0.114
+  },
+  {
+   "review": "C2_glm-5.3-flash.md",
+   "usd_reported": 0.001321,
+   "usd_upper_bound": 0.101
+  },
+  {
+   "review": "C2_gpt-oss-20b.md",
+   "usd_reported": 0.000566,
+   "usd_upper_bound": 0.091
+  }
+ ]
+}

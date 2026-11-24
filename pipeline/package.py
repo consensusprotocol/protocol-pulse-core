@@ -56,6 +56,7 @@ import json
 import math
 import os
 import re
+import types
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -111,6 +112,32 @@ def flag_sentence(label, channel, code):
            f"{STEP_A_SOFT.get(code) or EDGE_WORDS[code]}."
 
 
+STEP_A_PHRASE = {"CONDITION_OUTSIDE": "depends on a condition stated before it",     # RULING 157 (2)(a): the plain
+                 "NOT_OWN_SINCERE": "may not be giving its own sincere view",        # words, in this order on a clip
+                 "REFERENT_OUTSIDE": "refers to something said earlier",
+                 "UNCERTAIN": "may be unclear in what it means"}
+STEP_A_SCOPE = None      # the driver's measured scope ('20 of the 21 clips it checked tonight'), or None
+
+
+def step_a_sentence(lab_codes, who):
+    """RULING 157 (2)(a) / (5) (orchestrator 22:27 ET Nov 23; standing from the next build): ONE flag for all of step
+    A's soft codes on a package's clips, in play order, the opener called 'the opener': 'Our fact-checker raised soft
+    doubts on <scope>, which points at the checker more than the clips. On this video: the opener depends on a
+    condition stated before it; Digital Asset News may not be giving its own sincere view and refers to something said
+    earlier; ...'. -> the sentence, or None when no clip carries a soft code."""
+    parts = []
+    for lb, codes in (lab_codes or {}).items():
+        cs = [c for c in STEP_A_PHRASE if c in (codes or [])]
+        if cs:
+            parts.append(("the opener" if lb == "hook" else str((who or {}).get(lb) or "a clip")) + " " +
+                         " and ".join(STEP_A_PHRASE[c] for c in cs))
+    if not parts:
+        return None
+    head = (f"Our fact-checker raised soft doubts on {STEP_A_SCOPE}, which points at the checker more than the clips."
+            if STEP_A_SCOPE else "Our fact-checker raised soft doubts on these clips.")
+    return f"{head} On this video: " + "; ".join(parts) + "."
+
+
 COUNT_WORDS = {2: "Two", 3: "Three", 4: "Four", 5: "Five"}
 STEP_A_SOFT_MANY = {"NOT_OWN_SINCERE": "the checker doubted each is the speaker's own sincere view (they may be quoting "
                                        "someone or joking)",
@@ -139,7 +166,8 @@ def kind_sentences(pairs, who):
         else:
             chans = ", ".join(str((who or {}).get(lb) or "its channel") for lb in lbs)
             out.append(f"{COUNT_WORDS.get(len(lbs), str(len(lbs)))} clips ({chans}): "
-                       f"{STEP_A_SOFT_MANY.get(c) or EDGE_WORDS_MANY[c]}.")
+                       f"{STEP_A_SOFT_MANY.get(c) or EDGE_WORDS_MANY.get(c) or STEP_A_SOFT.get(c) or EDGE_WORDS.get(c) or c}.")
+            #   audit 20261123_2108 C1 (qwen P1): never a KeyError, even for a code no table words for several clips
     return out
 
 
@@ -583,6 +611,41 @@ def add_flags(m, codes):
     """RULING 137: the moment carries every soft step-A code any screen gave it (each becomes one plain sentence)."""
     m["step_a_flags"] = sorted(set(m.get("step_a_flags") or []) | set(codes))
     return m
+
+
+def fallback_vo_soft(ok_c, coh, soft, fb_text, fields, segs):
+    """RULINGS 156 / 157 (2)(b) (built 22:36 ET Nov 23 after build 166): in the never-empty pass, when the sealed
+    closing line IS the plain fallback (it states no fact, so it makes no point by design), a coherence verdict that
+    fails ONLY on its VO-point rating passes: the through-line must be stated and sound (_line_ok), every clip after the
+    hook at the verdict's clip floor, the hook passing its own bar, the verdict measured. Its doubt is part of the one
+    'our lines' flag. -> True when it applies."""
+    if ok_c or not soft or fb_text is None or ((fields or {}).get("takeaway") or {}).get("text") != fb_text:
+        return False
+    c = coh or {}
+    if c.get("measured") is not True or not _line_ok(c.get("through_line")):
+        return False
+    fl = (c.get("floors") or {}).get("clip", COHERENCE_MIN)
+    clips = {lb: x for lb, x in (c.get("clips") or {}).items() if lb != "hook"}
+    return bool(clips) and all(type(x) is int and x >= fl for x in clips.values()) and \
+        bool((hook_own(segs[0]) or {}).get("passes")) and type(c.get("vo_point")) is int
+
+
+def context_soft(cx, labels):
+    """THE 21:36 ET Nov 23 QUESTION'S DEFAULT (line 1; no answer by 21:46): in the never-empty pass, a context-integrity
+    failure on the assembled video whose EVERY violation is one of step A's SOFT codes (STEP_A_SOFT) on a CLIP
+    (`labels`: the package's segment labels) is the same doubt step A flags (ruling 137 stage 1), one kind each, the clips
+    named (ruling 155): -> {label: [codes]}; else None (any other code, a violation on our lines, or an unmeasured
+    verdict stays as ruled)."""
+    vs = list((cx or {}).get("violations") or [])
+    if (cx or {}).get("measured") is False or not vs or not all(
+            v.get("rule") in STEP_A_SOFT and v.get("segment") in labels and not v.get("slot") for v in vs):
+        return None
+    out = {}
+    for v in vs:
+        out.setdefault(v["segment"], [])
+        if v["rule"] not in out[v["segment"]]:
+            out[v["segment"]].append(v["rule"])
+    return out
 
 
 def soft_second(cleared, a_two, off_fail):
@@ -2321,10 +2384,15 @@ def medley(router, segs, ctx, writer_vendor, seed=7, writer_family=None):
                     cached=bool(getattr(r, "cached", False)))
 
 
+KINDS_CAP = None         # the 22:21 question's default, set by the driver for ONE build: this package's cap of kinds
+KINDS_CAP_WHY = None     # ... and why, in words (sealed on the pin's kinds_cap row; package_pin.flags_cap reads it)
+
+
 def chain_cap():
-    """RULING 136 (2) / 141 (1): the most flags a package may carry (package_pin.REVIEW_FLAGS_MAX: one source)."""
+    """RULING 136 (2) / 141 (1): the most flags a package may carry (package_pin.REVIEW_FLAGS_MAX: one source), or this
+    build's raised cap of kinds (KINDS_CAP, the 22:21 question's default) when the driver set one."""
     import package_pin
-    return package_pin.REVIEW_FLAGS_MAX
+    return max(package_pin.REVIEW_FLAGS_MAX, KINDS_CAP or 0)
 
 
 def seg_marks(segs):
@@ -2776,6 +2844,71 @@ def write_takeaway(router, angle, segs, ctx, a_by, join=None, extra="", seed=7, 
                    type="moments", angle=angle["angle"], style="medley", takeaway_budget=list(budget))
 
 
+FALLBACK_FLAG = 'Our lines are the plain fallback because our writers failed their checks: "{line}"'   # RULING 157
+#   (2)(b) (156 (2)'s flag, reworded): ONE flag for our lines; it absorbs the closing line's value grade
+FALLBACK_CLOSING = ("{subject}, in their own words.",                       # graded lengths, the shortest that
+                    "{subject}, in the words of {names}.",                   # lands takeaway_budget is the line
+                    "{subject}, in the words of {names}, in their own clips.",
+                    "That was {subject}, in the words of {names}, in the clips you just heard.",
+                    "That was {subject}, in the words of {names}, each in their own clip, as you just heard.")
+
+
+def fallback_subject(segs, chans):
+    """RULING 156 (2): the story's subject in the clips' own words: 'Bitcoin', or '<Name> and Bitcoin' where <Name> is
+    the run of capitalised words (its first never opening a sentence; no channel's word, 'I' or 'Bitcoin' in it) the most
+    of the line-up's clips say, at least two of them, in their spelling ('Michael Saylor'); ties: the earliest said."""
+    import collections
+    skip = {"i", "bitcoin"} | {w.lower() for c in chans for w in re.findall(r"[A-Za-z]+", str(c))}
+    count, first = collections.Counter(), {}
+    for i, m in enumerate(segs):
+        t, names = str(m.get("text") or ""), set()
+        for mm in re.finditer(r"[A-Z][A-Za-z]*(?:\s+[A-Z][A-Za-z]*)*", t):
+            run, before = " ".join(mm.group(0).split()), t[:mm.start()].rstrip()   # glm F2: one spelling a run
+            if not before or before[-1] in ".!?" or any(w.lower() in skip for w in run.split()):
+                continue
+            names.add(run)
+            first.setdefault(run, (i, mm.start()))
+        for w in names:
+            count[w] += 1
+    best = sorted((w for w, n in count.items() if n >= 2), key=lambda w: (-count[w], first[w]))
+    return f"{best[0]} and Bitcoin" if best else "Bitcoin"
+
+
+def fallback_fields(angle, segs, join=None, other=()):
+    """RULING 156 (2) (orchestrator 21:34 ET Nov 23): THE SAFE FALLBACK LINES, built by code from fixed templates that
+    state no fact of their own (only the subject in the clips' own words and the channels' names), gated as any write:
+    the closing line (the shortest FALLBACK_CLOSING variant inside takeaway_budget), a title ('<Subject>: <names>', or
+    '<Subject>, in their words' past ruling 6's 8 words), a caption ('<Subject>, in the words of <names>.') and, only
+    where a join needs one, a bridge ('Next, <channel>.'). -> write_takeaway's fields, or None when no closing variant
+    lands the budget."""
+    chans = []
+    for m in segs:
+        c = m.get("channel_name") or m.get("channel_id")
+        if c and c not in chans:
+            chans.append(c)
+    names = chans[0] if len(chans) == 1 else (", ".join(chans[:-1]) + " and " + chans[-1] if chans else
+                                              "the channels")   # audit 20261123_2143 C1 (glm F1): never an IndexError
+    subject, ids = fallback_subject(segs, chans), [m["moment_id"] for m in segs]
+    bridge = None
+    if join is not None:
+        nxt = segs[join[0] + 1]
+        bridge = {"text": f"Next, {nxt.get('channel_name') or 'the next channel'}.", "cites": [nxt["moment_id"]],
+                  "why": "the plain fallback bridge (ruling 156 (2))"}
+    budget = takeaway_budget(sum(m["duration_s"] for m in segs), list(other) + ([bridge["text"]] if bridge else []))
+    take = next((t for t in (f.format(subject=subject, names=names) for f in FALLBACK_CLOSING)
+                 if budget is not None and budget[0] <= len(t.split()) <= budget[1]), None)
+    if take is None:
+        return None
+    title = f"{subject}: {names}"
+    if len(title.split()) > HS.TITLE_MAX_WORDS or len(title) > LINE_CHARS["title"]:
+        title = f"{subject}, in their words"
+    return {"takeaway": {"text": take, "cites": ids}, "title": {"text": title, "cites": ids},
+            "caption": {"text": f"{subject}, in the words of {names}.".lower(), "cites": ids},   # house style:
+            "bridge": bridge,                                                          # a caption is all lowercase
+            "bridge_after": join[0] if bridge else None, "type": "moments", "angle": angle["angle"], "style": "medley",
+            "takeaway_budget": list(budget), "fallback": True}
+
+
 WRITE_LINE = """You are PBX MAX, the host of a 60-second Bitcoin video made of other channels' own words.
 THE ANGLE (the point this video makes): "{angle}"
 The clips play BACK TO BACK as a medley, with no narration between them (verbatim, in play order; the channels were not
@@ -2798,7 +2931,8 @@ LINE_WHY = {"AGAIN": "your first rewrite of it was refused too",   # 17:20: a ti
             "STYLE": "it breaks the house style"}
 LINE_LIMIT = {"caption": "at most 220 characters", "title": "at most 70 characters"}
 LINE_CHARS = {"caption": 220, "title": 70, "takeaway": 240}
-LINE_ONLY_WRITES = 2                  # RULING 66 amended (17:02 Nov 13): "up to TWO fresh writes of the failed line only"
+LINE_ONLY_WRITES = 3                  # RULING 156 (1) (21:34 ET Nov 23): up to 4 writes a line per angle (the write and
+#   3 of the line alone, each told its refusal and the words; the other model after a failure); RULING 66 amended had 2
 TAKEAWAY_LIMIT = ("{lo}-{hi} words, one or two sentences: host commentary attributed to nobody that states no fact, no "
                   "speaker's view, no advice or prediction and no accusation, and that no viewer could take for a "
                   "speaker's words")
@@ -4283,11 +4417,14 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                 v_lost, v_redo, v_novoice, v_plan, val = [], False, None, None, None   # RULING 91 (medley half):
                 #   the value verdicts the takeaway lost, its ONE rewrite still due, the loss that sends the line-up to
                 #   the no-voice shape with the plan decided for it (nv_order), and the verdict of the takeaway now written
+                fb_state, fb_text = None, None           # RULING 156 (2): the plain lines, once, after every write
                 while True:                                # RULING 66 amended (17:02): the writes; then, when the
                     lone = w_used >= writes or v_redo      # takeaway alone failed, the takeaway ALONE, up to twice
                     if lone and not v_redo and not (alone_n < LINE_ONLY_WRITES and t_alone and last_fields is not None
                                                     and not last_rw65):
-                        break
+                        if not (soft and fb_state is None and w_used >= writes):
+                            break
+                        fb_state = "due"                   # never-empty pass: every write failed: the template lines
                     if over_budget(ai):
                         break
                     w_over = package_over(line)
@@ -4295,7 +4432,18 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                         rec["why"], rec["budget"] = w_over, True      # ruling 66: a budget, not an outcome
                         break
                     redo91 = False
-                    if lone:                               # the other lines kept as gated; told each refusal and why
+                    if fb_state == "due":                  # RULING 156 (2): built by code, gated as any full write
+                        fields, fb_state = fallback_fields(angle, segs, join, written), "used"
+                        if fields is None:
+                            rec["fallback_line"] = {"why_not": "no closing template lands the takeaway's word budget"}
+                            break
+                        fb_text = fields["takeaway"]["text"]
+                        rec["fallback_line"] = {"text": fb_text, "title": fields["title"]["text"]}
+                        log(f"    RULING 156 (2): every write failed: the plain lines built by code, gated as any: "
+                            f"{fb_text!r} | title {fields['title']['text']!r}")
+                        wr = types.SimpleNamespace(vendor="code", family="code", backend="code:fallback (ruling 156)")
+                        lone = False
+                    elif lone:                             # the other lines kept as gated; told each refusal and why
                         alone_n += 1
                         redo91, v_redo = v_redo, False     # ruling 91's one rewrite is spent here, whatever comes of it
                         b = takeaway_budget(sum(m["duration_s"] for m in segs), written)
@@ -4407,7 +4555,10 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                         + f" ({time.time() - t0:.0f} s)")
                     got = {mid: (f[0].result(), f[1].result()) for mid, f in bg.items()}   # the clips' own gates first
                     lost = {mid for mid, (e, t) in got.items() if e.get("verdict") != "keep" or not t.get("ok")
-                            or (t.get("edges") or {}).get("cuttable") is not True}   # CUTTABLE is a required gate
+                            or ((t.get("edges") or {}).get("cuttable") is not True     # CUTTABLE is a required gate;
+                                and not (soft and soft_edges(t)))}   # RULING 137 2a: a sentence edge at a word boundary
+                    #   only FLAGS in the never-empty pass, here too (the pool stage and the inventory's cuttable row
+                    #   already let it stay; build 164 lost Simply Bitcoin 1cb16751 here, 22:11 ET Nov 23)
                     if lost:
                         rec["lost_why"] = {mid: ("exclusion" if e.get("verdict") != "keep" else
                                                  "second pass (L-v 2)" if not t.get("ok") else
@@ -4499,6 +4650,16 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                                     f"{v['rule']}" for v in cheap + fid["violations"] + cx["violations"])[:300]
                             w_used = writes
                             break
+                    cs = context_soft(cx, {sg["label"] for sg in pk["segments"]}) \
+                        if soft and fid["ok"] and not cheap and not cx["ok"] else None
+                    if cs:                                     # the 21:36 question's default: step A's flag kinds
+                        for sg in pk["segments"]:
+                            if sg["label"] in cs:
+                                add_flags(cleared[sg["moment_id"]], cs[sg["label"]])
+                        cx, framing = dict(cx, ok=True, violations=[], soft_context=cs), []
+                        att["context_soft"] = cs
+                        log(f"    context: step A's soft codes on the clips only, flagged as step A's (the 21:36 "
+                            f"default): {cs}")
                     if not fid["ok"] or not cx["ok"] or cheap:
                         if fid["ok"] and not framing and not cheap:
                             rec["why"] = "context integrity failed on something the VO cannot fix"
@@ -4519,6 +4680,10 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                         if not ok_c and key == accept_key else None   # RULING 141 (3): the accepted candidate only
                     if cs_ is not None and seg_marks(segs) + accept_soft["n"] + cs_["n"] <= chain_cap():
                         ok_c, coh = True, dict(coh, soft=cs_)     # its clip ratings under coherence's floor: flagged
+                    if fallback_vo_soft(ok_c, coh, soft, fb_text, fields, segs):   # RULING 156 / 157 (2)(b): the plain
+                        ok_c, coh = True, dict(coh, soft_vo=True)  # line makes no point by design: its VO-point rating
+                        log("    coherence: the plain fallback line's VO point is part of 'our lines' (one flag); the "
+                            "through-line and every clip rating pass")
                     att["coherence"] = coh
                     log(f"    coherence with the takeaway {'PASS' if ok_c else 'FAIL'} {coh.get('clips')} vo "
                         f"{coh.get('vo_point')} ({time.time() - t0:.0f} s)")
@@ -4533,6 +4698,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                                             value=val,                       # ruling 91: the takeaway earned its place
                                             last_resort=pin_last_resort(pk),      # RULING 102: on the pin
                                             soft=soft,
+                                            fallback_line=fb_text if fb_text is not None and
+                                            fields["takeaway"]["text"] == fb_text else None,   # RULING 156 (2)
                                             chan_of={sg["moment_id"]: sg.get("channel") for sg in pk["segments"]},
                                             who={sg["label"]: sg.get("channel")   # RULING 137 / 138 (3)
                                                             for sg in pk["segments"]},
@@ -4670,7 +4837,7 @@ def _spent(spend):
 
 
 def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None, short=None,
-              chan_of=None,
+              chan_of=None, fallback_line=None,
               hook=None, stand=None, visual=None, value=None, last_resort=None, soft=False, who=None,
               seg_flags=None, mids=None):
     """The sealed GATE INVENTORY (audit p2 C1; package_pin.required_gates): one row per hard gate, each
@@ -4726,8 +4893,8 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
                               sorted({str(a.get("backend")) for a in a_rows}), rep(a.get("replayed") for a in a_rows),
                               n=len(a_rows)),
                           **({"status": "FLAGGED",            # RULING 137 stage 1; 138 (3): a sentence a clip
-                              "flags": kind_sentences([(lb, c) for lb in (a_by or {}) for c in lab_codes[lb]],
-                                                      who)}                  # RULING 155 (1): one sentence a kind
+                              "flags": [step_a_sentence({lb: lab_codes[lb] for lb in (a_by or {})}, who)]}
+                                                                             # RULING 157 (2)(a) / (5): ONE kind
                              if soft_a and len(a_rows) >= 1 else {}),
                           **({"last_resort": last_resort} if last_resort else {})),   # RULING 102: the local judge
         "context_b": dict(row(ctx_.get("ok") is True, (ctx_.get("backends") or {}).get("B"), ctx_.get("replayed"),
@@ -4771,6 +4938,14 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
                                **({"status": "FLAGGED", "flags": ["The opening clip may start abruptly."]}   # RULING
                                   if soft and hook.get("soft") is True and hook.get("pass") is not True else {}))}   # 146
            if hook is not None else {}),                                                                      # (2)
+        **({"kinds_cap": {"status": "PASS", "cap": KINDS_CAP, "why": KINDS_CAP_WHY, "replayed": False, "n": 1,
+                          "by": "the driver (the 22:21 ET Nov 23 question's default; package_pin.flags_cap)"}}
+           if soft and KINDS_CAP and KINDS_CAP_WHY else {}),
+        **({"fallback_line": {"status": "FLAGGED", "by": "package.fallback_fields (ruling 156 (2)): the plain lines "
+                                                         "built by code from fixed templates that state no fact, gated "
+                                                         "as any line", "replayed": False, "n": 1,
+                              "flags": [FALLBACK_FLAG.format(line=fallback_line)]}}
+           if soft and fallback_line else {}),
         **({"sponsor": {"status": "FLAGGED", "by": "moments.exclusion_verdict (ruling 146 (3)): a sponsor mention in "
                                                    "the sentence before the clip only; its own words judged by the "
                                                    "exclusion model", "replayed": False, "n": len(exc), "flags": [
@@ -4811,7 +4986,9 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
                                    why=value.get("why"), words=value.get("words"), cap=value.get("cap"),
                                    rule=f"ruling 91 (medley half): all four a clear yes and at most {LY_TAKEAWAY_MAX_WORDS} "
                                         f"words, off every writer's vendor and family",
-                                   **({"status": "FLAGGED", "flags": [VALUE_FLAG.format(line=value.get("text"))]}
+                                   **({"status": "FLAGGED", "flags": [FALLBACK_FLAG.format(line=fallback_line)
+                                                                      if fallback_line else
+                                                                      VALUE_FLAG.format(line=value.get("text"))]}
                                       if value.get("soft") and value.get("ok") is not True else {}))}   # RULING 150
            if value is not None else {}),
     }
