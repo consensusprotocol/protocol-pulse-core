@@ -387,6 +387,10 @@ class TestContextSoftDefault(unittest.TestCase):
                     {"slot": None, "segment": "-", "rule": "REFERENT_OUTSIDE"}):          # not a clip of the package
             self.assertIsNone(PK.context_soft(dict(cx, violations=cx["violations"] + [bad]), self.LABELS), bad)
         self.assertIsNone(PK.context_soft(dict(cx, measured=False), self.LABELS))          # no verdict: never soft
+        self.assertIsNone(PK.context_soft({k: v for k, v in cx.items() if k != "measured"}, self.LABELS))   # absent
+        self.assertIsNone(PK.context_soft(dict(cx, measured=None), self.LABELS))           # audit 2240 qwen F1
+        ours = {"slot": "takeaway", "segment": "clip_01", "rule": "REFERENT_OUTSIDE"}       # on OUR line, at a clip
+        self.assertIsNone(PK.context_soft(dict(cx, violations=cx["violations"] + [ours]), self.LABELS))   # verifier
         self.assertIsNone(PK.context_soft(dict(cx, violations=[]), self.LABELS))
 
 

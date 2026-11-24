@@ -1,6 +1,28 @@
-# pp-selectid HANDOFF (written 07:03 ET Nov 18, after the usage-limit stop at 16:13 ET Nov 17)
+# pp-selectid HANDOFF (updated 22:42 ET Nov 23; the Nov 18 text below is history)
 
-## PAUSED BY PBX (10:51 ET Nov 18): resume only on the orchestrator's RESUME
+## TONIGHT, NOV 23 (updated 22:42 ET): THE FIRST VIDEO SINCE NOV 13 IS SEALED AND RENDERING
+1. SEALED: pin moments-ledger_20261124_033614-afd8977d (package_sha256 afd8977d143e), build 167, story 'Bitcoin hits
+   two-year low, then bounces off the bottom': Simply Bitcoin (hook) + Digital Asset News + Yahoo Finance, 35.6 s of
+   clips; our lines the plain fallback; 5 flag kinds (this pin's cap 5 by ruling 157 (1)). The integrator renders it
+   since 22:39 (run 20261124_033913, about 50 min) and sends the Telegram ids or the exact gate.
+2. LIVE (pushed, 71d3d0363 and before): rulings 150, 146 (3), 153 (143's mirror, DECODER 9326604699a7), 155 (1)
+   (kinds), 156 (plain fallback lines, audited), and BY HAND tonight (tests 331; audit 20261123_2240_hand running):
+   the line-up stage's soft edge, context_soft (step A's soft codes on clips in the context check), 157's one step A
+   sentence and one our-lines kind, fallback_vo_soft, the sealed kinds_cap row (one package; the standing cap 3).
+3. NOT IN CODE YET: ruling 152 (1)'s writer chain + probe (built in dev59, not landed: the order question vs the
+   coherence panel, 19:44); 152 (2) / 154 (1) (the judge fallback when the writer's vendor is the only judge); 154 (2)
+   (an unrated opener); 155 (3) (an angle that breaks the contract retried with the contract quoted). Tonight these ran
+   BY HAND: scratch r23/by_hand_166.py (writers probed, qwen first, 120 s; gemma + glm extra coherence-panel seats;
+   KINDS_CAP / STEP_A_SCOPE for that one package). For a new attempt copy by_hand_155.py (no cap override).
+4. THE SHARED HEIMDALL HEALTH can fall to plan_b when no build runs (deepseek 503 all evening): before a build, if
+   tests/package/proof/HEIMDALL_HEALTH.json says plan_b, run scratch r23/probe87_now.py (ruling 87's own probe loop).
+5. NEXT: (a) the integrator's delivery; (b) ruling 155 (2): the per-code step A rates on line 1, the orchestrator
+   rules on the checker tomorrow; (c) land 152 (1)/(2), 154 (1)/(2), 155 (3) audit-first; (d) the three daily windows
+   (12:00, 15:30, 19:30 ET) without cron: the story-first chain (routine build -> story fit -> lock pre-check of the
+   best story's spans that do not expire within ~2 h -> the paid attempt with the by-hand wrapper) as one scheduled
+   script, which does not exist yet.
+
+## (history) PAUSED BY PBX (10:51 ET Nov 18): resume only on the orchestrator's RESUME
 1. LIVE (pushed on pp-selectid): ed9df3f28 batch 114 mirror (decoder 50fa01b400bd) + package_pin.flags_cap (5 on the pbx_exception pin); 1be22777c STAND_ALONE come-back beside a trim variant; d2477a02f attest.class_131 compares the merged reading as tokens (the '24 7 365' false hold); d0147dc6e the standing 30 s floor + 'runs short' flag (never-empty pass; 'runtime' in SOFT_GATES). Integrator: batch 114 merged; its batch 115 (G5/R4 follow the runtime row) was landing; its 113 + 139 decoder lockstep waits.
 2. IN PROGRESS, NOT LANDED (scratch dev copies under /tmp/claude-1000/-home-ultron-worktrees-pp-selectid/a80f37a3-3482-4017-9152-9c0c6e2f0dab/scratchpad): (a) ruling 150 (1) BY HAND in dev61: package.VALUE_SOFT_LINE + driver --value-soft-line (only that exact line's MEASURED value LOST, never-empty pass, goes on to fidelity), takeaway_value row FLAGGED 'The closing line may mostly restate the clips: "<line>"', SOFT_GATES += takeaway_value; tests pass, mutations 6 of 6, suites 42 files / 944; audit pp-selectid_audit_20261118_1044: C1 qwen + gemma no P0/P1 (gpt-oss no verdict), C2 qwen + gpt-oss no P0/P1 (gemma no answer). (b) ruling 151 (10:52): this pin's cap 6 (package_pin.PBX_EXCEPTION_CAP 5 -> 6; standing cap 3): NOT started. (c) ruling 146 (3) (sponsor-before soft, the exclusion model judges) in dev59: tests pass, mutations 8 of 9 (S8: gate_problems never checks the extra 'sponsor' row), no audit.
 3. NEXT ON RESUME: land (a) + (b) (its test: 6 seals, 7 refuses; one clean audit cycle on (b)); then build 151: LOCK=on bash /tmp/claude-1000/-home-ultron-worktrees-pp-selectid/a80f37a3-3482-4017-9152-9c0c6e2f0dab/scratchpad/build_and_record.sh 151 "RULINGS 150/151: build 150's line-up, write 1" --only /tmp/claude-1000/-home-ultron-worktrees-pp-selectid/a80f37a3-3482-4017-9152-9c0c6e2f0dab/scratchpad/r144/ONLY_144.json --stop-usd 1.39 --hours 26 --pbx-exception "PBX exception Nov 18: these clips are older than 12 hours (allowed for this one video only)" --value-soft-line "<write 1's exact text from build 150's record ledger_20261118_150615>"; seal -> READY to protocol-pulse-68 (pin path + package_sha256[:12]). THE 30 h EXCEPTION WINDOW for feb4b72f / 20cac687 closes about 15:56 ET Nov 18: after it, this pin needs a new ruling. Then today's pool (cap 3, the floor), the integrator's 113 + 139 decoder mirror, (c)'s audit.

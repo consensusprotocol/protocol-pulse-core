@@ -637,7 +637,8 @@ def context_soft(cx, labels):
     named (ruling 155): -> {label: [codes]}; else None (any other code, a violation on our lines, or an unmeasured
     verdict stays as ruled)."""
     vs = list((cx or {}).get("violations") or [])
-    if (cx or {}).get("measured") is False or not vs or not all(
+    if (cx or {}).get("measured") is not True or not vs or not all(   # audit 20261123_2240 (qwen F1): a verdict not
+        #   measured exactly True (absent, None) never softens
             v.get("rule") in STEP_A_SOFT and v.get("segment") in labels and not v.get("slot") for v in vs):
         return None
     out = {}
@@ -4893,7 +4894,8 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
                               sorted({str(a.get("backend")) for a in a_rows}), rep(a.get("replayed") for a in a_rows),
                               n=len(a_rows)),
                           **({"status": "FLAGGED",            # RULING 137 stage 1; 138 (3): a sentence a clip
-                              "flags": [step_a_sentence({lb: lab_codes[lb] for lb in (a_by or {})}, who)]}
+                              "flags": [x for x in [step_a_sentence({lb: lab_codes[lb] for lb in (a_by or {})},
+                                                                    who)] if x]}   # audit 2240 (qwen F2): never None
                                                                              # RULING 157 (2)(a) / (5): ONE kind
                              if soft_a and len(a_rows) >= 1 else {}),
                           **({"last_resort": last_resort} if last_resort else {})),   # RULING 102: the local judge
