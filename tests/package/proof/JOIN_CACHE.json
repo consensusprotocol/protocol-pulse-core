@@ -2392,5 +2392,292 @@
    "why": "clarifies 'where we were on Friday'",
    "backend": "xai:grok-4.20-0309-reasoning"
   }
+ },
+ "e91ee5d20168ca49574b1f2ea7ecde575fd43ca97f9c16a1aaf5d29b0c3230ed:27ace1c055a2535ff3984ec6e9c727bdde7eaea028ee6f858ce51cd76c576115:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "they refers to Wall Street",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "e91ee5d20168ca49574b1f2ea7ecde575fd43ca97f9c16a1aaf5d29b0c3230ed:70c6275b44566a9ed0b2d2f4d9cd51fd7a6ec1269bce55904ec89a4652e8a32e:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "abrupt to hedging",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "e91ee5d20168ca49574b1f2ea7ecde575fd43ca97f9c16a1aaf5d29b0c3230ed:79e58888a805cf7ae36a0bb5eee88059770222d4ade5512b9d7e8afb281d855e:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "Wall Street as institutions",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "e91ee5d20168ca49574b1f2ea7ecde575fd43ca97f9c16a1aaf5d29b0c3230ed:00815aba5ce5e663481eb16e6e03d5bc6b9abb31e0394aa72f85d11ef17dff35:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no link to bear market",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "e91ee5d20168ca49574b1f2ea7ecde575fd43ca97f9c16a1aaf5d29b0c3230ed:e669b2537dc5e11a111da6d58e832c556ff1f13da4e0506044b932698dc34073:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "no link to bitcoiners",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "e91ee5d20168ca49574b1f2ea7ecde575fd43ca97f9c16a1aaf5d29b0c3230ed:a7f2412b06185007fdf274b5cc53656c3de8816e8f578630f360c3934bc57308:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "abrupt to deficits",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "27ace1c055a2535ff3984ec6e9c727bdde7eaea028ee6f858ce51cd76c576115:70c6275b44566a9ed0b2d2f4d9cd51fd7a6ec1269bce55904ec89a4652e8a32e:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "revolution to hedge mismatch",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "27ace1c055a2535ff3984ec6e9c727bdde7eaea028ee6f858ce51cd76c576115:79e58888a805cf7ae36a0bb5eee88059770222d4ade5512b9d7e8afb281d855e:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "these lacks antecedent",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "27ace1c055a2535ff3984ec6e9c727bdde7eaea028ee6f858ce51cd76c576115:00815aba5ce5e663481eb16e6e03d5bc6b9abb31e0394aa72f85d11ef17dff35:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "revolution to bear market",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "27ace1c055a2535ff3984ec6e9c727bdde7eaea028ee6f858ce51cd76c576115:e669b2537dc5e11a111da6d58e832c556ff1f13da4e0506044b932698dc34073:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "shared monetary revolution",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "27ace1c055a2535ff3984ec6e9c727bdde7eaea028ee6f858ce51cd76c576115:a7f2412b06185007fdf274b5cc53656c3de8816e8f578630f360c3934bc57308:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "revolution to outperformance",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "70c6275b44566a9ed0b2d2f4d9cd51fd7a6ec1269bce55904ec89a4652e8a32e:27ace1c055a2535ff3984ec6e9c727bdde7eaea028ee6f858ce51cd76c576115:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "they has no referent",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "70c6275b44566a9ed0b2d2f4d9cd51fd7a6ec1269bce55904ec89a4652e8a32e:79e58888a805cf7ae36a0bb5eee88059770222d4ade5512b9d7e8afb281d855e:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "hedge to institutions",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "70c6275b44566a9ed0b2d2f4d9cd51fd7a6ec1269bce55904ec89a4652e8a32e:00815aba5ce5e663481eb16e6e03d5bc6b9abb31e0394aa72f85d11ef17dff35:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "this year as bear market",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "70c6275b44566a9ed0b2d2f4d9cd51fd7a6ec1269bce55904ec89a4652e8a32e:e669b2537dc5e11a111da6d58e832c556ff1f13da4e0506044b932698dc34073:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "hedge to revolution",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "70c6275b44566a9ed0b2d2f4d9cd51fd7a6ec1269bce55904ec89a4652e8a32e:a7f2412b06185007fdf274b5cc53656c3de8816e8f578630f360c3934bc57308:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "hedge to outperformance",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "79e58888a805cf7ae36a0bb5eee88059770222d4ade5512b9d7e8afb281d855e:27ace1c055a2535ff3984ec6e9c727bdde7eaea028ee6f858ce51cd76c576115:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "institutions to they haven't learned",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "79e58888a805cf7ae36a0bb5eee88059770222d4ade5512b9d7e8afb281d855e:70c6275b44566a9ed0b2d2f4d9cd51fd7a6ec1269bce55904ec89a4652e8a32e:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "recommending to hedge",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "79e58888a805cf7ae36a0bb5eee88059770222d4ade5512b9d7e8afb281d855e:00815aba5ce5e663481eb16e6e03d5bc6b9abb31e0394aa72f85d11ef17dff35:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "recommending to bear market",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "79e58888a805cf7ae36a0bb5eee88059770222d4ade5512b9d7e8afb281d855e:e669b2537dc5e11a111da6d58e832c556ff1f13da4e0506044b932698dc34073:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "recommending to not zero",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "79e58888a805cf7ae36a0bb5eee88059770222d4ade5512b9d7e8afb281d855e:a7f2412b06185007fdf274b5cc53656c3de8816e8f578630f360c3934bc57308:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "recommending to deficits",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "00815aba5ce5e663481eb16e6e03d5bc6b9abb31e0394aa72f85d11ef17dff35:27ace1c055a2535ff3984ec6e9c727bdde7eaea028ee6f858ce51cd76c576115:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "bear market to they",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "00815aba5ce5e663481eb16e6e03d5bc6b9abb31e0394aa72f85d11ef17dff35:70c6275b44566a9ed0b2d2f4d9cd51fd7a6ec1269bce55904ec89a4652e8a32e:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "bear market to this year",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "00815aba5ce5e663481eb16e6e03d5bc6b9abb31e0394aa72f85d11ef17dff35:79e58888a805cf7ae36a0bb5eee88059770222d4ade5512b9d7e8afb281d855e:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "bear market to institutions",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "00815aba5ce5e663481eb16e6e03d5bc6b9abb31e0394aa72f85d11ef17dff35:e669b2537dc5e11a111da6d58e832c556ff1f13da4e0506044b932698dc34073:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "not lower to not zero",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "00815aba5ce5e663481eb16e6e03d5bc6b9abb31e0394aa72f85d11ef17dff35:a7f2412b06185007fdf274b5cc53656c3de8816e8f578630f360c3934bc57308:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "bear caution to long-term outperformance",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "e669b2537dc5e11a111da6d58e832c556ff1f13da4e0506044b932698dc34073:27ace1c055a2535ff3984ec6e9c727bdde7eaea028ee6f858ce51cd76c576115:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continues monetary revolution",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "e669b2537dc5e11a111da6d58e832c556ff1f13da4e0506044b932698dc34073:70c6275b44566a9ed0b2d2f4d9cd51fd7a6ec1269bce55904ec89a4652e8a32e:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "unclear 'this kind of year' referent",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "e669b2537dc5e11a111da6d58e832c556ff1f13da4e0506044b932698dc34073:79e58888a805cf7ae36a0bb5eee88059770222d4ade5512b9d7e8afb281d855e:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "revolution to institutional interest",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "e669b2537dc5e11a111da6d58e832c556ff1f13da4e0506044b932698dc34073:00815aba5ce5e663481eb16e6e03d5bc6b9abb31e0394aa72f85d11ef17dff35:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "positive view to bear market",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "e669b2537dc5e11a111da6d58e832c556ff1f13da4e0506044b932698dc34073:a7f2412b06185007fdf274b5cc53656c3de8816e8f578630f360c3934bc57308:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "resilience to outperformance",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "a7f2412b06185007fdf274b5cc53656c3de8816e8f578630f360c3934bc57308:27ace1c055a2535ff3984ec6e9c727bdde7eaea028ee6f858ce51cd76c576115:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "finite asset to true nature",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "a7f2412b06185007fdf274b5cc53656c3de8816e8f578630f360c3934bc57308:70c6275b44566a9ed0b2d2f4d9cd51fd7a6ec1269bce55904ec89a4652e8a32e:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "outperformance to hedge role",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "a7f2412b06185007fdf274b5cc53656c3de8816e8f578630f360c3934bc57308:79e58888a805cf7ae36a0bb5eee88059770222d4ade5512b9d7e8afb281d855e:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "strength to institutions recommending",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "a7f2412b06185007fdf274b5cc53656c3de8816e8f578630f360c3934bc57308:00815aba5ce5e663481eb16e6e03d5bc6b9abb31e0394aa72f85d11ef17dff35:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": false,
+   "why": "bullish to bearish caution",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "a7f2412b06185007fdf274b5cc53656c3de8816e8f578630f360c3934bc57308:e669b2537dc5e11a111da6d58e832c556ff1f13da4e0506044b932698dc34073:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "finite to cannot go to zero",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "a41c3b2851a107a6561869fc9cee133d999667ed708c545d5104be663baae536:a7f2412b06185007fdf274b5cc53656c3de8816e8f578630f360c3934bc57308:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "continues inflation and Bitcoin outperforming",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "a41c3b2851a107a6561869fc9cee133d999667ed708c545d5104be663baae536:70c6275b44566a9ed0b2d2f4d9cd51fd7a6ec1269bce55904ec89a4652e8a32e:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "connects Bitcoin as inflation hedge",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "a41c3b2851a107a6561869fc9cee133d999667ed708c545d5104be663baae536:79e58888a805cf7ae36a0bb5eee88059770222d4ade5512b9d7e8afb281d855e:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "both discuss Bitcoin positively",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "a41c3b2851a107a6561869fc9cee133d999667ed708c545d5104be663baae536:00815aba5ce5e663481eb16e6e03d5bc6b9abb31e0394aa72f85d11ef17dff35:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "stays on Bitcoin market analysis",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
+ },
+ "a41c3b2851a107a6561869fc9cee133d999667ed708c545d5104be663baae536:e669b2537dc5e11a111da6d58e832c556ff1f13da4e0506044b932698dc34073:dbd7a7d445a1": {
+  "xai:grok-4.20-0309-reasoning": {
+   "followable": true,
+   "why": "extends to Bitcoin revolution",
+   "backend": "xai:grok-4.20-0309-reasoning"
+  }
  }
 }

@@ -1,0 +1,326 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "acd029eb9048424fdd32c9a529c79a7b7d5ec47fe1163a26556c9648d78cbfff",
+ "result": {
+  "text": "And gold wasn't the only thing that was being turned into cash. In late October, Bitcoin traded over $80,000. As I make this video, it's around 65K. Over those few weeks, the same cash crunch has hit Bitcoin roughly three times as hard as gold. On the 14th of No-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.3,
+    "end": 18.4,
+    "text": "And gold wasn't the only thing that was being turned into cash. In late October, Bitcoin traded over $80,000. As I make this video, it's around 65K. Over those few weeks, the same cash crunch has hit Bitcoin roughly three times as hard as gold. On the 14th of No-"
+   }
+  ],
+  "words": [
+   {
+    "text": "And",
+    "start": 0.3,
+    "end": 0.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold",
+    "start": 0.78,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wasn't",
+    "start": 1.08,
+    "end": 1.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.28,
+    "end": 1.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "only",
+    "start": 1.5,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing",
+    "start": 1.8,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 2.12,
+    "end": 2.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 2.24,
+    "end": 2.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 2.42,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "turned",
+    "start": 2.62,
+    "end": 2.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 2.82,
+    "end": 2.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cash.",
+    "start": 3.04,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "In",
+    "start": 4.16,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "late",
+    "start": 4.28,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "October,",
+    "start": 4.46,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.34,
+    "end": 5.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "traded",
+    "start": 5.9,
+    "end": 6.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 6.22,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$80,000.",
+    "start": 6.44,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "As",
+    "start": 8.18,
+    "end": 8.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 8.3,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "make",
+    "start": 8.38,
+    "end": 8.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 8.54,
+    "end": 8.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "video,",
+    "start": 8.74,
+    "end": 9.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 9.28,
+    "end": 9.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "around",
+    "start": 9.5,
+    "end": 9.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "65K.",
+    "start": 9.9,
+    "end": 10.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Over",
+    "start": 11.56,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "those",
+    "start": 11.74,
+    "end": 11.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "few",
+    "start": 11.94,
+    "end": 12.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "weeks,",
+    "start": 12.18,
+    "end": 12.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.82,
+    "end": 12.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "same",
+    "start": 12.94,
+    "end": 13.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cash",
+    "start": 13.2,
+    "end": 13.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crunch",
+    "start": 13.58,
+    "end": 13.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 14.0,
+    "end": 14.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hit",
+    "start": 14.18,
+    "end": 14.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 14.44,
+    "end": 14.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "roughly",
+    "start": 15.02,
+    "end": 15.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "three",
+    "start": 15.34,
+    "end": 15.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "times",
+    "start": 15.66,
+    "end": 16.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 16.12,
+    "end": 16.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hard",
+    "start": 16.239,
+    "end": 16.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 16.48,
+    "end": 16.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold.",
+    "start": 16.62,
+    "end": 16.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "On",
+    "start": 17.64,
+    "end": 17.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 17.72,
+    "end": 17.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "14th",
+    "start": 17.82,
+    "end": 18.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 18.24,
+    "end": 18.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "No-",
+    "start": 18.34,
+    "end": 18.4,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 18.42
+ },
+ "usd": 0.003684,
+ "seconds": 0.85,
+ "recorded_at": "2026-11-24T17:57:43Z"
+}

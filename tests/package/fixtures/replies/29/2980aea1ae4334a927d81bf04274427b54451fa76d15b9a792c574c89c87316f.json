@@ -1,0 +1,512 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "93c626c751390c713bd6a330c17fbf860e4839b018de1ad25c5dff9cc6eee2bf",
+ "result": {
+  "text": "People say, \"You know what? I'm gonna look at this over a five-year period or a 10-year period.\" And when you look at where the world is going, our thesis is that the, the deficit is not going away. In fact, it's probably gonna get worse and worse and worse. And as it does, and those currency units are diluted, the price of Bitcoin will outperform every other asset simply because it is a finite asset. And, you know, another interesting-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 25.1,
+    "text": "People say, \"You know what? I'm gonna look at this over a five-year period or a 10-year period.\" And when you look at where the world is going, our thesis is that the, the deficit is not going away. In fact, it's probably gonna get worse and worse and worse. And as it does, and those currency units are diluted, the price of Bitcoin will outperform every other asset simply because it is a finite asset. And, you know, another interesting-"
+   }
+  ],
+  "words": [
+   {
+    "text": "People",
+    "start": 0.0,
+    "end": 0.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say,",
+    "start": 0.24,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"You",
+    "start": 0.4,
+    "end": 0.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 0.48,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what?",
+    "start": 0.58,
+    "end": 0.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 0.72,
+    "end": 0.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 0.8,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 0.96,
+    "end": 1.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 1.08,
+    "end": 1.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 1.16,
+    "end": 1.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 1.34,
+    "end": 1.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.5,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "five-year",
+    "start": 1.62,
+    "end": 2.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "period",
+    "start": 2.06,
+    "end": 2.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 2.64,
+    "end": 2.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 2.76,
+    "end": 2.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "10-year",
+    "start": 2.9,
+    "end": 3.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "period.\"",
+    "start": 3.34,
+    "end": 3.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 4.019,
+    "end": 4.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 4.12,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.24,
+    "end": 4.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 4.34,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 4.5,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 4.62,
+    "end": 4.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.8,
+    "end": 4.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world",
+    "start": 4.9,
+    "end": 5.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.14,
+    "end": 5.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going,",
+    "start": 5.3,
+    "end": 5.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "our",
+    "start": 6.12,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thesis",
+    "start": 6.34,
+    "end": 6.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 6.82,
+    "end": 6.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 7.02,
+    "end": 7.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the,",
+    "start": 8.14,
+    "end": 8.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.38,
+    "end": 8.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "deficit",
+    "start": 8.56,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 9.02,
+    "end": 9.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 9.16,
+    "end": 9.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 9.4,
+    "end": 9.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "away.",
+    "start": 9.7,
+    "end": 10.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "In",
+    "start": 10.28,
+    "end": 10.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fact,",
+    "start": 10.48,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 10.84,
+    "end": 10.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "probably",
+    "start": 11.04,
+    "end": 11.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 11.4,
+    "end": 11.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 11.62,
+    "end": 11.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worse",
+    "start": 11.86,
+    "end": 12.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 12.24,
+    "end": 12.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worse",
+    "start": 12.42,
+    "end": 12.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 12.8,
+    "end": 12.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worse.",
+    "start": 13.0,
+    "end": 13.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 13.34,
+    "end": 13.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 13.62,
+    "end": 13.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 13.78,
+    "end": 13.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "does,",
+    "start": 13.94,
+    "end": 14.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 14.76,
+    "end": 14.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "those",
+    "start": 14.88,
+    "end": 15.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "currency",
+    "start": 15.12,
+    "end": 15.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "units",
+    "start": 15.54,
+    "end": 15.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 15.76,
+    "end": 15.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "diluted,",
+    "start": 15.92,
+    "end": 16.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 16.92,
+    "end": 17.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 17.06,
+    "end": 17.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 17.34,
+    "end": 17.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 17.46,
+    "end": 17.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 17.96,
+    "end": 18.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outperform",
+    "start": 18.68,
+    "end": 20.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "every",
+    "start": 20.2,
+    "end": 20.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "other",
+    "start": 20.62,
+    "end": 20.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset",
+    "start": 20.96,
+    "end": 21.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "simply",
+    "start": 21.34,
+    "end": 21.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 21.64,
+    "end": 22.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 22.38,
+    "end": 22.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 22.46,
+    "end": 22.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 22.58,
+    "end": 22.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "finite",
+    "start": 22.72,
+    "end": 23.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset.",
+    "start": 23.26,
+    "end": 23.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And,",
+    "start": 24.12,
+    "end": 24.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 24.24,
+    "end": 24.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 24.3,
+    "end": 24.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "another",
+    "start": 24.38,
+    "end": 24.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "interesting-",
+    "start": 24.7,
+    "end": 25.1,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 25.17
+ },
+ "usd": 0.005034,
+ "seconds": 0.98,
+ "recorded_at": "2026-11-24T17:59:07Z"
+}

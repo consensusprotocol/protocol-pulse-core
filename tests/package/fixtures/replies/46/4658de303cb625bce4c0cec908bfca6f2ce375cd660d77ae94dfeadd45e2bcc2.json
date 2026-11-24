@@ -1,0 +1,284 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "bc42def43bfe788240305989c5e002502111076b3ab9a6b8893a2a4156135685",
+ "result": {
+  "text": "Uh, he calls me and he's like, \"So I bought Bitcoin.\" And I'm like, \"Okay, cool.\" And he goes, \"Yeah, 10,000.\" And I was like, \"You bought one Bitcoin?\" He's like, \"No, Eric, I bought 10,000 Bitcoin.\" At the time, what Bitcoin mean-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.04,
+    "end": 10.92,
+    "text": "Uh, he calls me and he's like, \"So I bought Bitcoin.\" And I'm like, \"Okay, cool.\" And he goes, \"Yeah, 10,000.\" And I was like, \"You bought one Bitcoin?\" He's like, \"No, Eric, I bought 10,000 Bitcoin.\" At the time, what Bitcoin mean-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Uh,",
+    "start": 0.04,
+    "end": 0.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "he",
+    "start": 0.14,
+    "end": 0.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "calls",
+    "start": 0.28,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me",
+    "start": 0.6,
+    "end": 0.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 0.98,
+    "end": 1.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "he's",
+    "start": 1.1,
+    "end": 1.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 1.32,
+    "end": 1.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"So",
+    "start": 1.5,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 1.86,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bought",
+    "start": 1.96,
+    "end": 2.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.\"",
+    "start": 2.16,
+    "end": 2.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 2.56,
+    "end": 2.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 2.62,
+    "end": 2.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 2.72,
+    "end": 2.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Okay,",
+    "start": 2.88,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cool.\"",
+    "start": 3.32,
+    "end": 3.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 3.76,
+    "end": 3.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "he",
+    "start": 3.86,
+    "end": 3.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "goes,",
+    "start": 3.94,
+    "end": 4.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Yeah,",
+    "start": 4.12,
+    "end": 4.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "10,000.\"",
+    "start": 4.44,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 5.28,
+    "end": 5.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 5.4,
+    "end": 5.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 5.46,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 5.6,
+    "end": 5.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"You",
+    "start": 6.0,
+    "end": 6.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bought",
+    "start": 6.12,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 6.34,
+    "end": 6.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin?\"",
+    "start": 6.52,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "He's",
+    "start": 7.28,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 7.4,
+    "end": 7.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"No,",
+    "start": 7.8,
+    "end": 7.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Eric,",
+    "start": 7.96,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 8.26,
+    "end": 8.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bought",
+    "start": 8.36,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "10,000",
+    "start": 8.58,
+    "end": 9.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.\"",
+    "start": 9.16,
+    "end": 9.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "At",
+    "start": 9.74,
+    "end": 9.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.86,
+    "end": 9.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time,",
+    "start": 10.0,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 10.28,
+    "end": 10.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 10.44,
+    "end": 10.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean-",
+    "start": 10.82,
+    "end": 10.92,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 10.94
+ },
+ "usd": 0.002188,
+ "seconds": 0.98,
+ "recorded_at": "2026-11-24T17:59:11Z"
+}

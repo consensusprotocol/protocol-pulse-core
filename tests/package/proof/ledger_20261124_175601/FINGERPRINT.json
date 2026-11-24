@@ -1,0 +1,61 @@
+{
+ "fingerprint": "4345b4c2d6f7e2386f4bd0f0af20f2368c7653936d5df3236b405aad6ae6c6b0",
+ "parts": {
+  "moments": "6ac0145b38d3a792563d1d0f0f4533b31378975fa30bfbcfcaff0946cf219f5d",
+  "delivered": "63756e8a811fada028028d28149726fcb15a4efc7c259263c2249aeb733c8434",
+  "day_et": "2026-11-24",
+  "code": "415760cdc8d4d355b1c7615894ad1632d62edb818cf3427e3a50a3969f67b9be",
+  "candidates": "9897f14f4b9490374f2e19d914d23d02ab61ea8b21bf3e3cf68f438de9700dac",
+  "due": [],
+  "spotlights": "710d9f9fa4d4b706be1e5ca7bfef3a8b6718df17570f4d75ffb197143d6420ae",
+  "directives": "a1caab6e5bbbf60ae9677b272d4fc9c9f7f5a01558b962ead2932db5416f81cd",
+  "precheck_results": "baa62983453d4d1d5768cec8f5e2fb13cbf4fe6dc574ce9728fe90c851a10cd2",
+  "scorer_verdicts": "409d6acf252b50b66cef3e9e560ff616bb3ef469a0f13d13fc0c87b4268a38ab",
+  "routing": "heimdall_first"
+ },
+ "open_work": 7,
+ "undone": [
+  {
+   "kind": "money",
+   "id": "xai:grok-4.20-0309-reasoning",
+   "why": "a paid call the spend stop refused"
+  },
+  {
+   "kind": "money",
+   "id": "xai:grok-4.20-0309-reasoning",
+   "why": "a paid call the spend stop refused"
+  },
+  {
+   "kind": "money",
+   "id": "xai:grok-4.20-0309-reasoning",
+   "why": "a paid call the spend stop refused"
+  },
+  {
+   "kind": "money",
+   "id": "xai:grok-4.20-0309-reasoning",
+   "why": "a paid call the spend stop refused"
+  },
+  {
+   "kind": "vision",
+   "id": "dd2157e19972a4cebfc8",
+   "why": "an opener's vision check not measured"
+  },
+  {
+   "kind": "verdict",
+   "id": null,
+   "why": "SpendLimit: spend (reported) 1.42 USD + reserved 0.00 + this call's upper bound 0.08 > the limit 1.5 USD"
+  },
+  {
+   "kind": "verdict",
+   "id": null,
+   "why": "SpendLimit: spend (reported) 1.43 USD + reserved 0.00 + this call's upper bound 0.08 > the limit 1.5 USD"
+  }
+ ],
+ "spend_refused": [
+  "xai:grok-4.20-0309-reasoning",
+  "xai:grok-4.20-0309-reasoning",
+  "xai:grok-4.20-0309-reasoning",
+  "xai:grok-4.20-0309-reasoning"
+ ],
+ "build": "tests/package/proof/ledger_20261124_175601"
+}

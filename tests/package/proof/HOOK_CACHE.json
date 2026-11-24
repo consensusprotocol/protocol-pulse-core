@@ -1069,5 +1069,49 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "dd2157e19972a4cebfc8:fd413179f0d05f248fe5ba5c17dda2261775fb82aa62955e7ff110c03162dc98:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 3,
+   "setup": 4,
+   "rating": 3,
+   "why": "vague 'same cash crunch' reference",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "2e3e3c781ab9a3734eca:a41c3b2851a107a6561869fc9cee133d999667ed708c545d5104be663baae536:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 3,
+   "setup": 4,
+   "rating": 2,
+   "why": "opens mid-thought with 'I mean' lacking punch",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "cb024f5a4139d217dad2:e91ee5d20168ca49574b1f2ea7ecde575fd43ca97f9c16a1aaf5d29b0c3230ed:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 4,
+   "setup": 4,
+   "rating": 3,
+   "why": "first seconds not gripping enough to stop scroll",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "c4e67ea61496e5b97124:00815aba5ce5e663481eb16e6e03d5bc6b9abb31e0394aa72f85d11ef17dff35:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 2,
+   "setup": 3,
+   "rating": 2,
+   "why": "starts mid-thought with 'I mean'",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

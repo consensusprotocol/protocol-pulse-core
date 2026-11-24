@@ -1,0 +1,248 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "e2bc25d9de02e24220cd97834807958ee9f7aa83071ddcdfda35b361691eef92",
+ "result": {
+  "text": "Bitcoin into just general tech and how things scale. And there's a reality that if we maintain the way we exist today, if the solutions, Bitcoin just won't scale, full stop, 1,000% won't. Because think about it",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 12.94,
+    "text": "Bitcoin into just general tech and how things scale. And there's a reality that if we maintain the way we exist today, if the solutions, Bitcoin just won't scale, full stop, 1,000% won't. Because think about it"
+   }
+  ],
+  "words": [
+   {
+    "text": "Bitcoin",
+    "start": 0.0,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 0.34,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 0.58,
+    "end": 0.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "general",
+    "start": 0.96,
+    "end": 1.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tech",
+    "start": 1.7,
+    "end": 1.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 2.0,
+    "end": 2.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 2.14,
+    "end": 2.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "things",
+    "start": 2.32,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "scale.",
+    "start": 2.64,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 3.76,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 4.1,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.3,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reality",
+    "start": 4.4,
+    "end": 4.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 5.08,
+    "end": 5.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 5.44,
+    "end": 5.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 5.64,
+    "end": 5.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "maintain",
+    "start": 5.8,
+    "end": 6.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.34,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 6.46,
+    "end": 6.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 6.74,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "exist",
+    "start": 6.88,
+    "end": 7.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "today,",
+    "start": 7.5,
+    "end": 7.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 8.2,
+    "end": 8.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.32,
+    "end": 8.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "solutions,",
+    "start": 8.44,
+    "end": 8.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.96,
+    "end": 9.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 9.26,
+    "end": 9.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "won't",
+    "start": 9.42,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "scale,",
+    "start": 9.64,
+    "end": 9.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "full",
+    "start": 9.96,
+    "end": 10.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stop,",
+    "start": 10.18,
+    "end": 10.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "1,000%",
+    "start": 10.5,
+    "end": 11.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "won't.",
+    "start": 11.32,
+    "end": 11.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Because",
+    "start": 12.18,
+    "end": 12.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 12.44,
+    "end": 12.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 12.66,
+    "end": 12.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 12.88,
+    "end": 12.94,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.96
+ },
+ "usd": 0.002592,
+ "seconds": 1.03,
+ "recorded_at": "2026-11-24T17:59:39Z"
+}

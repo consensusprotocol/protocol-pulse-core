@@ -1,0 +1,236 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "233561da1475b30d4cfa2a042a8f3e56966e9d22c93ce69c704288bc0988bebf",
+ "result": {
+  "text": "allocation to Bitcoin in terms of recommended allocation. Fidelity 2 to 5%. Isn't it interesting that all these large, you know, name brand institutions are recommending Bitcoin and digital assets? Yeah, and, and Ju-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 11.22,
+    "text": "allocation to Bitcoin in terms of recommended allocation. Fidelity 2 to 5%. Isn't it interesting that all these large, you know, name brand institutions are recommending Bitcoin and digital assets?"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 11.86,
+    "end": 12.64,
+    "text": "Yeah, and, and Ju-"
+   }
+  ],
+  "words": [
+   {
+    "text": "allocation",
+    "start": 0.0,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 0.26,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 0.34,
+    "end": 0.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 0.66,
+    "end": 0.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "terms",
+    "start": 0.76,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 0.96,
+    "end": 1.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "recommended",
+    "start": 1.26,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "allocation.",
+    "start": 1.74,
+    "end": 2.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Fidelity",
+    "start": 2.54,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2",
+    "start": 3.14,
+    "end": 3.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 3.28,
+    "end": 3.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "5%.",
+    "start": 3.4,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Isn't",
+    "start": 4.22,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 4.36,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "interesting",
+    "start": 4.48,
+    "end": 4.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 5.02,
+    "end": 5.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 5.28,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "these",
+    "start": 5.44,
+    "end": 5.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "large,",
+    "start": 5.7,
+    "end": 6.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 6.22,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 6.3,
+    "end": 6.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "name",
+    "start": 6.7,
+    "end": 6.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "brand",
+    "start": 7.04,
+    "end": 7.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "institutions",
+    "start": 7.98,
+    "end": 8.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 8.72,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "recommending",
+    "start": 8.92,
+    "end": 9.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 9.86,
+    "end": 10.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 10.38,
+    "end": 10.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "digital",
+    "start": 10.52,
+    "end": 10.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "assets?",
+    "start": 10.9,
+    "end": 11.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yeah,",
+    "start": 11.86,
+    "end": 12.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "and,",
+    "start": 12.06,
+    "end": 12.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "and",
+    "start": 12.26,
+    "end": 12.42,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Ju-",
+    "start": 12.6,
+    "end": 12.64,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.69
+ },
+ "usd": 0.002538,
+ "seconds": 1.35,
+ "recorded_at": "2026-11-24T17:59:12Z"
+}

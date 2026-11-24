@@ -1,0 +1,210 @@
+{
+ "16473ccae3baf3b8d118:1092.200-1102.850:d509ad194f42834e:fe61490efbd8cc40": {
+  "backend": "heimdall:qwen/qwen3.8-27b@low",
+  "complete": false,
+  "finishes_at": 0,
+  "key": "e9654f09c6f3546e6e4159c107b20f228bb88952e7521dd621d7353fb08d1bd8",
+  "ks": [],
+  "measured": true,
+  "next": [
+   "It's not boring then.",
+   "And it's tiny and volatile.",
+   "The larger it gets, the more boring you should want it to be."
+  ],
+  "sha256": "d509ad194f42834eb5b4813c79498dcb332b7eb2367017c37f1227f3dc017903",
+  "version": "owner_rules 4 (ruling 162 + items 2, 7, 2026-11-24)",
+  "why": "The clip ends on an unfinished 'when' clause ('when Bitcoin was a five-year-old asset...') that requires the main clause delivered by sentence [0] 'It's not boring then.' to complete the thought."
+ },
+ "1f859d5e96a4c1a61c27:560.056-577.496:d509ad194f42834e:729d59425b3503fa": {
+  "backend": "heimdall:qwen/qwen3.8-27b@low",
+  "complete": true,
+  "finishes_at": null,
+  "key": "6eea390558b49098be7c2d8a05d69807a5c5bbc7947d21233b02661b96c87eb9",
+  "ks": [],
+  "measured": true,
+  "next": [
+   "We saw the banks now are starting to offer loans against that as collateral.",
+   "So the rate and pace of adoption is absolutely amazing.",
+   "But not everybody feels that way."
+  ],
+  "sha256": "d509ad194f42834eb5b4813c79498dcb332b7eb2367017c37f1227f3dc017903",
+  "version": "owner_rules 4 (ruling 162 + items 2, 7, 2026-11-24)",
+  "why": "The last sentence 'And we've already made our way into the system' is a complete declarative statement; the following sentences merely add supporting evidence and a summary, not a continuation of an unfinished thought."
+ },
+ "1f859d5e96a4c1a61c27~trim:560.256-577.496:d509ad194f42834e:42774f55fcd75bad": {
+  "backend": "heimdall:qwen/qwen3.8-27b@low",
+  "complete": true,
+  "finishes_at": null,
+  "key": "2b05a4b6ae90725121194c0191c363d4c3a31d29d661494198d3b4a57574f020",
+  "ks": [],
+  "measured": true,
+  "next": [
+   "We saw the banks now are starting to offer loans against that as collateral.",
+   "So the rate and pace of adoption is absolutely amazing.",
+   "But not everybody feels that way."
+  ],
+  "sha256": "d509ad194f42834eb5b4813c79498dcb332b7eb2367017c37f1227f3dc017903",
+  "version": "owner_rules 4 (ruling 162 + items 2, 7, 2026-11-24)",
+  "why": "The last sentence 'And we've already made our way into the system' is a complete declarative statement; the following sentences merely provide supporting examples and elaboration."
+ },
+ "2e3e3c781ab9a3734eca:34.320-49.300:d509ad194f42834e:a69ee53f5ac7852f": {
+  "backend": "heimdall:qwen/qwen3.8-27b@low",
+  "complete": true,
+  "finishes_at": null,
+  "key": "847d4d90a18aee3d64c4cd08ddbddc1c16de2bdfa4c7890879363044a5ad9c0b",
+  "ks": [],
+  "measured": true,
+  "next": [
+   "How have the last two years played out in your mind?",
+   "Like, what happened?",
+   "And why has Bitcoin underperform?"
+  ],
+  "sha256": "d509ad194f42834eb5b4813c79498dcb332b7eb2367017c37f1227f3dc017903",
+  "version": "owner_rules 4 (ruling 162 + items 2, 7, 2026-11-24)",
+  "why": "The last sentence is a complete declarative statement about Bitcoin being the most moral and ethical off-ramp, and the following sentences are a new interviewer question, not a continuation of the speaker's thought."
+ },
+ "33166630e5b1abb76695:35.250-43.850:d509ad194f42834e:a4cab1fe9087e7ec": {
+  "backend": "heimdall:qwen/qwen3.8-27b@low",
+  "complete": true,
+  "finishes_at": null,
+  "key": "9ebfdcebb731da74431ad9aeacf98f7a32290fbc03971db336a37de6dc39aa81",
+  "ks": [],
+  "measured": true,
+  "next": [
+   "So, in this video, we'll look at why a war and rising prices didn't lift gold.",
+   "We'll find out who has actually been selling it, and we'll see who if anyone is still buying.",
+   "My name is Lewis, and this is the Coin Bureau."
+  ],
+  "sha256": "d509ad194f42834eb5b4813c79498dcb332b7eb2367017c37f1227f3dc017903",
+  "version": "owner_rules 4 (ruling 162 + items 2, 7, 2026-11-24)",
+  "why": "The last sentence is a complete rhetorical observation about the expectation that gold/Bitcoin should have been a hedge; the following sentences begin a new section introducing the video's agenda."
+ },
+ "565e5200c95256832485:232.389-239.579:d509ad194f42834e:396b5133e1d73045": {
+  "backend": "heimdall:qwen/qwen3.8-27b@low",
+  "complete": true,
+  "finishes_at": null,
+  "key": "e4addd8e79400a0c1eb4a60171dffd8088a7a82fd5e0b449e5ff401cd7ef1262",
+  "ks": [],
+  "measured": true,
+  "next": [
+   "Yeah, and JPM asset management, which is a very famous like year -end call that they've been doing for 30 plus years, said, I know you saw this like a couple weeks ago that they expect Bitcoin to appreciate a 10 % per year over the next however many years, which will be equities, though they say it will be much higher volatility.",
+   "But the thing is, is like you can control for volatility by.",
+   "position size, right?"
+  ],
+  "sha256": "d509ad194f42834eb5b4813c79498dcb332b7eb2367017c37f1227f3dc017903",
+  "version": "owner_rules 4 (ruling 162 + items 2, 7, 2026-11-24)",
+  "why": "The rhetorical question 'Isn't it interesting that all these large name brand institutions are recommending Bitcoin and digital assets?' is a self-contained observation; the following sentences simply add more examples and a new sub-point about volatility."
+ },
+ "56a23fba72d66b70799c:352.793-362.813:d509ad194f42834e:855b8bca3688ed0a": {
+  "backend": "heimdall:qwen/qwen3.8-27b@low",
+  "complete": true,
+  "finishes_at": null,
+  "key": "32bba617fff2a08a5ed174c63f5a25cddc367394686712d242251b006baa5285",
+  "ks": [],
+  "measured": true,
+  "next": [
+   "Selling Bitcoin to cover a big expense is a move most holders end up regretting, and it's not your only option.",
+   "Letton gets you funded in hours without selling your Bitcoin, with no monthly payments and no penalty for paying early.",
+   "I recently shared my own experience of taking a Bitcoin -backed loan with Letton."
+  ],
+  "sha256": "d509ad194f42834eb5b4813c79498dcb332b7eb2367017c37f1227f3dc017903",
+  "version": "owner_rules 4 (ruling 162 + items 2, 7, 2026-11-24)",
+  "why": "The last sentence 'So we've got some.' is a self-contained concluding remark wrapping up the point about companies holding Bitcoin; the following sentences shift to an entirely different topic (Letton loans)."
+ },
+ "8b5ec8317b6d5ee36e8f:88.221-107.781:d509ad194f42834e:5675a9629e58d614": {
+  "backend": "heimdall:qwen/qwen3.8-27b@low",
+  "complete": true,
+  "finishes_at": null,
+  "key": "3ed45fc5aeb642d438be4f140f3f6aeb7b3a403c3ecab9d83822f87453a785a8",
+  "ks": [],
+  "measured": true,
+  "next": [
+   "And CJ, last time you were here, you had some pretty interesting macro thoughts.",
+   "And so I want to circle back on that, right?",
+   "There's not just volatility in the Bitcoin market, there's volatility and what the market's expecting and what they're pricing in, right?"
+  ],
+  "sha256": "d509ad194f42834eb5b4813c79498dcb332b7eb2367017c37f1227f3dc017903",
+  "version": "owner_rules 4 (ruling 162 + items 2, 7, 2026-11-24)",
+  "why": "The last sentence is a self-contained concluding statement ('So we have X and we have Y') that wraps up the point; the following sentences are a new topic from a different speaker."
+ },
+ "8b5ec8317b6d5ee36e8f~heard:88.221-107.781:d509ad194f42834e:1f6c3728d33be25f": {
+  "backend": "heimdall:qwen/qwen3.8-27b@low",
+  "complete": true,
+  "finishes_at": null,
+  "key": "814ab4aff949b6d9bee468003095156b98ec2e078f72ffa171250e0c62ae3fc9",
+  "ks": [],
+  "measured": true,
+  "next": [
+   "And CJ, last time you were here, you had some pretty interesting macro thoughts.",
+   "And so I want to circle back on that, right?",
+   "There's not just volatility in the Bitcoin market, there's volatility and what the market's expecting and what they're pricing in, right?"
+  ],
+  "sha256": "d509ad194f42834eb5b4813c79498dcb332b7eb2367017c37f1227f3dc017903",
+  "version": "owner_rules 4 (ruling 162 + items 2, 7, 2026-11-24)",
+  "why": "The last sentence is a self-contained concluding statement presenting a parallel structure (industrial revolution + monetary revolution), and the following sentences are a new topic introduced by the interviewer."
+ },
+ "c4e67ea61496e5b97124:32.660-52.440:d509ad194f42834e:2bce60a75c33574d": {
+  "backend": "heimdall:qwen/qwen3.8-27b@low",
+  "complete": true,
+  "finishes_at": null,
+  "key": "82950a3720cde40f6cdd580f1c99c11ec51ca72dca534839b643fe3e41110c67",
+  "ks": [],
+  "measured": true,
+  "next": [
+   "It's certainly possible.",
+   "Yeah, it looks more like a provocation.",
+   "and tweet like this."
+  ],
+  "sha256": "d509ad194f42834eb5b4813c79498dcb332b7eb2367017c37f1227f3dc017903",
+  "version": "owner_rules 4 (ruling 162 + items 2, 7, 2026-11-24)",
+  "why": "The last sentence 'I'd be hesitant to call for much lower prices from here' is a complete, self-contained statement; the following sentences merely add a qualification and a new point about the tweet being a provocation."
+ },
+ "cb024f5a4139d217dad2:20.940-32.000:d509ad194f42834e:afa3669875bdd65d": {
+  "backend": "heimdall:qwen/qwen3.8-27b@low",
+  "complete": true,
+  "finishes_at": null,
+  "key": "6808c7f5521b4ca2fc7a053a5e151cf04ac96e10a30fc6e854d71ad256b556f6",
+  "ks": [],
+  "measured": true,
+  "next": [
+   "So I think Bitcoin's going to do great.",
+   "I mean, at the end of the day, they're never going to stop printing money.",
+   "And if they're never going to stop printing money, we're going to have inflation."
+  ],
+  "sha256": "d509ad194f42834eb5b4813c79498dcb332b7eb2367017c37f1227f3dc017903",
+  "version": "owner_rules 4 (ruling 162 + items 2, 7, 2026-11-24)",
+  "why": "'But it's moving.' is a complete declarative statement; the following sentence 'So I think Bitcoin's going to do great' begins a new concluding point rather than completing an unfinished thought."
+ },
+ "dac37d732a0257e8792f:764.626-784.296:d509ad194f42834e:dbea981aa1d4ab8e": {
+  "backend": "heimdall:qwen/qwen3.8-27b@low",
+  "complete": true,
+  "finishes_at": null,
+  "key": "5e0224f06dd566f4651aa5c02ab8f566ec848bb12d1bdec9c4602465f0dc5895",
+  "ks": [],
+  "measured": true,
+  "next": [
+   "And, you know, another interesting thing through Sean's presentation, which, Sean, that was fantastic for everybody watching to get that summary.",
+   "But the upside in Bitcoin, it really hasn't shown itself for this first cohort of Wall Street.",
+   "They went to 70,000, it went to 126, now we're back down to 70."
+  ],
+  "sha256": "d509ad194f42834eb5b4813c79498dcb332b7eb2367017c37f1227f3dc017903",
+  "version": "owner_rules 4 (ruling 162 + items 2, 7, 2026-11-24)",
+  "why": "The last sentence is a complete argument (deficit persists \u2192 currencies dilute \u2192 Bitcoin outperforms because it is finite), and the following sentences start a new point about Sean's presentation and Wall Street's first cohort."
+ },
+ "dd2157e19972a4cebfc8:413.901-426.821:d509ad194f42834e:1e5de1adf56cf624": {
+  "backend": "heimdall:qwen/qwen3.8-27b@low",
+  "complete": true,
+  "finishes_at": null,
+  "key": "3333ce67c5ee892f5ec908327f858782a3056570a6d608dd256fb7725893f98e",
+  "ks": [],
+  "measured": true,
+  "next": [
+   "On the 14th of November, 1.8 billion of leveraged longs were liquidated, the biggest single day since February.",
+   "Okay, now back to gold, end to that question.",
+   "Has it actually been dumped for cash like this before?"
+  ],
+  "sha256": "d509ad194f42834eb5b4813c79498dcb332b7eb2367017c37f1227f3dc017903",
+  "version": "owner_rules 4 (ruling 162 + items 2, 7, 2026-11-24)",
+  "why": "The last sentence is a complete comparative statement; the following sentence merely provides a supporting example of the liquidation event."
+ }
+}

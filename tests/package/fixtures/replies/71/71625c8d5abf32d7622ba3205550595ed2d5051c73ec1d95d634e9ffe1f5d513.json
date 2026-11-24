@@ -1,0 +1,548 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "7a6f53a6e7e1c4cf287f284706763a37bc0b33f152ff0cf78aa822e34ef37c5a",
+ "result": {
+  "text": "Is so that the instrument itself offers principle protection. So a lot of Bitcoiners who are watching this show and in the space, we don't ever think Bitcoin could go to zero. Uh, that to us, that's not a possibility. It's, it's a new monetary revolution and it, and we're in year 17. So, uh, you know, humans, when they discovered money, they were still using seashells by year 17, and we've already made our way into the system. We saw the banks now are starting to-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 22.72,
+    "text": "Is so that the instrument itself offers principle protection. So a lot of Bitcoiners who are watching this show and in the space, we don't ever think Bitcoin could go to zero. Uh, that to us, that's not a possibility. It's, it's a new monetary revolution and it, and we're in year 17. So, uh, you know, humans, when they discovered money, they were still using seashells by year 17, and we've already made our way into the system. We saw the banks now are starting to-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Is",
+    "start": 0.0,
+    "end": 0.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 0.16,
+    "end": 0.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 0.32,
+    "end": 0.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.48,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "instrument",
+    "start": 0.68,
+    "end": 1.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "itself",
+    "start": 1.14,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "offers",
+    "start": 2.06,
+    "end": 2.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "principle",
+    "start": 2.44,
+    "end": 2.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "protection.",
+    "start": 2.86,
+    "end": 3.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 3.9,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.04,
+    "end": 4.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot",
+    "start": 4.12,
+    "end": 4.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 4.26,
+    "end": 4.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoiners",
+    "start": 4.36,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who",
+    "start": 4.96,
+    "end": 5.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 5.08,
+    "end": 5.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "watching",
+    "start": 5.24,
+    "end": 5.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 5.56,
+    "end": 5.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "show",
+    "start": 5.7,
+    "end": 5.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 5.86,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 6.0,
+    "end": 6.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.1,
+    "end": 6.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "space,",
+    "start": 6.22,
+    "end": 6.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 6.58,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 6.66,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ever",
+    "start": 6.9,
+    "end": 7.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 7.12,
+    "end": 7.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 7.32,
+    "end": 7.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "could",
+    "start": 7.66,
+    "end": 7.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 7.78,
+    "end": 7.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 7.9,
+    "end": 7.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "zero.",
+    "start": 8.039,
+    "end": 8.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Uh,",
+    "start": 8.82,
+    "end": 8.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 8.96,
+    "end": 9.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 9.16,
+    "end": 9.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "us,",
+    "start": 9.34,
+    "end": 9.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 9.5,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 9.7,
+    "end": 9.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 9.84,
+    "end": 9.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "possibility.",
+    "start": 9.92,
+    "end": 10.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's,",
+    "start": 10.6,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 10.96,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 11.1,
+    "end": 11.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "new",
+    "start": 11.22,
+    "end": 11.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "monetary",
+    "start": 11.46,
+    "end": 11.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "revolution",
+    "start": 11.98,
+    "end": 12.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 12.86,
+    "end": 12.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it,",
+    "start": 13.0,
+    "end": 13.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 13.2,
+    "end": 13.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 13.4,
+    "end": 13.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 13.54,
+    "end": 13.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year",
+    "start": 13.68,
+    "end": 13.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "17.",
+    "start": 13.92,
+    "end": 14.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So,",
+    "start": 14.96,
+    "end": 15.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 15.12,
+    "end": 15.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 15.24,
+    "end": 15.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 15.3,
+    "end": 15.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "humans,",
+    "start": 15.54,
+    "end": 15.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 15.92,
+    "end": 16.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 16.04,
+    "end": 16.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "discovered",
+    "start": 16.2,
+    "end": 16.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money,",
+    "start": 16.66,
+    "end": 16.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 16.92,
+    "end": 17.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "were",
+    "start": 17.02,
+    "end": 17.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "still",
+    "start": 17.16,
+    "end": 17.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "using",
+    "start": 17.36,
+    "end": 17.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seashells",
+    "start": 17.64,
+    "end": 18.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 18.12,
+    "end": 18.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year",
+    "start": 18.38,
+    "end": 18.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "17,",
+    "start": 18.6,
+    "end": 19.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 19.38,
+    "end": 19.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we've",
+    "start": 19.54,
+    "end": 19.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "already",
+    "start": 19.76,
+    "end": 20.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "made",
+    "start": 20.08,
+    "end": 20.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "our",
+    "start": 20.26,
+    "end": 20.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 20.44,
+    "end": 20.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 20.64,
+    "end": 20.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 20.84,
+    "end": 20.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "system.",
+    "start": 20.98,
+    "end": 21.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 21.36,
+    "end": 21.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saw",
+    "start": 21.5,
+    "end": 21.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 21.66,
+    "end": 21.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "banks",
+    "start": 21.82,
+    "end": 22.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 22.16,
+    "end": 22.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 22.32,
+    "end": 22.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "starting",
+    "start": 22.46,
+    "end": 22.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to-",
+    "start": 22.68,
+    "end": 22.72,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 22.74
+ },
+ "usd": 0.004548,
+ "seconds": 1.69,
+ "recorded_at": "2026-11-24T17:57:50Z"
+}

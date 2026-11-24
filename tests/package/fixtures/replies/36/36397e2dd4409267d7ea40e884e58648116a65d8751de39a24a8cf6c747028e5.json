@@ -1,0 +1,296 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "105cc3848e58b5e80ad8bacaf14a36b2f7829067fdaa9b1f95502953020e4449",
+ "result": {
+  "text": "They wanted to put the Bitcoin B in the logo, and that's why it's there. It's so fascinating how quickly things have changed. I mean, this space- Yeah ... to your point earlier, Bitcoin does what you least expect. And I remember-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.04,
+    "end": 3.78,
+    "text": "They wanted to put the Bitcoin B in the logo, and that's why it's there."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 4.36,
+    "end": 7.4,
+    "text": "It's so fascinating how quickly things have changed. I mean, this space-"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 7.4,
+    "end": 7.4,
+    "text": "Yeah"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 7.44,
+    "end": 12.46,
+    "text": "... to your point earlier, Bitcoin does what you least expect. And I remember-"
+   }
+  ],
+  "words": [
+   {
+    "text": "They",
+    "start": 0.04,
+    "end": 0.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wanted",
+    "start": 0.22,
+    "end": 0.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 0.54,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "put",
+    "start": 0.68,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.92,
+    "end": 1.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.08,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "B",
+    "start": 1.64,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 1.82,
+    "end": 1.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.94,
+    "end": 2.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "logo,",
+    "start": 2.1,
+    "end": 2.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 2.8,
+    "end": 2.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 2.94,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 3.2,
+    "end": 3.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 3.38,
+    "end": 3.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there.",
+    "start": 3.58,
+    "end": 3.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 4.36,
+    "end": 4.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "so",
+    "start": 4.48,
+    "end": 4.6,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "fascinating",
+    "start": 4.68,
+    "end": 5.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "how",
+    "start": 5.14,
+    "end": 5.26,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "quickly",
+    "start": 5.32,
+    "end": 5.6,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "things",
+    "start": 5.64,
+    "end": 6.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "have",
+    "start": 6.1,
+    "end": 6.24,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "changed.",
+    "start": 6.3,
+    "end": 6.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 6.68,
+    "end": 6.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "mean,",
+    "start": 6.74,
+    "end": 6.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "this",
+    "start": 6.92,
+    "end": 7.04,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "space-",
+    "start": 7.12,
+    "end": 7.4,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Yeah",
+    "start": 7.4,
+    "end": 7.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "...",
+    "start": 7.44,
+    "end": 7.44,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "to",
+    "start": 7.48,
+    "end": 7.56,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "your",
+    "start": 7.6,
+    "end": 7.72,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "point",
+    "start": 7.78,
+    "end": 8.02,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "earlier,",
+    "start": 8.08,
+    "end": 8.58,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 9.02,
+    "end": 9.42,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "does",
+    "start": 9.48,
+    "end": 9.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "what",
+    "start": 9.74,
+    "end": 9.9,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 9.98,
+    "end": 10.2,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "least",
+    "start": 10.3,
+    "end": 10.58,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "expect.",
+    "start": 10.62,
+    "end": 11.22,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "And",
+    "start": 11.4,
+    "end": 11.72,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 12.16,
+    "end": 12.22,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "remember-",
+    "start": 12.26,
+    "end": 12.46,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.48
+ },
+ "usd": 0.002496,
+ "seconds": 1.01,
+ "recorded_at": "2026-11-24T17:57:56Z"
+}

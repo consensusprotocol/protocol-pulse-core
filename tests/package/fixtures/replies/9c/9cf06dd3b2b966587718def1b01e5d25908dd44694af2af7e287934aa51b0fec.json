@@ -1,0 +1,476 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "612c6957533b903081a780da3f98cf3def68fccb78366b080ffa57d97c2a53b5",
+ "result": {
+  "text": "You know, it's just natural human behavior. You try to do the right thing. It's one of the great things about Bitcoin is you're taking the moral and ethical path, so you can always sleep well at night knowing that you haven't recommended something to someone that you didn't do yourself, wouldn't do yourself, or don't genuinely believe in. And at the end of the day, that's all you can do is just be honest.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.06,
+    "end": 20.36,
+    "text": "You know, it's just natural human behavior. You try to do the right thing. It's one of the great things about Bitcoin is you're taking the moral and ethical path, so you can always sleep well at night knowing that you haven't recommended something to someone that you didn't do yourself, wouldn't do yourself, or don't genuinely believe in. And at the end of the day, that's all you can do is just be honest."
+   }
+  ],
+  "words": [
+   {
+    "text": "You",
+    "start": 0.06,
+    "end": 0.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 0.14,
+    "end": 0.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 0.44,
+    "end": 0.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 0.68,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "natural",
+    "start": 0.86,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "human",
+    "start": 1.24,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "behavior.",
+    "start": 1.52,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 2.58,
+    "end": 2.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "try",
+    "start": 2.74,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 2.94,
+    "end": 3.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 3.06,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.2,
+    "end": 3.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right",
+    "start": 3.34,
+    "end": 3.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing.",
+    "start": 3.6,
+    "end": 3.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 3.94,
+    "end": 4.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 4.1,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 4.2,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.26,
+    "end": 4.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "great",
+    "start": 4.38,
+    "end": 4.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "things",
+    "start": 4.58,
+    "end": 4.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 4.82,
+    "end": 5.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.08,
+    "end": 5.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.5,
+    "end": 5.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 5.58,
+    "end": 5.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "taking",
+    "start": 5.74,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.04,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "moral",
+    "start": 6.18,
+    "end": 6.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 6.48,
+    "end": 6.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ethical",
+    "start": 6.62,
+    "end": 6.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "path,",
+    "start": 7.04,
+    "end": 7.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 7.94,
+    "end": 8.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 8.58,
+    "end": 8.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 8.68,
+    "end": 8.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "always",
+    "start": 8.84,
+    "end": 9.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sleep",
+    "start": 9.12,
+    "end": 9.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "well",
+    "start": 9.38,
+    "end": 9.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 9.54,
+    "end": 9.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "night",
+    "start": 9.68,
+    "end": 9.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "knowing",
+    "start": 9.94,
+    "end": 10.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 10.26,
+    "end": 10.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 10.92,
+    "end": 10.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "haven't",
+    "start": 11.02,
+    "end": 11.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "recommended",
+    "start": 11.3,
+    "end": 11.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "something",
+    "start": 11.9,
+    "end": 12.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 12.28,
+    "end": 12.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "someone",
+    "start": 12.42,
+    "end": 12.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 12.8,
+    "end": 12.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 13.04,
+    "end": 13.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "didn't",
+    "start": 13.16,
+    "end": 13.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 13.44,
+    "end": 13.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yourself,",
+    "start": 13.6,
+    "end": 14.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wouldn't",
+    "start": 14.46,
+    "end": 14.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 14.7,
+    "end": 14.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yourself,",
+    "start": 14.84,
+    "end": 15.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 15.3,
+    "end": 15.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 15.42,
+    "end": 15.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "genuinely",
+    "start": 15.62,
+    "end": 16.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "believe",
+    "start": 16.16,
+    "end": 16.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in.",
+    "start": 16.52,
+    "end": 16.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 17.06,
+    "end": 17.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 17.16,
+    "end": 17.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 17.26,
+    "end": 17.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "end",
+    "start": 17.36,
+    "end": 17.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 17.48,
+    "end": 17.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 17.54,
+    "end": 17.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "day,",
+    "start": 17.66,
+    "end": 17.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 17.86,
+    "end": 18.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 18.04,
+    "end": 18.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 18.18,
+    "end": 18.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 18.3,
+    "end": 18.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 18.48,
+    "end": 18.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 18.66,
+    "end": 18.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 18.82,
+    "end": 19.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 19.78,
+    "end": 19.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "honest.",
+    "start": 19.94,
+    "end": 20.36,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 21.8
+ },
+ "usd": 0.00436,
+ "seconds": 1.2,
+ "recorded_at": "2026-11-24T17:57:48Z"
+}

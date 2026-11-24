@@ -1,0 +1,879 @@
+{
+ "0ffd02a3cccb4f07b071:9d43580c729b": {
+  "label": "0ffd02a3cccb4f07b071",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "the next five to 10 years from the time of speaking",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over this next five to 10 year window",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "At some point in the next five to ten years, Bitcoin will become worth more than a single family home.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Thanks CJ. It was great to hear from you again.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "16473ccae3baf3b8d118:9d43580c729b": {
+  "label": "16473ccae3baf3b8d118",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Jeff Dorman's statement about Bitcoin",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when Bitcoin was a five-year-old asset",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker agrees with one third of Jeff Dorman's statement because money should be boring, especially now that Bitcoin is no longer a tiny five-year-old asset whose continued operation was uncertain.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "What's your take on this?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "581b68c232a23e62f39a:9d43580c729b": {
+  "label": "581b68c232a23e62f39a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "At the time",
+    "refers_to": "when Michael Saylor bought 10,000 Bitcoin",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "at the time of Michael Saylor buying 10,000 Bitcoin",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "At the time of Michael Saylor's large Bitcoin purchase, Bitcoin needed credibility that was best supplied by a public company CEO and public company holding Bitcoin on their balance sheet.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "I'm so excited for this one. I have Eric Weiss, founder of Bitcoin Investment Group with me, best known for orange pilling Michael Sailor. Eric, thanks for joining me. \u203a\u203a Thank you for having me.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "9c1560cf3b9fa803ab60:9d43580c729b": {
+  "label": "9c1560cf3b9fa803ab60",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "He",
+    "refers_to": "Michael Saylor",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "me",
+    "refers_to": "Eric Weiss",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "I",
+    "refers_to": "Michael Saylor",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "I",
+    "refers_to": "Eric Weiss",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "he",
+    "refers_to": "Michael Saylor",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "you",
+    "refers_to": "Eric Weiss",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "He's",
+    "refers_to": "Michael Saylor",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "I",
+    "refers_to": "Michael Saylor",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Michael Saylor called Eric to say he had bought 10,000 Bitcoin, surprising Eric who at first thought Saylor meant only one.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "I'm so excited for this one. I have Eric Weiss, founder of Bitcoin Investment Group with me, best known for orange pilling Michael Sailor. Eric, thanks for joining me. \u203a\u203a Thank you for having me.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2e3e3c781ab9a3734eca:9d43580c729b": {
+  "label": "2e3e3c781ab9a3734eca",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "those who print money (central banks/government)",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "needing an off-ramp from inflation",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if they're never going to stop printing money",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Central banks will never stop printing money, causing massive inflation that requires an off-ramp which Bitcoin provides as the most moral, ethical, and solid option.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "I have Eric Weiss, founder of Bitcoin Investment Group with me, best known for orange pilling Michael Sailor. Eric, thanks for joining me. \u203a\u203a Thank you for having me.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "dd2157e19972a4cebfc8:9d43580c729b": {
+  "label": "dd2157e19972a4cebfc8",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin (its price)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "those",
+    "refers_to": "few weeks from late October to video production time",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In late October Bitcoin traded over $80,000 but as of video production it is around $65K, with the cash crunch hitting Bitcoin roughly three times as hard as gold over those weeks.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "As I make this video, it's around 65K.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": true
+ },
+ "83547a934fd5afbc93d5:9d43580c729b": {
+  "label": "83547a934fd5afbc93d5",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "taking the moral and ethical path and being honest",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "One of the great things about Bitcoin is that it lets you take the moral and ethical path so you can sleep well at night knowing you only recommend what you have done yourself and genuinely believe in, and all you can do is be honest.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Um, do you feel like the the vibe in Bitcoin has changed and when the Bitcoin price is down, it seems like everyone's ready to attack, especially the treasury companies, your close friend.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "cb024f5a4139d217dad2:9d43580c729b": {
+  "label": "cb024f5a4139d217dad2",
+  "speaker_changes_inside": "no",
+  "view": "conditional",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the money business",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Wall Street",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If you're going to be in the money business",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If you are going to be in the money business (which Bitcoin is), you need to go where the money is on Wall Street even though Wall Street does not move as fast as Bitcoiners would like, but it is moving.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "I have Eric Weiss, founder of Bitcoin Investment Group with me, best known for orange pilling Michael Sailor. Eric, thanks for joining me.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c4e67ea61496e5b97124:9d43580c729b": {
+  "label": "c4e67ea61496e5b97124",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "the 25K price target",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "here",
+    "refers_to": "current price levels",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "near-term",
+    "inside": true
+   },
+   {
+    "text": "based on just kind of the fairly low amount of evidence provided",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker acknowledges it is obvious that Bitcoin is in a bear market but is hesitant to call for much lower prices near-term given the low evidence for specific targets.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "What would be your comment on this tweet.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2771a5fbb84d70e885c6:9d43580c729b": {
+  "label": "2771a5fbb84d70e885c6",
+  "speaker_changes_inside": "no",
+  "view": "question",
+  "referents": [
+   {
+    "word": "you",
+    "refers_to": "the guest/interviewee",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "the bond maturities in 2031 and 2036",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "those",
+    "refers_to": "the 5-year and 10-year Bitcoin bonds",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin's price",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when those bonds come due",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker asks the guest where Bitcoin's price will be when the bonds mature in 5-10 years and what will drive it to that level.",
+  "certainty": "uncertain",
+  "speaker_is": "host",
+  "speaker_evidence": "as you said on your calendar",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "3f5f29efdca426ed7173:9d43580c729b": {
+  "label": "3f5f29efdca426ed7173",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "Strategy / the company rebranding with Bitcoin B",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "there",
+    "refers_to": "in the logo",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "I am not an employee of strategy. I don't have any non-public or inside information",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker has no employment or inside information from Strategy but believes the company added the Bitcoin B to its logo because it wanted the B there.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "when when Mike and I were talking about preferred stock and I said well if you're going to do it you have to have a four-letter ticker",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f0367204ccc115582bcd:9d43580c729b": {
+  "label": "f0367204ccc115582bcd",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "Bitcoin / crypto space",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "your",
+    "refers_to": "the other speaker's (guest's)",
+    "inside": false,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker finds it fascinating how fast things have changed in the space, since Bitcoin does what you least expect.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "how how have the last two years played out in your mind? Like, what what happened?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "1f859d5e96a4c1a61c27:9d43580c729b": {
+  "label": "1f859d5e96a4c1a61c27",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "we",
+    "refers_to": "Bitcoiners who are watching this show and in the space",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "the Bitcoin Magazine show or video",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "they",
+    "refers_to": "humans",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoiners watching the show do not believe Bitcoin could go to zero because it is a new monetary revolution already integrated into the system by year 17, far faster than early money like seashells.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "And CJ, on that topic, I know the People's Reserve just closed its first 5-year Bitcoin bond.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "1f859d5e96a4c1a61c27~trim:9d43580c729b": {
+  "label": "1f859d5e96a4c1a61c27~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "we",
+    "refers_to": "Bitcoiners who are watching this show and in the space",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "the Bitcoin Magazine show or video",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "they",
+    "refers_to": "humans",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoiners watching the show do not believe Bitcoin could go to zero because it is a new monetary revolution already integrated into the system by year 17, far faster than early money like seashells.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "And CJ, on that topic, I know the People's Reserve just closed its first 5-year Bitcoin bond.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "8aeedc658341ff24d86d~trim:9d43580c729b": {
+  "label": "8aeedc658341ff24d86d~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Bitcoin becoming worth more than a single family home",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "most Americans and most people around the world",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "At some point over this next 5 to 10 year window",
+    "inside": false
+   },
+   {
+    "text": "when they realize",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "When Bitcoin becomes worth more than a single family home in the next 5-10 years, that event will be a major wake-up call causing most people to regret not buying Bitcoin earlier when it was cheaper than a home and now requiring a mortgage-like outlay for exposure.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Thanks CJ. It was great to hear from you again. We'll see you soon.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "fac6923ebfc9d0ee3b2e~trim:9d43580c729b": {
+  "label": "fac6923ebfc9d0ee3b2e~trim",
+  "speaker_changes_inside": "no",
+  "view": "conditional",
+  "referents": [
+   {
+    "word": "today",
+    "refers_to": "the present time of speaking",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if we maintain the way we exist today, if the solutions",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If current ways of existing and scaling continue without better solutions, Bitcoin simply will not scale well at all.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "565e5200c95256832485:9d43580c729b": {
+  "label": "565e5200c95256832485",
+  "speaker_changes_inside": "no",
+  "view": "question",
+  "referents": [
+   {
+    "word": "these",
+    "refers_to": "Bank of America, Morgan Stanley, BlackRock, and Fidelity (institutions with explicit allocation recommendations)",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "It is interesting that all these large name brand institutions are recommending Bitcoin and digital assets.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Fascinating. And just pulling uh some quick numbers of AI.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "8b5ec8317b6d5ee36e8f:9d43580c729b": {
+  "label": "8b5ec8317b6d5ee36e8f",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "Wall Street class / investors dipping toe into marketplace",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "which",
+    "refers_to": "what the asset really is",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Wall Street investors have not learned that Bitcoin is pristine collateral and engineered money representing a monetary revolution rather than a risk-on tech stock, occurring alongside a new industrial revolution led by Jensen.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "CJ, great to have you back with us.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "8aeedc658341ff24d86d:9d43580c729b": {
+  "label": "8aeedc658341ff24d86d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Bitcoin becoming worth more than a single family home",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "most Americans and most people around the world",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "at some point over this next 5 to 10 year window",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin exceeding the value of a single family home will wake up most people to their missed opportunity to buy it cheaply, as it will then require taking out a mortgage for exposure and accelerate the market by ending diminishing returns theory.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Thanks CJ. It was great to hear from you again.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ef02acd88e66dc1058f7:9d43580c729b": {
+  "label": "ef02acd88e66dc1058f7",
+  "speaker_changes_inside": "yes",
+  "view": "uncertain",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Pretty much everything else that we hold near and dear is more vulnerable to quantum computing or hacking than Bitcoin is.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Well, I would say most people would agree with you, but what do you say to the concerns that okay, I agree this is the debasement hedge, but I'm really unsure about the technical vulnerabilities given these new AI frontier models.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "fac6923ebfc9d0ee3b2e:9d43580c729b": {
+  "label": "fac6923ebfc9d0ee3b2e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "today",
+    "refers_to": "the current time when the statement was made",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if we maintain the way we exist today, if the solutions",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If we maintain the way we exist today without solutions, Bitcoin just won't scale, full stop, 1,000% well.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I'm also just a student of of history and technology and I was way interested before I ever found Bitcoin into just general tech and how things scale.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c4831c71ba05691bd5b6:9d43580c729b": {
+  "label": "c4831c71ba05691bd5b6",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "you",
+    "refers_to": "Michael Saylor (the buddy)",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker reacted with shock and concern upon realizing his friend had bought $100 million worth of Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "When I orange him, I was not trying to orange pill his company. I was just trying to orange pill my buddy.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "dac37d732a0257e8792f:9d43580c729b": {
+  "label": "dac37d732a0257e8792f",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "our",
+    "refers_to": "the speaker and their company (People's Reserve)",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "the deficit getting worse",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "those",
+    "refers_to": "currency units diluted by the deficit",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "as the deficit gets worse and worse and currency units are diluted",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "As the deficit worsens and dilutes currency units, Bitcoin will outperform every other asset because it is a finite asset.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "that'll be the first uh auction that People's Reserve participates in.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "33166630e5b1abb76695:9d43580c729b": {
+  "label": "33166630e5b1abb76695",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "the year 2026 with its war, tariffs, and 4% inflation",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if you hold gold or Bitcoin as a hedge against inflation and geopolitical turmoil",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If you hold gold or Bitcoin because it is meant to be digital gold, this year of war, tariffs and rising inflation was supposed to be the hedge for exactly that scenario.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "My name is Lewis and this is the Coin Bureau.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "56a23fba72d66b70799c:9d43580c729b": {
+  "label": "56a23fba72d66b70799c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "By the same token a number of public companies have added Bitcoin to their balance sheets, including Tesla and SpaceX which may be the two most forward-looking companies in the public sphere, so we have some.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "Man, public company life is different. It's very different. Even if the the only time you even have a chance of doing something like that is when you are the founder CEO and there are some of those that you're alluding to.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b30851a826eac8d039a2:9d43580c729b": {
+  "label": "b30851a826eac8d039a2",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "his friend buying $100 million of Bitcoin",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "at the time of learning about the purchase (my first thought)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Upon learning his friend had bought $100 million of Bitcoin, the speaker's first thought was hope that it would not cause a negative impact, since Bitcoin does not go straight up.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "do you feel a sense of responsibility because you're the one that brought him into it",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

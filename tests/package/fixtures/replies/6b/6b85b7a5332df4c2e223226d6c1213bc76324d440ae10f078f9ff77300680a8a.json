@@ -1,0 +1,440 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "1cb909b9b3ec4baab10851a795986c83d92a3988dd2ea01da2c9dc4d50cfa7ec",
+ "result": {
+  "text": "And then in like, \"Wait, you bought a hundred million dollars worth of Bitcoin?\" I was like, \"Oh, shit.\" Because Like, if there's one thing you know about Bitcoin, it just does not go up and to the right. So, uh, yeah, my first thought was like, \"I hope this doesn't have a negative impact on our friendship.\" Well, I was gonna ask, do you feel a s-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 13.36,
+    "text": "And then in like, \"Wait, you bought a hundred million dollars worth of Bitcoin?\" I was like, \"Oh, shit.\" Because Like, if there's one thing you know about Bitcoin, it just does not go up and to the right. So, uh, yeah, my first thought was like, \"I hope this doesn't have a negative impact on our friendship.\""
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 13.4,
+    "end": 14.74,
+    "text": "Well, I was gonna ask, do you feel a s-"
+   }
+  ],
+  "words": [
+   {
+    "text": "And",
+    "start": 0.0,
+    "end": 0.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 0.2,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 0.38,
+    "end": 0.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 0.54,
+    "end": 0.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Wait,",
+    "start": 0.98,
+    "end": 1.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 1.22,
+    "end": 1.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bought",
+    "start": 1.32,
+    "end": 1.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.46,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hundred",
+    "start": 1.52,
+    "end": 1.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "million",
+    "start": 1.76,
+    "end": 1.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dollars",
+    "start": 2.02,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worth",
+    "start": 2.28,
+    "end": 2.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.38,
+    "end": 2.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin?\"",
+    "start": 2.46,
+    "end": 2.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 2.78,
+    "end": 2.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 2.84,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 2.96,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Oh,",
+    "start": 3.14,
+    "end": 3.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shit.\"",
+    "start": 3.44,
+    "end": 3.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Because",
+    "start": 3.84,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 4.92,
+    "end": 5.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 5.3,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 5.4,
+    "end": 5.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 5.62,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing",
+    "start": 5.76,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 5.94,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 6.04,
+    "end": 6.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 6.2,
+    "end": 6.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 6.48,
+    "end": 6.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 6.86,
+    "end": 6.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 7.0,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "does",
+    "start": 7.18,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 7.44,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 7.7,
+    "end": 7.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 7.98,
+    "end": 8.119,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 8.14,
+    "end": 8.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 8.3,
+    "end": 8.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.4,
+    "end": 8.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right.",
+    "start": 8.56,
+    "end": 8.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So,",
+    "start": 8.92,
+    "end": 9.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 9.84,
+    "end": 9.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yeah,",
+    "start": 10.02,
+    "end": 10.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 10.18,
+    "end": 10.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "first",
+    "start": 10.34,
+    "end": 10.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thought",
+    "start": 10.56,
+    "end": 10.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 10.76,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 10.9,
+    "end": 11.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"I",
+    "start": 11.06,
+    "end": 11.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hope",
+    "start": 11.22,
+    "end": 11.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 11.4,
+    "end": 11.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "doesn't",
+    "start": 11.58,
+    "end": 11.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 11.84,
+    "end": 11.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 12.02,
+    "end": 12.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "negative",
+    "start": 12.44,
+    "end": 12.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "impact",
+    "start": 12.84,
+    "end": 13.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 13.36,
+    "end": 13.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "our",
+    "start": 13.36,
+    "end": 13.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "friendship.\"",
+    "start": 13.36,
+    "end": 13.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Well,",
+    "start": 13.4,
+    "end": 13.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 13.5,
+    "end": 13.52,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "was",
+    "start": 13.54,
+    "end": 13.62,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "gonna",
+    "start": 13.66,
+    "end": 13.8,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "ask,",
+    "start": 13.88,
+    "end": 13.98,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "do",
+    "start": 14.08,
+    "end": 14.12,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 14.16,
+    "end": 14.22,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "feel",
+    "start": 14.34,
+    "end": 14.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 14.66,
+    "end": 14.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "s-",
+    "start": 14.74,
+    "end": 14.74,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.77
+ },
+ "usd": 0.002954,
+ "seconds": 1.38,
+ "recorded_at": "2026-11-24T17:59:43Z"
+}

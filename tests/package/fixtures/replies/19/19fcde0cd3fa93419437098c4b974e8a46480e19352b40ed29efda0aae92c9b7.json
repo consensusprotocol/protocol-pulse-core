@@ -1,0 +1,386 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "0c9c64ed0bf79cb383e4abd05cb3bfd09caf6328bbff43311beb576f0e1a2af5",
+ "result": {
+  "text": "Bitcoin, and the impact that he's had has been extraordinary. If you're going to be in the money business, and that's what Bitcoin is in, you need to go where the money is, and the money is on Wall Street. And Wall Street doesn't move as fast as, you know, Bitcoiners would like, but it's moving. So I think Bitcoin's-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.12,
+    "end": 16.48,
+    "text": "Bitcoin, and the impact that he's had has been extraordinary. If you're going to be in the money business, and that's what Bitcoin is in, you need to go where the money is, and the money is on Wall Street. And Wall Street doesn't move as fast as, you know, Bitcoiners would like, but it's moving. So I think Bitcoin's-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Bitcoin,",
+    "start": 0.12,
+    "end": 0.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 0.78,
+    "end": 0.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.92,
+    "end": 1.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "impact",
+    "start": 1.14,
+    "end": 1.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.58,
+    "end": 1.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "he's",
+    "start": 1.76,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 1.98,
+    "end": 2.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 2.2,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 2.4,
+    "end": 2.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "extraordinary.",
+    "start": 3.0,
+    "end": 3.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "If",
+    "start": 4.2,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 4.3,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 4.46,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 4.74,
+    "end": 4.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 4.88,
+    "end": 4.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 5.04,
+    "end": 5.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.14,
+    "end": 5.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 5.28,
+    "end": 5.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "business,",
+    "start": 5.6,
+    "end": 6.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 6.32,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 6.46,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 6.68,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.86,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 7.28,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in,",
+    "start": 7.42,
+    "end": 7.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 7.6,
+    "end": 7.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "need",
+    "start": 7.72,
+    "end": 7.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 7.92,
+    "end": 8.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 8.06,
+    "end": 8.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 8.26,
+    "end": 8.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.44,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 8.58,
+    "end": 8.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is,",
+    "start": 9.04,
+    "end": 9.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 9.5,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.62,
+    "end": 9.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 9.76,
+    "end": 9.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 10.0,
+    "end": 10.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 10.16,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Wall",
+    "start": 10.3,
+    "end": 10.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Street.",
+    "start": 10.56,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 10.9,
+    "end": 10.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Wall",
+    "start": 11.04,
+    "end": 11.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Street",
+    "start": 11.28,
+    "end": 11.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "doesn't",
+    "start": 11.68,
+    "end": 11.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "move",
+    "start": 11.96,
+    "end": 12.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 12.14,
+    "end": 12.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fast",
+    "start": 12.3,
+    "end": 12.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as,",
+    "start": 12.62,
+    "end": 12.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 12.9,
+    "end": 12.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 12.98,
+    "end": 13.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoiners",
+    "start": 13.18,
+    "end": 13.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 13.66,
+    "end": 13.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 13.82,
+    "end": 14.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 14.18,
+    "end": 14.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 14.66,
+    "end": 14.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "moving.",
+    "start": 14.86,
+    "end": 15.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 15.46,
+    "end": 15.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 15.88,
+    "end": 15.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 15.94,
+    "end": 16.079,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's-",
+    "start": 16.12,
+    "end": 16.48,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 16.56
+ },
+ "usd": 0.003312,
+ "seconds": 1.53,
+ "recorded_at": "2026-11-24T17:59:43Z"
+}

@@ -1,0 +1,506 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "63d224e74d0616a0aa986bd6f6d4e316ef94b33352d6e28b9f97985bb55ad580",
+ "result": {
+  "text": "-year window, Bitcoin will become worth more than a single-family home. And that will be a really big wake-up call for most Americans and most people around the world when they realize, \"Oh my God, I had a chance to buy Bitcoin when it was cheaper than a single-family home, and now if I want to buy Bitcoin, it's like I have to take out a freaking mortgage to get exposure to it.\" That is gonna be a wake-up call",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 21.18,
+    "text": "-year window, Bitcoin will become worth more than a single-family home. And that will be a really big wake-up call for most Americans and most people around the world when they realize, \"Oh my God, I had a chance to buy Bitcoin when it was cheaper than a single-family home, and now if I want to buy Bitcoin, it's like I have to take out a freaking mortgage to get exposure to it.\" That is gonna be a wake-up call"
+   }
+  ],
+  "words": [
+   {
+    "text": "-year",
+    "start": 0.0,
+    "end": 0.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "window,",
+    "start": 0.16,
+    "end": 0.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 0.94,
+    "end": 1.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 1.34,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "become",
+    "start": 1.52,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worth",
+    "start": 1.88,
+    "end": 2.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 2.16,
+    "end": 2.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 2.36,
+    "end": 2.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 2.48,
+    "end": 2.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "single-family",
+    "start": 2.58,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "home.",
+    "start": 3.18,
+    "end": 3.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 3.88,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 4.04,
+    "end": 4.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 4.18,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 4.3,
+    "end": 4.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.46,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 4.6,
+    "end": 4.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "big",
+    "start": 4.94,
+    "end": 5.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wake-up",
+    "start": 5.18,
+    "end": 5.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "call",
+    "start": 5.58,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 5.96,
+    "end": 6.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 6.12,
+    "end": 6.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Americans",
+    "start": 6.38,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 6.94,
+    "end": 7.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 7.06,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 7.26,
+    "end": 7.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "around",
+    "start": 7.52,
+    "end": 7.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.76,
+    "end": 7.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world",
+    "start": 7.86,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 8.06,
+    "end": 8.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 8.18,
+    "end": 8.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "realize,",
+    "start": 8.36,
+    "end": 8.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Oh",
+    "start": 9.16,
+    "end": 9.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 9.36,
+    "end": 9.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "God,",
+    "start": 9.52,
+    "end": 9.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 10.3,
+    "end": 10.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 10.42,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 10.6,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "chance",
+    "start": 10.7,
+    "end": 10.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 10.96,
+    "end": 11.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buy",
+    "start": 11.08,
+    "end": 11.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 11.28,
+    "end": 11.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 12.54,
+    "end": 12.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 12.94,
+    "end": 13.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 13.06,
+    "end": 13.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cheaper",
+    "start": 13.28,
+    "end": 13.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 13.56,
+    "end": 13.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 13.7,
+    "end": 13.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "single-family",
+    "start": 13.8,
+    "end": 14.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "home,",
+    "start": 14.38,
+    "end": 14.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 14.72,
+    "end": 14.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 14.88,
+    "end": 15.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 15.1,
+    "end": 15.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 15.26,
+    "end": 15.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "want",
+    "start": 15.42,
+    "end": 15.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 15.62,
+    "end": 15.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buy",
+    "start": 15.74,
+    "end": 15.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 15.94,
+    "end": 16.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 16.86,
+    "end": 16.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 17.0,
+    "end": 17.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 17.12,
+    "end": 17.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 17.18,
+    "end": 17.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 17.3,
+    "end": 17.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "take",
+    "start": 17.4,
+    "end": 17.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 17.58,
+    "end": 17.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 17.7,
+    "end": 17.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "freaking",
+    "start": 17.8,
+    "end": 18.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mortgage",
+    "start": 18.14,
+    "end": 18.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 18.64,
+    "end": 18.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 18.74,
+    "end": 18.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "exposure",
+    "start": 18.86,
+    "end": 19.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 19.42,
+    "end": 19.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.\"",
+    "start": 19.56,
+    "end": 19.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That",
+    "start": 20.04,
+    "end": 20.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 20.2,
+    "end": 20.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 20.3,
+    "end": 20.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 20.5,
+    "end": 20.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 20.62,
+    "end": 20.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wake-up",
+    "start": 20.72,
+    "end": 21.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "call",
+    "start": 21.08,
+    "end": 21.18,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 21.2
+ },
+ "usd": 0.00424,
+ "seconds": 1.06,
+ "recorded_at": "2026-11-24T17:59:37Z"
+}

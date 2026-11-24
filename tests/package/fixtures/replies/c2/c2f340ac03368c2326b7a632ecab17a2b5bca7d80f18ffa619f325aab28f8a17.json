@@ -1,0 +1,266 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "3667c76aefade898e848cf9b521e435bdc28778712f8ce19b30a5fe2b6498856",
+ "result": {
+  "text": "I ever found Bitcoin into just general tech and how things scale. And there's a reality that if we maintain the way we exist today, if the solutions, Bitcoin just won't scale. Full stop, 1,000% won't. Because think about it",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 13.42,
+    "text": "I ever found Bitcoin into just general tech and how things scale. And there's a reality that if we maintain the way we exist today, if the solutions, Bitcoin just won't scale. Full stop, 1,000% won't. Because think about it"
+   }
+  ],
+  "words": [
+   {
+    "text": "I",
+    "start": 0.0,
+    "end": 0.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ever",
+    "start": 0.02,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "found",
+    "start": 0.22,
+    "end": 0.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 0.44,
+    "end": 0.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 0.82,
+    "end": 1.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 1.06,
+    "end": 1.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "general",
+    "start": 1.46,
+    "end": 1.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tech",
+    "start": 2.2,
+    "end": 2.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 2.48,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 2.62,
+    "end": 2.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "things",
+    "start": 2.8,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "scale.",
+    "start": 3.12,
+    "end": 3.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 4.24,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 4.58,
+    "end": 4.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.8,
+    "end": 4.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reality",
+    "start": 4.88,
+    "end": 5.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 5.56,
+    "end": 5.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 5.92,
+    "end": 6.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 6.12,
+    "end": 6.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "maintain",
+    "start": 6.28,
+    "end": 6.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.82,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 6.94,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 7.22,
+    "end": 7.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "exist",
+    "start": 7.36,
+    "end": 7.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "today,",
+    "start": 7.98,
+    "end": 8.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 8.68,
+    "end": 8.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.8,
+    "end": 8.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "solutions,",
+    "start": 8.92,
+    "end": 9.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 9.44,
+    "end": 9.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 9.74,
+    "end": 9.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "won't",
+    "start": 9.9,
+    "end": 10.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "scale.",
+    "start": 10.12,
+    "end": 10.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Full",
+    "start": 10.44,
+    "end": 10.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stop,",
+    "start": 10.66,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "1,000%",
+    "start": 10.98,
+    "end": 11.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "won't.",
+    "start": 11.8,
+    "end": 11.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Because",
+    "start": 12.66,
+    "end": 12.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 12.92,
+    "end": 13.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 13.14,
+    "end": 13.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 13.36,
+    "end": 13.42,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 13.44
+ },
+ "usd": 0.002688,
+ "seconds": 0.89,
+ "recorded_at": "2026-11-24T17:59:05Z"
+}

@@ -6,12 +6,12 @@
  ],
  "ledger": "SPEND_D20261123.json",
  "cap": 1.5,
- "outside": 0.801148,
+ "outside": 1.510148,
  "parts_outside": {
-  "builds": 0.747535,
+  "builds": 1.430535,
   "audits": 0.0,
   "checks": 0.0,
-  "lock_precheck_scribe": 0.0496,
+  "lock_precheck_scribe": 0.0756,
   "integrator_other": 0.004013,
   "integrator_unpriced": [
    {
@@ -35,12 +35,188 @@
     },
     "usd": null,
     "vendor": "elevenlabs:tts:eleven_v4"
+   },
+   {
+    "at": "2026-11-24T13:51:50Z",
+    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+    "ref": "vo_signoff_pp2_v1_bf46b21f80b1",
+    "service": "unknown",
+    "units": {
+     "characters": 89
+    },
+    "usd": null,
+    "vendor": "elevenlabs:tts:eleven_v4"
+   },
+   {
+    "at": "2026-11-24T13:51:50Z",
+    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+    "ref": "vo_signoff_pp2_v1_b0ae9bf9641f",
+    "service": "unknown",
+    "units": {
+     "characters": 107
+    },
+    "usd": null,
+    "vendor": "elevenlabs:tts:eleven_v4"
+   },
+   {
+    "at": "2026-11-24T14:01:07Z",
+    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+    "ref": "vo_signoff_pp2_v1_bf46b21f80b1",
+    "service": "unknown",
+    "units": {
+     "characters": 89
+    },
+    "usd": null,
+    "vendor": "elevenlabs:tts:eleven_v4"
+   },
+   {
+    "at": "2026-11-24T14:01:07Z",
+    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+    "ref": "vo_signoff_pp2_v1_b0ae9bf9641f",
+    "service": "unknown",
+    "units": {
+     "characters": 107
+    },
+    "usd": null,
+    "vendor": "elevenlabs:tts:eleven_v4"
+   },
+   {
+    "at": "2026-11-24T14:22:43Z",
+    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+    "ref": "vo_signoff_pp2_v1_bf46b21f80b1",
+    "service": "unknown",
+    "units": {
+     "characters": 89
+    },
+    "usd": null,
+    "vendor": "elevenlabs:tts:eleven_v4"
+   },
+   {
+    "at": "2026-11-24T14:22:43Z",
+    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+    "ref": "vo_signoff_pp2_v1_b0ae9bf9641f",
+    "service": "unknown",
+    "units": {
+     "characters": 107
+    },
+    "usd": null,
+    "vendor": "elevenlabs:tts:eleven_v4"
+   },
+   {
+    "at": "2026-11-24T14:27:14Z",
+    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+    "ref": "vo_signoff_pp2_v1_bf46b21f80b1",
+    "service": "unknown",
+    "units": {
+     "characters": 89
+    },
+    "usd": null,
+    "vendor": "elevenlabs:tts:eleven_v4"
+   },
+   {
+    "at": "2026-11-24T14:27:14Z",
+    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+    "ref": "vo_signoff_pp2_v1_b0ae9bf9641f",
+    "service": "unknown",
+    "units": {
+     "characters": 107
+    },
+    "usd": null,
+    "vendor": "elevenlabs:tts:eleven_v4"
+   },
+   {
+    "at": "2026-11-24T14:54:36Z",
+    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+    "ref": "vo_signoff_pp2_v1_bf46b21f80b1",
+    "service": "unknown",
+    "units": {
+     "characters": 89
+    },
+    "usd": null,
+    "vendor": "elevenlabs:tts:eleven_v4"
+   },
+   {
+    "at": "2026-11-24T14:54:36Z",
+    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+    "ref": "vo_signoff_pp2_v1_b0ae9bf9641f",
+    "service": "unknown",
+    "units": {
+     "characters": 107
+    },
+    "usd": null,
+    "vendor": "elevenlabs:tts:eleven_v4"
+   },
+   {
+    "at": "2026-11-24T14:57:00Z",
+    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+    "ref": "vo_signoff_pp2_v1_bf46b21f80b1",
+    "service": "unknown",
+    "units": {
+     "characters": 89
+    },
+    "usd": null,
+    "vendor": "elevenlabs:tts:eleven_v4"
+   },
+   {
+    "at": "2026-11-24T14:57:00Z",
+    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+    "ref": "vo_signoff_pp2_v1_b0ae9bf9641f",
+    "service": "unknown",
+    "units": {
+     "characters": 107
+    },
+    "usd": null,
+    "vendor": "elevenlabs:tts:eleven_v4"
+   },
+   {
+    "at": "2026-11-24T15:22:54Z",
+    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+    "ref": "vo_signoff_pp2_v1_bf46b21f80b1",
+    "service": "unknown",
+    "units": {
+     "characters": 89
+    },
+    "usd": null,
+    "vendor": "elevenlabs:tts:eleven_v4"
+   },
+   {
+    "at": "2026-11-24T15:22:54Z",
+    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+    "ref": "vo_signoff_pp2_v1_b0ae9bf9641f",
+    "service": "unknown",
+    "units": {
+     "characters": 107
+    },
+    "usd": null,
+    "vendor": "elevenlabs:tts:eleven_v4"
+   },
+   {
+    "at": "2026-11-24T15:25:29Z",
+    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+    "ref": "vo_signoff_pp2_v1_bf46b21f80b1",
+    "service": "unknown",
+    "units": {
+     "characters": 89
+    },
+    "usd": null,
+    "vendor": "elevenlabs:tts:eleven_v4"
+   },
+   {
+    "at": "2026-11-24T15:25:29Z",
+    "basis": "unpriced: ElevenLabs bills the input text's characters against the plan's monthly quota and the code holds no USD rate (asked of the orchestrator, ruling 131)",
+    "ref": "vo_signoff_pp2_v1_b0ae9bf9641f",
+    "service": "unknown",
+    "units": {
+     "characters": 107
+    },
+    "usd": null,
+    "vendor": "elevenlabs:tts:eleven_v4"
    }
   ],
   "others": {}
  },
  "heimdall_free": {
-  "builds": 0.07812,
+  "builds": 0.106503,
   "audits": 0.00457,
   "checks": 5.275658,
   "others": {}

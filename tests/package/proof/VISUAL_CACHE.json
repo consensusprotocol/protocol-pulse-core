@@ -1175,6 +1175,86 @@
   },
   "version": "visual-3"
  },
+ "2e3e3c781ab9a3734eca:34.320-49.300:visual-4:cf5e5773cb3dac0d": {
+  "advertising": [],
+  "backend": "heimdall:qwen/qwen3.8-27b",
+  "burned_in": [
+   {
+    "at": [
+     42.32,
+     43.32,
+     44.32,
+     45.32,
+     46.32,
+     47.32,
+     48.32,
+     49.25
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "lower_third",
+    "text": "COMING UP...",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "lower_third",
+    "kind": "burned_in",
+    "text": "COMING UP..."
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": false,
+    "text": "COMING UP...",
+    "why": "It is a teaser banner flagging upcoming segments; it asserts no factual claim beyond what the speaker says."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_7ebd53f77a45eeea.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_7ebd53f77a45eeea.jpg",
+   "sha256": "7ebd53f77a45eeea4e0c2b261a3666301fcad844ff1af4f8757c8453f3b026eb",
+   "times": [
+    34.32,
+    35.32,
+    36.32,
+    37.32,
+    38.32,
+    39.32,
+    40.32,
+    41.32,
+    42.32,
+    43.32,
+    44.32,
+    45.32,
+    46.32,
+    47.32,
+    48.32,
+    49.25
+   ]
+  },
+  "third_person": {
+   "finding": "The only other person (the host) appears in live video, not as a still, photo or graphic, and the spoken words make no negative claim about any named individual.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2341,
+   "out": 4603,
+   "usd_reported": 0.00368635
+  },
+  "version": "visual-4"
+ },
  "30075b155874ab2de3c7:1795.530-1811.450:visual-2:83035f5e841920fb": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [
@@ -2177,6 +2257,348 @@
    "usd_reported": 0.175228
   },
   "version": "visual-3"
+ },
+ "8b5ec8317b6d5ee36e8f~heard:88.221-107.781:visual-4:fdedae9918cb1239": {
+  "advertising": [
+   {
+    "at": [
+     89.22,
+     90.22,
+     91.22,
+     92.22,
+     93.22,
+     94.22,
+     95.22,
+     96.22,
+     97.22,
+     98.22,
+     99.22,
+     100.22,
+     101.22,
+     102.22,
+     103.22,
+     104.22,
+     105.22,
+     106.22,
+     107.22,
+     107.73
+    ],
+    "text": "Cash App",
+    "what": "Cash App (Block) sponsor logo, top-left and in the bottom sponsor crawl"
+   },
+   {
+    "at": [
+     89.22,
+     90.22,
+     91.22,
+     92.22,
+     93.22,
+     94.22,
+     95.22,
+     96.22,
+     97.22,
+     98.22,
+     99.22,
+     100.22,
+     101.22,
+     102.22,
+     103.22,
+     104.22,
+     105.22,
+     106.22,
+     107.22,
+     107.73
+    ],
+    "text": "Square",
+    "what": "Square (Block) sponsor logo in the bottom crawl"
+   },
+   {
+    "at": [
+     89.22,
+     90.22,
+     91.22,
+     92.22,
+     93.22,
+     94.22,
+     95.22,
+     96.22,
+     97.22,
+     98.22,
+     99.22,
+     100.22,
+     101.22,
+     102.22,
+     103.22,
+     104.22,
+     105.22,
+     106.22,
+     107.22,
+     107.73
+    ],
+    "text": "UTXO",
+    "what": "UTXO sponsor logo in the bottom crawl"
+   },
+   {
+    "at": [
+     89.22,
+     90.22,
+     91.22,
+     92.22,
+     93.22,
+     94.22,
+     95.22,
+     96.22,
+     97.22,
+     98.22,
+     99.22,
+     100.22,
+     101.22,
+     102.22,
+     103.22,
+     104.22,
+     105.22,
+     106.22,
+     107.22,
+     107.73
+    ],
+    "text": "SALT",
+    "what": "SALT lending sponsor logo in the bottom crawl"
+   },
+   {
+    "at": [
+     89.22,
+     90.22,
+     91.22,
+     92.22,
+     93.22,
+     94.22,
+     95.22,
+     96.22,
+     97.22,
+     98.22,
+     99.22,
+     100.22,
+     101.22,
+     102.22,
+     103.22,
+     104.22,
+     105.22,
+     106.22,
+     107.22,
+     107.73
+    ],
+    "text": "VeriBlock",
+    "what": "VeriBlock sponsor logo in the bottom crawl"
+   },
+   {
+    "at": [
+     89.22,
+     90.22,
+     91.22,
+     92.22,
+     93.22,
+     94.22,
+     95.22,
+     96.22,
+     97.22,
+     98.22,
+     99.22,
+     100.22,
+     101.22,
+     102.22,
+     103.22,
+     104.22,
+     105.22,
+     106.22,
+     107.22,
+     107.73
+    ],
+    "text": "PLAUD",
+    "what": "PLAUD AI note-taker sponsor logo in the bottom crawl"
+   },
+   {
+    "at": [
+     89.22,
+     90.22,
+     91.22,
+     92.22,
+     93.22,
+     94.22,
+     95.22,
+     96.22,
+     97.22,
+     98.22,
+     99.22,
+     100.22,
+     101.22,
+     102.22,
+     103.22,
+     104.22,
+     105.22,
+     106.22,
+     107.22,
+     107.73
+    ],
+    "text": "IFC",
+    "what": "IFC sponsor logo in the bottom crawl"
+   }
+  ],
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     89.22,
+     90.22,
+     91.22,
+     92.22,
+     93.22,
+     94.22,
+     95.22,
+     96.22,
+     97.22,
+     98.22,
+     99.22,
+     100.22,
+     101.22,
+     102.22,
+     103.22,
+     104.22,
+     105.22,
+     106.22,
+     107.22,
+     107.73
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "lower_third",
+    "text": "LIVE ON BMTV: CJ KONSTANTINOS \u2014 FOUNDER & CEO, PEOPLES RESERVE (@CJAKONSTANTINOS)",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     89.22,
+     90.22,
+     91.22,
+     92.22,
+     93.22,
+     94.22,
+     95.22,
+     96.22,
+     97.22,
+     98.22,
+     99.22,
+     100.22,
+     101.22,
+     102.22,
+     103.22,
+     104.22,
+     105.22,
+     106.22,
+     107.22,
+     107.73
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "crawl",
+    "text": "Cash App  Square  UTXO  SALT  VeriBlock  PLAUD  IFC",
+    "whole_in_16x9": true
+   },
+   {
+    "at": [
+     89.22,
+     90.22,
+     91.22,
+     92.22,
+     93.22,
+     94.22,
+     95.22,
+     96.22,
+     97.22,
+     98.22,
+     99.22,
+     100.22,
+     101.22,
+     102.22,
+     103.22,
+     104.22,
+     105.22,
+     106.22,
+     107.22,
+     107.73
+    ],
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "bug",
+    "text": "Cash App",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "kind": "on_screen_text",
+    "text": "$62,847.38 \u25b2 2.76%",
+    "why": "The spoken words never give a Bitcoin price or a percentage move; this readout asserts a specific price of $62,847.38 and a 2.76% gain."
+   }
+  ],
+  "lower_third": {
+   "name": "CJ KONSTANTINOS",
+   "text": "LIVE ON BMTV: CJ KONSTANTINOS \u2014 FOUNDER & CEO, PEOPLES RESERVE (@CJAKONSTANTINOS)"
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "$62,847.38 \u25b2 2.76%",
+    "why": "The spoken words never give a Bitcoin price or a percentage move; this readout asserts a specific price of $62,847.38 and a 2.76% gain."
+   },
+   {
+    "asserts_beyond_words": false,
+    "text": "BTC/USD",
+    "why": "It only labels the chart as Bitcoin priced in US dollars, the same asset the speaker is discussing."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_87d12515a37f48df.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_87d12515a37f48df.jpg",
+   "sha256": "87d12515a37f48df0029ce3010f6b0f3d3e3a1a15e70f6008ca7f6526aac5c7e",
+   "times": [
+    88.22,
+    89.22,
+    90.22,
+    91.22,
+    92.22,
+    93.22,
+    94.22,
+    95.22,
+    96.22,
+    97.22,
+    98.22,
+    99.22,
+    100.22,
+    101.22,
+    102.22,
+    103.22,
+    104.22,
+    105.22,
+    106.22,
+    107.22,
+    107.73
+   ]
+  },
+  "third_person": {
+   "finding": "Although the narration says others \"haven't really learned\" what the asset is and that it is \"not a risk on tech stock,\" no non-speaking person is shown as a still, photo, or graphic, and no on-screen",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 3934,
+   "out": 19485,
+   "usd_reported": 0.12305
+  },
+  "version": "visual-4"
  },
  "933f9d33a8e345356177:1706.226-1725.606:visual-2:173daccbb2a10b30": {
   "backend": "xai_vision:grok-4.7",
@@ -3850,6 +4272,71 @@
    "usd_reported": 0.05043
   },
   "version": "visual-3"
+ },
+ "cb024f5a4139d217dad2:20.940-32.000:visual-4:fd26a68fdacd4de8": {
+  "advertising": [],
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     22.94,
+     23.94,
+     24.94,
+     25.94
+    ],
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "lower_third",
+    "text": "COMING UP...",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": false,
+    "text": "COMING UP...",
+    "why": "A production teaser bumper signaling the next segment, not a factual claim about Bitcoin or Wall Street beyond the spoken words."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_41b6411526c7fdd1.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_41b6411526c7fdd1.jpg",
+   "sha256": "41b6411526c7fdd1f2cee7011b32f3beb872c4e1a092fb3e8437dfa446b94c39",
+   "times": [
+    20.94,
+    21.94,
+    22.94,
+    23.94,
+    24.94,
+    25.94,
+    26.94,
+    27.94,
+    28.94,
+    29.94,
+    30.94,
+    31.95
+   ]
+  },
+  "third_person": {
+   "finding": "The only person shown is the live studio speaker; the Wall Street shots are scenery b-roll with no person presented as a still, photo, or graphic, and the narration makes no negative personal claim.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 3264,
+   "out": 10775,
+   "usd_reported": 0.06945
+  },
+  "version": "visual-4"
  },
  "cb80340f857a99178919:1455.478-1463.298:visual-2:68f34beb30d47fe8": {
   "backend": "xai_vision:grok-4.7",

@@ -1,0 +1,272 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "33a4294e485c7760d63437b65bab6d6957b81cc054c4e8694b9051c167c54a8d",
+ "result": {
+  "text": "years of Bitcoin, I think the diminishing returns theory is gonna be put to rest. At some point over this next five to 10-year window, Bitcoin will become worth more than a single family home, and that will be a really",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.06,
+    "end": 11.1,
+    "text": "years of Bitcoin, I think the diminishing returns theory is gonna be put to rest. At some point over this next five to 10-year window, Bitcoin will become worth more than a single family home, and that will be a really"
+   }
+  ],
+  "words": [
+   {
+    "text": "years",
+    "start": 0.06,
+    "end": 0.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 0.24,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 0.36,
+    "end": 0.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 1.28,
+    "end": 1.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 1.36,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.52,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "diminishing",
+    "start": 1.64,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "returns",
+    "start": 2.16,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "theory",
+    "start": 2.62,
+    "end": 2.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.82,
+    "end": 2.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 2.92,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 3.08,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "put",
+    "start": 3.2,
+    "end": 3.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 3.36,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rest.",
+    "start": 3.5,
+    "end": 3.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "At",
+    "start": 4.019,
+    "end": 4.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 4.24,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "point",
+    "start": 4.54,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 5.16,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 5.32,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "next",
+    "start": 5.54,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "five",
+    "start": 5.76,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.96,
+    "end": 6.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "10-year",
+    "start": 6.08,
+    "end": 6.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "window,",
+    "start": 6.44,
+    "end": 6.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 7.22,
+    "end": 7.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 7.62,
+    "end": 7.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "become",
+    "start": 7.8,
+    "end": 8.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worth",
+    "start": 8.16,
+    "end": 8.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 8.44,
+    "end": 8.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 8.64,
+    "end": 8.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 8.76,
+    "end": 8.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "single",
+    "start": 8.86,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "family",
+    "start": 9.14,
+    "end": 9.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "home,",
+    "start": 9.46,
+    "end": 9.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 10.16,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 10.32,
+    "end": 10.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 10.46,
+    "end": 10.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 10.6,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 10.72,
+    "end": 10.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 10.88,
+    "end": 11.1,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.12
+ },
+ "usd": 0.002224,
+ "seconds": 0.96,
+ "recorded_at": "2026-11-24T17:57:49Z"
+}

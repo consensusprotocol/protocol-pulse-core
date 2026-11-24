@@ -1,0 +1,338 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "fbba5dd56bb4f8889146df9943e2bb9a9e8b3322a2240c1eca3dbdd1e14b0c62",
+ "result": {
+  "text": "haven't taken up the mantle and, and put some Bitcoin on the balance sheet. But by the same token, there are a number that have. Tesla and SpaceX, maybe the two most forward-looking companies that we have in the public sphere, own Bitcoin. So we got some. Selling Bitcoin to cover-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.26,
+    "end": 14.08,
+    "text": "haven't taken up the mantle and, and put some Bitcoin on the balance sheet. But by the same token, there are a number that have. Tesla and SpaceX, maybe the two most forward-looking companies that we have in the public sphere, own Bitcoin. So we got some."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 14.5,
+    "end": 15.5,
+    "text": "Selling Bitcoin to cover-"
+   }
+  ],
+  "words": [
+   {
+    "text": "haven't",
+    "start": 0.26,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "taken",
+    "start": 0.7,
+    "end": 0.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 0.94,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.06,
+    "end": 1.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mantle",
+    "start": 1.2,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and,",
+    "start": 1.62,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.92,
+    "end": 2.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "put",
+    "start": 2.1,
+    "end": 2.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 2.28,
+    "end": 2.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.44,
+    "end": 2.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 2.86,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.96,
+    "end": 3.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "balance",
+    "start": 3.08,
+    "end": 3.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sheet.",
+    "start": 3.4,
+    "end": 3.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 3.94,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 4.08,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.22,
+    "end": 4.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "same",
+    "start": 4.34,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "token,",
+    "start": 4.56,
+    "end": 4.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 4.84,
+    "end": 4.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 4.94,
+    "end": 4.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 5.02,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "number",
+    "start": 5.12,
+    "end": 5.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 5.4,
+    "end": 5.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have.",
+    "start": 5.6,
+    "end": 5.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Tesla",
+    "start": 5.98,
+    "end": 6.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 6.96,
+    "end": 7.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "SpaceX,",
+    "start": 7.32,
+    "end": 7.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "maybe",
+    "start": 8.119,
+    "end": 8.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.34,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "two",
+    "start": 8.6,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 8.76,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "forward-looking",
+    "start": 9.0,
+    "end": 9.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "companies",
+    "start": 9.56,
+    "end": 10.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 10.44,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 10.58,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 10.7,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 10.9,
+    "end": 10.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.98,
+    "end": 11.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "public",
+    "start": 11.1,
+    "end": 11.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sphere,",
+    "start": 11.42,
+    "end": 11.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "own",
+    "start": 12.02,
+    "end": 12.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 12.18,
+    "end": 12.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 12.68,
+    "end": 12.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 13.52,
+    "end": 13.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "got",
+    "start": 13.62,
+    "end": 13.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some.",
+    "start": 13.84,
+    "end": 14.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Selling",
+    "start": 14.5,
+    "end": 14.76,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 14.8,
+    "end": 15.18,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "to",
+    "start": 15.22,
+    "end": 15.28,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "cover-",
+    "start": 15.34,
+    "end": 15.5,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.52
+ },
+ "usd": 0.003104,
+ "seconds": 1.15,
+ "recorded_at": "2026-11-24T17:59:17Z"
+}

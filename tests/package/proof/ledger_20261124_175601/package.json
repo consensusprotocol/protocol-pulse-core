@@ -1,0 +1,2740 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [],
+ "unusable": {
+  "761be06a83ab95bd7906": "35.04 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "842eb5181d33a647f3c3": "33.24 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "a9d9085772e95e5479ef": "22.94 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "ba4acd352b9506f4f156": "33.79 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "82dc1134cbc23f1cad4b": "not eligible on screen: hook: no_bitcoin; clip: not_statement",
+  "4f01efc9c5779de6ce55": "22.52 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "722305398896f441ec95": "39.92 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "0173aaa66a555d57b86a": "20.23 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "5ca49e50a49253188a61": "not eligible on screen: hook: no_bitcoin; clip: not_statement",
+  "7bca506aba1e313eeb09": "not eligible on screen: hook: opener; clip: opener",
+  "be114efd7c8b7547e92b": "39.64 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "e49b3685ec9bbb2f612c": "not eligible on screen: hook: opener; clip: not_statement",
+  "37ecd3914184ca8a7e8d": "39.77 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "64d02f799db4b22d6cd6": "24.03 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "14ad7b053588c13666d3": "22.09 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "8dcfb74a001c839f4428": "not eligible on screen: hook: opener; clip: opener",
+  "fa2da4a418cb600684ae": "not eligible on screen: hook: opener; clip: opener",
+  "8041e752a1b4c99c108d": "not eligible on screen: hook: hook_lead; clip: not_statement",
+  "aede157aa66f09260235": "not eligible on screen: hook: opener; clip: not_statement, opener",
+  "01af5e5c0b167b5637f8": "not eligible on screen: hook: opener; clip: not_statement, opener",
+  "63c637da3d2beb6756ea": "not eligible on screen: hook: opener; clip: opener",
+  "b3b54b1e3e025dc3689f": "23.97 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "e295d20e4319a473dd8c": "not eligible on screen: hook: opener; clip: not_statement, opener",
+  "810f79cf679867c43271": "29.44 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "7710cebb49cd2c66ff04": "31.02 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "c9bb9dd233cd2c9afa0c": "32.23 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "86da51f9f8f9df4e7866": "30.43 s: over the 20.0 s per source video (L-u) or unmeasured"
+ },
+ "usable": 41,
+ "current_levels": [
+  250000.0
+ ],
+ "out_edge": {
+  "ruling": "162 (1)",
+  "version": "owner_rules 4 (ruling 162 + items 2, 7, 2026-11-24)",
+  "sha256": "d509ad194f42834eb5b4813c79498dcb332b7eb2367017c37f1227f3dc017903",
+  "asked": 3,
+  "complete": [
+   "1f859d5e96a4c1a61c27",
+   "dd2157e19972a4cebfc8",
+   "1f859d5e96a4c1a61c27~trim"
+  ],
+  "extended": {},
+  "refused": {},
+  "unverified": {}
+ },
+ "no_role": {
+  "38fd5550bb0007a464d3": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "8b5ec8317b6d5ee36e8f": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "41d5c1c14db3bec0cda7": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "8aeedc658341ff24d86d": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (1.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "c362f8112cdfcf9a9e97": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "ef02acd88e66dc1058f7": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'but'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'but': nothing is heard before a hook",
+  "fac6923ebfc9d0ee3b2e": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "c4831c71ba05691bd5b6": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (1.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "03aea4c11c50cbd99d17": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "dac37d732a0257e8792f": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "0b924f871d582ff9cb3d": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "0d652b752e92e557fddb": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'but' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'but': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "13aa7df275892595d5e2": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "33166630e5b1abb76695": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "7ed03de7172f7cde4f5f": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "8e81576936db88d30d1d": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "9d6dc930ea93f39e7fd7": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "61e90d0b02137e866936": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "fad488062f32b3ac2755": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "169184ffeb037f3f2a1c": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "24e224ad732e2d7f4926": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "9f4c03df0e00d6b629fc": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "d092d4c373af6d8e7615": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'but' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'but': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "e7e7d9d1295e6d12262e": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "56a23fba72d66b70799c": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'but'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'but': nothing is heard before a hook",
+  "3c60f0de52bee930c8ec": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "b30851a826eac8d039a2": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'because'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'because': nothing is heard before a hook"
+ },
+ "ad_read": {},
+ "trimmed": {
+  "1f859d5e96a4c1a61c27": "1f859d5e96a4c1a61c27~trim",
+  "8aeedc658341ff24d86d": "8aeedc658341ff24d86d~trim",
+  "fac6923ebfc9d0ee3b2e": "fac6923ebfc9d0ee3b2e~trim"
+ },
+ "reposted": {},
+ "scorer": {
+  "read": true,
+  "rated_at": "2026-11-24T17:18:53Z",
+  "build": "ledger_20261124_171223",
+  "candidates_generated_at": "2026-11-24T17:13:19+00:00",
+  "model": "gemma3:27b",
+  "kind": "moments",
+  "rubric": "ruling 60: stand-alone only",
+  "scorer_sha": "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53",
+  "threshold": 3.5,
+  "verdicts": 45,
+  "affirmed": 9,
+  "affirmed_on_the_floor": 4,
+  "disagree_with_the_rule": [],
+  "candidates": 47,
+  "candidates_written": true,
+  "admitted": [
+   "1f859d5e96a4c1a61c27",
+   "2e3e3c781ab9a3734eca",
+   "83547a934fd5afbc93d5",
+   "9c1560cf3b9fa803ab60",
+   "c4e67ea61496e5b97124",
+   "f0367204ccc115582bcd"
+  ],
+  "trims_affirmed": [
+   "1f859d5e96a4c1a61c27",
+   "8aeedc658341ff24d86d",
+   "fac6923ebfc9d0ee3b2e"
+  ],
+  "trims_out": {
+   "8b5ec8317b6d5ee36e8f": "'And' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "ef02acd88e66dc1058f7": "'But' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "dac37d732a0257e8792f": "'And' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "33166630e5b1abb76695": "'And' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "56a23fba72d66b70799c": "'But' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)"
+  }
+ },
+ "prescreen": {
+  "screened": 17,
+  "cleared": 6,
+  "failed": {
+   "16473ccae3baf3b8d118": [
+    "REFERENT_OUTSIDE"
+   ],
+   "581b68c232a23e62f39a": [
+    "REFERENT_OUTSIDE"
+   ],
+   "9c1560cf3b9fa803ab60": [
+    "REFERENT_OUTSIDE"
+   ],
+   "2e3e3c781ab9a3734eca": [
+    "REFERENT_OUTSIDE"
+   ],
+   "cb024f5a4139d217dad2": [
+    "NOT_OWN_SINCERE"
+   ],
+   "c4e67ea61496e5b97124": [
+    "REFERENT_OUTSIDE"
+   ],
+   "2771a5fbb84d70e885c6": [
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE",
+    "UNCERTAIN"
+   ],
+   "3f5f29efdca426ed7173": [
+    "REFERENT_OUTSIDE"
+   ],
+   "8aeedc658341ff24d86d~trim": [
+    "REFERENT_OUTSIDE",
+    "CONDITION_OUTSIDE"
+   ],
+   "fac6923ebfc9d0ee3b2e~trim": [
+    "NOT_OWN_SINCERE"
+   ],
+   "565e5200c95256832485": [
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE"
+   ]
+  },
+  "parallel_101": {
+   "parallel": false,
+   "n_new": 5,
+   "est_wait_s": null,
+   "leg": null,
+   "confirm": null,
+   "why": "not over 20 new moments",
+   "used": 0
+  },
+  "held_102": {
+   "first": [],
+   "second": []
+  },
+  "last_resort_87": {},
+  "second_pass": {
+   "dd2157e19972a4cebfc8": "PASS",
+   "83547a934fd5afbc93d5": "not cuttable at an edge (ruling C / 7)",
+   "0ffd02a3cccb4f07b071": "not cuttable at an edge (ruling C / 7)",
+   "1f859d5e96a4c1a61c27": "PASS",
+   "1f859d5e96a4c1a61c27~trim": "PASS",
+   "f0367204ccc115582bcd": "L-v 2 FAIL"
+  },
+  "cuttable": 3,
+  "hook_onset": {
+   "1f859d5e96a4c1a61c27": "PASS",
+   "dd2157e19972a4cebfc8": "FAIL: 30 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+   "1f859d5e96a4c1a61c27~trim": "FAIL: no cut after the trimmed word 'So': the trimmed word 'So' cannot be cut cleanly: no measured pause between it and 'a' (co-articulated)"
+  },
+  "trim_cut": {
+   "1f859d5e96a4c1a61c27~trim": "FAIL: no trimmed cut was reached: no cut after the trimmed word 'So': the trimmed word 'So' cannot be cut cleanly: no measured pause between it and 'a' (co-articulated)"
+  }
+ },
+ "angles": [],
+ "takeaways": [],
+ "package": null,
+ "visual": {
+  "calls": 0,
+  "cached": 0,
+  "usd_reported": 0.0,
+  "usd_estimate": 0.0,
+  "estimated_calls": 0,
+  "unmeasured": 0,
+  "flags": 0
+ },
+ "hook_pool": {
+  "can_open": 0,
+  "rated": 0,
+  "error": null,
+  "bar": "the calibrated hook bar (ruling 115): scroll >= 3, alone >= 4, setup >= 3, on xai:grok-4.20-0309-reasoning asked alone at seed 7 (calibration 6978392df37e)",
+  "bar_floors": {
+   "scroll": 3,
+   "alone": 4,
+   "setup": 3
+  },
+  "bar_sha256": "6978392df37e5abff8594c6fc293e29cf761718fc0530cd87ed6b3892c3fafd6",
+  "bar_invalid": null,
+  "ratings": {},
+  "best": [],
+  "passing": [],
+  "visual_blocked": {}
+ },
+ "why_none": "no hook in the pool (ruling 59 d): no cleared, cuttable moment can open (hook eligibility, G17a, the render's hook rule)",
+ "never_empty": {
+  "stage": "2b",
+  "clean_why_none": "no hook in the pool (ruling 59 d): no cleared, cuttable moment can open (hook eligibility, G17a, the render's hook rule)",
+  "soft_why_none": "no angle gave a package: angle 1: ruling 163 (2)(b): judged again on the words the lock corrected: 8b5ec8317b6d5ee36e8f~heard: the clips-alone verdict on the corrected words fails: re-lined; angle 1: the clips alone have no through-line a viewer can state (or it was not measured); angle 2: the clips alone have no through-line a viewer can state (or it was not measured)",
+  "soft_back": {
+   "16473ccae3baf3b8d118": [
+    "REFERENT_OUTSIDE"
+   ],
+   "581b68c232a23e62f39a": [
+    "REFERENT_OUTSIDE"
+   ],
+   "8b5ec8317b6d5ee36e8f": [
+    "REFERENT_OUTSIDE"
+   ],
+   "8aeedc658341ff24d86d": [
+    "CONDITION_OUTSIDE",
+    "REFERENT_OUTSIDE"
+   ],
+   "9c1560cf3b9fa803ab60": [
+    "REFERENT_OUTSIDE"
+   ],
+   "565e5200c95256832485": [
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE"
+   ],
+   "c4831c71ba05691bd5b6": [
+    "REFERENT_OUTSIDE"
+   ],
+   "2e3e3c781ab9a3734eca": [
+    "REFERENT_OUTSIDE"
+   ],
+   "33166630e5b1abb76695": [
+    "REFERENT_OUTSIDE"
+   ],
+   "cb024f5a4139d217dad2": [
+    "NOT_OWN_SINCERE"
+   ],
+   "c4e67ea61496e5b97124": [
+    "REFERENT_OUTSIDE"
+   ],
+   "2771a5fbb84d70e885c6": [
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE",
+    "UNCERTAIN"
+   ],
+   "3f5f29efdca426ed7173": [
+    "REFERENT_OUTSIDE"
+   ],
+   "b30851a826eac8d039a2": [
+    "REFERENT_OUTSIDE"
+   ],
+   "8aeedc658341ff24d86d~trim": [
+    "CONDITION_OUTSIDE",
+    "REFERENT_OUTSIDE"
+   ],
+   "fac6923ebfc9d0ee3b2e~trim": [
+    "NOT_OWN_SINCERE"
+   ]
+  },
+  "soft_record": {
+   "prescreen": {
+    "screened": 26,
+    "cleared": 25,
+    "failed": {
+     "16473ccae3baf3b8d118": [
+      "REFERENT_OUTSIDE"
+     ],
+     "581b68c232a23e62f39a": [
+      "REFERENT_OUTSIDE"
+     ],
+     "8aeedc658341ff24d86d~trim": [
+      "REFERENT_OUTSIDE",
+      "CONDITION_OUTSIDE"
+     ],
+     "9c1560cf3b9fa803ab60": [
+      "REFERENT_OUTSIDE"
+     ],
+     "fac6923ebfc9d0ee3b2e~trim": [
+      "NOT_OWN_SINCERE"
+     ],
+     "565e5200c95256832485": [
+      "NOT_OWN_SINCERE",
+      "REFERENT_OUTSIDE"
+     ],
+     "2e3e3c781ab9a3734eca": [
+      "REFERENT_OUTSIDE"
+     ],
+     "cb024f5a4139d217dad2": [
+      "NOT_OWN_SINCERE"
+     ],
+     "c4e67ea61496e5b97124": [
+      "REFERENT_OUTSIDE"
+     ],
+     "2771a5fbb84d70e885c6": [
+      "NOT_OWN_SINCERE",
+      "REFERENT_OUTSIDE",
+      "UNCERTAIN"
+     ],
+     "3f5f29efdca426ed7173": [
+      "REFERENT_OUTSIDE"
+     ],
+     "8b5ec8317b6d5ee36e8f": [
+      "REFERENT_OUTSIDE"
+     ],
+     "8aeedc658341ff24d86d": [
+      "REFERENT_OUTSIDE",
+      "CONDITION_OUTSIDE"
+     ],
+     "ef02acd88e66dc1058f7": [
+      "SPEAKER_CHANGE",
+      "NOT_OWN_SINCERE"
+     ],
+     "c4831c71ba05691bd5b6": [
+      "REFERENT_OUTSIDE"
+     ],
+     "33166630e5b1abb76695": [
+      "REFERENT_OUTSIDE"
+     ],
+     "b30851a826eac8d039a2": [
+      "REFERENT_OUTSIDE"
+     ]
+    },
+    "parallel_101": {
+     "parallel": false,
+     "n_new": 9,
+     "est_wait_s": null,
+     "leg": null,
+     "confirm": null,
+     "why": "not over 20 new moments",
+     "used": 0
+    },
+    "held_102": {
+     "first": [],
+     "second": []
+    },
+    "last_resort_87": {},
+    "soft_back": {
+     "16473ccae3baf3b8d118": [
+      "REFERENT_OUTSIDE"
+     ],
+     "581b68c232a23e62f39a": [
+      "REFERENT_OUTSIDE"
+     ],
+     "8b5ec8317b6d5ee36e8f": [
+      "REFERENT_OUTSIDE"
+     ],
+     "8aeedc658341ff24d86d": [
+      "CONDITION_OUTSIDE",
+      "REFERENT_OUTSIDE"
+     ],
+     "9c1560cf3b9fa803ab60": [
+      "REFERENT_OUTSIDE"
+     ],
+     "565e5200c95256832485": [
+      "NOT_OWN_SINCERE",
+      "REFERENT_OUTSIDE"
+     ],
+     "c4831c71ba05691bd5b6": [
+      "REFERENT_OUTSIDE"
+     ],
+     "2e3e3c781ab9a3734eca": [
+      "REFERENT_OUTSIDE"
+     ],
+     "33166630e5b1abb76695": [
+      "REFERENT_OUTSIDE"
+     ],
+     "cb024f5a4139d217dad2": [
+      "NOT_OWN_SINCERE"
+     ],
+     "c4e67ea61496e5b97124": [
+      "REFERENT_OUTSIDE"
+     ],
+     "2771a5fbb84d70e885c6": [
+      "NOT_OWN_SINCERE",
+      "REFERENT_OUTSIDE",
+      "UNCERTAIN"
+     ],
+     "3f5f29efdca426ed7173": [
+      "REFERENT_OUTSIDE"
+     ],
+     "b30851a826eac8d039a2": [
+      "REFERENT_OUTSIDE"
+     ],
+     "8aeedc658341ff24d86d~trim": [
+      "CONDITION_OUTSIDE",
+      "REFERENT_OUTSIDE"
+     ],
+     "fac6923ebfc9d0ee3b2e~trim": [
+      "NOT_OWN_SINCERE"
+     ]
+    },
+    "words_pending_lock": {
+     "8b5ec8317b6d5ee36e8f": {
+      "numbers": [],
+      "negations": [],
+      "names": [
+       "Bitcoiners"
+      ]
+     },
+     "fac6923ebfc9d0ee3b2e": {
+      "numbers": [],
+      "negations": [
+       "won't"
+      ],
+      "names": []
+     },
+     "fac6923ebfc9d0ee3b2e~trim": {
+      "numbers": [],
+      "negations": [
+       "won't"
+      ],
+      "names": []
+     }
+    },
+    "second_pass": {
+     "dd2157e19972a4cebfc8": "PASS",
+     "0ffd02a3cccb4f07b071": "not cuttable at an edge (ruling C / 7)",
+     "1f859d5e96a4c1a61c27": "PASS",
+     "f0367204ccc115582bcd": "L-v 2 FAIL",
+     "83547a934fd5afbc93d5": "not cuttable at an edge (ruling C / 7)",
+     "1f859d5e96a4c1a61c27~trim": "PASS",
+     "fac6923ebfc9d0ee3b2e": "not cuttable at an edge (ruling C / 7)",
+     "8aeedc658341ff24d86d": "not cuttable at an edge (ruling C / 7)",
+     "dac37d732a0257e8792f": "not cuttable at an edge (ruling C / 7)",
+     "9c1560cf3b9fa803ab60": "not cuttable at an edge (ruling C / 7)",
+     "16473ccae3baf3b8d118": "PASS",
+     "565e5200c95256832485": "PASS",
+     "581b68c232a23e62f39a": "not cuttable at an edge (ruling C / 7)",
+     "56a23fba72d66b70799c": "PASS",
+     "8b5ec8317b6d5ee36e8f": "not cuttable at an edge (ruling C / 7)",
+     "c4831c71ba05691bd5b6": "not cuttable at an edge (ruling C / 7)",
+     "33166630e5b1abb76695": "PASS",
+     "2771a5fbb84d70e885c6": "not cuttable at an edge (ruling C / 7)",
+     "2e3e3c781ab9a3734eca": "PASS",
+     "c4e67ea61496e5b97124": "PASS",
+     "8aeedc658341ff24d86d~trim": "not cuttable at an edge (ruling C / 7)",
+     "3f5f29efdca426ed7173": "L-v 2 FAIL",
+     "fac6923ebfc9d0ee3b2e~trim": "not cuttable at an edge (ruling C / 7)",
+     "b30851a826eac8d039a2": "not cuttable at an edge (ruling C / 7)",
+     "cb024f5a4139d217dad2": "PASS"
+    },
+    "soft_edges": {
+     "dac37d732a0257e8792f": [
+      "EDGE_IN"
+     ],
+     "8b5ec8317b6d5ee36e8f": [
+      "EDGE_IN"
+     ]
+    },
+    "cuttable": 12,
+    "hook_onset": {
+     "1f859d5e96a4c1a61c27": "PASS",
+     "dac37d732a0257e8792f": "PASS",
+     "dd2157e19972a4cebfc8": "FAIL: 30 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+     "56a23fba72d66b70799c": "PASS",
+     "1f859d5e96a4c1a61c27~trim": "FAIL: no cut after the trimmed word 'So': the trimmed word 'So' cannot be cut cleanly: no measured pause between it and 'a' (co-articulated)",
+     "8b5ec8317b6d5ee36e8f": "FAIL: 70 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+     "565e5200c95256832485": "PASS",
+     "2e3e3c781ab9a3734eca": "PASS",
+     "33166630e5b1abb76695": "PASS",
+     "cb024f5a4139d217dad2": "PASS",
+     "c4e67ea61496e5b97124": "FAIL: 20 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)"
+    },
+    "trim_cut": {
+     "1f859d5e96a4c1a61c27~trim": "FAIL: no trimmed cut was reached: no cut after the trimmed word 'So': the trimmed word 'So' cannot be cut cleanly: no measured pause between it and 'a' (co-articulated)"
+    },
+    "soft_hook_bar": {
+     "dd2157e19972a4cebfc8": "making sense on its own 3 of 5, needs 4",
+     "2e3e3c781ab9a3734eca": "stopping the scroll 2 of 5, needs 3; making sense on its own 3 of 5, needs 4"
+    },
+    "second_vendor": {
+     "1f859d5e96a4c1a61c27": "PASS (google:gemini-2.5-pro)",
+     "dac37d732a0257e8792f": "FAIL: REFERENT_OUTSIDE",
+     "dd2157e19972a4cebfc8": "FAIL: REFERENT_OUTSIDE; STALE_TIME",
+     "56a23fba72d66b70799c": "PASS (google:gemini-2.5-pro)",
+     "8b5ec8317b6d5ee36e8f": "FAIL: REFERENT_OUTSIDE",
+     "565e5200c95256832485": "FAIL: NOT_OWN_SINCERE; REFERENT_OUTSIDE",
+     "2e3e3c781ab9a3734eca": "PASS (google:gemini-2.5-pro)",
+     "33166630e5b1abb76695": "FAIL: NOT_OWN_SINCERE; REFERENT_OUTSIDE",
+     "cb024f5a4139d217dad2": "PASS (google:gemini-2.5-pro)",
+     "c4e67ea61496e5b97124": "FAIL: REFERENT_OUTSIDE"
+    },
+    "soft_second": {
+     "dac37d732a0257e8792f": [
+      "REFERENT_OUTSIDE"
+     ],
+     "8b5ec8317b6d5ee36e8f": [
+      "REFERENT_OUTSIDE"
+     ],
+     "565e5200c95256832485": [
+      "NOT_OWN_SINCERE",
+      "REFERENT_OUTSIDE"
+     ],
+     "33166630e5b1abb76695": [
+      "NOT_OWN_SINCERE",
+      "REFERENT_OUTSIDE"
+     ],
+     "c4e67ea61496e5b97124": [
+      "REFERENT_OUTSIDE"
+     ]
+    }
+   },
+   "hook_pool": {
+    "can_open": 4,
+    "rated": 4,
+    "error": null,
+    "bar": "the calibrated hook bar (ruling 115): scroll >= 3, alone >= 4, setup >= 3, on xai:grok-4.20-0309-reasoning asked alone at seed 7 (calibration 6978392df37e)",
+    "bar_floors": {
+     "scroll": 3,
+     "alone": 4,
+     "setup": 3
+    },
+    "bar_sha256": "6978392df37e5abff8594c6fc293e29cf761718fc0530cd87ed6b3892c3fafd6",
+    "bar_invalid": null,
+    "ratings": {
+     "2e3e3c781ab9a3734eca": {
+      "scroll": 2,
+      "alone": 3,
+      "setup": 4,
+      "rating": 2,
+      "why": "opens mid-thought with 'I mean' lacking punch",
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+      "cached": false,
+      "replayed": false
+     },
+     "c4e67ea61496e5b97124": {
+      "scroll": 2,
+      "alone": 2,
+      "setup": 3,
+      "rating": 2,
+      "why": "starts mid-thought with 'I mean'",
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+      "cached": false,
+      "replayed": false
+     },
+     "cb024f5a4139d217dad2": {
+      "scroll": 3,
+      "alone": 4,
+      "setup": 4,
+      "rating": 3,
+      "why": "first seconds not gripping enough to stop scroll",
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+      "cached": false,
+      "replayed": false
+     },
+     "dd2157e19972a4cebfc8": {
+      "scroll": 3,
+      "alone": 3,
+      "setup": 4,
+      "rating": 3,
+      "why": "vague 'same cash crunch' reference",
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+      "cached": false,
+      "replayed": false
+     }
+    },
+    "best": [
+     {
+      "moment_id": "cb024f5a4139d217dad2",
+      "channel": "Natalie Brunell",
+      "rating": 3,
+      "scroll": 3,
+      "alone": 4,
+      "setup": 4,
+      "why": "first seconds not gripping enough to stop scroll",
+      "text": "If you're going to be in the money business, and that's what Bitcoin is in, you need to go where the money is. And the money is on Wall Street. And Wall Street "
+     },
+     {
+      "moment_id": "dd2157e19972a4cebfc8",
+      "channel": "Coin Bureau",
+      "rating": 3,
+      "scroll": 3,
+      "alone": 3,
+      "setup": 4,
+      "why": "vague 'same cash crunch' reference",
+      "text": "In late October, Bitcoin traded over $80,000. As I make this video, it's around 65K. Over those few weeks, the same cash crunch has hit Bitcoin roughly three ti"
+     },
+     {
+      "moment_id": "2e3e3c781ab9a3734eca",
+      "channel": "Natalie Brunell",
+      "rating": 2,
+      "scroll": 2,
+      "alone": 3,
+      "setup": 4,
+      "why": "opens mid-thought with 'I mean' lacking punch",
+      "text": "I mean, at the end of the day, they're never going to stop printing money. And if they're never going to stop printing money, we're going to have inflation. mas"
+     }
+    ],
+    "passing": [
+     "cb024f5a4139d217dad2",
+     "2e3e3c781ab9a3734eca"
+    ],
+    "visual_blocked": {
+     "dd2157e19972a4cebfc8": "its visual check is not measured (law L-m); its visual check is not measured (law L-m)"
+    },
+    "sixteen_nine_only": {
+     "hooks": {
+      "cb024f5a4139d217dad2": "the show's own on-screen graphics (ruling 146 (1))"
+     },
+     "note": "no hook passes for both formats: a hook refused only by ruling 93's 9:16 crop opens a package sealed formats ['16x9'] (ruling 123 (2))"
+    }
+   },
+   "tried": [
+    {
+     "angle": 1,
+     "text": "The institutions are moving into Bitcoin, and this is the year it proves to be the digital gold hedge it was always meant to be.",
+     "lineup": [
+      "cb024f5a4139d217dad2",
+      "8b5ec8317b6d5ee36e8f",
+      "33166630e5b1abb76695"
+     ],
+     "supply_exception": null,
+     "attempts": [],
+     "medley": {
+      "through_line": "Wall Street is slowly adopting Bitcoin which is pristine collateral and a monetary revolution that also serves as digital gold hedge.",
+      "clips": {
+       "hook": 3,
+       "clip_01": 4,
+       "clip_02": 3
+      },
+      "joins": {
+       "hook -> clip_01": {
+        "followable": true,
+        "why": "'they' refers to Wall Street not understanding Bitcoin's true nature"
+       },
+       "clip_01 -> clip_02": {
+        "followable": false,
+        "why": "abrupt shift from monetary revolution to holding Bitcoin as hedge for unspecified year"
+       }
+      },
+      "hook_own": {
+       "scroll": 3,
+       "alone": 4,
+       "setup": 4,
+       "rating": 3,
+       "passes": true,
+       "short": null,
+       "bar": "the calibrated hook bar (ruling 115): scroll >= 3, alone >= 4, setup >= 3, on xai:grok-4.20-0309-reasoning asked alone at seed 7 (calibration 6978392df37e)",
+       "source": "the hook's cached own-job rating (ruling 61), on the calibrated bar (ruling 115)",
+       "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+      },
+      "flagged": [
+       "clip_01 -> clip_02"
+      ],
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "measured": true,
+      "bar": "calibrated",
+      "floors": {
+       "clip": 3
+      },
+      "calibration_sha256": "02440fd4e0c570fdd539938e141ec1cb0ef6549c9d37efbb8cb673387123fa11",
+      "replayed": false,
+      "cached": false
+     },
+     "medley_ok": true,
+     "join_table_vs_verdict": {
+      "hook -> clip_01": {
+       "table": true,
+       "verdict": true
+      },
+      "clip_01 -> clip_02": {
+       "table": false,
+       "verdict": false
+      }
+     },
+     "precheck": {
+      "request_id": "pp-selectid.ledger_20261124_175601.1",
+      "ok": true,
+      "segments": [
+       {
+        "video_id": "bHjJ_sBYsCU",
+        "start": 20.94,
+        "end": 32.0,
+        "verdict": "pass",
+        "outcome": "no_difference",
+        "why": ""
+       },
+       {
+        "video_id": "6qNFLQyppLs",
+        "start": 88.221,
+        "end": 107.781,
+        "verdict": "adopt",
+        "outcome": "adopt_spoken",
+        "why": ""
+       },
+       {
+        "video_id": "Ptb5dj7ZqPU",
+        "start": 35.25,
+        "end": 43.85,
+        "verdict": "pass",
+        "outcome": "no_difference",
+        "why": ""
+       }
+      ]
+     },
+     "heard": {
+      "8b5ec8317b6d5ee36e8f": {
+       "id": "8b5ec8317b6d5ee36e8f~heard",
+       "corrected": "bitcoins -> bitcoiners",
+       "out": "the clips-alone verdict on the corrected words fails"
+      }
+     },
+     "why": "ruling 163 (2)(b): judged again on the words the lock corrected: 8b5ec8317b6d5ee36e8f~heard: the clips-alone verdict on the corrected words fails: re-lined",
+     "relined": true
+    },
+    {
+     "angle": 1,
+     "text": "The institutions are moving into Bitcoin, and this is the year it proves to be the digital gold hedge it was always meant to be.",
+     "lineup": [
+      "cb024f5a4139d217dad2",
+      "33166630e5b1abb76695",
+      "c4e67ea61496e5b97124"
+     ],
+     "supply_exception": null,
+     "attempts": [],
+     "medley": {
+      "error": "SpendLimit: spend (reported) 1.42 USD + reserved 0.00 + this call's upper bound 0.08 > the limit 1.5 USD",
+      "measured": false,
+      "flagged": null
+     },
+     "medley_ok": false,
+     "why": "the clips alone have no through-line a viewer can state (or it was not measured)"
+    },
+    {
+     "angle": 2,
+     "text": "They're never going to stop printing money, and Bitcoin is the finite off-ramp the world's biggest institutions are finally recommending.",
+     "lineup": [
+      "2e3e3c781ab9a3734eca",
+      "dac37d732a0257e8792f",
+      "33166630e5b1abb76695"
+     ],
+     "supply_exception": null,
+     "attempts": [],
+     "medley": {
+      "error": "SpendLimit: spend (reported) 1.43 USD + reserved 0.00 + this call's upper bound 0.08 > the limit 1.5 USD",
+      "measured": false,
+      "flagged": null
+     },
+     "medley_ok": false,
+     "why": "the clips alone have no through-line a viewer can state (or it was not measured)"
+    }
+   ],
+   "soft_stand": {
+    "8b5ec8317b6d5ee36e8f": "it opens on 'and' and the clip scorer rated it 2.0 of 5 (starts mid thought)",
+    "8aeedc658341ff24d86d": "it opens on 'and' and the clip scorer rated it 1.0 of 5 (starts mid thought)",
+    "ef02acd88e66dc1058f7": "it opens on 'but' and the clip scorer rated it 2.0 of 5 (starts mid thought)",
+    "fac6923ebfc9d0ee3b2e": "it opens on 'and' and the clip scorer rated it 2.0 of 5 (starts mid thought)",
+    "c4831c71ba05691bd5b6": "it opens on 'and' and the clip scorer rated it 1.0 of 5 (starts mid thought)",
+    "dac37d732a0257e8792f": "it opens on 'and' and the clip scorer rated it 2.0 of 5 (starts mid thought)",
+    "33166630e5b1abb76695": "it opens on 'and' and the clip scorer rated it 2.0 of 5 (starts mid thought)",
+    "56a23fba72d66b70799c": "it opens on 'but' and the clip scorer rated it 2.0 of 5 (starts mid thought)",
+    "b30851a826eac8d039a2": "it opens on 'because' and the clip scorer rated it 2.0 of 5 (starts mid thought)"
+   }
+  }
+ },
+ "candidate_tries": [],
+ "spotlight": {
+  "package": null,
+  "why_none": "no moment passes rulings 90-92 now",
+  "finalists": [],
+  "near": [
+   {
+    "channel": "Bitcoin Magazine",
+    "video_id": "6qNFLQyppLs",
+    "seconds": 17.24,
+    "text": "a lot of Bitcoiners who are watching this show and in the space, we don't ever think Bitcoin could go to zero. To us, that's not a possibility. It's a new monetary revolution. And we're in year 17. So",
+    "stage": 2,
+    "out": "ruling 94 (a): the trimmed cut is not clean: no trimmed cut was reached: no cut after the trimmed word 'So': the trimmed word 'So' cannot be cut cleanly: no measured pause between it and 'a' (co-articulated)",
+    "moment_id": "1f859d5e96a4c1a61c27~trim",
+    "passed": [
+     "step A",
+     "the second recognition pass and CUTTABLE"
+    ]
+   },
+   {
+    "channel": "Natalie Brunell",
+    "video_id": "bHjJ_sBYsCU",
+    "seconds": 16.3,
+    "text": "It's one of the great things about Bitcoin is you're taking the moral and ethical path. So you can always sleep well at night knowing that... You haven't recommended something to someone that you didn",
+    "stage": 1,
+    "out": "L-v 2 / CUTTABLE: not cuttable at an edge",
+    "moment_id": "83547a934fd5afbc93d5",
+    "passed": [
+     "step A"
+    ]
+   },
+   {
+    "channel": "Bitcoin Magazine",
+    "video_id": "6qNFLQyppLs",
+    "seconds": 20.15,
+    "text": "the reason you would do that is because unlike digital credit in the Bitcoin bond, 100 % of Bitcoin's performance goes to the bond holder. But in digital credit... you get the fixed stated rate from t",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)",
+    "moment_id": "0173aaa66a555d57b86a~trim",
+    "passed": []
+   }
+  ],
+  "moments": {
+   "0e3160565b2e82d0211b": {
+    "channel": "Bitcoin Magazine",
+    "video_id": "6qNFLQyppLs",
+    "seconds": 16.87,
+    "text": "At some point over this next five to 10 year window, Bitcoin will become worth more than a single family home. And that will be a really big wake up call for most Americans and most people around the ",
+    "stage": 0,
+    "out": "step A: STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.43 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.5 USD); held for this build, retried next build"
+   },
+   "3a61f9a79ec7fc2e7e04": {
+    "channel": "CoinTelegraph",
+    "video_id": "YIK0rTBJOjM",
+    "seconds": 15.95,
+    "text": "I probably agree with a third of that and disagree with two thirds, which is that so I do think money should be boring. And, you know, when Bitcoin was a five -year -old asset and people didn't even k",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "299cec8ab6b6a93e82f6": {
+    "channel": "Natalie Brunell",
+    "video_id": "bHjJ_sBYsCU",
+    "seconds": 16.42,
+    "text": "At the time, what Bitcoin needed was credibility. And there was nothing more credible than a public company CEO and a public company holding Bitcoin. And the impact that he's had has been extraordinar",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "8b5ec8317b6d5ee36e8f~trim": {
+    "channel": "Bitcoin Magazine",
+    "video_id": "6qNFLQyppLs",
+    "seconds": 19.34,
+    "text": "they haven't really learned what the asset really is, which is not... a risk on tech stock, but pristine collateral, engineered money, a new revolution in money. So we have a new industrial revolution",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "1f859d5e96a4c1a61c27~trim": {
+    "channel": "Bitcoin Magazine",
+    "video_id": "6qNFLQyppLs",
+    "seconds": 17.24,
+    "text": "a lot of Bitcoiners who are watching this show and in the space, we don't ever think Bitcoin could go to zero. To us, that's not a possibility. It's a new monetary revolution. And we're in year 17. So",
+    "stage": 2,
+    "out": "ruling 94 (a): the trimmed cut is not clean: no trimmed cut was reached: no cut after the trimmed word 'So': the trimmed word 'So' cannot be cut cleanly: no measured pause between it and 'a' (co-articulated)"
+   },
+   "842eb5181d33a647f3c3": {
+    "channel": "CoinTelegraph",
+    "video_id": "YIK0rTBJOjM",
+    "seconds": 33.24,
+    "text": "I was talking to another analyst a couple of days ago, and he was basically saying that his view on crypto and Bitcoin was much bear, much more bearish than the one on stocks because so companies gene",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "8aeedc658341ff24d86d~trim": {
+    "channel": "Bitcoin Magazine",
+    "video_id": "6qNFLQyppLs",
+    "seconds": 15.7,
+    "text": "that will be a really big wake up call for most Americans and most people around the world when they realize, oh my God. I had a chance to buy Bitcoin when it was cheaper than a single family home. An",
+    "stage": 0,
+    "out": "the ALONE scorer: 3.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "dfbd122b9d15502b3f33": {
+    "channel": "Natalie Brunell",
+    "video_id": "bHjJ_sBYsCU",
+    "seconds": 17.42,
+    "text": "He calls me and he's like, so I bought Bitcoin. I'm like, okay, cool. And he goes, yeah, 10,000. And I was like, you bought one Bitcoin? He's like, no, Eric, I bought 10,000 Bitcoin. At the time, what",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "a9d9085772e95e5479ef~trim": {
+    "channel": "Natalie Brunell",
+    "video_id": "bHjJ_sBYsCU",
+    "seconds": 22.78,
+    "text": "the good thing about Bitcoin is if and when quantum or something becomes a threat, we can put out, we can push out a quantum patch, quantum solution, a heck of a lot easier than you can fix JP Morgan ",
+    "stage": 0,
+    "out": "the ALONE scorer: 3.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "ba4acd352b9506f4f156": {
+    "channel": "Stephan Livera",
+    "video_id": "FfmjcdgY8xY",
+    "seconds": 33.79,
+    "text": "It's 40 % of the institutional, old ETP holdings of Bitcoin are advisors and wealth. And particularly Wells Fargo doubled their holdings. And when you dig into their filing, Like 85 % of that was from",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "9c8a6a2dcd099d3e804b~trim": {
+    "channel": "Natalie Brunell",
+    "video_id": "bHjJ_sBYsCU",
+    "seconds": 14.82,
+    "text": "the reality is pretty much everything else that we hold near and dear is more vulnerable to quantum computing or hacking than Bitcoin is. Really? You sleep soundly at night, not worried that you're go",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "2de1067ee098fe239261": {
+    "channel": "Stephan Livera",
+    "video_id": "FfmjcdgY8xY",
+    "seconds": 25.07,
+    "text": "Isn't it interesting that all these large name brand institutions are recommending... Bitcoin and digital assets. Yeah, and JPM asset management, which is a very famous like year -end call that they'v",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "683b06666a19cca420db": {
+    "channel": "Natalie Brunell",
+    "video_id": "bHjJ_sBYsCU",
+    "seconds": 15.71,
+    "text": "Like, yeah, I got my buddy into Bitcoin. And then I'm like, wait, you bought $100 million worth of Bitcoin. I was like, oh, shit. Because if there's one thing you know about Bitcoin, it just does not ",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "2e3e3c781ab9a3734eca": {
+    "channel": "Natalie Brunell",
+    "video_id": "bHjJ_sBYsCU",
+    "seconds": 14.98,
+    "text": "I mean, at the end of the day, they're never going to stop printing money. And if they're never going to stop printing money, we're going to have inflation. massive inflation. And people are going to ",
+    "stage": 0,
+    "out": "the ALONE scorer: 3.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "dac37d732a0257e8792f~trim": {
+    "channel": "Bitcoin Magazine",
+    "video_id": "6qNFLQyppLs",
+    "seconds": 19.55,
+    "text": "when you look at where the world is going, our thesis is that the deficit is not going in way. In fact, it's probably going to get worse and worse and worse. And as it does, and those currency units a",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "0173aaa66a555d57b86a~trim": {
+    "channel": "Bitcoin Magazine",
+    "video_id": "6qNFLQyppLs",
+    "seconds": 20.15,
+    "text": "the reason you would do that is because unlike digital credit in the Bitcoin bond, 100 % of Bitcoin's performance goes to the bond holder. But in digital credit... you get the fixed stated rate from t",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "cc596f3d869d5da5475b": {
+    "channel": "Coin Bureau",
+    "video_id": "Ptb5dj7ZqPU",
+    "seconds": 20.77,
+    "text": "In late October, Bitcoin traded over $80,000. As I make this video, it's around 65K. Over those few weeks, the same cash crunch has hit Bitcoin roughly three times as hard as gold. On the 14th of Nove",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "a747df4da3a11b2646d8~trim": {
+    "channel": "Coin Bureau",
+    "video_id": "Ptb5dj7ZqPU",
+    "seconds": 14.7,
+    "text": "if you hold gold, or you hold Bitcoin because it's meant to be digital gold, this was supposed to be your hedge for exactly this kind of year. So, in this video, we'll look at why a war and rising pri",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "478cb666bc82088aa0d6~trim": {
+    "channel": "Natalie Brunell",
+    "video_id": "bHjJ_sBYsCU",
+    "seconds": 21.38,
+    "text": "what do you think about some of the projections that have recently been put out there, including by J.P. Morgan Chase, which said that Bitcoin was going to outperform every other asset. Ironically, th",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "83547a934fd5afbc93d5": {
+    "channel": "Natalie Brunell",
+    "video_id": "bHjJ_sBYsCU",
+    "seconds": 16.3,
+    "text": "It's one of the great things about Bitcoin is you're taking the moral and ethical path. So you can always sleep well at night knowing that... You haven't recommended something to someone that you didn",
+    "stage": 1,
+    "out": "L-v 2 / CUTTABLE: not cuttable at an edge"
+   },
+   "4a4839ad873c43597076": {
+    "channel": "Coin Bureau",
+    "video_id": "Ptb5dj7ZqPU",
+    "seconds": 20.77,
+    "text": "In late January, it was trading above $5,400 an ounce. As I make this video, it's at about $3,800, down about 30 % from its high. And if you hold gold, or you hold Bitcoin because it's meant to be dig",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "5b16eb41f5cd7712a0de": {
+    "channel": "Natalie Brunell",
+    "video_id": "bHjJ_sBYsCU",
+    "seconds": 16.24,
+    "text": "If you're going to be in the money business, and that's what Bitcoin is in, you need to go where the money is. And the money is on Wall Street. And Wall Street doesn't move as fast as, you know, Bitco",
+    "stage": 0,
+    "out": "step A: STEP_A_HELD (ruling 102): no step-A verdict (SpendLimit: spend (reported) 1.43 USD + reserved 0.00 + this call's upper bound 0.10 > the limit 1.5 USD); held for this build, retried next build"
+   },
+   "64d02f799db4b22d6cd6": {
+    "channel": "Saifedean Ammous",
+    "video_id": "6dmC7WTAQSI",
+    "seconds": 24.03,
+    "text": "With all of these things for which stockpiles are roughly in the same order of magnitude as animal production, they would be terrible as money because anybody who uses them as money will end up simply",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "7fa3a548b21964f677cc~trim": {
+    "channel": "Bitcoin Magazine",
+    "video_id": "6qNFLQyppLs",
+    "seconds": 16.82,
+    "text": "I had to learn how to huddle. I had to learn how to change my time frame and be an investor rather than a trader. And I think all of Wall Street is doing that right now. And that's why you see Bitcoin",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "d885b5068ec6f6fcd17e~trim": {
+    "channel": "Natalie Brunell",
+    "video_id": "bHjJ_sBYsCU",
+    "seconds": 18.58,
+    "text": "if you would have told me. in 2024 that we'd be sitting at like 70,000, I wouldn't have believed you. I would have said, well, something's going wrong. How have the last two years played out in your m",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "c4e67ea61496e5b97124": {
+    "channel": "CoinTelegraph",
+    "video_id": "YIK0rTBJOjM",
+    "seconds": 19.78,
+    "text": "I mean, the initial part of obviously it is still a bare market for Bitcoin, giving any sort of near -term price targets, especially one that that's far away from current prices based on just kind of ",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "af9da84b3d9ebdd25377~trim": {
+    "channel": "Bitcoin Magazine",
+    "video_id": "6qNFLQyppLs",
+    "seconds": 14.87,
+    "text": "the first five -year Bitcoin bonds mature in November, 2031, and the 10 -year bonds run to 2036. When you look out that far, where do you see Bitcoin's price when those bonds come due? And what gets i",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "b3b54b1e3e025dc3689f": {
+    "channel": "Bitcoin Magazine",
+    "video_id": "6qNFLQyppLs",
+    "seconds": 23.97,
+    "text": "Everybody, you know, Shaw 256 could be broken. AI could break Bitcoin. These are really strong narratives that... are believed by people who don't have the time and energy to take a deep dive on Bitco",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "0de8275d7e06c7d3ccb1": {
+    "channel": "Natalie Brunell",
+    "video_id": "bHjJ_sBYsCU",
+    "seconds": 15.71,
+    "text": "Like, yeah, I got my buddy into Bitcoin. And then I'm like, wait, you bought $100 million worth of Bitcoin. I was like, oh, shit. Because, like, if there's one thing you know about Bitcoin, it just do",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "810f79cf679867c43271": {
+    "channel": "Natalie Brunell",
+    "video_id": "bHjJ_sBYsCU",
+    "seconds": 29.44,
+    "text": "Everybody thought that Bitcoin and crypto was going to change their lives, and AI came around and literally changed their lives. Bitcoin can change the world of finance, which is pretty boring to the ",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   },
+   "7710cebb49cd2c66ff04": {
+    "channel": "Saifedean Ammous",
+    "video_id": "6dmC7WTAQSI",
+    "seconds": 31.02,
+    "text": "They focus on the fact that it's money that cannot be debased. by government that cannot have its value determined by government, that cannot have its value imposed on the market by government. Becaus",
+    "stage": 0,
+    "out": "the ALONE scorer: 2.0 (needs 4), a free gate before any paid verdict (ruling 109)"
+   }
+  },
+  "pool": {
+   "may": 31,
+   "out": {
+    "761be06a83ab95bd7906": "35.04 s: over the 35.0 s per source video (L-u) or unmeasured",
+    "82dc1134cbc23f1cad4b": "not eligible on screen: hook: no_bitcoin; clip: not_statement",
+    "722305398896f441ec95": "39.92 s: over the 35.0 s per source video (L-u) or unmeasured",
+    "5ca49e50a49253188a61": "not eligible on screen: hook: no_bitcoin; clip: not_statement",
+    "7bca506aba1e313eeb09": "not eligible on screen: hook: opener; clip: opener",
+    "be114efd7c8b7547e92b": "39.64 s: over the 35.0 s per source video (L-u) or unmeasured",
+    "e49b3685ec9bbb2f612c": "not eligible on screen: hook: opener; clip: not_statement",
+    "37ecd3914184ca8a7e8d": "39.77 s: over the 35.0 s per source video (L-u) or unmeasured",
+    "8dcfb74a001c839f4428": "not eligible on screen: hook: opener; clip: opener",
+    "fa2da4a418cb600684ae": "not eligible on screen: hook: opener; clip: opener",
+    "8041e752a1b4c99c108d": "not eligible on screen: hook: hook_lead; clip: not_statement",
+    "aede157aa66f09260235": "not eligible on screen: hook: opener; clip: not_statement, opener",
+    "01af5e5c0b167b5637f8": "not eligible on screen: hook: opener; clip: not_statement, opener",
+    "63c637da3d2beb6756ea": "not eligible on screen: hook: opener; clip: opener",
+    "e295d20e4319a473dd8c": "not eligible on screen: hook: opener; clip: not_statement, opener",
+    "38fd5550bb0007a464d3": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "41d5c1c14db3bec0cda7": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "c362f8112cdfcf9a9e97": "ruling 90: snapped to 9ba12e7996945480b583 (14.0 s), which is out: not eligible on screen: hook: no_bitcoin; clip: not_statement",
+    "fac6923ebfc9d0ee3b2e": "ruling 90: snapped to d3e79058cf072f283a65 (22.93 s), which is out: not eligible on screen: hook: opener; clip: not_statement",
+    "03aea4c11c50cbd99d17": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "4f01efc9c5779de6ce55": "ruling 90: it cannot open cold (the render's STAND_ALONE hook rule): hook opens on the conjunction 'because': nothing is heard before a hook",
+    "0b924f871d582ff9cb3d": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "0d652b752e92e557fddb": "ruling 94 (a): it opens on ['but'] and has no trim variant",
+    "13aa7df275892595d5e2": "ruling 94 (a): it opens on ['so'] and has no trim variant",
+    "9d6dc930ea93f39e7fd7": "ruling 94 (a): it opens on ['and'] and has no trim variant",
+    "61e90d0b02137e866936": "ruling 94 (a): it opens on ['and'] and has no trim variant",
+    "fad488062f32b3ac2755": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "14ad7b053588c13666d3": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "24e224ad732e2d7f4926": "ruling 94 (a): it opens on ['and'] and has no trim variant",
+    "d092d4c373af6d8e7615": "ruling 94 (a): it opens on ['but'] and has no trim variant",
+    "e7e7d9d1295e6d12262e": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "3f5f29efdca426ed7173": "ruling 90: 12.34 s is under 13.7 s and the snap fails: 12.34 s and no whole sentence can be added (the next sentence: a caption speaker-change marker at 529.76 s; the sentence before: a caption speaker-change marker at 517.60 s)",
+    "56a23fba72d66b70799c": "ruling 90: snapped to ab123e0aabd4c4641950 (17.04 s), which is out: not eligible on screen: hook: opener; clip: opener",
+    "3c60f0de52bee930c8ec": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "f0367204ccc115582bcd": "ruling 90: snapped to 5afce16606ef87f90bd6 (14.76 s), which is out: not eligible on screen: hook: opener; clip: not_statement",
+    "c9bb9dd233cd2c9afa0c": "ruling 94 (a): it opens on ['and'] and has no trim variant",
+    "86da51f9f8f9df4e7866": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim"
+   },
+   "snapped": {
+    "0e3160565b2e82d0211b": {
+     "from": "0ffd02a3cccb4f07b071",
+     "sentences": [
+      8,
+      9
+     ],
+     "was": [
+      8,
+      8
+     ],
+     "seconds": [
+      5.62,
+      16.87
+     ],
+     "added": {
+      "before": "",
+      "after": "And that will be a really big wake up call for most Americans and most people around the world when they realize, oh my God, I had a chance to buy Bitcoin when it was cheaper than a single family home."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "3a61f9a79ec7fc2e7e04": {
+     "from": "16473ccae3baf3b8d118",
+     "sentences": [
+      13,
+      17
+     ],
+     "was": [
+      13,
+      14
+     ],
+     "seconds": [
+      10.65,
+      15.95
+     ],
+     "added": {
+      "before": "",
+      "after": "It's not boring then. And it's tiny and volatile. The larger it gets, the more boring you should want it to be."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "299cec8ab6b6a93e82f6": {
+     "from": "581b68c232a23e62f39a",
+     "sentences": [
+      5,
+      8
+     ],
+     "was": [
+      5,
+      6
+     ],
+     "seconds": [
+      7.66,
+      16.42
+     ],
+     "added": {
+      "before": "",
+      "after": "And the impact that he's had has been extraordinary. If you're going to be in the money business, and that's what Bitcoin is in, you need to go where the money is."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "dfbd122b9d15502b3f33": {
+     "from": "9c1560cf3b9fa803ab60",
+     "sentences": [
+      0,
+      6
+     ],
+     "was": [
+      0,
+      4
+     ],
+     "seconds": [
+      9.44,
+      17.42
+     ],
+     "added": {
+      "before": "",
+      "after": "At the time, what Bitcoin needed was credibility. And there was nothing more credible than a public company CEO and a public company holding Bitcoin."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "9c8a6a2dcd099d3e804b~trim": {
+     "from": "ef02acd88e66dc1058f7",
+     "sentences": [
+      16,
+      18
+     ],
+     "was": [
+      16,
+      17
+     ],
+     "seconds": [
+      9.86,
+      14.86
+     ],
+     "added": {
+      "before": "",
+      "after": "You sleep soundly at night, not worried that you're going to wake up and like some wallet has been compromised."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "2de1067ee098fe239261": {
+     "from": "565e5200c95256832485",
+     "sentences": [
+      14,
+      15
+     ],
+     "was": [
+      14,
+      14
+     ],
+     "seconds": [
+      7.19,
+      25.07
+     ],
+     "added": {
+      "before": "",
+      "after": "Yeah, and JPM asset management, which is a very famous like year -end call that they've been doing for 30 plus years, said, I know you saw this like a couple weeks ago that they expect Bitcoin to appreciate a 10 % per year over the next however many years, which will be equities, though they say it will be much higher volatility."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "683b06666a19cca420db": {
+     "from": "c4831c71ba05691bd5b6",
+     "sentences": [
+      14,
+      19
+     ],
+     "was": [
+      15,
+      16
+     ],
+     "seconds": [
+      3.8,
+      15.71
+     ],
+     "added": {
+      "before": "Like, yeah, I got my buddy into Bitcoin.",
+      "after": "Because if there's one thing you know about Bitcoin, it just does not go up into the right. So. Yeah, my first thought was like, I hope this doesn't have a negative impact."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "cc596f3d869d5da5475b": {
+     "from": "dd2157e19972a4cebfc8",
+     "sentences": [
+      10,
+      13
+     ],
+     "was": [
+      10,
+      12
+     ],
+     "seconds": [
+      12.92,
+      20.77
+     ],
+     "added": {
+      "before": "",
+      "after": "On the 14th of November, 1.8 billion of leveraged longs were liquidated, the biggest single day since February."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "a747df4da3a11b2646d8~trim": {
+     "from": "33166630e5b1abb76695",
+     "sentences": [
+      6,
+      7
+     ],
+     "was": [
+      6,
+      6
+     ],
+     "seconds": [
+      8.6,
+      14.74
+     ],
+     "added": {
+      "before": "",
+      "after": "So, in this video, we'll look at why a war and rising prices didn't lift gold."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "478cb666bc82088aa0d6~trim": {
+     "from": "7ed03de7172f7cde4f5f",
+     "sentences": [
+      9,
+      14
+     ],
+     "was": [
+      10,
+      11
+     ],
+     "seconds": [
+      8.12,
+      21.82
+     ],
+     "added": {
+      "before": "So what do you think about some of the projections that have recently been put out there, including by J.P. Morgan Chase, which said that Bitcoin was going to outperform every other asset.",
+      "after": "So do you agree? Do you think that that's going to be the outlook? I saw that."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "4a4839ad873c43597076": {
+     "from": "8e81576936db88d30d1d",
+     "sentences": [
+      4,
+      6
+     ],
+     "was": [
+      4,
+      5
+     ],
+     "seconds": [
+      11.61,
+      20.77
+     ],
+     "added": {
+      "before": "",
+      "after": "And if you hold gold, or you hold Bitcoin because it's meant to be digital gold, this was supposed to be your hedge for exactly this kind of year."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "5b16eb41f5cd7712a0de": {
+     "from": "cb024f5a4139d217dad2",
+     "sentences": [
+      8,
+      13
+     ],
+     "was": [
+      8,
+      11
+     ],
+     "seconds": [
+      11.06,
+      16.24
+     ],
+     "added": {
+      "before": "",
+      "after": "So I think Bitcoin's going to do great. I mean, at the end of the day, they're never going to stop printing money."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "7fa3a548b21964f677cc~trim": {
+     "from": "169184ffeb037f3f2a1c",
+     "sentences": [
+      12,
+      16
+     ],
+     "was": [
+      12,
+      13
+     ],
+     "seconds": [
+      5.94,
+      16.84
+     ],
+     "added": {
+      "before": "",
+      "after": "And I think all of Wall Street is doing that right now. And that's why you see Bitcoin moving with the NASDAQ, moving with technology narratives. They're in their first little dip of the toe into the marketplace."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "d885b5068ec6f6fcd17e~trim": {
+     "from": "9f4c03df0e00d6b629fc",
+     "sentences": [
+      9,
+      14
+     ],
+     "was": [
+      9,
+      11
+     ],
+     "seconds": [
+      8.86,
+      18.6
+     ],
+     "added": {
+      "before": "",
+      "after": "How have the last two years played out in your mind? Like what happened? And I know obviously things rotated into AI, but why has Bitcoin underperformed?"
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "af9da84b3d9ebdd25377~trim": {
+     "from": "2771a5fbb84d70e885c6",
+     "sentences": [
+      12,
+      15
+     ],
+     "was": [
+      13,
+      14
+     ],
+     "seconds": [
+      6.02,
+      14.91
+     ],
+     "added": {
+      "before": "So the first five -year Bitcoin bonds mature in November, 2031, and the 10 -year bonds run to 2036.",
+      "after": "Yeah."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "0de8275d7e06c7d3ccb1": {
+     "from": "b30851a826eac8d039a2",
+     "sentences": [
+      13,
+      18
+     ],
+     "was": [
+      16,
+      18
+     ],
+     "seconds": [
+      9.27,
+      15.71
+     ],
+     "added": {
+      "before": "Like, yeah, I got my buddy into Bitcoin. And then I'm like, wait, you bought $100 million worth of Bitcoin. I was like, oh, shit.",
+      "after": ""
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    }
+   }
+  },
+  "scorer_waited_s": 0.0,
+  "lock_stop": null,
+  "scorer": {
+   "read": true,
+   "rated_at": "2026-11-24T17:57:40Z",
+   "build": "ledger_20261124_175601",
+   "candidates_generated_at": "2026-11-24T17:56:57+00:00",
+   "model": "gemma3:27b",
+   "kind": "moments",
+   "rubric": "ruling 60: stand-alone only",
+   "scorer_sha": "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53",
+   "threshold": 3.5,
+   "verdicts": 47,
+   "affirmed": 9,
+   "affirmed_on_the_floor": 4,
+   "disagree_with_the_rule": []
+  }
+ },
+ "next_attempt": {
+  "conversation": {
+   "video_id": "FfmjcdgY8xY",
+   "channel": "Stephan Livera",
+   "published_at": "2026-11-24T17:11:55Z",
+   "expires_at": "2026-11-25T05:11:55Z",
+   "age_h": 0.7,
+   "turns_per_min": 0.47,
+   "unmarked": false,
+   "turns_from": "pp-ingest episode",
+   "rows": 11,
+   "passes": {
+    "hook/mine-hook/4": 3,
+    "moment/mine/2": 8
+   },
+   "word_pass_ready": 11,
+   "word_pass_refused": 0,
+   "word_pass_waiting": 0
+  },
+  "newest_upload": {
+   "video_id": "FfmjcdgY8xY",
+   "channel": "Stephan Livera",
+   "published_at": "2026-11-24T17:11:55Z",
+   "expires_at": "2026-11-25T05:11:55Z",
+   "age_h": 0.7,
+   "turns_per_min": 0.47,
+   "unmarked": false,
+   "turns_from": "pp-ingest episode",
+   "rows": 11,
+   "passes": {
+    "hook/mine-hook/4": 3,
+    "moment/mine/2": 8
+   },
+   "word_pass_ready": 11,
+   "word_pass_refused": 0,
+   "word_pass_waiting": 0
+  },
+  "rule": "the newest upload whose captions do not refuse it (unmarked, or marked with a speaker change; ruling 92 amended: the layout decides per clip) (ruling 95)"
+ },
+ "seconds": 1183.9,
+ "usd_estimate": 3.0792,
+ "usd_best_known": 0.6263,
+ "full": {
+  "est": 3.115,
+  "best": 0.6621,
+  "model_s": 1349.49,
+  "calls": 76
+ },
+ "code": "a800baa0e+572d191fcbd0",
+ "now": "2026-11-24T17:56:01.655392+00:00",
+ "since": "2026-11-13T03:01:09+00:00",
+ "delivered_pins": [
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json",
+   "story_id": "moments-fresh_20261112_050611-37c5b5f5",
+   "approved_at": "2026-11-12T13:43:40+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
+   "story_id": "moments-fresh_20261112_050611-41f29b1f",
+   "approved_at": "2026-11-13T03:01:09+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json",
+   "story_id": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "approved_at": "2026-11-13T05:20:11+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_073738/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_073738-d2657bbe",
+   "approved_at": "2026-11-13T07:53:42+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_183302/MOMENTS_PIN_ATTESTED.json",
+   "story_id": "moments-ledger_20261113_183302-0c68b589",
+   "approved_at": "2026-11-13T19:12:56+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_215708/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_215708-13949b7c",
+   "approved_at": "2026-11-13T22:14:05+00:00",
+   "clips": 3
+  }
+ ],
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:qwen/qwen3.8-27b",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:openai/gpt-oss-20b",
+   "heimdall:google/gemma-4-31b-it",
+   "heimdall:minimax/minimax-m3.1-flash",
+   "heimdall:z-ai/glm-5.3-flash",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "fidelity_verdict": [
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "context_verdict": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "out_edge": [
+   "heimdall:qwen/qwen3.8-27b@low"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "speaker_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "visual_check": [
+   "xai_vision:grok-4.7",
+   "heimdall:qwen/qwen3.8-27b",
+   "heimdall:nvidia/nemotron-3.5-super-vl"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ],
+  "coherence_panel": [
+   "heimdall:qwen/qwen3.8-27b",
+   "heimdall:minimax/minimax-m3.1-flash",
+   "heimdall:openai/gpt-oss-20b"
+  ],
+  "context_verdict:step_a_first": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "context_verdict:step_a_second": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "google:gemini-2.5-pro",
+   "local_judge:gemma3:27b"
+  ],
+  "context_verdict:step_c": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict:hook": [
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "coherence_verdict:joins": [
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "coherence_verdict:clips_alone": [
+   "xai:grok-4.20-0309-reasoning",
+   "google:gemini-2.5-pro"
+  ],
+  "coherence_verdict:coherence": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "angle_write:closing": [
+   "heimdall:qwen/qwen3.8-27b",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:openai/gpt-oss-20b",
+   "heimdall:google/gemma-4-31b-it",
+   "heimdall:minimax/minimax-m3.1-flash",
+   "heimdall:z-ai/glm-5.3-flash"
+  ],
+  "probe87:heimdall:qwen/qwen3.8-27b": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "probe87:heimdall:deepseek/deepseek-v4.1-flash": [
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "probe87:heimdall:openai/gpt-oss-20b": [
+   "heimdall:openai/gpt-oss-20b"
+  ],
+  "probe87:heimdall:google/gemma-4-31b-it": [
+   "heimdall:google/gemma-4-31b-it"
+  ],
+  "probe87:heimdall:minimax/minimax-m3.1-flash": [
+   "heimdall:minimax/minimax-m3.1-flash"
+  ],
+  "probe87:heimdall:z-ai/glm-5.3-flash": [
+   "heimdall:z-ai/glm-5.3-flash"
+  ],
+  "shadow86:coherence_verdict:hook": [
+   "heimdall:qwen/qwen3.8-27b"
+  ]
+ },
+ "inputs": {
+  "rows": 125,
+  "no_word_record": 16,
+  "no_word_record_why": {
+   "no word record in the store; no sentence-ready window record": 16
+  },
+  "no_word_record_videos": {
+   "jAbghv3khkc": {
+    "rows": 16,
+    "why": "no word record in the store; no sentence-ready window record"
+   }
+  },
+  "window_records": {
+   "FfmjcdgY8xY": [
+    "transcripts/FfmjcdgY8xY/windows/109.224-232.830.whisper_words_punct.json",
+    "transcripts/FfmjcdgY8xY/windows/123.589-244.118.whisper_words_punct.json",
+    "transcripts/FfmjcdgY8xY/windows/181.022-276.066.whisper_words_punct.json",
+    "transcripts/FfmjcdgY8xY/windows/187.149-284.892.whisper_words_punct.json",
+    "transcripts/FfmjcdgY8xY/windows/176.155-284.892.whisper_words_punct.json",
+    "transcripts/FfmjcdgY8xY/windows/82.936-199.163.whisper_words_punct.json",
+    "transcripts/FfmjcdgY8xY/windows/32.714-135.949.whisper_words_punct.json",
+    "transcripts/FfmjcdgY8xY/windows/195.504-300.610.whisper_words_punct.json",
+    "transcripts/FfmjcdgY8xY/windows/246.120-343.563.whisper_words_punct.json"
+   ],
+   "6qNFLQyppLs": [
+    "transcripts/6qNFLQyppLs/windows/828.860-914.000.whisper_words_punct.json",
+    "transcripts/6qNFLQyppLs/windows/43.321-153.630.whisper_words_punct.json",
+    "transcripts/6qNFLQyppLs/windows/828.860-914.000.whisper_words_punct.json",
+    "transcripts/6qNFLQyppLs/windows/514.956-622.647.whisper_words_punct.json",
+    "transcripts/6qNFLQyppLs/windows/834.606-914.000.whisper_words_punct.json",
+    "transcripts/6qNFLQyppLs/windows/719.516-829.179.whisper_words_punct.json",
+    "transcripts/6qNFLQyppLs/windows/35.174-144.879.whisper_words_punct.json",
+    "transcripts/6qNFLQyppLs/windows/433.455-544.118.whisper_words_punct.json",
+    "transcripts/6qNFLQyppLs/windows/26.285-122.554.whisper_words_punct.json",
+    "transcripts/6qNFLQyppLs/windows/16.238-116.234.whisper_words_punct.json",
+    "transcripts/6qNFLQyppLs/windows/687.960-798.427.whisper_words_punct.json",
+    "transcripts/6qNFLQyppLs/windows/668.350-766.590.whisper_words_punct.json",
+    "transcripts/6qNFLQyppLs/windows/542.033-656.369.whisper_words_punct.json"
+   ],
+   "bHjJ_sBYsCU": [
+    "transcripts/bHjJ_sBYsCU/windows/969.058-1067.069.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/1185.645-1287.571.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/0.000-62.742.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/0.000-54.726.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/1099.146-1199.423.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/1265.144-1379.390.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/604.457-730.036.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/129.740-224.528.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/1534.975-1650.269.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/604.457-703.291.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/0.000-94.430.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/1582.969-1696.190.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/635.560-737.755.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/1338.039-1445.710.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/1804.769-1898.440.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/0.000-77.271.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/0.000-72.767.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/0.000-65.721.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/165.915-274.339.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/986.280-1084.678.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/1378.457-1481.442.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/699.959-798.452.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/782.320-913.019.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/1825.559-1920.937.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/1619.340-1725.902.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/684.517-778.487.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/500.947-600.423.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/986.280-1085.704.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/310.083-408.270.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/472.599-574.750.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/1318.957-1419.692.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/91.865-216.591.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/55.481-157.469.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/484.760-581.912.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/839.399-936.670.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/961.347-1067.069.whisper_words_punct.json",
+    "transcripts/bHjJ_sBYsCU/windows/134.586-233.470.whisper_words_punct.json"
+   ],
+   "6dmC7WTAQSI": [
+    "transcripts/6dmC7WTAQSI/windows/3892.645-3993.696.whisper_words_punct.json",
+    "transcripts/6dmC7WTAQSI/windows/4057.229-4187.636.whisper_words_punct.json",
+    "transcripts/6dmC7WTAQSI/windows/630.200-722.670.whisper_words_punct.json",
+    "transcripts/6dmC7WTAQSI/windows/1353.424-1458.314.whisper_words_punct.json",
+    "transcripts/6dmC7WTAQSI/windows/4002.230-4102.444.whisper_words_punct.json",
+    "transcripts/6dmC7WTAQSI/windows/1237.640-1341.721.whisper_words_punct.json",
+    "transcripts/6dmC7WTAQSI/windows/4017.565-4187.636.whisper_words_punct.json"
+   ],
+   "YIK0rTBJOjM": [
+    "transcripts/YIK0rTBJOjM/windows/1050.470-1148.118.whisper_words_punct.json",
+    "transcripts/YIK0rTBJOjM/windows/688.060-811.420.whisper_words_punct.json",
+    "transcripts/YIK0rTBJOjM/windows/1660.274-1762.558.whisper_words_punct.json",
+    "transcripts/YIK0rTBJOjM/windows/1068.750-1176.591.whisper_words_punct.json",
+    "transcripts/YIK0rTBJOjM/windows/912.418-1015.290.whisper_words_punct.json",
+    "transcripts/YIK0rTBJOjM/windows/870.253-974.780.whisper_words_punct.json",
+    "transcripts/YIK0rTBJOjM/windows/1484.020-1593.330.whisper_words_punct.json",
+    "transcripts/YIK0rTBJOjM/windows/1108.690-1216.482.whisper_words_punct.json",
+    "transcripts/YIK0rTBJOjM/windows/1142.370-1247.920.whisper_words_punct.json",
+    "transcripts/YIK0rTBJOjM/windows/1231.390-1349.190.whisper_words_punct.json",
+    "transcripts/YIK0rTBJOjM/windows/0.000-65.800.whisper_words_punct.json",
+    "transcripts/YIK0rTBJOjM/windows/737.720-847.600.whisper_words_punct.json",
+    "transcripts/YIK0rTBJOjM/windows/0.000-97.920.whisper_words_punct.json",
+    "transcripts/YIK0rTBJOjM/windows/1561.640-1663.602.whisper_words_punct.json",
+    "transcripts/YIK0rTBJOjM/windows/1624.910-1728.590.whisper_words_punct.json"
+   ],
+   "Ptb5dj7ZqPU": [
+    "transcripts/Ptb5dj7ZqPU/windows/382.165-479.896.whisper_words_punct.json",
+    "transcripts/Ptb5dj7ZqPU/windows/369.041-479.896.whisper_words_punct.json",
+    "transcripts/Ptb5dj7ZqPU/windows/0.000-55.954.whisper_words_punct.json",
+    "transcripts/Ptb5dj7ZqPU/windows/369.041-472.064.whisper_words_punct.json",
+    "transcripts/Ptb5dj7ZqPU/windows/0.000-89.475.whisper_words_punct.json",
+    "transcripts/Ptb5dj7ZqPU/windows/376.050-472.064.whisper_words_punct.json",
+    "transcripts/Ptb5dj7ZqPU/windows/0.000-79.691.whisper_words_punct.json"
+   ],
+   "svVsoaqLD1s": [
+    "transcripts/svVsoaqLD1s/windows/0.000-60.749.whisper_words_punct.json",
+    "transcripts/svVsoaqLD1s/windows/26.006-156.590.whisper_words_punct.json"
+   ],
+   "uWAfTDMni3Q": [
+    "transcripts/uWAfTDMni3Q/windows/918.250-1028.833.whisper_words_punct.json"
+   ]
+  },
+  "window_waiting": 0,
+  "window_refused": 16,
+  "window_refused_videos": {
+   "bHjJ_sBYsCU": 1,
+   "6dmC7WTAQSI": 3,
+   "YIK0rTBJOjM": 6,
+   "svVsoaqLD1s": 4,
+   "uWAfTDMni3Q": 2
+  },
+  "window_failed": 2,
+  "window_passed_over": {
+   "FfmjcdgY8xY": [
+    "0d53717ef9d101e21adb: 335.003-387.000.whisper_words_punct.json: the row's span 380.003-388.96 is not inside the window 335.003-387.0",
+    "6a90064822f835132778: 317.659-387.000.whisper_words_punct.json: the row's span 362.659-388.96 is not inside the window 317.659-387.0"
+   ]
+  },
+  "no_caption_context": {},
+  "fallbacks": {},
+  "channel_conflict": {},
+  "not_anchored": {
+   "b1956d1e48d368852e23": "the row's text does not anchor in the word record (sentence_law.anchor, searched 196-261 s)",
+   "3104b8be64f437a31f16": "the row's text does not anchor in the word record (sentence_law.anchor, searched 984-1052 s)",
+   "422a48d7d1aa375acaec": "the row's text does not anchor in the word record (sentence_law.anchor, searched 715-783 s)",
+   "bb5aab72ed6fd61294a2": "snapped outward to whole sentences (0 word(s) before the anchored text, 5 after) it runs 35.71 s > 35 s (ruling 32 with the 10:48 ruling (2): the spotlight's clip ceiling)",
+   "cebc2f6e1503b72ef172": "the row's text does not anchor in the word record (sentence_law.anchor, searched 70-142 s)",
+   "649ff644c1539415bf51": "the row's text does not anchor in the word record (sentence_law.anchor, searched 976-1052 s)",
+   "3b7cc158277c5f7d75d2": "the row's text does not anchor in the word record (sentence_law.anchor, searched 645-708 s)",
+   "17b291c56c7fe438e948": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1675-1748 s)",
+   "1d94540ff0b3496d064b": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1084-1162 s)",
+   "de858dd3ca9b76c911e6": "the row's text does not anchor in the word record (sentence_law.anchor, searched 885-960 s)",
+   "239672b149c0e56f5db9": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1246-1334 s)",
+   "699da33365d68d850782": "the row's text does not anchor in the word record (sentence_law.anchor, searched -18-51 s)",
+   "84cc1593dccfde825553": "the row's text does not anchor in the word record (sentence_law.anchor, searched 753-833 s)",
+   "b14cad2600e9a7e1fdb2": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1577-1649 s)",
+   "f046dcb4d7218fa44957": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1640-1714 s)"
+  },
+  "malformed": {},
+  "duplicates": 12,
+  "duplicates_of": {
+   "9fe76b24673985f0061a": "3dd74a2cab3c0954a976",
+   "3b04e87501e821bc117a": "bdc306130c0e8498a58b",
+   "c0529190c4e253b106c2": "0aa31c4ab4ce57556740",
+   "83754fb9524127009bfa": "6eea1726003f0bce1aaa",
+   "5b2cc10d665144be51ef": "973f13043a5deb7c1901",
+   "343860fdb7298308d2c7": "973f13043a5deb7c1901",
+   "86c5fd7c654c0a7de429": "85dcf2f49d9a00165f6c",
+   "92ae988850d5cae6f134": "6060b624a3f2859ec419",
+   "478082cac8f81d7f952d": "9d37396af404ef78eba9",
+   "8b247725972a2d739e8c": "92845cf9d713e2b9f63a",
+   "b32f96ae6d6f28509875": "8519bb613ad7456aa42f",
+   "373fc138d9461802f19d": "1de6dddc5692c2238084"
+  },
+  "moments": 64,
+  "videos": 8,
+  "sources": 64,
+  "word_records": {},
+  "word_pass": {
+   "rows": 6671,
+   "unreadable": 0,
+   "ready": 5561,
+   "not_ready": 760,
+   "failed": 20,
+   "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl",
+   "refused": [
+    "0020c0405642f9495e7f",
+    "0023c8cd449a606f6f7f",
+    "002dbff4fa67d1c82d7d",
+    "00601fe81bcbe8b6bdf8",
+    "0102d1f81a005ffd1860",
+    "011ec66ca5a1dcaadc1b",
+    "015a0e1d0ca2b710548d",
+    "01b850679ebeb3b86abe",
+    "01ce034c1fbae67f338b",
+    "025b3828d214c7c2ce4b",
+    "0288f88cd201ec69f535",
+    "02b508626dc9a612a995",
+    "02dfb73798d083b3a7a3",
+    "02e4929d4e57de14f65e",
+    "02f8b9017b97e0747e55",
+    "0363a327ef3a18d35ac7",
+    "03af01f2e779f4b9e04b",
+    "047da119491355dbc5e1",
+    "05173845dea924fc0c07",
+    "051d21f5a5c98cfe6906",
+    "05f06153c42d43c43ed7",
+    "05ff016beac936e4e409",
+    "06fd59d51f078758726a",
+    "076730439cae2cfa8c7e",
+    "07bc02534507385f611b",
+    "082028606d8f1e34fa1c",
+    "084db328b11b2d83517d",
+    "08ccabe3e2c427838e15",
+    "08e531b131edc3fdad73",
+    "08eb7425f6b4d30c3c3a",
+    "0988da65e6ad9ba87459",
+    "0a243a5aa8f400cc6584",
+    "0b1ed433879e3d7f844a",
+    "0bc1f178733536d8e3b4",
+    "0ccade189163405b089b",
+    "0d2bf7e13e4cbb176480",
+    "0e7369d42a6a18df745d",
+    "0f41b9c93c0437e79106",
+    "0f6379aac94e20d5de5e",
+    "0fad832055924851251d",
+    "0fd686f1fe79b631e91c",
+    "0ff32c654f7a55094cd2",
+    "1084fd20aa843670becc",
+    "10d73f6379c4f91815c0",
+    "1108ee5d14730a964906",
+    "1109e5cd2495d4fa0b7e",
+    "113d48c5cdb5cda0e063",
+    "11743d1cec3e60dac3e2",
+    "11a00724b0ecf0c28719",
+    "11ada5e7f4b42ba5a0b3",
+    "1203127ca65f0f68170b",
+    "1214cb79c6419ac0c998",
+    "1268b2c623eda8fe2aae",
+    "12b0cf6650f81be84639",
+    "12b2a3fe328f5fad9622",
+    "12bf31ff9e5404d7b5d9",
+    "13ad88ccef6e718fbb28",
+    "13b85894cf59bd96ddba",
+    "1454718c7b912a9584ad",
+    "14a1cbdbe95dd7cceb71",
+    "14f13f65d2f2458ea1ac",
+    "1525a9e1dd8dc5ac4a9e",
+    "156b14937a47fa2b90ba",
+    "16f275eb3464b67dfa9b",
+    "16fe1e51d0c9a1e4ce50",
+    "1719435ed678b0775fe4",
+    "1772e9339924de1c957c",
+    "178329f74af4bbf058c7",
+    "17b6df4c7e8489c7cda4",
+    "17e100b953d5b1abd003",
+    "18b767fbcc644db7b21d",
+    "18ced5f9e7202e133319",
+    "192f5cf3e5c2699c5e77",
+    "19fc961efb1e8fbd0575",
+    "1a19baca9e91ec98fd2d",
+    "1a880c6d462d151ebe70",
+    "1aae495cdc14d2e4b70a",
+    "1ab9ae718a7e550e9ce1",
+    "1ae23a72a400ec1fe114",
+    "1b1f654813109ff437a2",
+    "1b33a31c38a045a7a216",
+    "1b9902d0b3f9690e9ddb",
+    "1c63a7925cf2c33b54ac",
+    "1d1556daed04fce39e7d",
+    "1d822675be04768944b1",
+    "1d828f294728facf05fd",
+    "1db6d7c6a3e2ba98859a",
+    "1dc40446072c3b743213",
+    "1e14acb61ae2fcedf1f6",
+    "1e84be7b935b7c629980",
+    "1e9d5cb149e2d113459d",
+    "1f3444cb0463741133cd",
+    "1f3f2c2ea653f69353d5",
+    "1fdc3cdac5ab6d2e8195",
+    "20002de2ec0f6b521fce",
+    "211ea00153f12c3355be",
+    "21677774b087f804c681",
+    "2167cf6bfe8911d08707",
+    "217bd00fcf8c0665e0f6",
+    "22561a5ede471bb3671c",
+    "229eca0e081a1aea4786",
+    "22c6a9298e6df6765387",
+    "236bb679147ccc2c70f0",
+    "23703f34fbd40d943e41",
+    "23d064def5df8283b299",
+    "23fceca7029b9948e3f9",
+    "2491e006216c9a1b467e",
+    "24a6dc284d02a3aeae08",
+    "24f1856c6fcf1b6c1d95",
+    "251224babb6c8f5d9150",
+    "2550f3c54cec7cd95c48",
+    "25e08bb4a2dc27a23a61",
+    "25f101de6a018fb2f202",
+    "2794610e877314169b27",
+    "27a1daadc5912dee26ec",
+    "27c50fec2c830fe290ab",
+    "2887f8f9b00e38e79cb3",
+    "28c0ef0a4e0b6f95ff9d",
+    "28c11b7132237d0f9780",
+    "2929846ba752c0d21bc8",
+    "29740fd849b26be71c4d",
+    "2a295b42d18d0583af93",
+    "2aadf2b60040d03e8f52",
+    "2b72d5802b9166b2cb5d",
+    "2bd9f2f23fa1c2d66255",
+    "2c0300382b4565e9b4a5",
+    "2c6b2f1bcfc96f70f39e",
+    "2c884616bf8c91a24180",
+    "2ca535a6e47e6c5cc1c4",
+    "2ce266190907779017dc",
+    "2d483b49d57af1361c24",
+    "2d89ae77d3305643e7eb",
+    "2d96b84b0b7161d401ae",
+    "2db14eabaf98defccba0",
+    "2df0a200cda822c53ef1",
+    "2e29fdf2e76b1ea2db17",
+    "2e5c3ff4488c946c1320",
+    "2fd69dee1f94f6cd8397",
+    "30583c8876279fe50391",
+    "309b4c198d898ee2ce2f",
+    "31d8a2a3737d59486df5",
+    "31f808f26837524fa63a",
+    "32004d240824eb840554",
+    "321e01f35472c0178ed5",
+    "325d8050769037eddf91",
+    "32a44ea8013cb6d85366",
+    "330d4499fa262124c2df",
+    "33b2d77acf13402cb8af",
+    "33cf7bbd673f26f307cb",
+    "33d2a783068012cbff56",
+    "33ec88880d3a99e3d97c",
+    "340c2ddff0a406063f58",
+    "340ea3f3cede49ef6bbe",
+    "347495ce7e4a78ef23c5",
+    "34fd75ac6e40d43c9f5b",
+    "351d555f7879d8c870e9",
+    "3546ef349f4db56f09b0",
+    "3548c352a9e67f331437",
+    "36e7ba4c6476b5cd2b19",
+    "375fb72bed43ccc47f6a",
+    "3764f18d35e4f8ad5d09",
+    "3798191e55603311683a",
+    "383c5eb1aeb7bda104e5",
+    "3865d50fa088c050f8e8",
+    "38873744356fc9abb6d5",
+    "392018ca3e9082955ab9",
+    "394e144a00767241b093",
+    "3a24658910e9f1fd73aa",
+    "3a629fbea7c1f9632220",
+    "3a730b5a82205671a243",
+    "3a809e5d23d7c60ead72",
+    "3b160d2d7ecb438ae5e7",
+    "3b98896408b727fbd23b",
+    "3bad48a34e6d1403416a",
+    "3be37def449b79f324dc",
+    "3bed0f261c7ec02dd1ec",
+    "3bf440d0542995169ec5",
+    "3c3248bc45c931854fe8",
+    "3c52354fdf5fdb75de2e",
+    "3c72e2fbb94aee5d67c3",
+    "3cd8942e7aca393d71e5",
+    "3cdeaa49ca3362ef0705",
+    "3d60ea3c3199c92afea2",
+    "3dabf36517ab411803a2",
+    "3dc85eabd329842ba14f",
+    "3e2d15a2a7244d9b7e6e",
+    "3e5706beb5c33dfb0691",
+    "3e6697e0b45a89ec82e5",
+    "3eb240916eebdf0fce45",
+    "3ecea4247f7da8cf3d83",
+    "3ee1a0362ae3eb47db3f",
+    "3f1d49136a47972f8bcd",
+    "3fb118f6e8a62ac3c929",
+    "3fe4db9f3eb16c416b33",
+    "4055cbb4c51cd6d6bcbd",
+    "40adcda529a6bc0bcf38",
+    "40e38350eab6a775a34d",
+    "4157ade7e6da8c9b0657",
+    "41699e0367ea2c417340",
+    "419d1b05f11f78c9529d",
+    "41fa9332d41d73bb4133",
+    "42268e019af40eeda78a",
+    "423f01ff1d285f6feb41",
+    "424f1e6bbc6e801dd72d",
+    "42514fda44e746066cc3",
+    "427d56d41825d9c0eaa3",
+    "4347359c0c00f6d49fa3",
+    "43be163f3e361a815a24",
+    "43f84b34a660b711da2c",
+    "4432a60684b46405e7bd",
+    "443348b7080096ffc0e7",
+    "4472f1d33d92ea2897f4",
+    "44a18b03f65af1d3c7f3",
+    "44b8ddfb73254177d2f8",
+    "44d74c52bb14a7f4f16c",
+    "44dd6db2f702c42702af",
+    "44ee9c8a7105ca353d89",
+    "45286866f4a16cb26b6c",
+    "4597863bddb1e9d75ebb",
+    "466901ae5a549db1f13b",
+    "46ad121893d0346a270f",
+    "47096e7e5ce542adfb8e",
+    "474b8ee37037650dc1ef",
+    "47e28d822c83789392ea",
+    "47f485ac3324e4f45eb9",
+    "483155d278ba97157e1a",
+    "4836840aec5a9236a58d",
+    "485a68e4c8188f478432",
+    "48643efcbfe1be04f46a",
+    "48742d2d864e38101142",
+    "492cf0bcaa2d7db42345",
+    "49b321f0093d9204857e",
+    "49cfaf3649bfbba6dfc2",
+    "4a0ae7b99a7bfc3f04ab",
+    "4a0cafc02654a834b273",
+    "4a15ecc759a9b332f3cc",
+    "4a54d7ff96a229541048",
+    "4a5ca4087ab6da856227",
+    "4ab2659efc97def0153c",
+    "4af8f600d6da261c32e6",
+    "4b8135fae6e86e9f9a64",
+    "4bf1741e0463338c84b3",
+    "4c7416739b7b54b7894d",
+    "4c752396d11bacc08092",
+    "4c96d8b3ead9ed767ba1",
+    "4d66c09fb18c0f0d1a7f",
+    "4dbb2318181aa9d907d5",
+    "4ebb61ad6997c08027b9",
+    "4f33bb61466a820e74b6",
+    "4f502c26c42d5c00cb31",
+    "4f721d0a9dc7b1f7ca8c",
+    "4fc4f8a901fabb39d8cd",
+    "4fef00cdc68d2cea9dce",
+    "4ff3632f6b22f707384d",
+    "507950e7c2392f2e9853",
+    "50a4cb7a3db416d9b449",
+    "51c7a41fd9d5fecb71ee",
+    "51d2f50c2de0ae56438b",
+    "51deefb0c40e66f737f0",
+    "52630ce456af6791baa3",
+    "52bf579156a21ee08c0c",
+    "534fa108574cc1d5c709",
+    "5416d89f219e62bd06ad",
+    "55e3ff1057a3eba68b18",
+    "5635a7ccc1eeefa5f824",
+    "566c91376228227735f8",
+    "5676641a281856045caf",
+    "567fcb45382761da0c9a",
+    "568275feb72658a6dbdb",
+    "56a611241add15d12495",
+    "56c669b984eabf8be49f",
+    "56ee676b2e04cecd2ff9",
+    "57423f3b70483445cbf1",
+    "57de855eb04d03cd4980",
+    "5870fbd7b17bdff972aa",
+    "58c74c8bf4c9cdb4075b",
+    "58d0bb08a6214d66be5c",
+    "5921dd29a7e5bab16da9",
+    "59c3b29a851601177cc6",
+    "59e200f0478f93b88c29",
+    "5ac863cc8dcb57105c19",
+    "5b0d9146115365c22ca1",
+    "5b35afd7d0f553e8d952",
+    "5b6c5854d2d3c20f45ce",
+    "5b8e99960e0adfec9b1b",
+    "5ba6ac646e56f4f33655",
+    "5bbb7f44bfcf00fb9e66",
+    "5c34418a304f0583fb92",
+    "5c8d5f34e02f1bd4874a",
+    "5cad875d7a325559430f",
+    "5d63b80d2bca0e8c1378",
+    "5d9ede14018ea02e3520",
+    "5da6f134923fdb93644f",
+    "5db3ed3f147a122f3520",
+    "5dd3b1ef91e32e45a17c",
+    "5e2a49057d9a78b91839",
+    "5f55d9b82c8e0209b446",
+    "5f56b663cc615eff5a7e",
+    "5f7577546756be08f5ab",
+    "5fbf59f5bf383722159a",
+    "5fc35947f63b3c736dff",
+    "604c84ac1786fa09f5d7",
+    "6053de4046f31dfeb192",
+    "60690bc4745487e92f5e",
+    "6069e5f9f7d3f73fc9ab",
+    "6083abea1edc39efdcb1",
+    "60e639d3abac89259d37",
+    "614addd0ad90b6162f0e",
+    "614ba58f79c05cd204ec",
+    "618564547f3facb2460a",
+    "62990925dc75c6f5a469",
+    "62c7f9ef7bd8f3452580",
+    "62ebbfe9d62024b9bc7f",
+    "62fe203a548cffa4b93e",
+    "62fe58051dd488ff3c69",
+    "631f0d081141a1e6a76c",
+    "6335c26ef3e084deac62",
+    "63b87cce3ff62655d3e2",
+    "63dc73d24cbf25d7c354",
+    "63f81620965a4f188634",
+    "6413e07eaadfe6042357",
+    "642f991a1fe19aa76de7",
+    "6430192f4f837107b9e8",
+    "6431b4a815857c29f0cf",
+    "6489078357b89a390510",
+    "64aac6eeaaab3cbfbe41",
+    "64d8fbff44d63b8e58d9",
+    "658ce3627d24d4a421ad",
+    "65d94272220c30fd643b",
+    "65e288d993ba8c2bbb68",
+    "660166f273ae0d1a64e1",
+    "6688fa06944c6dade11c",
+    "669220ec9bb5ac9f436f",
+    "66e2232008a728ca5fca",
+    "66ebabc31f5b458a50ab",
+    "66f3d4a58746b7f06430",
+    "675e804178f2e3a3ce9e",
+    "68164ac159fa5cd4f0a7",
+    "6910f6f22a29a1a1f7ac",
+    "69c6ded35c1ca3bfbf9a",
+    "6a5527f95fe98679d9d7",
+    "6ad656c7b6288ddb6df5",
+    "6b20336b66a1299c5403",
+    "6b378044173baa6fc091",
+    "6b42533b239f3c5764aa",
+    "6ba21c8bd8cf2f43a2f8",
+    "6ba5399a3722dc217b76",
+    "6be836e0073e86498c88",
+    "6beb95b22a1035ea18c3",
+    "6c15cbd7f719613c4d57",
+    "6c2d1eb3f0668a10cb69",
+    "6c546e56ac6c8220787b",
+    "6c7001a63230e0333581",
+    "6c9163883a429559b5c3",
+    "6d1b794076b11ff6fa3f",
+    "6de424fee5b3756e4e88",
+    "6e56cd660d5f1f13efa2",
+    "6e7ab608a4e7c258e2e7",
+    "6efa09261e84ef028ecf",
+    "6f8b4d6989d65f5663c0",
+    "6fd4298160c454c4cd03",
+    "70722b0dc2fba88c0cf6",
+    "71187b79f44762f56b8a",
+    "7133dfb8f2866f1aadb4",
+    "7145739265b88385d213",
+    "71eff23f9bcb62db5ac5",
+    "7245a8c5ca64a2932656",
+    "7246b6ca37bca108d5d5",
+    "72e47170318b8a860c9a",
+    "7326014ebba8990ece64",
+    "73c3c2582a5c317c40db",
+    "74d30df99fd7698607e0",
+    "75c9da24ec3764b3e8d1",
+    "765e3abf43ed7a81882a",
+    "76a923fa0e59af21ea8b",
+    "76dab3a4a2d76d9070cb",
+    "77e0f0137b4fb3989a1f",
+    "7805416a87ce33d228b9",
+    "78252d0b3f5a94d7aecf",
+    "7854570deaade1d72e7c",
+    "786b1cb71b3d40acee9b",
+    "78b9532ced32b06a750e",
+    "79738b67f2b4e337f698",
+    "7a19e7f67f89e5b6977c",
+    "7a3b3860561932468238",
+    "7b6d44057f6032ca54a6",
+    "7c67f93575aef43039cf",
+    "7c8358c15a441acd2bdb",
+    "7ccfdefd7c117b877afb",
+    "7d5660ea1980d860012d",
+    "7d91f9e33bcf9df1a1c5",
+    "7e3ab76a058f8f65f601",
+    "7e3f078fa147c4aac1b3",
+    "7f2d68ea26ae73459f06",
+    "7f326d4b6532a01fcf63",
+    "7f506ddcd0c96544708b",
+    "7f7acc1c80ea45e1c06e",
+    "8000945a3e7cd613ea17",
+    "800571e0d16a7f42c74c",
+    "8051a1eaf06f56d3702b",
+    "806cceba08cde3e3b040",
+    "80908d443a10add30856",
+    "80c7300920a4d726fc66",
+    "81512f03491bb9826032",
+    "819ccc332b08d309f0f5",
+    "81b26a23dd6326fcbd60",
+    "82c9f7177364bb0b10d3",
+    "831ff35a9288a0002fea",
+    "83700c2f3be92376f0ee",
+    "837471640632a55c906d",
+    "83775cd2df98be73a317",
+    "84033134a0eeaa1b2ae6",
+    "840a7091d2afea2c41e1",
+    "840f147afbd2adfd703e",
+    "841a40f245201687b924",
+    "8448600eef6e759b1a96",
+    "84b6afce3cca49baa034",
+    "86146750b2590aa2836b",
+    "868d33f047d26fc5b065",
+    "872a8c02c2fdc89988f1",
+    "87a1ba949cd37f8e8301",
+    "883e0dc7817ebf4687dc",
+    "887ae106cf8f6cc4b94e",
+    "889a0cc6744dd791470f",
+    "8900aa8b374479a90cab",
+    "893a999def3edc8f1a0a",
+    "8972dfeff70fc8c02f48",
+    "897b212b3e165ed616f2",
+    "89f9ee644e443ad3d08f",
+    "8a21ea0cfac40c7e5672",
+    "8a57df774d383a377883",
+    "8b284580e6f80dd11a09",
+    "8b28b12a01aabd8338c8",
+    "8b4da6dcf586c61e40c1",
+    "8b92e4730cf015fce360",
+    "8b99d7511f8b842627ab",
+    "8bc23d217248ad18c274",
+    "8bc8331a54eb113dfb6f",
+    "8c73cd8d0648f24ee88b",
+    "8c787324daa3d9f53bd3",
+    "8d03475ba509812b767c",
+    "8d244d9fdae458f0471c",
+    "8df7af42d8ec14e35e40",
+    "8e17a2887dfb9cc976ac",
+    "8e9b32533086f2f179f4",
+    "8eabe8e9bb1e0be33169",
+    "90f44621c4eafaf5c278",
+    "90fc17206ee1f99ec636",
+    "918a71a246806e01d91a",
+    "933979a72a17f2ff4b99",
+    "9350d652b80859639793",
+    "9353aff6e2f0d4482b1f",
+    "938ee2a32e6daa45a3b5",
+    "93edee48f023689778ed",
+    "94b62b1c4382982cb01f",
+    "951bf612e52c9073d22a",
+    "954c0a2d3b0133d2341d",
+    "9552fcbd5fcda3125833",
+    "956d4ba2bc4a0024d30e",
+    "95d38b3585c61b1d9906",
+    "95d50ca68dac41d7a0f1",
+    "95df7af9f01ddf6a6644",
+    "967c20675d9f745761ae",
+    "9692f1deafa4d35b823c",
+    "96b4f9b83647bbc4ec73",
+    "96c79a7fc62a364b2b9a",
+    "96db0cca3062aa51397e",
+    "96ff2e079cd464fd5308",
+    "984b4232f8e1c36b08f5",
+    "995a6d7e511bb9983a7f",
+    "99c869ec339cc56c3620",
+    "99e3707fcca37519d07c",
+    "9a99100fee70d31a67d2",
+    "9a9bb0a9a44b49bbe8ab",
+    "9a9ef08857e041d7147d",
+    "9b37368d7b14fe3340c1",
+    "9babe7dd36e2da6efc10",
+    "9bf206b6762d311a4791",
+    "9bfb5469cebcb153451a",
+    "9cef7dba93f51ab32c13",
+    "9d3796742a2e1cd10eb8",
+    "9d726e6b177bb7349a1e",
+    "9dd8372afaa56661c01e",
+    "9e2f6966510f861cbd40",
+    "9e6ca1765f0a032267b5",
+    "9ed1322d3d2b7a68718a",
+    "9f0450933b685f1974eb",
+    "9f5ff21bede53f4239db",
+    "9f8c5369f904e81221cb",
+    "9f8d835236860966db8f",
+    "9fd5a65c0dadc2ec40eb",
+    "a000e88e95c7ba40bbd1",
+    "a024ead246198d7e98ad",
+    "a045e6e7ddf843c49b28",
+    "a09ed49a0d7fdaaeebf1",
+    "a102673e5fad3240111e",
+    "a15fdbb59f1f03ed109e",
+    "a1e2d91d323a57b5de29",
+    "a1ff1a32efaf79f786b8",
+    "a2541ef0353d99d8a040",
+    "a2b586e05374325f769b",
+    "a3147224db6b3e97f902",
+    "a38c8cafaac62a545bbe",
+    "a3ec736cbd3b7f33d8b8",
+    "a47b2466e5199dce299c",
+    "a49cf94b0ecade81853d",
+    "a512b18a7baa3e1212d2",
+    "a6998dd7b0cece708bb9",
+    "a6a1c66eb72ec83c667f",
+    "a6ebcbd5314960f181cb",
+    "a76249ba372e0df74788",
+    "a7912f6e10c7225e4fd2",
+    "a8336e318c7d6b48b22b",
+    "a845cadb35859cf15ef1",
+    "a888f8fc863dbd989557",
+    "a89f2c1bb0017a6a9d45",
+    "a8bd37f4120450f651b6",
+    "a8be7f45901ddd76b721",
+    "a8e7f8bb365c6b9f77e3",
+    "a93e422d29e769b0d853",
+    "a9dbe0cc18738b4522bd",
+    "aa32080462e3581166d3",
+    "aa743024037fa80ee16b",
+    "aa8949320ac4d958c2ec",
+    "aaf098e3675b65cccbfe",
+    "aaffb41344d5775216f1",
+    "ab1bb6ce49f27a062ce5",
+    "ab4fb86bcffd0f7d3fd5",
+    "ac57cf3fb8df16ba9ee8",
+    "ac80296296f4b87c0912",
+    "acf4e908d848e2649b6d",
+    "ad69a672a9c90d91b874",
+    "ad6ac5b7baef0980a879",
+    "ae1a0d498d46de7a3ea8",
+    "ae6137ea3712e4894518",
+    "aea0ca261535f05df884",
+    "af5ae28633a247b27017",
+    "af6cca4b1ffc5fe1dc07",
+    "af731cb454c2a3493c76",
+    "af7aa3c1be7a320b8e85",
+    "affa796d1b415771a447",
+    "b0a41c1bf7cf650d1f64",
+    "b0b48928b91bfd8e1913",
+    "b1954c33981fe961cf20",
+    "b2261de9aad62c2e3c85",
+    "b282819acdc9e4ac22f7",
+    "b2e8f78da05527a24c86",
+    "b30efa3bedc93432e865",
+    "b31bd35ddc5971bc6029",
+    "b3f3219631bbcace4f58",
+    "b41f33c81cfdfc1ddf59",
+    "b4272eb53d7c0a4e5dd6",
+    "b445c92dca567d40c752",
+    "b507e421f01aac805570",
+    "b5112fbb7db1bddc16d9",
+    "b55b68c8fc8d7bbbfd23",
+    "b58692089a253d8fe05c",
+    "b5d69cb034e9e981be80",
+    "b5eeb50c34202c8f4ee7",
+    "b672e7fa8f22af6d049d",
+    "b690cd9ae76191a4fb2d",
+    "b6b983e3b060dbe5a29e",
+    "b7bcefe98f2a1266038e",
+    "b7f4483d2f3aaf3cb9e1",
+    "b880544703c2731ecb51",
+    "b8c4bfe7b08ac6767ed9",
+    "b8c72b542da8350c3005",
+    "b951b2c3566ac8c30855",
+    "b9543777fad5e099263c",
+    "b9acdf22ec5e957a1251",
+    "b9cb153e6c9ac1563f1a",
+    "ba635975783d3d2cccc3",
+    "bae29b908450958a8297",
+    "bbb99781ef3bb1f4119c",
+    "bbe1c4f976e02940651c",
+    "bc33ae9592be1432d8f1",
+    "bc342d3ceb4f22890afa",
+    "bc3f8d3e054417a203e7",
+    "bc678255a53c766c2303",
+    "bd2557c465d358c4ef2d",
+    "be33f99918397dcca586",
+    "be5b204f53cc5deee632",
+    "be81c441e226b3261420",
+    "be8fa792b4e901c9608e",
+    "bf754c1fe5c0d2e76375",
+    "bfa46a03301bfb88ca9d",
+    "c028e4bb5182a8ae849a",
+    "c07c030254c41853ceef",
+    "c09bced9fe30d9cad6e7",
+    "c0b78959ef676493103a",
+    "c0c0c53384f0d42c6d3a",
+    "c11c107bdf8c481cfde9",
+    "c125e2f11616d0ece0d3",
+    "c15b129a9b0ef5a36f38",
+    "c1753585f3e4300cc38a",
+    "c3fab28b11b5115488bd",
+    "c41c5ce4ef32380f9fe6",
+    "c42c1aed443053444b46",
+    "c4d58c55c768de21aa99",
+    "c5406490975fad7b6c06",
+    "c5815230290bab11645a",
+    "c5f4e70981005a789de2",
+    "c61e57b30170c323965e",
+    "c63aa04ace7972db02d9",
+    "c6a876566239b5e90c63",
+    "c6d2805acde72f12957f",
+    "c6faf171d5feae099d3e",
+    "c7733824eba72d6db878",
+    "c7ca474555e7e9701aff",
+    "c7d56448fe7799a90bfc",
+    "c8b713187881353a4a08",
+    "c95242108a89ed264b03",
+    "c97ec6860a8f38681f49",
+    "c9dabd67ae2a6940b5d7",
+    "cacb80cfd91ecb5444b3",
+    "cb151b5cabd5c1872184",
+    "cb1e94f15dc127b824d6",
+    "cbcf473d2f4130dc041a",
+    "cc131c64eec420cbf46b",
+    "cc6fe96c3da524d33a72",
+    "cca70d70cc375c62e41c",
+    "ccadfe0e12780011d0cf",
+    "cce3cd316b86ab65b5f5",
+    "cd02e96dd6042aeee004",
+    "cda4ab30b4e36fc9ddbf",
+    "ce4f0039e6c083d1172f",
+    "ceb401a3658c6d72104f",
+    "cf2df82365c0b1cc3b87",
+    "cf419a3eb0665f8048a5",
+    "cf56a1e9574e37a923fc",
+    "d02cd43c35fdb7cc53e4",
+    "d0b4a16a34a2d35cba6e",
+    "d0db8ef04d62903262de",
+    "d1182d4d8f8caa871939",
+    "d137488a51fd37dc4e30",
+    "d19be57ae98c95784c75",
+    "d1c40fb727b12f45f07a",
+    "d1d1bc3eb821b36c5fdc",
+    "d1fb9f2e2e6105a08b86",
+    "d292623fc272fee80f6b",
+    "d2cbf97818fa6b900d1c",
+    "d353838fe4bb5ee20bb6",
+    "d388c1acee8009b763f9",
+    "d38b52f129e7812e063f",
+    "d40f19707e018d112efa",
+    "d414208ddcdae31e4c76",
+    "d4400d9e9b121b0c38b3",
+    "d483ad20dd7164946a89",
+    "d4ac91c659a2cfd44ffa",
+    "d50c7e7e34316aa22ddf",
+    "d58081ef87666169be84",
+    "d611baa9cb2e0237830b",
+    "d65cdae0a25fff048477",
+    "d65e75a63edb95f20157",
+    "d67b22ef8c0967726974",
+    "d7412f8a6b96c5f0234a",
+    "d74cb229c186ffb07108",
+    "d762e966d9b000f208b0",
+    "d77df7b96a124fdac413",
+    "d793a3b46fb1823c001c",
+    "d798d6c5278b76a4e385",
+    "d7ad6229e82fdb81c0e4",
+    "d803fe7a1f18ca5d8367",
+    "d80fd3e819d29f862733",
+    "d886874c3f576799a4a4",
+    "d898604f06ca6e713d89",
+    "d9c9f9a1e2a98585f836",
+    "d9cd6f055c0ce1e3a954",
+    "da36306acc72a6b9c1b8",
+    "da714c8bb36635de6f0b",
+    "dc14cda54677c7703b85",
+    "dd2e6cf4c01454e96c17",
+    "de78afccd252b258c04e",
+    "ded569c819ff45f095a3",
+    "df03eab9fb2b9f829f13",
+    "dfa1c4eab72e820362da",
+    "dff53bc789cc784d15c3",
+    "e0faec048bfe07884bd5",
+    "e1188606af8100b9fa11",
+    "e1333751e50da9b36c8a",
+    "e155e66fb19f366ba0bd",
+    "e19cf676d9e6a1500180",
+    "e1fca5069eabf32cc1d9",
+    "e2350d63aa410df8d4a4",
+    "e24fbbc008e1b75a71a5",
+    "e29c8548b44f1301eb0c",
+    "e2f5171260a9c2bc1712",
+    "e34651aea84fa1924a38",
+    "e4192f4f908529c39892",
+    "e41e17e39369ffd13ffb",
+    "e477b6abee4efcc885bb",
+    "e4dc1f0580b7f9dadb3b",
+    "e4f23b741554d2f75182",
+    "e57e34aaa9884ae05bcf",
+    "e5a22e2c9edbe7547579",
+    "e663e93de33a82f06cf7",
+    "e684c05c6759c7ce19fc",
+    "e6cb1ae40a5652432298",
+    "e7072b6b77627807aa4c",
+    "e73c4378bd39706ac9eb",
+    "e740d7d7d5769ccacfb5",
+    "e770f5ac44ec709b541f",
+    "e8f294988a132bfa3329",
+    "e9057888919f0ced99f5",
+    "e90858606fe880415f2d",
+    "e90ff2d23311cdba3561",
+    "e92de9d2f1aa2c3d7973",
+    "e93988462be9ca35931c",
+    "e940cc0756c91c1d3eab",
+    "ea4b9aa8e445ec06aa56",
+    "eb403f27837f7d6121e9",
+    "eb63da2bad4ab3252029",
+    "ec2516f742ea4a7cf287",
+    "ec3d6c6fa7a55a606078",
+    "ec7cdb9beb22a122299a",
+    "ecf876e2f89cc2906141",
+    "ed15b77cac098816caf1",
+    "ed28812c452453409c69",
+    "ed5f1a9c3741d5f4f69d",
+    "edb6b66b2514b8a51c40",
+    "edcd3f92a0cb70d831d3",
+    "ee81a9e19a1236ca0eaf",
+    "eed045a7e6c9315c6d52",
+    "ef232abc83b6a03a07f0",
+    "ef247a9d9f039899a005",
+    "ef3d39aa955683bc72b5",
+    "efaa1de614ba40dcaca1",
+    "efe349746df7d400fafe",
+    "efee4ae3c208b35cc277",
+    "f062336925d0fefceb61",
+    "f09d265b27ba2b513fdf",
+    "f1619b7ef9bff5204170",
+    "f19f7a02d560045132dc",
+    "f21d11549c20643f2edb",
+    "f27d64ba9e46a1a54c70",
+    "f283bea1f8f73753a357",
+    "f344b4ca2374e60f2284",
+    "f364fba952e53312c44b",
+    "f37cdb7db1fac89efb59",
+    "f396a36bda5f216ab113",
+    "f3e0ccd86b68bc09837f",
+    "f3f583e9ed2564b96722",
+    "f43d5d4d370838c8f6b4",
+    "f4cdef024a8b3540ffac",
+    "f4d24ba4d1c01b6172af",
+    "f53a18b2e0e2aed11a37",
+    "f5417d398b3fd955cd26",
+    "f620a4ebaf6d68398077",
+    "f62f6ac7c9129cac5f3a",
+    "f63d19bdc71b95c8b6ec",
+    "f766960da8c082e122e4",
+    "f7eba33e0bff81d90982",
+    "f80a587522bbbd1d098d",
+    "f818c3c5eac812d106da",
+    "f845c0ade832c6bb7046",
+    "f86950cc2e635d87d423",
+    "f8867c37e67b5e36ed44",
+    "f8b2905fba0cd6c54c66",
+    "f98ee0dd0024162ffa39",
+    "fa02300c7bfb103ac427",
+    "fa66885dd0fc4f6b2dcc",
+    "fa7f093b3b5f0d4e898e",
+    "fb46d822cc11ff9a2bdd",
+    "fb96f624f030efe96a7c",
+    "fc24287ab36375755e5a",
+    "fc41eee9399d380c4ed5",
+    "fc5cf0e771409a0be3de",
+    "fc9b2c91e6face225f01",
+    "fc9e1da16abbb8c4465c",
+    "fcb61c2bc9f9fca1e3c7",
+    "fcc24c616dc276c9239f",
+    "fcd25f21dbe83b487fcc",
+    "fcd659cb7be5c281d7c1",
+    "fcee3a10e7321a95ced8",
+    "fd3848405eb0cc660232",
+    "fe06ce187a75eb4413d4",
+    "fe83ce727ce9201d3b69",
+    "fec37b9e508a5904c5b9",
+    "ff4a85d5199901eef787",
+    "ffda700352ff151971c9"
+   ]
+  },
+  "ruling_104": {
+   "variants": [
+    "810f79cf679867c43271",
+    "7710cebb49cd2c66ff04",
+    "c9bb9dd233cd2c9afa0c",
+    "86da51f9f8f9df4e7866"
+   ],
+   "replaced": [],
+   "notes": {
+    "761be06a83ab95bd7906": "variant 810f79cf679867c43271 (29.44 s, ends \"as a demand for like capital that nobody's ever seen before.\"), beside it",
+    "722305398896f441ec95": "variant 7710cebb49cd2c66ff04 (31.02 s, ends ' to avoid centralized control, to avoid the pitfall of gold.'), beside it",
+    "be114efd7c8b7547e92b": "variant c9bb9dd233cd2c9afa0c (32.23 s, ends 'y, meaning material over 10 % keep them on hardware devices.'), beside it",
+    "37ecd3914184ca8a7e8d": "variant 86da51f9f8f9df4e7866 (30.43 s, ends \"hich we'll never be seen again, where they actually fronted.\"), beside it"
+   }
+  }
+ },
+ "ruling_76": {
+  "inside_12h": 68,
+  "cleared": 6,
+  "cuttable": 3,
+  "hooks_4": 0
+ },
+ "routing": "heimdall_first",
+ "mode_at_end": "heimdall_first",
+ "shadow86": {
+  "verdicts": 4,
+  "compared_units": 4,
+  "differ": 0,
+  "on_pin_differ": 0,
+  "not_compared": 0,
+  "missing": 0,
+  "shadow_usd_reported": 0.0026,
+  "pin": false,
+  "would_seal_under_grok": null,
+  "summary": "4 verdicts shadowed, 4 decisions compared, 0 differ (0 on the pin's clips); 0 not compared; 0 still running; shadow cost $0.0026 reported"
+ },
+ "spend_ruling_48": {
+  "before": 0.832,
+  "after": 1.4305,
+  "cap": 1.5,
+  "stop": 1.5,
+  "basis": "reported"
+ },
+ "breakers_ruling_99": {
+  "open": [
+   {
+    "model": "xai_vision:grok-4.7",
+    "until": "2026-11-24T18:46:14Z",
+    "why": "returned more than 2x the cap it was sent"
+   }
+  ],
+  "opens": 10,
+  "closes": 7,
+  "this_build": [
+   {
+    "model": "heimdall:qwen/qwen3.8-27b",
+    "deadline_s": null,
+    "seconds": 124.54,
+    "tokens": 4603,
+    "max_out": 16000,
+    "kind": "breaker_close",
+    "why": "the trial call answered",
+    "utc": "2026-11-24T18:03:58Z"
+   },
+   {
+    "model": "xai_vision:grok-4.7",
+    "deadline_s": null,
+    "seconds": 135.72,
+    "tokens": 10775,
+    "max_out": 8000,
+    "kind": "breaker_close",
+    "why": "the trial call answered",
+    "utc": "2026-11-24T18:04:05Z"
+   },
+   {
+    "model": "xai_vision:grok-4.7",
+    "deadline_s": null,
+    "seconds": 221.67,
+    "tokens": 19485,
+    "max_out": 8000,
+    "kind": "breaker_open",
+    "why": "returned more than 2x the cap it was sent",
+    "until": "2026-11-24T18:46:14Z",
+    "utc": "2026-11-24T18:16:14Z"
+   }
+  ]
+ },
+ "registry": true,
+ "stage_seconds": {
+  "pool": 94.5,
+  "step A": 91.5,
+  "second ear": 70.8,
+  "out-edge question": 361.0,
+  "hooks": 67.6,
+  "vision": 166.4,
+  "line-ups": 348.4,
+  "gates": 35.7,
+  "seal": 0.1
+ }
+}

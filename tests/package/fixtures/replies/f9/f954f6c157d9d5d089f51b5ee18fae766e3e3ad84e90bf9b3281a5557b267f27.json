@@ -1,0 +1,458 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "ba834b65aef871b78347fd8c277c6ff9e9ef3ee8fa0f7b07ad2f8f09ebf7cfc9",
+ "result": {
+  "text": "They're, they're in their first little dip of the toe into the marketplace, and they haven't really learned what the asset really is, which is not a risk on tech stock, but pristine collateral, engineered money, a new revolution in money. So we have a new industrial revolution that Jensen can lead, and we have a community of Bitcoiners who are leading a monetary revolution at the same time. And CJ-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.1,
+    "end": 23.6,
+    "text": "They're, they're in their first little dip of the toe into the marketplace, and they haven't really learned what the asset really is, which is not a risk on tech stock, but pristine collateral, engineered money, a new revolution in money. So we have a new industrial revolution that Jensen can lead, and we have a community of Bitcoiners who are leading a monetary revolution at the same time."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 24.54,
+    "end": 24.96,
+    "text": "And CJ-"
+   }
+  ],
+  "words": [
+   {
+    "text": "They're,",
+    "start": 0.1,
+    "end": 0.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they're",
+    "start": 0.4,
+    "end": 0.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 0.62,
+    "end": 0.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 0.74,
+    "end": 0.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "first",
+    "start": 1.06,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "little",
+    "start": 1.56,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dip",
+    "start": 2.16,
+    "end": 2.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.36,
+    "end": 2.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.48,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "toe",
+    "start": 2.64,
+    "end": 3.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 3.26,
+    "end": 3.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.46,
+    "end": 3.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "marketplace,",
+    "start": 3.6,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 4.14,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 4.22,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "haven't",
+    "start": 4.3,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 4.5,
+    "end": 4.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "learned",
+    "start": 4.8,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 5.2,
+    "end": 5.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.38,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset",
+    "start": 5.6,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 6.0,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is,",
+    "start": 6.34,
+    "end": 6.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "which",
+    "start": 6.54,
+    "end": 6.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 6.76,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 7.34,
+    "end": 7.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 7.98,
+    "end": 8.119,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "risk",
+    "start": 8.2,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 8.62,
+    "end": 8.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tech",
+    "start": 8.92,
+    "end": 9.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stock,",
+    "start": 9.2,
+    "end": 9.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 10.18,
+    "end": 10.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pristine",
+    "start": 10.48,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "collateral,",
+    "start": 11.14,
+    "end": 11.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "engineered",
+    "start": 12.26,
+    "end": 12.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money,",
+    "start": 13.02,
+    "end": 13.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 13.76,
+    "end": 13.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "new",
+    "start": 14.08,
+    "end": 14.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "revolution",
+    "start": 14.7,
+    "end": 15.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 15.46,
+    "end": 15.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money.",
+    "start": 15.64,
+    "end": 15.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 15.98,
+    "end": 16.079,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 16.12,
+    "end": 16.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 16.239,
+    "end": 16.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 16.4,
+    "end": 16.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "new",
+    "start": 16.48,
+    "end": 16.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "industrial",
+    "start": 16.62,
+    "end": 17.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "revolution",
+    "start": 17.18,
+    "end": 18.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 18.12,
+    "end": 18.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Jensen",
+    "start": 18.32,
+    "end": 18.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 18.68,
+    "end": 18.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lead,",
+    "start": 18.9,
+    "end": 19.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 19.38,
+    "end": 19.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 19.48,
+    "end": 19.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 19.54,
+    "end": 19.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 19.66,
+    "end": 19.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "community",
+    "start": 19.74,
+    "end": 20.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 20.16,
+    "end": 20.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoiners",
+    "start": 20.3,
+    "end": 20.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who",
+    "start": 20.86,
+    "end": 20.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 20.96,
+    "end": 21.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "leading",
+    "start": 21.4,
+    "end": 21.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 21.68,
+    "end": 21.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "monetary",
+    "start": 21.8,
+    "end": 22.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "revolution",
+    "start": 22.32,
+    "end": 22.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 22.84,
+    "end": 22.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 22.96,
+    "end": 23.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "same",
+    "start": 23.08,
+    "end": 23.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time.",
+    "start": 23.34,
+    "end": 23.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 24.54,
+    "end": 24.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "CJ-",
+    "start": 24.72,
+    "end": 24.96,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 25.06
+ },
+ "usd": 0.005012,
+ "seconds": 1.32,
+ "recorded_at": "2026-11-24T17:59:21Z"
+}
