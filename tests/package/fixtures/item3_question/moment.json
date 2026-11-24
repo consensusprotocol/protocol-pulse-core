@@ -1,0 +1,124 @@
+{
+ "moment": {
+  "schema": "pp.moment/1",
+  "moment_id": "ad47eab4a19c2324a9eb",
+  "video_id": "vX2WKBOua8w",
+  "channel_id": "UCJgHxpqfhWEEjYH9cLXqhIQ",
+  "channel_name": "Digital Asset News",
+  "published_at": "2026-11-23T22:35:55+00:00",
+  "title": "NVIDIA Up 31%. $3T Rally & Why Bitcoin Faded Fast.",
+  "transcript_sha256": "a8b62a12c8907fdc41df34a669bf0efe0ad59e9a8e97f1c7b6370fe758b5f0a0",
+  "transcript_method": "whisper_words_punct",
+  "timing": "word",
+  "words": [
+   159,
+   182
+  ],
+  "sentences": [
+   12,
+   14
+  ],
+  "text": "He said, over the weekend, we hit a new low. Bitcoin bottom four years ago to the exact day. Let me read that again.",
+  "start": 575.606,
+  "end": 586.556,
+  "duration_s": 10.95,
+  "duration_estimate_s": null,
+  "speaker": {
+   "turn_change_inside": null,
+   "label": null,
+   "confidence": null,
+   "named": null,
+   "named_source": null
+  },
+  "scores": {
+   "contempt_outrage": 0,
+   "hook_first_2s": 4,
+   "quotable": 3,
+   "stakes": 3,
+   "stance": 2,
+   "stands_alone": 4,
+   "surprising_fact": 5
+  },
+  "names_person": false,
+  "risk": [
+   "time_sensitive"
+  ],
+  "topics": [],
+  "reason": "Highlights the uncanny coincidence of Bitcoin bottoming on the exact same date four years apart, a strong hook for cycle theory.",
+  "eligibility": {
+   "hook": {
+    "ok": false,
+    "reasons": [
+     "opener"
+    ],
+    "targets_missed": []
+   },
+   "clip": {
+    "ok": true,
+    "reasons": [],
+    "targets_missed": [
+     "10.95 s outside the clip target 12.0-20.0 s"
+    ]
+   }
+  },
+  "on_screen_ok": true,
+  "excluded": [],
+  "mined": {
+   "at": "2026-11-23T23:55:54.681652+00:00",
+   "attempt": 1,
+   "backend": "heimdall_qwen27b",
+   "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+   "cached": false,
+   "contract_fp": "40f1d65a6e12a70cf0175254",
+   "cycle": "ingest-20261123T2354Z",
+   "model": "qwen/qwen3.8-27b",
+   "observations": 1,
+   "pass": "moment",
+   "prompt_sha256": "a01a1f3f295bd44c01b67b06b3da75fe25ad586311fd9d30c02311927a8ea63a",
+   "prompt_version": "mine/2",
+   "provider": "Consensus Protocol",
+   "reply_sha256": "3a9349f7eef40541b36bfdc5d2d8f73a244b0090c43bf829c491665be137ea7a",
+   "window": {
+    "start_s": 531.086,
+    "end_s": 632.364,
+    "record": "transcripts/vX2WKBOua8w/windows/531.086-632.364.whisper_words_punct.json",
+    "words_sha256": "7f4980a89d99ff58dc84ad4dea286412cc30ba14f47fe78223aa04ff422bb620",
+    "record_sha256": "bd91704b6193ce71aa9ef77c08d679b1f1de27ef83327c9d745312fc094a13cf",
+    "context_record": "yt_auto:en-orig"
+   },
+   "ledger_moment_id": "9139543ad3e52935333e",
+   "reanchored": {
+    "anchor_ratio": 1.0,
+    "snapped_words": [
+     0,
+     0
+    ],
+    "sentences": [
+     12,
+     14
+    ],
+    "offset_s": [
+     -0.48,
+     -0.81
+    ]
+   },
+   "ledger_text": "He said, \"Over the weekend, we hit a new low. Bitcoin bottom four years ago to the exact day.\" Let me read that again."
+  },
+  "rank_score": 21,
+  "source_key": "vX2WKBOua8w@531.086-632.364"
+ },
+ "word_pass": {
+  "moment_id": "9139543ad3e52935333e",
+  "video_id": "vX2WKBOua8w",
+  "window_record": "transcripts/vX2WKBOua8w/windows/531.086-632.364.whisper_words_punct.json",
+  "record_sha256": "bd91704b6193ce71aa9ef77c08d679b1f1de27ef83327c9d745312fc094a13cf",
+  "sentence_ready": true,
+  "window": [
+   531.086,
+   632.364
+  ],
+  "at": "2026-11-24T00:00:29.151332+00:00"
+ },
+ "from": "tests/package/proof/ledger_20261124_004415/inputs.json and data/editorial/moments/word_pass.jsonl (the build's own records)",
+ "asked": "scratchpad/r161/freeze3.py, Router record_dir, role out_edge (heimdall qwen@low)"
+}

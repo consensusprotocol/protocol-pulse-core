@@ -1,0 +1,146 @@
+{
+ "question": "pp-selectid (Protocol Pulse clip-video builder). The verifier found that builds 166-168 ran \"by hand\": a wrapper script imported tests/package/proof_ledger.py and called main() with patched settings, through the launcher's DRIVER= override. RULING 163 (5): the build record states which driver ran and its git sha, and the launcher refuses any driver that is not the committed one; RULING 160 (2b): one outcome line per build. THE CHANGE (diff below): proof_ledger.main() now (a) refuses (exit 2, no record) unless entry_of() finds sys.modules['__main__'].__file__ is this file (realpath), or pytest with PP_SELECTID_DRIVER_UNDER_TEST=1 (set only by tests/package/conftest.py); _main() (the old body, otherwise unchanged) checks entry_of() again; (b) wraps _main in try/finally and calls outcomes.record_build(out_dir) once when box[\"out_dir\"] was set (right after os.makedirs(out_dir)); SIGTERM -> sys.exit(143) so the finally runs; (c) writes \"entry\" (driver, driver_sha = git hash-object, driver_committed, argv0, HEAD, dirty files) into inputs.json. The launcher tests/package/record/build_and_record.sh (moved from a scratch folder into git, paths repo-relative) runs only tests/package/proof_ledger.py with --build-no N, and refuses (exit 6) when that driver differs from HEAD, any .py/.sh under pipeline/ or tests/package/ is changed and not committed, or HEAD has commits not pushed.\nCHECK, quoting the code: (1) can a wrapper still run a build (through main(), _main(), or the launcher with DRIVER= set), and does a plain `python3 -B tests/package/proof_ledger.py ...` still pass entry_of; (2) can a build that made its record folder end with no outcome line or two (an exception inside record_build, SystemExit, KeyboardInterrupt, a return before box is set); (3) bash bugs in the launcher's new guards (git diff --quiet exit codes, the status/awk/grep pipeline when nothing matches, '@{u}' with no upstream, set -u). Report only what the code shows; if unsure, say so.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "gptoss": "openai/gpt-oss-20b",
+  "gemma": "google/gemma-4-31b-it"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 435.4,
+   "cost": 0.0121133,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 3,
+   "parse_ok": true
+  },
+  {
+   "name": "gptoss",
+   "model": "openai/gpt-oss-20b",
+   "status": 200,
+   "latency_s": 216.9,
+   "cost": 0.003109544,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "gemma",
+   "model": "google/gemma-4-31b-it",
+   "status": 200,
+   "latency_s": 459.0,
+   "cost": 0.00226995,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 701.3,
+   "cost": 0.0171344,
+   "parse_ok": true
+  },
+  {
+   "name": "gptoss",
+   "status": 200,
+   "latency_s": 221.5,
+   "cost": 0.00312652,
+   "parse_ok": false
+  },
+  {
+   "name": "gemma",
+   "status": 200,
+   "latency_s": 203.1,
+   "cost": 0.00185845,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "qwen27b:F3",
+   "severity": "low",
+   "file": "tests/package/proof_ledger.py",
+   "line": 515,
+   "issue": "The finally-block inner handler catches only Exception. If OC.record_build itself raises a BaseException (e.g. SystemExit from a sys.exit inside a helper, or KeyboardInterrupt during the write), it propagates uncaught, no outcome line is written, and the error is not reported to stderr. The outer except BaseException / raise has already re-raised the build's own exception, so the process dies with no RULING 160 (2b) line and no diagnostic.",
+   "evidence": "            except Exception as e:                       # noqa: BLE001  never masks the build's own end\n                print(f\"  RULING 160 (2b): the outcome line was NOT written: {type(e).__name__}: {e}\",\n                      file=sys.stderr, flush=True)",
+   "fix": "Widen the inner handler to except BaseException (or at least except (Exception, SystemExit)) so a failure inside record_build is always reported and never silently swallows the outcome line.",
+   "agree": [
+    "qwen27b",
+    "gemma"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "high",
+   "file": "tests/package/proof_ledger.py",
+   "line": 510,
+   "issue": "box[\"outcomes\"] is never assigned anywhere in _main(), so path=box.get(\"outcomes\") in the finally-block call to OC.record_build is always None. If record_build requires a valid path to locate/write data/builds/outcomes.jsonl, the single outcome line RULING 160 (2b) mandates is never written for any build that creates its record folder.",
+   "evidence": "box.update(out_dir=out_dir, build_no=a.build_no)     # RULING 160 (2b): from here on, the build has one outcome\n...        box[\"refused\"] = refused                         # RULING 160 (2b): BUDGET_STOPPED at the start\n...                line = OC.record_build(box[\"out_dir\"], rc=rc, error=err, refused=box.get(\"refused\"),\n                                       build_no=box.get(\"build_no\"), path=box.get(\"outcomes\"))",
+   "fix": "Set box[\"outcomes\"] to the outcomes.jsonl path (e.g. os.path.join(REPO, \"data\", \"builds\", \"outcomes.jsonl\")) alongside the existing box.update(out_dir=..., build_no=...) call, or remove the path= keyword argument if record_build derives the path from out_dir.",
+   "agree": [
+    "gemma"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "medium",
+   "file": "tests/package/proof_ledger.py",
+   "line": 890,
+   "issue": "_main() has no explicit return after logf.close(), so on the normal (non-refused, non-exception) completion path it returns None. main() then passes rc=None into OC.record_build. If record_build expects an int exit code to classify the outcome (e.g. 0 = success), a None rc may produce a malformed or missing outcome line. (Unsure: the full file beyond the diff context is not visible; a return 0 may exist after logf.close().)",
+   "evidence": "        say(f\"  RULING 107 (1): fingerprint {fp_end[:12]}, {left} item(s) left undone\"\n            + (f\" ({len(money)} of them paid call(s) the spend stop refused)\" if money else \"\"))\n    logf.close()",
+   "fix": "Add return 0 after logf.close() so the success path yields an explicit int rc, or confirm in outcomes.py that record_build treats rc=None as success.",
+   "agree": [
+    "gemma"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "qwen27b",
+   "severity": "medium",
+   "file": "tests/package/proof_ledger.py",
+   "line": 0,
+   "issue": "entry_of's pytest bypass can be triggered by a non-pytest wrapper that sets the env var and imports pytest.",
+   "evidence": "test = os.environ.get(UNDER_TEST) == \"1\" and \"_pytest\" in sys.modules; why = None if own or test else ...",
+   "fix": "Require an actual pytest run (e.g. PYTEST_CURRENT_TEST or a pytest-specific marker) rather than only _pytest in sys.modules, or remove the env bypass for non-pytest entry."
+  },
+  {
+   "by": "qwen27b",
+   "severity": "medium",
+   "file": "tests/package/record/build_and_record.sh",
+   "line": 0,
+   "issue": "The dirty-code guard ignores untracked .py/.sh files, so new untracked code under pipeline/ or tests/package/ is not treated as uncommitted.",
+   "evidence": "DIRTY=$(git status --porcelain -- pipeline tests/package | grep -v '^??' | awk '{print $NF}' | grep -E '\\.(py|sh)$' | tr '\\n' ' '); entry_of also uses if not x.startswith(\"??\")",
+   "fix": "Include untracked code files in the dirty check, e.g. git ls-files --others --exclude-standard -- pipeline tests/package | grep -E '\\.(py|sh)$'."
+  },
+  {
+   "by": "qwen27b",
+   "severity": "low",
+   "file": "tests/package/proof_ledger.py",
+   "line": 0,
+   "issue": "entry_of's dirty list can record a rename as the whole 'old -> new' string instead of the target path.",
+   "evidence": "dirty = sorted(x[3:] for x in st if not x.startswith(\"??\") and x[3:].endswith((\".py\", \".sh\")))",
+   "fix": "Parse porcelain rename lines (split on ' -> ') and record the target path."
+  }
+ ],
+ "total_cost": 0.039612164,
+ "out_dir": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/78350be5-3205-458e-8d99-dd8a5a469c1f/scratchpad/wtrows/docs/audits/parallel/pp-selectid_audit_20261124_0830_L2_entry"
+}

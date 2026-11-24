@@ -1,0 +1,3303 @@
+{
+ "schema": 1,
+ "video_id": "RsCi56hEriU",
+ "canonical_url": "https://www.youtube.com/watch?v=RsCi56hEriU",
+ "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+ "channel_name": "Natalie Brunell",
+ "exact_title": "If Bitcoin Hits This Price, the Supercycle Is Dead",
+ "published_at": "2026-11-17T14:56:39+00:00",
+ "duration": 3515,
+ "transcript_method": "whisper_words_punct",
+ "transcript_model": "faster-whisper 1.2.1 distil-large-v3 float16 batched16 lang=en word_timestamps + punctuation reference (window)",
+ "language": "en",
+ "acquired_at": "2026-11-17T15:19:35.330785+00:00",
+ "media_sha256": "1c22a612f5db9023320446ec6463aa32cef3454dc9af9b5f7337a49c570d1ac7",
+ "segments": [
+  {
+   "start": 1546.022,
+   "end": 1556.342,
+   "text": "rate yield going down and so locking in a rate that they could hold for no decades was very appealing for them Coin Stories is powered by BitGo, the leading digital asset infrastructure company."
+  },
+  {
+   "start": 1556.482,
+   "end": 1561.262,
+   "text": "BitGo now offers individuals free, insured, institutional grade custody."
+  },
+  {
+   "start": 1561.402,
+   "end": 1567.522,
+   "text": "Keep full control of your Bitcoin secured by a publicly traded, federally regulated digital asset bank."
+  },
+  {
+   "start": 1567.622,
+   "end": 1570.002,
+   "text": "Sign up for free at BitGo .com slash Natalie."
+  },
+  {
+   "start": 1570.262,
+   "end": 1573.442,
+   "text": "With all the hacks and cybersecurity scares lately, it's a reminder."
+  },
+  {
+   "start": 1573.682,
+   "end": 1576.802,
+   "text": "Protecting your Bitcoin is just as important as owning it."
+  },
+  {
+   "start": 1576.822,
+   "end": 1581.482,
+   "text": "What I like about BitKees approach is that it requires two of three separate keys to move your..."
+  },
+  {
+   "start": 1581.012,
+   "end": 1581.432,
+   "text": "Bitcoin."
+  },
+  {
+   "start": 1581.772,
+   "end": 1583.752,
+   "text": "So one compromised key isn't enough."
+  },
+  {
+   "start": 1583.912,
+   "end": 1589.112,
+   "text": "Download BitKee today and use my promo code stories to get 10 % off the second generation BitKee."
+  },
+  {
+   "start": 1589.232,
+   "end": 1590.792,
+   "text": "This episode is sponsored by BitKee."
+  },
+  {
+   "start": 1590.932,
+   "end": 1597.172,
+   "text": "If your Bitcoin can be frozen or monitored by an exchange, a custodial provider, or anyone else, it's not yours."
+  },
+  {
+   "start": 1597.592,
+   "end": 1602.692,
+   "text": "My friends at the Bitcoin Way are the experts to hold your hand and train you to be your own bank."
+  },
+  {
+   "start": 1602.812,
+   "end": 1604.232,
+   "text": "It's not rocket science."
+  },
+  {
+   "start": 1604.452,
+   "end": 1607.192,
+   "text": "Anyone can master Bitcoin self -custody with the right training."
+  },
+  {
+   "start": 1607.292,
+   "end": 1607.952,
+   "text": "So don't delay."
+  },
+  {
+   "start": 1608.112,
+   "end": 1610.132,
+   "text": "Go to the Bitcoinway .com slash Natalie."
+  },
+  {
+   "start": 1610.222,
+   "end": 1613.062,
+   "text": "to schedule a free introductory call with their team."
+  },
+  {
+   "start": 1613.282,
+   "end": 1616.522,
+   "text": "I remember my first news job I was making like 20 something thousand."
+  },
+  {
+   "start": 1616.822,
+   "end": 1619.422,
+   "text": "I didn't start putting away in my 401k when I should have."
+  },
+  {
+   "start": 1619.502,
+   "end": 1624.742,
+   "text": "What's your argument for considering even having an IRA if you're a bitconer?"
+  },
+  {
+   "start": 1625.042,
+   "end": 1625.482,
+   "text": "Taxes."
+  },
+  {
+   "start": 1625.742,
+   "end": 1630.702,
+   "text": "You're going to solve some Bitcoin and you're going to move it into dirty dollars or whatever currency survives the dollar."
+  },
+  {
+   "start": 1631.002,
+   "end": 1633.102,
+   "text": "And there'll be a taxable event for that liquidation."
+  },
+  {
+   "start": 1633.202,
+   "end": 1638.542,
+   "text": "If you do it in a Roth, you could turn $5 ,000 into a half million and you're going to take it all out entirely tax free."
+  },
+  {
+   "start": 1641.322,
+   "end": 1642.322,
+   "text": "I mean, do you feel like,"
+  }
+ ],
+ "transcript_sha256": "362900ffde0f09bd79d8980d6cb8440765c22e579cbde31d9c008b2246854fa4",
+ "words": [
+  {
+   "word": "rate",
+   "start": 1546.022,
+   "end": 1546.182
+  },
+  {
+   "word": "yield",
+   "start": 1546.182,
+   "end": 1546.542
+  },
+  {
+   "word": "going",
+   "start": 1546.542,
+   "end": 1546.822
+  },
+  {
+   "word": "down",
+   "start": 1546.822,
+   "end": 1547.182
+  },
+  {
+   "word": "and",
+   "start": 1547.182,
+   "end": 1547.362
+  },
+  {
+   "word": "so",
+   "start": 1547.362,
+   "end": 1547.462
+  },
+  {
+   "word": "locking",
+   "start": 1547.462,
+   "end": 1547.802
+  },
+  {
+   "word": "in",
+   "start": 1547.802,
+   "end": 1547.962
+  },
+  {
+   "word": "a",
+   "start": 1547.962,
+   "end": 1548.102
+  },
+  {
+   "word": "rate",
+   "start": 1548.102,
+   "end": 1548.242
+  },
+  {
+   "word": "that",
+   "start": 1548.242,
+   "end": 1548.382
+  },
+  {
+   "word": "they",
+   "start": 1548.382,
+   "end": 1548.502
+  },
+  {
+   "word": "could",
+   "start": 1548.502,
+   "end": 1548.682
+  },
+  {
+   "word": "hold",
+   "start": 1548.682,
+   "end": 1549.002
+  },
+  {
+   "word": "for",
+   "start": 1549.002,
+   "end": 1549.442
+  },
+  {
+   "word": "no",
+   "start": 1549.442,
+   "end": 1550.002
+  },
+  {
+   "word": "decades",
+   "start": 1550.002,
+   "end": 1550.402
+  },
+  {
+   "word": "was",
+   "start": 1550.402,
+   "end": 1550.622
+  },
+  {
+   "word": "very",
+   "start": 1550.622,
+   "end": 1550.842
+  },
+  {
+   "word": "appealing",
+   "start": 1550.842,
+   "end": 1551.142
+  },
+  {
+   "word": "for",
+   "start": 1551.142,
+   "end": 1551.322
+  },
+  {
+   "word": "them",
+   "start": 1551.322,
+   "end": 1551.462
+  },
+  {
+   "word": "Coin",
+   "start": 1551.662,
+   "end": 1551.942
+  },
+  {
+   "word": "Stories",
+   "start": 1551.942,
+   "end": 1552.262
+  },
+  {
+   "word": "is",
+   "start": 1552.262,
+   "end": 1552.482
+  },
+  {
+   "word": "powered",
+   "start": 1552.482,
+   "end": 1552.802
+  },
+  {
+   "word": "by",
+   "start": 1552.802,
+   "end": 1553.042
+  },
+  {
+   "word": "BitGo,",
+   "start": 1553.042,
+   "end": 1553.522
+  },
+  {
+   "word": "the",
+   "start": 1553.782,
+   "end": 1553.802
+  },
+  {
+   "word": "leading",
+   "start": 1553.802,
+   "end": 1554.182
+  },
+  {
+   "word": "digital",
+   "start": 1554.182,
+   "end": 1554.682
+  },
+  {
+   "word": "asset",
+   "start": 1554.682,
+   "end": 1555.122
+  },
+  {
+   "word": "infrastructure",
+   "start": 1555.122,
+   "end": 1555.782
+  },
+  {
+   "word": "company.",
+   "start": 1555.782,
+   "end": 1556.342
+  },
+  {
+   "word": "BitGo",
+   "start": 1556.482,
+   "end": 1556.742
+  },
+  {
+   "word": "now",
+   "start": 1556.742,
+   "end": 1557.022
+  },
+  {
+   "word": "offers",
+   "start": 1557.022,
+   "end": 1557.442
+  },
+  {
+   "word": "individuals",
+   "start": 1557.442,
+   "end": 1558.262
+  },
+  {
+   "word": "free,",
+   "start": 1558.262,
+   "end": 1558.762
+  },
+  {
+   "word": "insured,",
+   "start": 1559.142,
+   "end": 1559.422
+  },
+  {
+   "word": "institutional",
+   "start": 1560.342,
+   "end": 1560.342
+  },
+  {
+   "word": "grade",
+   "start": 1560.342,
+   "end": 1560.762
+  },
+  {
+   "word": "custody.",
+   "start": 1560.762,
+   "end": 1561.262
+  },
+  {
+   "word": "Keep",
+   "start": 1561.402,
+   "end": 1561.542
+  },
+  {
+   "word": "full",
+   "start": 1561.542,
+   "end": 1561.862
+  },
+  {
+   "word": "control",
+   "start": 1561.862,
+   "end": 1562.282
+  },
+  {
+   "word": "of",
+   "start": 1562.282,
+   "end": 1562.502
+  },
+  {
+   "word": "your",
+   "start": 1562.502,
+   "end": 1562.582
+  },
+  {
+   "word": "Bitcoin",
+   "start": 1562.582,
+   "end": 1562.982
+  },
+  {
+   "word": "secured",
+   "start": 1562.982,
+   "end": 1563.462
+  },
+  {
+   "word": "by",
+   "start": 1563.462,
+   "end": 1563.742
+  },
+  {
+   "word": "a",
+   "start": 1563.742,
+   "end": 1563.922
+  },
+  {
+   "word": "publicly",
+   "start": 1563.922,
+   "end": 1564.282
+  },
+  {
+   "word": "traded,",
+   "start": 1564.282,
+   "end": 1564.762
+  },
+  {
+   "word": "federally",
+   "start": 1565.222,
+   "end": 1565.622
+  },
+  {
+   "word": "regulated",
+   "start": 1565.622,
+   "end": 1566.102
+  },
+  {
+   "word": "digital",
+   "start": 1566.102,
+   "end": 1566.722
+  },
+  {
+   "word": "asset",
+   "start": 1566.722,
+   "end": 1567.162
+  },
+  {
+   "word": "bank.",
+   "start": 1567.162,
+   "end": 1567.522
+  },
+  {
+   "word": "Sign",
+   "start": 1567.622,
+   "end": 1567.782
+  },
+  {
+   "word": "up",
+   "start": 1567.782,
+   "end": 1567.922
+  },
+  {
+   "word": "for",
+   "start": 1567.922,
+   "end": 1568.042
+  },
+  {
+   "word": "free",
+   "start": 1568.042,
+   "end": 1568.282
+  },
+  {
+   "word": "at",
+   "start": 1568.282,
+   "end": 1568.522
+  },
+  {
+   "word": "BitGo",
+   "start": 1568.522,
+   "end": 1568.882
+  },
+  {
+   "word": ".com",
+   "start": 1568.882,
+   "end": 1569.282
+  },
+  {
+   "word": "slash",
+   "start": 1569.282,
+   "end": 1569.662
+  },
+  {
+   "word": "Natalie.",
+   "start": 1569.662,
+   "end": 1570.002
+  },
+  {
+   "word": "With",
+   "start": 1570.262,
+   "end": 1570.462
+  },
+  {
+   "word": "all",
+   "start": 1570.462,
+   "end": 1570.602
+  },
+  {
+   "word": "the",
+   "start": 1570.602,
+   "end": 1570.762
+  },
+  {
+   "word": "hacks",
+   "start": 1570.762,
+   "end": 1571.102
+  },
+  {
+   "word": "and",
+   "start": 1571.102,
+   "end": 1571.322
+  },
+  {
+   "word": "cybersecurity",
+   "start": 1571.322,
+   "end": 1571.882
+  },
+  {
+   "word": "scares",
+   "start": 1571.882,
+   "end": 1572.382
+  },
+  {
+   "word": "lately,",
+   "start": 1572.382,
+   "end": 1572.702
+  },
+  {
+   "word": "it's",
+   "start": 1572.882,
+   "end": 1572.962
+  },
+  {
+   "word": "a",
+   "start": 1572.962,
+   "end": 1573.042
+  },
+  {
+   "word": "reminder.",
+   "start": 1573.042,
+   "end": 1573.442
+  },
+  {
+   "word": "Protecting",
+   "start": 1573.682,
+   "end": 1574.102
+  },
+  {
+   "word": "your",
+   "start": 1574.102,
+   "end": 1574.222
+  },
+  {
+   "word": "Bitcoin",
+   "start": 1574.222,
+   "end": 1574.582
+  },
+  {
+   "word": "is",
+   "start": 1574.582,
+   "end": 1574.942
+  },
+  {
+   "word": "just",
+   "start": 1574.942,
+   "end": 1575.242
+  },
+  {
+   "word": "as",
+   "start": 1575.242,
+   "end": 1575.482
+  },
+  {
+   "word": "important",
+   "start": 1575.482,
+   "end": 1575.942
+  },
+  {
+   "word": "as",
+   "start": 1575.942,
+   "end": 1576.302
+  },
+  {
+   "word": "owning",
+   "start": 1576.302,
+   "end": 1576.602
+  },
+  {
+   "word": "it.",
+   "start": 1576.602,
+   "end": 1576.802
+  },
+  {
+   "word": "What",
+   "start": 1576.822,
+   "end": 1576.922
+  },
+  {
+   "word": "I",
+   "start": 1576.922,
+   "end": 1577.002
+  },
+  {
+   "word": "like",
+   "start": 1577.002,
+   "end": 1577.182
+  },
+  {
+   "word": "about",
+   "start": 1577.182,
+   "end": 1577.382
+  },
+  {
+   "word": "BitKees",
+   "start": 1577.382,
+   "end": 1577.822
+  },
+  {
+   "word": "approach",
+   "start": 1577.822,
+   "end": 1578.182
+  },
+  {
+   "word": "is",
+   "start": 1578.182,
+   "end": 1578.402
+  },
+  {
+   "word": "that",
+   "start": 1578.402,
+   "end": 1578.562
+  },
+  {
+   "word": "it",
+   "start": 1578.562,
+   "end": 1578.662
+  },
+  {
+   "word": "requires",
+   "start": 1578.662,
+   "end": 1579.082
+  },
+  {
+   "word": "two",
+   "start": 1579.082,
+   "end": 1579.482
+  },
+  {
+   "word": "of",
+   "start": 1579.482,
+   "end": 1579.662
+  },
+  {
+   "word": "three",
+   "start": 1579.662,
+   "end": 1579.922
+  },
+  {
+   "word": "separate",
+   "start": 1579.922,
+   "end": 1580.322
+  },
+  {
+   "word": "keys",
+   "start": 1580.322,
+   "end": 1580.622
+  },
+  {
+   "word": "to",
+   "start": 1580.622,
+   "end": 1580.762
+  },
+  {
+   "word": "move",
+   "start": 1580.762,
+   "end": 1580.942
+  },
+  {
+   "word": "your...",
+   "start": 1580.942,
+   "end": 1581.482
+  },
+  {
+   "word": "Bitcoin.",
+   "start": 1581.012,
+   "end": 1581.432
+  },
+  {
+   "word": "So",
+   "start": 1581.772,
+   "end": 1581.772
+  },
+  {
+   "word": "one",
+   "start": 1581.772,
+   "end": 1582.152
+  },
+  {
+   "word": "compromised",
+   "start": 1582.152,
+   "end": 1582.612
+  },
+  {
+   "word": "key",
+   "start": 1582.612,
+   "end": 1582.992
+  },
+  {
+   "word": "isn't",
+   "start": 1582.992,
+   "end": 1583.412
+  },
+  {
+   "word": "enough.",
+   "start": 1583.412,
+   "end": 1583.752
+  },
+  {
+   "word": "Download",
+   "start": 1583.912,
+   "end": 1584.152
+  },
+  {
+   "word": "BitKee",
+   "start": 1584.152,
+   "end": 1584.532
+  },
+  {
+   "word": "today",
+   "start": 1584.532,
+   "end": 1584.772
+  },
+  {
+   "word": "and",
+   "start": 1584.772,
+   "end": 1585.112
+  },
+  {
+   "word": "use",
+   "start": 1585.112,
+   "end": 1585.332
+  },
+  {
+   "word": "my",
+   "start": 1585.332,
+   "end": 1585.472
+  },
+  {
+   "word": "promo",
+   "start": 1585.472,
+   "end": 1585.752
+  },
+  {
+   "word": "code",
+   "start": 1585.752,
+   "end": 1586.032
+  },
+  {
+   "word": "stories",
+   "start": 1586.032,
+   "end": 1586.492
+  },
+  {
+   "word": "to",
+   "start": 1586.492,
+   "end": 1586.832
+  },
+  {
+   "word": "get",
+   "start": 1586.832,
+   "end": 1586.972
+  },
+  {
+   "word": "10",
+   "start": 1586.972,
+   "end": 1587.232
+  },
+  {
+   "word": "%",
+   "start": 1587.232,
+   "end": 1587.492
+  },
+  {
+   "word": "off",
+   "start": 1587.492,
+   "end": 1587.732
+  },
+  {
+   "word": "the",
+   "start": 1587.732,
+   "end": 1587.912
+  },
+  {
+   "word": "second",
+   "start": 1587.912,
+   "end": 1588.172
+  },
+  {
+   "word": "generation",
+   "start": 1588.172,
+   "end": 1588.692
+  },
+  {
+   "word": "BitKee.",
+   "start": 1588.692,
+   "end": 1589.112
+  },
+  {
+   "word": "This",
+   "start": 1589.232,
+   "end": 1589.372
+  },
+  {
+   "word": "episode",
+   "start": 1589.372,
+   "end": 1589.692
+  },
+  {
+   "word": "is",
+   "start": 1589.692,
+   "end": 1589.872
+  },
+  {
+   "word": "sponsored",
+   "start": 1589.872,
+   "end": 1590.232
+  },
+  {
+   "word": "by",
+   "start": 1590.232,
+   "end": 1590.412
+  },
+  {
+   "word": "BitKee.",
+   "start": 1590.412,
+   "end": 1590.792
+  },
+  {
+   "word": "If",
+   "start": 1590.932,
+   "end": 1591.132
+  },
+  {
+   "word": "your",
+   "start": 1591.132,
+   "end": 1591.252
+  },
+  {
+   "word": "Bitcoin",
+   "start": 1591.252,
+   "end": 1591.652
+  },
+  {
+   "word": "can",
+   "start": 1591.652,
+   "end": 1591.892
+  },
+  {
+   "word": "be",
+   "start": 1591.892,
+   "end": 1592.032
+  },
+  {
+   "word": "frozen",
+   "start": 1592.032,
+   "end": 1592.492
+  },
+  {
+   "word": "or",
+   "start": 1592.492,
+   "end": 1592.872
+  },
+  {
+   "word": "monitored",
+   "start": 1592.872,
+   "end": 1593.332
+  },
+  {
+   "word": "by",
+   "start": 1593.332,
+   "end": 1593.592
+  },
+  {
+   "word": "an",
+   "start": 1593.592,
+   "end": 1593.732
+  },
+  {
+   "word": "exchange,",
+   "start": 1593.732,
+   "end": 1594.192
+  },
+  {
+   "word": "a",
+   "start": 1594.412,
+   "end": 1594.452
+  },
+  {
+   "word": "custodial",
+   "start": 1594.452,
+   "end": 1594.872
+  },
+  {
+   "word": "provider,",
+   "start": 1594.872,
+   "end": 1595.312
+  },
+  {
+   "word": "or",
+   "start": 1595.632,
+   "end": 1595.672
+  },
+  {
+   "word": "anyone",
+   "start": 1595.672,
+   "end": 1595.972
+  },
+  {
+   "word": "else,",
+   "start": 1595.972,
+   "end": 1596.312
+  },
+  {
+   "word": "it's",
+   "start": 1596.492,
+   "end": 1596.632
+  },
+  {
+   "word": "not",
+   "start": 1596.632,
+   "end": 1596.832
+  },
+  {
+   "word": "yours.",
+   "start": 1596.832,
+   "end": 1597.172
+  },
+  {
+   "word": "My",
+   "start": 1597.592,
+   "end": 1597.732
+  },
+  {
+   "word": "friends",
+   "start": 1597.732,
+   "end": 1597.952
+  },
+  {
+   "word": "at",
+   "start": 1597.952,
+   "end": 1598.072
+  },
+  {
+   "word": "the",
+   "start": 1598.072,
+   "end": 1598.152
+  },
+  {
+   "word": "Bitcoin",
+   "start": 1598.152,
+   "end": 1598.432
+  },
+  {
+   "word": "Way",
+   "start": 1598.432,
+   "end": 1598.692
+  },
+  {
+   "word": "are",
+   "start": 1598.692,
+   "end": 1598.932
+  },
+  {
+   "word": "the",
+   "start": 1598.932,
+   "end": 1599.192
+  },
+  {
+   "word": "experts",
+   "start": 1599.192,
+   "end": 1599.752
+  },
+  {
+   "word": "to",
+   "start": 1599.752,
+   "end": 1599.952
+  },
+  {
+   "word": "hold",
+   "start": 1599.952,
+   "end": 1600.252
+  },
+  {
+   "word": "your",
+   "start": 1600.252,
+   "end": 1600.372
+  },
+  {
+   "word": "hand",
+   "start": 1600.372,
+   "end": 1600.732
+  },
+  {
+   "word": "and",
+   "start": 1600.732,
+   "end": 1601.012
+  },
+  {
+   "word": "train",
+   "start": 1601.012,
+   "end": 1601.312
+  },
+  {
+   "word": "you",
+   "start": 1601.312,
+   "end": 1601.452
+  },
+  {
+   "word": "to",
+   "start": 1601.452,
+   "end": 1601.532
+  },
+  {
+   "word": "be",
+   "start": 1601.532,
+   "end": 1601.672
+  },
+  {
+   "word": "your",
+   "start": 1601.672,
+   "end": 1601.852
+  },
+  {
+   "word": "own",
+   "start": 1601.852,
+   "end": 1602.172
+  },
+  {
+   "word": "bank.",
+   "start": 1602.172,
+   "end": 1602.692
+  },
+  {
+   "word": "It's",
+   "start": 1602.812,
+   "end": 1603.212
+  },
+  {
+   "word": "not",
+   "start": 1603.212,
+   "end": 1603.372
+  },
+  {
+   "word": "rocket",
+   "start": 1603.372,
+   "end": 1603.672
+  },
+  {
+   "word": "science.",
+   "start": 1603.672,
+   "end": 1604.232
+  },
+  {
+   "word": "Anyone",
+   "start": 1604.452,
+   "end": 1604.692
+  },
+  {
+   "word": "can",
+   "start": 1604.692,
+   "end": 1604.912
+  },
+  {
+   "word": "master",
+   "start": 1604.912,
+   "end": 1605.232
+  },
+  {
+   "word": "Bitcoin",
+   "start": 1605.232,
+   "end": 1605.612
+  },
+  {
+   "word": "self",
+   "start": 1605.612,
+   "end": 1605.812
+  },
+  {
+   "word": "-custody",
+   "start": 1605.812,
+   "end": 1606.252
+  },
+  {
+   "word": "with",
+   "start": 1606.252,
+   "end": 1606.432
+  },
+  {
+   "word": "the",
+   "start": 1606.432,
+   "end": 1606.572
+  },
+  {
+   "word": "right",
+   "start": 1606.572,
+   "end": 1606.792
+  },
+  {
+   "word": "training.",
+   "start": 1606.792,
+   "end": 1607.192
+  },
+  {
+   "word": "So",
+   "start": 1607.292,
+   "end": 1607.492
+  },
+  {
+   "word": "don't",
+   "start": 1607.492,
+   "end": 1607.692
+  },
+  {
+   "word": "delay.",
+   "start": 1607.692,
+   "end": 1607.952
+  },
+  {
+   "word": "Go",
+   "start": 1608.112,
+   "end": 1608.292
+  },
+  {
+   "word": "to",
+   "start": 1608.292,
+   "end": 1608.392
+  },
+  {
+   "word": "the",
+   "start": 1608.392,
+   "end": 1608.492
+  },
+  {
+   "word": "Bitcoinway",
+   "start": 1608.492,
+   "end": 1609.072
+  },
+  {
+   "word": ".com",
+   "start": 1609.072,
+   "end": 1609.412
+  },
+  {
+   "word": "slash",
+   "start": 1609.412,
+   "end": 1609.812
+  },
+  {
+   "word": "Natalie.",
+   "start": 1609.812,
+   "end": 1610.132
+  },
+  {
+   "word": "to",
+   "start": 1610.222,
+   "end": 1610.582
+  },
+  {
+   "word": "schedule",
+   "start": 1610.582,
+   "end": 1610.902
+  },
+  {
+   "word": "a",
+   "start": 1610.902,
+   "end": 1611.122
+  },
+  {
+   "word": "free",
+   "start": 1611.122,
+   "end": 1611.402
+  },
+  {
+   "word": "introductory",
+   "start": 1611.402,
+   "end": 1612.002
+  },
+  {
+   "word": "call",
+   "start": 1612.002,
+   "end": 1612.402
+  },
+  {
+   "word": "with",
+   "start": 1612.402,
+   "end": 1612.622
+  },
+  {
+   "word": "their",
+   "start": 1612.622,
+   "end": 1612.762
+  },
+  {
+   "word": "team.",
+   "start": 1612.762,
+   "end": 1613.062
+  },
+  {
+   "word": "I",
+   "start": 1613.282,
+   "end": 1613.422
+  },
+  {
+   "word": "remember",
+   "start": 1613.422,
+   "end": 1613.782
+  },
+  {
+   "word": "my",
+   "start": 1613.782,
+   "end": 1614.002
+  },
+  {
+   "word": "first",
+   "start": 1614.002,
+   "end": 1614.282
+  },
+  {
+   "word": "news",
+   "start": 1614.282,
+   "end": 1614.522
+  },
+  {
+   "word": "job",
+   "start": 1614.522,
+   "end": 1614.782
+  },
+  {
+   "word": "I",
+   "start": 1614.782,
+   "end": 1614.922
+  },
+  {
+   "word": "was",
+   "start": 1614.922,
+   "end": 1615.042
+  },
+  {
+   "word": "making",
+   "start": 1615.042,
+   "end": 1615.262
+  },
+  {
+   "word": "like",
+   "start": 1615.262,
+   "end": 1615.522
+  },
+  {
+   "word": "20",
+   "start": 1615.522,
+   "end": 1615.822
+  },
+  {
+   "word": "something",
+   "start": 1615.822,
+   "end": 1616.062
+  },
+  {
+   "word": "thousand.",
+   "start": 1616.062,
+   "end": 1616.522
+  },
+  {
+   "word": "I",
+   "start": 1616.822,
+   "end": 1616.862
+  },
+  {
+   "word": "didn't",
+   "start": 1616.862,
+   "end": 1617.242
+  },
+  {
+   "word": "start",
+   "start": 1617.242,
+   "end": 1617.422
+  },
+  {
+   "word": "putting",
+   "start": 1617.422,
+   "end": 1617.642
+  },
+  {
+   "word": "away",
+   "start": 1617.642,
+   "end": 1617.902
+  },
+  {
+   "word": "in",
+   "start": 1617.902,
+   "end": 1618.002
+  },
+  {
+   "word": "my",
+   "start": 1618.002,
+   "end": 1618.182
+  },
+  {
+   "word": "401k",
+   "start": 1618.182,
+   "end": 1618.722
+  },
+  {
+   "word": "when",
+   "start": 1618.722,
+   "end": 1618.842
+  },
+  {
+   "word": "I",
+   "start": 1618.842,
+   "end": 1618.982
+  },
+  {
+   "word": "should",
+   "start": 1618.982,
+   "end": 1619.182
+  },
+  {
+   "word": "have.",
+   "start": 1619.182,
+   "end": 1619.422
+  },
+  {
+   "word": "What's",
+   "start": 1619.502,
+   "end": 1619.742
+  },
+  {
+   "word": "your",
+   "start": 1619.742,
+   "end": 1619.882
+  },
+  {
+   "word": "argument",
+   "start": 1619.882,
+   "end": 1620.402
+  },
+  {
+   "word": "for",
+   "start": 1620.402,
+   "end": 1620.822
+  },
+  {
+   "word": "considering",
+   "start": 1620.822,
+   "end": 1621.562
+  },
+  {
+   "word": "even",
+   "start": 1621.562,
+   "end": 1622.122
+  },
+  {
+   "word": "having",
+   "start": 1622.122,
+   "end": 1623.002
+  },
+  {
+   "word": "an",
+   "start": 1623.002,
+   "end": 1623.222
+  },
+  {
+   "word": "IRA",
+   "start": 1623.222,
+   "end": 1623.682
+  },
+  {
+   "word": "if",
+   "start": 1623.682,
+   "end": 1624.062
+  },
+  {
+   "word": "you're",
+   "start": 1624.062,
+   "end": 1624.182
+  },
+  {
+   "word": "a",
+   "start": 1624.182,
+   "end": 1624.262
+  },
+  {
+   "word": "bitconer?",
+   "start": 1624.262,
+   "end": 1624.742
+  },
+  {
+   "word": "Taxes.",
+   "start": 1625.042,
+   "end": 1625.482
+  },
+  {
+   "word": "You're",
+   "start": 1625.742,
+   "end": 1625.922
+  },
+  {
+   "word": "going",
+   "start": 1625.922,
+   "end": 1625.962
+  },
+  {
+   "word": "to",
+   "start": 1625.962,
+   "end": 1626.042
+  },
+  {
+   "word": "solve",
+   "start": 1626.042,
+   "end": 1626.222
+  },
+  {
+   "word": "some",
+   "start": 1626.222,
+   "end": 1626.382
+  },
+  {
+   "word": "Bitcoin",
+   "start": 1626.382,
+   "end": 1626.782
+  },
+  {
+   "word": "and",
+   "start": 1626.782,
+   "end": 1627.102
+  },
+  {
+   "word": "you're",
+   "start": 1627.102,
+   "end": 1627.202
+  },
+  {
+   "word": "going",
+   "start": 1627.202,
+   "end": 1627.262
+  },
+  {
+   "word": "to",
+   "start": 1627.262,
+   "end": 1627.302
+  },
+  {
+   "word": "move",
+   "start": 1627.302,
+   "end": 1627.462
+  },
+  {
+   "word": "it",
+   "start": 1627.462,
+   "end": 1627.562
+  },
+  {
+   "word": "into",
+   "start": 1627.562,
+   "end": 1627.782
+  },
+  {
+   "word": "dirty",
+   "start": 1627.782,
+   "end": 1628.182
+  },
+  {
+   "word": "dollars",
+   "start": 1628.182,
+   "end": 1628.522
+  },
+  {
+   "word": "or",
+   "start": 1628.522,
+   "end": 1628.642
+  },
+  {
+   "word": "whatever",
+   "start": 1628.642,
+   "end": 1628.882
+  },
+  {
+   "word": "currency",
+   "start": 1628.882,
+   "end": 1629.382
+  },
+  {
+   "word": "survives",
+   "start": 1629.382,
+   "end": 1630.242
+  },
+  {
+   "word": "the",
+   "start": 1630.242,
+   "end": 1630.462
+  },
+  {
+   "word": "dollar.",
+   "start": 1630.462,
+   "end": 1630.702
+  },
+  {
+   "word": "And",
+   "start": 1631.002,
+   "end": 1631.102
+  },
+  {
+   "word": "there'll",
+   "start": 1631.102,
+   "end": 1631.302
+  },
+  {
+   "word": "be",
+   "start": 1631.302,
+   "end": 1631.402
+  },
+  {
+   "word": "a",
+   "start": 1631.402,
+   "end": 1631.562
+  },
+  {
+   "word": "taxable",
+   "start": 1631.562,
+   "end": 1631.962
+  },
+  {
+   "word": "event",
+   "start": 1631.962,
+   "end": 1632.222
+  },
+  {
+   "word": "for",
+   "start": 1632.222,
+   "end": 1632.382
+  },
+  {
+   "word": "that",
+   "start": 1632.382,
+   "end": 1632.522
+  },
+  {
+   "word": "liquidation.",
+   "start": 1632.522,
+   "end": 1633.102
+  },
+  {
+   "word": "If",
+   "start": 1633.202,
+   "end": 1633.362
+  },
+  {
+   "word": "you",
+   "start": 1633.362,
+   "end": 1633.402
+  },
+  {
+   "word": "do",
+   "start": 1633.402,
+   "end": 1633.542
+  },
+  {
+   "word": "it",
+   "start": 1633.542,
+   "end": 1633.662
+  },
+  {
+   "word": "in",
+   "start": 1633.662,
+   "end": 1633.722
+  },
+  {
+   "word": "a",
+   "start": 1633.722,
+   "end": 1633.862
+  },
+  {
+   "word": "Roth,",
+   "start": 1633.862,
+   "end": 1634.142
+  },
+  {
+   "word": "you",
+   "start": 1634.402,
+   "end": 1634.442
+  },
+  {
+   "word": "could",
+   "start": 1634.442,
+   "end": 1634.542
+  },
+  {
+   "word": "turn",
+   "start": 1634.542,
+   "end": 1634.722
+  },
+  {
+   "word": "$5",
+   "start": 1634.722,
+   "end": 1635.022
+  },
+  {
+   "word": ",000",
+   "start": 1635.022,
+   "end": 1635.362
+  },
+  {
+   "word": "into",
+   "start": 1635.362,
+   "end": 1635.742
+  },
+  {
+   "word": "a",
+   "start": 1635.742,
+   "end": 1635.882
+  },
+  {
+   "word": "half",
+   "start": 1635.882,
+   "end": 1636.042
+  },
+  {
+   "word": "million",
+   "start": 1636.042,
+   "end": 1636.342
+  },
+  {
+   "word": "and",
+   "start": 1636.342,
+   "end": 1636.562
+  },
+  {
+   "word": "you're",
+   "start": 1636.562,
+   "end": 1636.702
+  },
+  {
+   "word": "going",
+   "start": 1636.702,
+   "end": 1636.722
+  },
+  {
+   "word": "to",
+   "start": 1636.722,
+   "end": 1636.782
+  },
+  {
+   "word": "take",
+   "start": 1636.782,
+   "end": 1636.902
+  },
+  {
+   "word": "it",
+   "start": 1636.902,
+   "end": 1637.002
+  },
+  {
+   "word": "all",
+   "start": 1637.002,
+   "end": 1637.202
+  },
+  {
+   "word": "out",
+   "start": 1637.202,
+   "end": 1637.402
+  },
+  {
+   "word": "entirely",
+   "start": 1637.402,
+   "end": 1637.882
+  },
+  {
+   "word": "tax",
+   "start": 1637.882,
+   "end": 1638.242
+  },
+  {
+   "word": "free.",
+   "start": 1638.242,
+   "end": 1638.542
+  },
+  {
+   "word": "I",
+   "start": 1641.322,
+   "end": 1641.762
+  },
+  {
+   "word": "mean,",
+   "start": 1641.762,
+   "end": 1641.862
+  },
+  {
+   "word": "do",
+   "start": 1641.962,
+   "end": 1642.002
+  },
+  {
+   "word": "you",
+   "start": 1642.002,
+   "end": 1642.062
+  },
+  {
+   "word": "feel",
+   "start": 1642.062,
+   "end": 1642.242
+  },
+  {
+   "word": "like,",
+   "start": 1642.242,
+   "end": 1642.322
+  }
+ ],
+ "verbatim_words": [
+  {
+   "word": "rate",
+   "start": 1546.022,
+   "end": 1546.182
+  },
+  {
+   "word": "yield",
+   "start": 1546.182,
+   "end": 1546.542
+  },
+  {
+   "word": "going",
+   "start": 1546.542,
+   "end": 1546.822
+  },
+  {
+   "word": "down",
+   "start": 1546.822,
+   "end": 1547.182
+  },
+  {
+   "word": "and",
+   "start": 1547.182,
+   "end": 1547.362
+  },
+  {
+   "word": "so",
+   "start": 1547.362,
+   "end": 1547.462
+  },
+  {
+   "word": "locking",
+   "start": 1547.462,
+   "end": 1547.802
+  },
+  {
+   "word": "in",
+   "start": 1547.802,
+   "end": 1547.962
+  },
+  {
+   "word": "a",
+   "start": 1547.962,
+   "end": 1548.102
+  },
+  {
+   "word": "rate",
+   "start": 1548.102,
+   "end": 1548.242
+  },
+  {
+   "word": "that",
+   "start": 1548.242,
+   "end": 1548.382
+  },
+  {
+   "word": "they",
+   "start": 1548.382,
+   "end": 1548.502
+  },
+  {
+   "word": "could",
+   "start": 1548.502,
+   "end": 1548.682
+  },
+  {
+   "word": "hold",
+   "start": 1548.682,
+   "end": 1549.002
+  },
+  {
+   "word": "for",
+   "start": 1549.002,
+   "end": 1549.442
+  },
+  {
+   "word": "no",
+   "start": 1549.442,
+   "end": 1550.002
+  },
+  {
+   "word": "decades",
+   "start": 1550.002,
+   "end": 1550.402
+  },
+  {
+   "word": "was",
+   "start": 1550.402,
+   "end": 1550.622
+  },
+  {
+   "word": "very",
+   "start": 1550.622,
+   "end": 1550.842
+  },
+  {
+   "word": "appealing",
+   "start": 1550.842,
+   "end": 1551.142
+  },
+  {
+   "word": "for",
+   "start": 1551.142,
+   "end": 1551.322
+  },
+  {
+   "word": "them",
+   "start": 1551.322,
+   "end": 1551.462
+  },
+  {
+   "word": "Coin",
+   "start": 1551.662,
+   "end": 1551.942
+  },
+  {
+   "word": "Stories",
+   "start": 1551.942,
+   "end": 1552.262
+  },
+  {
+   "word": "is",
+   "start": 1552.262,
+   "end": 1552.482
+  },
+  {
+   "word": "powered",
+   "start": 1552.482,
+   "end": 1552.802
+  },
+  {
+   "word": "by",
+   "start": 1552.802,
+   "end": 1553.042
+  },
+  {
+   "word": "BitGo,",
+   "start": 1553.042,
+   "end": 1553.522
+  },
+  {
+   "word": "the",
+   "start": 1553.782,
+   "end": 1553.802
+  },
+  {
+   "word": "leading",
+   "start": 1553.802,
+   "end": 1554.182
+  },
+  {
+   "word": "digital",
+   "start": 1554.182,
+   "end": 1554.682
+  },
+  {
+   "word": "asset",
+   "start": 1554.682,
+   "end": 1555.122
+  },
+  {
+   "word": "infrastructure",
+   "start": 1555.122,
+   "end": 1555.782
+  },
+  {
+   "word": "company.",
+   "start": 1555.782,
+   "end": 1556.342
+  },
+  {
+   "word": "BitGo",
+   "start": 1556.482,
+   "end": 1556.742
+  },
+  {
+   "word": "now",
+   "start": 1556.742,
+   "end": 1557.022
+  },
+  {
+   "word": "offers",
+   "start": 1557.022,
+   "end": 1557.442
+  },
+  {
+   "word": "individuals",
+   "start": 1557.442,
+   "end": 1558.262
+  },
+  {
+   "word": "free,",
+   "start": 1558.262,
+   "end": 1558.762
+  },
+  {
+   "word": "insured,",
+   "start": 1559.142,
+   "end": 1559.422
+  },
+  {
+   "word": "institutional",
+   "start": 1560.342,
+   "end": 1560.342
+  },
+  {
+   "word": "grade",
+   "start": 1560.342,
+   "end": 1560.762
+  },
+  {
+   "word": "custody.",
+   "start": 1560.762,
+   "end": 1561.262
+  },
+  {
+   "word": "Keep",
+   "start": 1561.402,
+   "end": 1561.542
+  },
+  {
+   "word": "full",
+   "start": 1561.542,
+   "end": 1561.862
+  },
+  {
+   "word": "control",
+   "start": 1561.862,
+   "end": 1562.282
+  },
+  {
+   "word": "of",
+   "start": 1562.282,
+   "end": 1562.502
+  },
+  {
+   "word": "your",
+   "start": 1562.502,
+   "end": 1562.582
+  },
+  {
+   "word": "Bitcoin",
+   "start": 1562.582,
+   "end": 1562.982
+  },
+  {
+   "word": "secured",
+   "start": 1562.982,
+   "end": 1563.462
+  },
+  {
+   "word": "by",
+   "start": 1563.462,
+   "end": 1563.742
+  },
+  {
+   "word": "a",
+   "start": 1563.742,
+   "end": 1563.922
+  },
+  {
+   "word": "publicly",
+   "start": 1563.922,
+   "end": 1564.282
+  },
+  {
+   "word": "traded,",
+   "start": 1564.282,
+   "end": 1564.762
+  },
+  {
+   "word": "federally",
+   "start": 1565.222,
+   "end": 1565.622
+  },
+  {
+   "word": "regulated",
+   "start": 1565.622,
+   "end": 1566.102
+  },
+  {
+   "word": "digital",
+   "start": 1566.102,
+   "end": 1566.722
+  },
+  {
+   "word": "asset",
+   "start": 1566.722,
+   "end": 1567.162
+  },
+  {
+   "word": "bank.",
+   "start": 1567.162,
+   "end": 1567.522
+  },
+  {
+   "word": "Sign",
+   "start": 1567.622,
+   "end": 1567.782
+  },
+  {
+   "word": "up",
+   "start": 1567.782,
+   "end": 1567.922
+  },
+  {
+   "word": "for",
+   "start": 1567.922,
+   "end": 1568.042
+  },
+  {
+   "word": "free",
+   "start": 1568.042,
+   "end": 1568.282
+  },
+  {
+   "word": "at",
+   "start": 1568.282,
+   "end": 1568.522
+  },
+  {
+   "word": "BitGo",
+   "start": 1568.522,
+   "end": 1568.882
+  },
+  {
+   "word": ".com",
+   "start": 1568.882,
+   "end": 1569.282
+  },
+  {
+   "word": "slash",
+   "start": 1569.282,
+   "end": 1569.662
+  },
+  {
+   "word": "Natalie.",
+   "start": 1569.662,
+   "end": 1570.002
+  },
+  {
+   "word": "With",
+   "start": 1570.262,
+   "end": 1570.462
+  },
+  {
+   "word": "all",
+   "start": 1570.462,
+   "end": 1570.602
+  },
+  {
+   "word": "the",
+   "start": 1570.602,
+   "end": 1570.762
+  },
+  {
+   "word": "hacks",
+   "start": 1570.762,
+   "end": 1571.102
+  },
+  {
+   "word": "and",
+   "start": 1571.102,
+   "end": 1571.322
+  },
+  {
+   "word": "cybersecurity",
+   "start": 1571.322,
+   "end": 1571.882
+  },
+  {
+   "word": "scares",
+   "start": 1571.882,
+   "end": 1572.382
+  },
+  {
+   "word": "lately,",
+   "start": 1572.382,
+   "end": 1572.702
+  },
+  {
+   "word": "it's",
+   "start": 1572.882,
+   "end": 1572.962
+  },
+  {
+   "word": "a",
+   "start": 1572.962,
+   "end": 1573.042
+  },
+  {
+   "word": "reminder.",
+   "start": 1573.042,
+   "end": 1573.442
+  },
+  {
+   "word": "Protecting",
+   "start": 1573.682,
+   "end": 1574.102
+  },
+  {
+   "word": "your",
+   "start": 1574.102,
+   "end": 1574.222
+  },
+  {
+   "word": "Bitcoin",
+   "start": 1574.222,
+   "end": 1574.582
+  },
+  {
+   "word": "is",
+   "start": 1574.582,
+   "end": 1574.942
+  },
+  {
+   "word": "just",
+   "start": 1574.942,
+   "end": 1575.242
+  },
+  {
+   "word": "as",
+   "start": 1575.242,
+   "end": 1575.482
+  },
+  {
+   "word": "important",
+   "start": 1575.482,
+   "end": 1575.942
+  },
+  {
+   "word": "as",
+   "start": 1575.942,
+   "end": 1576.302
+  },
+  {
+   "word": "owning",
+   "start": 1576.302,
+   "end": 1576.602
+  },
+  {
+   "word": "it.",
+   "start": 1576.602,
+   "end": 1576.802
+  },
+  {
+   "word": "What",
+   "start": 1576.822,
+   "end": 1576.922
+  },
+  {
+   "word": "I",
+   "start": 1576.922,
+   "end": 1577.002
+  },
+  {
+   "word": "like",
+   "start": 1577.002,
+   "end": 1577.182
+  },
+  {
+   "word": "about",
+   "start": 1577.182,
+   "end": 1577.382
+  },
+  {
+   "word": "BitKees",
+   "start": 1577.382,
+   "end": 1577.822
+  },
+  {
+   "word": "approach",
+   "start": 1577.822,
+   "end": 1578.182
+  },
+  {
+   "word": "is",
+   "start": 1578.182,
+   "end": 1578.402
+  },
+  {
+   "word": "that",
+   "start": 1578.402,
+   "end": 1578.562
+  },
+  {
+   "word": "it",
+   "start": 1578.562,
+   "end": 1578.662
+  },
+  {
+   "word": "requires",
+   "start": 1578.662,
+   "end": 1579.082
+  },
+  {
+   "word": "two",
+   "start": 1579.082,
+   "end": 1579.482
+  },
+  {
+   "word": "of",
+   "start": 1579.482,
+   "end": 1579.662
+  },
+  {
+   "word": "three",
+   "start": 1579.662,
+   "end": 1579.922
+  },
+  {
+   "word": "separate",
+   "start": 1579.922,
+   "end": 1580.322
+  },
+  {
+   "word": "keys",
+   "start": 1580.322,
+   "end": 1580.622
+  },
+  {
+   "word": "to",
+   "start": 1580.622,
+   "end": 1580.762
+  },
+  {
+   "word": "move",
+   "start": 1580.762,
+   "end": 1580.942
+  },
+  {
+   "word": "your...",
+   "start": 1580.942,
+   "end": 1581.482
+  },
+  {
+   "word": "Bitcoin.",
+   "start": 1581.012,
+   "end": 1581.432
+  },
+  {
+   "word": "So",
+   "start": 1581.772,
+   "end": 1581.772
+  },
+  {
+   "word": "one",
+   "start": 1581.772,
+   "end": 1582.152
+  },
+  {
+   "word": "compromised",
+   "start": 1582.152,
+   "end": 1582.612
+  },
+  {
+   "word": "key",
+   "start": 1582.612,
+   "end": 1582.992
+  },
+  {
+   "word": "isn't",
+   "start": 1582.992,
+   "end": 1583.412
+  },
+  {
+   "word": "enough.",
+   "start": 1583.412,
+   "end": 1583.752
+  },
+  {
+   "word": "Download",
+   "start": 1583.912,
+   "end": 1584.152
+  },
+  {
+   "word": "BitKee",
+   "start": 1584.152,
+   "end": 1584.532
+  },
+  {
+   "word": "today",
+   "start": 1584.532,
+   "end": 1584.772
+  },
+  {
+   "word": "and",
+   "start": 1584.772,
+   "end": 1585.112
+  },
+  {
+   "word": "use",
+   "start": 1585.112,
+   "end": 1585.332
+  },
+  {
+   "word": "my",
+   "start": 1585.332,
+   "end": 1585.472
+  },
+  {
+   "word": "promo",
+   "start": 1585.472,
+   "end": 1585.752
+  },
+  {
+   "word": "code",
+   "start": 1585.752,
+   "end": 1586.032
+  },
+  {
+   "word": "stories",
+   "start": 1586.032,
+   "end": 1586.492
+  },
+  {
+   "word": "to",
+   "start": 1586.492,
+   "end": 1586.832
+  },
+  {
+   "word": "get",
+   "start": 1586.832,
+   "end": 1586.972
+  },
+  {
+   "word": "10",
+   "start": 1586.972,
+   "end": 1587.232
+  },
+  {
+   "word": "%",
+   "start": 1587.232,
+   "end": 1587.492
+  },
+  {
+   "word": "off",
+   "start": 1587.492,
+   "end": 1587.732
+  },
+  {
+   "word": "the",
+   "start": 1587.732,
+   "end": 1587.912
+  },
+  {
+   "word": "second",
+   "start": 1587.912,
+   "end": 1588.172
+  },
+  {
+   "word": "generation",
+   "start": 1588.172,
+   "end": 1588.692
+  },
+  {
+   "word": "BitKee.",
+   "start": 1588.692,
+   "end": 1589.112
+  },
+  {
+   "word": "This",
+   "start": 1589.232,
+   "end": 1589.372
+  },
+  {
+   "word": "episode",
+   "start": 1589.372,
+   "end": 1589.692
+  },
+  {
+   "word": "is",
+   "start": 1589.692,
+   "end": 1589.872
+  },
+  {
+   "word": "sponsored",
+   "start": 1589.872,
+   "end": 1590.232
+  },
+  {
+   "word": "by",
+   "start": 1590.232,
+   "end": 1590.412
+  },
+  {
+   "word": "BitKee.",
+   "start": 1590.412,
+   "end": 1590.792
+  },
+  {
+   "word": "If",
+   "start": 1590.932,
+   "end": 1591.132
+  },
+  {
+   "word": "your",
+   "start": 1591.132,
+   "end": 1591.252
+  },
+  {
+   "word": "Bitcoin",
+   "start": 1591.252,
+   "end": 1591.652
+  },
+  {
+   "word": "can",
+   "start": 1591.652,
+   "end": 1591.892
+  },
+  {
+   "word": "be",
+   "start": 1591.892,
+   "end": 1592.032
+  },
+  {
+   "word": "frozen",
+   "start": 1592.032,
+   "end": 1592.492
+  },
+  {
+   "word": "or",
+   "start": 1592.492,
+   "end": 1592.872
+  },
+  {
+   "word": "monitored",
+   "start": 1592.872,
+   "end": 1593.332
+  },
+  {
+   "word": "by",
+   "start": 1593.332,
+   "end": 1593.592
+  },
+  {
+   "word": "an",
+   "start": 1593.592,
+   "end": 1593.732
+  },
+  {
+   "word": "exchange,",
+   "start": 1593.732,
+   "end": 1594.192
+  },
+  {
+   "word": "a",
+   "start": 1594.412,
+   "end": 1594.452
+  },
+  {
+   "word": "custodial",
+   "start": 1594.452,
+   "end": 1594.872
+  },
+  {
+   "word": "provider,",
+   "start": 1594.872,
+   "end": 1595.312
+  },
+  {
+   "word": "or",
+   "start": 1595.632,
+   "end": 1595.672
+  },
+  {
+   "word": "anyone",
+   "start": 1595.672,
+   "end": 1595.972
+  },
+  {
+   "word": "else,",
+   "start": 1595.972,
+   "end": 1596.312
+  },
+  {
+   "word": "it's",
+   "start": 1596.492,
+   "end": 1596.632
+  },
+  {
+   "word": "not",
+   "start": 1596.632,
+   "end": 1596.832
+  },
+  {
+   "word": "yours.",
+   "start": 1596.832,
+   "end": 1597.172
+  },
+  {
+   "word": "My",
+   "start": 1597.592,
+   "end": 1597.732
+  },
+  {
+   "word": "friends",
+   "start": 1597.732,
+   "end": 1597.952
+  },
+  {
+   "word": "at",
+   "start": 1597.952,
+   "end": 1598.072
+  },
+  {
+   "word": "the",
+   "start": 1598.072,
+   "end": 1598.152
+  },
+  {
+   "word": "Bitcoin",
+   "start": 1598.152,
+   "end": 1598.432
+  },
+  {
+   "word": "Way",
+   "start": 1598.432,
+   "end": 1598.692
+  },
+  {
+   "word": "are",
+   "start": 1598.692,
+   "end": 1598.932
+  },
+  {
+   "word": "the",
+   "start": 1598.932,
+   "end": 1599.192
+  },
+  {
+   "word": "experts",
+   "start": 1599.192,
+   "end": 1599.752
+  },
+  {
+   "word": "to",
+   "start": 1599.752,
+   "end": 1599.952
+  },
+  {
+   "word": "hold",
+   "start": 1599.952,
+   "end": 1600.252
+  },
+  {
+   "word": "your",
+   "start": 1600.252,
+   "end": 1600.372
+  },
+  {
+   "word": "hand",
+   "start": 1600.372,
+   "end": 1600.732
+  },
+  {
+   "word": "and",
+   "start": 1600.732,
+   "end": 1601.012
+  },
+  {
+   "word": "train",
+   "start": 1601.012,
+   "end": 1601.312
+  },
+  {
+   "word": "you",
+   "start": 1601.312,
+   "end": 1601.452
+  },
+  {
+   "word": "to",
+   "start": 1601.452,
+   "end": 1601.532
+  },
+  {
+   "word": "be",
+   "start": 1601.532,
+   "end": 1601.672
+  },
+  {
+   "word": "your",
+   "start": 1601.672,
+   "end": 1601.852
+  },
+  {
+   "word": "own",
+   "start": 1601.852,
+   "end": 1602.172
+  },
+  {
+   "word": "bank.",
+   "start": 1602.172,
+   "end": 1602.692
+  },
+  {
+   "word": "It's",
+   "start": 1602.812,
+   "end": 1603.212
+  },
+  {
+   "word": "not",
+   "start": 1603.212,
+   "end": 1603.372
+  },
+  {
+   "word": "rocket",
+   "start": 1603.372,
+   "end": 1603.672
+  },
+  {
+   "word": "science.",
+   "start": 1603.672,
+   "end": 1604.232
+  },
+  {
+   "word": "Anyone",
+   "start": 1604.452,
+   "end": 1604.692
+  },
+  {
+   "word": "can",
+   "start": 1604.692,
+   "end": 1604.912
+  },
+  {
+   "word": "master",
+   "start": 1604.912,
+   "end": 1605.232
+  },
+  {
+   "word": "Bitcoin",
+   "start": 1605.232,
+   "end": 1605.612
+  },
+  {
+   "word": "self",
+   "start": 1605.612,
+   "end": 1605.812
+  },
+  {
+   "word": "-custody",
+   "start": 1605.812,
+   "end": 1606.252
+  },
+  {
+   "word": "with",
+   "start": 1606.252,
+   "end": 1606.432
+  },
+  {
+   "word": "the",
+   "start": 1606.432,
+   "end": 1606.572
+  },
+  {
+   "word": "right",
+   "start": 1606.572,
+   "end": 1606.792
+  },
+  {
+   "word": "training.",
+   "start": 1606.792,
+   "end": 1607.192
+  },
+  {
+   "word": "So",
+   "start": 1607.292,
+   "end": 1607.492
+  },
+  {
+   "word": "don't",
+   "start": 1607.492,
+   "end": 1607.692
+  },
+  {
+   "word": "delay.",
+   "start": 1607.692,
+   "end": 1607.952
+  },
+  {
+   "word": "Go",
+   "start": 1608.112,
+   "end": 1608.292
+  },
+  {
+   "word": "to",
+   "start": 1608.292,
+   "end": 1608.392
+  },
+  {
+   "word": "the",
+   "start": 1608.392,
+   "end": 1608.492
+  },
+  {
+   "word": "Bitcoinway",
+   "start": 1608.492,
+   "end": 1609.072
+  },
+  {
+   "word": ".com",
+   "start": 1609.072,
+   "end": 1609.412
+  },
+  {
+   "word": "slash",
+   "start": 1609.412,
+   "end": 1609.812
+  },
+  {
+   "word": "Natalie.",
+   "start": 1609.812,
+   "end": 1610.132
+  },
+  {
+   "word": "to",
+   "start": 1610.222,
+   "end": 1610.582
+  },
+  {
+   "word": "schedule",
+   "start": 1610.582,
+   "end": 1610.902
+  },
+  {
+   "word": "a",
+   "start": 1610.902,
+   "end": 1611.122
+  },
+  {
+   "word": "free",
+   "start": 1611.122,
+   "end": 1611.402
+  },
+  {
+   "word": "introductory",
+   "start": 1611.402,
+   "end": 1612.002
+  },
+  {
+   "word": "call",
+   "start": 1612.002,
+   "end": 1612.402
+  },
+  {
+   "word": "with",
+   "start": 1612.402,
+   "end": 1612.622
+  },
+  {
+   "word": "their",
+   "start": 1612.622,
+   "end": 1612.762
+  },
+  {
+   "word": "team.",
+   "start": 1612.762,
+   "end": 1613.062
+  },
+  {
+   "word": "I",
+   "start": 1613.282,
+   "end": 1613.422
+  },
+  {
+   "word": "remember",
+   "start": 1613.422,
+   "end": 1613.782
+  },
+  {
+   "word": "my",
+   "start": 1613.782,
+   "end": 1614.002
+  },
+  {
+   "word": "first",
+   "start": 1614.002,
+   "end": 1614.282
+  },
+  {
+   "word": "news",
+   "start": 1614.282,
+   "end": 1614.522
+  },
+  {
+   "word": "job",
+   "start": 1614.522,
+   "end": 1614.782
+  },
+  {
+   "word": "I",
+   "start": 1614.782,
+   "end": 1614.922
+  },
+  {
+   "word": "was",
+   "start": 1614.922,
+   "end": 1615.042
+  },
+  {
+   "word": "making",
+   "start": 1615.042,
+   "end": 1615.262
+  },
+  {
+   "word": "like",
+   "start": 1615.262,
+   "end": 1615.522
+  },
+  {
+   "word": "20",
+   "start": 1615.522,
+   "end": 1615.822
+  },
+  {
+   "word": "something",
+   "start": 1615.822,
+   "end": 1616.062
+  },
+  {
+   "word": "thousand.",
+   "start": 1616.062,
+   "end": 1616.522
+  },
+  {
+   "word": "I",
+   "start": 1616.822,
+   "end": 1616.862
+  },
+  {
+   "word": "didn't",
+   "start": 1616.862,
+   "end": 1617.242
+  },
+  {
+   "word": "start",
+   "start": 1617.242,
+   "end": 1617.422
+  },
+  {
+   "word": "putting",
+   "start": 1617.422,
+   "end": 1617.642
+  },
+  {
+   "word": "away",
+   "start": 1617.642,
+   "end": 1617.902
+  },
+  {
+   "word": "in",
+   "start": 1617.902,
+   "end": 1618.002
+  },
+  {
+   "word": "my",
+   "start": 1618.002,
+   "end": 1618.182
+  },
+  {
+   "word": "401k",
+   "start": 1618.182,
+   "end": 1618.722
+  },
+  {
+   "word": "when",
+   "start": 1618.722,
+   "end": 1618.842
+  },
+  {
+   "word": "I",
+   "start": 1618.842,
+   "end": 1618.982
+  },
+  {
+   "word": "should",
+   "start": 1618.982,
+   "end": 1619.182
+  },
+  {
+   "word": "have.",
+   "start": 1619.182,
+   "end": 1619.422
+  },
+  {
+   "word": "What's",
+   "start": 1619.502,
+   "end": 1619.742
+  },
+  {
+   "word": "your",
+   "start": 1619.742,
+   "end": 1619.882
+  },
+  {
+   "word": "argument",
+   "start": 1619.882,
+   "end": 1620.402
+  },
+  {
+   "word": "for",
+   "start": 1620.402,
+   "end": 1620.822
+  },
+  {
+   "word": "considering",
+   "start": 1620.822,
+   "end": 1621.562
+  },
+  {
+   "word": "even",
+   "start": 1621.562,
+   "end": 1622.122
+  },
+  {
+   "word": "having",
+   "start": 1622.122,
+   "end": 1623.002
+  },
+  {
+   "word": "an",
+   "start": 1623.002,
+   "end": 1623.222
+  },
+  {
+   "word": "IRA",
+   "start": 1623.222,
+   "end": 1623.682
+  },
+  {
+   "word": "if",
+   "start": 1623.682,
+   "end": 1624.062
+  },
+  {
+   "word": "you're",
+   "start": 1624.062,
+   "end": 1624.182
+  },
+  {
+   "word": "a",
+   "start": 1624.182,
+   "end": 1624.262
+  },
+  {
+   "word": "bitconer?",
+   "start": 1624.262,
+   "end": 1624.742
+  },
+  {
+   "word": "Taxes.",
+   "start": 1625.042,
+   "end": 1625.482
+  },
+  {
+   "word": "You're",
+   "start": 1625.742,
+   "end": 1625.922
+  },
+  {
+   "word": "going",
+   "start": 1625.922,
+   "end": 1625.962
+  },
+  {
+   "word": "to",
+   "start": 1625.962,
+   "end": 1626.042
+  },
+  {
+   "word": "solve",
+   "start": 1626.042,
+   "end": 1626.222
+  },
+  {
+   "word": "some",
+   "start": 1626.222,
+   "end": 1626.382
+  },
+  {
+   "word": "Bitcoin",
+   "start": 1626.382,
+   "end": 1626.782
+  },
+  {
+   "word": "and",
+   "start": 1626.782,
+   "end": 1627.102
+  },
+  {
+   "word": "you're",
+   "start": 1627.102,
+   "end": 1627.202
+  },
+  {
+   "word": "going",
+   "start": 1627.202,
+   "end": 1627.262
+  },
+  {
+   "word": "to",
+   "start": 1627.262,
+   "end": 1627.302
+  },
+  {
+   "word": "move",
+   "start": 1627.302,
+   "end": 1627.462
+  },
+  {
+   "word": "it",
+   "start": 1627.462,
+   "end": 1627.562
+  },
+  {
+   "word": "into",
+   "start": 1627.562,
+   "end": 1627.782
+  },
+  {
+   "word": "dirty",
+   "start": 1627.782,
+   "end": 1628.182
+  },
+  {
+   "word": "dollars",
+   "start": 1628.182,
+   "end": 1628.522
+  },
+  {
+   "word": "or",
+   "start": 1628.522,
+   "end": 1628.642
+  },
+  {
+   "word": "whatever",
+   "start": 1628.642,
+   "end": 1628.882
+  },
+  {
+   "word": "currency",
+   "start": 1628.882,
+   "end": 1629.382
+  },
+  {
+   "word": "survives",
+   "start": 1629.382,
+   "end": 1630.242
+  },
+  {
+   "word": "the",
+   "start": 1630.242,
+   "end": 1630.462
+  },
+  {
+   "word": "dollar.",
+   "start": 1630.462,
+   "end": 1630.702
+  },
+  {
+   "word": "And",
+   "start": 1631.002,
+   "end": 1631.102
+  },
+  {
+   "word": "there'll",
+   "start": 1631.102,
+   "end": 1631.302
+  },
+  {
+   "word": "be",
+   "start": 1631.302,
+   "end": 1631.402
+  },
+  {
+   "word": "a",
+   "start": 1631.402,
+   "end": 1631.562
+  },
+  {
+   "word": "taxable",
+   "start": 1631.562,
+   "end": 1631.962
+  },
+  {
+   "word": "event",
+   "start": 1631.962,
+   "end": 1632.222
+  },
+  {
+   "word": "for",
+   "start": 1632.222,
+   "end": 1632.382
+  },
+  {
+   "word": "that",
+   "start": 1632.382,
+   "end": 1632.522
+  },
+  {
+   "word": "liquidation.",
+   "start": 1632.522,
+   "end": 1633.102
+  },
+  {
+   "word": "If",
+   "start": 1633.202,
+   "end": 1633.362
+  },
+  {
+   "word": "you",
+   "start": 1633.362,
+   "end": 1633.402
+  },
+  {
+   "word": "do",
+   "start": 1633.402,
+   "end": 1633.542
+  },
+  {
+   "word": "it",
+   "start": 1633.542,
+   "end": 1633.662
+  },
+  {
+   "word": "in",
+   "start": 1633.662,
+   "end": 1633.722
+  },
+  {
+   "word": "a",
+   "start": 1633.722,
+   "end": 1633.862
+  },
+  {
+   "word": "Roth,",
+   "start": 1633.862,
+   "end": 1634.142
+  },
+  {
+   "word": "you",
+   "start": 1634.402,
+   "end": 1634.442
+  },
+  {
+   "word": "could",
+   "start": 1634.442,
+   "end": 1634.542
+  },
+  {
+   "word": "turn",
+   "start": 1634.542,
+   "end": 1634.722
+  },
+  {
+   "word": "$5",
+   "start": 1634.722,
+   "end": 1635.022
+  },
+  {
+   "word": ",000",
+   "start": 1635.022,
+   "end": 1635.362
+  },
+  {
+   "word": "into",
+   "start": 1635.362,
+   "end": 1635.742
+  },
+  {
+   "word": "a",
+   "start": 1635.742,
+   "end": 1635.882
+  },
+  {
+   "word": "half",
+   "start": 1635.882,
+   "end": 1636.042
+  },
+  {
+   "word": "million",
+   "start": 1636.042,
+   "end": 1636.342
+  },
+  {
+   "word": "and",
+   "start": 1636.342,
+   "end": 1636.562
+  },
+  {
+   "word": "you're",
+   "start": 1636.562,
+   "end": 1636.702
+  },
+  {
+   "word": "going",
+   "start": 1636.702,
+   "end": 1636.722
+  },
+  {
+   "word": "to",
+   "start": 1636.722,
+   "end": 1636.782
+  },
+  {
+   "word": "take",
+   "start": 1636.782,
+   "end": 1636.902
+  },
+  {
+   "word": "it",
+   "start": 1636.902,
+   "end": 1637.002
+  },
+  {
+   "word": "all",
+   "start": 1637.002,
+   "end": 1637.202
+  },
+  {
+   "word": "out",
+   "start": 1637.202,
+   "end": 1637.402
+  },
+  {
+   "word": "entirely",
+   "start": 1637.402,
+   "end": 1637.882
+  },
+  {
+   "word": "tax",
+   "start": 1637.882,
+   "end": 1638.242
+  },
+  {
+   "word": "free.",
+   "start": 1638.242,
+   "end": 1638.542
+  },
+  {
+   "word": "I",
+   "start": 1641.322,
+   "end": 1641.762
+  },
+  {
+   "word": "mean,",
+   "start": 1641.762,
+   "end": 1641.862
+  },
+  {
+   "word": "do",
+   "start": 1641.962,
+   "end": 1642.002
+  },
+  {
+   "word": "you",
+   "start": 1642.002,
+   "end": 1642.062
+  },
+  {
+   "word": "feel",
+   "start": 1642.062,
+   "end": 1642.242
+  },
+  {
+   "word": "like,",
+   "start": 1642.242,
+   "end": 1642.322
+  }
+ ],
+ "words_sha256": "b753bc1f1d3c4aea8bc170ba4019c216f7402fda24df3cf2b5f8d1ed3e612b13",
+ "punctuation": {
+  "source": "none needed",
+  "still_unpunctuated": false
+ },
+ "window": {
+  "start_s": 1546.022,
+  "end_s": 1642.303,
+  "clock": "youtube",
+  "offset_s": 1546.022
+ }
+}

@@ -73,16 +73,19 @@ class TestTheMeterNeverStandsBetweenACallAndItsBooking(unittest.TestCase):
 
 
 class TestRuling118TheBuildsRouterCapsOnlyOutsideVendors(unittest.TestCase):
-    """RULING 118 (05:40 ET Nov 16): the build's router caps the outside vendors at the day's $1.00 and records
+    """RULING 118 (05:40 ET Nov 16): the build's router caps the outside vendors at the day's cap (proof_ly.DAY_CAP_USD,
+    $1.50 since amendment C, Nov 24) and records
     Heimdall, never capping it: reaching the cap stops outside calls, not the free work."""
 
     def test_heimdall_runs_past_the_cap_and_an_outside_call_is_refused_at_it(self):
         with tempfile.TemporaryDirectory() as d:          # every file the build's router reads or writes is d's
             led = os.path.join(d, "SPEND.json")
+            near = round(PL.DAY_CAP_USD - 0.05, 2)            # amendment C (Nov 24): the one day cap, $1.50
             json.dump({"usd_estimate": 0.0, "calls": 2, "by_backend": {
-                "xai:g": {"calls": 1, "in": 0, "out": 0, "usd_estimate": 0.0, "usd_reported": 0.95},
+                "xai:g": {"calls": 1, "in": 0, "out": 0, "usd_estimate": 0.0, "usd_reported": near},
                 "heimdall:q": {"calls": 1, "in": 0, "out": 0, "usd_estimate": 0.0, "usd_reported": 3.0}},
-                "by_role": {}, "reserved": {}, "usd_reported": 3.95, "usd_unreported_estimate": 0.0}, open(led, "w"))
+                "by_role": {}, "reserved": {}, "usd_reported": near + 3.0, "usd_unreported_estimate": 0.0},
+                      open(led, "w"))
             with contextlib.ExitStack() as st:
                 for mod, name, val in ((PL, "SPEND", led), (PL, "REPLIES", os.path.join(d, "rec")),
                                        (PL, "DEADLINE_LOG", os.path.join(d, "DL.jsonl")),
@@ -95,11 +98,11 @@ class TestRuling118TheBuildsRouterCapsOnlyOutsideVendors(unittest.TestCase):
             h = Fake("heimdall:q", "heimdall", answer="{}", usage={"in": 1000, "out": 100, "usd_reported": 0.5})
             x = Fake("xai:g", "xai", answer="{}", usage={"in": 1000, "out": 100, "usd_reported": 0.01})
             r.backends, r.chains["check"], r.chains["judge"] = {"heimdall:q": h, "xai:g": x}, ["heimdall:q"], ["xai:g"]
-            self.assertAlmostEqual(r.spent(), 0.95, places=6)      # the day's outside dollars only
-            self.assertIsNone(PLG.start_refused(r.spent()))        # under the $1.00 stop: a build may start
-            self.assertEqual(r.call("check", "p" * 100_000).backend, "heimdall:q")   # its upper bound alone > $1.00
+            self.assertAlmostEqual(r.spent(), near, places=6)      # the day's outside dollars only
+            self.assertIsNone(PLG.start_refused(r.spent()))        # under the day's stop: a build may start
+            self.assertEqual(r.call("check", "p" * 100_000).backend, "heimdall:q")   # its upper bound alone > the cap
             with self.assertRaises(P.SpendLimit):
-                r.call("judge", "p")                               # 0.95 + its upper bound > $1.00: refused at once
+                r.call("judge", "p")                               # near + its upper bound > the cap: refused at once
             self.assertEqual((h.calls, x.calls), (1, 0))
             self.assertAlmostEqual(json.load(open(led))["by_backend"]["heimdall:q"]["usd_reported"], 3.5, places=6)
 
@@ -130,12 +133,12 @@ class TestRuling107TheBuildsRouterNamesEveryCallItRefusedForMoney(unittest.TestC
 
     def test_each_refusal_for_money_is_named_and_nothing_else(self):
         with tempfile.TemporaryDirectory() as d:
-            r, led, x = self.router_at(d, 0.95)
+            r, led, x = self.router_at(d, round(PL.DAY_CAP_USD - 0.05, 2))   # near the one day cap
             self.assertEqual(r.spend_refused, [])
             r.call("check", "p")                                     # Heimdall: free, never reserved
             for n in (1, 2):
                 with self.assertRaises(P.SpendLimit):
-                    r.call("judge", "p")                             # 0.95 + its upper bound > the $1.00 stop
+                    r.call("judge", "p")                             # near + its upper bound > the day's stop
                 self.assertEqual(r.spend_refused, ["xai:g"] * n)
             self.assertEqual(x.calls, 0)
             open(led, "w").write("{not json")                        # an unreadable ledger refuses for money too

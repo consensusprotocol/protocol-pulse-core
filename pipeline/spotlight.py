@@ -729,7 +729,7 @@ def inventory(pk, m, fid, dup, rt_ok, style, cx, a_off, a_two, exc, truth, pre, 
     mid = m["moment_id"]
     rows = P.inventory(fid, dup, rt_ok, (True, "n/a"), cx, {"hook": a_off}, {mid: exc}, {mid: truth}, False,
                        {"measured": False}, style=style, hook=m.get("hook_onset"), stand=P.stand_alone_check([m]),
-                       visual=[m.get("visual")])
+                       visual=[m.get("visual")], out_edge=[m.get("out_edge")])   # RULING 162 (1)
     rows.pop("r4", None)
     rows.pop("coherence", None)
     v = m.get("visual") or {}
@@ -815,7 +815,7 @@ def near(rec, k=3):
 def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, work_dir=None, store=None,
           step_a_cache=None, hook_cache=None, scorer_verdicts_path=None, visual_cache=None, layout_cache=None,
           lock_check=None, spotlit=(), handles_path=HANDLES, wait_s=SCORER_WAIT_S, sleep=time.sleep,
-          captions_for=None, finalists=FINALISTS, attribute=None):
+          captions_for=None, finalists=FINALISTS, attribute=None, out_edge_cache=None):
     """RULINGS 90-92: the best spotlight in the pool, or none -> {"package", "pool", "moments" (each moment's furthest
     stage and why it stopped), "finalists", "near", "why_none", ...}. The stages run cheapest first, each on what the
     one before passed; every verdict is the medley's own and cached or recorded across builds: step A
@@ -888,6 +888,13 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                               "the second pass disagrees" if not t.get("ok") else
                                               "not cuttable at an edge"))
     passed(cut, 2)
+    kept, out["out_edge"] = P.out_edges(       # ITEM 3 (09:45 ET Nov 24): the question only after the deterministic
+        router, list(cut.values()), sources, ctx, out_edge_cache, log, delivered, optout, seg_max=SPOT_S[1],
+        admit=lambda v: (False, "a spotlight is never extended: its span is judged as it stands"))   # edge check
+    for mid in sorted(set(cut) - {m["moment_id"] for m in kept}):
+        stop(mid, "the out-edge question (item 3): " + str((out["out_edge"].get("refused") or {}).get(mid) or
+                                                            (out["out_edge"].get("unverified") or {}).get(mid))[:200])
+    cut = {m["moment_id"]: m for m in kept}
     openers = {}
     for mid, m in cut.items():
         m["hook_onset"] = P.hook_onset_for(m, sources, work_dir, hk)
@@ -1014,6 +1021,12 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                 out["lock_stop"] = rec[mid]["out"]       # no verdict: the search stops (as a medley build)
                 break
             continue
+        hd = next((cm for r in pre.get("segments") or [] for cm in [P.heard(m, r)] if cm is not None), None)
+        if hd is not None:                               # RULING 163 (2)(b): every verdict of this spotlight (step A on
+            stop(mid, f"ruling 163 (2)(b): the render's lock corrected its words from the audio "   # both families, the
+                      f"({hd['heard']['corrected'][:160]}); a spotlight's verdicts are made on the transcript's words "
+                      f"and are never made again in place: not a spotlight this build")   # ALONE scorer, the hook
+            continue                                     # rating, vision) is on the old words: fail closed
         day = et_day(ctx.now)                            # the one day pool() measured (audit 2322 C2, grok)
         facts = {"now": ctx.now, "day": day,                             # measured again right before the package:
                  "never_delivered": bool(P.usable([m], ctx, delivered, optout, seg_max=SPOT_S[1])[0]),   # no

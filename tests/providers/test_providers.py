@@ -487,6 +487,9 @@ class TestRouter(unittest.TestCase):
             if role == "trend_brief":
                 self.assertIn("fallback", spec)              # the free local baseline is its second back-end
                 continue
+            if role == "out_edge":                           # RULING 162 (1): ONE model on purpose, the render's own
+                self.assertEqual(spec["chain"], ["heimdall:qwen/qwen3.8-27b@low"])   # question asked the render's
+                continue                                     # way; no answer is UNVERIFIED (ruling 160 (2a))
             self.assertGreaterEqual(len(spec["chain"]), 2, role)
             for b in spec["chain"]:
                 self.assertIn(b, be, (role, b))

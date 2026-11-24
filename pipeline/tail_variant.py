@@ -53,6 +53,38 @@ def variant(m, src, k, ctx, why):
     return rec
 
 
+def extend(m, src, k, ctx, why):
+    """RULING 162 (1) (orchestrator 07:45 ET Nov 24): "When the checker hears the sentence carry on past the clip's last
+    word: EXTEND the out point to the sentence's end (ruling 104's tail variant; re-check the lock and the cut on the
+    extended span; mind the runtime)". The twin of variant() on the other side: the parent moment `m` ENDING LATER, at
+    the end of its source's sentence k (k after its last sentence), its first sentence and its IN edge unchanged, made
+    by the miner's own machinery (eligibility judged afresh, its id the span's own), recorded as derived from its parent
+    ("derived_from": ruling "162 (1)", the words "added"). A new span: every gate judges it from the start. -> the new
+    moment record. ValueError for any other k, or for a parent cut inside a sentence (no whole-sentence span keeps its
+    IN edge and its words)."""
+    k0, k1 = m["sentences"]
+    if not (isinstance(k, int) and not isinstance(k, bool) and k1 < k < len(src.sentences)):
+        raise ValueError(f"an extension ends at a later sentence of the source: {k!r} is not in ({k1}, "
+                         f"{len(src.sentences)})")
+    w0, w1 = m["words"]
+    if w0 != src.sentences[k0][0] or w1 != src.sentences[k1][1]:
+        raise ValueError("the parent is cut inside a sentence: an extension of whole sentences would move its IN edge")
+    sp = E.Span(src, k0, k)
+    derived = {"ruling": "162 (1)", "from": m["moment_id"],
+               "ledger_moment_id": (m.get("mined") or {}).get("ledger_moment_id"),
+               "sentences": [k0, k], "was": [k0, k1], "end_was": m.get("end"), "why": why,
+               "added": E.spoken(src.tokens[w1 + 1:sp.w1 + 1])}
+    rec = M.record(sp, {"scores": m["scores"], "names_person": m.get("names_person", False),
+                        "risk": list(m.get("risk") or []), "topics": list(m.get("topics") or []),
+                        "reason": m.get("reason") or ""}, ctx, M.judge(sp, ctx),
+                   dict(m.get("mined") or {}, derived_from=derived))
+    rec["rank_score"] = M.rank_score(rec)
+    if m.get("source_key"):
+        rec["source_key"] = m["source_key"]
+    rec["derived_from"] = derived
+    return rec
+
+
 def holds(m, results_dir):
     """The newest lock pre-check HOLD on the parent's exact span (its video, start and end to the millisecond, its own
     text as the approved text, its trim fields, as a hook or a clip) under the CURRENT decoder and rules

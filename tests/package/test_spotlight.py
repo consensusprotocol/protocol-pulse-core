@@ -60,6 +60,10 @@ class Router(Canned):
         self.down = set()
 
 
+OUT_EDGE_OK = {"complete": True, "why": "the thought ends", "backend": "heimdall:qwen/qwen3.8-27b@low",
+               "measured": True, "version": "owner_rules 1 (ruling 162, 2026-11-24)", "sha256": "e" * 64}
+
+
 def moment(text=TEXT, dur=20.0, mid="m1", channel="DataDash", **kw):
     m = pm(mid, channel, dur)
     m.update(text=text, channel_name=channel, published_at=(NOW - timedelta(hours=2)).isoformat(),
@@ -71,6 +75,7 @@ def moment(text=TEXT, dur=20.0, mid="m1", channel="DataDash", **kw):
                                       "finding": "none"}, "on_screen_text": [],
                      "lower_third": {"name": None, "text": None}, "burned_in": []},
              scorer_verdict=sv(text, 4.0),
+             out_edge=dict(OUT_EDGE_OK),                     # RULING 162 (1): the pool stage's verdict, as built
              spotlight_source={"ok": True, "why": "layout 'conversation'", "turns": {"measured": False},
                                "layout": {"measured": True, "layout": "conversation", "backend": "fake:vis",
                                           "replayed": False}})
@@ -729,7 +734,11 @@ class TestBuild(unittest.TestCase):
                  (SPOT, "caption_evidence", lambda vid, s, e, c=None: evidence or {"measured": True,   # 92 amended
                                                                                    "marked": False}),
                  (SPOT.P, "exclusion_for", lambda r, m, s, c: {"verdict": "keep"}),
-                 (SPOT.P, "_writers", lambda r: (set(), set()))]
+                 (SPOT.P, "_writers", lambda r: (set(), set())),
+                 (SPOT.P, "out_edges", lambda r, ms_, *a, **k: (     # RULING 162 (1): every moment ends a thought
+                     [dict(m, out_edge=dict(OUT_EDGE_OK)) for m in ms_],
+                     {"asked": len(ms_), "complete": [m["moment_id"] for m in ms_], "extended": {}, "refused": {},
+                      "unverified": {}}))]
         patches = [mock.patch.object(o, n, f) for o, n, f in stubs]
         for p in patches:
             p.start()

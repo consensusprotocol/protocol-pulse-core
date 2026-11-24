@@ -25,7 +25,10 @@ from datetime import datetime, timezone
 
 SCHEMA = "protocol_pulse.pinned_story.v1"
 REQUIRED_GATES = ("vo_fidelity_deterministic", "vo_fidelity_verdict", "duplicate", "price_now", "runtime", "r4",
-                  "context_a", "context_b", "context_c", "exclusion", "second_pass", "cuttable", "coherence")
+                  "context_a", "context_b", "context_c", "exclusion", "second_pass", "cuttable", "coherence",
+                  "out_edge")   # RULING 162 (1): every clip ends a thought (owner_rules.out_edge, sealed); the render's
+#   check_pin_only reads this list too, so a pin sealed without the row (before 162) is never READY again (the
+#   acceptance test's item 4: "a pin that the builder would refuse today must not come back READY")
 # L-y (20:30): the clips-alone verdict and the medley's shape; ruling 6 (22:40): PBX's copy rules on every line;
 # hook_onset: G17a at the pin stage, after batch pin #1's render hold (01:39 ET Nov 13); stand_alone: the render's
 # STAND_ALONE at the pin stage, after pin d2657bbe's hold at the integrator's validate (03:00 ET Nov 13)
@@ -46,11 +49,9 @@ SOFT_GATES = frozenset({"context_a",                     # stage 1: step A's sof
                         "hook_onset",                      # RULING 146 (2): G17a's quiet shortfall (a cut mid-word stays
                         #   HARD)
                         "graphics",                        # RULING 146 (1): the show's own graphics, 16:9 only
-                        "takeaway_value",                  # RULING 150: the closing line's value verdict (ruling
-                        #   91), a measured one; fidelity, length and the banned words stay HARD
-                        "fallback_line",                   # RULING 156 (2): our plain lines built by code, gated
-                        "sponsor",                         # RULING 146 (3): a sponsor mention in the sentence before
-                        #   a clip only, the clip kept by the exclusion model (its ad_read risk stays HARD)
+                        "no_closing_line",                 # RULING 162 (2): no closing line passed fidelity and value
+                        #   in its writes; the video goes from the last clip to the outro tag (ruling 150's soft value
+                        #   grade REVERSED: "takeaway_value" is HARD again; ruling 156's plain lines WITHDRAWN)
                         "judge",                           # RULINGS 154 (1) / 152 (2): checks made by a stand-in
                         #   judge in the never-empty pass (the writer was the usual checker, or it did not answer)
                         "runtime"})                        # RULINGS 148 (1) / 149: a medley under 60 s, its clips at
@@ -68,7 +69,8 @@ REVIEW_FLAGS_MAX = 3   # RULING 159 (3)(a): ruling 144's one-pin exception (its 
 # shape); the R4 of a spotlight is its 28-50 s runtime (the render's edl_rules R4 / G5), the "runtime" row.
 SPOTLIGHT_GATES = ("vo_fidelity_deterministic", "vo_fidelity_verdict", "duplicate", "price_now", "runtime",
                    "context_a", "context_b", "context_c", "exclusion", "second_pass", "cuttable",
-                   "house_style", "hook_onset", "stand_alone",          # it opens cold: the hook's own pin-stage rows
+                   "house_style", "hook_onset", "stand_alone", "out_edge",   # it opens cold: the hook's own rows;
+                   #   RULING 162 (1): its clip ends a thought
                    "spotlight_source",                                   # ruling 92: conversation, not reaction
                    "hook_own", "stands_alone",                           # ruling 90: >= 4 as an opener, >= 4 alone
                    "step_a_two_families", "visual", "window_12h", "never_delivered", "one_per_channel_day",
@@ -176,8 +178,11 @@ SEALED_LATER = ("time_sensitive", "source_published_at",   # ruling 1 (22:40): t
                 "visual",                                  # ruling 70: the clip's visual record (flags, sheet sha)
                 "relisten",                                # ruling 103: the targeted re-listen's two short readings
                 "unstable_second_reading",                 # ruling 105: every reading across the passes, when it ran
-                "visible_sponsor_graphics")                # RULING 161: the sponsor material a clip only SHOWS (info,
+                "visible_sponsor_graphics",                # RULING 161: the sponsor material a clip only SHOWS (info,
 #                                                            never a flag, never counted; only on a segment that shows it)
+                "transcript_corrected")                    # RULING 163 (2)(a): every word the render's lock corrected
+#                                                            from the audio, "X -> Y" (lock_precheck.corrected_words),
+#                                                            only on a segment whose words it changed
 TRIMMED_PER_PIN_MAX = 1                                    # ruling 49 (b): package.TRIMMED_PER_LINEUP_MAX. Kept a
                                                            # separate constant (a test holds them equal): the
                                                            # integrator's check_pin_only imports this module, which
@@ -435,8 +440,8 @@ def flags_cap(gates):
     return REVIEW_FLAGS_MAX
 
 
-PER_CLIP_KIND = frozenset({"stand_alone", "sponsor", "graphics"})   # RULING 155 (1): one kind said once per clip
-OUR_LINES_KIND = frozenset({"fallback_line", "takeaway_value"})    # RULING 157 (2)(b): one kind, our lines
+PER_CLIP_KIND = frozenset({"stand_alone", "graphics"})   # RULING 155 (1): one kind said once per clip (ITEM 1: no
+#   "sponsor" flag: a clip after a sponsor sentence passes with the judgment recorded, or is refused, or held)
 _CLIP_REF = re.compile(r"^(?:The (?:opening|second|third|fourth|fifth) clip|A clip|The clip|[A-Z][a-z]+ clips) "
                        r"\([^)]*\):?\s*")
 
@@ -445,8 +450,6 @@ def flag_kind(gate, flag):
     """RULING 155 (1): the KIND of one review flag: the row for a row that says one kind once per clip
     (PER_CLIP_KIND: STAND_ALONE's per-clip sentences keep the prefix the integrator matches), else the row and the
     sentence without the clip it names ('The second clip (Strategy): ...' and 'Three clips (...): ...' read alike)."""
-    if gate in OUR_LINES_KIND:                       # RULING 157 (2)(b): the plain fallback and the value grade of
-        return "our lines"                           # the closing line are ONE kind (the note lists it once)
     return gate if gate in PER_CLIP_KIND else f"{gate}: {_CLIP_REF.sub('', flag).strip()}"
 
 
@@ -566,7 +569,8 @@ def to_pin(pk, run_name):
                                           "attested",      # rulings 68 / 72: an adopted spoken text, sealed
                                           "relisten",      # ruling 103: only when a re-listen ran, sealed
                                           "unstable_second_reading",   # ruling 105: only when it ran, sealed
-                                          "visible_sponsor_graphics")  # RULING 161: information, sealed
+                                          "visible_sponsor_graphics",  # RULING 161: information, sealed
+                                          "transcript_corrected")      # RULING 163 (2)(a): sealed
                         if k in s},
                      "time_coords": "youtube", "source": {"kind": "youtube"}})
     edl_vo = {"intro": pk["vo"]["intro"],

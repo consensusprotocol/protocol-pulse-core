@@ -751,7 +751,8 @@ def check_verdict(raw, segments, lines, manifest=None):
     return {"ok": not v, "claims": obj["claims"], "violations": v, "classes": classes}
 
 
-def check(router, segments, lines, writer_vendor, seed=7, manifest=None, current_levels=None, writer_family=None):
+def check(router, segments, lines, writer_vendor, seed=7, manifest=None, current_levels=None, writer_family=None,
+          kind=None):
     """Both layers. -> {"ok", "deterministic", "verdict", "violations", "backend", "measured", "replayed"}; the verdict
     never runs on the vendors / families of the text it judges; a verdict that cannot be had or read is a failure
     (law L-m) and leaves the layer NOT measured."""
@@ -761,7 +762,8 @@ def check(router, segments, lines, writer_vendor, seed=7, manifest=None, current
     try:                                      # the 20:33 order: an answer out of contract moves on (P.call_parsed)
         r, out["verdict"] = P.call_parsed(router, "fidelity_verdict", verdict_prompt(segments, lines, manifest),
                                           lambda t: check_verdict(t, segments, lines, manifest), 2500, seed,
-                                          avoid_vendor=writer_vendor, avoid_family=writer_family)
+                                          avoid_vendor=writer_vendor, avoid_family=writer_family,
+                                          **({"kind": kind} if kind else {}))   # ITEM 2: "closing": no stand-in
         out["backend"], out["replayed"] = r.backend, bool(getattr(r, "replayed", False))
         if getattr(r, "lx_soft", None):                # RULING 154 (1): a stand-in judge's verdict (one flag)
             out["lx_soft"] = r.lx_soft

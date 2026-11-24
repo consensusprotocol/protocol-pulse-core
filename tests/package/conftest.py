@@ -38,3 +38,22 @@ def _rig_hook_bar(request, monkeypatch):
     monkeypatch.setattr(PK, "_live_bar", lambda: (bar, None))
     monkeypatch.setattr(PK, "_live_lineup_bar", lambda: (lbar, None))   # ruling 116: the rigs' line-up bar
     yield
+
+
+@pytest.fixture(autouse=True)
+def _driver_under_test(monkeypatch):
+    """VERIFIER ROWS 12 / 16 (Nov 24): proof_ledger.main refuses any entry but its own file run as __main__; inside
+    pytest, with this variable set here, the tests may call main() (the build record then says under_test)."""
+    monkeypatch.setenv("PP_SELECTID_DRIVER_UNDER_TEST", "1")
+    yield
+
+
+@pytest.fixture(autouse=True)
+def _outcomes_off_the_real_file(monkeypatch, tmp_path):
+    """RULING 160 (2b): a test's driver run writes its outcome line into a file of its own, never into the real
+    data/builds/outcomes.jsonl (tests that ran main() on a temporary record folder appended lines to it, Nov 24)."""
+    if HERE not in sys.path:
+        sys.path.insert(0, HERE)
+    import outcomes
+    monkeypatch.setattr(outcomes, "OUTCOMES", str(tmp_path / "outcomes.jsonl"))
+    yield

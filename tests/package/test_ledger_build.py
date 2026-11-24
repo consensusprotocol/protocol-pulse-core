@@ -840,9 +840,11 @@ class TestDriverRefuses(unittest.TestCase):
                 self.assertEqual(PLG.main(["--delivered", *pins, "--hours", h]), 2, h)
             self.assertIn("REFUSED (ruling 76)", err.getvalue())
             for h in ("12", "6"):                       # audit 1810 C1 (glm P2-1): the bound itself is accepted; the run
-                with self.assertRaises(AssertionError) as cm:   # goes on, and the guard stops it at the proof dir
-                    PLG.main(["--delivered", *pins, "--hours", h])
-                self.assertIn("went on to write a proof dir", str(cm.exception))
+                err.seek(0)                             # goes on past the window check, to the guard that keeps a run
+                err.truncate(0)                         # under test out of the real build records (Nov 24)
+                self.assertEqual(PLG.main(["--delivered", *pins, "--hours", h]), 2, h)
+                self.assertNotIn("REFUSED (ruling 76)", err.getvalue())
+                self.assertIn("never writes into the real build records", err.getvalue())
         spans, _, _ = PLG.delivered_pins(pins)
         self.assertTrue(all(isinstance(s["text"], str) and s["text"] for s in spans))
         for p in pins:                                   # audit 1810 C3 (glm P1-2): the CLIP's own approved words, never
@@ -1007,13 +1009,17 @@ class TestRuling85NoXai(unittest.TestCase):
         GEM = "google:gemini-2.5-pro"
         ch = PL.chains("heimdall_first")
         self.assertEqual(ch["fidelity_verdict"], [Q, X])                          # 96 without glm: qwen -> Grok
+        #   (ITEM 2, 09:35 ET Nov 24: 162 (2)'s chain extension reverted: no paid model writes the closing line)
+        self.assertEqual(ch["angle_write:closing"], [w for w in PL.WRITERS if w.startswith("heimdall:")])   # ITEM 2:
+        self.assertNotIn(X, ch["angle_write:closing"])                            # in-house writers, no paid rescue
         self.assertEqual(ch["exclusion_verdict"], [DS, X])                         # 96 without glm: deepseek -> Grok
         self.assertEqual(ch["context_verdict:step_a_first"], [DS, X])              # 06:12 (2) without glm; no qwen
         self.assertEqual(ch["context_verdict:step_a_second"], [X, DS, GEM, "local_judge:gemma3:27b"])   # (c) Grok
         #   confirms; RULING 102 (13:02 Nov 14): then deepseek, Gemini, the local judge (ruling 87's last resort)
         self.assertEqual(ch["context_verdict"], [DS, X])                           # the role's default: no qwen either
         self.assertNotIn(G, [b for k, v in list(ch.items()) + list(PL.chains("today").items()) for b in v
-                             if k != "angle_write"])   # 119; RULING 152 (1): glm writes only when it answers the probe
+                             if not k.startswith("angle_write")])   # 119; RULING 152 (1): glm writes only when it
+        #   answers the probe ("angle_write:closing" is the writer chain's in-house part, ITEM 2)
         self.assertNotIn(Q, [b for k, v in ch.items() if k.startswith("context_verdict:step_a") for b in v])
         self.assertEqual(ch["coherence_verdict:hook"], [X])                        # RULING 115 (amends 88 (b) / 96 for
         #   the hook): Grok ALONE, the rater the calibrated floors are measured on (qwen in shadow, never deciding)

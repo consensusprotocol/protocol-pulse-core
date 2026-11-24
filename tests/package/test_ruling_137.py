@@ -164,7 +164,10 @@ class TestStage2a(unittest.TestCase):
         self.assertEqual(PK.soft_edges(self.DATADASH), ["EDGE_IN"])
         both = copy.deepcopy(self.DATADASH)
         both["edges"]["out"] = {"ok": False, "word": "x", "after": "y", "why": "the recogniser's sentence continues past the clip"}
-        self.assertEqual(PK.soft_edges(both), ["EDGE_IN", "EDGE_OUT"])
+        self.assertIsNone(PK.soft_edges(both))                     # RULING 162 (1): the OUT edge is HARD, always
+        out_only = copy.deepcopy(both)
+        out_only["edges"]["in"] = {"ok": True, "why": "a sentence ends before the clip"}
+        self.assertIsNone(PK.soft_edges(out_only))
         for why_in in ("the recogniser has no 'bitc' within 0.6 s of the clip's start", "no word timing from the recogniser",
                        "the window starts at the clip: no word before it",
                        "the recogniser does not hear the trimmed word 'And' right before the clip (ruling 33 part 2)"):
@@ -308,125 +311,49 @@ class TestRuling155FlagKinds(unittest.TestCase):
 FAILING = 2
 
 
-class TestRuling156FallbackLines(unittest.TestCase):
-    """RULING 156 (2) (orchestrator 21:34 ET Nov 23): when every write fails, the never-empty pass gates ONE set of plain
-    lines built by code from fixed templates that state no fact (the subject in the clips' own words and the channels'
-    names); a package on them carries the one flag 'A line of ours is the plain fallback: "<line>"'. The clean pass never
-    uses them; fidelity stays HARD (they are gated as any write)."""
-    def segs(self, total=39.0):
-        from test_moments import pm
-        ms = [pm("h", "Natalie Brunell", total / 3), pm("x", "Strategy", total / 3), pm("y", "Yahoo Finance", total / 3)]
-        for m, t in zip(ms, ("Analysts say Michael Saylor will keep buying Bitcoin.",
-                             "We sold credit, and Michael Saylor said we buy more Bitcoin.",
-                             "This guy, Michael Saylor, is buying again.")):
-            m["text"] = t
-        return ms
+class TestRuling162NoPlainLines(unittest.TestCase):
+    """RULING 162 (2) (orchestrator 07:45 ET Nov 24, from PBX's review of afd8977d: "my VO, which is literally just me
+    saying all the clips that were featured, which is not a value added comment at all. Let's never do that again"):
+    ruling 156's plain fallback lines are WITHDRAWN and their templates deleted; ruling 150 is REVERSED (the closing
+    line's value grade is a requirement again); no line passing means NO closing line, with ONE flag. ITEM 2 (orchestrator
+    09:35 ET Nov 24: "One write, one judge ... no retry loop") withdraws "up to 4 writes" for the closing line."""
 
-    def test_the_templates_state_no_fact_fit_the_budget_and_pass_house_style(self):
-        import house_style as HS
-        for total in (31.5, 34.5, 39.0, 45.0):
-            with mock.patch.object(PK, "_FLOOR", PK.LY_FLOOR_S):           # the never-empty pass's budget
-                f = PK.fallback_fields({"angle": "a"}, self.segs(total))
-            lo, hi = f["takeaway_budget"]
-            words = f["takeaway"]["text"].split()
-            self.assertTrue(lo <= len(words) <= hi, (total, f["takeaway"]["text"]))
-            self.assertIn(f["takeaway"]["text"], [v.format(subject="Michael Saylor and Bitcoin",
-                                                           names="Natalie Brunell, Strategy and Yahoo Finance")
-                                                  for v in PK.FALLBACK_CLOSING])
-            self.assertEqual(HS.lint_lines([{"slot": k, "text": f[k]["text"]} for k in ("takeaway", "title", "caption")]),
-                             [], total)
-            self.assertEqual((f["title"]["text"], f["caption"]["text"]), (
-                "Michael Saylor and Bitcoin, in their words",
-                "michael saylor and bitcoin, in the words of natalie brunell, strategy and yahoo finance."))
-        one = self.segs()
-        one[1]["text"] = "We sold credit."
-        self.assertEqual(PK.fallback_subject(one, ["Natalie Brunell", "Strategy", "Yahoo Finance"]),
-                         "Michael Saylor and Bitcoin")                 # still two clips say it
-        one[2]["text"] = "This guy is buying again."
-        self.assertEqual(PK.fallback_subject(one, ["Natalie Brunell"]), "Bitcoin")   # one clip only: Bitcoin alone
+    def test_the_templates_and_their_soft_rows_are_gone(self):
+        for name in ("fallback_fields", "fallback_subject", "fallback_vo_soft", "FALLBACK_CLOSING", "FALLBACK_FLAG",
+                     "VALUE_FLAG"):
+            self.assertFalse(hasattr(PK, name), name)
+        self.assertFalse({"fallback_line", "takeaway_value"} & PP.SOFT_GATES)
+        self.assertIn("no_closing_line", PP.SOFT_GATES)
+        self.assertEqual(PK.NO_LINE_FLAG, "No closing line: our writers did not produce one that adds value.")
+        self.assertFalse(PP.flagged_ok("takeaway_value", {"status": "FLAGGED", "flags": ["The closing line may mostly "
+                                                                                       "restate the clips."]}))
 
-    def test_audit_a2_no_raw_id_no_bad_join_and_a_title_that_fits(self):
-        """Audit 20261124_0016 A2 (qwen, gemma): a clip with no channel name builds no fallback (never a raw channel id
-        on screen); a join outside the line-up builds none (never an IndexError); a subject too long for the title
-        falls back to 'Bitcoin, in their words'."""
-        import house_style as HS
-        with mock.patch.object(PK, "_FLOOR", PK.LY_FLOOR_S):
-            segs = self.segs()
-            segs[1] = {k: v for k, v in segs[1].items() if k != "channel_name"}
-            self.assertIsNone(PK.fallback_fields({"angle": "a"}, segs))
-            for j in ((2, "x"), (-1, "x"), (5, "x"), (), [], "x", (True, "x"), ("0", "x")):   # audit F (qwen F1)
-                self.assertIsNone(PK.fallback_fields({"angle": "a"}, self.segs(), join=j), j)
-            long_ = self.segs()
-            for m in long_:
-                m["text"] = "Michael Saylor Strategy Executive Chairman Founder said it again about Bitcoin."
-            with mock.patch.object(PK, "fallback_subject", lambda segs, chans: "Michael Saylor Strategy Chairman "
-                                   "and Bitcoin"):                         # 6 words: ', in their words' makes 9
-                f = PK.fallback_fields({"angle": "a"}, long_)
-            self.assertEqual(f["title"]["text"], "Bitcoin, in their words")
-            self.assertTrue(len(f["title"]["text"].split()) <= HS.TITLE_MAX_WORDS)
-
-    def test_a_join_that_needs_a_bridge_gets_the_plain_one(self):
-        with mock.patch.object(PK, "_FLOOR", PK.LY_FLOOR_S):
-            f = PK.fallback_fields({"angle": "a"}, self.segs(), join=(1, "x"))
-        self.assertEqual((f["bridge"]["text"], f["bridge_after"]), ("Next, Yahoo Finance.", 1))
-
-    def run_rig(self, never_empty, failing=FAILING, a_fail=True):
-        import test_medley as TM
-        from test_moments import pm
-        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
-        bad = TM.TestRuling66Amended().failing()
-        r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE)] * 2, [None] * 2,
-                   fids=[dict(bad) for _ in range(failing)],         # every model write fails fidelity (COMMENTARY)
-                   a_fail={("xai", "y"): ["REFERENT_OUTSIDE"]} if a_fail else None)   # the clean pass stops at 2
-        #   channels, before any
-        #   write; the never-empty pass takes y back, flagged (stage 1), and writes
-        if never_empty:
-            r.build_kw = {"never_empty": True}
-        return r, r.run()
-
-    def test_every_write_failing_seals_on_the_plain_lines_flagged(self):
-        r, out = self.run_rig(True)
-        pk = out["package"]
-        self.assertIsNotNone(pk, out.get("why_none"))
-        take = next(x["text"] for x in pk["lines"] if x["slot"] == "takeaway")
-        self.assertEqual(pk["gates"]["fallback_line"]["flags"], [PK.FALLBACK_FLAG.format(line=take)])
-        self.assertTrue(any(take == v.format(subject="Bitcoin", names="A, B and C") for v in PK.FALLBACK_CLOSING))
-        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])
-
-    def test_the_clean_pass_never_uses_them(self):
-        r, out = self.run_rig(False, a_fail=False)                   # the clean pass reaches the writes, all fail
-        self.assertIsNone(out["package"])
-        self.assertNotIn("fallback_line", out["tried"][0])
-
-    def test_a_line_is_written_alone_three_times_after_its_write(self):
-        """RULING 156 (1): up to 4 writes a line: its write, then the line ALONE three times (LINE_ONLY_WRITES), each
-        told its refusal; the fourth reply offered is never asked for. (The verifier, Nov 23: with two alone writes
-        every test still passed.)"""
+    def test_a_refused_closing_line_is_never_written_alone(self):
+        """REPLACES 'a line is written alone three times after its write' (ruling 156 (1)'s up-to-4 writes, withdrawn for
+        the closing line by ITEM 2, orchestrator 09:35 ET Nov 24: "One write ... no retry loop"): the four replies
+        offered for the line alone are never asked for, no prompt tells a refusal, no verdict judges one."""
         import test_medley as TM
         T = TM.TestRuling66Amended()
         texts = [f"Nobody bends these rules, and that is exactly why they keep working for everyone who holds them {w}."
                  for w in ("anywhere", "everywhere", "still", "here")]             # 18 words each: the 39 s budget
-        rig, out, seen, avoid = T.run_rig([T.failing(), T.failing()],
+        rig, out, seen, avoid = T.run_rig([T.failing()],
                                           [{"takeaway": {"text": x, "cites": []}} for x in texts], alone_ok=(False,) * 4)
         alone = [p for r, p in rig.prompts if r == "angle_write" and "Your takeaway was refused" in p]
-        self.assertEqual((len(alone), seen), (3, [[x] for x in texts[:3]]))
-        self.assertTrue(all(texts[i] in alone[i + 1] for i in range(2)))         # each told the one refused before
-
-    def test_fidelity_stays_hard_for_the_plain_lines(self):
-        r, out = self.run_rig(True, failing=FAILING + 1)             # the plain lines' own verdict fails too
+        self.assertEqual((alone, seen, avoid, len(rig.write_calls)), ([], [], {}, 1))
+        self.assertEqual(len(rig.router.answers["angle_write"]), 4)               # all four offered: none asked for
         self.assertIsNone(out["package"])
-        self.assertIn("fallback_line", ((out.get("never_empty") or {}).get("soft_record") or {})["tried"][0])
-
 
 class TestStage2aAtTheLineUp(unittest.TestCase):
     """RULING 137 stage 2a, the line-up stage (build 164, 22:11 ET Nov 23): a clip whose CUTTABLE failure is only a
     sentence edge at a word boundary stays in the never-empty pass at the line-up's own per-clip check too (flagged by
-    the inventory's cuttable row), as it already did in the pool; a hard edge failure still drops it."""
-    def run_rig(self, why_out, never_empty=True):
+    the inventory's cuttable row), as it already did in the pool; a hard edge failure still drops it. RULING 162 (1)
+    (07:45 ET Nov 24): only the IN edge: an OUT edge that fails drops the clip in every pass."""
+    def run_rig(self, why, never_empty=True, edge="in"):
         import test_medley as TM
         from test_moments import pm
         ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
-        edges = {"cuttable": False, "in": {"ok": True, "why": "ok"}, "out": {"ok": False, "why": why_out}}
+        edges = {"cuttable": False, "in": {"ok": True, "why": "ok"}, "out": {"ok": True, "why": "ok"}}
+        edges[edge] = {"ok": False, "why": why}
         r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE)] * 2, [None] * 2,
                    a_fail={("xai", "y"): ["REFERENT_OUTSIDE"]},
                    truths={"x": {"ok": True, "replayed": False, "model": "scribe_v1", "edges": edges}})
@@ -435,12 +362,19 @@ class TestStage2aAtTheLineUp(unittest.TestCase):
         return r.run()
 
     def test_a_soft_edge_stays_flagged_and_a_hard_one_drops(self):
-        out = self.run_rig(PK.EDGE_SOFT["out"] + " (the recogniser's next word)")
+        out = self.run_rig(PK.EDGE_SOFT["in"] + " ('line:', 100 ms before it)")
         self.assertIsNotNone(out["package"], out.get("why_none"))
         self.assertEqual(out["package"]["gates"]["cuttable"]["status"], "FLAGGED")
-        hard = self.run_rig("the last word was not found in the recogniser's words")
+        hard = self.run_rig("the recogniser has no 'bitc' within 0.6 s of the clip's start")
         self.assertIsNone(hard["package"])
-        self.assertIsNone(self.run_rig(PK.EDGE_SOFT["out"], never_empty=False)["package"])   # the clean pass: HARD
+        self.assertIsNone(self.run_rig(PK.EDGE_SOFT["in"], never_empty=False)["package"])   # the clean pass: HARD
+
+    def test_an_out_edge_that_runs_on_drops_the_clip_in_every_pass(self):
+        """RULING 162 (1): the sentence carrying on past the clip's last word is never a flag again (build 167's
+        opener, Simply Bitcoin 1cb16751, sealed with it as one)."""
+        for never_empty in (True, False):
+            out = self.run_rig(PK.EDGE_SOFT["out"] + " (the recogniser's next word)", never_empty, edge="out")
+            self.assertIsNone(out["package"], never_empty)
 
 
 class TestContextSoftDefault(unittest.TestCase):
@@ -494,34 +428,6 @@ class TestRuling159NothingRaisesTheCap(unittest.TestCase):
         self.assertEqual(PP.review_flags_of(dict({"pbx_exception": exc}, **self.gates(1))),
                          [exc["flags"][0], "Kind 0."])                       # gate order: no row jumps the queue
         self.assertEqual(PP.review_flags_of(dict(self.gates(1), pbx_exception=exc)), ["Kind 0.", exc["flags"][0]])
-
-
-class TestFallbackVoPoint(unittest.TestCase):
-    """RULINGS 156 / 157 (2)(b) (after build 166): the plain fallback line makes no point by design; a coherence verdict
-    that fails ONLY on its VO-point rating passes in the never-empty pass, the through-line, every clip rating and the
-    hook's own bar still required."""
-    LINE = "Bitcoin, in the words of A, B and C, in their own clips."
-
-    def case(self, **kw):
-        coh = {"measured": True, "through_line": "The market fell to a two-year low and then bounced back.",
-               "clips": {"hook": 3, "clip_01": 4, "clip_02": 5}, "vo_point": 2, "floors": {"clip": 3, "vo_point": 3}}
-        coh.update(kw.pop("coh", {}))
-        args = dict(ok_c=False, coh=coh, soft=True, fb_text=self.LINE, fields={"takeaway": {"text": self.LINE}},
-                    segs=[{"moment_id": "h"}])
-        args.update(kw)
-        with mock.patch.object(PK, "hook_own", lambda m: {"passes": kw.get("hook_passes", True)}):
-            args.pop("hook_passes", None)
-            return PK.fallback_vo_soft(**args)
-
-    def test_only_the_vo_point_of_the_plain_line(self):
-        self.assertTrue(self.case())
-        self.assertFalse(self.case(soft=False))                                     # the clean pass: as ruled
-        self.assertFalse(self.case(fields={"takeaway": {"text": "A model's line."}}))   # not the fallback line
-        self.assertFalse(self.case(coh={"clips": {"hook": 3, "clip_01": 2, "clip_02": 5}}))   # a clip under the floor
-        self.assertFalse(self.case(coh={"through_line": None}))                     # no through-line: HARD
-        self.assertFalse(self.case(coh={"measured": False}))                        # no verdict: never a pass
-        self.assertFalse(self.case(hook_passes=False))                               # the hook's own bar
-        self.assertFalse(self.case(ok_c=True))                                       # nothing to soften
 
 
 class TestStage2bHookBar(unittest.TestCase):
@@ -942,6 +848,74 @@ class TestRuling154UnratedOpener(unittest.TestCase):
         self.assertIn("the checker rated it under the hook bar", pk["gates"]["medley"]["flags"][0])
 
 
+class TestAcceptanceItem5SelfRating(unittest.TestCase):
+    """THE ACCEPTANCE TEST, ITEM 5 (orchestrator 08:50 ET Nov 24; the verifier's row 10): "The opener rating: when the
+    same vendor wrote the angle, the rating is marked and never clears the bar silently." With every Heimdall family
+    down, Grok writes the angle AND is the hook bar's only rater: ruling 154 (1)'s stand-in step 3 is Grok itself. Its
+    rating carries the stand-in mark, is never cached as an ordinary rating, never opens in the clean pass, and opens
+    only FLAGGED in the never-empty pass."""
+    SELF = {"step": 3, "judge": "xai:grok", "why": "same vendor as the text it judges (xai): skipped"}
+
+    def run_rig(self, never_empty, marked=True):
+        import test_medley as TM
+        from test_moments import pm
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE)] * 2, [None] * 2)
+        rate = r.rate_hooks
+        r.rate_hooks = lambda *a, **k: ({mid: dict(v, **({"lx_soft": dict(self.SELF)} if marked else {}))
+                                         for mid, v in rate(*a, **k)[0].items()}, None)
+        r.build_kw = {"never_empty": never_empty}
+        return r.run()
+
+    def test_it_never_clears_the_bar_silently(self):
+        self.assertIsNotNone(self.run_rig(False, marked=False)["package"])     # control: the bar's own rater, unmarked
+        self.assertIsNone(self.run_rig(False)["package"])                      # the clean pass: never opens
+        out = self.run_rig(True)
+        pk = out["package"]
+        self.assertIsNotNone(pk, out.get("why_none"))                          # the never-empty pass: opens, FLAGGED
+        self.assertEqual(pk["gates"]["medley"]["status"], "FLAGGED")
+        self.assertIn("standing in for itself", pk["gates"]["medley"]["flags"][0])
+        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])
+
+    def test_the_rating_is_marked_and_never_cached(self):
+        import json as J
+        import tempfile
+        import types
+
+        class R:
+            backends = {"xai:grok": types.SimpleNamespace(vendor="xai", family="grok")}
+
+            def chain(self, role, kind=None):
+                return ["xai:grok"]
+
+            def call(self, role, prompt, max_tokens=2000, seed=7, **k):
+                r = types.SimpleNamespace(text=J.dumps({"hooks": {"h": {"scroll": 5, "alone": 5, "setup": 5,
+                                                                         "why": "w"}}}),
+                                          backend="xai:grok", replayed=False, lx_soft=dict(TestAcceptanceItem5SelfRating.SELF))
+                return r
+
+            def reject(self, r, why=""):
+                return False
+        from test_moments import pm
+        m = pm("h", "A", 12.0)
+        with tempfile.TemporaryDirectory() as d:
+            cache = d + "/HOOK_CACHE.json"
+            import test_medley as TM
+            got, err = PK.hook_ratings(R(), [m], TM.ctx(), {"heimdall"}, {"qwen"}, cache=cache)
+            self.assertIsNone(err)
+            self.assertEqual(got["h"]["lx_soft"]["step"], 3)                   # marked
+            stored = J.load(open(cache)) if __import__("os").path.exists(cache) else {}
+            self.assertEqual(stored, {})                                       # never cached as an ordinary rating
+        marked = dict(m, hook_rating=got["h"])
+        self.assertFalse(PK.hook_own(marked)["passes"])                        # the clean pass: never on the bar
+        soft = dict(marked, hook_bar_soft=True)
+        own = PK.hook_own(soft)
+        self.assertEqual((own["passes"], own.get("unrated")), (True, True))    # the never-empty pass: flagged
+        self.assertIn("standing in for itself", own["flagged"])
+        plain = dict(m, hook_rating={k: v for k, v in got["h"].items() if k != "lx_soft"})
+        self.assertTrue(PK.hook_own(plain)["passes"])                          # the same rating unmarked: on the bar
+
+
 class TestRuling154OneJudgeFlag(unittest.TestCase):
     """RULING 154 (1) / 152 (2): every check of the package a stand-in judge made (its verdict marked "lx_soft" by the
     router or by the coherence panel's extra seats) is named in ONE flag (one kind); none: no row."""
@@ -1137,10 +1111,9 @@ class TestRuling159NoExceptionSwitch(unittest.TestCase):
 
 
 class TestRuling150ValueSoft(unittest.TestCase):
-    """RULING 150 (standing; orchestrator 18:18 ET Nov 23: 'the value grade of our closing line' is SOFT): in the
-    never-empty pass a closing line whose MEASURED value verdict (ruling 91) is not a clear yes keeps its place, flagged
-    'The closing line may mostly restate the clips: "<line>"', and goes on to fidelity. An unmeasured verdict, and the
-    clean pass: unchanged (HARD)."""
+    """RULING 150 REVERSED by RULING 162 (2) (07:45 ET Nov 24): the closing line's value grade is a requirement again,
+    in every pass, never a flag. A loss is told to the next write; after the four writes, no line (here no no-voice
+    line-up exists: 39 s of clips and nothing to add, so no package). TICKER: the show's own ticker (ruling 146 (1))."""
     TICKER = {"kind": "ticker", "text": "S&P 500 Nasdaq Bitcoin", "whole_in_16x9": True, "in_9x16": "cut",
               "covers_speaker": False}
 
@@ -1151,19 +1124,16 @@ class TestRuling150ValueSoft(unittest.TestCase):
         lost = {"adds": "yes", "no_restate": "no", "why": "it restates the clips"} if measured else {"measured": False}
         kw = {"visuals": {"x": {"burned_in": [dict(self.TICKER)]}}} if ticker else {}
         r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE), (True, [], None, TM.Rig.LINE)], [None],
-                   values=[dict(lost) for _ in range(6)], follow_up={"angles": [TM.angle(["h", "x", "y"], "h")]}, **kw)
+                   values=[dict(lost) for _ in range(6)], follow_up={"angles": [TM.angle(["h", "x", "y"], "h")]},
+                   lines=TM.TestRuling91MedleyHalf.ALONE, **kw)
         if never_empty:
             r.build_kw = {"never_empty": True}
         return r, r.run()["package"]
 
-    def test_a_measured_loss_seals_flagged(self):
-        import test_medley as TM
-        _, pk = self.run_rig()
-        self.assertIsNotNone(pk)
-        row = pk["gates"]["takeaway_value"]
-        self.assertEqual((row["status"], row["flags"], row["text"]), (
-            "FLAGGED", [f'The closing line may mostly restate the clips: "{TM.Rig.LINE}"'], TM.Rig.LINE))
-        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])
+    def test_a_measured_loss_is_never_a_flag(self):
+        r, pk = self.run_rig()
+        self.assertIsNone(pk)                                      # losses: no line; no no-voice line-up exists
+        self.assertTrue(r.value_calls)                             # the value grade was asked, and never flagged
 
     def test_the_clean_pass_never_takes_it(self):
         _, pk = self.run_rig(never_empty=False, ticker=False)      # reaches the value gate: HARD
@@ -1172,6 +1142,8 @@ class TestRuling150ValueSoft(unittest.TestCase):
     def test_no_verdict_stays_hard(self):
         _, pk = self.run_rig(measured=False)
         self.assertIsNone(pk)
+
+
 class TestRuling161SponsorOnlySeenIsInformation(unittest.TestCase):
     """RULING 161 (orchestrator 07:36 ET Nov 24, from PBX 07:28; it replaces ruling 158 (2)): a clip whose frames only
     SHOW sponsor material (the Kraken banner, filed by the check as a 'ticker') plays in any pass and any format, with
@@ -1388,12 +1360,77 @@ class TestRuling143AtSelection(unittest.TestCase):
         self.assertIs(PK.lv2_settled(ok, "adopt"), ok)                         # nothing to settle
 
 
+class TestItem1RealClips(unittest.TestCase):
+    """ITEM 1 (orchestrator 09:50 ET Nov 24) on three REAL clips, each asked the build's way (ad_read_out ->
+    ad_before_soft -> exclusion_for on the clip's own word record and caption context) with the checker's real replies
+    FROZEN (recorded 09:55 ET Nov 24 from the in-house checker, minimax; replayed here: nothing is asked):
+      ad47eab4 (Digital Asset News, the news read after 'link in the description'): PASSES, the judgment recorded;
+      6e79ceaa (Natalie Brunell, the first line of The Bitcoin Way's read, no magic word): REFUSED (ad_read);
+      41e3bcce ('no one has made it easier than our friends over at Bitkey'): REFUSED (ad_read).
+    A dead checker (no recorded reply) HOLDS: never a pass, never a flag."""
+    D = os.path.join(HERE, "fixtures", "item1_sponsor")
+
+    def setUp(self):
+        import ledger_build as LB
+        import eligibility as E
+        self.LB, self.ctx = LB, E.Context(datetime(2026, 11, 24, 15, 0, tzinfo=timezone.utc), {})
+        self.cases = json.load(open(os.path.join(self.D, "cases.json")))["cases"]
+
+    def source(self, c):
+        m, store = c["moment"], os.path.join(self.D, "store")
+        if m.get("source_key"):
+            src, _, why = self.LB.window_source(m, c["word_pass"], self.ctx, store)
+            self.assertIsNotNone(src, why)
+            src.context_source, why = self.LB.caption_source(dict(m, transcript_sha256=c["caption_sha256"]), self.ctx,
+                                                             store, os.path.join(self.D, "ledger"))
+            self.assertIsNotNone(src.context_source, why)
+        else:
+            src, _, why = self.LB.word_source(m, self.ctx, store)
+            self.assertIsNotNone(src, why)
+        return {m.get("source_key") or m["video_id"]: src}
+
+    def judge(self, c, replies):
+        import proof_ly as PL
+        import providers as P
+        ch = PL.chains("heimdall_first")
+        ch["exclusion_verdict"] = ["heimdall:google/gemma-4-31b-it", "heimdall:minimax/minimax-m3.1-flash"]
+        r = P.Router(chains=ch, routing="heimdall_first", record_dir=replies, replay=True)
+        m = dict(c["moment"])
+        sources = self.source(c)
+        ad_read = PK.ad_read_out([m], sources)
+        PK.ad_before_soft([m], ad_read, False)               # the clean pass: ITEM 1 reads the same in both passes
+        if m["moment_id"] in ad_read and not m.get("ad_before"):
+            return m, {"verdict": "exclude", "backend": "deterministic", "measured": True}
+        return m, PK.exclusion_for(r, m, sources, {})
+
+    def test_the_news_read_passes_recorded_and_both_ad_reads_refuse(self):
+        got = {}
+        for c in self.cases:
+            m, v = self.judge(c, os.path.join(self.D, "replies"))
+            got[m["moment_id"][:8]] = (v["verdict"], v.get("risks"), v["measured"], v.get("replayed"),
+                                       bool(m.get("ad_before")))
+        self.assertEqual(got, {
+            "ad47eab4": ("keep", [], True, True, True),            # (c) a sponsor sentence before, editorial words
+            "6e79ceaa": ("exclude", ["ad_read"], True, True, True),   # (b) part of the ad read: its first line
+            "41e3bcce": ("exclude", ["ad_read"], True, True, False)})   # the BitKey read in its own words
+
+    def test_a_dead_checker_holds_the_clip(self):
+        import providers as P
+        with tempfile.TemporaryDirectory() as empty, \
+                mock.patch.object(P, "ReplayMiss", P.ProviderError):   # no reply recorded: the checker never answers
+            for c in self.cases:                                       # (the replay's miss as a live outage raises it)
+                m, v = self.judge(c, empty)
+                self.assertEqual((v["verdict"], v["measured"], v.get("ad_before")), ("exclude", False, None),
+                                 m["moment_id"])
+
 class TestRuling146SponsorBefore(unittest.TestCase):
-    """RULING 146 (3) (orchestrator 07:55 ET Nov 18; PBX 08:34 'we never include any sponsor material ever, but if it
-    doesn't have any in it then it is fine to use'), the never-empty pass: a sponsor marker ONLY in the sentence before
-    a clip goes to the exclusion model with the context; its ad_read risk (the clip's own words in the ad: Natalie
-    Brunell 6e79ceaa was the opening line of The Bitcoin Way's read) excludes, HARD; kept, the package flags 'The clip
-    (X) comes right after a sponsor mention.' A marker in the clip's own words stays HARD; the clean pass is unchanged."""
+    """ITEM 1 (orchestrator 09:50 ET Nov 24, PBX's rule: sponsor material is fine "so long as it is not actually an ad
+    that the entire segment is being cut from", and a sponsor is never "mentioned verbally" in the clip), IN BOTH
+    PASSES: (a) sponsor words or an offer in the clip's own words refuse (deterministic, no model); (b) a clip the
+    checker judges PART OF the ad read (its first line included: Natalie Brunell 6e79ceaa, the opening line of The
+    Bitcoin Way's read) refuses; (c) a sponsor sentence BEFORE the clip refuses nothing by itself when the checker
+    judges the clip's own words editorial: it passes with the judgment recorded on the exclusion row, never a flag;
+    (d) no answer is UNVERIFIED and holds the clip, never a pass and never a flag. Ruling 146 (3)'s soft flag is gone."""
     BEFORE = "Use my promo code stories to get 10% off. This episode is sponsored by BitKey."
     CLIP = "If your Bitcoin can be frozen or monitored by an exchange, it's not yours."
     SPONSOR = "ad-read marker 'sponsored' in the sentence before it"
@@ -1407,6 +1444,8 @@ class TestRuling146SponsorBefore(unittest.TestCase):
 
         def fake(router, role, prompt, parse, n, seed, avoid_model=None):
             calls.append(role)
+            if isinstance(reply, Exception):
+                raise reply
             return types.SimpleNamespace(backend="heimdall:deepseek", replayed=False), parse(json.dumps(reply))
         with mock.patch.object(P, "call_parsed", fake):
             return M.exclusion_verdict(None, text, before, "", before_marker_soft=soft), calls
@@ -1417,22 +1456,28 @@ class TestRuling146SponsorBefore(unittest.TestCase):
         self.assertEqual((v["verdict"], v.get("ad_before"), calls), ("keep", self.SPONSOR, ["exclusion_verdict"]))
         ad = {"risks": ["ad_read"], "about_bitcoin": "yes", "why": "the opening line of the next ad read"}
         v, _ = self.verdict(self.CLIP, self.BEFORE, True, ad)
-        self.assertEqual((v["verdict"], v.get("ad_before")), ("exclude", None))           # the clip IS the ad: HARD
+        self.assertEqual((v["verdict"], v.get("ad_before")), ("exclude", None))           # (b) the clip IS the ad
 
-    def test_a_marker_in_the_clip_and_the_clean_pass_stay_hard(self):
+    def test_a_dead_checker_holds_never_a_pass_never_a_flag(self):
+        import providers as P
+        v, calls = self.verdict(self.CLIP, self.BEFORE, True, P.ProviderError("every exclusion model is down"))
+        self.assertEqual((v["verdict"], v["measured"], v.get("ad_before"), calls),
+                         ("exclude", False, None, ["exclusion_verdict"]))                # (d) UNVERIFIED: held
+
+    def test_a_marker_in_the_clips_own_words_refuses_with_no_model(self):
         keep = {"risks": [], "about_bitcoin": "yes", "why": "x"}
-        for text, before, soft in ((self.CLIP + " Use my promo code stories.", "", True),
-                                   (self.CLIP, self.BEFORE, False)):
-            v, calls = self.verdict(text, before, soft, keep)
-            self.assertEqual((v["verdict"], v["backend"], calls), ("exclude", "deterministic", []), (text, soft))
+        for text, before in ((self.CLIP + " Use my promo code stories.", ""),
+                             (self.CLIP + " Use my promo code stories.", self.BEFORE)):
+            v, calls = self.verdict(text, before, True, keep)
+            self.assertEqual((v["verdict"], v["backend"], calls), ("exclude", "deterministic", []), text)   # (a)
 
-    def test_the_mark_is_the_passs_own_and_the_cache_key_its_own(self):
+    def test_both_passes_mark_and_the_cache_key_is_its_own(self):
         ms = [{"moment_id": "a", "ad_before": "stale"}, {"moment_id": "b"}]
         ad_read = {"a": self.SPONSOR, "b": "ad-read marker 'promo code' in the moment"}
-        self.assertEqual(PK.ad_before_soft(ms, ad_read, False), {})
-        self.assertNotIn("ad_before", ms[0])                                              # popped, never carried in
-        self.assertEqual(PK.ad_before_soft(ms, ad_read, True), {"a": self.SPONSOR})
-        self.assertEqual((ms[0].get("ad_before"), ms[1].get("ad_before")), (self.SPONSOR, None))
+        for soft in (False, True):                                    # ITEM 1: the clean pass asks the checker too
+            ms[0]["ad_before"] = "stale"
+            self.assertEqual(PK.ad_before_soft(ms, ad_read, soft), {"a": self.SPONSOR}, soft)
+            self.assertEqual((ms[0].get("ad_before"), ms[1].get("ad_before")), (self.SPONSOR, None))
         seen, cache = [], {}
         with mock.patch.object(PK, "src_of", lambda m, s: "src"), \
                 mock.patch.object(PK.CI, "context_around", lambda *a: (self.BEFORE, "")):
@@ -1453,27 +1498,25 @@ class TestRuling146SponsorBefore(unittest.TestCase):
         with mock.patch.object(PK, "ad_read_out", lambda ms, sources: {"x": self.SPONSOR}):
             return r.run()["package"]
 
-    def test_a_clip_after_a_sponsor_mention_seals_flagged_never_empty_only(self):
-        self.assertIsNone(self.run_rig(False))                                            # the clean pass: refused
-        pk = self.run_rig(True)
-        self.assertIsNotNone(pk)
-        ch = next(s["channel"] for s in pk["segments"] if s["moment_id"] == "x")
-        self.assertEqual((pk["gates"]["sponsor"]["status"], pk["gates"]["sponsor"]["flags"]),
-                         ("FLAGGED", [f"The clip ({ch}) comes right after a sponsor mention."]))
-        self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])
-        self.assertIsNone(self.run_rig(True, excluded={"x"}))                              # the model excludes: HARD
+    def test_a_clip_after_a_sponsor_sentence_judged_editorial_passes_in_both_passes_recorded(self):
+        for never_empty in (False, True):
+            pk = self.run_rig(never_empty)
+            self.assertIsNotNone(pk, never_empty)
+            self.assertNotIn("sponsor", pk["gates"])                                      # never a flag
+            self.assertEqual(pk["gates"]["exclusion"]["status"], "PASS")
+            self.assertEqual(pk["gates"]["exclusion"]["sponsor_before"]["x"]["marker"], self.SPONSOR)
+            self.assertEqual(PP.gate_problems(pk["gates"], PP.required_gates(pk)), [])
+            self.assertIsNone(self.run_rig(never_empty, excluded={"x"}), never_empty)     # judged the ad: refused
 
     def test_an_extra_flagged_row_stands_only_on_a_soft_gate_with_flags(self):
         pk = self.run_rig(True)
         req = PP.required_gates(pk)
-        self.assertNotIn("sponsor", req)                              # an extra row: gate_problems reads it as well
+        self.assertNotIn("sponsor", PP.SOFT_GATES)                     # ITEM 1: the sponsor flag row is gone
         made_up = {"status": "FLAGGED", "flags": ["A plain sentence."], "replayed": False}
         self.assertEqual(PP.gate_problems(dict(pk["gates"], made_up=made_up), req),
                          ["made_up: FLAGGED without a soft gate and its plain flags (ruling 137)"])
-        no_flags = dict(pk["gates"], sponsor=dict(pk["gates"]["sponsor"], flags=[]))
-        self.assertEqual(PP.gate_problems(no_flags, req),
+        self.assertEqual(PP.gate_problems(dict(pk["gates"], sponsor=made_up), req),
                          ["sponsor: FLAGGED without a soft gate and its plain flags (ruling 137)"])
-
 
 class TestRuling148RuntimeFloor(unittest.TestCase):
     """RULINGS 148 (1) / 149 (orchestrator 09:56 ET Nov 18; standing from the 12:00 build): in the never-empty pass a

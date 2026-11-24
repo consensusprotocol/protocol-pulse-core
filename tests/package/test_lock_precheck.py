@@ -629,6 +629,56 @@ if __name__ == "__main__":
     unittest.main()
 
 
+class TestItem7NoSilentMeaningSwap(Dirs):
+    """ITEM 7 (orchestrator 09:20 / 09:35 ET Nov 24), the builder's half: a pair whose two sides sit on ONE meaning axis
+    with a different value (owner_rules.meaning_pair, the integrator's one list) is never adopted, whatever the two
+    ears say: transcript 'approved', both ears 'rejected' HOLDS, on every adoption path (ruling 143's settlement, 131
+    (A)'s two of three, 84's class). A benign correction (FDX -> FTX) is still adopted. No rules file: no adoption."""
+    APPROVED = ("The commission approved the spot fund on Friday afternoon, and the price moved within the hour, "
+                "traders said.")
+    HEARD = APPROVED.replace("approved", "rejected")
+    SEG = {"moment_id": "x", "video_id": "abcdefghijk", "start": 10.0, "end": 19.5, "text": APPROVED}
+
+    def adj(self, rule="ruling 143 (orchestrator 2026-11-17 '15:55')"):
+        r, p, ops = AT.diff(self.HEARD, self.APPROVED)
+        pairs = [{"run": " ".join(r[a:b]), "approved": " ".join(p[c:d]), "material": False, "second_reads": "run",
+                  "took": "run"} for _, a, b, c, d in ops]
+        return {"rule": rule, "verdict": "settled", "pairs": pairs, "run_decode": self.HEARD,
+                "approved": self.APPROVED, "second_recogniser": self.HEARD}       # both ears: 'rejected'
+
+    def decide(self, adj):
+        s = LP.segments_of([self.SEG])[0]
+        return LP.decide(s, entry(s, "adopt_spoken", spoken_text=self.HEARD, adjudication=adj))
+
+    def test_transcript_approved_both_ears_rejected_holds_on_every_adoption_path(self):
+        for adj in (self.adj(), self.adj("ruling 131 (A) (orchestrator 2026-11-17 '08:25')"), None):
+            d = self.decide(adj)
+            self.assertEqual((d["verdict"], d.get("meaning_swaps")), ("hold", [["rejected", "approved"]]), adj)
+            self.assertIn("item 7", d["why"])
+        diffs = AT.class_143(self.HEARD, self.APPROVED, self.adj())               # attest's own re-check holds it too
+        self.assertEqual([(x["class"], x["material"]) for x in diffs if x["spoken"] == "rejected"], [(None, True)])
+        self.assertTrue(AT.material_pair(["rejected"], ["approved"], (self.HEARD, self.APPROVED, self.HEARD)))
+
+    def test_every_axis_and_what_is_not_a_swap(self):
+        for a, b in (("buy", "sell"), ("rose", "fell"), ("bullish", "bearish"), ("long", "short"), ("more", "fewer"),
+                     ("doubled", "halved"), ("million", "billion"), ("approved", "denied")):
+            self.assertEqual(AT.meaning_swaps(f"They said {a} today.", f"They said {b} today."), [[a, b]], (a, b))
+        self.assertEqual(AT.meaning_swaps("Bitcoin bottomed four years ago.", "Bitcoin bottom four years ago."), [])
+        self.assertEqual(AT.meaning_swaps("after the FTX bottom", "after the FDX bottom"), [])
+        self.assertFalse(AT.material_pair(["but"], ["and"], ("a", "b", "c")))
+
+    def test_a_benign_correction_is_still_adopted_and_no_rules_means_no_adoption(self):
+        t = TestRuling143()
+        self.assertEqual(TestRuling143.decide(t)["verdict"], "adopt")              # FDX -> FTX, both ears: adopted
+        import out_edge as OE
+        from unittest import mock
+        with mock.patch.object(OE, "OWNER_RULES", "/nonexistent/owner_rules.py"):
+            self.assertIsNone(AT.meaning_swaps(self.HEARD, self.APPROVED))
+            d = TestRuling143.decide(t)
+            self.assertEqual(d["verdict"], "hold")                                 # fail closed: no adoption at all
+            self.assertIn("cannot be read", d["why"])
+
+
 class TestRuling143(Dirs):
     """RULING 143 (orchestrator 2026-11-17 '15:55'), landed by RULING 153 (20:03 ET Nov 23) in ONE lockstep with the
     integrator's batch 113: when the TWO AUDIO readings (the run decode and the second recogniser) agree with each other
