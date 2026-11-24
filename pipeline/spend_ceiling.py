@@ -24,8 +24,8 @@ settled: the vendor's reported figure, or our metered one. FAIL CLOSED:
 A call the vendor REFUSED with a 4xx status (rejected, rate-limited, unauthorised: not processed) and a call refused
 before it was sent release their reservation.
 THE VOICE (ElevenLabs TTS) bills characters against the plan's monthly quota; no USD rate is established offline (the
-plan's character_limit 363000; the render preflights of Nov 23-24 logged 351,580 to 354,985 characters left; whether
-usage past the limit is billed was not read). VOICE_MODE "chars" (the default): outside the dollar ceiling, held to
+plan's character_limit 363000; the last eight render preflights, Nov 14-23, logged 351,580 to 354,985 characters left;
+whether usage past the limit is billed was not read). VOICE_MODE "chars" (the default): outside the dollar ceiling, held to
 VOICE_CHAR_CAP characters PER BUILD (the launch names the build: PP_SPEND_RUN), a reservation of characters refused past
 it; with the preflight's own floor (no render starts with fewer than 2,000 characters left) a build never reaches
 past the plan's included characters. "usd": counted at the owner's stated rate (PP_VOICE_USD_PER_1K_CHARS); never a
