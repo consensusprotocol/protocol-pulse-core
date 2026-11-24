@@ -2911,7 +2911,7 @@ def write_takeaway(router, angle, segs, ctx, a_by, join=None, extra="", seed=7, 
                              said=TAKEAWAY_SAID)
     r = router.call("angle_write", prompt, 3000, seed, avoid_vendor=avoid_vendor, deadline_s=WRITER_DEADLINE_S,
                     kind=CLOSING_KIND, **({"avoid_model": set(avoid_model)} if avoid_model else {}))   # RULING 162 (2):
-    try:                                                 # the paid model first, then the Heimdall families (a model
+    try:                                                 # ITEM 2: the in-house writers only, no paid rescue (a model
         obj = json.loads(r.text.strip())                 # that already wrote this line-up's closing line: not again)
         ids = [m["moment_id"] for m in segs]
         keys = {"takeaway", "bridge", "title", "caption"}
@@ -2968,9 +2968,10 @@ TAKEAWAY_LIMIT = ("ONE sentence of {lo}-{hi} words in your own voice that gives 
                   "next, said as a statement); it states no fact, number, name or quote the clips do not carry, never "
                   "names a channel, a show or a speaker, never lists or recaps what was shown, no speaker's view, no "
                   "advice and no accusation, and no viewer could take it for a speaker's words")   # RULING 162 (2)
-CLOSING_KIND = "closing"   # RULING 162 (2): "THE WRITER CHAIN FOR THIS LINE (ruling 152 amended): the PAID model writes
-#   it FIRST ..., then the Heimdall families": the writer role's own list "angle_write:closing" (proof_ly.chains: Grok,
-#   then proof_ly.WRITERS' families); the role stays the writer role (its recordings, L-x, never a stand-in judge)
+CLOSING_KIND = "closing"   # ITEM 2 (amendment B, 09:35 ET Nov 24, replacing 162 (2)'s paid-first chain): "An in-house
+#   model writes, a different family judges, no paid rescue, no retry loop": the writer role's own list
+#   "angle_write:closing" (proof_ly.chains: proof_ly.WRITERS' Heimdall families only); the role stays the writer role
+#   (its recordings, L-x); its judges are never a stand-in (providers.LX_SOFT_NEVER_KINDS)
 TAKEAWAY_WHY = dict(VO_FIX, **LINE_WHY, COMMENTARY="as host commentary it must state no fact, no speaker's view, no "
                     "advice or prediction and no accusation, and must not sound like a speaker",
                     COHERENCE="a blind viewer did not find its point supported by the clips",
@@ -4716,7 +4717,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                 take_failed, last_fields = 0, None         # ruling 3 (22:40): the no-voice fallback reads these
                 alone_n, alone_by, t_refused, t_alone, last_fid, last_rw65 = 0, None, [], False, None, False
                 wrote = set()                            # RULING 162 (2): the models that wrote this line-up's
-                #   closing line (or answered out of contract): the next write goes down the chain, paid first
+                #   closing line (or answered out of contract); ITEM 2: one write, so no next write reads it today
                 v_lost, v_redo, v_novoice, v_plan, val = [], False, None, None, None   # RULING 91 (medley half):
                 #   the value verdicts the takeaway lost, its ONE rewrite still due, the loss that sends the line-up to
                 #   the no-voice shape with the plan decided for it (nv_order), and the verdict of the takeaway now written
