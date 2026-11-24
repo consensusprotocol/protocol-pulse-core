@@ -51,6 +51,8 @@ import glob
 import hashlib
 import json
 import os
+import signal
+import subprocess
 import sys
 import time
 from datetime import datetime, timedelta, timezone
@@ -105,6 +107,7 @@ import speakers as SP  # noqa: E402
 import spotlight as SPOT  # noqa: E402
 import lock_precheck as LP  # noqa: E402
 import tail_variant as TV  # noqa: E402
+import outcomes as OC  # noqa: E402
 
 REGISTRY = os.path.join(HERE, "proof", "CANDIDATES.json")     # ruling 66: the candidates, kept
 SPOTLIGHTS = os.path.join(HERE, "proof", "SPOTLIGHTS.json")   # ruling 90: one spotlight per channel per ET day
@@ -112,6 +115,36 @@ DIRECTIVES = os.path.join(HERE, "proof", "RULING_104_DIRECTIVES.json")   # rulin
 STATE_MD = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_STATE.md")   # ruling 87: a switch on line 1
 FINGERPRINT = "FINGERPRINT.json"     # RULING 107 (1): a finished build's inputs, written at its end for the next build
 NOTHING_NEW = "NOTHING_NEW.json"     # RULING 107 (1): a build that found nothing new and asked no model
+
+
+UNDER_TEST = "PP_SELECTID_DRIVER_UNDER_TEST"   # set only by tests/package/conftest.py, inside pytest
+
+
+def entry_of():
+    """VERIFIER ROWS 12 / 16 (FIX_VERIFICATION_2026-11-24: "Nothing in the pushed driver records or refuses another
+    entry point"): how this build was entered. A build runs only as THIS file run as __main__ (the committed launcher,
+    tests/package/record/build_and_record.sh, runs nothing else); a wrapper that imports this module and calls main()
+    (builds 166-168's by_hand_*.py) is refused. Inside pytest, with UNDER_TEST set by the tests' conftest, the tests
+    may call main(); the record says so. -> {"ok", "why", "driver", "argv0", "main", "code", "dirty", "under_test"}:
+    "code" the git HEAD, "dirty" the code files (.py / .sh) git reports changed under pipeline/ and tests/package/."""
+    mm = sys.modules.get("__main__")
+    mf = getattr(mm, "__file__", None)
+    own = bool(mf) and os.path.realpath(mf) == os.path.realpath(os.path.abspath(__file__))
+    test = os.environ.get(UNDER_TEST) == "1" and "_pytest" in sys.modules
+    try:
+        head = subprocess.run(["git", "-C", REPO, "rev-parse", "HEAD"], capture_output=True, text=True,
+                              timeout=30).stdout.strip() or None
+        st = subprocess.run(["git", "-C", REPO, "status", "--porcelain", "--", "pipeline", "tests/package"],
+                            capture_output=True, text=True, timeout=60).stdout.splitlines()
+        dirty = sorted(x[3:] for x in st if not x.startswith("??") and x[3:].endswith((".py", ".sh")))
+    except (OSError, subprocess.SubprocessError) as e:
+        head, dirty = None, [f"unreadable: {type(e).__name__}"]
+    why = None if own or test else (f"this build was entered through {mf or 'no file (python -c or an import)'}, "
+                                    f"not {os.path.relpath(os.path.abspath(__file__), REPO)} run as __main__: no "
+                                    f"by-hand wrapper builds (verifier rows 12 / 16)")
+    return {"ok": why is None, "why": why, "driver": os.path.relpath(os.path.abspath(__file__), REPO),
+            "argv0": sys.argv[0] if sys.argv else None, "main": mf, "code": head, "dirty": dirty,
+            "under_test": bool(test and not own)}
 
 
 def _sha(x):
@@ -473,6 +506,40 @@ def ruling_101_line(par):
 
 
 def main(argv=None):
+    """The build, entered only through this file (entry_of), and RULING 160 (2b): EXACTLY ONE outcome line a build in
+    data/builds/outcomes.jsonl (outcomes.record_build), written here whatever ends the build once its record folder
+    exists: its end, NOTHING NEW, the start refusal, a crash or a stop (SIGTERM is turned into SystemExit, so this
+    finally runs). A refusal before the folder is made (exit 2) is no build and writes no line."""
+    entry = entry_of()
+    if not entry["ok"]:
+        print(f"REFUSED: {entry['why']}", file=sys.stderr)
+        return 2
+    if not entry["under_test"]:
+        try:
+            signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
+        except ValueError:                               # not the main thread: the default stays
+            pass
+    box, rc, err = {}, None, None
+    try:
+        rc = _main(argv, box, entry)
+        return rc
+    except BaseException as e:                           # noqa: BLE001  recorded, then raised as it was
+        err = e
+        raise
+    finally:
+        if box.get("out_dir"):
+            try:
+                line = OC.record_build(box["out_dir"], rc=rc, error=err, refused=box.get("refused"),
+                                       build_no=box.get("build_no"), path=box.get("outcomes"))
+                if line:
+                    print(f"  RULING 160 (2b): outcome {line['outcome']} at {line['stage']}: {line['gate']}",
+                          flush=True)
+            except Exception as e:                       # noqa: BLE001  never masks the build's own end
+                print(f"  RULING 160 (2b): the outcome line was NOT written: {type(e).__name__}: {e}",
+                      file=sys.stderr, flush=True)
+
+
+def _main(argv, box, entry):
     ap = argparse.ArgumentParser()
     ap.add_argument("--delivered", nargs="+", required=True, metavar="PIN",
                     help="every pin already delivered: their clip spans are out (L-p), and 'since' defaults to the "
@@ -491,6 +558,8 @@ def main(argv=None):
                     "build takes only those moments of the pool, every gate as before (one line-up at a time)")
     ap.add_argument("--stop-usd", type=float, default=None, help="ORDER 17:50 ET Nov 16: this build's outside-dollar "
                     f"limit (no build starts at it; the router stops outside calls at it), in (0, {STOP_CEILING_USD}]")
+    ap.add_argument("--build-no", type=int, default=None, help="RULING 160 (2b): the launcher's build number, on the "
+                    "build's outcome line")
     ap.add_argument("--from-candidate", metavar="BUILD_DIR[:N]",
                     help="RULING 66: try ONLY the line-up that passed the clips-alone verdict in this earlier build's "
                          "record (its tried[N]; default the first that passed), as it was judged")
@@ -547,6 +616,7 @@ def main(argv=None):
     except FileExistsError:
         print(f"REFUSED: {out_dir} exists", file=sys.stderr)
         return 2
+    box.update(out_dir=out_dir, build_no=a.build_no)     # RULING 160 (2b): from here on, the build has one outcome
     logf = open(os.path.join(out_dir, "package.log"), "a")
     say = lambda s: (print(s, flush=True), logf.write(s + "\n"), logf.flush())
     ctx = E.Context(now, PS.REG, ledger=PS.ledger_entries())
@@ -554,6 +624,8 @@ def main(argv=None):
         f"{now.isoformat(timespec='seconds')}, since {since.isoformat(timespec='seconds')} "
         f"({'--since' if a.since else 'the newest delivered pin'}), publish window {a.hours} h" +
         (f"; RULING 66: ONLY the candidate {cand['source']} tried[{cand['index']}] {cand['lineup']}" if cand else ""))
+    say(f"  entry (verifier rows 12 / 16): {entry['driver']} as __main__ (argv0 {entry['argv0']}), HEAD "
+        f"{str(entry['code'])[:12]}, changed code files {entry['dirty'] or 'none'}")
     say(f"  delivered: {', '.join(p['story_id'] + ' (' + p['approved_at'] + ')' for p in pins)}; "
         f"{len(delivered)} clip spans out")
     say(f"  RULING 76: {len(gone)} candidate(s) expired (over {package_pin.WINDOW_H:g} h on the render clock)" +
@@ -578,7 +650,8 @@ def main(argv=None):
         next_try = {"error": f"{type(e).__name__}: {str(e)[:200]}"}       # never the build
     moments = with_variants(moments, sources, ctx, inputs, say)   # RULING 104: beside their parents, every gate again
     with open(os.path.join(out_dir, "inputs.json"), "w") as f:
-        json.dump({"since": since.isoformat(), "publish_window_h": a.hours, "delivered_pins": pins,
+        json.dump({"entry": entry, "build_no": a.build_no,          # verifier rows 12 / 16; ruling 160 (2b)
+                   "since": since.isoformat(), "publish_window_h": a.hours, "delivered_pins": pins,
                    "adapter_report": rep, "inputs": inputs, "delivered": delivered, "moments": moments,
                    "next_attempt": next_try}, f, indent=1, default=str)
     pool = json.loads(json.dumps(moments, default=str))   # RULING 107 (1): the pool as it came in, before any stage
@@ -616,6 +689,7 @@ def main(argv=None):
     refused = start_refused(spent0, stop)
     if refused:
         say(refused)
+        box["refused"] = refused                         # RULING 160 (2b): BUDGET_STOPPED at the start
         logf.close()
         return 3
     say(f"  spend (ruling 48): ${spent0:.2f} of ${limit:.2f} vendor-reported before this build (no build "

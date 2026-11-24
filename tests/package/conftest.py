@@ -38,3 +38,11 @@ def _rig_hook_bar(request, monkeypatch):
     monkeypatch.setattr(PK, "_live_bar", lambda: (bar, None))
     monkeypatch.setattr(PK, "_live_lineup_bar", lambda: (lbar, None))   # ruling 116: the rigs' line-up bar
     yield
+
+
+@pytest.fixture(autouse=True)
+def _driver_under_test(monkeypatch):
+    """VERIFIER ROWS 12 / 16 (Nov 24): proof_ledger.main refuses any entry but its own file run as __main__; inside
+    pytest, with this variable set here, the tests may call main() (the build record then says under_test)."""
+    monkeypatch.setenv("PP_SELECTID_DRIVER_UNDER_TEST", "1")
+    yield
