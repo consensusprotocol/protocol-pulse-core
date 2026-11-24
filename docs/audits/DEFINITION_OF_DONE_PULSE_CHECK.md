@@ -6,6 +6,24 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 20:39 RE-JUDGE DONE (DECODER 9326604699a7): all 24 spans answered.
+- MicroStrategy: 11 of 12 pass (4c8a1d87, 64b8fc3b, 72fbbf81, 8c60556a, ae49f0e8, afc71c91, b9acd2c7, c467bae8, c5b136cd, e3bde2f2, f4aa3aed). c90facab holds: the two audio readings disagree on a material word (ruling 143).
+- FTX 4 of 7 and liquidations 2 of 4 stand as at 20:31.
+- NOT QUITE FREE: $0.0402 Scribe since 20:19 (data/spend/integrator_outside.jsonl, in the day ledger):
+  - $0.0082 is U7X6kReXets's first reading; its window never downloaded before.
+  - $0.032 re-read 4 spans (0shaXx_n870 x3, DVKuBD7WB6Y 1549.7). Batch 101's reuse takes an earlier reading only when its words match this decode at the reuse ratio. On exactly the spans where the readers disagree on a name or number, the match falls below that ratio, so they were paid again. That is by design: the guard against a changed video.
+
+## 20:31 RE-JUDGE UNDER DECODER 9326604699a7 (ruling 153): free, the Scribe readings reused, results from the pre-check log.
+- FTX story: 4 of 7 pass.
+  - Pass: 513842ff Simply Bitcoin (adopt_spoken, the number settled); 579ef25c Natalie Brunell (adopt_spoken); ad47eab4 Digital Asset News (no_difference); f47662e4 Scott Melker (adopt_spoken, 'FDX' corrected to 'FTX').
+  - Hold: 190beaa7 (the two audio readings disagree on a material word: ruling 143 holds); a9f7f801 (approved_text edges not found in the transcript); b64f2b31 (ruling 73: no cut after the last locked word's decoded end, a HARD bound ruling 139 keeps).
+- Liquidations, the 4 held spans: 2 now pass.
+  - Pass: 9fd2f924 Scott Melker (adopt_spoken: its sentence edge now flags, ruling 139); ab8febb5 Bitcoin Magazine U7X6kReXets (no_difference: cut from the whole stream by batch 119, and the HARD clock guard passed).
+  - Still hold: eb23047f ('chek'/'check' unsettled, ruling 143 (3)); ec46892e (edges not found).
+- MicroStrategy: answers still coming. The first 4 pass: 4c8a1d87, 64b8fc3b, 72fbbf81, 8c60556a.
+- The builder's BUILD 157 (FTX story: Natalie Brunell 579ef25c + Simply Bitcoin 513842ff + Digital Asset News ad47eab4, 38.1 s, 3 channels) is running. I render its READY at once.
+- Services on the lockstep code: the judge (20:21) and the word pass (20:21) restarted; the scorer restarted at 20:31 after the re-judge got GPU0 first.
+
 ## 20:19 RULING 153 LOCKSTEP LIVE: DECODER 9326604699a7 (RULES unchanged, they already named 139 and 143), merge of r143-material (36896978e). It lands in lockstep with the builder's 703903e8d, which pushes after this push.
 - Batch 113, RULING 143: the lock's one principle.
   - A non-material pair never holds.
