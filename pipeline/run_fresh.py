@@ -506,37 +506,6 @@ def prefetch_post_live(run, pin_path):
         post_live_prefetch.prefetch(vid, lo, hi, run.dir, log=lambda s: print(s, flush=True))
 
 
-WINDOW_H = 12.0             # RULING 76 (orchestrator 18:08 Nov 13): a clip only while its source is <= 12 h old on the
-#                             RENDER clock (the builder's package_pin.WINDOW_H; test_render_window pins the two together)
-
-
-def window_problems(segments, now=None):
-    """RULING 76 on the render clock, as the builder's package_pin.window_problems judges it: every segment's
-    source_published_at (or published_at) within WINDOW_H of `now` (default: this moment, UTC); an unreadable or
-    zoneless publish time is a problem, never assumed fresh. -> [why]."""
-    from datetime import datetime, timezone
-    now = now or datetime.now(timezone.utc)
-    if now.tzinfo is None:
-        raise ValueError("the render clock needs a zone")
-    out = []
-    for s in segments or []:
-        p = s.get("source_published_at") or s.get("published_at") if isinstance(s, dict) else None
-        try:
-            t = datetime.fromisoformat(str(p).replace("Z", "+00:00"))
-        except (TypeError, ValueError):
-            out.append(f"ruling 76: {s.get('video_id') if isinstance(s, dict) else repr(s)}: no readable publish "
-                       f"time ({p!r})")
-            continue
-        if t.tzinfo is None:
-            out.append(f"ruling 76: {s.get('video_id')}: a publish time without a zone ({p!r}) is no measurement")
-            continue
-        age = (now - t).total_seconds() / 3600.0
-        if age > WINDOW_H:
-            out.append(f"ruling 76: {s.get('video_id')} was published {p}, {age:.1f} h before the render clock (over "
-                       f"{WINDOW_H:g} h): expired")
-    return out
-
-
 def pin_ready(pin_path):
     """The verifier's rows 13 / 18 (Nov 24) inside the render: scripts/integrator/check_pin_only.py on this pin, in its
     own process (it loads the builder's package_pin: the gates, the seal, ruling 76's 12 hours, at most 3 kinds of
@@ -554,21 +523,11 @@ def pin_ready(pin_path):
 
 def pin_admissible(pin_path):
     """The verifier's rows 13 / 18 (Nov 24) inside the render, before GPU0 or any download (run_fresh.py may be
-    started without the launcher, or the pin file changed since the launcher's check): the readiness check (pin_ready:
-    the builder's gates and seal, ruling 76's 12 hours, at most 3 kinds), then ruling 76 again by the render's own
-    reading of the pin on its own clock. -> (admissible, why)."""
+    started without the launcher, or the pin file changed since the launcher's check): pin_ready, the builder's own
+    judgement (package_pin.window_problems on this clock, review_problems, the gates and the seal; no copy of either
+    rule lives here, so the two sides cannot drift). -> (admissible, why)."""
     ok, why = pin_ready(pin_path)
-    if not ok:
-        return False, f"not READY (scripts/integrator/check_pin_only.py): {why}"
-    try:
-        with open(pin_path) as f:
-            segs = json.load(f).get("segments")
-    except (OSError, ValueError, AttributeError) as e:
-        return False, f"the pin is not readable ({type(e).__name__}: {e})"
-    expired = window_problems(segs)
-    if expired:
-        return False, "ruling 76, the render clock: " + "; ".join(expired)
-    return True, why
+    return (True, why) if ok else (False, f"not READY (scripts/integrator/check_pin_only.py): {why}")
 
 
 def stage_pinned(run, pin_path):

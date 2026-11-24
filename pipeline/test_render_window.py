@@ -50,12 +50,21 @@ class TestReadiness(unittest.TestCase):
         self.assertEqual(msg.count("expired"), 3, msg)
 
     def test_row_18_more_than_3_kinds_is_not_ready_and_nothing_else_refuses_it(self):
+        """This pin is refused today for more than its kinds: the builder's out_edge row (Nov 24) and ruling 162 (2)'s
+        exact-PASS value verdict (its closing line's was FLAGGED). Both are stubbed to pass, so the test isolates the
+        kinds wiring."""
         C = check_pin_only()
-        ok, msg = C.main(PIN, now=SEALED)
+        pp = C.builder_pin()
+        sealed = types.SimpleNamespace(**{k: getattr(pp, k) for k in dir(pp) if not k.startswith("__")})
+        sealed.gate_problems = lambda gates, required=None: []
+        stub = mock.patch.object(C.edl_rules, "takeaway_value", return_value=(True, "stub"))
+        stub.start()
+        self.addCleanup(stub.stop)
+        with mock.patch.object(C, "builder_pin", return_value=sealed):
+            ok, msg = C.main(PIN, now=SEALED)
         self.assertEqual((ok, msg), (False, "review flags: 5 kinds of review flag, over 3 (rulings 136 (2) / 155 (1) "
                                             "/ 159)"))
-        pp = C.builder_pin()
-        quiet = types.SimpleNamespace(**{k: getattr(pp, k) for k in dir(pp) if not k.startswith("__")})
+        quiet = types.SimpleNamespace(**vars(sealed))
         quiet.review_problems = lambda mp: []
         with mock.patch.object(C, "builder_pin", return_value=quiet):    # control: the kinds alone refused it
             ok, msg = C.main(PIN, now=SEALED)
@@ -87,60 +96,35 @@ class TestLauncher(unittest.TestCase):
         self.assertEqual(after, before)
 
 
-class TestRenderClock(unittest.TestCase):
-    NOW = dt.datetime(2026, 11, 24, 13, 0, tzinfo=UTC)
-    CASES = [[{"video_id": "a", "source_published_at": "2026-11-24T02:00:00Z"}],              # 11.0 h: in time
-             [{"video_id": "b", "source_published_at": "2026-11-24T00:54:00Z"}],              # 12.1 h: expired
-             [{"video_id": "c", "published_at": "2026-11-24T05:00:00+00:00"}],                # the other key
-             [{"video_id": "d", "source_published_at": "2026-11-24T05:00:00"}],               # no zone
-             [{"video_id": "e"}], [{"video_id": "f", "source_published_at": "yesterday"}], []]
+class TestRenderStage(unittest.TestCase):
+    """stage_pinned asks pin_ready (check_pin_only in its own process: the builder's window_problems and
+    review_problems, no copy here) before GPU0 or any download, and holds on its answer."""
 
-    @unittest.skipUnless(os.path.exists(BUILDER), "the builder's package_pin")
-    def test_the_render_judges_the_window_as_the_builder_does(self):
-        import importlib.util
-        spec = importlib.util.spec_from_file_location("pp_pin_r160", BUILDER)
-        pp = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(pp)
-        self.assertEqual(RF.WINDOW_H, pp.WINDOW_H)
-        for segs in self.CASES:
-            self.assertEqual(RF.window_problems(segs, self.NOW), pp.window_problems(segs, self.NOW), segs)
-        self.assertEqual([bool(RF.window_problems(s, self.NOW)) for s in self.CASES],
-                         [False, True, False, True, True, True, False])
-        with self.assertRaises(ValueError):
-            RF.window_problems(self.CASES[0], self.NOW.replace(tzinfo=None))
-
-    def stage(self, pin_body, ready=(True, "READY (stub)")):
-        """stage_pinned on a pin file with pin_ready stubbed; -> the Hold's text, or 'reached GPU0'."""
+    def stage(self, ready):
         d = tempfile.mkdtemp(prefix="r160_stage_")
         self.addCleanup(shutil.rmtree, d, True)
         pin = os.path.join(d, "pin.json")
         with open(pin, "w") as f:
-            f.write(pin_body if isinstance(pin_body, str) else json.dumps(pin_body))
-        run = types.SimpleNamespace(dir=d, prov={}, status={})
+            json.dump({"segments": []}, f)
 
         class Reached(Exception):
             pass
         with mock.patch.object(RF, "free_gpu0_for_whisper", side_effect=Reached), \
-                mock.patch.object(RF, "pin_ready", return_value=ready), \
-                mock.patch("datetime.datetime", wraps=dt.datetime) as clock:
-            clock.now.return_value = self.NOW
+                mock.patch.object(RF, "pin_ready", return_value=ready):
             try:
-                RF.stage_pinned(run, pin)
+                RF.stage_pinned(types.SimpleNamespace(dir=d, prov={}, status={}), pin)
             except RF.Hold as h:
                 return str(h)
             except Reached:
                 return "reached GPU0"
         return "returned"
 
-    def test_stage_pinned_holds_before_gpu0_and_any_download(self):
-        self.assertEqual(self.stage({"segments": self.CASES[0]}), "reached GPU0")      # ready and in time
-        got = self.stage({"segments": self.CASES[1]})
-        self.assertTrue(got.startswith("pinned decision rejected: ruling 76, the render clock: ruling 76: b was"), got)
-        got = self.stage({"segments": self.CASES[0]}, ready=(False, "review flags: 5 kinds of review flag, over 3"))
-        self.assertEqual(got, "pinned decision rejected: not READY (scripts/integrator/check_pin_only.py): review "
-                              "flags: 5 kinds of review flag, over 3")
-        got = self.stage("{not json")
-        self.assertTrue(got.startswith("pinned decision rejected: the pin is not readable (JSONDecodeError"), got)
+    def test_stage_pinned_holds_on_the_readiness_before_gpu0(self):
+        self.assertEqual(self.stage((True, "READY (pin only) ...")), "reached GPU0")
+        for why in ("window: ruling 76: b was published 2026-11-24T00:54:00Z, 12.1 h before the render clock (over 12 "
+                    "h): expired", "review flags: 5 kinds of review flag, over 3 (rulings 136 (2) / 155 (1) / 159)"):
+            self.assertEqual(self.stage((False, why)),
+                             f"pinned decision rejected: not READY (scripts/integrator/check_pin_only.py): {why}")
 
     @unittest.skipUnless(os.path.exists(PIN) and os.path.exists(BUILDER), "afd8977d's pin or the builder's package_pin")
     def test_the_render_runs_the_readiness_check_itself(self):
@@ -155,8 +139,7 @@ class TestRenderClock(unittest.TestCase):
             with self.assertRaises(RF.Hold) as cm:
                 RF.stage_pinned(types.SimpleNamespace(dir=d, prov={}, status={}), PIN)
         self.assertIn("not READY (scripts/integrator/check_pin_only.py): window: ruling 76", str(cm.exception))
-        ok, why = RF.pin_ready(os.path.join(d, "no_such_pin.json"))
-        self.assertFalse(ok)
+        self.assertFalse(RF.pin_ready(os.path.join(d, "no_such_pin.json"))[0])   # unreadable: not READY
 
 
 if __name__ == "__main__":
