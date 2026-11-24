@@ -513,6 +513,18 @@ class TestItem7MeaningSwap(Base):
         self.assertTrue(e["reason"].startswith("item 7 (no silent meaning swap)"), e["reason"])
         self.assertIn("['bought', 'sold']", e["reason"])
 
+    def test_a_size_swap_both_ears_agree_on_holds(self):
+        """Orchestrator 10:50 ET Nov 24: 'ten million' in the transcript, 'ten billion' from both ears (canon folds both
+        to digits: 10000000 / 10000000000): the clip HOLDS exactly as buy / sell does, though both ears agree."""
+        approved = ATTESTED.replace("owns the money", "owns ten million")
+        self.run_text = self.scribe_text = ATTESTED.replace("owns the money", "owns ten billion")
+        self.request(approved_text=approved)
+        LP.serve_once(log=self.log)
+        e = self.entry(approved)
+        self.assertEqual((e["outcome"], e["lock"]), ("hold", None), e)
+        self.assertTrue(e["reason"].startswith("item 7 (no silent meaning swap)"), e["reason"])
+        self.assertIn("['10000000', '10000000000']", e["reason"])
+
     def test_the_ears_disagreeing_on_a_meaning_pair_hold(self):
         self.run_text, self.scribe_text = self.APPROVED, self.HEARD        # the decoder 'bought', the second 'sold'
         self.request(approved_text=self.APPROVED)
