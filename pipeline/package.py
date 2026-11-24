@@ -187,12 +187,15 @@ def kind_sentences(pairs, who):
 def soft_edges(t):
     """RULING 137 stage 2a: a moment's CUTTABLE failure is soft only when its words match (law L-v 2 ok, measured, no
     error) and EVERY failing edge failed for the sentence running on at a word boundary (EDGE_SOFT); a word not found,
-    a trimmed word, an unmeasured edge stay hard. -> ["EDGE_IN" / "EDGE_OUT"] or None."""
+    a trimmed word, an unmeasured edge stay hard. RULING 162 (1) (07:45 ET Nov 24): "Ruling 139's 'a sentence edge
+    flags' now applies to the IN edge only": an OUT edge that fails is HARD, always (the clip is extended at the pool
+    stage, out_edges(), or refused). -> ["EDGE_IN"] or None."""
     if not isinstance(t, dict) or t.get("error") or t.get("ok") is not True or not isinstance(t.get("edges"), dict):
         return None
     e = t["edges"]
     bad = [k for k in ("in", "out") if (e.get(k) or {}).get("ok") is not True]
-    if not bad or not all(str((e.get(k) or {}).get("why") or "").startswith(EDGE_SOFT[k]) for k in bad):
+    if not bad or "out" in bad or \
+            not all(str((e.get(k) or {}).get("why") or "").startswith(EDGE_SOFT[k]) for k in bad):
         return None
     return ["EDGE_" + k.upper() for k in bad]
 FLAGGED_DAY_MAX = 2
@@ -279,6 +282,34 @@ def expired(m, now):
     import package_pin
     age = E.age_hours(m.get("published_at"), now)
     return age is None or age > package_pin.WINDOW_H
+
+
+OWN_REQUIRED = ("out_edge",)   # RULING 162 (1): this side's package needs the row exactly PASS. It is not in
+#   package_pin.REQUIRED_GATES, which the integrator's check_pin_only also reads for pins sealed before it (the render
+#   asks the question again at validate: owner_rules.out_edge)
+
+
+def out_edges(router, ms, sources, ctx, cache_path=None, log=print, delivered=(), optout=frozenset(),
+              seg_max=SEG_MAX_S):
+    """RULING 162 (1) (orchestrator 07:45 ET Nov 24; pipeline/out_edge.py): the OUT edge of every moment of the pool,
+    on the integrator's one question (owner_rules.out_edge). A moment whose thought runs on is REPLACED by its extension
+    to the sentence that finishes it, which must also meet the pool's own rules (usable(): the 20 s clip, the 12 h
+    window, never delivered); a moment that cannot be extended inside them is REFUSED; no answer is UNVERIFIED
+    (ruling 160 (2a)). Every moment that may play carries its verdict (m["out_edge"]), which the pin's "out_edge" row
+    seals. -> (the moments, the record)."""
+    import out_edge as OE
+    kept, rec = OE.pool(router, ms, sources, ctx, cache_path=cache_path, log=log)
+    ext = [m for m in kept if (m.get("derived_from") or {}).get("ruling") == OE.RULING]
+    if ext:
+        ok, why = usable(ext, ctx, delivered, optout, seg_max)
+        good = {m["moment_id"] for m in ok}
+        for parent, vid in list(rec["extended"].items()):
+            if vid not in good:                          # the extension breaks a pool rule: the parent is refused
+                rec["refused"][parent] = f"its extension {vid} breaks a pool rule: {str(why.get(vid))[:200]}"
+                del rec["extended"][parent]
+        ext_ids = {m["moment_id"] for m in ext}
+        kept = [m for m in kept if m["moment_id"] not in ext_ids or m["moment_id"] in good]
+    return kept, rec
 
 
 def usable(moments, ctx, delivered=(), optout=frozenset(), seg_max=SEG_MAX_S):
@@ -3605,8 +3636,9 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
           hook_cache=None, scorer_verdicts_path=None, scorer_candidates_path=None, build_name="", candidate=None,
           join_cache=None,
           visual_cache=None, registered=None, lock_check=None, scorer_extra=(), stories_path=None,
-          ledger_aliases=None, soft=False):
+          ledger_aliases=None, soft=False, out_edge_cache=None):
     """RULING 137: soft=True is the never-empty pass (build() calls it): step A's soft refusals are let back, flagged.
+    RULING 162 (1): out_edges() at the pool stage, its verdicts cached in out_edge_cache (None: this build's only).
     L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
     written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
@@ -3694,6 +3726,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
     ms, why = usable(moments, ctx, delivered, optout)
     n_usable = len(ms)                                 # out["usable"] keeps its meaning (audit 0310 C1, glm P2-2)
     ms, reposted = reposted_once(ms, sources)          # ruling 53: a speech re-posted by a second channel is ONE
+    ms, out_edge = out_edges(router, ms, sources, ctx, out_edge_cache, log, delivered, optout)   # RULING 162 (1):
+    #   every clip ends a thought: extended to the sentence that finishes it, or refused; no answer is UNVERIFIED
     scorer = scorer_pass(ms, sources, ctx, scorer_verdicts_path, scorer_candidates_path, build_name,   # ruling 56
                          extra=scorer_extra)                                                       # ruling 90
     ms = [with_verdict(m, scorer["index"]) for m in ms]
@@ -3737,6 +3771,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                     f"(ruling 109)")
         log(f"  {n_usable} usable, {len(ms)} in the pool after the free stages: {why_none}")
         return {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable,   # out's shape
+                "out_edge": out_edge,                                                                    # RULING 162
                 "current_levels": current_levels(sources.values(), ctx), "no_role": no_role, "ad_read": ad_read,
                 "trimmed": {k: v["moment_id"] for k, v in trims.items()}, "reposted": reposted,
                 "scorer": dict(scorer["record"], admitted=admitted, trims_affirmed=sorted(trims), trims_out=trim_out),
@@ -3763,6 +3798,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
     cleared, back = cleared_pool(ms, a_by, fails, soft)  # RULING 137 stage 1: the never-empty pass adds back, flagged
     levels = current_levels(sources.values(), ctx)
     out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable, "current_levels": levels,
+           "out_edge": out_edge,                                           # RULING 162 (1)
            **({"soft_stand": stand_back} if stand_back else {}),          # RULING 141 (2): back, flagged
            "no_role": no_role, "ad_read": ad_read, "trimmed": {k: v["moment_id"] for k, v in trims.items()},
            "reposted": reposted,
@@ -4257,6 +4293,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                                 hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
                                 stand=stand_with_soft([cleared[sg["moment_id"]] for sg in pk["segments"]]),
                                 visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
+                                out_edge=[cleared[sg["moment_id"]].get("out_edge") for sg in pk["segments"]],
                                 last_resort=pin_last_resort(pk), soft=soft,   # RULING 102; RULING 137 stage 1
                                 who={sg["label"]: sg.get("channel") for sg in pk["segments"]},
                                 chan_of={sg["moment_id"]: sg.get("channel") for sg in pk["segments"]},   # 146 (3)   # RULING 138 (3)
@@ -4264,7 +4301,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                                            for sg in pk["segments"]},                          # RULING 137 stage 2a
                                 mids={sg["moment_id"]: sg["label"] for sg in pk["segments"]})
         import package_pin
-        problems = package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk))
+        problems = package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk) + OWN_REQUIRED)
         if problems:
             note["why_not"] = f"a required gate is not exactly PASS: {problems}"
             return None
@@ -4815,6 +4852,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                                             hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
                                             stand=stand_with_soft([cleared[sg["moment_id"]] for sg in pk["segments"]]),
                                             visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
+                                            out_edge=[cleared[sg["moment_id"]].get("out_edge")    # RULING 162 (1)
+                                                      for sg in pk["segments"]],
                                             value=val,                       # ruling 91: the takeaway earned its place
                                             last_resort=pin_last_resort(pk),      # RULING 102: on the pin
                                             soft=soft,
@@ -4851,7 +4890,7 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                                       (f"dropped {sorted(weak)}, re-lined" if weak else "next angle"))
                         break
                     import package_pin
-                    problems = package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk))
+                    problems = package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk) + OWN_REQUIRED)
                     if problems:                              # never return a package its pin would refuse (L-j)
                         rec["why"] = f"a required gate is not exactly PASS: {problems}: next angle"
                         w_used = writes
@@ -4988,7 +5027,7 @@ def stand_in_checks(fid, ctx_, a_by, coh, medley, value, who=None):
 def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None, short=None,
               chan_of=None, fallback_line=None,
               hook=None, stand=None, visual=None, value=None, last_resort=None, soft=False, who=None,
-              seg_flags=None, mids=None):
+              seg_flags=None, mids=None, out_edge=None):
     """The sealed GATE INVENTORY (audit p2 C1; package_pin.required_gates): one row per hard gate, each
     {"status": "PASS" | "FAIL" | "NOT RUN", "by", "replayed", "n"}. Nothing measured is never a PASS (law L-m).
     value: ruling 91's value verdict on the medley's takeaway (takeaway_value) -> the "takeaway_value" row, its "text"
@@ -5129,6 +5168,18 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
                                     STAND_SOFT_PREFIX.format(channel=(who or {}).get(lb) or "its channel") + f"{why}."
                                     for lb, why in stand["soft_rows"].items()]} if soft and stand.get("soft_rows") else {}))}
            if stand is not None else {}),
+        **({"out_edge": dict(row(bool(out_edge) and all((v or {}).get("measured") is True and
+                                                        (v or {}).get("complete") is True for v in out_edge),
+                                 sorted({str((v or {}).get("backend")) for v in out_edge}) or None, False,
+                                 n=len(out_edge or []),
+                                 measured=bool(out_edge) and all((v or {}).get("measured") is True for v in out_edge)),
+                             by_rule="owner_rules.out_edge (ruling 162 (1)): every clip ends a thought (the speaker "
+                                     "never cut off mid-sentence); HARD, never soft",
+                             version=sorted({str((v or {}).get("version")) for v in out_edge}),
+                             sha256=sorted({str((v or {}).get("sha256")) for v in out_edge}),
+                             verdicts={lb: {k: (v or {}).get(k) for k in ("complete", "why", "backend")}
+                                       for lb, v in zip(labels(len(out_edge)), out_edge)})}
+           if out_edge is not None else {}),
         **({"visual": dict(row(bool(visual) and all((v or {}).get("measured") is True for v in visual),
                                sorted({str((v or {}).get("backend")) for v in visual}) or None,
                                rep((v or {}).get("replayed") for v in visual), n=len(visual or []),

@@ -164,7 +164,10 @@ class TestStage2a(unittest.TestCase):
         self.assertEqual(PK.soft_edges(self.DATADASH), ["EDGE_IN"])
         both = copy.deepcopy(self.DATADASH)
         both["edges"]["out"] = {"ok": False, "word": "x", "after": "y", "why": "the recogniser's sentence continues past the clip"}
-        self.assertEqual(PK.soft_edges(both), ["EDGE_IN", "EDGE_OUT"])
+        self.assertIsNone(PK.soft_edges(both))                     # RULING 162 (1): the OUT edge is HARD, always
+        out_only = copy.deepcopy(both)
+        out_only["edges"]["in"] = {"ok": True, "why": "a sentence ends before the clip"}
+        self.assertIsNone(PK.soft_edges(out_only))
         for why_in in ("the recogniser has no 'bitc' within 0.6 s of the clip's start", "no word timing from the recogniser",
                        "the window starts at the clip: no word before it",
                        "the recogniser does not hear the trimmed word 'And' right before the clip (ruling 33 part 2)"):
@@ -421,12 +424,14 @@ class TestRuling156FallbackLines(unittest.TestCase):
 class TestStage2aAtTheLineUp(unittest.TestCase):
     """RULING 137 stage 2a, the line-up stage (build 164, 22:11 ET Nov 23): a clip whose CUTTABLE failure is only a
     sentence edge at a word boundary stays in the never-empty pass at the line-up's own per-clip check too (flagged by
-    the inventory's cuttable row), as it already did in the pool; a hard edge failure still drops it."""
-    def run_rig(self, why_out, never_empty=True):
+    the inventory's cuttable row), as it already did in the pool; a hard edge failure still drops it. RULING 162 (1)
+    (07:45 ET Nov 24): only the IN edge: an OUT edge that fails drops the clip in every pass."""
+    def run_rig(self, why, never_empty=True, edge="in"):
         import test_medley as TM
         from test_moments import pm
         ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
-        edges = {"cuttable": False, "in": {"ok": True, "why": "ok"}, "out": {"ok": False, "why": why_out}}
+        edges = {"cuttable": False, "in": {"ok": True, "why": "ok"}, "out": {"ok": True, "why": "ok"}}
+        edges[edge] = {"ok": False, "why": why}
         r = TM.Rig(ms, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE)] * 2, [None] * 2,
                    a_fail={("xai", "y"): ["REFERENT_OUTSIDE"]},
                    truths={"x": {"ok": True, "replayed": False, "model": "scribe_v1", "edges": edges}})
@@ -435,12 +440,19 @@ class TestStage2aAtTheLineUp(unittest.TestCase):
         return r.run()
 
     def test_a_soft_edge_stays_flagged_and_a_hard_one_drops(self):
-        out = self.run_rig(PK.EDGE_SOFT["out"] + " (the recogniser's next word)")
+        out = self.run_rig(PK.EDGE_SOFT["in"] + " ('line:', 100 ms before it)")
         self.assertIsNotNone(out["package"], out.get("why_none"))
         self.assertEqual(out["package"]["gates"]["cuttable"]["status"], "FLAGGED")
-        hard = self.run_rig("the last word was not found in the recogniser's words")
+        hard = self.run_rig("the recogniser has no 'bitc' within 0.6 s of the clip's start")
         self.assertIsNone(hard["package"])
-        self.assertIsNone(self.run_rig(PK.EDGE_SOFT["out"], never_empty=False)["package"])   # the clean pass: HARD
+        self.assertIsNone(self.run_rig(PK.EDGE_SOFT["in"], never_empty=False)["package"])   # the clean pass: HARD
+
+    def test_an_out_edge_that_runs_on_drops_the_clip_in_every_pass(self):
+        """RULING 162 (1): the sentence carrying on past the clip's last word is never a flag again (build 167's
+        opener, Simply Bitcoin 1cb16751, sealed with it as one)."""
+        for never_empty in (True, False):
+            out = self.run_rig(PK.EDGE_SOFT["out"] + " (the recogniser's next word)", never_empty, edge="out")
+            self.assertIsNone(out["package"], never_empty)
 
 
 class TestContextSoftDefault(unittest.TestCase):
