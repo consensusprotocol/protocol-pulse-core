@@ -357,12 +357,13 @@ class TestOnThePinAndOnState(unittest.TestCase):
         """The orchestrator 13:02 Nov 14: at the stop no build starts, and STATE line 1 says so in capitals. RULING 118
         (05:40 Nov 16): the outside vendors' HARD cap is $1.00 a day, Heimdall uncapped; each paid call reserves its
         upper bound, so the cap itself is never passed (ruling 108's headroom between the stop and the limit is gone)."""
-        self.assertEqual((PLG.PL.LY_STOP_USD, PLG.PL.LY_LIMIT_USD), (1.00, 1.00))
+        self.assertEqual((PLG.PL.LY_STOP_USD, PLG.PL.LY_LIMIT_USD, PLG.STOP_CEILING_USD, PLG.PL.DAY_CAP_USD),
+                         (1.50, 1.50, 1.50, 1.50))   # amendment C (Nov 24): ONE spend setting, $1.50 a day
         self.assertEqual(PLG.PL.LY_LIMIT_BASIS, "reported")               # vendor-reported (audit 2114 C1, glm)
         self.assertEqual(PLG.PL.UNCAPPED, ("heimdall",))
-        self.assertIsNone(PLG.start_refused(0.99))
-        why = PLG.start_refused(1.0)
-        self.assertIn("at or over the $1.00 stop: no build starts", why)
+        self.assertIsNone(PLG.start_refused(1.49))
+        why = PLG.start_refused(1.5)
+        self.assertIn("at or over the $1.50 stop: no build starts", why)
         self.assertIn("SAY IT ON STATE LINE 1 IN CAPITALS", why)
 
     def test_ruling_118_each_day_keeps_its_own_ledger_from_21_10_et(self):

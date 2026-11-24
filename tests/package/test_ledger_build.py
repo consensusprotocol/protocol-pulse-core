@@ -840,9 +840,11 @@ class TestDriverRefuses(unittest.TestCase):
                 self.assertEqual(PLG.main(["--delivered", *pins, "--hours", h]), 2, h)
             self.assertIn("REFUSED (ruling 76)", err.getvalue())
             for h in ("12", "6"):                       # audit 1810 C1 (glm P2-1): the bound itself is accepted; the run
-                with self.assertRaises(AssertionError) as cm:   # goes on, and the guard stops it at the proof dir
-                    PLG.main(["--delivered", *pins, "--hours", h])
-                self.assertIn("went on to write a proof dir", str(cm.exception))
+                err.seek(0)                             # goes on past the window check, to the guard that keeps a run
+                err.truncate(0)                         # under test out of the real build records (Nov 24)
+                self.assertEqual(PLG.main(["--delivered", *pins, "--hours", h]), 2, h)
+                self.assertNotIn("REFUSED (ruling 76)", err.getvalue())
+                self.assertIn("never writes into the real build records", err.getvalue())
         spans, _, _ = PLG.delivered_pins(pins)
         self.assertTrue(all(isinstance(s["text"], str) and s["text"] for s in spans))
         for p in pins:                                   # audit 1810 C3 (glm P1-2): the CLIP's own approved words, never

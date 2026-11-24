@@ -51,6 +51,9 @@ import glob
 import hashlib
 import json
 import os
+import re
+import signal
+import subprocess
 import sys
 import time
 from datetime import datetime, timedelta, timezone
@@ -105,6 +108,7 @@ import speakers as SP  # noqa: E402
 import spotlight as SPOT  # noqa: E402
 import lock_precheck as LP  # noqa: E402
 import tail_variant as TV  # noqa: E402
+import outcomes as OC  # noqa: E402
 
 REGISTRY = os.path.join(HERE, "proof", "CANDIDATES.json")     # ruling 66: the candidates, kept
 SPOTLIGHTS = os.path.join(HERE, "proof", "SPOTLIGHTS.json")   # ruling 90: one spotlight per channel per ET day
@@ -112,6 +116,127 @@ DIRECTIVES = os.path.join(HERE, "proof", "RULING_104_DIRECTIVES.json")   # rulin
 STATE_MD = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_STATE.md")   # ruling 87: a switch on line 1
 FINGERPRINT = "FINGERPRINT.json"     # RULING 107 (1): a finished build's inputs, written at its end for the next build
 NOTHING_NEW = "NOTHING_NEW.json"     # RULING 107 (1): a build that found nothing new and asked no model
+
+
+UNDER_TEST = "PP_SELECTID_DRIVER_UNDER_TEST"   # set only by tests/package/conftest.py, inside pytest
+MAIN_TREE = os.environ.get("PP_MAIN_TREE", "/home/ultron/protocol_pulse")   # the integrator's tree: the build reads
+#   code from it (the render scorer's files, owner_rules, the lock pre-check's service) and its results
+TREES = (("this builder's tree", REPO, ("pipeline", "tests/package", "tests/select_by_id", "tests/moments",
+                                        "tests/eligibility", "tests/providers")),
+         ("the integrator's tree", MAIN_TREE, ("pipeline", "video_pipeline_v3")))
+CODE_FILES = (".py", ".sh")
+
+
+def tree_state(root, dirs):
+    """THE ACCEPTANCE TEST, item 1 (orchestrator 08:50 ET Nov 24: "The build refuses to start if either tree is dirty,
+    and the record names the commit it ran"): one git tree -> {"root", "head", "dirty"}. Dirty: a tracked code file
+    (.py / .sh) in its code folders modified or staged, or an untracked .py / .sh there; data, caches, proof records,
+    logs and lock files are not code. "head": its HEAD commit, or None when git cannot read it (then it is dirty: an
+    unreadable tree is never clean)."""
+    try:
+        head = subprocess.run(["git", "-C", root, "rev-parse", "HEAD"], capture_output=True, text=True,
+                              timeout=30).stdout.strip() or None
+        st = subprocess.run(["git", "-C", root, "status", "--porcelain=v1", "-uall", "--", *dirs], capture_output=True,
+                            text=True, timeout=120)
+    except (OSError, subprocess.SubprocessError) as e:
+        return {"root": root, "head": None, "dirty": [f"(git could not read it: {type(e).__name__})"]}
+    if st.returncode != 0 or not head:
+        return {"root": root, "head": head, "dirty": [f"(git could not read it: {st.stderr.strip()[:120]})"]}
+    dirty = []
+    for line in st.stdout.splitlines():
+        xy, path = line[:2], line[3:].split(" -> ")[-1].strip('"')
+        if not path.endswith(CODE_FILES):
+            continue
+        how = ("not committed, not tracked" if xy == "??" else "staged, not committed" if xy[1] == " " else
+               "changed, not committed")
+        dirty.append(f"{path} ({how})")
+    return {"root": root, "head": head, "dirty": dirty}
+
+
+def trees_state():
+    """-> [(name, tree_state)] of both trees the build runs on."""
+    return [(name, tree_state(root, dirs)) for name, root, dirs in TREES]
+
+
+def dirty_refusal(states):
+    """The one plain line a dirty tree refuses the build with, for a person to read, or None when both are clean."""
+    bad = [(n, st) for n, st in states if st["dirty"]]
+    if not bad:
+        return None
+    return ("REFUSED: the build did not start because code was changed and not committed: " + "; ".join(
+        f"in {n} ({st['root']}): {', '.join(st['dirty'][:12])}" + (f" and {len(st['dirty']) - 12} more"
+                                                                    if len(st["dirty"]) > 12 else "")
+        for n, st in bad) + ". Commit (and push) or put away those changes, then start the build again.")
+
+
+def entry_of():
+    """VERIFIER ROWS 12 / 16 (FIX_VERIFICATION_2026-11-24: "Nothing in the pushed driver records or refuses another
+    entry point"): how this build was entered. A build runs only as THIS file run as __main__ (the committed launcher,
+    tests/package/record/build_and_record.sh, runs nothing else); a wrapper that imports this module and calls main()
+    (builds 166-168's by_hand_*.py) is refused. Inside pytest, with UNDER_TEST set by the tests' conftest, the tests
+    may call main(); the record says so. -> {"ok", "why", "driver", "argv0", "main", "code", "dirty", "under_test"}:
+    "code" the git HEAD, "dirty" the code files (.py / .sh) git reports changed under pipeline/ and tests/package/."""
+    mm = sys.modules.get("__main__")
+    mf = getattr(mm, "__file__", None)
+    own = bool(mf) and os.path.realpath(mf) == os.path.realpath(os.path.abspath(__file__))
+    test = os.environ.get(UNDER_TEST) == "1" and "_pytest" in sys.modules
+    try:
+        head = subprocess.run(["git", "-C", REPO, "rev-parse", "HEAD"], capture_output=True, text=True,
+                              timeout=30).stdout.strip() or None
+        st = subprocess.run(["git", "-C", REPO, "status", "--porcelain", "--", "pipeline", "tests/package"],
+                            capture_output=True, text=True, timeout=60).stdout.splitlines()
+        dirty = sorted(x[3:] for x in st if not x.startswith("??") and x[3:].endswith((".py", ".sh")))
+        me = os.path.relpath(os.path.abspath(__file__), REPO)
+        blob = subprocess.run(["git", "-C", REPO, "hash-object", me], capture_output=True, text=True,
+                              timeout=30).stdout.strip() or None             # RULING 163 (5): the driver that ran,
+        at_head = subprocess.run(["git", "-C", REPO, "rev-parse", f"HEAD:{me}"], capture_output=True, text=True,
+                                 timeout=30).stdout.strip() or None          # by its git sha, and HEAD's
+    except (OSError, subprocess.SubprocessError) as e:
+        head, dirty, blob, at_head = None, [f"unreadable: {type(e).__name__}"], None, None
+    why = None if own or test else (f"this build was entered through {mf or 'no file (python -c or an import)'}, "
+                                    f"not {os.path.relpath(os.path.abspath(__file__), REPO)} run as __main__: no "
+                                    f"by-hand wrapper builds (verifier rows 12 / 16)")
+    return {"ok": why is None, "why": why, "driver": os.path.relpath(os.path.abspath(__file__), REPO),
+            "driver_sha": blob, "driver_committed": bool(blob) and blob == at_head,
+            "argv0": sys.argv[0] if sys.argv else None, "main": mf, "code": head, "dirty": dirty,
+            "under_test": bool(test and not own)}
+
+
+STAGES_TIMED = ("pool", "step A", "second ear", "out-edge question", "hooks", "vision", "line-ups", "writes", "gates",
+                "seal")             # the orchestrator, 09:55 ET Nov 24: "wall-clock time PER STAGE in the build record"
+#   (the render call's own is the launcher's, on the outcome line)
+STAGE_OF = [(st, re.compile(rx)) for st, rx in (    # a log line -> the stage whose work printed it; first match wins
+    ("pool", r"^===|^  entry|^  commits|^  delivered:|^  adapter:|^  word pass:|^  ledger rows|ORDER 17:50|RULING 104|"
+             r"RULING 76: \d|routing \(ruling 85\)|RULING 152 \(1\): the writers|RULING 115:|RULING 116:|RULING 100 |"
+             r"before this build|RULING 66: no candidate|usable, \d+ of them|the clip scorer's verdicts"),
+    ("seal", r"^PACKAGE|PIN REFUSED|^SPOTLIGHT PIN|^no package|^no spotlight|^NOTHING NEW|RULING 76 \(d\)"),
+    ("out-edge question", r"(?i)out[- ]edge|complete thought|ruling 162 \(1\)"),
+    ("vision", r"visual \(ruling 70\)"),
+    ("gates", r"fidelity|context|coherence|value \(ruling 91\)|RULING 150|clips alone|stand.alone|house style"),
+    ("writes", r"write \d|RULING 156|the takeaway alone|writer"),
+    ("line-ups", r"angle \d+ line-up|angles? from|join table|story angle|^  search:|ruling 72: the render's lock|RULING 66"),
+    ("hooks", r"hooks \(ruling 59\)|can open a medley|hook bar|NEVER EMPTY \(stage 2b\)|G17a"),
+    ("second ear", r"second recognition pass|CUTTABLE|L-v 2|stage 2a\): \d+ moment\(s\) whose words"),
+    ("step A", r"step A|RULING 101|NEVER EMPTY \(stage 1\)|second family|HELD|RULING 146 \(3\)"),
+)]
+
+
+class StageClock:
+    """The build's wall-clock seconds per stage (STAGES_TIMED), from its own log: each line's time since the line
+    before is the work of the stage that line reports (STAGE_OF), or of the stage before it when it names none (the
+    start, the inputs and the router's setup are the pool's)."""
+
+    def __init__(self, t0=None):
+        self.last, self.stage, self.secs = (t0 or time.time()), "pool", {}
+
+    def mark(self, line):
+        now = time.time()
+        st = next((s for s, rx in STAGE_OF if rx.search(str(line))), self.stage)
+        self.secs[st] = self.secs.get(st, 0.0) + max(0.0, now - self.last)
+        self.last, self.stage = now, st
+
+    def totals(self):
+        return {s: round(self.secs[s], 1) for s in STAGES_TIMED if s in self.secs}
 
 
 def _sha(x):
@@ -160,40 +285,15 @@ def fingerprint(moments, delivered, pins, since, now, reg, routing=None):
     return _sha(parts), parts
 
 
-def _errors(x):
-    """The number of objects anywhere inside x whose "verdict" is "error" (a segment the render's lock gave no verdict on
-    in time, wherever the record nests it)."""
-    if isinstance(x, dict):
-        return int(x.get("verdict") == "error") + sum(_errors(v) for v in x.values())
-    if isinstance(x, (list, tuple)):
-        return sum(_errors(v) for v in x)
-    return 0
+_errors = OC._errors                               # kept under its old name (moved to outcomes.py)
 
 
 def open_work(res, sp, refused=()):
-    """RULING 107 (1): what a finished build left undone, which the next build must try again whatever its inputs:
-    the moments ruling 102 held (no leg answered), in the clean pass and, the ones it did not hold too, in the
-    never-empty pass (its own record, rulings 136 / 137); any segment the render's lock gave no verdict on in time;
-    any visual check left unmeasured; and every paid call the build's router refused for money (`refused`:
-    Router.spend_refused; build 133's two clips-alone verdicts at its $0.00 stop, 12:56 ET Nov 17, left the kept
-    line-up unjudged, and build 134 then asked nothing). -> int (0: nothing left)."""
-    d = lambda x: x if isinstance(x, dict) else {}       # audit 20261124_0109 H (qwen F1): a malformed record is read
-    ls = lambda x: list(x) if isinstance(x, (list, tuple, set)) else []   # as empty, never a crash
-    res, sp = d(res), d(sp)
-    pre = d(res.get("prescreen"))
-    h = d(pre.get("held_102"))
-    held = len(ls(h.get("first"))) + len(ls(h.get("second"))) + len(ls(sp.get("held_102")))
-    soft_pre = d(d(d(res.get("never_empty")).get("soft_record")).get("prescreen"))
-    s = d(soft_pre.get("held_102"))
-    held += len(set(ls(s.get("first")) + ls(s.get("second"))) - set(ls(h.get("first")) + ls(h.get("second"))))
-    no_verdict = _errors(res) + _errors(sp)        # by structure, never a string search (audit 2155g C1, qwen)
-    vis = d(res.get("visual"))
-    unmeasured = {(k, mid) for p in (pre, soft_pre) for k in ("second_pass", "hook_onset", "trim_cut")   # the
-                  for mid, v in d(p.get(k)).items() if str(v).startswith("NOT MEASURED")}   # verifier, Nov 23: a build
-    #   whose word checks, hook onsets or trimmed cuts were never measured (its downloads failed) left that work undone:
-    #   its identical re-run is a build, never NOTHING NEW (its drill recorded '0 items left undone' with every L-v 2
-    #   unmeasured, and the re-run was skipped)
-    return held + no_verdict + int(vis.get("unmeasured") or 0) + len(refused or ()) + len(unmeasured)
+    """RULING 107 (1), with RULING 163 (4): how many checks a finished build left undone, which the next build must
+    try again whatever its inputs (outcomes.undone names each: ruling 102's holds, the lock's missing verdicts, vision
+    and word checks never measured, the openers no checker rated, every verdict that was not measured, the money the
+    stop refused). -> int (0: nothing left)."""
+    return len(OC.undone(res, sp, refused))
 
 
 HOOK_SHADOW = {"coherence_verdict:hook": "heimdall:qwen/qwen3.8-27b"}   # RULING 115: recorded, never deciding
@@ -257,7 +357,8 @@ def delivered_pins(paths):
     return spans, newest, pins
 
 
-STOP_CEILING_USD = 1.50          # RULING 137 (3) (orchestrator 11:05 ET Nov 17): the day cap is $1.50 all-in from the
+STOP_CEILING_USD = PL.DAY_CAP_USD   # RULING 137 (3); THE ONE SPEND SETTING (amendment C, Nov 24): proof_ly's
+#                                 RULING 137 (3) (orchestrator 11:05 ET Nov 17): the day cap is $1.50 all-in from the
 #   21:10 ET day of Nov 17 (today's stop $1.40, given as --stop-usd); --stop-usd at most this. Was 1.25 (ORDER 17:50 ET
 #   Nov 16, 'ADD 25 CENTS').
 
@@ -473,6 +574,45 @@ def ruling_101_line(par):
 
 
 def main(argv=None):
+    """The build, entered only through this file (entry_of), and RULING 160 (2b): EXACTLY ONE outcome line a build in
+    data/builds/outcomes.jsonl (outcomes.record_build), written here whatever ends the build once its record folder
+    exists: its end, NOTHING NEW, the start refusal, a crash or a stop (SIGTERM is turned into SystemExit, so this
+    finally runs). A refusal before the folder is made (exit 2) is no build and writes no line."""
+    entry = entry_of()
+    if not entry["ok"]:                                  # (and again in _main: a wrapper calling _main is refused)
+        print(f"REFUSED: {entry['why']}", file=sys.stderr)
+        return 2
+    if not entry["under_test"]:
+        try:
+            signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
+        except ValueError:                               # not the main thread: the default stays
+            pass
+    box, rc, err = {"clock": StageClock()}, None, None      # the time per stage, from the build's very start
+    try:
+        rc = _main(argv, box)
+        return rc
+    except BaseException as e:                           # noqa: BLE001  recorded, then raised as it was
+        err = e
+        raise
+    finally:
+        if box.get("out_dir"):
+            try:
+                line = OC.record_build(box["out_dir"], rc=rc, error=err, refused=box.get("refused"),
+                                       build_no=box.get("build_no"),     # outcomes.OUTCOMES (audit L2, qwen F1)
+                                       build_id=box.get("build_id"), seconds=box["clock"].totals())
+                if line:
+                    print(f"  RULING 160 (2b): outcome {line['outcome']} at {line['stage']}: {line['gate']}",
+                          flush=True)
+            except BaseException as e:                   # noqa: BLE001  never masks the build's own end; a stop or
+                print(f"  RULING 160 (2b): the outcome line was NOT written: {type(e).__name__}: {e}",   # an interrupt
+                      file=sys.stderr, flush=True)       # inside the write is said too (audit L2, qwen F3)
+
+
+def _main(argv, box):
+    entry = entry_of()                                   # verifier rows 12 / 16: checked here too, so a wrapper that
+    if not entry["ok"]:                                  # calls _main() directly is refused the same way
+        print(f"REFUSED: {entry['why']}", file=sys.stderr)
+        return 2
     ap = argparse.ArgumentParser()
     ap.add_argument("--delivered", nargs="+", required=True, metavar="PIN",
                     help="every pin already delivered: their clip spans are out (L-p), and 'since' defaults to the "
@@ -491,6 +631,12 @@ def main(argv=None):
                     "build takes only those moments of the pool, every gate as before (one line-up at a time)")
     ap.add_argument("--stop-usd", type=float, default=None, help="ORDER 17:50 ET Nov 16: this build's outside-dollar "
                     f"limit (no build starts at it; the router stops outside calls at it), in (0, {STOP_CEILING_USD}]")
+    ap.add_argument("--build-no", type=int, default=None, help="RULING 160 (2b): the launcher's build number, on the "
+                    "build's outcome line")
+    ap.add_argument("--build-id", default=None, help="the launcher's unique build id (amendment C), in the record and on "
+                    "the outcome line")
+    ap.add_argument("--out-dir-file", default=None, help="amendment C: this run writes its own record folder's path here "
+                    "the moment it makes it, so the launcher never guesses 'the newest folder'")
     ap.add_argument("--from-candidate", metavar="BUILD_DIR[:N]",
                     help="RULING 66: try ONLY the line-up that passed the clips-alone verdict in this earlier build's "
                          "record (its tried[N]; default the first that passed), as it was judged")
@@ -541,19 +687,40 @@ def main(argv=None):
         print(f"REFUSED: the delivered pins, 'since', the candidate or the candidate registry cannot be read "
               f"({type(e).__name__}: {e})", file=sys.stderr)
         return 2
+    trees = trees_state()                                # THE ACCEPTANCE TEST, item 1: both trees clean, or no build
+    refusal = dirty_refusal(trees)
+    if refusal and not entry["under_test"]:
+        print(refusal, file=sys.stderr)
+        return 2
+    entry = dict(entry, trees={n: {"root": st["root"], "head": st["head"], "dirty": st["dirty"]} for n, st in trees})
     out_dir = os.path.join(HERE, "proof", f"ledger_{now.strftime('%Y%m%d_%H%M%S')}")
+    if entry["under_test"] and os.path.realpath(os.path.dirname(out_dir)) == \
+            os.path.realpath(os.path.join(REPO, "tests", "package", "proof")):   # audit L2 (qwen, cycle 2): a run
+        print("REFUSED: a run under test never writes into the real build records", file=sys.stderr)   # that only
+        return 2                                                                  # claims to be a test makes none
     try:
         os.makedirs(out_dir)                     # never into an earlier run's evidence (glm C3 P2-1)
     except FileExistsError:
         print(f"REFUSED: {out_dir} exists", file=sys.stderr)
         return 2
+    box.update(out_dir=out_dir, build_no=a.build_no, build_id=a.build_id)   # RULING 160 (2b): one outcome from here
+    if a.out_dir_file:                                   # amendment C: the launcher reads THIS run's folder from here
+        with open(a.out_dir_file, "w") as f:
+            f.write(out_dir + "\n")
     logf = open(os.path.join(out_dir, "package.log"), "a")
-    say = lambda s: (print(s, flush=True), logf.write(s + "\n"), logf.flush())
+    clock = box.get("clock") or StageClock()
+    say = lambda s: (clock.mark(s), print(s, flush=True), logf.write(s + "\n"), logf.flush())
     ctx = E.Context(now, PS.REG, ledger=PS.ledger_entries())
     say(f"=== {time.strftime('%H:%M:%S %Z')} LEDGER medley build, code {PL.code_sha()}, now (render clock) "
         f"{now.isoformat(timespec='seconds')}, since {since.isoformat(timespec='seconds')} "
         f"({'--since' if a.since else 'the newest delivered pin'}), publish window {a.hours} h" +
         (f"; RULING 66: ONLY the candidate {cand['source']} tried[{cand['index']}] {cand['lineup']}" if cand else ""))
+    say("  commits (the acceptance test, item 1): " + "; ".join(
+        f"{n} {t['root']} at {str(t['head'])[:12]}" + (f" (UNDER TEST, changed: {t['dirty']})" if t["dirty"] else "")
+        for n, t in entry["trees"].items()))
+    say(f"  entry (verifier rows 12 / 16, ruling 163 (5)): {entry['driver']} (git sha {str(entry['driver_sha'])[:12]}, "
+        f"{'the committed one' if entry['driver_committed'] else 'NOT the committed one'}) as __main__ (argv0 "
+        f"{entry['argv0']}), HEAD {str(entry['code'])[:12]}, changed code files {entry['dirty'] or 'none'}")
     say(f"  delivered: {', '.join(p['story_id'] + ' (' + p['approved_at'] + ')' for p in pins)}; "
         f"{len(delivered)} clip spans out")
     say(f"  RULING 76: {len(gone)} candidate(s) expired (over {package_pin.WINDOW_H:g} h on the render clock)" +
@@ -578,7 +745,8 @@ def main(argv=None):
         next_try = {"error": f"{type(e).__name__}: {str(e)[:200]}"}       # never the build
     moments = with_variants(moments, sources, ctx, inputs, say)   # RULING 104: beside their parents, every gate again
     with open(os.path.join(out_dir, "inputs.json"), "w") as f:
-        json.dump({"since": since.isoformat(), "publish_window_h": a.hours, "delivered_pins": pins,
+        json.dump({"entry": entry, "build_no": a.build_no, "build_id": a.build_id,   # rows 12 / 16; 160 (2b)
+                   "since": since.isoformat(), "publish_window_h": a.hours, "delivered_pins": pins,
                    "adapter_report": rep, "inputs": inputs, "delivered": delivered, "moments": moments,
                    "next_attempt": next_try}, f, indent=1, default=str)
     pool = json.loads(json.dumps(moments, default=str))   # RULING 107 (1): the pool as it came in, before any stage
@@ -616,6 +784,7 @@ def main(argv=None):
     refused = start_refused(spent0, stop)
     if refused:
         say(refused)
+        box["refused"] = refused                         # RULING 160 (2b): BUDGET_STOPPED at the start
         logf.close()
         return 3
     say(f"  spend (ruling 48): ${spent0:.2f} of ${limit:.2f} vendor-reported before this build (no build "
@@ -636,6 +805,8 @@ def main(argv=None):
               stories_path=PK.STORIES,                                             # ruling 118 (4): read only
               ledger_aliases=inputs.get("duplicates_of") or {},    # its ledger ids: a dropped duplicate -> the kept row
               visual_cache=os.path.join(HERE, "proof", "VISUAL_CACHE.json"),       # ruling 70
+              out_edge_cache=os.path.join(HERE, "proof", "OUT_EDGE_CACHE.json"),   # ITEM 3: the question's answers,
+              #   keyed by the exact transcript, cut and prompt version (out_edge._key); the replay's frozen answers
               lock_check=lock_for(a.lock_precheck, out_dir, say))    # rulings 68 / 72 / 130 (2): off sends nothing
     name, at = os.path.relpath(out_dir, REPO), now.isoformat()
     if cand is not None:                                 # --from-candidate: that candidate alone (ruling 66, 13:18)
@@ -684,7 +855,7 @@ def main(argv=None):
                     work_dir=a.work_dir, store=kw["store"], step_a_cache=kw["step_a_cache"], hook_cache=kw["hook_cache"],
                     scorer_verdicts_path=PK.SCORER_VERDICTS, visual_cache=kw["visual_cache"],
                     layout_cache=os.path.join(HERE, "proof", "LAYOUT_CACHE.json"), lock_check=kw["lock_check"],
-                    spotlit=spotlit)
+                    spotlit=spotlit, out_edge_cache=kw["out_edge_cache"])         # ITEM 3
     res["spotlight"] = {k: sp.get(k) for k in ("package", "why_none", "finalists", "near", "moments", "pool",
                                                 "scorer_waited_s", "lock_stop", "scorer")}
     res["next_attempt"] = next_try                       # RULING 95, computed beside the inputs above
@@ -815,15 +986,17 @@ def main(argv=None):
         res["registry"], res["registry_error"] = False, f"{type(e).__name__}: {str(e)[:200]}"   # a later seed
         say(f"  RULING 66: the candidate registry was NOT saved ({res['registry_error']}); the record (package.json) "
             f"is written with registry false")           # applies this record's outcome (CA.seed)
+    res["stage_seconds"] = clock.totals()                # the time per stage (09:55 ET Nov 24), as it stands here
     with open(os.path.join(out_dir, "package.json"), "w") as f:
         json.dump(res, f, indent=1, default=str)
     if cand is None:                             # RULING 107 (1): the next build compares its inputs with these, as
         fp_end, parts_end = fingerprint(pool, delivered, pins, since, now, reg, a.routing)   # at this build's END
         money = list(router.spend_refused)       # the calls this build's router refused for money: left undone
-        left = open_work(res, sp, money)
+        items = OC.undone(res, sp, money)         # RULING 163 (4): each named in the record
+        left = len(items)
         with open(os.path.join(out_dir, FINGERPRINT), "w") as f:
-            json.dump({"fingerprint": fp_end, "parts": parts_end, "open_work": left, "spend_refused": money,
-                       "build": name}, f, indent=1)
+            json.dump({"fingerprint": fp_end, "parts": parts_end, "open_work": left, "undone": items,
+                       "spend_refused": money, "build": name}, f, indent=1)
         say(f"  RULING 107 (1): fingerprint {fp_end[:12]}, {left} item(s) left undone"
             + (f" ({len(money)} of them paid call(s) the spend stop refused)" if money else ""))
     logf.close()
