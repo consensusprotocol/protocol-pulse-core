@@ -199,6 +199,30 @@ class TestSmallTenant(Box):
                     with self.assertRaises(gpu0.Gpu0Foreign):
                         gpu0.swap_to("whisper:large-v3")
 
+    def test_the_headroom_alone_decides(self):
+        """The verifier's row 5 (Nov 23): 'no headroom' above is refused by the unaccounted-memory rule, so the third
+        condition had no test of its own. Here every tenant is small (1,900 MiB), every MiB is accounted for and the
+        GPU is idle: only the caller's need + SMALL_TENANT_HEADROOM_MIB decides, one MiB either way."""
+        room = gpu0.REQUIREMENT_MIB["whisper:large-v3"] + gpu0.SMALL_TENANT_HEADROOM_MIB
+
+        def tenants(total):
+            n, rest = divmod(total, 1900)
+            return [(2000000 + i, "tenant", 1900) for i in range(n)] + ([(2000000 + n, "tenant", rest)] if rest else [])
+        for label, total, tolerated in (("one MiB short", 24564 - 100 - room + 1, False), ("exactly the room", 24564 - 100 - room, True)):
+            with self.subTest(label):
+                self.procs[:] = tenants(total)
+                self.used[0], self.util[0] = total + 100, 0                   # 100 MiB unlisted: under UNLISTED_MAX_MIB
+                f = gpu0.foreign()
+                self.assertTrue(f and all(p is not None and m < gpu0.SMALL_TENANT_MAX_MIB for p, _, m in f), f)
+                ok, rec = gpu0.small_tenants(f, gpu0.REQUIREMENT_MIB["whisper:large-v3"])
+                self.assertEqual(ok, tolerated, rec)
+                if not tolerated:
+                    self.assertIn("under the need", rec)
+                    with gpu0.lease("t"), mock.patch.object(gpu0, "FOREIGN_WAIT_S", 0.1), \
+                            mock.patch.object(gpu0, "FOREIGN_POLL_S", 0.05):
+                        with self.assertRaises(gpu0.Gpu0Foreign):
+                            gpu0.swap_to("whisper:large-v3")
+
     def test_the_note_names_the_tenant(self):
         import json
         import telegram
