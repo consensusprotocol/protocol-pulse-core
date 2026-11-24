@@ -92,7 +92,8 @@ def test_media_hub_lists_come_from_the_registry():
     for entry in our + recommended:
         assert entry['title'] and entry['author'] and entry['description'] and entry['cover_url']
         assert entry['amazon_url'].endswith('?tag=protocolpulse-20')
-    assert all(isinstance(b['bestseller'], bool) for b in recommended)
+    assert all(isinstance(b['essential'], bool) for b in recommended)
+    assert not any('bestseller' in b for b in our + recommended)  # an editorial pick, not a sales claim
     blob = json.dumps(our + recommended)
     assert [d for d in DEAD_IDS + [CRYPTOASSETS_ID] if d in blob] == []
     assert 'The Money Revolution' in blob and 'The Truth About Money' not in blob

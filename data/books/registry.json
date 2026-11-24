@@ -10,7 +10,31 @@
    "amazon_id": "B0DVTCVX8J",
    "status": "verified",
    "rank_nov24": "51,009 in Books",
-   "pp_series": true
+   "pp_series": true,
+   "subtitle": "What Happened to America and How Sound Money Will Fix It",
+   "description": "Lawrence Lepard on what happened to American money and why he argues sound money will fix it.",
+   "categories": [
+    "Money & Macro",
+    "Bitcoin"
+   ],
+   "pathways": [
+    {
+     "id": "money-and-macro",
+     "step": 3,
+     "note": "Applies the framework to US monetary history and argues for sound money."
+    }
+   ],
+   "pub_year": 2025,
+   "pub_year_source": "Amazon US product page (February 3, 2025), checked 2026-11-24",
+   "related_media": [
+    {
+     "kind": "series",
+     "label": "The Big Print series",
+     "url": "https://www.youtube.com/watch?v=W09CNU_q6Yo",
+     "provider": "YouTube (Cypherpunk'd)",
+     "verified": "2026-11-24: oEmbed 200, author Cypherpunk'd"
+    }
+   ]
   },
   {
    "slug": "everything-divided-by-21-million",
@@ -20,7 +44,22 @@
    "amazon_id": "9916697191",
    "status": "verified",
    "rank_nov24": "3,262,637 in Books",
-   "pp_series": true
+   "pp_series": true,
+   "description": "Knut Svanholm's philosophical look at Bitcoin and its fixed supply of 21 million coins.",
+   "categories": [
+    "Bitcoin"
+   ],
+   "pub_year": 2022,
+   "pub_year_source": "Amazon US product page (March 9, 2022), checked 2026-11-24",
+   "related_media": [
+    {
+     "kind": "series",
+     "label": "Everything Divided by 21 Million series",
+     "url": "https://www.youtube.com/watch?v=FA8tvWEydcA",
+     "provider": "YouTube (Cypherpunk'd)",
+     "verified": "2026-11-24: oEmbed 200, author Cypherpunk'd"
+    }
+   ]
   },
   {
    "slug": "daylight-robbery",
@@ -31,7 +70,31 @@
    "status": "verified",
    "rank_nov24": "2,078,062 in Books",
    "pp_series": true,
-   "note": "Penguin UK edition"
+   "note": "Penguin UK edition",
+   "subtitle": "How Tax Shaped Our Past and Will Change Our Future",
+   "description": "Dominic Frisby on how tax has shaped history, and how it may change in the future.",
+   "categories": [
+    "History",
+    "Economics"
+   ],
+   "pathways": [
+    {
+     "id": "strategy-and-power",
+     "step": 2,
+     "note": "How taxation has shaped states and societies through history."
+    }
+   ],
+   "pub_year": 2020,
+   "pub_year_source": "Open Library edition record (2020), checked 2026-11-24",
+   "related_media": [
+    {
+     "kind": "series",
+     "label": "Daylight Robbery series",
+     "url": "https://www.youtube.com/watch?v=ZCc78wvwd6U",
+     "provider": "YouTube (Cypherpunk'd)",
+     "verified": "2026-11-24: oEmbed 200, author Cypherpunk'd"
+    }
+   ]
   },
   {
    "slug": "the-genesis-book",
@@ -41,7 +104,31 @@
    "amazon_id": "B0CQLMQRH7",
    "status": "verified",
    "rank_nov24": "183,398 in Books",
-   "pp_series": true
+   "pp_series": true,
+   "subtitle": "The Story of the People and Projects That Inspired Bitcoin",
+   "description": "Aaron van Wirdum on the people and projects that inspired Bitcoin, from Austrian economics to the cypherpunks.",
+   "categories": [
+    "History",
+    "Bitcoin"
+   ],
+   "pathways": [
+    {
+     "id": "history",
+     "step": 1,
+     "note": "Covers the ideas and projects that came before Bitcoin."
+    }
+   ],
+   "pub_year": 2024,
+   "pub_year_source": "Amazon US product page (January 3, 2024), checked 2026-11-24",
+   "related_media": [
+    {
+     "kind": "series",
+     "label": "The Genesis Book series",
+     "url": "https://www.youtube.com/playlist?list=PLQ4MjCv9OedqhL5At0WQs06GShfVkgPvT",
+     "provider": "YouTube (Cypherpunk'd)",
+     "verified": "2026-11-24: oEmbed 200, author Cypherpunk'd"
+    }
+   ]
   },
   {
    "slug": "the-bitcoin-standard",
@@ -51,7 +138,22 @@
    "amazon_id": "1119473861",
    "status": "fix",
    "rank_nov24": "34,197 in Books",
-   "fix": "collector uses dead ASIN B07FCGQ672 (404); site shows fabricated 3,210"
+   "fix": "collector uses dead ASIN B07FCGQ672 (404); site shows fabricated 3,210",
+   "subtitle": "The Decentralized Alternative to Central Banking",
+   "description": "Saifedean Ammous presents Bitcoin as a decentralized alternative to central banking, set against the history of money.",
+   "categories": [
+    "Bitcoin",
+    "Economics"
+   ],
+   "pathways": [
+    {
+     "id": "start-here",
+     "step": 2,
+     "note": "Places Bitcoin in the history of money and makes the monetary case."
+    }
+   ],
+   "pub_year": 2018,
+   "pub_year_source": "Open Library edition record (2018), checked 2026-11-24"
   },
   {
    "slug": "broken-money",
@@ -61,7 +163,22 @@
    "amazon_id": "B0CG8985FR",
    "status": "fix",
    "rank_nov24": "49,171 in Books",
-   "fix": "collector uses dead ASIN B09WFDTX49 (404); site shows fabricated 5,430"
+   "fix": "collector uses dead ASIN B09WFDTX49 (404); site shows fabricated 5,430",
+   "subtitle": "Why Our Financial System Is Failing Us and How We Can Make It Better",
+   "description": "Lyn Alden on why the financial system is failing people and how it could be made better.",
+   "categories": [
+    "Money & Macro",
+    "Bitcoin"
+   ],
+   "pathways": [
+    {
+     "id": "start-here",
+     "step": 3,
+     "note": "Brings the argument to today's financial system."
+    }
+   ],
+   "pub_year": 2023,
+   "pub_year_source": "Open Library edition record (2023-08-20), checked 2026-11-24"
   },
   {
    "slug": "mastering-bitcoin",
@@ -70,7 +187,29 @@
    "isbn13": "9781098150099",
    "amazon_id": "1098150090",
    "status": "verified",
-   "rank_nov24": "148,085 in Books"
+   "rank_nov24": "148,085 in Books",
+   "subtitle": "Programming the Open Blockchain",
+   "description": "A technical guide to programming Bitcoin: keys, transactions, the network and mining. Third edition.",
+   "categories": [
+    "Technology",
+    "Bitcoin"
+   ],
+   "pathways": [
+    {
+     "id": "how-bitcoin-works",
+     "step": 3,
+     "note": "The full technical treatment, for readers who want the details."
+    }
+   ],
+   "pub_year": 2023,
+   "pub_year_source": "Open Library edition record (2023), checked 2026-11-24",
+   "free_resources": [
+    {
+     "label": "Read free in the authors' repository",
+     "url": "https://github.com/bitcoinbook/bitcoinbook",
+     "verified": "2026-11-24: HTTP 200 from Ultron (https://github.com/bitcoinbook/bitcoinbook)"
+    }
+   ]
   },
   {
    "slug": "the-fiat-standard",
@@ -80,9 +219,23 @@
    "amazon_id": "B0HR576L3M",
    "status": "verified",
    "rank_nov24": "1,540,887 in Kindle Store",
-   "fix": "print ISBN 1544526474 is 404 on Amazon; using verified Kindle edition. Publisher link found on saifedean.com; store page rate-limited (429) from Ultron, availability not yet confirmed",
+   "fix": "print ISBN 1544526474 is 404 on Amazon; using verified Kindle edition. Publisher store link candidate https://thesaifhouse.com/products/tfs-hardcover answered 429 from Ultron (Nov 24, twice): not shown until verified",
    "format": "Kindle",
-   "publisher_link": "https://thesaifhouse.com/products/tfs-hardcover"
+   "subtitle": "The Debt Slavery Alternative to Human Civilization",
+   "description": "Saifedean Ammous examines the fiat monetary system that followed the gold standard.",
+   "categories": [
+    "Economics",
+    "Money & Macro"
+   ],
+   "pathways": [
+    {
+     "id": "money-and-macro",
+     "step": 4,
+     "note": "A critique of the fiat system as a whole."
+    }
+   ],
+   "pub_year": 2021,
+   "pub_year_source": "Open Library edition record (Nov 16, 2021), checked 2026-11-24"
   },
   {
    "slug": "the-sovereign-individual",
@@ -92,7 +245,21 @@
    "amazon_id": "0684832720",
    "status": "fix",
    "rank_nov24": "10,636 in Books",
-   "fix": "collector author omits Rees-Mogg"
+   "fix": "collector author omits Rees-Mogg",
+   "subtitle": "Mastering the Transition to the Information Age",
+   "description": "James Dale Davidson and William Rees-Mogg on how the information age could reshape nations, work and money.",
+   "categories": [
+    "Strategy"
+   ],
+   "pathways": [
+    {
+     "id": "strategy-and-power",
+     "step": 1,
+     "note": "The broad thesis: how information technology changes the power of states."
+    }
+   ],
+   "pub_year": 1999,
+   "pub_year_source": "Open Library edition record (August 26, 1999), checked 2026-11-24"
   },
   {
    "slug": "digital-gold",
@@ -102,7 +269,22 @@
    "amazon_id": "006236250X",
    "status": "verified",
    "rank_nov24": "382,113 in Books",
-   "note": "collector only; not on /media list"
+   "note": "collector only; not on /media list",
+   "subtitle": "Bitcoin and the Inside Story of the Misfits and Millionaires Trying to Reinvent Money",
+   "description": "Nathaniel Popper's reported history of Bitcoin's early years and the people who built it.",
+   "categories": [
+    "History",
+    "Bitcoin"
+   ],
+   "pathways": [
+    {
+     "id": "history",
+     "step": 2,
+     "note": "Bitcoin's early years and the people who built it."
+    }
+   ],
+   "pub_year": 2016,
+   "pub_year_source": "Open Library edition record (2016), checked 2026-11-24"
   },
   {
    "slug": "layered-money",
@@ -111,7 +293,21 @@
    "isbn13": "9781736110515",
    "amazon_id": "1736110519",
    "status": "verified",
-   "rank_nov24": "543,923 in Books"
+   "rank_nov24": "543,923 in Books",
+   "subtitle": "From Gold and Dollars to Bitcoin and Central Bank Digital Currencies",
+   "description": "Nik Bhatia explains money as layers, from gold and dollars to Bitcoin and central bank digital currencies.",
+   "categories": [
+    "Money & Macro"
+   ],
+   "pathways": [
+    {
+     "id": "money-and-macro",
+     "step": 1,
+     "note": "A framework for money as layers, used by everything after it."
+    }
+   ],
+   "pub_year": 2021,
+   "pub_year_source": "Open Library edition record (Jan 18, 2021), checked 2026-11-24"
   },
   {
    "slug": "the-price-of-tomorrow",
@@ -120,7 +316,15 @@
    "isbn13": "9781999257408",
    "amazon_id": "1999257405",
    "status": "verified",
-   "rank_nov24": "51,925 in Books"
+   "rank_nov24": "51,925 in Books",
+   "subtitle": "Why Deflation Is the Key to an Abundant Future",
+   "description": "Jeff Booth argues that technology is deflationary and that deflation is the key to an abundant future.",
+   "categories": [
+    "Economics",
+    "Technology"
+   ],
+   "pub_year": 2020,
+   "pub_year_source": "Open Library edition record (Jan 14, 2020), checked 2026-11-24"
   },
   {
    "slug": "inventing-bitcoin",
@@ -130,7 +334,27 @@
    "amazon_id": "1794326316",
    "status": "fix",
    "rank_nov24": "565,585 in Books",
-   "fix": "site uses dead 1097476922 (404); fabricated rank 35,200 shown"
+   "fix": "site uses dead 1097476922 (404); fabricated rank 35,200 shown",
+   "subtitle": "The Technology Behind the First Truly Scarce and Decentralized Money Explained",
+   "description": "Yan Pritzker explains the technology that makes Bitcoin scarce, decentralized money.",
+   "categories": [
+    "Bitcoin",
+    "Technology"
+   ],
+   "pathways": [
+    {
+     "id": "start-here",
+     "step": 1,
+     "note": "Explains how Bitcoin works before any of the economics."
+    },
+    {
+     "id": "how-bitcoin-works",
+     "step": 1,
+     "note": "The core ideas in plain language."
+    }
+   ],
+   "pub_year": 2019,
+   "pub_year_source": "Open Library edition record (Jun 17, 2019), checked 2026-11-24"
   },
   {
    "slug": "21-lessons",
@@ -139,7 +363,28 @@
    "isbn13": "9781697526349",
    "amazon_id": "1697526349",
    "status": "verified",
-   "rank_nov24": "945,592 in Books"
+   "rank_nov24": "945,592 in Books",
+   "subtitle": "What I've Learned from Falling Down the Bitcoin Rabbit Hole",
+   "description": "Gigi's lessons from falling down the Bitcoin rabbit hole, in philosophy, economics and technology.",
+   "categories": [
+    "Bitcoin"
+   ],
+   "pathways": [
+    {
+     "id": "how-bitcoin-works",
+     "step": 2,
+     "note": "Its technology lessons bridge the overview and the technical guide."
+    }
+   ],
+   "pub_year": 2019,
+   "pub_year_source": "Open Library edition record (Dec 18, 2019), checked 2026-11-24",
+   "free_resources": [
+    {
+     "label": "Read free at 21lessons.com",
+     "url": "https://21lessons.com/",
+     "verified": "2026-11-24: HTTP 200 from Ultron (https://21lessons.com/)"
+    }
+   ]
   },
   {
    "slug": "thank-god-for-bitcoin",
@@ -149,7 +394,14 @@
    "amazon_id": "1641991216",
    "status": "fix",
    "rank_nov24": "365,096 in Books",
-   "fix": "site uses dead 1642790622 (404)"
+   "fix": "site uses dead 1642790622 (404)",
+   "subtitle": "The Creation, Corruption and Redemption of Money",
+   "description": "The Bitcoin and Bible Group on the creation, corruption and redemption of money, from a Christian perspective.",
+   "categories": [
+    "Bitcoin"
+   ],
+   "pub_year": 2020,
+   "pub_year_source": "Open Library edition record (Nov 26, 2020), checked 2026-11-24"
   },
   {
    "slug": "the-blocksize-war",
@@ -159,7 +411,22 @@
    "amazon_id": "B08YQMC2WM",
    "status": "fix",
    "rank_nov24": "928,558 in Books",
-   "fix": "site uses dead 1916294216 (404)"
+   "fix": "site uses dead 1916294216 (404)",
+   "subtitle": "The Battle over Who Controls Bitcoin's Protocol Rules",
+   "description": "Jonathan Bier's account of the 2015-2017 battle over who controls Bitcoin's protocol rules.",
+   "categories": [
+    "History",
+    "Bitcoin"
+   ],
+   "pathways": [
+    {
+     "id": "history",
+     "step": 3,
+     "note": "The 2015-2017 fight over the protocol rules."
+    }
+   ],
+   "pub_year": 2021,
+   "pub_year_source": "Open Library edition record (2021-03-14), checked 2026-11-24"
   },
   {
    "slug": "softwar",
@@ -169,8 +436,29 @@
    "amazon_id": "B0BW358F37",
    "status": "fix",
    "rank_nov24": "411,788 in Books",
-   "free_alt": "https://hdl.handle.net/1721.1/153030",
-   "fix": "live entry core/routes_pages.py:1481 is a different book (Larry Ellison, dead 1416532194); templates/media_unified.html:392 links 1544542895 = Spanish Lyme disease book; media_reforge uses dead B0BW3MTQG6"
+   "fix": "live entry core/routes_pages.py:1481 is a different book (Larry Ellison, dead 1416532194); templates/media_unified.html:392 links 1544542895 = Spanish Lyme disease book; media_reforge uses dead B0BW3MTQG6",
+   "subtitle": "A Novel Theory on Power Projection and the National Strategic Significance of Bitcoin",
+   "description": "Jason Lowery's theory of proof-of-work as power projection and its national strategic significance, first written as his MIT thesis.",
+   "categories": [
+    "Strategy",
+    "Bitcoin"
+   ],
+   "pathways": [
+    {
+     "id": "strategy-and-power",
+     "step": 3,
+     "note": "Proof-of-work as a means of power projection today."
+    }
+   ],
+   "pub_year": 2023,
+   "pub_year_source": "Amazon US product page (February 18, 2023), checked 2026-11-24",
+   "free_resources": [
+    {
+     "label": "Read the MIT thesis (free)",
+     "url": "https://hdl.handle.net/1721.1/153030",
+     "verified": "2026-11-24: HTTP 200 from Ultron (https://dspace.mit.edu/entities/publication/8ac6037b-efd6-4ecd-a57f-2b75c965c889)"
+    }
+   ]
   },
   {
    "slug": "the-money-revolution",
@@ -181,8 +469,59 @@
    "status": "fix",
    "rank_nov24": "1,285,975 in Books",
    "fix": "replaces non-existent 'The Truth About Money' (dead 0470181552); verified on Amazon, Open Library and wiley.com",
-   "publisher": "Wiley, 2021"
+   "publisher": "Wiley, 2021",
+   "subtitle": "How to Finance the Next American Century",
+   "description": "Richard Duncan on how credit creation drives the US economy and how it could finance the next American century.",
+   "categories": [
+    "Money & Macro",
+    "Economics"
+   ],
+   "pathways": [
+    {
+     "id": "money-and-macro",
+     "step": 2,
+     "note": "How credit creation drives the US economy today."
+    }
+   ],
+   "pub_year": 2021,
+   "pub_year_source": "Open Library edition record (2021), checked 2026-11-24"
   }
  ],
- "version": 2
+ "version": 3,
+ "categories": [
+  "Bitcoin",
+  "Money & Macro",
+  "Technology",
+  "History",
+  "Strategy",
+  "Economics"
+ ],
+ "featured": "the-big-print",
+ "pathways": [
+  {
+   "id": "start-here",
+   "title": "Start here",
+   "summary": "What Bitcoin is, how money got here, and what is wrong with it today."
+  },
+  {
+   "id": "money-and-macro",
+   "title": "Money and macro",
+   "summary": "How the monetary system works now, and the case for sound money."
+  },
+  {
+   "id": "how-bitcoin-works",
+   "title": "How Bitcoin works",
+   "summary": "From the core ideas to the full technical detail."
+  },
+  {
+   "id": "history",
+   "title": "History",
+   "summary": "Bitcoin's story in the order it happened."
+  },
+  {
+   "id": "strategy-and-power",
+   "title": "Strategy and power",
+   "summary": "Technology, the state and power, from the information age to proof-of-work."
+  }
+ ]
 }

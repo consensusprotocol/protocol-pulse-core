@@ -64,7 +64,8 @@ def book_rows(metrics, now, tag=books_registry.DEFAULT_TAG):
             'pp_series': bool(book.get('pp_series')),
             'cover_url': books_registry.cover_url(book),
             'amazon_url': books_registry.amazon_url(book, tag),
-            'free_alt': book.get('free_alt'),
+            'purchase_label': books_registry.purchase_label(book),
+            'free_alt': books_registry.free_alt(book),
             'data_status': status,
             'bsr': m['bsr'] if ranked else None,
             'bsr_previous': m.get('bsr_previous') if ranked else None,
@@ -102,11 +103,17 @@ def _featured(cfg, rows, now):
     else:
         return None
     where = f" in {pick['rank_category']}" if pick['rank_category'] else ''
+    # The series button on /media renders only when the registry has a series link for the pick.
+    series_url, series_label = books_registry.series_link(books_registry.by_id(pick['asin']) or {})
     return {
         'title': pick['title'],
         'author': pick['author'],
+        'format': pick['format'],
         'cover_url': pick['cover_url'],
         'amazon_url': pick['amazon_url'],
+        'purchase_label': pick['purchase_label'],
+        'series_url': series_url,
+        'series_label': series_label,
         'headline': pick['title'],
         'body_text': f"by {pick['author']} · Amazon US Best Sellers Rank #{pick['bsr']:,}{where}",
         'badge': badge,

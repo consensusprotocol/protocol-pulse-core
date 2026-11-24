@@ -1381,7 +1381,7 @@ def media_hub():
         b['category'] = 'series'
         all_books.append(b)
     for b in recommended_books:
-        if b.get('bestseller'):
+        if b.get('essential'):
             b['category'] = 'essential'
         else:
             b['category'] = 'economics'
