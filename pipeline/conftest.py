@@ -13,6 +13,11 @@ import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))     # gpu0 lives next to this file
 
+# ruling 133 R16: a test never writes the services' live heartbeats (pipeline/heartbeat.py reads this at import)
+if "PP_HEARTBEAT_DIR" not in os.environ:
+    import tempfile as _tf
+    os.environ["PP_HEARTBEAT_DIR"] = _tf.mkdtemp(prefix="pp_heartbeat_")
+
 _CVD = os.environ.get("CUDA_VISIBLE_DEVICES")
 _CPU = _CVD in (None, "", "-1")
 _LEASE = []
