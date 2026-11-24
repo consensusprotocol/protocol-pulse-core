@@ -1,0 +1,368 @@
+{
+ "513842ff9c091700dbb8:9d43580c729b": {
+  "label": "513842ff9c091700dbb8",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "That",
+    "refers_to": "The coincidence of the 2022 bottom and the 2026 low both occurring on November 21st.",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "The coincidence of the 2022 bottom and the 2026 low both occurring on November 21st.",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's recent low of $55,000 on November 21, 2026 occurred exactly four years to the day after its 2022 bottom of about $15,500.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Visit the bitcoinway.com/hurly and your first 30-minut consultation is completely free.",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2b87c34f72374e502109:9d43580c729b": {
+  "label": "2b87c34f72374e502109",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that's",
+    "refers_to": "short-term holders in Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "those lows",
+    "refers_to": "The recent massive low in Bitcoin's price",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "which",
+    "refers_to": "The $11.3 billion capitulation by short-term holders",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "My guests on Macro Monday thought that that was likely to happen, that we'll probably uh be, you know, right back down to these lows next week.",
+  "time_ok": "yes",
+  "proposition": "A historically high amount of Bitcoin, $11.3 billion, was sold by short-term retail holders at the recent lows, which is a pattern that aligns with all previous market bottoms.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "4c8a1d8773fa4e831c19:9d43580c729b": {
+  "label": "4c8a1d8773fa4e831c19",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "last week",
+    "refers_to": "The week before the show date of 2026-11-23",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "the company",
+    "refers_to": "Strategy (MicroStrategy)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "MicroStrategy's stock fell 30% last week, but Michael Saylor says the company will not be broken by a long Bitcoin price drawdown.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I hosted the company's post Q3 investor Q&A session last week with Michael Sailor and Fong Lee...",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "15b194bd551e34372802:9d43580c729b": {
+  "label": "15b194bd551e34372802",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "According to analysts, the total value of Bitcoin holdings that are currently at an unrealized loss has reached an all-time high.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "e3bde2f205e66f8e4906:9d43580c729b": {
+  "label": "e3bde2f205e66f8e4906",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "He",
+    "refers_to": "Michael Saylor",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "the company",
+    "refers_to": "MicroStrategy",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "its",
+    "refers_to": "the company (MicroStrategy)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "The only real threat to the company's existence is if Bitcoin goes to zero overnight.",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Michael Saylor said that MicroStrategy has over three years of cash to cover its obligations and that the only existential threat to the company is Bitcoin's price going to zero overnight.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I hosted the company's post Q3 investor Q&A session last week with Michael Sailor and Fong Lee...",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c5b136cd68da788fb670:9d43580c729b": {
+  "label": "c5b136cd68da788fb670",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "He",
+    "refers_to": "Michael Saylor",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "The bank that Strategy is building.",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Michael Saylor described MicroStrategy's business model as building a 'bank of Bitcoin' that would hold Bitcoin and issue credit against it, similar to how a central bank holds gold.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I hosted the company's post Q3 investor Q&A session last week with Michael Sailor and Fong Lee...",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "579ef25c705b2591cd59:9d43580c729b": {
+  "label": "579ef25c705b2591cd59",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this low",
+    "refers_to": "The new low for the current cycle, which dropped to about $55,000 on the Friday night before the show.",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's recent market low occurred almost exactly four years after the previous bear market bottom on November 21, 2022, when the price was about $15,500.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "72fbbf8137925c139e16:9d43580c729b": {
+  "label": "72fbbf8137925c139e16",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "They",
+    "refers_to": "MicroStrategy",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "STRC (MicroStrategy's preferred stock)",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "The process of getting STRC to $100 and using it to buy Bitcoin.",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "The higher Bitcoin rises, the easier it will be for MicroStrategy to achieve its goal.",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "MicroStrategy wants its preferred stock (STRC) to get back to $100 so they can use it to buy a lot of Bitcoin, and this goal will become easier as Bitcoin's price rises.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "My guests on Macro Monday thought that that was likely to happen...",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ae49f0e88243e485ba44:9d43580c729b": {
+  "label": "ae49f0e88243e485ba44",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this guy",
+    "refers_to": "Michael Saylor",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "some",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "It is an encouraging sign for Bitcoin when Michael Saylor/MicroStrategy buys it.",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "It is always an encouraging sign for Bitcoin when Michael Saylor's company, MicroStrategy, buys more, and they have recently acquired another 457 Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "My guests on Macro Monday thought that that was likely to happen...",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "afc71c91ac7dd87d4ec6:9d43580c729b": {
+  "label": "afc71c91ac7dd87d4ec6",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "strategy's",
+    "refers_to": "MicroStrategy",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "The statement about Bitcoin's price relative to the average cost is true at a price of 60K.",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "At a Bitcoin price of $60,000, it is about 20% below MicroStrategy's average cost basis, and MicroStrategy's stock closed last Friday at its lowest level since early 2024.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I hosted the company's post Q3 investor Q&A session last week with Michael Sailor and Fong Lee...",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ad47eab4a19c2324a9eb:9d43580c729b": {
+  "label": "ad47eab4a19c2324a9eb",
+  "speaker_changes_inside": "no",
+  "view": "reading_aloud",
+  "referents": [
+   {
+    "word": "He",
+    "refers_to": "Bitcoin therapist",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the weekend",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker is reading a statement from 'Bitcoin therapist' who claimed that the new low hit over the weekend occurred exactly four years to the day after a previous Bitcoin bottom.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is why I love these time frames because I don't have to deal with those people.",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "5f1456a7f32e60f52817:9d43580c729b": {
+  "label": "5f1456a7f32e60f52817",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this low",
+    "refers_to": "The new cycle low of about $55,000 that occurred on the Friday night before the show.",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "the price",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's last bear market bottomed on November 21, 2022, at around $15,500, and the recent low occurred almost exactly four years later, which aligns with a historical pattern of four-year cycles where the price typically fell 70-80% from its peak.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "google:gemini-2.5-pro",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}
