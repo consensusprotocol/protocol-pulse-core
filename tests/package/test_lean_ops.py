@@ -325,6 +325,38 @@ class TheLedgerComesFirst(Live):
         self.assertFalse(os.path.exists(self.p["run"]))
 
 
+class TheServicesComeUpFirst(Base):
+    def test_the_launch_waits_for_each_service_s_own_heartbeat(self):
+        """`run` launches only when BOTH experimental sessions are up with their OWN first heartbeat (one service's beat
+        never stands in for the other's); not up within the wait: refused, and the run still restores."""
+        up = {"=pipeline_lean_lockcheck", "=pipeline_lean_scorer"}
+
+        def sh(cmd, **k):
+            return (0, "") if cmd[:2] == ["tmux", "has-session"] and cmd[-1] in up else (1, "")
+        os.makedirs(self.p["beats"])
+        o = LO.Ops(False, out=self.said.append, p=self.p)
+        with mock.patch.object(LO, "sh", sh):
+            open(os.path.join(self.p["beats"], "scorer.json"), "w").close()
+            self.assertFalse(LO.services_ready(o, wait_s=0.5))          # the lock service has not beaten yet
+            open(os.path.join(self.p["beats"], "lock_precheck.json"), "w").close()
+            self.assertTrue(LO.services_ready(o, wait_s=0.5))
+            up.discard("=pipeline_lean_scorer")
+            self.assertFalse(LO.services_ready(o, wait_s=0.5))          # a session gone: not ready
+        said, runs = [], []
+        with mock.patch.object(LO, "sh", _sh_down), mock.patch.object(LO, "snapshot", lambda: dict(SNAP)), \
+                mock.patch.object(LO, "preconditions", lambda *a, **k: True), \
+                mock.patch.object(LO, "release_copy_cmds", lambda p, sha: ([], (os.path.join(self.d, "alt"), "x"))), \
+                mock.patch.object(LO, "services_ready", lambda o_: False), \
+                mock.patch.object(LO, "launch", lambda *a, **k: runs.append(1) or 0), \
+                mock.patch("ceiling_seed.main", lambda argv: (__import__("spend_ceiling").init_day({}, 0, by="t")
+                                                              and 0)):
+            o = LO.Ops(False, run=lambda *a: 0, out=said.append, p=self.p)
+            o.guard_argv = lambda pid, st, dl: ["true"]
+            self.assertEqual(LO.run(o, 172, 6000), 2)
+        self.assertEqual(runs, [])                                       # no launch
+        self.assertTrue(any("RESTORE (live)" in x for x in said))
+
+
 class ThePreflight(Base):
     def lines(self, **kw):
         o = LO.Ops(True, out=self.said.append, p=self.p)
@@ -401,6 +433,7 @@ with mock.patch.object(LO, "preconditions", lambda *a, **k: mode != "refused"), 
         mock.patch.object(LO, "head_pushed", lambda r, b: ("a" * 40, "a" * 40)), \
         mock.patch.object(LO, "release_copy_cmds", lambda p_, sha: ([], (os.path.join(d, "alt"), "x"))), \
         mock.patch.object(LO, "INGEST_DB", os.path.join(d, "none.sqlite")), \
+        mock.patch.object(LO, "services_ready", lambda o_: True), \
         mock.patch("ceiling_seed.main", seed):
     o = LO.Ops(False, run=run, out=out, p=p)
     o.guard_argv = lambda pid, st, dl: [sys.executable, "-B", __file__, d, "guard", str(pid), str(st)]
@@ -526,6 +559,7 @@ class TheExitPaths(Base):
                     mock.patch.object(LO, "preconditions", lambda *a, **k: True), \
                     mock.patch.object(LO, "release_copy_cmds", lambda p, sha: ([], (os.path.join(self.d, "alt"), "x"))), \
                     mock.patch.object(LO, "restore", wraps=LO.restore) as rs, \
+                    mock.patch.object(LO, "services_ready", lambda o_: True), \
                     mock.patch("ceiling_seed.main", lambda argv: (__import__("spend_ceiling").init_day({}, 0, by="t")
                                                                   and 0)):
                 o = LO.Ops(False, run=run, out=said.append, p=self.p)

@@ -588,10 +588,10 @@ def preconditions(o, run_name, launch=True, t0=None, deadline_s=None):
     if launch:
         for name, sess in SESSIONS.items():
             up = sh(["tmux", "has-session", "-t", f"={sess}"])[0] == 0
-            beats = sorted(glob.glob(f"{p['beats']}/*"))
-            fresh = [b for b in beats if time.time() - os.path.getmtime(b) < 900]
-            ok &= check(f"experimental {name} up ({sess})", up and fresh, f"session {'up' if up else 'MISSING'}; "
-                        f"fresh heartbeats in {p['beats']}: {[os.path.basename(b) for b in fresh]}", out)
+            fresh = beat_fresh(p, name)
+            ok &= check(f"experimental {name} up ({sess})", up and fresh, f"session {'up' if up else 'MISSING'}; its "
+                        f"own heartbeat {os.path.join(p['beats'], BEAT_FILES[name])} "
+                        f"{'fresh' if fresh else 'MISSING or older than 900 s'}", out)
         try:
             with open(p["before"]) as f:
                 before = json.load(f)
@@ -606,6 +606,36 @@ def preconditions(o, run_name, launch=True, t0=None, deadline_s=None):
           f"worktrees {bk['worktrees']}, branches {bk['branches']}, tmux {bk['sessions']}: no command here names "
           f"them", out)
     return ok
+
+
+BEAT_FILES = {"lockcheck": "lock_precheck.json", "scorer": "scorer.json"}   # heartbeat.path(<service>): each its own
+SERVICE_WAIT_S = 180.0             # run: how long the launch waits for both services' first heartbeats after `start`
+
+
+def beat_fresh(p, name, max_age=900.0):
+    """A service's OWN heartbeat file (pipeline/heartbeat.py: written as the service starts, then every beat)."""
+    try:
+        return time.time() - os.path.getmtime(os.path.join(p["beats"], BEAT_FILES[name])) < max_age
+    except OSError:
+        return False
+
+
+def services_ready(o, wait_s=SERVICE_WAIT_S):
+    """run, between `start` and the launch: both experimental sessions up with their own first heartbeat (each service
+    writes it as it starts, after its imports), waited for up to wait_s; else the run is refused."""
+    if o.dry:
+        o.say(f"  WOULD WAIT up to {wait_s:.0f} s for both services' own first heartbeats")
+        return True
+    end = time.time() + wait_s
+    while True:
+        state = {n: (sh(["tmux", "has-session", "-t", f"={s}"])[0] == 0, beat_fresh(o.p, n)) for n, s in SESSIONS.items()}
+        if all(up and fresh for up, fresh in state.values()):
+            o.say(f"  both services up with their own heartbeats: {sorted(state)}")
+            return True
+        if time.time() >= end:
+            o.say(f"REFUSED: the services did not come up within {wait_s:.0f} s ({state}: up, heartbeat)")
+            return False
+        time.sleep(2.0)
 
 
 def ledger_init(o):
@@ -1045,6 +1075,9 @@ def run(o, build_no=172, deadline_s=DEADLINE_S, log=None):
         rc = start(o, f"build{build_no}", strict=True)
         if rc != 0 and not o.dry:
             why = "refused at start"
+            return rc
+        if not services_ready(o):
+            rc, why = 2, "the services did not come up"
             return rc
         rc = launch(o, build_no, deadline_s, t0=t0)
         why = {0: "the launch ended", 2: "refused at the launch's preflight"}.get(rc, f"exit {rc}")

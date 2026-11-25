@@ -687,14 +687,14 @@ class TestAProductionRunStopsPaidCalls(Production):
             parent = os.path.join(self.d, "lean_ops.py")                  # a stand-in for our launcher
             with open(parent, "w") as f:
                 f.write(f"import subprocess; subprocess.run(['bash', {script!r}])\n")
-            ours = subprocess.Popen([sys.executable, parent])
-            self.addCleanup(lambda: (ours.kill(), ours.wait()))
+            ours = subprocess.Popen([sys.executable, parent], start_new_session=True)
+            self.addCleanup(self.end_group, ours)            # its bash too: an orphan would look like production
             time.sleep(0.5)
             self.assertEqual(SC.production_running(fresh=True), [])       # ours: not production
             k = SC.reserve("xai:grok-3-mini", 0.05, path=self.path)
             SC.settle(k, "xai:grok-3-mini", 0.004, path=self.path)
-            prod = subprocess.Popen(["bash", script])
-            self.addCleanup(lambda: (prod.kill(), prod.wait()))
+            prod = subprocess.Popen(["bash", script], start_new_session=True)
+            self.addCleanup(self.end_group, prod)
             time.sleep(0.3)
             SC._SCAN["at"] = 0.0
             with self.assertRaisesRegex(SC.CeilingRefused, "STOPPED"):
@@ -711,6 +711,15 @@ class TestAProductionRunStopsPaidCalls(Production):
                 os.environ.pop("PP_SPEND_PROD_RUNS", None)
             else:
                 os.environ["PP_SPEND_PROD_RUNS"] = saved
+
+    @staticmethod
+    def end_group(proc):
+        import signal
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        proc.wait()
 
     def test_what_counts_as_running_a_build_or_render(self):
         yes = (["bash", "scripts/pulse_check_run.sh", "--pinned", "x"], ["python3", "-B", "tests/package/proof_ledger.py"],
