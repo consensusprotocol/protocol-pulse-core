@@ -6,8 +6,11 @@ registry are dropped. data_status per book:
   'ok'      last successful fetch less than 48 h ago
   'stale'   older: the rank is kept and marked, with last_successful_fetch as its date
   'no_data' never fetched (or no valid rank): bsr, bsr_change and rank_score are null
-Momentum flags (is_rising, is_breakout) only come from 'ok' rows. Stdlib only, so the tests
-need no Flask app.
+bsr_change is the collector's plain measurement against its previous good fetch. Nothing here
+turns it into a momentum label: the previous-fetch 'rising' rule is retired (no 'rising' list,
+no is_rising field, no RISING featured badge); the frozen candidate rule lives in
+core/book_signal_rules.py and is not published. is_breakout only comes from 'ok' rows.
+Stdlib only, so the tests need no Flask app.
 """
 import json
 import logging
@@ -73,7 +76,6 @@ def book_rows(metrics, now, tag=books_registry.DEFAULT_TAG):
             'rank_category': m.get('rank_category') if ranked else None,
             'rank_score': score,
             'velocity': score,  # deprecated alias of rank_score: remove after one release
-            'is_rising': bool(m.get('is_rising')) if fresh else False,
             'is_breakout': bool(m.get('is_breakout')) if fresh else False,
             'fetch_status': m.get('fetch_status'),
             'fetch_error': m.get('fetch_error'),
@@ -93,11 +95,8 @@ def _featured(cfg, rows, now):
             return cfg
     fresh = [r for r in rows if r['data_status'] == 'ok']
     pp = [r for r in fresh if r['pp_series']]
-    rising = [r for r in fresh if r['is_rising'] and r['bsr_change'] is not None]
     if pp:
         pick, badge = min(pp, key=lambda r: r['bsr']), 'PROTOCOL PULSE SERIES'
-    elif rising:
-        pick, badge = min(rising, key=lambda r: r['bsr_change']), 'RISING'
     elif fresh:
         pick, badge = min(fresh, key=lambda r: r['bsr']), 'TOP RANKED'
     else:
@@ -125,8 +124,6 @@ def build_payload(metrics, featured_cfg, now, tag=books_registry.DEFAULT_TAG):
     counts = {s: sum(1 for r in rows if r['data_status'] == s) for s in ('ok', 'stale', 'no_data')}
     last_updated = metrics.get('last_updated') or None
     updated = _parse_ts(last_updated)
-    rising = sorted((r for r in rows if r['is_rising'] and r['bsr_change'] is not None),
-                    key=lambda r: r['bsr_change'])
     return {
         'status': 'ok',
         'source': 'amazon_scrape',
@@ -137,7 +134,6 @@ def build_payload(metrics, featured_cfg, now, tag=books_registry.DEFAULT_TAG):
         # last_run: the collector's own counts for its last run; the rest count the books below.
         'fetch_health': {'last_run': metrics.get('fetch_health') or None, 'books': len(rows), **counts},
         'featured': _featured(featured_cfg, rows, now),
-        'rising': rising[:5],
         'books': rows,
     }
 

@@ -5,7 +5,9 @@ TRACKED: exactly the books in data/books/registry.json (core/books_registry.py),
 NON-DESTRUCTIVE: the metrics file keeps each book's last good rank, flagged by fetch_status.
 HISTORY: one line per book per run; a failed fetch is written as bsr null, never a carried value.
 ATOMIC writes via tempfile + os.replace.
-CANONICAL bsr_change_pct function — single source of truth.
+CANONICAL bsr_change_pct function — single source of truth. bsr_change is a plain measurement
+against the last good rank; no momentum flag is derived from it (the previous-fetch 'rising'
+rule is retired: core/book_signal_rules.py holds the frozen, unpublished candidate rule).
 
 Cron: 17 6 * * * cd /home/ultron/protocol_pulse && python3 scripts/refresh_book_metrics.py >> logs/book_metrics.log 2>&1
 """
@@ -226,7 +228,6 @@ def refresh(fetch=fetch_page, pause=_pause):
                 'bsr_previous': last_good_bsr,
                 'bsr_change': chg,
                 'rank_category': category,
-                'is_rising': chg is not None and chg <= -10.0,
                 'fetch_status': 'ok',
                 'fetch_error': None,
                 'last_successful_fetch': now_iso,
@@ -242,7 +243,6 @@ def refresh(fetch=fetch_page, pause=_pause):
                 'bsr_previous': prev.get('bsr_previous') if had_good else None,
                 'bsr_change': prev.get('bsr_change') if had_good else None,
                 'rank_category': prev.get('rank_category') if had_good else None,
-                'is_rising': bool(prev.get('is_rising')) if had_good else False,
                 'fetch_status': 'error',
                 'fetch_error': error,
                 'last_successful_fetch': prev.get('last_successful_fetch') if had_good else None,

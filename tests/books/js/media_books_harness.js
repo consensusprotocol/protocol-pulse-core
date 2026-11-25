@@ -17,9 +17,9 @@ const payload = JSON.parse(fs.readFileSync(payloadPath, 'utf8'));
 
 const els = {};
 const ids = ['books', 'bookMetricsDot', 'bookMetricsUpdated', 'featuredBookBanner', 'bookChartCard', 'bookBubbleChart',
-  'bookChartNote', 'risingStarsSection', 'risingStarsGrid', 'libraryCount', 'libraryGrid'];
+  'bookChartNote', 'libraryCount', 'libraryGrid'];
 for (const id of ids) {
-  els[id] = { id, innerHTML: '', textContent: '', hidden: id === 'featuredBookBanner' || id === 'risingStarsSection', style: {}, addEventListener() {} };
+  els[id] = { id, innerHTML: '', textContent: '', hidden: id === 'featuredBookBanner', style: {}, addEventListener() {} };
 }
 // The page defines _esc() in an earlier script: textContent -> innerHTML escapes &, < and >.
 const esc = (s) => (s == null || s === '' ? '' : String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
@@ -39,8 +39,6 @@ setTimeout(() => {
     libraryCount: els.libraryCount.textContent,
     featured: els.featuredBookBanner.innerHTML,
     featuredHidden: els.featuredBookBanner.hidden,
-    rising: els.risingStarsGrid.innerHTML,
-    risingHidden: els.risingStarsSection.hidden,
     chartCardDisplay: els.bookChartCard.style.display,
     status: els.bookMetricsUpdated.textContent,
   }));

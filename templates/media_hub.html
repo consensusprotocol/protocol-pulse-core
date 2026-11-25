@@ -85,6 +85,8 @@
 .fi:hover{border-color:rgba(220,38,38,0.2);background:rgba(255,255,255,0.03);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
 .fi-row{display:flex;gap:12px;align-items:flex-start}
 .fi-thumb{width:52px;height:52px;border-radius:8px;object-fit:cover;flex-shrink:0;background:var(--elevated)}
+/* A feed whose only image is its site icon gets the feed's initials: no third-party favicon request. */
+.fi-initials{display:flex;align-items:center;justify-content:center;border:1px solid var(--border-h);font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;letter-spacing:.04em;color:var(--sec)}
 .fi-thumb-yt{width:80px;height:45px;border-radius:6px;object-fit:cover;flex-shrink:0;background:var(--elevated);position:relative;overflow:hidden}
 .fi-play-ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);opacity:0;transition:opacity .2s}
 .fi:hover .fi-play-ov{opacity:1}
@@ -278,8 +280,6 @@
 .bk-btn-ghost:hover{background:rgba(255,255,255,0.14);color:#fff}
 .bk-btn-buy{width:100%;margin-top:.75rem;background:transparent;border-color:rgba(255,255,255,0.28);color:#f2f2f2;font-size:.8rem;padding:.5rem .75rem}
 .bk-btn-buy:hover{border-color:#ff5c5c;background:rgba(220,38,38,0.12);color:#fff}
-.bk-btn-link{padding:0;justify-content:flex-start;color:#f2f2f2;text-decoration:underline;text-underline-offset:3px;font-size:.8rem}
-.bk-btn-link:hover{color:#fff}
 .bk-panel{background:var(--card);border:1px solid var(--border-h);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem}
 .bk-panel-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border-h)}
 .bk-label{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--bk-text3);text-transform:uppercase;letter-spacing:.1em}
@@ -287,15 +287,7 @@
 .bk-swatch{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
 .bk-chart{position:relative;height:420px}
 .bk-note{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--bk-text3);margin-top:.75rem;line-height:1.5}
-.bk-rising{margin-bottom:2.5rem}
-.bk-label-row{display:flex;align-items:center;gap:.5rem;margin-bottom:1rem}
-.bk-rising-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
-.bk-rise{display:flex;gap:1rem;background:var(--card);border:1px solid var(--border-h);border-radius:12px;padding:1rem}
-.bk-rise-cover{width:56px;flex-shrink:0}
-.bk-rise-cover img{display:block;width:56px;height:auto;border-radius:4px}
-.bk-rise-body{min-width:0;display:flex;flex-direction:column;gap:.25rem}
-.bk-rise-title{font-size:.88rem;font-weight:600;color:var(--bright);margin:0;line-height:1.3}
-.bk-rise-chip{display:inline-flex;align-items:center;gap:.3rem;font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:600;color:#4ade80;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);padding:.2rem .5rem;border-radius:4px;width:fit-content}
+.bk-disclosure{font-size:.78rem;color:var(--bk-text2);max-width:600px;margin:.6rem auto 0;line-height:1.5}
 .bk-library{margin-top:2rem}
 .bk-library-head{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem}
 .bk-h3{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:700;color:var(--bright);text-transform:uppercase;letter-spacing:.1em;margin:0}
@@ -325,6 +317,19 @@
 @media(prefers-reduced-motion:reduce){.bk-dot{animation:none}.bk-card,.bk-btn{transition:none}}
 </style>
 {% endblock %}
+
+{# A podcast thumbnail that is the publisher's site icon (a favicon, or a WordPress site icon such as
+   bitcoinmagazine.com's cropped-...-32x32.png used as the feed image) is not requested: the feed's
+   initials stand in for it. Episode artwork renders as before. #}
+{% macro feed_thumb(ep) -%}
+  {%- set u = (ep.thumbnail_url or '')|lower -%}
+  {%- if u and ('favicon' in u or 'apple-touch-icon' in u or '/s2/favicons' in u or u.split('?')[0].endswith('.ico')
+         or ('/cropped-' in u and ('-32x32.' in u or '-180x180.' in u or '-192x192.' in u or '-270x270.' in u))) -%}
+  <span class="fi-thumb fi-initials" aria-hidden="true">{{ ((ep.feed_name or '?').split()|map('first')|join)[:2]|upper }}</span>
+  {%- elif ep.thumbnail_url -%}
+  <img class="fi-thumb" src="{{ ep.thumbnail_url }}" alt="" loading="lazy" onerror="this.style.display='none'">
+  {%- endif -%}
+{%- endmacro %}
 
 {% block content %}
 <div class="mh">
@@ -389,7 +394,7 @@
           <a class="fi" href="{{ ep.source_url or '#' }}" target="_blank" rel="noopener" data-voice="{{ ep.feed_name|lower }}" {% if ep.audio_url %}onclick="event.preventDefault();playEp('{{ ep.audio_url }}','{{ ep.title|e }}','{{ ep.feed_name|e }}')"{% endif %}>
             {% if ep.published_at %}<div class="fi-new" data-pub="{{ ep.published_at }}"><div class="fi-new-dot"></div>NEW</div>{% endif %}
             <div class="fi-row">
-              {% if ep.thumbnail_url %}<img class="fi-thumb" src="{{ ep.thumbnail_url }}" alt="" loading="lazy" onerror="this.style.display='none'">{% endif %}
+              {{ feed_thumb(ep) }}
               <div class="fi-info">
                 <div class="fi-show pod">{{ ep.feed_name }}</div>
                 <div class="fi-title">{{ ep.title }}</div>
@@ -516,29 +521,25 @@
       <h2 class="bk-h2">Live Book Metrics</h2>
       <p class="bk-dek">Amazon US Best Sellers Rank, relative and per format. Not sales counts.</p>
       <div class="bk-status"><span id="bookMetricsDot" class="bk-dot"></span> <span id="bookMetricsUpdated">Loading rank data…</span></div>
+      <p class="bk-disclosure">As an Amazon Associate, Protocol Pulse earns from qualifying purchases.</p>
     </div>
 
     <!-- Featured book: the series button renders only when the payload has a series_url -->
     <div id="featuredBookBanner" hidden></div>
 
-    <!-- Rank momentum chart: hidden when Chart.js did not load. One legend: this list. -->
+    {# Rank change chart: hidden when Chart.js did not load. One legend: this list. A change since the
+       previous fetch is a plain measurement here, never a rising/momentum label: that previous-fetch rule
+       is retired (core/book_signal_rules.py holds the frozen, unpublished candidate). #}
     <div id="bookChartCard" class="bk-panel">
       <div class="bk-panel-head">
-        <span class="bk-label"><i class="fas fa-circle" aria-hidden="true" style="color:#22c55e;font-size:6px;vertical-align:middle;margin-right:4px;"></i> RANK MOMENTUM</span>
+        <span class="bk-label">RANK CHANGE SINCE THE PREVIOUS FETCH</span>
         <ul class="bk-legend" aria-label="Chart legend">
           <li><span class="bk-swatch" style="background:#dc2626"></span>PP Series</li>
-          <li><span class="bk-swatch" style="background:#22c55e"></span>Rising</li>
           <li><span class="bk-swatch" style="background:#f7931a"></span>Other</li>
         </ul>
       </div>
-      <div class="bk-chart"><canvas id="bookBubbleChart" role="img" aria-label="Rank momentum: each book's rank change since the last fetch against its rank score"></canvas></div>
+      <div class="bk-chart"><canvas id="bookBubbleChart" role="img" aria-label="Each book's rank change since the previous fetch against its rank score"></canvas></div>
       <div id="bookChartNote" class="bk-note"></div>
-    </div>
-
-    <!-- Rising Stars -->
-    <div id="risingStarsSection" class="bk-rising" hidden>
-      <div class="bk-label bk-label-row"><i class="fas fa-arrow-trend-up" aria-hidden="true" style="color:#22c55e;"></i> RISING STARS — rank improved more than 10% since the last fetch</div>
-      <div id="risingStarsGrid" class="bk-rising-grid"></div>
     </div>
 
     <!-- The Library: every registry book. Ranked books show their rank; the rest say they have none. -->
@@ -814,9 +815,11 @@ function mhNlSub(e){
     }
     function notice(text){return '<div class="bk-empty">'+_esc(text)+'</div>';}
     function step(name,fn){try{fn();}catch(e){console.error('Book library: '+name+' failed',e);}}
-    function buyLink(url,label,cls){
-        return '<a class="bk-btn '+cls+'" href="'+_esc(url)+'" target="_blank" rel="noopener sponsored">'+
-            '<i class="fab fa-amazon" aria-hidden="true"></i> '+_esc(label||'Buy on Amazon')+NEW_TAB+'</a>';
+    // Tagged Amazon links: rel="sponsored noopener", a new tab, and a name that says which book.
+    function buyLink(url,label,cls,title){
+        return '<a class="bk-btn '+cls+'" href="'+_esc(url)+'" target="_blank" rel="sponsored noopener">'+
+            '<i class="fab fa-amazon" aria-hidden="true"></i> '+_esc(label||'Buy on Amazon')+
+            '<span class="bk-sr">'+(title?': '+_esc(title):'')+' (opens in a new tab)</span></a>';
     }
     function cover(b){
         return '<img src="'+_esc(b.cover_url)+'" alt="Cover of '+_esc(b.title)+'" data-asin="'+_esc(b.asin||'')+'" loading="lazy" decoding="async">';
@@ -842,7 +845,6 @@ function mhNlSub(e){
             step('grid',function(){renderLibraryGrid(books);});
             step('timestamp',function(){renderTimestamp(data);});
             step('featured',function(){renderFeaturedBook(data.featured);});
-            step('rising',function(){renderRisingStars(data.rising);});
             step('chart',function(){renderBubbleChart(books);});
             shown=true;
             if(data.last_updated)lastGood=data.last_updated;
@@ -888,7 +890,7 @@ function mhNlSub(e){
                 '<div class="bk-badge"><i class="fas fa-star" aria-hidden="true"></i> '+_esc(f.badge||'FEATURED')+'</div>'+
                 '<h3 class="bk-feature-title">'+_esc(f.headline||f.title)+'</h3>'+
                 '<p class="bk-feature-text">'+_esc(f.body_text||'')+'</p>'+
-                '<div class="bk-actions">'+buyLink(f.amazon_url,f.purchase_label,'bk-btn-primary')+series+'</div>'+
+                '<div class="bk-actions">'+buyLink(f.amazon_url,f.purchase_label,'bk-btn-primary',f.title)+series+'</div>'+
             '</div></div>';
         el.hidden=false;
     }
@@ -903,12 +905,8 @@ function mhNlSub(e){
         var pts=books.filter(function(b){return b.data_status==='ok'&&hasRank(b)&&typeof b.bsr_change==='number'&&typeof b.rank_score==='number';});
         var note=byId('bookChartNote');
         if(note)note.textContent=pts.length+' of '+books.length+' books plotted: rank fetched in the last 48 h, compared with the fetch before. Negative change = rank improved. Larger bubble = better rank.';
-        var ppBooks=[],risingBooks=[],otherBooks=[];
-        pts.forEach(function(b){
-            if(b.pp_series)ppBooks.push(b);
-            else if(b.is_rising)risingBooks.push(b);
-            else otherBooks.push(b);
-        });
+        var ppBooks=[],otherBooks=[];
+        pts.forEach(function(b){(b.pp_series?ppBooks:otherBooks).push(b);});
         function mkPts(arr){
             return arr.map(function(b){
                 // Log-scale bubble: lower (better) rank = bigger bubble
@@ -918,7 +916,6 @@ function mhNlSub(e){
         }
         var datasets=[
             {label:'PP Series',data:mkPts(ppBooks),backgroundColor:'rgba(220,38,38,0.55)',borderColor:'rgba(220,38,38,0.9)',borderWidth:2,hoverBackgroundColor:'rgba(220,38,38,0.8)'},
-            {label:'Rising',data:mkPts(risingBooks),backgroundColor:'rgba(34,197,94,0.45)',borderColor:'rgba(34,197,94,0.8)',borderWidth:2,hoverBackgroundColor:'rgba(34,197,94,0.7)'},
             {label:'Other',data:mkPts(otherBooks),backgroundColor:'rgba(247,147,26,0.35)',borderColor:'rgba(247,147,26,0.6)',borderWidth:2,hoverBackgroundColor:'rgba(247,147,26,0.55)'}
         ];
         var axisTitle={color:'rgba(255,255,255,0.72)',font:{family:'JetBrains Mono',size:11,weight:'600'}};
@@ -959,9 +956,7 @@ function mhNlSub(e){
                             title:function(items){return items[0].raw.book.title;},
                             label:function(item){
                                 var b=item.raw.book;
-                                var lines=['by '+b.author,'Amazon US BSR '+rankText(b),'Rank change since last fetch: '+pct(b.bsr_change),'Rank score: '+b.rank_score];
-                                if(b.is_rising)lines.push('RISING');
-                                return lines;
+                                return ['by '+b.author,'Amazon US BSR '+rankText(b),'Rank change since last fetch: '+pct(b.bsr_change),'Rank score: '+b.rank_score];
                             }
                         }
                     }
@@ -969,32 +964,12 @@ function mhNlSub(e){
                 onClick:function(evt,elements){
                     if(elements.length>0){
                         var b=bookChart.data.datasets[elements[0].datasetIndex].data[elements[0].index].book;
-                        if(b.amazon_url)window.open(b.amazon_url,'_blank');
+                        if(b.amazon_url)window.open(b.amazon_url,'_blank','noopener');
                     }
                 },
                 onHover:function(evt,elements){evt.native.target.style.cursor=elements.length>0?'pointer':'default';}
             }
         });
-    }
-
-    function renderRisingStars(rising){
-        var section=byId('risingStarsSection');
-        var grid=byId('risingStarsGrid');
-        if(!section||!grid)return;
-        var list=(rising||[]).filter(function(b){return hasRank(b)&&typeof b.bsr_change==='number';});
-        if(!list.length){section.hidden=true;return;}
-        grid.innerHTML=list.map(function(b){
-            return '<article class="bk-rise">'+
-                '<div class="bk-rise-cover">'+cover(b)+'</div>'+
-                '<div class="bk-rise-body">'+
-                    '<h4 class="bk-rise-title">'+_esc(b.title)+'</h4>'+
-                    '<div class="bk-card-author">'+_esc(b.author)+'</div>'+
-                    '<div class="bk-rise-chip"><i class="fas fa-arrow-trend-up" aria-hidden="true"></i> RISING '+Math.abs(b.bsr_change).toFixed(1)+'%</div>'+
-                    '<div class="bk-card-rank">'+_esc(rankLine(b))+'</div>'+
-                    buyLink(b.amazon_url,b.purchase_label,'bk-btn-link')+
-                '</div></article>';
-        }).join('');
-        section.hidden=false;
     }
 
     function renderLibraryGrid(books){
@@ -1011,7 +986,7 @@ function mhNlSub(e){
                     '<h4 class="bk-card-title">'+_esc(b.title)+'</h4>'+
                     '<div class="bk-card-author">'+_esc(b.author)+'</div>'+
                     '<div class="bk-card-rank">'+_esc(rankLine(b))+'</div>'+
-                    buyLink(b.amazon_url,b.purchase_label,'bk-btn-buy')+
+                    buyLink(b.amazon_url,b.purchase_label,'bk-btn-buy',b.title)+
                 '</div></article>';
         }).join('');
     }

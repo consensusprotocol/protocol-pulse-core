@@ -372,7 +372,9 @@ def test_media_grid_labels_every_book_honestly(tmp_path):
     everything = json.dumps(out).lower()
     assert 'bestseller' not in everything and 'best seller' not in everything.replace('best sellers rank', '')
     assert sum('Kindle on Amazon' in c for c in cards) == 1 and sum('Buy on Amazon' in c for c in cards) == 17
-    assert all('rel="noopener sponsored"' in c and '(opens in a new tab)' in c for c in cards)
+    assert all('rel="sponsored noopener"' in c and 'target="_blank"' in c and '(opens in a new tab)' in c for c in cards)
+    for book in books_registry.load_registry():  # each buy link's accessible name says which book
+        assert f': {html.escape(book["title"], quote=False)} (opens in a new tab)' in out['libraryGrid'], book['title']
     assert '>#1<' not in out['libraryGrid']  # no list-position badge
     assert out['chartCardDisplay'] == 'none'  # no Chart.js in the harness: the card hides, the grid stays
 
@@ -405,3 +407,55 @@ def _write(tmp_path, name, obj):
     path = tmp_path / name
     path.write_text(json.dumps(obj), encoding='utf-8')
     return path
+
+
+DISCLOSURE = 'As an Amazon Associate, Protocol Pulse earns from qualifying purchases.'
+SITE_ICON = 'https://bitcoinmagazine.com/wp-content/uploads/2024/09/cropped-Bitcoin-Magazine-glyph-black-01-32x32.png'
+
+
+def render_media(client, podcasts=()):
+    from flask import render_template
+    with client.application.test_request_context('/media'):
+        return render_template('media_hub.html', feed_matrix={'podcasts': list(podcasts), 'videos': [], 'kol': []},
+                               feed_stats={}, ticker_items=[])
+
+
+def test_media_has_no_previous_fetch_rising_stars(client, tmp_path):
+    page = render_media(client)
+    assert 'rising' not in page.lower()           # no section, legend entry, script step or label
+    legend = re.search(r'<ul class="bk-legend"[^>]*>(.*?)</ul>', page, re.S).group(1)
+    assert re.findall(r'</span>([^<]+)</li>', legend) == ['PP Series', 'Other']
+    metrics = _metrics()
+    metrics['books'][1].update(bsr_change=-61.0, is_rising=True)  # an old collector row with the flag set
+    payload, _ = book_metrics.metrics_response(metrics_path=_write(tmp_path, 'm.json', metrics),
+                                               featured_path=tmp_path / 'none.json', now=NOW)
+    assert 'rising' not in json.dumps(payload).lower()
+    assert 'rising' not in json.dumps(_render_media(tmp_path, payload)).lower()
+
+
+def test_media_books_section_carries_the_affiliate_disclosure(client):
+    page = render_media(client)
+    books = page[page.index('<div id="books"'):]
+    assert books.count(DISCLOSURE) == 1
+    assert books.index(DISCLOSURE) < books.index('id="featuredBookBanner"') < books.index('id="libraryGrid"')
+
+
+@pytest.mark.parametrize('thumb, initials', [
+    (SITE_ICON, 'BM'),
+    ('https://example.org/favicon.ico?v=3', 'BM'),
+    ('https://example.org/wp-content/uploads/cropped-site-icon-192x192.png', 'BM'),
+    ('https://cdn.example.org/art/show-3000x3000.jpg', None),     # episode artwork: requested as before
+    ('', None),
+])
+def test_media_never_requests_a_feed_site_icon(client, thumb, initials):
+    ep = {'feed_name': 'Bitcoin Magazine Podcast', 'title': 'An episode', 'thumbnail_url': thumb,
+          'source_url': 'https://example.org/ep', 'signal_score': 0}
+    page = render_media(client, [ep])
+    feed = page[page.index('id="podFeed"'):page.index('id="vidCol"')]
+    shown = re.findall(r'<span class="fi-thumb fi-initials" aria-hidden="true">([^<]*)</span>', feed)
+    imgs = re.findall(r'<img class="fi-thumb" src="([^"]*)"', feed)
+    if initials:
+        assert shown == [initials] and imgs == []
+    else:
+        assert shown == [] and imgs == ([thumb] if thumb else [])
+    assert 'bitcoinmagazine.com' not in feed

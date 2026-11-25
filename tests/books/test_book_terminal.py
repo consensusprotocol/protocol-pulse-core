@@ -179,7 +179,7 @@ def test_api_data_status_ok_stale_no_data(tmp_path):
     stale = books['B0DVTCVX8J']
     assert (stale['data_status'], stale['bsr']) == ('stale', 50373)
     assert stale['last_successful_fetch'] == _iso(NOW - timedelta(days=5))
-    assert stale['is_rising'] is False  # momentum only from fresh ranks
+    assert 'rising' not in payload and not any('is_rising' in b for b in payload['books'])  # retired rule
     assert stale['rank_score'] == stale['velocity'] == 59
 
     for asin in ('1119473861', 'B0BW358F37'):  # seeded number / no row at all
@@ -210,7 +210,8 @@ def test_data_status_no_data(row):
     assert book_metrics.data_status(row, NOW) == 'no_data'
 
 
-def test_rising_and_featured_use_only_fresh_ranks(tmp_path):
+def test_previous_fetch_rising_rule_is_retired_and_featured_uses_only_fresh_ranks(tmp_path):
+    # A metrics file written by the old collector still carries is_rising flags: the API drops them.
     metrics = {'last_updated': _iso(NOW - timedelta(hours=3)), 'books': [
         _row('006236250X', 282953, NOW - timedelta(hours=3), bsr_change=-61.19, is_rising=True, rank_score=20),
         _row('B0DVTCVX8J', 50373, NOW - timedelta(days=5), bsr_change=-30.0, is_rising=True, rank_score=59),
@@ -218,10 +219,12 @@ def test_rising_and_featured_use_only_fresh_ranks(tmp_path):
     ]}
     payload, status = _response(tmp_path, metrics)  # no featured_book.json: fallback
     assert status == 200
-    assert [b['asin'] for b in payload['rising']] == ['006236250X']
-    assert payload['featured']['title'] == 'Digital Gold'
-    assert payload['featured']['badge'] == 'RISING'
+    assert 'rising' not in payload and not any('is_rising' in b for b in payload['books'])
+    assert payload['featured']['title'] == 'Digital Gold'      # the only fresh rank
+    assert payload['featured']['badge'] == 'TOP RANKED'        # never 'RISING'
     assert '#282,953' in payload['featured']['body_text']
+    gold = next(b for b in payload['books'] if b['asin'] == '006236250X')
+    assert gold['bsr_change'] == -61.19                        # still reported, as a plain measurement
 
 
 def test_featured_without_any_fresh_rank_is_none(tmp_path):
@@ -345,11 +348,12 @@ def test_collector_history_and_metrics_on_failure(collector_files):
     never = rows[never_fetched]
     assert never['bsr'] is None and never['rank_score'] is None and never['last_successful_fetch'] is None
     rose = rows[riser]
-    assert rose['bsr_previous'] == 60000 and rose['is_rising'] is True
+    assert rose['bsr_previous'] == 60000
     assert rose['bsr_change'] == collector.compute_bsr_change_pct(60000, 51009) < -10
     assert rose['rank_category'] == 'Books' and rose['rank_score'] == collector.compute_rank_score(51009)
-    first = rows[new_id]  # first fetch of a newly tracked ID: no change, not rising
-    assert (first['bsr'], first['bsr_change'], first['is_rising']) == (51009, None, False)
+    first = rows[new_id]  # first fetch of a newly tracked ID: no change measured yet
+    assert (first['bsr'], first['bsr_change']) == (51009, None)
+    assert not any('is_rising' in r for r in rows.values())  # the previous-fetch rule is retired
     assert not any(r['bsr'] == 50000 for r in rows.values())
     assert not any(r['is_breakout'] for r in rows.values())
 
