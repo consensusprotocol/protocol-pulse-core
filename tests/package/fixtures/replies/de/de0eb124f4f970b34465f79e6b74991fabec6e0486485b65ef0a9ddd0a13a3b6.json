@@ -1,0 +1,19 @@
+{
+ "role": "out_edge",
+ "backend": "heimdall:qwen/qwen3.8-27b@low",
+ "model": "qwen/qwen3.8-27b",
+ "vendor": "heimdall/qwen",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "You check where a short video clip ENDS. The clip is cut from a longer recording of one speaker. It\nmust never stop while the speaker's thought is unfinished: a viewer must never feel the speaker was cut off in the\nmiddle of saying something.\n\nWHAT THE SPEAKER SAID JUST BEFORE THE CLIP (context only):\n<before>But when you go along enough and you have enough cycles and pretty much every other coin stops doing that and Bitcoin is still able to do that, I think that's healthy long term. In addition, I mean, the AI risk, I mean, the more complexity in a network, the more vulnerable it is to unexpected attacks.</before>\n\nTHE CLIP (judge its LAST sentence):\n<clip>I mean, Bitcoin gets criticized for being, you know, slow or too simple. But that's, I mean, that that was partially, that was mostly by design. That's kind of why people wanted it as money.</clip>\n\nWHAT THE SPEAKER SAYS RIGHT AFTER THE CLIP, sentence by sentence (a transcript: its full stops can be wrong):\n[0] They want maximal.\n[1] auditability, they want minimal attack surface, and other cryptos.\n[2] They have just, they change more frequently.\n\nQUESTION: does the clip's last sentence FINISH the speaker's thought as it stands?\nAnswer \"no\" only when a viewer hearing the clip alone would feel the speaker was cut off: the clip's last words set up\nsomething that a following sentence delivers (for example \"and the reason is simple.\" followed by the reason; \"here\nis what nobody tells you.\" followed by it; \"there were three warning signs.\" followed by them), a following sentence\nis really the rest of the same sentence, or the clip stops on an unfinished clause.\nAnswer \"yes\" when the last sentence is complete in itself, even when the speaker goes on to explain it, give an\nexample, interpret it or start a new point on the same topic.\nIf \"no\": \"finishes_at\" is the number in brackets of the FIRST following sentence at whose end the thought is finished,\nor null when none of the listed sentences finishes it.\nReply with JSON only: {\"complete\": \"yes|no\", \"finishes_at\": <number or null>, \"why\": \"<one short sentence>\"}",
+ "text": "\n\n{\"complete\": \"yes\", \"finishes_at\": null, \"why\": \"The last sentence 'That's kind of why people wanted it as money' is a complete thought; the following sentences merely elaborate on what people specifically wanted (maximal auditability, minimal attack surface).\"}",
+ "usage": {
+  "in": 537,
+  "out": 747,
+  "usd_reported": 0.00061395
+ },
+ "usd": 0.012816,
+ "seconds": 20.26,
+ "recorded_at": "2026-11-25T18:14:55Z"
+}

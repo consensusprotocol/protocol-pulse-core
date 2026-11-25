@@ -1,0 +1,374 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "e02c1bd5073cf7ea280f1c423ae135fdd9dab3c39878d07c77a116cca5ce0a9c",
+ "result": {
+  "text": "get you back on the show. We're, we're in the, the depths of the Bitcoin bear market. People need to understand why we're here. And so I think on the back half of this conversation, I would like to dig into the fundamentals of Bitcoin, where Bitcoin finds itself, how we may progress from here. Um, but first-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.32,
+    "end": 18.1,
+    "text": "get you back on the show. We're, we're in the, the depths of the Bitcoin bear market. People need to understand why we're here. And so I think on the back half of this conversation, I would like to dig into the fundamentals of Bitcoin, where Bitcoin finds itself, how we may progress from here. Um, but first-"
+   }
+  ],
+  "words": [
+   {
+    "text": "get",
+    "start": 0.32,
+    "end": 0.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 0.46,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "back",
+    "start": 0.56,
+    "end": 0.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 0.76,
+    "end": 0.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.88,
+    "end": 0.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "show.",
+    "start": 1.0,
+    "end": 1.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We're,",
+    "start": 1.52,
+    "end": 1.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 1.82,
+    "end": 1.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 1.92,
+    "end": 2.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the,",
+    "start": 2.06,
+    "end": 2.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.28,
+    "end": 2.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "depths",
+    "start": 2.46,
+    "end": 2.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.78,
+    "end": 2.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.88,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.96,
+    "end": 3.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bear",
+    "start": 3.38,
+    "end": 3.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market.",
+    "start": 3.6,
+    "end": 3.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "People",
+    "start": 3.96,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "need",
+    "start": 5.02,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.18,
+    "end": 5.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "understand",
+    "start": 5.3,
+    "end": 5.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 5.84,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 6.06,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here.",
+    "start": 6.26,
+    "end": 6.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 6.84,
+    "end": 6.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 7.02,
+    "end": 7.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 7.74,
+    "end": 7.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 7.8,
+    "end": 7.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 7.96,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.039,
+    "end": 8.119,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "back",
+    "start": 8.18,
+    "end": 8.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "half",
+    "start": 8.46,
+    "end": 8.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 9.06,
+    "end": 9.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 9.12,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "conversation,",
+    "start": 9.28,
+    "end": 9.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 10.0,
+    "end": 10.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 10.06,
+    "end": 10.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 10.2,
+    "end": 10.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 10.42,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dig",
+    "start": 11.38,
+    "end": 11.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 11.54,
+    "end": 11.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.72,
+    "end": 11.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fundamentals",
+    "start": 11.82,
+    "end": 12.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 12.28,
+    "end": 12.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 12.36,
+    "end": 12.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 13.08,
+    "end": 13.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 13.22,
+    "end": 13.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "finds",
+    "start": 13.64,
+    "end": 13.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "itself,",
+    "start": 13.9,
+    "end": 14.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 15.26,
+    "end": 15.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 15.38,
+    "end": 15.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "may",
+    "start": 15.5,
+    "end": 15.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "progress",
+    "start": 15.66,
+    "end": 16.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 16.079,
+    "end": 16.219,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here.",
+    "start": 16.3,
+    "end": 16.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 17.38,
+    "end": 17.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 17.64,
+    "end": 17.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "first-",
+    "start": 17.82,
+    "end": 18.1,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 18.14
+ },
+ "usd": 0.003628,
+ "seconds": 0.71,
+ "recorded_at": "2026-11-25T18:22:55Z"
+}

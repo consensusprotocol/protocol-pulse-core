@@ -1,0 +1,19 @@
+{
+ "role": "shadow86:coherence_verdict:hook",
+ "backend": "heimdall:qwen/qwen3.8-27b",
+ "model": "qwen/qwen3.8-27b",
+ "vendor": "heimdall/qwen",
+ "seed": 7,
+ "max_tokens": 750,
+ "system": null,
+ "prompt": "You judge OPENING clips for 60-second videos made of other channels' own words (each clip is a person's\nown words from a show). Each candidate below would play FIRST, before anything else is said. Judge each one ALONE, as\nthe opener of a video; the candidates are not compared with each other and never play together.\n\nCANDIDATE id=\"b3a9632c7a2e6918e934\" (on screen: TFTC): \"I mean, Bitcoin gets criticized for being, you know, slow or too simple. But that's, I mean, that that was partially, that was mostly by design. That's kind of why people wanted it as money.\"\n\nFor EACH candidate: THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:\n   \"scroll\": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)\n   \"alone\": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)\n   \"setup\": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not\n   at all)\nGive \"why\": a few words on the candidate's weakest part.\nReturn ONLY this JSON object: {\"hooks\": {\"b3a9632c7a2e6918e934\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}}}",
+ "text": "\n\n{\"hooks\": {\"b3a9632c7a2e6918e934\": {\"scroll\": 2, \"alone\": 4, \"setup\": 3, \"why\": \"weak opening filler and generic topic\"}}}",
+ "usage": {
+  "in": 420,
+  "out": 273,
+  "usd_reported": 0.00024675
+ },
+ "usd": 0.005355,
+ "seconds": 7.65,
+ "recorded_at": "2026-11-25T18:24:35Z"
+}

@@ -1,0 +1,284 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "c7e7b5a230e0fa9ddac63ab2ba19b5a6a4da791f258b11474265e7d628a914c4",
+ "result": {
+  "text": "currency protection in an income instrument, we can deliver that because, again, our income instruments are supported by our Bitcoin on our balance sheet, which is priced in dollars globally. And so those are the two classes. We think they're both very interesting.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.08,
+    "end": 15.82,
+    "text": "currency protection in an income instrument, we can deliver that because, again, our income instruments are supported by our Bitcoin on our balance sheet, which is priced in dollars globally. And so those are the two classes. We think they're both very interesting."
+   }
+  ],
+  "words": [
+   {
+    "text": "currency",
+    "start": 0.08,
+    "end": 0.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "protection",
+    "start": 0.5,
+    "end": 1.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 1.2,
+    "end": 1.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 1.3,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "income",
+    "start": 1.42,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "instrument,",
+    "start": 1.78,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 2.82,
+    "end": 2.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 2.94,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "deliver",
+    "start": 3.08,
+    "end": 3.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 3.5,
+    "end": 3.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because,",
+    "start": 3.88,
+    "end": 4.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "again,",
+    "start": 5.02,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "our",
+    "start": 5.6,
+    "end": 5.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "income",
+    "start": 6.2,
+    "end": 6.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "instruments",
+    "start": 6.48,
+    "end": 7.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 7.18,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "supported",
+    "start": 7.76,
+    "end": 8.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 8.24,
+    "end": 8.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "our",
+    "start": 8.38,
+    "end": 8.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.58,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 8.98,
+    "end": 9.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "our",
+    "start": 9.08,
+    "end": 9.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "balance",
+    "start": 9.22,
+    "end": 9.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sheet,",
+    "start": 9.58,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "which",
+    "start": 10.04,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 10.24,
+    "end": 10.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "priced",
+    "start": 10.42,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 10.72,
+    "end": 10.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dollars",
+    "start": 10.86,
+    "end": 11.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "globally.",
+    "start": 11.34,
+    "end": 11.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 12.7,
+    "end": 12.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 12.92,
+    "end": 13.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "those",
+    "start": 13.38,
+    "end": 13.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 13.56,
+    "end": 13.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.64,
+    "end": 13.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "two",
+    "start": 13.78,
+    "end": 13.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "classes.",
+    "start": 13.96,
+    "end": 14.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 14.48,
+    "end": 14.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 14.6,
+    "end": 14.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they're",
+    "start": 14.78,
+    "end": 14.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "both",
+    "start": 14.98,
+    "end": 15.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "very",
+    "start": 15.22,
+    "end": 15.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "interesting.",
+    "start": 15.46,
+    "end": 15.82,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.85
+ },
+ "usd": 0.00317,
+ "seconds": 0.68,
+ "recorded_at": "2026-11-25T18:22:45Z"
+}

@@ -1,0 +1,320 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "a3d5864abc1d1518443ba2b704a5930c79a36265ebcb8025873479a5bf525a5c",
+ "result": {
+  "text": "short cycle tops. You could see that in the on-chain metrics. And so that was really a popular narrative, right? The IPO moment of Bitcoin around 100K, where you saw some of these long-term holders start to, you know, take profits, maybe diversify. We don't really know for sure.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 16.239,
+    "text": "short cycle tops. You could see that in the on-chain metrics. And so that was really a popular narrative, right? The IPO moment of Bitcoin around 100K, where you saw some of these long-term holders start to, you know, take profits, maybe diversify. We don't really know for sure."
+   }
+  ],
+  "words": [
+   {
+    "text": "short",
+    "start": 0.0,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cycle",
+    "start": 0.24,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tops.",
+    "start": 0.58,
+    "end": 0.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 1.5,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "could",
+    "start": 1.58,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "see",
+    "start": 1.74,
+    "end": 1.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.88,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 2.12,
+    "end": 2.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.26,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on-chain",
+    "start": 2.38,
+    "end": 2.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "metrics.",
+    "start": 2.84,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 4.34,
+    "end": 4.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 4.5,
+    "end": 4.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 4.86,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 4.96,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 5.16,
+    "end": 5.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 5.6,
+    "end": 5.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "popular",
+    "start": 5.8,
+    "end": 6.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "narrative,",
+    "start": 6.24,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 6.74,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 6.98,
+    "end": 7.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "IPO",
+    "start": 7.18,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "moment",
+    "start": 7.66,
+    "end": 7.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 7.96,
+    "end": 8.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.1,
+    "end": 8.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "around",
+    "start": 8.98,
+    "end": 9.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "100K,",
+    "start": 9.28,
+    "end": 9.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 10.0,
+    "end": 10.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 10.16,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saw",
+    "start": 10.34,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 10.6,
+    "end": 10.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 10.72,
+    "end": 10.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "these",
+    "start": 10.78,
+    "end": 10.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "long-term",
+    "start": 10.98,
+    "end": 11.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "holders",
+    "start": 11.4,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "start",
+    "start": 11.88,
+    "end": 12.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to,",
+    "start": 12.1,
+    "end": 12.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 12.72,
+    "end": 12.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 12.78,
+    "end": 12.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "take",
+    "start": 12.94,
+    "end": 13.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "profits,",
+    "start": 13.14,
+    "end": 13.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "maybe",
+    "start": 13.68,
+    "end": 13.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "diversify.",
+    "start": 13.94,
+    "end": 14.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 15.34,
+    "end": 15.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 15.42,
+    "end": 15.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 15.56,
+    "end": 15.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 15.78,
+    "end": 15.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 15.96,
+    "end": 16.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sure.",
+    "start": 16.1,
+    "end": 16.239,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 16.26
+ },
+ "usd": 0.003252,
+ "seconds": 0.74,
+ "recorded_at": "2026-11-25T18:22:34Z"
+}

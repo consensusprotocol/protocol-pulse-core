@@ -1,0 +1,248 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "025d535c040f986d7132de34f20f673890c3b99231bb59f89a43e98e04a65662",
+ "result": {
+  "text": "them behave, and we, we know how they're behaving right now, right? Bitcoin ETFs see another 570 million in net outflows as November total nears 5 billion and Bitcoin dips below 60K. So obviously, I think IBIT-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.18,
+    "end": 12.16,
+    "text": "them behave, and we, we know how they're behaving right now, right? Bitcoin ETFs see another 570 million in net outflows as November total nears 5 billion and Bitcoin dips below 60K. So obviously, I think IBIT-"
+   }
+  ],
+  "words": [
+   {
+    "text": "them",
+    "start": 0.18,
+    "end": 0.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "behave,",
+    "start": 0.9,
+    "end": 1.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 2.1,
+    "end": 2.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we,",
+    "start": 2.48,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 2.7,
+    "end": 2.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 2.8,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 2.92,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they're",
+    "start": 3.04,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "behaving",
+    "start": 3.14,
+    "end": 3.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right",
+    "start": 3.46,
+    "end": 3.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now,",
+    "start": 3.6,
+    "end": 3.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 3.84,
+    "end": 3.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.0,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ETFs",
+    "start": 4.3,
+    "end": 4.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "see",
+    "start": 4.64,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "another",
+    "start": 4.72,
+    "end": 4.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "570",
+    "start": 5.18,
+    "end": 5.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "million",
+    "start": 5.84,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 6.16,
+    "end": 6.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "net",
+    "start": 6.26,
+    "end": 6.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outflows",
+    "start": 6.52,
+    "end": 7.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 7.14,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "November",
+    "start": 7.26,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "total",
+    "start": 7.7,
+    "end": 7.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nears",
+    "start": 7.98,
+    "end": 8.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "5",
+    "start": 8.26,
+    "end": 8.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 8.6,
+    "end": 8.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 8.92,
+    "end": 9.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 9.04,
+    "end": 9.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dips",
+    "start": 9.44,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "below",
+    "start": 9.72,
+    "end": 10.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "60K.",
+    "start": 10.12,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 10.84,
+    "end": 10.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "obviously,",
+    "start": 11.02,
+    "end": 11.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 11.6,
+    "end": 11.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 11.68,
+    "end": 11.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "IBIT-",
+    "start": 11.94,
+    "end": 12.16,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.22
+ },
+ "usd": 0.002444,
+ "seconds": 0.71,
+ "recorded_at": "2026-11-25T18:14:23Z"
+}

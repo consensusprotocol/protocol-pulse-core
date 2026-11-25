@@ -1,0 +1,218 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "6de61ffc38922937ef8577b56ead6cb7bfe0abc4947e5fd3517bfe6412317267",
+ "result": {
+  "text": "6. The data shows Bitcoin being used for everyday purchases. The median Bitcoin payment on Square was 13 dollars, and nearly two-thirds of payments were under 20 dollars. Food and drink made",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.08,
+    "end": 11.36,
+    "text": "6. The data shows Bitcoin being used for everyday purchases. The median Bitcoin payment on Square was 13 dollars, and nearly two-thirds of payments were under 20 dollars. Food and drink made"
+   }
+  ],
+  "words": [
+   {
+    "text": "6.",
+    "start": 0.08,
+    "end": 0.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 0.74,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "data",
+    "start": 0.84,
+    "end": 1.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shows",
+    "start": 1.08,
+    "end": 1.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.38,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 1.8,
+    "end": 1.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "used",
+    "start": 2.06,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 2.34,
+    "end": 2.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everyday",
+    "start": 2.66,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "purchases.",
+    "start": 3.04,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 3.92,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "median",
+    "start": 4.08,
+    "end": 4.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.8,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "payment",
+    "start": 5.22,
+    "end": 5.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 5.56,
+    "end": 5.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Square",
+    "start": 5.74,
+    "end": 6.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 6.1,
+    "end": 6.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "13",
+    "start": 6.46,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dollars,",
+    "start": 6.92,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 7.48,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nearly",
+    "start": 7.66,
+    "end": 7.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "two-thirds",
+    "start": 8.039,
+    "end": 8.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 8.5,
+    "end": 8.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "payments",
+    "start": 8.64,
+    "end": 9.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "were",
+    "start": 9.04,
+    "end": 9.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "under",
+    "start": 9.22,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "20",
+    "start": 9.64,
+    "end": 9.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dollars.",
+    "start": 9.9,
+    "end": 10.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Food",
+    "start": 10.64,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 10.82,
+    "end": 10.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "drink",
+    "start": 10.94,
+    "end": 11.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "made",
+    "start": 11.24,
+    "end": 11.36,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.46
+ },
+ "usd": 0.002292,
+ "seconds": 0.61,
+ "recorded_at": "2026-11-25T18:14:33Z"
+}

@@ -1,0 +1,386 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "879a8cb1fdaa4b2a77736e9c7284f610c34db10e027f6b2c7a55db112ed3a998",
+ "result": {
+  "text": "pressure and include that in this tax package. And since early October, regulators have withdrawn proposed rules on self-hosted wallets and coin mixing, plus a plan to cut the travel rule, uh, reporting threshold to 250 dollars. With those off the table now, what's the next self-custody or financial privacy fight that, you know, Bitcoin users should be watching?",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 3.14,
+    "text": "pressure and include that in this tax package."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 4.44,
+    "end": 23.6,
+    "text": "And since early October, regulators have withdrawn proposed rules on self-hosted wallets and coin mixing, plus a plan to cut the travel rule, uh, reporting threshold to 250 dollars. With those off the table now, what's the next self-custody or financial privacy fight that, you know, Bitcoin users should be watching?"
+   }
+  ],
+  "words": [
+   {
+    "text": "pressure",
+    "start": 0.0,
+    "end": 0.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 0.78,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "include",
+    "start": 0.9,
+    "end": 1.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.28,
+    "end": 1.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 1.52,
+    "end": 1.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 1.7,
+    "end": 2.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tax",
+    "start": 2.14,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "package.",
+    "start": 2.68,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 4.44,
+    "end": 4.6,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "since",
+    "start": 4.92,
+    "end": 5.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "early",
+    "start": 5.14,
+    "end": 5.36,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "October,",
+    "start": 5.42,
+    "end": 5.82,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "regulators",
+    "start": 5.9,
+    "end": 6.4,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "have",
+    "start": 6.44,
+    "end": 6.74,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "withdrawn",
+    "start": 7.0,
+    "end": 7.52,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "proposed",
+    "start": 7.98,
+    "end": 8.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "rules",
+    "start": 8.36,
+    "end": 8.6,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "on",
+    "start": 8.66,
+    "end": 8.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "self-hosted",
+    "start": 8.86,
+    "end": 9.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "wallets",
+    "start": 9.42,
+    "end": 9.98,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "and",
+    "start": 10.18,
+    "end": 10.4,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "coin",
+    "start": 10.52,
+    "end": 10.74,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "mixing,",
+    "start": 10.78,
+    "end": 11.16,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "plus",
+    "start": 11.56,
+    "end": 11.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 11.74,
+    "end": 11.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "plan",
+    "start": 11.82,
+    "end": 11.98,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "to",
+    "start": 12.02,
+    "end": 12.12,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "cut",
+    "start": 12.18,
+    "end": 12.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 12.54,
+    "end": 12.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "travel",
+    "start": 12.7,
+    "end": 13.04,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "rule,",
+    "start": 13.16,
+    "end": 13.4,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "uh,",
+    "start": 13.92,
+    "end": 14.02,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "reporting",
+    "start": 14.14,
+    "end": 14.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "threshold",
+    "start": 14.58,
+    "end": 15.12,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "to",
+    "start": 15.46,
+    "end": 15.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "250",
+    "start": 15.68,
+    "end": 16.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "dollars.",
+    "start": 16.14,
+    "end": 16.56,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "With",
+    "start": 16.9,
+    "end": 17.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "those",
+    "start": 17.04,
+    "end": 17.22,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "off",
+    "start": 17.28,
+    "end": 17.4,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 17.44,
+    "end": 17.52,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "table",
+    "start": 17.58,
+    "end": 17.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "now,",
+    "start": 17.92,
+    "end": 18.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "what's",
+    "start": 18.32,
+    "end": 18.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 18.52,
+    "end": 18.62,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "next",
+    "start": 18.7,
+    "end": 18.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "self-custody",
+    "start": 19.02,
+    "end": 19.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "or",
+    "start": 19.7,
+    "end": 19.8,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "financial",
+    "start": 19.84,
+    "end": 20.28,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "privacy",
+    "start": 20.36,
+    "end": 20.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "fight",
+    "start": 20.96,
+    "end": 21.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "that,",
+    "start": 21.38,
+    "end": 21.5,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 22.0,
+    "end": 22.02,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "know,",
+    "start": 22.06,
+    "end": 22.12,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 22.22,
+    "end": 22.56,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "users",
+    "start": 22.64,
+    "end": 22.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "should",
+    "start": 22.96,
+    "end": 23.08,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "be",
+    "start": 23.12,
+    "end": 23.2,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "watching?",
+    "start": 23.24,
+    "end": 23.6,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 25.08
+ },
+ "usd": 0.005016,
+ "seconds": 1.11,
+ "recorded_at": "2026-11-25T18:22:40Z"
+}

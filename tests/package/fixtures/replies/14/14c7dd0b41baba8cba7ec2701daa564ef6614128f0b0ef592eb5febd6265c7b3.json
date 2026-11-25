@@ -1,0 +1,488 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "1d153196a6becb40063dce08943c44da7e8223b4eb4d66b6f8011769fd6686c2",
+ "result": {
+  "text": "high. So I think that's probably also interesting. You know what else is interesting? People love to say, \"Oh, Bitcoin, you know, all the big gains were in early years, and now, you know, you can't get in on the ground floor on Bitcoin.\" Even though, you know, as we speak, Bitcoin's about 60K. Like, you've got a great entry point, in my view- Mm-hmm ... at this point, at these prices. People will probably-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.06,
+    "end": 15.66,
+    "text": "high. So I think that's probably also interesting. You know what else is interesting? People love to say, \"Oh, Bitcoin, you know, all the big gains were in early years, and now, you know, you can't get in on the ground floor on Bitcoin.\" Even though, you know, as we speak, Bitcoin's about 60K. Like, you've got a great entry point, in my view-"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 15.72,
+    "end": 15.88,
+    "text": "Mm-hmm"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 15.88,
+    "end": 18.56,
+    "text": "... at this point, at these prices. People will probably-"
+   }
+  ],
+  "words": [
+   {
+    "text": "high.",
+    "start": 0.06,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 0.5,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 0.6,
+    "end": 0.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 0.66,
+    "end": 0.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 0.84,
+    "end": 1.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "probably",
+    "start": 1.02,
+    "end": 1.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "also",
+    "start": 1.28,
+    "end": 1.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "interesting.",
+    "start": 1.48,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 1.9,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 1.96,
+    "end": 2.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 2.08,
+    "end": 2.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "else",
+    "start": 2.22,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.4,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "interesting?",
+    "start": 2.52,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "People",
+    "start": 3.96,
+    "end": 4.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "love",
+    "start": 4.2,
+    "end": 4.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 4.42,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say,",
+    "start": 4.54,
+    "end": 4.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Oh,",
+    "start": 4.72,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 4.94,
+    "end": 5.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 5.7,
+    "end": 5.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 5.8,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 6.08,
+    "end": 6.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.2,
+    "end": 6.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "big",
+    "start": 6.42,
+    "end": 6.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gains",
+    "start": 6.58,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "were",
+    "start": 6.84,
+    "end": 6.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 6.98,
+    "end": 7.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "early",
+    "start": 7.14,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years,",
+    "start": 7.42,
+    "end": 7.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 8.02,
+    "end": 8.119,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now,",
+    "start": 8.18,
+    "end": 8.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 8.7,
+    "end": 8.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 8.78,
+    "end": 8.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 9.14,
+    "end": 9.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can't",
+    "start": 9.24,
+    "end": 9.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 9.44,
+    "end": 9.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 9.56,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 9.7,
+    "end": 9.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.76,
+    "end": 9.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ground",
+    "start": 9.86,
+    "end": 10.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "floor",
+    "start": 10.08,
+    "end": 10.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 10.28,
+    "end": 10.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.\"",
+    "start": 10.38,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Even",
+    "start": 10.74,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "though,",
+    "start": 10.9,
+    "end": 11.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 11.26,
+    "end": 11.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 11.34,
+    "end": 11.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 11.52,
+    "end": 11.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 11.64,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "speak,",
+    "start": 11.74,
+    "end": 11.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 12.06,
+    "end": 12.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 12.36,
+    "end": 12.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "60K.",
+    "start": 12.56,
+    "end": 13.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 13.1,
+    "end": 13.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you've",
+    "start": 13.7,
+    "end": 13.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "got",
+    "start": 13.82,
+    "end": 13.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 13.96,
+    "end": 14.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "great",
+    "start": 14.06,
+    "end": 14.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "entry",
+    "start": 14.46,
+    "end": 14.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "point,",
+    "start": 14.84,
+    "end": 15.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 15.34,
+    "end": 15.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 15.46,
+    "end": 15.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "view-",
+    "start": 15.66,
+    "end": 15.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Mm-hmm",
+    "start": 15.72,
+    "end": 15.88,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "...",
+    "start": 15.88,
+    "end": 15.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 15.98,
+    "end": 16.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 16.1,
+    "end": 16.239,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "point,",
+    "start": 16.28,
+    "end": 16.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 16.5,
+    "end": 16.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "these",
+    "start": 16.6,
+    "end": 16.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "prices.",
+    "start": 16.78,
+    "end": 17.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "People",
+    "start": 17.52,
+    "end": 17.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 18.2,
+    "end": 18.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "probably-",
+    "start": 18.34,
+    "end": 18.56,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 18.62
+ },
+ "usd": 0.003724,
+ "seconds": 0.96,
+ "recorded_at": "2026-11-25T18:14:28Z"
+}

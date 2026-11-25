@@ -1,0 +1,272 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "c7a8e6481b7437892627235e84fa561548d4c0e911ab87ce00c67311742eb819",
+ "result": {
+  "text": "want this kind of exposure to an altcoin, right? I don't think they're trading, uh, appropriately as a result of that. But Bitcoin has no yield. There's no way to beat it without some sort of magical financial engineering. Yeah.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.1,
+    "end": 12.44,
+    "text": "want this kind of exposure to an altcoin, right? I don't think they're trading, uh, appropriately as a result of that. But Bitcoin has no yield. There's no way to beat it without some sort of magical financial engineering."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 13.02,
+    "end": 13.12,
+    "text": "Yeah."
+   }
+  ],
+  "words": [
+   {
+    "text": "want",
+    "start": 0.1,
+    "end": 0.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 1.34,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 1.56,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 1.74,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "exposure",
+    "start": 1.84,
+    "end": 2.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 2.48,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 3.3,
+    "end": 3.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "altcoin,",
+    "start": 3.44,
+    "end": 3.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 3.88,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.019,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 4.04,
+    "end": 4.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 4.16,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they're",
+    "start": 4.3,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trading,",
+    "start": 4.48,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 5.2,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "appropriately",
+    "start": 5.44,
+    "end": 6.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 6.16,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 6.32,
+    "end": 6.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "result",
+    "start": 6.4,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 6.78,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that.",
+    "start": 6.88,
+    "end": 7.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 7.08,
+    "end": 7.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 7.22,
+    "end": 7.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 7.64,
+    "end": 7.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 7.84,
+    "end": 7.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yield.",
+    "start": 8.039,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "There's",
+    "start": 8.36,
+    "end": 8.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 8.66,
+    "end": 8.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 8.96,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 9.12,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "beat",
+    "start": 9.28,
+    "end": 9.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 9.48,
+    "end": 9.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "without",
+    "start": 9.6,
+    "end": 9.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 9.96,
+    "end": 10.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sort",
+    "start": 10.16,
+    "end": 10.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 10.32,
+    "end": 10.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "magical",
+    "start": 10.44,
+    "end": 10.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "financial",
+    "start": 10.88,
+    "end": 11.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "engineering.",
+    "start": 11.88,
+    "end": 12.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yeah.",
+    "start": 13.02,
+    "end": 13.12,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 13.92
+ },
+ "usd": 0.002784,
+ "seconds": 0.64,
+ "recorded_at": "2026-11-25T18:22:16Z"
+}

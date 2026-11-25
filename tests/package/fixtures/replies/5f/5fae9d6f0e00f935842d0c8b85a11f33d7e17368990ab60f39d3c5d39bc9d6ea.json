@@ -1,0 +1,19 @@
+{
+ "role": "out_edge",
+ "backend": "heimdall:qwen/qwen3.8-27b@low",
+ "model": "qwen/qwen3.8-27b",
+ "vendor": "heimdall/qwen",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "You check where a short video clip ENDS. The clip is cut from a longer recording of one speaker. It\nmust never stop while the speaker's thought is unfinished: a viewer must never feel the speaker was cut off in the\nmiddle of saying something.\n\nWHAT THE SPEAKER SAID JUST BEFORE THE CLIP (context only):\n<before>86 % of repeat payments to the same merchant happened within 30 days and 16 % happened the same day. And so although adoption is still early, paying with Bitcoin appears to be fitting into familiar routines like grabbing coffee or lunch.</before>\n\nTHE CLIP (judge its LAST sentence):\n<clip>So, I mean, we've been faced with a question quite frequently of is anybody actually using their Bitcoin to buy a cup of coffee? And it turns out, yes, some people are.</clip>\n\nWHAT THE SPEAKER SAYS RIGHT AFTER THE CLIP, sentence by sentence (a transcript: its full stops can be wrong):\n[0] Another interesting finding is where the payments are coming from.\n[1] Payments aren't just coming from within the block ecosystem.\n[2] About 43 % of payments are from cash up wallets, but 57 % come from outside lightning -enabled wallets such as strike, Wald of Satoshi, Phoenix, and Coinbase.\n\nQUESTION: does the clip's last sentence FINISH the speaker's thought as it stands?\nAnswer \"no\" only when a viewer hearing the clip alone would feel the speaker was cut off: the clip's last words set up\nsomething that a following sentence delivers (for example \"and the reason is simple.\" followed by the reason; \"here\nis what nobody tells you.\" followed by it; \"there were three warning signs.\" followed by them), a following sentence\nis really the rest of the same sentence, or the clip stops on an unfinished clause.\nAnswer \"yes\" when the last sentence is complete in itself, even when the speaker goes on to explain it, give an\nexample, interpret it or start a new point on the same topic.\nIf \"no\": \"finishes_at\" is the number in brackets of the FIRST following sentence at whose end the thought is finished,\nor null when none of the listed sentences finishes it.\nReply with JSON only: {\"complete\": \"yes|no\", \"finishes_at\": <number or null>, \"why\": \"<one short sentence>\"}",
+ "text": "\n\n{\"complete\": \"yes\", \"finishes_at\": null, \"why\": \"The last sentence 'And it turns out, yes, some people are' is a complete answer to the question posed just before it, forming a self-contained Q&A; the following sentences begin a new point about where payments come from.\"}",
+ "usage": {
+  "in": 548,
+  "out": 344,
+  "usd_reported": 0.0003128
+ },
+ "usd": 0.006804,
+ "seconds": 10.06,
+ "recorded_at": "2026-11-25T18:23:25Z"
+}

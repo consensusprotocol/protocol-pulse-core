@@ -1,0 +1,242 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "2fcdc8d99b8d5e3dbeb9f94e5de954ddb0d7170ba46dd8fb476db5cc603864c9",
+ "result": {
+  "text": "Policy and all the problems that come with it in kind of a more efficient wrapper. And so I think AI generally is a tailwind for Bitcoin and for all different kinds of reasons. I wonder-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 11.98,
+    "text": "Policy and all the problems that come with it in kind of a more efficient wrapper. And so I think AI generally is a tailwind for Bitcoin and for all different kinds of reasons. I wonder-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Policy",
+    "start": 0.0,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 0.28,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 0.36,
+    "end": 0.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.46,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "problems",
+    "start": 0.56,
+    "end": 0.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 0.84,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "come",
+    "start": 0.98,
+    "end": 1.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 1.14,
+    "end": 1.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 1.32,
+    "end": 1.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 1.46,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 1.56,
+    "end": 1.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 1.7,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.84,
+    "end": 2.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 2.24,
+    "end": 2.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "efficient",
+    "start": 2.42,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wrapper.",
+    "start": 3.44,
+    "end": 3.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 3.96,
+    "end": 4.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 4.14,
+    "end": 4.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.84,
+    "end": 4.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 4.92,
+    "end": 5.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI",
+    "start": 5.68,
+    "end": 5.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "generally",
+    "start": 6.1,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 6.98,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 7.46,
+    "end": 7.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tailwind",
+    "start": 7.62,
+    "end": 8.119,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 8.18,
+    "end": 8.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.36,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 9.24,
+    "end": 9.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 9.4,
+    "end": 9.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 9.54,
+    "end": 9.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "different",
+    "start": 9.66,
+    "end": 9.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kinds",
+    "start": 9.92,
+    "end": 10.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 10.12,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reasons.",
+    "start": 10.24,
+    "end": 10.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 11.76,
+    "end": 11.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wonder-",
+    "start": 11.86,
+    "end": 11.98,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.0
+ },
+ "usd": 0.0024,
+ "seconds": 0.82,
+ "recorded_at": "2026-11-25T18:22:12Z"
+}

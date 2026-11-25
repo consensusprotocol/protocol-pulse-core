@@ -1,0 +1,248 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "af44f6c8f64065aa433b2d995eedaa33131509cebb724712c2fa331ae029462f",
+ "result": {
+  "text": "suppressed. Um, and, and I think that's what we will continue seeing forward. And so, again, Bitcoin is a long-duration asset. We know it has short-term volatility. We know it fluctuates with market sentiment. But the long-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 11.16,
+    "text": "suppressed. Um, and, and I think that's what we will continue seeing forward. And so, again, Bitcoin is a long-duration asset. We know it has short-term volatility. We know it fluctuates with market sentiment. But the long-"
+   }
+  ],
+  "words": [
+   {
+    "text": "suppressed.",
+    "start": 0.0,
+    "end": 0.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 0.82,
+    "end": 0.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and,",
+    "start": 1.04,
+    "end": 1.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.22,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 1.42,
+    "end": 1.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 1.5,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 1.66,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 1.82,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 1.96,
+    "end": 2.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 2.1,
+    "end": 2.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "continue",
+    "start": 2.24,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seeing",
+    "start": 2.64,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "forward.",
+    "start": 3.02,
+    "end": 3.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 3.9,
+    "end": 4.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so,",
+    "start": 4.08,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "again,",
+    "start": 4.44,
+    "end": 4.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.68,
+    "end": 5.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.04,
+    "end": 5.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 5.16,
+    "end": 5.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "long-duration",
+    "start": 5.24,
+    "end": 5.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset.",
+    "start": 5.9,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 6.34,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 6.48,
+    "end": 6.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 6.64,
+    "end": 6.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 6.74,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "short-term",
+    "start": 6.9,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "volatility.",
+    "start": 7.28,
+    "end": 7.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 8.0,
+    "end": 8.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 8.1,
+    "end": 8.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 8.22,
+    "end": 8.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fluctuates",
+    "start": 8.38,
+    "end": 8.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 8.9,
+    "end": 9.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 9.06,
+    "end": 9.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sentiment.",
+    "start": 9.4,
+    "end": 9.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 10.54,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.7,
+    "end": 10.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "long-",
+    "start": 10.9,
+    "end": 11.16,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.22
+ },
+ "usd": 0.002244,
+ "seconds": 0.61,
+ "recorded_at": "2026-11-25T18:22:14Z"
+}

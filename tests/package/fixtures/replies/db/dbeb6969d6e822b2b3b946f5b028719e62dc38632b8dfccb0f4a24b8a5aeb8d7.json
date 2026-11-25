@@ -1,0 +1,350 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "6a9c202e2bc99a7a1aa14acd0c69098c1d5a89fa27d953e2f891d845a8f1e1b1",
+ "result": {
+  "text": "Payments aren't just coming from within the Block ecosystem. About 43% of payments are from Cash App wallets, but 7-- 57% come from outside Lightning-enabled wallets such as Strike, Wallet of Satoshi, Phoenix, and Coinbase. And those external wallets represent 66% of total value, demonstrating that the broader Bitcoin ecosystem is at work here.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.18,
+    "end": 22.82,
+    "text": "Payments aren't just coming from within the Block ecosystem. About 43% of payments are from Cash App wallets, but 7-- 57% come from outside Lightning-enabled wallets such as Strike, Wallet of Satoshi, Phoenix, and Coinbase. And those external wallets represent 66% of total value, demonstrating that the broader Bitcoin ecosystem is at work here."
+   }
+  ],
+  "words": [
+   {
+    "text": "Payments",
+    "start": 0.18,
+    "end": 0.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "aren't",
+    "start": 0.76,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 1.08,
+    "end": 1.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "coming",
+    "start": 1.26,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 1.56,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "within",
+    "start": 2.0,
+    "end": 2.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.24,
+    "end": 2.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Block",
+    "start": 2.36,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ecosystem.",
+    "start": 2.74,
+    "end": 3.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "About",
+    "start": 3.92,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "43%",
+    "start": 4.16,
+    "end": 4.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 4.92,
+    "end": 5.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "payments",
+    "start": 5.06,
+    "end": 5.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 5.5,
+    "end": 5.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 5.7,
+    "end": 5.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Cash",
+    "start": 5.88,
+    "end": 6.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "App",
+    "start": 6.12,
+    "end": 6.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wallets,",
+    "start": 6.3,
+    "end": 6.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 6.84,
+    "end": 7.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "7--",
+    "start": 7.32,
+    "end": 7.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "57%",
+    "start": 7.82,
+    "end": 8.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "come",
+    "start": 9.28,
+    "end": 9.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 9.5,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outside",
+    "start": 9.9,
+    "end": 10.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Lightning-enabled",
+    "start": 10.52,
+    "end": 11.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wallets",
+    "start": 11.2,
+    "end": 11.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "such",
+    "start": 11.62,
+    "end": 11.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 11.86,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Strike,",
+    "start": 12.1,
+    "end": 12.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Wallet",
+    "start": 12.62,
+    "end": 12.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 12.82,
+    "end": 12.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Satoshi,",
+    "start": 12.94,
+    "end": 13.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Phoenix,",
+    "start": 13.52,
+    "end": 13.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 13.98,
+    "end": 14.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Coinbase.",
+    "start": 14.12,
+    "end": 14.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 15.12,
+    "end": 15.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "those",
+    "start": 15.3,
+    "end": 15.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "external",
+    "start": 15.72,
+    "end": 16.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wallets",
+    "start": 16.12,
+    "end": 16.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "represent",
+    "start": 16.48,
+    "end": 16.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "66%",
+    "start": 17.18,
+    "end": 18.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 18.08,
+    "end": 18.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "total",
+    "start": 18.22,
+    "end": 18.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "value,",
+    "start": 18.52,
+    "end": 18.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "demonstrating",
+    "start": 19.46,
+    "end": 19.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 20.02,
+    "end": 20.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 20.16,
+    "end": 20.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "broader",
+    "start": 20.28,
+    "end": 20.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 20.72,
+    "end": 21.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ecosystem",
+    "start": 21.16,
+    "end": 21.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 21.96,
+    "end": 22.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 22.2,
+    "end": 22.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "work",
+    "start": 22.4,
+    "end": 22.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here.",
+    "start": 22.64,
+    "end": 22.82,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 24.37
+ },
+ "usd": 0.004874,
+ "seconds": 0.78,
+ "recorded_at": "2026-11-25T18:22:36Z"
+}

@@ -1113,5 +1113,127 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "0f140b0d464db03d462e:c0560706f5bba24d818a2759ee82fe1f0715c11432920bc0649aa798bd24f8b9:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 4,
+   "alone": 3,
+   "setup": 4,
+   "rating": 3,
+   "why": "assumes familiarity with ETF reversal & PCE data",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "afe64a9bac4f4de6b4b1:671c5dafa135f65a6459e004d298591c817c84a7da940ec25f5ff8059aa3c573:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 2,
+   "setup": 3,
+   "rating": 2,
+   "why": "casual filler start lacks punch",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+   "answer_note": "1 trailing closing brace(s) dropped (STATE Q2, 15:04 ET Nov 15)"
+  }
+ },
+ "b3a9632c7a2e6918e934:380983fc9e3651256ddcf9741ab14913080f53a52817f13b37a29370edf0b6de:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 3,
+   "setup": 4,
+   "rating": 2,
+   "why": "starts with filler 'I mean' lacking punch to stop scrolls",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "d4c89f51b0e9ec85d88f:8a9b9f4da28c409de94203c634fae7c66a98cd5932459b4085571863a09b9305:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 4,
+   "setup": 3,
+   "rating": 2,
+   "why": "dry opening lacks immediate impact",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "621e263e8d218efbd822~trim:162b2b2a7472d63fdd6b7b7e7264c40561b5b2d27e41badcaa1fcfaf8dfbfd48:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 4,
+   "setup": 3,
+   "rating": 2,
+   "why": "first seconds too bland to stop scroll",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "cac142b2d2f18147dc6c:c4c96df5f69e019187588153adf7140fc3d147e026969c7fa7ae123b74b94006:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 2,
+   "setup": 3,
+   "rating": 2,
+   "why": "starts mid-thought, low immediate engagement",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "71f0a5512821c43f654e:ca0dcb8f92cfd975330cffbd29368a7f8671301e0e784812c746e6523f6f20ea:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 5,
+   "setup": 4,
+   "rating": 3,
+   "why": "mild 'I think' start not gripping enough to stop scrolls",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "ab9d448a2b3c4af50d48:9d4d62425ec82b5725ee3f8890444c3e3f47b9b8d22c04ac611c89d939176f17:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 2,
+   "setup": 4,
+   "rating": 2,
+   "why": "assumes ongoing conversation context",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "23ba55969c5d1d9064ca:663656088e210448576b88ed93292486becb9574d6f86777a8fcf2e34165dc69:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 2,
+   "setup": 3,
+   "rating": 2,
+   "why": "starts mid-topic with 'another bill'",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "f3abbc9317cebb8971d8:fb7e5b8f5ebe96e8381f7009c8c0c430334ec11c6e9c24650de7947ecfa88b03:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 1,
+   "setup": 2,
+   "rating": 1,
+   "why": "vague reference to undefined 'it'",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "6bf23c84bd2be1a4e1eb:a8a04a6c920e867015940170cf52d3e2845b7cfbb87d2776bba5694eb540e83f:e3cba8d92551": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 3,
+   "setup": 3,
+   "rating": 2,
+   "why": "uncompelling start lacks grab",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

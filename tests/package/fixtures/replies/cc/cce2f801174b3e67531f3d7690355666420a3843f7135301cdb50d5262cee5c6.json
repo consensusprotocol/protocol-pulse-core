@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 750,
+ "system": null,
+ "prompt": "You judge OPENING clips for 60-second videos made of other channels' own words (each clip is a person's\nown words from a show). Each candidate below would play FIRST, before anything else is said. Judge each one ALONE, as\nthe opener of a video; the candidates are not compared with each other and never play together.\n\nCANDIDATE id=\"ab9d448a2b3c4af50d48\" (on screen: TFTC): \"People need to understand why we're here. And so I think on the back half of this conversation, I would like to dig into the fundamentals of Bitcoin, where Bitcoin finds itself, how we may progress from here.\"\n\nFor EACH candidate: THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:\n   \"scroll\": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)\n   \"alone\": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)\n   \"setup\": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not\n   at all)\nGive \"why\": a few words on the candidate's weakest part.\nReturn ONLY this JSON object: {\"hooks\": {\"ab9d448a2b3c4af50d48\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}}}",
+ "text": "{\"hooks\": {\"ab9d448a2b3c4af50d48\": {\"scroll\": 3, \"alone\": 2, \"setup\": 4, \"why\": \"assumes ongoing conversation context\"}}}",
+ "usage": {
+  "in": 546,
+  "out": 1419,
+  "usd_reported": 0.0039612
+ },
+ "usd": 0.038205,
+ "seconds": 12.71,
+ "recorded_at": "2026-11-25T18:25:37Z"
+}

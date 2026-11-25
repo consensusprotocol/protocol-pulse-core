@@ -1,0 +1,19 @@
+{
+ "role": "out_edge",
+ "backend": "heimdall:qwen/qwen3.8-27b@low",
+ "model": "qwen/qwen3.8-27b",
+ "vendor": "heimdall/qwen",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "You check where a short video clip ENDS. The clip is cut from a longer recording of one speaker. It\nmust never stop while the speaker's thought is unfinished: a viewer must never feel the speaker was cut off in the\nmiddle of saying something.\n\nWHAT THE SPEAKER SAID JUST BEFORE THE CLIP (context only):\n<before>Yeah. So for the earlier part of the question, what constitutes a good asset?</before>\n\nTHE CLIP (judge its LAST sentence):\n<clip>I would say basically the best monies. So in physical sense that's gold, in digital sense, that's Bitcoin. And then also just high quality equities in general. So those are kind of like I think assets that are more attractive to own than housing.</clip>\n\nWHAT THE SPEAKER SAYS RIGHT AFTER THE CLIP, sentence by sentence (a transcript: its full stops can be wrong):\n[0] Historically, if you look over the ultra long term in the US, I mean, gold outperforms a typical house.\n[1] Now, houses can catch up and surpass gold when you lever them, you know, five to one.\n[2] That's kind of been the, you know, obviously the difference there, but in just a pure kind of unlevered sense, especially when you take into account maintenance and insurance and stuff.\n\nQUESTION: does the clip's last sentence FINISH the speaker's thought as it stands?\nAnswer \"no\" only when a viewer hearing the clip alone would feel the speaker was cut off: the clip's last words set up\nsomething that a following sentence delivers (for example \"and the reason is simple.\" followed by the reason; \"here\nis what nobody tells you.\" followed by it; \"there were three warning signs.\" followed by them), a following sentence\nis really the rest of the same sentence, or the clip stops on an unfinished clause.\nAnswer \"yes\" when the last sentence is complete in itself, even when the speaker goes on to explain it, give an\nexample, interpret it or start a new point on the same topic.\nIf \"no\": \"finishes_at\" is the number in brackets of the FIRST following sentence at whose end the thought is finished,\nor null when none of the listed sentences finishes it.\nReply with JSON only: {\"complete\": \"yes|no\", \"finishes_at\": <number or null>, \"why\": \"<one short sentence>\"}",
+ "text": "\n\n{\"complete\": \"yes\", \"finishes_at\": null, \"why\": \"The last sentence makes a complete, self-contained claim that certain assets are more attractive than housing; the following sentences merely elaborate with supporting evidence.\"}",
+ "usage": {
+  "in": 555,
+  "out": 393,
+  "usd_reported": 0.00035025
+ },
+ "usd": 0.00756,
+ "seconds": 11.26,
+ "recorded_at": "2026-11-25T18:16:08Z"
+}

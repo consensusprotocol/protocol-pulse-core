@@ -1,0 +1,143 @@
+{
+ "fingerprint": "f8046597d7e1a36a1d105613a988a5e158bb357e7d54b568162ff7e602665aef",
+ "parts": {
+  "moments": "ac8825e5f906cb5a751add8a5d73b82d1659da8f40495afc5390e58e398fc2e2",
+  "delivered": "63756e8a811fada028028d28149726fcb15a4efc7c259263c2249aeb733c8434",
+  "day_et": "2026-11-25",
+  "code": "6796e329a4c2c8aac2349b04cf889bb0a44d4cc7d2366aef709982a379aa803d",
+  "candidates": "9897f14f4b9490374f2e19d914d23d02ab61ea8b21bf3e3cf68f438de9700dac",
+  "due": [],
+  "spotlights": "710d9f9fa4d4b706be1e5ca7bfef3a8b6718df17570f4d75ffb197143d6420ae",
+  "directives": "a1caab6e5bbbf60ae9677b272d4fc9c9f7f5a01558b962ead2932db5416f81cd",
+  "precheck_results": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "scorer_verdicts": "c6924a049b37b92da97792a80fa9ed3ab8a4683ea6310b2ab553fb00ed3de706",
+  "routing": "heimdall_first"
+ },
+ "open_work": 23,
+ "undone": [
+  {
+   "kind": "held",
+   "id": "03f2fee4e1c0df606148",
+   "why": "step A gave no answer in the never-empty pass (ruling 102 HELD)"
+  },
+  {
+   "kind": "held",
+   "id": "0761c21fb82056e93e46",
+   "why": "step A gave no answer in the never-empty pass (ruling 102 HELD)"
+  },
+  {
+   "kind": "held",
+   "id": "23ba55969c5d1d9064ca",
+   "why": "step A gave no answer in the never-empty pass (ruling 102 HELD)"
+  },
+  {
+   "kind": "held",
+   "id": "2d562496912e668219ef",
+   "why": "step A gave no answer in the never-empty pass (ruling 102 HELD)"
+  },
+  {
+   "kind": "held",
+   "id": "3aedb2df6034c2dfba23",
+   "why": "step A gave no answer in the never-empty pass (ruling 102 HELD)"
+  },
+  {
+   "kind": "held",
+   "id": "501b497c5611d68766f9",
+   "why": "step A gave no answer in the never-empty pass (ruling 102 HELD)"
+  },
+  {
+   "kind": "held",
+   "id": "5d2d5f8e3927473297b5",
+   "why": "step A gave no answer in the never-empty pass (ruling 102 HELD)"
+  },
+  {
+   "kind": "held",
+   "id": "621e263e8d218efbd822~trim",
+   "why": "step A gave no answer in the never-empty pass (ruling 102 HELD)"
+  },
+  {
+   "kind": "held",
+   "id": "6bf23c84bd2be1a4e1eb",
+   "why": "step A gave no answer in the never-empty pass (ruling 102 HELD)"
+  },
+  {
+   "kind": "held",
+   "id": "71f0a5512821c43f654e",
+   "why": "step A gave no answer in the never-empty pass (ruling 102 HELD)"
+  },
+  {
+   "kind": "held",
+   "id": "aadca1b383057f18c3e5",
+   "why": "step A gave no answer in the never-empty pass (ruling 102 HELD)"
+  },
+  {
+   "kind": "held",
+   "id": "ab9d448a2b3c4af50d48",
+   "why": "step A gave no answer in the never-empty pass (ruling 102 HELD)"
+  },
+  {
+   "kind": "held",
+   "id": "cac142b2d2f18147dc6c",
+   "why": "step A gave no answer in the never-empty pass (ruling 102 HELD)"
+  },
+  {
+   "kind": "held",
+   "id": "d4c89f51b0e9ec85d88f",
+   "why": "step A gave no answer in the never-empty pass (ruling 102 HELD)"
+  },
+  {
+   "kind": "held",
+   "id": "f3abbc9317cebb8971d8",
+   "why": "step A gave no answer in the never-empty pass (ruling 102 HELD)"
+  },
+  {
+   "kind": "second_pass",
+   "id": "9de313ae257232ba025f~trim",
+   "why": "NOT MEASURED: CalledProcessError: Command '['yt-dlp', '-q', '--no-playlist', '-f', 'bestaudio', '--download-sections', '*3144.81-3168.21', '--force-keyframes-at"
+  },
+  {
+   "kind": "money",
+   "id": "xai_vision:grok-4.7",
+   "why": "a paid call the spend stop refused"
+  },
+  {
+   "kind": "money",
+   "id": "xai_vision:grok-4.7",
+   "why": "a paid call the spend stop refused"
+  },
+  {
+   "kind": "money",
+   "id": "google:gemini-2.5-pro",
+   "why": "a paid call the spend stop refused"
+  },
+  {
+   "kind": "money",
+   "id": "google:gemini-2.5-pro",
+   "why": "a paid call the spend stop refused"
+  },
+  {
+   "kind": "money",
+   "id": "xai:grok-4.20-0309-reasoning",
+   "why": "a paid call the spend stop refused"
+  },
+  {
+   "kind": "money",
+   "id": "xai:grok-4.20-0309-reasoning",
+   "why": "a paid call the spend stop refused"
+  },
+  {
+   "kind": "vision",
+   "id": "0f140b0d464db03d462e",
+   "why": "an opener's vision check not measured"
+  }
+ ],
+ "spend_refused": [
+  "xai_vision:grok-4.7",
+  "xai_vision:grok-4.7",
+  "google:gemini-2.5-pro",
+  "google:gemini-2.5-pro",
+  "xai:grok-4.20-0309-reasoning",
+  "xai:grok-4.20-0309-reasoning"
+ ],
+ "build": "tests/package/proof/ledger_20261125_180553"
+}

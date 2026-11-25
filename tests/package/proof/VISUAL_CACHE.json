@@ -1747,6 +1747,75 @@
   },
   "version": "visual-1"
  },
+ "621e263e8d218efbd822~trim:160.810-169.150:visual-4:2461c3662043c6a6": {
+  "advertising": [],
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     160.81,
+     161.81,
+     162.81,
+     163.81,
+     164.81,
+     165.81,
+     166.81,
+     167.81,
+     168.81
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "SLP",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "SLP"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_04bf0afb4eabfb5b.jpg",
+   "path": "/home/ultron/pp_lean_run/work/visual/visual_04bf0afb4eabfb5b.jpg",
+   "sha256": "04bf0afb4eabfb5b017024659846ca8905484a7d2aa7204422b564962faac416",
+   "times": [
+    160.81,
+    161.81,
+    162.81,
+    163.81,
+    164.81,
+    165.81,
+    166.81,
+    167.81,
+    168.81,
+    169.1
+   ]
+  },
+  "third_person": {
+   "finding": "Only the live speaker appears, with no still, photo, or graphic of anyone else, and the words affirm Bitcoin rather than making a negative claim.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 3233,
+   "out": 2670,
+   "usd_reported": 0.020758
+  },
+  "version": "visual-4"
+ },
  "704fa6e1af4a86ff1d07:82.470-95.810:visual-2:0e3b064cc95cb6f2": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [],
@@ -1808,6 +1877,78 @@
    "usd_reported": 0.046418
   },
   "version": "visual-2"
+ },
+ "71f0a5512821c43f654e:1247.553-1256.653:visual-4:ed26f0b1c736449c": {
+  "advertising": [],
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "at": [
+     1247.55,
+     1248.55,
+     1249.55,
+     1250.55,
+     1251.55,
+     1252.55,
+     1253.55,
+     1254.55,
+     1255.55,
+     1256.55,
+     1256.6
+    ],
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "SLP",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "SLP"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_55d6a7c5bf1fe1b3.jpg",
+   "path": "/home/ultron/pp_lean_run/work/visual/visual_55d6a7c5bf1fe1b3.jpg",
+   "sha256": "55d6a7c5bf1fe1b332da58d47d3496fcfa8dd6ab1d83212e5f9141e3f6cf5e27",
+   "times": [
+    1247.55,
+    1248.55,
+    1249.55,
+    1250.55,
+    1251.55,
+    1252.55,
+    1253.55,
+    1254.55,
+    1255.55,
+    1256.55,
+    1256.6
+   ]
+  },
+  "third_person": {
+   "finding": "No non-speaking person appears as a still, photo, or graphic; the second man only appears in live split-screen video, and the words praise AI and Bitcoin rather than making a negative claim.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 3239,
+   "out": 3011,
+   "usd_reported": 0.022816
+  },
+  "version": "visual-4"
  },
  "72fbbf8137925c139e16:483.470-496.290:visual-3:f85d980ce7bfc28c": {
   "backend": "heimdall:qwen/qwen3.8-27b",

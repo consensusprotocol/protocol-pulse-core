@@ -1,0 +1,410 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "47a81e149d685fecbc9b6c4329b75c3bdf577b394ae2e9befce92c42951de5f0",
+ "result": {
+  "text": "specific to the Bitcoin industry, but we've seen it here, we've seen it elsewhere. And so if people start to, you know, there's less confidence in the ability to safely custody Bitcoin or, you know, even trusted third parties, there's less confidence there. It just kind of shakes confidence in the market infrastructure, and that could delay adoption. So that's the only, uh, that's-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 22.74,
+    "text": "specific to the Bitcoin industry, but we've seen it here, we've seen it elsewhere. And so if people start to, you know, there's less confidence in the ability to safely custody Bitcoin or, you know, even trusted third parties, there's less confidence there. It just kind of shakes confidence in the market infrastructure, and that could delay adoption. So that's the only, uh, that's-"
+   }
+  ],
+  "words": [
+   {
+    "text": "specific",
+    "start": 0.0,
+    "end": 0.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 0.16,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.28,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 0.4,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "industry,",
+    "start": 1.12,
+    "end": 1.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 2.18,
+    "end": 2.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we've",
+    "start": 2.28,
+    "end": 2.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seen",
+    "start": 2.46,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 2.64,
+    "end": 2.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here,",
+    "start": 2.78,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we've",
+    "start": 3.1,
+    "end": 3.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seen",
+    "start": 3.3,
+    "end": 3.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 3.5,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "elsewhere.",
+    "start": 3.66,
+    "end": 4.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 4.32,
+    "end": 4.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 4.52,
+    "end": 5.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 5.12,
+    "end": 5.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 5.26,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "start",
+    "start": 5.62,
+    "end": 5.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to,",
+    "start": 5.92,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 6.96,
+    "end": 7.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 7.06,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 7.24,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "less",
+    "start": 7.54,
+    "end": 7.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "confidence",
+    "start": 7.82,
+    "end": 8.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 8.66,
+    "end": 8.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.76,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ability",
+    "start": 8.88,
+    "end": 9.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 9.56,
+    "end": 9.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "safely",
+    "start": 9.8,
+    "end": 10.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "custody",
+    "start": 10.92,
+    "end": 11.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 11.34,
+    "end": 12.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or,",
+    "start": 12.16,
+    "end": 12.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 12.66,
+    "end": 12.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 12.76,
+    "end": 12.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "even",
+    "start": 13.0,
+    "end": 13.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trusted",
+    "start": 13.26,
+    "end": 13.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "third",
+    "start": 13.76,
+    "end": 13.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "parties,",
+    "start": 14.02,
+    "end": 14.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 14.54,
+    "end": 14.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "less",
+    "start": 14.88,
+    "end": 15.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "confidence",
+    "start": 15.16,
+    "end": 15.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there.",
+    "start": 15.66,
+    "end": 16.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It",
+    "start": 16.56,
+    "end": 16.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 16.68,
+    "end": 16.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 16.88,
+    "end": 17.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 17.04,
+    "end": 17.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shakes",
+    "start": 17.18,
+    "end": 17.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "confidence",
+    "start": 17.46,
+    "end": 17.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 18.02,
+    "end": 18.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 18.16,
+    "end": 18.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 18.28,
+    "end": 18.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "infrastructure,",
+    "start": 18.64,
+    "end": 19.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 19.24,
+    "end": 19.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 19.34,
+    "end": 19.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "could",
+    "start": 19.5,
+    "end": 19.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "delay",
+    "start": 19.68,
+    "end": 20.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "adoption.",
+    "start": 20.74,
+    "end": 21.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 21.46,
+    "end": 21.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 21.56,
+    "end": 21.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 21.74,
+    "end": 21.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "only,",
+    "start": 21.9,
+    "end": 22.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 22.48,
+    "end": 22.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's-",
+    "start": 22.62,
+    "end": 22.74,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 22.77
+ },
+ "usd": 0.004554,
+ "seconds": 0.78,
+ "recorded_at": "2026-11-25T18:22:22Z"
+}

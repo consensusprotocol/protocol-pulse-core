@@ -1,0 +1,19 @@
+{
+ "role": "out_edge",
+ "backend": "heimdall:qwen/qwen3.8-27b@low",
+ "model": "qwen/qwen3.8-27b",
+ "vendor": "heimdall/qwen",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "You check where a short video clip ENDS. The clip is cut from a longer recording of one speaker. It\nmust never stop while the speaker's thought is unfinished: a viewer must never feel the speaker was cut off in the\nmiddle of saying something.\n\nWHAT THE SPEAKER SAID JUST BEFORE THE CLIP (context only):\n<before>I do have a hard time. Outside of, you know, there is a lot of concerns over the debt and how incestuous the debt is and how the circular financing, the trade financing debt, you know, there's a lot of opakness there, I would say, and that's usually where risks tends to hide.</before>\n\nTHE CLIP (judge its LAST sentence):\n<clip>And there are kind of concerns just the sheer size and numbers of it. But, you know, again, that would probably lead to like short -term volatility and likely intervention. which is all else being equal, a positive for Bitcoin.</clip>\n\nWHAT THE SPEAKER SAYS RIGHT AFTER THE CLIP, sentence by sentence (a transcript: its full stops can be wrong):\n[0] And so I think about like what other way, if I throw it back to you, like what negative outcomes do you see from AI with Bitcoin outside of that like scenario of credit contagion and short -term price volatility?\n[1] I think the main one is this kind of a narrative one, this idea that, oh, AI is the fastest horse and you shouldn't bother buying Bitcoin.\n[2] Oh, just buy the AI, you know, play the AI trade, play the AI stocks, because you'll, you know, you'll get more returns.\n\nQUESTION: does the clip's last sentence FINISH the speaker's thought as it stands?\nAnswer \"no\" only when a viewer hearing the clip alone would feel the speaker was cut off: the clip's last words set up\nsomething that a following sentence delivers (for example \"and the reason is simple.\" followed by the reason; \"here\nis what nobody tells you.\" followed by it; \"there were three warning signs.\" followed by them), a following sentence\nis really the rest of the same sentence, or the clip stops on an unfinished clause.\nAnswer \"yes\" when the last sentence is complete in itself, even when the speaker goes on to explain it, give an\nexample, interpret it or start a new point on the same topic.\nIf \"no\": \"finishes_at\" is the number in brackets of the FIRST following sentence at whose end the thought is finished,\nor null when none of the listed sentences finishes it.\nReply with JSON only: {\"complete\": \"yes|no\", \"finishes_at\": <number or null>, \"why\": \"<one short sentence>\"}",
+ "text": "\n\n{\"complete\": \"yes\", \"finishes_at\": null, \"why\": \"The last sentence delivers a complete conclusion ('a positive for Bitcoin'), and the following sentence is a new question pivoting to a different topic.\"}",
+ "usage": {
+  "in": 622,
+  "out": 318,
+  "usd_reported": 0.0003007
+ },
+ "usd": 0.006636,
+ "seconds": 9.46,
+ "recorded_at": "2026-11-25T18:23:37Z"
+}

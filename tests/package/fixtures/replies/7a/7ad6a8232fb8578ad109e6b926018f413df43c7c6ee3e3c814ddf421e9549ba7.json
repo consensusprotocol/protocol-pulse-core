@@ -1,0 +1,446 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "51863cf4d62820fe2ff55c52857796a100cb37c8c363ab73fe31b8b50087712b",
+ "result": {
+  "text": "or excuse me, Schr\u00f6dinger's cyberattacks, according to the government. But I think the response by the Bitcoin developer community was incredibly impressive. And, uh, after a few months of being able to digest everything going on, I think it's become abundantly clear that, that Bitcoin, the protocol, at the very least at the protocol level, is one of the most secure code bases on the planet. Yeah, I agree.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.3,
+    "end": 21.94,
+    "text": "or excuse me, Schr\u00f6dinger's cyberattacks, according to the government. But I think the response by the Bitcoin developer community was incredibly impressive. And, uh, after a few months of being able to digest everything going on, I think it's become abundantly clear that, that Bitcoin, the protocol, at the very least at the protocol level, is one of the most secure code bases on the planet."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 22.78,
+    "end": 23.2,
+    "text": "Yeah, I agree."
+   }
+  ],
+  "words": [
+   {
+    "text": "or",
+    "start": 0.3,
+    "end": 0.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "excuse",
+    "start": 0.42,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me,",
+    "start": 0.66,
+    "end": 0.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Schr\u00f6dinger's",
+    "start": 0.78,
+    "end": 1.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cyberattacks,",
+    "start": 1.88,
+    "end": 2.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "according",
+    "start": 2.7,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 3.04,
+    "end": 3.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.14,
+    "end": 3.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "government.",
+    "start": 3.24,
+    "end": 3.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 3.78,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.7,
+    "end": 4.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 4.76,
+    "end": 4.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.9,
+    "end": 4.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "response",
+    "start": 5.0,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 5.52,
+    "end": 5.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.64,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.98,
+    "end": 6.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "developer",
+    "start": 6.32,
+    "end": 6.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "community",
+    "start": 6.76,
+    "end": 7.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 7.24,
+    "end": 7.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "incredibly",
+    "start": 7.84,
+    "end": 8.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "impressive.",
+    "start": 8.9,
+    "end": 9.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And,",
+    "start": 9.9,
+    "end": 10.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 11.2,
+    "end": 11.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "after",
+    "start": 11.52,
+    "end": 11.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 12.02,
+    "end": 12.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "few",
+    "start": 12.12,
+    "end": 12.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "months",
+    "start": 12.32,
+    "end": 12.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 12.64,
+    "end": 12.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 12.74,
+    "end": 12.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "able",
+    "start": 12.94,
+    "end": 13.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 13.2,
+    "end": 13.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "digest",
+    "start": 13.48,
+    "end": 13.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everything",
+    "start": 13.98,
+    "end": 14.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 14.34,
+    "end": 14.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on,",
+    "start": 14.66,
+    "end": 14.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 15.06,
+    "end": 15.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 15.12,
+    "end": 15.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 15.24,
+    "end": 15.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "become",
+    "start": 15.36,
+    "end": 15.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "abundantly",
+    "start": 15.62,
+    "end": 16.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "clear",
+    "start": 16.12,
+    "end": 16.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that,",
+    "start": 16.4,
+    "end": 16.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 16.64,
+    "end": 16.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 16.78,
+    "end": 17.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 17.46,
+    "end": 17.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "protocol,",
+    "start": 17.58,
+    "end": 18.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 18.32,
+    "end": 18.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 18.42,
+    "end": 18.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "very",
+    "start": 18.5,
+    "end": 18.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "least",
+    "start": 18.66,
+    "end": 18.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 18.84,
+    "end": 18.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 18.92,
+    "end": 18.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "protocol",
+    "start": 19.02,
+    "end": 19.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "level,",
+    "start": 19.4,
+    "end": 19.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 19.7,
+    "end": 19.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 19.86,
+    "end": 19.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 19.94,
+    "end": 19.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 20.0,
+    "end": 20.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 20.06,
+    "end": 20.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "secure",
+    "start": 20.24,
+    "end": 20.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "code",
+    "start": 20.78,
+    "end": 20.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bases",
+    "start": 21.0,
+    "end": 21.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 21.4,
+    "end": 21.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 21.48,
+    "end": 21.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "planet.",
+    "start": 21.6,
+    "end": 21.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yeah,",
+    "start": 22.78,
+    "end": 22.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 22.92,
+    "end": 22.92,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "agree.",
+    "start": 22.96,
+    "end": 23.2,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 23.4
+ },
+ "usd": 0.00468,
+ "seconds": 0.76,
+ "recorded_at": "2026-11-25T18:22:24Z"
+}

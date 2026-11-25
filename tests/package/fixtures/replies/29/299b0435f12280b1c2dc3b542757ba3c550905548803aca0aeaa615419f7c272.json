@@ -1,0 +1,428 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "c89c47c5c328ba995f7672458fa36204b6a2b0affa3bcb066e37f903f5a63a9b",
+ "result": {
+  "text": "Yeah. So for the earlier part of the question, what constitutes a good asset? I would say basically the best monies. So in, in physically, in a physical sense, that's gold. In digital sense, that's Bitcoin. Uh, and then also just high quality equities in general. So, so those are kind of like, I think, assets that are more attractive to own than, than housing. Uh, historically-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.68,
+    "end": 18.86,
+    "text": "Yeah. So for the earlier part of the question, what constitutes a good asset? I would say basically the best monies. So in, in physically, in a physical sense, that's gold. In digital sense, that's Bitcoin. Uh, and then also just high quality equities in general. So, so those are kind of like, I think, assets that are more attractive to own than, than housing. Uh, historically-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Yeah.",
+    "start": 0.68,
+    "end": 0.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 0.88,
+    "end": 1.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 1.34,
+    "end": 1.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.44,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "earlier",
+    "start": 1.54,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "part",
+    "start": 1.78,
+    "end": 1.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 1.9,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.96,
+    "end": 2.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "question,",
+    "start": 2.08,
+    "end": 2.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 2.46,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "constitutes",
+    "start": 2.62,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 3.1,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "good",
+    "start": 3.2,
+    "end": 3.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset?",
+    "start": 3.42,
+    "end": 3.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 3.96,
+    "end": 4.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 4.18,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say",
+    "start": 4.32,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "basically",
+    "start": 4.48,
+    "end": 5.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.32,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "best",
+    "start": 5.46,
+    "end": 5.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "monies.",
+    "start": 5.74,
+    "end": 6.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 6.46,
+    "end": 6.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in,",
+    "start": 6.76,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 7.12,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "physically,",
+    "start": 7.26,
+    "end": 7.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 7.96,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 8.039,
+    "end": 8.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "physical",
+    "start": 8.119,
+    "end": 8.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sense,",
+    "start": 8.48,
+    "end": 8.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 8.72,
+    "end": 8.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold.",
+    "start": 8.96,
+    "end": 9.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "In",
+    "start": 9.26,
+    "end": 9.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "digital",
+    "start": 9.38,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sense,",
+    "start": 9.72,
+    "end": 9.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 9.94,
+    "end": 10.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 10.14,
+    "end": 10.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Uh,",
+    "start": 11.2,
+    "end": 11.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 11.52,
+    "end": 11.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 11.64,
+    "end": 11.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "also",
+    "start": 11.88,
+    "end": 12.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 12.1,
+    "end": 12.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "high",
+    "start": 12.24,
+    "end": 12.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "quality",
+    "start": 12.42,
+    "end": 12.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "equities",
+    "start": 12.74,
+    "end": 13.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 13.04,
+    "end": 13.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "general.",
+    "start": 13.16,
+    "end": 13.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So,",
+    "start": 13.66,
+    "end": 13.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 13.92,
+    "end": 14.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "those",
+    "start": 14.06,
+    "end": 14.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 14.24,
+    "end": 14.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 14.36,
+    "end": 14.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 14.52,
+    "end": 14.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 14.62,
+    "end": 14.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 14.86,
+    "end": 14.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think,",
+    "start": 14.94,
+    "end": 15.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "assets",
+    "start": 15.2,
+    "end": 15.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 15.58,
+    "end": 15.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 15.68,
+    "end": 15.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 15.78,
+    "end": 15.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "attractive",
+    "start": 15.94,
+    "end": 16.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 16.3,
+    "end": 16.379,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "own",
+    "start": 16.48,
+    "end": 16.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than,",
+    "start": 16.74,
+    "end": 16.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 16.96,
+    "end": 17.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "housing.",
+    "start": 17.14,
+    "end": 17.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Uh,",
+    "start": 18.2,
+    "end": 18.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "historically-",
+    "start": 18.36,
+    "end": 18.86,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 18.9
+ },
+ "usd": 0.00378,
+ "seconds": 1.24,
+ "recorded_at": "2026-11-25T18:15:56Z"
+}

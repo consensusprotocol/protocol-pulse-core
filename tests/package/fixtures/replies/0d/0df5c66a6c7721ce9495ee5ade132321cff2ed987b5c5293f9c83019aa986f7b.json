@@ -1,0 +1,19 @@
+{
+ "role": "out_edge",
+ "backend": "heimdall:qwen/qwen3.8-27b@low",
+ "model": "qwen/qwen3.8-27b",
+ "vendor": "heimdall/qwen",
+ "seed": 7,
+ "max_tokens": 2000,
+ "system": null,
+ "prompt": "You check where a short video clip ENDS. The clip is cut from a longer recording of one speaker. It\nmust never stop while the speaker's thought is unfinished: a viewer must never feel the speaker was cut off in the\nmiddle of saying something.\n\nWHAT THE SPEAKER SAID JUST BEFORE THE CLIP (context only):\n<before>meta, I guess, sort of hit. I think I was extremely critical of it, but more so on the Bitcoin treasury side, because I intellectually understood why you would want this kind of exposure to an all coin, right?</before>\n\nTHE CLIP (judge its LAST sentence):\n<clip>I don't think they're trading appropriately as a result of that, but Bitcoin has no yield. There's no way to beat it without some sort of magical financial engineering.</clip>\n\nWHAT THE SPEAKER SAYS RIGHT AFTER THE CLIP, sentence by sentence (a transcript: its full stops can be wrong):\n[0] Yeah.\n[1] And there was already strategy who I didn't think anybody had any shot at.\n[2] So I'm a big fan.\n\nQUESTION: does the clip's last sentence FINISH the speaker's thought as it stands?\nAnswer \"no\" only when a viewer hearing the clip alone would feel the speaker was cut off: the clip's last words set up\nsomething that a following sentence delivers (for example \"and the reason is simple.\" followed by the reason; \"here\nis what nobody tells you.\" followed by it; \"there were three warning signs.\" followed by them), a following sentence\nis really the rest of the same sentence, or the clip stops on an unfinished clause.\nAnswer \"yes\" when the last sentence is complete in itself, even when the speaker goes on to explain it, give an\nexample, interpret it or start a new point on the same topic.\nIf \"no\": \"finishes_at\" is the number in brackets of the FIRST following sentence at whose end the thought is finished,\nor null when none of the listed sentences finishes it.\nReply with JSON only: {\"complete\": \"yes|no\", \"finishes_at\": <number or null>, \"why\": \"<one short sentence>\"}",
+ "text": "\n\n{\"complete\": \"yes\", \"finishes_at\": null, \"why\": \"The last sentence 'There's no way to beat it without some sort of magical financial engineering' is a complete declarative statement that stands on its own; the following sentences begin a new point about strategy.\"}",
+ "usage": {
+  "in": 504,
+  "out": 319,
+  "usd_reported": 0.00028965
+ },
+ "usd": 0.006297,
+ "seconds": 9.19,
+ "recorded_at": "2026-11-25T18:23:27Z"
+}

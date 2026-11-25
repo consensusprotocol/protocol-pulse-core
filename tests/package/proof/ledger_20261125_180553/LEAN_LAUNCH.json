@@ -1,0 +1,50 @@
+{
+ "build_no": 172,
+ "build_id": "b172-20261125T180541Z-lean",
+ "t0": 1795629941.9328926,
+ "deadline_s": 6000,
+ "deadline_at": 1795635941.9328926,
+ "build_at": 1795631870.9328926,
+ "render_at": 1795635821.9328926,
+ "stages": {
+  "build": {
+   "exit": 0,
+   "seconds": 1365.7
+  }
+ },
+ "seconds_total": 1375.9,
+ "inside_deadline": true,
+ "ledger": {
+  "ledger": "/home/ultron/pp_spend/SPEND_D20261124.json",
+  "day_starts": "2026-11-24T21:10:00-05:00",
+  "spent": 0.554462,
+  "held": 0,
+  "room": 0.945538,
+  "cap": 1.5,
+  "stop": null,
+  "init": {
+   "at": "2026-11-25T16:08:02Z",
+   "by": "ceiling_seed (the launch's ledger-init)",
+   "day_starts": "2026-11-24T21:10:00-05:00",
+   "parts": {
+    "builder:pp-selectid": 0.0,
+    "integrator:outside": 0.0,
+    "builder:audits": 0.0
+   }
+  },
+  "carried_in": {
+   "carried_in:builder:pp-selectid": 0.0,
+   "carried_in:integrator:outside": 0.0,
+   "carried_in:builder:audits": 0.0
+  },
+  "voice": {
+   "mode": "chars",
+   "cap_chars_per_build": 1000,
+   "run": "unnamed",
+   "carried_in_chars": 0,
+   "chars": 0,
+   "reserved": {}
+  },
+  "reserved": {}
+ }
+}

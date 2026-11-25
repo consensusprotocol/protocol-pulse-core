@@ -1,0 +1,338 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "7d3339a6b1897053be9c6b0cd42bfba534ced458ecfa5ded9433c193d26d3078",
+ "result": {
+  "text": "Like, the concerns I have with AI. But for the most part, I think it's positive. I think AI and Bitcoin together, um, is gonna create this, this world of productivity gains, and it's gonna be pretty magical. It already is kind of magical. We're kind of living through it right now.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 14.58,
+    "text": "Like, the concerns I have with AI. But for the most part, I think it's positive. I think AI and Bitcoin together, um, is gonna create this, this world of productivity gains, and it's gonna be pretty magical. It already is kind of magical. We're kind of living through it right now."
+   }
+  ],
+  "words": [
+   {
+    "text": "Like,",
+    "start": 0.0,
+    "end": 0.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.16,
+    "end": 0.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "concerns",
+    "start": 0.28,
+    "end": 0.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 0.76,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 0.84,
+    "end": 1.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 1.02,
+    "end": 1.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI.",
+    "start": 1.22,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 1.6,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 1.82,
+    "end": 1.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.94,
+    "end": 2.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 2.04,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "part,",
+    "start": 2.34,
+    "end": 2.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 2.88,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 2.98,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 3.16,
+    "end": 3.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "positive.",
+    "start": 3.4,
+    "end": 3.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 3.96,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 4.04,
+    "end": 4.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI",
+    "start": 4.4,
+    "end": 4.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 4.7,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.92,
+    "end": 5.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "together,",
+    "start": 5.64,
+    "end": 6.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 6.18,
+    "end": 6.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 6.48,
+    "end": 6.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 6.6,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "create",
+    "start": 6.9,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this,",
+    "start": 7.3,
+    "end": 7.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 7.78,
+    "end": 7.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world",
+    "start": 8.06,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 8.42,
+    "end": 8.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "productivity",
+    "start": 8.7,
+    "end": 9.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gains,",
+    "start": 9.32,
+    "end": 9.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 9.84,
+    "end": 10.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 10.86,
+    "end": 11.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 11.02,
+    "end": 11.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 11.18,
+    "end": 11.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pretty",
+    "start": 11.34,
+    "end": 11.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "magical.",
+    "start": 11.62,
+    "end": 12.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It",
+    "start": 12.08,
+    "end": 12.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "already",
+    "start": 12.2,
+    "end": 12.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 12.42,
+    "end": 12.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 12.58,
+    "end": 12.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 12.7,
+    "end": 12.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "magical.",
+    "start": 12.82,
+    "end": 13.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We're",
+    "start": 13.3,
+    "end": 13.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 13.46,
+    "end": 13.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 13.58,
+    "end": 13.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "living",
+    "start": 13.7,
+    "end": 13.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "through",
+    "start": 13.98,
+    "end": 14.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 14.12,
+    "end": 14.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right",
+    "start": 14.26,
+    "end": 14.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now.",
+    "start": 14.46,
+    "end": 14.58,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.6
+ },
+ "usd": 0.00292,
+ "seconds": 0.72,
+ "recorded_at": "2026-11-25T18:22:37Z"
+}

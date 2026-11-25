@@ -1,0 +1,248 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "be49c9bad2d1fbf930f4b2c7088113ebf7a3ba15f197988462f73055f46f701f",
+ "result": {
+  "text": "continuing in terms of the spending and the concerns around the sustainability there. Um, but long term, nothing's really changed in Bitcoin's thesis. Bitcoin remains scarce, it remains secure, uh, it remains decentralized. And so I, I-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 13.86,
+    "text": "continuing in terms of the spending and the concerns around the sustainability there. Um, but long term, nothing's really changed in Bitcoin's thesis. Bitcoin remains scarce, it remains secure, uh, it remains decentralized. And so I, I-"
+   }
+  ],
+  "words": [
+   {
+    "text": "continuing",
+    "start": 0.0,
+    "end": 0.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 0.32,
+    "end": 0.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "terms",
+    "start": 0.42,
+    "end": 0.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 0.6,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.68,
+    "end": 0.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "spending",
+    "start": 0.82,
+    "end": 1.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.36,
+    "end": 1.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.48,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "concerns",
+    "start": 1.56,
+    "end": 1.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "around",
+    "start": 1.98,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.14,
+    "end": 2.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sustainability",
+    "start": 2.24,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there.",
+    "start": 3.04,
+    "end": 3.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 3.78,
+    "end": 3.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 3.98,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "long",
+    "start": 4.6,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "term,",
+    "start": 4.9,
+    "end": 5.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nothing's",
+    "start": 5.34,
+    "end": 5.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 5.68,
+    "end": 5.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "changed",
+    "start": 5.9,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 6.3,
+    "end": 6.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 6.42,
+    "end": 6.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thesis.",
+    "start": 7.06,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 7.64,
+    "end": 8.039,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "remains",
+    "start": 8.1,
+    "end": 8.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "scarce,",
+    "start": 8.86,
+    "end": 9.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 9.62,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "remains",
+    "start": 9.72,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "secure,",
+    "start": 10.24,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 10.96,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 11.1,
+    "end": 11.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "remains",
+    "start": 11.22,
+    "end": 11.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "decentralized.",
+    "start": 11.94,
+    "end": 12.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 13.0,
+    "end": 13.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 13.16,
+    "end": 13.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I,",
+    "start": 13.6,
+    "end": 13.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I-",
+    "start": 13.8,
+    "end": 13.86,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 13.94
+ },
+ "usd": 0.002788,
+ "seconds": 0.6,
+ "recorded_at": "2026-11-25T18:22:19Z"
+}

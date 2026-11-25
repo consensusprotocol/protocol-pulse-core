@@ -1,0 +1,308 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "4d05a71dc1a605d909c247d6d4b3a564deed153c5c7692324b7d5ddd7608959d",
+ "result": {
+  "text": "System that's highly interconnected. And so correlations go to one. We saw sell-offs from obviously tech stocks, AI stocks, the stock market's down, um, one of its worst weeks in a long time. Uh, we saw gold down, we saw Bitcoin down. And this is what happened.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 15.6,
+    "text": "System that's highly interconnected. And so correlations go to one. We saw sell-offs from obviously tech stocks, AI stocks, the stock market's down, um, one of its worst weeks in a long time. Uh, we saw gold down, we saw Bitcoin down. And this is what happened."
+   }
+  ],
+  "words": [
+   {
+    "text": "System",
+    "start": 0.0,
+    "end": 0.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 0.32,
+    "end": 0.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "highly",
+    "start": 0.5,
+    "end": 0.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "interconnected.",
+    "start": 0.84,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 1.84,
+    "end": 1.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 2.1,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "correlations",
+    "start": 2.54,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 3.08,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 3.2,
+    "end": 3.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one.",
+    "start": 3.38,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 3.96,
+    "end": 4.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saw",
+    "start": 4.12,
+    "end": 4.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sell-offs",
+    "start": 4.5,
+    "end": 5.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 5.12,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "obviously",
+    "start": 5.72,
+    "end": 6.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tech",
+    "start": 6.16,
+    "end": 6.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stocks,",
+    "start": 6.4,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI",
+    "start": 7.06,
+    "end": 7.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stocks,",
+    "start": 7.38,
+    "end": 7.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.86,
+    "end": 7.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stock",
+    "start": 7.98,
+    "end": 8.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market's",
+    "start": 8.28,
+    "end": 8.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down,",
+    "start": 8.68,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 9.4,
+    "end": 9.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 9.66,
+    "end": 9.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 9.78,
+    "end": 9.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 9.88,
+    "end": 10.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worst",
+    "start": 10.06,
+    "end": 10.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "weeks",
+    "start": 10.38,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 10.68,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 10.78,
+    "end": 10.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "long",
+    "start": 10.86,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time.",
+    "start": 11.14,
+    "end": 11.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Uh,",
+    "start": 11.6,
+    "end": 11.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 11.74,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saw",
+    "start": 11.86,
+    "end": 12.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold",
+    "start": 12.12,
+    "end": 12.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down,",
+    "start": 12.46,
+    "end": 12.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 12.82,
+    "end": 12.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saw",
+    "start": 12.96,
+    "end": 13.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 13.24,
+    "end": 13.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down.",
+    "start": 13.78,
+    "end": 14.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 14.7,
+    "end": 14.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 14.8,
+    "end": 14.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 14.94,
+    "end": 15.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 15.04,
+    "end": 15.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "happened.",
+    "start": 15.22,
+    "end": 15.6,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.62
+ },
+ "usd": 0.003124,
+ "seconds": 0.63,
+ "recorded_at": "2026-11-25T18:14:29Z"
+}

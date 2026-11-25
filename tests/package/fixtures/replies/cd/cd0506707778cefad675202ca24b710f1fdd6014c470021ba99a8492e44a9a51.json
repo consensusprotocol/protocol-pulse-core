@@ -1,0 +1,260 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "244177425eedecb06fe6ebb22a3df40ccb25b49c3096da69a1e7dff83ea55fc4",
+ "result": {
+  "text": "a little bit more difficult for us to do that right now? I personally don't really think it does from our perspective. We don't focus on the fluctuations of price of Bitcoin. I mean, obviously that's been hap-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 2.18,
+    "text": "a little bit more difficult for us to do that right now?"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 4.24,
+    "end": 12.56,
+    "text": "I personally don't really think it does from our perspective. We don't focus on the fluctuations of price of Bitcoin. I mean, obviously that's been hap-"
+   }
+  ],
+  "words": [
+   {
+    "text": "a",
+    "start": 0.0,
+    "end": 0.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "little",
+    "start": 0.0,
+    "end": 0.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bit",
+    "start": 0.14,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 0.26,
+    "end": 0.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "difficult",
+    "start": 0.52,
+    "end": 1.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 1.1,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "us",
+    "start": 1.24,
+    "end": 1.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 1.38,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 1.52,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.68,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right",
+    "start": 1.84,
+    "end": 1.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now?",
+    "start": 2.02,
+    "end": 2.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.24,
+    "end": 4.44,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "personally",
+    "start": 4.66,
+    "end": 5.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "don't",
+    "start": 5.28,
+    "end": 5.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "really",
+    "start": 5.7,
+    "end": 6.18,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "think",
+    "start": 6.7,
+    "end": 6.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it",
+    "start": 6.88,
+    "end": 7.08,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "does",
+    "start": 7.14,
+    "end": 7.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "from",
+    "start": 7.52,
+    "end": 7.66,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "our",
+    "start": 7.72,
+    "end": 7.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "perspective.",
+    "start": 7.88,
+    "end": 8.44,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "We",
+    "start": 8.52,
+    "end": 8.6,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "don't",
+    "start": 8.62,
+    "end": 8.8,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "focus",
+    "start": 8.86,
+    "end": 9.16,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "on",
+    "start": 9.24,
+    "end": 9.36,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 9.4,
+    "end": 9.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "fluctuations",
+    "start": 9.52,
+    "end": 10.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "of",
+    "start": 10.18,
+    "end": 10.26,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "price",
+    "start": 10.3,
+    "end": 10.52,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "of",
+    "start": 10.56,
+    "end": 10.66,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 10.7,
+    "end": 11.18,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 11.24,
+    "end": 11.28,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "mean,",
+    "start": 11.34,
+    "end": 11.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "obviously",
+    "start": 11.54,
+    "end": 12.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "that's",
+    "start": 12.06,
+    "end": 12.26,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "been",
+    "start": 12.28,
+    "end": 12.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "hap-",
+    "start": 12.44,
+    "end": 12.56,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.6
+ },
+ "usd": 0.00252,
+ "seconds": 0.61,
+ "recorded_at": "2026-11-25T18:22:49Z"
+}
