@@ -1,4 +1,150 @@
+# Build 172: STARTUP FAILURE OF 11:08 ET AND ITS FIX (Nov 25)
+
+Prepared for the owner's order of 11:18 ET. Beyond yesterday's limits, exactly one thing was run: the two experimental
+services, started offline in a scratch run folder, then stopped. Offline means no network, the key files bound from
+/dev/null, nothing to serve, and sessions named `pipeline_leantest_*`. No launch, driver, render, model call or vendor
+call happened. **End to end: NOT DEMONSTRATED.**
+
+- **Code:** the fix is pp-lean `881bae321`. `32e1a6629` adds one more preflight test and the evidence. Both are pushed.
+- **lean-release:** unchanged at `7f4317bb0`. Nothing in the services needed to change.
+- **Evidence:** `docs/audits/lean/ops172/`:
+  - `STARTUP_REPRO_1108.txt`
+  - `STARTUP_PROOF.txt`
+  - `DRYRUN_startupfix.txt`
+  - `MUTATIONS_startup.txt`
+  - `RUN_1108_run_20261125T160800Z.log`, a copy of the 11:08 run log.
+
+## The error, verbatim
+
+```
+$ tmux new-session -d -s pipeline_leantest_lockcheck -c /var/tmp/pp_leantest_run '<the 11:08 lockcheck line>'
+command too long
+(exit 1)
+```
+
+The first failing command was the tmux client itself, refusing the `tmux new-session` command. No session was created
+and nothing in the namespace ran. The tmux session did not die with its output: it never existed, and the service never
+started.
+
+`tests/package/lean/startup_repro.py` rebuilt the 11:08 command from git at `f71e01c85`. Its first 4,000 characters,
+which is all the run log keeps, match line 36 of the run log exactly. The reproduction then ran it against a scratch
+folder whose path has the live one's length, with `--net`, the keys masked and empty request folders added. That
+version was 22,302 bytes, and tmux refused it as above.
+
+## Root cause
+
+The lockcheck's whole start line (the namespace script with 67 overlay mounts, 22,156 bytes) was handed to tmux as one
+command. tmux 3.2a sends a command to its server in one message of at most 16,384 bytes. It accepted at most 16,363
+bytes as it counts them; at 16,312 bytes of shell command it answered "failed to send command", and at 17,000 and
+22,222 bytes "command too long". `start` sent the tmux client's output to /dev/null, so the run log said only
+"FAILED to start lockcheck".
+
+**Why the offline namespace check passed yesterday** (`ns_check.py stat`, `NS_STAT_B123.txt`): it ran the same
+namespace script through subprocess, that is execve, which accepts one argument of up to 128 KB. It never went through
+tmux. The unit tests replaced the runner with a stub, and the dry run only printed the command. So nothing before 11:08
+handed the full line to a real tmux client.
+
+## The fix (`tests/package/lean/lean_ops.py` at pp-lean 881bae321)
+
+| What | Where |
+|---|---|
+| The start line goes in a file, `RUN/ns/<name>.start.sh`. The service's command inside it is the same as at 11:08. | `service_script` :218; written by `start` :842 |
+| tmux is handed only `exec bash <that file> </dev/null 2>>RUN/logs/<name>.log`: 257 bytes for the lockcheck, 245 for the scorer. `remain-on-exit on` is set in the same tmux command, before the server can see the process end. | `tmux_cmd` :234 |
+| Everything the mount script and the service print goes through `tee -a RUN/logs/<name>.log` into the log and the pane. The log runs from the file's first line, with a START line and an ENDED line carrying the exit status (`pipefail`). | :229 |
+| tmux's own output (its "command too long") goes into the same log. On a failed start, the log's last 40 lines are printed into the run log. | `start` :847-850, `say_tail` :255 |
+| A pane kept after its process ended does not count as a service that is up. `services_ready` refuses at once and prints the log's last 40 lines. The launch's preflight fails it. | `pane_state` :262, `services_ready` :727-739, `preconditions` :692 |
+| `Ops(offline=True)`, for the proof only: `unshare --net`, the key files from /dev/null, empty request folders, and the scratch run's ledger and GPU0 want flags. THE ONE COMMAND never sets it. | `Ops` :487, `env_instance` :128, `ns_script` :161/:176, `in_ns` :188 |
+
+**Found while testing the fix:** tmux hangs up a pane at once (SIGHUP, "Pane is dead (signal 1)") when its process
+points stdin, stdout and stderr all away from the pane's terminal. The tee keeps the terminal open, as the 11:08
+design's tee would have.
+
+## The proof
+
+1. **The reproduction:** as above.
+2. **Tests** (`tests/package/test_lean_ops.py`):
+   - `TheStartupCommand` :333. The tmux command stays under 1,000 bytes even for a 200-character run folder, while the
+     start file is over tmux's limit. Offline mode means `--net`, both keys masked, empty request folders and no
+     candidates file.
+   - `TheStartupErrorsAreKept` :375. These start real tmux sessions, `pipeline_leantest_t_*`, offline. A service made
+     to fail at a mount leaves `mount: .../ns/live_main: mount point does not exist.` and `ENDED (exit 32)` in the run
+     log, and its pane is kept until `restore`. tmux's own "command too long" also lands in the run log.
+   - `ThePreflight` :533. A kept dead pane fails the launch's check.
+3. **Must-fail credit:** 10 mutations, each run after an unmutated control that passed. All 10 were caught
+   (`MUTATIONS_startup.txt`):
+   - the old inline command, caught twice: by the length test and by the real-tmux test;
+   - tmux's output discarded;
+   - no 40-line log tail;
+   - no tee;
+   - no remain-on-exit;
+   - has-session instead of the pane's state, in `services_ready` and in the launch's check;
+   - offline without `--net`;
+   - offline reading the live key.
+4. **Initialization** (`STARTUP_PROOF.txt`, from `python3 -B tests/package/lean/startup_proof.py --run-dir
+   /var/tmp/pp_leantest_run`, 11:38 to 11:39 ET):
+   - **How they were started:** both services were started by `lean_ops.start` itself, not a copy: all 8
+     preconditions PASS, the ledger-init on the scratch ledger, the release copy and seeds, then each service after its
+     ledger check. `lean_ops.services_ready` waited for them.
+   - **lockcheck:** `python3 scripts/lean/serve.py lockcheck --sleep 5`. Its own heartbeat is
+     `RUN/heartbeats/lock_precheck.json`: 6 passes, 0 served. Its log line: "lock pre-check: decoder_sha 9326604699a7,
+     root /var/tmp/pp_leantest_run/lock_precheck".
+   - **scorer:** its own heartbeat is `scorer.json`: 3 passes, 0 served. Its log line: "pin-stage scorer: ... |
+     scorer_sha edd54964a5ab".
+   - **Inside each service's namespace:**
+     - `.env` and `config/api_keys.json` are both `/dev/null`.
+     - Each service has its own network namespace containing only `lo`, with 0 packets, 0 inet sockets and 0 socket
+       file descriptors.
+     - After 25 more seconds of idle passes, that namespace's own counters still read 0: Ip.OutRequests,
+       Ip.OutNoRoutes, Tcp.ActiveOpens and Udp.OutDatagrams. No connection was attempted.
+   - **Scratch ledger:** spent $0.0000, held $0.0000. The request folders stayed empty.
+   - **GPU:** no GPU process was ours. The compute apps were the same two production processes before, during and
+     after.
+   - **After `restore`:**
+     - restore printed PRODUCTION AS BEFORE;
+     - both sessions were gone and no process was left;
+     - `/home/ultron/pp_spend` was unchanged (same sha256);
+     - `/tmp/pulse_gpu0.want` was unchanged.
+5. **The launcher's `--dry-run`** on the pushed heads, pp-lean `787d3b754` and lean-release `7f4317bb0`
+   (`DRYRUN_startupfix.txt`):
+   - 20 PASS;
+   - 3 FAIL, all three needing a live `start`: the lockcheck up, the scorer up, and production's BEFORE file, which
+     `start` writes;
+   - it wrote nothing: `find -newer` found no change in `/home/ultron/pp_lean_run` or `/home/ultron/pp_spend`.
+6. **Suites:**
+   - pp-lean at `32e1a6629`: 53 files, 0 failing, 1,191 passed.
+   - lean-release, unchanged: 89 files, 1,257 passed, 13 failing. These are the same 13 files that fail on the
+     unmodified release branch (the B3 section below explains them).
+
+## What still cannot be verified without a live run
+
+- **The live key and the network.** The proof masked both. The live key's bind mount itself was exercised yesterday:
+  `ns_check` binds it, then masks it. Both services started with no key readable and opened no network socket.
+- **Real requests.** Lock decodes take GPU0 through the normal lease, and the scorer's local model runs on GPU0. Nothing
+  was asked of either service.
+- **The build, render and delivery,** and the 6000 s timing.
+
+## Left as found, or flagged
+
+- **The 11:08 run folder.** `/home/ultron/pp_lean_run` was only read; its run log is copied into the repo. The retry
+  reuses the folder as it is: `start` moves its release copy to the pushed head and writes a new run log. Moving the
+  folder aside first also works.
+- **The ledger.** `/home/ultron/pp_spend/SPEND_D20261124.json` came from the 11:08 ledger-init ($0.0000). The retry's
+  ledger-init adds a second init record (`init_again`).
+- **Not changed, because it is outside the startup fix: the GPU0 want flags.** The experimental lockcheck and scorer
+  share production's GPU0 want-flag folder (`/tmp/pulse_gpu0.want`) and service names (`lock_precheck`,
+  `stand_alone_scorer`). When idle, each removes its own name's flag, which production's service of the same name may
+  just have set. This affects only timing (Whisper may give GPU0 back a few seconds later), never spend. The proof used
+  a scratch folder for these flags.
+- **If a service fails to start again,** its own error is in `RUN/logs/<name>.log`, and the last 40 lines are in the
+  run log.
+
+**READY FOR ONE AUTHORIZED RETRY: yes.** The command is unchanged:
+`cd /home/ultron/worktrees/pp-lean && python3 -B tests/package/lean/lean_ops.py run --build-no 172 --deadline-s 6000`.
+Start it before 19:24 ET.
+
 # Build 172: BLOCKERS 1-3 (Nov 25)
+
+(Its `lean_ops.py` line numbers are at `f71e01c85`. The startup fix above moved them.)
 
 Prepared for the owner's order of 08:38 ET Nov 25. **Nothing was run live.** No launcher, driver, render, service
 start or stop, GPU job, or model call happened. Every check below is offline, and no vendor was asked. **End to end: NOT
