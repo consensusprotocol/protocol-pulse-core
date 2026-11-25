@@ -125,13 +125,18 @@ def sh(cmd, timeout=120, cwd=None):
 
 # ── the environments (R1, R2) ──
 
-def env_instance(p, name, run_name):
+def env_instance(p, name, run_name, offline=False):
     e = {"PP_SPEND_CEILING": "1", "PP_SPEND_RUN": run_name, "PYTHONPATH": f"{LIVE_MAIN}/scripts/lean",
          "PYTHONUNBUFFERED": "1", "PYTHONDONTWRITEBYTECODE": "1", "PP_HEARTBEAT_DIR": p["beats"],
          "PP_OUTSIDE_LEDGER": f"{p['spend']}/integrator_outside.jsonl", "PP_LOCK_PRECHECK_DIR": p["lock"],
          "PP_SCORER_DIR": p["scorer"], "CUDA_VISIBLE_DEVICES": "0", "CUDA_DEVICE_ORDER": "PCI_BUS_ID"}
     if name == "lockcheck":
         e["PP_LOCK_PRECHECK_EXTRA"] = REQUESTS
+    if offline:          # the startup proof only (startup_proof.py): nothing can be asked of it (an empty requests
+        e.update({"PP_SPEND_LEDGER_DIR": os.path.join(p["run"], "pp_spend"),   # folder), its one ledger and its GPU0
+                  "PP_GPU0_WANT_DIR": os.path.join(p["run"], "offline", "gpu0_want")})   # want flags the scratch run's
+        if name == "lockcheck":
+            e["PP_LOCK_PRECHECK_EXTRA"] = os.path.join(p["run"], "offline", "lock_requests")
     return e
 
 
@@ -141,9 +146,9 @@ def env_builder(p, run_name):
             "PP_SCORER_VERDICTS": f"{p['scorer']}/verdicts/latest.json"}
 
 
-def instance_args(name):
+def instance_args(name, candidates=None):
     return {"lockcheck": ["python3", "scripts/lean/serve.py", "lockcheck", "--sleep", "5"],
-            "scorer": ["python3", "scripts/lean/serve.py", "scorer", "--candidates", CANDIDATES]}[name]
+            "scorer": ["python3", "scripts/lean/serve.py", "scorer", "--candidates", candidates or CANDIDATES]}[name]
 
 
 # ── the private mount namespace (R2) ──
@@ -153,8 +158,9 @@ def tops():
                   and not os.path.islink(os.path.join(LIVE_MAIN, n)))
 
 
-def ns_script(p, name, top_dirs):
-    """The shell that builds the namespace and execs "$@" in it (pure: it makes nothing)."""
+def ns_script(p, name, top_dirs, offline=False):
+    """The shell that builds the namespace and execs "$@" in it (pure: it makes nothing). offline (the startup proof
+    only): the key file and config/api_keys.json bound from /dev/null, so no key can be read."""
     q, u = shlex.quote, os.path.join(p["ns"], name)
     s = ["set -e"]
     s += [f"if [ -e {q(d)} ]; then mount --bind {q(d)} {q(d)}; mount -o remount,bind,ro {q(d)}; fi" for d in RO_TREES]
@@ -167,7 +173,11 @@ def ns_script(p, name, top_dirs):
         opts = f"lowerdir={':'.join(lowers)},upperdir={u}/upper/{top},workdir={u}/work/{top}"
         s.append(f"mount -t overlay overlay -o {q(opts)} {q(LIVE_MAIN + '/' + top)}")
     kf = f"{LIVE_MAIN}/{KEYFILE}"
-    s += [f"mount --bind {q(p['hide'] + '/' + KEYFILE)} {q(kf)}", f"mount -o remount,bind,ro {q(kf)}"]
+    s += [f"mount --bind {q('/dev/null' if offline else p['hide'] + '/' + KEYFILE)} {q(kf)}",
+          f"mount -o remount,bind,ro {q(kf)}"]
+    if offline:
+        ak = f"{LIVE_MAIN}/config/api_keys.json"
+        s.append(f"if [ -e {q(ak)} ]; then mount --bind /dev/null {q(ak)}; fi")
     for rel in ("pipeline", "tests/package/fixtures"):
         dst = f"{LIVE_BUILDER}/{rel}"
         s += [f"mount --bind {q(REPO + '/' + rel)} {q(dst)}", f"mount -o remount,bind,ro {q(dst)}"]
@@ -175,9 +185,9 @@ def ns_script(p, name, top_dirs):
     return "; ".join(s)
 
 
-def in_ns(p, name, args, top_dirs):
-    return ["unshare", "--user", "--map-root-user", "--mount", "bash", "-c", ns_script(p, name, top_dirs), "lean-ns",
-            *args]
+def in_ns(p, name, args, top_dirs, offline=False):
+    return ["unshare", "--user", "--map-root-user", "--mount"] + (["--net"] if offline else []) + \
+        ["bash", "-c", ns_script(p, name, top_dirs, offline), "lean-ns", *args]
 
 
 def prepare_ns(p, name, top_dirs):
@@ -192,12 +202,71 @@ def prepare_ns(p, name, top_dirs):
         open(kf, "w").close()                      # an empty mount point: the live key file is bound over it
 
 
-def tmux_cmd(p, name, env, top_dirs):
+TMUX_MAX = 16300      # tmux 3.2a sends a command in one message of at most 16384 bytes: a longer one is refused ("command
+#                       too long": the 11:08 ET start's 22,156 bytes). So the start line goes in a file; tmux gets `bash
+#                       <the file>` (tests/package/test_lean_ops.py TheStartupCommand keeps it under this).
+
+
+def service_log(p, name):
+    return os.path.join(p["logs"], f"{name}.log")
+
+
+def service_file(p, name):
+    return os.path.join(p["ns"], f"{name}.start.sh")
+
+
+def service_script(p, name, env, top_dirs, offline=False):
+    """The service's start file (RUN/ns/<name>.start.sh, written by `start`): the namespace, then the service, every
+    line of their stdout and stderr (the mount script's included) through tee into RUN/logs/<name>.log and the pane;
+    the service's exit status ends the log and is the pane's (pipefail). tee also keeps the pane's terminal open: a pane
+    whose every descriptor leaves its terminal is hung up by tmux at once (SIGHUP; found Nov 25 in the tests). The tmux
+    server's own environment never carries a test override into a service (B1: the launcher's own is checked by
+    preconditions)."""
+    cand = os.path.join(p["run"], "offline", "no_candidates.json") if offline else None   # the proof: none to score
     inner = ["env"] + [f"--unset={k}" for k in TEST_ONLY_ENV] + [f"{k}={v}" for k, v in sorted(env.items())] + \
-        in_ns(p, name, instance_args(name), top_dirs)        # the tmux server's own environment never carries a test
-    #   override into a service (B1: the launcher's own is checked by preconditions)
-    line = " ".join(shlex.quote(x) for x in inner) + f" 2>&1 | tee -a {shlex.quote(p['logs'] + '/' + name + '.log')}"
-    return ["tmux", "new-session", "-d", "-s", SESSIONS[name], "-c", p["run"], line]
+        in_ns(p, name, instance_args(name, cand), top_dirs, offline)
+    stamp = '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
+    return "\n".join(["set -o pipefail", "{", f'echo {stamp} "{name}: START (bash $$): the namespace, then the service"',
+                      " ".join(shlex.quote(x) for x in inner), "rc=$?", f'echo {stamp} "{name}: ENDED, exit $rc"',
+                      "exit $rc", f"}} 2>&1 | tee -a {shlex.quote(service_log(p, name))}"]) + "\n"
+
+
+def tmux_cmd(p, name):
+    """The service's session, handed only `bash <its start file>` (short: the start line itself is ~22 KB), stdin
+    /dev/null, and bash's own errors (before its first line runs) appended to RUN/logs/<name>.log; the pane stays after
+    its process ends (remain-on-exit, set in the same tmux command, before the server can see the process end) until
+    `restore` kills the session."""
+    s = SESSIONS[name]
+    line = f"exec bash {shlex.quote(service_file(p, name))} </dev/null 2>>{shlex.quote(service_log(p, name))}"
+    return ["tmux", "new-session", "-d", "-s", s, "-c", p["run"], line, ";",
+            "set-option", "-w", "-t", f"={s}:", "remain-on-exit", "on"]
+
+
+def log_tail(path, n=40):
+    """The last n lines of a log (a failed start's own error), never the whole file into memory."""
+    import collections
+    try:
+        with open(path, errors="replace") as f:
+            return [x.rstrip("\n") for x in collections.deque(f, maxlen=n)]
+    except OSError as e:
+        return [f"(no log {path}: {type(e).__name__})"]
+
+
+def say_tail(o, name, n=40):
+    path = service_log(o.p, name)
+    o.say(f"  {name}'s own log {path}, its last {n} lines:")
+    for x in log_tail(path, n):
+        o.say(f"    | {x[:2000]}")
+
+
+def pane_state(s):
+    """-> None (no such session), or (alive, exit status or None) of its pane, which stays after its process ends
+    (remain-on-exit) until `restore`."""
+    rc, out = sh(["tmux", "list-panes", "-s", "-t", f"={s}", "-F", "#{pane_dead} #{pane_dead_status}"])
+    first = out.strip().split("\n")[0].split() if rc == 0 else []
+    if not first:
+        return None
+    return first[0] != "1", (first[1] if first[0] == "1" and len(first) > 1 else None)
 
 
 def release_copy_cmds(p, sha):
@@ -413,8 +482,10 @@ def _stages(p, update=None):
 
 
 class Ops:
-    def __init__(self, dry, clock=time.time, run=None, out=print, p=None):
+    def __init__(self, dry, clock=time.time, run=None, out=print, p=None, offline=False):
         self.dry, self.clock, self.out, self.p = dry, clock, out, p or paths()
+        self.offline = offline                 # the startup proof only (startup_proof.py): no network, no key, nothing
+        #   to serve (main never sets it)
         self._run = run or self._exec
         self.guard_argv = None                 # B3 (c): the detached guard's command (run sets it; tests replace it)
         self.window = None                     # B1 (c): (t0, t1) of the launch, for ingestion's separate report
@@ -618,9 +689,11 @@ def preconditions(o, run_name, launch=True, t0=None, deadline_s=None):
         ok &= check("the render's reference assets (B3)", a_ok, " | ".join(lines), out)
     if launch:
         for name, sess in SESSIONS.items():
-            up = sh(["tmux", "has-session", "-t", f"={sess}"])[0] == 0
+            ps = pane_state(sess)                      # a pane kept after its process ended is not up
+            up = ps is not None and ps[0]
             fresh = beat_fresh(p, name)
-            ok &= check(f"experimental {name} up ({sess})", up and fresh, f"session {'up' if up else 'MISSING'}; its "
+            ok &= check(f"experimental {name} up ({sess})", up and fresh, f"session "
+                        f"{'up' if up else (f'ENDED (exit {ps[1]})' if ps else 'MISSING')}; its "
                         f"own heartbeat {os.path.join(p['beats'], BEAT_FILES[name])} "
                         f"{'fresh' if fresh else 'MISSING or older than 900 s'}", out)
         try:
@@ -659,12 +732,23 @@ def services_ready(o, wait_s=SERVICE_WAIT_S):
         return True
     end = time.time() + wait_s
     while True:
-        state = {n: (sh(["tmux", "has-session", "-t", f"={s}"])[0] == 0, beat_fresh(o.p, n)) for n, s in SESSIONS.items()}
-        if all(up and fresh for up, fresh in state.values()):
+        state = {n: (pane_state(s), beat_fresh(o.p, n)) for n, s in SESSIONS.items()}
+        ended = [n for n, (ps, _) in sorted(state.items()) if ps is not None and not ps[0]]
+        if ended:                  # a service whose process ended: refused at once, with its own log's last lines
+            for n in ended:
+                o.say(f"REFUSED: the experimental {n} ENDED (exit {state[n][0][1]}) before the launch; its pane is "
+                      f"kept until restore")
+                say_tail(o, n)
+            return False
+        if all(ps is not None and fresh for ps, fresh in state.values()):
             o.say(f"  both services up with their own heartbeats: {sorted(state)}")
             return True
         if time.time() >= end:
-            o.say(f"REFUSED: the services did not come up within {wait_s:.0f} s ({state}: up, heartbeat)")
+            o.say(f"REFUSED: the services did not come up within {wait_s:.0f} s "
+                  f"({ {n: (ps is not None, fresh) for n, (ps, fresh) in state.items()} }: up, heartbeat)")
+            for n, (ps, fresh) in sorted(state.items()):
+                if ps is None or not fresh:
+                    say_tail(o, n)
             return False
         time.sleep(2.0)
 
@@ -722,7 +806,7 @@ def start(o, run_name="build172", strict=False):
     _, sha = head_pushed(RELEASE_WT, RELEASE_BRANCH)
     td = tops()
     if not o.dry:
-        for d in ("lock", "scorer", "beats", "spend", "work", "logs"):
+        for d in ("lock", "scorer", "beats", "spend", "work", "logs", "ns"):
             os.makedirs(p[d], exist_ok=True)
         with open(p["before"], "w") as f:
             json.dump(snapshot(), f, indent=1)
@@ -748,12 +832,22 @@ def start(o, run_name="build172", strict=False):
     for name in SESSIONS:
         if not ledger_ready(o, f"the experimental {name}"):   # B1 (a): no service that can charge before the ledger
             return 2
+        env = env_instance(p, name, run_name, o.offline)
+        script = service_script(p, name, env, td, o.offline)
         if not o.dry:
             prepare_ns(p, name, td)
-        env = env_instance(p, name, run_name)
+            if o.offline:
+                for d in ("lock_requests", "gpu0_want"):
+                    os.makedirs(os.path.join(p["run"], "offline", d), exist_ok=True)
+            with open(service_file(p, name), "w") as f:
+                f.write(script)
         o.say(f"  {name}: env " + " ".join(f"{k}={v}" for k, v in sorted(env.items())))
-        if o.do(tmux_cmd(p, name, env, td), what=f"the experimental {name}") != 0:
-            o.say(f"FAILED to start {name}: run `restore`")
+        o.say(f"  {'WOULD WRITE' if o.dry else 'WROTE'} its start file {service_file(p, name)} ({len(script)} bytes; "
+              f"tmux is handed only `bash` of it): " + next(x for x in script.split("\n") if x.startswith("env "))[:3000])
+        rc = o.do(tmux_cmd(p, name), what=f"the experimental {name}", log=None if o.dry else service_log(p, name))
+        if rc != 0:                                    # tmux's own error is in the service's log: shown here
+            o.say(f"FAILED to start {name}: tmux exit {rc}; run `restore`")
+            say_tail(o, name)
             return 1
     o.say("STARTED" if not o.dry else "DRY RUN: nothing was started")
     return 0

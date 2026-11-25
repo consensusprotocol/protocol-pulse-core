@@ -180,7 +180,8 @@ class TheDryRun(Base):
 
     def test_no_experimental_command_holds_a_watchdog_marker_or_names_book_terminal(self):
         tops = LO.tops()
-        lines = [" ".join(LO.tmux_cmd(self.p, n, LO.env_instance(self.p, n, "build172"), tops)) for n in LO.SESSIONS]
+        lines = [" ".join(LO.tmux_cmd(self.p, n)) + "\n" + LO.service_script(self.p, n, LO.env_instance(
+            self.p, n, "build172"), tops) for n in LO.SESSIONS]          # the tmux command and its start file
         lines.append(" ".join(LO.in_ns(self.p, "render", ["bash", "scripts/pulse_check_run.sh"], tops)))
         bk = LO.book()                                                  # discovered now, never hard-coded
         self.assertTrue(bk["sessions"] or bk["worktrees"], bk)
@@ -326,14 +327,118 @@ class TheLedgerComesFirst(Live):
         self.assertFalse(os.path.exists(self.p["run"]))
 
 
+LEANTEST = {"lockcheck": "pipeline_leantest_t_lockcheck", "scorer": "pipeline_leantest_t_scorer"}   # never the proof's
+
+
+class TheStartupCommand(Base):
+    """The 11:08 ET Nov 25 start, refused at once: tmux 3.2a refuses a command over its 16 KB message ("command too
+    long"); the lockcheck's whole start line was its tmux command (22,156 bytes), and start sent tmux's error to
+    /dev/null. Now the start line is a file and tmux is handed `bash <the file>`, its output in RUN/logs."""
+
+    def test_the_tmux_command_is_short_and_the_start_file_holds_the_service(self):
+        """MUST-FAIL on f71e01c85 (the start line WAS the tmux command): each service's tmux command stays far under
+        tmux's limit even for a long run folder; the start file holds the whole start line, which is over it."""
+        p = LO.paths("/var/tmp/" + "r" * 200)
+        td = LO.tops()
+        for n, s in LO.SESSIONS.items():
+            cmd = LO.tmux_cmd(p, n)
+            self.assertLess(sum(len(x.encode()) + 1 for x in cmd), 1000)
+            script = LO.service_script(p, n, LO.env_instance(p, n, "build172"), td)
+            self.assertGreater(len(script.encode()), LO.TMUX_MAX)     # what tmux refused at 11:08 ET
+            self.assertEqual(cmd[:7], ["tmux", "new-session", "-d", "-s", s, "-c", p["run"]])
+            self.assertEqual(cmd[7], f"exec bash {LO.service_file(p, n)} </dev/null 2>>{LO.service_log(p, n)}")
+            self.assertEqual(cmd[8:], [";", "set-option", "-w", "-t", f"={s}:", "remain-on-exit", "on"])
+            self.assertTrue(script.startswith("set -o pipefail\n{\n"))
+            self.assertTrue(script.endswith(f"}} 2>&1 | tee -a {LO.service_log(p, n)}\n"))
+            self.assertEqual(len([x for x in script.split("\n") if "scripts/lean/serve.py" in x]), 1)
+
+    def test_offline_means_no_network_no_key_and_nothing_to_serve(self):
+        """The startup proof's mode (never the one command's): unshare --net, the key files bound from /dev/null,
+        empty request folders and no candidates file, the scratch run's ledger and GPU0 want flags."""
+        td = LO.tops()
+        live = LO.service_script(self.p, "lockcheck", LO.env_instance(self.p, "lockcheck", "b"), td)
+        off = LO.service_script(self.p, "lockcheck", LO.env_instance(self.p, "lockcheck", "b", True), td, True)
+        self.assertNotIn("--net", live)
+        self.assertIn("unshare --user --map-root-user --mount --net bash", off)
+        self.assertIn(f"mount --bind /dev/null {LO.LIVE_MAIN}/{LO.KEYFILE};", off)
+        self.assertIn(f"mount --bind /dev/null {LO.LIVE_MAIN}/config/api_keys.json;", off)
+        self.assertNotIn(f"ns/live_main/{LO.KEYFILE} ", off)
+        self.assertIn(f"PP_LOCK_PRECHECK_EXTRA={self.p['run']}/offline/lock_requests", off)
+        self.assertIn(f"PP_SPEND_LEDGER_DIR={self.p['run']}/pp_spend", off)
+        self.assertIn(f"PP_GPU0_WANT_DIR={self.p['run']}/offline/gpu0_want", off)
+        sc = LO.service_script(self.p, "scorer", LO.env_instance(self.p, "scorer", "b", True), td, True)
+        self.assertIn(f"--candidates {self.p['run']}/offline/no_candidates.json", sc)
+        self.assertFalse(LO.Ops(True).offline)                         # the one command never sets it
+
+
+@unittest.skipUnless(shutil.which("tmux") and shutil.which("unshare"), "needs tmux and unshare")
+class TheStartupErrorsAreKept(Base):
+    """REAL tmux sessions (pipeline_leantest_*), started by `start` itself, OFFLINE (unshare --net, the keys from
+    /dev/null; no service can start: the namespace fails first, or tmux refuses); every other command a stub. Whatever
+    stops a service at its start lands in its own log under RUN/logs and is printed into the run log; its pane is kept
+    until `restore`."""
+
+    def setUp(self):
+        super().setUp()
+        for patch in (mock.patch.object(LO, "SESSIONS", dict(LEANTEST)),
+                      mock.patch.object(LO, "preconditions", lambda *a, **k: True),
+                      mock.patch.object(LO, "snapshot", lambda: dict(SNAP)),
+                      mock.patch.object(LO, "release_copy_cmds", lambda p, sha: ([], (os.path.join(self.d, "alt"), "x"))),
+                      mock.patch.object(LO, "prepare_ns", lambda p, name, td: None),   # no mount points: a mount fails
+                      mock.patch("ceiling_seed.main", lambda argv: (__import__("spend_ceiling").init_day({}, 0, by="t")
+                                                                    and 0))):
+            patch.start()
+            self.addCleanup(patch.stop)
+        self.addCleanup(self.kill)
+        self.o = LO.Ops(False, run=self.runner, out=self.said.append, p=self.p, offline=True)
+
+    def runner(self, cmd, env, timeout, log):
+        """tmux for real (its own error into `log`); the copies and seeds: stubs."""
+        return self.o._exec(cmd, env, timeout, log) if cmd[0] == "tmux" else 0
+
+    def kill(self):
+        for s in LEANTEST.values():
+            subprocess.run(["tmux", "kill-session", "-t", f"={s}"], capture_output=True)
+
+    def test_a_service_failing_at_a_mount_leaves_its_error_in_the_run_log(self):
+        self.assertEqual(LO.start(self.o, "t"), 0)                    # tmux took both short commands
+        self.assertFalse(LO.services_ready(self.o, wait_s=30))
+        text = "\n".join(self.said)
+        self.assertIn("mount point does not exist", text)              # the mount script's own error, in the run log
+        self.assertRegex(text, r"REFUSED: the experimental (lockcheck|scorer) ENDED \(exit 32\)")
+        with open(LO.service_log(self.p, "lockcheck")) as f:
+            log = f.read()
+        self.assertIn("lockcheck: START", log)
+        self.assertIn("lockcheck: ENDED, exit 32", log)
+        self.assertEqual(LO.pane_state(LEANTEST["lockcheck"]), (False, "32"))   # the pane is kept ...
+        self.assertEqual(LO.restore(self.o), 0)
+        self.assertIsNone(LO.pane_state(LEANTEST["lockcheck"]))         # ... until restore
+
+    def test_tmux_s_own_refusal_is_in_the_run_log(self):
+        """The 11:08 ET failure itself through the new start: a tmux command over tmux's limit; tmux's own message is
+        in the service's log and printed into the run log; no session is left."""
+        real = LO.tmux_cmd
+
+        def too_long(p, name):
+            cmd = real(p, name)
+            cmd[7] += " #" + "x" * 20000
+            return cmd
+        with mock.patch.object(LO, "tmux_cmd", too_long):
+            self.assertEqual(LO.start(self.o, "t"), 1)
+        text = "\n".join(self.said)
+        self.assertIn("FAILED to start lockcheck: tmux exit 1", text)
+        self.assertIn("    | command too long", text)
+        self.assertIsNone(LO.pane_state(LEANTEST["lockcheck"]))
+
+
 class TheServicesComeUpFirst(Base):
     def test_the_launch_waits_for_each_service_s_own_heartbeat(self):
         """`run` launches only when BOTH experimental sessions are up with their OWN first heartbeat (one service's beat
         never stands in for the other's); not up within the wait: refused, and the run still restores."""
         up = {"=pipeline_lean_lockcheck", "=pipeline_lean_scorer"}
 
-        def sh(cmd, **k):
-            return (0, "") if cmd[:2] == ["tmux", "has-session"] and cmd[-1] in up else (1, "")
+        def sh(cmd, **k):                              # tmux list-panes: "0 " for a pane whose process is alive
+            return (0, "0 \n") if cmd[:2] == ["tmux", "list-panes"] and cmd[cmd.index("-t") + 1] in up else (1, "")
         os.makedirs(self.p["beats"])
         o = LO.Ops(False, out=self.said.append, p=self.p)
         with mock.patch.object(LO, "sh", sh):
