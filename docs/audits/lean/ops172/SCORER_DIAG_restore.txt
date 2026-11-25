@@ -1,0 +1,12 @@
+12:41:54 ET
+against the snapshot before the lockcheck walk (12:38 ET): PRODUCTION AS BEFORE
+against the 12:08 run's restore snapshot (PRODUCTION_AFTER_20261125T170831Z.json, read only): PRODUCTION AS BEFORE
+tmux sessions pipeline_leantest_* / pipeline_lean_*: []
+experimental processes (restore's whole-argument matcher): []
+diagnostic processes left: none
+GPU now: 0, 18 MiB | 1, 903 MiB | compute apps: 3119100, GPU-408ad2ea-cd91-6677-603c-2b36b2dd8f14, 394 MiB | 2715279, GPU-408ad2ea-cd91-6677-603c-2b36b2dd8f14, 480 MiB
+the GPU0 lease's holder: None | production's GPU0 wants: []
+Ollama /api/ps: {"models":[]}
+/home/ultron/pp_spend/SPEND_D20261124.json cce00c3ca43b2fcb
+/home/ultron/pp_spend/SPEND_D20261124.json.lock e3b0c44298fc1c14
+files under /home/ultron/pp_lean_run changed after 12:09:00 ET (the 12:08 run ended 12:08:41): none

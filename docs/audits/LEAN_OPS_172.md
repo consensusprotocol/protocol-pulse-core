@@ -1,3 +1,242 @@
+# Build 172: SCORER FAILURE OF 12:08 ET: THE DIAGNOSTIC (Nov 25)
+
+This is the owner's one diagnostic of 12:14 ET. There was no build, no driver, no launcher `run` or `launch`, no render,
+no paid call and no vendor network call. **End to end: NOT DEMONSTRATED.**
+
+Everything ran in a scratch run folder (`/var/tmp/pp_leantest_run`, removed afterwards), inside the namespaces the live
+services run in:
+- lean_ops's own `ns_script`;
+- the host network (the scorer must reach the local Ollama);
+- the key files bound from /dev/null;
+- a scratch ledger in place of `/home/ultron/pp_spend`.
+
+**Code and evidence:**
+- **Code:** the fix and its tests are pp-lean `99252369f`. The diagnostic's last two phases and this evidence are in the
+  commit that carries this section. lean-release is unchanged at `7f4317bb0`.
+- **Evidence:** in `docs/audits/lean/ops172/`:
+  - `SCORER_DIAG_ss.txt`
+  - `SCORER_DIAG_score.txt`
+  - `SCORER_DIAG_lockcheck.txt`
+  - `SCORER_DIAG_lockreplay.txt`
+  - `SCORER_DIAG_restore.txt`
+  - `MUTATIONS_owner.txt`
+
+  The harness is `tests/package/lean/scorer_diag.py` (phases `setup`, `ss`, `score`, `lockcheck`, `lockreplay`).
+
+**Why the checks themselves are not edited.** Both checks sit in files that other code pins by sha:
+- **story_semantics.py** is one of the two files the scorer's `scorer_sha` hashes (`stand_alone_scorer.py:55-57`). The
+  builder accepts a verdict only under the sha of the LIVE tree's copies of those two files (`package.py:231`,
+  `render_scorer_sha` `:1606`), and the stand-alone floor is pinned to `edd54964...` (`package_pin.py:196`). Any edit
+  would make every experimental verdict unusable and drop the floor rule, which is an editorial change.
+- **gpu0.py** is in the lock pre-check's `decoder_sha` (`lock_precheck.py:82`).
+
+So the release code stays byte-identical, and the fix is in what the namespace shows to the unchanged checks.
+
+## (a) The ss outputs, verbatim (`SCORER_DIAG_ss.txt`)
+
+**On the host** (uid ultron, the init user namespace):
+```
+$ ss -ltnp 'sport = :11434'
+State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess
+LISTEN 0      4096       127.0.0.1:11434      0.0.0.0:*    users:(("ollama",pid=24220,fd=3))
+$ ss -ltn 'sport = :11434'
+State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess
+LISTEN 0      4096       127.0.0.1:11434      0.0.0.0:*
+```
+The code's own checks on the host gave:
+- `LocalLLM()._listener_pid()`: 24220.
+- `LocalLLM().start()`: serve_pid 24220, `CUDA_VISIBLE_DEVICES=0`, `OLLAMA_HOST=127.0.0.1:11434`, digest `a418f5838eaf...`.
+- `gpu0._ollama_pids()`: `[24220]`.
+
+**Inside the scorer's namespace, as at 12:08** (no owner record):
+```
+$ <scorer namespace> ss -ltnp 'sport = :11434'
+State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess
+LISTEN 0      4096       127.0.0.1:11434      0.0.0.0:*
+$ <scorer namespace> ss -ltn 'sport = :11434'
+State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess
+LISTEN 0      4096       127.0.0.1:11434      0.0.0.0:*
+```
+The code's own checks inside gave:
+- `_listener_pid()`: `null`.
+- `LocalLLM().start()`: `RuntimeError: no Ollama listening on 127.0.0.1:11434`, the 12:08 error.
+- `gpu0._ollama_pids()`: `Gpu0Unreadable: the GPU0 Ollama listener's pid is not visible to this user`.
+
+**Inside, with the fix:** `ss -ltnp` shows `users:(("ollama",pid=24220,fd=3))`, and all three checks give exactly the
+host's answers.
+
+## (b) Every exception met, in order
+
+1. **`RuntimeError: no Ollama listening on 127.0.0.1:11434`** at `story_semantics.py:171`. Met by the live scorer at
+   12:08:30 and reproduced in the ss phase.
+   - **Cause:** the scorer runs in a user namespace. For a process outside it (Ollama, pid 24220, the same uid), the
+     kernel refuses `/proc` access to the process's fd links from inside a child user namespace. So `ss -p`
+     (`story_semantics.py:160`) sees the socket but names no owner.
+   - **Fix:** `lean_ops.ollama_owner` `:223` and `owner_bridge` `:290`, described below.
+2. **`PermissionError: [Errno 13] Permission denied: '/proc/24220/environ'`**, met in my probe inside a user namespace.
+   `story_semantics.py:172` would raise it next had a pid been found.
+   - **Cause:** the same kernel rule.
+   - **Fix:** the same; the recorded environment is presented in place of the real one.
+3. **`Gpu0Unreadable: the GPU0 Ollama listener's pid is not visible to this user`** at `gpu0.py:412`, met in the ss
+   phase.
+   - **Cause:** the same; `gpu0.py:405` runs its own `ss -ltnpH`. This runs in every `swap_to` and `release_all`, as
+     part of the check for foreign GPU users. So the lockcheck's first GPU0 decode, and the render's, would have
+     failed here next.
+   - **Fix:** the same bridge.
+4. **After the fix:**
+   - **The scorer:** no exception; exit 0.
+   - **The lockcheck:** only the designed refusal, three times (one per window):
+     `CeilingRefused: the ceiling: spent $1.5000 + held $0.0000 + this elevenlabs_stt:scribe_v1 call's $0.0079 > $1.50:
+     refused before the vendor is asked`.
+
+**The fix** (pp-lean `99252369f`, `tests/package/lean/lean_ops.py`):
+- **`ollama_owner` (`:223`)** runs OUTSIDE the namespace, right before each service starts (`start` `:941`) and before
+  the render (`launch` `:1146`).
+  - It reads the listener exactly as the checks do: `ss -ltnpH`, then `/proc/<pid>/environ`.
+  - It keeps the pid, its start time, the listening socket's inode and fd, and the two variables the check reads,
+    `CUDA_VISIBLE_DEVICES` and `OLLAMA_HOST` (`:209`).
+  - Nothing else of Ollama's environment is copied.
+- **`owner_bridge` (`:290`)** is a line in every namespace script (`:184`).
+  - Inside that namespace only, it bind-mounts the recorded environment over `/proc/<pid>/environ` and the recorded fd
+    link over `/proc/<pid>/fd`. The host's /proc is untouched.
+  - It does so only while that pid is still the process recorded (same start time). A restarted Ollama, or none, gets
+    nothing.
+- **The checks still refuse** (tests `test_lean_ops.py:487-577`, real namespaces, the release's own unchanged checks
+  against a stand-in listener):
+  - nothing listening still raises (`:540`);
+  - an owner that is not GPU0-only still raises `is not GPU0-only: CUDA_VISIBLE_DEVICES=1` (`:533`);
+  - an owner that cannot be identified (a different process instance, or another namespace's record) is refused, not
+    accepted (`:549`);
+  - only the two variables are copied (`:565`);
+  - every namespace script carries the bridge (`:572`);
+  - the owner is recorded before each service (`:577`) and before the render (`:105`).
+- **Must-fail credit:** 7 deliberate breakages of the fix, each run after a passing unbroken control. All 7 were caught
+  (`MUTATIONS_owner.txt`). "Nothing listening" is a guard that no bridge change can break: nothing presented can make
+  `ss` show a listener that is not there.
+- **gpu0.py is fixed the same way, without being edited:** the bridge serves its `ss` exactly as it serves
+  story_semantics'.
+
+## (c) THE VERDICT of the one real score, and the scorer's whole log (`SCORER_DIAG_score.txt`, 12:28:49 ET)
+
+**The candidate:** `cand.0173aaa66a555d57b86a~trim.42e3fab44edd.json`, the first of the 12:08 run's 47 queued for
+2026-11-24T17:56:57. It was copied (read only) into the scratch scorer's requests folder, so the scorer served exactly
+one.
+
+**The reply cache:** an empty scratch store (`PP_EDITORIAL_STORE`). Production has answered all 47, so their cached
+replies would have answered without loading the model.
+
+**What ran:** the scorer, in its namespace, once, through `runpy` of `pipeline/stand_alone_scorer.py` (the module
+`serve.py` runs, in its `once` mode).
+- It took the normal GPU0 lease: the lease file records pid 397382, "pin-stage clip scorer (integrator, GPU0)", 12:28:52.
+- It loaded gemma3:27b on the shared Ollama and scored.
+- It released (gemma3:27b unloaded, the lease freed) and **exited 0 after 38 s**.
+- The model's raw reply is in the scratch cache:
+  `{"ratings": [{"id": "clip_01", "score": 2, "fault": "starts_mid_thought", ...}]}`.
+
+```
+[
+ {
+  "request_id": "cand.0173aaa66a555d57b86a~trim.42e3fab44edd",
+  "kind": "moments",
+  "event": null,
+  "pid": "clip_01",
+  "channel": "Bitcoin Magazine",
+  "duration": 20.15,
+  "prompt_sha256": "1145a8f4fa1e009906039f0e2e1cbb477f72e1d1c04fa54b1528d7d5b525c0be",
+  "score": 2.0,
+  "reason": "Starts by referencing 'that' and 'digital credit' without establishing context.",
+  "fault": "starts_mid_thought",
+  "affirmed": false,
+  "threshold": 3.5,
+  "model": "gemma3:27b",
+  "digest": "a418f5838eaf7fe2cfe0a3046c8384b68ba43a4435542c942f9db00a5f342203",
+  "scorer_sha": "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53",
+  "at": "2026-11-25T17:29:25Z"
+ }
+]
+```
+**It matches production's verdict for the same moment and text** (read only, 2026-11-24T17:13:53Z): score 2.0, not
+affirmed, the same prompt sha256 and the same digest.
+
+The scorer's whole log:
+```
+pin-stage scorer: /var/tmp/pp_leantest_run/stand_alone_scorer | scorer_sha edd54964a5ab
+12:29:25   cand.0173aaa66a555d57b86a~trim.42e3fab44edd.json: 1 passage(s), affirmed 0
+```
+
+## (d) The lockcheck walk (`SCORER_DIAG_lockcheck.txt`, 12:39:33 ET; `SCORER_DIAG_lockreplay.txt`)
+
+**The request:** `pp-selectid.ledger_20261114_011253.1`. This is the request the live lockcheck took up at 12:08:30
+from the builder's request folder (copied, read only). It has three segments: `L6H7538ogGs` 897.877-906.587 (hook),
+`uaHNzi-Kgr8` 153.25-165.89 (clip) and `NtaQGnfWRR8` 3475.26-3494.26 (clip).
+
+**The source fetch.** All three windows came from the lock pre-check's own cache: `r159-g18`'s
+`data/lock_precheck/work/<window>.9326604699a7/sources/`, the same decoder sha, read only. Only the source files were
+copied, so the decode and the Scribe leg really ran. The log says `acquired (youtube_window)`, with `download_s` 0.0.
+A `yt-dlp` that refuses stood first on PATH; it was never called.
+
+**The decode on GPU0 under the normal lease:** Whisper large-v3 (faster_whisper 1.2.1) took 19.9 s, 6.8 s and 14.7 s.
+Its transcripts were written to the scratch work folders, and the lease was released.
+
+**The transcript comparison** ran inside the namespace up to the Scribe leg. A replay of the same lock code on the
+walk's own decode (CPU only, a second recogniser that only records where it is asked) shows where Scribe was needed:
+- **`L6H7538ogGs` (hook):** ruling 17's lock stands without the second recogniser. The lock reads "AI can copy software,
+  undercut margins, replace employees, help foreign actors to overthrow your CEO, but they can't print more Bitcoin."
+  Scribe is asked next, by ruling 72's spoken comparison.
+- **`uaHNzi-Kgr8` (clip):** the same; ruling 72 asks Scribe.
+- **`NtaQGnfWRR8` (clip):** the decode differs from the approved text, so ruling 17 itself asks Scribe
+  (`segment_lock` → `adjudicate_lock`).
+
+**The Scribe leg was refused by the scratch ledger at room $0.** The scratch ledger was spent $1.5000, held $0.0000,
+room $0.0000. Each call (estimated at $0.0079, $0.0087 and $0.0099) was refused "before the vendor is asked".
+- Each window's outcome is `error`, never a pass: "no verdict".
+- `scribe_usd` is 0.
+- The scratch ledger is unchanged, and the outside ledger was never written.
+- The request is answered and moved to `done/`. The lockcheck **exited 0 after 49 s**.
+
+**Two notes on how this was set up:**
+- **The fake key.** Scribe reads its key BEFORE it reserves (`second_recogniser.py:42`, then `:60`). With the key files
+  masked and no key in the environment, the leg stops at `relay.get_key` (`KeyError`) before the ceiling is asked. So
+  the walk gave it a dummy `ELEVENLABS_API_KEY` from the environment, to reach the ceiling.
+- **The backstop.** A dead `https_proxy` (127.0.0.1:9) meant no https request could have left even if the ceiling had
+  failed.
+
+## (e) The restore (`SCORER_DIAG_restore.txt`, 12:41:54 ET)
+
+- **Production:** PRODUCTION AS BEFORE against the snapshot taken before the lockcheck walk (12:38 ET). Also PRODUCTION
+  AS BEFORE against the 12:08 run's own restore snapshot (`PRODUCTION_AFTER_20261125T170831Z.json`, read only), which
+  covers the whole diagnostic.
+- **GPU, before and after both GPU phases and now:**
+  - GPU0 at 18 MiB;
+  - the only compute processes are production's two, both on GPU1;
+  - the GPU0 lease free, and no production GPU0 want flags;
+  - Ollama's `/api/ps` reads `{"models":[]}`, as found.
+  - The diagnostic ran no tmux session (only the suite's tests use `pipeline_leantest_t_*`). No experimental or
+    diagnostic process is left.
+- **The ledger:** `/home/ultron/pp_spend/SPEND_D20261124.json` sha256 `cce00c3ca43b2fcb` at 12:28 and now. That is its
+  state after the 12:08 run's ledger-init.
+- **The 11:08/12:08 evidence:** nothing under `/home/ultron/pp_lean_run` has changed since 12:09.
+
+## (f) What was not exercised
+
+- **The live key, and a real Scribe reading.** So neither the ruling-72 spoken comparison's result nor any final lock
+  outcome (no_difference, adopt_spoken, hold) was produced.
+- **A YouTube download.** The windows came from cache. The experimental lockcheck's own work folders start empty, so in
+  a live run it downloads.
+- **The tmux start with the bridge.** This diagnostic built the namespaces with `ns_script` directly. The tmux start
+  path that records the owner is covered by tests (`:577`, and the real-tmux start tests), not by a live start.
+- **The render's namespace with the bridge:** tests only (`:105`).
+- **An Ollama that restarts mid-run:** refused by the bridge (tested with a stand-in), never tried on the real one.
+- **The scorer's `--candidates` serve loop:** the queueing and `verdicts/latest.json`.
+
+**Found, not changed (outside this order):**
+- **The 47 candidates in a live run.** Production has answered all of them, so the experimental scorer would answer them
+  from the shared reply cache without loading the model.
+- **Stale lock requests.** The builder's request folder (`pp-lean tests/package/proof/lock_requests`) still holds two
+  Nov 14 requests, for the same three windows walked here. The experimental lockcheck's scratch root has none of
+  production's "answered" markers, so a live run re-answers them first: downloads, about 40 s of GPU0, and about $0.027
+  of Scribe, inside the $1.50. That is what the 12:08 lockcheck had started on.
+
 # Build 172: STARTUP FAILURE OF 11:08 ET AND ITS FIX (Nov 25)
 
 Prepared for the owner's order of 11:18 ET. Beyond yesterday's limits, exactly one thing was run: the two experimental
@@ -138,9 +377,8 @@ design's tee would have.
 - **If a service fails to start again,** its own error is in `RUN/logs/<name>.log`, and the last 40 lines are in the
   run log.
 
-**READY FOR ONE AUTHORIZED RETRY: yes.** The command is unchanged:
-`cd /home/ultron/worktrees/pp-lean && python3 -B tests/package/lean/lean_ops.py run --build-no 172 --deadline-s 6000`.
-Start it before 19:24 ET.
+**Withdrawn at 12:08 ET.** This section's claim that one authorized retry could proceed was wrong: the retry's scorer
+ended at its first request (the section above). The proof here served no request, so it never reached that check.
 
 # Build 172: BLOCKERS 1-3 (Nov 25)
 

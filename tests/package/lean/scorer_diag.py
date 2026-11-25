@@ -196,10 +196,152 @@ def score_phase(p, say):
     return r.returncode
 
 
+LOCK_ONCE = ("import runpy, sys; sys.argv = ['lock_precheck.py', 'once']; sys.path.insert(0, 'pipeline'); "
+             "runpy.run_path('pipeline/lock_precheck.py', run_name='__main__')")
+CACHE = "/home/ultron/worktrees/r159-g18/data/lock_precheck/work"    # the lock pre-check's own downloads (read only)
+LOCK_REQUEST = "/home/ultron/worktrees/pp-lean/tests/package/proof/lock_requests/pp-selectid.ledger_20261114_011253.1.json"
+DECODER = "9326604699a7"
+
+
+def lock_phase(p, say):
+    """The lockcheck serving ONE real request (the one the live lockcheck took up at 12:08:30) in its namespace, once:
+    the windows from the lock pre-check's own cache (their source files only: the decode runs), the decode on GPU0
+    under the normal lease, the locks, and the second recogniser (Scribe) refused by the one ledger at room $0."""
+    import spend_ceiling as SC
+    td = LO.tops()
+    root = p["lock"]
+    for d in ("requests", "results", "work", "answered"):
+        shutil.rmtree(os.path.join(root, d), ignore_errors=True)
+        os.makedirs(os.path.join(root, d))
+    extra = os.path.join(p["run"], "offline", "lock_requests")
+    shutil.rmtree(extra, ignore_errors=True)
+    os.makedirs(extra)
+    shutil.copy(LOCK_REQUEST, extra)
+    with open(LOCK_REQUEST) as f:
+        req = json.load(f)
+    say(f"ONE real request: {os.path.basename(LOCK_REQUEST)} (the lockcheck's first at 12:08:30 ET; copied, read only) "
+        f"into {extra}: {[(s['video_id'], s['start'], s['end'], s['role']) for s in req['segments']]}")
+    for s in req["segments"]:
+        name = f"{s['video_id']}.{s['start']:.3f}-{s['end']:.3f}.{DECODER}"
+        src = os.path.join(CACHE, name, "sources", f"{s['video_id']}.mp4")
+        dst = os.path.join(root, "work", name, "sources")
+        os.makedirs(dst)
+        shutil.copy(src, dst)
+        say(f"  the window from the cache: {src} ({os.path.getsize(src)} bytes), its source file only (no transcript, "
+            f"no second reading: the decode and the Scribe leg run)")
+    SC.LEDGER_DIR = os.path.join(p["run"], "pp_spend")                    # = the service's PP_SPEND_LEDGER_DIR
+    shutil.rmtree(SC.LEDGER_DIR, ignore_errors=True)
+    SC.init_day({"diagnostic: room held at $0 (the owner's order of 12:14 ET)": SC.CAP_USD}, 0,
+                by="scorer_diag.py lock phase")
+    st = SC.status()
+    say(f"  THE SCRATCH LEDGER {SC.ledger_path()}: spent ${st['spent']:.4f}, held ${st['held']:.4f}, ROOM "
+        f"${st['room']:.4f}")
+    if st["room"] > 0:
+        say("  STOP: the room is not $0")
+        return 3
+    bin_ = os.path.join(p["run"], "offline", "bin")
+    os.makedirs(bin_, exist_ok=True)
+    with open(os.path.join(bin_, "yt-dlp"), "w") as f:
+        f.write("#!/bin/sh\necho 'yt-dlp BLOCKED by the diagnostic (no download)' >&2\nexit 1\n")
+    os.chmod(os.path.join(bin_, "yt-dlp"), 0o755)
+    env = env_for(p, "lockcheck")
+    env.update({"ELEVENLABS_API_KEY": "dummy-not-a-key-scorer-diag", "https_proxy": "http://127.0.0.1:9",
+                "HTTPS_PROXY": "http://127.0.0.1:9", "no_proxy": "127.0.0.1,localhost", "NO_PROXY": "127.0.0.1,localhost",
+                "PATH": bin_ + ":" + env.get("PATH", "")})
+    say("  the env beyond the service's: ELEVENLABS_API_KEY=<a dummy, so the code reaches the ceiling: it reads the key "
+        "first>, https_proxy/HTTPS_PROXY=http://127.0.0.1:9 (dead: no https request can leave), no_proxy=127.0.0.1,"
+        "localhost (the local Ollama), PATH starting with a yt-dlp that refuses (no download)")
+    holder, ps = gpu_state(say, "BEFORE")
+    if holder is not None or sorted(os.listdir(WANT)):
+        say("  STOP: the GPU0 lease is held or a production tenant is waiting: not taken")
+        return 3
+    rec = LO.ollama_owner(p, "lockcheck")
+    say(f"  the owner, recorded outside the namespace: {json.dumps(rec)}")
+    t0 = time.time()
+    r = run_shown(say, ns_cmd(p, "lockcheck", td, ["python3", "-c", LOCK_ONCE]), env=env,
+                  shown="<lockcheck namespace> python3 -c \"<runpy pipeline/lock_precheck.py once>\"", timeout=1800)
+    say(f"  the lockcheck: exit {r.returncode} after {time.time() - t0:.0f} s")
+    gpu_state(say, "AFTER")
+    for f in sorted(glob.glob(os.path.join(root, "results", "*.json"))):
+        say(f"RESULT {f}:")
+        for e in json.load(open(f)):
+            say("  " + json.dumps({k: e.get(k) for k in ("request_id", "video_id", "start", "end", "role", "outcome",
+                                                        "reason", "source_file_sha256", "transcript_sha256",
+                                                        "decoder_sha", "faster_whisper", "scribe_usd", "timing")})[:3000])
+            say("    lock: " + json.dumps({k: (e.get("lock") or {}).get(k) for k in ("text", "first_word", "last_word")}))
+    st = SC.status()
+    say(f"  THE SCRATCH LEDGER after: spent ${st['spent']:.4f}, held ${st['held']:.4f}, room ${st['room']:.4f}; "
+        f"its records: {json.dumps(SC.read(SC.ledger_path()))[:1500]}")
+    out_ledger = os.path.join(p["spend"], "integrator_outside.jsonl")
+    say(f"  the outside ledger {out_ledger}: "
+        f"{open(out_ledger).read().strip() if os.path.exists(out_ledger) else 'absent (no vendor call recorded)'}")
+    say(f"  answered markers: {sorted(os.listdir(os.path.join(root, 'answered')))}; done: "
+        f"{sorted(os.listdir(os.path.join(root, 'requests', 'done'))) if os.path.isdir(os.path.join(root, 'requests', 'done')) else []}")
+    for w in sorted(glob.glob(os.path.join(root, "work", "*"))):
+        say(f"  {os.path.basename(w)}: {sorted(os.listdir(w))} | sources {sorted(os.listdir(os.path.join(w, 'sources')))}"
+            f" | transcripts {sorted(os.listdir(os.path.join(w, 'transcripts'))) if os.path.isdir(os.path.join(w, 'transcripts')) else []}")
+    return r.returncode
+
+
+REPLAY = r"""
+import json, socket, sys, traceback
+def _no_net(*a, **k):
+    raise OSError("the replay makes no network call")
+socket.socket.connect = _no_net
+socket.getaddrinfo = _no_net
+sys.path.insert(0, "pipeline")
+import pinned, lock_precheck as LP
+req = json.load(open(sys.argv[1]))
+sha = LP.decoder_sha()
+class Reached(Exception):
+    pass
+def recognise(src):
+    where = [f.name for f in traceback.extract_stack()][-4:-1]
+    raise Reached(f"the second recogniser (Scribe) asked from {where}")
+for s in req["segments"]:
+    vid = s["video_id"]
+    lo, hi = LP.window(req["segments"], vid)
+    wd = LP.work_dir(vid, lo, hi, sha)
+    mine = [dict(x, source={"kind": "youtube"}) for x in req["segments"] if x["video_id"] == vid]
+    a = pinned.acquire({"segments": mine}, wd, log=lambda m: None)[vid]
+    out = {"video_id": vid, "role": s["role"], "approved_text": s.get("approved_text"),
+           "decode": {"source_file_sha256": a["provenance"].get("source_file_sha256"), "words": len(a["transcript"]["words"])}}
+    try:
+        v = pinned.validate_range(s, a)
+        lock = pinned.segment_lock(s, a, v, recognise=recognise, log=lambda m: None)
+        out["ruling 17 (segment_lock)"] = "the lock stands without the second recogniser"
+        out["lock text"] = lock["text"]
+        try:
+            LP.as_spoken(lock, a["transcript"]["words"], recognise(a["path"])[0])
+        except Reached as e:
+            out["ruling 72 (as_spoken)"] = str(e)
+    except Reached as e:
+        out["ruling 17 (segment_lock)"] = str(e)
+    except pinned.PinError as e:
+        out["PinError"] = str(e)
+    print(json.dumps(out))
+"""
+
+
+def replay_phase(p, say):
+    """The lock code (pinned.acquire, validate_range, segment_lock, lock_precheck.as_spoken) replayed on the lock walk's
+    own cached acquisition (its source and its GPU0 decode: no GPU, no download), in the lockcheck's namespace, with a
+    second recogniser that only records where it is asked: how far the transcript comparison runs before the Scribe
+    leg, which the walk's result entries (lock null on any error) do not show."""
+    td = LO.tops()
+    req = os.path.join(p["run"], "offline", "lock_requests", os.path.basename(LOCK_REQUEST))
+    env = env_for(p, "lockcheck")
+    env.update({"CUDA_VISIBLE_DEVICES": "", "https_proxy": "http://127.0.0.1:9", "HTTPS_PROXY": "http://127.0.0.1:9"})
+    r = run_shown(say, ns_cmd(p, "lockcheck", td, ["python3", "-c", REPLAY, req]), env=env,
+                  shown="<lockcheck namespace> CUDA_VISIBLE_DEVICES='' python3 -c '<REPLAY: the lock code on the walk's "
+                        "cached acquisition; a recogniser that records where it is asked>' <the request>")
+    return r.returncode
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-dir", required=True)
-    ap.add_argument("what", choices=("setup", "ss", "score"))
+    ap.add_argument("what", choices=("setup", "ss", "score", "lockcheck", "lockreplay"))
     ap.add_argument("--out", required=True)
     a = ap.parse_args(argv)
     p = LO.paths(scratch(a.run_dir))
@@ -213,7 +355,8 @@ def main(argv=None):
         f"scratch run {p['run']}")
     try:
         rc = {"setup": lambda: setup(p, say) or 0, "ss": lambda: ss_phase(p, say) or 0,
-              "score": lambda: score_phase(p, say)}[a.what]()
+              "score": lambda: score_phase(p, say), "lockcheck": lambda: lock_phase(p, say),
+              "lockreplay": lambda: replay_phase(p, say)}[a.what]()
     finally:
         with open(a.out, "w") as f:
             f.write("\n".join(lines) + "\n")

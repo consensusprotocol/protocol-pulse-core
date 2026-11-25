@@ -1,0 +1,16 @@
+CONTROL (unmutated) TheOllamaOwner::test_an_owner_that_cannot_be_identified_is_not_accepted: rc 0: 1 passed in 3.54s
+KILLED: the bridge presents a record whatever process holds that pid now (no start-time check) -> TheOllamaOwner::test_an_owner_that_cannot_be_identified_is_not_accepted: rc 1: 1 failed in 2.03s
+CONTROL (unmutated) TheOllamaOwner::test_an_owner_not_gpu0_only_is_still_refused: rc 0: 1 passed in 1.59s
+KILLED: the record says GPU0-only whatever the owner's environment says -> TheOllamaOwner::test_an_owner_not_gpu0_only_is_still_refused: rc 1: 1 failed in 1.94s
+CONTROL (unmutated) TheOllamaOwner::test_the_owner_read_outside_is_seen_inside_and_accepted: rc 0: 1 passed in 2.52s
+NOT APPLIED (0 matches): the bridge presents the environment only (no fd link: ss names no owner)
+CONTROL (unmutated) TheOllamaOwner::test_only_the_two_variables_the_check_reads_are_copied: rc 0: 1 passed in 0.86s
+KILLED: the record copies the owner's whole environment -> TheOllamaOwner::test_only_the_two_variables_the_check_reads_are_copied: rc 1: 1 failed in 0.99s
+CONTROL (unmutated) TheOllamaOwner::test_every_namespace_carries_the_bridge: rc 0: 1 passed in 0.20s
+KILLED: a namespace without the bridge -> TheOllamaOwner::test_every_namespace_carries_the_bridge: rc 1: 1 failed in 0.34s
+CONTROL (unmutated) TheOwnerIsRecordedFirst: rc 0: 1 passed in 0.46s
+KILLED: start does not record the owner before a service -> TheOwnerIsRecordedFirst: rc 1: 1 failed in 0.73s
+CONTROL (unmutated) TheOneDeadline::test_the_render_s_namespace_gets_the_owner_recorded_first: rc 0: 1 passed in 0.31s
+KILLED: launch does not record the owner before the render -> TheOneDeadline::test_the_render_s_namespace_gets_the_owner_recorded_first: rc 1: 1 failed in 0.43s
+CONTROL (unmutated) TheOllamaOwner::test_the_owner_read_outside_is_seen_inside_and_accepted: rc 0: 1 passed in 2.64s
+KILLED: the bridge presents the environment only (no fd link: ss names no owner) -> TheOllamaOwner::test_the_owner_read_outside_is_seen_inside_and_accepted: rc 1: 1 failed in 2.76s
