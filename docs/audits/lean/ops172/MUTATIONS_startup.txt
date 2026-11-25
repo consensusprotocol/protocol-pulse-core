@@ -1,0 +1,20 @@
+CONTROL (unmutated) TheStartupCommand: rc 0: 2 passed in 0.22s
+KILLED: the whole start line handed to tmux again (the 11:08 ET failure) -> TheStartupCommand: rc 1: 1 failed, 1 passed in 0.59s
+CONTROL (unmutated) TheStartupErrorsAreKept::test_a_service_failing_at_a_mount_leaves_its_error_in_the_run_log: rc 0: 1 passed in 2.65s
+KILLED: the same, judged by the real-tmux test -> TheStartupErrorsAreKept::test_a_service_failing_at_a_mount_leaves_its_error_in_the_run_log: rc 1: 1 failed in 0.95s
+CONTROL (unmutated) TheStartupErrorsAreKept::test_tmux_s_own_refusal_is_in_the_run_log: rc 0: 1 passed in 0.49s
+KILLED: tmux's own output discarded again (log None) -> TheStartupErrorsAreKept::test_tmux_s_own_refusal_is_in_the_run_log: rc 1: 1 failed in 0.82s
+CONTROL (unmutated) TheStartupErrorsAreKept::test_tmux_s_own_refusal_is_in_the_run_log: rc 0: 1 passed in 0.46s
+KILLED: a failed start prints no log tail -> TheStartupErrorsAreKept::test_tmux_s_own_refusal_is_in_the_run_log: rc 1: 1 failed in 0.77s
+CONTROL (unmutated) TheStartupErrorsAreKept::test_a_service_failing_at_a_mount_leaves_its_error_in_the_run_log: rc 0: 1 passed in 2.58s
+KILLED: the service's output not in its log (no tee) -> TheStartupErrorsAreKept::test_a_service_failing_at_a_mount_leaves_its_error_in_the_run_log: rc 1: 1 failed in 2.80s
+CONTROL (unmutated) TheStartupErrorsAreKept::test_a_service_failing_at_a_mount_leaves_its_error_in_the_run_log: rc 0: 1 passed in 2.63s
+KILLED: the pane not kept (no remain-on-exit) -> TheStartupErrorsAreKept::test_a_service_failing_at_a_mount_leaves_its_error_in_the_run_log: rc 1: 1 failed in 31.39s
+CONTROL (unmutated) TheStartupErrorsAreKept::test_a_service_failing_at_a_mount_leaves_its_error_in_the_run_log: rc 0: 1 passed in 2.63s
+KILLED: services_ready takes a kept dead pane for a service up (has-session) -> TheStartupErrorsAreKept::test_a_service_failing_at_a_mount_leaves_its_error_in_the_run_log: rc 1: 1 failed in 31.42s
+CONTROL (unmutated) ThePreflight::test_a_service_whose_process_ended_is_not_up: rc 0: 1 passed in 0.43s
+KILLED: the launch's preflight takes a dead pane for a service up -> ThePreflight::test_a_service_whose_process_ended_is_not_up: rc 1: 1 failed in 0.59s
+CONTROL (unmutated) TheStartupCommand: rc 0: 2 passed in 0.23s
+KILLED: offline without --net -> TheStartupCommand: rc 1: 1 failed in 0.64s
+CONTROL (unmutated) TheStartupCommand: rc 0: 2 passed in 0.27s
+KILLED: offline reads the live key -> TheStartupCommand: rc 1: 1 failed in 0.35s

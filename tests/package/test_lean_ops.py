@@ -530,6 +530,21 @@ class ThePreflight(Base):
             said = self.lines(launch=True, t0=t0, deadline_s=6000)
         self.assertTrue(any(x.startswith("  [PASS] the deadline ends inside the spend day") for x in said), said)
 
+    def test_a_service_whose_process_ended_is_not_up(self):
+        """A pane kept after its process ended (remain-on-exit, until restore) is not a service up: the launch's
+        preflight fails it, even with both heartbeats fresh."""
+        def sh(cmd, **k):
+            return (0, "1 32\n") if cmd[:2] == ["tmux", "list-panes"] else _sh_down(cmd, **k)
+        os.makedirs(self.p["beats"])
+        for f in LO.BEAT_FILES.values():
+            open(os.path.join(self.p["beats"], f), "w").close()
+        o = LO.Ops(True, out=self.said.append, p=self.p)
+        with mock.patch.object(LO, "sh", sh), mock.patch.object(LO, "assets_check", lambda out: (True, ["stub"])):
+            LO.preconditions(o, "build172", launch=True)
+        for n in LO.SESSIONS:
+            self.assertTrue(any(x.startswith(f"  [FAIL] experimental {n} up") and "ENDED (exit 32)" in x
+                                for x in self.said), self.said)
+
     def test_the_assets_are_checked_by_path_and_size(self):
         """B3 (a): present at its size passes; missing, another size, or under a folder the namespace takes from git
         only (pipeline/, scripts/), fails."""
