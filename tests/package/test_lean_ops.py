@@ -28,6 +28,12 @@ sys.path[:0] = [os.path.join(REPO, "pipeline"), HERE, os.path.join(HERE, "lean")
 import lean_ops as LO  # noqa: E402
 import outcomes as OC  # noqa: E402
 
+REAL_OWNER = LO.ollama_owner                       # the tests of it call it against a stand-in; Base stubs it
+
+
+def _no_owner(p, name, port=LO.OLLAMA_PORT, write=True):
+    return {"port": port, "pid": None, "why": "stubbed in a test: the real Ollama is never read"}
+
 
 class Clock:
     def __init__(self, t):
@@ -53,6 +59,7 @@ class Base(unittest.TestCase):
                       mock.patch.object(OC, "OUTCOMES", self.outcomes),
                       mock.patch.object(LO, "INGEST_DB", os.path.join(self.d, "no_ingest", "queue.sqlite")),
                       mock.patch.object(LO, "leftovers", lambda: []),       # a test never signals a real process
+                      mock.patch.object(LO, "ollama_owner", _no_owner),      # nor reads production's Ollama
                       mock.patch.object(LO, "head_pushed", lambda root, branch: ("a" * 40, "a" * 40)),
                       mock.patch.object(LO, "tree_clean", lambda root, dirs=None: (True, []))):
             patch.start()
@@ -94,6 +101,15 @@ class TheOneDeadline(Base):
     @staticmethod
     def limit(cmd):
         return int(cmd[cmd.index("timeout") + 3])        # timeout --signal=TERM --kill-after=N <LIMIT> ...
+
+    def test_the_render_s_namespace_gets_the_owner_recorded_first(self):
+        seen = []
+        with mock.patch.object(LO, "ollama_owner", lambda p, name, port=LO.OLLAMA_PORT, write=True:
+                               seen.append(("owner", name, len(self.said))) or _no_owner(p, name)):
+            rc, cmds, clock, ls = self.launch(600, 600, 0)
+        self.assertEqual([x[1] for x in seen], ["render"])
+        i = next(i for i, x in enumerate(self.said) if "RUN the render" in x)
+        self.assertLess(seen[0][2], i)                                   # recorded before the render's command
 
     def test_each_stage_is_handed_only_the_time_left(self):
         """MUST-PASS: 2700 s; the build uses 1200 s of its 1500 s share: the render is handed 2580 - 1200 = 1380 s,
@@ -429,6 +445,145 @@ class TheStartupErrorsAreKept(Base):
         self.assertIn("FAILED to start lockcheck: tmux exit 1", text)
         self.assertIn("    | command too long", text)
         self.assertIsNone(LO.pane_state(LEANTEST["lockcheck"]))
+
+
+STANDIN = r"""
+import http.server, json, socketserver, sys
+class H(http.server.BaseHTTPRequestHandler):
+    def do_GET(self):
+        b = json.dumps({"models": [{"name": "gemma3:27b", "digest": "stand-in"}]}).encode()
+        self.send_response(200); self.send_header("Content-Type", "application/json"); self.end_headers()
+        self.wfile.write(b)
+    def log_message(self, *a):
+        pass
+socketserver.TCPServer.allow_reuse_address = True
+s = socketserver.TCPServer(("127.0.0.1", int(sys.argv[1])), H)
+print(s.server_address[1], flush=True)
+s.serve_forever()
+"""
+CHECK = r"""
+import json, sys
+sys.path.insert(0, sys.argv[1])
+import story_semantics as sm, gpu0
+host = "127.0.0.1:" + sys.argv[2]
+gpu0.OLLAMA_HOSTS[0] = host
+out = {}
+try:
+    llm = sm.LocalLLM(host=host).start()
+    out["start"] = ["accepted", llm.serve_pid, llm.serve_env]
+except BaseException as e:
+    out["start"] = ["refused", f"{type(e).__name__}: {e}"]
+try:
+    out["ollama_pids"] = ["accepted", sorted(gpu0._ollama_pids())]
+except BaseException as e:
+    out["ollama_pids"] = ["refused", f"{type(e).__name__}: {e}"]
+print(json.dumps(out))
+"""
+RELEASE_PIPELINE = os.path.join(LO.RELEASE_WT, "pipeline")
+
+
+@unittest.skipUnless(shutil.which("unshare") and shutil.which("ss") and os.path.isfile(
+    os.path.join(RELEASE_PIPELINE, "story_semantics.py")), "needs unshare, ss and the lean-release worktree")
+class TheOllamaOwner(Base):
+    """12:08 ET Nov 25: inside the services' user namespace the kernel hides another namespace's process's fd links and
+    environment: `ss -p` names no owner of 127.0.0.1:11434 and /proc/<pid>/environ is unreadable, so the scorer said
+    "no Ollama listening". The owner is read OUTSIDE (ollama_owner) and presented inside (owner_bridge, the lines
+    ns_script carries). REAL namespaces, the RELEASE's own checks (story_semantics.LocalLLM.start, gpu0._ollama_pids,
+    unchanged), a stand-in listener in place of Ollama (no model, no GPU, nothing outside 127.0.0.1)."""
+
+    def standin(self, cvd, port=0, extra=None):
+        env = dict({k: v for k, v in os.environ.items() if k != "OLLAMA_HOST"}, CUDA_VISIBLE_DEVICES=cvd,
+                   **(extra or {}))                              # only what the test gives it
+        proc = subprocess.Popen([sys.executable, "-c", STANDIN, str(port)], env=env, stdout=subprocess.PIPE,
+                                text=True, start_new_session=True)
+        self.addCleanup(self.end, proc)
+        return proc, int(proc.stdout.readline())
+
+    @staticmethod
+    def end(proc):
+        try:
+            os.killpg(proc.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        proc.wait()
+
+    def check(self, port):
+        """The release's checks, inside a user + mount namespace that carries owner_bridge (host network: the stand-in
+        listens on the host's 127.0.0.1)."""
+        r = subprocess.run(["unshare", "--user", "--map-root-user", "--mount", "bash", "-c",
+                            "set -e; " + LO.owner_bridge(self.p, "t") + '; exec "$@"', "lean-ns",
+                            sys.executable, "-c", CHECK, RELEASE_PIPELINE, str(port)],
+                           capture_output=True, text=True, timeout=120,
+                           env=dict(os.environ, CUDA_VISIBLE_DEVICES="0"))
+        self.assertEqual(r.returncode, 0, r.stderr[-2000:])
+        return json.loads(r.stdout.strip().splitlines()[-1])
+
+    def test_the_owner_read_outside_is_seen_inside_and_accepted(self):
+        proc, port = self.standin("0")
+        out = self.check(port)                                          # MUST-FAIL without the bridge: 12:08 ET
+        self.assertEqual(out["start"], ["refused", f"RuntimeError: no Ollama listening on 127.0.0.1:{port}"])
+        self.assertEqual(out["ollama_pids"][0], "refused")
+        self.assertIn("pid is not visible", out["ollama_pids"][1])
+        rec = REAL_OWNER(self.p, "t", port=port)
+        self.assertEqual((rec["pid"], rec["env"]["CUDA_VISIBLE_DEVICES"]), (proc.pid, "0"))
+        out = self.check(port)
+        self.assertEqual(out["start"], ["accepted", proc.pid, {"CUDA_VISIBLE_DEVICES": "0", "OLLAMA_HOST": None}])
+        self.assertEqual(out["ollama_pids"], ["accepted", [proc.pid]])
+
+    def test_an_owner_not_gpu0_only_is_still_refused(self):
+        proc, port = self.standin("1")
+        REAL_OWNER(self.p, "t", port=port)
+        out = self.check(port)
+        self.assertEqual(out["start"], ["refused", f"RuntimeError: Ollama on 127.0.0.1:{port} (pid {proc.pid}) is not "
+                                                   f"GPU0-only: CUDA_VISIBLE_DEVICES=1"])
+
+    def test_nothing_listening_is_still_refused(self):
+        proc, port = self.standin("0")
+        REAL_OWNER(self.p, "t", port=port)
+        self.end(proc)                                                   # recorded, then gone: nothing listens
+        out = self.check(port)
+        self.assertEqual(out["start"], ["refused", f"RuntimeError: no Ollama listening on 127.0.0.1:{port}"])
+        self.assertEqual(out["ollama_pids"], ["accepted", []])          # gpu0's own answer: no Ollama process
+        self.assertEqual(REAL_OWNER(self.p, "t2", port=port)["why"], "nothing listens")
+
+    def test_an_owner_that_cannot_be_identified_is_not_accepted(self):
+        """The recorded pid is not the process that is there now (its start time differs: a restarted Ollama), or the
+        listener now is another process's: nothing is presented, and both checks refuse."""
+        proc, port = self.standin("0")
+        REAL_OWNER(self.p, "t", port=port)
+        with open(os.path.join(LO.owner_dir(self.p, "t"), "start"), "w") as f:
+            f.write("1")                                                 # another process instance than the one live
+        out = self.check(port)
+        self.assertEqual(out["start"], ["refused", f"RuntimeError: no Ollama listening on 127.0.0.1:{port}"])
+        self.assertIn("pid is not visible", out["ollama_pids"][1])
+        self.end(proc)                                                   # a new listener on the same port, not recorded
+        proc2, _ = self.standin("0", port=port)
+        REAL_OWNER(self.p, "x", port=port)                               # (the record of ANOTHER namespace)
+        out = self.check(port)
+        self.assertEqual(out["start"], ["refused", f"RuntimeError: no Ollama listening on 127.0.0.1:{port}"])
+
+    def test_only_the_two_variables_the_check_reads_are_copied(self):
+        proc, port = self.standin("0", extra={"PP_TEST_SECRET_TOKEN": "never-copied", "OLLAMA_HOST": "127.0.0.1:1"})
+        rec = REAL_OWNER(self.p, "t", port=port)
+        with open(os.path.join(LO.owner_dir(self.p, "t"), "environ"), "rb") as f:
+            self.assertEqual(f.read(), b"CUDA_VISIBLE_DEVICES=0\0OLLAMA_HOST=127.0.0.1:1\0")
+        self.assertNotIn("never-copied", json.dumps(rec))
+
+    def test_every_namespace_carries_the_bridge(self):
+        self.assertIn(LO.owner_bridge(self.p, "scorer"), LO.ns_script(self.p, "scorer", LO.tops()))
+        self.assertIn(LO.owner_bridge(self.p, "render"), LO.ns_script(self.p, "render", LO.tops(), offline=True))
+
+
+class TheOwnerIsRecordedFirst(Live):
+    def test_start_records_the_owner_before_each_service(self):
+        o = LO.Ops(False, run=self.runner, out=self.said.append, p=self.p)
+        with mock.patch.object(LO, "preconditions", lambda *a, **k: True), \
+                mock.patch.object(LO, "ollama_owner", lambda p, name, port=LO.OLLAMA_PORT, write=True:
+                                  self.events.append(("owner", name)) or _no_owner(p, name)):
+            self.assertEqual(LO.start(o), 0)
+        order = [e[1] if e[0] == "owner" else e[1][1] for e in self.events if e[0] in ("owner", "cmd")]
+        self.assertEqual([x for x in order if x in ("lockcheck", "scorer", "new-session")],
+                         ["lockcheck", "new-session", "scorer", "new-session"])
 
 
 class TheServicesComeUpFirst(Base):

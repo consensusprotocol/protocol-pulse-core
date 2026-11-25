@@ -1,0 +1,34 @@
+SCORER DIAGNOSTIC score 2026-11-25 12:28:49 EST: pp-lean 1c5cc26651b1, scratch run /var/tmp/pp_leantest_run
+ONE real candidate: cand.0173aaa66a555d57b86a~trim.42e3fab44edd.json (first of the 12:08 run's 47 queued for 2026-11-24T17:56:57, copied, read only) into /var/tmp/pp_leantest_run/stand_alone_scorer/requests; the reply cache: an empty scratch store /var/tmp/pp_leantest_run/editorial_store (production answered all 47 already: their cached replies would answer without loading the model)
+  the request: {"request_id": "cand.0173aaa66a555d57b86a~trim.42e3fab44edd", "kind": "moments", "passages": [{"moment_id": "0173aaa66a555d57b86a~trim", "pid": "clip_01", "channel": "Bitcoin Magazine", "duration": 20.15, "text": "the reason you would do that is because unlike digital credit in the Bitcoin bond, 100 % of Bitcoin's performance goes to the bond holder. But in digital credit... you get the fixed stated rate from the issuing company, but any Bitcoin performance above that rate is actually profit that accrues to equity holders."}]}
+  GPU BEFORE: 0, 18 MiB, 24564 MiB, 0 % | 1, 903 MiB, 24564 MiB, 0 %; compute apps: 3119100, GPU-408ad2ea-cd91-6677-603c-2b36b2dd8f14, 394 MiB | 2715279, GPU-408ad2ea-cd91-6677-603c-2b36b2dd8f14, 480 MiB; the GPU0 lease's holder: None; production's GPU0 wants: []; Ollama /api/ps: {"models":[]}
+  the owner, recorded outside the namespace: {"port": 11434, "at": "2026-11-25T17:28:50+00:00", "pid": 24220, "listening": true, "start": "79242", "inodes": ["193718"], "fds": ["3"], "env": {"CUDA_VISIBLE_DEVICES": "0", "OLLAMA_HOST": "127.0.0.1:11434"}}
+$ <scorer namespace> python3 -c "<runpy pipeline/stand_alone_scorer.py once>"
+  pin-stage scorer: /var/tmp/pp_leantest_run/stand_alone_scorer | scorer_sha edd54964a5ab
+  12:29:25   cand.0173aaa66a555d57b86a~trim.42e3fab44edd.json: 1 passage(s), affirmed 0
+  (exit 0)
+  the scorer: exit 0 after 38 s
+  GPU AFTER: 0, 18 MiB, 24564 MiB, 0 % | 1, 903 MiB, 24564 MiB, 0 %; compute apps: 3119100, GPU-408ad2ea-cd91-6677-603c-2b36b2dd8f14, 394 MiB | 2715279, GPU-408ad2ea-cd91-6677-603c-2b36b2dd8f14, 480 MiB; the GPU0 lease's holder: None; production's GPU0 wants: []; Ollama /api/ps: {"models":[]}
+THE VERDICT /var/tmp/pp_leantest_run/stand_alone_scorer/results/0173aaa66a555d57b86a~trim.42e3fab44edd3cda.edd54964a5ab.json:
+  [
+   {
+    "request_id": "cand.0173aaa66a555d57b86a~trim.42e3fab44edd",
+    "kind": "moments",
+    "event": null,
+    "pid": "clip_01",
+    "channel": "Bitcoin Magazine",
+    "duration": 20.15,
+    "prompt_sha256": "1145a8f4fa1e009906039f0e2e1cbb477f72e1d1c04fa54b1528d7d5b525c0be",
+    "score": 2.0,
+    "reason": "Starts by referencing 'that' and 'digital credit' without establishing context.",
+    "fault": "starts_mid_thought",
+    "affirmed": false,
+    "threshold": 3.5,
+    "model": "gemma3:27b",
+    "digest": "a418f5838eaf7fe2cfe0a3046c8384b68ba43a4435542c942f9db00a5f342203",
+    "scorer_sha": "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53",
+    "at": "2026-11-25T17:29:25Z"
+   }
+  ]
+  requests left: ['done']; done: ['cand.0173aaa66a555d57b86a~trim.42e3fab44edd.json']
+  production's verdict for the same moment and text (read only, /home/ultron/protocol_pulse/data/stand_alone_scorer/results/0173aaa66a555d57b86a~trim.42e3fab44edd3cda.edd54964a5ab.json): [{'score': 2.0, 'affirmed': False, 'prompt_sha256': '1145a8f4fa1e009906039f0e2e1cbb477f72e1d1c04fa54b1528d7d5b525c0be', 'digest': 'a418f5838eaf7fe2cfe0a3046c8384b68ba43a4435542c942f9db00a5f342203', 'at': '2026-11-24T17:13:53Z'}]

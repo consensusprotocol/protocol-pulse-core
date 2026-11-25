@@ -1,0 +1,68 @@
+SCORER DIAGNOSTIC ss 2026-11-25 12:28:27 EST: pp-lean 1c5cc26651b1, scratch run /var/tmp/pp_leantest_run
+== ON THE HOST (this shell, uid ultron, the init user namespace) ==
+$ ss -ltnp 'sport = :11434'
+  State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess
+  LISTEN 0      4096       127.0.0.1:11434      0.0.0.0:*    users:(("ollama",pid=24220,fd=3))
+  (exit 0)
+$ ss -ltn 'sport = :11434'
+  State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess
+  LISTEN 0      4096       127.0.0.1:11434      0.0.0.0:*          
+  (exit 0)
+$ (cd <the release copy> && python3 -c '<CHECKS: LocalLLM()._listener_pid(), LocalLLM().start(), gpu0._ollama_pids()>')
+  {
+   "story_semantics.LocalLLM()._listener_pid()": 24220,
+   "story_semantics.LocalLLM().start()": {
+    "serve_pid": 24220,
+    "serve_env": {
+     "CUDA_VISIBLE_DEVICES": "0",
+     "OLLAMA_HOST": "127.0.0.1:11434"
+    },
+    "digest": "a418f5838eaf7fe2cfe0a3046c8384b68ba43a4435542c942f9db00a5f342203"
+   },
+   "gpu0._ollama_pids()": [
+    24220
+   ]
+  }
+  (exit 0)
+== INSIDE the scorer's namespace (lean_ops.ns_script('scorer'), host network, keys /dev/null), WITHOUT the owner bridge (as at 12:08 ET: no record) ==
+$ <scorer namespace> ss -ltnp 'sport = :11434'
+  State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess
+  LISTEN 0      4096       127.0.0.1:11434      0.0.0.0:*          
+  (exit 0)
+$ <scorer namespace> ss -ltn 'sport = :11434'
+  State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess
+  LISTEN 0      4096       127.0.0.1:11434      0.0.0.0:*          
+  (exit 0)
+$ <scorer namespace> python3 -c '<CHECKS: LocalLLM()._listener_pid(), LocalLLM().start(), gpu0._ollama_pids()>'
+  {
+   "story_semantics.LocalLLM()._listener_pid()": null,
+   "story_semantics.LocalLLM().start()": "RuntimeError: no Ollama listening on 127.0.0.1:11434",
+   "gpu0._ollama_pids()": "Gpu0Unreadable: the GPU0 Ollama listener's pid is not visible to this user"
+  }
+  (exit 0)
+-- recorded outside the namespace: {"port": 11434, "at": "2026-11-25T17:28:35+00:00", "pid": 24220, "listening": true, "start": "79242", "inodes": ["193718"], "fds": ["3"], "env": {"CUDA_VISIBLE_DEVICES": "0", "OLLAMA_HOST": "127.0.0.1:11434"}}
+== INSIDE the scorer's namespace (lean_ops.ns_script('scorer'), host network, keys /dev/null), WITH the owner bridge ==
+$ <scorer namespace> ss -ltnp 'sport = :11434'
+  State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess
+  LISTEN 0      4096       127.0.0.1:11434      0.0.0.0:*    users:(("ollama",pid=24220,fd=3))
+  (exit 0)
+$ <scorer namespace> ss -ltn 'sport = :11434'
+  State  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess
+  LISTEN 0      4096       127.0.0.1:11434      0.0.0.0:*          
+  (exit 0)
+$ <scorer namespace> python3 -c '<CHECKS: LocalLLM()._listener_pid(), LocalLLM().start(), gpu0._ollama_pids()>'
+  {
+   "story_semantics.LocalLLM()._listener_pid()": 24220,
+   "story_semantics.LocalLLM().start()": {
+    "serve_pid": 24220,
+    "serve_env": {
+     "CUDA_VISIBLE_DEVICES": "0",
+     "OLLAMA_HOST": "127.0.0.1:11434"
+    },
+    "digest": "a418f5838eaf7fe2cfe0a3046c8384b68ba43a4435542c942f9db00a5f342203"
+   },
+   "gpu0._ollama_pids()": [
+    24220
+   ]
+  }
+  (exit 0)

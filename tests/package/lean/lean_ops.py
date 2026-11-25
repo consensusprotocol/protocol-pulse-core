@@ -181,6 +181,7 @@ def ns_script(p, name, top_dirs, offline=False):
     for rel in ("pipeline", "tests/package/fixtures"):
         dst = f"{LIVE_BUILDER}/{rel}"
         s += [f"mount --bind {q(REPO + '/' + rel)} {q(dst)}", f"mount -o remount,bind,ro {q(dst)}"]
+    s.append(owner_bridge(p, name))
     s.append(f'cd {q(LIVE_MAIN)}; exec "$@"')
     return "; ".join(s)
 
@@ -200,6 +201,102 @@ def prepare_ns(p, name, top_dirs):
     kf = f"{p['release']}/{KEYFILE}"
     if not os.path.exists(kf):
         open(kf, "w").close()                      # an empty mount point: the live key file is bound over it
+
+
+# ── the GPU0 Ollama's owner, across the user namespace (12:08 ET Nov 25) ──
+
+OLLAMA_PORT = 11434        # the GPU0 Ollama: gpu0.OLLAMA_HOSTS[0], story_semantics.LLM_HOST
+OWNER_ENV = ("CUDA_VISIBLE_DEVICES", "OLLAMA_HOST")   # all its check reads (LocalLLM.start: serve_env); nothing else
+
+
+def owner_dir(p, name):
+    return os.path.join(p["ns"], name, "ollama")
+
+
+def _readlink(path):
+    try:
+        return os.readlink(path)
+    except OSError:
+        return None
+
+
+def ollama_owner(p, name, port=OLLAMA_PORT, write=True):
+    """The GPU0 Ollama listener's owner, read HERE, outside any user namespace, exactly as the services' own checks read
+    it (story_semantics.LocalLLM.start and gpu0._ollama_pids: `ss -ltnpH`, then /proc/<pid>/environ), for the namespace
+    to present (owner_bridge). Inside a user namespace the kernel hides another namespace's process's fd links and
+    environment, so `ss -p` names no owner and its environment cannot be read: the scorer's "no Ollama listening on
+    127.0.0.1:11434" of 12:08 ET Nov 25 (release code unchanged: story_semantics.py is in SCORER_SHA, gpu0.py in the
+    lock pre-check's decoder_sha). Kept: the pid, its start time, the listening socket's inode(s) and fd(s), and the
+    two environment variables the check reads (OWNER_ENV); nothing else of its environment is copied. No single owner
+    (nothing listens, or several pids): nothing is presented, so the services' checks refuse as they always did.
+    -> the record."""
+    rec = {"port": port, "at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "pid": None}
+    rc, out = sh(["ss", "-ltnpH", f"sport = :{port}"])
+    rc2, out2 = sh(["ss", "-ltneH", f"sport = :{port}"])
+    import re
+    pids = sorted({int(x) for x in re.findall(r"pid=(\d+)", out)}) if rc == 0 else []
+    inodes = sorted(set(re.findall(r"\bino:(\d+)", out2))) if rc2 == 0 else []
+    rec["listening"] = bool(out.strip()) if rc == 0 else None
+    links = {}
+    if len(pids) == 1 and inodes:
+        pid = pids[0]
+        want = {f"socket:[{i}]" for i in inodes}
+        try:
+            links = {fd: _readlink(f"/proc/{pid}/fd/{fd}") for fd in os.listdir(f"/proc/{pid}/fd")}
+            links = {fd: t for fd, t in links.items() if t in want}
+            with open(f"/proc/{pid}/environ", "rb") as f:
+                env = dict(x.split("=", 1) for x in f.read().decode(errors="ignore").split("\0") if "=" in x)
+            start = proc_start(pid)
+            if links and start:
+                rec.update(pid=pid, start=start, inodes=inodes, fds=sorted(links, key=int),
+                           env={k: env.get(k) for k in OWNER_ENV})
+            else:
+                rec["why"] = f"pid {pid}: no fd of the listening socket {inodes}, or gone"
+        except OSError as e:
+            rec["why"] = f"pid {pid}: {type(e).__name__}"
+    else:
+        rec["why"] = "nothing listens" if rec["listening"] is False else f"owner pids {pids}, socket inodes {inodes}"
+    if write:
+        d = owner_dir(p, name)
+        tmp = d + ".tmp"
+        import shutil
+        shutil.rmtree(tmp, ignore_errors=True)
+        os.makedirs(os.path.join(tmp, "fd"))
+        if rec["pid"]:
+            for fd in rec["fds"]:
+                os.symlink(links[fd], os.path.join(tmp, "fd", fd))     # the listening socket's link, as the kernel names it
+            with open(os.path.join(tmp, "environ"), "wb") as f:
+                f.write(b"".join(f"{k}={v}\0".encode() for k, v in rec["env"].items() if v is not None))
+            with open(os.path.join(tmp, "start"), "w") as f:
+                f.write(rec["start"])
+            with open(os.path.join(tmp, "pid"), "w") as f:
+                f.write(str(rec["pid"]))
+        with open(os.path.join(tmp, "record.json"), "w") as f:
+            json.dump(rec, f, indent=1)
+        shutil.rmtree(d, ignore_errors=True)
+        os.replace(tmp, d)
+    return rec
+
+
+def say_owner(o, name):
+    rec = ollama_owner(o.p, name, write=not o.dry)
+    o.say(f"  {'WOULD RECORD' if o.dry else 'RECORDED'} the GPU0 Ollama's owner for the {name} namespace "
+          f"({owner_dir(o.p, name)}): " + (f"pid {rec['pid']} (start {rec['start']}), socket {rec['inodes']} on fd "
+                                           f"{rec['fds']}, {rec['env']}" if rec["pid"] else
+                                           f"none ({rec.get('why')}): its checks will refuse"))
+    return rec
+
+
+def owner_bridge(p, name):
+    """The namespace's lines (inside it, after its other mounts): the recorded owner presented to this namespace only,
+    by bind mounts over /proc/<pid>/environ and /proc/<pid>/fd (the host's /proc is untouched), and only while that pid
+    is still the process recorded (its start time): a restarted Ollama, or none, gets nothing, so the services' own
+    checks refuse. A pid that exits takes the mounts with its /proc entries."""
+    o = shlex.quote(owner_dir(p, name))
+    return (f'if [ -s {o}/pid ]; then P="$(cat {o}/pid)"; S="$(cat {o}/start)"; '
+            f'N="$(awk \'{{sub(/^.*\\) /, ""); print $20}}\' "/proc/$P/stat" 2>/dev/null || true)"; '
+            f'if [ -n "$S" ] && [ "$N" = "$S" ]; then mount --bind {o}/environ "/proc/$P/environ"; '
+            f'mount --bind {o}/fd "/proc/$P/fd"; fi; fi')
 
 
 TMUX_MAX = 16300      # tmux 3.2a sends a command in one message of at most 16384 bytes: a longer one is refused ("command
@@ -841,6 +938,7 @@ def start(o, run_name="build172", strict=False):
                     os.makedirs(os.path.join(p["run"], "offline", d), exist_ok=True)
             with open(service_file(p, name), "w") as f:
                 f.write(script)
+        say_owner(o, name)                             # read here, outside the namespace; presented inside it
         o.say(f"  {name}: env " + " ".join(f"{k}={v}" for k, v in sorted(env.items())))
         o.say(f"  {'WOULD WRITE' if o.dry else 'WROTE'} its start file {service_file(p, name)} ({len(script)} bytes; "
               f"tmux is handed only `bash` of it): " + next(x for x in script.split("\n") if x.startswith("env "))[:3000])
@@ -1045,6 +1143,7 @@ def launch(o, build_no=172, deadline_s=DEADLINE_S, why="the owner's build 172 (l
         return finish(o, record, d)
     if not o.dry:
         prepare_ns(p, "render", td)
+    say_owner(o, "render")                             # the render's checks read the GPU0 Ollama's owner too
     said = os.path.join(p["logs"], f"{build_id}.render.log")
     tr = o.clock()
     rc = o.do(["timeout", "--signal=TERM", f"--kill-after={GRACE_S}", f"{max(1, int(left))}",
