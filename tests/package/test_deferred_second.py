@@ -127,6 +127,18 @@ class TheDeferredSecondVerdict(unittest.TestCase):
         self.assertTrue(all(v == PK.PENDING for m, v in sv.items() if m not in segs), sv)
         self.assertEqual(out["prescreen"]["deferred_second"]["lineups"], 1)
 
+    def test_ruling_101_s_confirm_ahead_is_off_on_the_lean_path(self):
+        """MUST-FAIL: even when ruling 101's plan says parallel (the second vendor's step A beside the first, ahead),
+        the lean path asks ONE step-A screen before the first clips-alone verdict: the first vendor's."""
+        real = PK.step_a_plan
+        r, seq = lean_rig()
+        with mock.patch.object(PK, "step_a_plan", lambda *a, **k: dict(real(*a, **k), parallel=True, why=None)):
+            out = r.run()
+        first_medley = next(i for i, s in enumerate(seq) if s[0] == "medley")
+        self.assertEqual(len([s for s in seq[:first_medley] if s[0] == "step_a"]), 1, seq)
+        self.assertFalse((out["prescreen"].get("parallel_101") or {}).get("parallel"), out["prescreen"])
+        self.assertIsNotNone(out["package"], out.get("why_none"))
+
     def test_pending_is_never_counted_as_screened_by_the_second_family(self):
         """The yield's "step A, second family" counts only the moments its verdict was asked for."""
         r, _ = lean_rig()
