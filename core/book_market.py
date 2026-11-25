@@ -9,12 +9,15 @@ prototype shows honest states:
   change_7d    % change of the rank number between the latest observation and the one 7 days
                before it; None unless the book is live and both days were observed. Negative =
                rank improved. momentum = -change_7d (up = improving), used by the map.
-  rising       the illustrative rule shown on the page: sustained 7-day improvement >= 20%
-               with sufficient history (see is_rising).
+  rising       rising_star_candidate_v1, the frozen candidate rule (core/book_signal_rules.py),
+               applied to the illustrative series as observations: the page shows the rule and
+               says it ran on illustrative data. No observed rank is ever scored here.
   map          only books ranked in the same Amazon list and format (Books, print), live, with
                a 7-day change and a verified pub_year; at most MAP_MAX, strongest rank first.
                Kindle Store ranks (The Fiat Standard) are listed as excluded, never mixed in.
   sparkline    observed points only; a missing day breaks the line.
+  map points   also carry what the detail view shows: edition, the exact publication date when
+               the registry's source records one, rank list, observed days and the sparkline.
 
 Stdlib only; the tests use it without Flask.
 """
@@ -23,13 +26,11 @@ import math
 from datetime import date, timedelta
 from pathlib import Path
 
+import book_signal_rules
 import books_registry
 
 ILLUSTRATIVE_PATH = Path(__file__).resolve().parent.parent / 'data' / 'books' / 'market_illustrative.json'
 LIVE_MAX_AGE_DAYS = 1
-RISING_MIN_IMPROVEMENT_PCT = 20.0
-RISING_MIN_RECENT = (6, 8)    # observed on at least 6 of the last 8 days
-RISING_MIN_WINDOW = 14        # and on at least 14 days of the window
 MAP_MAX = 8
 MAP_LIST, MAP_FORMAT = 'Books', 'print'
 STATE_ORDER = {'live': 0, 'stale': 1, 'unavailable': 2}
@@ -48,19 +49,11 @@ def load(path=ILLUSTRATIVE_PATH):
     return data
 
 
-def is_rising(series, state, change_7d):
-    """Illustrative rule: live; rank >= 20% better than 7 days before; never worse than that
-    starting rank on any observed day in between; observed on >= 6 of the last 8 days and on
-    >= 14 days of the window."""
-    if state != 'live' or change_7d is None or change_7d > -RISING_MIN_IMPROVEMENT_PCT:
-        return False
-    last = max(i for i, v in enumerate(series) if v is not None)
-    start = series[last - 7]
-    if any(v is not None and v > start for v in series[last - 7:last + 1]):
-        return False
-    recent_needed, recent_days = RISING_MIN_RECENT
-    return (sum(v is not None for v in series[-recent_days:]) >= recent_needed
-            and sum(v is not None for v in series) >= RISING_MIN_WINDOW)
+def is_rising(series, as_of):
+    """rising_star_candidate_v1 on the dataset date, the series' days read as observations."""
+    days = len(series)
+    dated = {as_of - timedelta(days=days - 1 - i): v for i, v in enumerate(series) if v is not None}
+    return book_signal_rules.evaluate(dated, as_of)['qualifies']
 
 
 def metrics(series, as_of):
@@ -82,7 +75,7 @@ def metrics(series, as_of):
         'momentum': -change if change is not None else None,
         'observed_days': len(seen),
         'last_observed': (as_of - timedelta(days=age)).isoformat(),
-        'rising': is_rising(series, state, change),
+        'rising': is_rising(series, as_of),
     }
 
 
@@ -150,8 +143,13 @@ def view(registry, data, tag=books_registry.DEFAULT_TAG):
     plotted = sorted(eligible, key=lambda r: r['rank'])[:MAP_MAX]
     map_books = []
     for r, s in zip(plotted, strength([r['rank'] for r in plotted]) if plotted else []):
-        map_books.append({k: r[k] for k in ('slug', 'title', 'author', 'pub_year', 'rank', 'change_7d', 'momentum', 'cover_url')}
-                         | {'strength': s})
+        book = books[r['slug']]
+        exact = books_registry.pub_date(book)
+        map_books.append({k: r[k] for k in ('slug', 'title', 'author', 'pub_year', 'rank', 'change_7d', 'momentum', 'cover_url',
+                                            'rank_list', 'observed_days', 'spark_path', 'spark_points')}
+                         | {'strength': s, 'pub_date': exact.isoformat() if exact else None,
+                            'published': books_registry.pub_date_label(book),
+                            'edition': f"{'Kindle' if r['format'] == 'Kindle' else 'Print'} edition, ISBN-13 {book['isbn13']}"})
     years = [b['pub_year'] for b in map_books] or [as_of.year]
     bound = max([10.0] + [math.ceil(abs(b['momentum']) / 10.0) * 10.0 for b in map_books])
     excluded_lists = [r for r in rows if r not in comparable]
@@ -166,12 +164,12 @@ def view(registry, data, tag=books_registry.DEFAULT_TAG):
         'rows': rows,
         'rising': [r for r in rows if r['rising']],
         'map': {'books': map_books, 'x': {'min': min(years), 'max': max(years)}, 'as_of_year': as_of.year,
+                'window_days': data['window_days'],
                 'y': {'min': -bound, 'max': bound}, 'list': MAP_LIST, 'format': MAP_FORMAT,
                 'max_books': MAP_MAX, 'cap_fraction': 0.06},
         'excluded_lists': [{'title': r['title'], 'format': r['format'], 'rank_list': r['rank_list']} for r in excluded_lists],
         'not_plotted': [{'title': r['title'], 'reason': _why_not(r, plotted)} for r in not_plotted],
-        'rules': {'live_max_age_days': LIVE_MAX_AGE_DAYS, 'rising_min_improvement_pct': RISING_MIN_IMPROVEMENT_PCT,
-                  'rising_min_recent': list(RISING_MIN_RECENT), 'rising_min_window': RISING_MIN_WINDOW},
+        'rules': {'live_max_age_days': LIVE_MAX_AGE_DAYS, 'rising': dict(book_signal_rules.RISING_STAR_RULE)},
     }
 
 

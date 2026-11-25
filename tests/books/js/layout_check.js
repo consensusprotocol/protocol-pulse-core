@@ -56,8 +56,15 @@ out.tight = { overlaps: tight.overlaps, maxDx: tight.maxDx, maxDy: tight.maxDy }
 // Horizontal scale: older is always further left.
 out.recency = [1990, 1999, 2010, 2019, 2020, 2025, 2026].map((y) => L.recency(y, 2026));
 
-// Year labels: never closer than the minimum gap, newest and oldest kept.
-const X = (y) => (L.recency(y, 2026) - L.recency(1999, 2026)) / (L.recency(2025, 2026) - L.recency(1999, 2026)) * 300;
-out.ticks = L.yearTicks([1999, 2019, 2020, 2021, 2021, 2022, 2023, 2025], X, 34).map((y) => [y, X(y)]);
+// Year marks: the candidates for a 1999-2025 map seen on 2026, thinned at two plot widths with the
+// same X the covers use.
+out.candidates = L.tickYears(2026, 1995, 2025);
+out.ticks = {};
+out.X = {};
+for (const width of [300, 900]) {
+  const X = (y) => (L.recency(y, 2026) - L.recency(1999, 2026)) / (L.recency(2025, 2026) - L.recency(1999, 2026)) * width;
+  out.ticks[width] = L.yearTicks(out.candidates, X, 34).map((y) => [y, X(y)]);
+  out.X[width] = Object.fromEntries(out.candidates.map((y) => [y, X(y)]));
+}
 
 process.stdout.write(JSON.stringify(out));

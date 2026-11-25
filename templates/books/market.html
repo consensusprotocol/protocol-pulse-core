@@ -2,7 +2,11 @@
 {# /books/market: Book Market, PRIVATE ILLUSTRATIVE PROTOTYPE. Every rank, change, state and
    trend comes from data/books/market_illustrative.json (synthetic, core/book_market.py).
    The banner below stays on screen. noindex: the X-Robots-Tag header from core/routes_books.py
-   (no robots meta here: base.html's index,follow meta cannot be replaced from a page). #}
+   (no robots meta here: base.html's index,follow meta cannot be replaced from a page).
+   Phones: one-line dek and a one-line status strip, so the map card starts in the first
+   viewport; "How to read the map" is a disclosure there (open beside the map from 1024 px).
+   The detail view (hover, tap, Enter/Space; Esc closes and focus returns) is filled by
+   static/js/book_market.js from the map data below. #}
 {% block title %}Book Market (illustrative prototype) | Protocol Pulse{% endblock %}
 {% block meta_description %}Illustrative prototype of the Book Terminal market view. Not live data.{% endblock %}
 {% block head %}
@@ -25,7 +29,12 @@
   {%- endif -%}
 {%- endmacro %}
 
+{% macro sort_th(label, key, type, sort='none', cls='') -%}
+<th scope="col"{% if cls %} class="{{ cls }}"{% endif %} aria-sort="{{ sort }}"><button type="button" class="bt-sort" data-key="{{ key }}" data-type="{{ type }}">{{ label }}</button></th>
+{%- endmacro %}
+
 {% block content %}
+{% set rule = m.rules.rising %}
 <div class="bt bt-market" id="btMarket">
   <p class="bt-proto" role="note"><svg class="bt-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2 1 21h22L12 2zm0 6 .01 0M12 9v5m0 3v.01"/></svg><strong>Illustrative prototype — not live data.</strong> <span>Not for publication.</span></p>
   <div class="bt-wrap">
@@ -33,10 +42,11 @@
 
     <div class="bt-mtop">
       <header class="bt-hero">
-        <p class="bt-kicker">Book Terminal · Market</p>
+        <p class="bt-kicker bt-wide-only">Book Terminal · Market</p>
         <h1 class="bt-h1 bt-h1-market">The market for Bitcoin <em>ideas.</em></h1>
-        <p class="bt-dek">Rank strength, momentum and recency for the books in the library, on one map. Every value on this page is illustrative.</p>
-        <p class="bt-asof">Illustrative dataset for {{ m.as_of }} · seeded generator · not observed</p>
+        <p class="bt-dek bt-wide-only">Rank strength, momentum and recency for the books in the library, on one map. Every value on this page is illustrative.</p>
+        <p class="bt-dek bt-narrow-only">Rank, momentum and recency on one map.</p>
+        <p class="bt-asof bt-wide-only">Illustrative dataset for {{ m.as_of }} · seeded generator · not observed</p>
       </header>
       <ul class="bt-stats" aria-label="Dataset status (illustrative)">
         <li class="bt-stat"><span class="bt-stat-n">{{ m.stats.tracked }}</span><span class="bt-stat-l">Tracked books</span></li>
@@ -50,7 +60,7 @@
       <div class="bt-mapcard-head">
         <div>
           <h2 class="bt-h2" id="btMapH">Book Market Map</h2>
-          <p class="bt-section-dek">{{ m.map.books|length }} books ranked in Amazon US {{ m.map.list }} (print). Illustrative values.</p>
+          <p class="bt-section-dek">{{ m.map.books|length }} books ranked in Amazon US {{ m.map.list }} (print). Illustrative values for {{ m.as_of }}.</p>
         </div>
         <div class="bt-toggle" role="group" aria-label="Map or table" id="btMapToggle" hidden>
           <button type="button" class="bt-toggle-btn" data-show="map" aria-pressed="true" aria-controls="btMapPanel">Map</button>
@@ -60,33 +70,56 @@
       <div class="bt-mapgrid">
         <div class="bt-mapmain">
           <div class="bt-map-panel" id="btMapPanel">
-            <div class="bt-map" id="btMap" role="group" aria-label="Cover map of {{ m.map.books|length }} books: horizontal position is publication year, vertical position is 7-day rank momentum, cover area is rank strength. Illustrative values; the Table view lists them.">
+            <div class="bt-map" id="btMap" role="group" aria-label="Cover map of {{ m.map.books|length }} books: horizontal position is publication age on a log scale, vertical position is 7-day rank momentum, cover area is rank strength. Illustrative values. Each cover opens its details; the Table view lists the same books.">
               <svg class="bt-map-svg" id="btMapSvg" aria-hidden="true" focusable="false"></svg>
               <div class="bt-map-nodes" id="btMapNodes"></div>
-              <div class="bt-tip" id="btTip" role="tooltip" hidden></div>
+              <svg class="bt-map-svg bt-map-dots" id="btMapDots" aria-hidden="true" focusable="false"></svg>
+            </div>
+            <p class="bt-map-note">Horizontal: publication age on a log scale, older to the left. Equal distances are not equal time. A dot marks each book's true position.</p>
+            <div class="bt-detail" id="btDetail" role="dialog" aria-modal="false" aria-labelledby="btDetailTitle" tabindex="-1" hidden>
+              <div class="bt-detail-top">
+                <span class="bt-illus">Illustrative</span>
+                <button type="button" class="bt-detail-close" id="btDetailClose"><span aria-hidden="true">×</span><span class="bt-sr">Close the details</span></button>
+              </div>
+              <h3 class="bt-detail-title" id="btDetailTitle"></h3>
+              <p class="bt-detail-author" data-f="author"></p>
+              <dl class="bt-detail-facts">
+                <div><dt>Edition</dt><dd data-f="edition"></dd></div>
+                <div><dt>Published</dt><dd data-f="published"></dd></div>
+                <div><dt>Rank list</dt><dd data-f="list"></dd></div>
+                <div><dt>Illustrative rank</dt><dd data-f="rank"></dd></div>
+                <div><dt>7-day momentum</dt><dd data-f="momentum"></dd></div>
+                <div><dt>Observed days</dt><dd data-f="observed"></dd></div>
+              </dl>
+              <figure class="bt-detail-spark">
+                <svg class="bt-spark" viewBox="0 0 120 30" width="240" height="60" role="img" aria-labelledby="btDetailSparkCap"><path data-f="spark"/><g data-f="points"></g></svg>
+                <figcaption id="btDetailSparkCap">Rank over {{ m.window_days }} days, observed days only: a gap is a day without an observation. Higher is better.</figcaption>
+              </figure>
             </div>
             <noscript><p class="bt-noscript">The cover map needs JavaScript. The table below lists every tracked book.</p></noscript>
           </div>
           <div class="bt-map-table" id="btMapTable">
-            <table class="bt-table bt-table-compact">
-              <caption class="bt-sr">Books on the map (illustrative values)</caption>
-              <thead><tr><th scope="col">Book</th><th scope="col">Published</th><th scope="col">7-day momentum</th><th scope="col">Illustrative rank</th><th scope="col">Rank strength</th></tr></thead>
+            <table class="bt-table bt-table-compact" data-sortable>
+              <caption class="bt-sr">Books on the map (illustrative values). Column headers sort the table.</caption>
+              <thead><tr>{{ sort_th('Book', 'book', 'text') }}{{ sort_th('Published', 'year', 'num') }}{{ sort_th('7-day momentum', 'momentum', 'num') }}{{ sort_th('Illustrative rank', 'rank', 'num', 'ascending') }}{{ sort_th('Rank strength', 'strength', 'num') }}</tr></thead>
               <tbody>
                 {% for b in m.map.books %}
-                <tr><th scope="row">{{ b.title }}</th><td>{{ b.pub_year }}</td><td>{{ momentum(b.momentum) }}</td><td class="bt-num">#{{ '{:,}'.format(b.rank) }}</td><td class="bt-num">{{ '%.2f'|format(b.strength) }}</td></tr>
+                <tr data-book="{{ b.title|lower }}" data-year="{{ b.pub_date or b.pub_year }}" data-momentum="{{ b.momentum }}" data-rank="{{ b.rank }}" data-strength="{{ b.strength }}">
+                  <th scope="row">{{ b.title }}</th><td>{{ b.published if b.pub_date else b.pub_year }}</td><td>{{ momentum(b.momentum) }}</td><td class="bt-num">#{{ '{:,}'.format(b.rank) }}</td><td class="bt-num">{{ '%.2f'|format(b.strength) }}</td>
+                </tr>
                 {% endfor %}
               </tbody>
             </table>
           </div>
         </div>
-        <aside class="bt-key" aria-labelledby="btKeyH">
-          <h3 class="bt-key-h" id="btKeyH">How to read the map</h3>
-          <p class="bt-key-legend">Cover area = normalized rank strength · Horizontal = publication recency · Vertical = momentum</p>
+        <details class="bt-key" id="btKey" open>
+          <summary class="bt-key-h">How to read the map</summary>
+          <p class="bt-key-legend">Cover area = normalized rank strength · Horizontal = publication age (log scale) · Vertical = momentum</p>
           <ul class="bt-key-list">
             <li><svg class="bt-key-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="7" width="7" height="10" rx="1"/><rect x="12" y="3" width="9" height="16" rx="1"/></svg><span><strong>Cover area</strong> grows with rank strength: the best illustrative rank on the map is the largest cover. Covers keep their own shape.</span></li>
-            <li><svg class="bt-key-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12h18M17 8l4 4-4 4"/></svg><span><strong>Left to right</strong>: publication year of the tracked edition, established to newer. Recent years get more room (log scale of age).</span></li>
+            <li><svg class="bt-key-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12h18M17 8l4 4-4 4"/></svg><span><strong>Left to right</strong>: publication age of the tracked edition on a log scale, older to the left. Recent years get more room, so equal distances are not equal time. Year marks sit on the same scale. Positions use the publication year; the details give the exact date where the source records it.</span></li>
             <li><svg class="bt-key-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21V3M8 7l4-4 4 4"/></svg><span><strong>Up</strong>: rank improved over 7 days. <strong>Down</strong>: rank cooled.</span></li>
-            <li><svg class="bt-key-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="12" y="3" width="8" height="11" rx="1"/><path d="M12 12 6 18"/><circle cx="5" cy="19" r="2" class="bt-key-dot"/></svg><span>A thin line marks a cover moved aside to avoid an overlap; the dot is its true position.</span></li>
+            <li><svg class="bt-key-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="12" y="3" width="8" height="11" rx="1"/><path d="M12 12 6 18"/><circle cx="5" cy="19" r="2" class="bt-key-dot"/></svg><span>A <strong>dot</strong> marks each book's true position, drawn above the covers. A cover moved aside to avoid an overlap (at most {{ (m.map.cap_fraction * 100)|round|int }}% of each axis) is joined to its dot by a thin line.</span></li>
             <li><svg class="bt-key-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg><span>Only print editions ranked in Amazon US Books are plotted. Different lists are never mixed.</span></li>
           </ul>
           {% if m.excluded_lists %}
@@ -101,7 +134,7 @@
           {% endif %}
           <button type="button" class="bt-debug-btn" id="btDebugBtn" aria-pressed="false" aria-controls="btDebug" hidden>Layout debug</button>
           <p class="bt-debug" id="btDebug" hidden></p>
-        </aside>
+        </details>
       </div>
       <script type="application/json" id="btMapData">{{ m.map|tojson }}</script>
     </section>
@@ -109,7 +142,7 @@
     <section class="bt-section bt-rising" aria-labelledby="btRisingH">
       <div class="bt-section-head">
         <h2 class="bt-h2" id="btRisingH">Rising Stars <span class="bt-illus">Illustrative</span></h2>
-        <p class="bt-section-dek"><strong>Rule:</strong> sustained 7-day improvement &ge; 20% with sufficient history. Rank at least {{ m.rules.rising_min_improvement_pct|int }}% better than 7 days earlier, never worse than that starting rank in between, observed on {{ m.rules.rising_min_recent[0] }} of the last {{ m.rules.rising_min_recent[1] }} days and {{ m.rules.rising_min_window }} of the last {{ m.window_days }}. Applied to illustrative data only.</p>
+        <p class="bt-section-dek"><strong>Rule: {{ rule.name }}</strong>, frozen {{ rule.frozen }}, {{ rule.status }}. The median of a book's ranks over the last {{ rule.median_window_days }} days is at least {{ (rule.min_improvement * 100)|round|int }}% better than over the {{ rule.median_window_days }} days before, with at least {{ rule.min_observed_per_window }} observed days in each, a current median rank of {{ '{:,}'.format(rule.max_current_median_rank) }} or better, on {{ rule.persistence_days }} days in a row. Applied here to illustrative data only; it is not published on observed ranks.</p>
       </div>
       {% if m.rising %}
       <ul class="bt-rise-list" role="list">
@@ -135,19 +168,19 @@
         <p class="bt-section-dek">All {{ m.stats.tracked }} tracked books. Sort by any column. Illustrative values.</p>
       </div>
       <div class="bt-table-wrap" role="region" aria-labelledby="btTableH" tabindex="0">
-        <table class="bt-table" id="btTable">
+        <table class="bt-table" id="btTable" data-sortable>
           <caption class="bt-sr">All tracked books with illustrative rank, 7-day momentum, observation history and status. Column headers sort the table.</caption>
           <thead>
             <tr>
-              <th scope="col" class="bt-col-book" aria-sort="none"><button type="button" class="bt-sort" data-key="title" data-type="text">Book</button></th>
-              <th scope="col" aria-sort="none"><button type="button" class="bt-sort" data-key="format" data-type="text">Format</button></th>
-              <th scope="col" aria-sort="none"><button type="button" class="bt-sort" data-key="list" data-type="text">List</button></th>
-              <th scope="col" aria-sort="ascending"><button type="button" class="bt-sort" data-key="rank" data-type="num">Illustrative rank</button></th>
-              <th scope="col" aria-sort="none"><button type="button" class="bt-sort" data-key="momentum" data-type="num">7-day change</button></th>
-              <th scope="col" aria-sort="none"><button type="button" class="bt-sort" data-key="observed" data-type="num">Observed / {{ m.window_days }}</button></th>
-              <th scope="col" aria-sort="none"><button type="button" class="bt-sort" data-key="last" data-type="text">Last observed</button></th>
+              {{ sort_th('Book', 'title', 'text', cls='bt-col-book') }}
+              {{ sort_th('Format', 'format', 'text') }}
+              {{ sort_th('List', 'list', 'text') }}
+              {{ sort_th('Illustrative rank', 'rank', 'num', 'ascending') }}
+              {{ sort_th('7-day change', 'momentum', 'num') }}
+              {{ sort_th('Observed / ' ~ m.window_days, 'observed', 'num') }}
+              {{ sort_th('Last observed', 'last', 'text') }}
               <th scope="col">Trend, {{ m.window_days }} days</th>
-              <th scope="col" aria-sort="none"><button type="button" class="bt-sort" data-key="state" data-type="num">Status</button></th>
+              {{ sort_th('Status', 'state', 'num') }}
             </tr>
           </thead>
           <tbody>
@@ -182,6 +215,7 @@
         </table>
       </div>
       <p class="bt-footnote">▲ rank improved over 7 days (the number fell), ▼ rank cooled. “—” means not enough observed history. Sparklines draw observed days only; a gap is a day without an observation. Lower rank numbers are better. Live: observed on the dataset date or the day before. Stale: last observation older than that. Every value here is synthetic, generated by scripts/books/make_illustrative_market.py.</p>
+      <p class="bt-footnote bt-disclosure">As an Amazon Associate, Protocol Pulse earns from qualifying purchases.</p>
     </section>
   </div>
 </div>

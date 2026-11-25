@@ -8,11 +8,14 @@ Its rank_nov24 values are a one-time observation: nothing here returns them.
 Curated fields (version 3): categories (from the top-level list), description (one factual
 line), subtitle, pathways (membership: pathway id, step, note), related_media (Protocol Pulse
 series links already used on the site), free_resources (official free editions), pub_year and
-pub_year_source, format ('Kindle' for a Kindle-only edition). _read() refuses a registry whose
+pub_year_source (its parenthetical is the date the source gives: a full date or only the year;
+pub_date() reads it), format ('Kindle' for a Kindle-only edition). _read() refuses a registry whose
 fields break these rules, so a bad edit fails loudly instead of rendering half a page.
 Stdlib only, so the collector script can import it without the Flask app.
 """
 import json
+import re
+from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
 
@@ -76,6 +79,9 @@ def _validate(path, data):
         year = book.get('pub_year')
         if year is not None and (not isinstance(year, int) or not 1900 <= year <= 2100 or not book.get('pub_year_source')):
             raise ValueError(f'{where}: pub_year must be a year with a pub_year_source')
+        exact = pub_date(book)
+        if exact and exact.year != year:
+            raise ValueError(f'{where}: pub_year_source gives {exact.isoformat()}, not a date in pub_year {year}')
     for pid, numbers in steps.items():
         if sorted(numbers) != list(range(1, len(numbers) + 1)) or len(numbers) < 2:
             raise ValueError(f'{path}: pathway {pid!r} steps {sorted(numbers)} are not 1..n (n >= 2)')
@@ -108,6 +114,33 @@ def by_id(amazon_id, path=REGISTRY_PATH):
         if book['amazon_id'] == amazon_id:
             return book
     return None
+
+
+_SOURCE_DATE = re.compile(r'\(([^()]*)\)')
+_DATE_FORMATS = ('%Y-%m-%d', '%B %d, %Y', '%b %d, %Y')
+
+
+def pub_date(book):
+    """The exact publication date of the tracked edition, when its pub_year_source records one, else None.
+
+    'Amazon US product page (February 3, 2025), checked ...' -> date(2025, 2, 3);
+    'Open Library edition record (2020), checked ...' -> None (the source gives only the year).
+    """
+    m = _SOURCE_DATE.search(book.get('pub_year_source') or '')
+    for fmt in _DATE_FORMATS:
+        try:
+            return datetime.strptime(m.group(1).strip(), fmt).date() if m else None
+        except ValueError:
+            continue
+    return None
+
+
+def pub_date_label(book):
+    """'Feb 3, 2025' when the exact date is recorded; '2020 (exact date not recorded)' otherwise."""
+    exact = pub_date(book)
+    if exact:
+        return f'{exact:%b} {exact.day}, {exact.year}'
+    return f"{book['pub_year']} (exact date not recorded)" if book.get('pub_year') else 'Not recorded'
 
 
 def amazon_url(book, tag=DEFAULT_TAG):

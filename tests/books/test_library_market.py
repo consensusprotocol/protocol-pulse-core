@@ -27,6 +27,7 @@ sys.path.append(str(ROOT / 'core'))
 
 import book_market  # noqa: E402
 import book_metrics  # noqa: E402
+import book_signal_rules  # noqa: E402
 import books_registry  # noqa: E402
 
 _spec = importlib.util.spec_from_file_location('make_illustrative_market', ROOT / 'scripts' / 'books' / 'make_illustrative_market.py')
@@ -295,7 +296,9 @@ def test_market_page_is_bannered_noindex_and_illustrative(client):
     stats = re.findall(r'<span class="bt-stat-n">(\d+)</span>', page)
     assert stats == [str(view['stats'][k]) for k in ('tracked', 'live', 'stale', 'unavailable')]
     assert len(re.findall(r'<tr data-title=', page)) == 18
-    assert 'sustained 7-day improvement &ge; 20% with sufficient history' in page
+    rule = 'Rule: rising_star_candidate_v1</strong>, frozen 2026-11-25, provisional.'
+    assert rule in page and 'Applied here to illustrative data only' in page
+    assert page.count(DISCLOSURE) == 1
     assert 'Not plotted:' in page and 'The Fiat Standard (Kindle edition, Kindle Store rank)' in page
     map_data = json.loads(re.search(r'<script type="application/json" id="btMapData">(.*?)</script>', page, re.S).group(1))
     assert 1 <= len(map_data['books']) <= 8
@@ -339,23 +342,34 @@ def test_states_and_seven_day_change():
     assert (moved['change_7d'], moved['momentum']) == (-20.0, 20.0)
 
 
-CLIMB = [1000] * 22 + [1000, 950, 900, 850, 800, 780, 760, 750]   # -25% over 7 days, never worse
+CLIMB = [1000] * 22 + [1000, 950, 900, 850, 800, 780, 760, 750]   # -25% over 7 days: the retired round-2 rule's case
+HALVED = [100000] * 14 + [50000] * 16                                # 14-day median 50% better, held 3 days
 
 
 @pytest.mark.parametrize('series, rising', [
-    (CLIMB, True),
-    (CLIMB[:23] + [1050] + CLIMB[24:], False),                          # worse than the start on the way
-    ([None] * 16 + CLIMB[16:], True),                                   # exactly 14 observed days: enough
-    ([None] * 17 + CLIMB[17:], False),                                  # 13 observed days: not enough
-    (CLIMB[:22] + [1000, None, None, 850, 800, 780, 760, 750], True),   # 6 of the last 8 days: enough
-    (CLIMB[:22] + [1000, None, None, None, 800, 780, 760, 750], False), # 5 of the last 8: not enough
-    (CLIMB[:22] + [1000, 990, 980, 970, 960, 950, 940, 810], False),    # 19% is not 20%
-    (CLIMB[:-1] + [None], True),                                        # seen yesterday is still live
-    (CLIMB[:-2] + [None, None], False),                                 # stale
+    (HALVED, True),
+    ([1000000] * 14 + [500000] * 16, False),                            # 50% better, but above the 150,000 cap
+    ([100000] * 14 + [61000] * 16, False),                              # 39% is not 40%
+    ([100000] * 22 + [50000] * 8, False),                               # condition met on the last day only: no persistence
+    ([None] * 5 + HALVED[5:], False),                                   # 9 observed days in a prior window
+    (CLIMB, False),                                                     # what the old 7-day rule called rising
 ])
-def test_rising_rule(series, rising):
+def test_market_rising_stars_use_the_frozen_rule(series, rising):
     assert len(series) == 30
     assert book_market.metrics(series, AS_OF)['rising'] is rising
+
+
+def test_market_rising_section_states_the_frozen_rule(client):
+    page = client.get('/books/market').get_data(as_text=True)
+    section = page[page.index('id="btRisingH"'):page.index('id="btTableH"')]
+    text = re.sub(r'\s+([,.])', r'\1', ' '.join(visible_text(section).split()))
+    rule = dict(book_signal_rules.RISING_STAR_RULE)
+    assert f"Rule: {rule['name']}, frozen {rule['frozen']}, {rule['status']}." in text
+    assert 'last 14 days is at least 40% better than over the 14 days before' in text
+    assert 'at least 10 observed days in each, a current median rank of 150,000 or better, on 3 days in a row' in text
+    assert 'Illustrative' in section and 'not published on observed ranks' in text
+    view = book_market.view(books_registry.load_registry(), book_market.load())
+    assert view['rising'] == [] and 'No book meets the rule in this illustrative dataset.' in text
 
 
 def test_sparkline_draws_observed_points_only():
@@ -391,6 +405,52 @@ def test_map_never_mixes_lists_or_formats():
     assert ranks == sorted(ranks, key=lambda v: (v is None, v or 0))  # rank ascending, no rank last
 
 
+def test_market_map_points_carry_the_detail_view(client):
+    view = book_market.view(books_registry.load_registry(), book_market.load())
+    books = {b['slug']: b for b in books_registry.load_registry()}
+    assert view['map']['window_days'] == 30
+    for point in view['map']['books']:
+        book = books[point['slug']]
+        exact = books_registry.pub_date(book)
+        assert point['pub_date'] == (exact.isoformat() if exact else None)
+        assert point['published'] == books_registry.pub_date_label(book)
+        assert point['edition'] == f"Print edition, ISBN-13 {book['isbn13']}" and point['rank_list'] == 'Books'
+        assert 0 < point['observed_days'] <= 30 and (point['spark_path'] or point['spark_points'])
+    by_slug = {p['slug']: p for p in view['map']['books']}
+    assert by_slug['the-sovereign-individual']['published'] == 'Aug 26, 1999'
+    assert by_slug['daylight-robbery']['published'] == '2020 (exact date not recorded)'
+    page = client.get('/books/market').get_data(as_text=True)
+    panel = re.search(r'<div class="bt-detail" id="btDetail"([^>]*)>(.*?)</figure>', page, re.S)
+    assert 'role="dialog"' in panel.group(1) and 'aria-modal="false"' in panel.group(1) and 'aria-labelledby="btDetailTitle"' in panel.group(1)
+    for field in ('author', 'edition', 'published', 'list', 'rank', 'momentum', 'observed', 'spark', 'points'):
+        assert f'data-f="{field}"' in panel.group(2), field
+    assert '<span class="bt-illus">Illustrative</span>' in panel.group(2) and 'Close the details' in panel.group(2)
+
+
+def test_market_methodology_is_a_disclosure_and_both_tables_sort(client):
+    page = client.get('/books/market').get_data(as_text=True)
+    assert '<details class="bt-key" id="btKey" open>' in page
+    assert '<summary class="bt-key-h">How to read the map</summary>' in page
+    assert 'Equal distances are not equal time.' in page
+    tables = re.findall(r'<table class="bt-table[^"]*"[^>]*data-sortable>.*?</table>', page, re.S)
+    assert len(tables) == 2
+    for table in tables:
+        sorts = re.findall(r'aria-sort="(\w+)"><button type="button" class="bt-sort"', table)
+        assert sorts.count('ascending') == 1 and set(sorts) == {'ascending', 'none'}
+    compact = re.findall(r'<tr data-book="', tables[0])
+    assert len(compact) == len(book_market.view(books_registry.load_registry(), book_market.load())['map']['books'])
+
+
+def test_registry_refuses_an_exact_date_outside_pub_year(tmp_path):
+    doc = json.loads((ROOT / 'data' / 'books' / 'registry.json').read_text(encoding='utf-8'))
+    book = next(b for b in doc['books'] if b['slug'] == 'the-big-print')
+    book['pub_year'] = 2024     # its source says February 3, 2025
+    path = tmp_path / 'registry.json'
+    path.write_text(json.dumps(doc), encoding='utf-8')
+    with pytest.raises(ValueError, match='2025-02-03'):
+        books_registry.load_registry(path)
+
+
 # ── Layout math (static/js/book_market.js under node) ────────────────────────
 
 def test_cover_area_follows_rank_strength_and_keeps_the_cover_shape():
@@ -418,10 +478,17 @@ def test_separation_respects_the_displacement_cap():
 def test_recency_scale_and_year_labels():
     out = run_node(JS / 'layout_check.js', ROOT / 'static' / 'js' / 'book_market.js')
     assert out['recency'] == sorted(out['recency']) and len(set(out['recency'])) == len(out['recency'])
-    years = [y for y, _ in out['ticks']]
-    xs = sorted(x for _, x in out['ticks'])
-    assert 2025 in years and 1999 in years
-    assert all(b - a >= 34 for a, b in zip(xs, xs[1:]))
+    # Year marks worth reading on a log-age scale: decades, half-decades within 20 years, the last 3 years.
+    assert out['candidates'] == [2020, 2010, 2000, 2025, 2015, 2024, 2023]
+    for width, ticks in out['ticks'].items():
+        years = [y for y, _ in ticks]
+        assert years == sorted(years, reverse=True) and set(years) <= set(out['candidates'])
+        for year, x in ticks:                                    # placed by the covers' own transform
+            assert x == pytest.approx(out['X'][width][str(year)])
+        xs = sorted(x for _, x in ticks)
+        assert all(b - a >= 34 for a, b in zip(xs, xs[1:]))
+    assert [y for y, _ in out['ticks']['900']] == [2025, 2024, 2023, 2020, 2015, 2010, 2000]
+    assert {2020, 2000} <= {y for y, _ in out['ticks']['300']}   # decades kept first on a narrow map
 
 
 # ── /media #books: the page's own script under node ──────────────────────────
