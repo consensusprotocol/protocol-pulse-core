@@ -182,6 +182,16 @@ class Sites(unittest.TestCase):
         self.assertEqual(self.held, [])                     # no transport was reached
         self.assertEqual(self.ledger()["reserved"], {})
 
+    def test_before_the_ledger_is_initialized_each_site_is_refused_before_its_request(self):
+        """B1 (a) (08:38 ET Nov 25), MUST-FAIL: the spend day's ledger not yet created by the launch's ledger-init (the
+        lock service or the render started first): Scribe, the sign-off, vision and the voice are each refused before
+        their request."""
+        os.remove(SC.ledger_path())                          # conftest initialized it: gone, as before the ledger-init
+        for site in (self.scribe, self.signoff, self.vision, self.voice):
+            with self.assertRaisesRegex(SC.CeilingRefused, "not initialized", msg=site.__name__):
+                site()
+        self.assertEqual(self.held, [])
+
     def test_a_reply_without_xai_s_figure_stops_the_ledger(self):
         """The sign-off's reply with no cost_in_usd_ticks: its cost is unknown: the reservation stays, the ledger stops."""
         import signoff

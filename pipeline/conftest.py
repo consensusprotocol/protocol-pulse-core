@@ -28,11 +28,20 @@ os.environ.setdefault("PP_OUT_EDGE_FROZEN", "1")
 if "PP_SPEND_LEDGER_DIR" not in os.environ:
     import tempfile as _tf
     os.environ["PP_SPEND_LEDGER_DIR"] = _tf.mkdtemp(prefix="pp_spend_")
+# B1 (08:38 ET Nov 25): every reservation re-reads PRODUCTION's day ledgers and stops at a production build or render; a
+# test session reads empty stand-ins instead (never the live ledgers) and matches no running process
+if "PP_SPEND_PROD_BUILDER" not in os.environ:
+    import tempfile as _tf
+    os.environ["PP_SPEND_PROD_BUILDER"] = _tf.mkdtemp(prefix="pp_spend_prod_")
+    os.environ["PP_SPEND_PROD_OUTSIDE"] = os.path.join(os.environ["PP_SPEND_PROD_BUILDER"], "outside.jsonl")
+os.environ.setdefault("PP_SPEND_PROD_RUNS", "no-production-run-in-a-test-session")
 
 
 @pytest.fixture(autouse=True)
 def _own_spend_ledger(tmp_path, monkeypatch):
     monkeypatch.setenv("PP_SPEND_LEDGER_DIR", str(tmp_path / "pp_spend"))
+    import spend_ceiling                                 # B1 (a): a ledger is initialized before anything charges
+    spend_ceiling.init_day({}, by="a test (pipeline/conftest.py)")
 
 _CVD = os.environ.get("CUDA_VISIBLE_DEVICES")
 _CPU = _CVD in (None, "", "-1")
