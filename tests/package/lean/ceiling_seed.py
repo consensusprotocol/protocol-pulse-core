@@ -109,7 +109,7 @@ def main(argv=None):
     for k, v in parts.items():
         print(f"  carried in {k}: ${v:.4f}")
     total = round(sum(parts.values()), 6)
-    print(f"  carried in, total: ${total:.4f} of ${SC.CAP_USD:.2f}; the voice: {voice} characters")
+    print(f"  carried in, total: ${total:.4f} of ${SC.cap_usd():.2f}; the voice: {voice} characters")   # E
     if unknown:
         print("REFUSED: unknown spend source(s), not a copy of production's ledger: " + "; ".join(unknown))
         return 2

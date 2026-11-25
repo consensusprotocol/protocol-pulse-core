@@ -76,9 +76,12 @@ def day_ledger(now=None):
 
 SPEND = day_ledger()               # RULING 118: today's ledger, read once when a build starts (a build charges the day
 #   it started in). CLOSED: batch 3's SPEND_B3.json at 21:10 ET Nov 15; the $20 order's SPEND_LY.json at $11.47.
-DAY_CAP_USD = 1.50                 # THE ONE SPEND SETTING (the orchestrator's amendment C, 09:35 ET Nov 24: "ONE spend
+import spend_ceiling as _SC  # noqa: E402  (E: the one cap is read in one place)
+DAY_CAP_USD = _SC.cap_usd()        # THE ONE SPEND SETTING (the orchestrator's amendment C, 09:35 ET Nov 24: "ONE spend
 #   setting read from one place ($1.50 a day, unchanged)"; RULING 137 (3)): the outside dollars a day, read by the
-#   driver (its router's limit and its start stop, and --stop-usd's ceiling), by day118's line and by nothing else
+#   driver (its router's limit and its start stop, and --stop-usd's ceiling), by day118's line and by nothing else.
+#   E (the owner, 15:55 ET Nov 25): its value is spend_ceiling.cap_usd(): $1.50, unless the launcher passed a
+#   one-build exception (lean_ops --ceiling-usd, e.g. build 173's $3.00) to the three programs it starts
 LY_LIMIT_USD = DAY_CAP_USD         # RULING 118 (a): the OUTSIDE vendors' HARD cap a day all-in (builds, audits,
 LY_LIMIT_BASIS = "reported"        # tests: the audits and tests are Heimdall-only, so the builds' outside dollars are
 LY_STOP_USD = DAY_CAP_USD          # the day's), VENDOR-REPORTED, an abandoned call at the model's own rate (ruling 107

@@ -55,7 +55,27 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
-CAP_USD = 1.50                     # THE ONE DAY CAP (amendment C, Nov 24): never raised here
+CAP_USD = 1.50                     # THE ONE DAY CAP (amendment C, Nov 24): the default, never raised here
+CAP_ENV = "PP_SPEND_CAP_USD"       # E (the owner, 15:55 ET Nov 25): a ONE-BUILD exception, set only by the launcher's
+#   --ceiling-usd (lean_ops) in the environment of the three programs it starts (the builder's router, the lock
+#   service, the renderer); read here only (cap_usd). Build 173's $3.00 is such an exception, not a new operating target
+CAP_SANITY_USD = 5.00              # E: a value above this (or not a positive number) is refused, never honoured
+
+
+def cap_usd():
+    """E: THE ONE CAP in force: CAP_USD ($1.50), unless the launcher passed a one-build exception in PP_SPEND_CAP_USD.
+    A value that is not a positive number or is above CAP_SANITY_USD raises CeilingRefused: no paid call (never a
+    silent fallback to another value)."""
+    raw = (os.environ.get(CAP_ENV) or "").strip()
+    if not raw:
+        return CAP_USD
+    try:
+        v = float(raw)
+    except ValueError:
+        raise CeilingRefused(f"{CAP_ENV}={raw!r} is not a number: no paid call") from None
+    if not (0 < v <= CAP_SANITY_USD) or v != v:
+        raise CeilingRefused(f"{CAP_ENV}={raw!r} is outside (0, {CAP_SANITY_USD:.2f}]: refused, never honoured")
+    return round(v, 2)
 LEDGER_DIR = "/home/ultron/pp_spend"   # THE fixed place, outside every worktree (PP_SPEND_LEDGER_DIR: tests only)
 DAY_ET = ZoneInfo("America/New_York")
 DAY_START = (21, 10)               # ruling 118: a spend day runs 21:10 ET to 21:10 ET
@@ -201,15 +221,15 @@ def reserve(backend, usd, role="", chars=0, path=None, now=None, wait_s=None):
                 if d.get("stop"):
                     raise CeilingRefused(f"the spend ledger is STOPPED ({d['stop'].get('why')}): no paid call until "
                                          f"the owner clears it")
-                s, h = spent(d), held(d)
+                s, h, cap = spent(d), held(d), cap_usd()  # E: the one cap in force
                 busy = in_flight(d) if (ONE_IN_FLIGHT and usd > 0) else []
-                if s + usd > CAP_USD + 1e-9 or not busy and s + h + usd > CAP_USD + 1e-9:
+                if s + usd > cap + 1e-9 or not busy and s + h + usd > cap + 1e-9:
                     raise CeilingRefused(f"the ceiling: spent ${s:.4f} + held ${h:.4f} + this {backend} call's "
-                                         f"${usd:.4f} > ${CAP_USD:.2f}: refused before the vendor is asked")
+                                         f"${usd:.4f} > ${cap:.2f}: refused before the vendor is asked")
                 if not busy:
-                    if s + h + usd > CAP_USD + 1e-9:
+                    if s + h + usd > cap + 1e-9:
                         raise CeilingRefused(f"the ceiling: spent ${s:.4f} + held ${h:.4f} + this {backend} call's "
-                                             f"${usd:.4f} > ${CAP_USD:.2f}: refused before the vendor is asked")
+                                             f"${usd:.4f} > ${cap:.2f}: refused before the vendor is asked")
                     vc = None
                     if chars:
                         vc = d.setdefault("voice", {}).setdefault("runs", {}).setdefault(
@@ -550,7 +570,7 @@ def status(path=None, now=None):
         d = read(path)
     s, h = spent(d), held(d)
     return {"ledger": path, "day_starts": day_start(now).isoformat(), "spent": round(s, 6), "held": round(h, 6),
-            "room": round(CAP_USD - s - h, 6), "cap": CAP_USD, "stop": d.get("stop"), "init": d.get("init"),
+            "room": round(cap_usd() - s - h, 6), "cap": cap_usd(), "stop": d.get("stop"), "init": d.get("init"),
             "carried_in": {k: v.get("usd_reported") for k, v in d["by_backend"].items() if k.startswith("carried_in:")},
             "voice": dict({"mode": VOICE_MODE, "cap_chars_per_build": VOICE_CHAR_CAP, "run": run_name(),
                            "carried_in_chars": (d.get("voice") or {}).get("carried_in_chars", 0)},
@@ -565,7 +585,7 @@ def peek(path=None, now=None):
     d = read(path)
     s, h = spent(d), held(d)
     return {"ledger": path, "day_starts": day_start(now).isoformat(), "spent": round(s, 6), "held": round(h, 6),
-            "room": round(CAP_USD - s - h, 6), "cap": CAP_USD, "stop": d.get("stop"), "exists": os.path.exists(path),
+            "room": round(cap_usd() - s - h, 6), "cap": cap_usd(), "stop": d.get("stop"), "exists": os.path.exists(path),
             "init": d.get("init")}
 
 

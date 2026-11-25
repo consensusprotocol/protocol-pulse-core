@@ -132,6 +132,7 @@ def env_instance(p, name, run_name, offline=False):
          "PP_SCORER_DIR": p["scorer"], "CUDA_VISIBLE_DEVICES": "0", "CUDA_DEVICE_ORDER": "PCI_BUS_ID"}
     if name == "lockcheck":
         e["PP_LOCK_PRECHECK_EXTRA"] = REQUESTS
+    e.update(ceiling_env())                               # E: the one-build ceiling, when --ceiling-usd passed one
     if offline:          # the startup proof only (startup_proof.py): nothing can be asked of it (an empty requests
         e.update({"PP_SPEND_LEDGER_DIR": os.path.join(p["run"], "pp_spend"),   # folder), its one ledger and its GPU0
                   "PP_GPU0_WANT_DIR": os.path.join(p["run"], "offline", "gpu0_want")})   # want flags the scratch run's
@@ -143,7 +144,15 @@ def env_instance(p, name, run_name, offline=False):
 def env_builder(p, run_name):
     return {"PP_SPEND_CEILING": "1", "PP_SPEND_RUN": run_name, "PYTHONPATH": os.path.join(HERE, "ceiling_site"),
             "PP_LOCK_PRECHECK_RESULTS": f"{p['lock']}/results",
-            "PP_SCORER_VERDICTS": f"{p['scorer']}/verdicts/latest.json"}
+            "PP_SCORER_VERDICTS": f"{p['scorer']}/verdicts/latest.json", **ceiling_env()}
+
+
+def ceiling_env():
+    """E (the owner, 15:55 ET Nov 25): {PP_SPEND_CAP_USD: value} when this launcher was given --ceiling-usd (main puts
+    it in its own environment, after refusing one inherited from the shell); {} at the $1.50 default. The three
+    programs read it in one place, spend_ceiling.cap_usd()."""
+    v = os.environ.get(SC.CAP_ENV)
+    return {SC.CAP_ENV: v} if v else {}
 
 
 def instance_args(name, candidates=None):
@@ -320,8 +329,9 @@ def service_script(p, name, env, top_dirs, offline=False):
     server's own environment never carries a test override into a service (B1: the launcher's own is checked by
     preconditions)."""
     cand = os.path.join(p["run"], "offline", "no_candidates.json") if offline else None   # the proof: none to score
-    inner = ["env"] + [f"--unset={k}" for k in TEST_ONLY_ENV] + [f"{k}={v}" for k, v in sorted(env.items())] + \
-        in_ns(p, name, instance_args(name, cand), top_dirs, offline)
+    inner = ["env"] + [f"--unset={k}" for k in TEST_ONLY_ENV + (SC.CAP_ENV,)] + \
+        [f"{k}={v}" for k, v in sorted(env.items())] + in_ns(p, name, instance_args(name, cand), top_dirs, offline)
+    #   E: a ceiling only ever from env (this launcher's --ceiling-usd), never the tmux server's own environment
     stamp = '"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'
     return "\n".join(["set -o pipefail", "{", f'echo {stamp} "{name}: START (bash $$): the namespace, then the service"',
                       " ".join(shlex.quote(x) for x in inner), "rc=$?", f'echo {stamp} "{name}: ENDED, exit $rc"',
@@ -760,7 +770,9 @@ def preconditions(o, run_name, launch=True, t0=None, deadline_s=None):
     if launch:                                         # B1 (a): the launch needs the ledger initialized (by start)
         ok &= check("the one ledger initialized, readable, not stopped", st is not None and not why and
                     st["room"] > 0, why or f"{st['ledger']} (spend day from {st['day_starts']}): spent "
-                    f"${st['spent']:.4f}, held ${st['held']:.4f}, ROOM ${st['room']:.4f} of ${SC.CAP_USD:.2f}", out)
+                    f"${st['spent']:.4f}, held ${st['held']:.4f}, ROOM ${st['room']:.4f} of ${SC.cap_usd():.2f}"
+                    + (" (a ONE-BUILD exception, --ceiling-usd; the daily target stays $1.50)"
+                       if SC.cap_usd() != SC.CAP_USD else ""), out)
     else:                                              # start: initialized next, unless it is unreadable or stopped
         ok &= check("the one ledger readable and not stopped (ledger-init comes next)",
                     st is not None and not (st["exists"] and st["stop"]),
@@ -1104,7 +1116,10 @@ def launch(o, build_no=172, deadline_s=DEADLINE_S, why="the owner's build 172 (l
             o.say("REFUSED: a precondition failed; nothing was started")
             return 2
         o.say("DRY RUN: a precondition FAILS, so a live launch would be REFUSED here; the commands it would run:")
-    record = {"build_no": build_no, "build_id": build_id, "t0": t0, "deadline_s": deadline_s, **sh_, "stages": {}}
+    record = {"build_no": build_no, "build_id": build_id, "t0": t0, "deadline_s": deadline_s, **sh_, "stages": {},
+              "ceiling_usd": SC.cap_usd(), **({"ceiling_note": f"a one-build exception (--ceiling-usd); the daily "
+                                                                 f"operating target stays ${SC.CAP_USD:.2f}"}
+                                                if SC.cap_usd() != SC.CAP_USD else {})}   # E
     o.window = (t0, None)
     if not o.dry:
         os.makedirs(p["logs"], exist_ok=True)
@@ -1370,6 +1385,25 @@ def detach(argv, p, entry=None):
     return 0
 
 
+def ceiling_from_args(a):
+    """E: the one-build ceiling comes ONLY from --ceiling-usd: a value outside (0, CAP_SANITY_USD] is refused; a
+    PP_SPEND_CAP_USD already in this shell's environment is refused for run / start / launch unless it is the same value
+    (the detached child of `run` inherits its parent's, with the same argument); the guard, restore and snapshot make no
+    paid call. Puts the value in this process's environment (ceiling_env passes it on). -> why refused, or None."""
+    inherited = os.environ.get(SC.CAP_ENV)
+    paid = a.what in ("run", "start", "launch")
+    if a.ceiling_usd is None:
+        return (f"{SC.CAP_ENV}={inherited!r} is in this shell's environment: a ceiling comes only from --ceiling-usd"
+                if inherited and paid else None)
+    if not (0 < a.ceiling_usd <= SC.CAP_SANITY_USD):
+        return f"--ceiling-usd {a.ceiling_usd} is outside (0, {SC.CAP_SANITY_USD:.2f}]"
+    want = f"{a.ceiling_usd:.2f}"
+    if inherited and inherited != want and paid:
+        return f"{SC.CAP_ENV}={inherited!r} is in this shell's environment and is not --ceiling-usd {want}"
+    os.environ[SC.CAP_ENV] = want
+    return None
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("what", choices=("run", "snapshot", "start", "launch", "restore", "guard"))
@@ -1381,8 +1415,16 @@ def main(argv=None):
     ap.add_argument("--pid", type=int, help="guard: the launcher's pid")
     ap.add_argument("--start", help="guard: the launcher's /proc start time")
     ap.add_argument("--deadline-at", type=float, help="guard: the launch's deadline (epoch seconds)")
+    ap.add_argument("--ceiling-usd", type=float, default=None,
+                    help=f"E: a ONE-BUILD reservation ceiling for the day's one ledger (default: spend_ceiling's "
+                         f"${SC.CAP_USD:.2f}), at most ${SC.CAP_SANITY_USD:.2f}; passed to the builder, the lock service "
+                         f"and the renderer, and recorded in the launch record and the outcome line")
     raw = list(sys.argv[1:] if argv is None else argv)
     a = ap.parse_args(raw)
+    why = ceiling_from_args(a)
+    if why:
+        print(f"REFUSED: {why}: nothing done")
+        return 2
     o = Ops(a.dry_run)
     if a.what == "snapshot":
         print(json.dumps(snapshot(), indent=1))

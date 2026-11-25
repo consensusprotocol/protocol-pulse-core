@@ -948,11 +948,14 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     for mid, m in clean.items():
         if mid in two:
             both[mid] = m
+        elif P.is_budget(off_fail.get(mid)):            # C: refused FOR MONEY: budget, never a provider's no-answer
+            stop(mid, "BUDGET (the spend stop or the completion reserve refused step A from the second family; "
+                      "budget_refused, not a provider): " + "; ".join(off_fail[mid]))
         elif P.is_held(off_fail.get(mid)):              # RULING 102: no leg answered: held, retried next build
             stop(mid, "HELD (ruling 102), step A from the second family gave no answer: " + "; ".join(off_fail[mid]))
         else:
             stop(mid, "step A from the second family: " + "; ".join(off_fail.get(mid) or ["no verdict (law L-m)"]))
-    out["held_102"] = sorted(mid for mid in clean if P.is_held(off_fail.get(mid)))       # RULING 102
+    out["held_102"], out["budget_102"] = P.held_and_budget(off_fail, clean)   # RULING 102; C: money apart
     out["last_resort_87"] = {mid: P.last_resort_of(v) for mid, v in sorted(two.items()) if P.last_resort_of(v)}
     passed(both, 6)
     waited = 0.0

@@ -47,7 +47,8 @@ STAGES = ("pool", "step A", "second pass + CUTTABLE", "hook onset", "hooks", "st
 UNANSWERED = re.compile(r"no verdict|not measured|NO JUDGE ANSWERED|STEP_A_HELD|HELD \(ruling 102\)|gives no answer|"
                         r"gave no answer|no answer|every back-end unavailable|ProviderError|no readable verdict|"
                         r"did not answer|not rated", re.I)
-BUDGET = re.compile(r"SpendLimit|--lock-precheck off|the search spent|package spent \d+ s of|spend stop", re.I)
+BUDGET = re.compile(r"SpendLimit|--lock-precheck off|the search spent|package spent \d+ s of|spend stop|"
+                    r"CompletionReserve|completion reserve|CeilingRefused|BUDGET_REFUSED", re.I)   # C: money
 MOMENT_ID = re.compile(r"\b[0-9a-f]{20}\b")
 BACKEND = re.compile(r"\b(?:heimdall|xai|openai|anthropic|google|elevenlabs|local_judge):[\w./-]+")
 ROLE = re.compile(r"\b(\w+_verdict|angle_write|transcribe|visual_check|coherence_panel)\b")
@@ -182,11 +183,14 @@ def verdict_classes(pk, fp=None):
     for p in (pk.get("prescreen"), soft.get("prescreen")):
         for mid, f in ((p or {}).get("failed") or {}).items() if isinstance(p, dict) else ():
             fails.setdefault(mid, " ".join(map(str, f)) if isinstance(f, list) else str(f))
+        for mid, f in ((p or {}).get("second_vendor") or {}).items() if isinstance(p, dict) else ():
+            fails[mid] = (fails.get(mid, "") + " " + str(f)).strip()   # C: the second screen's own reason (a refusal
+            #   for money names the reserve or the spend stop): a record written before C reads right too
     ud = {k: 0 for k in MEASURE_KINDS[2:]}
     for x in items or []:
         if not isinstance(x, dict):
             continue
-        ud["budget_refused" if x.get("kind") == "money" else
+        ud["budget_refused" if x.get("kind") in ("money", "budget") else   # C: refused for money, never "no answer"
            _class_of(str(x.get("why") or "") + " " + fails.get(x.get("id"), ""))] += 1
     return {"lineups": lu, "undone": ud}
 
@@ -299,7 +303,8 @@ def classify(why, pre=None, hook_pool=None, tried=None):
             tail = w.split("not rated:", 1)[1] if "not rated:" in w else w
             return out("INDETERMINATE", "hooks", "the hook rating had no answer", model=_first_model(tail))
         return out("HARD_REJECTED", "hooks", "no opener passes the calibrated hook bar (ruling 115)")
-    if re.match(r"\d+ cleared moments pass the second pass, CUTTABLE and step A from both vendors", w):
+    if re.match(r"\d+ cleared moments pass the second pass, CUTTABLE and step A from (?:both vendors|the first "
+                r"vendor)", w):                    # A: the lean path's wording (the second vendor pending)
         sp = pre.get("second_pass") or {}
         sv = pre.get("second_vendor") or {}
         open_ = [k for k, v in list(sp.items()) + list(sv.items()) if UNANSWERED.search(str(v))]
@@ -386,12 +391,21 @@ def undone(res, sp=None, refused=()):
     h = d(pre.get("held_102"))
     items += [{"kind": "held", "id": m, "why": "step A gave no answer (ruling 102 HELD)"}
               for m in ls(h.get("first")) + ls(h.get("second")) + ls(sp.get("held_102"))]
+    bg = d(pre.get("budget_102"))                        # C: step A refused FOR MONEY: budget, never a provider's
+    items += [{"kind": "budget", "id": m, "why": "step A was refused for money (the spend stop or the completion "
+                                                 "reserve): no verdict, budget_refused"}
+              for m in ls(bg.get("first")) + ls(bg.get("second")) + ls(sp.get("budget_102"))]
     ne = d(res.get("never_empty"))
     soft = d(ne.get("soft_record"))
     soft_pre = d(soft.get("prescreen"))
     s = d(soft_pre.get("held_102"))
     items += [{"kind": "held", "id": m, "why": "step A gave no answer in the never-empty pass (ruling 102 HELD)"}
               for m in sorted(set(ls(s.get("first")) + ls(s.get("second"))) - set(ls(h.get("first")) + ls(h.get("second"))))]
+    sb = d(soft_pre.get("budget_102"))
+    items += [{"kind": "budget", "id": m, "why": "step A was refused for money in the never-empty pass (the spend "
+                                                 "stop or the completion reserve): no verdict, budget_refused"}
+              for m in sorted(set(ls(sb.get("first")) + ls(sb.get("second"))) - set(ls(bg.get("first")) +
+                                                                                    ls(bg.get("second"))))]
     items += [{"kind": "lock", "id": None, "why": "the render's lock gave no verdict in time"}] * (_errors(res) + _errors(sp))
     items += [{"kind": "vision", "id": None, "why": "a vision check not measured"}] * int(
         d(res.get("visual")).get("unmeasured") or 0)
@@ -441,7 +455,8 @@ def yield_of(pk, inp=None):
             ("second pass + CUTTABLE", len(sp), sum(v != "PASS" for v in sp.values())),
             ("hook onset", len(ho), sum(str(v).startswith("FAIL") for v in ho.values())),
             ("hooks", int(hp.get("can_open") or 0), max(0, int(hp.get("can_open") or 0) - len(passing))),
-            ("step A, second family", len(sv), sum(str(v).startswith("FAIL") and k not in soft2 for k, v in sv.items())),
+            ("step A, second family", sum(not str(v).startswith("PENDING") for v in sv.values()),   # A: pending is
+             sum(str(v).startswith("FAIL") and k not in soft2 for k, v in sv.items())),           # never entered
             ("line-ups", len(lineups), sum(t.get("result") != "PACKAGE" for t in lineups)),
             ("writes", writes, max(0, writes - sum(t.get("result") == "PACKAGE" for t in lineups))),
             ("seal", made, made - min(made, sealed))]
@@ -509,7 +524,8 @@ def _outcome_of(build_dir, rc=None, error=None, refused=None, build_no=None, bac
                          (f", {held} of them held back by the completion reserve (lean 5)" if held else ""),
                     clip=None, model=sorted(set(map(str, money)))[0], note=str(why or "")[:400] or None)
     left = [x for x in (fp["undone"] if isinstance(fp.get("undone"), list) else undone(pk, pk.get("spotlight")))
-            if isinstance(x, dict) and x.get("kind") != "money"]   # RULING 163 (4): anything unanswered or unmeasured
+            if isinstance(x, dict) and x.get("kind") not in ("money", "budget")]   # RULING 163 (4): anything unanswered
+    #   or unmeasured; C: what money refused is the spend's own line above, never "unanswered"
     #   (the driver's own list when its FINGERPRINT.json has one; an older record's, read again from package.json)
     if left:
         kinds = collections.Counter(x["kind"] for x in left)
@@ -559,7 +575,21 @@ def record_build(build_dir, rc=None, error=None, refused=None, build_no=None, pa
     line = dict(outcome_of(build_dir, rc=rc, error=error, refused=refused, build_no=build_no, titles=titles,
                            stopped_at=stopped_at),
                 build_id=build_id, seconds=seconds if isinstance(seconds, dict) else None)
+    line.update(ceiling_note())                          # E: a one-build ceiling exception is on its line
     return line if write_once(line, path) else None
+
+
+def ceiling_note():
+    """E (the owner, 15:55 ET Nov 25): the outcome line names the reservation ceiling a build ran under when it is NOT
+    the $1.50 default (a one-build exception passed by the launcher, e.g. build 173's $3.00); {} at the default."""
+    if os.path.join(REPO, "pipeline") not in sys.path:
+        sys.path.insert(0, os.path.join(REPO, "pipeline"))
+    import spend_ceiling as SC
+    cap = SC.cap_usd()
+    if abs(cap - SC.CAP_USD) < 1e-9:
+        return {}
+    return {"ceiling_usd": cap, "ceiling_note": f"a one-build exception (lean_ops --ceiling-usd {cap:.2f}); the daily "
+                                                f"operating target stays ${SC.CAP_USD:.2f}"}
 
 
 NOT_READY = "the pin is not READY"           # scripts/pulse_check_run.sh's words when check_pin_only refuses the pin

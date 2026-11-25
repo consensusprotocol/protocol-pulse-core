@@ -654,6 +654,70 @@ def is_held(why):
     return bool(why) and all(str(w).startswith(HELD) for w in why)
 
 
+BUDGET_WORDS = re.compile(r"SpendLimit|CompletionReserve|completion reserve|spend stop|CeilingRefused")
+
+
+def is_budget(why):
+    """C (the owner, 15:55 ET Nov 25: "Budget exhaustion is not provider unavailability"): a held moment's step-A call
+    was refused FOR MONEY (the spend stop, ruling 48; the completion reserve, lean (5); the one ledger's ceiling), not
+    left unanswered by a provider. It has no verdict all the same (is_held: never a pass, never a refusal), but it is
+    listed in budget_102, never in ruling 102's held_102, and classed budget_refused, never provider_unavailable."""
+    return is_held(why) and any(BUDGET_WORDS.search(str(w)) for w in why)
+
+
+def held_and_budget(fails, mids):
+    """-> ({"first"/"second": ...} ready lists) the provider-held ids and the budget-refused ids of `mids`, by their
+    step-A reasons in `fails` (ruling 102 / C)."""
+    return (sorted(mid for mid in mids if is_held(fails.get(mid)) and not is_budget(fails.get(mid))),
+            sorted(mid for mid in mids if is_budget(fails.get(mid))))
+
+
+PENDING = "PENDING: the second vendor's step A is asked when a line-up selects this moment (A)"
+#   A (the owner, 15:55 ET Nov 25: "the deferred second-vendor verification for all three selected lineup segments"):
+#   on the lean path a moment cleared by its FIRST vendor's step A carries this until a provisional line-up that passed
+#   its join table and its clips-alone verdict asks its second vendor's verdict; pending is never a pass anywhere
+DEFERRED_LINEUPS_MAX = 3           # F: at most this many line-ups have their deferred second-vendor verdicts asked in one
+#   build; then the search stops. From the recorded costs (builds 171-172): one full evaluation (the join table, the
+#   clips-alone verdict, the deferred call) bills $0.03-0.11 and reserves at most $0.106 at a time; three cost at most
+#   $0.33 billed, inside even the $1.50 day's search room on build 172's numbers for one, and the $3.00 exception's for
+#   three. Build 171 entered 3 line-ups; no recorded build had a 4th that could pass where the first three did not
+
+
+def second_pass_of(router, first, verdicts):
+    """A: the passing second-vendor step-A verdict among `verdicts` (a moment's a_two list) from a back-end off its
+    FIRST verdict's vendor and family (law L-m), never the local judge's (ruling 127 (2)); else None. A verdict with
+    failures, or one from the first's vendor or family, is never it."""
+    b1 = router.backends.get(first.get("backend")) if isinstance(first, dict) else None
+    if b1 is None:
+        return None
+    for v in verdicts or []:
+        b2 = router.backends.get(v.get("backend")) if isinstance(v, dict) else None
+        if b2 is not None and b2.vendor != b1.vendor and b2.family != b1.family and \
+                not str(v.get("backend")).startswith(LAST_RESORT) and not CI.a_failures(v):
+            return v
+    return None
+
+
+def second_holds(router, mid, a_first, a_two, soft_two=(), soft=False):
+    """A: the moment holds its second-vendor verdict: a PASS off its first verdict's vendor and family
+    (second_pass_of), or in the never-empty pass a refusal for soft codes only by the second family (ruling 137 stage
+    2a, flagged). Pending, a FAIL, no answer, a refusal for money, or the first's vendor or family: never."""
+    if not isinstance(a_first.get(mid), dict):
+        return False
+    return bool(soft and mid in soft_two) or second_pass_of(router, a_first.get(mid), a_two.get(mid)) is not None
+
+
+def seal_second_refusal(router, segments, a_first, a_two, soft_two=(), soft=False, sv=None):
+    """A: THE SEAL REFUSES unless every segment of THIS line-up, its opener first, holds its second-vendor verdict
+    (second_holds). -> why, or None."""
+    for sg in segments or []:
+        mid = sg.get("moment_id")
+        if not second_holds(router, mid, a_first, a_two, soft_two, soft):
+            return (f"A: the seal refuses: {sg.get('label')} {mid} holds no PASS second-vendor verdict off its first "
+                    f"verdict's vendor and family ({str((sv or {}).get(mid, PENDING))[:160]})")
+    return None
+
+
 def soft_codes(f):
     """RULING 137: a step-A refusal's codes when every one is SOFT (STEP_A_SOFT) and it is a refusal, not a held
     moment (ruling 102), else None (a hard code, a hold, or no refusal keeps it as it was)."""
@@ -832,9 +896,16 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
     db, cdb = _load_store(store), _load_cache(cache)
     wv, wf = P._as_set(writer_vendor), P._as_set(writer_family)
     off = lambda name: (lambda b: b is not None and b.vendor not in wv and b.family not in wf)(router.backends.get(name))
+    allowed = None                                      # B (the owner, 15:55 ET Nov 25): a cached SECOND-vendor
+    if kind == "step_a_second":                         # verdict is reused only from a model this chain names: the
+        try:                                            # judging model is part of the verdict, never relabelled
+            allowed = set(router.chain("context_verdict", kind))
+        except Exception:                               # noqa: BLE001 (a stand-in router without chains: as before)
+            allowed = None
     pick = lambda key: next((x for name, x in sorted((cdb.get(key) or {}).items())        # a cached verdict off the
                              if isinstance(x, dict) and off(name) and x.get("backend") == name    # writers', never
-                             and not name.startswith(LAST_RESORT)), None)                         # the local judge's
+                             and not name.startswith(LAST_RESORT)                                 # the local judge's
+                             and (allowed is None or name in allowed)), None)
     moved = {}                                          # ruling 126 (1): old-key verdicts, written under the new key
     a_by, fails, vendors, families, todo, contexts, keys = {}, {}, set(), set(), [], {}, {}
     for m in order:
@@ -1042,7 +1113,7 @@ def _second_bounds(router):
     return SECOND_VERDICT_BATCH, SECOND_VERDICT_DEADLINE_S
 
 
-def second_screen(router, cleared, a_by, sources, ctx, log=print, cache=None):
+def second_screen(router, cleared, a_by, sources, ctx, log=print, cache=None, batch=None):
     """ORDER 06:22 item 45: step A from a SECOND vendor on every cuttable clip, BEFORE the angle step. The writer is
     known only when the angle call answers (Heimdall first, Grok on its failure: angle_write), and a verdict never
     comes from the writer's vendor (L-x). The only step-A vendors are the writers' own two (context_verdict: xai, then
@@ -1056,7 +1127,8 @@ def second_screen(router, cleared, a_by, sources, ctx, log=print, cache=None):
     for mid, m in cleared.items():
         b = router.backends.get((a_by.get(mid) or {}).get("backend"))
         groups.setdefault((b.vendor, b.family) if b is not None else None, []).append(m)
-    batch, dl = _second_bounds(router)
+    batch_, dl = _second_bounds(router)
+    batch = batch or batch_                              # A: the deferred call passes its line-up's size: ONE call
     jobs = [(k, g[i:i + batch]) for k, g in groups.items() if k is not None
             for i in range(0, len(g), batch)]
     def one(k, chunk):                  # a chunk whose screen raises fails closed, never the build (audit 0640 C1)
@@ -3794,13 +3866,16 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                 "trimmed": {k: v["moment_id"] for k, v in trims.items()}, "reposted": reposted,
                 "scorer": dict(scorer["record"], admitted=admitted, trims_affirmed=sorted(trims), trims_out=trim_out),
                 "prescreen": {"screened": 0, "cleared": 0, "failed": {}, "parallel_101": None,
-                              "held_102": {"first": [], "second": []}, "last_resort_87": {}},
+                              "held_102": {"first": [], "second": []}, "budget_102": {"first": [], "second": []},
+                              "last_resort_87": {}},
                 "angles": [], "takeaways": [], "package": None, "why_none": why_none,
                 "ruling_109": {"channels": n_ch, "pool": len(ms)}}
     wv, wf = _writers(router)
     fb = first_bounds(router)
     plan = step_a_plan(router, ms, sources, ctx, wv, wf, store=store, cache=step_a_cache, **fb)   # RULING 101
-    ahead_pool = ThreadPoolExecutor(max_workers=1) if plan["parallel"] else None
+    if lean and plan["parallel"]:                       # A: no second vendor's step A before the line-up, the
+        plan = dict(plan, parallel=False, why="A: the second vendor's step A is deferred to the line-up (lean)")
+    ahead_pool = ThreadPoolExecutor(max_workers=1) if plan["parallel"] else None   # confirm-ahead's included
     ahead = ahead_pool.submit(confirm_ahead, router, plan["new"], sources, ctx, wv, wf, log, step_a_cache) \
         if ahead_pool is not None else None              # Grok's confirm beside the Heimdall filter, at once
     par = {**{k: plan.get(k) for k in ("parallel", "n_new", "est_wait_s", "leg", "confirm", "why")}, "used": 0}
@@ -3823,7 +3898,8 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
            "scorer": dict(scorer["record"], admitted=admitted, trims_affirmed=sorted(trims), trims_out=trim_out),
            "prescreen": {"screened": len(fails), "cleared": len(cleared),
                          "failed": {mid: f for mid, f in fails.items() if f}, "parallel_101": par,
-                         "held_102": {"first": sorted(mid for mid, f in fails.items() if is_held(f)), "second": []},
+                         "held_102": {"first": held_and_budget(fails, fails)[0], "second": []},
+                         "budget_102": {"first": held_and_budget(fails, fails)[1], "second": []},   # C: for money
                          "last_resort_87": {}},                  # RULING 102: held, never refused; the local judge
            "angles": [], "takeaways": [],
            "package": None}
@@ -4009,32 +4085,94 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                       f"{b['why']}" for b in best) if openers else
             "no cleared, cuttable moment can open (hook eligibility, G17a, the render's hook rule)"))
         return out
+    def held_log():
+        """RULING 102 / C: the held lines, a provider's no-answer and a refusal for money apart."""
+        h, bg, lr = out["prescreen"]["held_102"], out["prescreen"]["budget_102"], out["prescreen"]["last_resort_87"]
+        if h["first"] or h["second"] or lr:
+            log(f"  RULING 102: held for this build (no leg answered; retried next build): {len(h['first'])} at the "
+                f"first screen, {len(h['second'])} at the second {h['second']}; the local judge (ruling 87's last "
+                f"resort) gave {len(lr)} step-A verdict(s): {sorted(lr)}")
+        if bg["first"] or bg["second"]:
+            log(f"  C: step A refused FOR MONEY (the spend stop or the completion reserve; budget_refused, never a "
+                f"provider's no-answer): {len(bg['first'])} at the first screen, {len(bg['second'])} at the second "
+                f"{bg['second']}")
+
+    def second_ok(mid):
+        """A: second_holds on this build's verdicts."""
+        return second_holds(router, mid, a_first, a_two, soft_two, soft)
+
+    def second_for(segs_):
+        """A + B: the second vendor's step A for a line-up that passed its join table and its clips-alone verdict: ONE
+        call (second_screen: the same prompt, chain and off-vendor rule) on its segments that hold none. A segment
+        judged before is read from the step-A cache (B: the same words, cut, context, prompt version, by a model of
+        this chain), never paid again; a FAIL is cached as a FAIL; no answer and a refusal for money are never cached.
+        -> None when every segment holds one (second_ok); else ({moment id: why}, refused for money)."""
+        need = {m["moment_id"]: m for m in segs_ if not second_ok(m["moment_id"])}
+        call = {"lineup": [m["moment_id"] for m in segs_], "asked": sorted(need)}
+        if need:
+            two_, f2_ = second_screen(router, need, a_first, sources, ctx, log=log, cache=step_a_cache,
+                                      batch=len(need))       # ONE call for the line-up (per first verdict's vendor)
+            soft2_ = soft_second(need, two_, f2_) if soft else {}
+            for mid in need:
+                if mid in two_:
+                    a_two[mid] = two_[mid]
+                    sv[mid] = f"PASS ({two_[mid][1].get('backend')})"
+                elif mid in soft2_:
+                    soft_two[mid] = soft2_[mid]
+                    sv[mid] = "SOFT (ruling 137 stage 2a, flagged): " + ", ".join(soft2_[mid])
+                else:
+                    why_ = f2_.get(mid) or [f"{HELD}: no second verdict (law L-m); held for this build, retried next "
+                                            f"build"]
+                    off_fail[mid] = why_
+                    sv[mid] = (("BUDGET: " if is_budget(why_) else "HELD: " if is_held(why_) else "FAIL: ") +
+                               "; ".join(why_))
+            for k_, ids_ in zip(("held_102", "budget_102"), held_and_budget(off_fail, need)):
+                out["prescreen"][k_]["second"] = sorted(set(out["prescreen"][k_]["second"]) | set(ids_))
+            call["result"] = {mid: sv[mid][:200] for mid in need}
+            log(f"  A: the deferred second-vendor step A on line-up {call['lineup']}: " +
+                "; ".join(f"{mid[:8]} {sv[mid][:70]}" for mid in sorted(need)))
+        out["prescreen"]["deferred_second"]["calls"].append(call)
+        bad = {m["moment_id"]: sv.get(m["moment_id"], PENDING) for m in segs_ if not second_ok(m["moment_id"])}
+        return (bad, any(is_budget(off_fail.get(mid)) for mid in bad)) if bad else None
+
+    def seal_refusal(pk_):
+        """A: THE SEAL REFUSES (on the lean path) unless every segment of THIS line-up, its opener first, holds its
+        second-vendor verdict (seal_second_refusal). -> why, or None."""
+        return seal_second_refusal(router, pk_.get("segments"), a_first, a_two, soft_two, soft, sv) if lean else None
+
     par["used"] = prewarm_used(router, cleared, a_by, pre_by)    # ruling 101: the confirm-ahead verdicts it reads
-    a_two, off_fail = second_screen(router, cleared, a_by, sources, ctx, log=log,
-                                    cache=step_a_cache)                  # ORDER 06:22 item 45
-    out["prescreen"]["second_vendor"] = {mid: f"PASS ({a_two[mid][1].get('backend')})" if mid in a_two else
-                                         ("HELD: " if is_held(off_fail.get(mid)) else "FAIL: ") +
-                                         "; ".join(off_fail.get(mid) or ["no second verdict"])
-                                         for mid in cleared}
-    out["prescreen"]["held_102"]["second"] = sorted(mid for mid in cleared if is_held(off_fail.get(mid)))
-    out["prescreen"]["last_resort_87"] = {mid: last_resort_of(a_two[mid]) for mid in sorted(a_two)    # RULING 102
-                                          if last_resort_of(a_two[mid])}
-    h = out["prescreen"]["held_102"]
-    if h["first"] or h["second"] or out["prescreen"]["last_resort_87"]:
-        log(f"  RULING 102: held for this build (no leg answered; retried next build): {len(h['first'])} at the first "
-            f"screen, {len(h['second'])} at the second {h['second']}; the local judge (ruling 87's last resort) gave "
-            f"{len(out['prescreen']['last_resort_87'])} step-A verdict(s): {sorted(out['prescreen']['last_resort_87'])}")
-    soft_two = soft_second(cleared, a_two, off_fail) if soft else {}   # RULING 137 stage 2a: flagged, kept
-    if soft_two:
-        out["prescreen"]["soft_second"] = soft_two
-        log(f"  RULING 137 NEVER EMPTY (stage 2a): {len(soft_two)} moment(s) the second family refused for soft codes "
-            f"only stay, flagged: " + ", ".join(f"{mid[:8]} {c}" for mid, c in soft_two.items()))
-    cleared = {mid: m for mid, m in cleared.items() if mid in a_two or mid in soft_two}
-    log(f"  {len(cleared)} of them clear step A from both vendors too (order 06:22 item 45: whichever vendor writes, "
-        f"a verdict off it exists) ({time.time() - t0:.0f} s)")
+    a_first = dict(a_by)                                  # A: each moment's FIRST verdict: the second is off it
+    sv = out["prescreen"]["second_vendor"] = {}
+    if lean:                                              # A (the owner, 15:55 ET Nov 25): the second vendor's step A
+        a_two, off_fail, soft_two = {}, {}, {}            # is NOT asked before the line-up; every moment is PENDING
+        sv.update({mid: PENDING for mid in cleared})      # until a line-up selects it (second_for); never a pass
+        out["prescreen"]["deferred_second"] = {"calls": [], "lineups": 0, "max_lineups": DEFERRED_LINEUPS_MAX}
+        log(f"  {len(cleared)} of them clear step A from the first vendor; the second vendor's step A is PENDING for "
+            f"each (A: asked once for a line-up's segments when it passes its join table and clips-alone verdict; "
+            f"pending is never a pass) ({time.time() - t0:.0f} s)")
+    else:
+        a_two, off_fail = second_screen(router, cleared, a_by, sources, ctx, log=log,
+                                        cache=step_a_cache)              # ORDER 06:22 item 45
+        sv.update({mid: f"PASS ({a_two[mid][1].get('backend')})" if mid in a_two else
+                   ("BUDGET: " if is_budget(off_fail.get(mid)) else "HELD: " if is_held(off_fail.get(mid))
+                    else "FAIL: ") + "; ".join(off_fail.get(mid) or ["no second verdict"]) for mid in cleared})
+        out["prescreen"]["held_102"]["second"], out["prescreen"]["budget_102"]["second"] = \
+            held_and_budget(off_fail, cleared)            # C: refused for money is budget, never "no answer"
+        out["prescreen"]["last_resort_87"] = {mid: last_resort_of(a_two[mid]) for mid in sorted(a_two)    # RULING 102
+                                              if last_resort_of(a_two[mid])}
+        soft_two = soft_second(cleared, a_two, off_fail) if soft else {}   # RULING 137 stage 2a: flagged, kept
+        if soft_two:
+            out["prescreen"]["soft_second"] = soft_two
+            log(f"  RULING 137 NEVER EMPTY (stage 2a): {len(soft_two)} moment(s) the second family refused for soft "
+                f"codes only stay, flagged: " + ", ".join(f"{mid[:8]} {c}" for mid, c in soft_two.items()))
+        cleared = {mid: m for mid, m in cleared.items() if mid in a_two or mid in soft_two}
+        log(f"  {len(cleared)} of them clear step A from both vendors too (order 06:22 item 45: whichever vendor "
+            f"writes, a verdict off it exists) ({time.time() - t0:.0f} s)")
+    held_log()
     if len({m["channel_id"] for m in cleared.values()}) < 3:
-        out["why_none"] = (f"{len(cleared)} cleared moments pass the second pass, CUTTABLE and step A from both "
-                           f"vendors, from fewer than 3 channels")
+        out["why_none"] = (f"{len(cleared)} cleared moments pass the second pass, CUTTABLE and step A from " +
+                           ("the first vendor (the second pending, A)" if lean else "both vendors") +
+                           ", from fewer than 3 channels")
         return out
     passing = hook_order([m for m in cleared.values() if can_open(m)])    # ruling 59: the passing hooks still
     if not passing:                                                        # cleared after the second screen
@@ -4430,23 +4568,30 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
         except Exception as e:                            # noqa: BLE001  no verdict is never a pass (law L-m)
             a1, f1 = {}, {cm["moment_id"]: [held_why(e)] for cm in cms}
         c1, _back = cleared_pool(cms, a1, f1, soft)       # RULING 137 stage 1: soft codes back, flagged (copies)
-        two, f2 = second_screen(router, c1, a1, sources, ctx, log=log, cache=step_a_cache) if c1 else ({}, {})
-        soft2 = soft_second(c1, two, f2) if soft else {}
+        defer = lean and clips_only                       # A: before any line-up (lock_first) the second is pending
+        two, f2 = second_screen(router, c1, a1, sources, ctx, log=log, cache=step_a_cache) if c1 and not defer \
+            else ({}, {})
+        soft2 = soft_second(c1, two, f2) if soft and not defer else {}
         bad, lv = {}, lock_verdicts(pre_, [swap.get(i, m) for i, m in enumerate(segs_)])
         for i, cm0 in swap.items():
             cid = cm0["moment_id"]
             if cid not in c1:
                 bad[cid] = "step A on the corrected words: " + "; ".join(f1.get(cid) or ["no verdict (law L-m)"])
                 continue
-            if cid not in two and cid not in soft2:
+            if not defer and cid not in two and cid not in soft2:
                 bad[cid] = "step A's second family on the corrected words: " + \
                     "; ".join(f2.get(cid) or ["no verdict (law L-m)"])
                 continue
             cm = c1[cid]
             swap[i] = cm
             a_by[cid] = a1[cid]
+            a_first[cid] = a1[cid]                        # A: the corrected clip's own first verdict
             if cid in two:
                 a_two[cid] = two[cid]
+            if cid in soft2:                              # RULING 137 stage 2a, flagged: the seal reads it (A)
+                soft_two[cid] = soft2[cid]
+            if defer:
+                sv[cid] = PENDING                         # A: asked when its line-up passes (second_for)
             e_ = exclusion_for(router, cm, sources, exc)
             t_ = lv2_settled(truth_for(router, cm, work_dir, tru), lv.get(cid))
             if e_.get("verdict") != "keep":
@@ -4825,6 +4970,30 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                     rec["why"] = (f"ruling 37: the join after the question hook must be followable without a bridge, and "
                                   f"the clips alone flag {joins(labs)[0]}: re-lined")
                     continue
+                if lean:                                  # A: the second vendor's step A, deferred to here: this
+                    if any(not second_ok(m["moment_id"]) for m in segs) and \
+                            out["prescreen"]["deferred_second"]["lineups"] >= DEFERRED_LINEUPS_MAX:   # F: the bound
+                        rec["why"] = (f"F: {DEFERRED_LINEUPS_MAX} line-ups had their deferred second-vendor verdicts "
+                                      f"asked and none sealed: the search stops here (no more is spent on search)")
+                        out["deferred_stop"] = {"lineups": out["prescreen"]["deferred_second"]["lineups"]}
+                        break
+                    out["prescreen"]["deferred_second"]["lineups"] += 1   # line-up passed its join table (the search
+                    got2 = second_for(segs)               # over it) and its clips-alone verdict: ONE call on its
+                    if got2 is not None:                  # segments holding no second verdict (B: cached ones free)
+                        bad2, money2 = got2
+                        rec["second_vendor"] = {mid: w[:300] for mid, w in bad2.items()}
+                        if money2:                        # C: refused for money: no verdict, budget, never a provider
+                            rec["measure"] = "BUDGET_REFUSED"
+                            rec["why"] = ("BUDGET_REFUSED: the deferred second-vendor step A was refused for money "
+                                          "(the spend stop or the completion reserve): no editorial verdict")[:500]
+                            rec["budget"] = True
+                            break
+                        dropped |= set(bad2)              # any FAIL / HELD / no answer drops THIS line-up; a segment
+                        doomed |= {mid for mid, w in bad2.items() if not w.startswith("PENDING")}   # that failed or
+                        rec["why"] = ("A: the deferred second-vendor step A on this line-up's segments: " +   # had no
+                                      "; ".join(f"{mid}: {w[:120]}" for mid, w in bad2.items()) +            # answer is
+                                      ": the line-up is dropped; the next one is tried")[:600]               # out
+                        continue
                 _phase(router, True)                      # LEAN (5): this line-up passed its clips-alone verdict: its
                 rec["completing"] = True                  # finishing calls (lock, vision, appeals, writes, gates, the
                 #   no-voice shape) may spend the completion reserve; the next line-up's search leaves it again
@@ -5205,6 +5374,11 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                             rec["why"] = f"ruling 68 / 72: {e}"[:400]
                             w_used = writes
                             break
+                    unsealed = seal_refusal(pk)           # A: no segment without its second-vendor PASS is sealed
+                    if unsealed:
+                        rec["why"] = unsealed
+                        w_used = writes
+                        break
                     out["packages"].append(pk)
                     rec["result"] = "PACKAGE"
                     break
@@ -5214,10 +5388,13 @@ def _build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=
                         not out.get("budget_stop") and not out.get("lock_stop"):
                     nv = no_voice(angle, segs, med, last_fields, exception, dropped, rec, ai, n_lineup,
                                   value=v_novoice, plan=v_plan)   # ruling 91 with its decided plan; else ruling 3
+                    nv_sealed_no = seal_refusal(nv) if nv is not None else None   # A: the no-voice shape seals
+                    if nv_sealed_no:                                              # by the same rule
+                        rec["why"], nv = nv_sealed_no, None
                     if nv is not None:
                         out["packages"].append(nv)
                         rec["result"] = f"PACKAGE (no voice, ruling {3 if v_novoice is None else 91})"
-                    elif v_novoice is not None:
+                    elif v_novoice is not None and not nv_sealed_no:
                         rec["why"] = ("ruling 91: the takeaway did not earn its place, and L-y's no-voice shape did not "
                                       "pass: " + str(rec["no_voice"].get("why_not")))[:500]
                 if not out["packages"] and not rec.get("why") and not rec.get("result"):

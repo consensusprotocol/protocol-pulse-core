@@ -496,6 +496,16 @@ def writer_probe(router, timeout_s=WRITER_PROBE_S):
         return dict(out)
 
 
+def sealed_stops_search(res):
+    """F (the owner, 15:55 ET Nov 25: "Our primary economic metric is cost per publishable video"): a build whose medley
+    sealed pays for no further search; the spotlight (ruling 90) is not tried. -> the spotlight's record in its place,
+    or None when the medley did not seal (the spotlight is tried as before)."""
+    if not (res or {}).get("package"):
+        return None
+    return {"package": None, "why_none": "F: the medley sealed, so no further search is paid for (the spotlight is "
+                                         "not tried)"}
+
+
 def applied(router):
     """RULING 100: which rows of the deadline table the build's router uses: a verdict pair on which a deadline applies
     today, the role's (a gateway with a configured deadline: Heimdall) or the caller's (step A's first screen passes one
@@ -921,11 +931,13 @@ def _main(argv, box):
     sp_delivered = delivered + ([{"video_id": sg["video_id"], "start": float(sg["start"]), "end": float(sg["end"]),
                                   "pin": "this build's medley", "text": sg["text"]}
                                  for sg in res["package"]["segments"]] if res.get("package") else [])
-    sp = SPOT.build(router, moments, sources, ctx, delivered=sp_delivered, optout=kw["optout"], log=say,
-                    work_dir=a.work_dir, store=kw["store"], step_a_cache=kw["step_a_cache"], hook_cache=kw["hook_cache"],
-                    scorer_verdicts_path=PK.SCORER_VERDICTS, visual_cache=kw["visual_cache"],
-                    layout_cache=os.path.join(HERE, "proof", "LAYOUT_CACHE.json"), lock_check=kw["lock_check"],
-                    spotlit=spotlit, out_edge_cache=kw["out_edge_cache"])         # ITEM 3
+    sp = sealed_stops_search(res)                        # F: a build that seals stops spending on search at once
+    if sp is None:
+        sp = SPOT.build(router, moments, sources, ctx, delivered=sp_delivered, optout=kw["optout"], log=say,
+                        work_dir=a.work_dir, store=kw["store"], step_a_cache=kw["step_a_cache"],
+                        hook_cache=kw["hook_cache"], scorer_verdicts_path=PK.SCORER_VERDICTS,
+                        visual_cache=kw["visual_cache"], layout_cache=os.path.join(HERE, "proof", "LAYOUT_CACHE.json"),
+                        lock_check=kw["lock_check"], spotlit=spotlit, out_edge_cache=kw["out_edge_cache"])   # ITEM 3
     res["spotlight"] = {k: sp.get(k) for k in ("package", "why_none", "finalists", "near", "moments", "pool",
                                                 "scorer_waited_s", "lock_stop", "scorer")}
     res["next_attempt"] = next_try                       # RULING 95, computed beside the inputs above
@@ -1071,8 +1083,11 @@ def _main(argv, box):
         with open(os.path.join(out_dir, FINGERPRINT), "w") as f:
             json.dump({"fingerprint": fp_end, "parts": parts_end, "open_work": left, "undone": items,
                        "spend_refused": money, "build": name}, f, indent=1)
+        held_for_money = sum(1 for x in items if x.get("kind") == "budget")   # C: refused for money, not unanswered
         say(f"  RULING 107 (1): fingerprint {fp_end[:12]}, {left} item(s) left undone"
-            + (f" ({len(money)} of them paid call(s) the spend stop refused)" if money else ""))
+            + (f" ({len(money)} of them paid call(s) the spend stop refused" +
+               (f"; {held_for_money} moment(s) whose step A was refused for money: budget_refused, never a provider's "
+                f"no-answer" if held_for_money else "") + ")" if money or held_for_money else ""))
     logf.close()
     return 0
 
