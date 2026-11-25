@@ -32,7 +32,19 @@ past the plan's included characters. "usd": counted at the owner's stated rate (
 rate of ours.
 THE GUARD (`install_guard()`): urllib, requests and httpx refuse a request to a PAID endpoint unless this thread holds a
 live reservation (`charge()` or `bound()`): no paid client is reachable without the ledger. Free endpoints (Heimdall,
-Telegram, YouTube, ElevenLabs' account reads) pass."""
+Telegram, YouTube, ElevenLabs' account reads) pass.
+THE OWNER'S BLOCKERS (08:38 ET Nov 25), enforced at EVERY reservation, by every program, under the one ledger's lock
+(`before_reserve`):
+  B1 (a) the ledger must be INITIALIZED (init_day: created and seeded with the spend day's carried-in spend) before any
+         paid call: a missing or uninitialized ledger refuses (so a service started before the seed charges nothing);
+  B1 (b) production's day ledgers are RE-READ, read only (production_parts: the production builder's router ledger, the
+         integrator's outside ledger, the builder's Grok audits): each carried-in figure only rises, so production's
+         live spend lowers the room at once; a production build or render process (PRODUCTION_RUNS, not started by
+         our launcher) STOPS the ledger. Production itself is frozen and never reserves here: a production charge that
+         lands between one of our reservations and its settle is not seen until our next reservation;
+  B2     ONE paid call in flight at a time across the three programs (ONE_IN_FLIGHT): a dollar reservation waits
+         (outside the lock, at most ONE_WAIT_S) while another is held, so at most one call can bill above its
+         reservation before the stop that bill sets."""
 import contextlib
 import fcntl
 import json
@@ -64,6 +76,17 @@ VISION_RESERVE_USD = 0.50          # visual_check._call_xai (an 'xai:' vision mo
 PAID = (("api.x.ai", ""), ("api.openai.com", ""), ("api.anthropic.com", ""),
         ("generativelanguage.googleapis.com", ""), ("api.elevenlabs.io", "/v1/speech-to-text"),
         ("api.elevenlabs.io", "/v1/text-to-speech"))                # (host, path prefix): every other endpoint is free
+# B1 (b): PRODUCTION's day ledgers, read only (the PP_SPEND_PROD_* overrides: tests only; the launch refuses them)
+PROD_BUILDER = os.environ.get("PP_SPEND_PROD_BUILDER") or "/home/ultron/worktrees/pp-selectid"
+PROD_OUTSIDE = os.environ.get("PP_SPEND_PROD_OUTSIDE") or "/home/ultron/protocol_pulse/data/spend/integrator_outside.jsonl"
+PROD_LEDGER_REL = os.path.join("tests", "package", "proof")        # the production builder's SPEND_D<day>.json
+PRODUCTION_RUNS = ("proof_ledger.py", "build_and_record.sh", "pulse_check_run.sh", "run_fresh.py",
+                   "daily_producer.py")   # a build or a render (run_fresh.py: the render's engine, preflight's own
+#   check_no_other_run): run by an interpreter (or itself) as its first argument; ours descend from LAUNCHER
+LAUNCHER = "lean_ops.py"
+ONE_IN_FLIGHT = True               # B2: one paid (dollar) call in flight across the three programs
+ONE_WAIT_S = float(os.environ.get("PP_SPEND_ONE_WAIT_S") or 600.0)   # how long a call waits for the one slot
+INTERPRETERS = ("bash", "sh", "dash", "python", "python3", "env", "nice", "nohup", "setsid")
 
 
 def run_name():
@@ -156,37 +179,290 @@ def _key():
     return f"{os.getpid()}:{uuid.uuid4().hex[:10]}"
 
 
-def reserve(backend, usd, role="", chars=0, path=None, now=None):
+def in_flight(d):
+    """B2: the dollar reservations held now (a voice reservation holds characters, not dollars)."""
+    return [k for k, v in d["reserved"].items() if float(v) > 0]
+
+
+def reserve(backend, usd, role="", chars=0, path=None, now=None, wait_s=None):
     """Reserve `usd` (and, for the voice, `chars`) for one call of `backend` -> the reservation key. CeilingRefused, before
-    any network use, when the ledger is stopped, or spent + held + usd would pass CAP_USD, or the voice's characters would
-    pass VOICE_CHAR_CAP, or the ledger cannot be read or locked."""
+    any network use, when the ledger is not initialized or stopped (before_reserve), or spent + held + usd would pass
+    CAP_USD, or the voice's characters would pass VOICE_CHAR_CAP, or the ledger cannot be read or locked. B2: while
+    another dollar reservation is held, a dollar call waits for it (outside the lock) up to wait_s (ONE_WAIT_S), then
+    is refused."""
     path = path or ledger_path(now)
     usd = round(max(0.0, float(usd)), 6)
+    end = time.time() + (ONE_WAIT_S if wait_s is None else float(wait_s))
+    while True:
+        with locked(path):
+            d = read(path)
+            changed = before_reserve(d, now)
+            try:
+                if d.get("stop"):
+                    raise CeilingRefused(f"the spend ledger is STOPPED ({d['stop'].get('why')}): no paid call until "
+                                         f"the owner clears it")
+                s, h = spent(d), held(d)
+                busy = in_flight(d) if (ONE_IN_FLIGHT and usd > 0) else []
+                if s + usd > CAP_USD + 1e-9 or not busy and s + h + usd > CAP_USD + 1e-9:
+                    raise CeilingRefused(f"the ceiling: spent ${s:.4f} + held ${h:.4f} + this {backend} call's "
+                                         f"${usd:.4f} > ${CAP_USD:.2f}: refused before the vendor is asked")
+                if not busy:
+                    if s + h + usd > CAP_USD + 1e-9:
+                        raise CeilingRefused(f"the ceiling: spent ${s:.4f} + held ${h:.4f} + this {backend} call's "
+                                             f"${usd:.4f} > ${CAP_USD:.2f}: refused before the vendor is asked")
+                    vc = None
+                    if chars:
+                        vc = d.setdefault("voice", {}).setdefault("runs", {}).setdefault(
+                            run_name(), {"chars": 0, "reserved": {}})
+                        vh = sum(int(x) for x in vc["reserved"].values())
+                        if VOICE_MODE == "chars" and vc["chars"] + vh + int(chars) > VOICE_CHAR_CAP:
+                            raise CeilingRefused(f"the voice's character cap: {vc['chars']} said + {vh} held + {chars} "
+                                                 f"> {VOICE_CHAR_CAP} characters for build {run_name()}")
+                    k = _key()
+                    d["reserved"][k] = usd
+                    d.setdefault("reservations", {})[k] = {
+                        "backend": backend, "role": role, "usd": usd, "chars": int(chars or 0),
+                        "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+                    if vc is not None:
+                        vc["reserved"][k] = int(chars)
+                    write(path, d)
+                    return k
+            except CeilingRefused:
+                if changed:
+                    write(path, d)
+                raise
+            if changed:
+                write(path, d)
+        if time.time() >= end:
+            raise CeilingRefused(f"another paid call was in flight ({busy[0]}) and did not settle within "
+                                 f"{ONE_WAIT_S if wait_s is None else float(wait_s):g} s (one paid call at a time, B2): "
+                                 f"{backend} refused before the vendor is asked")
+        time.sleep(0.25)
+
+
+# ── B1 (the owner's 08:38 ET Nov 25 order): initialized first; production's spend re-read at every reservation ──
+
+def _iso():
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+
+
+def _carry(d, parts):
+    """Each production source's carried-in figure: only ever RISES (the larger of what is held and what is read)."""
+    changed = False
+    for src, usd in parts.items():
+        k, usd = f"carried_in:{src}", round(float(usd), 6)
+        e = d["by_backend"].get(k)
+        if e is None or usd > float(e.get("usd_reported", 0.0) or 0.0) + 1e-9:
+            d["by_backend"][k] = dict(e or {"calls": 0, "seeded_at": _iso()}, usd_estimate=usd, usd_reported=usd,
+                                      carried_in=True, read_at=_iso())
+            changed = True
+    return changed
+
+
+def init_day(parts, voice_chars=None, by="", path=None, now=None):
+    """B1 (a): the spend day's one ledger CREATED and seeded with the day's carried-in spend; no paid call is reserved
+    before this (before_reserve). Run again, each source keeps the larger figure; the first init record stays."""
+    path = path or ledger_path(now)
     with locked(path):
         d = read(path)
-        if mark_dead(d):
-            write(path, d)
-        if d.get("stop"):
-            raise CeilingRefused(f"the spend ledger is STOPPED ({d['stop'].get('why')}): no paid call until the owner "
-                                 f"clears it")
-        s, h = spent(d), held(d)
-        if s + h + usd > CAP_USD + 1e-9:
-            raise CeilingRefused(f"the ceiling: spent ${s:.4f} + held ${h:.4f} + this {backend} call's ${usd:.4f} > "
-                                 f"${CAP_USD:.2f}: refused before the vendor is asked")
-        if chars:
-            vc = d.setdefault("voice", {}).setdefault("runs", {}).setdefault(run_name(), {"chars": 0, "reserved": {}})
-            vh = sum(int(x) for x in vc["reserved"].values())
-            if VOICE_MODE == "chars" and vc["chars"] + vh + int(chars) > VOICE_CHAR_CAP:
-                raise CeilingRefused(f"the voice's character cap: {vc['chars']} said + {vh} held + {chars} > "
-                                     f"{VOICE_CHAR_CAP} characters for build {run_name()}")
-        k = _key()
-        d["reserved"][k] = usd
-        d.setdefault("reservations", {})[k] = {"backend": backend, "role": role, "usd": usd, "chars": int(chars or 0),
-                                               "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
-        if chars:
-            vc["reserved"][k] = int(chars)
+        _carry(d, parts)
+        if voice_chars is not None:
+            d.setdefault("voice", {})["carried_in_chars"] = int(voice_chars)
+        rec = {"at": _iso(), "by": by, "day_starts": day_start(now).isoformat(),
+               "parts": {k: round(float(v), 6) for k, v in parts.items()}}
+        if d.get("init"):
+            d.setdefault("init_again", []).append(rec)
+        else:
+            d["init"] = rec
         write(path, d)
-    return k
+    return status(path, now)
+
+
+def prod_paths():
+    """(the production builder's worktree, the integrator's outside ledger), read at call time (tests point them away)."""
+    return (os.environ.get("PP_SPEND_PROD_BUILDER") or PROD_BUILDER,
+            os.environ.get("PP_SPEND_PROD_OUTSIDE") or PROD_OUTSIDE)
+
+
+def prod_day_file(start):
+    return "SPEND_B4.json" if f"{start:%Y%m%d}" == "20261115" else f"SPEND_D{start:%Y%m%d}.json"
+
+
+def _outside_lines(outside):
+    """The outside ledger's lines; a last line still being appended is read again once (then: unreadable)."""
+    for attempt in (0, 1):
+        with open(outside) as f:
+            raw = f.read()
+        lines = raw.split("\n")
+        if raw.endswith("\n") or not lines[-1].strip():
+            return [x for x in lines if x.strip()]
+        try:
+            json.loads(lines[-1])
+            return [x for x in lines if x.strip()]
+        except ValueError:
+            if attempt == 0:
+                time.sleep(0.3)
+    return [x for x in lines if x.strip()]
+
+
+def production_parts(start, end):
+    """B1 (b): what PRODUCTION spent in the spend day [start, end), read only -> (parts {source: usd}, voice_chars,
+    notes, unknown). Sources: builder:pp-selectid (its router's day ledger: reported + unreported estimate + every
+    reservation it holds), integrator:outside (every priced line of the day window; the voice's unpriced lines are
+    characters), builder:audits (the Grok reviews of audits labelled inside the day). An unreadable ledger:
+    CeilingRefused; a line of unknown kind: listed in `unknown` (the caller refuses)."""
+    builder, outside = prod_paths()
+    parts, notes, unknown, voice = {}, [], [], 0
+    prod = os.path.join(builder, PROD_LEDGER_REL, prod_day_file(start))
+    if os.path.exists(prod):
+        d = read(prod)
+        parts["builder:pp-selectid"] = round(spent(d) + held(d), 6)
+        notes.append(f"builder:pp-selectid {prod}: spent ${spent(d):.4f}, held ${held(d):.4f}")
+    else:
+        parts["builder:pp-selectid"] = 0.0
+        notes.append(f"builder:pp-selectid: no day ledger yet ({prod})")
+    usd, n = 0.0, 0
+    lo, hi = start.astimezone(timezone.utc), end.astimezone(timezone.utc)
+    if os.path.exists(outside):
+        try:
+            lines = _outside_lines(outside)
+        except OSError as e:
+            raise CeilingRefused(f"production's outside ledger {outside} is unreadable ({type(e).__name__})") from None
+        for line in lines:
+            try:
+                e = json.loads(line)
+                at = datetime.fromisoformat(str(e.get("at")).replace("Z", "+00:00"))
+            except (ValueError, TypeError, AttributeError):
+                unknown.append(f"{outside}: an unreadable line")
+                continue
+            if not lo <= at < hi:
+                continue
+            if isinstance(e.get("usd"), (int, float)) and not isinstance(e.get("usd"), bool):
+                usd += float(e["usd"])
+                n += 1
+            elif "tts" in str(e.get("vendor")):
+                voice += int((e.get("units") or {}).get("characters") or 0)
+            else:
+                unknown.append(f"{outside}: an unpriced line that is not the voice: {str(e)[:120]}")
+    parts["integrator:outside"] = round(usd, 6)
+    notes.append(f"integrator:outside {outside}: {n} priced line(s) ${usd:.4f}; the voice {voice} characters")
+    a_usd = 0.0
+    lab_lo, lab_hi = start.strftime("%Y%m%d_%H%M"), end.strftime("%Y%m%d_%H%M")
+    import glob
+    for f in sorted(glob.glob(os.path.join(builder, "docs/audits/parallel/pp-selectid_audit_2026*/COST.json"))):
+        label = f.split("pp-selectid_audit_")[1].split("/")[0]
+        if lab_lo <= label < lab_hi:
+            try:
+                with open(f) as fo:
+                    reviews = json.load(fo).get("reviews") or []
+            except (OSError, ValueError, AttributeError) as e:
+                raise CeilingRefused(f"production's audit ledger {f} is unreadable ({type(e).__name__})") from None
+            for r in reviews:
+                if "grok" in str(r.get("review", "")):
+                    a_usd += float(r.get("usd_reported", 0.0) or 0.0)
+    parts["builder:audits"] = round(a_usd, 6)
+    return parts, voice, notes, unknown
+
+
+def refresh_production(d, now=None):
+    """B1 (b): production's day ledgers re-read into the one ledger's carried-in figures (each only rises). The day is
+    the ledger's own (its init record). -> True when d changed. Unknown production spend: CeilingRefused."""
+    try:
+        start = datetime.fromisoformat(d["init"]["day_starts"])
+    except (KeyError, TypeError, ValueError):
+        start = day_start(now)
+    parts, _voice, _notes, unknown = production_parts(start, start + timedelta(days=1))
+    if unknown:
+        raise CeilingRefused(f"production's day ledgers hold spend of an unknown kind ({unknown[0][:160]}): no paid "
+                             f"call on a total nobody can account for")
+    return _carry(d, parts)
+
+
+def _argv(pid):
+    try:
+        with open(f"/proc/{pid}/cmdline", "rb") as f:
+            return [a.decode(errors="replace") for a in f.read().split(b"\0") if a]
+    except OSError:
+        return []
+
+
+def _ppid(pid):
+    try:
+        with open(f"/proc/{pid}/stat") as f:
+            return int(f.read().rsplit(")", 1)[1].split()[1])
+    except (OSError, IndexError, ValueError):
+        return 0
+
+
+def runs_production(argv, runs=None):
+    """A build or render is being RUN: the script itself is argv[0], or an interpreter's first argument that is not an
+    option (so `grep pulse_check_run.sh` or an editor on it is not one)."""
+    runs = runs or PRODUCTION_RUNS
+    if not argv:
+        return False
+    if os.path.basename(argv[0]) in runs:
+        return True
+    exe = os.path.basename(argv[0])
+    if not (exe in INTERPRETERS or exe.startswith("python")):
+        return False
+    rest = argv[1:]
+    while rest and rest[0].startswith("-"):
+        if rest[0] in ("-c", "-m"):
+            return False                               # a command string or a module, not a script
+        rest = rest[1:]
+    return bool(rest) and os.path.basename(rest[0]) in runs
+
+
+def ours(pid):
+    """A process started (at any depth) by our launcher (LAUNCHER in an ancestor's command line)."""
+    seen = 0
+    while pid > 1 and seen < 64:
+        if any(os.path.basename(a) == LAUNCHER for a in _argv(pid)):
+            return True
+        pid, seen = _ppid(pid), seen + 1
+    return False
+
+
+PROD_SCAN_TTL_S = 1.0              # a scan of /proc costs ~0.1 s: one a second per process is enough
+_SCAN = {"at": 0.0, "found": []}
+
+
+def production_running(fresh=False):
+    """B1 (b): the production builds and renders running now (not ours) -> [(pid, command)]; a scan younger than
+    PROD_SCAN_TTL_S is reused (so one appearing is seen within a second)."""
+    import glob
+    if not fresh and time.time() - _SCAN["at"] < PROD_SCAN_TTL_S:
+        return list(_SCAN["found"])
+    env = os.environ.get("PP_SPEND_PROD_RUNS")         # tests only: the markers (the launch refuses it)
+    runs = tuple(x for x in env.split(",") if x) if env else PRODUCTION_RUNS
+    found = []
+    for p in glob.glob("/proc/[0-9]*"):
+        pid = int(p.rsplit("/", 1)[1])
+        argv = _argv(pid)
+        if runs_production(argv, runs) and not ours(pid):
+            found.append((pid, " ".join(argv)[:200]))
+    _SCAN.update(at=time.time(), found=found)
+    return list(found)
+
+
+def before_reserve(d, now=None):
+    """B1, at EVERY reservation of every program, under the one ledger's lock: (a) the ledger must be initialized
+    (CeilingRefused otherwise); a process that died holding a reservation stops it (mark_dead); (b) production's day
+    ledgers are re-read (refresh_production), and a production build or render running stops it. -> True when d
+    changed (the caller writes it)."""
+    if not d.get("init"):
+        raise CeilingRefused("the one spend ledger is not initialized (the launch's ledger-init seeds it with the spend "
+                             "day's carried-in spend before any service starts): no paid call")
+    changed = mark_dead(d)
+    if d.get("stop"):
+        return changed
+    changed = refresh_production(d, now) or changed
+    found = production_running()
+    if found:
+        _stop(d, f"a production build or render is running (pid {found[0][0]}: {found[0][1][:140]}): production "
+                 f"does not reserve in this ledger, so no further paid call (B1)")
+        changed = True
+    return changed
 
 
 def _pid_dead(key):
@@ -274,7 +550,7 @@ def status(path=None, now=None):
         d = read(path)
     s, h = spent(d), held(d)
     return {"ledger": path, "day_starts": day_start(now).isoformat(), "spent": round(s, 6), "held": round(h, 6),
-            "room": round(CAP_USD - s - h, 6), "cap": CAP_USD, "stop": d.get("stop"),
+            "room": round(CAP_USD - s - h, 6), "cap": CAP_USD, "stop": d.get("stop"), "init": d.get("init"),
             "carried_in": {k: v.get("usd_reported") for k, v in d["by_backend"].items() if k.startswith("carried_in:")},
             "voice": dict({"mode": VOICE_MODE, "cap_chars_per_build": VOICE_CHAR_CAP, "run": run_name(),
                            "carried_in_chars": (d.get("voice") or {}).get("carried_in_chars", 0)},
@@ -289,21 +565,15 @@ def peek(path=None, now=None):
     d = read(path)
     s, h = spent(d), held(d)
     return {"ledger": path, "day_starts": day_start(now).isoformat(), "spent": round(s, 6), "held": round(h, 6),
-            "room": round(CAP_USD - s - h, 6), "cap": CAP_USD, "stop": d.get("stop"), "exists": os.path.exists(path)}
+            "room": round(CAP_USD - s - h, 6), "cap": CAP_USD, "stop": d.get("stop"), "exists": os.path.exists(path),
+            "init": d.get("init")}
 
 
 def seed(parts, path=None, now=None):
     """What other ledgers spent on this spend day, carried in as "carried_in:<source>" back-ends (counted like any
-    capped vendor's reported dollars). Re-seeding sets each source to its latest figure (never twice)."""
-    path = path or ledger_path(now)
-    with locked(path):
-        d = read(path)
-        for src, usd in parts.items():
-            d["by_backend"][f"carried_in:{src}"] = {"calls": 0, "usd_estimate": round(float(usd), 6),
-                                                    "usd_reported": round(float(usd), 6), "carried_in": True,
-                                                    "seeded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
-        write(path, d)
-    return status(path)
+    capped vendor's reported dollars): init_day (B1 (a)). Seeding again keeps each source's larger figure (never
+    twice, never lower)."""
+    return init_day(parts, by="seed", path=path, now=now)
 
 
 @contextlib.contextmanager

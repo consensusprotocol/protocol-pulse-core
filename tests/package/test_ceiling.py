@@ -18,6 +18,7 @@ import tempfile
 import textwrap
 import time
 import unittest
+from unittest import mock
 from datetime import datetime, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -46,6 +47,9 @@ _socket.create_connection = _blocked
 _SAVED = {}
 
 
+PROD_ENV = ("PP_SPEND_PROD_BUILDER", "PP_SPEND_PROD_OUTSIDE", "PP_SPEND_PROD_RUNS", "PP_SPEND_ONE_WAIT_S")
+
+
 def setUpModule():
     import socket
     for k in ("getaddrinfo", "create_connection"):
@@ -56,12 +60,26 @@ def setUpModule():
         raise OSError("the network is blocked by this test")
     socket.getaddrinfo = socket.create_connection = blocked
     socket.socket.connect = socket.socket.connect_ex = blocked
+    # B1 (b): every reservation re-reads PRODUCTION's day ledgers: here empty stand-ins (never the live ledgers), and no
+    # running process matches (the tests that check those set their own); B2's wait for the one slot: short
+    prod = tempfile.mkdtemp(prefix="ceiling_prod_")
+    _SAVED["env"] = {k: os.environ.get(k) for k in PROD_ENV}
+    os.environ.update(PP_SPEND_PROD_BUILDER=prod, PP_SPEND_PROD_OUTSIDE=os.path.join(prod, "outside.jsonl"),
+                      PP_SPEND_PROD_RUNS="no-production-run-in-tests", PP_SPEND_ONE_WAIT_S="20")
+    _SAVED["wait"], SC.ONE_WAIT_S = SC.ONE_WAIT_S, 20.0
 
 
 def tearDownModule():
     import socket
     socket.getaddrinfo, socket.create_connection = _SAVED["getaddrinfo"], _SAVED["create_connection"]
     socket.socket.connect, socket.socket.connect_ex = _SAVED["connect"], _SAVED["connect_ex"]
+    shutil.rmtree(os.environ["PP_SPEND_PROD_BUILDER"], True)
+    for k, v in _SAVED["env"].items():
+        if v is None:
+            os.environ.pop(k, None)
+        else:
+            os.environ[k] = v
+    SC.ONE_WAIT_S = _SAVED["wait"]
 
 
 class Tmp(unittest.TestCase):
@@ -69,6 +87,7 @@ class Tmp(unittest.TestCase):
         self.d = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.d, True)
         self.path = SC.ledger_path(NOW, self.d)
+        SC.init_day({}, by="test", path=self.path, now=NOW)       # B1 (a): initialized before anything charges
 
     def router(self, answer=None, ceiling=True, **kw):
         r = P.Router(spend_path=self.path, limit_usd=SC.CAP_USD, limit_basis="reported", uncapped=("heimdall",),
@@ -195,6 +214,7 @@ class TestRefusedBeforeTheVendor(Tmp):
             SC.install_guard()
             d = tempfile.mkdtemp()
             p = os.path.join(d, "L.json")
+            SC.init_day({}, by="test", path=p)
             def get(url):
                 try:
                     urllib.request.urlopen(url, timeout=2)
@@ -555,6 +575,218 @@ class TestTheSeed(unittest.TestCase):
         SC.seed(parts, path=led)
         r = P.Router(spend_path=led, limit_usd=SC.CAP_USD, limit_basis="reported", uncapped=("heimdall",), ceiling=True)
         self.assertAlmostEqual(r.spent(), 0.6578, places=6)              # the router counts the carried-in spend
+
+
+class TestTheLedgerFirst(unittest.TestCase):
+    def test_no_paid_call_before_the_ledger_is_initialized(self):
+        """B1 (a), MUST-FAIL: a ledger that does not exist yet (or was never initialized) refuses every program's paid
+        call before the vendor is asked: a service started before the launch's ledger-init charges nothing."""
+        d = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, d, True)
+        path = SC.ledger_path(NOW, d)
+        with self.assertRaisesRegex(SC.CeilingRefused, "not initialized"):
+            SC.reserve("elevenlabs_stt:scribe_v1", 0.0078, path=path)
+        r = P.Router(spend_path=path, limit_usd=SC.CAP_USD, limit_basis="reported", uncapped=("heimdall",),
+                     chains={"coherence_verdict": [GROK]}, ceiling=True)
+        asked = []
+        r.backends[GROK].complete = lambda *a, **k: (asked.append(1) or '{"ok": 1}', {"in": 1, "out": 1}, 0.1)
+        with self.assertRaises(P.SpendLimit) as cm:
+            r.call("coherence_verdict", "x" * 3000, 1200, 7)
+        self.assertIn("not initialized", str(cm.exception))
+        self.assertEqual(asked, [])
+        SC.init_day({}, by="test", path=path, now=NOW)
+        r.call("coherence_verdict", "x" * 3000, 1200, 7)                  # initialized: it goes ahead
+        self.assertEqual(asked, [1])
+
+
+class Production(Tmp):
+    """Production's day ledgers as stand-ins (PP_SPEND_PROD_BUILDER / _OUTSIDE, set by setUpModule)."""
+
+    def prod_ledger(self, usd, held=0.0):
+        d = os.path.join(os.environ["PP_SPEND_PROD_BUILDER"], "tests", "package", "proof")
+        os.makedirs(d, exist_ok=True)
+        p = os.path.join(d, SC.prod_day_file(SC.day_start(NOW)))
+        with open(p + ".tmp", "w") as f:
+            json.dump({"usd_estimate": usd, "usd_reported": usd, "usd_unreported_estimate": 0.0, "calls": 1,
+                       "by_backend": {GROK: {"usd_reported": usd}}, "reserved": {"1:x": held} if held else {}}, f)
+        os.replace(p + ".tmp", p)
+        self.addCleanup(lambda: os.path.exists(p) and os.remove(p))
+        return p
+
+    def outside(self, *lines):
+        p = os.environ["PP_SPEND_PROD_OUTSIDE"]
+        with open(p, "a") as f:
+            for x in lines:
+                f.write(json.dumps(x) + "\n")
+        self.addCleanup(lambda: os.path.exists(p) and os.remove(p))
+
+
+class TestProductionAtEveryReservation(Production):
+    def test_production_s_live_spend_lowers_the_room_at_once(self):
+        """B1 (b), MUST-FAIL: production's builder ledger grows from $0.50 to $1.45 AFTER the launch's init: the next
+        reservation of every program re-reads it under the one ledger's lock and is refused (the room is gone); the
+        one ledger shows production's figure. MUST-FAIL before: the seed counted production once, at launch (shown with
+        the re-read switched off: the call goes ahead on the stale $0.50)."""
+        self.prod_ledger(0.50)
+        SC.init_day({"builder:pp-selectid": 0.50}, by="test", path=self.path, now=NOW)
+        r = self.router()
+        r.call("coherence_verdict", "x" * 3000, 1200, 7)                  # room: $1.00 - its own reservation
+        self.prod_ledger(1.45)
+        with self.assertRaises(P.SpendLimit):
+            r.call("coherence_verdict", "x" * 3001, 1200, 8)
+        with self.assertRaises(SC.CeilingRefused):
+            SC.reserve("xai:grok-3-mini", 0.05, path=self.path)
+        self.assertEqual(len(self.asked), 1)
+        self.assertAlmostEqual(SC.status(self.path)["carried_in"]["carried_in:builder:pp-selectid"], 1.45, places=6)
+        with mock.patch.object(SC, "refresh_production", lambda d, now=None: False):   # the old reading: once
+            Tmp.setUp(self)
+            SC.init_day({"builder:pp-selectid": 0.50}, by="test", path=self.path, now=NOW)
+            r = self.router()
+            r.call("coherence_verdict", "x" * 3002, 1200, 9)
+            r.call("coherence_verdict", "x" * 3003, 1200, 10)
+            self.assertEqual(len(self.asked), 2)                          # went ahead on $0.50
+
+    def test_the_outside_ledger_and_a_production_reservation_count_too(self):
+        self.prod_ledger(1.00, held=0.30)                                 # production's own call in flight: counted
+        SC.init_day({}, by="test", path=self.path, now=NOW)
+        with self.assertRaises(SC.CeilingRefused):
+            SC.reserve("xai:grok-3-mini", 0.25, path=self.path)          # 1.30 + 0.25 > 1.50
+        k = SC.reserve("xai:grok-3-mini", 0.15, path=self.path)
+        SC.settle(k, "xai:grok-3-mini", 0.004, path=self.path)
+        self.outside({"at": NOW.isoformat().replace("+00:00", "Z"), "usd": 0.19, "vendor": "elevenlabs:scribe_v1"})
+        with self.assertRaises(SC.CeilingRefused):                        # production's lock check, after the fact
+            SC.reserve("elevenlabs_stt:scribe_v1", 0.01, path=self.path)
+        self.assertAlmostEqual(SC.status(self.path)["spent"], 1.30 + 0.19 + 0.004, places=6)
+
+    def test_an_unreadable_or_unknown_production_ledger_refuses(self):
+        SC.init_day({}, by="test", path=self.path, now=NOW)
+        p = self.prod_ledger(0.10)
+        with open(p, "w") as f:
+            f.write("{ torn")
+        with self.assertRaisesRegex(SC.CeilingRefused, "unreadable"):
+            SC.reserve("xai:grok-3-mini", 0.05, path=self.path)
+        os.remove(p)
+        self.outside({"at": NOW.isoformat().replace("+00:00", "Z"), "usd": None, "vendor": "openai:gpt"})
+        with self.assertRaisesRegex(SC.CeilingRefused, "unknown kind"):
+            SC.reserve("xai:grok-3-mini", 0.05, path=self.path)
+
+
+SLEEPER = "#!/bin/bash\nsleep 30\n"            # no exec: bash keeps the script as its argument
+
+
+class TestAProductionRunStopsPaidCalls(Production):
+    def test_a_production_render_appearing_stops_every_program(self):
+        """B1 (b), MUST-FAIL: a render (pulse_check_run.sh) not started by our launcher appears: the next reservation
+        STOPS the ledger (production does not reserve here); started under our launcher (lean_ops.py), it is ours."""
+        script = os.path.join(self.d, "pulse_check_run.sh")
+        with open(script, "w") as f:
+            f.write(SLEEPER)
+        saved = os.environ.get("PP_SPEND_PROD_RUNS")
+        os.environ["PP_SPEND_PROD_RUNS"] = "pulse_check_run.sh"
+        try:
+            parent = os.path.join(self.d, "lean_ops.py")                  # a stand-in for our launcher
+            with open(parent, "w") as f:
+                f.write(f"import subprocess; subprocess.run(['bash', {script!r}])\n")
+            ours = subprocess.Popen([sys.executable, parent])
+            self.addCleanup(lambda: (ours.kill(), ours.wait()))
+            time.sleep(0.5)
+            self.assertEqual(SC.production_running(fresh=True), [])       # ours: not production
+            k = SC.reserve("xai:grok-3-mini", 0.05, path=self.path)
+            SC.settle(k, "xai:grok-3-mini", 0.004, path=self.path)
+            prod = subprocess.Popen(["bash", script])
+            self.addCleanup(lambda: (prod.kill(), prod.wait()))
+            time.sleep(0.3)
+            SC._SCAN["at"] = 0.0
+            with self.assertRaisesRegex(SC.CeilingRefused, "STOPPED"):
+                SC.reserve("xai:grok-3-mini", 0.05, path=self.path)
+            st = SC.status(self.path)
+            self.assertIn(f"pid {prod.pid}", st["stop"]["why"])
+            r = self.router()
+            with self.assertRaises(P.SpendLimit):
+                r.call("coherence_verdict", "x" * 3000, 1200, 7)
+            self.assertEqual(self.asked, [])
+        finally:
+            SC._SCAN["at"] = 0.0
+            if saved is None:
+                os.environ.pop("PP_SPEND_PROD_RUNS", None)
+            else:
+                os.environ["PP_SPEND_PROD_RUNS"] = saved
+
+    def test_what_counts_as_running_a_build_or_render(self):
+        yes = (["bash", "scripts/pulse_check_run.sh", "--pinned", "x"], ["python3", "-B", "tests/package/proof_ledger.py"],
+               ["/home/ultron/protocol_pulse/scripts/pulse_check_run.sh"], ["python3.10", "pipeline/run_fresh.py"])
+        no = (["grep", "-rn", "pulse_check_run.sh"], ["python3", "-m", "pytest", "tests/package/proof_ledger.py"],
+              ["python3", "-c", "import proof_ledger"], ["less", "scripts/pulse_check_run.sh"], ["timeout", "9",
+                                                                                                  "proof_ledger.py"])
+        self.assertTrue(all(SC.runs_production(a) for a in yes))
+        self.assertFalse(any(SC.runs_production(a) for a in no))
+
+
+class TestOnePaidCallInFlight(Tmp):
+    def test_a_second_paid_call_waits_for_the_first_to_settle(self):
+        """B2, MUST-PASS: while the render's sign-off is in flight, the lock service's Scribe waits (it is reserved only
+        after the sign-off settles); the builder's router refuses at once without its wait, and with a wait goes ahead
+        after; the voice (characters, no dollars) is never held up. MUST-FAIL: past its wait, refused."""
+        import threading
+        marks = {}
+
+        def signoff():
+            with SC.charge("xai:grok-3-mini", 0.05, role="render", path=self.path) as c:
+                marks["in"] = time.time()
+                time.sleep(1.0)
+                c.cost(0.004)
+            marks["settled"] = time.time()
+        t = threading.Thread(target=signoff)
+        t.start()
+        while "in" not in marks:
+            time.sleep(0.01)
+        k = SC.reserve("elevenlabs_tts:eleven_v4", 0.0, chars=100, path=self.path)   # the voice: not held up
+        SC._release(k, self.path)
+        r = self.router()
+        with self.assertRaises(P.SpendLimit):
+            r.call("coherence_verdict", "x" * 3000, 1200, 7)              # no wait (the default): refused at once
+        k = SC.reserve("elevenlabs_stt:scribe_v1", 0.0078, path=self.path)
+        reserved_at = time.time()
+        t.join()
+        self.assertGreaterEqual(reserved_at, marks["settled"] - 0.05)
+        SC.settle(k, "elevenlabs_stt:scribe_v1", 0.0078, reported=False, path=self.path)
+        self.assertEqual(self.asked, [])
+        t = threading.Thread(target=signoff)
+        marks.clear()
+        t.start()
+        while "in" not in marks:
+            time.sleep(0.01)
+        r = self.router(reserve_wait_s=10)
+        r.reserve_poll_s = 0.05
+        r.call("coherence_verdict", "x" * 3001, 1200, 8)                  # waits, then goes ahead
+        self.assertGreaterEqual(time.time(), marks["settled"] - 0.05)
+        self.assertEqual(len(self.asked), 1)
+        t.join()
+        marks.clear()
+        t = threading.Thread(target=signoff)
+        t.start()
+        while "in" not in marks:
+            time.sleep(0.01)
+        with self.assertRaisesRegex(SC.CeilingRefused, "in flight"):
+            SC.reserve("elevenlabs_stt:scribe_v1", 0.0078, path=self.path, wait_s=0.3)
+        t.join()
+
+
+class TestTheInputBound(Tmp):
+    def test_a_paid_call_above_its_input_bound_is_never_sent(self):
+        """B2, MUST-FAIL: under the one ledger a paid call's prompt is measured in bytes BEFORE it is sent: above
+        INPUT_BOUND_BYTES it is not sent and nothing is reserved (no answer: never a pass); a free back-end of the same
+        chain still answers it; at the bound it is sent."""
+        r = self.router()
+        with self.assertRaises(P.ProviderError) as cm:
+            r.call("coherence_verdict", "é" * (P.INPUT_BOUND_BYTES // 2 + 1), 1200, 7)   # 2 bytes a character
+        self.assertIn("input bound", str(cm.exception))
+        self.assertEqual((self.asked, SC.status(self.path)["held"], SC.status(self.path)["spent"]), ([], 0.0, 0.0))
+        r.call("coherence_verdict", "x" * (P.INPUT_BOUND_BYTES - 100), 1200, 7)
+        self.assertEqual(len(self.asked), 1)
+        big = {"text": "x", "images": ["y" * (P.IMAGE_BOUND[1] + 1)]}
+        self.assertIn("image bound", P.input_over_bound(big))
+        self.assertIsNone(P.input_over_bound({"text": "x", "images": ["y"] * P.IMAGE_BOUND[0]}))
 
 
 class TestOneModuleBothBranches(unittest.TestCase):

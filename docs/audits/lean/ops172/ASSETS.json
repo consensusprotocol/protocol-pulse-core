@@ -1,0 +1,379 @@
+{
+ "taken_at": "2026-11-25T14:21:23+00:00",
+ "release": "/home/ultron/worktrees/pp-lean-release",
+ "files": [
+  {
+   "path": "/home/ultron/protocol_pulse/brand/2026-11/pp_outro_2026-11_16x9_master.mp4",
+   "size": 880975,
+   "reader": "config.py:108; run_fresh.py:1532 (outro_locked)",
+   "tracked": false,
+   "sha256": "7c2cc7ae6efa9b276144f51b33290b190120470a36541e977f52c25b1e614e58"
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/brand/2026-11/pp_outro_2026-11_9x16_master.mp4",
+   "size": 1126128,
+   "reader": "config.py:109; preflight.py:136",
+   "tracked": false,
+   "sha256": "48d114daab327aa9695cdebf25fec3ca5186113322fd29feedbcb035f2e421f9"
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/brand/2026-11/conformed/outro_16x9_7c2cc7ae6efa9b27.mp4",
+   "size": 841257,
+   "reader": "config.py:152 via render16.py:620; run_fresh.py:1530-1535 (outro_locked)",
+   "tracked": false,
+   "sha256": "b8a402947c42017e7f448fba05306cad2dc052eb5c9097415582c1624d9fefc6"
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/brand/2026-11/conformed/outro_9x16_48d114daab327aa9.mp4",
+   "size": 923791,
+   "reader": "config.py:152 via render_vertical.py:1205; run_fresh.py:1530-1535",
+   "tracked": false,
+   "sha256": "1af99ca7c21a72fc085ea66f99a264fb2360b72f250b68c88b1a4caef0042883"
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/brand/2026-11/pp_mark_wave_400.png",
+   "size": 70901,
+   "reader": "segment_v1/scene_shoutout.py:25 (the credits card's logo)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/confident_02.mp3",
+   "size": 1199347,
+   "reader": "config.py:197 -> render16.py:250",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/references/v2f_2026-11-06/run/vo_audio/VO_MANIFEST.json",
+   "size": 633,
+   "reader": "run_fresh.py:61-62, 952-956 (the voice stage; missing: HOLD)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/segment_v1/qa_v6/blaze_face_short_range.tflite",
+   "size": 229746,
+   "reader": "render_vertical.py:46; run_fresh.py:1829",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/.insightface/models/buffalo_l/det_10g.onnx",
+   "size": 16923827,
+   "reader": "face_scrfd.py:12-13, 26-34 (pinned: another file STOPS the layout stage)",
+   "tracked": false,
+   "sha256": "5838f7fe053675b1c7a08b633df49e7af5495cee0493c7dcf6697200b85b5b91"
+  },
+  {
+   "path": "/home/ultron/.local/lib/python3.10/site-packages/resemblyzer/pretrained.pt",
+   "size": 17090379,
+   "reader": "segment_v1/qa_gates.py:181-184",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/.local/lib/python3.10/site-packages/cv2/data/haarcascade_frontalface_default.xml",
+   "size": 930127,
+   "reader": "segment_v1/qa_gates.py:567-568, 603-604 (G4)",
+   "tracked": false
+  },
+  {
+   "path": "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+   "size": 705684,
+   "reader": "segment_v1/scene_shoutout.py:27-33 (a font; LiberationSans its fallback)",
+   "tracked": false
+  },
+  {
+   "path": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+   "size": 757076,
+   "reader": "segment_v1/scene_shoutout.py:27-33 (a font; LiberationSans its fallback)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/confident_01.mp3",
+   "size": 1668809,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/confident_03.mp3",
+   "size": 1774949,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/confident_04.mp3",
+   "size": 1076422,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/confident_05.mp3",
+   "size": 3927997,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/contemplative_01.mp3",
+   "size": 4204181,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/contemplative_02.mp3",
+   "size": 3451005,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/contemplative_03.mp3",
+   "size": 1978131,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/contemplative_04.mp3",
+   "size": 1978131,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/contemplative_05.mp3",
+   "size": 2812238,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/edge_01.mp3",
+   "size": 2283509,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/edge_02.mp3",
+   "size": 2038316,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/edge_03.mp3",
+   "size": 1584807,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/edge_04.mp3",
+   "size": 1541707,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/edge_05.mp3",
+   "size": 2618154,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/intro_01.mp3",
+   "size": 557552,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/intro_02.mp3",
+   "size": 784785,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/intro_03.mp3",
+   "size": 602732,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/outro_01.mp3",
+   "size": 569781,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/outro_02.mp3",
+   "size": 817370,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/pp_background.mp3",
+   "size": 4303224,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/pp_intro.mp3",
+   "size": 202464,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/pp_outro.mp3",
+   "size": 606288,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/pp_transition.mp3",
+   "size": 233448,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/tense_01.mp3",
+   "size": 1179114,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/tense_02.mp3",
+   "size": 1734019,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/tense_03.mp3",
+   "size": 1668402,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/tense_04.mp3",
+   "size": 1177766,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/tense_05.mp3",
+   "size": 1486717,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/upbeat_01.mp3",
+   "size": 1584516,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/upbeat_02.mp3",
+   "size": 1963664,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/upbeat_03.mp3",
+   "size": 1963664,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/upbeat_04.mp3",
+   "size": 1348943,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/upbeat_05.mp3",
+   "size": 1340393,
+   "reader": "preflight.py:139 (music: any one); config.py:193 (a track by mood)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/segment_v1/brand/avatars/btc_sessions.png",
+   "size": 37258,
+   "reader": "channels.json avatar_path (BTC Sessions): preflight.py:142-143; credit_rings.py:91 (G15)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/segment_v1/brand/avatars/coindesk.png",
+   "size": 45694,
+   "reader": "channels.json avatar_path (CoinDesk): preflight.py:142-143; credit_rings.py:91 (G15)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/segment_v1/brand/avatars/simply_bitcoin.png",
+   "size": 98263,
+   "reader": "channels.json avatar_path (Simply Bitcoin): preflight.py:142-143; credit_rings.py:91 (G15)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/.cache/huggingface/hub/models--Systran--faster-whisper-large-v3/snapshots/edaa852ec7e145841d8ffdb056a99866b5f0a478/model.bin",
+   "size": 3087284237,
+   "reader": "gpu0.py:897-904 (whisper: select_passages.py:160, cut_accept.py:158, word_diff.py:152; qa_gates.py:94 G1/G20)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/.cache/huggingface/hub/models--Systran--faster-whisper-large-v3/snapshots/edaa852ec7e145841d8ffdb056a99866b5f0a478/config.json",
+   "size": 2394,
+   "reader": "gpu0.py:897-904 (whisper: select_passages.py:160, cut_accept.py:158, word_diff.py:152; qa_gates.py:94 G1/G20)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/.cache/huggingface/hub/models--Systran--faster-whisper-large-v3/snapshots/edaa852ec7e145841d8ffdb056a99866b5f0a478/preprocessor_config.json",
+   "size": 340,
+   "reader": "gpu0.py:897-904 (whisper: select_passages.py:160, cut_accept.py:158, word_diff.py:152; qa_gates.py:94 G1/G20)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/.cache/huggingface/hub/models--Systran--faster-whisper-large-v3/snapshots/edaa852ec7e145841d8ffdb056a99866b5f0a478/tokenizer.json",
+   "size": 2480617,
+   "reader": "gpu0.py:897-904 (whisper: select_passages.py:160, cut_accept.py:158, word_diff.py:152; qa_gates.py:94 G1/G20)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/.cache/huggingface/hub/models--Systran--faster-whisper-large-v3/snapshots/edaa852ec7e145841d8ffdb056a99866b5f0a478/vocabulary.json",
+   "size": 1068114,
+   "reader": "gpu0.py:897-904 (whisper: select_passages.py:160, cut_accept.py:158, word_diff.py:152; qa_gates.py:94 G1/G20)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/.cache/huggingface/hub/models--Systran--faster-whisper-medium/snapshots/08e178d48790749d25932bbc082711ddcfdfbc4f/model.bin",
+   "size": 1527906378,
+   "reader": "gpu0.py:897-904 (whisper: select_passages.py:160, cut_accept.py:158, word_diff.py:152; qa_gates.py:94 G1/G20)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/.cache/huggingface/hub/models--Systran--faster-whisper-medium/snapshots/08e178d48790749d25932bbc082711ddcfdfbc4f/config.json",
+   "size": 2257,
+   "reader": "gpu0.py:897-904 (whisper: select_passages.py:160, cut_accept.py:158, word_diff.py:152; qa_gates.py:94 G1/G20)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/.cache/huggingface/hub/models--Systran--faster-whisper-medium/snapshots/08e178d48790749d25932bbc082711ddcfdfbc4f/tokenizer.json",
+   "size": 2203239,
+   "reader": "gpu0.py:897-904 (whisper: select_passages.py:160, cut_accept.py:158, word_diff.py:152; qa_gates.py:94 G1/G20)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/.cache/huggingface/hub/models--Systran--faster-whisper-medium/snapshots/08e178d48790749d25932bbc082711ddcfdfbc4f/vocabulary.txt",
+   "size": 459861,
+   "reader": "gpu0.py:897-904 (whisper: select_passages.py:160, cut_accept.py:158, word_diff.py:152; qa_gates.py:94 G1/G20)",
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/data/signoff_history.json",
+   "size": 7474,
+   "reader": "signoff.py:30, 45-49 (falls back to the tracked copy)",
+   "optional": true,
+   "tracked": false
+  },
+  {
+   "path": "/home/ultron/protocol_pulse/data/yt_cookies.txt",
+   "size": 872,
+   "reader": "select_passages.py:121-123 (optional; stat only, never opened)",
+   "optional": true,
+   "tracked": false
+  }
+ ],
+ "not_files": [
+  "the pin (the build's output)",
+  "post-live sources (pin-dependent, data/ overlay)",
+  "Ollama gemma3:27b (a service; the render's preflight checks it)",
+  "/home/ultron/pp_spend (created by the ledger-init)"
+ ]
+}

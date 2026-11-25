@@ -59,19 +59,26 @@ def blob(path):
     return subprocess.run(["git", "hash-object", path], capture_output=True, text=True, timeout=30).stdout.strip()
 
 
-def parts_for(start, end, production=PRODUCTION, worktrees=WORKTREES, outside=OUTSIDE):
-    """-> (parts {name: usd}, voice_chars, notes [str], unknown [paths])."""
-    name = day_file(start)
-    rel = os.path.join(LEDGER_REL, name)
-    parts, notes, unknown, voice = {}, [], [], 0
+def parts_for(start, end, production=None, worktrees=WORKTREES, outside=None):
+    """-> (parts {name: usd}, voice_chars, notes [str], unknown [paths]). Production's parts are spend_ceiling's own
+    reading (production_parts: the same one every reservation repeats, B1 (b)); here, in addition, every OTHER
+    worktree's day ledger must be a copy of production's."""
+    saved = {k: os.environ.get(k) for k in ("PP_SPEND_PROD_BUILDER", "PP_SPEND_PROD_OUTSIDE")}
+    try:
+        if production:
+            os.environ["PP_SPEND_PROD_BUILDER"] = production
+        if outside:
+            os.environ["PP_SPEND_PROD_OUTSIDE"] = outside
+        production = SC.prod_paths()[0]
+        parts, voice, notes, unknown = SC.production_parts(start, end)
+    finally:
+        for k, v in saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+    rel = os.path.join(LEDGER_REL, day_file(start))
     prod = os.path.join(production, rel)
-    if os.path.exists(prod):
-        d = SC.read(prod)                          # unreadable: CeilingRefused (fail closed)
-        parts["builder:pp-selectid"] = round(SC.spent(d) + SC.held(d), 6)
-        notes.append(f"builder:pp-selectid {prod}: spent ${SC.spent(d):.4f}, held ${SC.held(d):.4f}")
-    else:
-        parts["builder:pp-selectid"] = 0.0
-        notes.append(f"builder:pp-selectid: no day ledger yet ({prod})")
     copies = None
     for p in sorted(glob.glob(os.path.join(worktrees, "*", rel))):
         if os.path.realpath(p) == os.path.realpath(prod):
@@ -79,42 +86,11 @@ def parts_for(start, end, production=PRODUCTION, worktrees=WORKTREES, outside=OU
         if os.path.exists(prod) and open(p, "rb").read() == open(prod, "rb").read():
             notes.append(f"copy (byte-identical to production's): {p}")
             continue
-        copies = committed_blobs(rel) if copies is None else copies
+        copies = committed_blobs(rel, production) if copies is None else copies
         if blob(p) in copies:
             notes.append(f"copy (a committed version of production's): {p}")
             continue
         unknown.append(p)
-    usd, n = 0.0, 0
-    lo, hi = start.astimezone(timezone.utc), end.astimezone(timezone.utc)
-    if os.path.exists(outside):
-        with open(outside) as f:
-            for line in f:
-                try:
-                    e = json.loads(line)
-                    at = datetime.fromisoformat(str(e.get("at")).replace("Z", "+00:00"))
-                except (ValueError, TypeError):
-                    unknown.append(f"{outside}: an unreadable line")
-                    continue
-                if not lo <= at < hi:
-                    continue
-                if isinstance(e.get("usd"), (int, float)) and not isinstance(e.get("usd"), bool):
-                    usd += float(e["usd"])
-                    n += 1
-                elif "tts" in str(e.get("vendor")):
-                    voice += int((e.get("units") or {}).get("characters") or 0)
-                else:
-                    unknown.append(f"{outside}: an unpriced line that is not the voice: {str(e)[:120]}")
-    parts["integrator:outside"] = round(usd, 6)
-    notes.append(f"integrator:outside {outside}: {n} priced line(s) ${usd:.4f}; the voice {voice} characters")
-    a_usd = 0.0
-    lab_lo, lab_hi = start.strftime("%Y%m%d_%H%M"), end.strftime("%Y%m%d_%H%M")
-    for f in sorted(glob.glob(os.path.join(production, "docs/audits/parallel/pp-selectid_audit_2026*/COST.json"))):
-        label = f.split("pp-selectid_audit_")[1].split("/")[0]
-        if lab_lo <= label < lab_hi:
-            for r in _read(f).get("reviews") or []:
-                if "grok" in str(r.get("review", "")):
-                    a_usd += float(r.get("usd_reported", 0.0) or 0.0)
-    parts["builder:audits"] = round(a_usd, 6)
     return parts, voice, notes, unknown
 
 
@@ -137,14 +113,10 @@ def main(argv=None):
     if unknown:
         print("REFUSED: unknown spend source(s), not a copy of production's ledger: " + "; ".join(unknown))
         return 2
-    if a.write:
-        st = SC.seed(parts, now=now)
-        with SC.locked(st["ledger"]):                  # the voice: information only (its cap is per build)
-            d = SC.read(st["ledger"])
-            d.setdefault("voice", {})["carried_in_chars"] = voice
-            SC.write(st["ledger"], d)
-        st = SC.status(now=now)
-        print(f"SEEDED: spent ${st['spent']:.4f}, held ${st['held']:.4f}, room ${st['room']:.4f}, stop {st['stop']}")
+    if a.write:                                        # B1 (a): the ledger CREATED, seeded and marked initialized; the
+        st = SC.init_day(parts, voice, by="ceiling_seed (the launch's ledger-init)", now=now)   # voice's characters
+        print(f"INITIALIZED: {st['ledger']}: spent ${st['spent']:.4f}, held ${st['held']:.4f}, room ${st['room']:.4f}, "
+              f"stop {st['stop']}")                    # are information only (its cap is per build)
     else:
         print("DRY RUN: nothing written")
     return 0

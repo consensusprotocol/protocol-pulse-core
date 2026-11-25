@@ -111,6 +111,24 @@ RESERVE_POLL_S = 1.0                 # BATCH 3 (Nov 14): how often a call waitin
                                      # the ledger (Router reserve_wait_s, Router._reserve)
 
 
+INPUT_BOUND_BYTES = 65536            # B2 (the owner, 08:38 ET Nov 25): under the one ledger, a PAID call's prompt + system
+#   (UTF-8 bytes, measured before sending; a token is at least one byte) above this is NOT sent (no answer: never a
+#   pass): 1.76 x the largest recorded (37,231 bytes, a Grok step A)
+IMAGE_BOUND = (2, 2_000_000)         # B2: at most 2 images (1 recorded) of at most 2,000,000 base64 bytes each
+
+
+def input_over_bound(prompt, system=None):
+    """B2: why a paid call's input is above its stated bound (it is then not sent), or None."""
+    imgs = prompt["images"] if is_vision(prompt) else []
+    text = prompt["text"] if is_vision(prompt) else prompt
+    nb = len(str(text).encode()) + len((system or "").encode())
+    if nb > INPUT_BOUND_BYTES:
+        return f"its prompt is {nb} bytes, above the {INPUT_BOUND_BYTES}-byte input bound (B2): not sent"
+    if len(imgs) > IMAGE_BOUND[0] or any(len(i) > IMAGE_BOUND[1] for i in imgs):
+        return f"its {len(imgs)} image(s) pass the image bound {IMAGE_BOUND} (B2): not sent"
+    return None
+
+
 def is_vision(prompt):
     """RULING 70: a VISION prompt is {"text": str, "images": [base64 JPEG, ...]}; only a back-end with vision = True
     is asked it (the others are skipped for that call)."""
@@ -1041,16 +1059,21 @@ class Router:
         while True:
             with self._lock():
                 d = self._ledger()
-                if self.ceiling:                     # R1: a reservation of a process that ended unsettled stops it
-                    import spend_ceiling as SC
-                    if SC.mark_dead(d):
-                        self._save(d)
+                busy = []
+                if self.ceiling:                     # R1 + B1 (08:38 ET Nov 25): the ledger initialized first; a dead
+                    import spend_ceiling as SC       # process's reservation stops it; production's day ledgers re-read
+                    try:                             # and a production build or render running stops it
+                        if SC.before_reserve(d):
+                            self._save(d)
+                    except SC.CeilingRefused as e:
+                        raise SpendLimit(f"{e} (B1)") from None
+                    busy = SC.in_flight(d) if SC.ONE_IN_FLIGHT else []   # B2: one paid call in flight at a time
                 if self.ceiling and d.get("stop"):   # R1: a stopped ledger refuses every paid call, before the vendor
                     raise SpendLimit(f"the spend ledger is STOPPED ({(d['stop'] or {}).get('why')}): no paid call "
                                      f"until the owner clears it (R1)")
                 held = sum(float(x) for x in d["reserved"].values())
                 spent = self._basis_total(d)
-                if spent + held + upper + margin <= self.limit_usd:
+                if not busy and spent + held + upper + margin <= self.limit_usd:
                     key = f"{os.getpid()}:{uuid.uuid4().hex[:10]}"
                     d["reserved"][key] = round(upper, 6)
                     self._save(d)
@@ -1065,6 +1088,8 @@ class Router:
                                      f"upper bound {upper:.2f} > the limit {self.limit_usd} USD" +
                                      (f" (still, after waiting {self.reserve_wait_s:g} s for the calls in flight)"
                                       if waited else ""))
+            if self.deadline_at is not None and time.time() >= self.deadline_at:   # R3: no wait past the deadline
+                raise DeadlineStopped(f"the build's deadline passed while {b.name} waited for room in the ledger")
             waited = True
             time.sleep(max(0.01, float(self.reserve_poll_s)))
 
@@ -1572,10 +1597,21 @@ class Router:
             if bwhy:
                 tried.append((name, bwhy))
                 continue
+            if self.ceiling and not b.free() and self._capped(name):   # B2: the input bounded before sending
+                big = input_over_bound(prompt, system)
+                if big:
+                    tried.append((name, big))
+                    continue
             self._deadline_left(role, name, dl)                 # R3: a call that could not end inside the budget
             upper = b.upper_usd(prompt, max_tokens, system)
             frac = self._reserve_fraction(b)          # RULING 123 (1): Grok at 25 % of list until a call bills over it
             key = self._reserve(b, round(upper * frac, 6) if frac is not None else upper)
+            if self.ceiling and key is not None:      # R3 after B2's wait for the one slot: the time left re-checked
+                try:
+                    self._deadline_left(role, name, dl)
+                except DeadlineStopped:
+                    self._settle(key)                  # nothing was sent: released
+                    raise
             if isinstance(b, HeimdallBackend):
                 n = self.heimdall_tripwire()
                 if n:
@@ -1706,6 +1742,12 @@ class Router:
                 continue
             self._deadline_left("transcribe", name, None)       # R3
             key = self._reserve(b, b.upper_usd(wav))
+            if self.ceiling and key is not None:      # R3 after B2's wait for the one slot
+                try:
+                    self._deadline_left("transcribe", name, None)
+                except DeadlineStopped:
+                    self._settle(key)
+                    raise
             call = (lambda b=b: b.transcribe(wav))
             if self.ceiling and key is not None:      # R1: the guard sees this call's reservation
                 import spend_ceiling as SC
