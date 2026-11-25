@@ -1,0 +1,57 @@
+# B1-B3 must-fail credit (Nov 25): each mutation made in a SCRATCH copy, its unmodified control run first (scratchpad b123/mutate_b123.py, built on ops172's mutate.py); network blocked
+CONTROL (unmutated) tests/package/test_ceiling.py::TestTheLedgerFirst: rc 0: 1 passed in 0.31s
+KILLED: B1(a) a reservation on an uninitialized ledger allowed -> tests/package/test_ceiling.py::TestTheLedgerFirst: rc 1: 1 failed in 0.42s
+CONTROL (unmutated) tests/package/test_lean_ops.py::TheLedgerComesFirst: rc 0: 4 passed in 0.47s
+KILLED: B1(a) start skips the ledger-init -> tests/package/test_lean_ops.py::TheLedgerComesFirst: rc 4: 1 error in 0.47s
+CONTROL (unmutated) tests/package/test_lean_ops.py::TheLedgerComesFirst: rc 0: 4 passed in 0.69s
+KILLED: B1(a) a service starts without its own ledger check -> tests/package/test_lean_ops.py::TheLedgerComesFirst: rc 1: 1 failed, 1 passed in 0.69s
+CONTROL (unmutated) tests/package/test_ceiling.py::TestProductionAtEveryReservation: rc 0: 3 passed in 0.39s
+KILLED: B1(b) production's ledgers read once, at the launch -> tests/package/test_ceiling.py::TestProductionAtEveryReservation: rc 1: 1 failed in 0.50s
+CONTROL (unmutated) tests/package/test_ceiling.py::TestAProductionRunStopsPaidCalls: rc 0: 2 passed in 1.25s
+KILLED: B1(b) a production run appearing does not stop -> tests/package/test_ceiling.py::TestAProductionRunStopsPaidCalls: rc 1: 1 failed in 1.02s
+CONTROL (unmutated) tests/package/test_ceiling.py::TestAProductionRunStopsPaidCalls: rc 1: 1 failed in 0.98s
+NO CONTROL: B1(b) every process taken for ours -> tests/package/test_ceiling.py::TestAProductionRunStopsPaidCalls: rc 1: 1 failed in 2.16s
+CONTROL (unmutated) tests/package/test_lean_ops.py::ThePreflight: rc 0: 4 passed in 0.88s
+KILLED: B1(b) the launch's preflight ignores a production run -> tests/package/test_lean_ops.py::ThePreflight: rc 1: 1 failed in 0.45s
+CONTROL (unmutated) tests/package/test_ceiling.py::TestOnePaidCallInFlight: rc 0: 1 passed in 3.73s
+KILLED: B2 two paid calls in flight (spend_ceiling) -> tests/package/test_ceiling.py::TestOnePaidCallInFlight: rc 1: 1 failed in 0.67s
+CONTROL (unmutated) tests/package/test_ceiling.py::TestOnePaidCallInFlight: rc 0: 1 passed in 3.70s
+KILLED: B2 the router ignores the call in flight -> tests/package/test_ceiling.py::TestOnePaidCallInFlight: rc 1: 1 failed in 0.45s
+CONTROL (unmutated) tests/package/test_ceiling.py::TestTheInputBound: rc 0: 1 passed in 0.30s
+KILLED: B2 the input bound not applied -> tests/package/test_ceiling.py::TestTheInputBound: rc 1: 1 failed in 0.48s
+CONTROL (unmutated) tests/package/test_lean_ops.py::ThePreflight: rc 0: 4 passed in 0.86s
+KILLED: B3(a) the asset sizes not compared -> tests/package/test_lean_ops.py::ThePreflight: rc 1: 1 failed, 2 passed in 0.68s
+CONTROL (unmutated) tests/package/test_lean_ops.py::TheOneDeadline: rc 0: 7 passed in 0.52s
+KILLED: B3(b) the delivery's deadline check removed -> tests/package/test_lean_ops.py::TheOneDeadline: rc 1: 1 failed, 1 passed in 0.44s
+CONTROL (unmutated) tests/package/test_lean_ops.py::TheExitPaths::test_sigterm: rc 0: 1 passed in 2.91s
+KILLED: B3(c) run's finally does not restore -> tests/package/test_lean_ops.py::TheExitPaths::test_sigterm: rc 1: 1 failed in 2.86s
+CONTROL (unmutated) tests/package/test_lean_ops.py::TheExitPaths::test_sigint: rc 0: 1 passed in 2.83s
+KILLED: B3(c) a signal leaves the stage running -> tests/package/test_lean_ops.py::TheExitPaths::test_sigint: rc 1: 1 failed in 42.98s
+CONTROL (unmutated) tests/package/test_lean_ops.py::TheExitPaths::test_sigkill_the_guard_restores: rc 0: 1 passed in 3.46s
+KILLED: B3(c) the guard does not restore -> tests/package/test_lean_ops.py::TheExitPaths::test_sigkill_the_guard_restores: rc 1: 1 failed in 2.84s
+CONTROL (unmutated) tests/package/test_lean_ops.py::TheExitPaths::test_sigkill_the_guard_restores: rc 0: 1 passed in 3.46s
+KILLED: B3(c) restore leaves a killed launcher's stage running -> tests/package/test_lean_ops.py::TheExitPaths::test_sigkill_the_guard_restores: rc 1: 1 failed in 33.71s
+CONTROL (unmutated) tests/package/test_lean_ops.py::TheDetach: rc 0: 1 passed in 0.26s
+KILLED: B3(c) the one command not detached from the terminal -> tests/package/test_lean_ops.py::TheDetach: rc 1: 1 failed in 0.40s
+CONTROL (unmutated) tests/package/test_lean_ops.py::ThePreflight: rc 0: 4 passed in 0.81s
+KILLED: B3/R3 the run may cross the spend day -> tests/package/test_lean_ops.py::ThePreflight: rc 1: 1 failed, 3 passed in 0.81s
+
+# RERUN after the test fix (an orphaned stand-in render from the previous mutation's run had failed the control of 'every process taken for ours'; the test now ends whole process groups):
+CONTROL (unmutated) tests/package/test_ceiling.py::TestAProductionRunStopsPaidCalls: rc 0: 2 passed in 1.20s
+KILLED: B1(b) a production run appearing does not stop -> tests/package/test_ceiling.py::TestAProductionRunStopsPaidCalls: rc 1: 1 failed in 1.33s
+CONTROL (unmutated) tests/package/test_ceiling.py::TestAProductionRunStopsPaidCalls: rc 0: 2 passed in 1.30s
+KILLED: B1(b) every process taken for ours -> tests/package/test_ceiling.py::TestAProductionRunStopsPaidCalls: rc 1: 1 failed in 1.37s
+
+# ADDED after the run's service wait (services_ready, each service's own heartbeat):
+CONTROL (unmutated) tests/package/test_lean_ops.py::TheServicesComeUpFirst: rc 0: 1 passed in 4.61s
+KILLED: B3(c) run launches without the services' own heartbeats -> tests/package/test_lean_ops.py::TheServicesComeUpFirst: rc 1: 1 failed in 4.78s
+CONTROL (unmutated) tests/package/test_lean_ops.py::TheServicesComeUpFirst: rc 0: 1 passed in 4.64s
+KILLED: B3(c) one service's heartbeat stands in for the other's -> tests/package/test_lean_ops.py::TheServicesComeUpFirst: rc 1: 1 failed in 0.30s
+
+# ADDED with the run lock (one run at a time; a second refuses and restores nothing):
+CONTROL (unmutated) tests/package/test_lean_ops.py::OneRunAtATime: rc 0: 1 passed in 0.31s
+KILLED: B3(c) a second run while one is live: no run lock -> tests/package/test_lean_ops.py::OneRunAtATime: rc 1: 1 failed in 0.38s
+
+# ADDED with the whole-argument matcher (restore's leftover scan):
+CONTROL (unmutated) tests/package/test_lean_ops.py::OnlyOurProcesses: rc 0: 1 passed in 0.28s
+KILLED: R2/B3(c) restore's leftover scan matches substrings again -> tests/package/test_lean_ops.py::OnlyOurProcesses: rc 1: 1 failed in 0.72s

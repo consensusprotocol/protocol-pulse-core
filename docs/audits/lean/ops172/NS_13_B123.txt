@@ -1,0 +1,86 @@
+# The 13 release test files that fail in a fresh worktree, run INSIDE the render's namespace (ns_check.py pytest; the pushed lean-release head 7f4317bb0; unshare --net: no network; the key file masked; CUDA_VISIBLE_DEVICES='' as the release's CPU test session). Nov 25.
+# The git 'object directory' line: the copy's in-namespace alternates entry seen from the host (benign).
+
+## pass 1 (09:26-09:36 ET): all 13
+error: object directory /tmp/claude-1000/-home-ultron-worktrees-pp-lean/904bbcc4-105b-4b73-8ec7-95075d09273f/scratchpad/nsrun/ns/live_main/.git/objects does not exist; check .git/objects/info/alternates
+pipeline/test_check_medley_reference.py	rc=0	16 passed in 135.03s (0:02:15)
+pipeline/test_check_reference_manifest.py	rc=0	7 passed in 0.97s
+pipeline/test_dec10_edges.py	rc=1	2 failed, 10 passed, 2 skipped in 62.39s (0:01:02)
+    FAILED pipeline/test_dec10_edges.py::TestMixedEdgeAcoustics::test_a_normal_edge_failing_cut_accept_rejects_the_clip
+    FAILED pipeline/test_dec10_edges.py::TestMixedEdgeAcoustics::test_the_minimum_edge_is_judged_by_neighbour_clear_not_cut_accept
+pipeline/test_edge_words.py	rc=1	1 failed, 7 passed in 69.63s (0:01:09)
+    FAILED pipeline/test_edge_words.py::TestNatalieTail::test_the_l_b_fade_stays_out_of_rally_and_keeps_it_whole
+pipeline/test_fresh.py	rc=0	27 passed, 1 skipped in 62.37s (0:01:02)
+pipeline/test_g20_signoff.py	rc=1	2 failed, 13 passed in 2.84s
+    FAILED pipeline/test_g20_signoff.py::TestG20::test_the_preview_sign_off_misses_the_hook_channel
+    FAILED pipeline/test_g20_signoff.py::TestG20::test_v2f_sign_off_names_every_credited_channel
+pipeline/test_g3b_majority.py	rc=1	4 failed, 3 passed in 3.29s
+    FAILED pipeline/test_g3b_majority.py::TestG3bMajority::test_a_tail_cut_inside_its_last_word_fails
+    FAILED pipeline/test_g3b_majority.py::TestG3bMajority::test_the_corrected_cut_passes
+    FAILED pipeline/test_g3b_majority.py::TestG3bMajority::test_v2f_vertical_dollars_tail_passes
+    FAILED pipeline/test_g3b_majority.py::TestG3bMajority::test_yesterdays_natalie_tail_fails_against_its_locked_last_word
+pipeline/test_preflight.py	rc=1	1 failed, 6 passed in 1.05s
+    FAILED pipeline/test_preflight.py::TestRunner::test_an_exception_is_a_failed_check_and_any_failure_holds
+pipeline/test_pulse_20261110_mustfail.py	rc=0	33 passed, 1 skipped in 130.91s (0:02:10)
+pipeline/test_replay.py	rc=1	1 failed, 2 passed in 1.86s
+    FAILED pipeline/test_replay.py::TestRunTail::test_each_start_runs_only_the_later_stages
+pipeline/test_ruling73.py	rc=1	5 passed, 2 errors in 22.74s
+    ERROR pipeline/test_ruling73.py::TestMustFail13949b7c::test_a_the_hooks_out_follows_reissued
+    ERROR pipeline/test_ruling73.py::TestMustFail13949b7c::test_b_clip_01_opens_within_600_ms_of_i
+pipeline/test_safe_frame_colour.py	rc=1	3 failed, 2 passed in 8.58s
+    FAILED pipeline/test_safe_frame_colour.py::TestSafeFrameKeepsBt709::test_a_part_opening_on_a_safe_frame_keeps_bt709
+    FAILED pipeline/test_safe_frame_colour.py::TestSafeFrameKeepsBt709::test_a_part_opening_on_a_speaker_crop_is_unchanged
+    FAILED pipeline/test_safe_frame_colour.py::TestSafeFrameKeepsBt709::test_a_part_opening_on_a_stack2_keeps_bt709_and_its_range
+pipeline/test_word_diff.py	rc=1	1 failed, 17 passed, 4 errors, 10 subtests passed in 6.59s
+    FAILED pipeline/test_word_diff.py::TestSpanMatchesRealSpeech::test_the_real_segment_matches_and_a_real_repeat_does_not
+    ERROR pipeline/test_word_diff.py::TestYesterdaysFinal::test_clip01_clipped_start_and_run_on_fail
+    ERROR pipeline/test_word_diff.py::TestYesterdaysFinal::test_clip02_start_inside_days_fails
+    ERROR pipeline/test_word_diff.py::TestYesterdaysFinal::test_gate_fails - gpu0...
+    ERROR pipeline/test_word_diff.py::TestYesterdaysFinal::test_hook_words_are_intact
+
+## pass 2 (COLUMNS=600, PYTEST_ADDOPTS='-rfE --tb=no'): the 9 still failing, with their reasons. test_g3b_majority and test_ruling73 show rc=-15: they were stopped by SIGTERM from this session's own test runs (restore's old substring scan, fixed: ours_argv), so they were run again in pass 3
+error: object directory /tmp/claude-1000/-home-ultron-worktrees-pp-lean/904bbcc4-105b-4b73-8ec7-95075d09273f/scratchpad/nsrun/ns/live_main/.git/objects does not exist; check .git/objects/info/alternates
+pipeline/test_dec10_edges.py	rc=1	2 failed, 10 passed, 2 skipped in 58.06s
+    FAILED pipeline/test_dec10_edges.py::TestMixedEdgeAcoustics::test_a_normal_edge_failing_cut_accept_rejects_the_clip - KeyError: 'cut_lo'
+    FAILED pipeline/test_dec10_edges.py::TestMixedEdgeAcoustics::test_the_minimum_edge_is_judged_by_neighbour_clear_not_cut_accept - KeyError: 'cut_lo'
+pipeline/test_edge_words.py	rc=1	1 failed, 7 passed in 69.53s (0:01:09)
+    FAILED pipeline/test_edge_words.py::TestNatalieTail::test_the_l_b_fade_stays_out_of_rally_and_keeps_it_whole - subprocess.CalledProcessError: Command '['ffmpeg', '-y', '-ss', '63.379999999999995', '-i', '/tmp/lb_1jd048k4/sources/lusJ1m-J0Mc.mp4', '-ss', '5.0', '-t', '12.46', '-vf', 'scale=1920:1080:
+pipeline/test_g20_signoff.py	rc=1	2 failed, 13 passed in 2.12s
+    FAILED pipeline/test_g20_signoff.py::TestG20::test_the_preview_sign_off_misses_the_hook_channel - gpu0.LeaseMissing: whisper:medium: GPU0 loads need CUDA_VISIBLE_DEVICES=0 (it is ''; one GPU per process)
+    FAILED pipeline/test_g20_signoff.py::TestG20::test_v2f_sign_off_names_every_credited_channel - gpu0.LeaseMissing: whisper:medium: GPU0 loads need CUDA_VISIBLE_DEVICES=0 (it is ''; one GPU per process)
+pipeline/test_g3b_majority.py	rc=-15	
+pipeline/test_preflight.py	rc=1	1 failed, 6 passed in 0.82s
+    FAILED pipeline/test_preflight.py::TestRunner::test_an_exception_is_a_failed_check_and_any_failure_holds - AssertionError: 'HOLD (preflight): bad: nope' not found in 'HOLD (preflight): GPU0 Gpu0Unreadable: Ollama 127.0.0.1:11434 /api/ps: <urlopen error [Errno 101] Network is unreachable>\n'
+pipeline/test_replay.py	rc=1	1 failed, 2 passed in 1.43s
+    FAILED pipeline/test_replay.py::TestRunTail::test_each_start_runs_only_the_later_stages - run_fresh.Hold: release formats unreadable: FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tail_m8otmh6i/edl.json'
+pipeline/test_ruling73.py	rc=-15	
+pipeline/test_safe_frame_colour.py	rc=1	3 failed, 2 passed in 4.87s
+    FAILED pipeline/test_safe_frame_colour.py::TestSafeFrameKeepsBt709::test_a_part_opening_on_a_safe_frame_keeps_bt709 - gpu0.LeaseMissing: swap_to(nvenc): GPU0 loads need CUDA_VISIBLE_DEVICES=0 (it is ''; one GPU per process)
+    FAILED pipeline/test_safe_frame_colour.py::TestSafeFrameKeepsBt709::test_a_part_opening_on_a_speaker_crop_is_unchanged - gpu0.LeaseMissing: swap_to(nvenc): GPU0 loads need CUDA_VISIBLE_DEVICES=0 (it is ''; one GPU per process)
+    FAILED pipeline/test_safe_frame_colour.py::TestSafeFrameKeepsBt709::test_a_part_opening_on_a_stack2_keeps_bt709_and_its_range - gpu0.LeaseMissing: swap_to(nvenc): GPU0 loads need CUDA_VISIBLE_DEVICES=0 (it is ''; one GPU per process)
+pipeline/test_word_diff.py	rc=1	1 failed, 17 passed, 4 errors, 10 subtests passed in 5.05s
+    FAILED pipeline/test_word_diff.py::TestSpanMatchesRealSpeech::test_the_real_segment_matches_and_a_real_repeat_does_not - subprocess.CalledProcessError: Command '['ffmpeg', '-v', 'error', '-i', '/home/ultron/protocol_pulse/runs/pinned_20261111_172202_replay_cut1329/sources/36HPi9UZPOc.mp4', '-vn', '-
+    ERROR pipeline/test_word_diff.py::TestYesterdaysFinal::test_clip01_clipped_start_and_run_on_fail - gpu0.LeaseMissing: whisper:large-v3: GPU0 loads need CUDA_VISIBLE_DEVICES=0 (it is ''; one GPU per process)
+    ERROR pipeline/test_word_diff.py::TestYesterdaysFinal::test_clip02_start_inside_days_fails - gpu0.LeaseMissing: whisper:large-v3: GPU0 loads need CUDA_VISIBLE_DEVICES=0 (it is ''; one GPU per process)
+    ERROR pipeline/test_word_diff.py::TestYesterdaysFinal::test_gate_fails - gpu0.LeaseMissing: whisper:large-v3: GPU0 loads need CUDA_VISIBLE_DEVICES=0 (it is ''; one GPU per process)
+    ERROR pipeline/test_word_diff.py::TestYesterdaysFinal::test_hook_words_are_intact - gpu0.LeaseMissing: whisper:large-v3: GPU0 loads need CUDA_VISIBLE_DEVICES=0 (it is ''; one GPU per process)
+
+## pass 3: the two stopped files, again
+error: object directory /tmp/claude-1000/-home-ultron-worktrees-pp-lean/904bbcc4-105b-4b73-8ec7-95075d09273f/scratchpad/nsrun/ns/live_main/.git/objects does not exist; check .git/objects/info/alternates
+pipeline/test_g3b_majority.py	rc=1	4 failed, 3 passed in 2.13s
+    FAILED pipeline/test_g3b_majority.py::TestG3bMajority::test_a_tail_cut_inside_its_last_word_fails - gpu0.LeaseMissing: whisper:medium: GPU0 loads need CUDA_VISIBLE_DEVICES=0 (it is ''; one GPU per process)
+    FAILED pipeline/test_g3b_majority.py::TestG3bMajority::test_the_corrected_cut_passes - gpu0.LeaseMissing: whisper:medium: GPU0 loads need CUDA_VISIBLE_DEVICES=0 (it is ''; one GPU per process)
+    FAILED pipeline/test_g3b_majority.py::TestG3bMajority::test_v2f_vertical_dollars_tail_passes - gpu0.LeaseMissing: whisper:medium: GPU0 loads need CUDA_VISIBLE_DEVICES=0 (it is ''; one GPU per process)
+    FAILED pipeline/test_g3b_majority.py::TestG3bMajority::test_yesterdays_natalie_tail_fails_against_its_locked_last_word - gpu0.LeaseMissing: whisper:medium: GPU0 loads need CUDA_VISIBLE_DEVICES=0 (it is ''; one GPU per process)
+pipeline/test_ruling73.py	rc=1	5 passed, 2 errors in 26.66s
+    ERROR pipeline/test_ruling73.py::TestMustFail13949b7c::test_a_the_hooks_out_follows_reissued - subprocess.CalledProcessError: Command '['ffmpeg', '-v', 'error', '-i', '/tmp/r73t__fhz2nf3/sources/DcUbBkyeh9M.mp4', '-vn', '-ac', '1', '-ar', '16000', '-f', 'f32le', '-']' returned non-zero exit status 1
+    ERROR pipeline/test_ruling73.py::TestMustFail13949b7c::test_b_clip_01_opens_within_600_ms_of_i - subprocess.CalledProcessError: Command '['ffmpeg', '-v', 'error', '-i', '/tmp/r73t__fhz2nf3/sources/DcUbBkyeh9M.mp4', '-vn', '-ac', '1', '-ar', '16000', '-f', 'f32le', '-']' returned non-zero exit status
+
+## outside the namespace (rel_suites_b123), for comparison: test_dec10_edges and test_replay fail the same way without any reference data
+E           run_fresh.Hold: release formats unreadable: FileNotFoundError: [Errno 2] No such file or directory: '/tmp/tail_rqn7ekh1/edl.json'
+E   KeyError: 'cut_lo'
+E   KeyError: 'cut_lo'
+
+## the media two tests read (ls, 09:46 ET):
+ls: cannot access '/home/ultron/protocol_pulse/runs/pinned_20261111_172202_replay_cut1329/sources/36HPi9UZPOc.mp4': No such file or directory
+ls: cannot access '/home/ultron/protocol_pulse/runs/pinned_20261113_221758/sources/DcUbBkyeh9M.mp4': No such file or directory

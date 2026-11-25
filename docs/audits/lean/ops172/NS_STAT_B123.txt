@@ -1,0 +1,65 @@
+# 09:31 ET Nov 25: python3 -B tests/package/lean/ns_check.py --run-dir <scratch> --sha 7f4317bb0f35 stat  (the render's namespace from the pushed lean-release head; unshare --net; the key file masked)
+# the git 'object directory ... does not exist' line is from the host-side checkout: the copy's second alternates entry is the live objects folder as seen INSIDE the namespace (lean_ops.release_copy_cmds); benign outside it
+error: object directory /tmp/claude-1000/-home-ultron-worktrees-pp-lean/904bbcc4-105b-4b73-8ec7-95075d09273f/scratchpad/nsrun/ns/live_main/.git/objects does not exist; check .git/objects/info/alternates
+{"path": "/home/ultron/protocol_pulse/brand/2026-11/pp_outro_2026-11_16x9_master.mp4", "size": 880975, "want": 880975, "ok": true}
+{"path": "/home/ultron/protocol_pulse/brand/2026-11/pp_outro_2026-11_9x16_master.mp4", "size": 1126128, "want": 1126128, "ok": true}
+{"path": "/home/ultron/protocol_pulse/brand/2026-11/conformed/outro_16x9_7c2cc7ae6efa9b27.mp4", "size": 841257, "want": 841257, "ok": true}
+{"path": "/home/ultron/protocol_pulse/brand/2026-11/conformed/outro_9x16_48d114daab327aa9.mp4", "size": 923791, "want": 923791, "ok": true}
+{"path": "/home/ultron/protocol_pulse/brand/2026-11/pp_mark_wave_400.png", "size": 70901, "want": 70901, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/confident_02.mp3", "size": 1199347, "want": 1199347, "ok": true}
+{"path": "/home/ultron/protocol_pulse/references/v2f_2026-11-06/run/vo_audio/VO_MANIFEST.json", "size": 633, "want": 633, "ok": true}
+{"path": "/home/ultron/protocol_pulse/segment_v1/qa_v6/blaze_face_short_range.tflite", "size": 229746, "want": 229746, "ok": true}
+{"path": "/home/ultron/.insightface/models/buffalo_l/det_10g.onnx", "size": 16923827, "want": 16923827, "ok": true}
+{"path": "/home/ultron/.local/lib/python3.10/site-packages/resemblyzer/pretrained.pt", "size": 17090379, "want": 17090379, "ok": true}
+{"path": "/home/ultron/.local/lib/python3.10/site-packages/cv2/data/haarcascade_frontalface_default.xml", "size": 930127, "want": 930127, "ok": true}
+{"path": "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", "size": 705684, "want": 705684, "ok": true}
+{"path": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", "size": 757076, "want": 757076, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/confident_01.mp3", "size": 1668809, "want": 1668809, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/confident_03.mp3", "size": 1774949, "want": 1774949, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/confident_04.mp3", "size": 1076422, "want": 1076422, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/confident_05.mp3", "size": 3927997, "want": 3927997, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/contemplative_01.mp3", "size": 4204181, "want": 4204181, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/contemplative_02.mp3", "size": 3451005, "want": 3451005, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/contemplative_03.mp3", "size": 1978131, "want": 1978131, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/contemplative_04.mp3", "size": 1978131, "want": 1978131, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/contemplative_05.mp3", "size": 2812238, "want": 2812238, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/edge_01.mp3", "size": 2283509, "want": 2283509, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/edge_02.mp3", "size": 2038316, "want": 2038316, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/edge_03.mp3", "size": 1584807, "want": 1584807, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/edge_04.mp3", "size": 1541707, "want": 1541707, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/edge_05.mp3", "size": 2618154, "want": 2618154, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/intro_01.mp3", "size": 557552, "want": 557552, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/intro_02.mp3", "size": 784785, "want": 784785, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/intro_03.mp3", "size": 602732, "want": 602732, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/outro_01.mp3", "size": 569781, "want": 569781, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/outro_02.mp3", "size": 817370, "want": 817370, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/pp_background.mp3", "size": 4303224, "want": 4303224, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/pp_intro.mp3", "size": 202464, "want": 202464, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/pp_outro.mp3", "size": 606288, "want": 606288, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/pp_transition.mp3", "size": 233448, "want": 233448, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/tense_01.mp3", "size": 1179114, "want": 1179114, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/tense_02.mp3", "size": 1734019, "want": 1734019, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/tense_03.mp3", "size": 1668402, "want": 1668402, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/tense_04.mp3", "size": 1177766, "want": 1177766, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/tense_05.mp3", "size": 1486717, "want": 1486717, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/upbeat_01.mp3", "size": 1584516, "want": 1584516, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/upbeat_02.mp3", "size": 1963664, "want": 1963664, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/upbeat_03.mp3", "size": 1963664, "want": 1963664, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/upbeat_04.mp3", "size": 1348943, "want": 1348943, "ok": true}
+{"path": "/home/ultron/protocol_pulse/video_pipeline_v3/assets/music/upbeat_05.mp3", "size": 1340393, "want": 1340393, "ok": true}
+{"path": "/home/ultron/protocol_pulse/segment_v1/brand/avatars/btc_sessions.png", "size": 37258, "want": 37258, "ok": true}
+{"path": "/home/ultron/protocol_pulse/segment_v1/brand/avatars/coindesk.png", "size": 45694, "want": 45694, "ok": true}
+{"path": "/home/ultron/protocol_pulse/segment_v1/brand/avatars/simply_bitcoin.png", "size": 98263, "want": 98263, "ok": true}
+{"path": "/home/ultron/.cache/huggingface/hub/models--Systran--faster-whisper-large-v3/snapshots/edaa852ec7e145841d8ffdb056a99866b5f0a478/model.bin", "size": 3087284237, "want": 3087284237, "ok": true}
+{"path": "/home/ultron/.cache/huggingface/hub/models--Systran--faster-whisper-large-v3/snapshots/edaa852ec7e145841d8ffdb056a99866b5f0a478/config.json", "size": 2394, "want": 2394, "ok": true}
+{"path": "/home/ultron/.cache/huggingface/hub/models--Systran--faster-whisper-large-v3/snapshots/edaa852ec7e145841d8ffdb056a99866b5f0a478/preprocessor_config.json", "size": 340, "want": 340, "ok": true}
+{"path": "/home/ultron/.cache/huggingface/hub/models--Systran--faster-whisper-large-v3/snapshots/edaa852ec7e145841d8ffdb056a99866b5f0a478/tokenizer.json", "size": 2480617, "want": 2480617, "ok": true}
+{"path": "/home/ultron/.cache/huggingface/hub/models--Systran--faster-whisper-large-v3/snapshots/edaa852ec7e145841d8ffdb056a99866b5f0a478/vocabulary.json", "size": 1068114, "want": 1068114, "ok": true}
+{"path": "/home/ultron/.cache/huggingface/hub/models--Systran--faster-whisper-medium/snapshots/08e178d48790749d25932bbc082711ddcfdfbc4f/model.bin", "size": 1527906378, "want": 1527906378, "ok": true}
+{"path": "/home/ultron/.cache/huggingface/hub/models--Systran--faster-whisper-medium/snapshots/08e178d48790749d25932bbc082711ddcfdfbc4f/config.json", "size": 2257, "want": 2257, "ok": true}
+{"path": "/home/ultron/.cache/huggingface/hub/models--Systran--faster-whisper-medium/snapshots/08e178d48790749d25932bbc082711ddcfdfbc4f/tokenizer.json", "size": 2203239, "want": 2203239, "ok": true}
+{"path": "/home/ultron/.cache/huggingface/hub/models--Systran--faster-whisper-medium/snapshots/08e178d48790749d25932bbc082711ddcfdfbc4f/vocabulary.txt", "size": 459861, "want": 459861, "ok": true}
+{"path": "/home/ultron/protocol_pulse/data/signoff_history.json", "size": 7474, "want": 7474, "ok": true}
+{"path": "/home/ultron/protocol_pulse/data/yt_cookies.txt", "size": 872, "want": 872, "ok": true}
+{"path": "/home/ultron/protocol_pulse/.env", "masked_size": 0}
+INSIDE THE NAMESPACE: 60 asset files, 0 missing or of another size

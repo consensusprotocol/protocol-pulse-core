@@ -1,0 +1,101 @@
+# 09:31 ET Nov 25: PP_SPEND_CEILING=1 python3 -B tests/package/lean/exposure_172.py (pp-lean 848f1b5fd; read only, no vendor asked)
+1. THE OUTPUT LIMIT AND WHAT IS BILLED (recorded replies)
+  anthropic:claude-fable-5-2: 20 calls; largest output (reasoning included) 1456; 0 over the limit sent (largest xNone); largest bill $0.0000
+  anthropic:claude-opus-5-5: 39 calls; largest output (reasoning included) 1678; 0 over the limit sent (largest xNone); largest bill $0.0000
+  google:gemini-2.5-pro: 10 calls; largest output (reasoning included) 6627; 0 over the limit sent (largest xNone); largest bill $0.0000
+  openai:gpt-6.1-sol: 31 calls; largest output (reasoning included) 3357; 0 over the limit sent (largest xNone); largest bill $0.0000
+  xai:grok-4.20-0309-reasoning: 1105 calls; largest output (reasoning included) 20944; 12 over the limit sent (largest x1.75); largest bill $0.0537
+  xai_vision:grok-4.7: 53 calls; largest output (reasoning included) 28400; 31 over the limit sent (largest x3.55); largest bill $0.1752
+    over its limit: xai:grok-4.20-0309-reasoning context_verdict: sent 12000, used 12949 (2026-11-24T03:34:48Z), bill 0.0336606
+    over its limit: xai:grok-4.20-0309-reasoning context_verdict: sent 12000, used 14411 (2026-11-24T03:19:56Z), bill 0.0373206
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 15713 (2026-11-14T17:29:43Z), bill 0.098696
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 23590 (2026-11-18T12:43:39Z), bill 0.14572
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 13597 (2026-11-17T02:40:16Z), bill 0.086366
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 19572 (2026-11-24T01:51:41Z), bill 0.121594
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 12519 (2026-11-16T02:24:50Z), bill 0.079292
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 14881 (2026-11-24T00:10:56Z), bill 0.09271
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 27068 (2026-11-18T14:17:00Z), bill 0.166584
+    over its limit: xai_vision:grok-4.7 shadow86:visual_check: sent 8000, used 10683 (2026-11-15T03:11:55Z), bill 0.069644
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 12216 (2026-11-17T02:40:40Z), bill 0.078118
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 17066 (2026-11-24T03:00:56Z), bill 0.106562
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 12849 (2026-11-24T00:10:28Z), bill 0.080524
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 19485 (2026-11-24T18:16:14Z), bill 0.12305
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 9458 (2026-11-14T17:13:09Z), bill 0.061178
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 17654 (2026-11-24T00:13:02Z), bill 0.11072
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 8072 (2026-11-17T02:53:31Z), bill 0.052596
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 10134 (2026-11-16T17:25:38Z), bill 0.064992
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 12789 (2026-11-18T14:02:59Z), bill 0.079902
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 8943 (2026-11-17T03:43:44Z), bill 0.058482
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 28400 (2026-11-16T00:33:21Z), bill 0.175228
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 11510 (2026-11-17T17:01:58Z), bill 0.072488
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 24211 (2026-11-15T14:24:29Z), bill 0.150104
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 10211 (2026-11-24T02:56:57Z), bill 0.065426
+    over its limit: xai_vision:grok-4.7 shadow86:visual_check: sent 8000, used 25491 (2026-11-16T02:28:37Z), bill 0.157086
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 14833 (2026-11-17T02:52:08Z), bill 0.093178
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 10775 (2026-11-24T18:04:05Z), bill 0.06945
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 10311 (2026-11-17T03:41:35Z), bill 0.06605
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 9179 (2026-11-14T17:09:01Z), bill 0.05818
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 11384 (2026-11-18T14:13:01Z), bill 0.072478
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 19635 (2026-11-14T23:15:12Z), bill 0.122182
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 12457 (2026-11-14T23:13:49Z), bill 0.079166
+    over its limit: xai_vision:grok-4.7 visual_check: sent 8000, used 15511 (2026-11-18T12:42:01Z), bill 0.097208
+  the sign-off (grok-3-mini, 2026-11-24T03:43:13Z): max_tokens 500; completion 143 + reasoning 1279 = 1422 (prompt 474); $0.004013
+2. PER ROLE (limit sent | largest recorded output | largest input tokens | bound)
+  angle_write anthropic:claude-fable-5-2 max_tokens 3000: sent 16000 | 1456 | 1728 | input <= 65536 bytes; the limit stands: never reached on record; whether thinking counts inside it is not established offline
+  angle_write openai:gpt-6.1-sol max_tokens 3000: sent 4000 | 3357 | 2591 | input <= 65536 bytes; the limit stands: never reached on record; whether thinking counts inside it is not established offline
+  angle_write xai:grok-4.20-0309-reasoning max_tokens 3000: sent 12000 | 20944 | 1605 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 400: sent 8000 | 2944 | 643 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 460: sent 8000 | 1226 | 544 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 520: sent 8000 | 2970 | 614 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 640: sent 8000 | 5215 | 672 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 700: sent 8000 | 3054 | 962 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 750: sent 8000 | 3241 | 584 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 880: sent 8000 | 3754 | 980 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 900: sent 8000 | 3081 | 668 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 940: sent 8000 | 7353 | 802 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 1050: sent 8400 | 3151 | 756 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 1060: sent 8480 | 6544 | 1118 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 1180: sent 9440 | 7177 | 1123 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 1200: sent 9600 | 5722 | 906 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 1240: sent 9920 | 5364 | 1078 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 1540: sent 12000 | 6316 | 1253 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 1660: sent 12000 | 5603 | 1273 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 1800: sent 12000 | 2944 | 1277 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 1900: sent 12000 | 7351 | 1567 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  context_verdict anthropic:claude-opus-5-5 max_tokens 4000: sent 16000 | 1678 | 4424 | input <= 65536 bytes; the limit stands: never reached on record; whether thinking counts inside it is not established offline
+  context_verdict google:gemini-2.5-pro max_tokens 4000: sent 8000 | 6627 | 6398 | input <= 65536 bytes; the limit stands: never reached on record; whether thinking counts inside it is not established offline
+  context_verdict xai:grok-4.20-0309-reasoning max_tokens 2000: sent 12000 | 15913 | 1263 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  context_verdict xai:grok-4.20-0309-reasoning max_tokens 4000: sent 12000 | 13307 | 8413 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  exclusion_verdict anthropic:claude-opus-5-5 max_tokens 800: sent 16000 | 72 | 1769 | input <= 65536 bytes; the limit stands: never reached on record; whether thinking counts inside it is not established offline
+  exclusion_verdict xai:grok-4.20-0309-reasoning max_tokens 800: sent 8000 | 1331 | 1388 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  fidelity_verdict xai:grok-4.20-0309-reasoning max_tokens 2500: sent 12000 | 14220 | 1387 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  shadow86:coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 750: sent 8000 | 2224 | 586 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  shadow86:coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 900: sent 8000 | 2668 | 705 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  shadow86:coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 1050: sent 8400 | 2485 | 742 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  shadow86:coherence_verdict xai:grok-4.20-0309-reasoning max_tokens 1200: sent 9600 | 4254 | 916 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  shadow86:context_verdict xai:grok-4.20-0309-reasoning max_tokens 4000: sent 12000 | 9066 | 6253 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  shadow86:exclusion_verdict xai:grok-4.20-0309-reasoning max_tokens 800: sent 8000 | 1756 | 1170 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  shadow86:fidelity_verdict xai:grok-4.20-0309-reasoning max_tokens 2500: sent 12000 | 9662 | 1131 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  shadow86:visual_check xai_vision:grok-4.7 max_tokens 1500: sent 8000 | 25491 | 3637 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  speaker_verdict xai:grok-4.20-0309-reasoning max_tokens 900: sent 8000 | 5229 | 2641 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  viewer_takeaway anthropic:claude-opus-5-5 max_tokens 3000: sent 16000 | 946 | 1097 | input <= 65536 bytes; the limit stands: never reached on record; whether thinking counts inside it is not established offline
+  viewer_takeaway xai:grok-4.20-0309-reasoning max_tokens 3000: sent 12000 | 6488 | 907 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  visual_check xai_vision:grok-4.7 max_tokens 600: sent 8000 | 218 | 2694 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+  visual_check xai_vision:grok-4.7 max_tokens 1500: sent 8000 | 28400 | 3934 | input <= 65536 bytes; no output bound enforceable: xAI bills reasoning outside the limit (sec. 1)
+3. ONE PACKAGE (3 segments): today's reservations $0.8651; full list $2.3340; at each call's largest recorded usage, full list $5.6418
+    vision: the clips after the hook: 2 x $0.1801 (today); x $1.0687 (recorded max at list)
+    step A's appeals on the line-up's clips: 2 x $0.1024 (today); x $0.8523 (recorded max at list)
+    the closing line's value verdict: 1 x $0.1024 (today); x $0.8523 (recorded max at list)
+    the line-up's coherence verdict: 1 x $0.1024 (today); x $0.8523 (recorded max at list)
+    the second ear (L-v 2) on every span: 3 x $0.0050 (today); x $0.0050 (recorded max at list)
+    the lock pre-check's Scribe per span (outside the router): 3 x $0.0101 (today); x $0.0101 (recorded max at list)
+    the render's sign-off check (outside the router): 1 x $0.0500 (today); x $0.0500 (recorded max at list)
+5. THE EXACT CONSTRAINT: one package holds 6 xAI calls (input $0.4408 at list) + $0.0953 of others; it fits a HARD $1.50 (at $0 carried in) only if each xAI call's output + reasoning were capped at 6425 tokens ($25/M): no such cap is in the code or the recordings
+4. THE WORST SINGLE OVERSHOOT (one call in flight; input at its bound, output at the largest recorded, full list)
+  xai_vision:grok-4.7: at most 1.09868 at list, its reservation 0.216233, overshoot 0.882447
+  xai:grok-4.20-0309-reasoning: at most 0.85228 at list, its reservation 0.071347, overshoot 0.780933
+  openai:gpt-6.1-sol: at most 1.38888 at list, its reservation 0.706163, overshoot 0.682717
+  google:gemini-2.5-pro: at most 0.14844 at list, its reservation 0.108847, overshoot 0.039593
+  anthropic:claude-fable-5-2: at most 0.584128 at list, its reservation 0.85662, overshoot 0.0
+  anthropic:claude-opus-5-5: at most 0.296504 at list, its reservation 0.42831, overshoot 0.0
+  xai:grok-3-mini (the render's sign-off): at most None at list, its reservation 0.05, overshoot None (no list price in the code for grok-3-mini: its one bill $0.004013 (completion 143 + reasoning 1,279 tokens) is 12 x under its $0.05)

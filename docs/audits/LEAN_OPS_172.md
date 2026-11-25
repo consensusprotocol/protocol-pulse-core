@@ -1,4 +1,323 @@
+# Build 172: BLOCKERS 1-3 (Nov 25)
+
+Prepared for the owner's order of 08:38 ET Nov 25. **Nothing was run live.** No launcher, driver, render, service
+start or stop, GPU job, or model call happened. Every check below is offline, and no vendor was asked. **End to end: NOT
+DEMONSTRATED.**
+
+The code is at `pp-lean f71e01c85` and `lean-release 7f4317bb0`, both pushed. On pp-lean that is 36078c31a, then the
+service wait d19eb2846, the run lock bacfc1d22 and restore's whole-argument matcher f71e01c85; `pipeline/spend_ceiling.py` is the same
+file on both branches. The evidence files are in `docs/audits/lean/ops172/` (`*_B123.txt`, `ASSETS.json`).
+
+## THE ONE COMMAND
+
+```
+cd /home/ultron/worktrees/pp-lean && python3 -B tests/package/lean/lean_ops.py run --build-no 172 --deadline-s 6000
+```
+
+- **What it does, in order:** ledger-init, start the two experimental services, wait for each service's own first
+  heartbeat (at most 180 s, else refused), preflight, build, render, delivery, restore.
+- **Detached:** it returns at once and prints its pid and `LOG: /home/ultron/pp_lean_run/logs/run_<UTC>.log`. It runs in
+  its own session with stdin from `/dev/null` and no terminal. Every stage also gets stdin from `/dev/null`.
+- **To stop it early:** `kill -TERM <pid>`. It stops the running stage first, then restores.
+- **`--dry-run`:** prints every check and every command, executes nothing and creates nothing
+  (`DRYRUN_run_B123.txt`). On the pushed heads 18 checks pass. The 5 that fail all need a live `start`: the release
+  copy, the initialized ledger, each of the two services (session and its own heartbeat), and production's BEFORE
+  snapshot.
+- **The deadline:** 6000 s is this one build's exception. The code's default stays 2700 s, the product's target. The
+  build's share is 1929 s; the render gets what is left, which is at least the slowest measured render (3951 s); the
+  delivery gets 120 s.
+- **Start it before 19:24 ET.** The whole run must end inside the spend day (21:10 ET), or its preflight refuses.
+
+## THE ACTUAL MAXIMUM FINANCIAL EXPOSURE: $2.38, not $1.50
+
+**$2.38 = $1.50 − carried-in spend at launch ($0.00 now) + $0.88 for one call.**
+
+- **$1.50 − carried-in is hard.** Every reservation by the builder, the lock service and the render is checked
+  against it, together with production's live spend (re-read at every reservation). Nothing past it is sent to a
+  vendor. Carried-in now: $0.00, because production has spent nothing since 21:10 ET Nov 24.
+- **+ $0.8824: one call billing above its reservation.** Only one paid call is in flight at a time, and the first bill
+  above its reservation stops every paid call, so at most one call can overshoot. The worst case is an xAI vision
+  call:
+  - input at the enforced bound: 65,536 bytes + 2 images = 77,736 tokens at $5/M;
+  - output at the largest ever recorded for that model: 28,400 tokens at $25/M;
+  - that is $1.0987 at list, minus its $0.2162 reservation.
+- **Assumptions:**
+  1. No xAI call uses more output + reasoning tokens than the most ever recorded for its model: vision 28,400,
+     Grok 4.20 20,944, the sign-off's grok-3-mini 1,422. **Nothing enforces this.** xAI bills reasoning outside the
+     output limit (B2). Beyond it, each extra 1,000 tokens of that one call adds $0.025 at list.
+  2. Prices are the code's list prices (`pipeline/model_providers.json`). The 919 recorded Grok bills came to 9-15 % of
+     list on their own token counts. Scribe is counted at the code's $0.012 a minute of audio, because ElevenLabs
+     reports no cost; its bills are not read back.
+  3. The voice is outside the dollars: at most 1,000 characters, inside the plan's included characters. The preflight's
+     2,000-character floor stays.
+  4. Ingestion is separate and not in this figure. Restore prints it. Its last 24 h, to 09:28 ET: $0.2985 in 648
+     calls, all Heimdall (in-house).
+  5. Production is frozen. A production charge that lands during one of our calls is not covered (B1).
+- **Without one call in flight** (as of yesterday), build 171 had up to 5 paid calls in flight at once. The same
+  residual would then be 5 × $0.88 = $4.41.
+
+## B1: the ledger first; production's spend at every reservation
+
+**What changed**
+- `pipeline/spend_ceiling.py` (both branches):
+  - `init_day` (:262) creates the spend day's ledger and seeds it with the carried-in spend.
+  - `before_reserve` (:448) runs at every reservation of every program, under the ledger's lock. It refuses when the
+    ledger is missing or not initialized (:453), so a service that starts first charges nothing.
+  - `production_parts` / `refresh_production` (:308, :367): production's three day ledgers are re-read, read only, at
+    every reservation: the production builder's router ledger (its in-flight reservations included), the
+    integrator's outside ledger, and the audits. Each carried-in figure only rises.
+  - `production_running` (:430): a production build or render not started by our launcher STOPS the ledger. That
+    means `proof_ledger.py`, `build_and_record.sh`, `pulse_check_run.sh`, `run_fresh.py` or `daily_producer.py` run
+    as a script, with no `lean_ops.py` among its ancestors. The same check is a launch precondition (`lean_ops.py:574`).
+- `pipeline/providers.py:1066`: the router's ceiling mode calls the same `before_reserve`.
+- `tests/package/lean/lean_ops.py`:
+  - `start` runs the ledger-init first (`ledger_init` :672, called :720);
+  - each service checks the ledger again just before it starts (`ledger_ready` :692, called :749);
+  - the preflight refuses any test-only override in the environment (:571), and the services' tmux command unsets
+    them (:196).
+- `tests/package/lean/ceiling_seed.py:117`: the seed calls `init_day`, using spend_ceiling's own reading of
+  production.
+
+**Ingestion (B1 c).** Restore prints one separate line, never added to the $1.50:
+`INGESTION (separate, NEVER in the $1.50): $… in … calls between … ET, from
+/home/ultron/worktrees/pp-ingest/data/editorial/ingest/queue.sqlite (table calls); by back-end …; outside vendors …`
+(`ingest_line` :863). It reads a copy of the database and its write-ahead log, so sqlite never opens the live files.
+The test shows the live folder gains no file.
+
+**What stays uncovered.** Production is frozen and was not modified, so it never reserves in our ledger. A production
+charge that lands between one of our reservations and its settle is seen only at our next reservation. How large
+that can be:
+- **Production's builder:** reserves in its own ledger before each call. We re-read that ledger, so its in-flight
+  calls already count.
+- **Production's lock service:** charges only for requests the production builder writes. All 84 are answered; the
+  last at 13:10:47 ET Nov 24.
+- **A production build or render:** must start first, and our next reservation then stops on it.
+
+So the uncovered amount is whatever a production program bills after starting during one of our calls, before that
+call settles. The longest recorded paid call was 222 s (vision). That amount is bounded only by production's own caps.
+Nothing schedules production: 89 crontab lines, none naming a build or render, and no user timers.
+
+**Offline evidence**
+- `python3 -B -m pytest -q tests/package/test_ceiling.py`: 29 passed. The new tests:
+  - no paid call before init;
+  - production's spend growing after init refuses the next call;
+  - the outside ledger and a production reservation count;
+  - an unreadable or unknown production ledger refuses;
+  - a production render appearing stops every program, but one started under the launcher does not;
+  - what counts as running a build.
+- `python3 -B -m pytest -q tests/package/test_lean_ops.py`: 31 passed. The new tests:
+  - start initializes before the first service;
+  - a service is refused without an initialized ledger;
+  - the preflight refuses a production run;
+  - the ingestion line.
+- lean-release, `python3 -B -m pytest -q pipeline/test_lean_ceiling.py`: 8 passed. Before init, each of the four
+  charge sites is refused before its request.
+
+**Cannot be verified offline**
+- production's real timing;
+- the live ledger under real load.
+
+## B2: an enforceable maximum: what a vendor can bill
+
+**From the code and the recorded replies**, xAI does not cap reasoning with the output limit:
+- **Grok 4.20** (`max_tokens`, sent at most 12,000 since ruling 121, Nov 16): two replies on Nov 23 used 12,949 and
+  14,411 output + reasoning tokens. They billed $0.0337 and $0.0373.
+- **xAI vision, grok-4.7** (`max_output_tokens`, sent 8,000): 31 of 53 replies passed it, up to 28,400 tokens
+  (×3.55), billed $0.1752.
+- **The render's sign-off, grok-3-mini** (`max_tokens` 500): completion 143 + reasoning 1,279 = 1,422 tokens. Its
+  outside-ledger line, Nov 24 03:43 UTC, shows prompt 474 and total 1,896.
+
+No other parameter in the code caps xAI's reasoning. `reasoning_effort` goes only to OpenAI, and Heimdall takes its own `reasoning` effort; no xAI call sends either. So **no xAI call has
+an enforceable per-call maximum.** For the other paid calls:
+- **Scribe** has one: the audio seconds are known before sending.
+- **The voice** has one, in characters.
+- **Gemini, GPT and Claude** never reached their limits on record. Whether their thinking counts inside those limits is
+  not established offline.
+
+**What changed**
+- `pipeline/providers.py:114-131` and `:1601`, ceiling mode only: a paid call whose prompt + system exceeds 65,536
+  bytes is not sent. The bound is 1.76 × the largest recorded prompt (37,231 bytes); a token is at least one byte.
+  The same applies to more than 2 images, or an image over 2,000,000 bytes. A call refused this way has no answer,
+  which is never a pass.
+- `spend_ceiling.py:205` and `providers.py:1070-1076`: **one paid call in flight** across the three programs.
+  - A second call waits outside the lock for the first to settle, at most 600 s.
+  - The router re-checks the deadline after the wait (`providers.py:1092`, `:1609`).
+  - The voice, which holds characters and no dollars, never waits.
+- **The output limits are unchanged.**
+  - For xAI, a lower limit would bound only the visible answer, not the reasoning, so it creates no maximum, and it
+    could cut a verdict. A cut reply fails strict parsing (`providers.call_parsed`): no verdict, never a pass or a
+    fail.
+  - The other models never reached their limits.
+
+**The table** (`tests/package/lean/exposure_172.py`, output in `EXPOSURE_B123.txt`; outputs include reasoning)
+
+| Call | Back-end | Limit sent | Largest recorded output | Largest input (tokens) | Bound now |
+|---|---|---|---|---|---|
+| step A, the line-up verdicts | Grok 4.20 | 12,000 | 15,913 (Nov 13, before the cap); 14,411 since | 8,413 | input ≤ 65,536 bytes; output: none enforceable |
+| fidelity | Grok 4.20 | 12,000 | 14,220 | 1,387 | the same |
+| coherence: hook, joins, clips-alone | Grok 4.20 | 8,000-12,000 | 7,353 | 1,567 | the same |
+| speaker / exclusion / takeaway | Grok 4.20 | 8,000-12,000 | 5,229 / 1,331 / 6,488 | 2,641 | the same |
+| vision (contact sheet) | xAI grok-4.7 | 8,000 | 28,400 | 3,934 | input ≤ 65,536 bytes + 2 images; output: none enforceable |
+| the render's sign-off | xAI grok-3-mini | 500 | 1,422 | 474 | output: none enforceable |
+| step A 3rd leg, clips-alone 2nd leg | Gemini 2.5 Pro | 8,000 | 6,627 | 6,398 | input bound; the limit stands |
+| Plan B only | GPT-6.1 / Claude Opus 5.5 | 4,000 / 16,000 | 3,357 / 1,678 | 2,591 / 4,424 | input bound; the limits stand |
+| the second ear, the lock check | Scribe | audio seconds | n/a | n/a | exact, known before sending |
+| the voice | ElevenLabs TTS | characters | n/a | n/a | ≤ 1,000 characters a build |
+
+**One package**: 3 segments, `package.completion_reserve`, heimdall_first, under the ceiling.
+
+| Reservations | One package needs | Fits in $1.50? |
+|---|---|---|
+| today's (calibrated) | $0.8651 | yes; the search room is $1.50 − carried-in − $0.8651 = $0.6349 at $0 carried in |
+| full list, no calibrated fraction | $2.3340 | no |
+| each call's input bound and largest recorded output, full list | $5.6418 | no |
+
+**The exact constraint.** One package needs 6 xAI calls: 2 vision, 2 step-A appeals, the value verdict and the
+coherence verdict. The hook and join verdicts are Grok's alone (rulings 115 and 117) and come before it. Under a hard
+$1.50 at list price, one package fits only if each xAI call's output + reasoning were capped at 6,425 tokens. No such
+cap is in the code or the recordings.
+
+**The owner's choice.** Both numbers:
+- **HARD: guaranteed $1.50 − carried-in, and no video.** Every call is reserved at a true maximum. Only Scribe and the
+  voice have one, so every xAI call is refused. Then there is no hook rating (Grok alone, ruling 115), no join verdict
+  (ruling 117), no package, and nothing to render. There is no search to make smaller.
+- **CALIBRATED: $2.38 − carried-in, under assumption 1.** This is THE ONE COMMAND's mode.
+  - Reservations stay as ruled: Grok at 25 % of list, vision at 60 %, the sign-off at $0.05.
+  - One call in flight; the first overshoot stops everything.
+  - On record no bill passed these reservations: none of the 895 Grok bills (ruling 123's check), and vision's
+    largest was $0.1752 against $0.178.
+- **The time cost of one call in flight:** at least +226 s, measured on build 171's 48 paid calls (970 s of calls
+  over 744 s of wall time, at most 5 at once). Build 171 took about 1237 s. The build's share in 6000 s is 1929 s.
+
+**Offline evidence**
+- `test_ceiling.py::TestOnePaidCallInFlight` and `::TestTheInputBound`.
+- `exposure_172.py` prints every figure above from the code and the recordings.
+
+**Cannot be verified offline**
+- the vendors' own limits;
+- whether Gemini's, GPT's or Claude's thinking counts inside their limits;
+- any bill above the largest recorded.
+
+## B3: assets, no delivery past the deadline, automatic restore
+
+**(a) Reference assets**
+- **What the inventory is.** `docs/audits/lean/ops172/ASSETS.json` lists every untracked file the renderer and its QA
+  gates read at run time: 58 required and 2 optional. It was made by `tests/package/lean/assets_inventory.py`
+  (09:21 ET), from the render's run-time reads traced through `pulse_check_run.sh` → `run_fresh.py --pinned`, each
+  with its reader as file:line.
+- **What is in it:**
+  - the outro masters and their conformed copies (sha256 pinned by `run_fresh.APPROVED_OUTRO`);
+  - the brand mark and 34 music tracks;
+  - the v2f voice manifest (if missing, the voice stage HOLDs);
+  - 3 channel avatars;
+  - the face models (`det_10g.onnx`, sha256 pinned by `face_scrfd`; blaze_face);
+  - whisper large-v3 and medium, resemblyzer, the haar cascade, and two fonts;
+  - optional: `data/signoff_history.json` and `data/yt_cookies.txt` (stat only, never opened).
+- **Where they are.**
+  - Inside `/home/ultron/protocol_pulse`, under `brand/`, `video_pipeline_v3/`, `references/`, `segment_v1/` and
+    `data/`. None is under `pipeline/`, `scripts/` or `.git`, the three folders the namespace takes from git alone.
+  - Outside the tree, under `~/.insightface`, `~/.cache/huggingface`, `~/.local/lib/python3.10/site-packages` and
+    `/usr/share/fonts`.
+  - Not files, and checked elsewhere: the pin, post-live sources, Ollama's gemma3:27b, and the ledger.
+- **How the renderer gets them.** Its namespace mounts the pushed copy at `/home/ultron/protocol_pulse`. Every other
+  top-level folder is an overlay whose lower layer is the live folder, read only, so untracked files resolve. Files
+  outside the tree are the host's.
+- **The preflight.** `launch` (and `run`) checks every file by path and size, and the pinned ones by sha256, and
+  refuses if any is missing or different (`assets_check`, `lean_ops.py:523`). Right now: 58 present, all pinned hashes
+  equal.
+- **Proved inside the namespace.** `python3 -B tests/package/lean/ns_check.py --run-dir <scratch> --sha 7f4317bb0
+  stat` builds the render's own namespace (`lean_ops.ns_script`) from the pushed release head in a scratch folder, with
+  no network (`unshare --net`) and the key file masked by `/dev/null`. Result: **60 files, 0 missing or of another
+  size**; the key file reads as size 0 (`NS_STAT_B123.txt`).
+- **The 13 release test files** that failed in a fresh worktree, run inside that namespace (`NS_13_B123.txt`):
+  - **4 now pass**, because their reference data resolves: `test_check_medley_reference` (16 passed),
+    `test_check_reference_manifest` (7), `test_fresh` (27, 1 skipped) and `test_pulse_20261110_mustfail` (33, 1 skipped).
+  - **9 still fail. None of them is a file the render reads.**
+    - **The GPU, which the test session hides by design** (the render itself takes GPU0 under its lease):
+      - `test_g20_signoff`, `test_g3b_majority`: whisper medium;
+      - `test_word_diff`, 4 of its 5: whisper large-v3;
+      - `test_safe_frame_colour`: nvenc;
+      - `test_edge_words`: `run_isolated.prerender_clips` encodes with `h264_nvenc` (`run_isolated.py:348`); its source
+        (`references/pulse_preview_2026-11-11`) is present.
+    - **The local Ollama, unreachable because this check has no network:** `test_preflight` (`/api/ps` on
+      127.0.0.1:11434). The render's own preflight reaches it on the host's network.
+    - **Media that no longer exists on this machine** (those runs' `sources/` folders are gone from the live tree):
+      `test_word_diff`'s 5th test (`runs/pinned_20261111_172202_replay_cut1329/sources/36HPi9UZPOc.mp4`) and
+      `test_ruling73` (`runs/pinned_20261113_221758/sources/DcUbBkyeh9M.mp4`). These are old runs' sources, not build
+      172's.
+    - **The same failure with or without any reference data,** in a fresh worktree too: `test_dec10_edges`
+      (`KeyError: 'cut_lo'`) and `test_replay` (a temporary `edl.json` its own setup never writes).
+  - Two files were first stopped by SIGTERM from this session's own test runs (restore's old substring scan, now
+    fixed: see (c)). They were run again and fail as listed.
+
+**(b) No delivery past the deadline.** The check sits immediately before the delivery (`lean_ops.py:975`), on the
+launch's one clock. With less than 30 s left, nothing is sent, because the one measured delivery took 18 s. The line
+then reads DEADLINE_STOPPED at "delivery". Fake-clock tests:
+- a render that ends at 2730 s of 2700: no delivery;
+- 20 s left: no delivery;
+- 40 s left: delivered, and handed exactly 40 s.
+
+**(c) Automatic restore**
+- `run` (:1105) restores in its `finally` on every exit path. SIGTERM, SIGINT and SIGHUP become a stop that first
+  ends the running stage's whole session (`_exec` :434, `kill_session` :375). Nothing interrupts the restore.
+- A detached guard (`guard` :1055, started by `spawn_guard` :1035 in its own session) watches the launcher by pid and
+  start time:
+  - if the launcher disappears without its restore marker (SIGKILL), the guard stops the stages it left
+    (`STAGES.json`) and restores;
+  - if the launcher is still running 300 s past the deadline, the guard sends SIGTERM, then SIGKILL a minute later.
+- Restore prints PRODUCTION AS BEFORE or what differs, then the ledger, then the ingestion line.
+- Between `start` and the launch, `run` waits for each service's own first heartbeat (`services_ready` :654), at most
+  180 s, and refuses (then restores) if one does not come. Until now the launch's check accepted any fresh
+  heartbeat file for both services; it now reads each service's own file.
+- **One run at a time** (`run_lock` :1087). `run` first takes an exclusive lock on `RUN/RUN.lock`, held for its life.
+  The command typed twice therefore refuses the second copy at once, with nothing started and nothing restored;
+  its restore would otherwise stop the live run's services. The guard restores a killed launcher only if it can
+  take that lock.
+- **Restore stops only our processes, matched on whole arguments** (`ours_argv` :250, `leftovers`
+  :265). Until today it sent SIGTERM to any process whose command line merely contained `lean-ns` or
+  `scripts/lean/serve.py`. During today's test runs that stopped two of my own offline namespace checks (their
+  wrapper was named `lean-ns-check`); in a live restore it could have stopped any shell that mentioned those names.
+  It now matches our wrapper (`lean-ns` as a whole argument) and our services (`scripts/lean/serve.py` as the
+  interpreter's script) only, and every test replaces the scan: a test never signals a real process
+  (`OnlyOurProcesses`).
+- **Tests** (`test_lean_ops.py::TheExitPaths`): each path is run as its own process, with a real `sleep` as the build
+  stage in a session of its own:
+  - SIGTERM, SIGINT and SIGHUP: exit 128+signal, the stage killed, restored, PRODUCTION AS BEFORE;
+  - SIGKILL: the guard restores and the stage is killed;
+  - refusal and error: restored;
+  - success and deadline: restored once.
+  - a second run while one is live: refused, nothing started, nothing restored (`OneRunAtATime`).
+  - `TheDetach`: the child is its own session leader, its stdin is `/dev/null`, it has no tty, and the printed LOG
+    path exists.
+
+**Cannot be verified offline**
+- a real render in the namespace;
+- how the real render ends under `timeout`;
+- the guard against a real hung launcher.
+
+## Must-fail credit, and the suites
+
+- **Mutations: 22, all killed.** Each mutation is made in a scratch copy after its unmodified control passed
+  (`MUTATIONS_B123.txt`):
+  - B1: init skipped (3 ways); production read once; a production run not stopping; every process taken for ours;
+    the preflight ignoring a production run;
+  - B2: two calls in flight (2 ways); the input bound off;
+  - B3: sizes not compared; the delivery check removed; no restore in finally; a signal leaving the stage; the guard
+    not restoring; restore leaving a killed launcher's stage; not detached; a run crossing the spend day; the launch
+    not waiting for the services; one service's heartbeat standing in for the other's; a second run without the
+    run lock; restore's leftover scan matching substrings again.
+  - One control failed on the first pass. The previous mutation's test had left an orphaned stand-in render running,
+    which correctly read as production. The test now ends whole process groups, and the two mutations on that test
+    were rerun: control passed, both killed.
+- **pp-lean:** 53 files, 0 failing, 1186 passed, each judged by its exit code with the network blocked (`SUITES_pp-lean_B123.txt`).
+- **lean-release:** 89 files, 1256 passed, 13 failing: the same 13 files as at the unmodified release head
+  (`RELEASE_BASELINE.txt`).
+
+---
+
 # Build 172: the three operational requirements (R1 ceiling, R2 routing, R3 deadline)
+
+*(Nov 24's report, kept as written. Its file:line references are at pp-lean db38b58e7 / lean-release cf2035dad; Nov 25's changes above move some of them.)*
 
 Prepared for the owner's order of 15:25 ET Nov 24. **Nothing was run live**: no launcher, no driver on live data, no
 render, no service started or stopped, no model call. The scripts below are in git. Nothing starts on its own.
@@ -228,7 +547,7 @@ The builder gets these:
 - **Not routed:** the local judge, the last-resort leg of step A's second family. pp-lean's requests to it go
   unanswered and are HELD, never a pass. Routing it would need a third instance holding gemma3:27b on GPU0.
 - **Book Terminal:** worktree `/home/ultron/worktrees/book-terminal`, branch `book-terminal` (head `6c76cafe2` at 16:25 ET; it commits on its own), tmux
-  session `book_terminal_r2` (one Claude Code pane, no service). No command names any of them; the namespace keeps
+  session `book_terminal_r2` on Nov 24 (`book_terminal_r3` on Nov 25: since then `lean_ops.book()` discovers the names at every use, never hard-coded; one Claude Code pane, no service). No command names any of them; the namespace keeps
   `/home/ultron/worktrees` read-only. The golds_ sessions are never named either.
 - **Production before and after:** `start` writes `PRODUCTION_BEFORE.json`, and `restore` compares it with
   `PRODUCTION_AFTER_<time>.json`. The comparison covers:
