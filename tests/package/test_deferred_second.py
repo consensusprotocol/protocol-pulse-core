@@ -515,6 +515,7 @@ class TheBound(unittest.TestCase):
         import proof_ledger as PL
         self.assertIsNone(PL.sealed_stops_search({"package": None}))
         sp = PL.sealed_stops_search({"package": {"segments": []}})
+        self.assertIsNotNone(sp, "a sealed medley must stop the search")
         self.assertIsNone(sp["package"])
         self.assertTrue(sp["why_none"].startswith("F: the medley sealed"))
         r, seq = lean_rig(n=3)
