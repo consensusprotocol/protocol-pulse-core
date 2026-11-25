@@ -357,6 +357,30 @@ class TheServicesComeUpFirst(Base):
         self.assertTrue(any("RESTORE (live)" in x for x in said))
 
 
+class OneRunAtATime(Base):
+    def test_a_second_run_while_one_is_live_is_refused_and_restores_nothing(self):
+        """MUST-FAIL: the one command typed twice: the second copy finds RUN.lock held by the live run and refuses at
+        once: no ledger-init, no start, and NO restore (a restore would stop the live run's services)."""
+        holder = subprocess.Popen([sys.executable, "-c", textwrap.dedent(f'''
+            import fcntl, os, sys, time
+            os.makedirs({self.p["run"]!r}, exist_ok=True)
+            f = open(os.path.join({self.p["run"]!r}, "RUN.lock"), "a+")
+            fcntl.flock(f, fcntl.LOCK_EX); print("HELD", flush=True); time.sleep(30)''')],
+            stdout=subprocess.PIPE, text=True, start_new_session=True)
+        self.addCleanup(lambda: (holder.kill(), holder.wait()))
+        self.assertEqual(holder.stdout.readline().strip(), "HELD")
+        said = []
+        with mock.patch.object(LO, "restore") as rs, mock.patch.object(LO, "start") as st, \
+                mock.patch.object(LO, "spawn_guard") as sg:
+            o = LO.Ops(False, out=said.append, p=self.p)
+            self.assertEqual(LO.run(o, 172, 6000), 2)
+        self.assertEqual((rs.call_count, st.call_count, sg.call_count), (0, 0, 0))
+        self.assertTrue(any("another run holds" in x for x in said))
+        holder.kill()
+        holder.wait()
+        self.assertIsNotNone(LO.run_lock(self.p))                         # free once that run has ended
+
+
 class ThePreflight(Base):
     def lines(self, **kw):
         o = LO.Ops(True, out=self.said.append, p=self.p)

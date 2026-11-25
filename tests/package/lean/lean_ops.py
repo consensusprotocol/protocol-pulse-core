@@ -1037,11 +1037,16 @@ def guard(o, pid, start, deadline_at=None, poll=GUARD_POLL_S):
             if os.path.exists(marker):
                 o.say(f"GUARD: launcher {pid} ended and restored itself: nothing to do")
                 return 0
+            held = run_lock(o.p)                        # a newer run already live restores its own: never ours to stop
+            if held is None:
+                o.say(f"GUARD: launcher {pid} is gone, but another run holds RUN.lock: it restores; nothing done here")
+                return 0
             o.say(f"GUARD: launcher {pid} is gone WITHOUT restoring (killed): RESTORE")
             try:
                 return restore(o)
             finally:
                 _mark(marker, "restored by the guard")
+                held.close()
         now = time.time()
         if deadline_at and now > float(deadline_at) + GUARD_SLACK_S:
             sig = signal.SIGTERM if termed is None else signal.SIGKILL if now > termed + 60 else None
@@ -1055,14 +1060,41 @@ def guard(o, pid, start, deadline_at=None, poll=GUARD_POLL_S):
         time.sleep(poll)
 
 
+def run_lock(p):
+    """ONE run at a time: an exclusive lock on RUN/RUN.lock, held for the launcher's life (the kernel drops it when the
+    process ends, SIGKILL included). -> the open file holding it, or None when another run holds it."""
+    import fcntl
+    os.makedirs(p["run"], exist_ok=True)
+    f = open(os.path.join(p["run"], "RUN.lock"), "a+")
+    try:
+        fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        f.close()
+        return None
+    f.seek(0)
+    f.truncate()
+    f.write(f"{os.getpid()}\n")
+    f.flush()
+    return f
+
+
 def run(o, build_no=172, deadline_s=DEADLINE_S, log=None):
     """THE ONE COMMAND's body: ledger-init and start, then the launch (preflight, build, render, delivery), then
     RESTORE on every exit path: success, refusal, deadline, an error, SIGTERM, SIGINT, SIGHUP (B3 (c)); a detached
-    guard covers SIGKILL. The one deadline counts from this command's start. -> the exit code."""
+    guard covers SIGKILL. The one deadline counts from this command's start. A second run while one is live is refused
+    BEFORE anything else, and restores nothing (its restore would stop the live run's services). -> the exit code."""
     t0 = o.clock()
     sh_ = shares(t0, deadline_s)
     o.say(f"RUN build {build_no} ({'DRY RUN: nothing is executed' if o.dry else 'live'}): pid {os.getpid()}; log "
           f"{log or '(this terminal)'}; ORDER: ledger-init, start, preflight, build, render, delivery, restore")
+    held = None
+    if not o.dry:
+        held = run_lock(o.p)
+        if held is None:
+            o.say(f"REFUSED: another run holds {os.path.join(o.p['run'], 'RUN.lock')}: nothing started, nothing "
+                  f"restored (that run restores its own)")
+            return 2
+    o.run_lock = held
     prev, rc, why = {}, 1, "an error"
 
     def on_signal(signum, frame):
@@ -1101,6 +1133,8 @@ def run(o, build_no=172, deadline_s=DEADLINE_S, log=None):
         finally:
             if not o.dry:
                 _mark(restored_marker(o.p, os.getpid()), why)
+            if held is not None:                         # after the restore and its marker: the next run may start
+                held.close()
 
 
 def detach(argv, p, entry=None):
