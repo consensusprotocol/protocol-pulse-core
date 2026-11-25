@@ -230,26 +230,32 @@ class TheSeal(unittest.TestCase):
         return PK.seal_second_refusal(self.router, self.segs, self.a_first, self.a_two if a_two is None else a_two,
                                       soft_two, soft)
 
+    def refused(self, needle, a_two, msg=None):
+        """The seal refuses, and names the segment: a None (it sealed) is the failure, never a TypeError."""
+        why = self.refusal(a_two)
+        self.assertIsNotNone(why, f"the seal must refuse {needle}" + (f" ({msg})" if msg else ""))
+        self.assertIn(needle, why, msg)
+
     def test_every_segment_with_its_pass_seals(self):
         self.assertIsNone(self.refusal())
 
     def test_a_pending_segment_cannot_seal(self):
         a2 = dict(self.a_two)
         del a2["y"]
-        self.assertIn("clip_02 y", self.refusal(a2))
+        self.refused("clip_02 y", a2)
 
     def test_a_failing_segment_cannot_seal(self):
         a2 = dict(self.a_two, x=[self.first, dict(TM.Rig.A_OK, backend="google:gemini", view="attributed")])
-        self.assertIn("clip_01 x", self.refusal(a2))
+        self.refused("clip_01 x", a2)
 
     def test_an_unanswered_segment_cannot_seal(self):
         a2 = dict(self.a_two, x=[self.first])                       # its first only: the second gave no answer
-        self.assertIn("clip_01 x", self.refusal(a2))
+        self.refused("clip_01 x", a2)
 
     def test_a_verdict_from_the_first_s_vendor_or_the_local_judge_cannot_seal(self):
         for b in ("xai:grok", "local_judge:gemma3:27b"):
             a2 = dict(self.a_two, h=[self.first, dict(TM.Rig.A_OK, backend=b)])
-            self.assertIn("hook h", self.refusal(a2), b)            # the opener first
+            self.refused("hook h", a2, b)                            # the opener first
 
     def test_the_never_empty_pass_accepts_only_its_own_soft_codes(self):
         a2 = dict(self.a_two)
@@ -447,7 +453,10 @@ class TheCeiling(unittest.TestCase):
         with self.assertRaises(SC.CeilingRefused):
             SC.reserve("xai:grok", 2.00)                                # the $1.50 default
         os.environ[SC.CAP_ENV] = "3.00"
-        key = SC.reserve("xai:grok", 2.00)                              # the one-build $3.00
+        try:
+            key = SC.reserve("xai:grok", 2.00)                          # the one-build $3.00
+        except SC.CeilingRefused as e:
+            self.fail(f"the one-build $3.00 was not honoured: {e}")
         SC.settle(key, "xai:grok", 0.0)
         with self.assertRaises(SC.CeilingRefused):
             SC.reserve("xai:grok", 3.01)
@@ -481,8 +490,8 @@ class TheCeiling(unittest.TestCase):
         self.assertIsNone(LO.ceiling_from_args(argparse.Namespace(what="run", ceiling_usd=3.0)))
         self.assertEqual(os.environ[SC.CAP_ENV], "3.00")
         for n in ("lockcheck", "scorer", "render"):
-            self.assertEqual(LO.env_instance(p, n, "b")[SC.CAP_ENV], "3.00", n)
-        self.assertEqual(LO.env_builder(p, "b")[SC.CAP_ENV], "3.00")
+            self.assertEqual(LO.env_instance(p, n, "b").get(SC.CAP_ENV), "3.00", n)
+        self.assertEqual(LO.env_builder(p, "b").get(SC.CAP_ENV), "3.00")
         script = LO.service_script(p, "lockcheck", LO.env_instance(p, "lockcheck", "b"), [])
         line = next(x for x in script.split("\n") if x.startswith("env "))
         self.assertLess(line.index(f"--unset={SC.CAP_ENV}"), line.index(f"{SC.CAP_ENV}=3.00"))
@@ -491,10 +500,11 @@ class TheCeiling(unittest.TestCase):
     def test_the_launcher_refuses_a_wrong_or_inherited_value(self):
         import lean_ops as LO
         ns = lambda what, v=None: argparse.Namespace(what=what, ceiling_usd=v)
-        self.assertIn("outside", LO.ceiling_from_args(ns("run", 6.0)))
+        refused = lambda *a: LO.ceiling_from_args(ns(*a)) or "NOT REFUSED"
+        self.assertIn("outside", refused("run", 6.0))
         os.environ[SC.CAP_ENV] = "2.00"
-        self.assertIn("only from --ceiling-usd", LO.ceiling_from_args(ns("run")))
-        self.assertIn("is not --ceiling-usd", LO.ceiling_from_args(ns("launch", 3.0)))
+        self.assertIn("only from --ceiling-usd", refused("run"))
+        self.assertIn("is not --ceiling-usd", refused("launch", 3.0))
         self.assertIsNone(LO.ceiling_from_args(ns("guard")))           # no paid call: the guard runs
         os.environ[SC.CAP_ENV] = "3.00"
         self.assertIsNone(LO.ceiling_from_args(ns("run", 3.0)))        # run's detached child: the same value
