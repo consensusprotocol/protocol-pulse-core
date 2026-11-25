@@ -2,7 +2,8 @@
    Every rule is scoped under .bt, so nothing here reaches the rest of the site; base.html and
    the global stylesheets are not touched. Mobile first: the base rules are the 390 px layout,
    min-width queries scale up. Text colours are measured >= 4.5:1 on the surfaces they sit on;
-   interactive targets are >= 44 px; motion stops under prefers-reduced-motion. */
+   interactive targets are >= 44 px; no text is clipped with an ellipsis; transitions are
+   <= 400 ms and stop under prefers-reduced-motion. */
 
 @font-face {
   font-family: 'Fraunces';
@@ -62,13 +63,15 @@
   position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
+/* Copy that only the 640 px and wider layouts show (the intro paragraph, the featured description...). */
+.bt-wide-only { display: none; }
 .bt-ico { width: 18px; height: 18px; flex: none; fill: currentColor; }
 .bt-search .bt-ico, .bt-tab .bt-ico, .bt-toggle-btn .bt-ico { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 /* static/css/pp-style.css:1486 makes .fab a 56 px floating button; Font Awesome brand icons use .fab too. */
 .bt i.fab { width: auto; height: auto; display: inline-block; box-shadow: none; transition: none; }
 
 /* ── Tabs: Library | Book Market ── */
-.bt-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; background: var(--bt-surface); border: 1px solid var(--bt-line); border-radius: 12px; margin: 4px 0 18px; }
+.bt-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 3px; background: var(--bt-surface); border: 1px solid var(--bt-line); border-radius: 12px; margin: 0 0 12px; }
 .bt-tab { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; border-radius: 9px; font-size: 14px; font-weight: 600; color: var(--bt-text-2); transition: background .2s, color .2s; }
 .bt-tab:hover { color: var(--bt-text); background: var(--bt-surface-2); }
 .bt-tab.is-active { color: #fff; background: #2a0f0f; box-shadow: inset 0 0 0 1px rgba(224, 36, 36, .55); }
@@ -82,66 +85,90 @@
 .bt-link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: 13px; font-weight: 600; color: var(--bt-text); text-decoration: underline; text-decoration-color: rgba(255, 90, 82, .7); text-underline-offset: 3px; }
 .bt-link:hover { color: #fff; text-decoration-color: var(--bt-red-text); }
 .bt-link .bt-ico { width: 14px; height: 14px; color: var(--bt-red-text); }
+/* "Find a copy →": the words carry the underline, the arrow does not (a flex item would get its own). */
+.bt-link-buy { text-decoration: none; }
+.bt-link-buy .bt-u { text-decoration: underline; text-decoration-color: rgba(255, 90, 82, .7); text-underline-offset: 3px; }
+.bt-link-buy:hover .bt-u { text-decoration-color: var(--bt-red-text); }
+.bt-arrow { color: var(--bt-red-text); }
 
 /* ── Hero (compact on mobile: the first viewport must reach the books) ── */
-.bt-top { display: grid; gap: 16px; }
+.bt-top { display: grid; gap: 10px; }
 /* static/css/pp-coindesk.css:11 gives every <header> a black background and a bottom border. */
 .bt-hero { background: none; border: 0; box-shadow: none; padding: 0; }
 .bt-kicker { font-family: var(--bt-mono); font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--bt-red-text); margin-bottom: 8px; }
-.bt-h1 { font-family: var(--bt-serif); font-weight: 600; font-size: clamp(30px, 8.2vw, 64px); line-height: 1.02; letter-spacing: -.015em; color: var(--bt-text); }
-.bt-tagline { font-family: var(--bt-serif); font-style: italic; font-weight: 500; font-size: clamp(20px, 5.4vw, 34px); line-height: 1.15; color: var(--bt-red-text); margin-top: 4px; }
+.bt-h1 { font-family: var(--bt-serif); font-weight: 600; font-size: 28px; line-height: 1.04; letter-spacing: -.015em; color: var(--bt-text); }
+.bt-tagline { font-family: var(--bt-serif); font-style: italic; font-weight: 500; font-size: clamp(20px, 5.4vw, 34px); line-height: 1.15; color: var(--bt-red-text); margin-top: 2px; }
 .bt-dek { margin-top: 10px; font-size: 15px; line-height: 1.5; color: var(--bt-text-2); max-width: 46ch; }
-.bt-facts { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 12px; font-family: var(--bt-mono); font-size: 12px; color: var(--bt-text-3); }
+/* One meta line: "18 books · 4 original series · 5 reading pathways". */
+.bt-facts { display: flex; flex-wrap: wrap; gap: 2px 8px; margin-top: 6px; font-family: var(--bt-mono); font-size: 11.5px; color: var(--bt-text-3); }
+.bt-facts li + li::before { content: '·'; margin-right: 8px; color: var(--bt-text-3); }
 .bt-facts strong { color: var(--bt-text); font-weight: 600; }
 
-/* ── Featured original series ── */
-.bt-feature { position: relative; display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 14px; padding: 14px; background: linear-gradient(140deg, #1d0d0c 0%, var(--bt-surface) 58%); border: 1px solid #3a1c1a; border-radius: var(--bt-radius); overflow: hidden; }
+/* ── Featured original series (compact on mobile: small cover, title, author, one primary action) ── */
+.bt-feature { position: relative; display: grid; grid-template-columns: 56px minmax(0, 1fr); grid-template-areas: 'cover body' 'actions actions'; gap: 8px 12px; align-items: center; padding: 12px; background: linear-gradient(140deg, #1d0d0c 0%, var(--bt-surface) 58%); border: 1px solid #3a1c1a; border-radius: var(--bt-radius); overflow: hidden; }
 .bt-feature::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 3px; background: var(--bt-red); }
-.bt-feature-cover img { display: block; width: 104px; height: auto; border-radius: 4px; box-shadow: 0 12px 28px rgba(0, 0, 0, .55); }
-.bt-feature-body { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.bt-feature-cover { grid-area: cover; }
+.bt-feature-cover img { display: block; width: 56px; height: auto; border-radius: 3px; box-shadow: 0 8px 20px rgba(0, 0, 0, .55); }
+.bt-feature-body { grid-area: body; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .bt-eyebrow { font-family: var(--bt-mono); font-size: 10.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--bt-red-text); }
-.bt-feature-title { font-family: var(--bt-serif); font-weight: 600; font-size: 22px; line-height: 1.1; color: var(--bt-text); }
+.bt-feature-title { font-family: var(--bt-serif); font-weight: 600; font-size: 20px; line-height: 1.1; color: var(--bt-text); }
 .bt-feature .bt-author { margin: 0; }
-.bt-feature-desc { font-size: 13px; line-height: 1.45; color: var(--bt-text-2); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.bt-feature-actions { display: grid; gap: 8px; margin-top: 8px; }
-.bt-feature-actions .bt-btn { width: 100%; padding: 10px 12px; font-size: 13.5px; }
+.bt-feature-desc { font-size: 15px; line-height: 1.5; color: var(--bt-text-2); }
+.bt-feature-actions { grid-area: actions; display: flex; flex-wrap: wrap; align-items: center; gap: 0 16px; }
+.bt-feature-actions .bt-btn { padding: 8px 14px; font-size: 13.5px; }
 .bt-feature-actions .bt-ico { width: 14px; height: 14px; }
+.bt-feature-actions .bt-link { font-size: 13.5px; }
 
-/* ── Search, chips, view toggle (sticky under the site nav) ── */
-.bt-tools { position: sticky; top: var(--bt-top); z-index: 20; display: grid; gap: 10px; margin: 20px -16px 8px; padding: 10px 16px; background: rgba(11, 11, 11, .94); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--bt-line); }
-.bt-search { position: relative; display: flex; align-items: center; }
+/* ── Search, chips, view toggle. Mobile: one row with the search box and the layout toggle, one
+   row of scrolling chips, not sticky (it would cover a third of the screen). 640 px up: sticky. ── */
+.bt-tools { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'search view' 'chips chips'; gap: 8px; margin: 12px 0 0; }
+.bt-search { grid-area: search; position: relative; display: flex; align-items: center; }
 .bt-search .bt-ico { position: absolute; left: 14px; color: var(--bt-text-3); pointer-events: none; }
-.bt-search input { width: 100%; min-height: 46px; padding: 10px 14px 10px 42px; border-radius: 10px; border: 1px solid var(--bt-line-2); background: var(--bt-surface); color: var(--bt-text); font-size: 15px; -webkit-appearance: none; appearance: none; }
+.bt-search input { width: 100%; min-height: 46px; padding: 10px 14px 10px 42px; border-radius: 10px; border: 1px solid var(--bt-line-2); background: var(--bt-surface); color: var(--bt-text); font-size: 16px; -webkit-appearance: none; appearance: none; }
 .bt-search input::placeholder { color: var(--bt-text-3); opacity: 1; }
 .bt-search input:focus { outline: none; border-color: #8a8a8a; box-shadow: 0 0 0 3px rgba(255, 255, 255, .12); }
 .bt-search input:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
 .bt-search input::-webkit-search-cancel-button { -webkit-appearance: none; }
-.bt-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 2px 16px; scroll-padding: 0 16px; }
+.bt-chips { grid-area: chips; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; scroll-padding: 0 16px; }
 .bt-chips::-webkit-scrollbar { display: none; }
 .bt-chip { flex: none; min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--bt-line-2); background: var(--bt-surface); color: var(--bt-text-2); font-size: 13.5px; font-weight: 600; cursor: pointer; transition: background .2s, border-color .2s, color .2s; }
 .bt-chip:hover { color: var(--bt-text); border-color: #5c5c5c; }
 .bt-chip[aria-pressed="true"] { background: var(--bt-red-btn); border-color: var(--bt-red-btn); color: #fff; }
-.bt-viewbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.bt-viewbar { display: contents; }
 .bt-count { font-family: var(--bt-mono); font-size: 12px; color: var(--bt-text-3); }
-.bt-toggle { display: inline-flex; padding: 3px; gap: 3px; background: var(--bt-surface); border: 1px solid var(--bt-line); border-radius: 10px; }
-.bt-toggle-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; min-width: 44px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: var(--bt-text-2); font-size: 13px; font-weight: 600; cursor: pointer; }
+.bt-toggle { grid-area: view; display: inline-flex; align-self: center; padding: 1px; gap: 2px; background: var(--bt-surface); border: 1px solid var(--bt-line); border-radius: 10px; }
+.bt-toggle-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: var(--bt-text-2); font-size: 13px; font-weight: 600; cursor: pointer; }
 .bt-toggle-btn[aria-pressed="true"] { background: var(--bt-surface-2); color: #fff; box-shadow: inset 0 0 0 1px var(--bt-line-2); }
 .bt-toggle-btn .bt-ico { width: 16px; height: 16px; }
+.bt-disclosure { margin-top: 8px; font-size: 11.5px; line-height: 1.4; color: var(--bt-text-3); }
 .bt-empty { margin: 24px 0; padding: 20px; text-align: center; color: var(--bt-text-2); border: 1px dashed var(--bt-line-2); border-radius: var(--bt-radius); }
 .bt-reset { color: var(--bt-text); text-decoration: underline; text-underline-offset: 3px; display: inline-block; min-height: 44px; line-height: 44px; }
 .bt-reset:hover { color: #fff; }
+@media (max-width: 639px) {
+  /* The count stays a live region for screen readers; the shelves show the result on screen. */
+  .bt-count, .bt-toggle-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  .bt-toggle-btn { padding: 0; }
+}
 
 /* ── Sections ── */
-.bt-section { margin-top: 28px; }
-.bt-section-head { position: relative; padding-left: 14px; margin-bottom: 14px; }
+.bt-section { margin-top: 24px; }
+.bt-section-head { position: relative; padding-left: 14px; margin-bottom: 12px; }
 .bt-section-head::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 3px; border-radius: 2px; background: var(--bt-red); }
+.bt-library .bt-section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.bt-section-title { min-width: 0; }
 .bt-h2 { font-family: var(--bt-serif); font-weight: 600; font-size: 24px; line-height: 1.15; color: var(--bt-text); }
 .bt-section-dek { margin-top: 4px; font-size: 13.5px; color: var(--bt-text-3); }
-.bt-series { margin-left: -16px; margin-right: -16px; padding: 18px 16px 6px; background: linear-gradient(180deg, rgba(224, 36, 36, .07), rgba(224, 36, 36, 0) 70%); border-top: 1px solid #3a1c1a; }
+.bt-series { margin-left: -16px; margin-right: -16px; padding: 12px 16px 6px; margin-top: 12px; background: linear-gradient(180deg, rgba(224, 36, 36, .07), rgba(224, 36, 36, 0) 70%); border-top: 1px solid #3a1c1a; }
+/* "View all": on a phone the series shelf previews one row; books.js marks the rest .is-extra. */
+.bt-viewall { flex: none; display: inline-flex; align-items: center; min-height: 44px; margin: -8px 0; padding: 0 2px; border: 0; background: none; color: var(--bt-text); font-size: 13.5px; font-weight: 600; text-decoration: underline; text-decoration-color: rgba(255, 90, 82, .7); text-underline-offset: 3px; cursor: pointer; }
+.bt-viewall:hover { color: #fff; text-decoration-color: var(--bt-red-text); }
+@media (max-width: 639px) {
+  .bt-book.is-extra { display: none; }
+}
 
 /* ── Shelf: two covers across at 390 px, standing on a common baseline ── */
 .bt-shelf { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.bt-card { height: 100%; display: flex; flex-direction: column; background: var(--bt-surface); border: 1px solid var(--bt-line); border-radius: var(--bt-radius); overflow: hidden; transition: border-color .2s; }
+.bt-card { position: relative; height: 100%; display: flex; flex-direction: column; background: var(--bt-surface); border: 1px solid var(--bt-line); border-radius: var(--bt-radius); overflow: hidden; transition: border-color .2s; }
 .bt-card:hover, .bt-card:focus-within { border-color: #4a4a4a; }
 .bt-cover { position: relative; display: flex; align-items: flex-end; justify-content: center; height: 196px; padding: 14px 12px 12px; background: radial-gradient(120% 90% at 50% 100%, #222 0%, #151515 60%); border-bottom: 1px solid var(--bt-line); }
 .bt-cover img { display: block; max-height: 100%; max-width: 100%; width: auto; height: auto; border-radius: 3px; box-shadow: 0 10px 22px rgba(0, 0, 0, .55), 0 1px 0 rgba(255, 255, 255, .06); }
@@ -152,15 +179,25 @@
 .bt-head { display: flex; flex-direction: column; gap: 4px; }
 .bt-title { font-family: var(--bt-serif); font-weight: 600; font-size: 16px; line-height: 1.2; color: var(--bt-text); }
 .bt-author { font-size: 13px; color: var(--bt-text-2); }
-.bt-desc { margin-top: 4px; font-size: 13px; line-height: 1.45; color: var(--bt-text-3); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+/* Descriptions are never clipped. Narrow grid cards show them behind "More" (books.js). */
+.bt-desc { margin-top: 4px; font-size: 13px; line-height: 1.45; color: var(--bt-text-3); }
+.bt-more-btn { display: none; align-self: flex-start; align-items: center; min-height: 44px; padding: 0; border: 0; background: none; color: var(--bt-text-2); font-size: 12.5px; font-weight: 600; text-decoration: underline; text-decoration-color: rgba(255, 90, 82, .7); text-underline-offset: 3px; cursor: pointer; }
+.bt-more-btn:hover { color: #fff; }
+@media (max-width: 639px) {
+  .bt-cover { height: 180px; padding: 10px; }
+  .bt.has-js:not(.is-list) .bt-card:not(.is-open) .bt-desc { display: none; }
+  .bt.has-js:not(.is-list) .bt-more-btn { display: inline-flex; }
+}
 .bt-meta { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
 .bt-tag { font-family: var(--bt-mono); font-size: 10.5px; letter-spacing: .02em; padding: 2px 7px; border-radius: 4px; border: 1px solid var(--bt-line-2); color: var(--bt-text-2); }
 .bt-tag-format { border-color: rgba(248, 193, 92, .45); color: var(--bt-gold); }
 .bt-meta .bt-tag:not(.bt-tag-format) { display: none; }
 .bt-meta:not(:has(.bt-tag-format)) { display: none; }
+/* One main action per card: "Watch the series" where the book has one, else the Amazon button. */
 .bt-actions { display: flex; flex-direction: column; align-items: stretch; margin-top: auto; padding-top: 10px; }
-.bt-btn-buy { width: 100%; padding: 8px 10px; font-size: 13px; background: transparent; border-color: var(--bt-line-2); color: var(--bt-text); }
-.bt-btn-buy:hover { border-color: var(--bt-red-text); background: rgba(224, 36, 36, .1); color: #fff; }
+.bt-btn-main { width: 100%; padding: 8px 10px; font-size: 13px; background: transparent; border-color: var(--bt-line-2); color: var(--bt-text); }
+.bt-btn-main:hover { border-color: var(--bt-red-text); background: rgba(224, 36, 36, .1); color: #fff; }
+.bt-btn-main .bt-ico { width: 13px; height: 13px; color: var(--bt-red-text); }
 .bt-actions .bt-link { justify-content: center; text-align: center; font-size: 12.5px; }
 
 /* ── List view: dense rows, same elements ── */
@@ -171,31 +208,35 @@
 .bt.is-list .bt-cover img { width: 48px; box-shadow: 0 4px 10px rgba(0, 0, 0, .5); }
 .bt.is-list .bt-cover.is-missing .bt-cover-fallback { width: 48px; height: 70px; font-size: 9px; padding: 4px; }
 .bt.is-list .bt-card-body { padding: 0; gap: 2px; }
-.bt.is-list .bt-desc { -webkit-line-clamp: 2; }
 .bt.is-list .bt-actions { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding-top: 6px; }
-.bt.is-list .bt-btn-buy { width: auto; }
+.bt.is-list .bt-btn-main { width: auto; }
 .bt.is-list .bt-series { background: none; border-top: 0; padding-top: 0; }
 
-/* ── Reading pathways ── */
-.bt-path-grid { display: grid; gap: 12px; }
-.bt-path { background: var(--bt-surface); border: 1px solid var(--bt-line); border-radius: var(--bt-radius); padding: 14px; }
+/* ── Reading pathways: compact cards. Each card lists its books in order; the notes on why a
+   book sits where it does open with "Why this order". Phones scroll the cards sideways. ── */
+.bt-path-grid { position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: min(300px, 84%); gap: 12px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; margin: 0 -16px; padding: 2px 16px 10px; scroll-padding: 0 16px; }
+.bt-path { scroll-snap-align: start; display: flex; flex-direction: column; background: var(--bt-surface); border: 1px solid var(--bt-line); border-radius: var(--bt-radius); padding: 14px; }
 .bt-path-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
 .bt-path-title { font-family: var(--bt-serif); font-weight: 600; font-size: 19px; line-height: 1.2; color: var(--bt-text); }
 .bt-path-count { flex: none; font-family: var(--bt-mono); font-size: 11px; color: var(--bt-gold); }
 .bt-path-summary { margin-top: 4px; font-size: 13px; color: var(--bt-text-3); }
-.bt-steps { margin-top: 10px; display: grid; gap: 2px; counter-reset: none; }
-.bt-step { position: relative; display: grid; grid-template-columns: 22px 34px minmax(0, 1fr); gap: 10px; align-items: start; padding: 8px 0; border-top: 1px solid var(--bt-line); }
+.bt-steps { margin-top: 8px; display: grid; gap: 0; }
+.bt-step { position: relative; display: grid; grid-template-columns: 18px 28px minmax(0, 1fr); gap: 9px; align-items: start; padding: 6px 0; border-top: 1px solid var(--bt-line); }
 .bt-step:first-child { border-top: 0; }
-.bt-step-n { font-family: var(--bt-serif); font-weight: 600; font-size: 18px; line-height: 1.3; color: var(--bt-red-text); text-align: center; }
-.bt-step-cover { display: block; width: 34px; height: auto; border-radius: 2px; box-shadow: 0 3px 8px rgba(0, 0, 0, .5); }
+.bt-step-n { font-family: var(--bt-serif); font-weight: 600; font-size: 16px; line-height: 1.3; color: var(--bt-red-text); text-align: center; }
+.bt-step-cover { display: block; width: 28px; height: auto; border-radius: 2px; box-shadow: 0 3px 8px rgba(0, 0, 0, .5); }
 .bt-step-body { min-width: 0; display: flex; flex-direction: column; }
-.bt-step-title { align-self: flex-start; display: inline-flex; align-items: center; min-height: 28px; font-weight: 600; font-size: 14px; color: var(--bt-text); text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; }
+.bt-step-title { align-self: flex-start; display: inline-flex; align-items: center; min-height: 22px; font-weight: 600; font-size: 13.5px; line-height: 1.25; color: var(--bt-text); text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; }
 .bt-step-title:hover { color: #fff; text-decoration-color: var(--bt-red-text); }
 /* The whole step row (>= 44 px tall) is the tap target for its title link. */
 .bt-step-title::after { content: ''; position: absolute; inset: 0; }
 .bt-step:hover .bt-step-title { text-decoration-color: var(--bt-red-text); }
 .bt-step-author { font-size: 12px; color: var(--bt-text-2); }
 .bt-step-note { margin-top: 2px; font-size: 12.5px; line-height: 1.45; color: var(--bt-text-3); }
+.bt.has-js .bt-path:not(.is-open) .bt-step-note { display: none; }
+.bt-path-why { display: none; align-self: flex-start; align-items: center; min-height: 44px; margin-top: auto; padding: 0; border: 0; background: none; color: var(--bt-text-2); font-size: 12.5px; font-weight: 600; text-decoration: underline; text-decoration-color: rgba(255, 90, 82, .7); text-underline-offset: 3px; cursor: pointer; }
+.bt-path-why:hover { color: #fff; }
+.bt.has-js .bt-path-why { display: inline-flex; }
 .bt-book { scroll-margin-top: calc(var(--bt-top) + var(--bt-tools-h, 0px) + 12px); }
 .bt-book:target .bt-card { border-color: var(--bt-red-text); box-shadow: 0 0 0 1px var(--bt-red-text); }
 .bt-footnote { margin-top: 28px; font-size: 12px; color: var(--bt-text-3); max-width: 70ch; }
@@ -203,19 +244,32 @@
 /* ── 640 px and up ── */
 @media (min-width: 640px) {
   .bt-wrap { padding: 0 24px; }
-  .bt-tools { margin-left: -24px; margin-right: -24px; padding-left: 24px; padding-right: 24px; }
-  .bt-chips { margin: 0; padding: 2px 0; flex-wrap: wrap; overflow: visible; }
-  .bt-series { margin-left: -24px; margin-right: -24px; padding-left: 24px; padding-right: 24px; }
-  .bt-tabs { display: inline-grid; grid-template-columns: auto auto; }
+  .bt-wide-only { display: revert; }
+  .bt-h1 { font-size: clamp(30px, 8.2vw, 64px); line-height: 1.02; }
+  .bt-tagline { margin-top: 4px; }
+  .bt-facts { gap: 4px 10px; margin-top: 12px; font-size: 12px; }
+  .bt-facts li + li::before { margin-right: 10px; }
+  .bt-tabs { display: inline-grid; grid-template-columns: auto auto; gap: 6px; padding: 4px; margin: 4px 0 18px; }
   .bt-tab { padding: 0 18px; }
+  .bt-tools { position: sticky; top: var(--bt-top); z-index: 20; grid-template-columns: minmax(0, 1fr); grid-template-areas: 'search' 'chips' 'view'; gap: 10px; margin: 20px -24px 0; padding: 10px 24px; background: rgba(11, 11, 11, .94); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--bt-line); }
+  .bt-search input { font-size: 15px; }
+  .bt-chips { margin: 0; padding: 2px 0; flex-wrap: wrap; overflow: visible; }
+  .bt-viewbar { grid-area: view; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .bt-toggle { padding: 3px; gap: 3px; }
+  .bt-viewall { display: none; }
+  .bt-series { margin-left: -24px; margin-right: -24px; padding: 18px 24px 6px; }
+  .bt-section { margin-top: 28px; }
+  .bt-section-head { margin-bottom: 14px; }
   .bt-shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
   .bt-meta, .bt-meta:not(:has(.bt-tag-format)) { display: flex; }
   .bt-meta .bt-tag:not(.bt-tag-format) { display: inline-block; }
-  .bt-feature { grid-template-columns: 140px minmax(0, 1fr); gap: 20px; padding: 20px; }
-  .bt-feature-cover img { width: 140px; }
-  .bt-feature-actions { display: flex; flex-wrap: wrap; }
-  .bt-feature-actions .bt-btn { width: auto; }
-  .bt-path-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bt-feature { grid-template-columns: 140px minmax(0, 1fr); grid-template-rows: auto 1fr; grid-template-areas: 'cover body' 'cover actions'; gap: 8px 20px; padding: 20px; align-items: start; }
+  .bt-feature-cover img { width: 140px; border-radius: 4px; box-shadow: 0 12px 28px rgba(0, 0, 0, .55); }
+  .bt-feature-body { gap: 4px; }
+  .bt-feature-title { font-size: 22px; }
+  .bt-feature-desc { font-size: 13.5px; line-height: 1.45; }
+  .bt-feature-actions { gap: 8px 16px; }
+  .bt-path-grid { grid-auto-flow: row; grid-auto-columns: auto; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; margin: 0; padding: 0; }
   .bt.is-list .bt-card { grid-template-columns: 52px minmax(0, 1fr); align-items: start; }
   .bt.is-list .bt-card-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); grid-template-areas: 'head desc' 'head meta' 'head actions'; column-gap: 20px; row-gap: 4px; align-items: start; }
   .bt.is-list .bt-head { grid-area: head; display: flex; flex-direction: column; gap: 2px; }
@@ -229,22 +283,22 @@
   .bt { font-size: 16px; padding-top: 20px; }
   .bt-wrap { padding: 0 40px; }
   .bt-tools { margin-left: -40px; margin-right: -40px; padding-left: 40px; padding-right: 40px; grid-template-columns: minmax(280px, 420px) minmax(0, 1fr); grid-template-areas: 'search view' 'chips chips'; align-items: center; column-gap: 24px; row-gap: 10px; }
-  .bt-search { grid-area: search; }
-  .bt-chips { grid-area: chips; }
-  .bt-viewbar { grid-area: view; justify-content: flex-end; }
-  .bt-viewbar { gap: 16px; }
+  .bt-viewbar { justify-content: flex-end; gap: 16px; }
   .bt-series { margin-left: -40px; margin-right: -40px; padding-left: 40px; padding-right: 40px; }
   .bt-top { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 48px; align-items: center; padding: 18px 0 8px; }
   .bt-hero { padding-left: 22px; border-left: 3px solid var(--bt-red); }
   .bt-dek { font-size: 17px; }
   .bt-facts { font-size: 13px; }
-  .bt-feature { grid-template-columns: 168px minmax(0, 1fr); gap: 26px; padding: 26px; }
+  .bt-feature { grid-template-columns: 168px minmax(0, 1fr); column-gap: 26px; padding: 26px; }
   .bt-feature-cover img { width: 168px; }
   .bt-feature-title { font-size: 30px; }
-  .bt-feature-desc { font-size: 15px; -webkit-line-clamp: 4; }
+  .bt-feature-desc { font-size: 15px; }
+  .bt-feature-actions .bt-btn { padding: 10px 16px; font-size: 14px; }
+  .bt-feature-actions .bt-link { font-size: 14px; }
   .bt-section { margin-top: 40px; }
   .bt-h2 { font-size: 30px; }
   .bt-section-dek { font-size: 14.5px; }
+  .bt-disclosure { font-size: 12.5px; }
   .bt-shelf { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
   .bt:not(.is-list) .bt-card { display: grid; grid-template-columns: 128px minmax(0, 1fr); }
   .bt:not(.is-list) .bt-cover { height: auto; min-height: 220px; align-items: center; border-bottom: 0; border-right: 1px solid var(--bt-line); padding: 16px 14px; }
@@ -252,9 +306,9 @@
   .bt-card-body { padding: 16px 18px; }
   .bt-title { font-size: 19px; }
   .bt-author { font-size: 13.5px; }
-  .bt-desc { font-size: 13.5px; -webkit-line-clamp: 3; }
+  .bt-desc { font-size: 13.5px; }
   .bt-actions { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px 16px; }
-  .bt-btn-buy { width: auto; padding: 8px 16px; }
+  .bt-btn-main { width: auto; padding: 8px 16px; }
   .bt-path-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
   .bt-path { padding: 18px; }
   .bt.is-list .bt-card { grid-template-columns: 56px minmax(0, 1fr); padding: 14px 18px; }

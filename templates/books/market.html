@@ -1,12 +1,11 @@
 {% extends "base.html" %}
 {# /books/market: Book Market, PRIVATE ILLUSTRATIVE PROTOTYPE. Every rank, change, state and
    trend comes from data/books/market_illustrative.json (synthetic, core/book_market.py).
-   The banner below stays on screen. noindex: meta here + X-Robots-Tag from the blueprint. #}
+   The banner below stays on screen. noindex: the X-Robots-Tag header from core/routes_books.py
+   (no robots meta here: base.html's index,follow meta cannot be replaced from a page). #}
 {% block title %}Book Market (illustrative prototype) | Protocol Pulse{% endblock %}
 {% block meta_description %}Illustrative prototype of the Book Terminal market view. Not live data.{% endblock %}
 {% block head %}
-<meta name="robots" content="noindex">
-<meta name="googlebot" content="noindex">
 <link rel="preload" href="{{ url_for('static', filename='fonts/fraunces/fraunces-roman.woff2') }}" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/books.css') }}?v={{ asset_version }}">
 {% endblock %}

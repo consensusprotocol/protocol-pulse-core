@@ -1,7 +1,10 @@
 """Book Terminal pages: /books (The Sovereign Library) and /books/market (Book Market).
 
-Both are prototypes on the book-terminal branch: every response from this blueprint sends
-X-Robots-Tag: noindex, and both templates carry <meta name="robots" content="noindex">.
+Both are prototypes on the book-terminal branch. Their one noindex mechanism is the
+X-Robots-Tag: noindex header every response from this blueprint sends; the templates add no
+robots meta of their own (templates/base.html hard-codes <meta name="robots" content="index,
+follow, ..."> and a page cannot replace it: docs/books/INTEGRATION_NOTES.md has the base.html
+change). noindex is not access control: anyone who can reach the server can open these pages.
 
 /books renders data/books/registry.json only: titles, authors, descriptions, covers,
 purchase and free links. No rank numbers and no sales wording. Search (?q=) and category
@@ -22,7 +25,7 @@ import book_market
 import books_registry
 
 books_bp = Blueprint('books', __name__)
-ASSET_VERSION = '20261124r2'
+ASSET_VERSION = '20261125r3'
 
 
 def _tag():

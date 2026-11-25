@@ -158,9 +158,7 @@ def test_library_view_comes_from_the_registry():
 def test_books_page_renders_every_title_without_rank_numbers(client):
     resp = client.get('/books')
     assert resp.status_code == 200
-    assert resp.headers['X-Robots-Tag'] == 'noindex'
     page = resp.get_data(as_text=True)
-    assert '<meta name="robots" content="noindex">' in page
     for book in books_registry.load_registry():
         assert html.escape(book['title'], quote=False) in page, book['title']
     text = visible_text(page)
@@ -168,12 +166,103 @@ def test_books_page_renders_every_title_without_rank_numbers(client):
     for word in ('bestseller', 'best seller', 'rank', 'bsr'):
         assert word not in text.lower(), word
     assert len(shown_books(page)) == 18
-    assert text.count('Kindle on Amazon') == 1 and text.count('Buy on Amazon') == 18  # featured card + 17 cards
+    # Series books (4 cards + the featured card): "Watch the series", then "Find a copy". Others: the Amazon button.
+    assert text.count('Watch the series') == 5 and text.count('Find a copy') == 5
+    assert text.count('Kindle on Amazon') == 1 and text.count('Buy on Amazon') == 13
     assert 'Kindle edition' in text
     assert page.count('?tag=protocolpulse-20') == 19
     for url in ('https://hdl.handle.net/1721.1/153030', 'https://21lessons.com/', 'https://github.com/bitcoinbook/bitcoinbook'):
         assert url in page
     assert len(re.findall(r'<article class="bt-path"', page)) == 5
+
+
+def anchors(page):
+    """Every <a> on the page: (attributes dict, inner HTML)."""
+    out = []
+    for attrs, inner in re.findall(r'<a ([^>]*)>(.*?)</a>', page, re.S):
+        out.append((dict(re.findall(r'([a-z-]+)="([^"]*)"', attrs)), inner))
+    return out
+
+
+@pytest.mark.parametrize('path', ['/books', '/books?q=bitcoin&cat=History&view=list', '/books/market'])
+def test_one_noindex_mechanism_the_header(client, path):
+    resp = client.get(path)
+    assert resp.status_code == 200 and resp.headers['X-Robots-Tag'] == 'noindex'
+    page = resp.get_data(as_text=True)
+    # Our templates add no robots meta: base.html's index,follow meta is the only one in production
+    # (docs/books/INTEGRATION_NOTES.md), and the header overrides it for search engines.
+    assert not re.search(r'<meta[^>]+name="(robots|googlebot)"', page)
+
+
+def test_books_tagged_links_are_sponsored_new_tab_and_named(client):
+    page = client.get('/books').get_data(as_text=True)
+    tagged = [(a, inner) for a, inner in anchors(page) if '?tag=' in a.get('href', '')]
+    assert len(tagged) == 19
+    for a, inner in tagged:
+        assert a['href'].startswith('https://www.amazon.com/dp/') and a['href'].endswith('?tag=protocolpulse-20')
+        assert a['rel'] == 'sponsored noopener' and a['target'] == '_blank'
+        assert re.search(r'<span class="bt-sr">[^<]*\S[^<]* \(opens in a new tab\)</span>', inner), inner
+    others = [a for a, _ in anchors(page) if a.get('href', '').startswith('http') and '?tag=' not in a['href']]
+    assert others and all('sponsored' not in a.get('rel', '') for a in others)
+
+
+def test_books_purchase_hierarchy(client):
+    page = client.get('/books').get_data(as_text=True)
+    lib = books_registry.library()
+    for b in lib['series'] + lib['essential']:
+        card = re.search(r'<li class="bt-book" id="book-%s".*?</li>' % b['slug'], page, re.S).group(0)
+        main = [(a, i) for a, i in anchors(card) if 'bt-btn-main' in a['class']]
+        assert len(main) == 1, b['slug']                       # one main action per card
+        if b['series_url']:
+            assert main[0][0]['href'] == b['series_url'] and main[0][1].startswith('<svg')
+            assert 'Watch the series' in main[0][1]
+            [buy] = [a for a, i in anchors(card) if '?tag=' in a['href']]
+            assert 'bt-link-buy' in buy['class']               # Amazon is the secondary text link
+        else:
+            assert main[0][0]['href'] == b['amazon_url'] and b['purchase_label'] in main[0][1]
+    feature = page[page.index('<section class="bt-feature"'):page.index('</section>', page.index('<section class="bt-feature"'))]
+    buttons = [a for a, _ in anchors(feature) if 'bt-btn' in a['class']]
+    assert len(buttons) == 1 and 'bt-btn-primary' in buttons[0]['class'] and buttons[0]['href'] == lib['featured']['series_url']
+    assert re.search(r'class="bt-link bt-link-buy"[^>]*><span class="bt-u">Find a copy</span><span class="bt-sr"> of The Big Print on Amazon', feature)
+    assert '>Featured series<' in feature
+
+
+def test_books_affiliate_disclosure_sits_above_the_shelves(client):
+    page = client.get('/books').get_data(as_text=True)
+    assert page.count(DISCLOSURE) == 1
+    assert page.index('</form>') < page.index(DISCLOSURE) < page.index('id="series"')
+
+
+def test_books_mobile_copy_rules(client):
+    """What the phone layout leaves out is marked .bt-wide-only; everything it keeps is in the markup in full."""
+    page = client.get('/books').get_data(as_text=True)
+    lib = books_registry.library()
+    facts = re.sub(r'<[^>]+>', '', re.search(r'<ul class="bt-facts"[^>]*>(.*?)</ul>', page, re.S).group(1)).split()
+    assert ' '.join(facts) == f"{lib['count']} books {len(lib['series'])} original series {len(lib['pathways'])} reading pathways"
+    for cls in ('bt-kicker', 'bt-dek', 'bt-feature-desc', 'bt-section-dek'):
+        first = re.search(r'<p class="%s( [^"]*)?"' % cls, page)
+        assert first and 'bt-wide-only' in first.group(0), cls        # the intro and the featured description
+    assert '<span class="bt-wide-only">Protocol Pulse </span>Original Series</h2>' in page
+    # Descriptions are never cut: every one is in the page in full, with a More button that controls it.
+    for b in lib['series'] + lib['essential']:
+        desc = re.search(r'<p class="bt-desc" id="d-%s">(.*?)</p>' % b['slug'], page).group(1)
+        assert html.unescape(desc) == b['description']
+        assert f'aria-expanded="false" aria-controls="d-{b["slug"]}"' in page
+    assert '…' not in visible_text(page) and '...' not in visible_text(page)
+    view_all = re.search(r'<button type="button" class="bt-viewall"[^>]*>', page).group(0)
+    assert 'aria-expanded="false"' in view_all and 'aria-controls="btSeriesShelf"' in view_all and ' hidden' in view_all
+    assert 'id="btSeriesShelf"' in page
+
+
+def test_books_sections_order_and_pathway_notes(client):
+    page = client.get('/books').get_data(as_text=True)
+    assert page.index('id="series"') < page.index('id="pathways"') < page.index('id="essential"')
+    whys = re.findall(r'<button type="button" class="bt-path-why" aria-expanded="false" aria-controls="(steps-[a-z-]+)">', page)
+    assert len(whys) == 5 and all(f'<ol class="bt-steps" id="{w}">' in page for w in whys)
+    text = visible_text(page)
+    for p in books_registry.library()['pathways']:
+        for s in p['steps']:
+            assert s['note'] in text   # the notes are in the page, behind the button
 
 
 @pytest.mark.parametrize('query, expected', [
@@ -199,9 +288,7 @@ def test_books_search_and_category_work_without_javascript(client, query, expect
 def test_market_page_is_bannered_noindex_and_illustrative(client):
     resp = client.get('/books/market')
     assert resp.status_code == 200
-    assert resp.headers['X-Robots-Tag'] == 'noindex'
     page = resp.get_data(as_text=True)
-    assert '<meta name="robots" content="noindex">' in page
     assert BANNER in page and 'Not for publication.' in page
     assert page.index(BANNER) < page.index('Book Market Map')  # the banner opens the page
     view = book_market.view(books_registry.load_registry(), book_market.load())
