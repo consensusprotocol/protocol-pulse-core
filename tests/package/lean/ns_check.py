@@ -50,7 +50,7 @@ def in_ns(p, argv):
     masks = "; ".join(f"if [ -e {shlex.quote(LO.LIVE_MAIN + '/' + m)} ]; then mount --bind /dev/null "
                       f"{shlex.quote(LO.LIVE_MAIN + '/' + m)}; fi" for m in MASK)
     return ["unshare", "--user", "--map-root-user", "--mount", "--net", "bash", "-c",
-            f"{head}; {masks}; cd {tail}", "lean-ns-check", *argv]
+            f"{head}; {masks}; cd {tail}", "nscheck", *argv]
 
 
 ENV = {"CUDA_VISIBLE_DEVICES": "", "PYTHONDONTWRITEBYTECODE": "1", "http_proxy": "http://127.0.0.1:9",

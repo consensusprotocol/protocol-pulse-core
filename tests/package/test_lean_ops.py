@@ -52,6 +52,7 @@ class Base(unittest.TestCase):
                                                    "PP_SPEND_PROD_RUNS": "no-production-run-in-tests"}),
                       mock.patch.object(OC, "OUTCOMES", self.outcomes),
                       mock.patch.object(LO, "INGEST_DB", os.path.join(self.d, "no_ingest", "queue.sqlite")),
+                      mock.patch.object(LO, "leftovers", lambda: []),       # a test never signals a real process
                       mock.patch.object(LO, "head_pushed", lambda root, branch: ("a" * 40, "a" * 40)),
                       mock.patch.object(LO, "tree_clean", lambda root, dirs=None: (True, []))):
             patch.start()
@@ -357,6 +358,21 @@ class TheServicesComeUpFirst(Base):
         self.assertTrue(any("RESTORE (live)" in x for x in said))
 
 
+class OnlyOurProcesses(Base):
+    def test_restore_stops_only_whole_argument_matches(self):
+        """restore's leftover scan: our namespace wrapper and our services, matched on WHOLE arguments; never a shell or
+        a grep that merely mentions the markers, another tool's wrapper, or the launcher (2026-11-25: the substring
+        match it had stopped an offline namespace check whose wrapper was named lean-ns-check)."""
+        yes = (["bash", "-c", "set -e; mount ...", "lean-ns", "python3", "scripts/lean/serve.py", "lockcheck"],
+               ["env", "--unset=PP_LEAN_RUN", "A=1", "unshare", "--user", "--mount", "bash", "-c", "x", "lean-ns", "y"],
+               ["python3", "scripts/lean/serve.py", "scorer", "--candidates", "c.json"])
+        no = (["bash", "-c", "set -e; mount ...", "lean-ns-check", "python3", "-m", "pytest"],
+              ["grep", "-rn", "lean-ns", "docs"], ["bash", "-c", "echo lean-ns scripts/lean/serve.py"],
+              ["python3", "-B", "tests/package/lean/lean_ops.py", "restore"], ["less", "scripts/lean/serve.py"])
+        self.assertTrue(all(LO.ours_argv(a) for a in yes))
+        self.assertFalse(any(LO.ours_argv(a) for a in no))
+
+
 class OneRunAtATime(Base):
     def test_a_second_run_while_one_is_live_is_refused_and_restores_nothing(self):
         """MUST-FAIL: the one command typed twice: the second copy finds RUN.lock held by the live run and refuses at
@@ -458,6 +474,7 @@ with mock.patch.object(LO, "preconditions", lambda *a, **k: mode != "refused"), 
         mock.patch.object(LO, "release_copy_cmds", lambda p_, sha: ([], (os.path.join(d, "alt"), "x"))), \
         mock.patch.object(LO, "INGEST_DB", os.path.join(d, "none.sqlite")), \
         mock.patch.object(LO, "services_ready", lambda o_: True), \
+        mock.patch.object(LO, "leftovers", lambda: []), \
         mock.patch("ceiling_seed.main", seed):
     o = LO.Ops(False, run=run, out=out, p=p)
     o.guard_argv = lambda pid, st, dl: [sys.executable, "-B", __file__, d, "guard", str(pid), str(st)]
@@ -566,6 +583,7 @@ class TheExitPaths(Base):
             open(os.path.join(self.d, "said.txt"), "w").close()
             h = self.harness(mode)
             out, _ = h.communicate(timeout=90)
+            self.reap(h)                                  # its guard gone before the next case reuses the folder
             text = self.log_text()
             self.assertEqual(h.returncode, rc, mode + text[-1500:] + out[-500:])
             self.assertIn("RESTORE (live)", text, mode)

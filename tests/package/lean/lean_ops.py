@@ -247,6 +247,36 @@ def book():
     return {"worktrees": sorted(wts), "branches": sorted(branches), "sessions": sorted(sessions)}
 
 
+def ours_argv(argv):
+    """An EXPERIMENTAL process, matched on whole arguments (never a substring of a command line, so a shell or a grep
+    that merely mentions them is not one): our namespace wrapper (bash -c <script> lean-ns ...; env ... unshare ...
+    lean-ns ...) or a service (python3 scripts/lean/serve.py ...). The launcher itself (lean_ops.py) never."""
+    if not argv or any(os.path.basename(a) == "lean_ops.py" for a in argv):
+        return False
+    exe = os.path.basename(argv[0])
+    if exe in ("bash", "sh", "env", "unshare", "lean-ns"):          # the wrapper: "lean-ns" as a whole argument
+        return exe == "lean-ns" or "lean-ns" in argv
+    if exe.startswith("python"):                                   # a service: the script is its first argument
+        rest = [a for a in argv[1:] if not a.startswith("-")]
+        return bool(rest) and rest[0].endswith("scripts/lean/serve.py")
+    return False
+
+
+def leftovers():
+    """restore: the experimental processes still running (ours_argv) -> [(pid, command)]. Tests replace it: a test never
+    signals a real process."""
+    left = []
+    for d in glob.glob("/proc/[0-9]*/cmdline"):
+        try:
+            with open(d, "rb") as f:
+                argv = [a.decode(errors="replace") for a in f.read().split(b"\0") if a]
+        except OSError:
+            continue
+        if ours_argv(argv):
+            left.append((int(d.split("/")[2]), " ".join(argv)[:120]))
+    return left
+
+
 def snapshot():
     """Production's state, read only: its service processes (pid, start, command sha), its tmux sessions and their pane
     pids, its trees (HEAD, tracked changes), the crontab, the key file's stat (never opened), its spend ledgers."""
@@ -254,12 +284,13 @@ def snapshot():
     for d in glob.glob("/proc/[0-9]*"):
         try:
             with open(d + "/cmdline", "rb") as f:
-                cmd = f.read().replace(b"\0", b" ").decode(errors="replace").strip()
+                raw = f.read()
+            cmd = raw.replace(b"\0", b" ").decode(errors="replace").strip()
             with open(d + "/stat") as f:
                 start = f.read().rsplit(")", 1)[1].split()[19]
         except (OSError, IndexError):
             continue
-        if not cmd or any(o in cmd for o in OURS):
+        if not cmd or ours_argv([a.decode(errors="replace") for a in raw.split(b"\0") if a]):
             continue
         for svc, mark in SERVICES.items():
             if mark in cmd:
@@ -748,14 +779,7 @@ def restore(o):
             o.do(["tmux", "kill-session", "-t", f"={s}"], what="stop")
         else:
             o.say(f"  {s}: not running (nothing to stop)")
-    left = []
-    for d in glob.glob("/proc/[0-9]*/cmdline"):
-        try:
-            cmd = open(d, "rb").read().replace(b"\0", b" ").decode(errors="replace")
-        except OSError:
-            continue
-        if any(m in cmd for m in OURS) and "lean_ops.py" not in cmd:
-            left.append((int(d.split("/")[2]), cmd[:120]))
+    left = leftovers()
     for pid, cmd in left:
         o.say(f"  {'WOULD STOP' if o.dry else 'STOP'} leftover experimental process {pid}: {cmd}")
         if not o.dry:
